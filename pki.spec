@@ -943,7 +943,6 @@ fi
 %{_datadir}/pki/examples/java/
 %{_datadir}/pki/lib/*.jar
 %dir %{_javadir}/pki
-%{_javadir}/pki/pki-cmsutil.jar
 %{_javadir}/pki/pki-certsrv.jar
 
 ################################################################################

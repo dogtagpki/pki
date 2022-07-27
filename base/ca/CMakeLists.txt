@@ -7,7 +7,7 @@ add_subdirectory(${APP_SERVER})
 # build pki-ca
 javac(pki-ca-classes
     DEPENDS
-        pki-cmsutil-jar pki-certsrv-jar pki-cms-jar
+        pki-certsrv-jar pki-cms-jar
     SOURCES
         src/main/java/*.java
     CLASSPATH
@@ -26,7 +26,7 @@ javac(pki-ca-classes
         ${TOMCAT_CATALINA_JAR}
         ${TOMCATJSS_JAR}
         ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR}
-        ${PKI_CMSUTIL_JAR} ${PKI_TOMCAT_JAR} ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR}
+        ${PKI_TOMCAT_JAR} ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
 )

@@ -344,7 +344,6 @@ find_file(NMCLF_EN_JAR
         /usr/share/java
 )
 
-add_subdirectory(util)
 add_subdirectory(common)
 add_subdirectory(tools)
 

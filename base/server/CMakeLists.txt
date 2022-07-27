@@ -5,7 +5,7 @@ add_subdirectory(healthcheck)
 # build server classes
 javac(pki-server-classes
     DEPENDS
-        pki-cmsutil-jar pki-certsrv-jar pki-tools-jar pki-tomcat-jar
+        pki-certsrv-jar pki-tools-jar pki-tomcat-jar
     SOURCES
         src/main/java/*.java
     CLASSPATH
@@ -20,7 +20,7 @@ javac(pki-server-classes
         ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR}
         ${TOMCATJSS_JAR}
         ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR}
-        ${PKI_CMSUTIL_JAR} ${PKI_TOMCAT_JAR} ${PKI_CERTSRV_JAR}
+        ${PKI_TOMCAT_JAR} ${PKI_CERTSRV_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
 )
@@ -56,11 +56,11 @@ if(RUN_TESTS)
     # build pki-server-test
     javac(pki-server-test-classes
         DEPENDS
-            pki-util-test-classes pki-cmsutil-jar pki-certsrv-jar pki-cms-jar
+            pki-certsrv-test-classes pki-certsrv-jar pki-cms-jar
         SOURCES
             src/test/java/*.java
         CLASSPATH
-            ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR}
+            ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR}
             ${LDAPJDK_JAR} ${SERVLET_JAR}
             ${JSS_JAR} ${JSS_SYMKEY_JAR}
             ${HAMCREST_JAR} ${JUNIT_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_IO_JAR}
@@ -87,7 +87,7 @@ if(RUN_TESTS)
             pki-server-test-classes
         CLASSPATH
             ${SLF4J_API_JAR} ${SLF4J_SIMPLE_JAR}
-            ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR}
+            ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR}
             ${LDAPJDK_JAR} ${SERVLET_JAR}
             ${COMMONS_CODEC_JAR} ${COMMONS_LANG3_JAR}
             ${JSS_JAR} ${JSS_SYMKEY_JAR}
@@ -142,7 +142,6 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JSS_JAR} common/lib/jss.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JSS_SYMKEY_JAR} common/lib/jss-symkey.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${LDAPJDK_JAR} common/lib/ldapjdk.jar
-    COMMAND ln -sf /usr/share/java/pki/pki-cmsutil.jar ${CMAKE_CURRENT_BINARY_DIR}/common/lib/pki-cmsutil.jar
     COMMAND ln -sf /usr/share/java/pki/pki-tomcat.jar ${CMAKE_CURRENT_BINARY_DIR}/common/lib/pki-tomcat.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_CLIENT_JAR} common/lib/resteasy-client.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_JACKSON2_PROVIDER_JAR} common/lib/resteasy-jackson2-provider.jar

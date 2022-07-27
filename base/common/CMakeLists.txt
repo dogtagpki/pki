@@ -14,11 +14,9 @@ javac(pki-certsrv-classes
         ${JACKSON2_ANNOTATIONS_JAR} ${JACKSON2_JAXB_ANNOTATIONS_JAR} ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
         ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_CLIENT_JAR}
         ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
-        ${PKI_CMSUTIL_JAR} ${JAXB_API_JAR}
+        ${JAXB_API_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
-    DEPENDS
-        pki-cmsutil-jar
 )
 
 configure_file(
@@ -56,10 +54,10 @@ if(RUN_TESTS)
             ${JAXB_API_JAR} ${JAXB_IMPL_JAR}
             ${SLF4J_API_JAR} ${SLF4J_JDK14_JAR}
             ${JSS_JAR}
-            ${COMMONS_CLI_JAR} ${COMMONS_LANG3_JAR}
+            ${COMMONS_CLI_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_LANG3_JAR}
             ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
             ${JACKSON2_ANNOTATIONS_JAR} ${JACKSON2_JAXB_ANNOTATIONS_JAR} ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
-            ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR}
+            ${PKI_CERTSRV_JAR}
             ${HAMCREST_JAR} ${JUNIT_JAR} ${JAXRS_API_JAR}
         OUTPUT_DIR
             ${CMAKE_BINARY_DIR}/test/classes
@@ -87,7 +85,7 @@ if(RUN_TESTS)
             ${COMMONS_CLI_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_LANG3_JAR}
             ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
             ${JACKSON2_ANNOTATIONS_JAR} ${JACKSON2_JAXB_ANNOTATIONS_JAR} ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
-            ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR}
+            ${PKI_CERTSRV_JAR}
             ${HAMCREST_JAR} ${JUNIT_JAR} ${JAXRS_API_JAR}
             ${CMAKE_BINARY_DIR}/test/classes
         TESTS
@@ -131,7 +129,6 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${LDAPJDK_JAR} lib/ldapjdk.jar
     COMMAND ln -sf ${P11_KIT_TRUST} lib/p11-kit-trust.so
     COMMAND ln -sf /usr/share/java/pki/pki-certsrv.jar ${CMAKE_CURRENT_BINARY_DIR}/lib/pki-certsrv.jar
-    COMMAND ln -sf /usr/share/java/pki/pki-cmsutil.jar ${CMAKE_CURRENT_BINARY_DIR}/lib/pki-cmsutil.jar
     COMMAND ln -sf /usr/share/java/pki/pki-tools.jar ${CMAKE_CURRENT_BINARY_DIR}/lib/pki-tools.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_CLIENT_JAR} lib/resteasy-client.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_JACKSON2_PROVIDER_JAR} lib/resteasy-jackson2-provider.jar
