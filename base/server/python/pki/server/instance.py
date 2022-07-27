@@ -334,7 +334,7 @@ class PKIInstance(pki.server.PKIServer):
                 'jss.jar',
                 'jss-symkey.jar',
                 'ldapjdk.jar',
-                'pki-cmsutil.jar',
+                'pki-certsrv.jar',
                 'pki-tomcat.jar',
                 'tomcatjss.jar']:
 

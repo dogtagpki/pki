@@ -72,10 +72,10 @@ jobs:
     displayName: Build PKI with Maven
 
   - script: |
-      jar tvf build/dist/pki-cmsutil.jar | awk '{print $8;}' | grep -v '/$' | sort | tee cmake.out
-      jar tvf base/util/target/pki-util-11.3.0-SNAPSHOT.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort > maven.out
+      jar tvf build/dist/pki-certsrv.jar | awk '{print $8;}' | grep -v '/$' | sort | tee cmake.out
+      jar tvf base/common/target/pki-common-11.3.0-SNAPSHOT.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort > maven.out
       diff cmake.out maven.out
-    displayName: Compare pki-util.jar
+    displayName: Compare pki-certsrv.jar
 
   - script: |
       jar tvf build/dist/pki-tools.jar | awk '{print $8;}' | grep -v '/$' | sort | tee cmake.out

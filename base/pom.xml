@@ -15,7 +15,6 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>util</module>
         <module>common</module>
         <module>tools</module>
         <module>tomcat</module>

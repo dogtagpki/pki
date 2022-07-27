@@ -7,11 +7,11 @@ javac(pki-examples-classes
         ${JAXB_API_JAR}
         ${JACKSON2_ANNOTATIONS_JAR}
         ${JSS_JAR}
-        ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR}
+        ${PKI_CERTSRV_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
     DEPENDS
-        pki-cmsutil-jar pki-certsrv-jar
+        pki-certsrv-jar
 )
 
 install(
