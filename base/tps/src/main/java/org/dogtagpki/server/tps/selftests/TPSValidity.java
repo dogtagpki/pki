@@ -31,7 +31,7 @@ import com.netscape.certsrv.selftests.EDuplicateSelfTestException;
 import com.netscape.certsrv.selftests.EInvalidSelfTestException;
 import com.netscape.certsrv.selftests.EMissingSelfTestException;
 import com.netscape.certsrv.selftests.ESelfTestException;
-import com.netscape.cms.selftests.ASelfTest;
+import com.netscape.cms.selftests.SelfTest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
@@ -43,7 +43,7 @@ import com.netscape.cmscore.selftests.SelfTestSubsystem;
  * @author alee
  * @version $Revision$, $Date$
  */
-public class TPSValidity extends ASelfTest {
+public class TPSValidity extends SelfTest {
 
     // parameter information
     public static final String PROP_TPS_SUB_ID = "TpsSubId";

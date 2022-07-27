@@ -35,7 +35,7 @@ import com.netscape.certsrv.selftests.EDuplicateSelfTestException;
 import com.netscape.certsrv.selftests.EInvalidSelfTestException;
 import com.netscape.certsrv.selftests.EMissingSelfTestException;
 import com.netscape.certsrv.selftests.ESelfTestException;
-import com.netscape.cms.selftests.ASelfTest;
+import com.netscape.cms.selftests.SelfTest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
@@ -54,7 +54,7 @@ import com.netscape.kra.KeyRecoveryAuthority;
  * @version $Revision$, $Date$
  */
 public class KRAPresence
-        extends ASelfTest {
+        extends SelfTest {
     ////////////////////////
     // default parameters //
     ////////////////////////

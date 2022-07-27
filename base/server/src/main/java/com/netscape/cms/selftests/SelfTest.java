@@ -48,7 +48,7 @@ import com.netscape.cmscore.selftests.SelfTestSubsystem;
  * @author thomask
  * @version $Revision$, $Date$
  */
-public abstract class ASelfTest
+public abstract class SelfTest
         implements ISelfTest {
     ////////////////////////
     // default parameters //
@@ -59,7 +59,7 @@ public abstract class ASelfTest
     //////////////////////////
 
     // parameter information
-    private static final String SELF_TEST_NAME = "ASelfTest";
+    private static final String SELF_TEST_NAME = "SelfTest";
 
     // variables associated with this specific object
     protected SelfTestSubsystem mSelfTestSubsystem;
