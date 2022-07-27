@@ -31,7 +31,6 @@ import javax.ws.rs.core.Response;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.selftests.EMissingSelfTestException;
-import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.certsrv.selftests.SelfTestCollection;
 import com.netscape.certsrv.selftests.SelfTestData;
 import com.netscape.certsrv.selftests.SelfTestResource;
@@ -40,6 +39,7 @@ import com.netscape.certsrv.selftests.SelfTestResults;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.selftests.SelfTestSubsystem;
 
 /**
  * @author Endi S. Dewata
@@ -52,7 +52,7 @@ public class SelfTestService extends PKIService implements SelfTestResource {
         logger.debug("SelfTestService.<init>()");
     }
 
-    public SelfTestData createSelfTestData(ISelfTestSubsystem subsystem, String selfTestID) throws UnsupportedEncodingException, EMissingSelfTestException {
+    public SelfTestData createSelfTestData(SelfTestSubsystem subsystem, String selfTestID) throws UnsupportedEncodingException, EMissingSelfTestException {
 
         SelfTestData selfTestData = new SelfTestData();
         selfTestData.setID(selfTestID);
@@ -91,7 +91,7 @@ public class SelfTestService extends PKIService implements SelfTestResource {
 
         CMSEngine engine = CMS.getCMSEngine();
         try {
-            ISelfTestSubsystem subsystem = (ISelfTestSubsystem) engine.getSubsystem(ISelfTestSubsystem.ID);
+            SelfTestSubsystem subsystem = (SelfTestSubsystem) engine.getSubsystem(SelfTestSubsystem.ID);
 
             // filter self tests
             Collection<String> results = new ArrayList<>();
@@ -134,7 +134,7 @@ public class SelfTestService extends PKIService implements SelfTestResource {
 
         CMSEngine engine = CMS.getCMSEngine();
         try {
-            ISelfTestSubsystem subsystem = (ISelfTestSubsystem) engine.getSubsystem(ISelfTestSubsystem.ID);
+            SelfTestSubsystem subsystem = (SelfTestSubsystem) engine.getSubsystem(SelfTestSubsystem.ID);
             return createOKResponse(createSelfTestData(subsystem, selfTestID));
 
         } catch (Exception e) {
@@ -156,7 +156,7 @@ public class SelfTestService extends PKIService implements SelfTestResource {
 
         CMSEngine engine = CMS.getCMSEngine();
         try {
-            ISelfTestSubsystem subsystem = (ISelfTestSubsystem) engine.getSubsystem(ISelfTestSubsystem.ID);
+            SelfTestSubsystem subsystem = (SelfTestSubsystem) engine.getSubsystem(SelfTestSubsystem.ID);
             subsystem.runSelfTestsOnDemand();
 
         } catch (Exception e) {
@@ -176,7 +176,7 @@ public class SelfTestService extends PKIService implements SelfTestResource {
 
         CMSEngine engine = CMS.getCMSEngine();
         try {
-            ISelfTestSubsystem subsystem = (ISelfTestSubsystem) engine.getSubsystem(ISelfTestSubsystem.ID);
+            SelfTestSubsystem subsystem = (SelfTestSubsystem) engine.getSubsystem(SelfTestSubsystem.ID);
             for (String selfTestID : subsystem.listSelfTestsEnabledOnDemand()) {
                 Response response = runSelfTest(selfTestID);
                 SelfTestResult result = (SelfTestResult)response.getEntity();
@@ -201,7 +201,7 @@ public class SelfTestService extends PKIService implements SelfTestResource {
 
         CMSEngine engine = CMS.getCMSEngine();
         try {
-            ISelfTestSubsystem subsystem = (ISelfTestSubsystem) engine.getSubsystem(ISelfTestSubsystem.ID);
+            SelfTestSubsystem subsystem = (SelfTestSubsystem) engine.getSubsystem(SelfTestSubsystem.ID);
             subsystem.runSelfTest(selfTestID);
             result.setStatus("PASSED");
 

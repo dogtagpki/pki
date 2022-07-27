@@ -34,6 +34,7 @@ import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
+import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ELogException;
 import com.netscape.certsrv.logging.ILogEventListener;
@@ -44,7 +45,6 @@ import com.netscape.certsrv.selftests.EInvalidSelfTestException;
 import com.netscape.certsrv.selftests.EMissingSelfTestException;
 import com.netscape.certsrv.selftests.ESelfTestException;
 import com.netscape.certsrv.selftests.ISelfTest;
-import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
@@ -57,16 +57,22 @@ import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * This class implements a container for self tests.
- * <P>
  *
  * @author mharmsen
  * @author thomask
- * @version $Revision$, $Date$
  */
-public class SelfTestSubsystem
-        implements ISelfTestSubsystem {
+public class SelfTestSubsystem implements ISubsystem {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SelfTestSubsystem.class);
+
+    public static final String ID = "selftests";
+    public static final String PROP_CONTAINER = "container";
+    public static final String PROP_INSTANCE = "instance";
+    public static final String PROP_LOGGER = "logger";
+    public static final String PROP_LOGGER_CLASS = "class";
+    public static final String PROP_ORDER = "order";
+    public static final String PROP_ON_DEMAND = "onDemand";
+    public static final String PROP_STARTUP = "startup";
 
     private static ILogEventListener mLogger;
     private static Logger mErrorLogger = Logger.getLogger();
@@ -238,7 +244,6 @@ public class SelfTestSubsystem
     // SelfTestSubsystem methods //
     ///////////////////////////////
 
-    @Override
     public Collection<String> getSelfTestNames() {
         return mSelfTestInstances.keySet();
     }
@@ -250,11 +255,9 @@ public class SelfTestSubsystem
     /**
      * List the instance names of all the self tests enabled to run on demand
      * (in execution order); may return null.
-     * <P>
      *
      * @return list of self test instance names run on demand
      */
-    @Override
     public String[] listSelfTestsEnabledOnDemand() {
         String[] mList;
 
@@ -287,7 +290,6 @@ public class SelfTestSubsystem
 
     /**
      * Enable the specified self test to be executed on demand.
-     * <P>
      *
      * @param instanceName instance name of self test
      * @param isCritical isCritical is either a critical failure (true) or
@@ -348,7 +350,6 @@ public class SelfTestSubsystem
 
     /**
      * Disable the specified self test from being able to be executed on demand.
-     * <P>
      *
      * @param instanceName instance name of self test
      * @exception EMissingSelfTestException subsystem has missing name
@@ -395,13 +396,11 @@ public class SelfTestSubsystem
 
     /**
      * Determine if the specified self test is enabled to be executed on demand.
-     * <P>
      *
      * @param instanceName instance name of self test
      * @return true if the specified self test is enabled on demand
      * @exception EMissingSelfTestException subsystem has missing name
      */
-    @Override
     public boolean isSelfTestEnabledOnDemand(String instanceName)
             throws EMissingSelfTestException {
         // strip preceding/trailing whitespace
@@ -434,14 +433,12 @@ public class SelfTestSubsystem
     /**
      * Determine if failure of the specified self test is fatal when
      * it is executed on demand.
-     * <P>
      *
      * @param instanceName instance name of self test
      * @return true if failure of the specified self test is fatal when
      *         it is executed on demand
      * @exception EMissingSelfTestException subsystem has missing name
      */
-    @Override
     public boolean isSelfTestCriticalOnDemand(String instanceName)
             throws EMissingSelfTestException {
         String instanceFullName = null;
@@ -478,12 +475,10 @@ public class SelfTestSubsystem
 
     /**
      * Execute all self tests specified to be run on demand.
-     * <P>
      *
      * @exception EMissingSelfTestException subsystem has missing name
      * @exception ESelfTestException self test exception
      */
-    @Override
     public void runSelfTestsOnDemand()
             throws EMissingSelfTestException, ESelfTestException {
 
@@ -545,7 +540,11 @@ public class SelfTestSubsystem
         }
     }
 
-    @Override
+    /**
+     * Execute a self test.
+     *
+     * @exception Exception self test exception
+     */
     public void runSelfTest(String instanceName) throws Exception {
 
         logger.debug("SelfTestSubsystem: runSelfTest(" + instanceName + ")");
@@ -566,11 +565,9 @@ public class SelfTestSubsystem
     /**
      * List the instance names of all the self tests enabled to run
      * at server startup (in execution order); may return null.
-     * <P>
      *
      * @return list of self test instance names run at server startup
      */
-    @Override
     public String[] listSelfTestsEnabledAtStartup() {
         String[] mList;
 
@@ -603,7 +600,6 @@ public class SelfTestSubsystem
 
     /**
      * Enable the specified self test at server startup.
-     * <P>
      *
      * @param instanceName instance name of self test
      * @param isCritical isCritical is either a critical failure (true) or
@@ -664,7 +660,6 @@ public class SelfTestSubsystem
 
     /**
      * Disable the specified self test at server startup.
-     * <P>
      *
      * @param instanceName instance name of self test
      * @exception EMissingSelfTestException subsystem has missing name
@@ -712,13 +707,11 @@ public class SelfTestSubsystem
     /**
      * Determine if the specified self test is executed automatically
      * at server startup.
-     * <P>
      *
      * @param instanceName instance name of self test
      * @return true if the specified self test is executed at server startup
      * @exception EMissingSelfTestException subsystem has missing name
      */
-    @Override
     public boolean isSelfTestEnabledAtStartup(String instanceName)
             throws EMissingSelfTestException {
         // strip preceding/trailing whitespace
@@ -751,14 +744,12 @@ public class SelfTestSubsystem
     /**
      * Determine if failure of the specified self test is fatal to
      * server startup.
-     * <P>
      *
      * @param instanceName instance name of self test
      * @return true if failure of the specified self test is fatal to
      *         server startup
      * @exception EMissingSelfTestException subsystem has missing name
      */
-    @Override
     public boolean isSelfTestCriticalAtStartup(String instanceName)
             throws EMissingSelfTestException {
         String instanceFullName = null;
@@ -795,7 +786,6 @@ public class SelfTestSubsystem
 
     /**
      * Execute all self tests specified to be run at server startup.
-     * <P>
      *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION used when self tests are run at server startup
@@ -804,7 +794,6 @@ public class SelfTestSubsystem
      * @exception EMissingSelfTestException subsystem has missing name
      * @exception Exception self test exception
      */
-    @Override
     public void runSelfTestsAtStartup() throws Exception {
 
         // log that execution of startup self tests has begun
@@ -886,12 +875,10 @@ public class SelfTestSubsystem
     /**
      * Retrieve an individual self test from the instances list
      * given its instance name. This method may return null.
-     * <P>
      *
      * @param instanceName instance name of self test
      * @return individual self test
      */
-    @Override
     public ISelfTest getSelfTest(String instanceName) {
         // strip preceding/trailing whitespace
         // from passed-in String parameters
@@ -922,23 +909,19 @@ public class SelfTestSubsystem
     /**
      * Returns the ILogEventListener of this subsystem.
      * This method may return null.
-     * <P>
      *
      * @return ILogEventListener of this subsystem
      */
-    @Override
     public ILogEventListener getSelfTestLogger() {
         return mLogger;
     }
 
     /**
      * This method represents the log interface for the self test subsystem.
-     * <P>
      *
      * @param logger log event listener
      * @param msg self test log message
      */
-    @Override
     public void log(ILogEventListener logger, String msg) {
 
         if (logger != null) {
@@ -969,7 +952,6 @@ public class SelfTestSubsystem
      * Register an individual self test on the instances list AND
      * on the "on demand" list (note that the specified self test
      * will be appended to the end of each list).
-     * <P>
      *
      * @param instanceName instance name of self test
      * @param isCritical isCritical is either a critical failure (true) or
@@ -1021,7 +1003,6 @@ public class SelfTestSubsystem
      * Deregister an individual self test on the instances list AND
      * on the "on demand" list (note that the specified self test
      * will be removed from each list).
-     * <P>
      *
      * @param instanceName instance name of self test
      * @exception EMissingSelfTestException subsystem has missing name
@@ -1067,7 +1048,6 @@ public class SelfTestSubsystem
      * Register an individual self test on the instances list AND
      * on the "startup" list (note that the specified self test
      * will be appended to the end of each list).
-     * <P>
      *
      * @param instanceName instance name of self test
      * @param isCritical isCritical is either a critical failure (true) or
@@ -1119,7 +1099,6 @@ public class SelfTestSubsystem
      * Deregister an individual self test on the instances list AND
      * on the "startup" list (note that the specified self test
      * will be removed from each list).
-     * <P>
      *
      * @param instanceName instance name of self test
      * @exception EMissingSelfTestException subsystem has missing name

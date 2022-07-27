@@ -65,7 +65,6 @@ import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.certsrv.selftests.EMissingSelfTestException;
 import com.netscape.certsrv.selftests.ESelfTestException;
 import com.netscape.certsrv.selftests.ISelfTest;
-import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.certsrv.tks.ITKSAuthority;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -75,6 +74,7 @@ import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.security.JssSubsystem;
+import com.netscape.cmscore.selftests.SelfTestSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -2371,7 +2371,7 @@ public class CMSAdminServlet extends AdminServlet {
                 }
             }
 
-            ISelfTestSubsystem mSelfTestSubsystem = (ISelfTestSubsystem) engine.getSubsystem(ISelfTestSubsystem.ID);
+            SelfTestSubsystem mSelfTestSubsystem = (SelfTestSubsystem) engine.getSubsystem(SelfTestSubsystem.ID);
 
             if ((request == null) ||
                     (request.equals(""))) {
@@ -2420,11 +2420,11 @@ public class CMSAdminServlet extends AdminServlet {
                 for (int i = 0; i < selftests.length; i++) {
                     if (selftests[i] != null) {
                         instanceName = selftests[i].trim();
-                        instanceFullName = ISelfTestSubsystem.ID
+                        instanceFullName = SelfTestSubsystem.ID
                                 + "."
-                                + ISelfTestSubsystem.PROP_CONTAINER
+                                + SelfTestSubsystem.PROP_CONTAINER
                                 + "."
-                                + ISelfTestSubsystem.PROP_INSTANCE
+                                + SelfTestSubsystem.PROP_INSTANCE
                                 + "."
                                 + instanceName;
                     } else {

@@ -29,10 +29,10 @@ import com.netscape.certsrv.selftests.EDuplicateSelfTestException;
 import com.netscape.certsrv.selftests.EInvalidSelfTestException;
 import com.netscape.certsrv.selftests.EMissingSelfTestException;
 import com.netscape.certsrv.selftests.ESelfTestException;
-import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.cms.selftests.ASelfTest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.selftests.SelfTestSubsystem;
 
 /**
  * This class implements a self test to check for TPS presence.
@@ -60,7 +60,7 @@ public class TPSPresence extends ASelfTest {
      */
     @Override
     public void initSelfTest(
-            ISelfTestSubsystem subsystem,
+            SelfTestSubsystem subsystem,
             String instanceName,
             ConfigStore parameters) throws EDuplicateSelfTestException, EInvalidSelfTestException,
             EMissingSelfTestException {

@@ -32,9 +32,9 @@ import com.netscape.certsrv.selftests.EInvalidSelfTestException;
 import com.netscape.certsrv.selftests.EMissingSelfTestException;
 import com.netscape.certsrv.selftests.ESelfTestException;
 import com.netscape.certsrv.selftests.ISelfTest;
-import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.selftests.SelfTestSubsystem;
 
 //////////////////////
 // class definition //
@@ -62,7 +62,7 @@ public abstract class ASelfTest
     private static final String SELF_TEST_NAME = "ASelfTest";
 
     // variables associated with this specific object
-    protected ISelfTestSubsystem mSelfTestSubsystem = null;
+    protected SelfTestSubsystem mSelfTestSubsystem;
     protected String mInstanceName = null;
     protected ConfigStore mConfig;
     protected String mPrefix = null;
@@ -88,7 +88,7 @@ public abstract class ASelfTest
      * @exception EMissingSelfTestException subsystem has missing name/value
      */
     @Override
-    public void initSelfTest(ISelfTestSubsystem subsystem,
+    public void initSelfTest(SelfTestSubsystem subsystem,
             String instanceName,
             ConfigStore parameters)
             throws EDuplicateSelfTestException,

@@ -39,10 +39,10 @@ import com.netscape.certsrv.selftests.EDuplicateSelfTestException;
 import com.netscape.certsrv.selftests.EInvalidSelfTestException;
 import com.netscape.certsrv.selftests.EMissingSelfTestException;
 import com.netscape.certsrv.selftests.ESelfTestException;
-import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.cms.selftests.ASelfTest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.selftests.SelfTestSubsystem;
 
 //////////////////////
 // class definition //
@@ -91,7 +91,7 @@ public class OCSPValidity
      * @exception EMissingSelfTestException subsystem has missing name/value
      */
     @Override
-    public void initSelfTest(ISelfTestSubsystem subsystem,
+    public void initSelfTest(SelfTestSubsystem subsystem,
                               String instanceName,
                               ConfigStore parameters)
             throws EDuplicateSelfTestException,

@@ -28,6 +28,7 @@ import java.util.Locale;
 
 import com.netscape.certsrv.logging.ILogEventListener;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.selftests.SelfTestSubsystem;
 
 //////////////////////
 // class definition //
@@ -70,7 +71,7 @@ public interface ISelfTest {
      * @exception EInvalidSelfTestException subsystem has invalid name/value
      * @exception EMissingSelfTestException subsystem has missing name/value
      */
-    public void initSelfTest(ISelfTestSubsystem subsystem,
+    public void initSelfTest(SelfTestSubsystem subsystem,
             String instanceName,
             ConfigStore parameters)
             throws EDuplicateSelfTestException,
