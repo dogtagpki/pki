@@ -31,7 +31,6 @@ import com.netscape.certsrv.selftests.EDuplicateSelfTestException;
 import com.netscape.certsrv.selftests.EInvalidSelfTestException;
 import com.netscape.certsrv.selftests.EMissingSelfTestException;
 import com.netscape.certsrv.selftests.ESelfTestException;
-import com.netscape.certsrv.selftests.ISelfTest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
@@ -42,21 +41,13 @@ import com.netscape.cmscore.selftests.SelfTestSubsystem;
 
 /**
  * This class implements an individual self test.
- * <P>
  *
  * @author mharmsen
  * @author thomask
- * @version $Revision$, $Date$
  */
-public abstract class SelfTest
-        implements ISelfTest {
-    ////////////////////////
-    // default parameters //
-    ////////////////////////
+public abstract class SelfTest {
 
-    //////////////////////////
-    // ISelfTest parameters //
-    //////////////////////////
+    public static final String PROP_PLUGIN = "plugin";
 
     // parameter information
     private static final String SELF_TEST_NAME = "SelfTest";
@@ -72,13 +63,12 @@ public abstract class SelfTest
     /////////////////////
 
     ///////////////////////
-    // ISelfTest methods //
+    // SelfTest methods //
     ///////////////////////
 
     /**
      * Initializes this subsystem with the configuration store
      * associated with this instance name.
-     * <P>
      *
      * @param subsystem the associated subsystem
      * @param instanceName the name of this self test instance
@@ -87,7 +77,6 @@ public abstract class SelfTest
      * @exception EInvalidSelfTestException subsystem has invalid name/value
      * @exception EMissingSelfTestException subsystem has missing name/value
      */
-    @Override
     public void initSelfTest(SelfTestSubsystem subsystem,
             String instanceName,
             ConfigStore parameters)
@@ -136,30 +125,24 @@ public abstract class SelfTest
 
     /**
      * Notifies this subsystem if it is in execution mode.
-     * <P>
      *
      * @exception ESelfTestException failed to start
      */
-    @Override
     public abstract void startupSelfTest()
             throws ESelfTestException;
 
     /**
      * Stops this subsystem. The subsystem may call shutdownSelfTest
      * anytime after initialization.
-     * <P>
      */
-    @Override
     public abstract void shutdownSelfTest();
 
     /**
      * Returns the name associated with this self test. This method may
-     * return null if the self test has not been intialized.
-     * <P>
+     * return null if the self test has not been initialized.
      *
      * @return instanceName of this self test
      */
-    @Override
     public String getSelfTestName() {
         return mInstanceName;
     }
@@ -167,11 +150,9 @@ public abstract class SelfTest
     /**
      * Returns the root configuration storage (self test parameters)
      * associated with this subsystem.
-     * <P>
      *
      * @return configuration store (self test parameters) of this subsystem
      */
-    @Override
     public ConfigStore getSelfTestConfigStore() {
         return mConfig;
     }
@@ -179,21 +160,17 @@ public abstract class SelfTest
     /**
      * Retrieves description associated with an individual self test.
      * This method may return null.
-     * <P>
      *
      * @param locale locale of the client that requests the description
      * @return description of self test
      */
-    @Override
     public abstract String getSelfTestDescription(Locale locale);
 
     /**
      * Execute an individual self test.
-     * <P>
      *
      * @param logger specifies logging subsystem
      * @exception Exception self test exception
      */
-    @Override
     public abstract void runSelfTest(ILogEventListener logger) throws Exception;
 }

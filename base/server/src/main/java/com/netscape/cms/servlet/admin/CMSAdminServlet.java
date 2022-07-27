@@ -64,8 +64,8 @@ import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.certsrv.selftests.EMissingSelfTestException;
 import com.netscape.certsrv.selftests.ESelfTestException;
-import com.netscape.certsrv.selftests.ISelfTest;
 import com.netscape.certsrv.tks.ITKSAuthority;
+import com.netscape.cms.selftests.SelfTest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.DatabaseConfig;
@@ -2455,7 +2455,7 @@ public class CMSAdminServlet extends AdminServlet {
                         throw new EMissingSelfTestException();
                     }
 
-                    ISelfTest test = mSelfTestSubsystem.getSelfTest(instanceName);
+                    SelfTest test = mSelfTestSubsystem.getSelfTest(instanceName);
 
                     if (test == null) {
                         // self test plugin instance property name is not present

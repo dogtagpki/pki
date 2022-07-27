@@ -44,9 +44,9 @@ import com.netscape.certsrv.selftests.EDuplicateSelfTestException;
 import com.netscape.certsrv.selftests.EInvalidSelfTestException;
 import com.netscape.certsrv.selftests.EMissingSelfTestException;
 import com.netscape.certsrv.selftests.ESelfTestException;
-import com.netscape.certsrv.selftests.ISelfTest;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
+import com.netscape.cms.selftests.SelfTest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
@@ -95,7 +95,7 @@ public class SelfTestSubsystem implements ISubsystem {
     private String mRootPrefix = null;
     private String mPrefix = null;
 
-    public Hashtable<String, ISelfTest> mSelfTestInstances = new Hashtable<>();
+    public Hashtable<String, SelfTest> mSelfTestInstances = new Hashtable<>();
     public Vector<SelfTestOrderedInstance> mOnDemandOrder = new Vector<>();
     public Vector<SelfTestOrderedInstance> mStartupOrder = new Vector<>();
 
@@ -549,7 +549,7 @@ public class SelfTestSubsystem implements ISubsystem {
 
         logger.debug("SelfTestSubsystem: runSelfTest(" + instanceName + ")");
 
-        ISelfTest test = mSelfTestInstances.get(instanceName);
+        SelfTest test = mSelfTestInstances.get(instanceName);
 
         if (test == null) {
             throw new EMissingSelfTestException(instanceName);
@@ -832,7 +832,7 @@ public class SelfTestSubsystem implements ISubsystem {
                 throw new EMissingSelfTestException(instanceFullName);
             }
 
-            ISelfTest test = mSelfTestInstances.get(instanceName);
+            SelfTest test = mSelfTestInstances.get(instanceName);
 
             try {
                 logger.debug("SelfTestSubsystem: running " + test.getSelfTestName());
@@ -879,7 +879,7 @@ public class SelfTestSubsystem implements ISubsystem {
      * @param instanceName instance name of self test
      * @return individual self test
      */
-    public ISelfTest getSelfTest(String instanceName) {
+    public SelfTest getSelfTest(String instanceName) {
         // strip preceding/trailing whitespace
         // from passed-in String parameters
         if (instanceName != null) {
@@ -889,10 +889,10 @@ public class SelfTestSubsystem implements ISubsystem {
         }
 
         // loop through all self test plugin instances
-        Enumeration<ISelfTest> instances = mSelfTestInstances.elements();
+        Enumeration<SelfTest> instances = mSelfTestInstances.elements();
 
         while (instances.hasMoreElements()) {
-            ISelfTest instance = instances.nextElement();
+            SelfTest instance = instances.nextElement();
 
             if (instanceName.equals(instance.getSelfTestName())) {
                 return instance;
@@ -963,7 +963,7 @@ public class SelfTestSubsystem implements ISubsystem {
      */
     public void registerSelfTestOnDemand(String instanceName,
             boolean isCritical,
-            ISelfTest instance)
+            SelfTest instance)
             throws EDuplicateSelfTestException,
             EInvalidSelfTestException,
             EMissingSelfTestException {
@@ -1026,7 +1026,7 @@ public class SelfTestSubsystem implements ISubsystem {
         }
 
         // deregister the individual self test from the instances list
-        ISelfTest test = getSelfTest(instanceName);
+        SelfTest test = getSelfTest(instanceName);
 
         if (test == null) {
             // self test plugin instance property name is not present
@@ -1059,7 +1059,7 @@ public class SelfTestSubsystem implements ISubsystem {
      */
     public void registerSelfTestAtStartup(String instanceName,
             boolean isCritical,
-            ISelfTest instance)
+            SelfTest instance)
             throws EDuplicateSelfTestException,
             EInvalidSelfTestException,
             EMissingSelfTestException {
@@ -1122,7 +1122,7 @@ public class SelfTestSubsystem implements ISubsystem {
         }
 
         // deregister the individual self test from the instances list
-        ISelfTest test = getSelfTest(instanceName);
+        SelfTest test = getSelfTest(instanceName);
 
         if (test == null) {
             // self test plugin instance property name is not present
@@ -1458,13 +1458,13 @@ public class SelfTestSubsystem implements ISubsystem {
                 throw e;
             }
 
-            // verify that the associated class is a valid instance of ISelfTest
+            // verify that the associated class is a valid instance of SelfTest
             Object o;
 
             try {
                 o = Class.forName(instanceValue).getDeclaredConstructor().newInstance();
 
-                if (!(o instanceof ISelfTest)) {
+                if (!(o instanceof SelfTest)) {
                     log(mLogger,
                             CMS.getLogMessage(
                                     "CMSCORE_SELFTESTS_PROPERTY_INVALID_INSTANCE",
@@ -1487,7 +1487,7 @@ public class SelfTestSubsystem implements ISubsystem {
                         instanceValue);
             }
 
-            // retrieve all ISelfTest parameters associated with this class
+            // retrieve all SelfTest parameters associated with this class
             try {
                 if (first_time) {
                     first_time = false;
@@ -1499,7 +1499,7 @@ public class SelfTestSubsystem implements ISubsystem {
                                     "CMSCORE_SELFTESTS_LOAD_PLUGIN_PARAMETERS"));
                 }
 
-                ISelfTest test = (ISelfTest) o;
+                SelfTest test = (SelfTest) o;
 
                 test.initSelfTest(this, instanceName, mConfig);
 
@@ -1720,10 +1720,10 @@ public class SelfTestSubsystem implements ISubsystem {
     public void startup() throws EBaseException {
 
         // loop through all self test plugin instances
-        Enumeration<ISelfTest> instances = mSelfTestInstances.elements();
+        Enumeration<SelfTest> instances = mSelfTestInstances.elements();
 
         while (instances.hasMoreElements()) {
-            ISelfTest instance = instances.nextElement();
+            SelfTest instance = instances.nextElement();
             instance.startupSelfTest();
         }
 
@@ -1796,17 +1796,16 @@ public class SelfTestSubsystem implements ISubsystem {
     @Override
     public void shutdown() {
         // reverse order of all self test plugin instances
-        Collection<ISelfTest> collection = mSelfTestInstances.values();
-        Vector<ISelfTest> list = new Vector<>(collection);
+        Collection<SelfTest> collection = mSelfTestInstances.values();
+        Vector<SelfTest> list = new Vector<>(collection);
 
         Collections.reverse(list);
 
         // loop through all self test plugin instances
-        ListIterator<ISelfTest> instances = list.listIterator();
+        ListIterator<SelfTest> instances = list.listIterator();
 
         while (instances.hasNext()) {
-            ISelfTest instance = instances.next();
-
+            SelfTest instance = instances.next();
             instance.shutdownSelfTest();
         }
 
