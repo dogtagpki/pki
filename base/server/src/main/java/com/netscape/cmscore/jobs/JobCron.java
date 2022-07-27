@@ -23,7 +23,6 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.jobs.IJobCron;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -41,9 +40,16 @@ import com.netscape.cmscore.apps.CMS;
  * @author cfu
  * @version $Revision$, $Date$
  */
-public class JobCron implements IJobCron {
+public class JobCron {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JobCron.class);
+
+    /**
+     * constant that represents the configuration parameter
+     * "cron" for the job that this JobCron is associated with. The
+     * value of which should conform to the cron format specified above.
+     */
+    public static final String PROP_CRON = "cron";
 
     /**
      * CRON_MINUTE, CRON_HOUR, CRON_DAY_OF_MONTH, CRON_MONTH_OF_YEAR,

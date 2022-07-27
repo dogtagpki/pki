@@ -32,7 +32,6 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.dbs.IElementProcessor;
-import com.netscape.certsrv.jobs.IJobCron;
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.notification.IEmailResolver;
@@ -43,6 +42,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.jobs.JobCron;
 import com.netscape.cmscore.jobs.JobsScheduler;
 import com.netscape.cmscore.notification.EmailFormProcessor;
 import com.netscape.cmscore.notification.EmailResolverKeys;
@@ -266,7 +266,7 @@ public class RenewalNotificationJob
         mCA = engine.getCA();
         mCertDB = engine.getCertificateRepository();
 
-        mCron = mConfig.getString(IJobCron.PROP_CRON);
+        mCron = mConfig.getString(JobCron.PROP_CRON);
         if (mCron == null) {
             return;
         }
@@ -504,7 +504,7 @@ public class RenewalNotificationJob
      * @return a JobCron object that represents the schedule of this job
      */
     @Override
-    public IJobCron getJobCron() {
+    public JobCron getJobCron() {
         return mJobCron;
     }
 

@@ -24,13 +24,13 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.jobs.IJobCron;
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.jobs.JobCron;
 import com.netscape.cmscore.notification.EmailTemplate;
 import com.netscape.cmscore.request.Request;
 
@@ -61,7 +61,7 @@ public abstract class Job implements Runnable {
     protected ConfigStore mConfig;
     protected String mId = null;
     protected String mCron = null;
-    protected IJobCron mJobCron = null;
+    protected JobCron mJobCron;
 
     protected static String[] mConfigParams = null;
 
@@ -144,7 +144,7 @@ public abstract class Job implements Runnable {
      *
      * @return a JobCron object that represents the schedule of this job
      */
-    public IJobCron getJobCron() {
+    public JobCron getJobCron() {
         return mJobCron;
     }
 

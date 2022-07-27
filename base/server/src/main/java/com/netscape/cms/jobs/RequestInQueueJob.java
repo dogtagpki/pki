@@ -24,13 +24,13 @@ import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.jobs.IJobCron;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.request.IRequestList;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.jobs.JobCron;
 import com.netscape.cmscore.jobs.JobsScheduler;
 import com.netscape.cmscore.notification.EmailFormProcessor;
 import com.netscape.cmscore.request.RequestQueue;
@@ -131,7 +131,7 @@ public class RequestInQueueJob extends Job
 
         mReqQ = engine.getRequestQueue();
 
-        mCron = mConfig.getString(IJobCron.PROP_CRON);
+        mCron = mConfig.getString(JobCron.PROP_CRON);
         if (mCron == null) {
             return;
         }

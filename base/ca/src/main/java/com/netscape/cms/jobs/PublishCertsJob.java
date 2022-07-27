@@ -29,13 +29,13 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.MetaInfo;
-import com.netscape.certsrv.jobs.IJobCron;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.jobs.JobCron;
 import com.netscape.cmscore.jobs.JobsScheduler;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.notification.EmailFormProcessor;
@@ -132,7 +132,7 @@ public class PublishCertsJob extends Job
         mPublisherProcessor = engine.getPublisherProcessor();
 
         // read from the configuration file
-        mCron = mConfig.getString(IJobCron.PROP_CRON);
+        mCron = mConfig.getString(JobCron.PROP_CRON);
         if (mCron == null) {
             return;
         }

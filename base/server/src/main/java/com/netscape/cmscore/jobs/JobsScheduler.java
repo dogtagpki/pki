@@ -25,7 +25,6 @@ import java.util.Vector;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.jobs.EJobsException;
-import com.netscape.certsrv.jobs.IJobCron;
 import com.netscape.certsrv.jobs.JobPlugin;
 import com.netscape.cms.jobs.Job;
 import com.netscape.cmscore.apps.CMS;
@@ -348,13 +347,13 @@ public class JobsScheduler implements Runnable, ISubsystem {
      * executed (e.g. every Sunday at midnight). This method is
      * called by each job at initialization time.
      *
-     * @param cs the string that represents the cron. See IJobCron
+     * @param cs the string that represents the cron. See JobCron
      *            for detail of the format.
-     * @return IJobCron an IJobCron
+     * @return JobCron an JobCron
      * @exception EBaseException when the cron string, cs, can not be
      *                parsed correctly
      */
-    public IJobCron createJobCron(String cs) throws EBaseException {
+    public JobCron createJobCron(String cs) throws EBaseException {
         return new JobCron(cs);
     }
 
@@ -362,7 +361,7 @@ public class JobsScheduler implements Runnable, ISubsystem {
      * Is it time for the job?
      */
     protected boolean isShowTime(Job job, Calendar now) {
-        JobCron jcron = (JobCron) job.getJobCron();
+        JobCron jcron = job.getJobCron();
 
         logger.info("JobsScheduler: jobcron: " + jcron);
         if (jcron == null) {
