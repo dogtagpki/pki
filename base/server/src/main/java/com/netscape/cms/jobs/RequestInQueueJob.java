@@ -46,7 +46,6 @@ import com.netscape.cmscore.request.RequestQueue;
  * </UL>
  *
  * @version $Revision$, $Date$
- * @see com.netscape.certsrv.jobs.IJob
  * @see com.netscape.cms.jobs.Job
  */
 public class RequestInQueueJob extends Job

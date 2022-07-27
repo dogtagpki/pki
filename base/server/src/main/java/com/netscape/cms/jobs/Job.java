@@ -24,7 +24,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.jobs.IJob;
 import com.netscape.certsrv.jobs.IJobCron;
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
@@ -36,13 +35,12 @@ import com.netscape.cmscore.notification.EmailTemplate;
 import com.netscape.cmscore.request.Request;
 
 /**
- * This abstract class is a base job for real job extentions for the
+ * This abstract class is a base job for real job extensions for the
  * Jobs Scheduler.
  *
  * @version $Revision$, $Date$
- * @see com.netscape.certsrv.jobs.IJob
  */
-public abstract class Job implements IJob, Runnable {
+public abstract class Job implements Runnable {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Job.class);
 
@@ -82,12 +80,20 @@ public abstract class Job implements IJob, Runnable {
     }
 
     /**
+     * Returns a list of configuration parameter names.
+     * The list is passed to the configuration console so instances of
+     * this implementation can be configured through the console.
+     *
+     * @return String array of configuration parameter names.
+     */
+    public abstract String[] getConfigParams();
+
+    /**
      * tells if the job is enabled
      *
      * @return a boolean value indicating whether the job is enabled
      *         or not
      */
-    @Override
     public boolean isEnabled() {
         boolean enabled = false;
 
@@ -98,10 +104,14 @@ public abstract class Job implements IJob, Runnable {
         return enabled;
     }
 
-    /***********************
-     * abstract methods
-     ***********************/
-    @Override
+    /**
+     * Initialize from the configuration file.
+     *
+     * @param id String name of this instance
+     * @param implName string name of this implementation
+     * @param config configuration store for this instance
+     * @exception EBaseException any initialization failure
+     */
     public abstract void init(ISubsystem owner, String id, String implName, ConfigStore config) throws EBaseException;
 
     @Override
@@ -116,7 +126,6 @@ public abstract class Job implements IJob, Runnable {
      *
      * @return a String identifier
      */
-    @Override
     public String getId() {
         return mId;
     }
@@ -126,7 +135,6 @@ public abstract class Job implements IJob, Runnable {
      *
      * @param id String id of the instance
      */
-    @Override
     public void setId(String id) {
         mId = id;
     }
@@ -136,7 +144,6 @@ public abstract class Job implements IJob, Runnable {
      *
      * @return a JobCron object that represents the schedule of this job
      */
-    @Override
     public IJobCron getJobCron() {
         return mJobCron;
     }
@@ -146,7 +153,6 @@ public abstract class Job implements IJob, Runnable {
      *
      * @return a String that is the name of this implementation
      */
-    @Override
     public String getImplName() {
         return mImplName;
     }
@@ -156,7 +162,6 @@ public abstract class Job implements IJob, Runnable {
      *
      * @return configuration store
      */
-    @Override
     public ConfigStore getConfigStore() {
         return mConfig;
     }
@@ -263,12 +268,18 @@ public abstract class Job implements IJob, Runnable {
         }
     }
 
-    @Override
+    /**
+     * Request the job to stop gracefully. The job may not stop immediately.
+     */
     public void stop() {
         stopped = true;
     }
 
-    @Override
+    /**
+     * Check whether the job has been asked to stop. Long running jobs should call
+     * this method occasionally inside the run() method and exit gracefully if it
+     * returns true.
+     */
     public boolean isStopped() {
         return stopped;
     }

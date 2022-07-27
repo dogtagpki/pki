@@ -25,9 +25,9 @@ import java.util.Vector;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.jobs.EJobsException;
-import com.netscape.certsrv.jobs.IJob;
 import com.netscape.certsrv.jobs.IJobCron;
 import com.netscape.certsrv.jobs.JobPlugin;
+import com.netscape.cms.jobs.Job;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 
@@ -112,7 +112,7 @@ public class JobsScheduler implements Runnable, ISubsystem {
     protected Thread mScheduleThread = null;
 
     public Hashtable<String, JobPlugin> mJobPlugins = new Hashtable<>();
-    public Hashtable<String, IJob> mJobs = new Hashtable<>();
+    public Hashtable<String, Job> mJobs = new Hashtable<>();
     private Hashtable<String, Thread> mJobThreads = new Hashtable<>();
 
     private ConfigStore mConfig;
@@ -188,7 +188,7 @@ public class JobsScheduler implements Runnable, ISubsystem {
 
             // instantiate and init the job
             try {
-                IJob job = (IJob) Class.forName(classPath).getDeclaredConstructor().newInstance();
+                Job job = (Job) Class.forName(classPath).getDeclaredConstructor().newInstance();
                 ConfigStore jconfig = c.getSubStore(jobName, ConfigStore.class);
 
                 job.init(this, jobName, implName, jconfig);
@@ -227,7 +227,7 @@ public class JobsScheduler implements Runnable, ISubsystem {
      *
      * @return a Hashtable of job instances
      */
-    public Hashtable<String, IJob> getInstances() {
+    public Hashtable<String, Job> getInstances() {
         return mJobs;
     }
 
@@ -303,8 +303,8 @@ public class JobsScheduler implements Runnable, ISubsystem {
              */
             wokeupTime = cal.getTime().getTime();
 
-            for (Enumeration<IJob> e = mJobs.elements(); e.hasMoreElements(); ) {
-                IJob job = e.nextElement();
+            for (Enumeration<Job> e = mJobs.elements(); e.hasMoreElements(); ) {
+                Job job = e.nextElement();
 
                 // is it enabled?
                 ConfigStore cs = job.getConfigStore();
@@ -327,7 +327,7 @@ public class JobsScheduler implements Runnable, ISubsystem {
                     Thread jthread = mJobThreads.get(job.getId());
 
                     if ((jthread == null) || (!jthread.isAlive())) {
-                        Thread jobThread = new Thread((Runnable) job, job.getId());
+                        Thread jobThread = new Thread(job, job.getId());
 
                         jobThread.start();
                         // put into job thread control
@@ -361,7 +361,7 @@ public class JobsScheduler implements Runnable, ISubsystem {
     /**
      * Is it time for the job?
      */
-    protected boolean isShowTime(IJob job, Calendar now) {
+    protected boolean isShowTime(Job job, Calendar now) {
         JobCron jcron = (JobCron) job.getJobCron();
 
         logger.info("JobsScheduler: jobcron: " + jcron);
@@ -474,7 +474,7 @@ public class JobsScheduler implements Runnable, ISubsystem {
      */
     @Override
     public void shutdown() {
-        for (IJob job : mJobs.values()) {
+        for (Job job : mJobs.values()) {
             job.stop();
         }
     }
@@ -524,7 +524,7 @@ public class JobsScheduler implements Runnable, ISubsystem {
 
         logger.trace("JobsScheduler: className = " + className);
         try {
-            IJob jobInst = (IJob) Class.forName(className).getDeclaredConstructor().newInstance();
+            Job jobInst = (Job) Class.forName(className).getDeclaredConstructor().newInstance();
             logger.trace("JobsScheduler: class instantiated");
             return (jobInst.getConfigParams());
 

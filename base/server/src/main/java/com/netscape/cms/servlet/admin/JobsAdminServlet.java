@@ -33,8 +33,8 @@ import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.jobs.EJobsException;
-import com.netscape.certsrv.jobs.IJob;
 import com.netscape.certsrv.jobs.JobPlugin;
+import com.netscape.cms.jobs.Job;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
@@ -325,9 +325,9 @@ public class JobsAdminServlet extends AdminServlet {
             return;
         }
 
-        // is the class an IJob?
+        // is the class a Job?
         try {
-            if (IJob.class.isAssignableFrom(newImpl) == false) {
+            if (Job.class.isAssignableFrom(newImpl) == false) {
                 sendResponse(ERROR,
                         CMS.getUserMessage(getLocale(req), "CMS_JOB_SRVLT_ILL_CLASS"),
                         null, resp);
@@ -446,10 +446,10 @@ public class JobsAdminServlet extends AdminServlet {
 
         // Instantiate an object for this implementation
         String className = plugin.getClassPath();
-        IJob jobsInst = null;
+        Job jobsInst = null;
 
         try {
-            jobsInst = (IJob) Class.forName(className).getDeclaredConstructor().newInstance();
+            jobsInst = (Job) Class.forName(className).getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             instancesConfig.removeSubStore(id);
             sendResponse(ERROR,
@@ -521,7 +521,7 @@ public class JobsAdminServlet extends AdminServlet {
 
         for (Enumeration<String> e = mJobsSched.getInstances().keys(); e.hasMoreElements();) {
             String name = e.nextElement();
-            IJob value = mJobsSched.getInstances().get(name);
+            Job value = mJobsSched.getInstances().get(name);
 
             //				params.add(name, value.getImplName());
             params.put(name, value.getImplName() + VISIBLE +
@@ -559,8 +559,8 @@ public class JobsAdminServlet extends AdminServlet {
 
         // first check if any instances from this job plugin
         // DON'T remove job plugin if any instance
-        for (Enumeration<IJob> e = mJobsSched.getInstances().elements(); e.hasMoreElements();) {
-            IJob jobs = e.nextElement();
+        for (Enumeration<Job> e = mJobsSched.getInstances().elements(); e.hasMoreElements();) {
+            Job jobs = e.nextElement();
 
             if ((jobs.getImplName()).equals(id)) {
                 sendResponse(ERROR,
@@ -699,7 +699,7 @@ public class JobsAdminServlet extends AdminServlet {
             return;
         }
 
-        IJob jobInst = mJobsSched.getInstances().get(id);
+        Job jobInst = mJobsSched.getInstances().get(id);
         ConfigStore config = jobInst.getConfigStore();
         String[] configParams = jobInst.getConfigParams();
         NameValuePairs params = new NameValuePairs();
@@ -783,7 +783,7 @@ public class JobsAdminServlet extends AdminServlet {
 
         // save old instance substore params in case new one fails.
 
-        IJob oldinst =
+        Job oldinst =
                 mJobsSched.getInstances().get(id);
         ConfigStore oldConfig = oldinst.getConfigStore();
 
@@ -841,10 +841,10 @@ public class JobsAdminServlet extends AdminServlet {
         // Instantiate an object for new implementation
 
         String className = plugin.getClassPath();
-        IJob newJobInst = null;
+        Job newJobInst = null;
 
         try {
-            newJobInst = (IJob) Class.forName(className).getDeclaredConstructor().newInstance();
+            newJobInst = (Job) Class.forName(className).getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             restore(instancesConfig, id, saveParams);
             sendResponse(ERROR,

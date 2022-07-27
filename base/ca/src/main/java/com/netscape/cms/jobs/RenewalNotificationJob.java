@@ -80,7 +80,6 @@ import com.netscape.cmscore.request.Request;
  * </UL>
  *
  * @version $Revision$, $Date$
- * @see com.netscape.certsrv.jobs.IJob
  * @see com.netscape.cms.jobs.Job
  */
 public class RenewalNotificationJob
