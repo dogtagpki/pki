@@ -62,7 +62,7 @@ public class GetAsyncPk12 extends CMSServlet {
     private final static String IN_PASSWORD_AGAIN = "p12PasswordAgain";
     private final static String OUT_ERROR = "errorDetails";
 
-    private com.netscape.certsrv.kra.IKeyService mService = null;
+    private KeyRecoveryAuthority mService;
 
     private String mFormPath = null;
 
@@ -83,7 +83,7 @@ public class GetAsyncPk12 extends CMSServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         mFormPath = "/agent/" + mAuthority.getId() + "/" + TPL_FILE;
-        mService = (com.netscape.certsrv.kra.IKeyService) mAuthority;
+        mService = (KeyRecoveryAuthority) mAuthority;
 
         mTemplates.remove(CMSRequest.SUCCESS);
         if (mOutputTemplatePath != null)
@@ -215,10 +215,10 @@ public class GetAsyncPk12 extends CMSServlet {
                     header.addStringValue(OUT_ERROR,
                             CMS.getUserMessage(locale[0], "CMS_BASE_INTERNAL_ERROR", e.toString()));
                 }
-            } else if (((KeyRecoveryAuthority) mService).getError(reqID) != null) {
+            } else if (mService.getError(reqID) != null) {
                 // error in recovery process
                 header.addStringValue(OUT_ERROR,
-                        ((KeyRecoveryAuthority) mService).getError(reqID));
+                        mService.getError(reqID));
             } else {
                 // pk12 hasn't been created yet. Shouldn't get here
             }

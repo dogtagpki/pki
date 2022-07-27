@@ -61,7 +61,7 @@ public class GetPk12 extends CMSServlet {
 
     private final static String OUT_ERROR = "errorDetails";
 
-    private com.netscape.certsrv.kra.IKeyService mService = null;
+    private KeyRecoveryAuthority mService;
 
     private String mFormPath = null;
 
@@ -82,7 +82,7 @@ public class GetPk12 extends CMSServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         mFormPath = "/agent/" + mAuthority.getId() + "/" + TPL_FILE;
-        mService = (com.netscape.certsrv.kra.IKeyService) mAuthority;
+        mService = (KeyRecoveryAuthority) mAuthority;
 
         mTemplates.remove(CMSRequest.SUCCESS);
         if (mOutputTemplatePath != null)
@@ -183,7 +183,7 @@ public class GetPk12 extends CMSServlet {
                     (String) params.get("keyID"));
 
             // got all approval, return pk12
-            byte pkcs12[] = ((KeyRecoveryAuthority) mService).getPk12(recoveryID);
+            byte pkcs12[] = mService.getPk12(recoveryID);
 
             if (pkcs12 != null) {
                 mService.destroyRecoveryParams(recoveryID);
@@ -204,10 +204,10 @@ public class GetPk12 extends CMSServlet {
                     header.addStringValue(OUT_ERROR,
                             CMS.getUserMessage(locale[0], "CMS_BASE_INTERNAL_ERROR", e.toString()));
                 }
-            } else if (((KeyRecoveryAuthority) mService).getError(recoveryID) != null) {
+            } else if (mService.getError(recoveryID) != null) {
                 // error in recovery process
                 header.addStringValue(OUT_ERROR,
-                        ((KeyRecoveryAuthority) mService).getError(recoveryID));
+                        mService.getError(recoveryID));
             } else {
                 // pk12 hasn't been created yet. Shouldn't get here
             }

@@ -55,7 +55,6 @@ import com.netscape.certsrv.key.KeyInfoCollection;
 import com.netscape.certsrv.key.KeyNotFoundException;
 import com.netscape.certsrv.key.KeyRecoveryRequest;
 import com.netscape.certsrv.key.KeyResource;
-import com.netscape.certsrv.kra.IKeyService;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.SecurityDataExportEvent;
 import com.netscape.certsrv.logging.event.SecurityDataInfoEvent;
@@ -91,7 +90,7 @@ public class KeyService extends SubsystemService implements KeyResource {
     private KeyRecoveryAuthority kra;
     private RequestRepository requestRepository;
     private RequestQueue queue;
-    private IKeyService service;
+    private KeyRecoveryAuthority service;
 
     //parameters for auditing
     private RequestId requestId;

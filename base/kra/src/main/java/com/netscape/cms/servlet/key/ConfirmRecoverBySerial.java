@@ -29,7 +29,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.kra.IKeyService;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -67,7 +66,7 @@ public class ConfirmRecoverBySerial extends CMSServlet {
     private final static String OUT_ERROR = "errorDetails";
 
     private KeyRepository mKeyDB;
-    private IKeyService mRecoveryService = null;
+    private KeyRecoveryAuthority mRecoveryService;
     private String mFormPath = null;
 
     /**
@@ -84,7 +83,7 @@ public class ConfirmRecoverBySerial extends CMSServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
-        mRecoveryService = (IKeyService) mAuthority;
+        mRecoveryService = (KeyRecoveryAuthority) mAuthority;
         mKeyDB = ((KeyRecoveryAuthority) mAuthority).getKeyRepository();
 
         mTemplates.remove(CMSRequest.SUCCESS);

@@ -58,7 +58,6 @@ import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.key.KeyRequestResponse;
 import com.netscape.certsrv.key.KeyResource;
 import com.netscape.certsrv.key.SymKeyGenerationRequest;
-import com.netscape.certsrv.kra.IKeyService;
 import com.netscape.certsrv.request.CMSRequestInfo;
 import com.netscape.certsrv.request.CMSRequestInfos;
 import com.netscape.certsrv.request.RequestId;
@@ -103,7 +102,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
 
     private KeyRepository repo;
     private KeyRecoveryAuthority kra;
-    private IKeyService service;
+    private KeyRecoveryAuthority service;
 
     public KeyRequestDAO() {
         KRAEngine engine = KRAEngine.getInstance();

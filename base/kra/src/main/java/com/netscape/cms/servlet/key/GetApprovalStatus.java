@@ -63,7 +63,7 @@ public class GetApprovalStatus extends CMSServlet {
     private final static String OUT_ERROR = "errorDetails";
     private final static String OUT_STATUS = "status";
 
-    private com.netscape.certsrv.kra.IKeyService mService = null;
+    private KeyRecoveryAuthority mService;
     private String mFormPath = null;
 
     /**
@@ -84,7 +84,7 @@ public class GetApprovalStatus extends CMSServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         // mFormPath = "/"+authority.getId()+"/"+TPL_FILE;
-        mService = (com.netscape.certsrv.kra.IKeyService) mAuthority;
+        mService = (KeyRecoveryAuthority) mAuthority;
 
         mTemplates.remove(CMSRequest.SUCCESS);
     }
@@ -157,7 +157,7 @@ public class GetApprovalStatus extends CMSServlet {
 
             header.addIntegerValue("noOfRequiredAgents", requiredNumber);
 
-            Vector<Credential> dc = ((KeyRecoveryAuthority) mService).getAppAgents(recoveryID);
+            Vector<Credential> dc = mService.getAppAgents(recoveryID);
             Enumeration<Credential> agents = dc.elements();
 
             while (agents.hasMoreElements()) {
@@ -168,7 +168,7 @@ public class GetApprovalStatus extends CMSServlet {
             }
             if (dc.size() >= requiredNumber) {
                 // got all approval, return pk12
-                byte pkcs12[] = ((KeyRecoveryAuthority) mService).getPk12(recoveryID);
+                byte pkcs12[] = mService.getPk12(recoveryID);
 
                 if (pkcs12 != null) {
                     rComplete = 1;
@@ -189,9 +189,9 @@ public class GetApprovalStatus extends CMSServlet {
                      e.toString()));
                      }
                      */
-                } else if (((KeyRecoveryAuthority) mService).getError(recoveryID) != null) {
+                } else if (mService.getError(recoveryID) != null) {
                     // error in recovery process
-                    header.addStringValue(OUT_ERROR, ((KeyRecoveryAuthority) mService).getError(recoveryID));
+                    header.addStringValue(OUT_ERROR, mService.getError(recoveryID));
                     rComplete = 1;
                 } else {
                     // pk12 hasn't been created yet.

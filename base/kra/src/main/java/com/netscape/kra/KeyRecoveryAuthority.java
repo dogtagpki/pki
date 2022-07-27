@@ -57,7 +57,6 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
-import com.netscape.certsrv.kra.IKeyService;
 import com.netscape.certsrv.listeners.EListenersException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
@@ -97,12 +96,11 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  * is responsible to maintain key pairs that have been
  * escrowed. It provides archive and recovery key pairs
  * functionalities.
- * <P>
  *
  * @author thomask
  * @version $Revision$, $Date$
  */
-public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecoveryAuthority {
+public class KeyRecoveryAuthority implements IAuthority, IKeyRecoveryAuthority {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyRecoveryAuthority.class);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
@@ -595,7 +593,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * @return number of required agents
      * @exception EBaseException failed to retrieve info
      */
-    @Override
     public int getNoOfRequiredAgents() throws EBaseException {
         if (mConfig.getBoolean("keySplitting", false)) {
             return mStorageKeyUnit.getNoOfRequiredAgents();
@@ -634,14 +631,21 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     }
 
     /**
-     * Distributed recovery.
+     * Retrieves recovery identifier.
+     *
+     * @return recovery id
      */
-    @Override
     public String getRecoveryID() {
         return Integer.toString(mRecoveryIDCounter++);
     }
 
-    @Override
+    /**
+     * Creates recovery parameters for the given recovery operation.
+     *
+     * @param recoveryID recovery id
+     * @return recovery parameters
+     * @exception EBaseException failed to create
+     */
     public Hashtable<String, Object> createRecoveryParams(String recoveryID)
             throws EBaseException {
         Hashtable<String, Object> h = new Hashtable<>();
@@ -652,13 +656,24 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         return h;
     }
 
-    @Override
+    /**
+     * Destroys recovery parameters for the given recovery operation.
+     *
+     * @param recoveryID recovery id
+     * @exception EBaseException failed to destroy
+     */
     public void destroyRecoveryParams(String recoveryID)
             throws EBaseException {
         mRecoveryParams.remove(recoveryID);
     }
 
-    @Override
+    /**
+     * Retrieves recovery parameters for the given recovery operation.
+     *
+     * @param recoveryID recovery id
+     * @return recovery parameters
+     * @exception EBaseException failed to retrieve
+     */
     public Hashtable<String, Object> getRecoveryParams(String recoveryID)
             throws EBaseException {
         return mRecoveryParams.get(recoveryID);
@@ -706,11 +721,15 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     }
 
     /**
-     * Retrieves a list credentials. This puts KRA in a waiting
-     * mode, it never returns until all the necessary passwords
-     * are collected.
+     * Retrieves credentials in the distributed recovery operation.
+     *
+     * This puts KRA in a waiting mode, it never returns until all
+     * the necessary passwords are collected.
+     *
+     * @param recoveryID recovery id
+     * @return agent's credentials
+     * @exception EBaseException failed to retrieve
      */
-    @Override
     public Credential[] getDistributedCredentials(
             String recoveryID)
             throws EBaseException {
@@ -766,9 +785,13 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     }
 
     /**
-     * Adds password.
+     * Adds password in the distributed recovery operation.
+     *
+     * @param recoveryID recovery id
+     * @param uid agent uid
+     * @param pwd agent password
+     * @exception EBaseException failed to add
      */
-    @Override
     public void addDistributedCredential(String recoveryID,
             String uid, String pwd) throws EBaseException {
         Hashtable<String, Object> h = getRecoveryParams(recoveryID);
@@ -869,9 +892,15 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     }
 
     /**
-     * async key recovery initiation
+     * Initiate asynchronous key recovery
+     *
+     * @param kid key identifier
+     * @param cert certificate embedded in PKCS12
+     * @param agent agent requesting recovery
+     * @param realm authorization realm
+     * @return requestId
+     * @exception EBaseException failed to initiate async recovery
      */
-    @Override
     public String initAsyncKeyRecovery(BigInteger kid, X509CertImpl cert, String agent, String realm)
             throws EBaseException {
 
@@ -921,8 +950,10 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     /**
      * is async recovery request status APPROVED -
      * i.e. all required # of recovery agents approved
+     *
+     * @param reqID request id
+     * @return true if # of recovery required agents approved; false otherwise
      */
-    @Override
     public boolean isApprovedAsyncKeyRecovery(String reqID)
             throws EBaseException {
 
@@ -935,8 +966,10 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     /**
      * get async recovery request initiating agent
+     *
+     * @param reqID request id
+     * @return agentUID
      */
-    @Override
     public String getInitAgentAsyncKeyRecovery(String reqID)
             throws EBaseException {
 
@@ -960,12 +993,16 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     }
 
     /**
-     * add async recovery agent to approving agent list of the recovery request
-     * record
+     * Add async recovery agent to approving agent list of the recovery request
+     * record.
+     *
      * This method will check to see if the agent belongs to the recovery group
      * first before adding.
+     *
+     * @param reqID request id
+     * @param agentID agent id
+     * @exception EBaseException failed to initiate async recovery
      */
-    @Override
     public void addAgentAsyncKeyRecovery(String reqID, String agentID)
             throws EBaseException {
 
@@ -1020,7 +1057,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     /**
      * Recovers key for administrators. This method is
      * invoked by the agent operation of the key recovery servlet.
-     * <P>
      *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST used whenever a user private key recovery request is
@@ -1039,7 +1075,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * @exception EBaseException failed to recover key
      * @return a byte array containing the key
      */
-    @Override
     public byte[] doKeyRecovery(BigInteger kid,
             Credential creds[], String password,
             X509CertImpl cert,
@@ -1149,12 +1184,13 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     /**
      * Async Recovers key for administrators. This method is
      * invoked by the agent operation of the key recovery servlet.
-     * <P>
      *
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST used whenever a user private key recovery request is
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST
+     * used whenever a user private key recovery request is
      * made (this is when the DRM receives the request)
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED used whenever a user private key recovery
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED
+     * used whenever a user private key recovery
      * request is processed (this is when the DRM processes the request)
      * </ul>
      *
@@ -1164,7 +1200,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * @exception EBaseException failed to recover key
      * @return a byte array containing the key
      */
-    @Override
     public byte[] doKeyRecovery(
             String reqID,
             String password)

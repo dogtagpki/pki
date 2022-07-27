@@ -36,7 +36,6 @@ import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.kra.IKeyService;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -70,7 +69,7 @@ public class DisplayBySerialForRecovery extends CMSServlet {
 
     private KeyRepository mKeyDB;
     private String mFormPath = null;
-    private IKeyService mService = null;
+    private KeyRecoveryAuthority mService;
 
     /**
      * Constructor
@@ -90,7 +89,7 @@ public class DisplayBySerialForRecovery extends CMSServlet {
         super.init(sc);
         mFormPath = "/agent/" + mAuthority.getId() + "/" + TPL_FILE;
         mKeyDB = ((KeyRecoveryAuthority) mAuthority).getKeyRepository();
-        mService = (IKeyService) mAuthority;
+        mService = (KeyRecoveryAuthority) mAuthority;
 
         mTemplates.remove(CMSRequest.SUCCESS);
     }

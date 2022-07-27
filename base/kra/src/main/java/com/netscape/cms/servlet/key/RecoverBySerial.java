@@ -87,7 +87,7 @@ public class RecoverBySerial extends CMSServlet {
     private final static String HOST = "host";
     private final static String PORT = "port";
 
-    private com.netscape.certsrv.kra.IKeyService mService = null;
+    private KeyRecoveryAuthority mService;
     private KeyRepository repo;
     private String mFormPath = null;
 
@@ -105,7 +105,7 @@ public class RecoverBySerial extends CMSServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
-        mService = (com.netscape.certsrv.kra.IKeyService) mAuthority;
+        mService = (KeyRecoveryAuthority) mAuthority;
         repo = ((KeyRecoveryAuthority) mAuthority).getKeyRepository();
 
         mTemplates.remove(CMSRequest.SUCCESS);
@@ -325,7 +325,7 @@ public class RecoverBySerial extends CMSServlet {
             logger.warn("RecoverBySerial: " + error, e);
 
             try {
-                ((KeyRecoveryAuthority) mService).createError(seq, error);
+                mService.createError(seq, error);
             } catch (EBaseException eb) {
                 logger.warn("RecoverBySerial: " + eb.getMessage(), e);
             }
@@ -518,7 +518,7 @@ public class RecoverBySerial extends CMSServlet {
                 logger.warn("WaitApprovalThread: " + error, e);
 
                 try {
-                    ((KeyRecoveryAuthority) mService).createError(theRecoveryID, error);
+                    mService.createError(theRecoveryID, error);
                 } catch (EBaseException eb) {
                     logger.warn("WaitApprovalThread: " + eb.getMessage(), eb);
                 }
@@ -534,14 +534,14 @@ public class RecoverBySerial extends CMSServlet {
                         theDelivery, theNickname,
                         (String) sContext.get(SessionContext.USER_ID));
 
-                ((KeyRecoveryAuthority) mService).createPk12(theRecoveryID, pkcs12);
+                mService.createPk12(theRecoveryID, pkcs12);
             } catch (EBaseException e) {
                 String error =
                         "Failed to recover key for recovery id " + theRecoveryID + ": " + e.getMessage();
                 logger.warn("WaitApprovalThread: " + error, e);
 
                 try {
-                    ((KeyRecoveryAuthority) mService).createError(theRecoveryID, error);
+                    mService.createError(theRecoveryID, error);
                 } catch (EBaseException eb) {
                     logger.warn("WaitApprovalThread: " + eb.getMessage(), eb);
                 }

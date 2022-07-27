@@ -36,7 +36,6 @@ import org.dogtagpki.server.kra.KRAEngineConfig;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.kra.IKeyService;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -65,7 +64,7 @@ public class ExamineRecovery extends CMSServlet {
     private final static String OUT_OP = "op";
     private final static String OUT_SERVICE_URL = "serviceURL";
 
-    private IKeyService mService = null;
+    private KeyRecoveryAuthority mService;
     private String mFormPath = null;
 
     /**
@@ -81,7 +80,7 @@ public class ExamineRecovery extends CMSServlet {
     @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
-        mService = (IKeyService) mAuthority;
+        mService = (KeyRecoveryAuthority) mAuthority;
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
 
         mTemplates.remove(CMSRequest.SUCCESS);
