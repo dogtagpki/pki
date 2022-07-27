@@ -1349,7 +1349,7 @@ grant codeBase "file:%s" {
         :param tmpdir: Absolute path of temp dir to store p12 and pem files
         :type tmpdir: str
         :param subsystem_name: Name of the subsystem
-           DEPRECATED: https://www.dogtagpki.org/wiki/PKI_10.8_Python_Changes
+           DEPRECATED: https://github.com/dogtagpki/pki/wiki/PKI-10.8-Python-Changes
         :type subsystem_name: str
         :param secure_port: Secure Port Number
         :type secure_port: str
@@ -1359,7 +1359,7 @@ grant codeBase "file:%s" {
         if subsystem_name is not None:
             logger.warning(
                 '%s:%s: The subsystem_name in PKIServer.setup_cert_authentication() has '
-                'been deprecated (https://www.dogtagpki.org/wiki/PKI_10.8_Python_Changes).',
+                'been deprecated (https://github.com/dogtagpki/pki/wiki/PKI-10.8-Python-Changes).',
                 inspect.stack()[1].filename, inspect.stack()[1].lineno)
 
         temp_auth_p12 = os.path.join(tmpdir, 'auth.p12')

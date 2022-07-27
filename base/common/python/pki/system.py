@@ -172,7 +172,7 @@ class DomainInfo(object):
     def systems(self):
         logger.warning(
             '%s:%s: The DomainInfo.systems has been deprecated '
-            '(https://www.dogtagpki.org/wiki/PKI_10.8_Python_Changes).',
+            '(https://github.com/dogtagpki/pki/wiki/PKI-10.8-Python-Changes).',
             inspect.stack()[1].filename, inspect.stack()[1].lineno)
         return self.subsystems
 
@@ -257,7 +257,7 @@ class SecurityDomainClient(object):
     def get_security_domain_info(self):
         logger.warning(
             '%s:%s: The SecurityDomainClient.get_security_domain_info() has been deprecated '
-            '(https://www.dogtagpki.org/wiki/PKI_10.8_Python_Changes).',
+            '(https://github.com/dogtagpki/pki/wiki/PKI-10.8-Python-Changes).',
             inspect.stack()[1].filename, inspect.stack()[1].lineno)
         return self.get_domain_info()
 

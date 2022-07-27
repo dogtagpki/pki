@@ -158,7 +158,7 @@ class PKIInstance(pki.server.PKIServer):
     def server_cert_nick_conf(self):
         logger.warning(
             '%s:%s: The PKIInstance.server_cert_nick_conf() has '
-            'been deprecated (https://www.dogtagpki.org/wiki/PKI_10.9_Python_Changes).',
+            'been deprecated (https://github.com/dogtagpki/pki/wiki/PKI-10.9-Python-Changes).',
             inspect.stack()[1].filename, inspect.stack()[1].lineno)
         return os.path.join(self.conf_dir, 'serverCertNick.conf')
 

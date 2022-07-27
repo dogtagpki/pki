@@ -144,7 +144,7 @@ class PKIConnection:
         :param port: port of server
         :type port: str
         :param subsystem: Subsystem name: ca, kra, ocsp, tks, tps.
-           DEPRECATED: https://www.dogtagpki.org/wiki/PKI_10.8_Python_Changes
+           DEPRECATED: https://github.com/dogtagpki/pki/wiki/PKI-10.8-Python-Changes
         :type subsystem: str
         :param accept: value of accept header.  Supported values are usually
            'application/json' or 'application/xml'
@@ -174,7 +174,7 @@ class PKIConnection:
         if subsystem is not None:
             logger.warning(
                 '%s:%s: The subsystem in PKIConnection.__init__() has been deprecated '
-                '(https://www.dogtagpki.org/wiki/PKI_10.8_Python_Changes).',
+                '(https://github.com/dogtagpki/pki/wiki/PKI-10.8-Python-Changes).',
                 inspect.stack()[1].filename, inspect.stack()[1].lineno)
             self.serverURI = self.rootURI + '/' + subsystem
         else:
@@ -248,7 +248,7 @@ class PKIConnection:
         if use_root_uri:
             logger.warning(
                 '%s:%s: The use_root_uri in PKIConnection.get() has been deprecated '
-                '(https://www.dogtagpki.org/wiki/PKI_10.8_Python_Changes).',
+                '(https://github.com/dogtagpki/pki/wiki/PKI-10.8-Python-Changes).',
                 inspect.stack()[1].filename, inspect.stack()[1].lineno)
             target_path = self.rootURI + path
         else:
@@ -287,7 +287,7 @@ class PKIConnection:
         if use_root_uri:
             logger.warning(
                 '%s:%s: The use_root_uri in PKIConnection.post() has been deprecated '
-                '(https://www.dogtagpki.org/wiki/PKI_10.8_Python_Changes).',
+                '(https://github.com/dogtagpki/pki/wiki/PKI-10.8-Python-Changes).',
                 inspect.stack()[1].filename, inspect.stack()[1].lineno)
             target_path = self.rootURI + path
         else:
@@ -321,7 +321,7 @@ class PKIConnection:
         if use_root_uri:
             logger.warning(
                 '%s:%s: The use_root_uri in PKIConnection.put() has been deprecated '
-                '(https://www.dogtagpki.org/wiki/PKI_10.8_Python_Changes).',
+                '(https://github.com/dogtagpki/pki/wiki/PKI-10.8-Python-Changes).',
                 inspect.stack()[1].filename, inspect.stack()[1].lineno)
             target_path = self.rootURI + path
         else:
@@ -349,7 +349,7 @@ class PKIConnection:
         if use_root_uri:
             logger.warning(
                 '%s:%s: The use_root_uri in PKIConnection.delete() has been deprecated '
-                '(https://www.dogtagpki.org/wiki/PKI_10.8_Python_Changes).',
+                '(https://github.com/dogtagpki/pki/wiki/PKI-10.8-Python-Changes).',
                 inspect.stack()[1].filename, inspect.stack()[1].lineno)
             target_path = self.rootURI + path
         else:
