@@ -81,10 +81,10 @@ import com.netscape.cmscore.request.Request;
  *
  * @version $Revision$, $Date$
  * @see com.netscape.certsrv.jobs.IJob
- * @see com.netscape.cms.jobs.AJobBase
+ * @see com.netscape.cms.jobs.Job
  */
 public class RenewalNotificationJob
-        extends AJobBase
+        extends Job
         implements IExtendedPluginInfo {
 
     // config parameters...
@@ -641,7 +641,7 @@ class CertRecProcessor implements IElementProcessor {
                 numFailCounted = true;
                 if (mJob.mSummary == true)
                     mJob.buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
-                            AJobBase.STATUS_FAILURE);
+                            Job.STATUS_FAILURE);
                 logger.warn("CertRecProcessor: " + CMS.getLogMessage("JOBS_GET_CERT_ERROR",
                                 cr.getCertificate().getSerialNumber().toString(16)));
             } else {
@@ -682,13 +682,13 @@ class CertRecProcessor implements IElementProcessor {
                     cr);
 
             mJob.buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
-                    AJobBase.STATUS_SUCCESS);
+                    Job.STATUS_SUCCESS);
 
             mIC.mNumSuccessful++;
 
         } catch (Exception e) {
             logger.warn("RenewalNotificationJob: " + e.getMessage(), e);
-            mJob.buildItemParams(IEmailFormProcessor.TOKEN_STATUS, AJobBase.STATUS_FAILURE);
+            mJob.buildItemParams(IEmailFormProcessor.TOKEN_STATUS, Job.STATUS_FAILURE);
             if (numFailCounted == false) {
                 mIC.mNumFail++;
             }

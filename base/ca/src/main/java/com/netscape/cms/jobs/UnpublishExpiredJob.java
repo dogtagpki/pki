@@ -59,7 +59,7 @@ import com.netscape.cmscore.request.RequestRepository;
  *
  * @version $Revision$, $Date$
  */
-public class UnpublishExpiredJob extends AJobBase
+public class UnpublishExpiredJob extends Job
         implements IExtendedPluginInfo {
 
     CertificateAuthority mCa;

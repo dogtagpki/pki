@@ -59,7 +59,7 @@ import com.netscape.cmscore.request.RequestRepository;
  *
  * @version $Revision$, $Date$
  */
-public class PublishCertsJob extends AJobBase
+public class PublishCertsJob extends Job
         implements IExtendedPluginInfo {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PublishCertsJob.class);

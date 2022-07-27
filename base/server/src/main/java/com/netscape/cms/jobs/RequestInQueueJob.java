@@ -47,9 +47,9 @@ import com.netscape.cmscore.request.RequestQueue;
  *
  * @version $Revision$, $Date$
  * @see com.netscape.certsrv.jobs.IJob
- * @see com.netscape.cms.jobs.AJobBase
+ * @see com.netscape.cms.jobs.Job
  */
-public class RequestInQueueJob extends AJobBase
+public class RequestInQueueJob extends Job
         implements IExtendedPluginInfo {
     protected static final String PROP_SUBSYSTEM_ID = "subsystemId";
 

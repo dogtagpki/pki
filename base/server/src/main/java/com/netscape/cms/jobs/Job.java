@@ -42,9 +42,9 @@ import com.netscape.cmscore.request.Request;
  * @version $Revision$, $Date$
  * @see com.netscape.certsrv.jobs.IJob
  */
-public abstract class AJobBase implements IJob, Runnable {
+public abstract class Job implements IJob, Runnable {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AJobBase.class);
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Job.class);
 
     // config parameters...
     protected static final String PROP_SUMMARY = "summary";
@@ -78,7 +78,7 @@ public abstract class AJobBase implements IJob, Runnable {
 
     boolean stopped;
 
-    public AJobBase() {
+    public Job() {
     }
 
     /**
@@ -173,7 +173,7 @@ public abstract class AJobBase implements IJob, Runnable {
         EmailTemplate template = new EmailTemplate(templatePath);
 
         if (!template.init()) {
-            logger.warn("AJobBase: " + CMS.getLogMessage("JOBS_TEMPLATE_INIT_ERROR"));
+            logger.warn("Job: " + CMS.getLogMessage("JOBS_TEMPLATE_INIT_ERROR"));
             return null;
         }
 
@@ -203,9 +203,9 @@ public abstract class AJobBase implements IJob, Runnable {
         try {
             mn.sendNotification();
         } catch (ENotificationException e) {
-            logger.warn("AJobBase: " + CMS.getLogMessage("JOBS_SEND_NOTIFICATION", e.toString()), e);
+            logger.warn("Job: " + CMS.getLogMessage("JOBS_SEND_NOTIFICATION", e.toString()), e);
         } catch (IOException e) {
-            logger.warn("AJobBase: " + CMS.getLogMessage("JOBS_SEND_NOTIFICATION", e.toString()), e);
+            logger.warn("Job: " + CMS.getLogMessage("JOBS_SEND_NOTIFICATION", e.toString()), e);
         }
     }
 
@@ -249,7 +249,7 @@ public abstract class AJobBase implements IJob, Runnable {
         if (val != null)
             mItemParams.put(name, val);
         else {
-            logger.debug("AJobBase: buildItemParams: null value for name= " + name);
+            logger.debug("Job: buildItemParams: null value for name= " + name);
             mItemParams.put(name, "");
         }
     }
@@ -258,7 +258,7 @@ public abstract class AJobBase implements IJob, Runnable {
         if (val != null)
             mContentParams.put(name, val);
         else {
-            logger.debug("AJobBase: buildContentParams: null value for name= " + name);
+            logger.debug("Job: buildContentParams: null value for name= " + name);
             mContentParams.put(name, "");
         }
     }
