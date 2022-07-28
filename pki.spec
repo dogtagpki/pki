@@ -148,7 +148,14 @@ BuildRequires:    gcc-c++
 BuildRequires:    zip
 BuildRequires:    %{java_devel}
 BuildRequires:    javapackages-tools
-BuildRequires:    redhat-rpm-config
+
+# redhat-rpm-config defines java_arches macro
+%if 0%{?fedora} && 0%{?fedora} <= 35
+BuildRequires:    redhat-rpm-config >= 201
+%else
+BuildRequires:    redhat-rpm-config >= 219
+%endif
+
 BuildRequires:    apache-commons-cli
 BuildRequires:    apache-commons-codec
 BuildRequires:    apache-commons-io
