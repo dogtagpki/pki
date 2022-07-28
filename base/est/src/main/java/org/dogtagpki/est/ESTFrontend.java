@@ -74,7 +74,7 @@ public class ESTFrontend {
     @POST
     @Path("simpleenroll")
     @Consumes("application/pkcs10")
-    @Produces("application/pkcs7-mime")
+    @Produces("application/pkcs7-mime; smime-type=certs-only")
     public Response simpleenroll(byte[] data) throws PKIException {
         logger.debug("ESTFrontend.simpleenroll: processing request (no label)");
         return enroll(Optional.empty(), data);
@@ -83,7 +83,7 @@ public class ESTFrontend {
     @POST
     @Path("{label}/simpleenroll")
     @Consumes("application/pkcs10")
-    @Produces("application/pkcs7-mime")
+    @Produces("application/pkcs7-mime; smime-type=certs-only")
     public Response simpleenroll(@PathParam("label") String label, byte[] data) {
         logger.debug("ESTFrontend.simpleenroll: processing request (label: " + label + ")");
         return enroll(Optional.of(label), data);
@@ -92,7 +92,7 @@ public class ESTFrontend {
     @POST
     @Path("simplereenroll")
     @Consumes("application/pkcs10")
-    @Produces("application/pkcs7-mime")
+    @Produces("application/pkcs7-mime; smime-type=certs-only")
     public Response simplereenroll(byte[] data) {
         logger.debug("ESTFrontend.simplereenroll: processing request (no label)");
         return reenroll(Optional.empty(), data);
@@ -101,7 +101,7 @@ public class ESTFrontend {
     @POST
     @Path("{label}/simplereenroll")
     @Consumes("application/pkcs10")
-    @Produces("application/pkcs7-mime")
+    @Produces("application/pkcs7-mime; smime-type=certs-only")
     public Response simplereenroll(@PathParam("label") String label, byte[] data) {
         logger.debug("ESTFrontend.simplereenroll: processing request (label: " + label + ")");
         return reenroll(Optional.of(label), data);
