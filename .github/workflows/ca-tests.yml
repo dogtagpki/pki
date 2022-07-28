@@ -1,23 +1,22 @@
 name: CA Tests
 
-on: [push, pull_request]
+on:
+  workflow_call:
+    inputs:
+      repo:
+        required: true
+        type: string
+      db-image:
+        required: true
+        type: string
 
 jobs:
-  call-build-workflow:
-    uses: ./.github/workflows/build.yml
-    with:
-      key_container: ca
-    secrets: inherit
-
   # docs/installation/ca/Installing_CA.md
   ca-test:
     name: Testing CA
-    needs: [call-build-workflow]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -25,11 +24,11 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-ca-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-ca-runner.tar
+          key: pki-runner
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input pki-ca-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Create network
         run: docker network create example
@@ -38,8 +37,8 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh ds
         env:
-          IMAGE: ${{ needs.init.outputs.db-image }}
-          COPR_REPO: ${{ needs.init.outputs.repo }}
+          IMAGE: ${{ inputs.db-image}}
+          COPR_REPO: ${{ inputs.repo}}
           HOSTNAME: ds.example.com
           PASSWORD: Secret.123
 
@@ -202,19 +201,16 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: ca-${{ matrix.os }}
+          name: ca
           path: |
             /tmp/artifacts/pki
 
   # docs/installation/ca/Installing_CA_with_ECC.md
   ca-ecc-test:
     name: Testing CA with ECC
-    needs: [call-build-workflow]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -222,11 +218,11 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-ca-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-ca-runner.tar
+          key: pki-runner
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input pki-ca-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Create network
         run: docker network create example
@@ -235,7 +231,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh ds
         env:
-          IMAGE: ${{ needs.init.outputs.db-image }}
+          IMAGE: ${{ inputs.db-image}}
           HOSTNAME: ds.example.com
           PASSWORD: Secret.123
 
@@ -342,19 +338,16 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: ca-ecc-${{ matrix.os }}
+          name: ca-ecc
           path: |
             /tmp/artifacts/pki
 
   # docs/installation/ca/Installing-CA-with-RSA-PSS.adoc
   ca-rsa-pss-test:
     name: Testing CA with RSA/PSS
-    needs: [call-build-workflow]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -362,11 +355,11 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-ca-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-ca-runner.tar
+          key: pki-runner
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input pki-ca-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Create network
         run: docker network create example
@@ -375,7 +368,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh ds
         env:
-          IMAGE: ${{ needs.init.outputs.db-image }}
+          IMAGE: ${{ inputs.db-image}}
           HOSTNAME: ds.example.com
           PASSWORD: Secret.123
 
@@ -518,19 +511,16 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: ca-rsa-pss-${{ matrix.os }}
+          name: ca-rsa-pss
           path: |
             /tmp/artifacts/pki
 
   # docs/installation/ca/Installing_Subordinate_CA.md
   subca-test:
     name: Testing subordinate CA
-    needs: [call-build-workflow]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -538,11 +528,11 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-ca-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-ca-runner.tar
+          key: pki-runner
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input pki-ca-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Create network
         run: docker network create example
@@ -551,7 +541,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh rootds
         env:
-          IMAGE: ${{ needs.init.outputs.db-image }}
+          IMAGE: ${{ inputs.db-image}}
           HOSTNAME: rootds.example.com
           PASSWORD: Secret.123
 
@@ -587,7 +577,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh subds
         env:
-          IMAGE: ${{ needs.init.outputs.db-image }}
+          IMAGE: ${{ inputs.db-image}}
           HOSTNAME: subds.example.com
           PASSWORD: Secret.123
 
@@ -687,7 +677,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: ca-root-${{ matrix.os }}
+          name: ca-root
           path: |
             /tmp/artifacts/root
 
@@ -695,19 +685,16 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: ca-subordinate-${{ matrix.os }}
+          name: ca-subordinate
           path: |
             /tmp/artifacts/subordinate
 
   # docs/installation/ca/Installing_CA_with_External_CA_Signing_Certificate.md
   subca-cmc-test:
     name: Testing subordinate CA with CMC
-    needs: [call-build-workflow]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -715,11 +702,11 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-ca-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-ca-runner.tar
+          key: pki-runner
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input pki-ca-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Create network
         run: docker network create example
@@ -728,7 +715,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh rootds
         env:
-          IMAGE: ${{ needs.init.outputs.db-image }}
+          IMAGE: ${{ inputs.db-image}}
           HOSTNAME: rootds.example.com
           PASSWORD: Secret.123
 
@@ -783,7 +770,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh subds
         env:
-          IMAGE: ${{ needs.init.outputs.db-image }}
+          IMAGE: ${{ inputs.db-image}}
           HOSTNAME: subds.example.com
           PASSWORD: Secret.123
 
@@ -917,7 +904,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: ca-root-cmc-${{ matrix.os }}
+          name: ca-root-cmc
           path: |
             /tmp/artifacts/root
 
@@ -925,19 +912,16 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: ca-subordinate-cmc-${{ matrix.os }}
+          name: ca-subordinate-cmc
           path: |
             /tmp/artifacts/subordinate
 
   # docs/installation/ca/Installing_CA_with_External_CA_Signing_Certificate.md
   ca-external-cert-test:
     name: Testing CA with external signing certificate
-    needs: [call-build-workflow]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -945,11 +929,11 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-ca-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-ca-runner.tar
+          key: pki-runner
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input pki-ca-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Create network
         run: docker network create example
@@ -958,7 +942,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh ds
         env:
-          IMAGE: ${{ needs.init.outputs.db-image }}
+          IMAGE: ${{ inputs.db-image}}
           HOSTNAME: ds.example.com
           PASSWORD: Secret.123
 
@@ -1065,19 +1049,16 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: ca-external-cert-${{ matrix.os }}
+          name: ca-external-cert
           path: |
             /tmp/artifacts/pki
 
   # docs/installation/ca/Installing_CA_with_Existing_Keys_in_Internal_Token.md
   ca-existing-certs-test:
     name: Testing CA with existing certificates
-    needs: [call-build-workflow]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -1085,11 +1066,11 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-ca-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-ca-runner.tar
+          key: pki-runner
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input pki-ca-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Create network
         run: docker network create example
@@ -1098,7 +1079,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh ds
         env:
-          IMAGE: ${{ needs.init.outputs.db-image }}
+          IMAGE: ${{ inputs.db-image}}
           HOSTNAME: ds.example.com
           PASSWORD: Secret.123
 
@@ -1237,19 +1218,16 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: ca-existing-certs-${{ matrix.os }}
+          name: ca-existing-certs
           path: |
             /tmp/artifacts/pki
 
   # https://github.com/dogtagpki/pki/wiki/Issuing-User-Certificate-with-CMC-Shared-Token
   cmc-shared-token-test:
     name: Testing CMC shared token
-    needs: [call-build-workflow]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -1257,11 +1235,11 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-ca-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-ca-runner.tar
+          key: pki-runner
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input pki-ca-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Create network
         run: docker network create example
@@ -1270,8 +1248,8 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh ds
         env:
-          IMAGE: ${{ needs.init.outputs.db-image }}
-          COPR_REPO: ${{ needs.init.outputs.repo }}
+          IMAGE: ${{ inputs.db-image}}
+          COPR_REPO: ${{ inputs.repo}}
           HOSTNAME: ds.example.com
           PASSWORD: Secret.123
 
@@ -1506,6 +1484,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: cmc-shared-token-${{ matrix.os }}
+          name: cmc-shared-token
           path: |
             /tmp/artifacts/pki

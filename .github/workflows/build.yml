@@ -1,10 +1,6 @@
 name: Build PKI
 on:
   workflow_call:
-    inputs:
-      key_container:
-        required: true
-        type: string
     secrets:
       BASE64_MATRIX:
         required: false
@@ -82,10 +78,10 @@ jobs:
             COPR_REPO=${{ needs.init.outputs.repo }}
           tags: pki-runner
           target: pki-runner
-          outputs: type=docker,dest=pki-${{ inputs.key_container}}-runner.tar
+          outputs: type=docker,dest=pki-runner.tar
 
       - name: Store runner image
         uses: actions/cache@v3
         with:
-          key: pki-${{ inputs.key_container }}-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-${{ inputs.key_container }}-runner.tar
+          key: pki-runner
+          path: pki-runner.tar

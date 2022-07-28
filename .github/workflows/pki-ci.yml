@@ -1,0 +1,14 @@
+name: PKI CI
+on: [push, pull_request]
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+    secrets: inherit
+
+  ca-tests:
+    needs: build
+    uses: ./.github/workflows/ca-tests.yml
+    with:
+      repo: ${{ needs.call-build-workflow.outputs.repo }}
+      db-image: ${{ needs.call-build-workflow.outputs.db-image }}
