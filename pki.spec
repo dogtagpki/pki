@@ -47,8 +47,7 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?phase:-}%{?phase}
 #     > pki-VERSION-RELEASE.patch
 # Patch: pki-VERSION-RELEASE.patch
 
-# Java 17 and md2man are not available on i686
-ExcludeArch: i686
+ExclusiveArch: %{java_arches}
 
 ################################################################################
 # PKCS #11 Kit Trust
