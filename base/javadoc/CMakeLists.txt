@@ -58,7 +58,6 @@ endif()
 
 javadoc(pki-javadoc
     SOURCEPATH
-        ${CMAKE_SOURCE_DIR}/base/util/src/main/java
         ${CMAKE_SOURCE_DIR}/base/common/src/main/java
         ${CMAKE_SOURCE_DIR}/base/tools/src/main/java
         ${PKI_JAVADOC_SOURCEPATH}

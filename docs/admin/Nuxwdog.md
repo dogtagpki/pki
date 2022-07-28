@@ -19,60 +19,85 @@ in case of a server crash.
 
 First, shutdown the server with the following command:
 
-`# systemctl stop pki-tomcatd@<instance>.service`
+```
+$ systemctl stop pki-tomcatd@<instance>.service
+```
 
-Enable nuxwdog using the following command:
+To enable all instances:
 
-````
-# pki-server nuxwdog-enable                         # For all instances
-OR
-# pki-server instance-nuxwdog-enable <instance>     # For specific instance 
-````
+```
+$ pki-server nuxwdog-enable
+```
+
+To enable a specific instance:
+
+```
+$ pki-server instance-nuxwdog-enable <instance>
+```
 
 If any of the system certificates reside on a cryptographic token other than the
-internal NSS database, you will see entries like this in `/etc/pki/<pki-tomcat>/password.conf`:
+internal NSS database, you will see entries like this in `/etc/pki/<instance>/password.conf`:
 
-`hardware-<token>=<password>`
+```
+hardware-<token>=<password>
+```
 
 In that case, add the following parameter to `/etc/pki/<instance>/<subsystem>/CS.cfg`:
 
-`cms.tokenList=<token>`
+```
+cms.tokenList=<token>
+```
 
 Remove the password file or move it somewhere else:
 
-`# rm -f /etc/pki/<instance>/password.conf`
+```
+$ mv /etc/pki/<instance>/password.conf /path/to/password.conf
+```
 
 Restart the server with the following command:
 
-````
-# systemctl start pki-tomcatd-nuxwdog@<instance>.service
+```
+$ systemctl start pki-tomcatd-nuxwdog@<instance>.service
 [<instance>] Please provide the password for internal: **********
 [<instance>] Please provide the password for internaldb: **********
 [<instance>] Please provide the password for replicationdb: ***********
-````
+```
 
 ### Disabling Nuxwdog
 
-To disable Nuxwdog and use the plain password.conf
 
-````
-# systemctl stop pki-tomcatd-nuxwdog@<instance>.service
+First, stop the instance:
 
-# pki-server nuxwdog-disable                       # To disable for all instances
-(OR)
-# pki-server instance-nuxwdog-disable <instance>   # For a specific instance
 
-# systemctl start pki-tomcatd@<font color="red">pki-tomcat</font>.service
- 
-# mv /path/to/password.conf /etc/pki/<instance>/password.conf
-````
+```
+$ systemctl stop pki-tomcatd-nuxwdog@<instance>.service
+```
+
+To disable for all instances:
+
+```
+$ pki-server nuxwdog-disable
+```
+
+To disable a specific instance:
+
+```
+$ pki-server instance-nuxwdog-disable <instance>
+```
+
+Finally, restart the instance:
+
+```
+$ mv /path/to/password.conf /etc/pki/<instance>/password.conf
+$ systemctl start pki-tomcatd@<instance>.service
+```
 
 ## Technical Implementation
 
 ### `pki-server-nuxwdog` python script
 
-[`pki-server-nuxwdog`](base/server/scripts/pki-server-nuxwdog) script is configured to run before the PKI server
-starts using [`systemd` unit file](base/server/share/lib/systemd/system/pki-tomcatd-nuxwdog@.service). It uses
+[`pki-server-nuxwdog`](../../base/server/scripts/pki-server-nuxwdog) script is configured to run before the PKI server
+starts using [`systemd` unit file](../../base/server/share/lib/systemd/system/pki-tomcatd-nuxwdog@.service). It uses
 `systemd-ask-password` to prompt the user for relevant passwords. The relevant passwords include `internal` and
 list of passwords defined in fields `cms.passwordlist` and `cms.tokenList` of every subsystem's `CS.cfg`. The
 passwords are stored on the Kernel Keyring provided by the `keyutils` package.
@@ -89,8 +114,8 @@ password on the `<pkiuser>'s user keyring`. The keys are cleared off when the PK
 PKI code base includes support to interact with kernel keyring in different languages. The utility classes available
 are listed below:
 
-- **Python:** [pki.keyring.Keyring](base/common/python/pki/keyring.py)
-- **Java:** [com.netscape.cmsutil.util.Keyring](base/util/src/com/netscape/cmsutil/util/Keyring.java)
+- **Python:** [pki.keyring.Keyring](../../base/common/python/pki/keyring.py)
+- **Java:** [com.netscape.cmsutil.util.Keyring](../../base/common/src/main/java/com/netscape/cmsutil/util/Keyring.java)
 
 **NOTE:** Java doesn't support storing password on keyring, yet. This might be implemented in future releases.
 
