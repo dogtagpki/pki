@@ -44,7 +44,28 @@ P_SELF_SERVER="sslserver-c"
 
 ## 0.3 Extensions
 CERT="crt"
+REQ="csr"
 PK12="p12"
+
+CA_EXT="ca_signing.conf"
+CA_SUB_EXT="ca_sub_signing.conf"
+SSL_EXT="sslserver.conf"
+
+## 0.4 Subjects
+S_CA_ROOT="CN=CA Root Certificate, OU=pki-tomcat, O=dogtag"
+S_CA_SUB="CN=CA Sub Certificate, OU=pki-tomcat, O=dogtag"
+S_CA_SERVER="CN=ab.example.com, OU=pki-tomcat, O=dogtag"
+S_CA_SUB_SERVER_A="CN=aaa.example.com, OU=pki-tomcat, O=dogtag"
+S_CA_SUB_SERVER_B="CN=aab.example.com, OU=pki-tomcat, O=dogtag"
+
+S_COMP_ROOT="CN=Compromised Root Certificate, OU=pki-tomcat, O=dogtag"
+S_COMP_SUB="CN=Compromised Sub Certificate, OU=pki-tomcat, O=dogtag"
+S_COMP_SERVER="CN=bb.example.com, OU=pki-tomcat, O=dogtag"
+S_COMP_SUB_SERVER_A="CN=baa.example.com, OU=pki-tomcat, O=dogtag"
+S_COMP_SUB_SERVER_B="CN=bab.example.com, OU=pki-tomcat, O=dogtag"
+
+S_SELF_SERVER="CN=c.example.com, OU=pki-tomcat, O=dogtag"
+
 
 function __d() {
     local line_number="$(caller | awk '{print $1}')"
@@ -283,6 +304,64 @@ function create_nssdb() {(
     fi
 )}
 
+function create_certificate(){
+
+    local db=$1
+    local ext=$2
+    local filename=$3
+    local subject=$4
+    local name=$5
+    local password=$6
+    local issuer=$7
+
+    __exec pki -d $db nss-cert-request --ext "$ext" --key-size 4096 --csr "$filename.$REQ" --subject "$subject" || __d "Cannot create $name csr"
+
+    if [ ! -z "$issuer" ]; then
+	__exec pki -d $db nss-cert-issue --ext "$ext" --csr "$filename.$REQ" --cert "$filename.$CERT" --issuer "$issuer" || __d "Cannot issue $name"
+    else
+	__exec pki -d $db nss-cert-issue --ext "$ext" --csr "$filename.$REQ" --cert "$filename.$CERT" || __d "Cannot issue $name"
+    fi
+    __exec pki -d $db nss-cert-import --cert "$filename.$CERT" "$name" || __d "Cannot import $name"
+    __exec pki -d $db pkcs12-export --pkcs12 "$filename.$PK12" --password-file "$password" "$name" || __d "Cannot export p12 for $name"
+
+}
+
+function generate_certificates() {
+    local db="${NSSDBPATH}/global"
+    local pass="$db/password.txt"
+
+    rm -rf "$db"
+    rm -rf "$CERTPATH/*.$CERT"
+    rm -rf "$CERTPATH/*.$REQ"
+    rm -rf "$CERTPATH/*.$PK12"
+
+    __exec pki -d $db nss-create || __d "Global db error"
+    echo "" > "$pass"
+
+    # Root CA
+    create_certificate "$db" "$CERTPATH/$CA_EXT" "$CERTPATH/$P_CA_ROOT" "$S_CA_ROOT" "$CA_ROOT" "$pass"
+    create_certificate "$db" "$CERTPATH/$CA_EXT" "$CERTPATH/$P_COMP_ROOT" "$S_COMP_ROOT" "$COMP_ROOT" "$pass"
+
+    # Sub CA
+    create_certificate "$db" "$CERTPATH/$CA_SUB_EXT" "$CERTPATH/$P_CA_SUB" "$S_CA_SUB" "$CA_SUB" "$pass" "$CA_ROOT"
+    create_certificate "$db" "$CERTPATH/$CA_SUB_EXT" "$CERTPATH/$P_COMP_SUB" "$S_COMP_SUB" "$COMP_SUB" "$pass" "$COMP_ROOT"
+
+    # Server
+    create_certificate "$db" "$CERTPATH/$SSL_EXT" "$CERTPATH/$P_CA_SERVER" "$S_CA_SERVER" "$CA_SERVER" "$pass" "$CA_ROOT"
+    create_certificate "$db" "$CERTPATH/$SSL_EXT" "$CERTPATH/$P_COMP_SERVER" "$S_COMP_SERVER" "$COMP_SERVER" "$pass" "$COMP_ROOT"
+
+    # Sub Server a
+    create_certificate "$db" "$CERTPATH/$SSL_EXT" "$CERTPATH/$P_CA_SUB_SERVER_A" "$S_CA_SUB_SERVER_A" "$CA_SUB_SERVER_A" "$pass" "$CA_SUB"
+    create_certificate "$db" "$CERTPATH/$SSL_EXT" "$CERTPATH/$P_COMP_SUB_SERVER_A" "$S_COMP_SUB_SERVER_A" "$COMP_SUB_SERVER_A" "$pass" "$COMP_SUB"
+
+    # Sub Server b
+    create_certificate "$db" "$CERTPATH/$SSL_EXT" "$CERTPATH/$P_CA_SUB_SERVER_B" "$S_CA__SUB_SERVER_B" "$CA_SUB_SERVER_B" "$pass" "$CA_SUB"
+    create_certificate "$db" "$CERTPATH/$SSL_EXT" "$CERTPATH/$P_COMP_SUB_SERVER_B" "$S_COMP_SUB_SERVER_B" "$COMP_SUB_SERVER_B" "$pass" "$COMP_SUB"
+
+    # Sub Server b
+    create_certificate "$db" "$CERTPATH/$SSL_EXT" "$CERTPATH/$P_SELF_SERVER" "$S_SELF_SERVER" "$SELF_SERVER" "$pass"
+}
+
 function test_cert_import_root() {
     local db="test_cert_import_server"
     echo -n "$db... "
@@ -470,6 +549,7 @@ function test_leaf_fail_no_root() {
 
 function main() {
     time (
+        generate_certificates || exit $Z
         test_cert_import_root || exit $?
         test_cert_import_server || exit $?
         test_cert_missing_intermediate || exit $?
