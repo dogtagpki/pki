@@ -21,4 +21,11 @@ public class ProfileSubsystemConfig extends ConfigStore {
     public ProfileSubsystemConfig(String name, SimpleProperties source) {
         super(name, source);
     }
+
+    /**
+     * Returns profile.<name>.* parameters.
+     */
+    public ProfileEntryConfig getProfileEntryConfig(String name) {
+        return getSubStore(name, ProfileEntryConfig.class);
+    }
 }

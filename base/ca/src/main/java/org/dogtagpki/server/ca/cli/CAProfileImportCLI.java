@@ -14,6 +14,7 @@ import org.apache.tomcat.util.net.jss.TomcatJSS;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.server.ca.CAEngineConfig;
+import org.dogtagpki.server.ca.ProfileEntryConfig;
 import org.dogtagpki.server.ca.ProfileSubsystemConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -158,8 +159,8 @@ public class CAProfileImportCLI extends CommandCLI {
 
         while (st.hasMoreTokens()) {
             String profileID = st.nextToken();
-            ConfigStore profileConfig = profileSubsystemConfig.getSubStore(profileID, ConfigStore.class);
-            String classID = profileConfig.getString("class_id", "");
+            ProfileEntryConfig profileEntryConfig = profileSubsystemConfig.getProfileEntryConfig(profileID);
+            String classID = profileEntryConfig.getString("class_id", "");
 
             try {
                 IPluginInfo info = pluginRegistry.getPluginInfo("profile", classID);
