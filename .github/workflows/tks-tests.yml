@@ -1,23 +1,19 @@
 name: TKS Tests
 
-on: [push, pull_request]
+on:
+  workflow_call:
+    inputs:
+      db-image:
+        required: true
+        type: string
 
 jobs:
-  call-build-workflow:
-    uses: ./.github/workflows/build.yml
-    with:
-      key_container: tks
-    secrets: inherit
-
   # docs/installation/tks/Installing_TKS.md
   tks-test:
     name: Testing TKS
-    needs: [call-build-workflow]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -25,11 +21,11 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-tks-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-tks-runner.tar
+          key: pki-runner
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input pki-tks-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Create network
         run: docker network create example
@@ -38,7 +34,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh ds
         env:
-          IMAGE: ${{ needs.init.outputs.db-image }}
+          IMAGE: ${{ inputs.db-image}}
           HOSTNAME: ds.example.com
           PASSWORD: Secret.123
 
@@ -133,18 +129,15 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: tks-${{ matrix.os }}
+          name: tks
           path: |
             /tmp/artifacts/pki
 
   tks-separate-test:
     name: Testing TKS on separate instance
-    needs: [call-build-workflow]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -152,11 +145,11 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-tks-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-tks-runner.tar
+          key: pki-runner
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input pki-tks-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Create network
         run: docker network create example
@@ -165,7 +158,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh cads
         env:
-          IMAGE: ${{ needs.init.outputs.db-image }}
+          IMAGE: ${{ inputs.db-image}}
           HOSTNAME: cads.example.com
           PASSWORD: Secret.123
 
@@ -201,7 +194,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh tksds
         env:
-          IMAGE: ${{ needs.init.outputs.db-image }}
+          IMAGE: ${{ inputs.db-image}}
           HOSTNAME: tksds.example.com
           PASSWORD: Secret.123
 
@@ -273,7 +266,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: tks-separate-ca-${{ matrix.os }}
+          name: tks-separate-ca
           path: |
             /tmp/artifacts/ca
 
@@ -281,18 +274,15 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: tks-separate-tks-${{ matrix.os }}
+          name: tks-separate-tks
           path: |
             /tmp/artifacts/tks
 
   tks-external-certs-test:
     name: Testing TKS with external certificates
-    needs: [call-build-workflow]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -300,11 +290,11 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-tks-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-tks-runner.tar
+          key: pki-runner
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input pki-tks-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Create network
         run: docker network create example
@@ -313,7 +303,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh cads
         env:
-          IMAGE: ${{ needs.init.outputs.db-image }}
+          IMAGE: ${{ inputs.db-image}}
           HOSTNAME: cads.example.com
           PASSWORD: Secret.123
 
@@ -354,7 +344,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh tksds
         env:
-          IMAGE: ${{ needs.init.outputs.db-image }}
+          IMAGE: ${{ inputs.db-image}}
           HOSTNAME: tksds.example.com
           PASSWORD: Secret.123
 
@@ -479,7 +469,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: tks-external-certs-ca-${{ matrix.os }}
+          name: tks-external-certs-ca
           path: |
             /tmp/artifacts/ca
 
@@ -487,7 +477,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: tks-external-certs-tks-${{ matrix.os }}
+          name: tks-external-certs-tks
           path: |
             /tmp/artifacts/tks
 
@@ -496,12 +486,9 @@ jobs:
   # then installs DS clone, CA clone, and TKS clone in the secondary containers.
   tks-clone-test:
     name: Testing TKS clone
-    needs: [call-build-workflow]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -509,11 +496,11 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-tks-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-tks-runner.tar
+          key: pki-runner
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input pki-tks-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Create network
         run: docker network create example
@@ -522,7 +509,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh primaryds
         env:
-          IMAGE: ${{ needs.init.outputs.db-image }}
+          IMAGE: ${{ inputs.db-image}}
           HOSTNAME: primaryds.example.com
           PASSWORD: Secret.123
 
@@ -566,7 +553,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh secondaryds
         env:
-          IMAGE: ${{ needs.init.outputs.db-image }}
+          IMAGE: ${{ inputs.db-image}}
           HOSTNAME: secondaryds.example.com
           PASSWORD: Secret.123
 
@@ -626,7 +613,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh tertiaryds
         env:
-          IMAGE: ${{ needs.init.outputs.db-image }}
+          IMAGE: ${{ inputs.db-image}}
           HOSTNAME: tertiaryds.example.com
           PASSWORD: Secret.123
 
@@ -732,7 +719,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: tks-clone-primary-${{ matrix.os }}
+          name: tks-clone-primary
           path: |
             /tmp/artifacts/primary
 
@@ -740,7 +727,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: tks-clone-secondary-${{ matrix.os }}
+          name: tks-clone-secondary
           path: |
             /tmp/artifacts/secondary
 
@@ -748,6 +735,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: tks-clone-tertiary-${{ matrix.os }}
+          name: tks-clone-tertiary
           path: |
             /tmp/artifacts/tertiary
