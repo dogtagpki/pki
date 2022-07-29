@@ -176,8 +176,6 @@ class PKIDeployer:
             ds_protocol = 'ldaps'
             ds_port = self.mdict['pki_ds_ldaps_port']
             # ldap.set_option(ldap.OPT_DEBUG_LEVEL, 255)
-            ldap.set_option(ldap.OPT_X_TLS_DEMAND, True)
-            ldap.set_option(ldap.OPT_X_TLS, ldap.OPT_X_TLS_DEMAND)
             ldap.set_option(ldap.OPT_X_TLS_CACERTFILE,
                             self.mdict['pki_ds_secure_connection_ca_pem_file'])
             ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_DEMAND)
