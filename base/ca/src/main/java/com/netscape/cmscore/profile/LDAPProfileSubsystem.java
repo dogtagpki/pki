@@ -36,6 +36,7 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.util.AsyncLoader;
 import com.netscape.cms.profile.common.Profile;
+import com.netscape.cms.profile.common.ProfileConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.LDAPConfigStorage;
@@ -247,7 +248,7 @@ public class LDAPProfileSubsystem
             };
 
             ConfigStorage storage = new LDAPConfigStorage(conn, createProfileDN(id), createAttrs, "certProfileConfig");
-            ConfigStore profileConfig = new ConfigStore(storage);
+            ProfileConfig profileConfig = new ProfileConfig(storage);
 
             if (data != null)
                 profileConfig.load(data);

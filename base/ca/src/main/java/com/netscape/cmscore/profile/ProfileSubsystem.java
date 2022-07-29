@@ -28,7 +28,10 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.cms.profile.common.Profile;
+import com.netscape.cms.profile.common.ProfileConfig;
+import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.base.FileConfigStorage;
 import com.netscape.cmscore.registry.PluginRegistry;
 
 public class ProfileSubsystem
@@ -132,8 +135,14 @@ public class ProfileSubsystem
         }
 
         try {
+            // if the file is not there, create one
+            File file = new File(configPath);
+            file.createNewFile();
+
             logger.debug("ProfileSubsystem: Loading " + configPath);
-            ConfigStore profileConfig = engine.loadConfigStore(configPath);
+            ConfigStorage storage = new FileConfigStorage(configPath);
+            ProfileConfig profileConfig = new ProfileConfig(storage);
+            profileConfig.load();
 
             logger.debug("ProfileSubsystem: Initializing " + className);
             Profile profile = (Profile) Class.forName(className).getDeclaredConstructor().newInstance();

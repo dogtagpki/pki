@@ -96,7 +96,7 @@ public abstract class Profile {
     public static final String PROP_GENERIC_EXT_DEFAULT = "genericExtDefaultImpl";
 
     protected CAEngineConfig engineConfig;
-    protected ConfigStore mConfig;
+    protected ProfileConfig mConfig;
     protected PluginRegistry registry;
 
     protected Vector<String> mInputNames = new Vector<>();
@@ -236,7 +236,7 @@ public abstract class Profile {
     public void init(
             CAEngineConfig engineConfig,
             PluginRegistry registry,
-            ConfigStore profileConfig
+            ProfileConfig profileConfig
             ) throws EBaseException {
 
         logger.debug("Profile: start init");
@@ -392,7 +392,7 @@ public abstract class Profile {
      *
      * @return configuration store
      */
-    public ConfigStore getConfigStore() {
+    public ProfileConfig getConfigStore() {
         return mConfig;
     }
 

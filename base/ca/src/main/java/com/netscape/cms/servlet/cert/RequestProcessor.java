@@ -52,12 +52,12 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.profile.common.Profile;
+import com.netscape.cms.profile.common.ProfileConfig;
 import com.netscape.cms.profile.common.ProfilePolicy;
 import com.netscape.cms.profile.constraint.PolicyConstraint;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.profile.ProfileOutputFactory;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 public class RequestProcessor extends CertProcessor {
@@ -244,7 +244,7 @@ public class RequestProcessor extends CertProcessor {
      * lastModified attribute.
      */
     private void checkProfileVersion(Profile profile, Request req) throws EProfileException {
-        ConfigStore profileConfig = profile.getConfigStore();
+        ProfileConfig profileConfig = profile.getConfigStore();
         if (profileConfig != null) {
             String lastModified = null;
 

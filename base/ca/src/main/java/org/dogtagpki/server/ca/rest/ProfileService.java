@@ -70,6 +70,7 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.cms.profile.common.CAEnrollProfile;
 import com.netscape.cms.profile.common.Profile;
+import com.netscape.cms.profile.common.ProfileConfig;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cms.servlet.profile.PolicyConstraintFactory;
 import com.netscape.cms.servlet.profile.PolicyDefaultFactory;
@@ -603,7 +604,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             tempProfile.setId(profileId);
 
             try {
-                ConfigStore profileConfig = new ConfigStore();
+                ProfileConfig profileConfig = new ProfileConfig();
                 profileConfig.load(new ByteArrayInputStream(data));
                 tempProfile.init(engineConfig, registry, profileConfig);
 
@@ -738,7 +739,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             }
             tempProfile.setId(profileId);
             try {
-                ConfigStore profileConfig = new ConfigStore();
+                ProfileConfig profileConfig = new ProfileConfig();
                 profileConfig.load(new ByteArrayInputStream(data));
                 tempProfile.init(engineConfig, registry, profileConfig);
             } catch (Exception e) {
