@@ -14,6 +14,7 @@ import org.apache.tomcat.util.net.jss.TomcatJSS;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.server.ca.CAEngineConfig;
+import org.dogtagpki.server.ca.ProfileSubsystemConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -145,19 +146,19 @@ public class CAProfileImportCLI extends CommandCLI {
      * Import profiles from the filesystem into the database.
      */
     public void importProfiles(
-            CAEngineConfig cs,
+            CAEngineConfig engineConfig,
             PluginRegistry pluginRegistry,
             LDAPConnection conn,
             String baseDN,
             String inputFolder) throws Exception {
 
-        ConfigStore profileCfg = cs.getSubStore("profile", ConfigStore.class);
-        String profileIds = profileCfg.getString("list", "");
+        ProfileSubsystemConfig profileSubsystemConfig = engineConfig.getProfileSubsystemConfig();
+        String profileIds = profileSubsystemConfig.getString("list", "");
         StringTokenizer st = new StringTokenizer(profileIds, ",");
 
         while (st.hasMoreTokens()) {
             String profileID = st.nextToken();
-            ConfigStore profileConfig = profileCfg.getSubStore(profileID, ConfigStore.class);
+            ConfigStore profileConfig = profileSubsystemConfig.getSubStore(profileID, ConfigStore.class);
             String classID = profileConfig.getString("class_id", "");
 
             try {

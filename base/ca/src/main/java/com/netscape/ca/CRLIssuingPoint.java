@@ -31,7 +31,9 @@ import java.util.Vector;
 
 import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.CAEngineConfig;
 import org.dogtagpki.server.ca.ICMSCRLExtensions;
+import org.dogtagpki.server.ca.ProfileSubsystemConfig;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.CRLExtensions;
 import org.mozilla.jss.netscape.security.x509.CRLNumberExtension;
@@ -787,9 +789,10 @@ public class CRLIssuingPoint implements Runnable {
     private Vector<String> getProfileList(String list) {
         Enumeration<String> e = null;
         CAEngine engine = CAEngine.getInstance();
-        ConfigStore pc = engine.getConfig().getSubStore("profile", ConfigStore.class);
-        if (pc != null)
-            e = pc.getSubStoreNames();
+        CAEngineConfig engineConfig = engine.getConfig();
+        ProfileSubsystemConfig profileSubsystemConfig = engineConfig.getProfileSubsystemConfig();
+        if (profileSubsystemConfig != null)
+            e = profileSubsystemConfig.getSubStoreNames();
         if (list == null)
             return null;
         if (list.length() > 0 && list.charAt(list.length() - 1) == ',')

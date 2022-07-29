@@ -14,7 +14,17 @@ public class CAEngineConfig extends EngineConfig {
         super(storage);
     }
 
+    /**
+     * Returns ca.* parameters.
+     */
     public CAConfig getCAConfig() {
         return getSubStore("ca", CAConfig.class);
+    }
+
+    /**
+     * Returns profile.* parameters.
+     */
+    public ProfileSubsystemConfig getProfileSubsystemConfig() {
+        return getSubStore("profile", ProfileSubsystemConfig.class);
     }
 }
