@@ -1,23 +1,19 @@
 name: KRA Tests
 
-on: [push, pull_request]
+on:
+  workflow_call:
+    inputs:
+      db-image:
+        required: true
+        type: string
 
 jobs:
-  call-build-workflow:
-    uses: ./.github/workflows/build.yml
-    with:
-      key_container: kra
-    secrets: inherit
-
   # docs/installation/kra/Installing_KRA.md
   kra-test:
     name: Testing KRA
-    needs: [call-build-workflow]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -25,11 +21,11 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-kra-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-kra-runner.tar
+          key: pki-runner
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input pki-kra-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Create network
         run: docker network create example
@@ -38,7 +34,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh ds
         env:
-          IMAGE: ${{ needs.init.outputs.db-image }}
+          IMAGE: ${{ inputs.db-image}}
           HOSTNAME: ds.example.com
           PASSWORD: Secret.123
 
@@ -208,19 +204,16 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: kra-${{ matrix.os }}
+          name: kra
           path: |
             /tmp/artifacts/pki
 
   # docs/installation/kra/Installing_KRA_on_Separate_Instance.md
   kra-separate-test:
     name: Testing KRA on separate instance
-    needs: [call-build-workflow]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -228,11 +221,11 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-kra-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-kra-runner.tar
+          key: pki-runner
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input pki-kra-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Create network
         run: docker network create example
@@ -241,7 +234,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh cads
         env:
-          IMAGE: ${{ needs.init.outputs.db-image }}
+          IMAGE: ${{ inputs.db-image}}
           HOSTNAME: cads.example.com
           PASSWORD: Secret.123
 
@@ -277,7 +270,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh krads
         env:
-          IMAGE: ${{ needs.init.outputs.db-image }}
+          IMAGE: ${{ inputs.db-image}}
           HOSTNAME: krads.example.com
           PASSWORD: Secret.123
 
@@ -364,7 +357,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: kra-separate-ca-${{ matrix.os }}
+          name: kra-separate-ca
           path: |
             /tmp/artifacts/ca
 
@@ -372,19 +365,16 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: kra-separate-kra-${{ matrix.os }}
+          name: kra-separate-kra
           path: |
             /tmp/artifacts/kra
 
   # docs/installation/kra/Installing_KRA_with_External_Certificates.md
   kra-external-certs-test:
     name: Testing KRA with external certificates
-    needs: [call-build-workflow]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -392,11 +382,11 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-kra-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-kra-runner.tar
+          key: pki-runner
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input pki-kra-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Create network
         run: docker network create example
@@ -405,7 +395,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh cads
         env:
-          IMAGE: ${{ needs.init.outputs.db-image }}
+          IMAGE: ${{ inputs.db-image}}
           HOSTNAME: cads.example.com
           PASSWORD: Secret.123
 
@@ -446,7 +436,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh krads
         env:
-          IMAGE: ${{ needs.init.outputs.db-image }}
+          IMAGE: ${{ inputs.db-image}}
           HOSTNAME: krads.example.com
           PASSWORD: Secret.123
 
@@ -596,7 +586,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: kra-external-certs-ca-${{ matrix.os }}
+          name: kra-external-certs-ca
           path: |
             /tmp/artifacts/ca
 
@@ -604,19 +594,16 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: kra-external-certs-kra-${{ matrix.os }}
+          name: kra-external-certs-kra
           path: |
             /tmp/artifacts/kra
 
   # docs/installation/kra/Installing_KRA_with_External_Certificates.md
   kra-cmc-test:
     name: Testing KRA with CMC
-    needs: [call-build-workflow]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -624,11 +611,11 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-kra-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-kra-runner.tar
+          key: pki-runner
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input pki-kra-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Create network
         run: docker network create example
@@ -637,7 +624,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh cads
         env:
-          IMAGE: ${{ needs.init.outputs.db-image }}
+          IMAGE: ${{ inputs.db-image}}
           HOSTNAME: cads.example.com
           PASSWORD: Secret.123
 
@@ -678,7 +665,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh krads
         env:
-          IMAGE: ${{ needs.init.outputs.db-image }}
+          IMAGE: ${{ inputs.db-image}}
           HOSTNAME: krads.example.com
           PASSWORD: Secret.123
 
@@ -927,7 +914,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: kra-cmc-ca-${{ matrix.os }}
+          name: kra-cmc-ca
           path: |
             /tmp/artifacts/ca
 
@@ -935,19 +922,16 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: kra-cmc-kra-${{ matrix.os }}
+          name: kra-cmc-kra
           path: |
             /tmp/artifacts/kra
 
   # docs/installation/kra/Installing_KRA_Clone.md
   kra-clone-test:
     name: Testing KRA clone
-    needs: [call-build-workflow]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -955,11 +939,11 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-kra-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-kra-runner.tar
+          key: pki-runner
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input pki-kra-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Create network
         run: docker network create example
@@ -968,7 +952,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh primaryds
         env:
-          IMAGE: ${{ needs.init.outputs.db-image }}
+          IMAGE: ${{ inputs.db-image}}
           HOSTNAME: primaryds.example.com
           PASSWORD: Secret.123
 
@@ -1014,7 +998,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh secondaryds
         env:
-          IMAGE: ${{ needs.init.outputs.db-image }}
+          IMAGE: ${{ inputs.db-image}}
           HOSTNAME: secondaryds.example.com
           PASSWORD: Secret.123
 
@@ -1076,7 +1060,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh tertiaryds
         env:
-          IMAGE: ${{ needs.init.outputs.db-image }}
+          IMAGE: ${{ inputs.db-image}}
           HOSTNAME: tertiaryds.example.com
           PASSWORD: Secret.123
 
@@ -1185,7 +1169,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: kra-clone-primary-${{ matrix.os }}
+          name: kra-clone-primary
           path: |
             /tmp/artifacts/primary
 
@@ -1193,7 +1177,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: kra-clone-secondary-${{ matrix.os }}
+          name: kra-clone-secondary
           path: |
             /tmp/artifacts/secondary
 
@@ -1201,18 +1185,15 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: kra-clone-tertiary-${{ matrix.os }}
+          name: kra-clone-tertiary
           path: |
             /tmp/artifacts/tertiary
 
   kra-standalone-test:
     name: Testing standalone KRA
-    needs: [call-build-workflow]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -1220,11 +1201,11 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-kra-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-kra-runner.tar
+          key: pki-runner
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input pki-kra-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Create network
         run: docker network create example
@@ -1233,7 +1214,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh ds
         env:
-          IMAGE: ${{ needs.init.outputs.db-image }}
+          IMAGE: ${{ inputs.db-image}}
           HOSTNAME: ds.example.com
           PASSWORD: Secret.123
 
@@ -1374,19 +1355,16 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: kra-standalone-${{ matrix.os }}
+          name: kra-standalone
           path: |
             /tmp/artifacts/pki
 
   # https://github.com/dogtagpki/pki/wiki/Installing-KRA-with-Random-Serial-Numbers-v3
   kra-random-v3-test:
     name: Testing KRA with Random Serial Number v3
-    needs: [call-build-workflow]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -1394,11 +1372,11 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-kra-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-kra-runner.tar
+          key: pki-runner
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input pki-kra-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Create network
         run: docker network create example
@@ -1407,7 +1385,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh ds
         env:
-          IMAGE: ${{ needs.init.outputs.db-image }}
+          IMAGE: ${{ inputs.db-image}}
           HOSTNAME: ds.example.com
           PASSWORD: Secret.123
 
@@ -1505,6 +1483,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: kra-random-v3-${{ matrix.os }}
+          name: kra-random-v3
           path: |
             /tmp/artifacts/pki

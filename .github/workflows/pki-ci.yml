@@ -12,3 +12,9 @@ jobs:
     with:
       repo: ${{ needs.call-build-workflow.outputs.repo }}
       db-image: ${{ needs.call-build-workflow.outputs.db-image }}
+
+  kra-tests:
+    needs: build
+    uses: ./.github/workflows/kra-tests.yml
+    with:
+      db-image: ${{ needs.call-build-workflow.outputs.db-image }}
