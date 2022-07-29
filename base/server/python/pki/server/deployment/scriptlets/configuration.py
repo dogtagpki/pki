@@ -731,26 +731,26 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 # Remove temp SSL server cert.
                 deployer.remove_temp_sslserver_cert(instance, system_certs['sslserver'])
 
-                # Import perm SSL server cert unless it's already imported
-                # earlier in external/standalone installation.
+            # Import perm SSL server cert unless it's already imported
+            # earlier in external/standalone installation.
 
-                if not (standalone or external and subsystem.name in ['kra', 'ocsp']):
-                    deployer.import_perm_sslserver_cert(instance, system_certs['sslserver'])
+            if not (standalone or external and subsystem.name in ['kra', 'ocsp']):
+                deployer.import_perm_sslserver_cert(instance, system_certs['sslserver'])
 
-                # Store perm SSL server cert nickname and token
-                nickname = system_certs['sslserver']['nickname']
-                token = pki.nssdb.normalize_token(system_certs['sslserver']['token'])
+            # Store perm SSL server cert nickname and token
+            nickname = system_certs['sslserver']['nickname']
+            token = pki.nssdb.normalize_token(system_certs['sslserver']['token'])
 
-                if not token:
-                    token = deployer.mdict['pki_token_name']
+            if not token:
+                token = deployer.mdict['pki_token_name']
 
-                instance.set_sslserver_cert_nickname(nickname, token)
+            instance.set_sslserver_cert_nickname(nickname, token)
 
-                logger.info('Starting PKI server')
-                instance.start(
-                    wait=True,
-                    max_wait=deployer.startup_timeout,
-                    timeout=deployer.request_timeout)
+            logger.info('Starting PKI server')
+            instance.start(
+                wait=True,
+                max_wait=deployer.startup_timeout,
+                timeout=deployer.request_timeout)
 
         elif config.str2bool(deployer.mdict['pki_restart_configured_instance']):
 
