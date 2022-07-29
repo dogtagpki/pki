@@ -41,3 +41,9 @@ jobs:
   tools-tests:
     needs: build
     uses: ./.github/workflows/tools-tests.yml
+
+  tps-tests:
+    needs: build
+    uses: ./.github/workflows/tps-tests.yml
+    with:
+      db-image: ${{ needs.call-build-workflow.outputs.db-image }}
