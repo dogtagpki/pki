@@ -1,22 +1,14 @@
 name: Tools Tests
 
-on: [push, pull_request]
+on:
+  workflow_call:
 
 jobs:
-  call-build-workflow:
-    uses: ./.github/workflows/build.yml
-    with:
-      key_container: tools
-    secrets: inherit
-
   PKICertImport-test:
     name: Testing PKICertImport
-    needs: [call-build-workflow]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.call-build-workflow.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -24,11 +16,11 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-tools-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-tools-runner.tar
+          key: pki-runner
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input pki-tools-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Set up runner container
         run: |
@@ -42,12 +34,9 @@ jobs:
   # https://github.com/dogtagpki/pki/wiki/PKI-NSS-CLI
   pki-nss-rsa-test:
     name: Testing PKI NSS CLI with RSA
-    needs: [call-build-workflow]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.call-build-workflow.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -55,11 +44,11 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-tools-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-tools-runner.tar
+          key: pki-runner
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input pki-tools-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Set up runner container
         run: |
@@ -240,12 +229,9 @@ jobs:
   # https://github.com/dogtagpki/pki/wiki/PKI-NSS-CLI
   pki-nss-ecc-test:
     name: Testing PKI NSS CLI with ECC
-    needs: [call-build-workflow]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.call-build-workflow.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -253,11 +239,11 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-tools-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-tools-runner.tar
+          key: pki-runner
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input pki-tools-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Set up runner container
         run: |
@@ -439,12 +425,9 @@ jobs:
   # https://github.com/dogtagpki/pki/wiki/PKI-NSS-CLI
   pki-nss-aes-test:
     name: Testing PKI NSS CLI with AES
-    needs: [call-build-workflow]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.call-build-workflow.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -452,11 +435,11 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-tools-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-tools-runner.tar
+          key: pki-runner
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input pki-tools-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Set up runner container
         run: |
@@ -486,12 +469,9 @@ jobs:
   # https://github.com/dogtagpki/pki/wiki/PKI-NSS-CLI
   pki-nss-hsm-test:
     name: Testing PKI NSS CLI with HSM
-    needs: [call-build-workflow]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.call-build-workflow.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -499,11 +479,11 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-tools-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-tools-runner.tar
+          key: pki-runner
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input pki-tools-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Set up runner container
         run: |
@@ -740,12 +720,9 @@ jobs:
   # https://github.com/dogtagpki/pki/wiki/PKI-NSS-CLI
   pki-nss-exts-test:
     name: Testing PKI NSS CLI with Extensions
-    needs: [call-build-workflow]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.call-build-workflow.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -753,11 +730,11 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-tools-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-tools-runner.tar
+          key: pki-runner
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input pki-tools-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Set up runner container
         run: |
@@ -832,12 +809,9 @@ jobs:
   # docs/user/tools/Using-PKI-PKCS7-CLI.adoc
   pki-pkcs7-test:
     name: Testing PKI PKCS7 CLI
-    needs: [call-build-workflow]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.call-build-workflow.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -845,11 +819,11 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-tools-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-tools-runner.tar
+          key: pki-runner
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input pki-tools-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Set up runner container
         run: |
@@ -986,12 +960,9 @@ jobs:
   # https://github.com/dogtagpki/pki/wiki/PKI-PKCS11-CLI
   pki-pkcs11-test:
     name: Testing PKI PKCS11 CLI
-    needs: [call-build-workflow]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.call-build-workflow.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -999,11 +970,11 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-tools-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-tools-runner.tar
+          key: pki-runner
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input pki-tools-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Set up runner container
         run: |
@@ -1188,12 +1159,9 @@ jobs:
   # https://github.com/dogtagpki/pki/wiki/PKI-PKCS12-CLI
   pki-pkcs12-test:
     name: Testing PKI PKCS12 CLI
-    needs: [call-build-workflow]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.call-build-workflow.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -1201,11 +1169,11 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-tools-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-tools-runner.tar
+          key: pki-runner
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input pki-tools-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Set up runner container
         run: |
@@ -1359,11 +1327,7 @@ jobs:
 
   rpminspect-test:
     name: Run RPMInspect on RPMs
-    needs: [call-build-workflow]
     runs-on: ubuntu-latest
-    container: registry.fedoraproject.org/fedora:${{ matrix.os }}
-    strategy:
-      matrix: ${{ fromJSON(needs.call-build-workflow.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -1371,7 +1335,7 @@ jobs:
       - name: Download PKI packages
         uses: actions/download-artifact@v2
         with:
-          name: pki-build-${{ matrix.os }}
+          name: pki-build
           path: |
             build/
 

@@ -9,8 +9,8 @@ on:
       BASE64_DATABASE:
         required: false
     outputs:
-      matrix:
-        value: ${{ jobs.init.outputs.matrix}}
+      os:
+        value: ${{ jobs.init.outputs.matrix.os}}
       repo:
         value: ${{ jobs.init.outputs.repo}}
       db-image:
@@ -61,7 +61,7 @@ jobs:
       - name: Upload PKI packages
         uses: actions/upload-artifact@v2
         with:
-          name: pki-build-${{ matrix.os }}
+          name: pki-build
           path: |
             build/RPMS/
             build/SRPMS/

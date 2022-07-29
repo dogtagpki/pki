@@ -25,3 +25,7 @@ jobs:
     uses: ./.github/workflows/kra-tests.yml
     with:
       db-image: ${{ needs.call-build-workflow.outputs.db-image }}
+
+  tools-tests:
+    needs: build
+    uses: ./.github/workflows/tools-tests.yml
