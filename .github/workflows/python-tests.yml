@@ -1,22 +1,14 @@
 name: Python Tests
 
-on: [push, pull_request]
+on:
+  workflow_call:
 
 jobs:
-  call-build-workflow:
-    uses: ./.github/workflows/build.yml
-    with:
-      key_container: tools
-    secrets: inherit
-
   lint-test:
     name: Running Python lint
-    needs: [call-build-workflow]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -24,11 +16,11 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-python-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-python-runner.tar
+          key: pki-runner
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input pki-python-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Run container
         run: |

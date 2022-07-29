@@ -32,6 +32,9 @@ jobs:
     with:
       db-image: ${{ needs.call-build-workflow.outputs.db-image }}
 
+  python-tests:
+    uses: ./.github/workflows/python-tests.yml
+
   tks-tests:
     needs: build
     uses: ./.github/workflows/tks-tests.yml
