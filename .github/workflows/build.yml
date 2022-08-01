@@ -103,3 +103,30 @@ jobs:
         with:
           key: pki-server
           path: pki-server.tar
+
+  rpminspect-test:
+    name: Run RPMInspect on RPMs
+    needs: [init, build]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    container: registry.fedoraproject.org/fedora:${{ matrix.os }}
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Download PKI packages
+        uses: actions/download-artifact@v2
+        with:
+          name: pki-build
+          path: |
+            build/
+
+      - name: Install RPMInspect
+        run: |
+          dnf install -y dnf-plugins-core rpm-build findutils
+          dnf copr enable -y copr.fedorainfracloud.org/dcantrell/rpminspect
+          dnf install -y rpminspect rpminspect-data-fedora
+      - name: Run RPMInspect on SRPM and RPMs
+        run: |
+          tests/bin/rpminspect.sh
