@@ -20,6 +20,12 @@ jobs:
       repo: ${{ needs.call-build-workflow.outputs.repo }}
       db-image: ${{ needs.call-build-workflow.outputs.db-image }}
 
+  code-analysis:
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    needs: build
+    uses: ./.github/workflows/code-analysis.yml
+    secrets: inherit
+
   kra-tests:
     needs: build
     uses: ./.github/workflows/kra-tests.yml

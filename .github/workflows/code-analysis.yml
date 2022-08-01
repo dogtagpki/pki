@@ -1,24 +1,15 @@
 name: Code Analysis
-on: [push, pull_request]
+
+on:
+  workflow_call:
 
 jobs:
-  call-build-workflow:
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
-    uses: ./.github/workflows/build.yml
-    with:
-      key_container: sonar
-    secrets: inherit
-
-
   sonarcloud:
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
     name: Sonar Cloud code analysis
-    needs: call-build-workflow
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.call-build-workflow.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -26,11 +17,11 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-sonar-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-sonar-runner.tar
+          key: pki-runner
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input pki-sonar-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Set up PKI container
         run: |
