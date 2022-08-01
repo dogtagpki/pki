@@ -306,9 +306,6 @@ The URI has the format https://*ca_hostname*:*ca_https_port*.
 
 ### MISCELLANEOUS PARAMETERS
 
-**pki_restart_configured_instance**  
-Sets whether to restart the instance after configuration is complete.  Defaults to True.
-
 **pki_enable_access_log**  
 Located in the [Tomcat] section, this variable determines whether the instance will enable (True) or disable (False) Tomcat access logging.
 Defaults to True.

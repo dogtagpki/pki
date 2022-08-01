@@ -643,18 +643,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     max_wait=deployer.startup_timeout,
                     timeout=deployer.request_timeout)
 
-        elif tomcat_instance_subsystems > 1:
-
-            if using_legacy_id_generator:
-                logger.info('Starting %s subsystem', subsystem.type)
-                subsystem.enable(
-                    wait=True,
-                    max_wait=deployer.startup_timeout,
-                    timeout=deployer.request_timeout)
-
-        if using_legacy_id_generator:
-            logger.info('Waiting for %s subsystem', subsystem.type)
-            subsystem.wait_for_startup(deployer.startup_timeout, deployer.request_timeout)
+                logger.info('Waiting for %s subsystem', subsystem.type)
+                subsystem.wait_for_startup(deployer.startup_timeout, deployer.request_timeout)
 
         # Optionally wait for debugger to attach (e. g. - 'eclipse'):
         if config.str2bool(deployer.mdict['pki_enable_java_debugger']):
@@ -780,15 +770,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 max_wait=deployer.startup_timeout,
                 timeout=deployer.request_timeout)
 
-        elif config.str2bool(deployer.mdict['pki_restart_configured_instance']):
-
-            if using_legacy_id_generator:
-                logger.info('Stopping %s subsystem', subsystem.type)
-                subsystem.disable(
-                    wait=True,
-                    max_wait=deployer.startup_timeout,
-                    timeout=deployer.request_timeout)
-
+        else:
             logger.info('Starting %s subsystem', subsystem.type)
             subsystem.enable(
                 wait=True,

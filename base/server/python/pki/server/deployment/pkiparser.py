@@ -88,7 +88,9 @@ class PKIConfigParser:
         (None, 'pki_pin',
          None, 'pki_server_database_password'),
         (None, 'pki_ajp_host',
-         None, 'pki_ajp_host_ipv4')
+         None, 'pki_ajp_host_ipv4'),
+        (None, 'pki_restart_configured_instance',
+         None, None),
     ]
 
     DEPRECATED_CA_PARAMS = [
