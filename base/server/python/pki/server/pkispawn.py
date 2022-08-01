@@ -527,7 +527,6 @@ def main(argv):
     # Read the specified PKI configuration file.
     rv = parser.read_pki_configuration_file()
     if rv != 0:
-        logger.error(log.PKI_UNABLE_TO_PARSE_1, rv)
         sys.exit(1)
 
     # --skip-configuration

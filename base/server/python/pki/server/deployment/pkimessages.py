@@ -93,7 +93,7 @@ PKI_SYMLINK_ALREADY_EXISTS_NOT_A_SYMLINK_1 = \
     "Symlink '%s' already exists BUT it is NOT a symlink!"
 PKI_SYMLINK_MISSING_OR_NOT_A_SYMLINK_1 = \
     "Symlink '%s' is either missing or is NOT a symbolic link!"
-PKI_UNABLE_TO_PARSE_1 = "'Could not parse:  '%s'"
+PKI_UNABLE_TO_PARSE_1 = "Could not parse '%s'"
 PKI_UNABLE_TO_CREATE_LOG_DIRECTORY_1 = "Could not create log directory '%s'!"
 
 

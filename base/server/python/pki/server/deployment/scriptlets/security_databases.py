@@ -158,7 +158,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 password_file=deployer.mdict['pki_shared_pfile'])
 
             try:
-                print('Importing certificates from %s:' % pki_clone_pkcs12_path)
+                logger.info('Importing certificates from %s:', pki_clone_pkcs12_path)
 
                 # The PKCS12 class requires an NSS database to run. For simplicity
                 # it uses the NSS database that has just been created.
@@ -177,9 +177,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     pkcs12_file=pki_clone_pkcs12_path,
                     pkcs12_password=pki_clone_pkcs12_password)
 
-                print('Imported certificates into %s:' %
-                      pki_server_database_path)
-
+                print('Certificates in %s:' % pki_server_database_path)
                 nssdb.show_certs()
 
             finally:

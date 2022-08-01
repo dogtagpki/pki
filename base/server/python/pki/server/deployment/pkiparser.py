@@ -214,10 +214,9 @@ class PKIConfigParser:
         # always default that configuration file exists
         if not os.path.exists(config.default_deployment_cfg) or \
                 not os.path.isfile(config.default_deployment_cfg):
-            print("ERROR:  " +
-                  log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 %
-                  config.default_deployment_cfg)
-            print()
+            logger.error(
+                log.PKI_FILE_MISSING_OR_NOT_A_FILE_1,
+                config.default_deployment_cfg)
             self.arg_parser.print_help()
             self.arg_parser.exit(-1)
 
@@ -225,10 +224,9 @@ class PKIConfigParser:
             # verify user configuration file exists
             if not os.path.exists(config.user_deployment_cfg) or \
                     not os.path.isfile(config.user_deployment_cfg):
-                print("ERROR:  " +
-                      log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 %
-                      config.user_deployment_cfg)
-                print()
+                logger.error(
+                    log.PKI_FILE_MISSING_OR_NOT_A_FILE_1,
+                    config.user_deployment_cfg)
                 self.arg_parser.print_help()
                 self.arg_parser.exit(-1)
 
@@ -459,9 +457,9 @@ class PKIConfigParser:
                                         section, key, val)
                             except configparser.NoOptionError:
                                 continue
-        except configparser.ParsingError as err:
-            print(err)
-            rv = err
+        except configparser.ParsingError:
+            logger.exception(log.PKI_UNABLE_TO_PARSE_1, config.user_deployment_cfg)
+            rv = 1
         return rv
 
     def validate_user_config(self, filename):
@@ -505,7 +503,7 @@ class PKIConfigParser:
             else:
                 message = '%s Use \'%s\' instead.' % (message, new_param)
 
-            print('WARNING: %s' % message)
+            logger.warning(message)
 
     def authdb_connect(self):
 
