@@ -11,28 +11,6 @@ jobs:
     env:
       SHARED: /tmp/workdir/pki
     steps:
-      - name: Clone repository
-        uses: actions/checkout@v2
-
-      - name: Retrieve runner image
-        uses: actions/cache@v3
-        with:
-          key: pki-runner
-          path: pki-runner.tar
-
-      - name: Load runner image
-        run: docker load --input pki-runner.tar
-
-      - name: Set up PKI container
-        run: |
-          tests/bin/runner-init.sh pki
-       
-      - name: Copy build in current folder
-        run: docker cp pki:/usr/share/java/pki ./build
-      
-      - name: Remove maven related file
-        run: rm -f pom.xml
-
       - name: Start Sonar analysis
         uses: SonarSource/sonarcloud-github-action@master
         env:
