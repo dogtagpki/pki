@@ -52,16 +52,6 @@ def enable_pki_logger(filename):
 
     logger = logging.getLogger('pki')
 
-    # Configure console handler
-    console = logging.StreamHandler()
-    console_format = logging.Formatter('%(levelname)s: %(message)s')
-    console.setFormatter(console_format)
-
-    logger.addHandler(console)
-
-    if not filename:
-        return
-
     # Create an empty file with the proper permission
     pathlib.Path(filename).touch()
     os.chmod(filename, pki.server.DEFAULT_FILE_MODE)

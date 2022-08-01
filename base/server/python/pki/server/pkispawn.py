@@ -556,7 +556,8 @@ def main(argv):
     if args.log_file:
         print('Installation log: %s' % args.log_file)
 
-    pkilogging.enable_pki_logger(args.log_file)
+    if args.log_file:
+        pkilogging.enable_pki_logger(args.log_file)
 
     if not interactive and \
             not config.str2bool(parser.mdict['pki_skip_configuration']):
@@ -1019,5 +1020,6 @@ def log_error_details():
 
 # PKI Deployment Entry Point
 if __name__ == "__main__":
+    logging.basicConfig(format='%(levelname)s: %(message)s')
     signal.signal(signal.SIGINT, interrupt_handler)
     main(sys.argv)
