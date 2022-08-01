@@ -1,0 +1,5 @@
+= Server Changes =
+
+== Remove pki_restart_configured_instance ==
+
+The `pki_restart_configured_instance` parameter for `pkispawn` is no longer used so it has been removed.

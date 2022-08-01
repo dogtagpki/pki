@@ -151,7 +151,6 @@ rhcs_install_RootCA() {
 		echo "pki_ds_remove_data=$REMOVE_DATA" >> $INSTANCECFG
 		echo "pki_ds_base_dn=$ROOTCA_DB_SUFFIX" >> $INSTANCECFG
 		echo "pki_ds_database=$ROOTCA_LDAP_INSTANCE_NAME" >> $INSTANCECFG
-		echo "pki_restart_configured_instance=$RESTART_INSTANCE" >> $INSTANCECFG
 		echo "pki_skip_configuration=$SKIP_CONFIG" >> $INSTANCECFG
 		echo "pki_skip_installation=$SKIP_INSTALL" >> $INSTANCECFG
 		echo "pki_enable_access_log=$ENABLE_ACCESS_LOG" >> $INSTANCECFG
@@ -314,7 +313,6 @@ rhcs_install_kra() {
 		echo "pki_ds_remove_data=$REMOVE_DATA" >> $INSTANCECFG
 		echo "pki_ds_base_dn =$(eval echo \$KRA${number}_DB_SUFFIX)" >> $INSTANCECFG
 		echo "pki_ds_database=$(eval echo \$KRA${number}_LDAP_INSTANCE_NAME)" >> $INSTANCECFG
-		echo "pki_restart_configured_instance=$RESTART_INSTANCE" >> $INSTANCECFG
 		echo "pki_skip_configuration=$SKIP_CONFIG" >> $INSTANCECFG
 		echo "pki_skip_installation=$SKIP_INSTALL" >> $INSTANCECFG
 		echo "pki_enable_access_log=$ENABLE_ACCESS_LOG" >> $INSTANCECFG
@@ -465,7 +463,6 @@ rhcs_install_ocsp() {
 		echo "pki_ds_remove_data=$REMOVE_DATA" >> $INSTANCECFG
 		echo "pki_ds_base_dn =$(eval echo \$OCSP${number}_DB_SUFFIX)" >> $INSTANCECFG
 		echo "pki_ds_database=$(eval echo \$OCSP${number}_LDAP_INSTANCE_NAME)" >> $INSTANCECFG
-		echo "pki_restart_configured_instance=$RESTART_INSTANCE" >> $INSTANCECFG
 		echo "pki_skip_configuration=$SKIP_CONFIG" >> $INSTANCECFG
 		echo "pki_skip_installation=$SKIP_INSTALL" >> $INSTANCECFG
 		echo "pki_enable_access_log=$ENABLE_ACCESS_LOG" >> $INSTANCECFG
@@ -607,7 +604,6 @@ rhcs_install_tks() {
 		echo "pki_ds_remove_data=$REMOVE_DATA" >> $INSTANCECFG
 		echo "pki_ds_base_dn =$(eval echo \$TKS${number}_DB_SUFFIX)" >> $INSTANCECFG
 		echo "pki_ds_database=$(eval echo \$TKS${number}_LDAP_INSTANCE_NAME)" >> $INSTANCECFG
-		echo "pki_restart_configured_instance=$RESTART_INSTANCE" >> $INSTANCECFG
 		echo "pki_skip_configuration=$SKIP_CONFIG" >> $INSTANCECFG
 		echo "pki_skip_installation=$SKIP_INSTALL" >> $INSTANCECFG
 		echo "pki_enable_access_log=$ENABLE_ACCESS_LOG" >> $INSTANCECFG
@@ -759,7 +755,6 @@ rhcs_install_tps() {
                 echo "pki_ds_remove_data=$REMOVE_DATA" >> $INSTANCECFG
                 echo "pki_ds_base_dn =$(eval echo \$TPS${number}_DB_SUFFIX)" >> $INSTANCECFG
                 echo "pki_ds_database=$(eval echo \$TPS${number}_LDAP_INSTANCE_NAME)" >> $INSTANCECFG
-                echo "pki_restart_configured_instance=$RESTART_INSTANCE" >> $INSTANCECFG
                 echo "pki_skip_configuration=$SKIP_CONFIG" >> $INSTANCECFG
                 echo "pki_skip_installation=$SKIP_INSTALL" >> $INSTANCECFG
                 echo "pki_enable_access_log=$ENABLE_ACCESS_LOG" >> $INSTANCECFG
@@ -1042,7 +1037,6 @@ rhcs_install_SubCA(){
                 echo "pki_client_database_dir=$(eval echo \$SUBCA${number}_CERTDB_DIR)" >> $INSTANCECFG
                 echo "pki_client_database_password=$(eval echo \$SUBCA${number}_CERTDB_DIR_PASSWORD)" >> $INSTANCECFG
                 echo "pki_client_database_purge=$(eval echo \$SUBCA${number}_CLIENT_DB_PURGE)" >> $INSTANCECFG
- 		echo "pki_restart_configured_instance=$RESTART_INSTANCE" >> $INSTANCECFG
                 echo "pki_skip_configuration=$SKIP_CONFIG" >> $INSTANCECFG
                 echo "pki_skip_installation=$SKIP_INSTALL" >> $INSTANCECFG
                 echo "pki_enable_access_log=$ENABLE_ACCESS_LOG" >> $INSTANCECFG
@@ -1667,7 +1661,6 @@ rhcs_install_CAwithExtCA() {
         echo "pki_client_database_dir=$(eval echo \$SUBCA${number}_CERTDB_DIR)" >> $INSTANCECFG
         echo "pki_client_database_password=$(eval echo \$SUBCA${number}_CERTDB_DIR_PASSWORD)" >> $INSTANCECFG
         echo "pki_client_database_purge=$(eval echo \$SUBCA${number}_CLIENT_DB_PURGE)" >> $INSTANCECFG
-        echo "pki_restart_configured_instance=$RESTART_INSTANCE" >> $INSTANCECFG
 		echo "pki_skip_configuration=$SKIP_CONFIG" >> $INSTANCECFG
                 echo "pki_skip_installation=$SKIP_INSTALL" >> $INSTANCECFG
                 echo "pki_enable_access_log=$ENABLE_ACCESS_LOG" >> $INSTANCECFG
