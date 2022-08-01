@@ -492,8 +492,14 @@ class PKIConfigParser:
             if not section:
                 continue
 
-            # Param found, display deprecation warning.
+            # no new section and no replacement param -> display removal warning
+            if not new_section and not new_param:
+                logger.warning(
+                    'The \'%s\' in [%s] is no longer used. Remove the parameter.',
+                    param, section)
+                return
 
+            # display deprecation warning
             message = 'The \'%s\' in [%s] has been deprecated.' % (param, section)
 
             # If new param is defined in a different section, include it in message.
