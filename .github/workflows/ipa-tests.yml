@@ -1,78 +1,14 @@
 name: IPA Tests
 
-on: [push, pull_request]
+on:
+  workflow_call:
 
 jobs:
-  init:
-    name: Initializing workflow
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.init.outputs.matrix }}
-      repo: ${{ steps.init.outputs.repo }}
-      db-image: ${{ steps.init.outputs.db-image }}
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@v2
-
-      - name: Initialize workflow
-        id: init
-        env:
-          BASE64_MATRIX: ${{ secrets.BASE64_MATRIX }}
-          BASE64_REPO: ${{ secrets.BASE64_REPO }}
-          BASE64_DATABASE: ${{ secrets.BASE64_DATABASE }}
-        run: |
-          tests/bin/init-workflow.sh
-
-  # docs/development/Building_PKI.md
-  build:
-    name: Building PKI
-    needs: init
-    runs-on: ubuntu-latest
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
-    container: registry.fedoraproject.org/fedora:${{ matrix.os }}
-    steps:
-      - name: Clone the repository
-        uses: actions/checkout@v2
-
-      - name: Install dependencies
-        run: |
-          dnf install -y dnf-plugins-core rpm-build moby-engine
-          dnf copr enable -y ${{ needs.init.outputs.repo }}
-          dnf builddep -y --allowerasing --spec ./pki.spec --nogpgcheck
-
-      - name: Build PKI packages
-        run: ./build.sh --with-pkgs=base,server,ca,kra,acme --with-timestamp --work-dir=build rpm
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-
-      - name: Build runner image
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: tests/ipa/Dockerfile
-          build-args: |
-            OS_VERSION=${{ matrix.os }}
-            COPR_REPO=${{ needs.init.outputs.repo }}
-          tags: ipa-runner
-          target: ipa-runner
-          outputs: type=docker,dest=ipa-runner.tar
-
-      - name: Store runner image
-        uses: actions/cache@v3
-        with:
-          key: ipa-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: ipa-runner.tar
-
   ipa-test:
     name: Testing IPA
-    needs: [init, build]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -80,11 +16,11 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: ipa-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: ipa-runner.tar
+          key: pki-runner
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input ipa-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Run IPA container
         run: |
@@ -233,18 +169,15 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: ipa-${{ matrix.os }}
+          name: ipa
           path: |
             /tmp/artifacts/ipa
 
   ipa-acme-test:
     name: Testing IPA ACME
-    needs: [init, build]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -252,11 +185,11 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: ipa-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: ipa-runner.tar
+          key: pki-runner
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input ipa-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Create network
         run: docker network create example
@@ -388,18 +321,15 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: ipa-acme-${{ matrix.os }}
+          name: ipa-acme
           path: |
             /tmp/artifacts/ipa
 
   ipa-clone-test:
     name: Testing IPA clone
-    needs: [init, build]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -407,11 +337,11 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: ipa-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: ipa-runner.tar
+          key: pki-runner
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input ipa-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Create network
         run: docker network create example
@@ -534,7 +464,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: ipa-clone-primary-${{ matrix.os }}
+          name: ipa-clone-primary
           path: |
             /tmp/artifacts/primary
 
@@ -542,6 +472,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: ipa-clone-secondary-${{ matrix.os }}
+          name: ipa-clone-secondary
           path: |
             /tmp/artifacts/secondary

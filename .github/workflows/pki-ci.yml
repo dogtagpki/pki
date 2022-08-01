@@ -2,6 +2,10 @@ name: PKI CI
 on: [push, pull_request]
 
 jobs:
+  acme-tests:
+    needs: build
+    uses: ./.github/workflows/acme-tests.yml
+
   build:
     uses: ./.github/workflows/build.yml
     secrets: inherit
@@ -26,6 +30,12 @@ jobs:
     uses: ./.github/workflows/code-analysis.yml
     secrets: inherit
 
+  ipa-tests:
+    needs: build
+    uses: ./.github/workflows/kra-tests.yml
+    with:
+      db-image: ${{ needs.call-build-workflow.outputs.db-image }}
+
   kra-tests:
     needs: build
     uses: ./.github/workflows/kra-tests.yml
@@ -44,6 +54,10 @@ jobs:
   qe-tests:
     needs: build
     uses: ./.github/workflows/qe-tests.yml
+
+  server-tests:
+    needs: build
+    uses: ./.github/workflows/server-tests.yml
 
   tks-tests:
     needs: build

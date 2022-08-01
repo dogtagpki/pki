@@ -73,6 +73,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
+          file: tests/ipa/Dockerfile
           build-args: |
             OS_VERSION=${{ matrix.os }}
             COPR_REPO=${{ needs.init.outputs.repo }}
@@ -85,3 +86,20 @@ jobs:
         with:
           key: pki-runner
           path: pki-runner.tar
+
+      - name: Build server image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          build-args: |
+            OS_VERSION=${{ matrix.os }}
+            COPR_REPO=${{ needs.init.outputs.repo }}
+          tags: pki-server
+          target: pki-server
+          outputs: type=docker,dest=pki-server.tar
+
+      - name: Store server image
+        uses: actions/cache@v3
+        with:
+          key: pki-server
+          path: pki-server.tar

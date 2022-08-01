@@ -1,95 +1,15 @@
 name: Server Tests
 
-on: [push, pull_request]
+on:
+  workflow_call:
 
 jobs:
-  init:
-    name: Initializing workflow
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.init.outputs.matrix }}
-      repo: ${{ steps.init.outputs.repo }}
-      db-image: ${{ steps.init.outputs.db-image }}
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@v2
-
-      - name: Initialize workflow
-        id: init
-        env:
-          BASE64_MATRIX: ${{ secrets.BASE64_MATRIX }}
-          BASE64_REPO: ${{ secrets.BASE64_REPO }}
-          BASE64_DATABASE: ${{ secrets.BASE64_DATABASE }}
-        run: |
-          tests/bin/init-workflow.sh
-
-  # docs/development/Building_PKI.md
-  build:
-    name: Building PKI
-    needs: init
-    runs-on: ubuntu-latest
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
-    container: registry.fedoraproject.org/fedora:${{ matrix.os }}
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@v2
-
-      - name: Install dependencies
-        run: |
-          dnf install -y dnf-plugins-core rpm-build moby-engine
-          dnf copr enable -y ${{ needs.init.outputs.repo }}
-          dnf builddep -y --allowerasing --spec ./pki.spec --nogpgcheck
-
-      - name: Build PKI packages
-        run: ./build.sh --with-pkgs=base,server --with-timestamp --work-dir=build rpm
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-
-      - name: Build runner image
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          build-args: |
-            OS_VERSION=${{ matrix.os }}
-            COPR_REPO=${{ needs.init.outputs.repo }}
-          tags: pki-runner
-          target: pki-runner
-          outputs: type=docker,dest=pki-runner.tar
-
-      - name: Store runner image
-        uses: actions/cache@v3
-        with:
-          key: pki-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-runner.tar
-
-      - name: Build server image
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          build-args: |
-            OS_VERSION=${{ matrix.os }}
-            COPR_REPO=${{ needs.init.outputs.repo }}
-          tags: pki-server
-          target: pki-server
-          outputs: type=docker,dest=pki-server.tar
-
-      - name: Store server image
-        uses: actions/cache@v3
-        with:
-          key: pki-server-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-server.tar
-
   # docs/installation/server/Installing_Basic_PKI_Server.md
   pki-server-test:
     name: Testing PKI server
-    needs: [init, build]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -97,7 +17,7 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-runner-${{ matrix.os }}-${{ github.run_id }}
+          key: pki-runner
           path: pki-runner.tar
 
       - name: Load runner image
@@ -154,19 +74,16 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: pki-server-test-${{ matrix.os }}
+          name: pki-server-test
           path: |
             /tmp/artifacts/pki
 
   # docs/admin/server/Configuring-HTTPS-Connector-with-PEM-Files.adoc
   pki-server-https-pem-test:
     name: Testing HTTPS connector with PEM files
-    needs: [init, build]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -174,7 +91,7 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-runner-${{ matrix.os }}-${{ github.run_id }}
+          key: pki-runner
           path: pki-runner.tar
 
       - name: Load runner image
@@ -259,19 +176,16 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: pki-server-https-pem-test-${{ matrix.os }}
+          name: pki-server-https-pem-test
           path: |
             /tmp/artifacts/pki
 
   # docs/admin/server/Configuring-HTTPS-Connector-with-JKS-File.adoc
   pki-server-https-jks-test:
     name: Testing HTTPS connector with JKS file
-    needs: [init, build]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -279,7 +193,7 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-runner-${{ matrix.os }}-${{ github.run_id }}
+          key: pki-runner
           path: pki-runner.tar
 
       - name: Load runner image
@@ -362,19 +276,16 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: pki-server-https-jks-test-${{ matrix.os }}
+          name: pki-server-https-jks-test
           path: |
             /tmp/artifacts/pki
 
   # docs/admin/server/Configuring-HTTPS-Connector-with-PKCS12-File.adoc
   pki-server-https-pkcs12-test:
     name: "Testing HTTPS connector with PKCS #12 file"
-    needs: [init, build]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -382,7 +293,7 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-runner-${{ matrix.os }}-${{ github.run_id }}
+          key: pki-runner
           path: pki-runner.tar
 
       - name: Load runner image
@@ -467,19 +378,16 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: pki-server-https-pkcs12-test-${{ matrix.os }}
+          name: pki-server-https-pkcs12-test
           path: |
             /tmp/artifacts/pki
 
   # docs/admin/server/Configuring-HTTPS-Connector-with-NSS-Database.adoc
   pki-server-https-nss-test:
     name: Testing HTTPS connector with NSS database
-    needs: [init, build]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -487,7 +395,7 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-runner-${{ matrix.os }}-${{ github.run_id }}
+          key: pki-runner
           path: pki-runner.tar
 
       - name: Load runner image
@@ -581,18 +489,15 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: pki-server-https-nss-test-${{ matrix.os }}
+          name: pki-server-https-nss-test
           path: |
             /tmp/artifacts/pki
 
   pki-container-test:
     name: Testing PKI container
-    needs: [init, build]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -600,7 +505,7 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-runner-${{ matrix.os }}-${{ github.run_id }}
+          key: pki-runner
           path: pki-runner.tar
 
       - name: Load runner image
@@ -609,7 +514,7 @@ jobs:
       - name: Retrieve server image
         uses: actions/cache@v3
         with:
-          key: pki-server-${{ matrix.os }}-${{ github.run_id }}
+          key: pki-server
           path: pki-server.tar
 
       - name: Load server image
@@ -651,5 +556,5 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: pki-container-test-${{ matrix.os }}
+          name: pki-container-test
           path: /tmp/artifacts/server

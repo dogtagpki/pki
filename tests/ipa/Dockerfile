@@ -14,7 +14,7 @@ ARG VERSION="0"
 ARG OS_VERSION="latest"
 ARG COPR_REPO="@pki/master"
 
-FROM registry.fedoraproject.org/fedora:$OS_VERSION AS ipa-runner
+FROM registry.fedoraproject.org/fedora:$OS_VERSION AS pki-runner
 
 ARG COPR_REPO
 
