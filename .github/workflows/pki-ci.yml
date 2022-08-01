@@ -41,6 +41,10 @@ jobs:
   python-tests:
     uses: ./.github/workflows/python-tests.yml
 
+  qe-tests:
+    needs: build
+    uses: ./.github/workflows/qe-tests.yml
+
   tks-tests:
     needs: build
     uses: ./.github/workflows/tks-tests.yml

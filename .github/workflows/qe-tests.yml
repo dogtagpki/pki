@@ -1,25 +1,17 @@
 name: QE Tests
 
-on: [push, pull_request]
+on:
+  workflow_call:
 
 jobs:
-  call-build-workflow:
-    uses: ./.github/workflows/build.yml
-    with:
-      key_container: qe
-    secrets: inherit
-
   # Tier 0
   installation-sanity-test:
     # This job uses Ansible playbooks in the tests dir to setup a PKI deployment.
     # All 5 subsystems are deployed on "discrete" instances
     name: Testing installation sanity
-    needs: [call-build-workflow]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone the repository
         uses: actions/checkout@v2
@@ -34,11 +26,11 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-qe-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-qe-runner.tar
+          key: pki-runner
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input pki-qe-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Run master container
         run: |
@@ -103,6 +95,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: sanity-${{ matrix.os }}
+          name: sanity
           path: |
             /tmp/artifacts/pki1
