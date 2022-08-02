@@ -377,8 +377,9 @@ public abstract class EnrollProfile extends Profile {
             info.set(X509CertInfo.KEY,
                     new CertificateX509Key(X509Key.parse(new DerValue(dummykey))));
 
+            String defaultSubjectName = mConfig.getString("defaultSubjectName", "");
             info.set(X509CertInfo.SUBJECT,
-                    new CertificateSubjectName(new X500Name("")));
+                    new CertificateSubjectName(new X500Name(defaultSubjectName)));
 
             info.set(X509CertInfo.VALIDITY,
                     new CertificateValidity(new Date(), new Date()));
