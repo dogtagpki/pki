@@ -102,7 +102,7 @@ public class ExternalProcessKeyRetriever implements KeyRetriever {
         String result = new String(in.readAllBytes());
         logger.debug("ExternalProcessKeyRetriever: Result:\n" + result);
 
-        JsonNode root = new JSONObject(result).getRootNode();
+        JsonNode root = new JSONObject(result).getJsonNode();
 
         JsonNode certNode = root.path("certificate");
 
@@ -125,11 +125,8 @@ public class ExternalProcessKeyRetriever implements KeyRetriever {
         if (wrappedKeyNode.isMissingNode()) {
             throw new RuntimeException("Missing \"wrapped_key\" node");
         }
-        if (!wrappedKeyNode.isBinary()) {
-            throw new RuntimeException("Invalid \"wrapped_key\" node: " + wrappedKeyNode);
-        }
-
-        byte[] pao = wrappedKeyNode.binaryValue(); // won't return null
+        // won't return null, but throws IOException if base64 decoding fails
+        byte[] pao = wrappedKeyNode.binaryValue();
 
         if (pao.length == 0) {
             throw new RuntimeException("Missing \"wrapped_key\" value");
