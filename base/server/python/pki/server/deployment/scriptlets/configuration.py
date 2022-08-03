@@ -660,6 +660,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         try:
             system_certs = deployer.setup_system_certs(nssdb, subsystem)
+
+            # Import perm SSL server cert unless it's already imported
+            # earlier in external/standalone installation.
+
+            if not (standalone or external and subsystem.name in ['kra', 'ocsp']):
+                deployer.import_perm_sslserver_cert(instance, system_certs['sslserver'])
+
         finally:
             nssdb.close()
 
@@ -748,12 +755,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
                 # Remove temp SSL server cert.
                 deployer.remove_temp_sslserver_cert(instance, system_certs['sslserver'])
-
-            # Import perm SSL server cert unless it's already imported
-            # earlier in external/standalone installation.
-
-            if not (standalone or external and subsystem.name in ['kra', 'ocsp']):
-                deployer.import_perm_sslserver_cert(instance, system_certs['sslserver'])
 
             # Store perm SSL server cert nickname and token
             nickname = system_certs['sslserver']['nickname']
