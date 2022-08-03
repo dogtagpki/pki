@@ -124,8 +124,6 @@ class PKIDeployer:
         self.force = False
         self.remove_logs = False
 
-        self.temp_sslserver_cert_created = False
-
     def set_property(self, key, value, section=None):
 
         if not section:
@@ -1198,10 +1196,10 @@ class PKIDeployer:
 
         hostname = self.mdict['pki_hostname']
 
-        token = self.mdict['pki_self_signed_token']
         (key_type, key_size, curve, hash_alg) = self.get_key_params('sslserver')
 
-        nickname = self.mdict['pki_sslserver_nickname']
+        nickname = self.mdict['pki_self_signed_nickname']
+        token = self.mdict['pki_self_signed_token']
         subject_dn = self.mdict['pki_self_signed_subject']
         serial = self.mdict.get('pki_self_signed_serial_number')
         validity = self.mdict.get('pki_self_signed_validity_period')
@@ -1213,7 +1211,7 @@ class PKIDeployer:
         nssdb = instance.open_nssdb()
 
         try:
-            logger.info('Checking existing SSL server cert: %s', nickname)
+            logger.info('Checking existing temp SSL server cert: %s', nickname)
             pem_cert = nssdb.get_cert(nickname=nickname)
 
             if pem_cert:
@@ -1221,17 +1219,17 @@ class PKIDeployer:
                 cn = cert.subject.get_attributes_for_oid(x509.oid.NameOID.COMMON_NAME)[0]
                 cert_hostname = cn.value
 
-                logger.info('Existing SSL server cert is for %s', cert_hostname)
+                logger.info('Existing temp SSL server cert is for %s', cert_hostname)
 
-                # if cert hostname is correct, don't create temp cert
+                # if cert hostname is correct, don't create new temp cert
                 if cert_hostname == hostname:
                     return
 
-                logger.info('Removing SSL server cert for %s', cert_hostname)
+                logger.info('Removing existing temp SSL server cert for %s', cert_hostname)
 
                 nssdb.remove_cert(nickname=nickname, remove_key=True)
 
-            logger.info('Creating temp SSL server cert for %s', hostname)
+            logger.info('Creating new temp SSL server cert for %s', hostname)
 
             # TODO: replace with pki-server create-cert --temp sslserver
 
@@ -1273,13 +1271,11 @@ class PKIDeployer:
             nssdb.close()
             shutil.rmtree(tmpdir)
 
-        self.temp_sslserver_cert_created = True
-
     def remove_temp_sslserver_cert(self, instance, sslserver):
 
         # TODO: replace with pki-server cert-import sslserver
 
-        nickname = sslserver['nickname']
+        nickname = self.mdict['pki_self_signed_nickname']
         token = sslserver['token']
 
         logger.info('Removing temp SSL server cert from internal token: %s', nickname)
