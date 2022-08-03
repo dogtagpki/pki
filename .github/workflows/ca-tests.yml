@@ -1180,7 +1180,6 @@ jobs:
               nss-cert-issue \
               --csr ca_signing.csr \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
-              --serial 1 \
               --cert ca_signing.crt
           docker exec pki pki \
               nss-cert-import \
@@ -1205,7 +1204,6 @@ jobs:
               --issuer ca_signing \
               --csr ca_ocsp_signing.csr \
               --ext /usr/share/pki/server/certs/ocsp_signing.conf \
-              --serial 2 \
               --cert ca_ocsp_signing.crt
           docker exec pki pki \
               nss-cert-import \
@@ -1229,7 +1227,6 @@ jobs:
               --issuer ca_signing \
               --csr ca_audit_signing.csr \
               --ext /usr/share/pki/server/certs/audit_signing.conf \
-              --serial 3 \
               --cert ca_audit_signing.crt
           docker exec pki pki \
               nss-cert-import \
@@ -1256,21 +1253,30 @@ jobs:
       - name: Install CA with existing certs
         run: |
           docker exec pki pkispawn \
-              -f /usr/share/pki/server/examples/installation/ca-existing-certs-step1.cfg \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
               -s CA \
               -D pki_ds_hostname=ds.example.com \
               -D pki_ds_ldap_port=3389 \
               -D pki_cert_id_generator=random \
               -D pki_request_id_generator=random \
+              -D pki_external=True \
+              -D pki_external_step_two=False \
               -v
           sleep 1  # avoid pkispawn log conflict due to identical timestamps
           docker exec pki pkispawn \
-              -f /usr/share/pki/server/examples/installation/ca-existing-certs-step2.cfg \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
               -s CA \
               -D pki_ds_hostname=ds.example.com \
               -D pki_ds_ldap_port=3389 \
               -D pki_cert_id_generator=random \
               -D pki_request_id_generator=random \
+              -D pki_external=True \
+              -D pki_external_step_two=True \
+              -D pki_pkcs12_path=ca-certs.p12 \
+              -D pki_pkcs12_password=Secret.123 \
+              -D pki_ca_signing_csr_path=ca_signing.csr \
+              -D pki_ocsp_signing_csr_path=ca_ocsp_signing.csr \
+              -D pki_audit_signing_csr_path=ca_audit_signing.csr \
               -v
 
           docker exec pki pki-server cert-find
