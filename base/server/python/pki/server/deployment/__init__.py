@@ -1295,51 +1295,6 @@ class PKIDeployer:
         finally:
             nssdb.close()
 
-    def import_perm_sslserver_cert(self, instance, cert):
-
-        nickname = cert['nickname']
-        token = pki.nssdb.normalize_token(cert['token'])
-
-        if not token:
-            token = self.mdict['pki_token_name']
-
-        logger.info('Importing permanent SSL server cert into %s token: %s', token, nickname)
-
-        tmpdir = tempfile.mkdtemp()
-        nssdb = instance.open_nssdb(token)
-
-        try:
-            pem_cert = pki.nssdb.convert_cert(cert['data'], 'base64', 'pem')
-
-            cert_file = os.path.join(tmpdir, 'sslserver.crt')
-            with open(cert_file, 'w', encoding='utf-8') as f:
-                f.write(pem_cert)
-
-            nssdb.add_cert(
-                nickname=nickname,
-                cert_file=cert_file)
-
-        finally:
-            nssdb.close()
-            shutil.rmtree(tmpdir)
-
-        # Reset the NSS database ownership and permissions
-        # after importing the permanent SSL server cert
-        # since it might create new files.
-
-        pki.util.chown(
-            self.mdict['pki_server_database_path'],
-            self.mdict['pki_uid'],
-            self.mdict['pki_gid'])
-
-        pki.util.chmod(
-            self.mdict['pki_server_database_path'],
-            config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
-
-        os.chmod(
-            self.mdict['pki_server_database_path'],
-            pki.server.DEFAULT_DIR_MODE)
-
     def create_cert(self, subsystem, tag, request):
 
         cert_id_generator = subsystem.config.get('dbs.cert.id.generator', 'legacy')
@@ -1409,7 +1364,7 @@ class PKIDeployer:
         external = config.str2bool(self.mdict['pki_external']) or \
             config.str2bool(self.mdict['pki_existing'])
 
-        if subsystem.type == 'CA' and external and tag != 'sslserver' and cert_info:
+        if subsystem.type == 'CA' and external and cert_info:
 
             signing_cert_info = nssdb.get_cert_info(
                 nickname=subsystem.config["ca.signing.nickname"])
@@ -1501,23 +1456,19 @@ class PKIDeployer:
         logger.info('Storing cert and request for %s', tag)
         subsystem.update_system_cert(system_cert)
 
-        if tag != 'sslserver':
-
-            logger.info('Importing %s cert into NSS database', tag)
-            # the temporary SSL server cert will be replaced later on restart
-
-            if cert_info:
-                # remove the existing cert (if any) but keep the key
-                nssdb.remove_cert(
-                    nickname=request.systemCert.nickname,
-                    token=request.systemCert.token)
-
-            nssdb.add_cert(
+        if cert_info:
+            logger.info('Remove existing %s cert from NSS database but keep the key', tag)
+            nssdb.remove_cert(
                 nickname=request.systemCert.nickname,
-                cert_data=system_cert['data'],
-                cert_format='base64',
-                token=request.systemCert.token,
-                use_jss=True)
+                token=request.systemCert.token)
+
+        logger.info('Importing %s cert into NSS database', tag)
+        nssdb.add_cert(
+            nickname=request.systemCert.nickname,
+            cert_data=system_cert['data'],
+            cert_format='base64',
+            token=request.systemCert.token,
+            use_jss=True)
 
     def setup_system_certs(self, nssdb, subsystem):
 
@@ -1572,6 +1523,21 @@ class PKIDeployer:
         nssdb.modify_cert(
             nickname=self.mdict['pki_audit_signing_nickname'],
             trust_attributes='u,u,Pu')
+
+        # Reset the NSS database ownership and permissions
+
+        pki.util.chown(
+            self.mdict['pki_server_database_path'],
+            self.mdict['pki_uid'],
+            self.mdict['pki_gid'])
+
+        pki.util.chmod(
+            self.mdict['pki_server_database_path'],
+            config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
+
+        os.chmod(
+            self.mdict['pki_server_database_path'],
+            pki.server.DEFAULT_DIR_MODE)
 
         return system_certs
 
