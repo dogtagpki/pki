@@ -22,11 +22,23 @@ import java.util.Enumeration;
 import com.netscape.cmscore.request.Request;
 
 /**
- * IRequestNotifier interface defines methods to register listeners,
- *
- * @version $Revision$, $Date$
+ * The IRequestNotifier interface defines operations that are invoked
+ * when a request is completely processed. A class implementing
+ * this interface may be registered with an RequestQueue.
+ * The interface will be invoked when a request is completely
+ * serviced by the IService object.
  */
-public interface IRequestNotifier extends INotify {
+public interface IRequestNotifier {
+
+    /**
+     * Provides notification that a request has been completed.
+     * The implementation may use values stored in the Request
+     * object, and may implement any type publishing (such as email
+     * or writing values into a directory)
+     *
+     * @param request the request that is completed.
+     */
+    public void notify(Request request);
 
     /**
      * Registers a request listener.

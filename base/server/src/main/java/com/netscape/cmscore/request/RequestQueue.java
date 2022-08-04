@@ -26,9 +26,9 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.request.AgentApprovals;
-import com.netscape.certsrv.request.INotify;
 import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.IRequestList;
+import com.netscape.certsrv.request.IRequestNotifier;
 import com.netscape.certsrv.request.IRequestScheduler;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.PolicyResult;
@@ -75,8 +75,8 @@ public class RequestQueue {
 
     IPolicy mPolicy;
     IService mService;
-    INotify mNotify;
-    INotify mPendingNotify;
+    IRequestNotifier mNotify;
+    IRequestNotifier mPendingNotify;
 
     IRequestScheduler mRequestScheduler;
 
@@ -103,8 +103,8 @@ public class RequestQueue {
             RequestRepository requestRepository,
             IPolicy policy,
             IService service,
-            INotify notifier,
-            INotify pendingNotifier)
+            IRequestNotifier notifier,
+            IRequestNotifier pendingNotifier)
             throws EBaseException {
 
         this.mPolicy = policy;
@@ -652,7 +652,7 @@ public class RequestQueue {
      *
      * @return notifier for pending request
      */
-    public INotify getPendingNotify() {
+    public IRequestNotifier getPendingNotify() {
         return mPendingNotify;
     }
 

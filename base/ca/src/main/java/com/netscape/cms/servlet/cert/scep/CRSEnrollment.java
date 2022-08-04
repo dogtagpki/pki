@@ -106,7 +106,7 @@ import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.request.INotify;
+import com.netscape.certsrv.request.IRequestNotifier;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
@@ -1779,7 +1779,7 @@ public class CRSEnrollment extends HttpServlet {
                 reqs[0].setRequestStatus(RequestStatus.PENDING);
                 //profile.getRequestQueue().rejectRequest(reqs[0]);
                 // need to notify
-                INotify notify = engine.getRequestQueue().getPendingNotify();
+                IRequestNotifier notify = engine.getRequestQueue().getPendingNotify();
                 if (notify != null) {
                     notify.notify(reqs[0]);
                 }
