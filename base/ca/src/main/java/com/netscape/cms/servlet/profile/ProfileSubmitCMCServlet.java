@@ -67,7 +67,6 @@ import com.netscape.certsrv.profile.ECMCPopRequiredException;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
-import com.netscape.certsrv.request.IRequestNotifier;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
@@ -81,6 +80,7 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.request.Request;
+import com.netscape.cmscore.request.RequestNotifier;
 
 /**
  * This servlet submits end-user request into the profile framework.
@@ -895,7 +895,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                     logger.warn("ProfileSubmitCMCServlet: set request to PENDING");
                     reqs[k].setRequestStatus(RequestStatus.PENDING);
                     // need to notify
-                    IRequestNotifier notify = engine.getRequestQueue().getPendingNotify();
+                    RequestNotifier notify = engine.getRequestQueue().getPendingNotify();
                     if (notify != null) {
                         notify.notify(reqs[k]);
                     }
@@ -918,7 +918,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                     logger.warn("ProfileSubmitCMCServlet: popRequired; set request to PENDING");
                     reqs[k].setRequestStatus(RequestStatus.PENDING);
                     // need to notify
-                    IRequestNotifier notify = engine.getRequestQueue().getPendingNotify();
+                    RequestNotifier notify = engine.getRequestQueue().getPendingNotify();
                     if (notify != null) {
                         notify.notify(reqs[k]);
                     }

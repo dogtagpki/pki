@@ -24,19 +24,18 @@ import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.request.IRequestListener;
-import com.netscape.certsrv.request.IRequestNotifier;
 import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 
 /**
- * The ARequestNotifier class implements the IRequestNotifier interface,
- * which notifies all registered request listeners.
- *
- * @version $Revision$, $Date$
+ * The RequestNotifier can be registered with a RequestQueue,
+ * so it will be invoked when a request is completely serviced
+ * by the IService object, then it will notify all registered
+ * request listeners.
  */
-public class RequestNotifier implements IRequestNotifier {
+public class RequestNotifier {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestNotifier.class);
 
@@ -58,7 +57,14 @@ public class RequestNotifier implements IRequestNotifier {
         mPublishingQueuePriority = Thread.currentThread().getPriority();
     }
 
-    @Override
+    /**
+     * Sets publishing queue parameters.
+     *
+     * @param isPublishingQueueEnabled publishing queue switch
+     * @param publishingQueuePriorityLevel publishing queue priority level
+     * @param maxNumberOfPublishingThreads maximum number of publishing threads
+     * @param publishingQueuePageSize publishing queue page size
+     */
     public void setPublishingQueue(boolean isPublishingQueueEnabled,
                                     int publishingQueuePriorityLevel,
                                     int maxNumberOfPublishingThreads,
@@ -108,7 +114,6 @@ public class RequestNotifier implements IRequestNotifier {
      *
      * @param listener listener to be registered
      */
-    @Override
     public void registerListener(IRequestListener listener) {
         // XXX should check for duplicates here or allow listeners
         // to register twice and call twice ?
@@ -121,7 +126,6 @@ public class RequestNotifier implements IRequestNotifier {
      * @param name listener name
      * @param listener listener to be registered
      */
-    @Override
     public void registerListener(String name, IRequestListener listener) {
         mListeners.put(name, listener);
     }
@@ -131,7 +135,6 @@ public class RequestNotifier implements IRequestNotifier {
      *
      * @param listener listener to be removed from the list
      */
-    @Override
     public void removeListener(IRequestListener listener) {
         // XXX should check for duplicates here or allow listeners
         // to register twice and call twice ?
@@ -143,7 +146,6 @@ public class RequestNotifier implements IRequestNotifier {
      *
      * @return enumeration of listener names
      */
-    @Override
     public Enumeration<String> getListenerNames() {
         return mListeners.keys();
     }
@@ -153,7 +155,6 @@ public class RequestNotifier implements IRequestNotifier {
      *
      * @param name listener name to be removed from the list
      */
-    @Override
     public void removeListener(String name) {
         mListeners.remove(name);
     }
@@ -164,7 +165,6 @@ public class RequestNotifier implements IRequestNotifier {
      * @param name listener name
      * @return listener
      */
-    @Override
     public IRequestListener getListener(String name) {
         return mListeners.get(name);
     }
@@ -174,14 +174,12 @@ public class RequestNotifier implements IRequestNotifier {
      *
      * @return enumeration of listeners
      */
-    @Override
     public Enumeration<IRequestListener> getListeners() {
         return mListeners.elements();
     }
 
     private Object publishingCounterMonitor = new Object();
 
-    @Override
     public void updatePublishingStatus(String id) {
 
         CMSEngine engine = CMS.getCMSEngine();
@@ -210,7 +208,6 @@ public class RequestNotifier implements IRequestNotifier {
      *
      * @return request
      */
-    @Override
     public synchronized Request getRequest() {
         Request r = null;
         String id = null;
@@ -316,7 +313,6 @@ public class RequestNotifier implements IRequestNotifier {
      *
      * @return number of requests in publishing queue
      */
-    @Override
     public int getNumberOfRequests() {
         return mRequests.size();
     }
@@ -326,7 +322,6 @@ public class RequestNotifier implements IRequestNotifier {
      *
      * @return true if publishing queue is enabled, false otherwise
      */
-    @Override
     public boolean isPublishingQueueEnabled() {
         return mIsPublishingQueueEnabled;
     }
@@ -336,7 +331,6 @@ public class RequestNotifier implements IRequestNotifier {
      *
      * @param notifierThread Thread
      */
-    @Override
     public void removeNotifierThread(Thread notifierThread) {
         if (mNotifierThreads.size() > 0) {
             mNotifierThreads.remove(notifierThread);
@@ -352,11 +346,13 @@ public class RequestNotifier implements IRequestNotifier {
     }
 
     /**
-     * Notifies all registered listeners about request.
+     * Provides notification that a request has been completed.
+     * The implementation may use values stored in the Request
+     * object, and may implement any type publishing (such as email
+     * or writing values into a directory)
      *
-     * @param r request
+     * @param request the request that is completed.
      */
-    @Override
     public void notify(Request r) {
         logger.debug("ARequestNotifier  notify mIsPublishingQueueEnabled=" + mIsPublishingQueueEnabled +
                   " mMaxThreads=" + mMaxThreads);
@@ -422,7 +418,6 @@ public class RequestNotifier implements IRequestNotifier {
      *
      * @param r request
      */
-    @Override
     public synchronized void addToNotify(Request r) {
         if (!mSearchForRequests) {
             if (mRequests.size() < mMaxRequests) {

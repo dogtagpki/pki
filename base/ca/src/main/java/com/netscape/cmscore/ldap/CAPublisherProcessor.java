@@ -35,7 +35,6 @@ import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.publish.ILdapMapper;
 import com.netscape.certsrv.publish.ILdapPublisher;
-import com.netscape.certsrv.request.IRequestNotifier;
 import com.netscape.cms.publish.mappers.LdapCertSubjMap;
 import com.netscape.cms.publish.publishers.FileBasedPublisher;
 import com.netscape.cmscore.apps.CMS;
@@ -43,6 +42,7 @@ import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.request.Request;
+import com.netscape.cmscore.request.RequestNotifier;
 
 import netscape.ldap.LDAPConnection;
 
@@ -115,7 +115,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
                 int savePublishingStatus = queueConfig.getInteger("saveStatus", 0);
                 logger.info("CAPublisherProcessor: - save status: " + savePublishingStatus);
 
-                IRequestNotifier requestNotifier = engine.getRequestNotifier();
+                RequestNotifier requestNotifier = engine.getRequestNotifier();
                 requestNotifier.setPublishingQueue(
                         isPublishingQueueEnabled,
                         publishingQueuePriorityLevel,

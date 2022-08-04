@@ -42,7 +42,6 @@ import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
-import com.netscape.certsrv.request.IRequestNotifier;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.profile.ProfileAuthenticator;
@@ -52,6 +51,7 @@ import com.netscape.cms.tomcat.ExternalPrincipal;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
+import com.netscape.cmscore.request.RequestNotifier;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 public class CertProcessor extends CAProcessor {
@@ -270,7 +270,7 @@ public class CertProcessor extends CAProcessor {
 
                 req.setRequestStatus(RequestStatus.PENDING);
                 // need to notify
-                IRequestNotifier notify = engine.getRequestQueue().getPendingNotify();
+                RequestNotifier notify = engine.getRequestQueue().getPendingNotify();
                 if (notify != null) {
                     notify.notify(req);
                 }

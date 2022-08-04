@@ -106,7 +106,6 @@ import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.request.IRequestNotifier;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
@@ -123,6 +122,7 @@ import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.request.CertRequestRepository;
 import com.netscape.cmscore.request.Request;
+import com.netscape.cmscore.request.RequestNotifier;
 import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmscore.security.JssSubsystem;
@@ -1779,7 +1779,7 @@ public class CRSEnrollment extends HttpServlet {
                 reqs[0].setRequestStatus(RequestStatus.PENDING);
                 //profile.getRequestQueue().rejectRequest(reqs[0]);
                 // need to notify
-                IRequestNotifier notify = engine.getRequestQueue().getPendingNotify();
+                RequestNotifier notify = engine.getRequestQueue().getPendingNotify();
                 if (notify != null) {
                     notify.notify(reqs[0]);
                 }

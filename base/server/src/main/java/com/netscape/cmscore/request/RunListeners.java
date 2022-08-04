@@ -20,7 +20,6 @@ package com.netscape.cmscore.request;
 import java.util.Enumeration;
 
 import com.netscape.certsrv.request.IRequestListener;
-import com.netscape.certsrv.request.IRequestNotifier;
 
 /**
  * The RunListeners class implements Runnable interface.
@@ -32,7 +31,7 @@ public class RunListeners implements Runnable {
 
     Request mRequest = null;
     Enumeration<IRequestListener> mListeners = null;
-    IRequestNotifier mRequestNotifier = null;
+    RequestNotifier mRequestNotifier;
 
     /**
      * RunListeners class constructor.
@@ -50,7 +49,7 @@ public class RunListeners implements Runnable {
      *
      * @param requestNotifier request
      */
-    public RunListeners(IRequestNotifier requestNotifier) {
+    public RunListeners(RequestNotifier requestNotifier) {
         mRequestNotifier = requestNotifier;
         mListeners = mRequestNotifier.getListeners();
     }
