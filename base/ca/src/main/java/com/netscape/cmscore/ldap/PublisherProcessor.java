@@ -27,7 +27,6 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnModule;
 import com.netscape.certsrv.publish.ILdapMapper;
 import com.netscape.certsrv.publish.ILdapPublisher;
-import com.netscape.certsrv.publish.IXcertPublisherProcessor;
 import com.netscape.certsrv.publish.MapperPlugin;
 import com.netscape.certsrv.publish.MapperProxy;
 import com.netscape.certsrv.publish.PublisherPlugin;
@@ -42,8 +41,7 @@ import com.netscape.cmscore.request.Request;
  * Controls the publishing process from the top level. Maintains
  * a collection of Publishers , Mappers, and Publish Rules.
  */
-
-public abstract class PublisherProcessor implements IXcertPublisherProcessor {
+public abstract class PublisherProcessor {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PublisherProcessor.class);
 

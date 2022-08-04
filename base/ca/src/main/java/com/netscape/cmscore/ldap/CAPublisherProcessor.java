@@ -316,8 +316,11 @@ public class CAPublisherProcessor extends PublisherProcessor {
 
     /**
      * Publish crossCertificatePair
+     *
+     * @param pair Byte array representing cert pair.
+     * @throws ELdapException
+     * @exception EldapException publish failed due to Ldap error.
      */
-    @Override
     public void publishXCertPair(byte[] pair) throws ELdapException {
 
         String errorRule = "";
