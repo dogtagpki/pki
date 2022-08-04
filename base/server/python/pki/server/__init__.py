@@ -545,6 +545,15 @@ grant codeBase "file:%s" {
         else:
             cmd.extend([java_home + '/bin/java'])
 
+            # add JVM options as in /etc/tomcat/conf.d/java-9-start-up-parameters.conf
+            cmd.extend([
+                '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
+                '--add-opens', 'java.base/java.io=ALL-UNNAMED',
+                '--add-opens', 'java.base/java.util=ALL-UNNAMED',
+                '--add-opens', 'java.base/java.util.concurrent=ALL-UNNAMED',
+                '--add-opens', 'java.rmi/sun.rmi.transport=ALL-UNNAMED',
+            ])
+
         if agentpath:
             cmd.extend(['-agentpath:%s' % agentpath])
 
