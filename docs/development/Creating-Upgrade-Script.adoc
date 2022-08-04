@@ -1,0 +1,95 @@
+= Creating Upgrade Script =
+
+== Overview ==
+
+This page describes the process to create a new upgrade script for the next release.
+
+It assumes that the `major_version`, `minor_version`, and `update_version` macros
+in link:../../pki.spec[pki.spec] have been updated for the next release.
+
+== Upgrade Folder ==
+
+Upgrade scripts are organized by version numbers in link:../../base/server/upgrade[base/server/upgrade] folder.
+
+The new upgrade script needs to be stored in `base/server/upgrade/<version>` folder
+where the `<version>` is the `<major>.<minor>.<update>` version of the next release.
+
+If the folder does not exist, create the folder.
+
+== Index Number ==
+
+The upgrade scripts for each version are sorted by 2-digit index numbers in the filename (i.e. `<index>-<name>.py`).
+
+To determine the index number of the new upgrade script, find the index number of the last upgrade script
+in `base/server/upgrade/<version>` folder, then increment by `1`.
+
+If this is the first upgrade script for the version, use index number `01`.
+
+== Creating Upgrade Script ==
+
+Once the upgrade folder and the index number have been determined,
+create the upgrade script (i.e. `<index>-<name>.py`) in `base/server/upgrade/<version>` folder:
+
+----
+class <name>(pki.server.upgrade.PKIServerUpgradeScriptlet):
+
+    def __init__(self):
+        super().__init__()
+        self.message = ...
+
+    ...
+----
+
+Make sure the class name matches the `<name>` in the filename.
+
+See examples in link:../../base/server/examples/upgrade[base/server/examples/upgrade].
+See also existing upgrade scripts in link:../../base/server/upgrade[base/server/upgrade].
+
+== Quick Test ==
+
+To quickly test the upgrade script, install the script manually:
+
+----
+$ mkdir -p /usr/share/pki/server/upgrade/<version>
+$ cp base/server/upgrade/<version>/<filename> /usr/share/pki/server/upgrade/<version>
+----
+
+Then run the upgrade in verbose mode:
+
+----
+$ pki-server upgrade -v
+----
+
+Finally, verify the changes made by the upgrade script.
+If there are issues, the error messages will appear in the standard error.
+
+== Proper Test ==
+
+To test the upgrade script properly, follow these steps:
+
+- install a build that has been released
+- create a new server instance
+- create a new build that contains the new upgrade script
+- install the new build
+- restart the server instance
+
+Finally, verify the changes made by the upgrade script.
+If there are issues, the error messages will appear in systemd journal.
+
+== Cherry-picking a Commit ==
+
+When cherry-picking a commit that contains an upgrade script to another branch, use the same
+process to determine the upgrade folder and the index number based on the next version
+to be released from that branch.
+Move and rename the upgrade script accordingly.
+
+== Updating a Package ==
+
+If a package is rebased to a new version that contains a new upgrade script,
+the script should already be in the right folder and has the right index number
+assuming that the above procedure was followed correctly.
+
+If the package is patched instead (i.e. maintaining the same version number),
+use the same process to determine the upgrade folder and the index number based
+on the version of the package.
+Update the patch to move and rename the upgrade script accordingly.
