@@ -110,6 +110,7 @@ jobs:
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git config user.name "GitHub Workflow Action"
+          git config user.email "dogtag-dev@redhat.com"
           git remote add pki ${{ github.event.repository.clone_url }} 
           git fetch pki
           git rebase pki/${{ needs.retrieve-pr.outputs.pr-base }}
