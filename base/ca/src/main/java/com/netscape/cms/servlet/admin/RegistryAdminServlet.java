@@ -33,7 +33,6 @@ import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.property.IConfigTemplate;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.cms.profile.constraint.PolicyConstraint;
 import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cmscore.apps.CMS;
@@ -216,7 +215,7 @@ public class RegistryAdminServlet extends AdminServlet {
             return;
         }
 
-        IPluginInfo info = registry.getPluginInfo(scope, id);
+        PluginInfo info = registry.getPluginInfo(scope, id);
 
         if (info == null) {
             sendResponse(ERROR, MISSING_POLICY_IMPL_ID, null, resp);
@@ -247,7 +246,7 @@ public class RegistryAdminServlet extends AdminServlet {
 
         while (impls.hasMoreElements()) {
             String id = impls.nextElement();
-            IPluginInfo info = registry.getPluginInfo(scope, id);
+            PluginInfo info = registry.getPluginInfo(scope, id);
 
             nvp.put(id, info.getClassName() + "," +
                     info.getDescription(getLocale(req)) + "," + info.getName(getLocale(req)));
@@ -267,7 +266,7 @@ public class RegistryAdminServlet extends AdminServlet {
         NameValuePairs nvp = new NameValuePairs();
 
         try {
-            IPluginInfo info = registry.getPluginInfo("defaultPolicy", id);
+            PluginInfo info = registry.getPluginInfo("defaultPolicy", id);
             String className = info.getClassName();
             PolicyDefault policyDefaultClass = (PolicyDefault) Class.forName(className).getDeclaredConstructor().newInstance();
 
@@ -276,8 +275,7 @@ public class RegistryAdminServlet extends AdminServlet {
 
                 while (impls.hasMoreElements()) {
                     String constraintID = impls.nextElement();
-                    IPluginInfo constraintInfo = registry.getPluginInfo(
-                            "constraintPolicy", constraintID);
+                    PluginInfo constraintInfo = registry.getPluginInfo("constraintPolicy", constraintID);
                     PolicyConstraint policyConstraintClass = (PolicyConstraint) Class.forName(constraintInfo.getClassName()).getDeclaredConstructor().newInstance();
 
                     logger.debug("RegistryAdminServlet: getSUpportedConstraint " + constraintInfo.getClassName());
@@ -312,7 +310,7 @@ public class RegistryAdminServlet extends AdminServlet {
             return;
         }
 
-        IPluginInfo info = registry.getPluginInfo(scope, id);
+        PluginInfo info = registry.getPluginInfo(scope, id);
 
         if (info == null) {
             sendResponse(ERROR, MISSING_POLICY_IMPL_ID, null, resp);

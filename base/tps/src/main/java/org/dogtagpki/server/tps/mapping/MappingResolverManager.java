@@ -23,8 +23,8 @@ import java.util.HashMap;
 import org.dogtagpki.server.tps.TPSEngineConfig;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.registry.PluginInfo;
 import com.netscape.cmscore.registry.PluginRegistry;
 
 /**
@@ -97,8 +97,7 @@ public class MappingResolverManager
         for (String prInst : profileList.split(",")) {
             String classID = prConf.getString(prInst + "." + PROP_RESOLVER_CLASS_ID);
             logger.debug(method + " initializing classID=" + classID);
-            IPluginInfo resolverInfo =
-                    registry.getPluginInfo(TOKEN_MAPPING_RESOLVER_TYPE, classID);
+            PluginInfo resolverInfo = registry.getPluginInfo(TOKEN_MAPPING_RESOLVER_TYPE, classID);
             String resolverClass = resolverInfo.getClassName();
             BaseMappingResolver resolver = null;
             try {

@@ -29,12 +29,12 @@ import org.dogtagpki.server.ca.CAEngineConfig;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.profile.common.ProfileConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.registry.PluginInfo;
 import com.netscape.cmscore.registry.PluginRegistry;
 
 public abstract class AbstractProfileSubsystem implements ISubsystem {
@@ -130,7 +130,7 @@ public abstract class AbstractProfileSubsystem implements ISubsystem {
         // and initialise it with the updated configStore
         //
         String classId = mProfileClassIds.get(id);
-        IPluginInfo info = registry.getPluginInfo("profile", classId);
+        PluginInfo info = registry.getPluginInfo("profile", classId);
         String className = info.getClassName();
         Profile newProfile = null;
         try {

@@ -47,7 +47,6 @@ import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
-import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.common.Profile;
@@ -57,6 +56,7 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.CertRecord;
+import com.netscape.cmscore.registry.PluginInfo;
 import com.netscape.cmscore.registry.PluginRegistry;
 import com.netscape.cmscore.request.Request;
 
@@ -138,7 +138,7 @@ public class RenewalProcessor extends CertProcessor {
                         throw new BadRequestException("Missing class ID in input " + inputId);
                     }
 
-                    IPluginInfo pluginInfo = registry.getPluginInfo("profileInput", classId);
+                    PluginInfo pluginInfo = registry.getPluginInfo("profileInput", classId);
                     if (pluginInfo == null) {
                         throw new BadRequestException("Unregistered class ID " + classId + " in input " + inputId);
                     }

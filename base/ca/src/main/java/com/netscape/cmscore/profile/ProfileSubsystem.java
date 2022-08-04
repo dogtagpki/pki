@@ -26,12 +26,12 @@ import org.dogtagpki.server.ca.CAEngineConfig;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.profile.common.ProfileConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.FileConfigStorage;
+import com.netscape.cmscore.registry.PluginInfo;
 import com.netscape.cmscore.registry.PluginRegistry;
 
 public class ProfileSubsystem
@@ -83,7 +83,7 @@ public class ProfileSubsystem
             String classid = subStore.getString(PROP_CLASS_ID);
             logger.debug("- class ID: " + classid);
 
-            IPluginInfo info = registry.getPluginInfo("profile", classid);
+            PluginInfo info = registry.getPluginInfo("profile", classid);
             if (info == null) {
                 throw new EBaseException("Missing plugin info: " + classid);
             }

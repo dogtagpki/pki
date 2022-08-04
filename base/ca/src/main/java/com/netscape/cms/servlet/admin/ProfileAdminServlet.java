@@ -40,7 +40,6 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.cms.profile.common.CAEnrollProfile;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.profile.common.ProfileInput;
@@ -51,6 +50,7 @@ import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.profile.ProfileSubsystem;
+import com.netscape.cmscore.registry.PluginInfo;
 import com.netscape.cmscore.registry.PluginRegistry;
 
 /**
@@ -397,7 +397,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
         while (impls.hasMoreElements()) {
             String id = impls.nextElement();
-            IPluginInfo info = registry.getPluginInfo("profile", id);
+            PluginInfo info = registry.getPluginInfo("profile", id);
 
             nvp.put(id, info.getClassName() + "," +
                     info.getDescription(getLocale(req)));
@@ -2471,7 +2471,7 @@ public class ProfileAdminServlet extends AdminServlet {
                 return;
             }
 
-            IPluginInfo info = registry.getPluginInfo("profile", impl);
+            PluginInfo info = registry.getPluginInfo("profile", impl);
 
             Profile profile = null;
 

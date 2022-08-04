@@ -67,7 +67,6 @@ import com.netscape.certsrv.profile.ProfilePolicy;
 import com.netscape.certsrv.profile.ProfileResource;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
-import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.cms.profile.common.CAEnrollProfile;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.profile.common.ProfileConfig;
@@ -78,6 +77,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
 import com.netscape.cmscore.profile.ProfileSubsystem;
+import com.netscape.cmscore.registry.PluginInfo;
 import com.netscape.cmscore.registry.PluginRegistry;
 
 /**
@@ -482,7 +482,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             auditParams.put("description", data.getDescription());
             auditParams.put("visible", Boolean.toString(data.isVisible()));
 
-            IPluginInfo info = registry.getPluginInfo("profile", data.getClassId());
+            PluginInfo info = registry.getPluginInfo("profile", data.getClassId());
 
             profile = ps.createProfile(profileId, data.getClassId(), info.getClassName());
             profile.setName(getLocale(headers), data.getName());
@@ -588,7 +588,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
 
             auditParams.put("class_id", classId);
 
-            IPluginInfo info = registry.getPluginInfo("profile", classId);
+            PluginInfo info = registry.getPluginInfo("profile", classId);
             String className = info.getClassName();
 
             // create temporary profile to verify profile configuration

@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.SubsystemConfig;
 import com.netscape.cmscore.apps.SubsystemsConfig;
@@ -37,6 +36,7 @@ import com.netscape.cmscore.ldapconn.LdapConnInfo;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmscore.profile.LDAPProfileSubsystem;
+import com.netscape.cmscore.registry.PluginInfo;
 import com.netscape.cmscore.registry.PluginRegistry;
 import com.netscape.cmsutil.password.IPasswordStore;
 import com.netscape.cmsutil.password.PasswordStoreConfig;
@@ -163,7 +163,7 @@ public class CAProfileImportCLI extends CommandCLI {
             String classID = profileEntryConfig.getString("class_id", "");
 
             try {
-                IPluginInfo info = pluginRegistry.getPluginInfo("profile", classID);
+                PluginInfo info = pluginRegistry.getPluginInfo("profile", classID);
                 if (info == null) {
                     throw new EBaseException("Invalid profile class ID: " + classID);
                 }

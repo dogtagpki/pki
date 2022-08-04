@@ -19,15 +19,17 @@ package com.netscape.cmscore.registry;
 
 import java.util.Locale;
 
-import com.netscape.certsrv.registry.IPluginInfo;
-
 /**
- * The plugin information includes id, name,
- * classname, and description.
+ * The plugin information includes name,
+ * class name, and description. The localizable
+ * name and description are information
+ * for end-users.
+ *
+ * The class name can be used to create an instance of the plugin.
  *
  * @author thomask
  */
-public class PluginInfo implements IPluginInfo {
+public class PluginInfo {
     private String mName = null;
     private String mDesc = null;
     private String mClassPath = null;
@@ -38,17 +40,34 @@ public class PluginInfo implements IPluginInfo {
         mClassPath = classPath;
     }
 
-    @Override
+    /**
+     * Retrieves the localized plugin name.
+     *
+     * @param locale end-user locale
+     * @return plugin name
+     */
     public String getName(Locale locale) {
         return mName;
     }
 
-    @Override
+    /**
+     * Retrieves the localized plugin description.
+     *
+     * @param locale end-user locale
+     * @return plugin description
+     */
     public String getDescription(Locale locale) {
         return mDesc;
     }
 
-    @Override
+    /**
+     * Retrieves the class name of the plugin.
+     * Instance of plugin can be created with
+     *
+     * Class.forName(info.getClassName());
+     *
+     * @return java class name
+     */
     public String getClassName() {
         return mClassPath;
     }

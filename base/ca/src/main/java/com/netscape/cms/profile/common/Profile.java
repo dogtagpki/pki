@@ -35,7 +35,6 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
-import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
@@ -43,6 +42,7 @@ import com.netscape.cms.profile.constraint.PolicyConstraint;
 import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cms.profile.updater.ProfileUpdater;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.registry.PluginInfo;
 import com.netscape.cmscore.registry.PluginRegistry;
 import com.netscape.cmscore.request.Request;
 
@@ -278,8 +278,7 @@ public abstract class Profile {
             String input_id = input_st.nextToken();
             String inputClassId = inputStore.getString(input_id + "." +
                     PROP_CLASS_ID);
-            IPluginInfo inputInfo = registry.getPluginInfo("profileInput",
-                    inputClassId);
+            PluginInfo inputInfo = registry.getPluginInfo("profileInput", inputClassId);
             String inputClass = inputInfo.getClassName();
 
             ProfileInput input = null;
@@ -307,8 +306,7 @@ public abstract class Profile {
 
             String outputClassId = outputStore.getString(output_id + "." +
                     PROP_CLASS_ID);
-            IPluginInfo outputInfo = registry.getPluginInfo("profileOutput",
-                    outputClassId);
+            PluginInfo outputInfo = registry.getPluginInfo("profileOutput", outputClassId);
             String outputClass = outputInfo.getClassName();
 
             ProfileOutput output = null;
@@ -337,8 +335,7 @@ public abstract class Profile {
 
             String updaterClassId = updaterStore.getString(updater_id + "." +
                     PROP_CLASS_ID);
-            IPluginInfo updaterInfo = registry.getPluginInfo("profileUpdater",
-                     updaterClassId);
+            PluginInfo updaterInfo = registry.getPluginInfo("profileUpdater", updaterClassId);
             String updaterClass = updaterInfo.getClassName();
 
             ProfileUpdater updater = null;
@@ -688,8 +685,7 @@ public abstract class Profile {
     throws EProfileException {
         ConfigStore outputStore = mConfig.getSubStore("output", ConfigStore.class);
 
-        IPluginInfo outputInfo = registry.getPluginInfo("profileOutput",
-                outputId);
+        PluginInfo outputInfo = registry.getPluginInfo("profileOutput", outputId);
 
         if (outputInfo == null) {
             logger.error("Cannot find " + outputId);
@@ -789,8 +785,7 @@ public abstract class Profile {
             throws EProfileException {
         ConfigStore inputStore = mConfig.getSubStore("input", ConfigStore.class);
 
-        IPluginInfo inputInfo = registry.getPluginInfo("profileInput",
-                inputId);
+        PluginInfo inputInfo = registry.getPluginInfo("profileInput", inputId);
 
         if (inputInfo == null) {
             logger.error("Cannot find " + inputId);
@@ -1025,8 +1020,7 @@ public abstract class Profile {
         }
         String defaultRoot = id + "." + PROP_DEFAULT;
         String constraintRoot = id + "." + PROP_CONSTRAINT;
-        IPluginInfo defInfo = registry.getPluginInfo("defaultPolicy",
-                defaultClassId);
+        PluginInfo defInfo = registry.getPluginInfo("defaultPolicy", defaultClassId);
 
         if (defInfo == null) {
             logger.error(method + " Cannot find " + defaultClassId);
@@ -1052,8 +1046,7 @@ public abstract class Profile {
             logger.debug(method + " default class initialized.");
         }
 
-        IPluginInfo conInfo = registry.getPluginInfo("constraintPolicy",
-                constraintClassId);
+        PluginInfo conInfo = registry.getPluginInfo("constraintPolicy", constraintClassId);
         if (conInfo == null) {
             logger.error(method + " Cannot find " + constraintClassId);
             throw new EProfileException("Cannot find " + constraintClassId);

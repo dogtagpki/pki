@@ -25,7 +25,6 @@ import java.util.StringTokenizer;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.registry.ERegistryException;
-import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.FileConfigStorage;
 
@@ -50,8 +49,7 @@ public class PluginRegistry {
     private static final String PROP_FILE = "file";
 
     private ConfigStore registryConfig;
-    private Hashtable<String, Hashtable<String, IPluginInfo>> mTypes =
-            new Hashtable<>();
+    private Hashtable<String, Hashtable<String, PluginInfo>> mTypes = new Hashtable<>();
 
     public PluginRegistry() {
     }
@@ -130,7 +128,7 @@ public class PluginRegistry {
 
     public void removePluginInfo(String type, String id)
             throws ERegistryException {
-        Hashtable<String, IPluginInfo> plugins = mTypes.get(type);
+        Hashtable<String, PluginInfo> plugins = mTypes.get(type);
         if (plugins == null)
             return;
         plugins.remove(id);
@@ -138,15 +136,15 @@ public class PluginRegistry {
         rebuildConfigStore(locale);
     }
 
-    public void addPluginInfo(String type, String id, IPluginInfo info)
+    public void addPluginInfo(String type, String id, PluginInfo info)
             throws ERegistryException {
         addPluginInfo(type, id, info, 1);
     }
 
-    public void addPluginInfo(String type, String id, IPluginInfo info, int saveConfig)
+    public void addPluginInfo(String type, String id, PluginInfo info, int saveConfig)
             throws ERegistryException {
 
-        Hashtable<String, IPluginInfo> plugins = mTypes.get(type);
+        Hashtable<String, PluginInfo> plugins = mTypes.get(type);
 
         if (plugins == null) {
             plugins = new Hashtable<>();
@@ -180,7 +178,7 @@ public class PluginRegistry {
                 typesBuf.append(",");
             }
 
-            Hashtable<String, IPluginInfo> mPlugins = mTypes.get(type);
+            Hashtable<String, PluginInfo> mPlugins = mTypes.get(type);
             StringBuffer idsBuf = new StringBuffer();
             Enumeration<String> plugins = mPlugins.keys();
 
@@ -192,7 +190,7 @@ public class PluginRegistry {
                     idsBuf.append(",");
                 }
 
-                IPluginInfo plugin = mPlugins.get(id);
+                PluginInfo plugin = mPlugins.get(id);
 
                 registryConfig.putString(type + "." + id + ".class",
                         plugin.getClassName());
@@ -244,7 +242,7 @@ public class PluginRegistry {
      * Returns a list of identifiers of the given type.
      */
     public Enumeration<String> getIds(String type) {
-        Hashtable<String, IPluginInfo> plugins = mTypes.get(type);
+        Hashtable<String, PluginInfo> plugins = mTypes.get(type);
 
         if (plugins == null)
             return null;
@@ -254,8 +252,8 @@ public class PluginRegistry {
     /**
      * Retrieves the plugin information.
      */
-    public IPluginInfo getPluginInfo(String type, String id) {
-        Hashtable<String, IPluginInfo> plugins = mTypes.get(type);
+    public PluginInfo getPluginInfo(String type, String id) {
+        Hashtable<String, PluginInfo> plugins = mTypes.get(type);
 
         if (plugins == null)
             return null;

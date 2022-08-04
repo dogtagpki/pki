@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.util.AsyncLoader;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.profile.common.ProfileConfig;
@@ -43,6 +42,7 @@ import com.netscape.cmscore.base.LDAPConfigStorage;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
+import com.netscape.cmscore.registry.PluginInfo;
 import com.netscape.cmscore.registry.PluginRegistry;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
@@ -198,7 +198,7 @@ public class LDAPProfileSubsystem
         InputStream data = new ByteArrayInputStream(
                 ldapProfile.getAttribute("certProfileConfig").getByteValueArray()[0]);
 
-        IPluginInfo info = registry.getPluginInfo("profile", classId);
+        PluginInfo info = registry.getPluginInfo("profile", classId);
         if (info == null) {
             logger.error("Error loading profile: No plugins for type : profile, with classId " + classId);
         } else {
