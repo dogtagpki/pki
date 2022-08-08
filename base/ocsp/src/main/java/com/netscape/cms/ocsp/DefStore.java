@@ -28,6 +28,7 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Vector;
 
+import org.apache.commons.codec.binary.Hex;
 import org.mozilla.jss.asn1.GeneralizedTime;
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
@@ -317,22 +318,28 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
 
         CertID cid = req.getCertID();
         INTEGER serialNo = cid.getSerialNumber();
-        logger.debug("DefStore: processing request for cert 0x" + serialNo.toString(16));
+        logger.info("DefStore: Processing request for cert 0x" + serialNo.toString(16));
 
         // cache result to speed up the performance
         X509CertImpl theCert = null;
         X509CRLImpl theCRL = null;
         CRLIssuingPointRecord theRec = null;
         byte keyhsh[] = cid.getIssuerKeyHash().toByteArray();
+        logger.info("DefStore: Issuer key hash: " + new String(Hex.encodeHex(keyhsh)));
+
         CRLIPContainer matched = mCacheCRLIssuingPoints.get(new String(keyhsh));
+        logger.info("DefStore: CRL issuing point container: " + matched);
 
         if (matched == null) {
+            logger.info("DefStore: Searching for objectclass=" + CRLIssuingPointRecord.class.getName());
             Enumeration<CRLIssuingPointRecord> recs = searchCRLIssuingPointRecord(
                     "objectclass=" + CRLIssuingPointRecord.class.getName(),
                     100);
 
             while (recs.hasMoreElements()) {
                 CRLIssuingPointRecord rec = recs.nextElement();
+                logger.info("DefStore: - ID: " + rec.getId());
+
                 byte certdata[] = rec.getCACert();
                 X509CertImpl cert = null;
 
@@ -346,16 +353,20 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                 MessageDigest md = MessageDigest.getInstance(cid.getDigestName());
                 X509Key key = (X509Key) cert.getPublicKey();
                 byte digest[] = md.digest(key.getKey());
+                logger.info("DefStore:   Digest: " + new String(Hex.encodeHex(digest)));
 
                 if (!Arrays.equals(digest, keyhsh)) {
                     continue;
                 }
+
+                logger.info("DefStore: Found issuer");
 
                 theCert = cert;
                 theRec = rec;
                 incReqCount(theRec.getId());
 
                 byte crldata[] = rec.getCRL();
+                logger.info("DefStore: CRL: " + crldata);
 
                 if (crldata == null) {
                     throw new Exception("Missing CRL data");
@@ -374,6 +385,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                     logger.debug("DefStore: using crl cache");
                 }
 
+                logger.info("DefStore: Adding CRL issuing point container for " + new String(Hex.encodeHex(digest)));
                 mCacheCRLIssuingPoints.put(new String(digest), new CRLIPContainer(theRec, theCert, theCRL));
                 break;
             }
@@ -385,9 +397,13 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
             incReqCount(theRec.getId());
         }
 
+        logger.info("DefStore: Issuer: " + theCert);
+
         if (theCert == null) {
             throw new Exception("Missing issuer certificate");
         }
+
+        logger.info("DefStore: Issuer: " + theCert.getSubjectX500Principal());
 
         // check the serial number
         logger.info("Checked Status of certificate 0x" + serialNo.toString(16));
