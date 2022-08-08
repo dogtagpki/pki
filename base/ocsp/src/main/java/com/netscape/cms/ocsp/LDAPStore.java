@@ -148,28 +148,46 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     public X509CertImpl locateCACert(LDAPConnection conn, String baseDN)
             throws EBaseException {
         try {
-            LDAPSearchResults results = conn.search(baseDN,
-                    LDAPv3.SCOPE_SUB, mCACertAttr + "=*",
+            String filter = mCACertAttr + "=*";
+            logger.info("LDAPStore: Searching " + baseDN + " for " + filter);
+
+            LDAPSearchResults results = conn.search(
+                    baseDN,
+                    LDAPv3.SCOPE_SUB,
+                    filter,
                     null, false);
 
             if (!results.hasMoreElements()) {
-                throw new EBaseException("error - no entry");
+                logger.warn("Unable to find entries with CA cert under " + baseDN);
+                return null;
             }
+
             LDAPEntry entry = results.next();
-            LDAPAttribute crls = entry.getAttribute(mCACertAttr);
-            Enumeration<byte[]> vals = crls.getByteValues();
+            logger.info("LDAPStore: Getting " + mCACertAttr + " attribute from " + entry.getDN());
+
+            LDAPAttribute caCerts = entry.getAttribute(mCACertAttr);
+            if (caCerts == null) {
+                logger.warn("Unable to find " + mCACertAttr + " attribute in " + entry.getDN());
+                return null;
+            }
+
+            Enumeration<byte[]> vals = caCerts.getByteValues();
 
             if (!vals.hasMoreElements()) {
-                throw new EBaseException("error - no values");
+                logger.warn("Unable to find values of " + mCACertAttr + " attribute in " + entry.getDN());
+                return null;
             }
+
             byte caCertData[] = vals.nextElement();
             X509CertImpl caCert = new X509CertImpl(caCertData);
 
             return caCert;
+
         } catch (Exception e) {
-            logger.warn("LDAPStore: locateCACert " + e.getMessage(), e);
+            logger.warn("Unable to locate CA certificate: " + e.getMessage(), e);
             logger.warn(CMS.getLogMessage("OCSP_LOCATE_CA", e.toString()));
         }
+
         return null;
     }
 
@@ -179,28 +197,46 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     public X509CRLImpl locateCRL(LDAPConnection conn, String baseDN)
             throws EBaseException {
         try {
-            LDAPSearchResults results = conn.search(baseDN,
-                    LDAPv3.SCOPE_SUB, mCRLAttr + "=*",
+            String filter = mCRLAttr + "=*";
+            logger.info("LDAPStore: Searching " + baseDN + " for " + filter);
+
+            LDAPSearchResults results = conn.search(
+                    baseDN,
+                    LDAPv3.SCOPE_SUB,
+                    filter,
                     null, false);
 
             if (!results.hasMoreElements()) {
-                throw new EBaseException("error - no entry");
+                logger.warn("Unable to find entries with CRL under " + baseDN);
+                return null;
             }
+
             LDAPEntry entry = results.next();
+            logger.info("LDAPStore: Getting " + mCRLAttr + " attribute from " + entry.getDN());
+
             LDAPAttribute crls = entry.getAttribute(mCRLAttr);
+            if (crls == null) {
+                logger.warn("Unable to find " + mCRLAttr + " attribute in " + entry.getDN());
+                return null;
+            }
+
             Enumeration<byte[]> vals = crls.getByteValues();
 
             if (!vals.hasMoreElements()) {
-                throw new EBaseException("error - no values");
+                logger.warn("Unable to find values of " + mCRLAttr + " attribute in " + entry.getDN());
+                return null;
             }
+
             byte crlData[] = vals.nextElement();
             X509CRLImpl crl = new X509CRLImpl(crlData);
 
             return crl;
+
         } catch (Exception e) {
             logger.warn("LDAPStore: locateCRL " + e.getMessage(), e);
             logger.warn(CMS.getLogMessage("OCSP_LOCATE_CRL", e.toString()));
         }
+
         return null;
     }
 
@@ -372,16 +408,19 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
 
         CertID cid = req.getCertID();
         INTEGER serialNo = cid.getSerialNumber();
-        logger.debug("LDAPStore: processing request for cert 0x" + serialNo.toString(16));
+        logger.info("LDAPStore: Processing request for cert 0x" + serialNo.toString(16));
 
         // locate the right CRL
         X509CertImpl theCert = null;
         X509CRLImpl theCRL = null;
 
+        logger.info("LDAPStore: Checking against " + mCRLs.size() + " CA cert(s)");
         Enumeration<X509CertImpl> caCerts = mCRLs.keys();
 
         while (caCerts.hasMoreElements()) {
             X509CertImpl caCert = caCerts.nextElement();
+            logger.info("LDAPStore: Checking against " + caCert.getSubjectName());
+
             MessageDigest md = MessageDigest.getInstance(cid.getDigestName());
             X509Key key = (X509Key) caCert.getPublicKey();
 
@@ -507,17 +546,36 @@ class CRLUpdater extends Thread {
         mStore = store;
     }
 
+    public void updateCRLCache() throws EBaseException {
+
+        logger.info("LDAPStore: Updating CRL");
+
+        X509CertImpl caCert = mStore.locateCACert(mC, mBaseDN);
+        if (caCert == null) {
+            logger.info("LDAPStore: Unable to find CA cert");
+            return;
+        }
+
+        X509CRLImpl crl = mStore.locateCRL(mC, mBaseDN);
+        if (crl == null) {
+            logger.info("LDAPStore: Unable to find CRL");
+            return;
+        }
+
+        logger.info("LDAPStore: Updating CRL cache");
+        mStore.updateCRLHash(caCert, crl);
+    }
+
     @Override
     public void run() {
         while (true) {
             try {
-                LDAPConnection conn = mC;
-                logger.debug("Started CRL Update '" + mBaseDN);
-                X509CertImpl caCert = mStore.locateCACert(conn, mBaseDN);
-                X509CRLImpl crl = mStore.locateCRL(conn, mBaseDN);
+                updateCRLCache();
+            } catch (Exception e) {
+                logger.error("Unable to update CRL cache: " + e.getMessage(), e);
+            }
 
-                mStore.updateCRLHash(caCert, crl);
-                logger.debug("Finished CRL Update - '" + mBaseDN);
+            try {
                 sleep(mSec * 1000); // turn sec into millis-sec
             } catch (Exception e) {
                 // ignore
