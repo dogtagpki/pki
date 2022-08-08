@@ -121,6 +121,8 @@ public class AddCRLServlet extends CMSServlet {
     protected synchronized void process(CMSRequest cmsReq)
             throws EBaseException {
 
+        logger.info("AddCRLServlet: Adding CRL");
+
         OCSPEngine engine = OCSPEngine.getInstance();
         OCSPEngineConfig cs = engine.getConfig();
 
@@ -175,9 +177,9 @@ public class AddCRLServlet extends CMSServlet {
                     }
                 }
             }
-            logger.info("AddCRLServlet");
+
             String b64 = cmsReq.getHttpReq().getParameter("crl");
-            logger.debug("AddCRLServlet: b64=" + b64);
+            logger.info("AddCRLServlet: CRL: " + b64);
 
             if (b64 == null) {
                 // store a message in the signed audit log file
