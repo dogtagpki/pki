@@ -117,6 +117,8 @@ jobs:
               -s CA \
               -D pki_ds_hostname=ds.example.com \
               -D pki_ds_ldap_port=3389 \
+              -D pki_cert_id_generator=random \
+              -D pki_request_id_generator=random \
               -v
 
           # set buffer size to 0 so that revocation takes effect immediately
@@ -124,28 +126,6 @@ jobs:
 
           # enable signed audit log
           docker exec pki pki-server ca-config-set log.instance.SignedAudit.logSigning true
-
-          # switch cert request ID generator to RSNv3
-          docker exec pki pki-server ca-config-unset dbs.beginRequestNumber
-          docker exec pki pki-server ca-config-unset dbs.endRequestNumber
-          docker exec pki pki-server ca-config-unset dbs.requestIncrement
-          docker exec pki pki-server ca-config-unset dbs.requestLowWaterMark
-          docker exec pki pki-server ca-config-unset dbs.requestCloneTransferNumber
-          docker exec pki pki-server ca-config-unset dbs.requestRangeDN
-
-          docker exec pki pki-server ca-config-set dbs.request.id.generator random
-          docker exec pki pki-server ca-config-set dbs.request.id.length 128
-
-          # switch cert ID generator to RSNv3
-          docker exec pki pki-server ca-config-unset dbs.beginSerialNumber
-          docker exec pki pki-server ca-config-unset dbs.endSerialNumber
-          docker exec pki pki-server ca-config-unset dbs.serialIncrement
-          docker exec pki pki-server ca-config-unset dbs.serialLowWaterMark
-          docker exec pki pki-server ca-config-unset dbs.serialCloneTransferNumber
-          docker exec pki pki-server ca-config-unset dbs.serialRangeDN
-
-          docker exec pki pki-server ca-config-set dbs.cert.id.generator random
-          docker exec pki pki-server ca-config-set dbs.cert.id.length 128
 
           # restart PKI server
           docker exec pki pki-server restart --wait
