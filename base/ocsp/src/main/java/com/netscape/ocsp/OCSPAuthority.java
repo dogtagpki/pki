@@ -370,8 +370,6 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
         incNumOCSPRequest(1);
         long startTime = new Date().getTime();
 
-        logger.info("OCSPAuthority: Start OCSP request");
-
         OCSPResponse response;
 
         try {
@@ -385,6 +383,8 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
             long lookupStartTime = new Date().getTime();
 
             for (int i = 0; i < tbsReq.getRequestCount(); i++) {
+                logger.info("OCSPAuthority: Processing request #" + i);
+
                 Request req = tbsReq.getRequestAt(i);
                 SingleResponse sr = mDefStore.processRequest(req);
                 singleResponses.addElement(sr);
