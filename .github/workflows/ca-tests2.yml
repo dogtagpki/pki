@@ -1054,6 +1054,18 @@ jobs:
               -text \
               -noout | tee ca_signing.txt
 
+      - name: Prepare CA cert publishing subtree
+        run: |
+          docker exec -i pki ldapadd \
+              -H ldap://ds.example.com:3389 \
+              -x \
+              -D "cn=Directory Manager" \
+              -w Secret.123 << EOF
+          dn: dc=crl,dc=pki,dc=example,dc=com
+          objectClass: domain
+          dc: crl
+          EOF
+
       - name: Configure CA cert publishing
         run: |
           # configure LDAP connection
@@ -1072,7 +1084,7 @@ jobs:
 
           # configure CA cert mapper
           docker exec pki pki-server ca-config-set ca.publish.mapper.instance.LdapCaCertMap.createCAEntry true
-          docker exec pki pki-server ca-config-set ca.publish.mapper.instance.LdapCaCertMap.dnPattern "cn=Certificate Authority,dc=example,dc=com"
+          docker exec pki pki-server ca-config-set ca.publish.mapper.instance.LdapCaCertMap.dnPattern "cn=\$subj.cn,dc=crl,dc=pki,dc=example,dc=com"
           docker exec pki pki-server ca-config-set ca.publish.mapper.instance.LdapCaCertMap.pluginName LdapCaSimpleMap
 
           # configure CA cert publishing rule
@@ -1097,12 +1109,12 @@ jobs:
               -x \
               -D "cn=Directory Manager" \
               -w Secret.123 \
-              -b "cn=Certificate Authority,dc=example,dc=com" \
+              -b "dc=crl,dc=pki,dc=example,dc=com" \
               -o ldif_wrap=no \
               -t \
-              cACertificate | tee output
+              "(objectClass=pkiCA)" | tee output
 
-          # there should be one published CA cert
+          # there should be one CA cert attribute
           grep "cACertificate;binary:" output | wc -l > actual
           echo "1" > expected
           diff expected actual
@@ -1406,6 +1418,18 @@ jobs:
               -D pki_request_id_generator=random \
               -v
 
+      - name: Prepare CRL publishing subtree
+        run: |
+          docker exec -i pki ldapadd \
+              -H ldap://ds.example.com:3389 \
+              -x \
+              -D "cn=Directory Manager" \
+              -w Secret.123 << EOF
+          dn: dc=crl,dc=pki,dc=example,dc=com
+          objectClass: domain
+          dc: crl
+          EOF
+
       - name: Configure CRL publishing
         run: |
           # configure LDAP connection
@@ -1424,14 +1448,14 @@ jobs:
 
           # configure CRL mapper
           docker exec pki pki-server ca-config-set ca.publish.mapper.instance.LdapCrlMap.createCAEntry true
-          docker exec pki pki-server ca-config-set ca.publish.mapper.instance.LdapCrlMap.dnPattern "cn=crl,dc=example,dc=com"
+          docker exec pki pki-server ca-config-set ca.publish.mapper.instance.LdapCrlMap.dnPattern "cn=\$subj.cn,dc=crl,dc=pki,dc=example,dc=com"
           docker exec pki pki-server ca-config-set ca.publish.mapper.instance.LdapCrlMap.pluginName LdapCaSimpleMap
 
           # configure CRL publishing rule
           docker exec pki pki-server ca-config-set ca.publish.rule.instance.LdapCrlRule.enable true
           docker exec pki pki-server ca-config-set ca.publish.rule.instance.LdapCrlRule.mapper LdapCrlMap
           docker exec pki pki-server ca-config-set ca.publish.rule.instance.LdapCrlRule.pluginName Rule
-          docker exec pki pki-server ca-config-set ca.publish.rule.instance.LdapCrlRule.predicate issuingPointId==MasterCRL
+          docker exec pki pki-server ca-config-set ca.publish.rule.instance.LdapCrlRule.predicate ""
           docker exec pki pki-server ca-config-set ca.publish.rule.instance.LdapCrlRule.publisher LdapCrlPublisher
           docker exec pki pki-server ca-config-set ca.publish.rule.instance.LdapCrlRule.type crl
 
@@ -1499,12 +1523,12 @@ jobs:
               -x \
               -D "cn=Directory Manager" \
               -w Secret.123 \
-              -b "cn=crl,dc=example,dc=com" \
+              -b "dc=crl,dc=pki,dc=example,dc=com" \
               -o ldif_wrap=no \
               -t \
-              certificateRevocationList | tee output
+              "(objectClass=pkiCA)" | tee output
 
-          # there should be no CRL LDAP entries
+          # there should be no CRL attributes
           grep "certificateRevocationList;binary:" output | wc -l > actual
           echo "0" > expected
           diff expected actual
@@ -1519,12 +1543,12 @@ jobs:
               -x \
               -D "cn=Directory Manager" \
               -w Secret.123 \
-              -b "cn=crl,dc=example,dc=com" \
+              -b "dc=crl,dc=pki,dc=example,dc=com" \
               -o ldif_wrap=no \
               -t \
-              certificateRevocationList | tee output
+              "(objectClass=pkiCA)" | tee output
 
-          # there should be one CRL LDAP entry
+          # there should be one CRL attribute
           grep "certificateRevocationList;binary:" output | wc -l > actual
           echo "1" > expected
           diff expected actual
@@ -1554,12 +1578,12 @@ jobs:
               -x \
               -D "cn=Directory Manager" \
               -w Secret.123 \
-              -b "cn=crl,dc=example,dc=com" \
+              -b "dc=crl,dc=pki,dc=example,dc=com" \
               -o ldif_wrap=no \
               -t \
-              certificateRevocationList | tee output
+              "(objectClass=pkiCA)" | tee output
 
-          # there should be one CRL LDAP entry
+          # there should be one CRL attribute
           grep "certificateRevocationList;binary:" output | wc -l > actual
           echo "1" > expected
           diff expected actual
