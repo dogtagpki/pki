@@ -1761,7 +1761,7 @@ class PKIDeployer:
             with open(cert_file, 'w', encoding='utf-8') as f:
                 f.write(pem_cert)
 
-            return pki.nssdb.convert_cert(pem_cert, 'pem', 'base64')
+            return pem_cert
 
         # pki_import_admin_cert is true for sharing admin cert
         nickname = self.mdict['pki_admin_nickname']
@@ -1782,7 +1782,7 @@ class PKIDeployer:
             client_nssdb.close()
 
         if pem_cert:
-            return pki.nssdb.convert_cert(pem_cert, 'pem', 'base64')
+            return pem_cert
 
         if cert_file and os.path.exists(cert_file):
 
@@ -1793,7 +1793,7 @@ class PKIDeployer:
             with open(cert_file, 'r', encoding='utf-8') as f:
                 pem_cert = f.read()
 
-            return pki.nssdb.convert_cert(pem_cert, 'pem', 'base64')
+            return pem_cert
 
         return None
 
@@ -2055,14 +2055,16 @@ class PKIDeployer:
         logger.debug('PKIDeployer: pki_external_step_two: %s', external_step_two)
 
         if config.str2bool(self.mdict['pki_import_admin_cert']):
-            b64cert = self.load_admin_cert()
+            pem_cert = self.load_admin_cert()
+            b64cert = pki.nssdb.convert_cert(pem_cert, 'pem', 'base64')
 
         elif external_step_two and subsystem.type != 'CA':
-            b64cert = self.load_admin_cert()
-            logger.debug('Admin cert: %s', b64cert)
+            pem_cert = self.load_admin_cert()
+            logger.debug('Admin cert:\n%s', pem_cert)
 
             self.export_admin_pkcs12()
 
+            b64cert = pki.nssdb.convert_cert(pem_cert, 'pem', 'base64')
             return base64.b64decode(b64cert)
 
         elif subsystem.type == 'CA':
