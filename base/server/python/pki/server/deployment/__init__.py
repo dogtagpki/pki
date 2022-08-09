@@ -2796,6 +2796,49 @@ class PKIDeployer:
         subsystem.config['conn.tks1.tksSharedSymKeyName'] = secret_nickname
         subsystem.save()
 
+    def finalize_ocsp(self, instance, subsystem):
+
+        clone = self.configuration_file.clone
+        ca_host = subsystem.config.get('preop.ca.hostname')
+
+        if not clone and ca_host:
+
+            logger.info('Adding CRL issuing point')
+            base64_chain = subsystem.config['preop.ca.pkcs7']
+            cert_chain = base64.b64decode(base64_chain)
+            subsystem.add_crl_issuing_point(cert_chain=cert_chain, cert_format='DER')
+
+        standalone = self.configuration_file.standalone
+
+        if not clone and not standalone and ca_host:
+
+            ca_port = subsystem.config.get('preop.ca.httpsadminport')
+            ca_url = 'https://%s:%s' % (ca_host, ca_port)
+            ca_uid = 'CA-%s-%s' % (ca_host, ca_port)
+
+            logger.info('Adding %s user into OCSP', ca_uid)
+            subsystem.add_user(
+                ca_uid,
+                full_name=ca_uid,
+                user_type='agentType',
+                state='1')
+
+            logger.info('Getting CA subsystem certificate from %s', ca_url)
+            subsystem_cert_data = self.get_ca_subsystem_cert(instance, ca_url)
+
+            logger.info('Adding CA subsystem certificate into %s', ca_uid)
+            subsystem.add_user_cert(ca_uid, cert_data=subsystem_cert_data, cert_format='PEM')
+
+            logger.info('Adding %s into Trusted Managers', ca_uid)
+            subsystem.add_group_member('Trusted Managers', ca_uid)
+
+            logger.info('Adding OCSP publisher in CA')
+            # For now don't register publishing with the CA for a clone,
+            # preserving existing functionality.
+            # Next we need to treat the publishing of clones as a group,
+            # and fail over amongst them.
+            self.add_ocsp_publisher(instance, subsystem)
+
     def finalize_tps(self, instance, subsystem):
 
         tps_uid = 'TPS-%s-%s' % (self.mdict['pki_hostname'], self.mdict['pki_https_port'])
@@ -2927,43 +2970,7 @@ class PKIDeployer:
                 self.add_kra_connector(instance, subsystem)
 
         if subsystem.type == 'OCSP':
-
-            ca_host = subsystem.config.get('preop.ca.hostname')
-
-            if not clone and ca_host:
-
-                logger.info('Adding CRL issuing point')
-                base64_chain = subsystem.config['preop.ca.pkcs7']
-                cert_chain = base64.b64decode(base64_chain)
-                subsystem.add_crl_issuing_point(cert_chain=cert_chain, cert_format='DER')
-
-            if not clone and not standalone and ca_host:
-                ca_port = subsystem.config.get('preop.ca.httpsadminport')
-                ca_url = 'https://%s:%s' % (ca_host, ca_port)
-                ca_uid = 'CA-%s-%s' % (ca_host, ca_port)
-
-                logger.info('Adding %s user into OCSP', ca_uid)
-                subsystem.add_user(
-                    ca_uid,
-                    full_name=ca_uid,
-                    user_type='agentType',
-                    state='1')
-
-                logger.info('Getting CA subsystem certificate from %s', ca_url)
-                subsystem_cert_data = self.get_ca_subsystem_cert(instance, ca_url)
-
-                logger.info('Adding CA subsystem certificate into %s', ca_uid)
-                subsystem.add_user_cert(ca_uid, cert_data=subsystem_cert_data, cert_format='PEM')
-
-                logger.info('Adding %s into Trusted Managers', ca_uid)
-                subsystem.add_group_member('Trusted Managers', ca_uid)
-
-                logger.info('Adding OCSP publisher in CA')
-                # For now don't register publishing with the CA for a clone,
-                # preserving existing functionality.
-                # Next we need to treat the publishing of clones as a group,
-                # and fail over amongst them.
-                self.add_ocsp_publisher(instance, subsystem)
+            self.finalize_ocsp(instance, subsystem)
 
         if subsystem.type == 'TPS':
             self.finalize_tps(instance, subsystem)
