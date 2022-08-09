@@ -1746,6 +1746,7 @@ class PKIDeployer:
 
         standalone = config.str2bool(self.mdict['pki_standalone'])
         external_step_two = config.str2bool(self.mdict['pki_external_step_two'])
+        cert_file = self.mdict.get('pki_admin_cert_file')
 
         if standalone or external_step_two and subsystem.type != 'CA':
 
@@ -1761,14 +1762,11 @@ class PKIDeployer:
             with open(self.mdict['pki_admin_cert_path'], 'r', encoding='utf-8') as f:
                 pem_cert = f.read()
 
-            b64cert = pki.nssdb.convert_cert(pem_cert, 'pem', 'base64')
+            logger.info('Storing admin cert into %s', cert_file)
+            with open(cert_file, 'w', encoding='utf-8') as f:
+                f.write(pem_cert)
 
-            logger.info('Storing admin cert into %s', self.mdict['pki_admin_cert_file'])
-
-            with open(self.mdict['pki_admin_cert_file'], 'w', encoding='utf-8') as f:
-                f.write(b64cert)
-
-            return b64cert
+            return pki.nssdb.convert_cert(pem_cert, 'pem', 'base64')
 
         # pki_import_admin_cert is true for sharing admin cert
         logger.info(
@@ -1794,14 +1792,11 @@ class PKIDeployer:
 
         # admin cert was in 'pki_admin_cert_file' but not yet in client
         # nssdb
-        logger.info('Loading admin cert from %s', self.mdict['pki_admin_cert_file'])
-
-        with open(self.mdict['pki_admin_cert_file'], 'r', encoding='utf-8') as f:
+        logger.info('Loading admin cert from %s', cert_file)
+        with open(cert_file, 'r', encoding='utf-8') as f:
             pem_cert = f.read()
 
-        b64cert = pki.nssdb.convert_cert(pem_cert, 'pem', 'base64')
-
-        return b64cert
+        return pki.nssdb.convert_cert(pem_cert, 'pem', 'base64')
 
     def request_cert(
             self,
