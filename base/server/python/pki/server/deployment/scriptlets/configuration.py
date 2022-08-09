@@ -68,9 +68,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         subsystem.config['internaldb.basedn'] = deployer.mdict['pki_ds_base_dn']
         subsystem.config['internaldb.database'] = deployer.mdict['pki_ds_database']
 
-        if config.str2bool(deployer.mdict['pki_share_db']):
-            subsystem.config['preop.internaldb.dbuser'] = deployer.mdict['pki_share_dbuser_dn']
-
         ocsp_uri = deployer.mdict.get('pki_default_ocsp_uri')
         if ocsp_uri:
             subsystem.config['ca.defaultOcspUri'] = ocsp_uri
