@@ -2796,6 +2796,41 @@ class PKIDeployer:
         subsystem.config['conn.tks1.tksSharedSymKeyName'] = secret_nickname
         subsystem.save()
 
+    def finalize_ca(self, subsystem):
+
+        clone = self.configuration_file.clone
+
+        if clone:
+            logger.info('Disabling CRL caching and generation on clone')
+
+            subsystem.config['ca.certStatusUpdateInterval'] = '0'
+            subsystem.config['ca.listenToCloneModifications'] = 'false'
+            subsystem.config['ca.crl.MasterCRL.enableCRLCache'] = 'false'
+            subsystem.config['ca.crl.MasterCRL.enableCRLUpdates'] = 'false'
+
+            master_url = self.mdict['pki_clone_uri']
+            url = urllib.parse.urlparse(master_url)
+
+            subsystem.config['master.ca.agent.host'] = url.hostname
+            subsystem.config['master.ca.agent.port'] = str(url.port)
+
+        else:
+            logger.info('Updating CA ranges')
+            subsystem.update_ranges()
+
+        crl_number = self.mdict['pki_ca_starting_crl_number']
+        logger.info('Starting CRL number: %s', crl_number)
+        subsystem.config['ca.crl.MasterCRL.startingCrlNumber'] = crl_number
+
+        logger.info('Enabling profile subsystem')
+        subsystem.enable_subsystem('profile')
+
+        # Delete CA signing cert record to avoid migration conflict
+        if not config.str2bool(self.mdict['pki_ca_signing_record_create']):
+            logger.info('Deleting CA signing cert record')
+            serial_number = self.mdict['pki_ca_signing_serial_number']
+            subsystem.remove_cert(serial_number)
+
     def finalize_kra(self, instance, subsystem):
 
         clone = self.configuration_file.clone
@@ -2931,40 +2966,8 @@ class PKIDeployer:
 
     def finalize_subsystem(self, instance, subsystem):
 
-        clone = self.configuration_file.clone
-
         if subsystem.type == 'CA':
-
-            if clone:
-                logger.info('Disabling CRL caching and generation on clone')
-
-                subsystem.config['ca.certStatusUpdateInterval'] = '0'
-                subsystem.config['ca.listenToCloneModifications'] = 'false'
-                subsystem.config['ca.crl.MasterCRL.enableCRLCache'] = 'false'
-                subsystem.config['ca.crl.MasterCRL.enableCRLUpdates'] = 'false'
-
-                master_url = self.mdict['pki_clone_uri']
-                url = urllib.parse.urlparse(master_url)
-
-                subsystem.config['master.ca.agent.host'] = url.hostname
-                subsystem.config['master.ca.agent.port'] = str(url.port)
-
-            else:
-                logger.info('Updating CA ranges')
-                subsystem.update_ranges()
-
-            crl_number = self.mdict['pki_ca_starting_crl_number']
-            logger.info('Starting CRL number: %s', crl_number)
-            subsystem.config['ca.crl.MasterCRL.startingCrlNumber'] = crl_number
-
-            logger.info('Enabling profile subsystem')
-            subsystem.enable_subsystem('profile')
-
-            # Delete CA signing cert record to avoid migration conflict
-            if not config.str2bool(self.mdict['pki_ca_signing_record_create']):
-                logger.info('Deleting CA signing cert record')
-                serial_number = self.mdict['pki_ca_signing_serial_number']
-                subsystem.remove_cert(serial_number)
+            self.finalize_ca(subsystem)
 
         else:
             ca_type = subsystem.config.get('preop.ca.type')
