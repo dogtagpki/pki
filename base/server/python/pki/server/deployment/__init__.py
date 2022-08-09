@@ -1789,13 +1789,18 @@ class PKIDeployer:
         if pem_cert:
             return pki.nssdb.convert_cert(pem_cert, 'pem', 'base64')
 
-        # admin cert was in 'pki_admin_cert_file' but not yet in client
-        # nssdb
-        logger.info('Loading admin cert from %s', cert_file)
-        with open(cert_file, 'r', encoding='utf-8') as f:
-            pem_cert = f.read()
+        if cert_file and os.path.exists(cert_file):
 
-        return pki.nssdb.convert_cert(pem_cert, 'pem', 'base64')
+            # admin cert was in 'pki_admin_cert_file' but not yet in client
+            # nssdb
+
+            logger.info('Loading admin cert from %s', cert_file)
+            with open(cert_file, 'r', encoding='utf-8') as f:
+                pem_cert = f.read()
+
+            return pki.nssdb.convert_cert(pem_cert, 'pem', 'base64')
+
+        return None
 
     def request_cert(
             self,
