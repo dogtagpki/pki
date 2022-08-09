@@ -2796,6 +2796,57 @@ class PKIDeployer:
         subsystem.config['conn.tks1.tksSharedSymKeyName'] = secret_nickname
         subsystem.save()
 
+    def finalize_tps(self, instance, subsystem):
+
+        tps_uid = 'TPS-%s-%s' % (self.mdict['pki_hostname'], self.mdict['pki_https_port'])
+        full_name = subsystem.config['preop.subsystem.name']
+        subsystem_cert = subsystem.get_subsystem_cert('subsystem').get('data')
+
+        logger.info('Registering TPS in CA')
+        self.add_subsystem_user(
+            instance,
+            'ca',
+            self.mdict['pki_ca_uri'],
+            tps_uid,
+            full_name,
+            cert=subsystem_cert,
+            session=self.install_token.token)
+
+        logger.info('Registering TPS in TKS')
+        self.add_subsystem_user(
+            instance,
+            'tks',
+            self.mdict['pki_tks_uri'],
+            tps_uid,
+            full_name,
+            cert=subsystem_cert,
+            session=self.install_token.token)
+
+        keygen = config.str2bool(self.mdict['pki_enable_server_side_keygen'])
+
+        if keygen:
+            logger.info('Registering TPS in KRA')
+            self.add_subsystem_user(
+                instance,
+                'kra',
+                self.mdict['pki_kra_uri'],
+                tps_uid,
+                full_name,
+                cert=subsystem_cert,
+                session=self.install_token.token)
+
+            logger.info('Exporting transport cert from KRA')
+            transport_cert = self.get_kra_transport_cert(instance)
+
+            logger.info('Importing transport cert into TKS')
+            self.set_tks_transport_cert(
+                instance,
+                transport_cert,
+                session=self.install_token.token)
+
+        logger.info('Setting up shared secret')
+        self.setup_shared_secret(instance, subsystem)
+
     def finalize_subsystem(self, instance, subsystem):
 
         clone = self.configuration_file.clone
@@ -2915,55 +2966,7 @@ class PKIDeployer:
                 self.add_ocsp_publisher(instance, subsystem)
 
         if subsystem.type == 'TPS':
-
-            tps_uid = 'TPS-%s-%s' % (self.mdict['pki_hostname'], self.mdict['pki_https_port'])
-            full_name = subsystem.config['preop.subsystem.name']
-            subsystem_cert = subsystem.get_subsystem_cert('subsystem').get('data')
-
-            logger.info('Registering TPS in CA')
-            self.add_subsystem_user(
-                instance,
-                'ca',
-                self.mdict['pki_ca_uri'],
-                tps_uid,
-                full_name,
-                cert=subsystem_cert,
-                session=self.install_token.token)
-
-            logger.info('Registering TPS in TKS')
-            self.add_subsystem_user(
-                instance,
-                'tks',
-                self.mdict['pki_tks_uri'],
-                tps_uid,
-                full_name,
-                cert=subsystem_cert,
-                session=self.install_token.token)
-
-            keygen = config.str2bool(self.mdict['pki_enable_server_side_keygen'])
-
-            if keygen:
-                logger.info('Registering TPS in KRA')
-                self.add_subsystem_user(
-                    instance,
-                    'kra',
-                    self.mdict['pki_kra_uri'],
-                    tps_uid,
-                    full_name,
-                    cert=subsystem_cert,
-                    session=self.install_token.token)
-
-                logger.info('Exporting transport cert from KRA')
-                transport_cert = self.get_kra_transport_cert(instance)
-
-                logger.info('Importing transport cert into TKS')
-                self.set_tks_transport_cert(
-                    instance,
-                    transport_cert,
-                    session=self.install_token.token)
-
-            logger.info('Setting up shared secret')
-            self.setup_shared_secret(instance, subsystem)
+            self.finalize_tps(instance, subsystem)
 
         # save EC type for sslserver cert (if present)
         ec_type = subsystem.config.get('preop.cert.sslserver.ec.type', 'ECDHE')
