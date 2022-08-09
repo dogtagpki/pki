@@ -19,7 +19,6 @@
 #
 
 from __future__ import absolute_import
-import time
 import logging
 import urllib.parse
 
@@ -104,136 +103,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 logger.debug('Setting ephemeral requests to true')
                 subsystem.config['kra.ephemeralRequests'] = 'true'
 
-        if subsystem.name == 'tps':
-            baseDN = subsystem.config['internaldb.basedn']
-            dsHost = subsystem.config['internaldb.ldapconn.host']
-            dsPort = subsystem.config['internaldb.ldapconn.port']
-
-            subsystem.config['tokendb.activityBaseDN'] = 'ou=Activities,' + baseDN
-            subsystem.config['tokendb.baseDN'] = 'ou=Tokens,' + baseDN
-            subsystem.config['tokendb.certBaseDN'] = 'ou=Certificates,' + baseDN
-            subsystem.config['tokendb.userBaseDN'] = baseDN
-            subsystem.config['tokendb.hostport'] = dsHost + ':' + dsPort
-
-            nickname = subsystem.config['tps.subsystem.nickname']
-            token = subsystem.config['tps.subsystem.tokenname']
-
-            if pki.nssdb.normalize_token(token):
-                fullname = token + ':' + nickname
-            else:
-                fullname = nickname
-
-            timestamp = round(time.time() * 1000 * 1000)
-
-            logger.info('Configuring CA connector')
-
-            ca_url = urllib.parse.urlparse(deployer.mdict['pki_ca_uri'])
-            subsystem.config['tps.connector.ca1.enable'] = 'true'
-            subsystem.config['tps.connector.ca1.host'] = ca_url.hostname
-            subsystem.config['tps.connector.ca1.port'] = str(ca_url.port)
-            subsystem.config['tps.connector.ca1.minHttpConns'] = '1'
-            subsystem.config['tps.connector.ca1.maxHttpConns'] = '15'
-            subsystem.config['tps.connector.ca1.nickName'] = fullname
-            subsystem.config['tps.connector.ca1.timeout'] = '30'
-            subsystem.config['tps.connector.ca1.uri.enrollment'] = \
-                '/ca/ee/ca/profileSubmitSSLClient'
-            subsystem.config['tps.connector.ca1.uri.getcert'] = \
-                '/ca/ee/ca/displayBySerial'
-            subsystem.config['tps.connector.ca1.uri.renewal'] = \
-                '/ca/ee/ca/profileSubmitSSLClient'
-            subsystem.config['tps.connector.ca1.uri.revoke'] = \
-                '/ca/ee/subsystem/ca/doRevoke'
-            subsystem.config['tps.connector.ca1.uri.unrevoke'] = \
-                '/ca/ee/subsystem/ca/doUnrevoke'
-
-            subsystem.config['config.Subsystem_Connections.ca1.state'] = 'Enabled'
-            subsystem.config['config.Subsystem_Connections.ca1.timestamp'] = timestamp
-
-            logger.info('Configuring TKS connector')
-
-            tks_url = urllib.parse.urlparse(deployer.mdict['pki_tks_uri'])
-            subsystem.config['tps.connector.tks1.enable'] = 'true'
-            subsystem.config['tps.connector.tks1.host'] = tks_url.hostname
-            subsystem.config['tps.connector.tks1.port'] = str(tks_url.port)
-            subsystem.config['tps.connector.tks1.minHttpConns'] = '1'
-            subsystem.config['tps.connector.tks1.maxHttpConns'] = '15'
-            subsystem.config['tps.connector.tks1.nickName'] = fullname
-            subsystem.config['tps.connector.tks1.timeout'] = '30'
-            subsystem.config['tps.connector.tks1.generateHostChallenge'] = 'true'
-            subsystem.config['tps.connector.tks1.serverKeygen'] = 'false'
-            subsystem.config['tps.connector.tks1.keySet'] = 'defKeySet'
-            subsystem.config['tps.connector.tks1.tksSharedSymKeyName'] = 'sharedSecret'
-            subsystem.config['tps.connector.tks1.uri.computeRandomData'] = \
-                '/tks/agent/tks/computeRandomData'
-            subsystem.config['tps.connector.tks1.uri.computeSessionKey'] = \
-                '/tks/agent/tks/computeSessionKey'
-            subsystem.config['tps.connector.tks1.uri.createKeySetData'] = \
-                '/tks/agent/tks/createKeySetData'
-            subsystem.config['tps.connector.tks1.uri.encryptData'] = \
-                '/tks/agent/tks/encryptData'
-
-            subsystem.config['config.Subsystem_Connections.tks1.state'] = 'Enabled'
-            subsystem.config['config.Subsystem_Connections.tks1.timestamp'] = timestamp
-
-            subsystem.config['target.Subsystem_Connections.list'] = 'ca1,tks1'
-
-            keygen = config.str2bool(deployer.mdict['pki_enable_server_side_keygen'])
-
-            if keygen:
-                logger.info('Configuring KRA connector')
-
-                kra_url = urllib.parse.urlparse(deployer.mdict['pki_kra_uri'])
-                subsystem.config['tps.connector.kra1.enable'] = 'true'
-                subsystem.config['tps.connector.kra1.host'] = kra_url.hostname
-                subsystem.config['tps.connector.kra1.port'] = str(kra_url.port)
-                subsystem.config['tps.connector.kra1.minHttpConns'] = '1'
-                subsystem.config['tps.connector.kra1.maxHttpConns'] = '15'
-                subsystem.config['tps.connector.kra1.nickName'] = fullname
-                subsystem.config['tps.connector.kra1.timeout'] = '30'
-                subsystem.config['tps.connector.kra1.uri.GenerateKeyPair'] = \
-                    '/kra/agent/kra/GenerateKeyPair'
-                subsystem.config['tps.connector.kra1.uri.TokenKeyRecovery'] = \
-                    '/kra/agent/kra/TokenKeyRecovery'
-
-                subsystem.config['config.Subsystem_Connections.kra1.state'] = 'Enabled'
-                subsystem.config['config.Subsystem_Connections.kra1.timestamp'] = timestamp
-
-                subsystem.config['target.Subsystem_Connections.list'] = 'ca1,tks1,kra1'
-
-                subsystem.config['tps.connector.tks1.serverKeygen'] = 'true'
-
-                # TODO: see if there are other profiles need to be configured
-                subsystem.config[
-                    'op.enroll.userKey.keyGen.encryption.serverKeygen.enable'] = 'true'
-                subsystem.config[
-                    'op.enroll.userKeyTemporary.keyGen.encryption.serverKeygen.enable'] = 'true'
-                subsystem.config[
-                    'op.enroll.soKey.keyGen.encryption.serverKeygen.enable'] = 'true'
-                subsystem.config[
-                    'op.enroll.soKeyTemporary.keyGen.encryption.serverKeygen.enable'] = 'true'
-
-            else:
-                # TODO: see if there are other profiles need to be configured
-                subsystem.config[
-                    'op.enroll.userKey.keyGen.encryption.serverKeygen.enable'] = 'false'
-                subsystem.config[
-                    'op.enroll.userKeyTemporary.keyGen.encryption.serverKeygen.enable'] = 'false'
-                subsystem.config[
-                    'op.enroll.userKey.keyGen.encryption.recovery.destroyed.scheme'
-                ] = 'GenerateNewKey'
-                subsystem.config[
-                    'op.enroll.userKeyTemporary.keyGen.encryption.recovery.onHold.scheme'
-                ] = 'GenerateNewKey'
-                subsystem.config[
-                    'op.enroll.soKey.keyGen.encryption.serverKeygen.enable'] = 'false'
-                subsystem.config[
-                    'op.enroll.soKeyTemporary.keyGen.encryption.serverKeygen.enable'] = 'false'
-                subsystem.config[
-                    'op.enroll.soKey.keyGen.encryption.recovery.destroyed.scheme'
-                ] = 'GenerateNewKey'
-                subsystem.config[
-                    'op.enroll.soKeyTemporary.keyGen.encryption.recovery.onHold.scheme'
-                ] = 'GenerateNewKey'
+        if subsystem.type == 'TPS':
+            deployer.configure_tps(subsystem)
 
         subsystem.save()
 
