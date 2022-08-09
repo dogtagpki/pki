@@ -1740,26 +1740,21 @@ class PKIDeployer:
 
         return system_certs
 
-    def load_admin_cert(self, subsystem):
+    def load_admin_cert(self):
 
         logger.debug('PKIDeployer.load_admin_cert()')
 
-        standalone = config.str2bool(self.mdict['pki_standalone'])
-        external_step_two = config.str2bool(self.mdict['pki_external_step_two'])
+        cert_path = self.mdict.get('pki_admin_cert_path')
         cert_file = self.mdict.get('pki_admin_cert_file')
 
-        if standalone or external_step_two and subsystem.type != 'CA':
+        if cert_path:
 
-            # Stand-alone/External PKI (Step 2)
-            #
             # Copy the externally-issued admin certificate into
             # 'ca_admin.cert' under the specified 'pki_client_dir'
             # stripping the certificate HEADER/FOOTER prior to saving it.
-            logger.debug('load_admin_cert: external_step_two and not CA')
 
-            logger.info('Loading admin cert from %s', self.mdict['pki_admin_cert_path'])
-
-            with open(self.mdict['pki_admin_cert_path'], 'r', encoding='utf-8') as f:
+            logger.info('Loading admin cert from %s', cert_path)
+            with open(cert_path, 'r', encoding='utf-8') as f:
                 pem_cert = f.read()
 
             logger.info('Storing admin cert into %s', cert_file)
@@ -2060,10 +2055,10 @@ class PKIDeployer:
         logger.debug('PKIDeployer: pki_external_step_two: %s', external_step_two)
 
         if config.str2bool(self.mdict['pki_import_admin_cert']):
-            b64cert = self.load_admin_cert(subsystem)
+            b64cert = self.load_admin_cert()
 
         elif external_step_two and subsystem.type != 'CA':
-            b64cert = self.load_admin_cert(subsystem)
+            b64cert = self.load_admin_cert()
             logger.debug('Admin cert: %s', b64cert)
 
             self.export_admin_pkcs12()
