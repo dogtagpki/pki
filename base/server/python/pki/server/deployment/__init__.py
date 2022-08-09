@@ -2833,6 +2833,11 @@ class PKIDeployer:
 
     def finalize_kra(self, instance, subsystem):
 
+        ca_type = subsystem.config.get('preop.ca.type')
+
+        if ca_type:
+            subsystem.config['cloning.ca.type'] = ca_type
+
         clone = self.configuration_file.clone
 
         if not clone:
@@ -2871,6 +2876,11 @@ class PKIDeployer:
             self.add_kra_connector(instance, subsystem)
 
     def finalize_ocsp(self, instance, subsystem):
+
+        ca_type = subsystem.config.get('preop.ca.type')
+
+        if ca_type:
+            subsystem.config['cloning.ca.type'] = ca_type
 
         clone = self.configuration_file.clone
         ca_host = subsystem.config.get('preop.ca.hostname')
@@ -2913,7 +2923,19 @@ class PKIDeployer:
             # and fail over amongst them.
             self.add_ocsp_publisher(instance, subsystem)
 
+    def finalize_tks(self, subsystem):
+
+        ca_type = subsystem.config.get('preop.ca.type')
+
+        if ca_type:
+            subsystem.config['cloning.ca.type'] = ca_type
+
     def finalize_tps(self, instance, subsystem):
+
+        ca_type = subsystem.config.get('preop.ca.type')
+
+        if ca_type:
+            subsystem.config['cloning.ca.type'] = ca_type
 
         tps_uid = 'TPS-%s-%s' % (self.mdict['pki_hostname'], self.mdict['pki_https_port'])
         full_name = subsystem.config['preop.subsystem.name']
@@ -2969,16 +2991,14 @@ class PKIDeployer:
         if subsystem.type == 'CA':
             self.finalize_ca(subsystem)
 
-        else:
-            ca_type = subsystem.config.get('preop.ca.type')
-            if ca_type:
-                subsystem.config['cloning.ca.type'] = ca_type
-
         if subsystem.type == 'KRA':
             self.finalize_kra(instance, subsystem)
 
         if subsystem.type == 'OCSP':
             self.finalize_ocsp(instance, subsystem)
+
+        if subsystem.type == 'TKS':
+            self.finalize_tks(subsystem)
 
         if subsystem.type == 'TPS':
             self.finalize_tps(instance, subsystem)
