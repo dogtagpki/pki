@@ -2041,11 +2041,11 @@ class PKIDeployer:
         cert_data = self.create_cert(subsystem, 'admin', request)
         self.import_cert(subsystem, 'admin', request, cert_data)
 
-        cert_pem = pki.nssdb.convert_cert(cert_data, 'base64', 'pem').encode()
-        cert_obj = x509.load_pem_x509_certificate(cert_pem, backend=default_backend())
+        cert_pem = pki.nssdb.convert_cert(cert_data, 'base64', 'pem')
+        cert_obj = x509.load_pem_x509_certificate(cert_pem.encode(), backend=default_backend())
         logger.info('- serial: %s', hex(cert_obj.serial_number))
 
-        return cert_data
+        return cert_pem
 
     def get_admin_cert(self, subsystem):
 
@@ -2069,7 +2069,8 @@ class PKIDeployer:
 
         elif subsystem.type == 'CA':
             b64csr = self.create_admin_csr()
-            b64cert = self.create_admin_cert(subsystem, b64csr)
+            pem_cert = self.create_admin_cert(subsystem, b64csr)
+            b64cert = pki.nssdb.convert_cert(pem_cert, 'pem', 'base64')
 
         else:
             b64csr = self.create_admin_csr()
