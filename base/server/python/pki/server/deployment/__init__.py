@@ -2796,6 +2796,45 @@ class PKIDeployer:
         subsystem.config['conn.tks1.tksSharedSymKeyName'] = secret_nickname
         subsystem.save()
 
+    def finalize_kra(self, instance, subsystem):
+
+        clone = self.configuration_file.clone
+
+        if not clone:
+            logger.info('Updating KRA ranges')
+            subsystem.update_ranges()
+
+        standalone = self.configuration_file.standalone
+        ca_host = subsystem.config.get('preop.ca.hostname')
+
+        if not clone and not standalone and ca_host:
+            ca_port = subsystem.config.get('preop.ca.httpsadminport')
+            ca_url = 'https://%s:%s' % (ca_host, ca_port)
+            ca_uid = 'CA-%s-%s' % (ca_host, ca_port)
+
+            logger.info('Adding %s user into KRA', ca_uid)
+            subsystem.add_user(
+                ca_uid,
+                full_name=ca_uid,
+                user_type='agentType',
+                state='1')
+
+            logger.info('Getting CA subsystem certificate from %s', ca_url)
+            subsystem_cert_data = self.get_ca_subsystem_cert(instance, ca_url)
+
+            logger.info('Adding CA subsystem certificate into %s', ca_uid)
+            subsystem.add_user_cert(ca_uid, cert_data=subsystem_cert_data, cert_format='PEM')
+
+            logger.info('Adding %s into Trusted Managers', ca_uid)
+            subsystem.add_group_member('Trusted Managers', ca_uid)
+
+        ca_url = subsystem.config.get('preop.ca.url')
+
+        if not standalone and ca_host and ca_url:
+
+            logger.info('Adding KRA connector in CA')
+            self.add_kra_connector(instance, subsystem)
+
     def finalize_ocsp(self, instance, subsystem):
 
         clone = self.configuration_file.clone
@@ -2893,7 +2932,6 @@ class PKIDeployer:
     def finalize_subsystem(self, instance, subsystem):
 
         clone = self.configuration_file.clone
-        standalone = self.configuration_file.standalone
 
         if subsystem.type == 'CA':
 
@@ -2934,40 +2972,7 @@ class PKIDeployer:
                 subsystem.config['cloning.ca.type'] = ca_type
 
         if subsystem.type == 'KRA':
-
-            if not clone:
-                logger.info('Updating KRA ranges')
-                subsystem.update_ranges()
-
-            ca_host = subsystem.config.get('preop.ca.hostname')
-
-            if not clone and not standalone and ca_host:
-                ca_port = subsystem.config.get('preop.ca.httpsadminport')
-                ca_url = 'https://%s:%s' % (ca_host, ca_port)
-                ca_uid = 'CA-%s-%s' % (ca_host, ca_port)
-
-                logger.info('Adding %s user into KRA', ca_uid)
-                subsystem.add_user(
-                    ca_uid,
-                    full_name=ca_uid,
-                    user_type='agentType',
-                    state='1')
-
-                logger.info('Getting CA subsystem certificate from %s', ca_url)
-                subsystem_cert_data = self.get_ca_subsystem_cert(instance, ca_url)
-
-                logger.info('Adding CA subsystem certificate into %s', ca_uid)
-                subsystem.add_user_cert(ca_uid, cert_data=subsystem_cert_data, cert_format='PEM')
-
-                logger.info('Adding %s into Trusted Managers', ca_uid)
-                subsystem.add_group_member('Trusted Managers', ca_uid)
-
-            ca_url = subsystem.config.get('preop.ca.url')
-
-            if not standalone and ca_host and ca_url:
-
-                logger.info('Adding KRA connector in CA')
-                self.add_kra_connector(instance, subsystem)
+            self.finalize_kra(instance, subsystem)
 
         if subsystem.type == 'OCSP':
             self.finalize_ocsp(instance, subsystem)
