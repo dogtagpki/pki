@@ -634,12 +634,10 @@ class PKIDeployer:
         finally:
             client_nssdb.close()
 
-    def store_admin_cert(self, admin_cert):
+    def store_admin_cert(self, pem_cert):
 
         cert_file = self.mdict['pki_client_admin_cert']
         logger.info('Storing admin cert into %s', cert_file)
-
-        pem_cert = pki.nssdb.convert_cert(admin_cert, 'base64', 'pem')
 
         with open(cert_file, "w", encoding='utf-8') as f:
             f.write(pem_cert)
@@ -2110,13 +2108,13 @@ class PKIDeployer:
 
             b64cert = pki.nssdb.convert_cert(pem_cert, 'pem', 'base64')
 
-        logger.debug('Admin cert: %s', b64cert)
+        logger.debug('Admin cert:\n%s', pem_cert)
 
         if config.str2bool(self.mdict['pki_external']) \
                 or config.str2bool(self.mdict['pki_standalone']) \
                 or not config.str2bool(self.mdict['pki_import_admin_cert']):
 
-            self.store_admin_cert(b64cert)
+            self.store_admin_cert(pem_cert)
             self.export_admin_pkcs12()
 
         return base64.b64decode(b64cert)
