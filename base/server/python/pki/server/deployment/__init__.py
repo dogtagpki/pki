@@ -270,7 +270,7 @@ class PKIDeployer:
 
     def configure_id_generators(self, subsystem):
 
-        if subsystem.type in ['CA', 'KRA']:
+        if subsystem.type == 'CA':
 
             request_id_generator = self.mdict['pki_request_id_generator']
 
@@ -285,8 +285,6 @@ class PKIDeployer:
                 subsystem.config['dbs.requestLowWaterMark'] = '2000000'
                 subsystem.config['dbs.requestCloneTransferNumber'] = '10000'
                 subsystem.config['dbs.requestRangeDN'] = 'ou=requests,ou=ranges'
-
-        if subsystem.type == 'CA':
 
             cert_id_generator = self.mdict['pki_cert_id_generator']
 
@@ -305,21 +303,39 @@ class PKIDeployer:
                     self.mdict['pki_random_serial_numbers_enable'].lower()
                 subsystem.config['dbs.randomSerialNumberCounter'] = '0'
 
-        if subsystem.type == 'KRA':
+    def configure_kra(self, subsystem):
 
-            key_id_generator = self.mdict['pki_key_id_generator']
+        request_id_generator = self.mdict['pki_request_id_generator']
 
-            if key_id_generator == 'random':
-                subsystem.config['dbs.key.id.generator'] = key_id_generator
-                subsystem.config['dbs.key.id.length'] = self.mdict['pki_key_id_length']
+        if request_id_generator == 'random':
+            subsystem.config['dbs.request.id.generator'] = request_id_generator
+            subsystem.config['dbs.request.id.length'] = self.mdict['pki_request_id_length']
 
-            else:  # legacy
-                subsystem.config['dbs.beginSerialNumber'] = '1'
-                subsystem.config['dbs.endSerialNumber'] = '10000000'
-                subsystem.config['dbs.serialIncrement'] = '10000000'
-                subsystem.config['dbs.serialLowWaterMark'] = '2000000'
-                subsystem.config['dbs.serialCloneTransferNumber'] = '10000'
-                subsystem.config['dbs.serialRangeDN'] = 'ou=keyRepository,ou=ranges'
+        else:  # legacy
+            subsystem.config['dbs.beginRequestNumber'] = '1'
+            subsystem.config['dbs.endRequestNumber'] = '10000000'
+            subsystem.config['dbs.requestIncrement'] = '10000000'
+            subsystem.config['dbs.requestLowWaterMark'] = '2000000'
+            subsystem.config['dbs.requestCloneTransferNumber'] = '10000'
+            subsystem.config['dbs.requestRangeDN'] = 'ou=requests,ou=ranges'
+
+        key_id_generator = self.mdict['pki_key_id_generator']
+
+        if key_id_generator == 'random':
+            subsystem.config['dbs.key.id.generator'] = key_id_generator
+            subsystem.config['dbs.key.id.length'] = self.mdict['pki_key_id_length']
+
+        else:  # legacy
+            subsystem.config['dbs.beginSerialNumber'] = '1'
+            subsystem.config['dbs.endSerialNumber'] = '10000000'
+            subsystem.config['dbs.serialIncrement'] = '10000000'
+            subsystem.config['dbs.serialLowWaterMark'] = '2000000'
+            subsystem.config['dbs.serialCloneTransferNumber'] = '10000'
+            subsystem.config['dbs.serialRangeDN'] = 'ou=keyRepository,ou=ranges'
+
+        if config.str2bool(self.mdict['pki_kra_ephemeral_requests']):
+            logger.debug('Setting ephemeral requests to true')
+            subsystem.config['kra.ephemeralRequests'] = 'true'
 
     def configure_tps(self, subsystem):
 

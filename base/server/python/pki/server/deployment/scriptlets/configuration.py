@@ -98,10 +98,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             if replica_number_range_end:
                 subsystem.config['dbs.endReplicaNumber'] = replica_number_range_end
 
-        if subsystem.name == 'kra':
-            if config.str2bool(deployer.mdict['pki_kra_ephemeral_requests']):
-                logger.debug('Setting ephemeral requests to true')
-                subsystem.config['kra.ephemeralRequests'] = 'true'
+        if subsystem.type == 'KRA':
+            deployer.configure_kra(subsystem)
 
         if subsystem.type == 'TPS':
             deployer.configure_tps(subsystem)
