@@ -495,6 +495,31 @@ class PKIDeployer:
                 'op.enroll.soKeyTemporary.keyGen.encryption.recovery.onHold.scheme'
             ] = 'GenerateNewKey'
 
+    def configure_subsystem(self, subsystem):
+
+        # configure internal database
+        subsystem.config['internaldb.ldapconn.host'] = self.mdict['pki_ds_hostname']
+
+        if config.str2bool(self.mdict['pki_ds_secure_connection']):
+            subsystem.config['internaldb.ldapconn.secureConn'] = 'true'
+            subsystem.config['internaldb.ldapconn.port'] = self.mdict['pki_ds_ldaps_port']
+        else:
+            subsystem.config['internaldb.ldapconn.secureConn'] = 'false'
+            subsystem.config['internaldb.ldapconn.port'] = self.mdict['pki_ds_ldap_port']
+
+        subsystem.config['internaldb.ldapauth.bindDN'] = self.mdict['pki_ds_bind_dn']
+        subsystem.config['internaldb.basedn'] = self.mdict['pki_ds_base_dn']
+        subsystem.config['internaldb.database'] = self.mdict['pki_ds_database']
+
+        if subsystem.type == 'CA':
+            self.configure_ca(subsystem)
+
+        if subsystem.type == 'KRA':
+            self.configure_kra(subsystem)
+
+        if subsystem.type == 'TPS':
+            self.configure_tps(subsystem)
+
     def get_cert_id(self, subsystem, tag):
 
         if tag == 'signing':

@@ -53,29 +53,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         subsystems = instance.get_subsystems()
         subsystem = instance.get_subsystem(deployer.mdict['pki_subsystem'].lower())
 
-        # configure internal database
-        subsystem.config['internaldb.ldapconn.host'] = deployer.mdict['pki_ds_hostname']
-
-        if config.str2bool(deployer.mdict['pki_ds_secure_connection']):
-            subsystem.config['internaldb.ldapconn.secureConn'] = 'true'
-            subsystem.config['internaldb.ldapconn.port'] = deployer.mdict['pki_ds_ldaps_port']
-        else:
-            subsystem.config['internaldb.ldapconn.secureConn'] = 'false'
-            subsystem.config['internaldb.ldapconn.port'] = deployer.mdict['pki_ds_ldap_port']
-
-        subsystem.config['internaldb.ldapauth.bindDN'] = deployer.mdict['pki_ds_bind_dn']
-        subsystem.config['internaldb.basedn'] = deployer.mdict['pki_ds_base_dn']
-        subsystem.config['internaldb.database'] = deployer.mdict['pki_ds_database']
-
-        if subsystem.type == 'CA':
-            deployer.configure_ca(subsystem)
-
-        if subsystem.type == 'KRA':
-            deployer.configure_kra(subsystem)
-
-        if subsystem.type == 'TPS':
-            deployer.configure_tps(subsystem)
-
+        deployer.configure_subsystem(subsystem)
         subsystem.save()
 
         token = pki.nssdb.normalize_token(deployer.mdict['pki_token_name'])
