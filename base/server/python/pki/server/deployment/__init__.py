@@ -1768,37 +1768,38 @@ class PKIDeployer:
             with open(self.mdict['pki_admin_cert_file'], 'w', encoding='utf-8') as f:
                 f.write(b64cert)
 
-        else:
-            # pki_import_admin_cert is true for sharing admin cert
-            logger.info(
-                'Loading admin cert from client database: %s',
-                self.mdict['pki_admin_nickname'])
+            return b64cert
 
-            client_nssdb = pki.nssdb.NSSDatabase(
-                directory=self.mdict['pki_client_database_dir'],
-                password=self.mdict['pki_client_database_password'])
+        # pki_import_admin_cert is true for sharing admin cert
+        logger.info(
+            'Loading admin cert from client database: %s',
+            self.mdict['pki_admin_nickname'])
 
-            try:
-                b64cert = client_nssdb.get_cert(
-                    nickname=self.mdict['pki_admin_nickname'],
-                    output_format='base64',
-                    output_text=True,  # JSON encoder needs text
-                )
+        client_nssdb = pki.nssdb.NSSDatabase(
+            directory=self.mdict['pki_client_database_dir'],
+            password=self.mdict['pki_client_database_password'])
 
-            finally:
-                client_nssdb.close()
+        try:
+            b64cert = client_nssdb.get_cert(
+                nickname=self.mdict['pki_admin_nickname'],
+                output_format='base64',
+                output_text=True,  # JSON encoder needs text
+            )
 
-            if b64cert:
-                return b64cert
+        finally:
+            client_nssdb.close()
 
-            # admin cert was in 'pki_admin_cert_file' but not yet in client
-            # nssdb
-            logger.info('Loading admin cert from %s', self.mdict['pki_admin_cert_file'])
+        if b64cert:
+            return b64cert
 
-            with open(self.mdict['pki_admin_cert_file'], 'r', encoding='utf-8') as f:
-                pem_cert = f.read()
+        # admin cert was in 'pki_admin_cert_file' but not yet in client
+        # nssdb
+        logger.info('Loading admin cert from %s', self.mdict['pki_admin_cert_file'])
 
-            b64cert = pki.nssdb.convert_cert(pem_cert, 'pem', 'base64')
+        with open(self.mdict['pki_admin_cert_file'], 'r', encoding='utf-8') as f:
+            pem_cert = f.read()
+
+        b64cert = pki.nssdb.convert_cert(pem_cert, 'pem', 'base64')
 
         return b64cert
 
