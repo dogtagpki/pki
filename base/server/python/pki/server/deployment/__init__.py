@@ -268,40 +268,66 @@ class PKIDeployer:
 
         return (key_type, key_size, curve, hash_alg)
 
-    def configure_id_generators(self, subsystem):
+    def configure_ca(self, subsystem):
 
-        if subsystem.type == 'CA':
+        request_id_generator = self.mdict['pki_request_id_generator']
 
-            request_id_generator = self.mdict['pki_request_id_generator']
+        if request_id_generator == 'random':
+            subsystem.config['dbs.request.id.generator'] = request_id_generator
+            subsystem.config['dbs.request.id.length'] = self.mdict['pki_request_id_length']
 
-            if request_id_generator == 'random':
-                subsystem.config['dbs.request.id.generator'] = request_id_generator
-                subsystem.config['dbs.request.id.length'] = self.mdict['pki_request_id_length']
+        else:  # legacy
+            subsystem.config['dbs.beginRequestNumber'] = '1'
+            subsystem.config['dbs.endRequestNumber'] = '10000000'
+            subsystem.config['dbs.requestIncrement'] = '10000000'
+            subsystem.config['dbs.requestLowWaterMark'] = '2000000'
+            subsystem.config['dbs.requestCloneTransferNumber'] = '10000'
+            subsystem.config['dbs.requestRangeDN'] = 'ou=requests,ou=ranges'
 
-            else:  # legacy
-                subsystem.config['dbs.beginRequestNumber'] = '1'
-                subsystem.config['dbs.endRequestNumber'] = '10000000'
-                subsystem.config['dbs.requestIncrement'] = '10000000'
-                subsystem.config['dbs.requestLowWaterMark'] = '2000000'
-                subsystem.config['dbs.requestCloneTransferNumber'] = '10000'
-                subsystem.config['dbs.requestRangeDN'] = 'ou=requests,ou=ranges'
+            request_number_range_start = self.mdict.get('pki_request_number_range_start')
+            if request_number_range_start:
+                subsystem.config['dbs.beginRequestNumber'] = request_number_range_start
 
-            cert_id_generator = self.mdict['pki_cert_id_generator']
+            request_number_range_end = self.mdict.get('pki_request_number_range_end')
+            if request_number_range_end:
+                subsystem.config['dbs.endRequestNumber'] = request_number_range_end
 
-            if cert_id_generator == 'random':
-                subsystem.config['dbs.cert.id.generator'] = cert_id_generator
-                subsystem.config['dbs.cert.id.length'] = self.mdict['pki_cert_id_length']
+        cert_id_generator = self.mdict['pki_cert_id_generator']
 
-            else:  # legacy
-                subsystem.config['dbs.beginSerialNumber'] = '1'
-                subsystem.config['dbs.endSerialNumber'] = '10000000'
-                subsystem.config['dbs.serialIncrement'] = '10000000'
-                subsystem.config['dbs.serialLowWaterMark'] = '2000000'
-                subsystem.config['dbs.serialCloneTransferNumber'] = '10000'
-                subsystem.config['dbs.serialRangeDN'] = 'ou=certificateRepository,ou=ranges'
-                subsystem.config['dbs.enableRandomSerialNumbers'] = \
-                    self.mdict['pki_random_serial_numbers_enable'].lower()
-                subsystem.config['dbs.randomSerialNumberCounter'] = '0'
+        if cert_id_generator == 'random':
+            subsystem.config['dbs.cert.id.generator'] = cert_id_generator
+            subsystem.config['dbs.cert.id.length'] = self.mdict['pki_cert_id_length']
+
+        else:  # legacy
+            subsystem.config['dbs.beginSerialNumber'] = '1'
+            subsystem.config['dbs.endSerialNumber'] = '10000000'
+            subsystem.config['dbs.serialIncrement'] = '10000000'
+            subsystem.config['dbs.serialLowWaterMark'] = '2000000'
+            subsystem.config['dbs.serialCloneTransferNumber'] = '10000'
+            subsystem.config['dbs.serialRangeDN'] = 'ou=certificateRepository,ou=ranges'
+            subsystem.config['dbs.enableRandomSerialNumbers'] = \
+                self.mdict['pki_random_serial_numbers_enable'].lower()
+            subsystem.config['dbs.randomSerialNumberCounter'] = '0'
+
+            serial_number_range_start = self.mdict.get('pki_serial_number_range_start')
+            if serial_number_range_start:
+                subsystem.config['dbs.beginSerialNumber'] = serial_number_range_start
+
+            serial_number_range_end = self.mdict.get('pki_serial_number_range_end')
+            if serial_number_range_end:
+                subsystem.config['dbs.endSerialNumber'] = serial_number_range_end
+
+        replica_number_range_start = self.mdict.get('pki_replica_number_range_start')
+        if replica_number_range_start:
+            subsystem.config['dbs.beginReplicaNumber'] = replica_number_range_start
+
+        replica_number_range_end = self.mdict.get('pki_replica_number_range_end')
+        if replica_number_range_end:
+            subsystem.config['dbs.endReplicaNumber'] = replica_number_range_end
+
+        ocsp_uri = self.mdict.get('pki_default_ocsp_uri')
+        if ocsp_uri:
+            subsystem.config['ca.defaultOcspUri'] = ocsp_uri
 
     def configure_kra(self, subsystem):
 

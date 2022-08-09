@@ -67,36 +67,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         subsystem.config['internaldb.basedn'] = deployer.mdict['pki_ds_base_dn']
         subsystem.config['internaldb.database'] = deployer.mdict['pki_ds_database']
 
-        ocsp_uri = deployer.mdict.get('pki_default_ocsp_uri')
-        if ocsp_uri:
-            subsystem.config['ca.defaultOcspUri'] = ocsp_uri
-
-        deployer.configure_id_generators(subsystem)
-
-        if subsystem.name == 'ca':
-            serial_number_range_start = deployer.mdict.get('pki_serial_number_range_start')
-            if serial_number_range_start:
-                subsystem.config['dbs.beginSerialNumber'] = serial_number_range_start
-
-            serial_number_range_end = deployer.mdict.get('pki_serial_number_range_end')
-            if serial_number_range_end:
-                subsystem.config['dbs.endSerialNumber'] = serial_number_range_end
-
-            request_number_range_start = deployer.mdict.get('pki_request_number_range_start')
-            if request_number_range_start:
-                subsystem.config['dbs.beginRequestNumber'] = request_number_range_start
-
-            request_number_range_end = deployer.mdict.get('pki_request_number_range_end')
-            if request_number_range_end:
-                subsystem.config['dbs.endRequestNumber'] = request_number_range_end
-
-            replica_number_range_start = deployer.mdict.get('pki_replica_number_range_start')
-            if replica_number_range_start:
-                subsystem.config['dbs.beginReplicaNumber'] = replica_number_range_start
-
-            replica_number_range_end = deployer.mdict.get('pki_replica_number_range_end')
-            if replica_number_range_end:
-                subsystem.config['dbs.endReplicaNumber'] = replica_number_range_end
+        if subsystem.type == 'CA':
+            deployer.configure_ca(subsystem)
 
         if subsystem.type == 'KRA':
             deployer.configure_kra(subsystem)
