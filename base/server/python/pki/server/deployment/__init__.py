@@ -1769,26 +1769,25 @@ class PKIDeployer:
             return pki.nssdb.convert_cert(pem_cert, 'pem', 'base64')
 
         # pki_import_admin_cert is true for sharing admin cert
-        logger.info(
-            'Loading admin cert from client database: %s',
-            self.mdict['pki_admin_nickname'])
+        nickname = self.mdict['pki_admin_nickname']
+        logger.info('Loading admin cert from client database: %s', nickname)
 
         client_nssdb = pki.nssdb.NSSDatabase(
             directory=self.mdict['pki_client_database_dir'],
             password=self.mdict['pki_client_database_password'])
 
         try:
-            b64cert = client_nssdb.get_cert(
-                nickname=self.mdict['pki_admin_nickname'],
-                output_format='base64',
+            pem_cert = client_nssdb.get_cert(
+                nickname=nickname,
+                output_format='pem',
                 output_text=True,  # JSON encoder needs text
             )
 
         finally:
             client_nssdb.close()
 
-        if b64cert:
-            return b64cert
+        if pem_cert:
+            return pki.nssdb.convert_cert(pem_cert, 'pem', 'base64')
 
         # admin cert was in 'pki_admin_cert_file' but not yet in client
         # nssdb
