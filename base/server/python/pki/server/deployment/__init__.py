@@ -1631,7 +1631,7 @@ class PKIDeployer:
 
             logger.info('Requesting %s cert from %s', tag, ca_url)
 
-            system_cert['data'] = self.request_cert(
+            pem_cert = self.request_cert(
                 subsystem,
                 ca_url,
                 request.systemCert.requestType,
@@ -1640,6 +1640,8 @@ class PKIDeployer:
                 request.systemCert.subjectDN,
                 dns_names=request.systemCert.dnsNames,
                 requestor=requestor)
+
+            system_cert['data'] = pki.nssdb.convert_cert(pem_cert, 'pem', 'base64')
 
         else:  # selfsign or local
 
@@ -1852,7 +1854,7 @@ class PKIDeployer:
             logger.debug('Command: %s', ' '.join(cmd))
             result = subprocess.run(cmd, stdout=subprocess.PIPE, check=True)
 
-            return pki.nssdb.convert_cert(result.stdout.decode(), 'pem', 'base64')
+            return result.stdout.decode()
 
         finally:
             shutil.rmtree(tmpdir)
@@ -2098,13 +2100,15 @@ class PKIDeployer:
 
             subject = self.mdict['pki_admin_subject_dn']
 
-            b64cert = self.request_cert(
+            pem_cert = self.request_cert(
                 subsystem,
                 ca_url,
                 request_type,
                 b64csr,
                 profile,
                 subject)
+
+            b64cert = pki.nssdb.convert_cert(pem_cert, 'pem', 'base64')
 
         logger.debug('Admin cert: %s', b64cert)
 
