@@ -1773,8 +1773,6 @@ class PKIDeployer:
         logger.debug('PKIDeployer.load_admin_cert()')
 
         cert_path = self.mdict.get('pki_admin_cert_path')
-        cert_file = self.mdict.get('pki_admin_cert_file')
-
         if cert_path:
 
             # Copy the externally-issued admin certificate into
@@ -1785,7 +1783,9 @@ class PKIDeployer:
             with open(cert_path, 'r', encoding='utf-8') as f:
                 pem_cert = f.read()
 
+            cert_file = self.mdict.get('pki_client_admin_cert')
             logger.info('Storing admin cert into %s', cert_file)
+
             with open(cert_file, 'w', encoding='utf-8') as f:
                 f.write(pem_cert)
 
@@ -1812,6 +1812,7 @@ class PKIDeployer:
         if pem_cert:
             return pem_cert
 
+        cert_file = self.mdict.get('pki_admin_cert_file')
         if cert_file and os.path.exists(cert_file):
 
             # admin cert was in 'pki_admin_cert_file' but not yet in client
