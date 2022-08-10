@@ -2114,7 +2114,7 @@ class PKIDeployer:
 
         return pem_cert
 
-    def setup_admin_user(self, subsystem, cert_data, cert_format='DER'):
+    def setup_admin_user(self, subsystem, cert_data):
 
         uid = self.mdict['pki_admin_uid']
         full_name = self.mdict['pki_admin_name']
@@ -2170,7 +2170,7 @@ class PKIDeployer:
             subsystem.add_group_member(group, uid)
 
         logger.info('Adding certificate for %s', uid)
-        subsystem.add_user_cert(uid, cert_data=cert_data, cert_format=cert_format)
+        subsystem.add_user_cert(uid, cert_data=cert_data.encode(), cert_format='PEM')
 
     def setup_subsystem_user(self, instance, subsystem, cert):
 
