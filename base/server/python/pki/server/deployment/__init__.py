@@ -2056,7 +2056,6 @@ class PKIDeployer:
 
         if config.str2bool(self.mdict['pki_import_admin_cert']):
             pem_cert = self.load_admin_cert()
-            b64cert = pki.nssdb.convert_cert(pem_cert, 'pem', 'base64')
 
         elif external_step_two and subsystem.type != 'CA':
             pem_cert = self.load_admin_cert()
@@ -2064,13 +2063,11 @@ class PKIDeployer:
 
             self.export_admin_pkcs12()
 
-            b64cert = pki.nssdb.convert_cert(pem_cert, 'pem', 'base64')
-            return base64.b64decode(b64cert)
+            return pem_cert
 
         elif subsystem.type == 'CA':
             b64csr = self.create_admin_csr()
             pem_cert = self.create_admin_cert(subsystem, b64csr)
-            b64cert = pki.nssdb.convert_cert(pem_cert, 'pem', 'base64')
 
         else:
             b64csr = self.create_admin_csr()
@@ -2106,8 +2103,6 @@ class PKIDeployer:
                 profile,
                 subject)
 
-            b64cert = pki.nssdb.convert_cert(pem_cert, 'pem', 'base64')
-
         logger.debug('Admin cert:\n%s', pem_cert)
 
         if config.str2bool(self.mdict['pki_external']) \
@@ -2117,7 +2112,7 @@ class PKIDeployer:
             self.store_admin_cert(pem_cert)
             self.export_admin_pkcs12()
 
-        return base64.b64decode(b64cert)
+        return pem_cert
 
     def setup_admin_user(self, subsystem, cert_data, cert_format='DER'):
 

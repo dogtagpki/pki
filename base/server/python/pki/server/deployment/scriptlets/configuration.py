@@ -19,6 +19,7 @@
 #
 
 from __future__ import absolute_import
+import base64
 import logging
 import urllib.parse
 
@@ -488,7 +489,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         if not clone:
             logger.info('Getting admin certificate')
-            admin_cert = deployer.get_admin_cert(subsystem)
+            pem_cert = deployer.get_admin_cert(subsystem)
+
+            b64cert = pki.nssdb.convert_cert(pem_cert, 'pem', 'base64')
+            admin_cert = base64.b64decode(b64cert)
 
             logger.info('Setting up admin user')
             deployer.setup_admin_user(subsystem, admin_cert)
