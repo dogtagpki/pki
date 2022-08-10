@@ -406,33 +406,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             subsystem.import_profiles(
                 input_folder='/usr/share/pki/ca/profiles/ca')
 
-        # Check whether the server uses any legacy ID generator.
-
-        using_legacy_id_generator = False
-
-        if subsystem.type in ['CA', 'KRA']:
-
-            request_id_generator = subsystem.config.get('dbs.request.id.generator', 'legacy')
-            logger.info('Request ID generator: %s', request_id_generator)
-
-            if request_id_generator == 'legacy':
-                using_legacy_id_generator = True
-
-        if subsystem.type == 'CA':
-
-            cert_id_generator = subsystem.config.get('dbs.cert.id.generator', 'legacy')
-            logger.info('Certificate ID generator: %s', cert_id_generator)
-
-            if cert_id_generator == 'legacy':
-                using_legacy_id_generator = True
-
-        elif subsystem.type == 'KRA':
-
-            key_id_generator = subsystem.config.get('dbs.key.id.generator', 'legacy')
-            logger.info('Key ID generator: %s', key_id_generator)
-
-            if key_id_generator == 'legacy':
-                using_legacy_id_generator = True
+        # Check whether the subsystem uses a legacy ID generator.
+        using_legacy_id_generator = deployer.is_using_legacy_id_generator(subsystem)
 
         # Optionally prepare to enable a java debugger
         # (e. g. - 'eclipse'):

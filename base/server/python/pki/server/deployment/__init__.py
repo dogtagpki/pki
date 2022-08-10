@@ -520,6 +520,34 @@ class PKIDeployer:
         if subsystem.type == 'TPS':
             self.configure_tps(subsystem)
 
+    def is_using_legacy_id_generator(self, subsystem):
+
+        if subsystem.type in ['CA', 'KRA']:
+
+            request_id_generator = subsystem.config.get('dbs.request.id.generator', 'legacy')
+            logger.info('Request ID generator: %s', request_id_generator)
+
+            if request_id_generator == 'legacy':
+                return True
+
+        if subsystem.type == 'CA':
+
+            cert_id_generator = subsystem.config.get('dbs.cert.id.generator', 'legacy')
+            logger.info('Certificate ID generator: %s', cert_id_generator)
+
+            if cert_id_generator == 'legacy':
+                return True
+
+        elif subsystem.type == 'KRA':
+
+            key_id_generator = subsystem.config.get('dbs.key.id.generator', 'legacy')
+            logger.info('Key ID generator: %s', key_id_generator)
+
+            if key_id_generator == 'legacy':
+                return True
+
+        return False
+
     def get_cert_id(self, subsystem, tag):
 
         if tag == 'signing':
