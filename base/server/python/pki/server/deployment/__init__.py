@@ -2070,39 +2070,18 @@ class PKIDeployer:
         logger.debug('PKIDeployer.setup_admin_cert()')
 
         external = config.str2bool(self.mdict['pki_external'])
-        external_step_two = config.str2bool(self.mdict['pki_external_step_two'])
         standalone = config.str2bool(self.mdict['pki_standalone'])
 
-        if 'pki_import_admin_cert' not in self.mdict:
-            self.mdict['pki_import_admin_cert'] = 'False'
-
-        elif not config.str2bool(self.mdict['pki_skip_configuration']) and standalone:
-            self.mdict['pki_import_admin_cert'] = 'False'
-
-        if external and subsystem.type != 'CA' or standalone:
-            if external_step_two:
-                self.mdict['pki_import_admin_cert'] = 'True'
-            else:
-                self.mdict['pki_import_admin_cert'] = 'False'
-
-        if config.str2bool(self.mdict['pki_import_admin_cert']):
+        if config.str2bool(self.mdict['pki_import_admin_cert']) \
+                or external and subsystem.type != 'CA' \
+                or standalone:
             logger.info('Importing admin cert')
             pem_cert = self.load_admin_cert()
             logger.debug('Admin cert:\n%s', pem_cert)
 
-            if external or standalone:
+            if external and subsystem.type != 'CA' or standalone:
                 self.store_admin_cert(pem_cert)
                 self.export_admin_pkcs12()
-
-            return pem_cert
-
-        if external_step_two and subsystem.type != 'CA':
-            logger.info('Importing admin cert')
-            pem_cert = self.load_admin_cert()
-            logger.debug('Admin cert:\n%s', pem_cert)
-
-            self.store_admin_cert(pem_cert)
-            self.export_admin_pkcs12()
 
             return pem_cert
 
