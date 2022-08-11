@@ -22,7 +22,7 @@ VERBOSE=
 while getopts v-: arg ; do
     case $arg in
     v)
-        VERBOSE=true
+        export VERBOSE=true
         ;;
     -)
         LONG_OPTARG="${OPTARG#*=}"

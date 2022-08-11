@@ -5,9 +5,9 @@
 # All rights reserved.
 # END COPYRIGHT BLOCK
 
-SCRIPT_PATH=`readlink -f "$0"`
-SCRIPT_NAME=`basename "$SCRIPT_PATH"`
-SRC_DIR=`dirname "$SCRIPT_PATH"`
+SCRIPT_PATH=$(readlink -f "$0")
+SCRIPT_NAME=$(basename "$SCRIPT_PATH")
+SRC_DIR=$(dirname "$SCRIPT_PATH")
 
 NAME=pki
 PRODUCT_NAME=
@@ -50,7 +50,7 @@ WITHOUT_TEST=
 WITH_CONSOLE=
 
 PKG_LIST="base, server, ca, kra, ocsp, tks, tps, acme, javadoc, theme, meta, tests, debug"
-ALL_PKGS=( $(echo $PKG_LIST | sed 's/ *, */ /g') )
+ALL_PKGS=( $(echo "$PKG_LIST" | sed 's/ *, */ /g') )
 
 WITH_PKGS=
 WITHOUT_PKGS=
@@ -125,11 +125,11 @@ generate_rpm_sources() {
             --format=tar.gz \
             --prefix "$PREFIX/" \
             -o "$WORK_DIR/SOURCES/$TARBALL" \
-            $SOURCE_TAG
+            "$SOURCE_TAG"
 
         if [ "$SOURCE_TAG" != "HEAD" ] ; then
 
-            TAG_ID="$(git -C "$SRC_DIR" rev-parse $SOURCE_TAG)"
+            TAG_ID="$(git -C "$SRC_DIR" rev-parse "$SOURCE_TAG")"
             HEAD_ID="$(git -C "$SRC_DIR" rev-parse HEAD)"
 
             if [ "$TAG_ID" != "$HEAD_ID" ] ; then
@@ -171,7 +171,7 @@ generate_patch() {
     git -C "$SRC_DIR" \
         format-patch \
         --stdout \
-        $SOURCE_TAG \
+        "$SOURCE_TAG" \
         > "$WORK_DIR/SOURCES/$PATCH"
 }
 
@@ -373,7 +373,7 @@ fi
 
 if [ "$WITH_PKGS" != "" ] ; then
 
-    PKGS_TO_BUILD=( $(echo $WITH_PKGS | sed 's/ *, */ /g') )
+    PKGS_TO_BUILD=( $(echo "$WITH_PKGS" | sed 's/ *, */ /g') )
     PKGS_TO_SKIP=()
 
     for package in "${ALL_PKGS[@]}"
@@ -385,7 +385,7 @@ if [ "$WITH_PKGS" != "" ] ; then
     done
 
 else
-    PKGS_TO_SKIP=( $(echo $WITHOUT_PKGS | sed 's/ *, */ /g') )
+    PKGS_TO_SKIP=( $(echo "$WITHOUT_PKGS" | sed 's/ *, */ /g') )
     PKGS_TO_BUILD=()
 
     for package in "${ALL_PKGS[@]}"
