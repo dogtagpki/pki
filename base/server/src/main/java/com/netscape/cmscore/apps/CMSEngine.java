@@ -442,6 +442,7 @@ public class CMSEngine {
 
         boolean skipPublishingCheck = config.getBoolean("cms.password.ignore.publishing.failure", true);
         String pwList = config.getString("cms.passwordlist", "internaldb,replicationdb");
+        boolean skipLdapConnTest = config.getBoolean("cms.password.skipLdapConnTest",false);
         String tags[] = StringUtils.split(pwList, ",");
         LDAPConfig ldapConfig = config.getInternalDBConfig();
         LDAPConnectionConfig connConfig = ldapConfig.getConnectionConfig();
@@ -546,6 +547,10 @@ public class CMSEngine {
                 }
             }
 
+            if(skipLdapConnTest == true) {
+                logger.debug("CMSEngine.initializePasswordStore(): skipping ldap conn test per configuration.");
+                return;
+            }
             int iteration = 0;
             int result = PW_INVALID_CREDENTIALS;
 
@@ -1148,8 +1153,8 @@ public class CMSEngine {
         initSubsystemListeners();
         initSecurityProvider();
         initPluginRegistry();
-        initDatabase();
         initLogSubsystem();
+        initDatabase();
         initJssSubsystem();
         initDBSubsystem();
         initUGSubsystem();
