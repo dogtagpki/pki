@@ -1775,19 +1775,9 @@ class PKIDeployer:
         cert_path = self.mdict.get('pki_admin_cert_path')
         if cert_path:
 
-            # Copy the externally-issued admin certificate into
-            # 'ca_admin.cert' under the specified 'pki_client_dir'
-            # stripping the certificate HEADER/FOOTER prior to saving it.
-
             logger.info('Loading admin cert from %s', cert_path)
             with open(cert_path, 'r', encoding='utf-8') as f:
                 pem_cert = f.read()
-
-            cert_file = self.mdict.get('pki_client_admin_cert')
-            logger.info('Storing admin cert into %s', cert_file)
-
-            with open(cert_file, 'w', encoding='utf-8') as f:
-                f.write(pem_cert)
 
             return pem_cert
 
@@ -2100,6 +2090,7 @@ class PKIDeployer:
             pem_cert = self.load_admin_cert()
             logger.debug('Admin cert:\n%s', pem_cert)
 
+            self.store_admin_cert(pem_cert)
             self.export_admin_pkcs12()
 
             return pem_cert
