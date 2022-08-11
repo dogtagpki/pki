@@ -2076,9 +2076,9 @@ class PKIDeployer:
 
         return cert_pem
 
-    def get_admin_cert(self, subsystem):
+    def setup_admin_cert(self, subsystem):
 
-        logger.debug('PKIDeployer.get_admin_cert()')
+        logger.debug('PKIDeployer.setup_admin_cert()')
 
         external_step_two = config.str2bool(self.mdict['pki_external_step_two'])
         logger.debug('PKIDeployer: pki_external_step_two: %s', external_step_two)
