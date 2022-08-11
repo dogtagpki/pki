@@ -68,10 +68,14 @@ S_SELF_SERVER="CN=c.example.com, OU=pki-tomcat, O=dogtag"
 
 
 function __d() {
-    local line_number="$(caller | awk '{print $1}')"
-    local prev_line="$(tail -n "+$(( line_number - 1 ))" "$SCRIPT" | head -n 1)"
-    local line="$(tail -n "+$line_number" "$SCRIPT" | head -n 1)"
-    local next_line="$(tail -n "+$(( line_number + 1 ))" "$SCRIPT" | head -n 1)"
+    local line_number
+    line_number="$(caller | awk '{print $1}')"
+    local prev_line
+    prev_line="$(tail -n "+$(( line_number - 1 ))" "$SCRIPT" | head -n 1)"
+    local line
+    line="$(tail -n "+$line_number" "$SCRIPT" | head -n 1)"
+    local next_line
+    next_line="$(tail -n "+$(( line_number + 1 ))" "$SCRIPT" | head -n 1)"
 
     echo "fail"
     echo "error:" "$@" 1>&2
@@ -82,7 +86,7 @@ function __d() {
 }
 
 function __is_verbose() {
-    [ ! -z "$VERBOSE" ] || [ ! -z "$TEST_VERBOSE" ]
+    [ -n "$VERBOSE" ] || [ -n "$TEST_VERBOSE" ]
 }
 
 function __v() {
@@ -118,9 +122,9 @@ function certutil_add() {(
         mode="server"
     fi
 
-    if [ "x$mode" == "xserver" ]; then
+    if [ "$mode" == "server" ]; then
         __exec certutil -A -d "$database" -n "$nickname" -a -i "$file" -t ,,
-    elif [ "x$mode" == "xca" ]; then
+    elif [ "$mode" == "ca" ]; then
         __exec certutil -A -d "$database" -n "$nickname" -a -i "$file" -t CT,C,C
     else
         __exec certutil -A -d "$database" -n "$nickname" -a -i "$file" -t "$mode"
@@ -160,10 +164,10 @@ function certutil_contains_num_certs() {(
         sed "s/[[:space:]]*$//g" |
         sort -u | wc -l)"
 
-    if [ ! -z "$count" ]; then
+    if [ -n "$count" ]; then
         (( count == actual_count ))
     else
-        return $actual_count
+        return "$actual_count"
     fi
 )}
 
@@ -184,10 +188,10 @@ function certutil_contains_num_keys() {(
         awk '{print $1}' |
         sort -u | wc -l)"
 
-    if [ ! -z "$count" ]; then
+    if [ -n "$count" ]; then
         (( count == actual_count ))
     else
-        return $actual_count
+        return "$actual_count"
     fi
 )}
 
@@ -201,10 +205,10 @@ function pci_cert() {(
     local usage="$5"
     shift 4
 
-    if [ "x$mode" == "xserver" ]; then
+    if [ "$mode" == "server" ]; then
         mode=",,"
         usage="V"
-    elif [ "x$mode" == "xca" ]; then
+    elif [ "$mode" == "ca" ]; then
         mode="CT,C,C"
         usage="L"
     else
@@ -227,10 +231,10 @@ function pci_chain() {(
     local usage="$2"
     shift
 
-    if [ "x$mode" == "xserver" ]; then
+    if [ "$mode" == "server" ]; then
         mode=",,"
         usage="V"
-    elif [ "x$mode" == "xca" ]; then
+    elif [ "$mode" == "ca" ]; then
         mode="CT,C,C"
         usage="L"
     else
@@ -241,10 +245,10 @@ function pci_chain() {(
     local chain_usage="$2"
     shift
 
-    if [ "x$chain_mode" == "xserver" ]; then
+    if [ "$chain_mode" == "server" ]; then
         chain_mode=",,"
         chain_usage="V"
-    elif [ "x$chain_mode" == "xca" ]; then
+    elif [ "$chain_mode" == "ca" ]; then
         chain_mode="CT,C,C"
         chain_usage="L"
     else
@@ -267,10 +271,10 @@ function pci_leaf() {(
     local usage="$2"
     shift
 
-    if [ "x$mode" == "xserver" ]; then
+    if [ "$mode" == "server" ]; then
         mode=",,"
         usage="V"
-    elif [ "x$mode" == "xca" ]; then
+    elif [ "$mode" == "ca" ]; then
         mode="CT,C,C"
         usage="L"
     else
@@ -295,11 +299,11 @@ function create_nssdb() {(
 
     __exec certutil -N -d "$new_db" --empty-password
 
-    if [ ! -z "$copy_root" ] && [ "x$copy_root" != "xfalse" ]; then
+    if [ -n "$copy_root" ] && [ "x$copy_root" != "xfalse" ]; then
         certutil_add "$name" "$CA_ROOT" "$P_CA_ROOT" ca
     fi
 
-    if [ ! -z "$copy_sub" ] && [ "x$copy_sub" != "xfalse" ]; then
+    if [ -n "$copy_sub" ] && [ "x$copy_sub" != "xfalse" ]; then
         certutil_add "$name" "$CA_SUB" "$P_CA_SUB" ca
     fi
 )}
@@ -314,15 +318,15 @@ function create_certificate(){
     local password=$6
     local issuer=$7
 
-    __exec pki -d $db nss-cert-request --ext "$ext" --key-size 4096 --csr "$filename.$REQ" --subject "$subject" || __d "Cannot create $name csr"
+    __exec pki -d "$db" nss-cert-request --ext "$ext" --key-size 4096 --csr "$filename.$REQ" --subject "$subject" || __d "Cannot create $name csr"
 
-    if [ ! -z "$issuer" ]; then
-	__exec pki -d $db nss-cert-issue --ext "$ext" --csr "$filename.$REQ" --cert "$filename.$CERT" --issuer "$issuer" || __d "Cannot issue $name"
+    if [ -n "$issuer" ]; then
+    __exec pki -d "$db" nss-cert-issue --ext "$ext" --csr "$filename.$REQ" --cert "$filename.$CERT" --issuer "$issuer" || __d "Cannot issue $name"
     else
-	__exec pki -d $db nss-cert-issue --ext "$ext" --csr "$filename.$REQ" --cert "$filename.$CERT" || __d "Cannot issue $name"
+    __exec pki -d "$db" nss-cert-issue --ext "$ext" --csr "$filename.$REQ" --cert "$filename.$CERT" || __d "Cannot issue $name"
     fi
-    __exec pki -d $db nss-cert-import --cert "$filename.$CERT" "$name" || __d "Cannot import $name"
-    __exec pki -d $db pkcs12-export --pkcs12 "$filename.$PK12" --password-file "$password" "$name" || __d "Cannot export p12 for $name"
+    __exec pki -d "$db" nss-cert-import --cert "$filename.$CERT" "$name" || __d "Cannot import $name"
+    __exec pki -d "$db" pkcs12-export --pkcs12 "$filename.$PK12" --password-file "$password" "$name" || __d "Cannot export p12 for $name"
 
 }
 
@@ -335,7 +339,7 @@ function generate_certificates() {
     rm -rf "$CERTPATH/*.$REQ"
     rm -rf "$CERTPATH/*.$PK12"
 
-    __exec pki -d $db nss-create || __d "Global db error"
+    __exec pki -d "$db" nss-create || __d "Global db error"
     echo "" > "$pass"
 
     # Root CA
@@ -355,7 +359,7 @@ function generate_certificates() {
     create_certificate "$db" "$CERTPATH/$SSL_EXT" "$CERTPATH/$P_COMP_SUB_SERVER_A" "$S_COMP_SUB_SERVER_A" "$COMP_SUB_SERVER_A" "$pass" "$COMP_SUB"
 
     # Sub Server b
-    create_certificate "$db" "$CERTPATH/$SSL_EXT" "$CERTPATH/$P_CA_SUB_SERVER_B" "$S_CA__SUB_SERVER_B" "$CA_SUB_SERVER_B" "$pass" "$CA_SUB"
+    create_certificate "$db" "$CERTPATH/$SSL_EXT" "$CERTPATH/$P_CA_SUB_SERVER_B" "$S_CA_SUB_SERVER_B" "$CA_SUB_SERVER_B" "$pass" "$CA_SUB"
     create_certificate "$db" "$CERTPATH/$SSL_EXT" "$CERTPATH/$P_COMP_SUB_SERVER_B" "$S_COMP_SUB_SERVER_B" "$COMP_SUB_SERVER_B" "$pass" "$COMP_SUB"
 
     # Sub Server b
@@ -549,7 +553,7 @@ function test_leaf_fail_no_root() {
 
 function main() {
     time (
-        generate_certificates || exit $Z
+        generate_certificates || exit "$Z"
         test_cert_import_root || exit $?
         test_cert_import_server || exit $?
         test_cert_missing_intermediate || exit $?

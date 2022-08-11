@@ -74,3 +74,4 @@ jobs:
         uses: ludeeus/action-shellcheck@master
         with:
           severity: error
+          ignore_paths: tests # Don't check legacy test scripts
