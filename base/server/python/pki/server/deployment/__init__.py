@@ -2084,9 +2084,19 @@ class PKIDeployer:
         logger.debug('PKIDeployer: pki_external_step_two: %s', external_step_two)
 
         if config.str2bool(self.mdict['pki_import_admin_cert']):
+            logger.info('Importing admin cert')
             pem_cert = self.load_admin_cert()
+            logger.debug('Admin cert:\n%s', pem_cert)
 
-        elif external_step_two and subsystem.type != 'CA':
+            if config.str2bool(self.mdict['pki_external']) \
+                    or config.str2bool(self.mdict['pki_standalone']):
+                self.store_admin_cert(pem_cert)
+                self.export_admin_pkcs12()
+
+            return pem_cert
+
+        if external_step_two and subsystem.type != 'CA':
+            logger.info('Importing admin cert')
             pem_cert = self.load_admin_cert()
             logger.debug('Admin cert:\n%s', pem_cert)
 
@@ -2094,52 +2104,55 @@ class PKIDeployer:
 
             return pem_cert
 
-        elif subsystem.type == 'CA':
+        if subsystem.type == 'CA':
+            logger.info('Creating admin cert')
             b64csr = self.create_admin_csr()
             pem_cert = self.create_admin_cert(subsystem, b64csr)
-
-        else:
-            b64csr = self.create_admin_csr()
-
-            ca_type = subsystem.config['preop.ca.type']
-
-            if ca_type == 'sdca':
-                ca_hostname = subsystem.config['preop.ca.hostname']
-                ca_port = subsystem.config['preop.ca.httpsport']
-            else:
-                ca_hostname = subsystem.config['securitydomain.host']
-                ca_port = subsystem.config['securitydomain.httpseeport']
-
-            ca_url = 'https://%s:%s' % (ca_hostname, ca_port)
-            logger.info('Requesting admin cert from %s', ca_url)
-
-            request_type = self.mdict['pki_admin_cert_request_type']
-
-            key_type = self.mdict['pki_admin_key_type']
-
-            if key_type.lower() == 'ecc':
-                profile = 'caECAdminCert'
-            else:
-                profile = self.mdict['pki_admin_profile_id']
-
-            subject = self.mdict['pki_admin_subject_dn']
-
-            pem_cert = self.request_cert(
-                subsystem,
-                ca_url,
-                request_type,
-                b64csr,
-                profile,
-                subject)
-
-        logger.debug('Admin cert:\n%s', pem_cert)
-
-        if config.str2bool(self.mdict['pki_external']) \
-                or config.str2bool(self.mdict['pki_standalone']) \
-                or not config.str2bool(self.mdict['pki_import_admin_cert']):
+            logger.debug('Admin cert:\n%s', pem_cert)
 
             self.store_admin_cert(pem_cert)
             self.export_admin_pkcs12()
+
+            return pem_cert
+
+        logger.info('Creating admin cert request')
+        b64csr = self.create_admin_csr()
+
+        ca_type = subsystem.config['preop.ca.type']
+
+        if ca_type == 'sdca':
+            ca_hostname = subsystem.config['preop.ca.hostname']
+            ca_port = subsystem.config['preop.ca.httpsport']
+        else:
+            ca_hostname = subsystem.config['securitydomain.host']
+            ca_port = subsystem.config['securitydomain.httpseeport']
+
+        ca_url = 'https://%s:%s' % (ca_hostname, ca_port)
+        logger.info('Requesting admin cert from %s', ca_url)
+
+        request_type = self.mdict['pki_admin_cert_request_type']
+
+        key_type = self.mdict['pki_admin_key_type']
+
+        if key_type.lower() == 'ecc':
+            profile = 'caECAdminCert'
+        else:
+            profile = self.mdict['pki_admin_profile_id']
+
+        subject = self.mdict['pki_admin_subject_dn']
+
+        pem_cert = self.request_cert(
+            subsystem,
+            ca_url,
+            request_type,
+            b64csr,
+            profile,
+            subject)
+
+        logger.debug('Admin cert:\n%s', pem_cert)
+
+        self.store_admin_cert(pem_cert)
+        self.export_admin_pkcs12()
 
         return pem_cert
 
