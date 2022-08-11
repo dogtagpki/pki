@@ -1772,15 +1772,6 @@ class PKIDeployer:
 
         logger.debug('PKIDeployer.load_admin_cert()')
 
-        cert_path = self.mdict.get('pki_admin_cert_path')
-        if cert_path:
-
-            logger.info('Loading admin cert from %s', cert_path)
-            with open(cert_path, 'r', encoding='utf-8') as f:
-                pem_cert = f.read()
-
-            return pem_cert
-
         nickname = self.mdict['pki_admin_nickname']
         logger.info('Loading admin cert from client database: %s', nickname)
 
@@ -2071,6 +2062,22 @@ class PKIDeployer:
 
         external = config.str2bool(self.mdict['pki_external'])
         standalone = config.str2bool(self.mdict['pki_standalone'])
+
+        cert_path = self.mdict.get('pki_admin_cert_path')
+        if cert_path:
+
+            logger.info('Loading admin cert from %s', cert_path)
+            with open(cert_path, 'r', encoding='utf-8') as f:
+                pem_cert = f.read()
+
+            if pem_cert:
+                logger.debug('Admin cert:\n%s', pem_cert)
+
+                if external and subsystem.type != 'CA' or standalone:
+                    self.store_admin_cert(pem_cert)
+                    self.export_admin_pkcs12()
+
+                return pem_cert
 
         if config.str2bool(self.mdict['pki_import_admin_cert']) \
                 or external and subsystem.type != 'CA' \
