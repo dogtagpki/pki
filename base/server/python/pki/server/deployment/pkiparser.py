@@ -1010,22 +1010,6 @@ class PKIConfigParser:
 
             self.mdict['pki_admin_profile_id'] = "caAdminCert"
 
-            if 'pki_import_admin_cert' not in self.mdict:
-                self.mdict['pki_import_admin_cert'] = 'false'
-            elif not config.str2bool(self.mdict['pki_skip_configuration']) and \
-                    (config.str2bool(self.mdict['pki_standalone'])):
-                # Stand-alone PKI
-                self.mdict['pki_import_admin_cert'] = 'false'
-
-            if config.str2bool(self.mdict['pki_standalone']) \
-                    or config.str2bool(self.mdict['pki_external']) \
-                    and self.mdict['pki_subsystem'] in ['KRA', 'OCSP', 'TKS', 'TPS']:
-
-                if not config.str2bool(self.mdict['pki_external_step_two']):
-                    self.mdict['pki_import_admin_cert'] = 'False'
-                else:
-                    self.mdict['pki_import_admin_cert'] = 'True'
-
             self.mdict['pki_ca_signing_tag'] = "signing"
             if self.mdict['pki_subsystem'] == "CA":
                 self.mdict['pki_ocsp_signing_tag'] = "ocsp_signing"
