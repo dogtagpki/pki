@@ -18,10 +18,18 @@
 package com.netscape.cmscore.dbs;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.IElementProcessor;
 
-public class ElementProcessor implements IElementProcessor {
-    @Override
+/**
+ * Processor handles object read from the session.
+ */
+public class ElementProcessor {
+
+    /**
+     * Handles object
+     *
+     * @param o object to be processed
+     * @exception EBaseException failed to process object
+     */
     public void process(Object o) throws EBaseException {
     }
 }

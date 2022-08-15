@@ -56,7 +56,6 @@ import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.dbs.EDBNotAvailException;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
-import com.netscape.certsrv.dbs.IElementProcessor;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.DeltaCRLGenerationEvent;
 import com.netscape.certsrv.logging.event.DeltaCRLPublishingEvent;
@@ -74,6 +73,7 @@ import com.netscape.cmscore.dbs.CRLRepository;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.dbs.ElementProcessor;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.ldap.LdapRule;
 import com.netscape.cmscore.request.CertRequestRepository;
@@ -2203,7 +2203,7 @@ public class CRLIssuingPoint implements Runnable {
      * @return Enumeration of CertRecords to put into CRL.
      * @exception EBaseException if an error occured in the database.
      */
-    public void processRevokedCerts(IElementProcessor p)
+    public void processRevokedCerts(ElementProcessor p)
             throws EBaseException {
         CertRecordProcessor cp = (CertRecordProcessor) p;
         String filter = getFilter();

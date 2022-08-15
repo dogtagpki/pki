@@ -23,7 +23,6 @@ import java.util.Vector;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.IDBVirtualList;
-import com.netscape.certsrv.dbs.IElementProcessor;
 import com.netscape.cmscore.apps.CMS;
 
 import netscape.ldap.LDAPAttributeSet;
@@ -782,7 +781,7 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
      * more memory-efficient.
      */
     @Override
-    public void processElements(int startidx, int endidx, IElementProcessor ep)
+    public void processElements(int startidx, int endidx, ElementProcessor ep)
             throws EBaseException {
 
         /* mSize may not be init at this time! Bad !

@@ -22,7 +22,6 @@ import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBVirtualList;
-import com.netscape.certsrv.dbs.IElementProcessor;
 
 /**
  * A class represents a list of certificate records.
@@ -93,7 +92,7 @@ public class CertRecordList {
      * @exception EBaseException failed to process cert records
      */
     public void processCertRecords(int startidx, int endidx,
-            IElementProcessor ep) throws EBaseException {
+            ElementProcessor ep) throws EBaseException {
         int i = 0;
         while (i < mVlist.getSize()) {
             Object element = mVlist.getElementAt(i);

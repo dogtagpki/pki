@@ -18,6 +18,7 @@
 package com.netscape.certsrv.dbs;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.cmscore.dbs.ElementProcessor;
 
 /**
  * A interface represents a virtual list of search results.
@@ -125,7 +126,7 @@ public interface IDBVirtualList<E extends IDBObj> {
      * @param ep object to call
      * @exception EBaseException failed to process elements
      */
-    public void processElements(int startidx, int endidx, IElementProcessor ep)
+    public void processElements(int startidx, int endidx, ElementProcessor ep)
             throws EBaseException;
 
     /**
