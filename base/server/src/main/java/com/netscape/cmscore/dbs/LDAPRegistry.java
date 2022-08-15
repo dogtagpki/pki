@@ -30,8 +30,8 @@ import org.slf4j.LoggerFactory;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.DBAttrMapper;
 import com.netscape.certsrv.dbs.EDBException;
+import com.netscape.certsrv.dbs.FilterConverter;
 import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.certsrv.dbs.IFilterConverter;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.DBDynAttrMapper;
@@ -62,7 +62,7 @@ public class LDAPRegistry extends DBRegistry {
     private Hashtable<String, String[]> mOCclassNames = new Hashtable<>();
     private Hashtable<String, NameAndObject> mOCldapNames = new Hashtable<>();
     private Hashtable<String, DBAttrMapper> mAttrufNames = new Hashtable<>();
-    private IFilterConverter mConverter = null;
+    private FilterConverter mConverter;
     private Vector<DBDynAttrMapper> mDynAttrMappers = new Vector<>();
 
     /**
@@ -217,7 +217,7 @@ public class LDAPRegistry extends DBRegistry {
     }
 
     @Override
-    public String getFilter(String filter, IFilterConverter c)
+    public String getFilter(String filter, FilterConverter c)
             throws EBaseException {
         String f = filter;
 
@@ -230,7 +230,7 @@ public class LDAPRegistry extends DBRegistry {
         }
     }
 
-    private String getFilterComp(String f, IFilterConverter c)
+    private String getFilterComp(String f, FilterConverter c)
             throws EBaseException {
         f = f.trim();
         if (f.startsWith("&")) { // AND operation
@@ -246,7 +246,7 @@ public class LDAPRegistry extends DBRegistry {
         }
     }
 
-    private String getFilterList(String f, IFilterConverter c)
+    private String getFilterList(String f, FilterConverter c)
             throws EBaseException {
         f = f.trim();
         int level = 0;
@@ -291,7 +291,7 @@ public class LDAPRegistry extends DBRegistry {
     /**
      * So, here we need to separate item into name, op, value.
      */
-    private String getFilterItem(String f, IFilterConverter c)
+    private String getFilterItem(String f, FilterConverter c)
             throws EBaseException {
         f = f.trim();
         int idx = f.indexOf('=');

@@ -3,8 +3,8 @@ package com.netscape.cmscore.dbs;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.DBAttrMapper;
 import com.netscape.certsrv.dbs.EDBException;
+import com.netscape.certsrv.dbs.FilterConverter;
 import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.certsrv.dbs.IFilterConverter;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.DBDynAttrMapper;
 
@@ -119,7 +119,7 @@ public class DBRegistry {
      * @return LDAP-based filter string
      * @exception EBaseException failed to convert filter
      */
-    public String getFilter(String filter, IFilterConverter c) throws EBaseException {
+    public String getFilter(String filter, FilterConverter c) throws EBaseException {
         return null;
     }
 

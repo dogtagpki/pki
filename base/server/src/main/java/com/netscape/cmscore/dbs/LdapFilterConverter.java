@@ -22,7 +22,7 @@ import java.util.Hashtable;
 import com.netscape.certsrv.base.AttributeNameHelper;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.DBAttrMapper;
-import com.netscape.certsrv.dbs.IFilterConverter;
+import com.netscape.certsrv.dbs.FilterConverter;
 
 /**
  * A class represents a filter converter
@@ -32,7 +32,7 @@ import com.netscape.certsrv.dbs.IFilterConverter;
  * @author thomask
  * @version $Revision$, $Date$
  */
-public class LdapFilterConverter implements IFilterConverter {
+public class LdapFilterConverter extends FilterConverter {
 
     private Hashtable<String, DBAttrMapper> mReg = null;
 

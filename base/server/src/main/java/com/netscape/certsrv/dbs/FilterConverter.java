@@ -34,7 +34,7 @@ package com.netscape.certsrv.dbs;
  *
  * @version $Revision$, $Date$
  */
-public interface IFilterConverter {
+public abstract class FilterConverter {
 
     /**
      * Converts attribute into LDAP attribute.
@@ -44,5 +44,5 @@ public interface IFilterConverter {
      * @param value attribute value
      * @return The LDAP attribute
      */
-    public String convert(String attr, String op, String value);
+    public abstract String convert(String attr, String op, String value);
 }
