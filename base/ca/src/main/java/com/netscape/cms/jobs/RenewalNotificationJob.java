@@ -31,7 +31,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.MetaInfo;
-import com.netscape.certsrv.dbs.IElementProcessor;
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.notification.IEmailResolver;
@@ -42,6 +41,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.dbs.ElementProcessor;
 import com.netscape.cmscore.jobs.JobCron;
 import com.netscape.cmscore.jobs.JobsScheduler;
 import com.netscape.cmscore.notification.EmailFormProcessor;
@@ -600,7 +600,7 @@ public class RenewalNotificationJob
     }
 }
 
-class CertRecProcessor implements IElementProcessor {
+class CertRecProcessor extends ElementProcessor {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertRecProcessor.class);
 

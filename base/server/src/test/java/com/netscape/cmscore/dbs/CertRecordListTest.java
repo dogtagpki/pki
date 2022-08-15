@@ -19,7 +19,6 @@ package com.netscape.cmscore.dbs;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.certsrv.dbs.IElementProcessor;
 import com.netscape.cmscore.test.CMSBaseTestCase;
 
 import junit.framework.Test;
@@ -53,7 +52,7 @@ public class CertRecordListTest extends CMSBaseTestCase {
         assertEquals(0, dbList.getElementAtCallCount);
         assertEquals(0, dbList.lastIndexGetElementAtCalledWith);
 
-        certList.processCertRecords(0, 4, new ElementProcessorStub());
+        certList.processCertRecords(0, 4, new ElementProcessor());
 
         assertEquals(8, dbList.size);
         assertEquals(8, dbList.getElementAtCallCount);
@@ -81,12 +80,6 @@ public class CertRecordListTest extends CMSBaseTestCase {
         @Override
         public int getSize() {
             return size;
-        }
-    }
-
-    public static class ElementProcessorStub implements IElementProcessor {
-        @Override
-        public void process(Object o) throws EBaseException {
         }
     }
 }

@@ -34,12 +34,12 @@ import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ca.ECAException;
-import com.netscape.certsrv.dbs.IElementProcessor;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.CertRecord;
+import com.netscape.cmscore.dbs.ElementProcessor;
 import com.netscape.cmscore.dbs.RevocationInfo;
 
-public class CertRecordProcessor implements IElementProcessor {
+public class CertRecordProcessor extends ElementProcessor {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertRecordProcessor.class);
 
