@@ -23,6 +23,30 @@ jobs:
     displayName: Install PKI dependencies
 
   - script: |
+      ./build.sh -v rpm
+    displayName: Build PKI RPM packages
+
+  - script: |
+      # find RPM packages (excluding debug packages)
+      RPMS=$(ls ~/build/pki/RPMS | grep -v debuginfo | grep -v debugsource)
+
+      # get list of files in each RPM package
+      for rpm in $RPMS
+      do
+          rpm -qlp "~/build/pki/RPMS/$rpm" | tee -a ~/build/pki/files
+      done
+
+      # exclude RPM-specific files
+      sed -i \
+          -e '/^\/usr\/share\/licenses\//d' \
+          -e '/^\/usr\/share\/man\//d' \
+          -e '/^\/usr\/share\/doc\//d' \
+          -e '/^\/usr\/lib\/.build-id\//d' \
+          -e '/__pycache__/d' \
+          ~/build/pki/files
+    displayName: Get list of files from RPM packages
+
+  - script: |
       ./build.sh \
           --work-dir=build \
           --python-dir=/usr/lib/python3.10/site-packages \
@@ -123,7 +147,19 @@ jobs:
       docker exec -u 0 -w $BUILD_SOURCESDIRECTORY runner ./build.sh \
           --work-dir=build \
           install
-    displayName: Install PKI
+    displayName: Install PKI with CMake
+
+  - script: |
+      cat ~/build/pki/files | while read file
+      do
+          echo "Checking $file"
+          if [ ! -d "$file" ] && [ ! -f "$file" ]
+          then
+              echo "ERROR: $file is missing"
+              exit 1
+          fi
+      done
+    displayName: Compare CMake and RPM files
 
   - script: |
       # generate CSR
@@ -148,3 +184,11 @@ jobs:
       # display cert
       pki nss-cert-show ca_signing
     displayName: Test PKI CLI
+
+  - script: |
+      # create PKI server
+      docker exec -u 0 -w $BUILD_SOURCESDIRECTORY runner pki-server create tomcat@pki
+
+      # remove PKI server
+      docker exec -u 0 -w $BUILD_SOURCESDIRECTORY runner pki-server remove tomcat@pki
+    displayName: Test PKI Server CLI
