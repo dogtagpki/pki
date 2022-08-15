@@ -1167,10 +1167,11 @@ jobs:
               --trust CT,C,C \
               ca_signing
           docker exec pki pki \
+              nss-cert-show \
+              ca_signing | tee ca_signing.cert
+          docker exec pki pki \
               nss-key-find \
-              --nickname ca_signing \
-              --output-format json | \
-              jq -r '.entries[0].keyId' | tee ca_signing.key
+              --nickname ca_signing | tee ca_signing.key
 
       - name: Create CA OCSP signing cert
         run: |
@@ -1190,10 +1191,11 @@ jobs:
               --cert ca_ocsp_signing.crt \
               ca_ocsp_signing
           docker exec pki pki \
+              nss-cert-show \
+              ca_ocsp_signing | tee ca_ocsp_signing.cert
+          docker exec pki pki \
               nss-key-find \
-              --nickname ca_ocsp_signing \
-              --output-format json | \
-              jq -r '.entries[0].keyId' | tee ca_ocsp_signing.key
+              --nickname ca_ocsp_signing | tee ca_ocsp_signing.key
 
       - name: Create CA audit signing cert
         run: |
@@ -1214,17 +1216,92 @@ jobs:
               --trust ,,P \
               ca_audit_signing
           docker exec pki pki \
+              nss-cert-show \
+              ca_audit_signing | tee ca_audit_signing.cert
+          docker exec pki pki \
               nss-key-find \
-              --nickname ca_audit_signing \
-              --output-format json | \
-              jq -r '.entries[0].keyId' | tee ca_audit_signing.key
+              --nickname ca_audit_signing | tee ca_audit_signing.key
 
-      - name: Export CA certs
+      - name: Create subsystem cert
+        run: |
+          docker exec pki pki \
+              nss-cert-request \
+              --subject "CN=Subsystem Certificate" \
+              --ext /usr/share/pki/server/certs/subsystem.conf \
+              --csr subsystem.csr
+          docker exec pki pki \
+              nss-cert-issue \
+              --issuer ca_signing \
+              --csr subsystem.csr \
+              --ext /usr/share/pki/server/certs/subsystem.conf \
+              --cert subsystem.crt
+          docker exec pki pki \
+              nss-cert-import \
+              --cert subsystem.crt \
+              subsystem
+          docker exec pki pki \
+              nss-cert-show \
+              subsystem | tee subsystem.cert
+          docker exec pki pki \
+              nss-key-find \
+              --nickname subsystem | tee subsystem.key
+
+      - name: Create SSL server cert
+        run: |
+          docker exec pki pki \
+              nss-cert-request \
+              --subject "CN=pki.example.com" \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --csr sslserver.csr
+          docker exec pki pki \
+              nss-cert-issue \
+              --issuer ca_signing \
+              --csr sslserver.csr \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --cert sslserver.crt
+          docker exec pki pki \
+              nss-cert-import \
+              --cert sslserver.crt \
+              sslserver
+          docker exec pki pki \
+              nss-cert-show \
+              sslserver | tee sslserver.cert
+          docker exec pki pki \
+              nss-key-find \
+              --nickname sslserver | tee sslserver.key
+
+      - name: Create admin cert
+        run: |
+          docker exec pki pki \
+              nss-cert-request \
+              --subject "CN=Administrator" \
+              --ext /usr/share/pki/server/certs/admin.conf \
+              --csr admin.csr
+          docker exec pki pki \
+              nss-cert-issue \
+              --issuer ca_signing \
+              --csr admin.csr \
+              --ext /usr/share/pki/server/certs/admin.conf \
+              --cert admin.crt
+          docker exec pki pki \
+              nss-cert-import \
+              --cert admin.crt \
+              caadmin
+          docker exec pki pki \
+              nss-cert-show \
+              caadmin
+
+      - name: Export system certs
         run: |
           docker exec pki pki \
               pkcs12-export \
               --pkcs12 ca-certs.p12 \
-              --password Secret.123
+              --password Secret.123 \
+              ca_signing \
+              ca_ocsp_signing \
+              ca_audit_signing \
+              subsystem \
+              sslserver
           docker exec pki pki \
               pkcs12-cert-find \
               --pkcs12 ca-certs.p12 \
@@ -1257,6 +1334,10 @@ jobs:
               -D pki_ca_signing_csr_path=ca_signing.csr \
               -D pki_ocsp_signing_csr_path=ca_ocsp_signing.csr \
               -D pki_audit_signing_csr_path=ca_audit_signing.csr \
+              -D pki_subsystem_csr_path=subsystem.csr \
+              -D pki_sslserver_csr_path=sslserver.csr \
+              -D pki_admin_cert_path=admin.crt \
+              -D pki_admin_csr_path=admin.csr \
               -v
 
           docker exec pki pki-server cert-find
@@ -1264,44 +1345,88 @@ jobs:
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --failures-only
 
-      - name: Verify CA signing key
+      - name: Check CA signing cert
         run: |
           docker exec pki pki \
               -d /etc/pki/pki-tomcat/alias \
               -f /etc/pki/pki-tomcat/password.conf \
-              nss-key-find \
-              --nickname ca_signing \
-              --output-format json | \
-              jq -r '.entries[0].keyId' | tee ca_signing.key.new
-          diff ca_signing.key ca_signing.key.new
+              nss-cert-show \
+              ca_signing | tee ca_signing.cert.server
+          diff ca_signing.cert ca_signing.cert.server
 
-      - name: Verify CA OCSP signing key
-        run: |
           docker exec pki pki \
               -d /etc/pki/pki-tomcat/alias \
               -f /etc/pki/pki-tomcat/password.conf \
               nss-key-find \
-              --nickname ca_ocsp_signing \
-              --output-format json | \
-              jq -r '.entries[0].keyId' | tee ca_ocsp_signing.key.new
-          diff ca_ocsp_signing.key ca_ocsp_signing.key.new
+              --nickname ca_signing | tee ca_signing.key.server
+          diff ca_signing.key ca_signing.key.server
 
-      - name: Verify CA audit signing key
+      - name: Check CA OCSP signing cert
         run: |
           docker exec pki pki \
               -d /etc/pki/pki-tomcat/alias \
               -f /etc/pki/pki-tomcat/password.conf \
-              nss-key-find \
-              --nickname ca_audit_signing \
-              --output-format json | \
-              jq -r '.entries[0].keyId' | tee ca_audit_signing.key.new
-          diff ca_audit_signing.key ca_audit_signing.key.new
+              nss-cert-show \
+              ca_ocsp_signing | tee ca_ocsp_signing.cert.server
+          diff ca_ocsp_signing.cert ca_ocsp_signing.cert.server
 
-      - name: Verify CA admin
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-key-find \
+              --nickname ca_ocsp_signing | tee ca_ocsp_signing.key.server
+          diff ca_ocsp_signing.key ca_ocsp_signing.key.server
+
+      - name: Check CA audit signing cert
         run: |
-          docker exec pki pki client-cert-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
-              --pkcs12-password Secret.123
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-cert-show \
+              ca_audit_signing | tee ca_audit_signing.cert.server
+          diff ca_audit_signing.cert ca_audit_signing.cert.server
+
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-key-find \
+              --nickname ca_audit_signing | tee ca_audit_signing.key.server
+          diff ca_audit_signing.key ca_audit_signing.key.server
+
+      - name: Check subsystem cert
+        run: |
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-cert-show \
+              subsystem | tee subsystem.cert.actual
+          diff subsystem.cert subsystem.cert.actual
+
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-key-find \
+              --nickname subsystem | tee subsystem.key.server
+          diff subsystem.key subsystem.key.server
+
+      - name: Check SSL server cert
+        run: |
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-cert-show \
+              sslserver | tee sslserver.cert.server
+          diff sslserver.cert sslserver.cert.server
+
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-key-find \
+              --nickname sslserver | tee sslserver.key.server
+          diff sslserver.key sslserver.key.server
+
+      - name: Check CA admin cert
+        run: |
           docker exec pki pki -n caadmin ca-user-show caadmin
 
       - name: Check cert requests in CA
