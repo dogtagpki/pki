@@ -91,6 +91,7 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
         init (null);
     }
     public void init(PKISocketConfig config) {
+        String method = "ldapconn/PKISocketFactory.init: ";
         try {
             if (!external) {
                 if (config == null) {
@@ -98,15 +99,34 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
                     config = engine.getConfig().getSocketConfig();
                 }
                 keepAlive = config.isKeepAlive();
-		try {
+
+                /*
+                 * about ciphers
+                 * # for RSA, in CS.cfg
+                 * tcp.clientCiphers=TLS_DHE_RSA_WITH_AES_128_CBC_SHA256,TLS_DHE_RSA_WITH_AES_256_CBC_SHA256,TLS_DHE_RSA_WITH_AES_128_GCM_SHA256,TLS_DHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+                 *
+                 * # for ECC, in CS.cfg
+                 * tcp.clientCiphers=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384
+                 *
+                 * Note: this setting will affect ALL TLS socket creations after
+                 *   unless overwritten by further settings such as either:
+                 *   CA->KRA: ca.connector.KRA.clientCiphers
+                 *   TPS->KRA/CA/TKS: tps.connector.<ca|kra|tks id>.clientCiphers
+                 */
+                try {
                     mClientCiphers = config.getClientCiphers();
+                    if (mClientCiphers != null) {
+                        mClientCiphers = mClientCiphers.trim();
+                        if (!mClientCiphers.isEmpty()) {
+                            CryptoUtil.setClientCiphers(mClientCiphers);
+                            log(method +"config tcp.clientCiphers: " + mClientCiphers);
+                        } else
+                            log(method +"config tcp.clientCiphers: not found");
+                     }
                 } catch (Exception econf) {
-                    // handled below
+                    // handled as default below
+                    log(method +"config tcp.clientCiphers: Exception treated as ciphers not set: " + econf.toString());
                 }
-                if ((mClientCiphers != null) && !mClientCiphers.trim().isEmpty())
-                    log("tcp.clientCiphers: " + mClientCiphers);
-                else
-                    log("tcp.clientCiphers: not found");
             } else {
                 keepAlive = true;
             }
@@ -150,20 +170,12 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
 
         s.addSocketListener(sockListener);
 
-        /*
-         * about ciphers
-         * # for RSA, in CS.cfg
-         * tcp.clientCiphers=TLS_DHE_RSA_WITH_AES_128_CBC_SHA256,TLS_DHE_RSA_WITH_AES_256_CBC_SHA256,TLS_DHE_RSA_WITH_AES_128_GCM_SHA256,TLS_DHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-         *
-         * # for ECC, in CS.cfg
-         * tcp.clientCiphers=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384
-         */
-
-        if (mClientCiphers != null && !mClientCiphers.trim().isEmpty())
+       /** opt for general setting in constructor init() above rather than
+        *   socket-specific setting
+        if (mClientCiphers != null && !mClientCiphers.isEmpty())
             CryptoUtil.setClientCiphers(s, mClientCiphers);
-            /*
         else { // if tcp.clientCiphers in CS.cfg not set, take default
-             * debug default ciphers
+            //  debug default ciphers
             int ciphers[] = s.getImplementedCipherSuites();
             if (ciphers == null)
                 log(method + "hmm... no ciphers returned from getImplementedCipherSuites");
@@ -176,7 +188,7 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
                     log (method + "cipher " + cipherString + " NOT enabled by default");
             }
         }
-            */
+        */
 
         SSLHandshakeCompletedListener listener = null;
 
@@ -185,7 +197,7 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
 
         if (mClientAuthCertNickname != null) {
             mClientAuth = true;
-            log("LdapJssSSLSocket: set client auth cert nickname " +
+            log(method +"LdapJssSSLSocket: set client auth cert nickname " +
                     mClientAuthCertNickname);
 
             //We have already established the manual cert selection callback
