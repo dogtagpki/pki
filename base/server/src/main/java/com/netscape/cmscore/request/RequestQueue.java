@@ -24,7 +24,6 @@ import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.request.AgentApprovals;
 import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.IRequestList;
@@ -36,6 +35,7 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.DBSSession;
+import com.netscape.cmscore.dbs.DBSearchResults;
 import com.netscape.cmscore.dbs.DBSubsystem;
 
 /**
@@ -445,7 +445,7 @@ public class RequestQueue {
      *  returned if the source id does not exist.
      */
     public IRequestList findRequestsBySourceId(String id) {
-        IDBSearchResults results = null;
+        DBSearchResults results = null;
         DBSSession dbs = null;
 
         // Need only the requestid in the result of the search
@@ -486,7 +486,7 @@ public class RequestQueue {
      * @return an Enumeration that generates RequestId objects.
      */
     protected Enumeration<RequestId> getRawList() {
-        IDBSearchResults results = null;
+        DBSearchResults results = null;
         DBSSession dbs = null;
 
         try {
@@ -562,7 +562,7 @@ public class RequestQueue {
      * @return request list
      */
     public IRequestList listRequestsByStatus(RequestStatus s) {
-        IDBSearchResults results = null;
+        DBSearchResults results = null;
         DBSSession dbs = null;
 
         try {

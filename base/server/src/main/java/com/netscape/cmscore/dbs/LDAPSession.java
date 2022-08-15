@@ -24,7 +24,6 @@ import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.EDBNotAvailException;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
@@ -298,13 +297,13 @@ public class LDAPSession extends DBSSession {
      * filter.
      */
     @Override
-    public IDBSearchResults search(String base, String filter)
+    public DBSearchResults search(String base, String filter)
             throws EBaseException {
         return search(base, filter, null);
     }
 
     @Override
-    public IDBSearchResults search(String base, String filter, int maxSize)
+    public DBSearchResults search(String base, String filter, int maxSize)
             throws EBaseException {
 
         logger.info("LDAPSession: Searching " + base + " for " + filter);
@@ -334,7 +333,7 @@ public class LDAPSession extends DBSSession {
     }
 
     @Override
-    public IDBSearchResults search(String base, String filter, int maxSize,String sortAttribute)
+    public DBSearchResults search(String base, String filter, int maxSize,String sortAttribute)
             throws EBaseException {
 
         logger.info("LDAPSession: Searching " + base + " for " + filter);
@@ -370,7 +369,7 @@ public class LDAPSession extends DBSSession {
     }
 
     @Override
-    public IDBSearchResults search(String base, String filter, int maxSize, int timeLimit)
+    public DBSearchResults search(String base, String filter, int maxSize, int timeLimit)
             throws EBaseException {
 
         logger.info("LDAPSession: Searching " + base + " for " + filter);
@@ -401,7 +400,7 @@ public class LDAPSession extends DBSSession {
     }
 
     @Override
-    public IDBSearchResults search(String base, String filter, int maxSize,
+    public DBSearchResults search(String base, String filter, int maxSize,
             int timeLimit, String sortAttribute) throws EBaseException {
 
         logger.info("LDAPSession: Searching " + base + " for " + filter);
@@ -443,7 +442,7 @@ public class LDAPSession extends DBSSession {
      * filter.
      */
     @Override
-    public IDBSearchResults search(String base, String filter,
+    public DBSearchResults search(String base, String filter,
             String attrs[]) throws EBaseException {
 
         logger.info("LDAPSession: Searching " + base + " for " + filter);

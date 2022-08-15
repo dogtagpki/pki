@@ -26,7 +26,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
@@ -37,6 +36,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.dbs.DBSSession;
+import com.netscape.cmscore.dbs.DBSearchResults;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.Repository;
 import com.netscape.cmscore.dbs.RepositoryRecord;
@@ -338,7 +338,7 @@ public class RequestRepository extends Repository {
     public void removeAllObjects() throws EBaseException {
         DBSSession s = dbSubsystem.createSession();
         try {
-            IDBSearchResults sr = s.search(mBaseDN, "(" + RequestRecord.ATTR_REQUEST_ID + "=*)");
+            DBSearchResults sr = s.search(mBaseDN, "(" + RequestRecord.ATTR_REQUEST_ID + "=*)");
             while (sr.hasMoreElements()) {
                 RequestRecord r = (RequestRecord) sr.nextElement();
                 String name = "cn=" + r.getRequestId() + "," + mBaseDN;
@@ -353,7 +353,7 @@ public class RequestRepository extends Repository {
     public IRequestList listRequestsByFilter(String filter) throws EBaseException {
 
         DBSSession s = dbSubsystem.createSession();
-        IDBSearchResults results = null;
+        DBSearchResults results = null;
 
         try {
             results = s.search(mBaseDN, filter);
@@ -372,7 +372,7 @@ public class RequestRepository extends Repository {
     public IRequestList listRequestsByFilter(String filter, int maxSize) throws EBaseException {
 
         DBSSession dbs = dbSubsystem.createSession();
-        IDBSearchResults results = null;
+        DBSearchResults results = null;
 
         try {
             results = dbs.search(mBaseDN, filter, maxSize);
@@ -391,7 +391,7 @@ public class RequestRepository extends Repository {
     public IRequestList listRequestsByFilter(String filter, int maxSize, int timeLimit) throws EBaseException {
 
         DBSSession dbs = dbSubsystem.createSession();
-        IDBSearchResults results = null;
+        DBSearchResults results = null;
 
         try {
             results = dbs.search(mBaseDN, filter, maxSize, timeLimit);

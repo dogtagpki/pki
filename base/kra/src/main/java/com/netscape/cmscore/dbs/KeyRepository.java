@@ -27,7 +27,6 @@ import java.util.Vector;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.cmscore.apps.DatabaseConfig;
@@ -299,7 +298,7 @@ public class KeyRepository extends Repository {
             if (ownerName != null) {
                 String filter = "(" + KeyRecord.ATTR_OWNER_NAME + "=" +
                         ownerName.toString() + ")";
-                IDBSearchResults res = s.search(getDN(), filter);
+                DBSearchResults res = s.search(getDN(), filter);
 
                 keyRec = (KeyRecord) res.nextElement();
             }
@@ -329,7 +328,7 @@ public class KeyRepository extends Repository {
             String filter = "(" + KeyRecord.ATTR_PUBLIC_KEY_DATA + "=" +
                     escapeBinaryData(data) + ")";
             if (s != null) {
-                IDBSearchResults res = s.search(getDN(), filter);
+                DBSearchResults res = s.search(getDN(), filter);
 
                 rec = (KeyRecord) res.nextElement();
             }
@@ -354,7 +353,7 @@ public class KeyRepository extends Repository {
             logger.debug("filter= " + filter);
 
             if (s != null) {
-                IDBSearchResults res = s.search(getDN(), filter);
+                DBSearchResults res = s.search(getDN(), filter);
 
                 rec = (KeyRecord) res.nextElement();
             }
@@ -427,7 +426,7 @@ public class KeyRepository extends Repository {
         Vector<KeyRecord> v = new Vector<>();
 
         try (DBSSession s = dbSubsystem.createSession()) {
-            IDBSearchResults sr = s.search(getDN(), filter, maxSize);
+            DBSearchResults sr = s.search(getDN(), filter, maxSize);
             while (sr.hasMoreElements()) {
                 v.add((KeyRecord) sr.nextElement());
             }
@@ -450,7 +449,7 @@ public class KeyRepository extends Repository {
         Vector<KeyRecord> v = new Vector<>();
 
         try (DBSSession s = dbSubsystem.createSession()) {
-            IDBSearchResults sr = s.search(getDN(), filter, maxSize, timeLimit);
+            DBSearchResults sr = s.search(getDN(), filter, maxSize, timeLimit);
             while (sr.hasMoreElements()) {
                 v.add((KeyRecord) sr.nextElement());
             }

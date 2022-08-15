@@ -11,7 +11,6 @@ import java.util.Map;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.DBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
@@ -145,7 +144,7 @@ public abstract class LDAPDatabase<E extends IDBObj> extends Database<E> {
             String ldapFilter = createFilter(keyword, attributes);
             logger.debug("LDAPDatabase: - filter " + ldapFilter);
 
-            IDBSearchResults results = session.search(baseDN, ldapFilter);
+            DBSearchResults results = session.search(baseDN, ldapFilter);
 
             Collection<E> list = new ArrayList<>();
             while (results.hasMoreElements()) {

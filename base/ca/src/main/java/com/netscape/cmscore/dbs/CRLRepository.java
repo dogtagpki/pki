@@ -25,7 +25,6 @@ import java.util.Vector;
 import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.cmscore.apps.DatabaseConfig;
@@ -167,7 +166,7 @@ public class CRLRepository extends Repository {
         try {
             String[] attrs = { CRLIssuingPointRecord.ATTR_ID, "objectclass" };
             String filter = "objectclass=" + CRLIssuingPointRecord.class.getName();
-            IDBSearchResults res = s.search(mBaseDN, filter, attrs);
+            DBSearchResults res = s.search(mBaseDN, filter, attrs);
             Vector<String> v = new Vector<>();
             while (res.hasMoreElements()) {
                 CRLIssuingPointRecord nextelement =

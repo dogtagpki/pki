@@ -40,7 +40,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
-import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.ocsp.IDefStore;
@@ -49,6 +48,7 @@ import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.DBSSession;
+import com.netscape.cmscore.dbs.DBSearchResults;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.RepositoryRecord;
 import com.netscape.cmsutil.ocsp.CertID;
@@ -518,7 +518,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         Vector<CRLIssuingPointRecord> v = new Vector<>();
 
         try {
-            IDBSearchResults sr = s.search(getBaseDN(), filter, maxSize);
+            DBSearchResults sr = s.search(getBaseDN(), filter, maxSize);
             while (sr.hasMoreElements()) {
                 v.add((CRLIssuingPointRecord) sr.nextElement());
             }
@@ -623,7 +623,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         Vector<RepositoryRecord> v = new Vector<>();
 
         try {
-            IDBSearchResults sr = s.search("cn=" + transformDN(name) + "," + getBaseDN(),
+            DBSearchResults sr = s.search("cn=" + transformDN(name) + "," + getBaseDN(),
                         filter);
             while (sr.hasMoreElements()) {
                 v.add((RepositoryRecord) sr.nextElement());
@@ -678,7 +678,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         Vector<CertRecord> v = new Vector<>();
 
         try {
-            IDBSearchResults sr = s.search("ou=" + thisUpdate + ",cn=" +
+            DBSearchResults sr = s.search("ou=" + thisUpdate + ",cn=" +
                         transformDN(name) + "," + getBaseDN(),
                         filter);
             while (sr.hasMoreElements()) {

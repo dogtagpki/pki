@@ -19,8 +19,6 @@ package com.netscape.cmscore.dbs;
 
 import java.util.Enumeration;
 
-import com.netscape.certsrv.dbs.IDBSearchResults;
-
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 
@@ -32,7 +30,7 @@ import netscape.ldap.LDAPException;
  * @author thomask
  * @version $Revision$, $Date$
  */
-public class DBSearchResults implements IDBSearchResults {
+public class DBSearchResults implements Enumeration<Object> {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DBSearchResults.class);
 

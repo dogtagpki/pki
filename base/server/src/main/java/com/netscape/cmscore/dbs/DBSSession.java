@@ -20,7 +20,6 @@ package com.netscape.cmscore.dbs;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.ModificationSet;
 
@@ -110,7 +109,7 @@ public class DBSSession implements AutoCloseable {
      * @return search results
      * @exception EBaseException failed to search
      */
-    public IDBSearchResults search(String base, String filter) throws EBaseException {
+    public DBSearchResults search(String base, String filter) throws EBaseException {
         return null;
     }
 
@@ -124,7 +123,7 @@ public class DBSSession implements AutoCloseable {
      * @return search results
      * @exception EBaseException failed to search
      */
-    public IDBSearchResults search(
+    public DBSearchResults search(
             String base,
             String filter,
             int maxSize
@@ -143,7 +142,7 @@ public class DBSSession implements AutoCloseable {
      * @return search results
      * @exception EBaseException failed to search
      */
-    public IDBSearchResults search(
+    public DBSearchResults search(
             String base,
             String filter,
             int maxSize,
@@ -163,7 +162,7 @@ public class DBSSession implements AutoCloseable {
      * @return search results
      * @exception EBaseException failed to search
      */
-    public IDBSearchResults search(
+    public DBSearchResults search(
             String base,
             String filter,
             int maxSize,
@@ -184,7 +183,7 @@ public class DBSSession implements AutoCloseable {
      * @return search results
      * @exception EBaseException failed to search
      */
-    public IDBSearchResults search(
+    public DBSearchResults search(
             String base,
             String filter,
             int maxSize,
@@ -204,7 +203,7 @@ public class DBSSession implements AutoCloseable {
      * @return search results
      * @exception EBaseException failed to search
      */
-    public IDBSearchResults search(
+    public DBSearchResults search(
             String base,
             String filter,
             String[] attrs

@@ -34,7 +34,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
-import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
@@ -1092,7 +1091,7 @@ public class CertificateRepository extends Repository {
 
         logger.debug("searchCertificateswith time limit filter " + filter);
         try (DBSSession s = dbSubsystem.createSession()) {
-            IDBSearchResults sr = s.search(mBaseDN, filter, maxSize, timeLimit);
+            DBSearchResults sr = s.search(mBaseDN, filter, maxSize, timeLimit);
             while (sr.hasMoreElements()) {
                 v.add((CertRecord) sr.nextElement());
             }
@@ -1118,7 +1117,7 @@ public class CertificateRepository extends Repository {
 
         logger.debug("searchCertificateswith time limit filter " + filter);
         try (DBSSession s = dbSubsystem.createSession()) {
-            IDBSearchResults sr = s.search(mBaseDN, filter, maxSize, timeLimit,sortAttribute);
+            DBSearchResults sr = s.search(mBaseDN, filter, maxSize, timeLimit,sortAttribute);
             while (sr.hasMoreElements()) {
                 v.add((CertRecord) sr.nextElement());
             }
