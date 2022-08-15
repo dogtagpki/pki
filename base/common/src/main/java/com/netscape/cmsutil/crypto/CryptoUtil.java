@@ -881,6 +881,7 @@ public class CryptoUtil {
             return;
 
         for (int cipherID : cipherIDs) {
+            // logger.debug("CryptoUtil.setSSLCipher: unsetting cipher:" + cipherID);
             SSLSocket.setCipherPreferenceDefault(cipherID, false);
         }
     }
@@ -890,6 +891,7 @@ public class CryptoUtil {
         if (cipherIDs == null) return;
 
         for (int cipherID : cipherIDs) {
+            // logger.debug("CryptoUtil.setSSLCipher: unsetting cipher on soc:" + cipherID);
             soc.setCipherPreference(cipherID, false);
         }
     }
