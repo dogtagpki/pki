@@ -1254,8 +1254,8 @@ jobs:
 
   # https://github.com/dogtagpki/pki/wiki/Installing-Standalone-OCSP
   # https://github.com/dogtagpki/pki/wiki/Publishing-CRL-to-OCSP-Responder
-  ocsp-standalone-test:
-    name: Testing standalone OCSP
+  ocsp-crl-direct-test:
+    name: Testing standalone OCSP with direct CRL publishing
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
@@ -1263,6 +1263,10 @@ jobs:
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get -y install libxml2-utils
+
       - name: Clone repository
         uses: actions/checkout@v2
 
@@ -1528,6 +1532,50 @@ jobs:
 
           diff expected stderr
 
+      - name: Check OCSP responder with initial CRL
+        run: |
+          # get cert serial number
+          docker exec ca pki nss-cert-show caagent | tee output
+          CERT_ID=$(sed -n "s/^\s*Serial Number:\s*\(\S*\)$/\1/p" output)
+
+          # https://github.com/dogtagpki/pki/wiki/UpdateCRL-Service
+          docker exec ca curl \
+              -d "xml=true" \
+              --cert-type P12 \
+              --cert /root/.dogtag/pki-tomcat/ca_admin_cert.p12:Secret.123 \
+              -sk \
+              https://ca.example.com:8443/ca/agent/ca/updateCRL \
+              | xmllint --format -
+
+          # wait for CRL update
+          sleep 10
+
+          # check cert status using OCSPClient
+          docker exec ocsp OCSPClient \
+              -d /root/.dogtag/nssdb \
+              -h ocsp.example.com \
+              -p 8080 \
+              -t /ocsp/ee/ocsp \
+              -c ca_signing \
+              --serial $CERT_ID | tee output
+
+          # the status should be good
+          sed -n "s/^CertStatus=\(.*\)$/\1/p" output > actual
+          echo Good > expected
+          diff expected actual
+
+          # check cert status using OpenSSL
+          docker exec ocsp openssl ocsp \
+              -url http://ocsp.example.com:8080/ocsp/ee/ocsp \
+              -CAfile ${SHARED}/ca_signing.crt \
+              -issuer ${SHARED}/ca_signing.crt \
+              -serial $CERT_ID | tee output
+
+          # the status should be good
+          sed -n "s/^$CERT_ID:\s*\(\S*\)$/\1/p" output > actual
+          echo good > expected
+          diff expected actual
+
       - name: Check OCSP responder with revoked cert
         run: |
           # revoke CA agent cert
@@ -1622,7 +1670,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: ocsp-standalone-ca-${{ matrix.os }}
+          name: ocsp-crl-direct-ca-${{ matrix.os }}
           path: |
             /tmp/artifacts/ca
 
@@ -1630,15 +1678,15 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: ocsp-standalone-ocsp-${{ matrix.os }}
+          name: ocsp-crl-direct-ocsp-${{ matrix.os }}
           path: |
             /tmp/artifacts/ocsp
 
   # https://github.com/dogtagpki/pki/wiki/Installing-Standalone-OCSP
   # https://github.com/dogtagpki/pki/wiki/Publishing-CA-Certificate-to-LDAP-Server
   # https://github.com/dogtagpki/pki/wiki/Publishing-CRL-to-LDAP-Server
-  ocsp-ldap-publishing-test:
-    name: Testing OCSP with LDAP-based CRL publishing
+  ocsp-ldap-crl-test:
+    name: Testing standalone OCSP with LDAP-based CRL publishing
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
@@ -1646,6 +1694,10 @@ jobs:
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get -y install libxml2-utils
+
       - name: Clone repository
         uses: actions/checkout@v2
 
@@ -1985,6 +2037,84 @@ jobs:
 
           diff expected stderr
 
+      - name: Check OCSP responder with initial CRL
+        run: |
+          # get cert serial number
+          docker exec ca pki nss-cert-show caagent | tee output
+          CERT_ID=$(sed -n "s/^\s*Serial Number:\s*\(\S*\)$/\1/p" output)
+
+          # https://github.com/dogtagpki/pki/wiki/UpdateCRL-Service
+          docker exec ca curl \
+              -d "xml=true" \
+              --cert-type P12 \
+              --cert /root/.dogtag/pki-tomcat/ca_admin_cert.p12:Secret.123 \
+              -sk \
+              https://ca.example.com:8443/ca/agent/ca/updateCRL \
+              | xmllint --format -
+
+          # wait for CRL update and cache refresh
+          sleep 10
+
+          # check CRL LDAP entries
+          docker exec ocsp ldapsearch \
+              -H ldap://ocspds.example.com:3389 \
+              -x \
+              -b "dc=crl,dc=pki,dc=example,dc=com" \
+              -o ldif_wrap=no \
+              -t \
+              "(objectClass=pkiCA)" | tee output
+
+          # there should be one CA cert attribute
+          grep "cACertificate;binary:" output | wc -l > actual
+          echo "1" > expected
+          diff expected actual
+
+          # there should be one CRL attribute
+          grep "certificateRevocationList;binary:" output | wc -l > actual
+          echo "1" > expected
+          diff expected actual
+
+          FILENAME=$(sed -n 's/certificateRevocationList;binary:< file:\/\/\(.*\)$/\1/p' output)
+          echo "FILENAME: $FILENAME"
+
+          # check the latest CRL
+          docker exec ocsp openssl crl \
+              -in "$FILENAME" \
+              -inform DER \
+              -text \
+              -noout | tee output
+
+          # there should be no certs in the latest CRL
+          sed -n "s/^\s*\(Serial Number:.*\)\s*$/\1/p" output | wc -l > actual
+          echo "0" > expected
+          diff expected actual
+
+          # check cert status using OCSPClient
+          docker exec ocsp OCSPClient \
+              -d /root/.dogtag/nssdb \
+              -h ocsp.example.com \
+              -p 8080 \
+              -t /ocsp/ee/ocsp \
+              -c ca_signing \
+              --serial $CERT_ID | tee output
+
+          # the status should be good
+          sed -n "s/^CertStatus=\(.*\)$/\1/p" output > actual
+          echo Good > expected
+          diff expected actual
+
+          # check cert status using OpenSSL
+          docker exec ocsp openssl ocsp \
+              -url http://ocsp.example.com:8080/ocsp/ee/ocsp \
+              -CAfile ${SHARED}/ca_signing.crt \
+              -issuer ${SHARED}/ca_signing.crt \
+              -serial $CERT_ID | tee output
+
+          # the status should be good
+          sed -n "s/^$CERT_ID:\s*\(\S*\)$/\1/p" output > actual
+          echo good > expected
+          diff expected actual
+
       - name: Check OCSP responder with revoked cert
         run: |
           # revoke CA agent cert
@@ -2143,7 +2273,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: ocsp-ldap-publishing-ca-${{ matrix.os }}
+          name: ocsp-crl-ldap-ca-${{ matrix.os }}
           path: |
             /tmp/artifacts/ca
 
@@ -2151,6 +2281,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: ocsp-ldap-publishing-ocsp-${{ matrix.os }}
+          name: ocsp-crl-ldap-ocsp-${{ matrix.os }}
           path: |
             /tmp/artifacts/ocsp
