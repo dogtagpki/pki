@@ -106,12 +106,7 @@ usage() {
 
 generate_rpm_sources() {
 
-    PREFIX="pki-$VERSION"
-
-    if [[ "$PHASE" != "" ]]; then
-        PREFIX=$PREFIX-$PHASE
-    fi
-
+    PREFIX="pki-$FULL_VERSION"
     TARBALL="$PREFIX.tar.gz"
 
     if [ "$SOURCE_TAG" != "" ] ; then
@@ -150,9 +145,10 @@ generate_rpm_sources() {
         --exclude .svn \
         --exclude .swp \
         --exclude .metadata \
-        --exclude build \
         --exclude .tox \
+        --exclude build \
         --exclude dist \
+        --exclude target \
         --exclude MANIFEST \
         --exclude *.pyc \
         --exclude __pycache__ \
@@ -557,6 +553,16 @@ fi
 
 if [ "$DEBUG" = true ] ; then
     echo "RELEASE: $RELEASE"
+fi
+
+FULL_VERSION=$VERSION
+
+if [ "$PHASE" != "" ]; then
+    FULL_VERSION=$FULL_VERSION-$PHASE
+fi
+
+if [ "$DEBUG" = true ] ; then
+    echo "FULL_VERSION: $FULL_VERSION"
 fi
 
 regex=$'%global *p11_kit_trust *([^\n]+)'
