@@ -113,6 +113,9 @@ public class UpdateCRL extends CMSServlet {
      */
     @Override
     public void process(CMSRequest cmsReq) throws EBaseException {
+
+        logger.info ("UpdateCRL: Updating CRL");
+
         HttpServletRequest req = cmsReq.getHttpReq();
         HttpServletResponse resp = cmsReq.getHttpResp();
 
@@ -170,6 +173,8 @@ public class UpdateCRL extends CMSServlet {
         } catch (EBaseException e) {
             error = e;
         }
+
+        logger.info ("UpdateCRL: Done updating CRL");
 
         try {
             ServletOutputStream out = resp.getOutputStream();
@@ -331,12 +336,14 @@ public class UpdateCRL extends CMSServlet {
             crlIssuingPointId = CertificateAuthority.PROP_MASTER_CRL;
         }
 
+        logger.info ("UpdateCRL: issuing point: " + crlIssuingPointId);
+
         CRLIssuingPoint crlIssuingPoint = engine.getCRLIssuingPoint(crlIssuingPointId);
         header.addStringValue("crlIssuingPoint", crlIssuingPointId);
         CAPublisherProcessor lpm = engine.getPublisherProcessor();
 
         if (crlIssuingPoint == null) {
-            logger.debug("UpdateCRL: no CRL issuing point");
+            logger.warn("Unable to find CRL issuing point " + crlIssuingPointId);
             return;
         }
 
@@ -349,10 +356,6 @@ public class UpdateCRL extends CMSServlet {
                 crlIssuingPoint.setCancelCurFutureThisUpdateValue(true);
             }
         }
-
-
-
-        logger.debug("UpdateCRL: CRL issuing point: " + crlIssuingPoint.getId());
 
         if (clearCache != null && clearCache.equals("true") &&
                 crlIssuingPoint.isCRLGenerationEnabled() &&
@@ -370,25 +373,25 @@ public class UpdateCRL extends CMSServlet {
 
             if (!crlIssuingPoint.isCRLIssuingPointInitialized()) {
 
-                logger.debug("UpdateCRL: CRL issuing point not initialized");
+                logger.info("UpdateCRL: CRL issuing point not initialized");
                 header.addStringValue("crlUpdate", "notInitialized");
 
             } else if (crlIssuingPoint.isCRLUpdateInProgress()
                        != CRLIssuingPoint.CRL_UPDATE_DONE ||
                        crlIssuingPoint.isManualUpdateSet()) {
 
-                logger.debug("UpdateCRL: CRL update in progress");
+                logger.info("UpdateCRL: CRL update in progress");
                 header.addStringValue("crlUpdate", "inProgress");
 
             } else if (!crlIssuingPoint.isCRLGenerationEnabled()) {
 
-                logger.debug("UpdateCRL: CRL update disabled");
+                logger.info("UpdateCRL: CRL update disabled");
                 header.addStringValue("crlUpdate", "Disabled");
 
             } else {
 
                 try {
-                    logger.debug("UpdateCRL: scheduling CRL update");
+                    logger.info("UpdateCRL: Scheduling CRL update");
 
                     crlIssuingPoint.setManualUpdate(signatureAlgorithm);
                     header.addStringValue("crlUpdate", "Scheduled");
@@ -503,7 +506,7 @@ public class UpdateCRL extends CMSServlet {
             return;
         }
 
-        logger.debug("UpdateCRL: updating CRL");
+        logger.info("UpdateCRL: Updating CRL for " + crlIssuingPointId);
 
         try {
             EBaseException publishError = null;

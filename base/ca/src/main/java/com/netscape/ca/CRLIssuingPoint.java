@@ -2785,8 +2785,10 @@ public class CRLIssuingPoint implements Runnable {
         logger.debug("CRLIssuingPoint: - do last auto update: " + mDoLastAutoUpdate);
 
         CAEngine engine = CAEngine.getInstance();
-        if ((!mEnable) || (!mEnableCRLUpdates && !mDoLastAutoUpdate))
+        if ((!mEnable) || (!mEnableCRLUpdates && !mDoLastAutoUpdate)) {
+            logger.info("CRLIssuingPoint: Not enabled");
             return;
+        }
 
         logger.debug("CRLIssuingPoint: - next CRL number: " + mNextDeltaCRLNumber);
         logger.debug("CRLIssuingPoint: - delta CRL enabled: " + isDeltaCRLEnabled());
@@ -3050,6 +3052,8 @@ public class CRLIssuingPoint implements Runnable {
             Date thisUpdate,
             Date nextDeltaUpdate) {
 
+        logger.info("CRLIssuingPoint: Generating delta CRL");
+
         mSplits[1] -= System.currentTimeMillis();
 
         @SuppressWarnings("unchecked")
@@ -3170,6 +3174,8 @@ public class CRLIssuingPoint implements Runnable {
             String signingAlgorithm,
             Date thisUpdate,
             Date nextUpdate) throws EBaseException {
+
+        logger.info("CRLIssuingPoint: Generating full CRL");
 
         logger.debug("generateFullCRL: thisUpdate: " + thisUpdate + " nextUpdate: " + nextUpdate);
 
