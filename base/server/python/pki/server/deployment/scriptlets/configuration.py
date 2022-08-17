@@ -547,7 +547,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             token = pki.nssdb.normalize_token(system_certs['sslserver']['token'])
 
             if not token:
-                token = deployer.mdict['pki_token_name']
+                token = deployer.mdict.get('pki_sslserver_token')
+                if not token:
+                    token = deployer.mdict['pki_token_name']
 
             instance.set_sslserver_cert_nickname(nickname, token)
 

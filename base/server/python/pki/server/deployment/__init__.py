@@ -631,7 +631,9 @@ class PKIDeployer:
         token = pki.nssdb.normalize_token(cert['token'])
 
         if not token:
-            token = self.mdict['pki_token_name']
+            token = self.mdict.get('pki_sslserver_token')
+            if not token:
+                token = self.mdict['pki_token_name']
 
         nssdb.import_cert_chain(
             nickname=nickname,
