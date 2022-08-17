@@ -196,11 +196,7 @@ public class BasicConstraintsExtDefault extends EnrollExtDefault {
                 if (ext == null) {
                     return null;
                 }
-                if (ext.isCritical()) {
-                    return "true";
-                } else {
-                    return "false";
-                }
+                return ext.isCritical() ? "true" : "false";
             } else if (name.equals(VAL_IS_CA)) {
                 ext = (BasicConstraintsExtension)
                         getExtension(PKIXExtensions.BasicConstraints_Id.toString(), info);
