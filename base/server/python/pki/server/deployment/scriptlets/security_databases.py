@@ -419,7 +419,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         nssdb = pki.nssdb.NSSDatabase(
             directory=deployer.mdict['pki_client_database_dir'],
-            password_file=deployer.mdict['pki_client_password_conf'])
+            password_file=deployer.mdict['pki_client_password_conf'],
+            user=deployer.mdict['pki_user'],
+            group=deployer.mdict['pki_group'])
 
         try:
             if not nssdb.exists():
