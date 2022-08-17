@@ -80,12 +80,12 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     public static final BigInteger BIG_ZERO = new BigInteger("0");
     public static final Long MINUS_ONE = Long.valueOf(-1);
 
-    private final static String PROP_BY_NAME =
+    private static final String PROP_BY_NAME =
             "byName";
-    private final static String PROP_WAIT_ON_CRL_UPDATE =
+    private static final String PROP_WAIT_ON_CRL_UPDATE =
             "waitOnCRLUpdate";
-    private final static String PROP_NOT_FOUND_GOOD = "notFoundAsGood";
-    private final static String PROP_INCLUDE_NEXT_UPDATE =
+    private static final String PROP_NOT_FOUND_GOOD = "notFoundAsGood";
+    private static final String PROP_INCLUDE_NEXT_UPDATE =
             "includeNextUpdate";
 
     protected Hashtable<String, Long> mReqCounts = new Hashtable<>();
