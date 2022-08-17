@@ -1264,7 +1264,10 @@ class PKIDeployer:
         else:
             raise Exception('Unsupported key type: %s' % key_type)
 
-        nssdb = subsystem.instance.open_nssdb()
+        nssdb = subsystem.instance.open_nssdb(
+            user=self.mdict['pki_user'],
+            group=self.mdict['pki_group']
+        )
         try:
             result = nssdb.create_key(
                 token=token,
@@ -1436,7 +1439,10 @@ class PKIDeployer:
         instance.set_sslserver_cert_nickname(nickname)
 
         tmpdir = tempfile.mkdtemp()
-        nssdb = instance.open_nssdb()
+        nssdb = instance.open_nssdb(
+            user=self.mdict['pki_user'],
+            group=self.mdict['pki_group']
+        )
 
         try:
             logger.info('Checking existing temp SSL server cert: %s', nickname)
@@ -1508,7 +1514,10 @@ class PKIDeployer:
 
         logger.info('Removing temp SSL server cert from internal token: %s', nickname)
 
-        nssdb = instance.open_nssdb()
+        nssdb = instance.open_nssdb(
+            user=self.mdict['pki_user'],
+            group=self.mdict['pki_group']
+        )
 
         try:
             # Remove temp SSL server cert from internal token.

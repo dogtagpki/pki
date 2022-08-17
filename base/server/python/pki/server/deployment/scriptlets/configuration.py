@@ -57,7 +57,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         subsystem.save()
 
         token = pki.nssdb.normalize_token(deployer.mdict['pki_token_name'])
-        nssdb = instance.open_nssdb()
+        nssdb = instance.open_nssdb(
+            user=deployer.mdict['pki_user'],
+            group=deployer.mdict['pki_group'])
 
         existing = deployer.configuration_file.existing
         step_two = deployer.configuration_file.external_step_two
@@ -444,7 +446,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if 'pki_one_time_pin' not in deployer.mdict:
             deployer.mdict['pki_one_time_pin'] = subsystem.config['preop.pin']
 
-        nssdb = subsystem.instance.open_nssdb()
+        nssdb = subsystem.instance.open_nssdb(
+            user=deployer.mdict['pki_user'],
+            group=deployer.mdict['pki_group'])
 
         try:
             system_certs = deployer.setup_system_certs(nssdb, subsystem)

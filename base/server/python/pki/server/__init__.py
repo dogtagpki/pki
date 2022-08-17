@@ -838,13 +838,16 @@ grant codeBase "file:%s" {
 
         pki.util.chown(self.nssdb_dir, self.uid, self.gid)
 
-    def open_nssdb(self, token=pki.nssdb.INTERNAL_TOKEN_NAME):
+    def open_nssdb(self, token=pki.nssdb.INTERNAL_TOKEN_NAME,
+                   user=None, group=None):
         return pki.nssdb.NSSDatabase(
             directory=self.nssdb_dir,
             token=token,
             password=self.get_token_password(token),
             internal_password=self.get_token_password(),
-            passwords=self.passwords)
+            passwords=self.passwords,
+            user=user,
+            group=group)
 
     def get_webapps(self):
 

@@ -32,6 +32,8 @@ import stat
 import subprocess
 import tempfile
 import datetime
+import grp
+import pwd
 
 import six
 
@@ -183,16 +185,27 @@ class NSSDatabase(object):
                  internal_password=None,
                  internal_password_file=None,
                  passwords=None,
-                 password_conf=None):
+                 password_conf=None,
+                 user=None,
+                 group=None):
+        self.user = user
+        self.group = group
 
         if not directory:
             directory = os.path.join(
                 os.path.expanduser("~"), '.dogtag', 'nssdb')
 
+        if user:
+            self.uid = pwd.getpwnam(user).pw_uid
+            if group:
+                self.gid = grp.getgrnam(group).gr_gid
+            else:
+                self.gid = pwd.getpwnam(user).pw_gid
+
         self.directory = directory
         self.token = normalize_token(token)
 
-        self.tmpdir = tempfile.mkdtemp()
+        self.tmpdir = self.create_tmpdir()
 
         if password:
             # if token password is provided, store it in a temp file
@@ -229,17 +242,32 @@ class NSSDatabase(object):
             stdout=None,
             capture_output=False,
             check=False,
-            text=None):
+            text=None,
+            runas=False):
 
         logger.debug('Command: %s', ' '.join(cmd))
 
-        return subprocess.run(
+        if runas and self.user is not None:
+            runuser = [
+                'runuser',
+                '-u',
+                self.user,
+                '--',
+            ]
+            cmd = runuser + cmd
+
+        result = subprocess.run(
             cmd,
             input=input,
             stdout=stdout,
             capture_output=capture_output,
             check=check,
             text=text)
+
+        if capture_output:
+            logger.debug('stdout: %s', stdout)
+
+        return result
 
     def create(self, enable_trust_policy=False):
 
@@ -283,6 +311,9 @@ class NSSDatabase(object):
         password_file = os.path.join(tmpdir, filename)
         with open(password_file, 'w', encoding='utf-8') as f:
             f.write(password)
+        if self.user:
+            os.chown(password_file, self.uid, self.gid)
+
         return password_file
 
     def get_password_file(self, tmpdir, token, filename=None):
@@ -303,6 +334,12 @@ class NSSDatabase(object):
             tmpdir,
             password,
             filename)
+
+    def create_tmpdir(self):
+        tmpdir = tempfile.mkdtemp()
+        if self.user:
+            os.chown(tmpdir, self.uid, self.gid)
+        return tmpdir
 
     def get_dbtype(self):
         def dbexists(filename):
@@ -554,7 +591,8 @@ class NSSDatabase(object):
         elif logger.isEnabledFor(logging.INFO):
             cmd.append('--verbose')
 
-        result = self.run(cmd, capture_output=True, check=True, text=True)
+        result = self.run(cmd, capture_output=True, check=True, text=True,
+                          runas=True)
 
         return json.loads(result.stdout)
 
@@ -580,7 +618,7 @@ class NSSDatabase(object):
                 trust_attributes=trust_attributes)
             return
 
-        tmpdir = tempfile.mkdtemp()
+        tmpdir = self.create_tmpdir()
         try:
             if cert_data and not cert_file:
                 cert_data = convert_cert(cert_data, cert_format, 'pem')
@@ -693,7 +731,7 @@ class NSSDatabase(object):
 
         cmd.append(nickname)
 
-        self.run(cmd, input=cert_data, text=True, check=True)
+        self.run(cmd, input=cert_data, text=True, check=True, runas=True)
 
     def add_ca_cert(self, cert_file, trust_attributes='CT,C,C'):
 
@@ -818,6 +856,8 @@ class NSSDatabase(object):
                 Raw extension data (``bytes``)
 
         """
+        if self.user:
+            os.chown(os.path.dirname(request_file), self.uid, self.gid)
 
         if use_jss:
 
@@ -844,7 +884,7 @@ class NSSDatabase(object):
         if cka_id is not None and not isinstance(cka_id, six.text_type):
             raise TypeError('cka_id must be a text string')
 
-        tmpdir = tempfile.mkdtemp()
+        tmpdir = self.create_tmpdir()
 
         try:
             if subject_key_id is not None:
@@ -1030,7 +1070,7 @@ class NSSDatabase(object):
         on an HSM (dependent on make/model). Only RSA key type is supported.
         """
 
-        tmpdir = tempfile.mkdtemp()
+        tmpdir = self.create_tmpdir()
         try:
 
             cmd = [
@@ -1057,7 +1097,7 @@ class NSSDatabase(object):
                 '-o', request_file,
             ])
 
-            self.run(cmd, check=True)
+            self.run(cmd, check=True, runas=True)
 
         finally:
             shutil.rmtree(tmpdir)
@@ -1353,7 +1393,7 @@ class NSSDatabase(object):
 
             exts['genericExtensions'] = ', '.join(oids)
 
-        tmpdir = tempfile.mkdtemp()
+        tmpdir = self.create_tmpdir()
 
         try:
             if exts:
@@ -1412,7 +1452,7 @@ class NSSDatabase(object):
             elif logger.isEnabledFor(logging.INFO):
                 cmd.append('--verbose')
 
-            self.run(cmd, check=True)
+            self.run(cmd, check=True, runas=True)
 
         finally:
             shutil.rmtree(tmpdir)
@@ -1718,7 +1758,7 @@ class NSSDatabase(object):
         logger.debug('NSSDatabase.get_trust(%s)', nickname)
         cert_trust = None
 
-        tmpdir = tempfile.mkdtemp()
+        tmpdir = self.create_tmpdir()
         try:
             token = self.get_effective_token(token)
             password_file = self.get_password_file(tmpdir, token)
@@ -1765,7 +1805,7 @@ class NSSDatabase(object):
 
     def show_cert(self, nickname, token=None):
 
-        tmpdir = tempfile.mkdtemp()
+        tmpdir = self.create_tmpdir()
         try:
             token = self.get_effective_token(token)
             password_file = self.get_password_file(tmpdir, token)
@@ -1825,7 +1865,7 @@ class NSSDatabase(object):
         else:
             raise Exception('Unsupported output format: %s' % output_format)
 
-        tmpdir = tempfile.mkdtemp()
+        tmpdir = self.create_tmpdir()
         try:
             token = self.get_effective_token(token)
             password_file = self.get_password_file(tmpdir, token)
@@ -1971,7 +2011,7 @@ class NSSDatabase(object):
                     include_key=True,
                     include_chain=True):
 
-        tmpdir = tempfile.mkdtemp()
+        tmpdir = self.create_tmpdir()
 
         try:
             if pkcs12_password:
@@ -2047,7 +2087,7 @@ class NSSDatabase(object):
             token=None,
             remove_key=False):
 
-        tmpdir = tempfile.mkdtemp()
+        tmpdir = self.create_tmpdir()
         try:
             token = self.get_effective_token(token)
             password_file = self.get_password_file(tmpdir, token)
@@ -2069,7 +2109,7 @@ class NSSDatabase(object):
 
             cmd.extend(['-n', nickname])
 
-            self.run(cmd, check=True)
+            self.run(cmd, check=True, runas=True)
 
         finally:
             shutil.rmtree(tmpdir)
@@ -2083,7 +2123,7 @@ class NSSDatabase(object):
 
         logger.debug('NSSDatabase.import_cert_chain(%s) begins', nickname)
 
-        tmpdir = tempfile.mkdtemp()
+        tmpdir = self.create_tmpdir()
 
         try:
             file_type = get_file_type(cert_chain_file)
@@ -2191,7 +2231,7 @@ class NSSDatabase(object):
 
         # Import certificate chain with nickname
 
-        tmpdir = tempfile.mkdtemp()
+        tmpdir = self.create_tmpdir()
 
         try:
             # Sort and split the certs from root to leaf.
@@ -2247,7 +2287,7 @@ class NSSDatabase(object):
                       no_ca_certs=False,
                       overwrite=False):
 
-        tmpdir = tempfile.mkdtemp()
+        tmpdir = self.create_tmpdir()
 
         try:
             if pkcs12_password:
@@ -2313,7 +2353,7 @@ class NSSDatabase(object):
                       include_key=True,
                       include_chain=True):
 
-        tmpdir = tempfile.mkdtemp()
+        tmpdir = self.create_tmpdir()
 
         try:
             if pkcs12_password:
