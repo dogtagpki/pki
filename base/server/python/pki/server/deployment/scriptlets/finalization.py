@@ -68,6 +68,16 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         else:
             instance.enable()
 
+        if len(instance.get_subsystems()) == 1:
+            logger.info('Starting PKI server')
+            instance.start(
+                wait=True,
+                max_wait=deployer.startup_timeout,
+                timeout=deployer.request_timeout)
+
+            logger.info('Waiting for %s subsystem', subsystem.type)
+            subsystem.wait_for_startup(deployer.startup_timeout, deployer.request_timeout)
+
         # Optionally, 'purge' the entire temporary client infrastructure
         # including the client NSS security databases and password files
         #

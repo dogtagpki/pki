@@ -416,10 +416,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.mdict['pki_target_tomcat_conf_instance_id'])
 
         # Start/Restart this Tomcat PKI Process
-        tomcat_instance_subsystems = \
-            len(deployer.instance.tomcat_instance_subsystems())
-
-        if tomcat_instance_subsystems == 1:
+        if len(instance.get_subsystems()) == 1:
 
             logger.info('Enabling %s subsystem', subsystem.type)
             subsystem.enable()
@@ -529,7 +526,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         logger.info('%s configuration complete', subsystem.type)
 
-        if tomcat_instance_subsystems == 1:
+        if len(instance.get_subsystems()) == 1:
 
             if using_legacy_id_generator:
                 logger.info('Stopping PKI server')
@@ -550,12 +547,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             instance.set_sslserver_cert_nickname(nickname, token)
 
-            logger.info('Starting PKI server')
-            instance.start(
-                wait=True,
-                max_wait=deployer.startup_timeout,
-                timeout=deployer.request_timeout)
-
         else:
             logger.info('Starting %s subsystem', subsystem.type)
             subsystem.enable(
@@ -563,8 +554,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 max_wait=deployer.startup_timeout,
                 timeout=deployer.request_timeout)
 
-        logger.info('Waiting for %s subsystem', subsystem.type)
-        subsystem.wait_for_startup(deployer.startup_timeout, deployer.request_timeout)
+            logger.info('Waiting for %s subsystem', subsystem.type)
+            subsystem.wait_for_startup(deployer.startup_timeout, deployer.request_timeout)
 
     def destroy(self, deployer):
         pass
