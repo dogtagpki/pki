@@ -754,8 +754,6 @@ class PKIConfigParser:
                 "<!--"
             self.mdict['PKI_OPEN_SEPARATE_PORTS_WEB_COMMENT_SLOT'] = \
                 "<!--"
-            self.mdict['PKI_PIDDIR_SLOT'] = \
-                os.path.join("/var/run/pki", "tomcat")
             if config.str2bool(self.mdict['pki_enable_proxy']):
                 self.mdict['PKI_CLOSE_AJP_PORT_COMMENT_SLOT'] = \
                     ""
