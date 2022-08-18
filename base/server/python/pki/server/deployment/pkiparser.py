@@ -843,8 +843,6 @@ class PKIConfigParser:
                 self.mdict['MASTER_CRL_ENABLE_SLOT'] = \
                     self.mdict['pki_master_crl_enable']
 
-            self.mdict['TOMCAT_CFG_SLOT'] = \
-                self.mdict['pki_target_tomcat_conf']
             self.mdict['TOMCAT_LOG_DIR_SLOT'] = \
                 self.mdict['pki_instance_log_path']
             self.mdict['TOMCAT_PIDFILE_SLOT'] = \
