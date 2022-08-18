@@ -819,9 +819,6 @@ class PKIConfigParser:
                 self.mdict['pki_sslserver_nickname']
             self.mdict['PKI_SUBSYSTEM_TYPE_SLOT'] = \
                 self.mdict['pki_subsystem'].lower()
-            self.mdict['PKI_SYSTEMD_SERVICENAME_SLOT'] = \
-                "pki-tomcatd" + "@" + \
-                self.mdict['pki_instance_name'] + ".service"
             self.mdict['PKI_UNSECURE_PORT_SLOT'] = \
                 self.mdict['pki_http_port']
             self.mdict['PKI_UNSECURE_PORT_CONNECTOR_NAME_SLOT'] = \
