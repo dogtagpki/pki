@@ -56,7 +56,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             pin = ''.join(random.choice(string.ascii_letters + string.digits)
                           for x in range(20))
             deployer.mdict['pki_one_time_pin'] = pin
-            deployer.mdict['PKI_RANDOM_NUMBER_SLOT'] = pin
 
         instance = self.instance
 
