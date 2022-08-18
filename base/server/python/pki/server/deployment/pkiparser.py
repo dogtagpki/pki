@@ -809,8 +809,6 @@ class PKIConfigParser:
                 "-->"
             self.mdict['PKI_SERVER_XML_CONF_SLOT'] = \
                 self.mdict['pki_target_server_xml']
-            self.mdict['PKI_SSL_SERVER_NICKNAME_SLOT'] = \
-                self.mdict['pki_sslserver_nickname']
             self.mdict['PKI_SUBSYSTEM_TYPE_SLOT'] = \
                 self.mdict['pki_subsystem'].lower()
             self.mdict['PKI_UNSECURE_PORT_SLOT'] = \
