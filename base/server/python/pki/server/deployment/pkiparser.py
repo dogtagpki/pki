@@ -704,8 +704,6 @@ class PKIConfigParser:
                 os.path.join(self.mdict['pki_subsystem_registry_path'],
                              self.mdict['pki_instance_name'])
 
-            self.mdict['INSTALL_TIME_SLOT'] = \
-                self.mdict['pki_install_time']
             self.mdict['PKI_ADMIN_SECURE_PORT_SLOT'] = \
                 self.mdict['pki_https_port']
             self.mdict['PKI_AGENT_SECURE_PORT_SLOT'] = \
