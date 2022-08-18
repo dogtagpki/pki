@@ -2020,7 +2020,7 @@ jobs:
           echo "FILENAME: $FILENAME"
 
           # check the latest CRL
-          docker exec ca openssl crl \
+          docker exec ocsp openssl crl \
               -in "$FILENAME" \
               -inform DER \
               -text \
@@ -2087,7 +2087,7 @@ jobs:
           echo "FILENAME: $FILENAME"
 
           # check the latest CRL
-          docker exec ca openssl crl \
+          docker exec ocsp openssl crl \
               -in "$FILENAME" \
               -inform DER \
               -text \
