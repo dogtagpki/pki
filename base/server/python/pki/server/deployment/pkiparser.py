@@ -803,8 +803,6 @@ class PKIConfigParser:
                     "-->"
                 self.mdict['PKI_OPEN_TOMCAT_ACCESS_LOG_COMMENT_SLOT'] = \
                     "<!--"
-            self.mdict['PKI_TMPDIR_SLOT'] = \
-                self.mdict['pki_tomcat_tmpdir_path']
             self.mdict['PKI_SECURE_PORT_SLOT'] = \
                 self.mdict['pki_https_port']
             self.mdict['PKI_SECURE_PORT_CONNECTOR_NAME_SLOT'] = \
