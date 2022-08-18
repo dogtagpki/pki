@@ -828,8 +828,6 @@ class PKIConfigParser:
                 self.mdict['SERVER_KEYGEN_SLOT'] = \
                     self.mdict['pki_enable_server_side_keygen']
 
-            self.mdict['TOMCAT_LOG_DIR_SLOT'] = \
-                self.mdict['pki_instance_log_path']
             self.mdict['TOMCAT_PIDFILE_SLOT'] = \
                 "/var/run/pki/tomcat/" + self.mdict['pki_instance_name'] + \
                 ".pid"
