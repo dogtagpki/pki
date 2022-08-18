@@ -835,9 +835,6 @@ class PKIConfigParser:
                 self.mdict['pki_tomcat_server_port']
 
             # tps parameters
-            self.mdict['TOKENDB_HOST_SLOT'] = \
-                self.mdict['pki_ds_hostname']
-
             if config.str2bool(self.mdict['pki_ds_secure_connection']):
                 self.mdict['TOKENDB_PORT_SLOT'] = \
                     self.mdict['pki_ds_ldaps_port']
