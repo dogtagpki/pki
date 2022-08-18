@@ -17,7 +17,9 @@ import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.authority.AuthorityClient;
 import com.netscape.certsrv.authority.AuthorityResource;
+import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.cert.CertData;
@@ -128,7 +130,7 @@ public class DogtagRABackend extends ESTBackend {
 
     @Override
     public X509CertImpl simpleenroll(Optional<String> label, PKCS10 csr) throws PKIException {
-        return issueCertificate(csr);
+        return issueCertificate(label, csr);
     }
 
     @Override
@@ -140,8 +142,19 @@ public class DogtagRABackend extends ESTBackend {
         return simpleenroll(label, csr);
     }
 
-    private X509CertImpl issueCertificate(PKCS10 pkcs10) throws PKIException {
+    private X509CertImpl issueCertificate(Optional<String> label, PKCS10 pkcs10)
+            throws PKIException {
         logger.info("Issuing certificate");
+
+        // interpret label as authority-id
+        AuthorityID aid = null;
+        if (label.isPresent()) {
+            try {
+                aid = new AuthorityID(label.get());
+            } catch (Throwable e) {
+                throw new BadRequestException("Bad AuthorityID: " + label.get(), e);
+            }
+        }
 
         try (PKIClient pkiClient = new PKIClient(clientConfig)) {
             CAClient caClient = new CAClient(pkiClient);
@@ -189,7 +202,7 @@ public class DogtagRABackend extends ESTBackend {
             }
 
             logger.info("Request:\n" + certEnrollmentRequest);
-            CertRequestInfos infos = certClient.enrollRequest(certEnrollmentRequest, null, null);
+            CertRequestInfos infos = certClient.enrollRequest(certEnrollmentRequest, aid, null);
 
             logger.info("Responses:");
             CertRequestInfo info = infos.getEntries().iterator().next();
