@@ -854,9 +854,6 @@ class PKIConfigParser:
             self.mdict['TOKENDB_ROOT_SLOT'] = \
                 self.mdict['pki_ds_base_dn']
 
-            self.mdict['TPS_DIR_SLOT'] = \
-                self.mdict['pki_source_subsystem_path']
-
             if self.mdict['pki_subsystem'] == "CA":
                 self.mdict['PKI_ENABLE_RANDOM_SERIAL_NUMBERS'] = \
                     self.mdict['pki_random_serial_numbers_enable'].lower()
