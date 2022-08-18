@@ -31,4 +31,62 @@ SPDX-License-Identifier: GPL-2.0-or-later
         <url-pattern>/</url-pattern>
     </servlet-mapping>
 
+    <!-- all GET methods are public -->
+    <security-constraint>
+        <display-name>Require TLS for all resources</display-name>
+        <web-resource-collection>
+            <url-pattern>/*</url-pattern>
+            <http-method>GET</http-method>
+        </web-resource-collection>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+
+    <!-- all POST requests require an authenticated client (for now)
+
+        This is a bit of a hack to work around the fact that url-pattern
+        cannot match an arbitrary path component preceding a fixed path
+        component.  In EST, paths such as .well-known/est/{label}/simpleenroll
+        are used, where {label} is user-specified and interpreted by the
+        server.  But <url-pattern> can only match path prefixes.
+
+        So far, the set of resources we have implemented are such that
+        all POST requests require an authenticated EST client and all GET
+        requests are anonymous.  Should this change in future, we will
+        have to push authentication down into the application itself.
+
+        The valid role name is "**" meaning any authenticated user will
+        be granted access.  The EST application performs its own
+        authorization checks.
+
+    -->
+    <security-constraint>
+        <display-name>Require authenticated client for POST resources</display-name>
+        <web-resource-collection>
+            <url-pattern>/*</url-pattern>
+            <http-method>POST</http-method>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>**</role-name>
+        </auth-constraint>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+
+    <!-- silence warning about uncovered methods -->
+    <security-constraint>
+        <display-name>Reject unused methods</display-name>
+        <web-resource-collection>
+            <url-pattern>/*</url-pattern>
+            <http-method-omission>GET</http-method-omission>
+            <http-method-omission>POST</http-method-omission>
+        </web-resource-collection>
+        <auth-constraint/> <!-- reject all access -->
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+
 </web-app>
