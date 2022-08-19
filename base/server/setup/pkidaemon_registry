@@ -3,7 +3,7 @@
 PKI_USER=[pki_user]
 export PKI_USER
 
-PKI_GROUP=[PKI_GROUP]
+PKI_GROUP=[pki_group]
 export PKI_GROUP
 
 PKI_INSTANCE_NAME=[PKI_INSTANCE_NAME]

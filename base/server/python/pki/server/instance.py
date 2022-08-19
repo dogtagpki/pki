@@ -245,7 +245,7 @@ class PKIInstance(pki.server.PKIServer):
             self.registry_file,
             params={
                 'pki_user': self.user,
-                'PKI_GROUP': self.group,
+                'pki_group': self.group,
                 'PKI_INSTANCE_NAME': self.name,
                 'PKI_INSTANCE_PATH': self.base_dir,
                 'TOMCAT_PIDFILE': '/var/run/pki/tomcat/' + self.name + '.pid'
