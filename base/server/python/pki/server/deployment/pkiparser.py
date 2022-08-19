@@ -797,9 +797,6 @@ class PKIConfigParser:
                 self.mdict['SERVER_KEYGEN_SLOT'] = \
                     self.mdict['pki_enable_server_side_keygen']
 
-            self.mdict['TOMCAT_PIDFILE_SLOT'] = \
-                "/var/run/pki/tomcat/" + self.mdict['pki_instance_name'] + \
-                ".pid"
             self.mdict['TOMCAT_SERVER_PORT_SLOT'] = \
                 self.mdict['pki_tomcat_server_port']
 
