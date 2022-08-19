@@ -236,18 +236,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.mdict['pki_tomcat_bin_path'],
             deployer.mdict['pki_tomcat_bin_link'])
 
-        user = deployer.mdict['pki_user']
-        group = deployer.mdict['pki_group']
-
-        if user != 'pkiuser' or group != 'pkiuser':
-            deployer.systemd.set_override(
-                'Service', 'User', user, 'user.conf')
-            deployer.systemd.set_override(
-                'Service', 'Group', group, 'user.conf')
-
-        deployer.systemd.write_overrides()
-        deployer.systemd.daemon_reload()
-
         # Link /var/lib/pki/<instance>/conf to /etc/pki/<instance>
         deployer.symlink.create(
             instance_conf_path,
@@ -258,10 +246,24 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.mdict['pki_instance_log_path'],
             deployer.mdict['pki_instance_logs_link'])
 
-        # Link /etc/systemd/system/pki-tomcatd.target.wants/pki-tomcatd@<instance>.service
-        # to /lib/systemd/system/pki-tomcatd@.service
-        deployer.symlink.create(deployer.mdict['pki_systemd_service'],
-                                deployer.mdict['pki_systemd_service_link'])
+        if config.str2bool(deployer.mdict['pki_systemd_service_create']):
+
+            user = deployer.mdict['pki_user']
+            group = deployer.mdict['pki_group']
+
+            if user != 'pkiuser' or group != 'pkiuser':
+                deployer.systemd.set_override(
+                    'Service', 'User', user, 'user.conf')
+                deployer.systemd.set_override(
+                    'Service', 'Group', group, 'user.conf')
+
+            deployer.systemd.write_overrides()
+            deployer.systemd.daemon_reload()
+
+            # Link /etc/systemd/system/pki-tomcatd.target.wants/pki-tomcatd@<instance>.service
+            # to /lib/systemd/system/pki-tomcatd@.service
+            deployer.symlink.create(deployer.mdict['pki_systemd_service'],
+                                    deployer.mdict['pki_systemd_service_link'])
 
         # Copy /usr/share/pki/setup/pkidaemon_registry
         # to /etc/sysconfig/pki/tomcat/<instance>/<instance>
