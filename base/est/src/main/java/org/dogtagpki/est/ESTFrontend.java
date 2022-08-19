@@ -122,18 +122,18 @@ public class ESTFrontend {
     private Response enroll(Optional<String> label, byte[] data) throws PKIException {
         PKCS10 csr = parseCSR(data);
 
-        getRequestAuthorizer().authorizeSimpleenroll(makeAuthzData(label), csr);
+        Object authzData = getRequestAuthorizer().authorizeSimpleenroll(makeAuthzData(label), csr);
 
-        X509Certificate cert = getBackend().simpleenroll(label, csr);
+        X509Certificate cert = getBackend().simpleenroll(label, csr, authzData);
         return certResponse(cert);
     }
 
     private Response reenroll(Optional<String> label, byte[] data) throws PKIException {
         PKCS10 csr = parseCSR(data);
 
-        getRequestAuthorizer().authorizeSimplereenroll(makeAuthzData(label), csr);
+        Object authzData = getRequestAuthorizer().authorizeSimplereenroll(makeAuthzData(label), csr);
 
-        X509Certificate cert = getBackend().simplereenroll(label, csr);
+        X509Certificate cert = getBackend().simplereenroll(label, csr, authzData);
         return certResponse(cert);
     }
 
