@@ -700,9 +700,6 @@ class PKIConfigParser:
             #     NOTE:  Master key == Slots key; Master value ==> Slots value
             self.mdict['PKI_INSTANCE_NAME_SLOT'] = \
                 self.mdict['pki_instance_name']
-            self.mdict['PKI_REGISTRY_FILE_SLOT'] = \
-                os.path.join(self.mdict['pki_subsystem_registry_path'],
-                             self.mdict['pki_instance_name'])
 
             self.mdict['PKI_ADMIN_SECURE_PORT_SLOT'] = \
                 self.mdict['pki_https_port']
