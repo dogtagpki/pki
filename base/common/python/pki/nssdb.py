@@ -695,6 +695,7 @@ class NSSDatabase(object):
         Import certificate using pki nss-cert-import command.
         In the future this will replace add_cert().
         '''
+        check = True
 
         cmd = [
             'pki',
@@ -710,6 +711,11 @@ class NSSDatabase(object):
         token = self.get_effective_token(token)
         if token:
             cmd.extend(['--token', token])
+
+            # Don't check the return value as a workaround for NSS upstream
+            # BZ https://bugzilla.mozilla.org/show_bug.cgi?id=1782980
+            # Trust is most likely ,, anyway so there is no loss.
+            check = False
 
         cmd.extend(['nss-cert-import'])
 
@@ -731,7 +737,7 @@ class NSSDatabase(object):
 
         cmd.append(nickname)
 
-        self.run(cmd, input=cert_data, text=True, check=True, runas=True)
+        self.run(cmd, input=cert_data, text=True, check=check, runas=True)
 
     def add_ca_cert(self, cert_file, trust_attributes='CT,C,C'):
 
