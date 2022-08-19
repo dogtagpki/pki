@@ -238,11 +238,13 @@ class PKIInstance(pki.server.PKIServer):
 
         self.makedirs(self.registry_dir, force=force)
 
+        # Copy /usr/share/pki/setup/pkidaemon_registry
+        # to /etc/sysconfig/pki/tomcat/<instance>/<instance>
         self.copyfile(
             PKIInstance.REGISTRY_FILE,
             self.registry_file,
             params={
-                'PKI_USER': self.user,
+                'pki_user': self.user,
                 'PKI_GROUP': self.group,
                 'PKI_INSTANCE_NAME': self.name,
                 'PKI_INSTANCE_PATH': self.base_dir,

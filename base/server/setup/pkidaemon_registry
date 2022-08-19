@@ -1,6 +1,6 @@
 # Establish PKI Variable "Slot" Substitutions
 
-PKI_USER=[PKI_USER]
+PKI_USER=[pki_user]
 export PKI_USER
 
 PKI_GROUP=[PKI_GROUP]
