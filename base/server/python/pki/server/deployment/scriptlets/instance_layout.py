@@ -157,13 +157,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             os.path.join(instance_conf_path, 'logging.properties'),
             force=True)
 
-        # create /etc/sysconfig/<instance>
+        # Copy /usr/share/pki/server/conf/tomcat.conf
+        # to /etc/sysconfig/<instance>
         deployer.file.copy_with_slot_substitution(
             deployer.mdict['pki_source_tomcat_conf'],
             deployer.mdict['pki_target_tomcat_conf_instance_id'],
             overwrite_flag=True)
 
-        # create /var/lib/pki/<instance>/conf/tomcat.conf
+        # Copy /usr/share/pki/server/conf/tomcat.conf
+        # to /etc/pki/<instance>/tomcat.conf
         deployer.file.copy_with_slot_substitution(
             deployer.mdict['pki_source_tomcat_conf'],
             deployer.mdict['pki_target_tomcat_conf'],
@@ -174,13 +176,17 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         web_xml = os.path.join(pki.server.Tomcat.CONF_DIR, 'web.xml')
         instance.symlink(web_xml, instance.web_xml, force=True)
 
+        # Create /etc/pki/<instance>/Catalina
         catalina_dir = os.path.join(instance_conf_path, 'Catalina')
         instance.makedirs(catalina_dir, force=True)
 
+        # Create /etc/pki/<instance>/Catalina/localhost
         localhost_dir = os.path.join(catalina_dir, 'localhost')
         instance.makedirs(localhost_dir, force=True)
 
         logger.info('Deploying ROOT web application')
+        # Copy /usr/share/pki/server/conf/ROOT.xml
+        # to /etc/pki/<instance>/Catalina/localhost/ROOT.xml
         instance.deploy_webapp(
             "ROOT",
             os.path.join(
@@ -192,6 +198,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         logger.info('Deploying /pki web application')
         # Deploy pki web application which includes themes,
         # admin templates, and JS libraries
+        # Copy /usr/share/pki/server/conf/pki.xml
+        # to /etc/pki/<instance>/Catalina/localhost/pki.xml
         instance.deploy_webapp(
             "pki",
             os.path.join(
@@ -200,48 +208,63 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 "localhost",
                 "pki.xml"))
 
+        # Link /var/lib/pki/<instance>/lib to /usr/share/pki/server/lib
+        # Link /var/lib/pki/<instance>/common/lib to /usr/share/pki/server/common/lib
         instance.with_maven_deps = deployer.with_maven_deps
         instance.create_libs(force=True)
 
+        # Create /var/lib/pki/<instance>/temp
         deployer.directory.create(deployer.mdict['pki_tomcat_tmpdir_path'])
 
+        # Create /var/lib/pki/<instance>/work
         deployer.directory.create(deployer.mdict['pki_tomcat_work_path'])
+
+        # Create /var/lib/pki/<instance>/work/Catalina
         deployer.directory.create(deployer.mdict['pki_tomcat_work_catalina_path'])
+
+        # Create /var/lib/pki/<instance>/work/Catalina/localhost
         deployer.directory.create(deployer.mdict['pki_tomcat_work_catalina_host_path'])
+
+        # Create /var/lib/pki/<instance>/work/Catalina/localhost/_
         deployer.directory.create(deployer.mdict['pki_tomcat_work_catalina_host_run_path'])
+
+        # Create /var/lib/pki/<instance>/work/Catalina/localhost/<subsystem>
         deployer.directory.create(deployer.mdict['pki_tomcat_work_catalina_host_subsystem_path'])
 
-        # establish Tomcat instance logs
-        # establish Tomcat instance registry
-        # establish Tomcat instance convenience symbolic links
-
+        # Link /var/lib/pki/<instance>/bin to /usr/share/tomcat
         deployer.symlink.create(
             deployer.mdict['pki_tomcat_bin_path'],
             deployer.mdict['pki_tomcat_bin_link'])
 
         user = deployer.mdict['pki_user']
         group = deployer.mdict['pki_group']
+
         if user != 'pkiuser' or group != 'pkiuser':
             deployer.systemd.set_override(
                 'Service', 'User', user, 'user.conf')
             deployer.systemd.set_override(
                 'Service', 'Group', group, 'user.conf')
+
         deployer.systemd.write_overrides()
         deployer.systemd.daemon_reload()
 
+        # Link /var/lib/pki/<instance>/conf to /etc/pki/<instance>
         deployer.symlink.create(
             instance_conf_path,
             deployer.mdict['pki_instance_conf_link'])
 
+        # Link /var/lib/pki/<instance>/logs to /var/log/pki/<instance>
         deployer.symlink.create(
             deployer.mdict['pki_instance_log_path'],
             deployer.mdict['pki_instance_logs_link'])
 
-        # create Tomcat instance systemd service link
+        # Link /etc/systemd/system/pki-tomcatd.target.wants/pki-tomcatd@<instance>.service
+        # to /lib/systemd/system/pki-tomcatd@.service
         deployer.symlink.create(deployer.mdict['pki_systemd_service'],
                                 deployer.mdict['pki_systemd_service_link'])
 
-        # create instance registry
+        # Copy /usr/share/pki/setup/pkidaemon_registry
+        # to /etc/sysconfig/pki/tomcat/<instance>/<instance>
         deployer.file.copy_with_slot_substitution(
             deployer.mdict['pki_source_registry'],
             os.path.join(deployer.mdict['pki_instance_registry_path'],
