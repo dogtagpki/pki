@@ -794,8 +794,6 @@ class PKIConfigParser:
                 self.mdict['pki_subsystem'].lower()
             self.mdict['PKI_UNSECURE_PORT_SLOT'] = \
                 self.mdict['pki_http_port']
-            self.mdict['PKI_UNSECURE_PORT_SERVER_COMMENT_SLOT'] = \
-                "<!-- Shared Ports:  Unsecure Port Connector -->"
             self.mdict['PKI_USER_SLOT'] = \
                 self.mdict['pki_user']
 
