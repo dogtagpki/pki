@@ -807,8 +807,6 @@ class PKIConfigParser:
                 "<!-- " + \
                 "Shared Ports:  Agent, EE, and Admin Secure Port Connector " + \
                 "-->"
-            self.mdict['PKI_SERVER_XML_CONF_SLOT'] = \
-                self.mdict['pki_target_server_xml']
             self.mdict['PKI_SUBSYSTEM_TYPE_SLOT'] = \
                 self.mdict['pki_subsystem'].lower()
             self.mdict['PKI_UNSECURE_PORT_SLOT'] = \
