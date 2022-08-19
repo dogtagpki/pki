@@ -1,0 +1,29 @@
+#!/bin/sh -ex
+
+# Create CA with RSNv3, without security manager, and
+# without systemd service, then export admin cert and
+# key to admin.p12.
+#
+# TODO:
+# - support existing certs and keys
+# - support existing database
+pkispawn \
+    -f /usr/share/pki/server/examples/installation/ca.cfg \
+    -s CA \
+    -D pki_ds_hostname=ds.example.com \
+    -D pki_ds_ldap_port=3389 \
+    -D pki_request_id_generator=random \
+    -D pki_cert_id_generator=random \
+    -D pki_security_manager=False \
+    -D pki_systemd_service_create=False \
+    -D pki_admin_uid=admin \
+    -D pki_admin_email=admin@example.com \
+    -D pki_admin_nickname=admin \
+    -D pki_client_admin_cert_p12=admin.p12 \
+    -v
+
+# export CA signing cert to ca_signing.crt
+pki-server cert-export ca_signing --cert-file ca_signing.crt
+
+# run PKI server in foreground
+pki-server run --as-current-user
