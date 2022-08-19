@@ -16,6 +16,7 @@ public class ESTEngine {
     private static ESTEngine INSTANCE;
 
     private ESTBackend backend;
+    private ESTRequestAuthorizer requestAuthorizer;
 
     public static ESTEngine getInstance() {
         return INSTANCE;
@@ -29,6 +30,10 @@ public class ESTEngine {
         return backend;
     }
 
+    public ESTRequestAuthorizer getRequestAuthorizer() {
+        return requestAuthorizer;
+    }
+
     public void start(String contextPath) throws Throwable {
         logger.info("Starting EST engine");
 
@@ -40,6 +45,7 @@ public class ESTEngine {
         logger.info("EST configuration directory: " + estConfDir);
 
         initBackend(estConfDir + File.separator + "backend.conf");
+        initRequestAuthorizer(estConfDir + File.separator + "authorizer.conf");
 
         logger.info("EST engine started");
     }
@@ -49,6 +55,9 @@ public class ESTEngine {
 
         if (backend != null) {
             backend.stop();
+        }
+        if (requestAuthorizer != null) {
+            requestAuthorizer.stop();
         }
 
         logger.info("EST engine stopped");
@@ -75,6 +84,29 @@ public class ESTEngine {
         backend = backendClass.getDeclaredConstructor().newInstance();
         backend.setConfig(config);
         backend.start();
+    }
+
+    private void initRequestAuthorizer(String filename) throws Throwable {
+        File file = new File(filename);
+        if (!file.exists()) {
+            throw new RuntimeException("Missing request authorizer configuration file " + filename);
+        }
+
+        logger.info("Loading EST request authorizer config from " + filename);
+        Properties props = new Properties();
+        try (FileReader reader = new FileReader(file)) {
+            props.load(reader);
+        }
+        ESTRequestAuthorizerConfig config = ESTRequestAuthorizerConfig.fromProperties(props);
+
+        logger.info("Initializing EST request authorizer");
+
+        String className = config.getClassName();
+        Class<ESTRequestAuthorizer> clazz = (Class<ESTRequestAuthorizer>) Class.forName(className);
+
+        requestAuthorizer = clazz.getDeclaredConstructor().newInstance();
+        requestAuthorizer.setConfig(config);
+        requestAuthorizer.start();
     }
 
 }

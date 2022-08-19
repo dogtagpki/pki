@@ -3,16 +3,19 @@ package org.dogtagpki.est;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.security.Principal;
 import java.security.SignatureException;
 import java.security.cert.X509Certificate;
 import java.util.Optional;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
@@ -23,6 +26,7 @@ import org.mozilla.jss.netscape.security.x509.CertificateChain;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
+import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.base.PKIException;
 
 /**
@@ -35,9 +39,17 @@ public class ESTFrontend {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ESTFrontend.class);
 
+    @Context
+    protected HttpServletRequest servletRequest;
+
     // shorthand convenience method
     private ESTBackend getBackend() {
         return ESTEngine.getInstance().getBackend();
+    }
+
+    // shorthand convenience method
+    private ESTRequestAuthorizer getRequestAuthorizer() {
+        return ESTEngine.getInstance().getRequestAuthorizer();
     }
 
     @GET
@@ -110,9 +122,7 @@ public class ESTFrontend {
     private Response enroll(Optional<String> label, byte[] data) throws PKIException {
         PKCS10 csr = parseCSR(data);
 
-        // TODO authn, authz.
-        // Define separate interface(s) for these, such that failures may result
-        // in 401 or 403 response, without complicating the issuer backend interface.
+        getRequestAuthorizer().authorizeSimpleenroll(makeAuthzData(label), csr);
 
         X509Certificate cert = getBackend().simpleenroll(label, csr);
         return certResponse(cert);
@@ -121,12 +131,28 @@ public class ESTFrontend {
     private Response reenroll(Optional<String> label, byte[] data) throws PKIException {
         PKCS10 csr = parseCSR(data);
 
-        // TODO authn, authz.
-        // Define separate interface(s) for these, such that failures may result
-        // in 401 or 403 response, without complicating the issuer backend interface.
+        getRequestAuthorizer().authorizeSimplereenroll(makeAuthzData(label), csr);
 
         X509Certificate cert = getBackend().simplereenroll(label, csr);
         return certResponse(cert);
+    }
+
+    private ESTRequestAuthorizationData makeAuthzData(Optional<String> label) {
+        ESTRequestAuthorizationData data = new ESTRequestAuthorizationData();
+        data.label = label;
+
+        Principal principal = servletRequest.getUserPrincipal();
+        if (principal == null) {
+            // Not authenticated.  We shouldn't reach this case because the
+            // container security constraint should handle authentication.
+            throw new UnauthorizedException("Not authenticated");
+        }
+        logger.info("ESTFrontend: authenticated client: " + principal);
+        data.principal = principal;
+
+        data.remoteAddr = servletRequest.getRemoteAddr();
+
+        return data;
     }
 
     /** Parse a PKCS10 CSR
