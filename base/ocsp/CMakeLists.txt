@@ -1,6 +1,5 @@
 project(ocsp NONE)
 
-add_subdirectory(setup)
 add_subdirectory(shared/conf)
 add_subdirectory(${APP_SERVER})
 
