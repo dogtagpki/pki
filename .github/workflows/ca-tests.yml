@@ -64,6 +64,23 @@ jobs:
           key: pki-ca-runner-${{ matrix.os }}-${{ github.run_id }}
           path: pki-ca-runner.tar
 
+      - name: Build server image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          build-args: |
+            OS_VERSION=${{ matrix.os }}
+            COPR_REPO=${{ needs.init.outputs.repo }}
+          tags: pki-ca
+          target: pki-ca
+          outputs: type=docker,dest=pki-ca-server.tar
+
+      - name: Store server image
+        uses: actions/cache@v3
+        with:
+          key: pki-ca-server-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-ca-server.tar
+
   # docs/installation/ca/Installing_CA.md
   ca-test:
     name: Testing CA
@@ -1719,3 +1736,144 @@ jobs:
           name: cmc-shared-token-${{ matrix.os }}
           path: |
             /tmp/artifacts/pki
+
+  ca-container-test:
+    name: Testing CA container
+    needs: [init, build]
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    strategy:
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Retrieve runner image
+        uses: actions/cache@v3
+        with:
+          key: pki-ca-runner-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-ca-runner.tar
+
+      - name: Load runner image
+        run: docker load --input pki-ca-runner.tar
+
+      - name: Retrieve server image
+        uses: actions/cache@v3
+        with:
+          key: pki-ca-server-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-ca-server.tar
+
+      - name: Load CA image
+        run: docker load --input pki-ca-server.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-container-create.sh ds
+        env:
+          IMAGE: ${{ needs.init.outputs.db-image }}
+          COPR_REPO: ${{ needs.init.outputs.repo }}
+          HOSTNAME: ds.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect DS container to network
+        run: docker network connect example ds --alias ds.example.com
+
+      - name: Set up CA container
+        run: |
+          docker run \
+              --name server \
+              --hostname=pki.example.com \
+              --detach \
+              pki-ca
+
+      - name: Connect CA container to network
+        run: docker network connect example server --alias pki.example.com
+
+      - name: Set up client container
+        run: |
+          tests/bin/runner-init.sh client
+        env:
+          HOSTNAME: client.example.com
+
+      - name: Connect client container to network
+        run: docker network connect example client --alias client.example.com
+
+      - name: Wait for CA container to start
+        run: |
+          tests/bin/pki-start-wait.sh client https://pki.example.com:8443
+        env:
+          MAX_WAIT: 180
+
+      - name: Check public operations
+        run: |
+          docker cp server:ca_signing.crt ca_signing.crt
+          docker cp ca_signing.crt client:ca_signing.crt
+
+          # install CA signing cert
+          docker exec client pki \
+              client-cert-import \
+              --ca-cert ca_signing.crt \
+              ca_signing
+
+          # check PKI server info
+          docker exec client pki \
+              -U https://pki.example.com:8443 \
+              info
+
+          # check certs in CA
+          docker exec client pki \
+              -U https://pki.example.com:8443 \
+              ca-cert-find
+
+      - name: Check admin operations
+        run: |
+          docker cp server:admin.p12 admin.p12
+          docker cp admin.p12 client:admin.p12
+
+          # install admin cert
+          docker exec client pki \
+              client-cert-import \
+              --pkcs12 admin.p12 \
+              --pkcs12-password Secret.123
+
+          # install check admin user
+          docker exec client pki \
+              -U https://pki.example.com:8443 \
+              -n admin \
+              ca-user-show \
+              admin
+
+      - name: Gather artifacts from server container
+        if: always()
+        run: |
+          mkdir -p /tmp/artifacts/server
+          docker logs server > /tmp/artifacts/server/container.out 2> /tmp/artifacts/server/container.err
+          mkdir -p /tmp/artifacts/server/var/lib
+          docker cp server:/etc/pki /tmp/artifacts/server/etc
+          docker cp server:/var/lib/pki /tmp/artifacts/server/var/lib
+          docker cp server:/var/log/pki /tmp/artifacts/server/var/log
+        continue-on-error: true
+
+      - name: Gather artifacts from client container
+        if: always()
+        run: |
+          mkdir -p /tmp/artifacts/client
+          docker logs client > /tmp/artifacts/client/container.out 2> /tmp/artifacts/client/container.err
+
+      - name: Upload artifacts from server container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ca-container-server-${{ matrix.os }}
+          path: /tmp/artifacts/server
+
+      - name: Upload artifacts from client container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ca-container-client-${{ matrix.os }}
+          path: /tmp/artifacts/client
