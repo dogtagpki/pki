@@ -692,8 +692,11 @@ class PKIDeployer:
         pkcs12_file = self.mdict['pki_client_admin_cert_p12']
         logger.info('Exporting admin cert into %s', pkcs12_file)
 
+        pkcs12_path = os.path.abspath(pkcs12_file)
+        pkcs12_dir = os.path.dirname(pkcs12_path)
+
         # Create directory for PKCS #12 file
-        self.directory.create(os.path.dirname(pkcs12_file))
+        self.directory.create(pkcs12_dir)
 
         # Export admin cert into PKCS #12 file
         self.pk12util.create_file(
