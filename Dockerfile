@@ -79,6 +79,26 @@ RUN chmod -Rf g+rw /var/lib/tomcats/pki
 CMD [ "/usr/share/pki/server/bin/pki-server-run" ]
 
 ################################################################################
+FROM pki-runner AS pki-ca
+
+ARG SUMMARY="Dogtag PKI Certificate Authority"
+ARG COPR_REPO
+
+LABEL name="pki-ca" \
+      summary="$SUMMARY" \
+      license="$LICENSE" \
+      version="$VERSION" \
+      architecture="$ARCH" \
+      maintainer="$MAINTAINER" \
+      vendor="$VENDOR" \
+      usage="podman run -p 8080:8080 -p 8443:8443 pki-ca" \
+      com.redhat.component="$COMPONENT"
+
+EXPOSE 8080 8443
+
+CMD [ "/usr/share/pki/ca/bin/pki-ca-run" ]
+
+################################################################################
 FROM pki-server AS pki-acme
 
 ARG SUMMARY="Dogtag PKI ACME Responder"
