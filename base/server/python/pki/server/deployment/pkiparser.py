@@ -819,8 +819,6 @@ class PKIConfigParser:
                 "<!-- Shared Ports:  Unsecure Port Connector -->"
             self.mdict['PKI_USER_SLOT'] = \
                 self.mdict['pki_user']
-            self.mdict['PKI_WEBAPPS_NAME_SLOT'] = \
-                "webapps"
 
             if self.mdict['pki_subsystem'] == "TPS":
                 self.mdict['SERVER_KEYGEN_SLOT'] = \
