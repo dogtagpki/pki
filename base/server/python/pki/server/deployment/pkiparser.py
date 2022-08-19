@@ -719,8 +719,6 @@ class PKIConfigParser:
                 self.mdict['pki_ajp_secret']
             self.mdict['PKI_AJP_REDIRECT_PORT_SLOT'] = \
                 self.mdict['pki_https_port']
-            self.mdict['PKI_CFG_PATH_NAME_SLOT'] = \
-                self.mdict['pki_target_cs_cfg']
             self.mdict['PKI_CLOSE_SEPARATE_PORTS_SERVER_COMMENT_SLOT'] = \
                 "-->"
             self.mdict['PKI_CLOSE_SEPARATE_PORTS_WEB_COMMENT_SLOT'] = \
