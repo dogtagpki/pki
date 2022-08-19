@@ -790,8 +790,6 @@ class PKIConfigParser:
                     "<!--"
             self.mdict['PKI_SECURE_PORT_SLOT'] = \
                 self.mdict['pki_https_port']
-            self.mdict['PKI_SECURE_PORT_CONNECTOR_NAME_SLOT'] = \
-                "Secure"
             self.mdict['PKI_SECURE_PORT_SERVER_COMMENT_SLOT'] = \
                 "<!-- " + \
                 "Shared Ports:  Agent, EE, and Admin Secure Port Connector " + \
