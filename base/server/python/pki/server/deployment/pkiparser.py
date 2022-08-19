@@ -729,8 +729,6 @@ class PKIConfigParser:
                 self.mdict['pki_https_port']
             self.mdict['PKI_EE_SECURE_PORT_SLOT'] = \
                 self.mdict['pki_https_port']
-            self.mdict['PKI_EE_SECURE_PORT_SERVER_COMMENT_SLOT'] = \
-                ""
             self.mdict['PKI_GROUP_SLOT'] = \
                 self.mdict['pki_group']
             self.mdict['PKI_INSTANCE_PATH_SLOT'] = \
