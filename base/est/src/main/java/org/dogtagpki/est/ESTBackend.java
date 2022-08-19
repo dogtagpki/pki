@@ -35,14 +35,18 @@ public abstract class ESTBackend {
 
     /**
      * Simple Enrollment (labeled CA).  RFC 7030 section 4.2.1 and 4.2.3.
+     *
+     * @param authzData data returned by the ESTRequestAuthorizer.  May be null.
      */
-    public abstract X509CertImpl simpleenroll(Optional<String> label, PKCS10 csr)
+    public abstract X509CertImpl simpleenroll(Optional<String> label, PKCS10 csr, Object authzData)
         throws PKIException;
 
     /**
      * Simple Re-enrollment (labeled CA).  RFC 7030 section 4.2.2 and 4.2.3.
+     *
+     * @param authzData data returned by the ESTRequestAuthorizer.  May be null.
      */
-    public abstract X509CertImpl simplereenroll(Optional<String> label, PKCS10 csr)
+    public abstract X509CertImpl simplereenroll(Optional<String> label, PKCS10 csr, Object authzData)
         throws PKIException;
 
 }
