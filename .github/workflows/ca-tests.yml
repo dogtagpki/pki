@@ -1782,17 +1782,6 @@ jobs:
       - name: Connect DS container to network
         run: docker network connect example ds --alias ds.example.com
 
-      - name: Set up CA container
-        run: |
-          docker run \
-              --name server \
-              --hostname=pki.example.com \
-              --detach \
-              pki-ca
-
-      - name: Connect CA container to network
-        run: docker network connect example server --alias pki.example.com
-
       - name: Set up client container
         run: |
           tests/bin/runner-init.sh client
@@ -1802,60 +1791,252 @@ jobs:
       - name: Connect client container to network
         run: docker network connect example client --alias client.example.com
 
+      - name: Create CA signing cert
+        run: |
+          docker exec client pki \
+              nss-cert-request \
+              --subject "CN=CA Signing Certificate" \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --csr ca_signing.csr
+          docker exec client pki \
+              nss-cert-issue \
+              --csr ca_signing.csr \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --months-valid 12 \
+              --cert ca_signing.crt
+          docker exec client pki \
+              nss-cert-import \
+              --cert ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+          docker exec client pki \
+              nss-cert-show \
+              ca_signing
+
+      - name: Create OCSP signing cert
+        run: |
+          docker exec client pki \
+              nss-cert-request \
+              --subject "CN=OCSP Signing Certificate" \
+              --ext /usr/share/pki/server/certs/ocsp_signing.conf \
+              --csr ocsp_signing.csr
+          docker exec client pki \
+              nss-cert-issue \
+              --issuer ca_signing \
+              --csr ocsp_signing.csr \
+              --ext /usr/share/pki/server/certs/ocsp_signing.conf \
+              --cert ocsp_signing.crt
+          docker exec client pki \
+              nss-cert-import \
+              --cert ocsp_signing.crt \
+              ocsp_signing
+          docker exec client pki \
+              nss-cert-show \
+              ocsp_signing
+
+      - name: Create audit signing cert
+        run: |
+          docker exec client pki \
+              nss-cert-request \
+              --subject "CN=Audit Signing Certificate" \
+              --ext /usr/share/pki/server/certs/audit_signing.conf \
+              --csr audit_signing.csr
+          docker exec client pki \
+              nss-cert-issue \
+              --issuer ca_signing \
+              --csr audit_signing.csr \
+              --ext /usr/share/pki/server/certs/audit_signing.conf \
+              --cert audit_signing.crt
+          docker exec client pki \
+              nss-cert-import \
+              --cert audit_signing.crt \
+              --trust ,,P \
+              audit_signing
+          docker exec client pki \
+              nss-cert-show \
+              audit_signing
+
+      - name: Create subsystem cert
+        run: |
+          docker exec client pki \
+              nss-cert-request \
+              --subject "CN=Subsystem Certificate" \
+              --ext /usr/share/pki/server/certs/subsystem.conf \
+              --csr subsystem.csr
+          docker exec client pki \
+              nss-cert-issue \
+              --issuer ca_signing \
+              --csr subsystem.csr \
+              --ext /usr/share/pki/server/certs/subsystem.conf \
+              --cert subsystem.crt
+          docker exec client pki \
+              nss-cert-import \
+              --cert subsystem.crt \
+              subsystem
+          docker exec client pki \
+              nss-cert-show \
+              subsystem
+
+      - name: Create SSL server cert
+        run: |
+          docker exec client pki \
+              nss-cert-request \
+              --subject "CN=ca.example.com" \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --csr sslserver.csr
+          docker exec client pki \
+              nss-cert-issue \
+              --issuer ca_signing \
+              --csr sslserver.csr \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --cert sslserver.crt
+          docker exec client pki \
+              nss-cert-import \
+              --cert sslserver.crt \
+              sslserver
+          docker exec client pki \
+              nss-cert-show \
+              sslserver
+
+      - name: Create admin cert
+        run: |
+          docker exec client pki \
+              nss-cert-request \
+              --subject "CN=Administrator" \
+              --ext /usr/share/pki/server/certs/admin.conf \
+              --csr admin.csr
+          docker exec client pki \
+              nss-cert-issue \
+              --issuer ca_signing \
+              --csr admin.csr \
+              --ext /usr/share/pki/server/certs/admin.conf \
+              --cert admin.crt
+          docker exec client pki \
+              nss-cert-import \
+              --cert admin.crt \
+              admin
+          docker exec client pki \
+              nss-cert-show \
+              admin
+
+      - name: Export system certs and keys
+        run: |
+          docker exec client pki \
+              pkcs12-export \
+              --pkcs12 server.p12 \
+              --password Secret.123 \
+              ca_signing \
+              ocsp_signing \
+              audit_signing \
+              subsystem \
+              sslserver
+
+      - name: Export admin cert and key
+        run: |
+          docker exec client pki \
+              pkcs12-export \
+              --pkcs12 admin.p12 \
+              --password Secret.123 \
+              admin
+
+      - name: Set up CA container
+        run: |
+          mkdir certs
+          docker cp client:server.p12 certs
+          docker cp client:admin.p12 certs
+          docker cp client:ca_signing.csr certs
+          docker cp client:ocsp_signing.csr certs
+          docker cp client:audit_signing.csr certs
+          docker cp client:subsystem.csr certs
+          docker cp client:sslserver.csr certs
+          docker cp client:admin.csr certs
+          ls -la certs
+
+          docker run \
+              --name ca \
+              --hostname=ca.example.com \
+              --network=example \
+              --network-alias=ca.example.com \
+              -v $PWD/certs:/certs \
+              --detach \
+              pki-ca
+
       - name: Wait for CA container to start
         run: |
-          tests/bin/pki-start-wait.sh client https://pki.example.com:8443
+          tests/bin/pki-start-wait.sh client https://ca.example.com:8443
         env:
           MAX_WAIT: 180
 
-      - name: Check public operations
+      - name: Check server logs
+        if: always()
         run: |
-          docker cp server:ca_signing.crt ca_signing.crt
-          docker cp ca_signing.crt client:ca_signing.crt
+          docker logs ca 2>&1
 
-          # install CA signing cert
-          docker exec client pki \
-              client-cert-import \
-              --ca-cert ca_signing.crt \
-              ca_signing
-
+      - name: Check public operations from CA container
+        run: |
           # check PKI server info
-          docker exec client pki \
-              -U https://pki.example.com:8443 \
-              info
+          docker exec ca pki info
 
           # check certs in CA
-          docker exec client pki \
-              -U https://pki.example.com:8443 \
-              ca-cert-find
+          docker exec ca pki ca-cert-find
 
-      - name: Check admin operations
+      - name: Check admin operations from CA container
         run: |
-          docker cp server:admin.p12 admin.p12
-          docker cp admin.p12 client:admin.p12
-
-          # install admin cert
-          docker exec client pki \
-              client-cert-import \
-              --pkcs12 admin.p12 \
-              --pkcs12-password Secret.123
-
-          # install check admin user
-          docker exec client pki \
-              -U https://pki.example.com:8443 \
+          # check admin user
+          docker exec ca pki \
               -n admin \
               ca-user-show \
               admin
 
-      - name: Gather artifacts from server container
+      - name: Check public operations from client container
+        run: |
+          # clean the NSS database
+          docker exec client pki client-init --force
+
+          # install CA signing cert
+          docker cp ca:/certs/ca_signing.crt ca_signing.crt
+          docker cp ca_signing.crt client:ca_signing.crt
+          docker exec client pki nss-cert-import \
+              --cert ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
+          # check PKI server info
+          docker exec client pki \
+              -U https://ca.example.com:8443 \
+              info
+
+          # check certs in CA
+          docker exec client pki \
+              -U https://ca.example.com:8443 \
+              ca-cert-find
+
+      - name: Check admin operations from client container
+        run: |
+          # install admin cert
+          docker cp ca:/certs/admin.p12 admin.p12
+          docker cp admin.p12 client:admin.p12
+          docker exec client pki \
+              pkcs12-import \
+              --pkcs12 admin.p12 \
+              --password Secret.123
+
+          # check admin user
+          docker exec client pki \
+              -U https://ca.example.com:8443 \
+              -n admin \
+              ca-user-show \
+              admin
+
+      - name: Gather artifacts from CA container
         if: always()
         run: |
-          mkdir -p /tmp/artifacts/server
-          docker logs server > /tmp/artifacts/server/container.out 2> /tmp/artifacts/server/container.err
-          mkdir -p /tmp/artifacts/server/var/lib
-          docker cp server:/etc/pki /tmp/artifacts/server/etc
-          docker cp server:/var/lib/pki /tmp/artifacts/server/var/lib
-          docker cp server:/var/log/pki /tmp/artifacts/server/var/log
+          mkdir -p /tmp/artifacts/ca
+          docker logs ca > /tmp/artifacts/ca/container.out 2> /tmp/artifacts/ca/container.err
+          mkdir -p /tmp/artifacts/ca/var/lib
+          docker cp ca:/etc/pki /tmp/artifacts/ca/etc
+          docker cp ca:/var/lib/pki /tmp/artifacts/ca/var/lib
+          docker cp ca:/var/log/pki /tmp/artifacts/ca/var/log
         continue-on-error: true
 
       - name: Gather artifacts from client container
@@ -1864,12 +2045,12 @@ jobs:
           mkdir -p /tmp/artifacts/client
           docker logs client > /tmp/artifacts/client/container.out 2> /tmp/artifacts/client/container.err
 
-      - name: Upload artifacts from server container
+      - name: Upload artifacts from CA container
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: ca-container-server-${{ matrix.os }}
-          path: /tmp/artifacts/server
+          name: ca-container-ca-${{ matrix.os }}
+          path: /tmp/artifacts/va
 
       - name: Upload artifacts from client container
         if: always()
