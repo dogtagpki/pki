@@ -96,6 +96,8 @@ LABEL name="pki-ca" \
 
 EXPOSE 8080 8443
 
+VOLUME [ "/certs" ]
+
 CMD [ "/usr/share/pki/ca/bin/pki-ca-run" ]
 
 ################################################################################

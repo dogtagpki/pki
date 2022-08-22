@@ -1,176 +1,250 @@
-#!/bin/sh -ex
+#!/bin/sh -e
 
 # TODO:
-# - support existing certs and keys created outside of container
 # - support existing database
+# - parameterize hard-coded values
 
 echo "################################################################################"
-echo "INFO: Creating CA signing cert"
 
-pki \
-    -d nssdb \
-    nss-cert-request \
-    --subject "CN=CA Signing Certificate" \
-    --csr ca_signing.csr
+if [ -f /certs/server.p12 ]
+then
+    echo "INFO: Importing system certs and keys"
 
-pki \
-    -d nssdb \
-    nss-cert-issue \
-    --csr ca_signing.csr \
-    --ext /usr/share/pki/server/certs/ca_signing.conf \
-    --months-valid 12 \
-    --cert ca_signing.crt
+    pki pkcs12-import \
+        --pkcs12 /certs/server.p12 \
+        --password Secret.123
+fi
 
-pki \
-    -d nssdb \
-    nss-cert-import \
-    --cert ca_signing.crt \
-    --trust CT,C,C \
-    ca_signing
+if [ -f /certs/admin.p12 ]
+then
+    echo "INFO: Importing admin cert and key"
+
+    pki pkcs12-import \
+        --pkcs12 /certs/admin.p12 \
+        --password Secret.123
+fi
 
 echo "################################################################################"
-echo "INFO: Creating OCSP signing cert"
 
-pki \
-    -d nssdb \
-    nss-cert-request \
-    --subject "CN=OCSP Signing Certificate" \
-    --csr ocsp_signing.csr
+# check if CA signing cert exists
+rc=0
+pki nss-cert-show ca_signing > /dev/null 2>&1 || rc=$?
 
-pki \
-    -d nssdb \
-    nss-cert-issue \
-    --issuer ca_signing \
-    --csr ocsp_signing.csr \
-    --ext /usr/share/pki/server/certs/ocsp_signing.conf \
-    --cert ocsp_signing.crt
+if [ $rc -ne 0 ]
+then
+    echo "INFO: Creating CA signing cert"
 
-pki \
-    -d nssdb \
-    nss-cert-import \
-    --cert ocsp_signing.crt \
-    ocsp_signing
+    pki nss-cert-request \
+        --subject "CN=CA Signing Certificate" \
+        --ext /usr/share/pki/server/certs/ca_signing.conf \
+        --csr /certs/ca_signing.csr
 
-echo "################################################################################"
-echo "INFO: Creating audit signing cert"
+    pki nss-cert-issue \
+        --csr /certs/ca_signing.csr \
+        --ext /usr/share/pki/server/certs/ca_signing.conf \
+        --months-valid 12 \
+        --cert /certs/ca_signing.crt
 
-pki \
-    -d nssdb \
-    nss-cert-request \
-    --subject "CN=Audit Signing Certificate" \
-    --csr audit_signing.csr
+    pki nss-cert-import \
+        --cert /certs/ca_signing.crt \
+        --trust CT,C,C \
+        ca_signing
+fi
 
-pki \
-    -d nssdb \
-    nss-cert-issue \
-    --issuer ca_signing \
-    --csr audit_signing.csr \
-    --ext /usr/share/pki/server/certs/audit_signing.conf \
-    --cert audit_signing.crt
-
-pki \
-    -d nssdb \
-    nss-cert-import \
-    --cert audit_signing.crt \
-    --trust ,,P \
-    audit_signing
+echo "INFO: CA signing cert:"
+pki nss-cert-show ca_signing
 
 echo "################################################################################"
-echo "INFO: Creating subsystem cert"
 
-pki \
-    -d nssdb \
-    nss-cert-request \
-    --subject "CN=Subsystem Certificate" \
-    --csr subsystem.csr
+# check if OCSP signing cert exists
+rc=0
+pki nss-cert-show ocsp_signing > /dev/null 2>&1 || rc=$?
 
-pki \
-    -d nssdb \
-    nss-cert-issue \
-    --issuer ca_signing \
-    --csr subsystem.csr \
-    --ext /usr/share/pki/server/certs/subsystem.conf \
-    --cert subsystem.crt
+if [ $rc -ne 0 ]
+then
+    echo "INFO: Creating OCSP signing cert"
 
-pki \
-    -d nssdb \
-    nss-cert-import \
-    --cert subsystem.crt \
-    subsystem
+    pki nss-cert-request \
+        --subject "CN=OCSP Signing Certificate" \
+        --ext /usr/share/pki/server/certs/ocsp_signing.conf \
+        --csr /certs/ocsp_signing.csr
 
-echo "################################################################################"
-echo "INFO: Creating SSL server cert"
+    pki nss-cert-issue \
+        --issuer ca_signing \
+        --csr /certs/ocsp_signing.csr \
+        --ext /usr/share/pki/server/certs/ocsp_signing.conf \
+        --cert /certs/ocsp_signing.crt
 
-pki \
-    -d nssdb \
-    nss-cert-request \
-    --subject "CN=$HOSTNAME" \
-    --csr sslserver.csr
+    pki nss-cert-import \
+        --cert /certs/ocsp_signing.crt \
+        ocsp_signing
+fi
 
-pki \
-    -d nssdb \
-    nss-cert-issue \
-    --issuer ca_signing \
-    --csr sslserver.csr \
-    --ext /usr/share/pki/server/certs/sslserver.conf \
-    --cert sslserver.crt
-
-pki \
-    -d nssdb \
-    nss-cert-import \
-    --cert sslserver.crt \
-    sslserver
+echo "INFO: OCSP signing cert:"
+pki nss-cert-show ocsp_signing
 
 echo "################################################################################"
-echo "INFO: Creating admin cert"
 
-pki \
-    -d nssdb \
-    nss-cert-request \
-    --subject "CN=Administrator" \
-    --ext /usr/share/pki/server/certs/admin.conf \
-    --csr admin.csr
+# check if audit signing cert exists
+rc=0
+pki nss-cert-show audit_signing > /dev/null 2>&1 || rc=$?
 
-pki \
-    -d nssdb \
-    nss-cert-issue \
-    --issuer ca_signing \
-    --csr admin.csr \
-    --ext /usr/share/pki/server/certs/admin.conf \
-    --cert admin.crt
+if [ $rc -ne 0 ]
+then
+    echo "INFO: Creating audit signing cert"
 
-pki \
-    -d nssdb \
-    nss-cert-import \
-    --cert admin.crt \
-    admin
+    pki nss-cert-request \
+        --subject "CN=Audit Signing Certificate" \
+        --ext /usr/share/pki/server/certs/audit_signing.conf \
+        --csr /certs/audit_signing.csr
 
-echo "################################################################################"
-echo "INFO: Exporting system certs and keys"
+    pki nss-cert-issue \
+        --issuer ca_signing \
+        --csr /certs/audit_signing.csr \
+        --ext /usr/share/pki/server/certs/audit_signing.conf \
+        --cert /certs/audit_signing.crt
 
-pki \
-    -d nssdb \
-    pkcs12-export \
-    --pkcs12 server.p12 \
-    --password Secret.123 \
-    ca_signing \
-    ocsp_signing \
-    audit_signing \
-    subsystem \
-    sslserver
+    pki nss-cert-import \
+        --cert /certs/audit_signing.crt \
+        --trust ,,P \
+        audit_signing
+fi
+
+echo "INFO: Audit signing cert:"
+pki nss-cert-show audit_signing
 
 echo "################################################################################"
-echo "INFO: Exporting admin cert and key"
 
-pki \
-    -d nssdb \
-    pkcs12-export \
-    --pkcs12 admin.p12 \
-    --password Secret.123 \
-    admin
+# check if subsystem cert exists
+rc=0
+pki nss-cert-show subsystem > /dev/null 2>&1 || rc=$?
+
+if [ $rc -ne 0 ]
+then
+    echo "INFO: Creating subsystem cert"
+
+    pki nss-cert-request \
+        --subject "CN=Subsystem Certificate" \
+        --csr /certs/subsystem.csr
+
+    pki nss-cert-issue \
+        --issuer ca_signing \
+        --csr /certs/subsystem.csr \
+        --ext /usr/share/pki/server/certs/subsystem.conf \
+        --cert /certs/subsystem.crt
+
+    pki nss-cert-import \
+        --cert /certs/subsystem.crt \
+        subsystem
+fi
+
+echo "INFO: Subsystem cert:"
+pki nss-cert-show subsystem
 
 echo "################################################################################"
-echo "INFO: Starting PKI CA"
+
+# check if SSL server cert exists
+rc=0
+pki nss-cert-show sslserver > /dev/null 2>&1 || rc=$?
+
+if [ $rc -ne 0 ]
+then
+    echo "INFO: Creating SSL server cert:"
+
+    pki nss-cert-request \
+        --subject "CN=$HOSTNAME" \
+        --ext /usr/share/pki/server/certs/sslserver.conf \
+        --csr /certs/sslserver.csr
+
+    pki nss-cert-issue \
+        --issuer ca_signing \
+        --csr /certs/sslserver.csr \
+        --ext /usr/share/pki/server/certs/sslserver.conf \
+        --cert /certs/sslserver.crt
+
+    pki nss-cert-import \
+        --cert /certs/sslserver.crt \
+        sslserver
+fi
+
+echo "INFO: SSL server cert:"
+pki nss-cert-show sslserver
+
+echo "################################################################################"
+
+# check if admin cert exists
+rc=0
+pki nss-cert-show admin > /dev/null 2>&1 || rc=$?
+
+if [ $rc -ne 0 ]
+then
+    echo "INFO: Creating admin cert"
+
+    pki nss-cert-request \
+        --subject "CN=Administrator" \
+        --ext /usr/share/pki/server/certs/admin.conf \
+        --csr /certs/admin.csr
+
+    pki nss-cert-issue \
+        --issuer ca_signing \
+        --csr /certs/admin.csr \
+        --ext /usr/share/pki/server/certs/admin.conf \
+        --cert /certs/admin.crt
+
+    pki nss-cert-import \
+        --cert /certs/admin.crt \
+        admin
+fi
+
+echo "INFO: Admin cert:"
+pki nss-cert-show admin
+
+echo "################################################################################"
+
+if [ ! -f /certs/server.p12 ]
+then
+    echo "INFO: Exporting system certs and keys"
+
+    pki pkcs12-export \
+        --pkcs12 /certs/server.p12 \
+        --password Secret.123 \
+        ca_signing \
+        ocsp_signing \
+        audit_signing \
+        subsystem \
+        sslserver
+fi
+
+if [ ! -f /certs/admin.p12 ]
+then
+    echo "INFO: Exporting admin cert and key"
+
+    pki pkcs12-export \
+        --pkcs12 /certs/admin.p12 \
+        --password Secret.123 \
+        admin
+fi
+
+if [ ! -f /certs/ca_signing.crt ]
+then
+    echo "INFO: Exporting CA signing cert"
+
+    pki nss-cert-export \
+        --output-file /certs/ca_signing.crt \
+        ca_signing
+fi
+
+if [ ! -f /certs/admin.crt ]
+then
+    echo "INFO: Exporting admin cert"
+
+    pki nss-cert-export \
+        --output-file /certs/admin.crt \
+        admin
+fi
+
+echo "################################################################################"
+echo "INFO: Creating PKI CA"
 
 # Create CA with existing certs and keys, with RSNv3,
 # without security manager, and without systemd service.
@@ -182,29 +256,28 @@ pkispawn \
     -D pki_request_id_generator=random \
     -D pki_cert_id_generator=random \
     -D pki_existing=True \
-    -D pki_pkcs12_path=server.p12 \
+    -D pki_pkcs12_path=/certs/server.p12 \
     -D pki_pkcs12_password=Secret.123 \
     -D pki_ca_signing_nickname=ca_signing \
-    -D pki_ca_signing_csr_path=ca_signing.csr \
+    -D pki_ca_signing_csr_path=/certs/ca_signing.csr \
     -D pki_ocsp_signing_nickname=ocsp_signing \
-    -D pki_ocsp_signing_csr_path=ocsp_signing.csr \
+    -D pki_ocsp_signing_csr_path=/certs/ocsp_signing.csr \
     -D pki_audit_signing_nickname=audit_signing \
-    -D pki_audit_signing_csr_path=audit_signing.csr \
+    -D pki_audit_signing_csr_path=/certs/audit_signing.csr \
     -D pki_subsystem_nickname=subsystem \
-    -D pki_subsystem_csr_path=subsystem.csr \
+    -D pki_subsystem_csr_path=/certs/subsystem.csr \
     -D pki_sslserver_nickname=sslserver \
-    -D pki_sslserver_csr_path=sslserver.csr \
+    -D pki_sslserver_csr_path=/certs/sslserver.csr \
     -D pki_admin_uid=admin \
     -D pki_admin_email=admin@example.com \
     -D pki_admin_nickname=admin \
-    -D pki_admin_csr_path=admin.csr \
-    -D pki_admin_cert_path=admin.crt \
+    -D pki_admin_csr_path=/certs/admin.csr \
+    -D pki_admin_cert_path=/certs/admin.crt \
     -D pki_security_manager=False \
     -D pki_systemd_service_create=False \
     -v
 
-# export CA signing cert to ca_signing.crt
-pki-server cert-export ca_signing --cert-file ca_signing.crt
+echo "################################################################################"
+echo "INFO: Starting PKI CA"
 
-# run PKI server in foreground
 pki-server run --as-current-user
