@@ -84,7 +84,7 @@ public class ExternalProcessConstraint extends EnrollConstraint {
 
         timeout = DEFAULT_TIMEOUT;
         String timeoutConfig = getConfig(CONFIG_TIMEOUT);
-        if (this.executable != null && !this.executable.isEmpty()) {
+        if (timeoutConfig != null && !timeoutConfig.isEmpty()) {
             try {
                 timeout = Integer.valueOf(timeoutConfig).longValue();
             } catch (NumberFormatException e) {
