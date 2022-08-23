@@ -742,7 +742,7 @@ def check_ds():
                 sys.exit(1)
 
     except ldap.LDAPError:
-        logger.error('Unable to access LDAP server: %s', deployer.ds_url)
+        logger.error('Unable to access LDAP server: %s', deployer.ds_url.geturl())
         raise
 
 

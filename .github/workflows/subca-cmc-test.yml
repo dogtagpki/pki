@@ -55,8 +55,7 @@ jobs:
           docker exec root pkispawn \
               -f /usr/share/pki/server/examples/installation/ca.cfg \
               -s CA \
-              -D pki_ds_hostname=rootds.example.com \
-              -D pki_ds_ldap_port=3389 \
+              -D pki_ds_url=ldap://rootds.example.com:3389 \
               -D pki_security_domain_name=ROOT \
               -D pki_cert_id_generator=random \
               -D pki_request_id_generator=random \
@@ -112,8 +111,7 @@ jobs:
           docker exec subordinate pkispawn \
               -f /usr/share/pki/server/examples/installation/ca-external-cert-step1.cfg \
               -s CA \
-              -D pki_ds_hostname=subds.example.com \
-              -D pki_ds_ldap_port=3389 \
+              -D pki_ds_url=ldap://subds.example.com:3389 \
               -D pki_ca_signing_csr_path=$SHARED/ca_signing.csr \
               -D pki_cert_id_generator=random \
               -D pki_request_id_generator=random \
@@ -148,8 +146,7 @@ jobs:
           docker exec subordinate pkispawn \
               -f /usr/share/pki/server/examples/installation/ca-external-cert-step2.cfg \
               -s CA \
-              -D pki_ds_hostname=subds.example.com \
-              -D pki_ds_ldap_port=3389 \
+              -D pki_ds_url=ldap://subds.example.com:3389 \
               -D pki_cert_chain_path=$SHARED/root-ca_signing.crt \
               -D pki_ca_signing_csr_path=$SHARED/ca_signing.csr \
               -D pki_ca_signing_cert_path=$SHARED/ca_signing.p7b \

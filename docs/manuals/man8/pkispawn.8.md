@@ -1324,7 +1324,7 @@ Once the self-signed CA certificate is obtained, add the following parameters
 into the [DEFAULT] section in **myconfig.txt**:
 
 ```
-pki_ds_secure_connection=True
+pki_ds_url=ldaps://localhost:636
 pki_ds_secure_connection_ca_pem_file=$HOME/dscacert.pem
 ```
 

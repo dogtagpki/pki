@@ -253,8 +253,15 @@ Defaults to True.
 
 ### INTERNAL DATABASE PARAMETERS
 
+**pki_ds_url**  
+URL for the internal database.
+For plain LDAP connection use **ldap://&lt;hostname&gt;:&lt;port&gt;**.
+For secure LDAP connection use **ldaps://&lt;hostname&gt;:&lt;port&gt;**.
+Defaults to ldap://localhost:389.
+
 **pki_ds_hostname**, **pki_ds_ldap_port**, **pki_ds_ldaps_port**  
 Hostname and ports for the internal database.  Defaults to localhost, 389, and 636, respectively.
+**NOTE** Deprecated in favor of **pki_ds_url**.
 
 **pki_ds_bind_dn**, **pki_ds_password**  
 Credentials to connect to the database during installation.
@@ -267,6 +274,7 @@ See the documentation for details.
 Sets whether to require connections to the Directory Server using LDAPS.
 This requires SSL to be set up on the Directory Server first.
 Defaults to false.
+**NOTE** Deprecated in favor of **pki_ds_url**.
 
 **pki_ds_secure_connection_ca_nickname**  
 Once a Directory Server CA certificate has been imported into the PKI security databases (see **pki_ds_secure_connection_ca_pem_file**),

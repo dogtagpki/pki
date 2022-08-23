@@ -71,8 +71,7 @@ jobs:
           docker exec pki pkispawn \
               -f /usr/share/pki/server/examples/installation/ca-external-cert-step1.cfg \
               -s CA \
-              -D pki_ds_hostname=ds.example.com \
-              -D pki_ds_ldap_port=3389 \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
               -D pki_req_ski=AEB2FA7A07115A0AB994FF9B5BDA8E75D536BC77 \
               -D pki_req_ext_add=True \
               -D pki_req_ext_oid=1.3.6.1.4.1.311.20.2 \
@@ -97,8 +96,7 @@ jobs:
           docker exec pki pkispawn \
               -f /usr/share/pki/server/examples/installation/ca-external-cert-step2.cfg \
               -s CA \
-              -D pki_ds_hostname=ds.example.com \
-              -D pki_ds_ldap_port=3389 \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
               -D pki_req_ski=AEB2FA7A07115A0AB994FF9B5BDA8E75D536BC77 \
               -D pki_req_ext_add=True \
               -D pki_req_ext_oid=1.3.6.1.4.1.311.20.2 \

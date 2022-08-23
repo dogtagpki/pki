@@ -398,6 +398,7 @@ class ConfigurationFile:
     """PKI Deployment Configuration File Class"""
 
     def __init__(self, deployer):
+        self.deployer = deployer
         self.mdict = deployer.mdict
         # set useful 'boolean' object variables for this class
         self.clone = config.str2bool(self.mdict['pki_clone'])
@@ -699,8 +700,9 @@ class ConfigurationFile:
         return
 
     def verify_ds_secure_connection_data(self):
+
         # Check to see if a secure connection is being used for the DS
-        if config.str2bool(self.mdict['pki_ds_secure_connection']):
+        if self.deployer.ds_url.scheme == 'ldaps':
             # Verify existence of a local PEM file containing a
             # directory server CA certificate
             self.confirm_file_exists("pki_ds_secure_connection_ca_pem_file")

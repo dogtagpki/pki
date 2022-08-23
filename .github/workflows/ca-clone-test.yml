@@ -55,8 +55,7 @@ jobs:
           docker exec primary pkispawn \
               -f /usr/share/pki/server/examples/installation/ca.cfg \
               -s CA \
-              -D pki_ds_hostname=primaryds.example.com \
-              -D pki_ds_ldap_port=3389 \
+              -D pki_ds_url=ldap://primaryds.example.com:3389 \
               -D pki_cert_id_generator=random \
               -D pki_request_id_generator=random \
               -v
@@ -106,8 +105,7 @@ jobs:
               -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
               -D pki_clone_pkcs12_path=${SHARED}/ca-certs.p12 \
               -D pki_clone_pkcs12_password=Secret.123 \
-              -D pki_ds_hostname=secondaryds.example.com \
-              -D pki_ds_ldap_port=3389 \
+              -D pki_ds_url=ldap://secondaryds.example.com:3389 \
               -D pki_cert_id_generator=random \
               -D pki_request_id_generator=random \
               -v
@@ -158,8 +156,7 @@ jobs:
               -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
               -D pki_clone_pkcs12_path=${SHARED}/ca-certs.p12 \
               -D pki_clone_pkcs12_password=Secret.123 \
-              -D pki_ds_hostname=tertiaryds.example.com \
-              -D pki_ds_ldap_port=3389 \
+              -D pki_ds_url=ldap://tertiaryds.example.com:3389 \
               -D pki_cert_id_generator=random \
               -D pki_request_id_generator=random \
               -v

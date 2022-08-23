@@ -55,8 +55,7 @@ jobs:
           docker exec pki pkispawn \
               -f /usr/share/pki/server/examples/installation/ca.cfg \
               -s CA \
-              -D pki_ds_hostname=ds.example.com \
-              -D pki_ds_ldap_port=3389 \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
               -D pki_request_id_generator=random \
               -v
 
@@ -71,8 +70,7 @@ jobs:
           docker exec pki pkispawn \
               -f /usr/share/pki/server/examples/installation/kra.cfg \
               -s KRA \
-              -D pki_ds_hostname=ds.example.com \
-              -D pki_ds_ldap_port=3389 \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
               -D pki_request_id_generator=random \
               -v
 
@@ -90,8 +88,7 @@ jobs:
           docker exec pki pkispawn \
               -f /usr/share/pki/server/examples/installation/ca.cfg \
               -s CA \
-              -D pki_ds_hostname=ds.example.com \
-              -D pki_ds_ldap_port=3389 \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
               -D pki_use_oaep_rsa_keywrap=True \
               -D pki_request_id_generator=random \
               -v
@@ -107,8 +104,7 @@ jobs:
           docker exec pki pkispawn \
               -f /usr/share/pki/server/examples/installation/kra.cfg \
               -s KRA \
-              -D pki_ds_hostname=ds.example.com \
-              -D pki_ds_ldap_port=3389 \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
               -D pki_use_oaep_rsa_keywrap=True \
               -D pki_request_id_generator=random \
               -v
