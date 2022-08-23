@@ -29,8 +29,7 @@ pki_admin_uid=kraadmin
 
 pki_client_pkcs12_password=Secret.123
 
-pki_ds_ldaps_port=636
-pki_ds_secure_connection=True
+pki_ds_url=ldaps://localhost:636
 pki_ds_secure_connection_ca_nickname=ds_signing
 pki_ds_secure_connection_ca_pem_file=ds_signing.crt
 

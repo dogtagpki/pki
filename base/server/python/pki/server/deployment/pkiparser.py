@@ -95,7 +95,15 @@ class PKIConfigParser:
 
     DEPRECATED_CA_PARAMS = [
         (['CA'], 'pki_external_csr_path',
-         None, 'pki_ca_signing_csr_path')
+         None, 'pki_ca_signing_csr_path'),
+        (['CA'], 'pki_ds_hostname',
+         None, 'pki_ds_url'),
+        (['CA'], 'pki_ds_ldap_port',
+         None, 'pki_ds_url'),
+        (['CA'], 'pki_ds_ldaps_port',
+         None, 'pki_ds_url'),
+        (['CA'], 'pki_ds_secure_connection',
+         None, 'pki_ds_url'),
     ]
 
     DEPRECATED_KRA_PARAMS = [
@@ -123,6 +131,14 @@ class PKIConfigParser:
          None, 'pki_subsystem_cert_path'),
         (['KRA'], 'pki_external_transport_cert_path',
          None, 'pki_transport_cert_path'),
+        (['KRA'], 'pki_ds_hostname',
+         None, 'pki_ds_url'),
+        (['KRA'], 'pki_ds_ldap_port',
+         None, 'pki_ds_url'),
+        (['KRA'], 'pki_ds_ldaps_port',
+         None, 'pki_ds_url'),
+        (['KRA'], 'pki_ds_secure_connection',
+         None, 'pki_ds_url'),
     ]
 
     DEPRECATED_OCSP_PARAMS = [
@@ -145,13 +161,45 @@ class PKIConfigParser:
         (['OCSP'], 'pki_external_sslserver_cert_path',
          None, 'pki_sslserver_cert_path'),
         (['OCSP'], 'pki_external_subsystem_cert_path',
-         None, 'pki_subsystem_cert_path')
+         None, 'pki_subsystem_cert_path'),
+        (['OCSP'], 'pki_ds_hostname',
+         None, 'pki_ds_url'),
+        (['OCSP'], 'pki_ds_ldap_port',
+         None, 'pki_ds_url'),
+        (['OCSP'], 'pki_ds_ldaps_port',
+         None, 'pki_ds_url'),
+        (['OCSP'], 'pki_ds_secure_connection',
+         None, 'pki_ds_url'),
+    ]
+
+    DEPRECATED_TKS_PARAMS = [
+        (['TKS'], 'pki_ds_hostname',
+         None, 'pki_ds_url'),
+        (['TKS'], 'pki_ds_ldap_port',
+         None, 'pki_ds_url'),
+        (['TKS'], 'pki_ds_ldaps_port',
+         None, 'pki_ds_url'),
+        (['TKS'], 'pki_ds_secure_connection',
+         None, 'pki_ds_url'),
+    ]
+
+    DEPRECATED_TPS_PARAMS = [
+        (['TPS'], 'pki_ds_hostname',
+         None, 'pki_ds_url'),
+        (['TPS'], 'pki_ds_ldap_port',
+         None, 'pki_ds_url'),
+        (['TPS'], 'pki_ds_ldaps_port',
+         None, 'pki_ds_url'),
+        (['TPS'], 'pki_ds_secure_connection',
+         None, 'pki_ds_url'),
     ]
 
     DEPRECATED_PARAMS = DEPRECATED_DEFAULT_PARAMS + \
         DEPRECATED_CA_PARAMS + \
         DEPRECATED_KRA_PARAMS + \
-        DEPRECATED_OCSP_PARAMS
+        DEPRECATED_OCSP_PARAMS + \
+        DEPRECATED_TKS_PARAMS + \
+        DEPRECATED_TPS_PARAMS
 
     def __init__(self, description, epilog, deployer=None):
         self.deployer = deployer
@@ -611,9 +659,6 @@ class PKIConfigParser:
             if 'pki_subordinate' not in self.mdict or\
                not len(self.mdict['pki_subordinate']):
                 self.mdict['pki_subordinate'] = "false"
-
-            self.mdict['pki_ds_secure_connection'] = \
-                self.mdict['pki_ds_secure_connection'].lower()
 
             self.mdict['pki_standalone'] = self.mdict['pki_standalone'].lower()
 

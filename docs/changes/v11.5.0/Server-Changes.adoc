@@ -1,0 +1,10 @@
+= Server Changes =
+
+== Add pki_ds_url parameter ==
+
+A new `pki_ds_url` parameter has been added for `pkispawn` to replace the following parameters:
+
+* `pki_ds_hostname`
+* `pki_ds_ldap_port`
+* `pki_ds_ldaps_port`
+* `pki_ds_secure_connection`

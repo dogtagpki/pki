@@ -227,7 +227,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if len(deployer.tomcat_instance_subsystems()) < 2:
 
             # Check to see if a secure connection is being used for the DS
-            if config.str2bool(deployer.mdict['pki_ds_secure_connection']):
+            if deployer.ds_url.scheme == 'ldaps':
                 # Check to see if a directory server CA certificate
                 # using the same nickname already exists
                 #

@@ -54,8 +54,7 @@ jobs:
           docker exec pki pkispawn \
               -f /usr/share/pki/server/examples/installation/ca.cfg \
               -s CA \
-              -D pki_ds_hostname=ds.example.com \
-              -D pki_ds_ldap_port=3389 \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
               -D pki_cert_id_generator=legacy \
               -D pki_request_id_generator=legacy \
               -v

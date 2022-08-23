@@ -54,8 +54,7 @@ jobs:
           docker exec ca pkispawn \
               -f /usr/share/pki/server/examples/installation/ca.cfg \
               -s CA \
-              -D pki_ds_hostname=cads.example.com \
-              -D pki_ds_ldap_port=3389 \
+              -D pki_ds_url=ldap://cads.example.com:3389 \
               -D pki_cert_id_generator=random \
               -D pki_request_id_generator=random \
               -v
@@ -100,8 +99,7 @@ jobs:
               -D pki_cert_chain_nickname=ca_signing \
               -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
               -D pki_admin_cert_file=${SHARED}/ca_admin.cert \
-              -D pki_ds_hostname=krads.example.com \
-              -D pki_ds_ldap_port=3389 \
+              -D pki_ds_url=ldap://krads.example.com:3389 \
               -D pki_key_id_generator=random \
               -D pki_request_id_generator=random \
               -v
@@ -137,8 +135,7 @@ jobs:
               -D pki_cert_chain_nickname=ca_signing \
               -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
               -D pki_admin_cert_file=${SHARED}/ca_admin.cert \
-              -D pki_ds_hostname=tksds.example.com \
-              -D pki_ds_ldap_port=3389 \
+              -D pki_ds_url=ldap://tksds.example.com:3389 \
               -v
 
           docker exec tks pki-server cert-find
@@ -174,8 +171,7 @@ jobs:
               -D pki_ca_uri=https://ca.example.com:8443 \
               -D pki_kra_uri=https://kra.example.com:8443 \
               -D pki_tks_uri=https://tks.example.com:8443 \
-              -D pki_ds_hostname=tpsds.example.com \
-              -D pki_ds_ldap_port=3389 \
+              -D pki_ds_url=ldap://tpsds.example.com:3389 \
               -D pki_authdb_hostname=tpsds.example.com \
               -D pki_authdb_port=3389 \
               -D pki_enable_server_side_keygen=True \
@@ -230,8 +226,7 @@ jobs:
               -D pki_ca_uri=https://ca.example.com:8443 \
               -D pki_kra_uri=https://kra.example.com:8443 \
               -D pki_tks_uri=https://tks.example.com:8443 \
-              -D pki_ds_hostname=tpsds.example.com \
-              -D pki_ds_ldap_port=3389 \
+              -D pki_ds_url=ldap://tpsds.example.com:3389 \
               -D pki_authdb_hostname=tpsds.example.com \
               -D pki_authdb_port=3389 \
               -D pki_enable_server_side_keygen=True \
