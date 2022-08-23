@@ -99,7 +99,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             force=True)
 
         if config.str2bool(deployer.mdict['pki_hsm_enable']) and \
-                not nssdb.module_exists(deployer.mdict['pki_hsm_modulename']):
+                deployer.mdict['pki_hsm_modulename'] and \
+                deployer.mdict['pki_hsm_libfile']:
             nssdb.add_module(
                 deployer.mdict['pki_hsm_modulename'],
                 deployer.mdict['pki_hsm_libfile'])
