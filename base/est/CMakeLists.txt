@@ -8,6 +8,11 @@ javac(pki-est-classes
         ${JAXRS_API_JAR}
         ${SLF4J_API_JAR}
         ${COMMONS_CODEC_JAR}
+        ${COMMONS_IO_JAR}
+        ${JACKSON2_ANNOTATIONS_JAR}
+        ${JACKSON2_CORE_JAR}
+        ${JACKSON2_DATABIND_JAR}
+        ${TOMCAT_CATALINA_JAR}
         ${JSS_JAR}
         ${PKI_CMSUTIL_JAR}
         ${PKI_CERTSRV_JAR}
