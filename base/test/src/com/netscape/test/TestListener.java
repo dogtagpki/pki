@@ -64,12 +64,12 @@ public class TestListener extends RunListener {
         dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
 
         docBuilderFactory = DocumentBuilderFactory.newInstance();
-        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        docBuilderFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
         docBuilder = docBuilderFactory.newDocumentBuilder();
 
         transFactory = TransformerFactory.newInstance();
-        tranFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-        tranFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+        transFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        transFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
         trans = transFactory.newTransformer();
         trans.setOutputProperty(OutputKeys.INDENT, "yes");
 
