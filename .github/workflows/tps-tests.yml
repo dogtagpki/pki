@@ -218,31 +218,47 @@ jobs:
           docker exec pki pki-server tps-undeploy --wait
           docker exec pki pki-server tps-deploy --wait
 
-      - name: Check TPS client
+      - name: Add token
         run: |
-          # add unformatted token with random CUID
-          CUID=`hexdump -v -n "10" -e '1/1 "%02x"' /dev/urandom`
+          hexdump -v -n "10" -e '1/1 "%02x"' /dev/urandom > cuid
+          CUID=$(cat cuid)
+          docker exec pki pki -n caadmin tps-token-add $CUID | tee output
+
           echo "UNFORMATTED" > expected
-          docker exec pki pki -n caadmin tps-token-add $CUID | sed -n 's/\s*Status:\s\+\(\S\+\)\s*/\1/p' > actual
+          sed -n 's/\s*Status:\s\+\(\S\+\)\s*/\1/p' output > actual
           diff expected actual
 
-          # format the token
+          docker exec pki pki -n caadmin tps-cert-find --token $CUID
+
+      - name: Format token
+        run: |
+          CUID=$(cat cuid)
           docker exec pki /usr/share/pki/tps/bin/pki-tps-format \
               --user=testuser \
               --password=Secret.123 \
               $CUID
+
           echo "FORMATTED" > expected
-          docker exec pki pki -n caadmin tps-token-show $CUID | sed -n 's/\s*Status:\s\+\(\S\+\)\s*/\1/p' > actual
+          docker exec pki pki -n caadmin tps-token-show $CUID | tee output
+          sed -n 's/\s*Status:\s\+\(\S\+\)\s*/\1/p' output > actual
           diff expected actual
 
-          # enroll the token
+          docker exec pki pki -n caadmin tps-cert-find --token $CUID
+
+      - name: Enroll token
+        run: |
+          CUID=$(cat cuid)
           docker exec pki /usr/share/pki/tps/bin/pki-tps-enroll \
               --user=testuser \
               --password=Secret.123 \
               $CUID
+
           echo "ACTIVE" > expected
-          docker exec pki pki -n caadmin tps-token-show $CUID | sed -n 's/\s*Status:\s\+\(\S\+\)\s*/\1/p' > actual
+          docker exec pki pki -n caadmin tps-token-show $CUID | tee output
+          sed -n 's/\s*Status:\s\+\(\S\+\)\s*/\1/p' output > actual
           diff expected actual
+
+          docker exec pki pki -n caadmin tps-cert-find --token $CUID
 
       - name: Gather artifacts
         if: always()
