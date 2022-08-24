@@ -133,8 +133,8 @@ public class TPSSubsystem implements IAuthority {
             throw new EBaseException("Unable to load default TPS configuration: " + e.getMessage(), e);
         }
 
-        uiTransitions = loadTokenStateTransitions(
-                cs, TPSEngine.CFG_TOKENDB_ALLOWED_TRANSITIONS);
+        String allowedTransitions = cs.getString(TPSEngine.CFG_TOKENDB_ALLOWED_TRANSITIONS);
+        uiTransitions = loadTokenStateTransitions(TPSEngine.CFG_TOKENDB_ALLOWED_TRANSITIONS, allowedTransitions);
 
         operationTransitions = loadAndValidateTokenStateTransitions(
                 defaultConfig, cs, TPSEngine.CFG_OPERATIONS_ALLOWED_TRANSITIONS);
@@ -146,9 +146,7 @@ public class TPSSubsystem implements IAuthority {
         tpsEngine.init();
     }
 
-    public Map<TokenStatus, Collection<TokenStatus>> loadTokenStateTransitions(ConfigStore cs, String property) throws EBaseException {
-
-        String value = cs.getString(property);
+    public Map<TokenStatus, Collection<TokenStatus>> loadTokenStateTransitions(String property, String value) throws EBaseException {
 
         if (StringUtils.isEmpty(value)) {
             logger.error("Missing token state transitions in " + property);
@@ -215,12 +213,14 @@ public class TPSSubsystem implements IAuthority {
         logger.debug("TokenSubsystem: Loading transitions in " + property);
 
         logger.debug("TokenSubsystem: * default transitions:");
+        String defaultTransitionsStr = defaultConfig.getString(property);
         Map<TokenStatus, Collection<TokenStatus>> defaultTransitions =
-                loadTokenStateTransitions(defaultConfig, property);
+                loadTokenStateTransitions(property, defaultTransitionsStr);
 
         logger.debug("TokenSubsystem: * user-defined transitions:");
+        String userDefinedTransitionsStr = userDefinedConfig.getString(property);
         Map<TokenStatus, Collection<TokenStatus>> userDefinedTransitions =
-                loadTokenStateTransitions(userDefinedConfig, property);
+                loadTokenStateTransitions(property, userDefinedTransitionsStr);
 
         logger.debug("TokenSubsystem: Validating transitions in " + property);
         validateTokenStateTransitions(defaultTransitions, userDefinedTransitions);
