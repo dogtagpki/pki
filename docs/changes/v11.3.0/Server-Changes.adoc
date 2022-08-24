@@ -8,3 +8,8 @@ The `pki_restart_configured_instance` parameter for `pkispawn` is no longer used
 
 The default values of `pki_<tag>_csr_path` and `pki_<tag>_cert_path` parameters have been removed.
 The actual paths to the CSRs and certificates need to be specified during installation with external certificates.
+
+== Remove tokendb.hostport ==
+
+The `tokendb.hostport` parameter in TPS's `CS.cfg` is no longer used
+so it has been removed.
