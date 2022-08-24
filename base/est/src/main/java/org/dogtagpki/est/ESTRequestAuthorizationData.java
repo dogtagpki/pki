@@ -18,6 +18,7 @@ import java.util.Optional;
  * - EST "label" path component (if any)
  * - authenticated principal
  * - remote (IP) address of client
+ * - client certificate chain (when client used TLS client certificate authentication)
  *
  * This type does NOT include the CSR, because some EST endpoints
  * deal with CMS objects rather than PKCS #10 objects.  These objects
@@ -31,5 +32,6 @@ class ESTRequestAuthorizationData {
     Principal principal;
     String remoteAddr;
     Optional<String> label;
+    java.security.cert.X509Certificate[] clientCertChain;
 
 }

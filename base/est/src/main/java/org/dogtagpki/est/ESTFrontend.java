@@ -19,6 +19,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
+import org.apache.catalina.Globals;
 import org.apache.commons.codec.binary.Base64;
 
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
@@ -149,6 +150,10 @@ public class ESTFrontend {
         }
         logger.info("ESTFrontend: authenticated client: " + principal);
         data.principal = principal;
+
+        // retreieve client certificate chain (if available)
+        data.clientCertChain = (X509Certificate[])
+            servletRequest.getAttribute(Globals.CERTIFICATES_ATTR);
 
         data.remoteAddr = servletRequest.getRemoteAddr();
 
