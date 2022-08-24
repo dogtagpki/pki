@@ -42,17 +42,17 @@ import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.tps.token.TokenStatus;
 
 /*
- * TPSTokendb class offers a collection of tokendb management convenience routines
+ * TokenDB class offers a collection of tokendb management convenience routines
  */
-public class TPSTokendb {
+public class TokenDB {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSTokendb.class);
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TokenDB.class);
 
     private TPSSubsystem tps;
 
-    public TPSTokendb(TPSSubsystem tps) throws EBaseException {
+    public TokenDB(TPSSubsystem tps) throws EBaseException {
         if (tps == null) {
-            String msg = "TPStokendb.TPSTokendb: tps cannot be null";
+            String msg = "TokenDB.TokenDB: tps cannot be null";
             logger.error(msg);
             throw new EBaseException(msg);
         }
@@ -123,7 +123,7 @@ public class TPSTokendb {
             tps.tokenDatabase.getRecord(cuid);
             present = true;
         } catch (Exception e) {
-            logger.warn("TPSTokendb.isTokenPresent: token entry not found: " + e.getMessage(), e);
+            logger.warn("TokenDB.isTokenPresent: token entry not found: " + e.getMessage(), e);
             present = false;
         }
         return present;
@@ -162,7 +162,7 @@ public class TPSTokendb {
     public void tdbHasActiveToken(String userid)
            throws Exception {
         if (userid == null)
-            throw new Exception("TPSTokendb.tdbhasActiveToken: uerid null");
+            throw new Exception("TokenDB.tdbhasActiveToken: uerid null");
 
         ArrayList<TokenRecord> tokens =
                 tdbFindTokenRecordsByUID(userid);
@@ -173,14 +173,14 @@ public class TPSTokendb {
             }
         }
         if (!foundActive) {
-            throw new Exception("TPSTokendb.tdbhasActiveToken: active token not found");
+            throw new Exception("TokenDB.tdbhasActiveToken: active token not found");
         }
     }
 
     public void tdbHasOtherActiveToken(String userid,String cuid)
             throws Exception {
          if (userid == null || cuid == null)
-             throw new Exception("TPSTokendb.tdbhasOtherActiveToken: uerid null, or cuid is null");
+             throw new Exception("TokenDB.tdbhasOtherActiveToken: uerid null, or cuid is null");
 
          ArrayList<TokenRecord> tokens =
                  tdbFindTokenRecordsByUID(userid);
@@ -193,14 +193,14 @@ public class TPSTokendb {
              }
          }
          if (!foundActive) {
-             throw new Exception("TPSTokendb.tdbhasActiveToken: active token not found");
+             throw new Exception("TokenDB.tdbhasActiveToken: active token not found");
          }
      }
 
     public void tdbAddTokenEntry(TokenRecord tokenRecord, TokenStatus status)
             throws Exception {
 
-        String method = "TPSTokendb.tdbAddTokenEntry: ";
+        String method = "TokenDB.tdbAddTokenEntry: ";
         tokenRecord.setTokenStatus(status);
 
         tps.tokenDatabase.addRecord(tokenRecord.getId(), tokenRecord);
@@ -209,7 +209,7 @@ public class TPSTokendb {
 
     public void tdbUpdateTokenEntry(TokenRecord tokenRecord)
             throws Exception {
-        String method = "TPSTokendb.tdbUpdateTokenEntry:";
+        String method = "TokenDB.tdbUpdateTokenEntry:";
         String id = tokenRecord.getId();
         TokenRecord existingTokenRecord;
         try {
@@ -233,7 +233,7 @@ public class TPSTokendb {
      */
     public void tdbAddCertificatesForCUID(String cuid, ArrayList<TPSCertRecord> certs)
             throws TPSException {
-        String method = "TPSTokendb.tdbAddCertificatesForCUID: ";
+        String method = "TokenDB.tdbAddCertificatesForCUID: ";
         logger.debug(method + "begins");
         boolean tokenExist = isTokenPresent(cuid);
         if (!tokenExist) {
@@ -326,7 +326,7 @@ public class TPSTokendb {
             throws TPSException {
 
         if (cuid == null)
-            throw new TPSException("TPSTokendb.tdbGetCertificatesByCUID: cuid null");
+            throw new TPSException("TokenDB.tdbGetCertificatesByCUID: cuid null");
 
         Map<String, String> attributes = new HashMap<>();
         attributes.put("tokenID",  cuid);
@@ -334,14 +334,14 @@ public class TPSTokendb {
         try {
              return tps.certDatabase.findRecords(null, attributes);
         } catch (Exception e) {
-            logger.error("TPSTokendb.tdbGetCertificatesByCUID:" + e.getMessage(), e);
+            logger.error("TokenDB.tdbGetCertificatesByCUID:" + e.getMessage(), e);
             throw new TPSException(e);
         }
     }
 
     public ArrayList<TPSCertRecord> tdbGetCertRecordsByCert(String serial, String issuer)
             throws TPSException {
-        String method = "TPSTokendb.tdbGetCertRecordsByCert:";
+        String method = "TokenDB.tdbGetCertRecordsByCert:";
         if (serial == null)
             throw new TPSException(method + " serial null");
 
@@ -377,7 +377,7 @@ public class TPSTokendb {
      * Returns null if cert not found;
      */
     public TPSCertRecord tdbGetOrigCertRecord(X509CertImpl cert) {
-        String method = "TPSTokendb.tdbGetCertTokenOrigin: ";
+        String method = "TokenDB.tdbGetCertTokenOrigin: ";
         TPSCertRecord result = null;
 
         String serialNumber = null;
@@ -422,7 +422,7 @@ public class TPSTokendb {
      *   returns true if cert is currently on token; false otherwise
      */
     private boolean isCertOnToken(TPSCertRecord cert, String cuid) {
-        String method = "TPSTokendb: isCertOnToken: ";
+        String method = "TokenDB: isCertOnToken: ";
         boolean result = false;
 
         Map<String, String> attributes = new HashMap<>();
@@ -482,7 +482,7 @@ public class TPSTokendb {
     public void tdbRemoveCertificatesByCUID(String cuid,
             ArrayList<ExternalRegCertToRecover> erCertsToRecover)
             throws Exception {
-        String method = "TPSTokendb.tdbRemoveCertificatesByCUID";
+        String method = "TokenDB.tdbRemoveCertificatesByCUID";
         if (cuid == null)
             throw new Exception(method + ": cuid null");
 
@@ -526,7 +526,7 @@ public class TPSTokendb {
      */
     private boolean isCertRetained(BigInteger certSerial,
             ArrayList<ExternalRegCertToRecover> erCertsToRecover) {
-        String method = "TPSTokendb.isCertRetained: ";
+        String method = "TokenDB.isCertRetained: ";
         boolean result = false;
         if (erCertsToRecover == null) {
             logger.warn(method + "input param erCertsToRecover null");
@@ -570,7 +570,7 @@ public class TPSTokendb {
     }
 
     private boolean isLastActiveSharedCert(String serial, String issuer, String cuid) throws TPSException {
-        String method = "TPSTokendb.isLastActiveSharedCert";
+        String method = "TokenDB.isLastActiveSharedCert";
         String msg = "";
         if (serial == null) {
             msg = "input param serial null";
@@ -618,7 +618,7 @@ public class TPSTokendb {
     private void revokeCert(TokenRecord tokenRecord, TPSCertRecord cert, String tokenReason,
             String ipAddress, String remoteUser) throws Exception {
 
-        String method = "TPSTokendb.revokeCert";
+        String method = "TokenDB.revokeCert";
         String logMsg;
 
         logger.debug(method + "begins: tokenReason=" + tokenReason);
@@ -689,7 +689,7 @@ public class TPSTokendb {
     private void unrevokeCert(TokenRecord tokenRecord, TPSCertRecord cert, String tokenReason,
             String ipAddress, String remoteUser) throws Exception {
 
-        String method = "TPSTokendb.unrevokeCert";
+        String method = "TokenDB.unrevokeCert";
         String logMsg;
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
@@ -748,7 +748,7 @@ public class TPSTokendb {
     private void checkShouldRevoke(TokenRecord tokenRecord, TPSCertRecord cert, String tokenReason,
             String ipAddress, String remoteUser) throws Exception {
 
-        String method = "TPSTokendb.checkShouldRevoke:";
+        String method = "TokenDB.checkShouldRevoke:";
         String msg = "";
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSEngineConfig configStore = engine.getConfig();
@@ -836,7 +836,7 @@ public class TPSTokendb {
      */
     private void revokeCertsByCUID(boolean isRevoke, String cuid, String tokenReason,
             String ipAddress, String remoteUser) throws Exception {
-        String method = "TPSTokendb.revokeCertsByCUID";
+        String method = "TokenDB.revokeCertsByCUID";
         String logMsg;
 
         if (cuid == null) {
@@ -888,7 +888,7 @@ public class TPSTokendb {
 
     public void tdbUpdateCertEntry(TPSCertRecord certRecord)
             throws Exception {
-        String method = "TPSTokendb.tdbUpdateCertEntry";
+        String method = "TokenDB.tdbUpdateCertEntry";
         String id = certRecord.getId();
         TPSCertRecord existingCertRecord;
         try {

@@ -81,7 +81,7 @@ public class TPSSubsystem implements IAuthority {
     public MappingResolverManager mappingResolverManager;
 
     public TPSEngine tpsEngine;
-    public TPSTokendb tdb;
+    public TokenDB tdb;
 
     public Map<TokenStatus, Collection<TokenStatus>> uiTransitions;
     public Map<TokenStatus, Collection<TokenStatus>> operationTransitions;
@@ -140,7 +140,7 @@ public class TPSSubsystem implements IAuthority {
                 defaultConfig, cs, TPSEngine.CFG_OPERATIONS_ALLOWED_TRANSITIONS);
 
         configureTPSConnection(cs);
-        tdb = new TPSTokendb(this);
+        tdb = new TokenDB(this);
 
         tpsEngine = new TPSEngine();
         tpsEngine.init();
@@ -372,7 +372,7 @@ public class TPSSubsystem implements IAuthority {
         return mappingResolverManager;
     }
 
-    public TPSTokendb getTokendb() {
+    public TokenDB getTokendb() {
         return tdb;
     }
 
