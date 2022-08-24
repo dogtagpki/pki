@@ -800,14 +800,6 @@ class PKIConfigParser:
             self.mdict['TOMCAT_SERVER_PORT_SLOT'] = \
                 self.mdict['pki_tomcat_server_port']
 
-            # tps parameters
-            if config.str2bool(self.mdict['pki_ds_secure_connection']):
-                self.mdict['TOKENDB_PORT_SLOT'] = \
-                    self.mdict['pki_ds_ldaps_port']
-            else:
-                self.mdict['TOKENDB_PORT_SLOT'] = \
-                    self.mdict['pki_ds_ldap_port']
-
             if self.mdict['pki_subsystem'] == "CA":
                 self.mdict['PKI_ENABLE_RANDOM_SERIAL_NUMBERS'] = \
                     self.mdict['pki_random_serial_numbers_enable'].lower()
