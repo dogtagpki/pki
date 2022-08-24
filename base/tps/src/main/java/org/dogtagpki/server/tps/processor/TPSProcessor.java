@@ -41,6 +41,7 @@ import org.dogtagpki.server.authentication.AuthenticationConfig;
 import org.dogtagpki.server.tps.TPSEngineConfig;
 import org.dogtagpki.server.tps.TPSSession;
 import org.dogtagpki.server.tps.TPSSubsystem;
+import org.dogtagpki.server.tps.TokenDBConfig;
 import org.dogtagpki.server.tps.authentication.AuthUIParameter;
 import org.dogtagpki.server.tps.authentication.TPSAuthenticator;
 import org.dogtagpki.server.tps.channel.PlatformAndSecChannelProtoInfo;
@@ -1542,8 +1543,8 @@ public class TPSProcessor {
             org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
             TPSEngineConfig configStore = engine.getConfig();
 
-            String config = "tokendb.defaultPolicy";
-            String defaultPolicy = configStore.getString(config);
+            TokenDBConfig tdbConfig = configStore.getTokenDBConfig();
+            String defaultPolicy = tdbConfig.getString("defaultPolicy");
 
             logger.debug("{} default token policy: {}", method, defaultPolicy);
 

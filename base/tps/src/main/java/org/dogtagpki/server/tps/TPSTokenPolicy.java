@@ -69,10 +69,10 @@ public class TPSTokenPolicy {
     public String getDefaultPolicySetString() {
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSEngineConfig configStore = engine.getConfig();
-        String configName = "tokendb.defaultPolicy";
+        TokenDBConfig tdbConfig = configStore.getTokenDBConfig();
         String policySetString;
         try {
-            policySetString = configStore.getString(configName);
+            policySetString = tdbConfig.getString("defaultPolicy");
         } catch (EPropertyNotFound e) {
             policySetString = DEFAULT_POLICY_SET_STRING;
         } catch (EBaseException e) {

@@ -109,13 +109,15 @@ public class TPSSubsystem implements IAuthority {
 
         DBSubsystem dbSubsystem = engine.getDBSubsystem();
 
-        String activityDatabaseDN = cs.getString("tokendb.activityBaseDN");
+        TokenDBConfig tdbConfig = cs.getTokenDBConfig();
+
+        String activityDatabaseDN = tdbConfig.getString("activityBaseDN");
         activityDatabase = new ActivityDatabase(dbSubsystem, activityDatabaseDN);
 
-        String certDatabaseDN = cs.getString("tokendb.certBaseDN");
+        String certDatabaseDN = tdbConfig.getString("certBaseDN");
         certDatabase = new TPSCertDatabase(dbSubsystem, certDatabaseDN);
 
-        String tokenDatabaseDN = cs.getString("tokendb.baseDN");
+        String tokenDatabaseDN = tdbConfig.getString("baseDN");
         tokenDatabase = new TokenDatabase(dbSubsystem, tokenDatabaseDN);
 
         configDatabase = new ConfigDatabase();
@@ -133,8 +135,8 @@ public class TPSSubsystem implements IAuthority {
             throw new EBaseException("Unable to load default TPS configuration: " + e.getMessage(), e);
         }
 
-        String allowedTransitions = cs.getString(TPSEngine.CFG_TOKENDB_ALLOWED_TRANSITIONS);
-        uiTransitions = loadTokenStateTransitions(TPSEngine.CFG_TOKENDB_ALLOWED_TRANSITIONS, allowedTransitions);
+        String allowedTransitions = tdbConfig.getString("allowedTransitions");
+        uiTransitions = loadTokenStateTransitions("tokendb.allowedTransitions", allowedTransitions);
 
         operationTransitions = loadAndValidateTokenStateTransitions(
                 defaultConfig, cs, TPSEngine.CFG_OPERATIONS_ALLOWED_TRANSITIONS);

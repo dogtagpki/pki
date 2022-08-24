@@ -14,7 +14,17 @@ public class TPSEngineConfig extends EngineConfig {
         super(storage);
     }
 
+    /**
+     * Returns tps.* parameters.
+     */
     public TPSConfig getTPSConfig() {
         return getSubStore("tps", TPSConfig.class);
+    }
+
+    /**
+     * Returns tokendb.* parameters.
+     */
+    public TokenDBConfig getTokenDBConfig() {
+        return getSubStore("tokendb", TokenDBConfig.class);
     }
 }

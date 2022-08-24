@@ -92,8 +92,6 @@ public class TPSEngine {
     public static final String CFG_ERROR_PREFIX = "logging.error";
     public static final String CFG_DEBUG_PREFIX = "logging.debug";
     public static final String CFG_SELFTEST_PREFIX = "selftests.container.logger";
-    public static final String CFG_TOKENDB = "tokendb";
-    public static final String CFG_TOKENDB_ALLOWED_TRANSITIONS = "tokendb.allowedTransitions";
     public static final String CFG_OPERATIONS_ALLOWED_TRANSITIONS = "tps.operations.allowedTransitions";
     public static final String CFG_TOKENSERVICE_UNFORMATTED_CLEAR_USERID = "tokenservice.status.unformatted.clearUserID";
     public static final String CFG_TOKENSERVICE_UNFORMATTED_CLEAR_TYPE = "tokenservice.status.unformatted.clearType";

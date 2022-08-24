@@ -19,6 +19,7 @@ import org.dogtagpki.server.tps.TPSEngineConfig;
 import org.dogtagpki.server.tps.TPSSession;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.TPSTokenPolicy;
+import org.dogtagpki.server.tps.TokenDBConfig;
 import org.dogtagpki.server.tps.authentication.TPSAuthenticator;
 import org.dogtagpki.server.tps.channel.SecureChannel;
 import org.dogtagpki.server.tps.channel.SecureChannel.TokenKeyType;
@@ -3909,6 +3910,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         String method = "TPSEnrollProcessor.checkAllowMultiActiveTokensUser: ";
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSEngineConfig configStore = engine.getConfig();
+        TokenDBConfig tdbConfig = configStore.getTokenDBConfig();
 
         String scheme = null;
 
@@ -3918,13 +3920,11 @@ public class TPSEnrollProcessor extends TPSProcessor {
             scheme = TPSEngine.CFG_NON_EXTERNAL_REG;
         }
 
-        String allowMultiConfig = TPSEngine.CFG_TOKENDB + "." + scheme + "."
-                + TPSEngine.CFG_ALLOW_MULTI_TOKENS_USER;
-
-        logger.debug(method + " trying config: " + allowMultiConfig);
+        String allowMultiConfig = scheme + "." + TPSEngine.CFG_ALLOW_MULTI_TOKENS_USER;
+        logger.debug(method + " trying config: tokendb." + allowMultiConfig);
 
         try {
-            allow = configStore.getBoolean(allowMultiConfig, false);
+            allow = tdbConfig.getBoolean(allowMultiConfig, false);
         } catch (EBaseException e) {
             allow = false;
         }
