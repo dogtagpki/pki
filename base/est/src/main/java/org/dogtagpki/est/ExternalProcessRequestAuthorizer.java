@@ -6,6 +6,7 @@
 package org.dogtagpki.est;
 
 import java.io.IOException;
+import java.security.cert.CertificateEncodingException;
 import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -182,6 +183,26 @@ public class ExternalProcessRequestAuthorizer extends ESTRequestAuthorizer {
             generator.writeArray(roles, 0, roles.length);
 
             generator.writeEndObject();  // end principal
+
+            // client certs
+            if (data.clientCertChain != null) {
+                generator.writeArrayFieldStart("clientCertChain");
+                for (int i = 0; i < data.clientCertChain.length; i++) {
+                    try {
+                        generator.writeString(
+                            Base64.encodeBase64String(data.clientCertChain[i].getEncoded()));
+                    } catch (CertificateEncodingException e) {
+                        logger.error(
+                            "ExternalProcessRequestAuthorizer: error encoding client certificate: " + e,
+                            e
+                        );
+                        // Write a null as a placeholder for the bad cert.
+                        // This is a "shouldn't happen" scenario... in theory
+                        generator.writeNull();
+                    }
+                }
+                generator.writeEndArray();
+            }
 
             generator.writeEndObject();
         }
