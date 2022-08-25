@@ -23,7 +23,6 @@ import org.dogtagpki.server.PKIClientSocketListener;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.connector.Connector;
-import com.netscape.certsrv.connector.IResender;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
@@ -43,7 +42,7 @@ public class HttpConnector extends Connector {
     // XXX todo make this a pool.
     // XXX use CMMF in the future.
     protected HttpConnection mConn;
-    private IResender mResender = null;
+    private Resender mResender;
     @SuppressWarnings("unused")
     private int mTimeout;
 

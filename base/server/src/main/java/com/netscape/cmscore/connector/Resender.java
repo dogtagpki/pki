@@ -28,7 +28,6 @@ import java.util.concurrent.TimeUnit;
 import org.dogtagpki.server.PKIClientSocketListener;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.connector.IResender;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
@@ -40,10 +39,12 @@ import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
 
 /**
- * Resend requests at intervals to the server to check if it's been completed.
- * Default interval is 5 minutes.
+ * Resend requests at intervals to the server to ensure completion of requests.
+ * Default interval is 5 minutes. The need to resend a message could arise
+ * due to an error or the fact that the message could not be serviced
+ * immediately.
  */
-public class Resender implements IResender {
+public class Resender implements Runnable {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Resender.class);
 
@@ -109,7 +110,11 @@ public class Resender implements IResender {
         }
     }
 
-    @Override
+    /**
+     * Adds the request to the resend queue.
+     *
+     * @param r Request to be placed on the resend queue.
+     */
     public void addRequest(Request r) {
         synchronized (mRequestIds) {
             // note the request ids are added as strings.
@@ -118,7 +123,6 @@ public class Resender implements IResender {
         logger.debug("added " + r.getRequestId() + " to resend queue");
     }
 
-    @Override
     public void start(final String name) {
         logger.debug("Starting resender thread with interval " + mInterval);
 
@@ -152,7 +156,6 @@ public class Resender implements IResender {
         resend();
     }
 
-    @Override
     public void stop() {
         // shutdown executorService without interrupting running task
         if (executorService != null) executorService.shutdown();
