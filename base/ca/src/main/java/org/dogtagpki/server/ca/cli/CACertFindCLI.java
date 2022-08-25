@@ -7,8 +7,10 @@ package org.dogtagpki.server.ca.cli;
 
 import java.io.File;
 import java.security.cert.X509Certificate;
+import java.util.Date;
 
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
 import org.apache.tomcat.util.net.jss.TomcatJSS;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CommandCLI;
@@ -19,7 +21,9 @@ import org.dogtagpki.util.logging.PKILogger.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.netscape.certsrv.cert.CertSearchRequest;
 import com.netscape.certsrv.dbs.certdb.CertId;
+import com.netscape.cms.servlet.cert.FilterBuilder;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.base.ConfigStorage;
@@ -46,6 +50,11 @@ public class CACertFindCLI extends CommandCLI {
 
     @Override
     public void createOptions() {
+
+        Option option = new Option(null, "status", true, "Certificate status: VALID, INVALID, REVOKED, EXPIRED, REVOKED_EXPIRED");
+        option.setArgName("status");
+        options.addOption(option);
+
         options.addOption("v", "verbose", false, "Run in verbose mode.");
         options.addOption(null, "debug", false, "Run in debug mode.");
         options.addOption(null, "help", false, "Show help message.");
@@ -54,15 +63,23 @@ public class CACertFindCLI extends CommandCLI {
     @Override
     public void execute(CommandLine cmd) throws Exception {
 
-        String filter = "(certstatus=*)";
-        int size = 20;
-
         if (cmd.hasOption("debug")) {
             PKILogger.setLevel(PKILogger.Level.DEBUG);
 
         } else if (cmd.hasOption("verbose")) {
             PKILogger.setLevel(Level.INFO);
         }
+
+        CertSearchRequest searchRequest = new CertSearchRequest();
+        if (cmd.hasOption("status")) {
+            searchRequest.setStatus(cmd.getOptionValue("status"));
+        }
+
+        FilterBuilder builder = new FilterBuilder(searchRequest);
+        String filter = builder.buildFilter();
+        logger.info("- filter: " + filter);
+
+        int size = 20;
 
         String catalinaBase = System.getProperty("catalina.base");
 
@@ -118,8 +135,24 @@ public class CACertFindCLI extends CommandCLI {
                 System.out.println("  Serial Number: " + id.toHexString());
                 System.out.println("  Subject DN: " + cert.getSubjectDN());
                 System.out.println("  Issuer DN: " + cert.getIssuerDN());
+
+                System.out.println("  Status: " + record.getStatus());
+
                 System.out.println("  Not Valid Before: " + cert.getNotBefore());
                 System.out.println("  Not Valid After: " + cert.getNotAfter());
+
+                System.out.println("  Issued On: " + record.getCreateTime());
+                System.out.println("  Issued By: " + record.getIssuedBy());
+
+                Date revokedOn = record.getRevokedOn();
+                if (revokedOn != null) {
+                    System.out.println("  Revoked On: " + revokedOn);
+                }
+
+                String revokedBy = record.getRevokedBy();
+                if (revokedBy != null) {
+                    System.out.println("  Revoked By: " + revokedBy);
+                }
             }
 
         } finally {

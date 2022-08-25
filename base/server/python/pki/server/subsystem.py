@@ -1736,7 +1736,10 @@ class CASubsystem(PKISubsystem):
 
         self.run(cmd, as_current_user=as_current_user)
 
-    def find_certs(self, as_current_user=False):
+    def find_certs(
+            self,
+            status=None,
+            as_current_user=False):
 
         cmd = ['ca-cert-find']
 
@@ -1745,6 +1748,9 @@ class CASubsystem(PKISubsystem):
 
         elif logger.isEnabledFor(logging.INFO):
             cmd.append('--verbose')
+
+        if status:
+            cmd.extend(['--status', status])
 
         self.run(cmd, as_current_user=as_current_user)
 

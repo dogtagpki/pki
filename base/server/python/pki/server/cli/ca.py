@@ -76,24 +76,32 @@ class CACertCLI(pki.cli.CLI):
 
 
 class CACertFindCLI(pki.cli.CLI):
+    '''
+    Find certificates in CA
+    '''
+
+    help = '''\
+        Usage: pki-server ca-cert-find [OPTIONS]
+
+          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+              --status <status>              Certificate status: VALID, INVALID, REVOKED, EXPIRED, REVOKED_EXPIRED
+          -v, --verbose                      Run in verbose mode.
+              --debug                        Run in debug mode.
+              --help                         Show help message.
+    '''  # noqa: E501
 
     def __init__(self):
-        super().__init__('find', 'Find certificates in CA')
+        super().__init__('find', inspect.cleandoc(self.__class__.__doc__))
 
     def print_help(self):
-        print('Usage: pki-server ca-cert-find [OPTIONS]')
-        print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
-        print('  -v, --verbose                      Run in verbose mode.')
-        print('      --debug                        Run in debug mode.')
-        print('      --help                         Show help message.')
-        print()
+        print(textwrap.dedent(self.__class__.help))
 
     def execute(self, argv):
 
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
+                'status=',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -102,10 +110,14 @@ class CACertFindCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
+        status = None
 
         for o, a in opts:
             if o in ('-i', '--instance'):
                 instance_name = a
+
+            elif o == '--status':
+                status = a
 
             elif o in ('-v', '--verbose'):
                 logging.getLogger().setLevel(logging.INFO)
@@ -134,7 +146,8 @@ class CACertFindCLI(pki.cli.CLI):
             logger.error('No CA subsystem in instance %s', instance_name)
             sys.exit(1)
 
-        subsystem.find_certs()
+        subsystem.find_certs(
+            status=status)
 
 
 class CACertCreateCLI(pki.cli.CLI):
