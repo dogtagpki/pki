@@ -351,7 +351,7 @@ public class RequestNotifier {
      * object, and may implement any type publishing (such as email
      * or writing values into a directory)
      *
-     * @param request the request that is completed.
+     * @param r the request that is completed.
      */
     public void notify(Request r) {
         logger.debug("ARequestNotifier  notify mIsPublishingQueueEnabled=" + mIsPublishingQueueEnabled +
