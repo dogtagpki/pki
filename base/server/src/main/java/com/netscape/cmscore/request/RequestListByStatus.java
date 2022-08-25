@@ -19,31 +19,19 @@ package com.netscape.cmscore.request;
 
 import java.util.Enumeration;
 
-import com.netscape.certsrv.request.IRequestList;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 
-public class RequestListByStatus implements IRequestList {
+public class RequestListByStatus extends RequestList {
 
     protected RequestStatus mStatus;
     protected RequestRepository requestRepository;
     protected RequestQueue mQueue;
-    protected Enumeration<RequestId> mEnumeration;
     protected RequestId mNext;
 
     @Override
     public boolean hasMoreElements() {
         return (mNext != null);
-    }
-
-    @Override
-    public Object nextRequest() {
-        return null;
-    }
-
-    @Override
-    public Request nextRequestObject() {
-        return null;
     }
 
     @Override
@@ -70,7 +58,8 @@ public class RequestListByStatus implements IRequestList {
             RequestRepository requestRepository,
             RequestQueue q) {
 
-        mEnumeration = e;
+        super(e);
+
         mStatus = s;
         this.requestRepository = requestRepository;
         mQueue = q;
