@@ -19,6 +19,7 @@ package com.netscape.cms.servlet.cert.scep;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
@@ -635,7 +636,7 @@ public class CRSEnrollment extends HttpServlet {
 
             /*
              Possible capabilities as of https://tools.ietf.org/html/draft-gutmann-scep-16#section-3.5.1:
-             - AES (currently not supported by Dogtag)
+             - AES
              - DES3
              - GetNextCACert (currently not supported by Dogtag)
              - POSTPKIOperation (currently not supported by Dogtag)
@@ -645,6 +646,10 @@ public class CRSEnrollment extends HttpServlet {
              - SHA-512
              - SCEPStandard (currently not supported by Dogtag due to missing AES support)
             */
+            if (isAlgorithmAllowed(mAllowedEncryptionAlgorithm, "AES")) {
+                response.append("AES\n");
+            }
+
             if (isAlgorithmAllowed(mAllowedEncryptionAlgorithm, "DES3")) {
                 response.append("DES3\n");
             }
@@ -1254,11 +1259,19 @@ public class CRSEnrollment extends HttpServlet {
 
             kw.initUnwrap(cx.getPrivateKey(), null);
 
-            skt = SymmetricKey.Type.DES;
-            ea = EncryptionAlgorithm.DES_CBC;
-            if (mEncryptionAlgorithm != null && mEncryptionAlgorithm.equals("DES3")) {
-                skt = SymmetricKey.Type.DES3;
-                ea = EncryptionAlgorithm.DES3_CBC;
+            switch(String.valueOf(mEncryptionAlgorithm)) {
+                case "DES3":
+                    skt = SymmetricKey.Type.DES3;
+                    ea = EncryptionAlgorithm.DES3_CBC;
+                    break;
+                case "AES":
+                    skt = SymmetricKey.Type.AES;
+                    ea = EncryptionAlgorithm.AES_128_CBC;
+                    break;
+                default:
+                    skt = SymmetricKey.Type.DES;
+                    ea = EncryptionAlgorithm.DES_CBC;
+
             }
 
             sk = kw.unwrapSymmetric(req.getWrappedKey(),
@@ -1266,7 +1279,7 @@ public class CRSEnrollment extends HttpServlet {
                               SymmetricKey.Usage.DECRYPT,
                               0); // keylength is ignored
 
-            skinternal = cx.getDESKeyGenerator().clone(sk);
+            skinternal = cx.getKeyGenerator().clone(sk);
 
             cip = skinternal.getOwningToken().getCipherContext(ea);
 
@@ -1948,45 +1961,43 @@ public class CRSEnrollment extends HttpServlet {
 
         try {
             if (issuedCert != null) {
-
                 SymmetricKey sk;
                 SymmetricKey skinternal;
-
-                KeyGenAlgorithm kga = KeyGenAlgorithm.DES;
-                EncryptionAlgorithm ea = EncryptionAlgorithm.DES_CBC;
-                if (mEncryptionAlgorithm != null && mEncryptionAlgorithm.equals("DES3")) {
-                    kga = KeyGenAlgorithm.DES3;
-                    ea = EncryptionAlgorithm.DES3_CBC;
+                KeyGenAlgorithm kga;
+                EncryptionAlgorithm ea;
+                switch(String.valueOf(mEncryptionAlgorithm)) {
+                    case "DES3":
+                        kga = KeyGenAlgorithm.DES3;
+                        ea = EncryptionAlgorithm.DES3_CBC;
+                        break;
+                    case "AES":
+                        kga = KeyGenAlgorithm.AES;
+                        ea = EncryptionAlgorithm.AES_128_CBC;
+                        break;
+                    default:
+                        kga = KeyGenAlgorithm.DES;
+                        ea = EncryptionAlgorithm.DES_CBC;
                 }
 
                 // 1. Make the Degenerated PKCS7 with the recipient's certificate in it
-
                 byte toBeEncrypted[] =
                         crsResp.makeSignedRep(1, // version
                                 issuedCert.getEncoded()
                                       );
 
                 // 2. Encrypt the above byte array with a new random DES key
-
-                sk = cx.getDESKeyGenerator().generate();
-
-                skinternal = cx.getInternalToken().getKeyGenerator(kga).clone(sk);
+                sk = cx.getKeyGenerator().generate();
 
                 byte[] padded = Cipher.pad(toBeEncrypted, ea.getBlockSize());
-
-                // This should be changed to generate proper DES IV.
-
                 Cipher cipher = cx.getInternalToken().getCipherContext(ea);
+                byte[] iv = new byte[ea.getBlockSize()];
+                SecureRandom random = new SecureRandom();
+                random.nextBytes(iv);
                 IVParameterSpec desIV =
-                        new IVParameterSpec(new byte[] {
-                                (byte) 0xff, (byte) 0x00,
-                                (byte) 0xff, (byte) 0x00,
-                                (byte) 0xff, (byte) 0x00,
-                                (byte) 0xff, (byte) 0x00 });
+                        new IVParameterSpec(iv);
 
                 cipher.initEncrypt(sk, desIV);
                 byte[] encryptedData = cipher.doFinal(padded);
-
                 crsResp.makeEncryptedContentInfo(desIV.getIV(), encryptedData, mEncryptionAlgorithm);
 
                 // 3. Extract the recipient's public key
@@ -1995,17 +2006,17 @@ public class CRSEnrollment extends HttpServlet {
 
                 // 4. Encrypt the DES key with the public key
 
-                // we have to move the key onto the interal token.
+                // we have to move the key onto the internal token.
                 //skinternal = cx.getInternalKeyStorageToken().cloneKey(sk);
                 skinternal = cx.getInternalToken().cloneKey(sk);
 
                 KeyWrapper kw = cx.getInternalKeyWrapper();
                 kw.initWrap(rcpPK, null);
+
                 encryptedDesKey = kw.wrap(skinternal);
 
                 crsResp.setRcpIssuerAndSerialNumber(crsReq.getSgnIssuerAndSerialNumber());
                 crsResp.makeRecipientInfo(0, encryptedDesKey);
-
             }
 
             byte[] ed = crsResp.makeEnvelopedData(0);
@@ -2078,7 +2089,7 @@ public class CRSEnrollment extends HttpServlet {
         private CryptoToken internalToken;
         private CryptoToken keyStorageToken;
         private CryptoToken internalKeyStorageToken;
-        private KeyGenerator DESkg;
+        private KeyGenerator keyGen;
         private Enumeration<?> externalTokens = null;
         private org.mozilla.jss.crypto.X509Certificate signingCert;
         private org.mozilla.jss.crypto.PrivateKey signingCertPrivKey;
@@ -2104,13 +2115,23 @@ public class CRSEnrollment extends HttpServlet {
         public CryptoContext()
                 throws CryptoContextException {
             try {
-                KeyGenAlgorithm kga = KeyGenAlgorithm.DES;
-                if (mEncryptionAlgorithm != null && mEncryptionAlgorithm.equals("DES3")) {
+                KeyGenAlgorithm kga;
+                switch(String.valueOf(mEncryptionAlgorithm)) {
+                case "DES3":
                     kga = KeyGenAlgorithm.DES3;
-                }
+                    break;
+                case "AES":
+                    kga = KeyGenAlgorithm.AES;
+                    break;
+                default:
+                    kga = KeyGenAlgorithm.DES;
+            }
                 cm = CryptoManager.getInstance();
                 internalToken = cm.getInternalCryptoToken();
-                DESkg = internalToken.getKeyGenerator(kga);
+                keyGen = internalToken.getKeyGenerator(kga);
+                if(kga.equals(KeyGenAlgorithm.AES)) {
+                    keyGen.initialize(128);
+                }
                 keyStorageToken = CryptoUtil.getKeyStorageToken(mTokenName);
                 if (CryptoUtil.isInternalToken(mTokenName)) {
                     internalKeyStorageToken = keyStorageToken;
@@ -2164,11 +2185,13 @@ public class CRSEnrollment extends HttpServlet {
                 throw new CryptoContextException("Crypto Token not found: " + e.getMessage());
             } catch (IncorrectPasswordException e) {
                 throw new CryptoContextException("Incorrect Password.");
+            } catch (InvalidAlgorithmParameterException e) {
+                throw new CryptoContextException("Invalid algorithm parameter: " + e.getMessage());
             }
         }
 
-        public KeyGenerator getDESKeyGenerator() {
-            return DESkg;
+        public KeyGenerator getKeyGenerator() {
+            return keyGen;
         }
 
         public CryptoToken getInternalToken() {
