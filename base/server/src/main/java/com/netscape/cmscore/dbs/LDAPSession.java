@@ -556,7 +556,7 @@ public class LDAPSession extends DBSSession {
 
         logger.debug("LDAPSession: createVirtualList(" + base + ", " + filter + ")");
 
-        return new DBVirtualList<>(dbSubsystem.getRegistry(), mConn, base,
+        return new LDAPVirtualList<>(dbSubsystem.getRegistry(), mConn, base,
                 filter, attrs);
     }
 
@@ -568,7 +568,7 @@ public class LDAPSession extends DBSSession {
 
         logger.debug("LDAPSession: createVirtualList(" + base + ", " + filter + ")");
 
-        return new DBVirtualList<>(dbSubsystem.getRegistry(), mConn, base,
+        return new LDAPVirtualList<>(dbSubsystem.getRegistry(), mConn, base,
                 filter, attrs, sortKey);
     }
 
@@ -580,7 +580,7 @@ public class LDAPSession extends DBSSession {
 
         logger.debug("LDAPSession: createVirtualList(" + base + ", " + filter + ")");
 
-        return new DBVirtualList<>(dbSubsystem.getRegistry(), mConn, base,
+        return new LDAPVirtualList<>(dbSubsystem.getRegistry(), mConn, base,
                 filter, attrs, sortKey);
     }
 
@@ -593,7 +593,7 @@ public class LDAPSession extends DBSSession {
 
         logger.debug("LDAPSession: createVirtualList(" + base + ", " + filter + ")");
 
-        return new DBVirtualList<>(dbSubsystem.getRegistry(), mConn, base,
+        return new LDAPVirtualList<>(dbSubsystem.getRegistry(), mConn, base,
                 filter, attrs, sortKey, pageSize);
     }
 
@@ -606,7 +606,7 @@ public class LDAPSession extends DBSSession {
 
         logger.debug("LDAPSession: createVirtualList(" + base + ", " + filter + ")");
 
-        return new DBVirtualList<>(dbSubsystem.getRegistry(), mConn, base,
+        return new LDAPVirtualList<>(dbSubsystem.getRegistry(), mConn, base,
                 filter, attrs, sortKey, pageSize);
     }
 
@@ -616,7 +616,7 @@ public class LDAPSession extends DBSSession {
 
         logger.debug("LDAPSession: createVirtualList(" + base + ", " + filter + ")");
 
-        return new DBVirtualList<>(dbSubsystem.getRegistry(), mConn, base,
+        return new LDAPVirtualList<>(dbSubsystem.getRegistry(), mConn, base,
                 filter, attrs, startFrom, sortKey, pageSize);
 
     }

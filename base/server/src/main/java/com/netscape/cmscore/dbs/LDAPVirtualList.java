@@ -45,9 +45,9 @@ import netscape.ldap.controls.LDAPVirtualListResponse;
  * @author mzhao
  * @version $Revision$, $Date$
  */
-public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
+public class LDAPVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DBVirtualList.class);
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LDAPVirtualList.class);
 
     private DBRegistry mRegistry = null;
     private LDAPConnection mConn = null;
@@ -86,13 +86,13 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
      * param filter search filter specifying the search criteria
      * param attrs list of attributes that you want returned in the search results
      */
-    public DBVirtualList(DBRegistry registry, LDAPConnection c,
+    public LDAPVirtualList(DBRegistry registry, LDAPConnection c,
             String base, String filter, String attrs[]) throws EBaseException {
         mRegistry = registry;
         mFilter = filter;
         mBase = base;
         mAttrs = attrs;
-        logger.debug("In DBVirtualList filter attrs filter: " + filter
+        logger.debug("In LDAPVirtualList filter attrs filter: " + filter
                  + " attrs: " + Arrays.toString(attrs));
         mPageControls = new LDAPControl[2];
         try {
@@ -114,11 +114,11 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
      * param attrs list of attributes that you want returned in the search results
      * param sortKey the attributes to sort by
      */
-    public DBVirtualList(DBRegistry registry, LDAPConnection c,
+    public LDAPVirtualList(DBRegistry registry, LDAPConnection c,
             String base, String filter, String attrs[], String sortKey[])
             throws EBaseException {
 
-        logger.debug("In DBVirtualList filter attrs sotrKey[]  filter: " + filter
+        logger.debug("In LDAPVirtualList filter attrs sotrKey[]  filter: " + filter
                  + " attrs: " + Arrays.toString(attrs));
         mRegistry = registry;
         mFilter = filter;
@@ -145,11 +145,11 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
      * param attrs list of attributes that you want returned in the search results
      * param sortKey the attribute to sort by
      */
-    public DBVirtualList(DBRegistry registry, LDAPConnection c,
+    public LDAPVirtualList(DBRegistry registry, LDAPConnection c,
             String base, String filter, String attrs[], String sortKey)
             throws EBaseException {
 
-        logger.debug("In DBVirtualList filter attrs sortKey   filter: " + filter + " attrs: " + Arrays.toString(attrs));
+        logger.debug("In LDAPVirtualList filter attrs sortKey   filter: " + filter + " attrs: " + Arrays.toString(attrs));
         mRegistry = registry;
         mFilter = filter;
         try {
@@ -176,11 +176,11 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
      * param pageSize the size of a page. There is a 3*pageSize buffer maintained so
      * pageUp and pageDown won't invoke fetch from ldap server
      */
-    public DBVirtualList(DBRegistry registry, LDAPConnection c,
+    public LDAPVirtualList(DBRegistry registry, LDAPConnection c,
             String base, String filter, String attrs[], String sortKey[],
             int pageSize) throws EBaseException {
 
-        logger.debug("In DBVirtualList filter attrs sortKey[] pageSize filter: "
+        logger.debug("In LDAPVirtualList filter attrs sortKey[] pageSize filter: "
                  + filter + " attrs: " + Arrays.toString(attrs)
                  + " pageSize " + pageSize);
         mRegistry = registry;
@@ -210,11 +210,11 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
      * param pageSize the size of a page. There is a 3*pageSize buffer maintained so
      * pageUp and pageDown won't invoke fetch from ldap server
      */
-    public DBVirtualList(DBRegistry registry, LDAPConnection c,
+    public LDAPVirtualList(DBRegistry registry, LDAPConnection c,
             String base, String filter, String attrs[], String sortKey,
             int pageSize) throws EBaseException {
 
-        logger.debug("In DBVirtualList filter attrs sortKey pageSize filter: "
+        logger.debug("In LDAPVirtualList filter attrs sortKey pageSize filter: "
                  + filter + " attrs: " + Arrays.toString(attrs)
                  + " pageSize " + pageSize);
         mRegistry = registry;
@@ -232,12 +232,12 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
         setPageSize(pageSize);
     }
 
-    public DBVirtualList(DBRegistry registry, LDAPConnection c,
+    public LDAPVirtualList(DBRegistry registry, LDAPConnection c,
             String base, String filter, String attrs[],
             String startFrom, String sortKey,
             int pageSize) throws EBaseException {
 
-        logger.debug("In DBVirtualList filter attrs startFrom sortKey pageSize "
+        logger.debug("In LDAPVirtualList filter attrs startFrom sortKey pageSize "
                  + "filter: " + filter
                  + " attrs: " + Arrays.toString(attrs)
                  + " pageSize " + pageSize + " startFrom " + startFrom);
@@ -341,7 +341,7 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
     @Override
     public int getSize() {
 
-        //logger.debug("DBVirtualList.getSize()");
+        //logger.debug("LDAPVirtualList.getSize()");
 
         if (!mInitialized) {
 
@@ -362,13 +362,13 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
             LDAPVirtualListControl cont = null;
 
             if (mJumpTo == null) {
-                logger.debug("DBVirtualList: searching for entry A");
+                logger.debug("LDAPVirtualList: searching for entry A");
                 cont = new LDAPVirtualListControl("A",
                             mBeforeCount,
                             mAfterCount);
 
             } else {
-                logger.debug("DBVirtualList: searching for entry " + mJumpTo);
+                logger.debug("LDAPVirtualList: searching for entry " + mJumpTo);
 
                 if (mPageSize < 0) {
                     mBeforeCount = mPageSize * -1;
@@ -383,7 +383,7 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
             getJumpToPage();
         }
 
-        logger.debug("DBVirtualList: size: " + mSize);
+        logger.debug("LDAPVirtualList: size: " + mSize);
         return mSize;
     }
 
@@ -420,7 +420,7 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
 
     private synchronized boolean getEntries() {
 
-        logger.info("DBVirtualList: Searching " + mBase);
+        logger.info("LDAPVirtualList: Searching " + mBase);
 
         // Specify necessary controls for vlist
         // LDAPSearchConstraints cons = mConn.getSearchConstraints();
@@ -438,7 +438,7 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
         try {
             //what happen if there is no matching?
             String ldapFilter = mRegistry.getFilter(mFilter);
-            logger.info("DBVirtualList: filter: " + ldapFilter);
+            logger.info("LDAPVirtualList: filter: " + ldapFilter);
 
             String ldapAttrs[] = null;
             LDAPSearchResults result;
@@ -479,13 +479,13 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
 
             while (result.hasMoreElements()) {
                 LDAPEntry entry = (LDAPEntry) result.nextElement();
-                logger.info("DBVirtualList: dn: " + entry.getDN());
+                logger.info("LDAPVirtualList: dn: " + entry.getDN());
 
                 try {
                     LDAPAttributeSet attrs = entry.getAttributeSet();
 
                     IDBObj record = mRegistry.createObject(attrs);
-                    logger.debug("DBVirtualList: record: " + (record == null ? null : record.getClass()));
+                    logger.debug("LDAPVirtualList: record: " + (record == null ? null : record.getClass()));
 
                     @SuppressWarnings("unchecked")
                     E o = (E) record;
@@ -501,7 +501,7 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
                      *
                      * @phase local ldap search
                      * @reason Failed to get enties.
-                     * @message DBVirtualList: <exception thrown>
+                     * @message LDAPVirtualList: <exception thrown>
                      */
 
                     // #539044
@@ -519,7 +519,7 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
              *
              * @phase local ldap search
              * @reason Failed to get enties.
-             * @message DBVirtualList: <exception thrown>
+             * @message LDAPVirtualList: <exception thrown>
              */
             String message = CMS.getLogMessage("OPERATION_ERROR", e.getMessage());
             logger.error(message, e);
@@ -527,7 +527,7 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
             throw new RuntimeException(e);
         }
 
-        logger.debug("DBVirtualList: entries: " + mEntries.size());
+        logger.debug("LDAPVirtualList: entries: " + mEntries.size());
 
         return true;
     }
@@ -560,7 +560,7 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
                 mSelectedIndex = nextCont.getFirstPosition() - 1;
                 mTop = Math.max(0, mSelectedIndex - mBeforeCount);
 
-                logger.debug("DBVirtualList: top: " + mTop);
+                logger.debug("LDAPVirtualList: top: " + mTop);
                 if (mJumpTo != null) {
                     mJumpToInitialIndex = mTop;
                 }
@@ -593,7 +593,7 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
     @Override
     public boolean getPage(int first) {
 
-        logger.debug("DBVirtualList.getPage(" + first + ")");
+        logger.debug("LDAPVirtualList.getPage(" + first + ")");
 
         if (!mInitialized) {
             LDAPVirtualListControl cont = new LDAPVirtualListControl(0,
@@ -693,11 +693,11 @@ public class DBVirtualList<E extends IDBObj> implements IDBVirtualList<E> {
             mSize = getSize();
         }
 
-        //logger.debug("DBVirtualList: retrieving entry #" + index);
+        //logger.debug("LDAPVirtualList: retrieving entry #" + index);
 
         //System.out.println( "need entry " + index );
         if ((index < 0) || (index >= mSize)) {
-            logger.warn("DBVirtualList: returning null");
+            logger.warn("LDAPVirtualList: returning null");
             return null;
         }
 
