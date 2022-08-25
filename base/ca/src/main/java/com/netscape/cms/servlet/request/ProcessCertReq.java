@@ -99,7 +99,7 @@ public class ProcessCertReq extends CMSServlet {
 
     private RequestQueue mQueue;
     private String mFormPath = null;
-    private IReqParser mParser = null;
+    private ReqParser mParser;
     private CAPublisherProcessor mPublisherProcessor;
     private boolean mExtraAgentParams = false;
 

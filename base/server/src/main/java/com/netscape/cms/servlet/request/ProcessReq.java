@@ -60,7 +60,7 @@ public class ProcessReq extends CMSServlet {
     protected final static String PROP_PARSER = "parser";
 
     protected String mFormPath;
-    protected IReqParser mParser;
+    protected ReqParser mParser;
 
     /**
      * Process request.

@@ -63,7 +63,7 @@ public class SearchReqs extends CMSServlet {
     protected final static int MAX_RESULTS = 1000;
 
     protected RequestRepository requestRepository;
-    protected IReqParser mParser;
+    protected ReqParser mParser;
     protected String mFormPath;
     protected int mMaxReturns = MAX_RESULTS;
     protected int mTimeLimits = 30; /* in seconds */

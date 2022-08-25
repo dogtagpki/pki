@@ -82,7 +82,7 @@ public class QueryReq extends CMSServlet {
     protected final static String OUT_AUTHORITY_ID = "authorityid";
 
     // variables
-    protected IReqParser mParser;
+    protected ReqParser mParser;
     protected RequestQueue mQueue;
     protected String mFormPath;
     protected int mMaxReturns = 2000;

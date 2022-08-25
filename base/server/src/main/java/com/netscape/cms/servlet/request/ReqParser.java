@@ -27,12 +27,11 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cmscore.request.Request;
 
 /**
- * A class representing a request parser.
- * <P>
- *
- * @version $Revision$, $Date$
+ * A class representing a request parser which
+ * converts Java request object into name value
+ * pairs and vice versa.
  */
-public class ReqParser implements IReqParser {
+public class ReqParser {
 
     private final static String TYPE = "requestType";
     private final static String STATUS = "status";
@@ -49,7 +48,6 @@ public class ReqParser implements IReqParser {
     /**
      * Maps request object into argument block.
      */
-    @Override
     public void fillRequestIntoArg(Locale l, Request req, CMSTemplateParams argSet, IArgBlock arg)
             throws EBaseException {
         arg.addStringValue(TYPE, req.getRequestType());
