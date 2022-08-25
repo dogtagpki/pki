@@ -18,17 +18,17 @@
 package com.netscape.cmscore.request;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.request.IRequestList;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.dbs.DBSearchResults;
 
-public class SearchEnumeration implements IRequestList {
+public class SearchEnumeration extends RequestList {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SearchEnumeration.class);
 
     protected DBSearchResults results;
 
     public SearchEnumeration(DBSearchResults results) {
+        super(null);
         this.results = results;
     }
 
