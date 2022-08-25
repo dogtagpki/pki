@@ -98,6 +98,10 @@ public class CRSPKIMessage {
             new OBJECT_IDENTIFIER(new long[] { 1, 2, 840, 113549, 3, 7 }
             );
 
+    public static OBJECT_IDENTIFIER AES_128_CBC_ENCRYPTION =
+            new OBJECT_IDENTIFIER(new long[] { 2, 16, 840, 1, 101, 3, 4, 1, 2 }
+            );
+
     public static OBJECT_IDENTIFIER MD5_DIGEST =
             new OBJECT_IDENTIFIER(new long[] { 1, 2, 840, 113549, 2, 5 }
             );
@@ -437,9 +441,17 @@ public class CRSPKIMessage {
         this.ec = ec;
 
         try {
-            OBJECT_IDENTIFIER oid = DES_CBC_ENCRYPTION;
-            if (algorithm != null && algorithm.equals("DES3"))
+            OBJECT_IDENTIFIER oid = null;
+            switch (String.valueOf(algorithm)) {
+            case "DES3":
                 oid = DES_EDE3_CBC_ENCRYPTION;
+                break;
+            case "AES":
+                oid = AES_128_CBC_ENCRYPTION;
+                break;
+            default:
+                oid = DES_CBC_ENCRYPTION;
+            }
 
             AlgorithmIdentifier aid = new AlgorithmIdentifier(oid, new OCTET_STRING(iv));
 
@@ -783,6 +795,8 @@ public class CRSPKIMessage {
 
         if (eci.getContentEncryptionAlgorithm().getOID().equals(DES_EDE3_CBC_ENCRYPTION)) {
             encryptionAlgorithm = "DES3";
+        } else if (eci.getContentEncryptionAlgorithm().getOID().equals(AES_128_CBC_ENCRYPTION)) {
+            encryptionAlgorithm = "AES";
         } else if (eci.getContentEncryptionAlgorithm().getOID().equals(DES_CBC_ENCRYPTION)) {
             encryptionAlgorithm = "DES";
         } else {
