@@ -2050,7 +2050,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ca-container-ca-${{ matrix.os }}
-          path: /tmp/artifacts/va
+          path: /tmp/artifacts/ca
 
       - name: Upload artifacts from client container
         if: always()
