@@ -62,8 +62,8 @@ import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.publish.CRLPublisher;
 import com.netscape.certsrv.request.IRequestListener;
-import com.netscape.certsrv.request.IRequestScheduler;
 import com.netscape.certsrv.util.AsyncLoader;
+import com.netscape.cms.request.RequestScheduler;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.authentication.VerifiedCert;
@@ -817,7 +817,7 @@ public class CAEngine extends CMSEngine {
                 pendingNotifier);
 
         if (schedulerClass != null) {
-            IRequestScheduler scheduler = (IRequestScheduler) Class.forName(schedulerClass).getDeclaredConstructor().newInstance();
+            RequestScheduler scheduler = (RequestScheduler) Class.forName(schedulerClass).getDeclaredConstructor().newInstance();
             requestQueue.setRequestScheduler(scheduler);
         }
 

@@ -66,7 +66,6 @@ import com.netscape.certsrv.logging.event.SecurityDataRecoveryEvent;
 import com.netscape.certsrv.logging.event.SecurityDataRecoveryProcessedEvent;
 import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.IRequestListener;
-import com.netscape.certsrv.request.IRequestScheduler;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
@@ -75,6 +74,7 @@ import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
+import com.netscape.cms.request.RequestScheduler;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.DBSubsystem;
@@ -411,7 +411,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyRecoveryAuthority {
 
         if (schedulerClass != null) {
             try {
-                IRequestScheduler scheduler = (IRequestScheduler) Class.forName(schedulerClass).getDeclaredConstructor().newInstance();
+                RequestScheduler scheduler = (RequestScheduler) Class.forName(schedulerClass).getDeclaredConstructor().newInstance();
 
                 requestQueue.setRequestScheduler(scheduler);
             } catch (Exception e) {

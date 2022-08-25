@@ -19,7 +19,6 @@ package com.netscape.cms.request;
 
 import java.util.Vector;
 
-import com.netscape.certsrv.request.IRequestScheduler;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -27,10 +26,8 @@ import com.netscape.cmscore.request.Request;
  * the threads based on the request processing order.
  * The request that enters the request queue first should
  * be processed first.
- *
- * @version $Revision$, $Date$
  */
-public class RequestScheduler implements IRequestScheduler {
+public class RequestScheduler {
     private Vector<Thread> mRequestThreads = new Vector<>();
 
     /**
@@ -38,7 +35,6 @@ public class RequestScheduler implements IRequestScheduler {
      *
      * @param r request
      */
-    @Override
     public synchronized void requestIn(Request r) {
         Thread current = Thread.currentThread();
 
@@ -53,7 +49,6 @@ public class RequestScheduler implements IRequestScheduler {
      *
      * @param r request
      */
-    @Override
     public synchronized void requestOut(Request r) {
         Thread current = Thread.currentThread();
         Thread first = mRequestThreads.elementAt(0);

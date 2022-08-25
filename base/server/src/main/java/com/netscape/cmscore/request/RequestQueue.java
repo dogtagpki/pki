@@ -26,11 +26,11 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.request.AgentApprovals;
 import com.netscape.certsrv.request.IPolicy;
-import com.netscape.certsrv.request.IRequestScheduler;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cms.request.RequestScheduler;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.DBSSession;
@@ -76,7 +76,7 @@ public class RequestQueue {
     RequestNotifier mNotify;
     RequestNotifier mPendingNotify;
 
-    IRequestScheduler mRequestScheduler;
+    RequestScheduler mRequestScheduler;
 
     protected DBSubsystem dbSubsystem;
     protected String mBaseDN;
@@ -119,7 +119,7 @@ public class RequestQueue {
      *
      * @return request scheduler
      */
-    public IRequestScheduler getRequestScheduler() {
+    public RequestScheduler getRequestScheduler() {
         return mRequestScheduler;
     }
 
@@ -128,7 +128,7 @@ public class RequestQueue {
      *
      * @param scheduler request scheduler
      */
-    public void setRequestScheduler(IRequestScheduler scheduler) {
+    public void setRequestScheduler(RequestScheduler scheduler) {
         mRequestScheduler = scheduler;
     }
 
@@ -665,7 +665,7 @@ public class RequestQueue {
     public void processRequest(Request r) throws EBaseException {
 
         // #610553 Thread Scheduler
-        IRequestScheduler scheduler = getRequestScheduler();
+        RequestScheduler scheduler = getRequestScheduler();
 
         if (scheduler != null) {
             scheduler.requestIn(r);
