@@ -555,7 +555,11 @@ class NSSDatabase(object):
             '-d', self.directory
         ]
 
-        if self.password_conf:
+        if token:
+            password_file = self.get_password_file(self.tmpdir, token)
+            cmd.extend(['-C', self.password_file])
+
+        elif self.password_conf:
             cmd.extend(['-f', self.password_conf])
 
         elif self.password_file:
@@ -787,8 +791,9 @@ class NSSDatabase(object):
         if self.token:
             cmd.extend(['-h', self.token])
 
-        if self.password_file:
-            cmd.extend(['-f', self.password_file])
+        password_file = self.get_password_file(self.tmpdir,
+                                               INTERNAL_TOKEN_NAME)
+        cmd.extend(['-f', password_file])
 
         cmd.extend([
             '-n', nickname,
@@ -1411,15 +1416,15 @@ class NSSDatabase(object):
                 '-d', self.directory
             ]
 
-            if self.password_conf:
-                cmd.extend(['-f', self.password_conf])
-
-            elif self.password_file:
-                cmd.extend(['-C', self.password_file])
-
             token = self.get_effective_token(token)
             if token:
                 cmd.extend(['--token', token])
+
+            if self.password_conf:
+                cmd.extend(['-f', self.password_conf])
+            else:
+                password_file = self.get_password_file(self.tmpdir, token)
+                cmd.extend(['-C', password_file])
 
             cmd.extend(['nss-cert-request'])
             cmd.extend(['--subject', subject_dn])
