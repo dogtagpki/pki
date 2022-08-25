@@ -96,6 +96,12 @@ LABEL name="pki-ca" \
 
 EXPOSE 8080 8443
 
+# Create PKI server
+RUN pki-server create --group root
+
+# Create NSS database
+RUN pki-server nss-create --no-password
+
 VOLUME [ "/certs" ]
 
 CMD [ "/usr/share/pki/ca/bin/pki-ca-run" ]
