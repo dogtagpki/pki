@@ -1002,6 +1002,344 @@ jobs:
           path: |
             /tmp/artifacts/pki
 
+  ca-existing-nssdb-test:
+    name: Testing CA with existing NSS database
+    needs: [init, build]
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    strategy:
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Retrieve runner image
+        uses: actions/cache@v3
+        with:
+          key: pki-ca-runner-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-ca-runner.tar
+
+      - name: Load runner image
+        run: docker load --input pki-ca-runner.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-container-create.sh ds
+        env:
+          IMAGE: ${{ needs.init.outputs.db-image }}
+          HOSTNAME: ds.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect DS container to network
+        run: docker network connect example ds --alias ds.example.com
+
+      - name: Set up PKI container
+        run: |
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
+
+      - name: Connect PKI container to network
+        run: docker network connect example pki --alias pki.example.com
+
+      - name: Create PKI server with NSS database
+        run: |
+          docker exec pki pki-server create
+          docker exec pki pki-server nss-create --no-password
+
+      - name: Create CA signing cert in server's NSS database
+        run: |
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-request \
+              --subject "CN=CA Signing Certificate" \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --csr ca_signing.csr
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-issue \
+              --csr ca_signing.csr \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --cert ca_signing.crt
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-import \
+              --cert ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-show \
+              ca_signing | tee ca_signing.cert
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-key-find \
+              --nickname ca_signing | tee ca_signing.key
+
+      - name: Create CA OCSP signing cert in server's NSS database
+        run: |
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-request \
+              --subject "CN=OCSP Signing Certificate" \
+              --ext /usr/share/pki/server/certs/ocsp_signing.conf \
+              --csr ca_ocsp_signing.csr
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-issue \
+              --issuer ca_signing \
+              --csr ca_ocsp_signing.csr \
+              --ext /usr/share/pki/server/certs/ocsp_signing.conf \
+              --cert ca_ocsp_signing.crt
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-import \
+              --cert ca_ocsp_signing.crt \
+              ca_ocsp_signing
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-show \
+              ca_ocsp_signing | tee ca_ocsp_signing.cert
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-key-find \
+              --nickname ca_ocsp_signing | tee ca_ocsp_signing.key
+
+      - name: Create CA audit signing cert in server's NSS database
+        run: |
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-request \
+              --subject "CN=Audit Signing Certificate" \
+              --ext /usr/share/pki/server/certs/audit_signing.conf \
+              --csr ca_audit_signing.csr
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-issue \
+              --issuer ca_signing \
+              --csr ca_audit_signing.csr \
+              --ext /usr/share/pki/server/certs/audit_signing.conf \
+              --cert ca_audit_signing.crt
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-import \
+              --cert ca_audit_signing.crt \
+              --trust ,,P \
+              ca_audit_signing
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-show \
+              ca_audit_signing | tee ca_audit_signing.cert
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-key-find \
+              --nickname ca_audit_signing | tee ca_audit_signing.key
+
+      - name: Create subsystem cert in server's NSS database
+        run: |
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-request \
+              --subject "CN=Subsystem Certificate" \
+              --ext /usr/share/pki/server/certs/subsystem.conf \
+              --csr subsystem.csr
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-issue \
+              --issuer ca_signing \
+              --csr subsystem.csr \
+              --ext /usr/share/pki/server/certs/subsystem.conf \
+              --cert subsystem.crt
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-import \
+              --cert subsystem.crt \
+              subsystem
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-show \
+              subsystem | tee subsystem.cert
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-key-find \
+              --nickname subsystem | tee subsystem.key
+
+      - name: Create SSL server cert in server's NSS database
+        run: |
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-request \
+              --subject "CN=pki.example.com" \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --csr sslserver.csr
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-issue \
+              --issuer ca_signing \
+              --csr sslserver.csr \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --cert sslserver.crt
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-import \
+              --cert sslserver.crt \
+              sslserver
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-show \
+              sslserver | tee sslserver.cert
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-key-find \
+              --nickname sslserver | tee sslserver.key
+
+      - name: Create admin cert in client's NSS database
+        run: |
+          docker exec pki pki \
+              nss-cert-request \
+              --subject "CN=Administrator" \
+              --ext /usr/share/pki/server/certs/admin.conf \
+              --csr admin.csr
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-issue \
+              --issuer ca_signing \
+              --csr admin.csr \
+              --ext /usr/share/pki/server/certs/admin.conf \
+              --cert admin.crt
+          docker exec pki pki \
+              nss-cert-import \
+              --cert admin.crt \
+              caadmin
+          docker exec pki pki \
+              nss-cert-show \
+              caadmin
+
+      - name: Install CA with existing NSS database
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_hostname=ds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -D pki_cert_id_generator=random \
+              -D pki_request_id_generator=random \
+              -D pki_existing=True \
+              -D pki_ca_signing_csr_path=ca_signing.csr \
+              -D pki_ocsp_signing_csr_path=ca_ocsp_signing.csr \
+              -D pki_audit_signing_csr_path=ca_audit_signing.csr \
+              -D pki_subsystem_csr_path=subsystem.csr \
+              -D pki_sslserver_csr_path=sslserver.csr \
+              -D pki_admin_cert_path=admin.crt \
+              -D pki_admin_csr_path=admin.csr \
+              -v
+
+          docker exec pki pki-server cert-find
+
+      - name: Run PKI healthcheck
+        run: docker exec pki pki-healthcheck --failures-only
+
+      - name: Check CA signing cert
+        run: |
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-show \
+              ca_signing | tee ca_signing.cert.server
+          diff ca_signing.cert ca_signing.cert.server
+
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-key-find \
+              --nickname ca_signing | tee ca_signing.key.server
+          diff ca_signing.key ca_signing.key.server
+
+      - name: Check CA OCSP signing cert
+        run: |
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-show \
+              ca_ocsp_signing | tee ca_ocsp_signing.cert.server
+          diff ca_ocsp_signing.cert ca_ocsp_signing.cert.server
+
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-key-find \
+              --nickname ca_ocsp_signing | tee ca_ocsp_signing.key.server
+          diff ca_ocsp_signing.key ca_ocsp_signing.key.server
+
+      - name: Check CA audit signing cert
+        run: |
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-show \
+              ca_audit_signing | tee ca_audit_signing.cert.server
+          diff ca_audit_signing.cert ca_audit_signing.cert.server
+
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-key-find \
+              --nickname ca_audit_signing | tee ca_audit_signing.key.server
+          diff ca_audit_signing.key ca_audit_signing.key.server
+
+      - name: Check subsystem cert
+        run: |
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-show \
+              subsystem | tee subsystem.cert.actual
+          diff subsystem.cert subsystem.cert.actual
+
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-key-find \
+              --nickname subsystem | tee subsystem.key.server
+          diff subsystem.key subsystem.key.server
+
+      - name: Check SSL server cert
+        run: |
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-show \
+              sslserver | tee sslserver.cert.server
+          diff sslserver.cert sslserver.cert.server
+
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-key-find \
+              --nickname sslserver | tee sslserver.key.server
+          diff sslserver.key sslserver.key.server
+
+      - name: Check CA admin cert
+        run: |
+          docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
+          docker exec pki pki -n caadmin ca-user-show caadmin
+
+      - name: Check cert requests in CA
+        run: |
+          docker exec pki pki -n caadmin ca-cert-request-find
+
+      - name: Gather artifacts
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki ds
+          tests/bin/pki-artifacts-save.sh pki
+        continue-on-error: true
+
+      - name: Remove CA
+        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ca-existing-nssdb-${{ matrix.os }}
+          path: |
+            /tmp/artifacts/pki
+
   # https://github.com/dogtagpki/pki/wiki/Issuing-User-Certificate-with-CMC-Shared-Token
   cmc-shared-token-test:
     name: Testing CMC shared token
