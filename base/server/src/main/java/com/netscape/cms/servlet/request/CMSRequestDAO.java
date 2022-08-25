@@ -24,13 +24,13 @@ import javax.ws.rs.core.UriInfo;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.request.CMSRequestInfo;
 import com.netscape.certsrv.request.CMSRequestInfos;
-import com.netscape.certsrv.request.IRequestList;
 import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.request.Request;
+import com.netscape.cmscore.request.RequestList;
 import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.request.RequestRepository;
 
@@ -129,7 +129,7 @@ public abstract class CMSRequestDAO {
             // The non-vlv requests are indexed, but are not paginated.
             // We should think about whether they should be, or if we need to
             // limit the number of results returned.
-            IRequestList requests = requestRepository.listRequestsByFilter(filter, maxResults, maxTime);
+            RequestList requests = requestRepository.listRequestsByFilter(filter, maxResults, maxTime);
 
             if (requests == null) {
                 return ret;

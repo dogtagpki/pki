@@ -26,7 +26,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.request.AgentApprovals;
 import com.netscape.certsrv.request.IPolicy;
-import com.netscape.certsrv.request.IRequestList;
 import com.netscape.certsrv.request.IRequestScheduler;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.PolicyResult;
@@ -428,7 +427,7 @@ public class RequestQueue {
      *  returned if the source id does not exist.
      */
     public RequestId findRequestBySourceId(String id) {
-        IRequestList irl = findRequestsBySourceId(id);
+        RequestList irl = findRequestsBySourceId(id);
 
         if (irl == null)
             return null;
@@ -444,7 +443,7 @@ public class RequestQueue {
      * @return A list of requests corresponding to this source id. null is
      *  returned if the source id does not exist.
      */
-    public IRequestList findRequestsBySourceId(String id) {
+    public RequestList findRequestsBySourceId(String id) {
         DBSearchResults results = null;
         DBSSession dbs = null;
 
@@ -542,7 +541,7 @@ public class RequestQueue {
      *
      * @return request list
      */
-    public IRequestList listRequests() {
+    public RequestList listRequests() {
         return new RequestList(getRawList());
     }
 
@@ -561,7 +560,7 @@ public class RequestQueue {
      * @param s request status
      * @return request list
      */
-    public IRequestList listRequestsByStatus(RequestStatus s) {
+    public RequestList listRequestsByStatus(RequestStatus s) {
         DBSearchResults results = null;
         DBSSession dbs = null;
 
@@ -621,7 +620,7 @@ public class RequestQueue {
      */
     public void recoverWillBlock() {
 
-        IRequestList list = listRequestsByStatus(RequestStatus.APPROVED);
+        RequestList list = listRequestsByStatus(RequestStatus.APPROVED);
 
         if (list == null) {
             return;

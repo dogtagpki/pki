@@ -38,7 +38,6 @@ import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.request.IRequestList;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -48,6 +47,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.request.RequestList;
 import com.netscape.cmscore.request.RequestRecord;
 import com.netscape.cmscore.request.RequestRepository;
 
@@ -305,7 +305,7 @@ public class Monitor extends CMSServlet {
                 if (requestRepository != null) {
                     filter = Filter(RequestRecord.ATTR_CREATE_TIME, startTime, endTime);
 
-                    IRequestList reqList = requestRepository.listRequestsByFilter(filter);
+                    RequestList reqList = requestRepository.listRequestsByFilter(filter);
 
                     int count = 0;
 

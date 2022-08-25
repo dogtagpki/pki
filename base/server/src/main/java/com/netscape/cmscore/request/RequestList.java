@@ -19,12 +19,20 @@ package com.netscape.cmscore.request;
 
 import java.util.Enumeration;
 
-import com.netscape.certsrv.request.IRequestList;
 import com.netscape.certsrv.request.RequestId;
 
-public class RequestList implements IRequestList {
+/**
+ * An class providing a list of RequestIds that match
+ * some criteria. It could be a list of all elements in a
+ * queue, or just some defined sub-set.
+ */
+public class RequestList implements Enumeration<RequestId> {
 
     protected Enumeration<RequestId> mEnumeration;
+
+    public RequestList(Enumeration<RequestId> e) {
+        mEnumeration = e;
+    }
 
     @Override
     public boolean hasMoreElements() {
@@ -36,22 +44,34 @@ public class RequestList implements IRequestList {
         return mEnumeration.nextElement();
     }
 
-    @Override
+    /**
+     * Gets the next RequestId from this list. null is
+     * returned when there are no more elements in the list.
+     * <p>
+     * Callers should be sure there is another element in the list by calling hasMoreElements first.
+     * <p>
+     *
+     * @return next request id
+     */
     public RequestId nextRequestId() {
         return mEnumeration.nextElement();
     }
 
-    @Override
+    /**
+     * Gets next request from the list.
+     *
+     * @return next request
+     */
     public Object nextRequest() {
         return null;
     }
 
-    @Override
+    /**
+     * Gets next request Object from the list.
+     *
+     * @return next request
+     */
     public Request nextRequestObject() {
         return null;
-    }
-
-    public RequestList(Enumeration<RequestId> e) {
-        mEnumeration = e;
     }
 }

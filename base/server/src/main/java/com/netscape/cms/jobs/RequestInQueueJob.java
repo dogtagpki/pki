@@ -25,7 +25,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
-import com.netscape.certsrv.request.IRequestList;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -33,6 +32,7 @@ import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.jobs.JobCron;
 import com.netscape.cmscore.jobs.JobsScheduler;
 import com.netscape.cmscore.notification.EmailFormProcessor;
+import com.netscape.cmscore.request.RequestList;
 import com.netscape.cmscore.request.RequestQueue;
 
 /**
@@ -169,7 +169,7 @@ public class RequestInQueueJob extends Job
         String nowString = dateFormat.format(date);
 
         int count = 0;
-        IRequestList list =
+        RequestList list =
                 mReqQ.listRequestsByStatus(RequestStatus.PENDING);
 
         while (list != null && list.hasMoreElements()) {

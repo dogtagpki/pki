@@ -29,12 +29,12 @@ import org.dogtagpki.server.PKIClientSocketListener;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.connector.IResender;
-import com.netscape.certsrv.request.IRequestList;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.request.Request;
+import com.netscape.cmscore.request.RequestList;
 import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
@@ -98,7 +98,7 @@ public class Resender implements IResender {
     // must be done after a subsystem 'start' so queue is initialized.
     private void initRequests() {
         // get all requests in mAuthority that are still pending.
-        IRequestList list =
+        RequestList list =
                 mQueue.listRequestsByStatus(RequestStatus.SVC_PENDING);
 
         while (list != null && list.hasMoreElements()) {

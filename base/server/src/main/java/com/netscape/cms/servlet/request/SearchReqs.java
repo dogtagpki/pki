@@ -34,7 +34,6 @@ import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.request.IRequestList;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -45,6 +44,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
+import com.netscape.cmscore.request.RequestList;
 import com.netscape.cmscore.request.RequestRepository;
 
 /**
@@ -259,7 +259,7 @@ public class SearchReqs extends CMSServlet {
                 logger.debug("Resetting timelimit from " + timeLimit + " to " + mTimeLimits);
                 timeLimit = mTimeLimits;
             }
-            IRequestList list = (timeLimit > 0) ?
+            RequestList list = (timeLimit > 0) ?
                     requestRepository.listRequestsByFilter(newfilter, maxResults, timeLimit) :
                     requestRepository.listRequestsByFilter(newfilter, maxResults);
 

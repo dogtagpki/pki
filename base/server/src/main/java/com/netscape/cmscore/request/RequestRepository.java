@@ -29,7 +29,6 @@ import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
-import com.netscape.certsrv.request.IRequestList;
 import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
@@ -350,7 +349,7 @@ public class RequestRepository extends Repository {
         }
     }
 
-    public IRequestList listRequestsByFilter(String filter) throws EBaseException {
+    public RequestList listRequestsByFilter(String filter) throws EBaseException {
 
         DBSSession s = dbSubsystem.createSession();
         DBSearchResults results = null;
@@ -369,7 +368,7 @@ public class RequestRepository extends Repository {
         return new SearchEnumeration(results);
     }
 
-    public IRequestList listRequestsByFilter(String filter, int maxSize) throws EBaseException {
+    public RequestList listRequestsByFilter(String filter, int maxSize) throws EBaseException {
 
         DBSSession dbs = dbSubsystem.createSession();
         DBSearchResults results = null;
@@ -388,7 +387,7 @@ public class RequestRepository extends Repository {
         return new SearchEnumeration(results);
     }
 
-    public IRequestList listRequestsByFilter(String filter, int maxSize, int timeLimit) throws EBaseException {
+    public RequestList listRequestsByFilter(String filter, int maxSize, int timeLimit) throws EBaseException {
 
         DBSSession dbs = dbSubsystem.createSession();
         DBSearchResults results = null;
