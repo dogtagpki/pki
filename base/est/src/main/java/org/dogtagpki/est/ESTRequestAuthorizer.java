@@ -20,7 +20,7 @@ public abstract class ESTRequestAuthorizer {
 
     void stop() throws Throwable { }
 
-    ESTRequestAuthorizerConfig config;
+    protected ESTRequestAuthorizerConfig config;
 
     public void setConfig(ESTRequestAuthorizerConfig config) {
         this.config = config;
