@@ -62,7 +62,7 @@ DEFAULT_FILE_MODE = 0o0660
 DEFAULT_LINK_MODE = 0o0777
 
 SCHEMA_FILES = [
-    '/usr/share/pki/server/conf/schema.ldif'
+    '/usr/share/pki/server/database/ds/schema.ldif'
 ]
 
 logger = logging.getLogger(__name__)

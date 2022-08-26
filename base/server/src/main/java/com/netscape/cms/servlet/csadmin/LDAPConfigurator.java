@@ -96,7 +96,7 @@ public class LDAPConfigurator {
 
     public void setupSchema() throws Exception {
         logger.info("Setting up PKI schema");
-        importSchemaFile("/usr/share/pki/server/conf/schema.ldif");
+        importSchemaFile("/usr/share/pki/server/database/ds/schema.ldif");
     }
 
     public void createContainers(String subsystem) throws Exception {
