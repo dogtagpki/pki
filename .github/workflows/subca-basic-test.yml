@@ -1,0 +1,183 @@
+name: Basic Sub-CA
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+
+jobs:
+  # docs/installation/ca/Installing_Subordinate_CA.md
+  install:
+    name: Install
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Retrieve runner image
+        uses: actions/cache@v3
+        with:
+          key: pki-ca-runner-${{ inputs.os }}-${{ github.run_id }}
+          path: pki-ca-runner.tar
+
+      - name: Load runner image
+        run: docker load --input pki-ca-runner.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up root DS container
+        run: |
+          tests/bin/ds-container-create.sh rootds
+        env:
+          IMAGE: ${{ needs.init.outputs.db-image }}
+          HOSTNAME: rootds.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect root DS container to network
+        run: docker network connect example rootds --alias rootds.example.com
+
+      - name: Set up root PKI container
+        run: |
+          tests/bin/runner-init.sh root
+        env:
+          HOSTNAME: root.example.com
+
+      - name: Connect root PKI container to network
+        run: docker network connect example root --alias root.example.com
+
+      - name: Install root CA in root container
+        run: |
+          docker exec root pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_hostname=rootds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -D pki_cert_id_generator=random \
+              -D pki_request_id_generator=random \
+              -v
+
+          docker exec root pki-server cert-find
+
+      - name: Install banner in root container
+        run: docker exec root cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
+
+      - name: Set up subordinate DS container
+        run: |
+          tests/bin/ds-container-create.sh subds
+        env:
+          IMAGE: ${{ needs.init.outputs.db-image }}
+          HOSTNAME: subds.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect subordinate DS container to network
+        run: docker network connect example subds --alias subds.example.com
+
+      - name: Set up subordinate PKI container
+        run: |
+          tests/bin/runner-init.sh subordinate
+        env:
+          HOSTNAME: sub.example.com
+
+      - name: Connect subordinate PKI container to network
+        run: docker network connect example subordinate --alias sub.example.com
+
+      - name: Install subordinate CA in subordinate container
+        run: |
+          docker exec root pki-server cert-export ca_signing --cert-file ${SHARED}/root-ca_signing.crt
+          docker exec subordinate pkispawn \
+              -f /usr/share/pki/server/examples/installation/subca.cfg \
+              -s CA \
+              -D pki_cert_chain_path=${SHARED}/root-ca_signing.crt \
+              -D pki_ds_hostname=subds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -D pki_cert_id_generator=random \
+              -D pki_request_id_generator=random \
+              -v
+
+      - name: Install banner in subordinate container
+        run: docker exec subordinate cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
+
+      - name: Check CA signing cert
+        run: |
+          docker exec subordinate pki-server cert-export ca_signing --cert-file ca_signing.crt
+          docker exec subordinate openssl x509 -text -noout -in ca_signing.crt
+
+      - name: Check CA OCSP signing cert
+        run: |
+          docker exec subordinate pki-server cert-export ca_ocsp_signing --cert-file ca_ocsp_signing.crt
+          docker exec subordinate openssl x509 -text -noout -in ca_ocsp_signing.crt
+
+      - name: Check CA audit signing cert
+        run: |
+          docker exec subordinate pki-server cert-export ca_audit_signing --cert-file ca_audit_signing.crt
+          docker exec subordinate openssl x509 -text -noout -in ca_audit_signing.crt
+
+      - name: Check subsystem cert
+        run: |
+          docker exec subordinate pki-server cert-export subsystem --cert-file subsystem.crt
+          docker exec subordinate openssl x509 -text -noout -in subsystem.crt
+
+      - name: Check SSL server cert
+        run: |
+          docker exec subordinate pki-server cert-export sslserver --cert-file sslserver.crt
+          docker exec subordinate openssl x509 -text -noout -in sslserver.crt
+
+      - name: Check CA admin cert
+        run: |
+          docker exec subordinate openssl x509 -text -noout -in /root/.dogtag/pki-tomcat/ca_admin.cert
+
+      - name: Run PKI healthcheck
+        run: docker exec subordinate pki-healthcheck --failures-only
+
+      - name: Verify CA admin
+        run: |
+          docker exec subordinate pki client-cert-import ca_signing --ca-cert ${SHARED}/root-ca_signing.crt
+          docker exec subordinate pki client-cert-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+          docker exec subordinate pki -n caadmin --ignore-banner ca-user-show caadmin
+
+      - name: Check cert requests in subordinate CA
+        run: |
+          docker exec subordinate pki -n caadmin --ignore-banner ca-cert-request-find
+
+      - name: Gather artifacts from root containers
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/root rootds
+          tests/bin/pki-artifacts-save.sh root
+        continue-on-error: true
+
+      - name: Gather artifacts from subordinate containers
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/subordinate subds
+          tests/bin/pki-artifacts-save.sh subordinate
+        continue-on-error: true
+
+      - name: Remove subordinate CA from subordinate container
+        run: docker exec subordinate pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Remove root CA from root container
+        run: docker exec root pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Upload artifacts from root container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: subca-basic-root-${{ inputs.os }}
+          path: |
+            /tmp/artifacts/root
+
+      - name: Upload artifacts from subordinate container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: subca-basic-subordinate-${{ inputs.os }}
+          path: |
+            /tmp/artifacts/subordinate
