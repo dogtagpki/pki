@@ -111,7 +111,7 @@ public class LDAPConfigurator {
 
     public void createIndexes(String subsystem) throws Exception {
         logger.info("Creating indexes");
-        importLDIF("/usr/share/pki/" + subsystem + "/conf/index.ldif", true);
+        importLDIF("/usr/share/pki/" + subsystem + "/database/ds/index.ldif", true);
     }
 
     public void rebuildIndexes(String subsystem) throws Exception {
