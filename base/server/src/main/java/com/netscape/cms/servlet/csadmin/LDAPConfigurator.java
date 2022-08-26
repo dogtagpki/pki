@@ -205,7 +205,7 @@ public class LDAPConfigurator {
         logger.info("Reindex VLVs");
 
         Collection<LDIFRecord> records = importLDIF(
-                "/usr/share/pki/" + subsystem + "/conf/vlvtasks.ldif", false);
+                "/usr/share/pki/" + subsystem + "/database/ds/vlvtasks.ldif", false);
 
         for (LDIFRecord record : records) {
             String dn = record.getDN();
