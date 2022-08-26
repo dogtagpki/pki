@@ -84,7 +84,7 @@ install(
     DIRECTORY
         auth/
     DESTINATION
-        ${DATA_INSTALL_DIR}/tps/auth/
+        ${DATA_INSTALL_DIR}/tps/auth
 )
 
 install(
@@ -96,6 +96,13 @@ install(
         OWNER_EXECUTE OWNER_WRITE OWNER_READ
         GROUP_EXECUTE GROUP_READ
         WORLD_EXECUTE WORLD_READ
+)
+
+install(
+    DIRECTORY
+        database/
+    DESTINATION
+        ${DATA_INSTALL_DIR}/tps/database
 )
 
 install(

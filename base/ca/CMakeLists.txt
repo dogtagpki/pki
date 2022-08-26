@@ -78,9 +78,16 @@ set(PKI_CA_JAR ${CMAKE_BINARY_DIR}/dist/pki-ca.jar CACHE INTERNAL "pki-ca jar fi
 # install directories
 install(
     DIRECTORY
+        auth/
+    DESTINATION
+        ${DATA_INSTALL_DIR}/ca/auth
+)
+
+install(
+    DIRECTORY
         bin/
     DESTINATION
-        ${DATA_INSTALL_DIR}/ca/bin/
+        ${DATA_INSTALL_DIR}/ca/bin
     FILE_PERMISSIONS
         OWNER_EXECUTE OWNER_READ
         GROUP_EXECUTE GROUP_READ
@@ -89,9 +96,9 @@ install(
 
 install(
     DIRECTORY
-        auth/
+        database/
     DESTINATION
-        ${DATA_INSTALL_DIR}/ca/auth/
+        ${DATA_INSTALL_DIR}/ca/database
 )
 
 install(

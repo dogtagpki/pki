@@ -101,7 +101,7 @@ public class LDAPConfigurator {
 
     public void createContainers(String subsystem) throws Exception {
         logger.info("Creating container entries");
-        importLDIF("/usr/share/pki/" + subsystem + "/conf/db.ldif", true);
+        importLDIF("/usr/share/pki/" + subsystem + "/database/ds/create.ldif", true);
     }
 
     public void setupACL(String subsystem) throws Exception {

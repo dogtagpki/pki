@@ -76,6 +76,13 @@ set(PKI_TKS_JAR ${CMAKE_BINARY_DIR}/dist/pki-tks.jar CACHE INTERNAL "pki-tks jar
 # install directories
 install(
     DIRECTORY
+        database/
+    DESTINATION
+        ${DATA_INSTALL_DIR}/tks/database
+)
+
+install(
+    DIRECTORY
         shared/
     DESTINATION
         ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}

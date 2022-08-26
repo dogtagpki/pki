@@ -74,6 +74,13 @@ set(PKI_KRA_JAR ${CMAKE_BINARY_DIR}/dist/pki-kra.jar CACHE INTERNAL "pki-kra jar
 # install directories
 install(
     DIRECTORY
+        database/
+    DESTINATION
+        ${DATA_INSTALL_DIR}/kra/database
+)
+
+install(
+    DIRECTORY
         shared/
     DESTINATION
         ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}
