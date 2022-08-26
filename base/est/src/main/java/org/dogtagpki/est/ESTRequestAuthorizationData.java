@@ -27,11 +27,11 @@ import java.util.Optional;
  *
  * @author Fraser Tweedale
  */
-class ESTRequestAuthorizationData {
+public class ESTRequestAuthorizationData {
 
-    Principal principal;
-    String remoteAddr;
-    Optional<String> label;
-    java.security.cert.X509Certificate[] clientCertChain;
+    public Principal principal;
+    public String remoteAddr;
+    public Optional<String> label;
+    public java.security.cert.X509Certificate[] clientCertChain;
 
 }
