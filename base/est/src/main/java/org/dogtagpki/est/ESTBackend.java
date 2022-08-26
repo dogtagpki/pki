@@ -20,7 +20,7 @@ public abstract class ESTBackend {
 
     void stop() throws Throwable { }
 
-    ESTBackendConfig config;
+    protected ESTBackendConfig config;
 
     public void setConfig(ESTBackendConfig config) {
         this.config = config;
