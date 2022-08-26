@@ -106,7 +106,7 @@ public class LDAPConfigurator {
 
     public void setupACL(String subsystem) throws Exception {
         logger.info("Setting up ACL");
-        importLDIF("/usr/share/pki/" + subsystem + "/conf/acl.ldif", true);
+        importLDIF("/usr/share/pki/" + subsystem + "/database/ds/acl.ldif", true);
     }
 
     public void createIndexes(String subsystem) throws Exception {
