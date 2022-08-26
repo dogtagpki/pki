@@ -1597,10 +1597,8 @@ class Password:
             logger.info('Loading passwords from %s:', path)
             pki.util.load_properties(path, passwords)
 
-            for key, value in passwords.items():
-                if value:
-                    value = '********'
-                logger.info('- %s: %s', key, value)
+            for key in passwords:
+                logger.info('- %s: ********', key)
 
             hardware_token = "hardware-" + token_name
             if hardware_token in passwords:
@@ -1610,7 +1608,7 @@ class Password:
             elif token_name in passwords:
                 token_pwd = passwords[token_name]
 
-        if token_pwd is None or token_pwd == '':
+        if token_pwd is None:
             token_pwd = getpass.getpass('Password for token {}'.format(token_name))
 
         return token_pwd
@@ -2389,7 +2387,7 @@ class SecurityDomain:
             self.mdict['pki_shared_password_conf'],
             token_name)
 
-        if token_pwd is None or token_pwd == '':
+        if token_pwd is None:
             logger.warning(
                 log.PKIHELPER_SECURITY_DOMAIN_UPDATE_FAILURE_2,
                 typeval,
