@@ -557,7 +557,7 @@ class NSSDatabase(object):
 
         if token:
             password_file = self.get_password_file(self.tmpdir, token)
-            cmd.extend(['-C', self.password_file])
+            cmd.extend(['-C', password_file])
 
         elif self.password_conf:
             cmd.extend(['-f', self.password_conf])
@@ -622,70 +622,64 @@ class NSSDatabase(object):
                 trust_attributes=trust_attributes)
             return
 
-        tmpdir = self.create_tmpdir()
-        try:
-            if cert_data and not cert_file:
-                cert_data = convert_cert(cert_data, cert_format, 'pem')
-                cert_file = os.path.join(tmpdir, 'cert.crt')
-                with open(cert_file, 'w', encoding='utf-8') as f:
-                    f.write(cert_data)
+        if cert_data and not cert_file:
+            cert_data = convert_cert(cert_data, cert_format, 'pem')
+            cert_file = os.path.join(self.tmpdir, 'cert.crt')
+            with open(cert_file, 'w', encoding='utf-8') as f:
+                f.write(cert_data)
 
-            token = self.get_effective_token(token)
-            password_file = self.get_password_file(tmpdir, token)
+        token = self.get_effective_token(token)
+        password_file = self.get_password_file(self.tmpdir, token)
 
-            # Add cert in two steps due to bug #1393668.
+        # Add cert in two steps due to bug #1393668.
 
-            # If HSM is used, import cert into HSM without trust attributes.
-            if token:
-                cmd = [
-                    'certutil',
-                    '-A',
-                    '-d', self.directory,
-                    '-h', token,
-                    '-P', token
-                ]
+        # If HSM is used, import cert into HSM without trust attributes.
+        if token:
+            cmd = [
+                'certutil',
+                '-A',
+                '-d', self.directory,
+                '-h', token,
+            ]
 
-                if password_file:
-                    cmd.extend(['-f', password_file])
+            if password_file:
+                cmd.extend(['-f', password_file])
 
-                cmd.extend([
-                    '-n', nickname,
-                    '-a',
-                    '-i', cert_file,
-                    '-t', ''
-                ])
+            cmd.extend([
+                '-n', nickname,
+                '-a',
+                '-i', cert_file,
+                '-t', ''
+            ])
 
-                result = self.run(cmd)
+            result = self.run(cmd, runas=True)
 
-                if result.returncode:
-                    logger.warning('certutil returned non-zero exit code (bug #1393668)')
+            if result.returncode:
+                logger.warning('certutil returned non-zero exit code (bug #1393668)')
 
-            if not trust_attributes:
-                trust_attributes = ',,'
+        if not trust_attributes:
+            trust_attributes = ',,'
 
-            # If HSM is not used, or cert has trust attributes,
-            # import cert into internal token.
-            if not token or trust_attributes != ',,':
-                cmd = [
-                    'certutil',
-                    '-A',
-                    '-d', self.directory
-                ]
+        # If HSM is not used, or cert has trust attributes,
+        # import cert into internal token.
+        if not token or trust_attributes != ',,':
+            cmd = [
+                'certutil',
+                '-A',
+                '-d', self.directory
+            ]
 
-                if self.internal_password_file:
-                    cmd.extend(['-f', self.internal_password_file])
+            if self.internal_password_file:
+                cmd.extend(['-f', self.internal_password_file])
 
-                cmd.extend([
-                    '-n', nickname,
-                    '-a',
-                    '-i', cert_file,
-                    '-t', trust_attributes
-                ])
+            cmd.extend([
+                '-n', nickname,
+                '-a',
+                '-i', cert_file,
+                '-t', trust_attributes
+            ])
 
-                self.run(cmd, check=True)
-
-        finally:
-            shutil.rmtree(tmpdir)
+            self.run(cmd, check=True)
 
     def __add_cert(
             self,

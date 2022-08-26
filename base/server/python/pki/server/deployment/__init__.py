@@ -1706,7 +1706,7 @@ class PKIDeployer:
             cert_data=system_cert['data'],
             cert_format='base64',
             token=request.systemCert.token,
-            use_jss=True)
+            use_jss=False)
 
     def setup_system_certs(self, nssdb, subsystem):
 
