@@ -184,7 +184,7 @@ public class LDAPConfigurator {
 
     public void addVLVs(String subsystem) throws Exception {
         logger.info("Add VLVs");
-        importLDIF("/usr/share/pki/" + subsystem + "/conf/vlv.ldif", true);
+        importLDIF("/usr/share/pki/" + subsystem + "/database/ds/vlv.ldif", true);
     }
 
     public void deleteVLVs() throws Exception {
