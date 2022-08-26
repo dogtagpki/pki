@@ -91,7 +91,7 @@ public class LDAPConfigurator {
 
     public void initDatabase() throws Exception {
         logger.info("Initialize database");
-        importLDIF("/usr/share/pki/server/conf/database.ldif", true);
+        importLDIF("/usr/share/pki/server/database/ds/config.ldif", true);
     }
 
     public void setupSchema() throws Exception {

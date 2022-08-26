@@ -65,14 +65,14 @@ install(
     FILES
         Dockerfile
     DESTINATION
-        ${DATA_INSTALL_DIR}/acme/
+        ${DATA_INSTALL_DIR}/acme
 )
 
 install(
     DIRECTORY
         bin/
     DESTINATION
-        ${DATA_INSTALL_DIR}/acme/bin/
+        ${DATA_INSTALL_DIR}/acme/bin
     FILE_PERMISSIONS
         OWNER_EXECUTE OWNER_READ
         GROUP_EXECUTE GROUP_READ
@@ -84,35 +84,35 @@ install(
     DIRECTORY
         conf/
     DESTINATION
-        ${DATA_INSTALL_DIR}/acme/conf/
+        ${DATA_INSTALL_DIR}/acme/conf
 )
 
 install(
     DIRECTORY
         database/
     DESTINATION
-        ${DATA_INSTALL_DIR}/acme/database/
+        ${DATA_INSTALL_DIR}/acme/database
 )
 
 install(
     DIRECTORY
         issuer/
     DESTINATION
-        ${DATA_INSTALL_DIR}/acme/issuer/
+        ${DATA_INSTALL_DIR}/acme/issuer
 )
 
 install(
     DIRECTORY
         realm/
     DESTINATION
-        ${DATA_INSTALL_DIR}/acme/realm/
+        ${DATA_INSTALL_DIR}/acme/realm
 )
 
 install(
     DIRECTORY
         openshift/
     DESTINATION
-        ${DATA_INSTALL_DIR}/acme/openshift/
+        ${DATA_INSTALL_DIR}/acme/openshift
 )
 
 # install deployment descriptor
@@ -120,7 +120,7 @@ install(
     DIRECTORY
         ${APP_SERVER}/conf/
     DESTINATION
-        ${DATA_INSTALL_DIR}/acme/conf/
+        ${DATA_INSTALL_DIR}/acme/conf
 )
 
 # install web application files
@@ -128,7 +128,7 @@ install(
     DIRECTORY
         webapps/
     DESTINATION
-        ${DATA_INSTALL_DIR}/acme/webapps/
+        ${DATA_INSTALL_DIR}/acme/webapps
 )
 
 install(

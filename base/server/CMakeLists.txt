@@ -210,7 +210,7 @@ install(
     DIRECTORY
         bin/
     DESTINATION
-        ${DATA_INSTALL_DIR}/server/bin/
+        ${DATA_INSTALL_DIR}/server/bin
     FILE_PERMISSIONS
         OWNER_EXECUTE OWNER_READ
         GROUP_EXECUTE GROUP_READ
@@ -226,6 +226,13 @@ install(
 
 install(
     DIRECTORY
+        database/
+    DESTINATION
+        ${DATA_INSTALL_DIR}/server/database
+)
+
+install(
+    DIRECTORY
         examples/
     DESTINATION
         ${DATA_INSTALL_DIR}/server/examples
@@ -235,7 +242,7 @@ install(
     FILES
          ${CMAKE_CURRENT_BINARY_DIR}/share/etc/tomcat.conf
     DESTINATION
-        ${DATA_INSTALL_DIR}/etc/
+        ${DATA_INSTALL_DIR}/etc
 )
 
 install(
@@ -312,7 +319,7 @@ install(
         setup/menu.xml
         setup/pkidaemon_registry
     DESTINATION
-        ${DATA_INSTALL_DIR}/setup/
+        ${DATA_INSTALL_DIR}/setup
     PERMISSIONS
         OWNER_WRITE OWNER_READ
         GROUP_READ
@@ -338,7 +345,7 @@ install(
     DIRECTORY
         upgrade
     DESTINATION
-        ${DATA_INSTALL_DIR}/server/
+        ${DATA_INSTALL_DIR}/server
     FILE_PERMISSIONS
         OWNER_WRITE OWNER_READ
         GROUP_READ
@@ -362,7 +369,7 @@ install(
     FILES
         scripts/operations
     DESTINATION
-        ${DATA_INSTALL_DIR}/scripts/
+        ${DATA_INSTALL_DIR}/scripts
     PERMISSIONS
         OWNER_EXECUTE OWNER_WRITE OWNER_READ
         GROUP_EXECUTE GROUP_READ
@@ -381,7 +388,7 @@ install(
     DIRECTORY
         share/
     DESTINATION
-        ${DATA_INSTALL_DIR}/server/
+        ${DATA_INSTALL_DIR}/server
     PATTERN
         "lib/*" EXCLUDE
     PATTERN
