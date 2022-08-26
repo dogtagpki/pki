@@ -60,12 +60,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         deployer.directory.create(deployer.mdict['pki_instance_registry_path'])
 
-        deployer.directory.create(deployer.mdict['pki_subsystem_registry_path'])
-
-        deployer.file.copy(
-            deployer.mdict['pki_default_deployment_cfg'],
-            deployer.mdict['pki_default_deployment_cfg_replica'])
-
         # Archive the user deployment configuration excluding the sensitive
         # parameters
         sensitive_parameters = deployer.mdict['sensitive_parameters'].split()
@@ -74,11 +68,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         for s in sections:
             for k in sensitive_parameters:
                 deployer.user_config.remove_option(s, k)
-
-        deployer.file.create(deployer.mdict['pki_user_deployment_cfg_replica'])
-
-        with open(deployer.mdict['pki_user_deployment_cfg_replica'], 'w', encoding='utf-8') as f:
-            deployer.user_config.write(f)
 
         # establish top-level infrastructure, instance, and subsystem
         # base directories and create the "registry" symbolic link that

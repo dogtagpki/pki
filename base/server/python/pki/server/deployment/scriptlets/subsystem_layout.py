@@ -59,6 +59,21 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         instance = self.instance
 
+        # Create /etc/sysconfig/pki/tomcat/<instance>/<subsystem>
+        deployer.directory.create(deployer.mdict['pki_subsystem_registry_path'])
+
+        # Copy /usr/share/pki/server/etc/default.cfg
+        # to /etc/sysconfig/pki/tomcat/<instance>/<subsystem>/default.cfg
+        deployer.file.copy(
+            deployer.mdict['pki_default_deployment_cfg'],
+            deployer.mdict['pki_default_deployment_cfg_replica'])
+
+        # Create /etc/sysconfig/pki/tomcat/<instance>/<subsystem>/deployment.cfg
+        deployer.file.create(deployer.mdict['pki_user_deployment_cfg_replica'])
+
+        with open(deployer.mdict['pki_user_deployment_cfg_replica'], 'w', encoding='utf-8') as f:
+            deployer.user_config.write(f)
+
         # Create /var/log/pki/<instance>/<subsystem>
         instance.makedirs(
             deployer.mdict['pki_subsystem_log_path'],
