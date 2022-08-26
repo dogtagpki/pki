@@ -118,7 +118,7 @@ public class LDAPConfigurator {
 
         logger.info("Rebuilding indexes");
 
-        File file = new File("/usr/share/pki/" + subsystem + "/conf/indextasks.ldif");
+        File file = new File("/usr/share/pki/" + subsystem + "/database/ds/indextasks.ldif");
         File tmpFile = File.createTempFile("pki-" + subsystem + "-reindex-", ".ldif");
 
         try {
