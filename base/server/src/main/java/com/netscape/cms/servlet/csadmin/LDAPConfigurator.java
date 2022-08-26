@@ -145,7 +145,7 @@ public class LDAPConfigurator {
         Map<String, String> params = new HashMap<>();
         params.put("dbuser", dn);
 
-        importLDIF("/usr/share/pki/server/conf/db-access-grant.ldif", true, params);
+        importLDIF("/usr/share/pki/server/database/ds/db-access-grant.ldif", true, params);
     }
 
     public void revokeDatbaseAccess(String dn) throws Exception {
@@ -155,7 +155,7 @@ public class LDAPConfigurator {
         Map<String, String> params = new HashMap<>();
         params.put("dbuser", dn);
 
-        importLDIF("/usr/share/pki/server/conf/db-access-revoke.ldif", true, params);
+        importLDIF("/usr/share/pki/server/database/ds/db-access-revoke.ldif", true, params);
     }
 
     public List<LDAPEntry> findVLVs() throws Exception {
