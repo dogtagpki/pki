@@ -308,6 +308,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         logger.info('Removing %s subsystem', deployer.mdict['pki_subsystem'])
 
+        instance = self.instance
+
+        subsystem = instance.get_subsystem(deployer.mdict['pki_subsystem'].lower())
+
         if deployer.mdict['pki_subsystem'] == "CA":
 
             logger.info('Removing %s', deployer.mdict['pki_subsystem_emails_path'])
@@ -320,33 +324,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 path=deployer.mdict['pki_subsystem_profiles_path'],
                 force=deployer.force)
 
-        logger.info('Removing %s', deployer.mdict['pki_subsystem_path'])
-        pki.util.rmtree(path=deployer.mdict['pki_subsystem_path'],
-                        force=deployer.force)
-
         if deployer.remove_logs:
+            subsystem.remove_logs(force=deployer.force)
 
-            logger.info('Removing %s', deployer.mdict['pki_subsystem_signed_audit_log_path'])
-            pki.util.rmtree(
-                path=deployer.mdict['pki_subsystem_signed_audit_log_path'],
-                force=deployer.force)
+        subsystem.remove_conf(force=deployer.force)
 
-            logger.info('Removing %s', deployer.mdict['pki_subsystem_archive_log_path'])
-            pki.util.rmtree(
-                path=deployer.mdict['pki_subsystem_archive_log_path'],
-                force=deployer.force)
-
-            logger.info('Removing %s', deployer.mdict['pki_subsystem_log_path'])
-            pki.util.rmtree(
-                path=deployer.mdict['pki_subsystem_log_path'],
-                force=deployer.force)
-
-        logger.info('Removing %s', deployer.mdict['pki_subsystem_configuration_path'])
-        pki.util.rmtree(
-            path=deployer.mdict['pki_subsystem_configuration_path'],
-            force=deployer.force)
-
-        logger.info('Removing %s', deployer.mdict['pki_subsystem_registry_path'])
-        pki.util.rmtree(
-            path=deployer.mdict['pki_subsystem_registry_path'],
-            force=deployer.force)
+        subsystem.remove(force=deployer.force)

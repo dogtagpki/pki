@@ -179,6 +179,36 @@ class PKISubsystem(object):
             logger.info('Loading subsystem registry: %s', self.registry_conf)
             pki.util.load_properties(self.registry_conf, self.registry)
 
+    def remove_logs(self, force=False):
+
+        # Remove /var/log/pki/<instance>/<subsystem>/signedAudit
+        logger.info('Removing %s', self.log_signed_audit_dir)
+        pki.util.rmtree(self.log_signed_audit_dir, force=force)
+
+        # Remove /var/log/pki/<instance>/<subsystem>/archive
+        logger.info('Removing %s', self.log_archive_dir)
+        pki.util.rmtree(self.log_archive_dir, force=force)
+
+        # Remove /var/log/pki/<instance>/<subsystem>
+        logger.info('Removing %s', self.log_dir)
+        pki.util.rmtree(self.log_dir, force=force)
+
+    def remove_conf(self, force=False):
+
+        # Remove /etc/pki/<instance>/<subsystem>
+        logger.info('Removing %s', self.conf_dir)
+        pki.util.rmtree(self.conf_dir, force=force)
+
+    def remove(self, force=False):
+
+        # Remove /etc/sysconfig/pki/tomcat/<instance>/<subsystem>
+        logger.info('Removing %s', self.registry_dir)
+        pki.util.rmtree(self.registry_dir, force=force)
+
+        # Remove /var/lib/pki/<instance>/<subsystem>
+        logger.info('Removing %s', self.base_dir)
+        pki.util.rmtree(self.base_dir, force=force)
+
     def find_system_certs(self):
 
         cert_ids = self.config['%s.cert.list' % self.name].split(',')
