@@ -138,6 +138,30 @@ class PKISubsystem(object):
     def log_signed_audit_dir(self):
         return os.path.join(self.log_dir, 'signedAudit')
 
+    def create(self, force=False):
+
+        # Create /var/lib/pki/<instance>/<subsystem>
+        self.instance.makedirs(self.base_dir, force=force)
+
+        # Create /etc/sysconfig/pki/tomcat/<instance>/<subsystem>
+        self.instance.makedirs(self.registry_dir, force=force)
+
+    def create_conf(self, force=False):
+
+        # Create /etc/pki/<instance>/<subsystem>
+        self.instance.makedirs(self.conf_dir, force=force)
+
+    def create_logs(self, force=False):
+
+        # Create /var/log/pki/<instance>/<subsystem>
+        self.instance.makedirs(self.log_dir, force=force)
+
+        # Create /var/log/pki/<instance>/<subsystem>/archive
+        self.instance.makedirs(self.log_archive_dir, force=force)
+
+        # Create /var/log/pki/<instance>/<subsystem>/signedAudit
+        self.instance.makedirs(self.log_signed_audit_dir, force=force)
+
     def load(self):
 
         self.config.clear()

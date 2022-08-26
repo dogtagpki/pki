@@ -59,8 +59,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         instance = self.instance
 
-        # Create /etc/sysconfig/pki/tomcat/<instance>/<subsystem>
-        deployer.directory.create(deployer.mdict['pki_subsystem_registry_path'])
+        subsystem_name = deployer.mdict['pki_subsystem'].lower()
+        subsystem = pki.server.subsystem.PKISubsystemFactory.create(instance, subsystem_name)
+
+        subsystem.create(force=True)
+        subsystem.create_conf(force=True)
+        subsystem.create_logs(force=True)
 
         # Copy /usr/share/pki/server/etc/default.cfg
         # to /etc/sysconfig/pki/tomcat/<instance>/<subsystem>/default.cfg
@@ -73,26 +77,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         with open(deployer.mdict['pki_user_deployment_cfg_replica'], 'w', encoding='utf-8') as f:
             deployer.user_config.write(f)
-
-        # Create /var/log/pki/<instance>/<subsystem>
-        instance.makedirs(
-            deployer.mdict['pki_subsystem_log_path'],
-            exist_ok=True)
-
-        # Create /var/log/pki/<instance>/<subsystem>/archive
-        instance.makedirs(
-            deployer.mdict['pki_subsystem_archive_log_path'],
-            exist_ok=True)
-
-        # Create /var/log/pki/<instance>/<subsystem>/signedAudit
-        instance.makedirs(
-            deployer.mdict['pki_subsystem_signed_audit_log_path'],
-            exist_ok=True)
-
-        # Create /etc/pki/<instance>/<subsystem>
-        instance.makedirs(
-            deployer.mdict['pki_subsystem_configuration_path'],
-            exist_ok=True)
 
         # Copy /usr/share/pki/<subsystem>/conf/CS.cfg
         # to /etc/pki/<instance>/<subsystem>/CS.cfg
@@ -218,10 +202,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.mdict['pki_instance_registry_path'],
             deployer.mdict['pki_subsystem_registry_link'])
 
-        instance = self.instance
         instance.load()
 
-        subsystem = instance.get_subsystem(deployer.mdict['pki_subsystem'].lower())
+        subsystem = instance.get_subsystem(subsystem_name)
 
         subsystem.config['preop.subsystem.name'] = deployer.mdict['pki_subsystem_name']
 
