@@ -99,11 +99,6 @@ public class JssSSLSocketFactory implements ISocketFactory {
             s = new SSLSocket(host, port, null, 0, certApprovalCallback,
                     clientCertCallback);
 
-            Socket js = new Socket(InetAddress.getByName(host), port);
-            s = new SSLSocket(js, host,
-                    certApprovalCallback,
-                    clientCertCallback);
-
             s.setUseClientMode(true);
             s.setSoTimeout(timeout);
 
