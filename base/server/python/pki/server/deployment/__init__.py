@@ -517,6 +517,169 @@ class PKIDeployer:
         if subsystem.type == 'TPS':
             self.configure_tps(subsystem)
 
+    def setup_database(self, subsystem):
+
+        if config.str2bool(self.mdict['pki_clone']):
+
+            master_url = self.mdict['pki_clone_uri']
+
+            if subsystem.type in ['CA', 'KRA']:
+
+                logger.info('Requesting ranges from %s master', subsystem.type)
+                subsystem.request_ranges(master_url, session_id=self.install_token.token)
+
+            logger.info('Retrieving config params from %s master', subsystem.type)
+
+            names = [
+                'internaldb.ldapauth.password',
+                'internaldb.replication.password'
+            ]
+
+            substores = [
+                'internaldb',
+                'internaldb.ldapauth',
+                'internaldb.ldapconn'
+            ]
+
+            tags = subsystem.config['preop.cert.list'].split(',')
+            for tag in tags:
+                if tag == 'sslserver':
+                    continue
+                substores.append(subsystem.name + '.' + tag)
+
+            if subsystem.name == 'ca':
+                substores.append('ca.connector.KRA')
+            else:
+                names.append('cloning.ca.type')
+
+            master_config = subsystem.retrieve_config(
+                master_url,
+                names,
+                substores,
+                session_id=self.install_token.token)
+
+            logger.info('Validating %s master config params', subsystem.type)
+
+            master_properties = master_config['properties']
+
+            master_hostname = master_properties['internaldb.ldapconn.host']
+            master_port = master_properties['internaldb.ldapconn.port']
+
+            replica_hostname = subsystem.config['internaldb.ldapconn.host']
+            replica_port = subsystem.config['internaldb.ldapconn.port']
+
+            if master_hostname == replica_hostname and master_port == replica_port:
+                raise Exception('Master and replica must not share LDAP database')
+
+            logger.info('Importing %s master config params', subsystem.type)
+
+            subsystem.import_master_config(master_properties)
+
+        if config.str2bool(self.mdict['pki_ds_remove_data']):
+
+            if config.str2bool(self.mdict['pki_ds_create_new_db']):
+                logger.info('Removing existing database')
+                subsystem.remove_database(force=True)
+
+            elif not config.str2bool(self.mdict['pki_clone']) or \
+                    config.str2bool(self.mdict['pki_clone_setup_replication']):
+                logger.info('Emptying existing database')
+                subsystem.empty_database(force=True)
+
+            else:
+                logger.info('Reusing replicated database')
+
+        logger.info('Initializing database')
+
+        # In most cases, we want to replicate the schema and therefore not add it here.
+        # We provide this option though in case the clone already has schema
+        # and we want to replicate back to the master.
+
+        # On the other hand, if we are not setting up replication,
+        # then we are assuming that replication is already taken care of,
+        # and schema has already been replicated.
+
+        setup_schema = not config.str2bool(self.mdict['pki_clone']) or \
+            not config.str2bool(self.mdict['pki_clone_setup_replication']) or \
+            not config.str2bool(self.mdict['pki_clone_replicate_schema'])
+
+        create_database = config.str2bool(self.mdict['pki_ds_create_new_db'])
+
+        # When cloning a subsystem without setting up the replication agreements,
+        # the database is a subtree of an existing tree and is already replicated,
+        # so there is no need to set up the base entry.
+
+        create_base = config.str2bool(self.mdict['pki_ds_create_new_db']) or \
+            not config.str2bool(self.mdict['pki_clone']) or \
+            config.str2bool(self.mdict['pki_clone_setup_replication'])
+
+        create_containers = not config.str2bool(self.mdict['pki_clone'])
+
+        # If the database is already replicated but not yet indexed, rebuild the indexes.
+
+        rebuild_indexes = config.str2bool(self.mdict['pki_clone']) and \
+            not config.str2bool(self.mdict['pki_clone_setup_replication']) and \
+            config.str2bool(self.mdict['pki_clone_reindex_data'])
+
+        subsystem.init_database(
+            setup_schema=setup_schema,
+            create_database=create_database,
+            create_base=create_base,
+            create_containers=create_containers,
+            rebuild_indexes=rebuild_indexes)
+
+        if config.str2bool(self.mdict['pki_clone']) and \
+                config.str2bool(self.mdict['pki_clone_setup_replication']):
+
+            logger.info('Setting up replication')
+
+            master_replication_port = self.mdict['pki_clone_replication_master_port']
+            logger.info('- master replication port: %s', master_replication_port)
+
+            replica_replication_port = self.mdict['pki_clone_replication_clone_port']
+            logger.info('- replica replication port: %s', replica_replication_port)
+
+            ds_port = subsystem.config['internaldb.ldapconn.port']
+            logger.info('- internaldb.ldapconn.port: %s', ds_port)
+
+            secure_conn = subsystem.config['internaldb.ldapconn.secureConn']
+            logger.info('- internaldb.ldapconn.secureConn: %s', secure_conn)
+
+            if replica_replication_port == ds_port and secure_conn == 'true':
+                replication_security = 'SSL'
+
+            else:
+                replication_security = self.mdict['pki_clone_replication_security']
+                if not replication_security:
+                    replication_security = 'None'
+
+            logger.info('- replication security: %s', replication_security)
+
+            subsystem.setup_replication(
+                master_properties,
+                master_replication_port=master_replication_port,
+                replica_replication_port=replica_replication_port,
+                replication_security=replication_security)
+
+        # For security a PKI subsystem can be configured to use a database user
+        # that only has a limited access to the database (instead of cn=Directory
+        # Manager that has a full access to the database).
+        #
+        # The default database user is uid=pkidbuser,ou=people,<subsystem base DN>.
+        # However, if the subsystem is configured to share the database with another
+        # subsystem (pki_share_db=True), it can also be configured to use the same
+        # database user (pki_share_dbuser_dn).
+
+        if config.str2bool(self.mdict['pki_share_db']):
+            dbuser = self.mdict['pki_share_dbuser_dn']
+        else:
+            dbuser = 'uid=pkidbuser,ou=people,' + self.mdict['pki_ds_base_dn']
+
+        subsystem.grant_database_access(dbuser)
+
+        subsystem.add_vlv()
+        subsystem.reindex_vlv()
+
     def is_using_legacy_id_generator(self, subsystem):
 
         if subsystem.type in ['CA', 'KRA']:
