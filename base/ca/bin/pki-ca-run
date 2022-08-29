@@ -1,8 +1,11 @@
 #!/bin/sh -e
 
 # TODO:
-# - support existing database
 # - parameterize hard-coded values
+# - do not create security domain
+# - support existing subsystem user
+# - support existing admin user
+# - support existing database user
 
 echo "################################################################################"
 
@@ -303,6 +306,7 @@ pkispawn \
     -s CA \
     -D pki_ds_hostname=ds.example.com \
     -D pki_ds_ldap_port=3389 \
+    -D pki_ds_setup=False \
     -D pki_request_id_generator=random \
     -D pki_cert_id_generator=random \
     -D pki_existing=True \
