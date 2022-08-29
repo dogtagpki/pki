@@ -9,8 +9,8 @@ on:
 
 jobs:
   # docs/installation/ca/Installing_Subordinate_CA.md
-  install:
-    name: Install
+  test:
+    name: Test
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki

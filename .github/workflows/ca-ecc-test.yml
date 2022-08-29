@@ -9,8 +9,8 @@ on:
 
 jobs:
   # docs/installation/ca/Installing_CA_with_ECC.md
-  install:
-    name: Install
+  test:
+    name: Test
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
