@@ -243,7 +243,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         subsystem.save()
 
-        deployer.setup_database(subsystem)
+        if config.str2bool(deployer.mdict['pki_ds_setup']):
+            deployer.setup_database(subsystem)
 
         subsystem.load()
 

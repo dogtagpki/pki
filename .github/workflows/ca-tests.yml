@@ -1650,3 +1650,12 @@ jobs:
           name: ca-hsm-${{ matrix.os }}
           path: |
             /tmp/artifacts/pki
+
+  ca-existing-ds-test:
+    name: CA with existing DS
+    needs: [init, build]
+    strategy:
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    uses: ./.github/workflows/ca-existing-ds-test.yml
+    with:
+      os: ${{ matrix.os }}
