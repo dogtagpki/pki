@@ -126,7 +126,16 @@ jobs:
     with:
       os: ${{ matrix.os }}
 
-  cmc-shared-token-test:
+  ca-existing-ds-test:
+    name: CA with existing DS
+    needs: [init, build]
+    strategy:
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    uses: ./.github/workflows/ca-existing-ds-test.yml
+    with:
+      os: ${{ matrix.os }}
+
+  ca-shared-token-test:
     name: CA with shared token
     needs: [init, build]
     strategy:
@@ -889,12 +898,3 @@ jobs:
           name: ca-hsm-${{ matrix.os }}
           path: |
             /tmp/artifacts/pki
-
-  ca-existing-ds-test:
-    name: CA with existing DS
-    needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
-    uses: ./.github/workflows/ca-existing-ds-test.yml
-    with:
-      os: ${{ matrix.os }}
