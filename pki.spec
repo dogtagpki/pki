@@ -47,7 +47,11 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?phase:-}%{?phase}
 #     > pki-VERSION-RELEASE.patch
 # Patch: pki-VERSION-RELEASE.patch
 
+%if 0%{?fedora} && 0%{?fedora} > 35
 ExclusiveArch: %{java_arches}
+%else
+ExcludeArch: i686
+%endif
 
 ################################################################################
 # PKCS #11 Kit Trust
@@ -148,13 +152,6 @@ BuildRequires:    gcc-c++
 BuildRequires:    zip
 BuildRequires:    %{java_devel}
 BuildRequires:    javapackages-tools
-
-# redhat-rpm-config defines java_arches macro
-%if 0%{?fedora} && 0%{?fedora} <= 35
-BuildRequires:    redhat-rpm-config >= 201
-%else
-BuildRequires:    redhat-rpm-config >= 219
-%endif
 
 BuildRequires:    apache-commons-cli
 BuildRequires:    apache-commons-codec
