@@ -43,7 +43,7 @@ import org.dogtagpki.server.tps.engine.TPSEngine;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.dbs.EDBException;
-import com.netscape.certsrv.dbs.IDBVirtualList;
+import com.netscape.certsrv.dbs.DBVirtualList;
 import com.netscape.certsrv.ldap.LDAPExceptionConverter;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
@@ -331,7 +331,7 @@ public class TokenService extends SubsystemService implements TokenResource {
 
         String method = "TokenService.retrieveTokensWithVLV: ";
         // search with VLV sorted by date in reverse order
-        IDBVirtualList<TokenRecord> list = database.findRecords(
+        DBVirtualList<TokenRecord> list = database.findRecords(
                 null, null, new String[] { "-modifyTimestamp", "-createTimestamp" }, size);
 
         List<String> authorizedProfiles = getAuthorizedProfiles();

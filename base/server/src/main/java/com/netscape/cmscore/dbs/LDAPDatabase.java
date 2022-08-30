@@ -11,7 +11,7 @@ import java.util.Map;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.DBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.certsrv.dbs.IDBVirtualList;
+import com.netscape.certsrv.dbs.DBVirtualList;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.cmsutil.ldap.LDAPUtil;
@@ -157,7 +157,7 @@ public abstract class LDAPDatabase<E extends IDBObj> extends Database<E> {
         }
     }
 
-    public IDBVirtualList<E> findRecords(String keyword, Map<String, String> attributes,
+    public DBVirtualList<E> findRecords(String keyword, Map<String, String> attributes,
             String[] sortKeys, int pageSize) throws Exception {
 
         logger.debug("LDAPDatabase: findRecords()");

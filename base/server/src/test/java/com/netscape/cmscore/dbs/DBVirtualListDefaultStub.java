@@ -19,7 +19,7 @@ package com.netscape.cmscore.dbs;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.certsrv.dbs.IDBVirtualList;
+import com.netscape.certsrv.dbs.DBVirtualList;
 
 /**
  * A default stub ojbect for tests to extend.
@@ -29,7 +29,7 @@ import com.netscape.certsrv.dbs.IDBVirtualList;
  *
  * Do not put any behaviour in this class.
  */
-public class DBVirtualListDefaultStub<T extends IDBObj> implements IDBVirtualList<T> {
+public class DBVirtualListDefaultStub<T extends IDBObj> implements DBVirtualList<T> {
 
     @Override
     public void setPageSize(int size) {

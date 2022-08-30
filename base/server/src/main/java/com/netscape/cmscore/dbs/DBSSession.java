@@ -20,7 +20,7 @@ package com.netscape.cmscore.dbs;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.certsrv.dbs.IDBVirtualList;
+import com.netscape.certsrv.dbs.DBVirtualList;
 import com.netscape.certsrv.dbs.ModificationSet;
 
 import netscape.ldap.LDAPSearchResults;
@@ -238,7 +238,7 @@ public class DBSSession implements AutoCloseable {
      * @return search results in virtual list
      * @exception EBaseException failed to search
      */
-    public <T extends IDBObj> IDBVirtualList<T> createVirtualList(
+    public <T extends IDBObj> DBVirtualList<T> createVirtualList(
             String base,
             String filter,
             String[] attrs
@@ -257,7 +257,7 @@ public class DBSSession implements AutoCloseable {
      * @return search results in virtual list
      * @exception EBaseException failed to search
      */
-    public <T extends IDBObj> IDBVirtualList<T> createVirtualList(
+    public <T extends IDBObj> DBVirtualList<T> createVirtualList(
             String base,
             String filter,
             String[] attrs,
@@ -278,7 +278,7 @@ public class DBSSession implements AutoCloseable {
      * @return search results in virtual list
      * @exception EBaseException failed to search
      */
-    public <T extends IDBObj> IDBVirtualList<T> createVirtualList(
+    public <T extends IDBObj> DBVirtualList<T> createVirtualList(
             String base,
             String filter,
             String[] attrs,
@@ -300,7 +300,7 @@ public class DBSSession implements AutoCloseable {
      * @return search results in virtual list
      * @exception EBaseException failed to search
      */
-    public <T extends IDBObj> IDBVirtualList<T> createVirtualList(
+    public <T extends IDBObj> DBVirtualList<T> createVirtualList(
             String base,
             String filter,
             String[] attrs,

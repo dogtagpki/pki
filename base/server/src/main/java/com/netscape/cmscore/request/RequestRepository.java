@@ -26,7 +26,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.certsrv.dbs.IDBVirtualList;
+import com.netscape.certsrv.dbs.DBVirtualList;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.request.IRequestVirtualList;
@@ -425,7 +425,7 @@ public class RequestRepository extends Repository {
             String sortKey) throws EBaseException {
 
         DBSSession session = dbSubsystem.createSession();
-        IDBVirtualList<IDBObj> results;
+        DBVirtualList<IDBObj> results;
 
         try {
             if (fromID == null) {

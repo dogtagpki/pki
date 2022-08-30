@@ -21,7 +21,7 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.IDBVirtualList;
+import com.netscape.certsrv.dbs.DBVirtualList;
 
 /**
  * A class represents a list of certificate records.
@@ -32,12 +32,12 @@ import com.netscape.certsrv.dbs.IDBVirtualList;
 public class CertRecordList {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertRecordList.class);
-    private IDBVirtualList<CertRecord> mVlist = null;
+    private DBVirtualList<CertRecord> mVlist = null;
 
     /**
      * Constructs a request list.
      */
-    public CertRecordList(IDBVirtualList<CertRecord> vlist) {
+    public CertRecordList(DBVirtualList<CertRecord> vlist) {
         mVlist = vlist;
     }
 

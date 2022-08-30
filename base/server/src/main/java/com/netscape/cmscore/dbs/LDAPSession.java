@@ -24,7 +24,7 @@ import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.EDBNotAvailException;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.certsrv.dbs.IDBVirtualList;
+import com.netscape.certsrv.dbs.DBVirtualList;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.cmscore.apps.CMS;
@@ -551,7 +551,7 @@ public class LDAPSession extends DBSSession {
      * Retrieves a list of objects.
      */
     @Override
-    public <T extends IDBObj> IDBVirtualList<T> createVirtualList(String base, String filter,
+    public <T extends IDBObj> DBVirtualList<T> createVirtualList(String base, String filter,
             String attrs[]) throws EBaseException {
 
         logger.debug("LDAPSession: createVirtualList(" + base + ", " + filter + ")");
@@ -563,7 +563,7 @@ public class LDAPSession extends DBSSession {
     /**
      * Retrieves a list of objects.
      */
-    public <T extends IDBObj> IDBVirtualList<T> createVirtualList(String base, String filter,
+    public <T extends IDBObj> DBVirtualList<T> createVirtualList(String base, String filter,
             String attrs[], String sortKey[]) throws EBaseException {
 
         logger.debug("LDAPSession: createVirtualList(" + base + ", " + filter + ")");
@@ -575,7 +575,7 @@ public class LDAPSession extends DBSSession {
     /**
      * Retrieves a list of objects.
      */
-    public <T extends IDBObj> IDBVirtualList<T> createVirtualList(String base, String filter,
+    public <T extends IDBObj> DBVirtualList<T> createVirtualList(String base, String filter,
             String attrs[], String sortKey) throws EBaseException {
 
         logger.debug("LDAPSession: createVirtualList(" + base + ", " + filter + ")");
@@ -588,7 +588,7 @@ public class LDAPSession extends DBSSession {
      * Retrieves a list of objects.
      */
     @Override
-    public <T extends IDBObj> IDBVirtualList<T> createVirtualList(String base, String filter,
+    public <T extends IDBObj> DBVirtualList<T> createVirtualList(String base, String filter,
             String attrs[], String sortKey[], int pageSize) throws EBaseException {
 
         logger.debug("LDAPSession: createVirtualList(" + base + ", " + filter + ")");
@@ -601,7 +601,7 @@ public class LDAPSession extends DBSSession {
      * Retrieves a list of objects.
      */
     @Override
-    public  <T extends IDBObj> IDBVirtualList<T> createVirtualList(String base, String filter,
+    public  <T extends IDBObj> DBVirtualList<T> createVirtualList(String base, String filter,
             String attrs[], String sortKey, int pageSize) throws EBaseException {
 
         logger.debug("LDAPSession: createVirtualList(" + base + ", " + filter + ")");
@@ -611,7 +611,7 @@ public class LDAPSession extends DBSSession {
     }
 
     @Override
-    public <T extends IDBObj> IDBVirtualList<T> createVirtualList(String base, String filter,
+    public <T extends IDBObj> DBVirtualList<T> createVirtualList(String base, String filter,
             String attrs[], String startFrom, String sortKey, int pageSize) throws EBaseException {
 
         logger.debug("LDAPSession: createVirtualList(" + base + ", " + filter + ")");

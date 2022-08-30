@@ -21,7 +21,7 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.IDBVirtualList;
+import com.netscape.certsrv.dbs.DBVirtualList;
 
 /**
  * A class represents a list of key records.
@@ -30,12 +30,12 @@ import com.netscape.certsrv.dbs.IDBVirtualList;
  */
 public class KeyRecordList {
 
-    private IDBVirtualList<KeyRecord> mVlist = null;
+    private DBVirtualList<KeyRecord> mVlist = null;
 
     /**
      * Constructs a key list.
      */
-    public KeyRecordList(IDBVirtualList<KeyRecord> vlist) {
+    public KeyRecordList(DBVirtualList<KeyRecord> vlist) {
         mVlist = vlist;
     }
 

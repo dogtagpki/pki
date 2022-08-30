@@ -34,7 +34,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
-import com.netscape.certsrv.dbs.IDBVirtualList;
+import com.netscape.certsrv.dbs.DBVirtualList;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.certdb.CertId;
@@ -1254,7 +1254,7 @@ public class CertificateRepository extends Repository {
         logger.debug("CertificateRepository.findCertRecordsInList()");
 
         try (DBSSession session = dbSubsystem.createSession()) {
-            IDBVirtualList<CertRecord> list = session.<CertRecord>createVirtualList(
+            DBVirtualList<CertRecord> list = session.<CertRecord>createVirtualList(
                     mBaseDN,
                     filter,
                     attrs,
@@ -1320,7 +1320,7 @@ public class CertificateRepository extends Repository {
                 }
             }
 
-            IDBVirtualList<CertRecord> vlist = s.createVirtualList(
+            DBVirtualList<CertRecord> vlist = s.createVirtualList(
                     mBaseDN,
                     filter,
                     attrs,
@@ -1354,7 +1354,7 @@ public class CertificateRepository extends Repository {
 
         try (DBSSession s = dbSubsystem.createSession()) {
 
-            IDBVirtualList<CertRecord> vlist = s.createVirtualList(
+            DBVirtualList<CertRecord> vlist = s.createVirtualList(
                     mBaseDN,
                     filter,
                     attrs,

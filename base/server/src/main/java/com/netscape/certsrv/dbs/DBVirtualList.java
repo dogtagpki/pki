@@ -26,7 +26,7 @@ import com.netscape.cmscore.dbs.ElementProcessor;
  *
  * @version $Revision$, $Date$
  */
-public interface IDBVirtualList<E extends IDBObj> {
+public interface DBVirtualList<E extends IDBObj> {
 
     /**
      * Sets the paging size of this virtual list.

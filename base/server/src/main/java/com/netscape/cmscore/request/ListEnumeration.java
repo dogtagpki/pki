@@ -19,16 +19,16 @@ package com.netscape.cmscore.request;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.certsrv.dbs.IDBVirtualList;
+import com.netscape.certsrv.dbs.DBVirtualList;
 import com.netscape.certsrv.request.IRequestVirtualList;
 
 public class ListEnumeration implements IRequestVirtualList {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ListEnumeration.class);
 
-    protected IDBVirtualList<IDBObj> list;
+    protected DBVirtualList<IDBObj> list;
 
-    public ListEnumeration(IDBVirtualList<IDBObj> list) {
+    public ListEnumeration(DBVirtualList<IDBObj> list) {
         this.list = list;
     }
 

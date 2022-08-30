@@ -33,7 +33,7 @@ import org.dogtagpki.server.tps.dbs.TokenRecord;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
-import com.netscape.certsrv.dbs.IDBVirtualList;
+import com.netscape.certsrv.dbs.DBVirtualList;
 import com.netscape.certsrv.logging.ActivityCollection;
 import com.netscape.certsrv.logging.ActivityData;
 import com.netscape.certsrv.logging.ActivityResource;
@@ -151,7 +151,7 @@ public class ActivityService extends PKIService implements ActivityResource {
         String method = "ActivityService.retrieveActivitiesWithVLV: ";
         logger.debug(method);
         // search with VLV sorted by date in reverse order
-        IDBVirtualList<ActivityRecord> list = database.findRecords(
+        DBVirtualList<ActivityRecord> list = database.findRecords(
                 null, null, new String[] { "-date" }, size);
 
         List<String> authorizedProfiles = getAuthorizedProfiles();
