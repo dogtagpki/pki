@@ -122,6 +122,16 @@ public class NSSCryptoProvider extends CryptoProvider {
     }
 
     @Override
+    public byte[] wrapSymmetricKey(SymmetricKey symmetricKey, PublicKey wrappingKey, KeyWrapAlgorithm alg) throws Exception {
+
+       if (manager == null || token == null) {
+            throw new NotInitializedException();
+       }
+
+       return CryptoUtil.wrapUsingPublicKey(token,wrappingKey,symmetricKey,alg);
+    }
+
+    @Override
     public byte[] encryptSecret(byte[] secret, byte[] iv, SymmetricKey key, String encryptionAlgorithm)
             throws Exception {
         return  encryptSecret(secret, iv, key, getEncryptionAlgorithm(encryptionAlgorithm));

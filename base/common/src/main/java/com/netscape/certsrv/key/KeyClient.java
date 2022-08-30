@@ -59,6 +59,7 @@ public class KeyClient extends Client {
     private EncryptionAlgorithm encryptAlgorithm;
     private KeyWrapAlgorithm wrapAlgorithm;
     private int wrapIVLength;
+    private boolean useOAEP = false;
 
     public KeyClient(PKIClient client, String subsystem) throws Exception {
         super(client, subsystem, "key");
@@ -109,6 +110,14 @@ public class KeyClient extends Client {
 
     public void setTransportCert(X509Certificate transportCert) throws Exception {
         this.transportCert = transportCert;
+    }
+
+    public void setUseOAEP(boolean useOAEP) {
+        this.useOAEP = useOAEP;
+    }
+
+    public boolean getUseOAEP() {
+        return this.useOAEP;
     }
 
     /**
@@ -414,7 +423,13 @@ public class KeyClient extends Client {
 
         logger.info("Wrapping session key with transport certificate");
 
-        byte[] transWrappedSessionKey = crypto.wrapSymmetricKey(sessionKey, transportCert.getPublicKey());
+	KeyWrapAlgorithm alg = KeyWrapAlgorithm.RSA;
+
+        if(this.useOAEP == true) {
+            alg = KeyWrapAlgorithm.RSA_OAEP;
+        }
+
+        byte[] transWrappedSessionKey = crypto.wrapSymmetricKey(sessionKey, transportCert.getPublicKey(),alg);
 
         return retrieveKey(keyId, transWrappedSessionKey);
     }
@@ -468,7 +483,13 @@ public class KeyClient extends Client {
             throw new IllegalArgumentException("RequestId must be specified.");
         }
 
-        byte[] transWrappedSessionKey = crypto.wrapSymmetricKey(sessionKey, transportCert.getPublicKey());
+        KeyWrapAlgorithm alg = KeyWrapAlgorithm.RSA;
+
+        if(this.useOAEP == true) {
+            alg = KeyWrapAlgorithm.RSA_OAEP;
+        }
+
+        byte[] transWrappedSessionKey = crypto.wrapSymmetricKey(sessionKey, transportCert.getPublicKey(),alg);
 
         KeyRecoveryRequest recoveryRequest = new KeyRecoveryRequest();
         recoveryRequest.setRequestId(requestId);
@@ -545,8 +566,14 @@ public class KeyClient extends Client {
         if (passphrase == null) {
             throw new IllegalArgumentException("Passphrase must be specified.");
         }
+        KeyWrapAlgorithm alg = KeyWrapAlgorithm.RSA;
+
+        if(this.useOAEP == true) {
+            alg = KeyWrapAlgorithm.RSA_OAEP;
+        }
+
         SymmetricKey sessionKey = generateSessionKey();
-        byte[] transWrappedSessionKey = crypto.wrapSymmetricKey(sessionKey, transportCert.getPublicKey());
+        byte[] transWrappedSessionKey = crypto.wrapSymmetricKey(sessionKey, transportCert.getPublicKey(),alg);
         byte[] nonceData = CryptoUtil.getNonceData(encryptAlgorithm.getIVLength());
 
         byte[] secret = passphrase.getBytes("UTF-8");
@@ -563,9 +590,14 @@ public class KeyClient extends Client {
         if (passphrase == null) {
             throw new IllegalArgumentException("Passphrase must be specified.");
         }
+        KeyWrapAlgorithm alg = KeyWrapAlgorithm.RSA;
+
+        if(this.useOAEP == true) {
+            alg = KeyWrapAlgorithm.RSA_OAEP;
+        }
 
         SymmetricKey sessionKey = generateSessionKey();
-        byte[] transWrappedSessionKey = crypto.wrapSymmetricKey(sessionKey, transportCert.getPublicKey());
+        byte[] transWrappedSessionKey = crypto.wrapSymmetricKey(sessionKey, transportCert.getPublicKey(),alg);
         byte[] nonceData = CryptoUtil.getNonceData(encryptAlgorithm.getIVLength());
 
         byte[] secret = passphrase.getBytes("UTF-8");
@@ -693,7 +725,12 @@ public class KeyClient extends Client {
 
         byte[] nonceData = CryptoUtil.getNonceData(encryptAlgorithm.getIVLength());
         SymmetricKey sessionKey = generateSessionKey();
-        byte[] transWrappedSessionKey = crypto.wrapSymmetricKey(sessionKey, transportCert.getPublicKey());
+	KeyWrapAlgorithm alg = KeyWrapAlgorithm.RSA;
+	
+	if(this.useOAEP == true) {
+            alg = KeyWrapAlgorithm.RSA_OAEP;
+        }
+        byte[] transWrappedSessionKey = crypto.wrapSymmetricKey(sessionKey, transportCert.getPublicKey(),alg);
 
         byte[] encryptedData = crypto.encryptSecret(
                 secret,
@@ -751,9 +788,15 @@ public class KeyClient extends Client {
             nonceData = CryptoUtil.getNonceData(wrapIVLength);
         }
 
+        KeyWrapAlgorithm alg = KeyWrapAlgorithm.RSA;
+
+        if(this.useOAEP == true) {
+            alg = KeyWrapAlgorithm.RSA_OAEP;
+        }
+
         SymmetricKey sessionKey = generateSessionKey();
         byte[] encryptedData = crypto.wrapWithSessionKey(secret, sessionKey, nonceData, wrapAlgorithm);
-        byte[] transWrappedSessionKey = crypto.wrapSymmetricKey(sessionKey, transportCert.getPublicKey());
+        byte[] transWrappedSessionKey = crypto.wrapSymmetricKey(sessionKey, transportCert.getPublicKey(),alg);
 
         return archiveEncryptedData(clientKeyId, KeyRequestResource.SYMMETRIC_KEY_TYPE, keyAlgorithm, keySize,
                 algorithmOID, nonceData, encryptedData, transWrappedSessionKey, realm);

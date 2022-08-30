@@ -26,6 +26,8 @@ public abstract class CryptoProvider {
     public abstract byte[] wrapSymmetricKey(SymmetricKey symmetricKey, PublicKey wrappingKey)
             throws Exception;
 
+    public abstract byte[] wrapSymmetricKey(SymmetricKey symmetricKey, PublicKey wrappingKey, KeyWrapAlgorithm alg) throws Exception;
+
     public abstract byte[] encryptSecret(byte[] secret, byte[] iv, SymmetricKey key, String keyAlgorithm)
             throws Exception;
 
