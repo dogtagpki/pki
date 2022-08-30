@@ -1576,6 +1576,7 @@ class PKIDeployer:
 
         cert_id = self.get_cert_id(subsystem, tag)
         logger.info('Generating %s CSR in %s', cert_id, csr_path)
+        csr_pathname = os.path.join(nssdb.tmpdir, os.path.basename(csr_path))
 
         subject_dn = self.mdict['pki_%s_subject_dn' % cert_id]
 
@@ -1613,7 +1614,7 @@ class PKIDeployer:
 
             nssdb.create_request(
                 subject_dn=subject_dn,
-                request_file=csr_path,
+                request_file=csr_pathname,
                 key_type=key_type,
                 key_size=key_size,
                 curve=curve,
@@ -1625,10 +1626,12 @@ class PKIDeployer:
                 generic_exts=generic_exts,
                 use_jss=True)
 
-            with open(csr_path, encoding='utf-8') as f:
+            with open(csr_pathname, encoding='utf-8') as f:
                 csr = f.read()
 
             b64_csr = pki.nssdb.convert_csr(csr, 'pem', 'base64')
+
+            shutil.move(csr_pathname, csr_path)
 
         subsystem.config['%s.%s.certreq' % (subsystem.name, tag)] = b64_csr
 
