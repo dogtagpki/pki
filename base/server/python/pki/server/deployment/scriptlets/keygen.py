@@ -76,7 +76,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if not token:
             token = deployer.mdict['pki_token_name']
 
-        nssdb = subsystem.instance.open_nssdb(token)
+        nssdb = subsystem.instance.open_nssdb(
+            token=token,
+            user=deployer.mdict.get('pki_user'),
+            group=deployer.mdict.get('pki_group'),
+        )
 
         try:
             deployer.generate_csr(
