@@ -1,0 +1,162 @@
+name: CA with secure DS
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+
+jobs:
+  # docs/installation/ca/Installing_CA_with_Secure_Database_Connection.md
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Retrieve runner image
+        uses: actions/cache@v3
+        with:
+          key: pki-ca-runner-${{ inputs.os }}-${{ github.run_id }}
+          path: pki-ca-runner.tar
+
+      - name: Load runner image
+        run: docker load --input pki-ca-runner.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-container-create.sh ds
+        env:
+          IMAGE: ${{ needs.init.outputs.db-image }}
+          HOSTNAME: ds.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect DS container to network
+        run: docker network connect example ds --alias ds.example.com
+
+      - name: Set up PKI container
+        run: |
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
+
+      - name: Connect PKI container to network
+        run: docker network connect example pki --alias pki.example.com
+
+      - name: Create DS signing cert
+        run: |
+          docker exec pki pki \
+              nss-cert-request \
+              --subject "CN=DS Signing Certificate" \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --csr ds_signing.csr
+          docker exec pki pki \
+              nss-cert-issue \
+              --csr ds_signing.csr \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --cert ds_signing.crt
+          docker exec pki pki \
+              nss-cert-import \
+              --cert ds_signing.crt \
+              --trust CT,C,C \
+              Self-Signed-CA
+          docker exec pki certutil -L -d /root/.dogtag/nssdb
+
+      - name: Create DS server cert
+        run: |
+          docker exec pki pki \
+              nss-cert-request \
+              --subject "CN=ds.example.com" \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --csr ds_server.csr
+          docker exec pki pki \
+              nss-cert-issue \
+              --issuer Self-Signed-CA \
+              --csr ds_server.csr \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --cert ds_server.crt
+          docker exec pki pki \
+              nss-cert-import \
+              --cert ds_server.crt \
+              Server-Cert
+          docker exec pki certutil -L -d /root/.dogtag/nssdb
+
+      - name: Import certs into DS container
+        run: |
+          docker exec pki pk12util \
+              -d /root/.dogtag/nssdb \
+              -o ds_server.p12 \
+              -W Secret.123 \
+              -n Server-Cert
+          docker cp pki:ds_server.p12 ds_server.p12
+          tests/bin/ds-container-certs-import.sh ds ds_server.p12
+          tests/bin/ds-container-stop.sh ds
+          tests/bin/ds-container-start.sh ds
+
+      - name: Install CA
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca-secure-ds.cfg \
+              -s CA \
+              -D pki_ds_hostname=ds.example.com \
+              -D pki_ds_ldaps_port=3636 \
+              -D pki_cert_id_generator=random \
+              -D pki_request_id_generator=random \
+              -v
+
+          docker exec pki pki-server cert-find
+
+      - name: Run PKI healthcheck
+        run: docker exec pki pki-healthcheck --failures-only
+
+      - name: Verify DS connection
+        run: |
+          docker exec pki pki-server ca-db-config-show > output
+          cat output
+          echo "ds.example.com" > expected
+          sed -n 's/^\s\+Hostname:\s\+\(\S\+\)$/\1/p' output > actual
+          diff expected actual
+          echo "3636" > expected
+          sed -n 's/^\s\+Port:\s\+\(\S\+\)$/\1/p' output > actual
+          diff expected actual
+          echo "true" > expected
+          sed -n 's/^\s\+Secure:\s\+\(\S\+\)$/\1/p' output > actual
+          diff expected actual
+
+      - name: Verify CA admin
+        run: |
+          docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
+          docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
+          docker exec pki pki client-cert-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+          docker exec pki pki -n caadmin ca-user-show caadmin
+
+      - name: Check cert requests in CA
+        run: |
+          docker exec pki pki -n caadmin ca-cert-request-find
+
+      - name: Gather artifacts
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki ds
+          tests/bin/pki-artifacts-save.sh pki
+        continue-on-error: true
+
+      - name: Remove CA
+        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ca-secure-ds-${{ inputs.os }}
+          path: |
+            /tmp/artifacts/pki
