@@ -18,6 +18,7 @@
 package com.netscape.cmscore.dbs;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.DBVirtualList;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.cmscore.test.CMSBaseTestCase;
 
@@ -59,7 +60,7 @@ public class CertRecordListTest extends CMSBaseTestCase {
         assertEquals(7, dbList.lastIndexGetElementAtCalledWith);
     }
 
-    public static class DBVirtualListStub<T extends IDBObj> extends DBVirtualListDefaultStub<T> {
+    public static class DBVirtualListStub<T extends IDBObj> extends DBVirtualList<T> {
         public int size = 0;
         public int getElementAtCallCount = 0;
         public int lastIndexGetElementAtCalledWith = 0;

@@ -21,8 +21,8 @@ import java.util.Arrays;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.DBVirtualList;
+import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.cmscore.apps.CMS;
 
 import netscape.ldap.LDAPAttributeSet;
@@ -45,7 +45,7 @@ import netscape.ldap.controls.LDAPVirtualListResponse;
  * @author mzhao
  * @version $Revision$, $Date$
  */
-public class LDAPVirtualList<E extends IDBObj> implements DBVirtualList<E> {
+public class LDAPVirtualList<E extends IDBObj> extends DBVirtualList<E> {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LDAPVirtualList.class);
 

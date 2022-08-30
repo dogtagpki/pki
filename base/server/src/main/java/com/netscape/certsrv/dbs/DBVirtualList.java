@@ -21,12 +21,9 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.dbs.ElementProcessor;
 
 /**
- * A interface represents a virtual list of search results.
- * Note that this class must be used with DS4.0.
- *
- * @version $Revision$, $Date$
+ * A class represents a virtual list of search results.
  */
-public interface DBVirtualList<E extends IDBObj> {
+public class DBVirtualList<E extends IDBObj> {
 
     /**
      * Sets the paging size of this virtual list.
@@ -37,7 +34,8 @@ public interface DBVirtualList<E extends IDBObj> {
      *
      * @param size the page size
      */
-    public void setPageSize(int size);
+    public void setPageSize(int size) {
+    }
 
     /**
      * Sets the sort key
@@ -45,7 +43,8 @@ public interface DBVirtualList<E extends IDBObj> {
      * @param sortKey the attribute to sort by
      * @exception EBaseException failed to set
      */
-    public void setSortKey(String sortKey) throws EBaseException;
+    public void setSortKey(String sortKey) throws EBaseException {
+    }
 
     /**
      * Sets the sort key
@@ -53,7 +52,8 @@ public interface DBVirtualList<E extends IDBObj> {
      * @param sortKeys the attributes to sort by
      * @exception EBaseException failed to set
      */
-    public void setSortKey(String[] sortKeys) throws EBaseException;
+    public void setSortKey(String[] sortKeys) throws EBaseException {
+    }
 
     /**
      * Retrieves the size of this virtual list.
@@ -62,19 +62,26 @@ public interface DBVirtualList<E extends IDBObj> {
      *
      * @return current size in list
      */
-    public int getSize();
+    public int getSize() {
+        return 0;
+    }
 
     /**
      * Returns current index.
      *
      * @return current index
      */
+    public int getSizeBeforeJumpTo() {
+        return 0;
+    }
 
-    public int getSizeBeforeJumpTo();
+    public int getSizeAfterJumpTo() {
+        return 0;
+    }
 
-    public int getSizeAfterJumpTo();
-
-    public int getCurrentIndex();
+    public int getCurrentIndex() {
+        return 0;
+    }
 
     /**
      * Get a page starting at "first" (although we may also fetch
@@ -84,7 +91,9 @@ public interface DBVirtualList<E extends IDBObj> {
      *
      * @param first the index of the first entry of the page you want to fetch
      */
-    public boolean getPage(int first);
+    public boolean getPage(int first) {
+        return false;
+    }
 
     /**
      * Called by application to scroll the list with initial letters.
@@ -96,7 +105,9 @@ public interface DBVirtualList<E extends IDBObj> {
      *
      * @param text the prefix of the first entry of the page you want to fetch
      */
-    public boolean getPage(String text);
+    public boolean getPage(String text) {
+        return false;
+    }
 
     /**
      * Fetchs data of a single list item
@@ -107,7 +118,9 @@ public interface DBVirtualList<E extends IDBObj> {
      *
      * @param index the index of the element to fetch
      */
-    public E getElementAt(int index);
+    public E getElementAt(int index) {
+        return null;
+    }
 
     /**
      * Retrieves and jumps to element in the given position.
@@ -115,7 +128,9 @@ public interface DBVirtualList<E extends IDBObj> {
      * @param i position
      * @return object
      */
-    public E getJumpToElementAt(int i);
+    public E getJumpToElementAt(int i) {
+        return null;
+    }
 
     /**
      * Processes elements as soon as it arrives. It is
@@ -127,19 +142,24 @@ public interface DBVirtualList<E extends IDBObj> {
      * @exception EBaseException failed to process elements
      */
     public void processElements(int startidx, int endidx, ElementProcessor ep)
-            throws EBaseException;
+            throws EBaseException {
+    }
 
     /**
      * Gets the virutal selected index
      *
      * @return selected index
      */
-    public int getSelectedIndex();
+    public int getSelectedIndex() {
+        return 0;
+    }
 
     /**
      * Gets the top of the buffer
      *
      * @return first index
      */
-    public int getFirstIndex();
+    public int getFirstIndex() {
+        return 0;
+    }
 }
