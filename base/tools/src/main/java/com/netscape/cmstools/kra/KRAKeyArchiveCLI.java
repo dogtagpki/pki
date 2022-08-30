@@ -66,6 +66,9 @@ public class KRAKeyArchiveCLI extends CommandCLI {
         option = new Option(null, "output-format", true, "Output format: none (default), json");
         option.setArgName("format");
         options.addOption(option);
+
+        option = new Option(null, "oaep", false, "Use OAEP key wrap algorithm.");
+        options.addOption(option);
     }
 
     @Override
@@ -85,12 +88,14 @@ public class KRAKeyArchiveCLI extends CommandCLI {
         String requestFile = cmd.getOptionValue("input");
         String transportNickname = cmd.getOptionValue("transport");
         String outputFormat = cmd.getOptionValue("output-format", "none");
+        boolean useOAEP = cmd.hasOption("oaep");
 
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
         KeyRequestResponse response = null;
         KeyClient keyClient = keyCLI.getKeyClient(transportNickname);
+        keyClient.setUseOAEP(useOAEP);
 
         if (inputDataFile != null) {
             // archiving a binary data

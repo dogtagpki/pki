@@ -67,6 +67,9 @@ public class KRAKeyRetrieveCLI extends CommandCLI {
         option = new Option(null, "transport", true, "Transport certificate nickname.");
         option.setArgName("Nickname");
         options.addOption(option);
+
+        option = new Option(null, "oaep", false, "Use OAEP key wrap algorithm.");
+        options.addOption(option);
     }
 
     @Override
@@ -96,8 +99,9 @@ public class KRAKeyRetrieveCLI extends CommandCLI {
             String outputFilePath = cmd.getOptionValue("output");
             String outputDataFile = cmd.getOptionValue("output-data");
             String transportNickname = cmd.getOptionValue("transport");
-
+            boolean useOAEP = cmd.hasOption("oaep");
             KeyClient keyClient = keyCLI.getKeyClient(transportNickname);
+            keyClient.setUseOAEP(useOAEP);
 
             if (requestFile != null) {
                 Path path = Paths.get(requestFile);
