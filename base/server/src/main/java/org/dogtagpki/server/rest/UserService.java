@@ -55,7 +55,6 @@ import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.group.GroupMemberData;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.ConfigRoleEvent;
-import com.netscape.certsrv.password.IPasswordCheck;
 import com.netscape.certsrv.user.UserCertCollection;
 import com.netscape.certsrv.user.UserCertData;
 import com.netscape.certsrv.user.UserCollection;
@@ -64,6 +63,7 @@ import com.netscape.certsrv.user.UserMembershipCollection;
 import com.netscape.certsrv.user.UserMembershipData;
 import com.netscape.certsrv.user.UserResource;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
+import com.netscape.cms.password.PasswordChecker;
 import com.netscape.cms.servlet.admin.GroupMemberProcessor;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cmscore.apps.CMS;
@@ -312,7 +312,7 @@ public class UserService extends SubsystemService implements UserResource {
             logger.debug("Password: " + (pword == null ? null : "********"));
 
             if (pword != null && !pword.equals("")) {
-                IPasswordCheck passwdCheck = engine.getPasswordChecker();
+                PasswordChecker passwdCheck = engine.getPasswordChecker();
 
                 if (!passwdCheck.isGoodPassword(pword)) {
                     throw new EUsrGrpException(passwdCheck.getReason(pword));
@@ -438,7 +438,7 @@ public class UserService extends SubsystemService implements UserResource {
 
             String pword = userData.getPassword();
             if (pword != null && !pword.equals("")) {
-                IPasswordCheck passwdCheck = engine.getPasswordChecker();
+                PasswordChecker passwdCheck = engine.getPasswordChecker();
 
                 if (!passwdCheck.isGoodPassword(pword)) {
                     throw new EUsrGrpException(passwdCheck.getReason(pword));

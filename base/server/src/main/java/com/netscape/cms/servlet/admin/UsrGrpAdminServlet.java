@@ -54,9 +54,9 @@ import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.ConfigRoleEvent;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
-import com.netscape.certsrv.password.IPasswordCheck;
 import com.netscape.certsrv.tks.ITKSAuthority;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
+import com.netscape.cms.password.PasswordChecker;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.cert.CertPrettyPrint;
@@ -751,7 +751,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             String pword = super.getParameter(req, Constants.PR_USER_PASSWORD);
 
             if (pword != null && !pword.equals("")) {
-                IPasswordCheck passwdCheck = engine.getPasswordChecker();
+                PasswordChecker passwdCheck = engine.getPasswordChecker();
 
                 if (!passwdCheck.isGoodPassword(pword)) {
 
@@ -1999,7 +1999,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             String pword = super.getParameter(req, Constants.PR_USER_PASSWORD);
 
             if ((pword != null) && (!pword.equals(""))) {
-                IPasswordCheck passwdCheck = engine.getPasswordChecker();
+                PasswordChecker passwdCheck = engine.getPasswordChecker();
 
                 if (!passwdCheck.isGoodPassword(pword)) {
 

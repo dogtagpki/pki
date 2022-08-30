@@ -55,9 +55,9 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.notification.IMailNotification;
-import com.netscape.certsrv.password.IPasswordCheck;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cms.password.PasswordChecker;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.authentication.VerifiedCert;
@@ -1233,11 +1233,11 @@ public class CMSEngine {
         }
     }
 
-    public IPasswordCheck getPasswordChecker() {
+    public PasswordChecker getPasswordChecker() {
         try {
             String className = mConfig.getString("passwordCheckerClass",
                     "com.netscape.cms.password.PasswordChecker");
-            IPasswordCheck check = (IPasswordCheck) Class.forName(className).getDeclaredConstructor().newInstance();
+            PasswordChecker check = (PasswordChecker) Class.forName(className).getDeclaredConstructor().newInstance();
 
             return check;
         } catch (Exception e) {
