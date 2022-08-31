@@ -210,6 +210,12 @@ public class DogtagRABackend extends ESTBackend {
             CertRequestInfo info = infos.getEntries().iterator().next();
 
             RequestId requestId = info.getRequestID();
+            if (requestId == null) {
+                // Older versions of Dogtag lack the RequestID field.
+                // In that case, call .getRequestId() which derives the
+                // ID from the request URL field.
+                requestId = info.getRequestId();
+            }
             logger.info("- Request ID: " + requestId.toHexString());
             logger.info("  Type: " + info.getRequestType());
             logger.info("  Request Status: " + info.getRequestStatus());
