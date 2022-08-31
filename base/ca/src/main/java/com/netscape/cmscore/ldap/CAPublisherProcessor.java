@@ -59,8 +59,6 @@ public class CAPublisherProcessor extends PublisherProcessor {
     public final static String PROP_CERTS = "certs";
     public final static String PROP_XCERT = "xcert";
 
-    public final static String PROP_CRL_ENABLE = "crl.enable";
-
     protected CertificateAuthority ca;
     private boolean createOwnDNEntry;
 
@@ -886,7 +884,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
 
         try {
             if (!mConfig.isEnabled()) return false;
-            return mConfig.getBoolean(PROP_CRL_ENABLE, true);
+            return mConfig.isCRLEnabled();
 
         } catch (EBaseException e) {
             // this should never happen

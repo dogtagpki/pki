@@ -41,6 +41,13 @@ public class PublishingConfig extends ConfigStore {
     }
 
     /**
+     * Returns ca.publish.crl.enable parameter.
+     */
+    public boolean isCRLEnabled() throws EBaseException {
+        return getBoolean("crl.enable", true);
+    }
+
+    /**
      * Returns ca.publish.createOwnDNEntry parameter.
      */
     public boolean getCreateOwnDNEntry() throws EBaseException {
