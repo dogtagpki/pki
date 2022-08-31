@@ -24,6 +24,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.SecureRandom;
+import java.security.spec.AlgorithmParameterSpec;
+import java.security.spec.MGF1ParameterSpec;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -31,6 +33,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
 
+import javax.crypto.spec.OAEPParameterSpec;
+import javax.crypto.spec.PSource;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -1253,8 +1257,11 @@ public class CRSEnrollment extends HttpServlet {
         // Unwrap the session key with the Cert server key
         try {
             kw = cx.getKeyWrapper();
-
-            kw.initUnwrap(cx.getPrivateKey(), null);
+            AlgorithmParameterSpec keyWrapConfig = null;
+            if(mUseOAEPKeyWrap) {
+                keyWrapConfig = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT);
+            }
+            kw.initUnwrap(cx.getPrivateKey(), keyWrapConfig);
 
             switch(String.valueOf(mEncryptionAlgorithm)) {
                 case "DES3":
@@ -2006,7 +2013,11 @@ public class CRSEnrollment extends HttpServlet {
                 skinternal = cx.getInternalToken().cloneKey(sk);
 
                 KeyWrapper kw = cx.getInternalKeyWrapper();
-                kw.initWrap(rcpPK, null);
+                AlgorithmParameterSpec keyWrapConfig = null;
+                if(mUseOAEPKeyWrap) {
+                    keyWrapConfig = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT);
+                }
+                kw.initWrap(rcpPK, keyWrapConfig);
 
                 encryptedDesKey = kw.wrap(skinternal);
 
