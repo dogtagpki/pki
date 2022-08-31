@@ -66,7 +66,7 @@ public class CACertRequestActionCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        logger.info("Retrieving certificate request " + requestId);
+        logger.info("Retrieving certificate request " + requestId.toHexString());
         CACertClient certClient = certRequestCLI.getCertClient();
         CertReviewResponse reviewInfo = certClient.reviewRequest(requestId);
 

@@ -18,6 +18,6 @@ public class CACertRequestValidateCLI extends CACertRequestActionCLI {
             CertReviewResponse reviewInfo) throws Exception {
 
         certClient.validateRequest(requestId, reviewInfo);
-        MainCLI.printMessage("Validated certificate request " + requestId);
+        MainCLI.printMessage("Validated certificate request " + requestId.toHexString());
     }
 }

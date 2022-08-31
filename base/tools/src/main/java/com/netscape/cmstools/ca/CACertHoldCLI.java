@@ -120,7 +120,7 @@ public class CACertHoldCLI extends CommandCLI {
                 CACertCLI.printCertData(certData, false, false);
             }
         } else {
-            MainCLI.printMessage("Request \"" + certRequestInfo.getRequestID() + "\": "
+            MainCLI.printMessage("Request \"" + certRequestInfo.getRequestID().toHexString() + "\": "
                     + certRequestInfo.getRequestStatus());
         }
     }

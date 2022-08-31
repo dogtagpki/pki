@@ -18,6 +18,6 @@ public class CACertRequestUpdateCLI extends CACertRequestActionCLI {
             CertReviewResponse reviewInfo) throws Exception  {
 
         certClient.updateRequest(requestId, reviewInfo);
-        MainCLI.printMessage("Updated certificate request " + requestId);
+        MainCLI.printMessage("Updated certificate request " + requestId.toHexString());
     }
 }

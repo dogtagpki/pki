@@ -18,6 +18,6 @@ public class CACertRequestRejectCLI extends CACertRequestActionCLI {
             CertReviewResponse reviewInfo) throws Exception {
 
         certClient.rejectRequest(requestId, reviewInfo);
-        MainCLI.printMessage("Rejected certificate request " + requestId);
+        MainCLI.printMessage("Rejected certificate request " + requestId.toHexString());
     }
 }

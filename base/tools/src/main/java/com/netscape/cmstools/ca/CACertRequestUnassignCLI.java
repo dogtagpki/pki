@@ -18,6 +18,6 @@ public class CACertRequestUnassignCLI extends CACertRequestActionCLI {
             CertReviewResponse reviewInfo) throws Exception {
 
         certClient.unassignRequest(requestId, reviewInfo);
-        MainCLI.printMessage("Unassigned certificate request " + requestId);
+        MainCLI.printMessage("Unassigned certificate request " + requestId.toHexString());
     }
 }

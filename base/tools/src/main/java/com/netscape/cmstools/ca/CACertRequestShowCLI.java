@@ -46,7 +46,7 @@ public class CACertRequestShowCLI extends CommandCLI {
         CACertClient certClient = certRequestCLI.getCertClient();
         CertRequestInfo certRequest = certClient.getRequest(requestId);
 
-        MainCLI.printMessage("Certificate request \"" + requestId + "\"");
+        MainCLI.printMessage("Certificate request \"" + requestId.toHexString() + "\"");
         CACertRequestCLI.printCertRequestInfo(certRequest);
     }
 }

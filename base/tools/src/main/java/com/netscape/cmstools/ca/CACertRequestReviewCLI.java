@@ -95,14 +95,14 @@ public class CACertRequestReviewCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        logger.info("Retrieving certificate request " + requestId);
+        logger.info("Retrieving certificate request " + requestId.toHexString());
         CACertClient certClient = certRequestCLI.getCertClient();
         CertReviewResponse reviewInfo = certClient.reviewRequest(requestId);
         logger.info("Nonce: " + reviewInfo.getNonce());
 
         if (action == null) {
 
-            MainCLI.printMessage("Retrieved certificate request " + requestId);
+            MainCLI.printMessage("Retrieved certificate request " + requestId.toHexString());
             CACertRequestCLI.printCertReviewResponse(reviewInfo);
 
             System.out.println();
@@ -120,7 +120,7 @@ public class CACertRequestReviewCLI extends CommandCLI {
             System.out.println("Please review the certificate request in " + filename + ".");
             System.out.println("Update the file if necessary, then execute:");
             System.out.println();
-            System.out.println("  $ pki ... ca-cert-request-<action> " + requestId + " --input-file " + filename);
+            System.out.println("  $ pki ... ca-cert-request-<action> " + requestId.toHexString() + " --input-file " + filename);
             System.out.println();
             System.out.println("Available actions: " + StringUtils.join(actions, ", "));
 
@@ -177,31 +177,31 @@ public class CACertRequestReviewCLI extends CommandCLI {
 
         if (action.equalsIgnoreCase("approve")) {
             certClient.approveRequest(requestId, reviewInfo);
-            MainCLI.printMessage("Approved certificate request " + requestId);
+            MainCLI.printMessage("Approved certificate request " + requestId.toHexString());
 
         } else if (action.equalsIgnoreCase("reject")) {
             certClient.rejectRequest(requestId, reviewInfo);
-            MainCLI.printMessage("Rejected certificate request " + requestId);
+            MainCLI.printMessage("Rejected certificate request " + requestId.toHexString());
 
         } else if (action.equalsIgnoreCase("cancel")) {
             certClient.cancelRequest(requestId, reviewInfo);
-            MainCLI.printMessage("Canceled certificate request " + requestId);
+            MainCLI.printMessage("Canceled certificate request " + requestId.toHexString());
 
         } else if (action.equalsIgnoreCase("update")) {
             certClient.updateRequest(requestId, reviewInfo);
-            MainCLI.printMessage("Updated certificate request " + requestId);
+            MainCLI.printMessage("Updated certificate request " + requestId.toHexString());
 
         } else if (action.equalsIgnoreCase("validate")) {
             certClient.validateRequest(requestId, reviewInfo);
-            MainCLI.printMessage("Validated certificate request " + requestId);
+            MainCLI.printMessage("Validated certificate request " + requestId.toHexString());
 
         } else if (action.equalsIgnoreCase("assign")) {
             certClient.assignRequest(requestId, reviewInfo);
-            MainCLI.printMessage("Assigned certificate request " + requestId);
+            MainCLI.printMessage("Assigned certificate request " + requestId.toHexString());
 
         } else if (action.equalsIgnoreCase("unassign")) {
             certClient.unassignRequest(requestId, reviewInfo);
-            MainCLI.printMessage("Unassigned certificate request " + requestId);
+            MainCLI.printMessage("Unassigned certificate request " + requestId.toHexString());
 
         } else {
             throw new Exception("Invalid action: " + action);
