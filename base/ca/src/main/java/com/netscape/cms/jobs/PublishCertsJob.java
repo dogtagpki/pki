@@ -29,6 +29,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.MetaInfo;
+import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
@@ -120,6 +121,9 @@ public class PublishCertsJob extends Job
      */
     @Override
     public void init(ISubsystem owner, String id, String implName, ConfigStore config) throws EBaseException {
+
+        logger.info("PublishCertsJob: Initializing job " + id);
+
         mConfig = config;
         mId = id;
         mImplName = implName;
@@ -133,6 +137,8 @@ public class PublishCertsJob extends Job
 
         // read from the configuration file
         mCron = mConfig.getString(JobCron.PROP_CRON);
+        logger.info("PublishCertsJob: - cron: " + mCron);
+
         if (mCron == null) {
             return;
         }
@@ -144,14 +150,27 @@ public class PublishCertsJob extends Job
 
         // initialize the summary related config info
         ConfigStore sc = mConfig.getSubStore(PROP_SUMMARY, ConfigStore.class);
+        boolean enabled = sc.getBoolean(PROP_ENABLED, false);
+        logger.info("PublishCertsJob: - enabled: " + enabled);
 
-        if (sc.getBoolean(PROP_ENABLED, false)) {
+        if (enabled) {
             mSummary = true;
+
             mSummaryMailSubject = sc.getString(PROP_EMAIL_SUBJECT);
+            logger.info("PublishCertsJob: - subject: " + mSummaryMailSubject);
+
             mMailForm = sc.getString(PROP_EMAIL_TEMPLATE);
+            logger.info("PublishCertsJob: - mail template: " + mMailForm);
+
             mItemForm = sc.getString(PROP_ITEM_TEMPLATE);
+            logger.info("PublishCertsJob: - item template: " + mItemForm);
+
             mSummarySenderEmail = sc.getString(PROP_SENDER_EMAIL);
+            logger.info("PublishCertsJob: - sender email: " + mSummarySenderEmail);
+
             mSummaryReceiverEmail = sc.getString(PROP_RECEIVER_EMAIL);
+            logger.info("PublishCertsJob: - receiver email: " + mSummaryReceiverEmail);
+
         } else {
             mSummary = false;
         }
@@ -166,8 +185,9 @@ public class PublishCertsJob extends Job
      */
     @Override
     public void run() {
-        logger.debug("in PublishCertsJob " +
-                       getId() + " : run()");
+
+        logger.info("PublishCertsJob: Running job " + mId);
+
         // get time now..."now" is before the loop
         Date date = new Date();
         DateFormat dateFormat = DateFormat.getDateTimeInstance();
@@ -208,19 +228,26 @@ public class PublishCertsJob extends Job
         // publish() will set inLdapPublishDir flag
         while (unpublishedCerts != null && unpublishedCerts.hasMoreElements()) {
             CertRecord rec = (CertRecord) unpublishedCerts.nextElement();
-
             if (rec == null)
                 break;
+
+            CertId certID = new CertId(rec.getSerialNumber());
+            logger.info("PublishCertsJob: Publishing cert " + certID.toHexString());
+
             X509CertImpl cert = rec.getCertificate();
             Date notAfter = cert.getNotAfter();
 
             // skip CA certs
-            if (cert.getBasicConstraintsIsCA() == true)
+            if (cert.getBasicConstraintsIsCA()) {
+                logger.info("PublishCertsJob: Cert " + certID.toHexString() + " is a CA cert");
                 continue;
+            }
 
             // skip the expired certs
-            if (notAfter.before(date))
+            if (notAfter.before(date)) {
+                logger.info("PublishCertsJob: Cert " + certID.toHexString() + " has expired");
                 continue;
+            }
 
             if (mSummary == true)
                 buildItemParams(cert);
@@ -261,8 +288,14 @@ public class PublishCertsJob extends Job
                                 cert.getSerialNumber().toString(16) + e.getMessage()), e);
             }
 
+            boolean publishingEnabled =
+                    mPublisherProcessor != null &&
+                    mPublisherProcessor.isCertPublishingEnabled();
+            logger.info("PublishCertsJob: Publishing enabled: " + publishingEnabled);
+
             if (ridString != null) {
                 RequestId rid = new RequestId(ridString);
+                logger.info("PublishCertsJob: Request: " + rid.toHexString());
 
                 // get request from request id
                 Request req = null;
@@ -281,10 +314,13 @@ public class PublishCertsJob extends Job
                     logger.warn("PublishCertsJob: " + CMS.getLogMessage("JOBS_FIND_REQUEST_ERROR",
                                     cert.getSerialNumber().toString(16) + e.getMessage()), e);
                 }
+
                 try {
-                    if ((mPublisherProcessor != null) &&
-                            mPublisherProcessor.isCertPublishingEnabled()) {
+                    if (publishingEnabled) {
+
+                        logger.info("PublishCertsJob: Publishing cert " + certID.toHexString() + " with request " + rid.toHexString());
                         mPublisherProcessor.publishCert(cert, req);
+
                         if (mSummary == true)
                             buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
                                     STATUS_SUCCESS);
@@ -303,8 +339,9 @@ public class PublishCertsJob extends Job
             } // ridString != null
             else {
                 try {
-                    if ((mPublisherProcessor != null) &&
-                            mPublisherProcessor.isCertPublishingEnabled()) {
+                    if (publishingEnabled) {
+
+                        logger.info("PublishCertsJob: Publishing cert " + certID.toHexString() + " without request");
                         mPublisherProcessor.publishCert(cert, null);
 
                         if (mSummary == true)

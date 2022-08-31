@@ -144,6 +144,8 @@ public class JobsScheduler implements Runnable, ISubsystem {
     @Override
     public void init(ConfigStore config) throws EBaseException, EJobsException {
 
+        logger.info("JobsScheduler: Initializing scheduler");
+
         // read in config parameters and set variables
         mConfig = config;
 
@@ -155,6 +157,7 @@ public class JobsScheduler implements Runnable, ISubsystem {
         } catch (Exception e) {
             i = 1; // default 1 minute
         }
+        logger.info("JobsScheduler: - interval: " + i);
         setInterval(i);
 
         ConfigStore c = mConfig.getSubStore(PROP_IMPL, ConfigStore.class);
@@ -170,12 +173,15 @@ public class JobsScheduler implements Runnable, ISubsystem {
             mJobPlugins.put(id, plugin);
         }
 
+        logger.info("JobsScheduler: Jobs: ");
         // register all jobs
         c = config.getSubStore(PROP_JOB, ConfigStore.class);
         Enumeration<String> jobs = c.getSubStoreNames();
 
         while (jobs.hasMoreElements()) {
             String jobName = jobs.nextElement();
+            logger.info("JobsScheduler: - " + jobName);
+
             String implName = c.getString(jobName + "." + PROP_PLUGIN);
             JobPlugin plugin = mJobPlugins.get(implName);
 

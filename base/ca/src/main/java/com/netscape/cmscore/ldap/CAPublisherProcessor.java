@@ -32,6 +32,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
+import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.publish.ILdapMapper;
 import com.netscape.certsrv.publish.ILdapPublisher;
@@ -386,7 +387,8 @@ public class CAPublisherProcessor extends PublisherProcessor {
      */
     public void publishCert(X509Certificate cert, Request req) throws ELdapException {
 
-        logger.info("CAPublisherProcessor: Publishing cert " + cert.getSerialNumber());
+        CertId certID = new CertId(cert.getSerialNumber());
+        logger.info("CAPublisherProcessor: Publishing cert " + certID.toHexString());
 
         if (!isCertPublishingEnabled()) {
             logger.info("CAPublisherProcessor: Cert publishing disabled");
@@ -455,7 +457,8 @@ public class CAPublisherProcessor extends PublisherProcessor {
      */
     public void unpublishCert(X509Certificate cert, Request req) throws ELdapException {
 
-        logger.info("CAPublisherProcessor: Unpublishing cert 0x" + cert.getSerialNumber().toString(16));
+        CertId certID = new CertId(cert.getSerialNumber());
+        logger.info("CAPublisherProcessor: Unpublishing cert " + certID.toHexString());
 
         if (!isCertPublishingEnabled()) {
             logger.info("CAPublisherProcessor: Cert publishing disabled");

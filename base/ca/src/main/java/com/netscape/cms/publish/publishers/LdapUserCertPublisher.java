@@ -27,6 +27,7 @@ import org.dogtagpki.server.ca.CAEngineConfig;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.logging.AuditFormat;
@@ -112,8 +113,14 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
     public void init(ConfigStore config) throws EBaseException {
         if (mInited)
             return;
+
+        logger.info("LdapUserCertPublisher: Initializing LdapUserCertPublisher");
+
         mConfig = config;
+
         mCertAttr = mConfig.getString("certAttr", LDAP_USERCERT_ATTR);
+        logger.info("LdapUserCertPublisher: - cert attr: " + mCertAttr);
+
         mInited = true;
     }
 
@@ -137,7 +144,14 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
             return;
         }
 
-        logger.info("LdapUserCertPublisher: Publishing to " + dn);
+        if (!(certObj instanceof X509Certificate)) {
+            throw new IllegalArgumentException("Illegal arg to publish");
+        }
+
+        X509Certificate cert = (X509Certificate) certObj;
+        CertId certID = new CertId(cert.getSerialNumber());
+
+        logger.info("LdapUserCertPublisher: Publishing cert " + certID.toHexString() + " to " + dn);
 
         CAEngine engine = CAEngine.getInstance();
         CAEngineConfig cs = engine.getConfig();
@@ -177,17 +191,13 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
             logger.warn("LdapUserCertPublisher: Failed to create alt connection " + e.getMessage(), e);
         }
 
-        if (!(certObj instanceof X509Certificate)) {
-            throw new IllegalArgumentException("Illegal arg to publish");
-        }
-
-        X509Certificate cert = (X509Certificate) certObj;
-
         boolean deleteCert = false;
         try {
             deleteCert = mConfig.getBoolean("deleteCert", false);
         } catch (Exception e) {
         }
+
+        logger.info("LdapUserCertPublisher: - delete cert: " + deleteCert);
 
         try {
             byte[] certEnc = cert.getEncoded();
@@ -198,16 +208,18 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
             LDAPEntry entry = res.next();
 
             if (ByteValueExists(entry.getAttribute(mCertAttr), certEnc)) {
-                logger.info("LdapUserCertPublisher: publish: " + dn + " already has cert.");
+                logger.info("LdapUserCertPublisher: " + dn + " already has cert " + certID.toHexString());
                 return;
             }
 
             // publish
             LDAPModification mod = null;
             if (deleteCert) {
+                logger.info("LdapUserCertPublisher: Replacing certs in " + dn);
                 mod = new LDAPModification(LDAPModification.REPLACE,
                         new LDAPAttribute(mCertAttr, certEnc));
             } else {
+                logger.info("LdapUserCertPublisher: Adding cert into " + dn);
                 mod = new LDAPModification(LDAPModification.ADD,
                         new LDAPAttribute(mCertAttr, certEnc));
             }

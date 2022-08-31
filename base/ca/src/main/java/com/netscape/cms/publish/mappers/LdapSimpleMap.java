@@ -201,7 +201,7 @@ public class LdapSimpleMap implements ILdapMapper, IExtendedPluginInfo {
             // search for entry
             String[] attrs = new String[] { LDAPv3.NO_ATTRS };
 
-            logger.info("LdapSimpleMap: searching for dn: " + dn + " filter: " + filter + " scope: base");
+            logger.info("LdapSimpleMap: Searching for " + dn);
 
             LDAPSearchResults results = conn.search(dn, scope, filter, attrs, false);
             LDAPEntry entry = results.next();
@@ -221,7 +221,12 @@ public class LdapSimpleMap implements ILdapMapper, IExtendedPluginInfo {
         } catch (ELdapException e) {
             throw e;
         } catch (LDAPException e) {
-            if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
+
+            if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
+                logger.error("Entry not found: " + dn);
+                throw new ELdapException("Entry not found: " + dn, e);
+
+            } else if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
                 // need to intercept this because message from LDAP is
                 // "DSA is unavailable" which confuses with DSA PKI.
                 logger.error(CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"), e);

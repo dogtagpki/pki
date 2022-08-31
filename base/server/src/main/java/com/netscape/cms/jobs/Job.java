@@ -193,6 +193,9 @@ public abstract class Job implements Runnable {
     }
 
     protected void mailSummary(String content) {
+
+        logger.info("Job: Sending email to " + mSummaryReceiverEmail);
+
         // no need for email resolver here...
         CMSEngine engine = CMS.getCMSEngine();
         IMailNotification mn = engine.getMailNotification();
