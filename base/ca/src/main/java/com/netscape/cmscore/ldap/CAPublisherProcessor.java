@@ -59,7 +59,6 @@ public class CAPublisherProcessor extends PublisherProcessor {
     public final static String PROP_CERTS = "certs";
     public final static String PROP_XCERT = "xcert";
 
-    public final static String PROP_CERT_ENABLE = "cert.enable";
     public final static String PROP_CRL_ENABLE = "crl.enable";
 
     protected CertificateAuthority ca;
@@ -868,7 +867,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
 
         try {
             if (!mConfig.isEnabled()) return false;
-            return mConfig.getBoolean(PROP_CERT_ENABLE, true);
+            return mConfig.isCertEnabled();
 
         } catch (EBaseException e) {
             // this should never happen
