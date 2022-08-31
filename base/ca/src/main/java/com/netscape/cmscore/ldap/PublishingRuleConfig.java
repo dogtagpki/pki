@@ -9,6 +9,9 @@ import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
 
+/**
+ * Provides ca.publish.rule.* parameters.
+ */
 public class PublishingRuleConfig extends ConfigStore {
 
     public PublishingRuleConfig() {

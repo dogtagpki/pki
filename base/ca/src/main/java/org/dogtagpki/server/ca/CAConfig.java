@@ -25,6 +25,9 @@ public class CAConfig extends ConfigStore {
         super(name, source);
     }
 
+    /**
+     * Returns ca.publish.* parameters.
+     */
     public PublishingConfig getPublishingConfig() {
         return getSubStore("publish", PublishingConfig.class);
     }

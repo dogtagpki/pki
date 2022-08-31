@@ -9,6 +9,9 @@ import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
 
+/**
+ * Provides ca.publish.mapper.* parameters.
+ */
 public class PublishingMapperConfig extends ConfigStore {
 
     public PublishingMapperConfig() {

@@ -10,6 +10,9 @@ import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
 
+/**
+ * Provides ca.publish.* parameters.
+ */
 public class PublishingConfig extends ConfigStore {
 
     public PublishingConfig() {
@@ -23,18 +26,30 @@ public class PublishingConfig extends ConfigStore {
         super(name, source);
     }
 
+    /**
+     * Returns ca.publish.createOwnDNEntry parameter.
+     */
     public boolean getCreateOwnDNEntry() throws EBaseException {
         return getBoolean("createOwnDNEntry", false);
     }
 
+    /**
+     * Returns ca.publish.publisher.* parameters.
+     */
     public PublishingPublisherConfig getPublisherConfig() {
         return getSubStore("publisher", PublishingPublisherConfig.class);
     }
 
+    /**
+     * Returns ca.publish.mapper.* parameters.
+     */
     public PublishingMapperConfig getMapperConfig() {
         return getSubStore("mapper", PublishingMapperConfig.class);
     }
 
+    /**
+     * Returns ca.publish.rule.* parameters.
+     */
     public PublishingRuleConfig getRuleConfig() {
         return getSubStore("rule", PublishingRuleConfig.class);
     }
