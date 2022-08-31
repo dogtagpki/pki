@@ -499,6 +499,15 @@ jobs:
           path: |
             /tmp/artifacts/pki
 
+  ca-user-cert-publish-test:
+    name: CA user cert publishing
+    needs: [init, build]
+    strategy:
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    uses: ./.github/workflows/ca-user-cert-publishing-test.yml
+    with:
+      os: ${{ matrix.os }}
+
   # https://github.com/dogtagpki/pki/wiki/Publishing-CRL-to-File-System
   crl-file-test:
     name: Testing file-based CRL publishing
