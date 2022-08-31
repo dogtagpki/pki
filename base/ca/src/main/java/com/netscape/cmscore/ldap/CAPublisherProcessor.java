@@ -88,7 +88,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
 
         CAEngine engine = CAEngine.getInstance();
 
-        if (mConfig.getBoolean(PROP_ENABLE, false)) {
+        if (mConfig.isEnabled()) {
 
             if (requestListener != null) {
                 engine.registerRequestListener(requestListener);
@@ -867,7 +867,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
         if (!mInited) return false;
 
         try {
-            if (!mConfig.getBoolean(PROP_ENABLE, false)) return false;
+            if (!mConfig.isEnabled()) return false;
             return mConfig.getBoolean(PROP_CERT_ENABLE, true);
 
         } catch (EBaseException e) {
@@ -886,7 +886,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
         if (!mInited) return false;
 
         try {
-            if (!mConfig.getBoolean(PROP_ENABLE, false)) return false;
+            if (!mConfig.isEnabled()) return false;
             return mConfig.getBoolean(PROP_CRL_ENABLE, true);
 
         } catch (EBaseException e) {

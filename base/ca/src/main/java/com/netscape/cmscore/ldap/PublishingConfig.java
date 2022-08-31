@@ -27,6 +27,13 @@ public class PublishingConfig extends ConfigStore {
     }
 
     /**
+     * Returns ca.publish.enable parameter.
+     */
+    public boolean isEnabled() throws EBaseException {
+        return getBoolean("enable", false);
+    }
+
+    /**
      * Returns ca.publish.createOwnDNEntry parameter.
      */
     public boolean getCreateOwnDNEntry() throws EBaseException {

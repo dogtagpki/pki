@@ -79,7 +79,6 @@ import com.netscape.cmscore.dbs.RetrieveModificationsTask;
 import com.netscape.cmscore.dbs.SerialNumberUpdateTask;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.ldap.LdapRequestListener;
-import com.netscape.cmscore.ldap.PublisherProcessor;
 import com.netscape.cmscore.ldap.PublishingConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
@@ -484,7 +483,7 @@ public class CAEngine extends CMSEngine {
 
         publisherProcessor = new CAPublisherProcessor(ICertificateAuthority.ID + "pp");
 
-        if (publishingConfig.getBoolean(PublisherProcessor.PROP_ENABLE, false)) {
+        if (publishingConfig.isEnabled()) {
             LdapRequestListener listener = new LdapRequestListener();
             listener.setPublisherProcessor(publisherProcessor);
             publisherProcessor.setRequestListener(listener);
