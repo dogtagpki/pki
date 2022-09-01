@@ -1,0 +1,165 @@
+name: CA with CA cert publishing
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+
+jobs:
+  # https://github.com/dogtagpki/pki/wiki/Publishing-CA-Certificate-to-LDAP-Server
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Retrieve runner image
+        uses: actions/cache@v3
+        with:
+          key: pki-ca-runner-${{ inputs.os }}-${{ github.run_id }}
+          path: pki-ca-runner.tar
+
+      - name: Load runner image
+        run: docker load --input pki-ca-runner.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-container-create.sh ds
+        env:
+          IMAGE: ${{ needs.init.outputs.db-image }}
+          COPR_REPO: ${{ needs.init.outputs.repo }}
+          HOSTNAME: ds.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect DS container to network
+        run: docker network connect example ds --alias ds.example.com
+
+      - name: Set up PKI container
+        run: |
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
+
+      - name: Connect PKI container to network
+        run: docker network connect example pki --alias pki.example.com
+
+      - name: Install CA
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_hostname=ds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -D pki_cert_id_generator=random \
+              -D pki_request_id_generator=random \
+              -v
+
+      - name: Export CA cert
+        run: |
+          docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
+          docker exec pki openssl x509 \
+              -in ca_signing.crt \
+              -text \
+              -noout | tee ca_signing.txt
+
+      - name: Prepare CA cert publishing subtree
+        run: |
+          docker exec -i pki ldapadd \
+              -H ldap://ds.example.com:3389 \
+              -x \
+              -D "cn=Directory Manager" \
+              -w Secret.123 << EOF
+          dn: dc=crl,dc=pki,dc=example,dc=com
+          objectClass: domain
+          dc: crl
+          EOF
+
+      - name: Configure CA cert publishing
+        run: |
+          # configure LDAP connection
+          docker exec pki pki-server ca-config-set ca.publish.ldappublish.enable true
+          docker exec pki pki-server ca-config-set ca.publish.ldappublish.ldap.ldapauth.authtype BasicAuth
+          docker exec pki pki-server ca-config-set ca.publish.ldappublish.ldap.ldapauth.bindDN "cn=Directory Manager"
+          docker exec pki pki-server ca-config-set ca.publish.ldappublish.ldap.ldapauth.bindPWPrompt internaldb
+          docker exec pki pki-server ca-config-set ca.publish.ldappublish.ldap.ldapconn.host ds.example.com
+          docker exec pki pki-server ca-config-set ca.publish.ldappublish.ldap.ldapconn.port 3389
+          docker exec pki pki-server ca-config-set ca.publish.ldappublish.ldap.ldapconn.secureConn false
+
+          # configure LDAP-based CA cert publisher
+          docker exec pki pki-server ca-config-set ca.publish.publisher.instance.LdapCaCertPublisher.caCertAttr "cACertificate;binary"
+          docker exec pki pki-server ca-config-set ca.publish.publisher.instance.LdapCaCertPublisher.caObjectClass pkiCA
+          docker exec pki pki-server ca-config-set ca.publish.publisher.instance.LdapCaCertPublisher.pluginName LdapCaCertPublisher
+
+          # configure CA cert mapper
+          docker exec pki pki-server ca-config-set ca.publish.mapper.instance.LdapCaCertMap.createCAEntry true
+          docker exec pki pki-server ca-config-set ca.publish.mapper.instance.LdapCaCertMap.dnPattern "cn=\$subj.cn,dc=crl,dc=pki,dc=example,dc=com"
+          docker exec pki pki-server ca-config-set ca.publish.mapper.instance.LdapCaCertMap.pluginName LdapCaSimpleMap
+
+          # configure CA cert publishing rule
+          docker exec pki pki-server ca-config-set ca.publish.rule.instance.LdapCaCertRule.enable true
+          docker exec pki pki-server ca-config-set ca.publish.rule.instance.LdapCaCertRule.mapper LdapCaCertMap
+          docker exec pki pki-server ca-config-set ca.publish.rule.instance.LdapCaCertRule.pluginName Rule
+          docker exec pki pki-server ca-config-set ca.publish.rule.instance.LdapCaCertRule.predicate ""
+          docker exec pki pki-server ca-config-set ca.publish.rule.instance.LdapCaCertRule.publisher LdapCaCertPublisher
+          docker exec pki pki-server ca-config-set ca.publish.rule.instance.LdapCaCertRule.type cacert
+
+          # enable publishing
+          docker exec pki pki-server ca-config-set ca.publish.enable true
+
+          # restart CA subsystem
+          docker exec pki pki-server ca-undeploy --wait
+          docker exec pki pki-server ca-deploy --wait
+
+      - name: Check published CA cert
+        run: |
+          docker exec pki ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -x \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b "dc=crl,dc=pki,dc=example,dc=com" \
+              -o ldif_wrap=no \
+              -t \
+              "(objectClass=pkiCA)" | tee output
+
+          # there should be one CA cert attribute
+          grep "cACertificate;binary:" output | wc -l > actual
+          echo "1" > expected
+          diff expected actual
+
+          FILENAME=$(sed -n 's/cACertificate;binary:< file:\/\/\(.*\)$/\1/p' output)
+          echo "FILENAME: $FILENAME"
+
+          # compare exported and published CA certs
+          docker exec pki openssl x509 \
+              -in "$FILENAME" \
+              -inform DER \
+              -text \
+              -noout | tee output
+          diff ca_signing.txt output
+
+      - name: Gather artifacts
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki ds
+          tests/bin/pki-artifacts-save.sh pki
+        continue-on-error: true
+
+      - name: Remove CA
+        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ca-ldap-${{ inputs.os }}
+          path: |
+            /tmp/artifacts/pki
