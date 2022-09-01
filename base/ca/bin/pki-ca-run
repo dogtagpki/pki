@@ -5,7 +5,6 @@
 # - do not create security domain
 # - support existing subsystem user
 # - support existing admin user
-# - support existing database user
 
 echo "################################################################################"
 
@@ -299,14 +298,16 @@ fi
 echo "################################################################################"
 echo "INFO: Creating PKI CA"
 
-# Create CA with existing certs and keys, with RSNv3,
-# without security manager, and without systemd service.
+# Create CA with existing certs and keys, with existing database,
+# with existing database user, with RSNv3, without security manager,
+# and without systemd service.
 pkispawn \
     -f /usr/share/pki/server/examples/installation/ca.cfg \
     -s CA \
     -D pki_ds_hostname=ds.example.com \
     -D pki_ds_ldap_port=3389 \
     -D pki_ds_setup=False \
+    -D pki_share_db=True \
     -D pki_request_id_generator=random \
     -D pki_cert_id_generator=random \
     -D pki_existing=True \
