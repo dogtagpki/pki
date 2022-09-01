@@ -465,12 +465,18 @@ jobs:
       - name: Gather artifacts from CA container
         if: always()
         run: |
-          mkdir -p /tmp/artifacts/ca
-          docker logs ca > /tmp/artifacts/ca/container.out 2> /tmp/artifacts/ca/container.err
-          mkdir -p /tmp/artifacts/ca/var/lib
-          docker cp ca:/etc/pki /tmp/artifacts/ca/etc
-          docker cp ca:/var/lib/pki /tmp/artifacts/ca/var/lib
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/ca ds
+
+          docker exec ca ls -la /etc/pki
+          mkdir -p /tmp/artifacts/ca/etc/pki
+          docker cp ca:/etc/pki/pki.conf /tmp/artifacts/ca/etc/pki
+          docker cp ca:/etc/pki/pki-tomcat /tmp/artifacts/ca/etc/pki
+
+          docker exec ca ls -la /var/log/pki
+          mkdir -p /tmp/artifacts/ca/var/log
           docker cp ca:/var/log/pki /tmp/artifacts/ca/var/log
+
+          docker logs ca > /tmp/artifacts/ca/container.out 2> /tmp/artifacts/ca/container.err
         continue-on-error: true
 
       - name: Gather artifacts from client container
