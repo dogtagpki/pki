@@ -1,4 +1,4 @@
-name: CA user cert publishing
+name: CA with user cert publishing
 
 on:
   workflow_call:

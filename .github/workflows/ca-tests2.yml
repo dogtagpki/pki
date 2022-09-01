@@ -341,8 +341,8 @@ jobs:
             /tmp/artifacts/pki
 
   # https://github.com/dogtagpki/pki/wiki/Publishing-CA-Certificate-to-LDAP-Server
-  ca-ldap-test:
-    name: Testing LDAP-based CA cert publishing
+  ca-publishing-ca-cert-test:
+    name: Testing CA with CA cert publishing
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
@@ -499,18 +499,18 @@ jobs:
           path: |
             /tmp/artifacts/pki
 
-  ca-user-cert-publish-test:
-    name: CA user cert publishing
+  ca-publishing-user-cert-test:
+    name: CA with user cert publishing
     needs: [init, build]
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
-    uses: ./.github/workflows/ca-user-cert-publishing-test.yml
+    uses: ./.github/workflows/ca-publishing-user-cert-test.yml
     with:
       os: ${{ matrix.os }}
 
   # https://github.com/dogtagpki/pki/wiki/Publishing-CRL-to-File-System
-  crl-file-test:
-    name: Testing file-based CRL publishing
+  ca-publishing-crl-file-test:
+    name: Testing CA with file-based CRL publishing
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
@@ -769,8 +769,8 @@ jobs:
             /tmp/artifacts/pki
 
   # https://github.com/dogtagpki/pki/wiki/Publishing-CRL-to-LDAP-Server
-  crl-ldap-test:
-    name: Testing LDAP-based CRL publishing
+  ca-publishing-crl-ldap-test:
+    name: Testing CA with LDAP-based CRL publishing
     needs: [init, build]
     runs-on: ubuntu-latest
     env:
