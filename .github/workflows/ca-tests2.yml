@@ -101,125 +101,13 @@ jobs:
       os: ${{ matrix.os }}
 
   ca-sequential-test:
-    name: Testing CA with Sequential Serial Numbers
+    name: CA with Sequential Serial Numbers
     needs: [init, build]
-    runs-on: ubuntu-latest
-    env:
-      SHARED: /tmp/workdir/pki
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@v2
-
-      - name: Retrieve runner image
-        uses: actions/cache@v3
-        with:
-          key: pki-ca-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-ca-runner.tar
-
-      - name: Load runner image
-        run: docker load --input pki-ca-runner.tar
-
-      - name: Create network
-        run: docker network create example
-
-      - name: Set up DS container
-        run: |
-          tests/bin/ds-container-create.sh ds
-        env:
-          IMAGE: ${{ needs.init.outputs.db-image }}
-          COPR_REPO: ${{ needs.init.outputs.repo }}
-          HOSTNAME: ds.example.com
-          PASSWORD: Secret.123
-
-      - name: Connect DS container to network
-        run: docker network connect example ds --alias ds.example.com
-
-      - name: Set up PKI container
-        run: |
-          tests/bin/runner-init.sh pki
-        env:
-          HOSTNAME: pki.example.com
-
-      - name: Connect PKI container to network
-        run: docker network connect example pki --alias pki.example.com
-
-      - name: Install CA
-        run: |
-          docker exec pki pkispawn \
-              -f /usr/share/pki/server/examples/installation/ca.cfg \
-              -s CA \
-              -D pki_ds_hostname=ds.example.com \
-              -D pki_ds_ldap_port=3389 \
-              -D pki_cert_id_generator=legacy \
-              -D pki_request_id_generator=legacy \
-              -v
-
-      # https://github.com/dogtagpki/pki/wiki/Configuring-CA-with-Random-Serial-Numbers-v3
-      - name: Switch to RSNv3
-        run: |
-          # switch cert request ID generator to RSNv3
-          docker exec pki pki-server ca-config-unset dbs.beginRequestNumber
-          docker exec pki pki-server ca-config-unset dbs.endRequestNumber
-          docker exec pki pki-server ca-config-unset dbs.requestIncrement
-          docker exec pki pki-server ca-config-unset dbs.requestLowWaterMark
-          docker exec pki pki-server ca-config-unset dbs.requestCloneTransferNumber
-          docker exec pki pki-server ca-config-unset dbs.requestRangeDN
-
-          docker exec pki pki-server ca-config-set dbs.request.id.generator random
-          docker exec pki pki-server ca-config-set dbs.request.id.length 128
-
-          # switch cert ID generator to RSNv3
-          docker exec pki pki-server ca-config-unset dbs.beginSerialNumber
-          docker exec pki pki-server ca-config-unset dbs.endSerialNumber
-          docker exec pki pki-server ca-config-unset dbs.serialIncrement
-          docker exec pki pki-server ca-config-unset dbs.serialLowWaterMark
-          docker exec pki pki-server ca-config-unset dbs.serialCloneTransferNumber
-          docker exec pki pki-server ca-config-unset dbs.serialRangeDN
-
-          docker exec pki pki-server ca-config-set dbs.cert.id.generator random
-          docker exec pki pki-server ca-config-set dbs.cert.id.length 128
-
-          # restart PKI server
-          docker exec pki pki-server restart --wait
-
-      - name: Run PKI healthcheck
-        run: docker exec pki pki-healthcheck --failures-only
-
-      - name: Initialize PKI client
-        run: |
-          docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
-          docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
-          docker exec pki pki client-cert-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
-              --pkcs12-password Secret.123
-
-      - name: Check cert requests in CA
-        run: |
-          docker exec pki pki -n caadmin ca-cert-request-find
-
-      - name: Check certs in CA
-        run: |
-          docker exec pki pki ca-cert-find
-
-      - name: Gather artifacts
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki ds
-          tests/bin/pki-artifacts-save.sh pki
-        continue-on-error: true
-
-      - name: Remove CA
-        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: ca-sequential-${{ matrix.os }}
-          path: |
-            /tmp/artifacts/pki
+    uses: ./.github/workflows/ca-sequential-test.yml
+    with:
+      os: ${{ matrix.os }}
 
   # https://github.com/dogtagpki/pki/wiki/Publishing-CA-Certificate-to-LDAP-Server
   ca-publishing-ca-cert-test:
