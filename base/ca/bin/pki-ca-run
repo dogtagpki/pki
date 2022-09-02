@@ -4,7 +4,6 @@
 # - parameterize hard-coded values
 # - do not create security domain
 # - support existing subsystem user
-# - support existing admin user
 
 echo "################################################################################"
 
@@ -321,11 +320,7 @@ pkispawn \
     -D pki_subsystem_csr_path=/certs/subsystem.csr \
     -D pki_sslserver_nickname=sslserver \
     -D pki_sslserver_csr_path=/certs/sslserver.csr \
-    -D pki_admin_uid=admin \
-    -D pki_admin_email=admin@example.com \
-    -D pki_admin_nickname=admin \
-    -D pki_admin_csr_path=/certs/admin.csr \
-    -D pki_admin_cert_path=/certs/admin.crt \
+    -D pki_admin_setup=False \
     -D pki_security_manager=False \
     -D pki_systemd_service_create=False \
     -v

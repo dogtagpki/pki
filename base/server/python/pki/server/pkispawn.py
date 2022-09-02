@@ -962,20 +962,23 @@ def print_skip_configuration_information(mdict):
 def print_final_install_information(mdict):
 
     print(log.PKI_SPAWN_INFORMATION_HEADER)
-    print("      Administrator's username:             %s" %
-          mdict['pki_admin_uid'])
 
-    if os.path.isfile(mdict['pki_client_admin_cert_p12']):
-        print("      Administrator's PKCS #12 file:\n            %s" %
-              mdict['pki_client_admin_cert_p12'])
+    if config.str2bool(deployer.mdict['pki_admin_setup']):
 
-    if not config.str2bool(mdict['pki_client_database_purge']) and \
-            not config.str2bool(mdict['pki_clone']):
-        print()
-        print("      Administrator's certificate nickname:\n            %s"
-              % mdict['pki_admin_nickname'])
-        print("      Administrator's certificate database:\n            %s"
-              % mdict['pki_client_database_dir'])
+        print("      Administrator's username:             %s" %
+              mdict['pki_admin_uid'])
+
+        if os.path.isfile(mdict['pki_client_admin_cert_p12']):
+            print("      Administrator's PKCS #12 file:\n            %s" %
+                  mdict['pki_client_admin_cert_p12'])
+
+        if not config.str2bool(mdict['pki_client_database_purge']) and \
+                not config.str2bool(mdict['pki_clone']):
+            print()
+            print("      Administrator's certificate nickname:\n            %s"
+                  % mdict['pki_admin_nickname'])
+            print("      Administrator's certificate database:\n            %s"
+                  % mdict['pki_client_database_dir'])
 
     if config.str2bool(mdict['pki_clone']):
         print()
