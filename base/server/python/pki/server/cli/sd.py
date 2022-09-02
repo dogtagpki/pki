@@ -34,6 +34,7 @@ class SDCreateCLI(pki.cli.CLI):
         print('Usage: pki-server sd-create [OPTIONS]')
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('      --name <name>                  Security domain name')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -44,6 +45,7 @@ class SDCreateCLI(pki.cli.CLI):
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
+                'name=',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -52,10 +54,14 @@ class SDCreateCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
+        name = None
 
         for o, a in opts:
             if o in ('-i', '--instance'):
                 instance_name = a
+
+            elif o == '--name':
+                name = a
 
             elif o in ('-v', '--verbose'):
                 logging.getLogger().setLevel(logging.INFO)
@@ -84,7 +90,7 @@ class SDCreateCLI(pki.cli.CLI):
             logger.error('No CA subsystem in instance %s', instance_name)
             sys.exit(1)
 
-        subsystem.create_security_domain()
+        subsystem.create_security_domain(name=name)
 
 
 class SDHostCLI(pki.cli.CLI):

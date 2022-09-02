@@ -9,6 +9,7 @@ import java.io.File;
 import java.util.Enumeration;
 
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
 import org.apache.tomcat.util.net.jss.TomcatJSS;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CommandCLI;
@@ -43,7 +44,16 @@ public class SDCreateCLI extends CommandCLI {
     }
 
     @Override
+    public void createOptions() {
+        Option option = new Option(null, "name", true, "Security domain name");
+        option.setArgName("name");
+        options.addOption(option);
+    }
+
+    @Override
     public void execute(CommandLine cmd) throws Exception {
+
+        String name = cmd.getOptionValue("name");
 
         String catalinaBase = System.getProperty("catalina.base");
 
@@ -91,7 +101,7 @@ public class SDCreateCLI extends CommandCLI {
         LdapBoundConnection conn = new LdapBoundConnection(socketFactory, connInfo, authInfo);
 
         try {
-            String sdName = cs.getString("securitydomain.name");
+            String sdName = name == null ? cs.getString("securitydomain.name") : name;
 
             String sdDN = "ou=Security Domain," + ldapConfig.getBaseDN();
             logger.info("Adding " + sdDN);

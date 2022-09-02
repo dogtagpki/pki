@@ -346,7 +346,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         else:
             logger.info('Creating security domain')
-            subsystem.create_security_domain()
+            subsystem.create_security_domain(name=sd_name)
 
             logger.info('Adding security domain manager')
             subsystem.add_security_domain_host(

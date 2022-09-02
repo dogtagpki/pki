@@ -1369,7 +1369,7 @@ class PKISubsystem(object):
         self.config['securitydomain.httpsagentport'] = secure_port
         self.config['securitydomain.httpseeport'] = secure_port
 
-    def create_security_domain(self, as_current_user=False):
+    def create_security_domain(self, name=None, as_current_user=False):
 
         cmd = [self.name + '-sd-create']
 
@@ -1378,6 +1378,9 @@ class PKISubsystem(object):
 
         elif logger.isEnabledFor(logging.INFO):
             cmd.append('--verbose')
+
+        if name:
+            cmd.extend(['--name', name])
 
         self.run(cmd, as_current_user=as_current_user)
 
