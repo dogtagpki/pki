@@ -361,6 +361,118 @@ jobs:
           echo "0" > expected
           diff expected nsTaskExitCode
 
+      # https://github.com/dogtagpki/pki/wiki/Setting-up-CA-Admin-User
+      - name: Add admin user
+        run: |
+          docker exec -i ds ldapadd \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 << EOF
+          dn: uid=admin,ou=people,dc=ca,dc=pki,dc=example,dc=com
+          objectClass: person
+          objectClass: organizationalPerson
+          objectClass: inetOrgPerson
+          objectClass: cmsuser
+          cn: admin
+          sn: admin
+          uid: admin
+          mail: admin@example.com
+          userPassword: Secret.123
+          userState: 1
+          userType: adminType
+          EOF
+
+      - name: Assign admin cert to admin user
+        run: |
+          # convert cert from PEM to DER
+          docker cp client:admin.crt admin.crt
+          openssl x509 -outform der -in admin.crt -out admin.der
+          docker cp admin.der ds:admin.der
+
+          # get serial number
+          openssl x509 -text -noout -in admin.crt | tee output
+          SERIAL=$(sed -En 'N; s/^ *Serial Number:\n *(.*)$/\1/p; D' output)
+          echo "SERIAL: $SERIAL"
+          HEX_SERIAL=$(echo "$SERIAL" | tr -d ':')
+          echo "HEX_SERIAL: $HEX_SERIAL"
+          DEC_SERIAL=$(python -c "print(int('$HEX_SERIAL', 16))")
+          echo "DEC_SERIAL: $DEC_SERIAL"
+
+          docker exec -i ds ldapmodify \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 << EOF
+          dn: uid=admin,ou=people,dc=ca,dc=pki,dc=example,dc=com
+          changetype: modify
+          add: description
+          description: 2;$DEC_SERIAL;CN=CA Signing Certificate;CN=Administrator
+          -
+          add: userCertificate
+          userCertificate:< file:admin.der
+          -
+          EOF
+
+      - name: Add admin user into CA groups
+        run: |
+          docker exec -i ds ldapmodify \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 << EOF
+          dn: cn=Administrators,ou=groups,dc=ca,dc=pki,dc=example,dc=com
+          changetype: modify
+          add: uniqueMember
+          uniqueMember: uid=admin,ou=people,dc=ca,dc=pki,dc=example,dc=com
+          -
+
+          dn: cn=Certificate Manager Agents,ou=groups,dc=ca,dc=pki,dc=example,dc=com
+          changetype: modify
+          add: uniqueMember
+          uniqueMember: uid=admin,ou=people,dc=ca,dc=pki,dc=example,dc=com
+          -
+
+          dn: cn=Security Domain Administrators,ou=groups,dc=ca,dc=pki,dc=example,dc=com
+          changetype: modify
+          add: uniqueMember
+          uniqueMember: uid=admin,ou=people,dc=ca,dc=pki,dc=example,dc=com
+          -
+
+          dn: cn=Enterprise CA Administrators,ou=groups,dc=ca,dc=pki,dc=example,dc=com
+          changetype: modify
+          add: uniqueMember
+          uniqueMember: uid=admin,ou=people,dc=ca,dc=pki,dc=example,dc=com
+          -
+
+          dn: cn=Enterprise KRA Administrators,ou=groups,dc=ca,dc=pki,dc=example,dc=com
+          changetype: modify
+          add: uniqueMember
+          uniqueMember: uid=admin,ou=people,dc=ca,dc=pki,dc=example,dc=com
+          -
+
+          dn: cn=Enterprise RA Administrators,ou=groups,dc=ca,dc=pki,dc=example,dc=com
+          changetype: modify
+          add: uniqueMember
+          uniqueMember: uid=admin,ou=people,dc=ca,dc=pki,dc=example,dc=com
+          -
+
+          dn: cn=Enterprise TKS Administrators,ou=groups,dc=ca,dc=pki,dc=example,dc=com
+          changetype: modify
+          add: uniqueMember
+          uniqueMember: uid=admin,ou=people,dc=ca,dc=pki,dc=example,dc=com
+          -
+
+          dn: cn=Enterprise OCSP Administrators,ou=groups,dc=ca,dc=pki,dc=example,dc=com
+          changetype: modify
+          add: uniqueMember
+          uniqueMember: uid=admin,ou=people,dc=ca,dc=pki,dc=example,dc=com
+          -
+
+          dn: cn=Enterprise TPS Administrators,ou=groups,dc=ca,dc=pki,dc=example,dc=com
+          changetype: modify
+          add: uniqueMember
+          uniqueMember: uid=admin,ou=people,dc=ca,dc=pki,dc=example,dc=com
+          -
+          EOF
+
       # https://github.com/dogtagpki/pki/wiki/Setting-up-CA-Database-User
       - name: Add database user
         run: |
@@ -497,17 +609,6 @@ jobs:
 
       - name: Check public operations from client container
         run: |
-          # clean the NSS database
-          docker exec client pki client-init --force
-
-          # install CA signing cert
-          docker cp ca:/certs/ca_signing.crt ca_signing.crt
-          docker cp ca_signing.crt client:ca_signing.crt
-          docker exec client pki nss-cert-import \
-              --cert ca_signing.crt \
-              --trust CT,C,C \
-              ca_signing
-
           # check PKI server info
           docker exec client pki \
               -U https://ca.example.com:8443 \
@@ -520,14 +621,6 @@ jobs:
 
       - name: Check admin operations from client container
         run: |
-          # install admin cert
-          docker cp ca:/certs/admin.p12 admin.p12
-          docker cp admin.p12 client:admin.p12
-          docker exec client pki \
-              pkcs12-import \
-              --pkcs12 admin.p12 \
-              --password Secret.123
-
           # check admin user
           docker exec client pki \
               -U https://ca.example.com:8443 \

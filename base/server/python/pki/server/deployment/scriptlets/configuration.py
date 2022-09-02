@@ -256,7 +256,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('Setting up subsystem user')
             deployer.setup_subsystem_user(instance, subsystem, system_certs['subsystem'])
 
-        if not clone:
+        if config.str2bool(deployer.mdict['pki_admin_setup']) and not clone:
             logger.info('Setting up admin cert')
             admin_cert = deployer.setup_admin_cert(subsystem)
 
