@@ -946,8 +946,10 @@ def print_skip_configuration_information(mdict):
     print("      The %s subsystem of the '%s' instance\n"
           "      must still be configured!" %
           (deployer.subsystem_name, mdict['pki_instance_name']))
-    print(log.PKI_CHECK_STATUS_MESSAGE % mdict['pki_instance_name'])
-    print(log.PKI_INSTANCE_RESTART_MESSAGE % mdict['pki_instance_name'])
+
+    if config.str2bool(mdict['pki_systemd_service_create']):
+        print(log.PKI_CHECK_STATUS_MESSAGE % mdict['pki_instance_name'])
+        print(log.PKI_INSTANCE_RESTART_MESSAGE % mdict['pki_instance_name'])
 
     print(log.PKI_ACCESS_URL % (mdict['pki_hostname'],
                                 mdict['pki_https_port'],
@@ -993,8 +995,9 @@ def print_final_install_information(mdict):
               "                 algorithms in server.xml in the '%s' instance."
               % mdict['pki_instance_name'])
 
-    print(log.PKI_CHECK_STATUS_MESSAGE % mdict['pki_instance_name'])
-    print(log.PKI_INSTANCE_RESTART_MESSAGE % mdict['pki_instance_name'])
+    if config.str2bool(mdict['pki_systemd_service_create']):
+        print(log.PKI_CHECK_STATUS_MESSAGE % mdict['pki_instance_name'])
+        print(log.PKI_INSTANCE_RESTART_MESSAGE % mdict['pki_instance_name'])
 
     print(log.PKI_ACCESS_URL % (mdict['pki_hostname'],
                                 mdict['pki_https_port'],
