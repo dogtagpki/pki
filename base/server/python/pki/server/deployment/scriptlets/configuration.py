@@ -139,12 +139,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             deployer.join_security_domain()
 
-            subsystem.configure_security_domain(
-                'existing',
-                deployer.domain_info.id,
-                deployer.sd_host.Hostname,
-                deployer.sd_host.Port,
-                deployer.sd_host.SecurePort)
+            sd_type = 'existing'
+            sd_name = deployer.domain_info.id
+            sd_hostname = deployer.sd_host.Hostname
+            sd_port = deployer.sd_host.Port
+            sd_secure_port = deployer.sd_host.SecurePort
 
         elif config.str2bool(deployer.mdict['pki_subordinate']) and \
                 config.str2bool(deployer.mdict['pki_subordinate_create_new_security_domain']):
@@ -153,23 +152,28 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             deployer.join_security_domain()
 
-            subsystem.configure_security_domain(
-                'new',
-                deployer.mdict['pki_subordinate_security_domain_name'],
-                deployer.mdict['pki_hostname'],
-                unsecurePort,
-                securePort)
+            sd_type = 'new'
+            sd_name = deployer.mdict['pki_subordinate_security_domain_name']
+            sd_hostname = deployer.mdict['pki_hostname']
+            sd_port = unsecurePort
+            sd_secure_port = securePort
 
         else:
 
             logger.info('Creating new security domain')
 
-            subsystem.configure_security_domain(
-                'new',
-                deployer.mdict['pki_security_domain_name'],
-                deployer.mdict['pki_hostname'],
-                unsecurePort,
-                securePort)
+            sd_type = 'new'
+            sd_name = deployer.mdict['pki_security_domain_name']
+            sd_hostname = deployer.mdict['pki_hostname']
+            sd_port = unsecurePort
+            sd_secure_port = securePort
+
+        subsystem.configure_security_domain(
+            sd_type,
+            sd_name,
+            sd_hostname,
+            sd_port,
+            sd_secure_port)
 
         subsystem.config['service.securityDomainPort'] = securePort
 
