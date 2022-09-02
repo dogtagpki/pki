@@ -145,7 +145,7 @@ jobs:
       os: ${{ matrix.os }}
 
   ca-hsm-test:
-    name: Testing CA with HSM
+    name: CA with HSM
     needs: [init, build]
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
