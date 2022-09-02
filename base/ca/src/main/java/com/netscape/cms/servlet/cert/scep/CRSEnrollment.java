@@ -1268,15 +1268,15 @@ public class CRSEnrollment extends HttpServlet {
 
             switch(String.valueOf(mEncryptionAlgorithm)) {
                 case "DES3":
-                    skt = SymmetricKey.Type.DES3;
+                    skt = SymmetricKey.DES3;
                     ea = EncryptionAlgorithm.DES3_CBC;
                     break;
                 case "AES":
-                    skt = SymmetricKey.Type.AES;
+                    skt = SymmetricKey.AES;
                     ea = EncryptionAlgorithm.AES_128_CBC;
                     break;
                 default:
-                    skt = SymmetricKey.Type.DES;
+                    skt = SymmetricKey.DES;
                     ea = EncryptionAlgorithm.DES_CBC;
 
             }
@@ -1970,19 +1970,15 @@ public class CRSEnrollment extends HttpServlet {
             if (issuedCert != null) {
                 SymmetricKey sk;
                 SymmetricKey skinternal;
-                KeyGenAlgorithm kga;
                 EncryptionAlgorithm ea;
                 switch(String.valueOf(mEncryptionAlgorithm)) {
                     case "DES3":
-                        kga = KeyGenAlgorithm.DES3;
                         ea = EncryptionAlgorithm.DES3_CBC;
                         break;
                     case "AES":
-                        kga = KeyGenAlgorithm.AES;
                         ea = EncryptionAlgorithm.AES_128_CBC;
                         break;
                     default:
-                        kga = KeyGenAlgorithm.DES;
                         ea = EncryptionAlgorithm.DES_CBC;
                 }
 
@@ -2069,9 +2065,9 @@ public class CRSEnrollment extends HttpServlet {
             {
                 byte[] signingcertbytes = cx.getSigningCert().getEncoded();
 
-                Certificate.Template sgncert_t = new Certificate.Template();
+                Certificate.Template sgncertT = new Certificate.Template();
                 Certificate sgncert =
-                        (Certificate) sgncert_t.decode(new ByteArrayInputStream(signingcertbytes));
+                        (Certificate) sgncertT.decode(new ByteArrayInputStream(signingcertbytes));
 
                 IssuerAndSerialNumber sgniasn =
                         new IssuerAndSerialNumber(sgncert.getInfo().getIssuer(),
@@ -2233,7 +2229,7 @@ public class CRSEnrollment extends HttpServlet {
                 throws CryptoContextException {
             KeyWrapAlgorithm keyWrapAlg = KeyWrapAlgorithm.RSA;
 
-            if(mUseOAEPKeyWrap == true) {
+            if(mUseOAEPKeyWrap) {
                 keyWrapAlg = KeyWrapAlgorithm.RSA_OAEP;
             }
 
@@ -2250,7 +2246,7 @@ public class CRSEnrollment extends HttpServlet {
                 throws CryptoContextException {
             KeyWrapAlgorithm keyWrapAlg = KeyWrapAlgorithm.RSA;
 
-            if(mUseOAEPKeyWrap == true) {
+            if(mUseOAEPKeyWrap) {
                 keyWrapAlg = KeyWrapAlgorithm.RSA_OAEP;
             }
             try {
