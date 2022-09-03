@@ -121,61 +121,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         finally:
             nssdb.close()
 
-        server_config = instance.get_server_config()
-        unsecurePort = server_config.get_unsecure_port()
-        securePort = server_config.get_secure_port()
-
-        proxyUnsecurePort = subsystem.config.get('proxy.unsecurePort')
-        if not proxyUnsecurePort:
-            proxyUnsecurePort = unsecurePort
-
-        proxySecurePort = subsystem.config.get('proxy.securePort')
-        if not proxySecurePort:
-            proxySecurePort = securePort
-
-        if deployer.mdict['pki_security_domain_type'] == 'existing':
-
-            logger.info('Joining existing domain')
-
-            deployer.join_security_domain()
-
-            sd_type = 'existing'
-            sd_name = deployer.domain_info.id
-            sd_hostname = deployer.sd_host.Hostname
-            sd_port = deployer.sd_host.Port
-            sd_secure_port = deployer.sd_host.SecurePort
-
-        elif config.str2bool(deployer.mdict['pki_subordinate']) and \
-                config.str2bool(deployer.mdict['pki_subordinate_create_new_security_domain']):
-
-            logger.info('Creating new subordinate security domain')
-
-            deployer.join_security_domain()
-
-            sd_type = 'new'
-            sd_name = deployer.mdict['pki_subordinate_security_domain_name']
-            sd_hostname = deployer.mdict['pki_hostname']
-            sd_port = unsecurePort
-            sd_secure_port = securePort
-
-        else:
-
-            logger.info('Creating new security domain')
-
-            sd_type = 'new'
-            sd_name = deployer.mdict['pki_security_domain_name']
-            sd_hostname = deployer.mdict['pki_hostname']
-            sd_port = unsecurePort
-            sd_secure_port = securePort
-
-        subsystem.configure_security_domain(
-            sd_type,
-            sd_name,
-            sd_hostname,
-            sd_port,
-            sd_secure_port)
-
-        subsystem.config['service.securityDomainPort'] = securePort
+        deployer.setup_security_domain(instance, subsystem)
 
         hierarchy = subsystem.config.get('hierarchy.select')
         issuing_ca = deployer.mdict['pki_issuing_ca']
