@@ -317,62 +317,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('Setting up admin user')
             deployer.setup_admin_user(subsystem, admin_cert)
 
-        domain_manager = False
-
-        if subsystem.type == 'CA':
-            if clone:
-                sd_hostname = subsystem.config['securitydomain.host']
-                sd_port = subsystem.config['securitydomain.httpsadminport']
-
-                sd_subsystem = deployer.domain_info.subsystems['CA']
-                sd_host = sd_subsystem.get_host(sd_hostname, sd_port)
-
-                if sd_host.DomainManager and sd_host.DomainManager.lower() == 'true':
-                    domain_manager = True
-
-        if deployer.mdict['pki_security_domain_type'] == 'existing':
-
-            sd_url = deployer.mdict['pki_security_domain_uri']
-            logger.info('Joining security domain at %s', sd_url)
-            subsystem.join_security_domain(
-                sd_url,
-                deployer.mdict['pki_subsystem_name'],
-                deployer.mdict['pki_hostname'],
-                unsecure_port=proxyUnsecurePort,
-                secure_port=proxySecurePort,
-                domain_manager=domain_manager,
-                clone=clone,
-                session_id=deployer.install_token.token)
-
-        else:
-            logger.info('Creating security domain')
-            subsystem.create_security_domain(name=sd_name)
-
-            logger.info('Adding security domain manager')
-            subsystem.add_security_domain_host(
-                deployer.mdict['pki_subsystem_name'],
-                deployer.mdict['pki_hostname'],
-                unsecure_port=proxyUnsecurePort,
-                secure_port=proxySecurePort,
-                domain_manager=True)
+        deployer.setup_security_domain_manager(instance, subsystem)
 
         if not config.str2bool(deployer.mdict['pki_share_db']) and not clone:
             logger.info('Setting up database user')
             deployer.setup_database_user(instance, subsystem)
-
-        if subsystem.type == 'CA':
-
-            if clone:
-                if sd_host.DomainManager and sd_host.DomainManager.lower() == 'true':
-
-                    logger.info('Cloning security domain master')
-
-                    subsystem.config['securitydomain.select'] = 'new'
-                    subsystem.config['securitydomain.host'] = deployer.mdict['pki_hostname']
-                    subsystem.config['securitydomain.httpport'] = unsecurePort
-                    subsystem.config['securitydomain.httpsadminport'] = securePort
-                    subsystem.config['securitydomain.httpsagentport'] = securePort
-                    subsystem.config['securitydomain.httpseeport'] = securePort
 
         deployer.finalize_subsystem(instance, subsystem)
 

@@ -1216,6 +1216,76 @@ class PKIDeployer:
 
         self.get_install_token()
 
+    def setup_security_domain_manager(self, instance, subsystem):
+
+        clone = self.configuration_file.clone
+        sd_name = subsystem.config['securitydomain.name']
+
+        server_config = instance.get_server_config()
+        unsecurePort = server_config.get_unsecure_port()
+        securePort = server_config.get_secure_port()
+
+        proxyUnsecurePort = subsystem.config.get('proxy.unsecurePort')
+        if not proxyUnsecurePort:
+            proxyUnsecurePort = unsecurePort
+
+        proxySecurePort = subsystem.config.get('proxy.securePort')
+        if not proxySecurePort:
+            proxySecurePort = securePort
+
+        domain_manager = False
+
+        if subsystem.type == 'CA':
+            if clone:
+                sd_hostname = subsystem.config['securitydomain.host']
+                sd_port = subsystem.config['securitydomain.httpsadminport']
+
+                sd_subsystem = self.domain_info.subsystems['CA']
+                sd_host = sd_subsystem.get_host(sd_hostname, sd_port)
+
+                if sd_host.DomainManager and sd_host.DomainManager.lower() == 'true':
+                    domain_manager = True
+
+        if self.mdict['pki_security_domain_type'] == 'existing':
+
+            sd_url = self.mdict['pki_security_domain_uri']
+            logger.info('Joining security domain at %s', sd_url)
+            subsystem.join_security_domain(
+                sd_url,
+                self.mdict['pki_subsystem_name'],
+                self.mdict['pki_hostname'],
+                unsecure_port=proxyUnsecurePort,
+                secure_port=proxySecurePort,
+                domain_manager=domain_manager,
+                clone=clone,
+                session_id=self.install_token.token)
+
+        else:
+            logger.info('Creating security domain')
+            subsystem.create_security_domain(name=sd_name)
+
+            logger.info('Adding security domain manager')
+            subsystem.add_security_domain_host(
+                self.mdict['pki_subsystem_name'],
+                self.mdict['pki_hostname'],
+                unsecure_port=proxyUnsecurePort,
+                secure_port=proxySecurePort,
+                domain_manager=True)
+
+        if subsystem.type == 'CA':
+
+            if clone:
+                if sd_host.DomainManager and sd_host.DomainManager.lower() == 'true':
+
+                    logger.info('Cloning security domain master')
+
+                    subsystem.config['securitydomain.select'] = 'new'
+                    subsystem.config['securitydomain.host'] = self.mdict['pki_hostname']
+                    subsystem.config['securitydomain.httpport'] = unsecurePort
+                    subsystem.config['securitydomain.httpsadminport'] = securePort
+                    subsystem.config['securitydomain.httpsagentport'] = securePort
+                    subsystem.config['securitydomain.httpseeport'] = securePort
+
     def pki_connect(self, subsystem):
 
         ca_cert = os.path.join(subsystem.instance.nssdb_dir, "ca.crt")
