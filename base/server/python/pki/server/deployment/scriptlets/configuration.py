@@ -121,7 +121,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         finally:
             nssdb.close()
 
-        deployer.setup_security_domain(instance, subsystem)
+        if config.str2bool(deployer.mdict['pki_security_domain_setup']):
+            deployer.setup_security_domain(instance, subsystem)
 
         hierarchy = subsystem.config.get('hierarchy.select')
         issuing_ca = deployer.mdict['pki_issuing_ca']
@@ -252,7 +253,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         subsystem.save()
 
-        if subsystem.type == 'CA':
+        if config.str2bool(deployer.mdict['pki_security_domain_setup']) and \
+                subsystem.type == 'CA':
             logger.info('Setting up subsystem user')
             deployer.setup_subsystem_user(instance, subsystem, system_certs['subsystem'])
 
@@ -263,7 +265,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('Setting up admin user')
             deployer.setup_admin_user(subsystem, admin_cert)
 
-        deployer.setup_security_domain_manager(instance, subsystem)
+        if config.str2bool(deployer.mdict['pki_security_domain_setup']):
+            deployer.setup_security_domain_manager(instance, subsystem)
 
         if not config.str2bool(deployer.mdict['pki_share_db']) and not clone:
             logger.info('Setting up database user')

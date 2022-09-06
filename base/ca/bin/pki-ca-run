@@ -321,6 +321,7 @@ pkispawn \
     -D pki_sslserver_nickname=sslserver \
     -D pki_sslserver_csr_path=/certs/sslserver.csr \
     -D pki_admin_setup=False \
+    -D pki_security_domain_setup=False \
     -D pki_security_manager=False \
     -D pki_systemd_service_create=False \
     -v
