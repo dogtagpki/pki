@@ -682,6 +682,7 @@ grant codeBase "file:%s" {
 
         self.remove_lockout_realm(document)
         self.remove_default_user_database(document)
+        self.add_rewrite_valve(document)
 
         logger.info('Creating %s', self.server_xml)
         with open(self.server_xml, 'wb') as f:
@@ -743,6 +744,23 @@ grant codeBase "file:%s" {
         if user_database is not None:
             logger.info('Removing UserDatabase Resource')
             global_naming_resources.remove(user_database)
+
+    @staticmethod
+    def add_rewrite_valve(document):
+        REWRITE_VALVE_CLASS = "org.apache.catalina.valves.rewrite.RewriteValve"
+        logger.info('Searching for RewriteValves')
+        for host in document.getroot().findall('Service/Engine/Host'):
+            logger.info('Found Host %s', host.get('name'))
+            valves = host.findall('Valve')
+            has_rewrite_valve = any(
+                valve.get('className') == REWRITE_VALVE_CLASS
+                for valve in valves
+            )
+            if not has_rewrite_valve:
+                logger.info('Adding RewriteValve')
+                valve = etree.Element('Valve')
+                valve.set('className', REWRITE_VALVE_CLASS)
+                host.append(valve)
 
     def create_libs(self, force=False):
 
