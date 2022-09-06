@@ -6,6 +6,7 @@ import java.security.cert.X509Certificate;
 import java.util.Optional;
 import java.util.Properties;
 
+import javax.ws.rs.core.Response;
 import javax.ws.rs.ServiceUnavailableException;
 
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
@@ -235,7 +236,20 @@ public class DogtagRABackend extends ESTBackend {
             String certPem = certData.getEncoded();
             return Cert.mapCert(certPem);
         } catch (PKIException e) {
-            throw e; // re-raise
+            if (
+                e.getCode() == Response.Status.UNAUTHORIZED.getStatusCode()
+                || e.getCode() == Response.Status.FORBIDDEN.getStatusCode()
+            ) {
+                // 401 or 403 indicates misconfiguration of the EST backend or
+                // the CA subsystem.  Throw a PKIException (500).
+                throw new PKIException(
+                    "EST backend failed to authenticate to the CA subsystem, "
+                        + "or is not authorized to issue the certificate",
+                    e
+                );
+            } else {
+                throw e; // re-raise
+            }
         } catch (Throwable e) {
             // unexpected; wrap in PKIException, which will result in 500
             throw new PKIException("Internal error in /cacerts: " + e, e);
