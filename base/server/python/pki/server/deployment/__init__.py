@@ -560,7 +560,7 @@ class PKIDeployer:
 
             logger.info('Validating %s master config params', subsystem.type)
 
-            master_properties = master_config['properties']
+            master_properties = master_config['Properties']
 
             master_hostname = master_properties['internaldb.ldapconn.host']
             master_port = master_properties['internaldb.ldapconn.port']

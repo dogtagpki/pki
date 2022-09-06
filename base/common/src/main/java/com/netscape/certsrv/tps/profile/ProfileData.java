@@ -25,6 +25,8 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.netscape.certsrv.util.JSONSerializer;
 
 /**
@@ -55,6 +57,7 @@ public class ProfileData implements JSONSerializer {
         this.profileID = profileID;
     }
 
+    @JsonProperty("Status")
     public String getStatus() {
         return status;
     }
@@ -63,6 +66,7 @@ public class ProfileData implements JSONSerializer {
         this.status = status;
     }
 
+    @JsonProperty("Properties")
     public Map<String, String> getProperties() {
         return properties;
     }
@@ -73,13 +77,16 @@ public class ProfileData implements JSONSerializer {
 
 
     public static class PropertyList {
+        @JsonProperty("Property")
         public List<Property> properties = new ArrayList<>();
     }
 
     public static class Property {
 
+        @JsonValue
         public String name;
 
+        @JsonValue
         public String value;
     }
 
