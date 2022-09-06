@@ -661,6 +661,13 @@ grant codeBase "file:%s" {
                 logger.info('Creating %s', host_dir)
                 self.makedirs(host_dir, force=force)
 
+                # symlink the rewrite.config in the host dir
+                target = os.path.join(
+                    PKIServer.SHARE_DIR, 'server', 'conf',
+                    'Catalina', 'localhost', 'rewrite.config')
+                link = os.path.join(host_dir, 'rewrite.config')
+                self.symlink(target, link, force=force)
+
         logger.info('Creating %s', self.service_conf)
         service_conf = os.path.join(SYSCONFIG_DIR, 'tomcat')
         self.copy(service_conf, self.service_conf, force=force)
