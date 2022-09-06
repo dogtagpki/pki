@@ -25,6 +25,8 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.netscape.certsrv.util.JSONSerializer;
 
 /**
@@ -41,6 +43,7 @@ public class AuditConfig implements JSONSerializer {
 
     Map<String, String> eventConfigs;
 
+    @JsonProperty("Status")
     public String getStatus() {
         return status;
     }
@@ -49,6 +52,7 @@ public class AuditConfig implements JSONSerializer {
         this.status = status;
     }
 
+    @JsonProperty("Signed")
     public Boolean getSigned() {
         return signed;
     }
@@ -57,6 +61,7 @@ public class AuditConfig implements JSONSerializer {
         this.signed = signed;
     }
 
+    @JsonProperty("Interval")
     public Integer getInterval() {
         return interval;
     }
@@ -73,6 +78,7 @@ public class AuditConfig implements JSONSerializer {
         this.bufferSize = bufferSize;
     }
 
+    @JsonProperty("Events")
     public Map<String, String> getEventConfigs() {
         return eventConfigs;
     }
@@ -82,13 +88,16 @@ public class AuditConfig implements JSONSerializer {
     }
 
     public static class EventConfigList {
+        @JsonProperty("Event")
         public List<EventConfig> entries = new ArrayList<>();
     }
 
     public static class EventConfig {
 
+        @JsonValue
         public String name;
 
+        @JsonValue
         public String value;
     }
 
