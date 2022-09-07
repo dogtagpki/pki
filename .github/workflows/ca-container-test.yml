@@ -607,6 +607,19 @@ jobs:
               ca-user-show \
               admin
 
+          docker exec ca pki \
+              client-cert-request \
+              uid=testuser | tee output
+
+          REQUEST_ID=$(sed -n -e 's/^ *Request ID: *\(.*\)$/\1/p' output)
+          echo "REQUEST_ID: $REQUEST_ID"
+
+          docker exec ca pki \
+              -n admin \
+              ca-cert-request-approve \
+              $REQUEST_ID \
+              --force
+
       - name: Check public operations from client container
         run: |
           # check PKI server info
@@ -627,6 +640,21 @@ jobs:
               -n admin \
               ca-user-show \
               admin
+
+          docker exec client pki \
+              -U https://ca.example.com:8443 \
+              client-cert-request \
+              uid=testuser | tee output
+
+          REQUEST_ID=$(sed -n -e 's/^ *Request ID: *\(.*\)$/\1/p' output)
+          echo "REQUEST_ID: $REQUEST_ID"
+
+          docker exec client pki \
+              -U https://ca.example.com:8443 \
+              -n admin \
+              ca-cert-request-approve \
+              $REQUEST_ID \
+              --force
 
       - name: Gather artifacts from CA container
         if: always()

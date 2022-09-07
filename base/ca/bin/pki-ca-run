@@ -310,6 +310,7 @@ pkispawn \
     -D pki_request_id_generator=random \
     -D pki_cert_id_generator=random \
     -D pki_existing=True \
+    -D pki_import_system_certs=False \
     -D pki_ca_signing_nickname=ca_signing \
     -D pki_ca_signing_csr_path=/certs/ca_signing.csr \
     -D pki_ocsp_signing_nickname=ocsp_signing \
