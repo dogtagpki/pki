@@ -41,7 +41,7 @@ public class RevocationRequestListener implements IRequestListener {
             return;
         }
 
-        logger.info("RevocationRequestListener: Received revocation request " + r.getRequestId());
+        logger.info("RevocationRequestListener: Received revocation request " + r.getRequestId().toHexString());
 
         // check if serial number is in begin/end range if set.
         if (crlIssuingPoint.mBeginSerial != null || crlIssuingPoint.mEndSerial != null) {
