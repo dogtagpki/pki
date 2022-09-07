@@ -59,33 +59,42 @@ public class RunListeners implements Runnable {
      */
     @Override
     public void run() {
-        logger.debug("RunListeners::"
-                + ((mRequestNotifier != null && mRequestNotifier.getNumberOfRequests() > 0) ? " Queue: "
-                        + mRequestNotifier.getNumberOfRequests() : " noQueue") +
-                  " " + ((mRequest != null) ? " SingleRequest" : " noSingleRequest"));
+
+        logger.info("RunListeners: Running listeners:");
+        logger.info("RunListeners: - queue: " + (mRequestNotifier != null ? mRequestNotifier.getNumberOfRequests() : null));
+        logger.info("RunListeners: - request: " + (mRequest != null ? mRequest.getRequestId().toHexString() : null));
+
         do {
-            if (mRequestNotifier != null)
+            if (mRequestNotifier != null) {
                 mRequest = mRequestNotifier.getRequest();
+            }
+
             if (mListeners != null && mRequest != null) {
+
                 while (mListeners.hasMoreElements()) {
                     IRequestListener l = mListeners.nextElement();
-                    logger.debug("RunListeners: IRequestListener = " + l.getClass().getName());
+                    logger.info("RunListeners: Processing request " + mRequest.getRequestId().toHexString() + " with " + l.getClass().getSimpleName());
                     l.accept(mRequest);
                 }
+
                 if (mRequestNotifier != null) {
-                    logger.debug("RunListeners: mRequest = " + mRequest.getRequestId().toString());
+                    logger.info("RunListeners: Updating publishing status for request " + mRequest.getRequestId().toHexString());
                     mRequestNotifier.updatePublishingStatus(mRequest.getRequestId().toString());
                 }
             }
-            logger.debug("RunListeners: "
-                    + ((mRequestNotifier != null && mRequestNotifier.getNumberOfRequests() > 0) ? " Queue: "
-                            + mRequestNotifier.getNumberOfRequests() : " noQueue") +
-                      " " + ((mRequest != null) ? " SingleRequest" : " noSingleRequest"));
-            if (mRequestNotifier != null)
+
+            logger.info("RunListeners: Running listeners:");
+            logger.info("RunListeners: - queue: " + (mRequestNotifier != null ? mRequestNotifier.getNumberOfRequests() : null));
+            logger.info("RunListeners: - request: " + (mRequest != null ? mRequest.getRequestId().toHexString() : null));
+
+            if (mRequestNotifier != null) {
                 mListeners = mRequestNotifier.getListeners();
+            }
+
         } while (mRequestNotifier != null && mRequestNotifier.getNumberOfRequests() > 0);
 
-        if (mRequestNotifier != null)
+        if (mRequestNotifier != null) {
             mRequestNotifier.removeNotifierThread(Thread.currentThread());
+        }
     }
 }
