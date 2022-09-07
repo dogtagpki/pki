@@ -1898,8 +1898,9 @@ class PKIDeployer:
             # might conflict with system certificates to be created later.
             # Also create the certificate request record for renewals.
 
-            self.import_cert_request(subsystem, tag, request)
-            self.import_cert(subsystem, tag, request, system_cert['data'])
+            if config.str2bool(self.mdict['pki_import_system_certs']):
+                self.import_cert_request(subsystem, tag, request)
+                self.import_cert(subsystem, tag, request, system_cert['data'])
 
             return
 
