@@ -117,119 +117,14 @@ jobs:
     with:
       os: ${{ matrix.os }}
 
-  # docs/admin/server/Configuring-HTTPS-Connector-with-NSS-Database.adoc
-  pki-server-https-nss-test:
-    name: Testing HTTPS connector with NSS database
+  server-https-nss-test:
+    name: HTTPS connector with NSS database
     needs: [init, build]
-    runs-on: ubuntu-latest
-    env:
-      SHARED: /tmp/workdir/pki
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@v2
-
-      - name: Retrieve runner image
-        uses: actions/cache@v3
-        with:
-          key: pki-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-runner.tar
-
-      - name: Load runner image
-        run: docker load --input pki-runner.tar
-
-      - name: Create network
-        run: docker network create example
-
-      - name: Set up server container
-        run: |
-          tests/bin/runner-init.sh pki
-        env:
-          HOSTNAME: pki.example.com
-
-      - name: Connect server container to network
-        run: docker network connect example pki --alias pki.example.com
-
-      - name: Create PKI server
-        run: |
-          docker exec pki pki-server create -v
-
-      - name: Create NSS database in PKI server
-        run: |
-          docker exec pki pki-server nss-create --no-password
-
-      - name: Create SSL server cert
-        run: |
-          docker exec pki pki -d /var/lib/pki/pki-tomcat/alias \
-              nss-cert-request \
-              --subject "CN=$HOSTNAME" \
-              --ext /usr/share/pki/server/certs/sslserver.conf \
-              --csr sslserver.csr
-          docker exec pki pki -d /var/lib/pki/pki-tomcat/alias \
-              nss-cert-issue \
-              --csr sslserver.csr \
-              --ext /usr/share/pki/server/certs/sslserver.conf \
-              --cert sslserver.crt
-          docker exec pki pki -d /var/lib/pki/pki-tomcat/alias \
-              nss-cert-import \
-              --cert sslserver.crt \
-              sslserver
-
-      - name: Create HTTPS connector with NSS database
-        run: |
-          docker exec pki pki-server jss-enable
-          docker exec pki pki-server http-connector-add \
-              --port 8443 \
-              --scheme https \
-              --secure true \
-              --sslEnabled true \
-              --sslProtocol SSL \
-              --sslImpl org.dogtagpki.tomcat.JSSImplementation \
-              Secure
-          docker exec pki pki-server http-connector-cert-add \
-              --keyAlias sslserver \
-              --keystoreType pkcs11 \
-              --keystoreProvider Mozilla-JSS
-
-      - name: Start PKI server
-        run: |
-          docker exec pki pki-server start
-
-      - name: Set up client container
-        run: |
-          tests/bin/runner-init.sh client
-        env:
-          HOSTNAME: client.example.com
-
-      - name: Connect client container to network
-        run: docker network connect example client --alias client.example.com
-
-      - name: Wait for PKI server to start
-        run: |
-          tests/bin/pki-start-wait.sh client https://pki.example.com:8443
-
-      - name: Stop PKI server
-        run: |
-          docker exec pki pki-server stop --wait -v
-
-      - name: Remove PKI server
-        run: |
-          docker exec pki pki-server remove -v
-
-      - name: Gather artifacts from server container
-        if: always()
-        run: |
-          tests/bin/pki-artifacts-save.sh pki
-        continue-on-error: true
-
-      - name: Upload artifacts from server container
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: pki-server-https-nss-test-${{ matrix.os }}
-          path: |
-            /tmp/artifacts/pki
+    uses: ./.github/workflows/server-https-nss-test.yml
+    with:
+      os: ${{ matrix.os }}
 
   pki-server-upgrade-test:
     name: Testing PKI server upgrade
