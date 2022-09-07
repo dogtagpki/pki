@@ -1,0 +1,35 @@
+name: rpminspect
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    container: registry.fedoraproject.org/fedora:${{ inputs.os }}
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Download PKI packages
+        uses: actions/download-artifact@v2
+        with:
+          name: pki-build-${{ inputs.os }}
+          path: |
+            build/
+
+      - name: Install rpminspect
+        run: |
+          dnf install -y dnf-plugins-core rpm-build findutils
+          dnf copr enable -y copr.fedorainfracloud.org/dcantrell/rpminspect
+          dnf install -y rpminspect rpminspect-data-fedora
+      - name: Run rpminspect on SRPM and RPMs
+        run: |
+          tests/bin/rpminspect.sh
