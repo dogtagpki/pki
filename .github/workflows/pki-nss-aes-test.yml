@@ -1,0 +1,53 @@
+name: PKI NSS CLI with AES
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+
+jobs:
+  # https://github.com/dogtagpki/pki/wiki/PKI-NSS-CLI
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Retrieve runner image
+        uses: actions/cache@v3
+        with:
+          key: pki-tools-runner-${{ inputs.os }}-${{ github.run_id }}
+          path: pki-tools-runner.tar
+
+      - name: Load runner image
+        run: docker load --input pki-tools-runner.tar
+
+      - name: Set up runner container
+        run: |
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
+
+      - name: Create AES key
+        run: |
+          docker exec pki pki nss-key-create --key-type AES test | tee output
+
+          # verify with tkstool
+          docker exec pki tkstool -L -d /root/.dogtag/nssdb | tee output
+          echo "test" > expected
+          sed -n 's/^\s*<.\+>\s\+\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+      - name: Verify key type
+        run: |
+          echo aes > expected
+
+          docker exec pki pki nss-key-find | tee output
+
+          sed -n 's/\s*Type:\s*\(\S\+\)\s*$/\L\1/p' output > actual
+          diff expected actual
