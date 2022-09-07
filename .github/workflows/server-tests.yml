@@ -90,110 +90,14 @@ jobs:
     with:
       os: ${{ matrix.os }}
 
-  # docs/admin/server/Configuring-HTTPS-Connector-with-PEM-Files.adoc
-  pki-server-https-pem-test:
-    name: Testing HTTPS connector with PEM files
+  server-https-pem-test:
+    name: HTTPS connector with PEM files
     needs: [init, build]
-    runs-on: ubuntu-latest
-    env:
-      SHARED: /tmp/workdir/pki
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@v2
-
-      - name: Retrieve runner image
-        uses: actions/cache@v3
-        with:
-          key: pki-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-runner.tar
-
-      - name: Load runner image
-        run: docker load --input pki-runner.tar
-
-      - name: Create network
-        run: docker network create example
-
-      - name: Set up server container
-        run: |
-          tests/bin/runner-init.sh pki
-        env:
-          HOSTNAME: pki.example.com
-
-      - name: Connect server container to network
-        run: docker network connect example pki --alias pki.example.com
-
-      - name: Create PKI server
-        run: |
-          docker exec pki pki-server create -v
-
-      - name: Create SSL server cert
-        run: |
-          docker exec pki openssl req \
-              -newkey rsa:2048 \
-              -x509 \
-              -nodes \
-              -days 365 \
-              -subj "/CN=$HOSTNAME" \
-              -keyout /var/lib/pki/pki-tomcat/conf/sslserver.key \
-              -out /var/lib/pki/pki-tomcat/conf/sslserver.crt
-          docker exec pki chown pkiuser.pkiuser /var/lib/pki/pki-tomcat/conf/sslserver.crt
-          docker exec pki chmod 660 /var/lib/pki/pki-tomcat/conf/sslserver.crt
-          docker exec pki chown pkiuser.pkiuser /var/lib/pki/pki-tomcat/conf/sslserver.key
-          docker exec pki chmod 660 /var/lib/pki/pki-tomcat/conf/sslserver.key
-
-      - name: Create HTTPS connector with PEM files
-        run: |
-          docker exec pki pki-server http-connector-add \
-              --port 8443 \
-              --scheme https \
-              --secure true \
-              --sslEnabled true \
-              --sslProtocol SSL \
-              Secure
-          docker exec pki pki-server http-connector-cert-add \
-              --certFile /var/lib/pki/pki-tomcat/conf/sslserver.crt \
-              --keyFile /var/lib/pki/pki-tomcat/conf/sslserver.key
-
-      - name: Start PKI server
-        run: |
-          docker exec pki pki-server start
-
-      - name: Set up client container
-        run: |
-          tests/bin/runner-init.sh client
-        env:
-          HOSTNAME: client.example.com
-
-      - name: Connect client container to network
-        run: docker network connect example client --alias client.example.com
-
-      - name: Wait for PKI server to start
-        run: |
-          tests/bin/pki-start-wait.sh client https://pki.example.com:8443
-
-      - name: Stop PKI server
-        run: |
-          docker exec pki pki-server stop --wait -v
-
-      - name: Remove PKI server
-        run: |
-          docker exec pki pki-server remove -v
-
-      - name: Gather artifacts from server container
-        if: always()
-        run: |
-          tests/bin/pki-artifacts-save.sh pki
-        continue-on-error: true
-
-      - name: Upload artifacts from server container
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: pki-server-https-pem-test-${{ matrix.os }}
-          path: |
-            /tmp/artifacts/pki
+    uses: ./.github/workflows/server-https-pem-test.yml
+    with:
+      os: ${{ matrix.os }}
 
   # docs/admin/server/Configuring-HTTPS-Connector-with-JKS-File.adoc
   pki-server-https-jks-test:
