@@ -1,0 +1,36 @@
+name: PKICertImport
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Retrieve runner image
+        uses: actions/cache@v3
+        with:
+          key: pki-tools-runner-${{ inputs.os }}-${{ github.run_id }}
+          path: pki-tools-runner.tar
+
+      - name: Load runner image
+        run: docker load --input pki-tools-runner.tar
+
+      - name: Set up runner container
+        run: |
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
+
+      - name: Run PKICertImport test
+        run: docker exec pki bash /usr/share/pki/tests/util/bin/test_PKICertImport.bash
