@@ -400,7 +400,7 @@ public abstract class EnrollProfile extends Profile {
         try {
             RequestRepository requestRepository = engine.getRequestRepository();
             req = requestRepository.createRequest("enrollment");
-            logger.info("EnrollProfile: Creating ernrollment request " + req.getRequestId());
+            logger.info("EnrollProfile: Creating ernrollment request " + req.getRequestId().toHexString());
 
             setDefaultCertInfo(req);
 
