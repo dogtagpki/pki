@@ -23,6 +23,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.cmscore.apps.CMS;
@@ -50,7 +51,7 @@ public class LdapEnrollmentListener implements IRequestListener {
     @Override
     public void accept(Request r) {
 
-        logger.info("LdapEnrollmentListener: Handling enrollment request " + r.getRequestId());
+        logger.info("LdapEnrollmentListener: Handling enrollment request " + r.getRequestId().toHexString());
 
         String profileId = r.getExtDataInString(Request.PROFILE_ID);
 
@@ -62,12 +63,12 @@ public class LdapEnrollmentListener implements IRequestListener {
 
             // check if request failed.
             if ((r.getExtDataInInteger(Request.RESULT)).equals(Request.RES_ERROR)) {
-                logger.warn("LdapEnrollmentListener: Nothing to publish for enrollment request " + r.getRequestId());
+                logger.warn("Nothing to publish for enrollment request " + r.getRequestId().toHexString());
                 return;
             }
         }
 
-        logger.debug("LdapEnrollmentListener: Checking publishing for request " + r.getRequestId());
+        logger.debug("LdapEnrollmentListener: Checking publishing for request " + r.getRequestId().toHexString());
 
         // check if issued certs is set.
         Certificate[] certs = null;
@@ -80,7 +81,7 @@ public class LdapEnrollmentListener implements IRequestListener {
         }
 
         if (certs == null || certs.length == 0 || certs[0] == null) {
-            logger.warn("LdapEnrollmentListener: No certs to publish for request " + r.getRequestId());
+            logger.warn("No certs to publish for request " + r.getRequestId().toHexString());
             return;
         }
 
@@ -102,15 +103,17 @@ public class LdapEnrollmentListener implements IRequestListener {
                 continue;
             }
 
+            CertId certID = new CertId(xcert.getSerialNumber());
+
             try {
                 processor.publishCert(xcert, r);
                 results[i] = Request.RES_SUCCESS;
 
-                logger.debug("LdapEnrollmentListener: Published cert 0x" + xcert.getSerialNumber().toString(16));
+                logger.debug("LdapEnrollmentListener: Published cert " + certID.toHexString());
                 // processor.setPublishedFlag(xcert.getSerialNumber(), true);
 
             } catch (ELdapException e) {
-                logger.warn(CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_PUBLISH", xcert.getSerialNumber().toString(16), e.toString()), e);
+                logger.warn(CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_PUBLISH", certID.toHexString(), e.toString()), e);
                 results[i] = Request.RES_ERROR;
                 status = Request.RES_ERROR;
             }
