@@ -1,0 +1,75 @@
+name: Server container
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Retrieve runner image
+        uses: actions/cache@v3
+        with:
+          key: pki-runner-${{ inputs.os }}-${{ github.run_id }}
+          path: pki-runner.tar
+
+      - name: Load runner image
+        run: docker load --input pki-runner.tar
+
+      - name: Retrieve server image
+        uses: actions/cache@v3
+        with:
+          key: pki-server-${{ inputs.os }}-${{ github.run_id }}
+          path: pki-server.tar
+
+      - name: Load server image
+        run: docker load --input pki-server.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up server container
+        run: |
+          docker run --name pki --detach pki-server
+
+      - name: Connect server container to network
+        run: docker network connect example pki --alias pki.example.com
+
+      - name: Set up client container
+        run: |
+          tests/bin/runner-init.sh client
+        env:
+          HOSTNAME: client.example.com
+
+      - name: Connect client container to network
+        run: docker network connect example client --alias client.example.com
+
+      - name: Wait for server container to start
+        run: |
+          tests/bin/pki-start-wait.sh client https://pki.example.com:8443
+
+      - name: Gather artifacts from server container
+        if: always()
+        run: |
+          mkdir -p /tmp/artifacts/server
+          docker logs pki > /tmp/artifacts/server/container.out 2> /tmp/artifacts/server/container.err
+          mkdir -p /tmp/artifacts/server/var/lib
+          docker cp pki:/var/lib/tomcats /tmp/artifacts/server/var/lib
+        continue-on-error: true
+
+      - name: Upload artifacts from server container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: server-container-test-${{ inputs.os }}
+          path: /tmp/artifacts/server
