@@ -1,134 +1,20 @@
-name: OCSP Tests
+name: OCSP with direct CRL publishing
 
-on: [push, pull_request]
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
 
 jobs:
-  init:
-    name: Initializing workflow
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.init.outputs.matrix }}
-      repo: ${{ steps.init.outputs.repo }}
-      db-image: ${{ steps.init.outputs.db-image }}
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@v2
-
-      - name: Initialize workflow
-        id: init
-        env:
-          BASE64_MATRIX: ${{ secrets.BASE64_MATRIX }}
-          BASE64_REPO: ${{ secrets.BASE64_REPO }}
-          BASE64_DATABASE: ${{ secrets.BASE64_DATABASE }}
-        run: |
-          tests/bin/init-workflow.sh
-
-  # docs/development/Building_PKI.md
-  build:
-    name: Building PKI
-    needs: init
-    runs-on: ubuntu-latest
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
-    container: registry.fedoraproject.org/fedora:${{ matrix.os }}
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@v2
-
-      - name: Install dependencies
-        run: |
-          dnf install -y dnf-plugins-core rpm-build moby-engine
-          dnf copr enable -y ${{ needs.init.outputs.repo }}
-          dnf builddep -y --allowerasing --spec ./pki.spec --nogpgcheck
-
-      - name: Build PKI packages
-        run: ./build.sh --with-pkgs=base,server,ca,ocsp,tests --with-timestamp --work-dir=build rpm
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-
-      - name: Build runner image
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          build-args: |
-            OS_VERSION=${{ matrix.os }}
-            COPR_REPO=${{ needs.init.outputs.repo }}
-          tags: pki-runner
-          target: pki-runner
-          outputs: type=docker,dest=pki-ocsp-runner.tar
-
-      - name: Store runner image
-        uses: actions/cache@v3
-        with:
-          key: pki-ocsp-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-ocsp-runner.tar
-
-  ocsp-basic-test:
-    name: Basic OCSP
-    needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
-    uses: ./.github/workflows/ocsp-basic-test.yml
-    with:
-      os: ${{ matrix.os }}
-
-  ocsp-separate-test:
-    name: OCSP on separate instance
-    needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
-    uses: ./.github/workflows/ocsp-separate-test.yml
-    with:
-      os: ${{ matrix.os }}
-
-  ocsp-external-certs-test:
-    name: OCSP with external certs
-    needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
-    uses: ./.github/workflows/ocsp-external-certs-test.yml
-    with:
-      os: ${{ matrix.os }}
-
-  ocsp-cmc-test:
-    name: OCSP with CMC
-    needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
-    uses: ./.github/workflows/ocsp-cmc-test.yml
-    with:
-      os: ${{ matrix.os }}
-
-  ocsp-clone-test:
-    name: OCSP clone
-    needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
-    uses: ./.github/workflows/ocsp-clone-test.yml
-    with:
-      os: ${{ matrix.os }}
-
-  ocsp-crl-direct-test:
-    name: OCSP with direct CRL publishing
-    needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
-    uses: ./.github/workflows/ocsp-crl-direct-test.yml
-    with:
-      os: ${{ matrix.os }}
-
   # https://github.com/dogtagpki/pki/wiki/Installing-Standalone-OCSP
-  # https://github.com/dogtagpki/pki/wiki/Publishing-CA-Certificate-to-LDAP-Server
-  # https://github.com/dogtagpki/pki/wiki/Publishing-CRL-to-LDAP-Server
-  ocsp-ldap-crl-test:
-    name: Testing standalone OCSP with LDAP-based CRL publishing
-    needs: [init, build]
+  # https://github.com/dogtagpki/pki/wiki/Publishing-CRL-to-OCSP-Responder
+  test:
+    name: Test
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Install dependencies
         run: |
@@ -140,7 +26,7 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-ocsp-runner-${{ matrix.os }}-${{ github.run_id }}
+          key: pki-ocsp-runner-${{ inputs.os }}-${{ github.run_id }}
           path: pki-ocsp-runner.tar
 
       - name: Load runner image
@@ -307,72 +193,41 @@ jobs:
               --pkcs12-password Secret.123
           docker exec ocsp pki -n ocspadmin ocsp-user-show ocspadmin
 
-      - name: Prepare CRL publishing subtree
+      - name: Create CA user in OCSP
         run: |
-          docker exec -i ocsp ldapadd \
-              -H ldap://ocspds.example.com:3389 \
-              -x \
-              -D "cn=Directory Manager" \
-              -w Secret.123 << EOF
-          dn: dc=crl,dc=pki,dc=example,dc=com
-          objectClass: domain
-          dc: crl
-          aci: (targetattr!="userPassword || aci")
-           (version 3.0; acl "Enable anonymous access"; allow (read, search, compare) userdn="ldap:///anyone";)
-          EOF
+          # export CA subsystem cert
+          docker exec ca pki-server cert-export subsystem --cert-file ${SHARED}/subsystem.crt
 
-          # verify anonymous access
-          docker exec -i ocsp ldapsearch \
-              -H ldap://ocspds.example.com:3389 \
-              -x \
-              -b "dc=crl,dc=pki,dc=example,dc=com"
+          # create CA user with CA subsystem cert
+          docker exec ocsp pki-server ocsp-user-add CA --full-name "CA" --type agentType
+          docker exec ocsp pki-server ocsp-user-cert-add CA --cert ${SHARED}/subsystem.crt
+          docker exec ocsp pki-server ocsp-group-member-add "Trusted Managers" CA
 
-      - name: Configure CA cert and CRL publishing in CA
+      - name: Create CRL issuing point in OCSP
         run: |
-          # configure LDAP connection
-          docker exec ca pki-server ca-config-set ca.publish.ldappublish.enable true
-          docker exec ca pki-server ca-config-set ca.publish.ldappublish.ldap.ldapauth.authtype BasicAuth
-          docker exec ca pki-server ca-config-set ca.publish.ldappublish.ldap.ldapauth.bindDN "cn=Directory Manager"
-          docker exec ca pki-server ca-config-set ca.publish.ldappublish.ldap.ldapauth.bindPWPrompt internaldb
-          docker exec ca pki-server ca-config-set ca.publish.ldappublish.ldap.ldapconn.host ocspds.example.com
-          docker exec ca pki-server ca-config-set ca.publish.ldappublish.ldap.ldapconn.port 3389
-          docker exec ca pki-server ca-config-set ca.publish.ldappublish.ldap.ldapconn.secureConn false
+          # convert CA signing cert into PKCS #7 chain
+          docker exec ocsp pki pkcs7-cert-import --pkcs7 ca_signing.p7 --input-file ${SHARED}/ca_signing.crt
+          docker exec ocsp pki pkcs7-cert-find --pkcs7 ca_signing.p7
 
-          # configure LDAP-based CA cert publisher
-          docker exec ca pki-server ca-config-set ca.publish.publisher.instance.LdapCaCertPublisher.caCertAttr "cACertificate;binary"
-          docker exec ca pki-server ca-config-set ca.publish.publisher.instance.LdapCaCertPublisher.caObjectClass pkiCA
-          docker exec ca pki-server ca-config-set ca.publish.publisher.instance.LdapCaCertPublisher.pluginName LdapCaCertPublisher
+          # create CRL issuing point with the PKCS #7 chain
+          docker exec ocsp pki-server ocsp-crl-issuingpoint-add --cert-chain ca_signing.p7
 
-          # configure CA cert mapper
-          docker exec ca pki-server ca-config-set ca.publish.mapper.instance.LdapCaCertMap.createCAEntry true
-          docker exec ca pki-server ca-config-set ca.publish.mapper.instance.LdapCaCertMap.dnPattern "cn=\$subj.cn,dc=crl,dc=pki,dc=example,dc=com"
-          docker exec ca pki-server ca-config-set ca.publish.mapper.instance.LdapCaCertMap.pluginName LdapCaSimpleMap
-
-          # configure CA cert publishing rule
-          docker exec ca pki-server ca-config-set ca.publish.rule.instance.LdapCaCertRule.enable true
-          docker exec ca pki-server ca-config-set ca.publish.rule.instance.LdapCaCertRule.mapper LdapCaCertMap
-          docker exec ca pki-server ca-config-set ca.publish.rule.instance.LdapCaCertRule.pluginName Rule
-          docker exec ca pki-server ca-config-set ca.publish.rule.instance.LdapCaCertRule.predicate ""
-          docker exec ca pki-server ca-config-set ca.publish.rule.instance.LdapCaCertRule.publisher LdapCaCertPublisher
-          docker exec ca pki-server ca-config-set ca.publish.rule.instance.LdapCaCertRule.type cacert
-
-          # configure LDAP-based CRL publisher
-          docker exec ca pki-server ca-config-set ca.publish.publisher.instance.LdapCrlPublisher.crlAttr "certificateRevocationList;binary"
-          docker exec ca pki-server ca-config-set ca.publish.publisher.instance.LdapCrlPublisher.crlObjectClass pkiCA
-          docker exec ca pki-server ca-config-set ca.publish.publisher.instance.LdapCrlPublisher.pluginName LdapCrlPublisher
-
-          # configure CRL mapper
-          docker exec ca pki-server ca-config-set ca.publish.mapper.instance.LdapCrlMap.createCAEntry true
-          docker exec ca pki-server ca-config-set ca.publish.mapper.instance.LdapCrlMap.dnPattern "cn=\$subj.cn,dc=crl,dc=pki,dc=example,dc=com"
-          docker exec ca pki-server ca-config-set ca.publish.mapper.instance.LdapCrlMap.pluginName LdapCaSimpleMap
+      - name: Configure OCSP publishing in CA
+        run: |
+          # configure OCSP publisher
+          docker exec ca pki-server ca-config-set ca.publish.publisher.instance.OCSPPublisher.enableClientAuth true
+          docker exec ca pki-server ca-config-set ca.publish.publisher.instance.OCSPPublisher.host ocsp.example.com
+          docker exec ca pki-server ca-config-set ca.publish.publisher.instance.OCSPPublisher.nickName subsystem
+          docker exec ca pki-server ca-config-set ca.publish.publisher.instance.OCSPPublisher.path /ocsp/agent/ocsp/addCRL
+          docker exec ca pki-server ca-config-set ca.publish.publisher.instance.OCSPPublisher.pluginName OCSPPublisher
+          docker exec ca pki-server ca-config-set ca.publish.publisher.instance.OCSPPublisher.port 8443
 
           # configure CRL publishing rule
-          docker exec ca pki-server ca-config-set ca.publish.rule.instance.LdapCrlRule.enable true
-          docker exec ca pki-server ca-config-set ca.publish.rule.instance.LdapCrlRule.mapper LdapCrlMap
-          docker exec ca pki-server ca-config-set ca.publish.rule.instance.LdapCrlRule.pluginName Rule
-          docker exec ca pki-server ca-config-set ca.publish.rule.instance.LdapCrlRule.predicate ""
-          docker exec ca pki-server ca-config-set ca.publish.rule.instance.LdapCrlRule.publisher LdapCrlPublisher
-          docker exec ca pki-server ca-config-set ca.publish.rule.instance.LdapCrlRule.type crl
+          docker exec ca pki-server ca-config-set ca.publish.rule.instance.OCSPRule.enable true
+          docker exec ca pki-server ca-config-set ca.publish.rule.instance.OCSPRule.mapper NoMap
+          docker exec ca pki-server ca-config-set ca.publish.rule.instance.OCSPRule.pluginName Rule
+          docker exec ca pki-server ca-config-set ca.publish.rule.instance.OCSPRule.publisher OCSPPublisher
+          docker exec ca pki-server ca-config-set ca.publish.rule.instance.OCSPRule.type crl
 
           # enable CRL publishing
           docker exec ca pki-server ca-config-set ca.publish.enable true
@@ -387,27 +242,6 @@ jobs:
           docker exec ca pki-server ca-undeploy --wait
           docker exec ca pki-server ca-deploy --wait
 
-      - name: Configure revocation info store in OCSP
-        run: |
-          # configure LDAP store
-          docker exec ocsp pki-server ocsp-config-set ocsp.store.ldapStore.numConns 1
-          docker exec ocsp pki-server ocsp-config-set ocsp.store.ldapStore.host0 ocspds.example.com
-          docker exec ocsp pki-server ocsp-config-set ocsp.store.ldapStore.port0 3389
-          docker exec ocsp pki-server ocsp-config-set ocsp.store.ldapStore.baseDN0 "dc=crl,dc=pki,dc=example,dc=com"
-          docker exec ocsp pki-server ocsp-config-set ocsp.store.ldapStore.byName true
-          docker exec ocsp pki-server ocsp-config-set ocsp.store.ldapStore.caCertAttr "cACertificate;binary"
-          docker exec ocsp pki-server ocsp-config-set ocsp.store.ldapStore.crlAttr "certificateRevocationList;binary"
-          docker exec ocsp pki-server ocsp-config-set ocsp.store.ldapStore.includeNextUpdate false
-          docker exec ocsp pki-server ocsp-config-set ocsp.store.ldapStore.notFoundAsGood true
-          docker exec ocsp pki-server ocsp-config-set ocsp.store.ldapStore.refreshInSec0 10
-
-          # enable LDAP store
-          docker exec ocsp pki-server ocsp-config-set ocsp.storeId ldapStore
-
-          # restart OCSP subsystem
-          docker exec ocsp pki-server ocsp-undeploy --wait
-          docker exec ocsp pki-server ocsp-deploy --wait
-
       - name: Check OCSP responder with no CRLs
         run: |
           # create CA agent and its cert
@@ -417,28 +251,6 @@ jobs:
           # get cert serial number
           docker exec ca pki nss-cert-show caagent | tee output
           CERT_ID=$(sed -n "s/^\s*Serial Number:\s*\(\S*\)$/\1/p" output)
-
-          # wait for CRL cache refresh
-          sleep 10
-
-          # check CRL LDAP entries
-          docker exec ocsp ldapsearch \
-              -H ldap://ocspds.example.com:3389 \
-              -x \
-              -b "dc=crl,dc=pki,dc=example,dc=com" \
-              -o ldif_wrap=no \
-              -t \
-              "(objectClass=pkiCA)" | tee output
-
-          # there should be one CA cert attribute
-          grep "cACertificate;binary:" output | wc -l > actual
-          echo "1" > expected
-          diff expected actual
-
-          # there should be no CRL attributes
-          grep "certificateRevocationList;binary:" output | wc -l > actual
-          echo "0" > expected
-          diff expected actual
 
           # check cert status using OCSPClient
           docker exec ocsp OCSPClient \
@@ -488,42 +300,8 @@ jobs:
               https://ca.example.com:8443/ca/agent/ca/updateCRL \
               | xmllint --format -
 
-          # wait for CRL update and cache refresh
+          # wait for CRL update
           sleep 10
-
-          # check CRL LDAP entries
-          docker exec ocsp ldapsearch \
-              -H ldap://ocspds.example.com:3389 \
-              -x \
-              -b "dc=crl,dc=pki,dc=example,dc=com" \
-              -o ldif_wrap=no \
-              -t \
-              "(objectClass=pkiCA)" | tee output
-
-          # there should be one CA cert attribute
-          grep "cACertificate;binary:" output | wc -l > actual
-          echo "1" > expected
-          diff expected actual
-
-          # there should be one CRL attribute
-          grep "certificateRevocationList;binary:" output | wc -l > actual
-          echo "1" > expected
-          diff expected actual
-
-          FILENAME=$(sed -n 's/certificateRevocationList;binary:< file:\/\/\(.*\)$/\1/p' output)
-          echo "FILENAME: $FILENAME"
-
-          # check the latest CRL
-          docker exec ocsp openssl crl \
-              -in "$FILENAME" \
-              -inform DER \
-              -text \
-              -noout | tee output
-
-          # there should be no certs in the latest CRL
-          sed -n "s/^\s*\(Serial Number:.*\)\s*$/\1/p" output | wc -l > actual
-          echo "0" > expected
-          diff expected actual
 
           # check cert status using OCSPClient
           docker exec ocsp OCSPClient \
@@ -560,38 +338,6 @@ jobs:
           docker exec ca pki nss-cert-show caagent | tee output
           CERT_ID=$(sed -n "s/^\s*Serial Number:\s*\(\S*\)$/\1/p" output)
 
-          # wait for CRL cache refresh
-          sleep 10
-
-          # check CRL LDAP entries
-          docker exec ocsp ldapsearch \
-              -H ldap://ocspds.example.com:3389 \
-              -x \
-              -b "dc=crl,dc=pki,dc=example,dc=com" \
-              -o ldif_wrap=no \
-              -t \
-              "(objectClass=pkiCA)" | tee output
-
-          # there should be one CA cert attribute
-          grep "cACertificate;binary:" output | wc -l > actual
-          echo "1" > expected
-          diff expected actual
-
-          # there should be one CRL attribute
-          grep "certificateRevocationList;binary:" output | wc -l > actual
-          echo "1" > expected
-          diff expected actual
-
-          FILENAME=$(sed -n 's/certificateRevocationList;binary:< file:\/\/\(.*\)$/\1/p' output)
-          echo "FILENAME: $FILENAME"
-
-          # check the latest CRL
-          docker exec ocsp openssl crl \
-              -in "$FILENAME" \
-              -inform DER \
-              -text \
-              -noout | tee output
-
           # check cert status using OCSPClient
           docker exec ocsp OCSPClient \
               -d /root/.dogtag/nssdb \
@@ -626,38 +372,6 @@ jobs:
           # get cert serial number
           docker exec ca pki nss-cert-show caagent | tee output
           CERT_ID=$(sed -n "s/^\s*Serial Number:\s*\(\S*\)$/\1/p" output)
-
-          # wait for CRL cache refresh
-          sleep 10
-
-          # check CRL LDAP entries
-          docker exec ocsp ldapsearch \
-              -H ldap://ocspds.example.com:3389 \
-              -x \
-              -b "dc=crl,dc=pki,dc=example,dc=com" \
-              -o ldif_wrap=no \
-              -t \
-              "(objectClass=pkiCA)" | tee output
-
-          # there should be one CA cert attribute
-          grep "cACertificate;binary:" output | wc -l > actual
-          echo "1" > expected
-          diff expected actual
-
-          # there should be one CRL attribute
-          grep "certificateRevocationList;binary:" output | wc -l > actual
-          echo "1" > expected
-          diff expected actual
-
-          FILENAME=$(sed -n 's/certificateRevocationList;binary:< file:\/\/\(.*\)$/\1/p' output)
-          echo "FILENAME: $FILENAME"
-
-          # check the latest CRL
-          docker exec ocsp openssl crl \
-              -in "$FILENAME" \
-              -inform DER \
-              -text \
-              -noout | tee output
 
           # check cert status using OCSPClient
           docker exec ocsp OCSPClient \
@@ -709,7 +423,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: ocsp-crl-ldap-ca-${{ matrix.os }}
+          name: ocsp-crl-direct-ca-${{ inputs.os }}
           path: |
             /tmp/artifacts/ca
 
@@ -717,6 +431,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: ocsp-crl-ldap-ocsp-${{ matrix.os }}
+          name: ocsp-crl-direct-ocsp-${{ inputs.os }}
           path: |
             /tmp/artifacts/ocsp
