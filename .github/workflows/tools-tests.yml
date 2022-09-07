@@ -117,97 +117,14 @@ jobs:
     with:
       os: ${{ matrix.os }}
 
-  # https://github.com/dogtagpki/pki/wiki/PKI-NSS-CLI
   pki-nss-exts-test:
-    name: Testing PKI NSS CLI with Extensions
+    name: PKI NSS CLI with Extensions
     needs: [init, build]
-    runs-on: ubuntu-latest
-    env:
-      SHARED: /tmp/workdir/pki
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@v2
-
-      - name: Retrieve runner image
-        uses: actions/cache@v3
-        with:
-          key: pki-tools-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-tools-runner.tar
-
-      - name: Load runner image
-        run: docker load --input pki-tools-runner.tar
-
-      - name: Set up runner container
-        run: |
-          tests/bin/runner-init.sh pki
-        env:
-          HOSTNAME: pki.example.com
-
-      - name: Create CA signing cert request
-        run: |
-          docker exec pki pki nss-cert-request \
-              --subject "CN=Certificate Authority" \
-              --ext /usr/share/pki/server/certs/ca_signing.conf \
-              --csr ca_signing.csr
-
-          docker exec pki /usr/share/pki/tests/ca/bin/test-ca-signing-csr-ext.sh
-
-      - name: Issue self-signed CA signing cert
-        run: |
-          docker exec pki pki nss-cert-issue \
-              --csr ca_signing.csr \
-              --ext /usr/share/pki/server/certs/ca_signing.conf \
-              --cert ca_signing.crt
-
-          docker exec pki /usr/share/pki/tests/ca/bin/test-ca-signing-cert-ext.sh
-
-      - name: Import CA signing cert
-        run: |
-          docker exec pki pki nss-cert-import \
-              --cert ca_signing.crt \
-              --trust CT,C,C \
-              ca_signing
-          docker exec pki certutil -L -d /root/.dogtag/nssdb -n ca_signing
-
-      - name: Create subordinate CA signing cert request
-        run: |
-          docker exec pki pki nss-cert-request \
-              --subject "CN=Subordinate CA" \
-              --ext /usr/share/pki/server/certs/subca_signing.conf \
-              --csr subca_signing.csr
-
-          docker exec pki /usr/share/pki/tests/ca/bin/test-subca-signing-csr-ext.sh
-
-      - name: Issue subordinate CA signing cert
-        run: |
-          docker exec pki pki nss-cert-issue \
-              --issuer ca_signing \
-              --csr subca_signing.csr \
-              --ext /usr/share/pki/server/certs/subca_signing.conf \
-              --cert subca_signing.crt
-
-          docker exec pki /usr/share/pki/tests/ca/bin/test-subca-signing-cert-ext.sh
-
-      - name: Create SSL server cert request
-        run: |
-          docker exec pki pki nss-cert-request \
-              --subject "CN=pki.example.com" \
-              --ext /usr/share/pki/server/certs/sslserver.conf \
-              --csr sslserver.csr
-
-          docker exec pki /usr/share/pki/tests/bin/test-sslserver-csr-ext.sh
-
-      - name: Issue SSL server cert
-        run: |
-          docker exec pki pki nss-cert-issue \
-              --issuer ca_signing \
-              --csr sslserver.csr \
-              --ext /usr/share/pki/server/certs/sslserver.conf \
-              --cert sslserver.crt
-
-          docker exec pki /usr/share/pki/tests/bin/test-sslserver-cert-ext.sh
+    uses: ./.github/workflows/pki-nss-exts-test.yml
+    with:
+      os: ${{ matrix.os }}
 
   # docs/user/tools/Using-PKI-PKCS7-CLI.adoc
   pki-pkcs7-test:
