@@ -573,7 +573,7 @@ public class EnrollServlet extends CMSServlet {
                         }
                         logger.info(
                                 AuditFormat.ENROLLMENTFORMAT,
-                                req.getRequestId(),
+                                req.getRequestId().toHexString(),
                                 initiative,
                                 authMgr,
                                 status.toString(),
@@ -583,7 +583,7 @@ public class EnrollServlet extends CMSServlet {
                     } else { // no policy violation, from agent
                         logger.info(
                                 AuditFormat.ENROLLMENTFORMAT,
-                                req.getRequestId(),
+                                req.getRequestId().toHexString(),
                                 initiative,
                                 authMgr,
                                 status.toString(),
@@ -596,7 +596,7 @@ public class EnrollServlet extends CMSServlet {
 
                     logger.info(
                             AuditFormat.ENROLLMENTFORMAT,
-                            req.getRequestId(),
+                            req.getRequestId().toHexString(),
                             initiative,
                             authMgr,
                             status.toString(),
@@ -637,7 +637,7 @@ public class EnrollServlet extends CMSServlet {
                         try {
                             logger.info(
                                     AuditFormat.ENROLLMENTFORMAT,
-                                    req.getRequestId(),
+                                    req.getRequestId().toHexString(),
                                     initiative,
                                     authMgr,
                                     "completed with error: " + err,
@@ -1393,7 +1393,7 @@ public class EnrollServlet extends CMSServlet {
 
             logger.info(
                     AuditFormat.ENROLLMENTFORMAT,
-                    req.getRequestId(),
+                    req.getRequestId().toHexString(),
                     initiative,
                     mAuthMgr,
                     "completed",
