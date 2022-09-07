@@ -111,7 +111,33 @@ jobs:
           # enable publishing
           docker exec pki pki-server ca-config-set ca.publish.enable true
 
-          # restart CA subsystem
+      - name: Configure caUserCert profile
+        run: |
+          # set cert validity to 1 minute
+          VALIDITY_DEFAULT="policyset.userCertSet.2.default.params"
+          docker exec pki sed -i \
+              -e "s/^$VALIDITY_DEFAULT.range=.*$/$VALIDITY_DEFAULT.range=1/" \
+              -e "/^$VALIDITY_DEFAULT.range=.*$/a $VALIDITY_DEFAULT.rangeUnit=minute" \
+              /etc/pki/pki-tomcat/ca/profiles/ca/caUserCert.cfg
+
+          # check updated profile
+          docker exec pki cat /etc/pki/pki-tomcat/ca/profiles/ca/caUserCert.cfg
+
+      - name: Configure cert status update task
+        run: |
+          # configure task to run every minute
+          docker exec pki pki-server ca-config-set ca.certStatusUpdateInterval 60
+
+      - name: Configure unpublish expired job
+        run: |
+          # configure job to run every minute
+          docker exec pki pki-server ca-config-set jobsScheduler.enabled true
+          docker exec pki pki-server ca-config-set jobsScheduler.job.unpublishExpiredCerts.cron "* * * * *"
+          docker exec pki pki-server ca-config-set jobsScheduler.job.unpublishExpiredCerts.enabled true
+          docker exec pki pki-server ca-config-set jobsScheduler.job.unpublishExpiredCerts.summary.enabled false
+
+      - name: Restart CA subsystem
+        run: |
           docker exec pki pki-server ca-undeploy --wait
           docker exec pki pki-server ca-deploy --wait
 
@@ -152,6 +178,13 @@ jobs:
           echo "CERT_ID: $CERT_ID"
           echo $CERT_ID > cert.id
 
+          docker exec pki pki ca-cert-show $CERT_ID | tee output
+
+          # cert should be valid
+          sed -n "s/^ *Status: \(.*\)$/\1/p" output > actual
+          echo "VALID" > expected
+          diff expected actual
+
       - name: Check user after enrollment
         run: |
           docker exec pki ldapsearch \
@@ -182,6 +215,13 @@ jobs:
           CERT_ID=$(cat cert.id)
           docker exec pki pki -n caadmin ca-cert-hold $CERT_ID --force
 
+          docker exec pki pki ca-cert-show $CERT_ID | tee output
+
+          # cert should be revoked
+          sed -n "s/^ *Status: \(.*\)$/\1/p" output > actual
+          echo "REVOKED" > expected
+          diff expected actual
+
       - name: Check user after revocation
         run: |
           docker exec pki ldapsearch \
@@ -202,6 +242,13 @@ jobs:
         run: |
           CERT_ID=$(cat cert.id)
           docker exec pki pki -n caadmin ca-cert-release-hold $CERT_ID --force
+
+          docker exec pki pki ca-cert-show $CERT_ID | tee output
+
+          # cert should be valid again
+          sed -n "s/^ *Status: \(.*\)$/\1/p" output > actual
+          echo "VALID" > expected
+          diff expected actual
 
       - name: Check user after unrevocation
         run: |
@@ -227,6 +274,34 @@ jobs:
               -in "$FILENAME" \
               -inform DER \
               -text -noout
+
+      - name: Wait for expiration
+        run: |
+          sleep 120
+
+          CERT_ID=$(cat cert.id)
+          docker exec pki pki ca-cert-show $CERT_ID | tee output
+
+          # cert should be expired
+          sed -n "s/^ *Status: \(.*\)$/\1/p" output > actual
+          echo "EXPIRED" > expected
+          diff expected actual
+
+      - name: Check user after expiration
+        run: |
+          docker exec pki ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -x \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b "uid=testuser,ou=people,dc=pki,dc=example,dc=com" \
+              -o ldif_wrap=no \
+              -t | tee output
+
+          # there should be no cert attributes
+          grep "userCertificate;binary:" output | wc -l > actual
+          echo "0" > expected
+          diff expected actual
 
       - name: Gather artifacts
         if: always()
