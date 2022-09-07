@@ -313,7 +313,7 @@ public class RevocationProcessor extends CertProcessor {
 
     public void processRevocationRequest() throws EBaseException {
 
-        logger.info("RevocationProcessor: Processing revocation request " + request.getRequestId());
+        logger.info("RevocationProcessor: Processing revocation request " + request.getRequestId().toHexString());
         logger.debug("RevocationProcessor: - initiative: " + initiative);
         logger.debug("RevocationProcessor: - reason: " + revocationReason);
 
@@ -378,7 +378,7 @@ public class RevocationProcessor extends CertProcessor {
 
     public void processUnrevocationRequest() throws EBaseException {
 
-        logger.info("RevocationProcessor: Processing unrevocation request " + request.getRequestId());
+        logger.info("RevocationProcessor: Processing unrevocation request " + request.getRequestId().toHexString());
         logger.debug("RevocationProcessor: - initiative: " + initiative);
 
         logger.debug("RevocationProcessor: - certs:");
