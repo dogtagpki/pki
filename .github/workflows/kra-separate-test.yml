@@ -1,0 +1,170 @@
+name: KRA on separate instance
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+
+jobs:
+  # docs/installation/kra/Installing_KRA_on_Separate_Instance.md
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Retrieve runner image
+        uses: actions/cache@v3
+        with:
+          key: pki-kra-runner-${{ inputs.os }}-${{ github.run_id }}
+          path: pki-kra-runner.tar
+
+      - name: Load runner image
+        run: docker load --input pki-kra-runner.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up CA DS container
+        run: |
+          tests/bin/ds-container-create.sh cads
+        env:
+          IMAGE: ${{ needs.init.outputs.db-image }}
+          HOSTNAME: cads.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect CA DS container to network
+        run: docker network connect example cads --alias cads.example.com
+
+      - name: Set up CA container
+        run: |
+          tests/bin/runner-init.sh ca
+        env:
+          HOSTNAME: ca.example.com
+
+      - name: Connect CA container to network
+        run: docker network connect example ca --alias ca.example.com
+
+      - name: Install CA in CA container
+        run: |
+          docker exec ca pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_hostname=cads.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -D pki_cert_id_generator=random \
+              -D pki_request_id_generator=random \
+              -v
+
+          docker exec ca pki-server cert-find
+
+      - name: Install banner in CA container
+        run: docker exec ca cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
+
+      - name: Set up KRA DS container
+        run: |
+          tests/bin/ds-container-create.sh krads
+        env:
+          IMAGE: ${{ needs.init.outputs.db-image }}
+          HOSTNAME: krads.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect KRA DS container to network
+        run: docker network connect example krads --alias krads.example.com
+
+      - name: Set up KRA container
+        run: |
+          tests/bin/runner-init.sh kra
+        env:
+          HOSTNAME: kra.example.com
+
+      - name: Connect KRA container to network
+        run: docker network connect example kra --alias kra.example.com
+
+      - name: Install KRA in KRA container
+        run: |
+          docker exec ca pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
+          docker exec ca cp /root/.dogtag/pki-tomcat/ca_admin.cert ${SHARED}/ca_admin.cert
+          docker exec kra pkispawn \
+              -f /usr/share/pki/server/examples/installation/kra.cfg \
+              -s KRA \
+              -D pki_security_domain_hostname=ca.example.com \
+              -D pki_cert_chain_nickname=ca_signing \
+              -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
+              -D pki_admin_cert_file=${SHARED}/ca_admin.cert \
+              -D pki_ds_hostname=krads.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -D pki_key_id_generator=random \
+              -D pki_request_id_generator=random \
+              -v
+
+          docker exec kra pki-server cert-find
+
+      - name: Install banner in KRA container
+        run: docker exec kra cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
+
+      # TODO: Fix DogtagKRAConnectivityCheck to work without CA
+      # - name: Run PKI healthcheck
+      #   run: docker exec kra pki-healthcheck --failures-only
+
+      - name: Verify KRA admin
+        run: |
+          docker exec ca cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${SHARED}/ca_admin_cert.p12
+          docker exec kra pki client-cert-import ca_signing --ca-cert ${SHARED}/ca_signing.crt
+          docker exec kra pki client-cert-import \
+              --pkcs12 ${SHARED}/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+          docker exec kra pki -n caadmin --ignore-banner kra-user-show kraadmin
+
+      - name: Verify KRA connector in CA
+        run: |
+          docker exec ca pki client-cert-import ca_signing --ca-cert ${SHARED}/ca_signing.crt
+          docker exec ca pki client-cert-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+
+          docker exec ca bash pki -n caadmin --ignore-banner ca-kraconnector-show | tee output
+          sed -n 's/\s*Host:\s\+\(\S\+\):.*/\1/p' output > actual
+          echo kra.example.com > expected
+          diff expected actual
+
+      - name: Gather artifacts from CA containers
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/ca cads
+          tests/bin/pki-artifacts-save.sh ca
+        continue-on-error: true
+
+      - name: Gather artifacts from KRA containers
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/kra krads
+          tests/bin/pki-artifacts-save.sh kra
+        continue-on-error: true
+
+      - name: Remove KRA from KRA container
+        run: docker exec kra pkidestroy -i pki-tomcat -s KRA -v
+
+      - name: Remove CA from CA container
+        run: docker exec ca pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Upload artifacts from CA containers
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: kra-separate-ca-${{ inputs.os }}
+          path: |
+            /tmp/artifacts/ca
+
+      - name: Upload artifacts from KRA containers
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: kra-separate-kra-${{ inputs.os }}
+          path: |
+            /tmp/artifacts/kra
