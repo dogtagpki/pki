@@ -1,0 +1,208 @@
+name: ACME server switchover
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+
+jobs:
+  # This test verifies that in a cluster the baseURL parameter can be used
+  # to replace a server with another server without affecting the client.
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Retrieve runner image
+        uses: actions/cache@v3
+        with:
+          key: pki-acme-runner-${{ inputs.os }}-${{ github.run_id }}
+          path: pki-acme-runner.tar
+
+      - name: Load runner image
+        run: docker load --input pki-acme-runner.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-container-create.sh ds
+        env:
+          IMAGE: ${{ needs.init.outputs.db-image }}
+          HOSTNAME: ds.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect DS container to network
+        run: docker network connect example ds --alias ds.example.com
+
+      - name: Set up PKI container
+        run: |
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
+
+      - name: Connect PKI container to network
+        run: docker network connect example pki --alias pki.example.com --alias server1.example.com
+
+      - name: Install CA in PKI container
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_hostname=ds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -D pki_cert_id_generator=random \
+              -D pki_request_id_generator=random \
+              -v
+
+      - name: Set up ACME database in DS container
+        run: |
+          docker exec ds ldapmodify \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -f $SHARED/base/acme/database/ds/schema.ldif
+          docker exec ds ldapadd \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -f $SHARED/base/acme/database/ds/create.ldif
+          docker exec ds ldapadd \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -f $SHARED/base/acme/realm/ds/create.ldif
+
+      - name: Install ACME in PKI container
+        run: |
+          docker exec pki pki-server acme-create
+          docker exec pki pki-server acme-database-mod \
+              --type ds \
+              -D url=ldap://ds.example.com:3389
+          docker exec pki pki-server acme-issuer-mod --type pki
+          docker exec pki pki-server acme-realm-mod \
+              --type ds \
+              -D url=ldap://ds.example.com:3389
+          docker exec pki bash -c "echo baseURL=http://server1.example.com:8080/acme >> /etc/pki/pki-tomcat/acme/engine.conf"
+          docker exec pki pki-server acme-deploy --wait
+
+      - name: Set up client container
+        run: |
+          tests/bin/runner-init.sh client
+        env:
+          HOSTNAME: client.example.com
+
+      - name: Connect client container to network
+        run: docker network connect example client --alias client1.example.com --alias client2.example.com
+
+      - name: Install dependencies in client container
+        run: docker exec client dnf install -y certbot jq
+
+      - name: Verify ACME directory before switchover
+        run: |
+          echo http://server1.example.com:8080/acme/new-nonce > expected
+          docker exec client bash -c "curl -s -k http://pki.example.com:8080/acme/directory | jq -r '.newNonce' > ${SHARED}/actual"
+          diff expected actual
+
+      - name: Verify registration and enrollment before switchover
+        run: |
+          docker exec client certbot register \
+              --server http://pki.example.com:8080/acme/directory \
+              --email user1@example.com \
+              --agree-tos \
+              --non-interactive
+          docker exec client certbot certonly \
+              --server http://pki.example.com:8080/acme/directory \
+              -d client1.example.com \
+              --standalone \
+              --non-interactive
+          docker exec client openssl x509 -text -noout -in /etc/letsencrypt/live/client1.example.com/fullchain.pem
+          docker exec client certbot certonly \
+              --server http://pki.example.com:8080/acme/directory \
+              -d client2.example.com \
+              --standalone \
+              --non-interactive
+          docker exec client openssl x509 -text -noout -in /etc/letsencrypt/live/client2.example.com/fullchain.pem
+
+      - name: Simulate ACME server switchover by replacing the baseURL parameter
+        run: |
+          docker exec pki pki-server acme-undeploy --wait
+          docker network disconnect example pki
+          docker exec pki sed -i "s/server1.example.com/server2.example.com/g" /etc/pki/pki-tomcat/acme/engine.conf
+          docker network connect example pki --alias pki.example.com --alias server2.example.com
+          docker exec pki pki-server acme-deploy --wait
+
+      - name: Verify ACME directory after switchover
+        run: |
+          echo http://server2.example.com:8080/acme/new-nonce > expected
+          docker exec client bash -c "curl -s -k http://pki.example.com:8080/acme/directory | jq -r '.newNonce' > ${SHARED}/actual"
+          diff expected actual
+
+      - name: Verify renewal, revocation, account update and deactivation after switchover
+        run: |
+          docker exec client certbot renew \
+              --server http://pki.example.com:8080/acme/directory \
+              --cert-name client1.example.com \
+              --force-renewal \
+              --no-random-sleep-on-renew \
+              --non-interactive
+          docker exec client openssl x509 -text -noout -in /etc/letsencrypt/live/client1.example.com/fullchain.pem
+          docker exec client certbot revoke \
+              --server http://pki.example.com:8080/acme/directory \
+              --cert-name client2.example.com \
+              --non-interactive
+          docker exec client certbot update_account \
+              --server http://pki.example.com:8080/acme/directory \
+              --email user2@example.com \
+              --non-interactive
+          docker exec client certbot unregister \
+              --server http://pki.example.com:8080/acme/directory \
+              --non-interactive
+
+      - name: Gather artifacts from server containers
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki ds
+          tests/bin/pki-artifacts-save.sh pki
+        continue-on-error: true
+
+      - name: Gather artifacts from client container
+        if: always()
+        run: |
+          mkdir -p /tmp/artifacts/client
+          docker logs client > /tmp/artifacts/client/container.out 2> /tmp/artifacts/client/container.err
+          mkdir -p /tmp/artifacts/client/etc/letsencrypt
+          docker cp client:/etc/letsencrypt/live /tmp/artifacts/client/etc/letsencrypt
+          mkdir -p /tmp/artifacts/client/var/log/letsencrypt
+          docker cp client:/var/log/letsencrypt/letsencrypt.log /tmp/artifacts/client/var/log/letsencrypt
+        continue-on-error: true
+
+      - name: Remove ACME from PKI container
+        run: |
+          docker exec pki pki-server acme-undeploy --wait
+          docker exec pki pki-server acme-remove
+
+      - name: Remove CA from PKI container
+        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Upload artifacts from server containers
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: acme-switchover-server-${{ inputs.os }}
+          path: |
+            /tmp/artifacts/pki
+
+      - name: Upload artifacts from client container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: acme-switchover-client-${{ inputs.os }}
+          path: /tmp/artifacts/client
