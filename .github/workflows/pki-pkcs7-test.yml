@@ -1,0 +1,160 @@
+name: PKI PKCS7 CLI
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+
+jobs:
+  # docs/user/tools/Using-PKI-PKCS7-CLI.adoc
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Retrieve runner image
+        uses: actions/cache@v3
+        with:
+          key: pki-tools-runner-${{ inputs.os }}-${{ github.run_id }}
+          path: pki-tools-runner.tar
+
+      - name: Load runner image
+        run: docker load --input pki-tools-runner.tar
+
+      - name: Set up runner container
+        run: |
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
+
+      - name: Generate CA signing cert request
+        run: |
+          docker exec pki pki nss-cert-request \
+              --subject "CN=Certificate Authority" \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --csr ca_signing.csr
+
+      - name: Issue self-signed CA signing cert
+        run: |
+          docker exec pki pki nss-cert-issue \
+              --csr ca_signing.csr \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --cert ca_signing.crt
+
+      - name: Import CA signing cert
+        run: |
+          docker exec pki pki nss-cert-import \
+              --cert ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
+      - name: Generate SSL server cert request
+        run: |
+          docker exec pki pki nss-cert-request \
+              --subject "CN=localhost.localdomain" \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --csr sslserver.csr
+
+      - name: Issue SSL server cert signed by CA signing cert
+        run: |
+          docker exec pki pki nss-cert-issue \
+              --issuer ca_signing \
+              --csr sslserver.csr \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --cert sslserver.crt
+
+      - name: Import SSL server cert
+        run: docker exec pki pki nss-cert-import sslserver --cert sslserver.crt
+
+      - name: "Export SSL server cert chain into PKCS #7 chain"
+        run: |
+          docker exec pki pki pkcs7-export sslserver --pkcs7 cert_chain.p7b
+          docker exec pki pki pkcs7-cert-find --pkcs7 cert_chain.p7b
+
+      - name: Convert cert chain into separate PEM certificates
+        run: |
+          docker exec pki pki pkcs7-cert-export \
+              --pkcs7 cert_chain.p7b \
+              --output-prefix cert- \
+              --output-suffix .pem
+          docker exec pki cat cert-0.pem
+          docker exec pki cat cert-1.pem
+
+      - name: "Merge PEM certificates into a PKCS #7 chain"
+        run: |
+          docker exec pki rm -f cert_chain.p7b
+          docker exec pki pki pkcs7-cert-import \
+              --pkcs7 cert_chain.p7b \
+              --input-file cert-0.pem
+          docker exec pki pki pkcs7-cert-import \
+              --pkcs7 cert_chain.p7b \
+              --input-file cert-1.pem \
+              --append
+          docker exec pki pki pkcs7-cert-find --pkcs7 cert_chain.p7b
+
+      - name: Remove certs from NSS database
+        run: |
+          docker exec pki certutil -D -d /root/.dogtag/nssdb -n sslserver
+          docker exec pki certutil -D -d /root/.dogtag/nssdb -n ca_signing
+          docker exec pki certutil -L -d /root/.dogtag/nssdb
+
+      - name: "Import PKCS #7 chain into NSS database"
+        run: |
+          docker exec pki pki pkcs7-import sslserver --pkcs7 cert_chain.p7b
+          docker exec pki certutil -L -d /root/.dogtag/nssdb
+
+      - name: Verify CA signing cert trust flags
+        run: |
+          docker exec pki certutil -L -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^Certificate Authority *\(\S\+\)/\1/p' output > actual
+          echo "CTu,Cu,Cu" > expected
+          diff actual expected
+
+      - name: Verify SSL server cert trust flags
+        run: |
+          docker exec pki certutil -L -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^sslserver *\(\S\+\)/\1/p' output > actual
+          echo "u,u,u" > expected
+          diff actual expected
+
+      - name: "Convert PKCS #7 chain into a series of PEM certificates"
+        run: |
+          docker exec pki pki pkcs7-cert-export \
+              --pkcs7 cert_chain.p7b \
+              --output-file cert_chain.pem
+          docker exec pki cat cert_chain.pem
+
+      - name: Remove certs from NSS database
+        run: |
+          docker exec pki certutil -D -d /root/.dogtag/nssdb -n sslserver
+          docker exec pki certutil -D -d /root/.dogtag/nssdb -n "Certificate Authority"
+          docker exec pki certutil -L -d /root/.dogtag/nssdb
+
+      - name: Import PEM certificates into NSS database
+        run: |
+          docker exec pki rm -f cert_chain.p7b
+          docker exec pki pki pkcs7-cert-import \
+              --pkcs7 cert_chain.p7b \
+              --input-file cert_chain.pem
+          docker exec pki pki pkcs7-import sslserver --pkcs7 cert_chain.p7b
+          docker exec pki certutil -L -d /root/.dogtag/nssdb
+
+      - name: Verify CA signing cert trust flags
+        run: |
+          docker exec pki certutil -L -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^Certificate Authority *\(\S\+\)/\1/p' output > actual
+          echo "CTu,Cu,Cu" > expected
+          diff actual expected
+
+      - name: Verify SSL server cert trust flags
+        run: |
+          docker exec pki certutil -L -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^sslserver *\(\S\+\)/\1/p' output > actual
+          echo "u,u,u" > expected
+          diff actual expected
