@@ -86,7 +86,7 @@ public class CAEnrollProfile extends EnrollProfile {
         String auditRequesterID = auditRequesterID(request);
 
         RequestId requestId = request.getRequestId();
-        logger.info("CAEnrollProfile: Processing enrollment request " + requestId);
+        logger.info("CAEnrollProfile: Processing enrollment request " + requestId.toHexString());
 
         CAEngine engine = CAEngine.getInstance();
         CAService caService = engine.getCAService();
@@ -425,7 +425,7 @@ public class CAEnrollProfile extends EnrollProfile {
         logger.info(
                 AuditFormat.FORMAT,
                 request.getRequestType(),
-                request.getRequestId(),
+                request.getRequestId().toHexString(),
                 initiative,
                 authMgr,
                 "completed",
