@@ -354,25 +354,29 @@ public class RequestNotifier {
      * @param r the request that is completed.
      */
     public void notify(Request r) {
-        logger.debug("ARequestNotifier  notify mIsPublishingQueueEnabled=" + mIsPublishingQueueEnabled +
-                  " mMaxThreads=" + mMaxThreads);
+        logger.info("RequestNotifier: Request " + r.getRequestId().toHexString() + " " + r.getRequestStatus());
+        logger.info("RequestNotifier: - publishing queue enabled: " + mIsPublishingQueueEnabled);
+        logger.info("RequestNotifier: - max threads: " + mMaxThreads);
+
         if (mIsPublishingQueueEnabled) {
             addToNotify(r);
+
         } else if (mMaxThreads == 0) {
             Enumeration<IRequestListener> listeners = mListeners.elements();
             if (listeners != null && r != null) {
                 while (listeners.hasMoreElements()) {
                     IRequestListener l = listeners.nextElement();
-                    logger.debug("RunListeners: IRequestListener = " + l.getClass().getName());
+                    logger.info("RequestNotifier: Processing request " + r.getRequestId().toHexString() + " with " + l.getClass().getSimpleName());
                     l.accept(r);
                 }
             }
+
         } else {
-            // spawn a seperate thread to call the listeners and return.
+            logger.info("RequestNotifier: Running listeners");
             try {
-                new Thread(new RunListeners(r, mListeners.elements())).start();
+                new Thread(new RunListeners(r, mListeners.elements()), "RequestNotifier-notify").start();
             } catch (Throwable e) {
-                logger.warn("Could not run listeners for request " + r.getRequestId() + ": " + e.getMessage(), e);
+                logger.warn("Could not run listeners for request " + r.getRequestId().toHexString() + ": " + e.getMessage(), e);
             }
         }
     }
@@ -419,26 +423,35 @@ public class RequestNotifier {
      * @param r request
      */
     public synchronized void addToNotify(Request r) {
+
+        logger.info("RequestNotifier: Notifying all listeners for request " + r.getRequestId().toHexString());
+
         if (!mSearchForRequests) {
+
+            logger.info("RequestNotifier: - max requests: " + mMaxRequests);
+            logger.info("RequestNotifier: - buffer size: " + mRequests.size());
+
             if (mRequests.size() < mMaxRequests) {
+                logger.info("RequestNotifier: Extending buffer");
                 mRequests.addElement(r.getRequestId().toString());
-                logger.debug("addToNotify  extended buffer to " + mRequests.size() + "(" + mMaxRequests + ")" +
-                          " requests by adding request " + r.getRequestId().toString());
+
                 if (morePublishingThreads()) {
                     try {
-                        Thread notifierThread = new Thread(new RunListeners(this));
+                        Thread notifierThread = new Thread(new RunListeners(this), "RequestNotifier-addToNotify");
                         if (notifierThread != null) {
                             mNotifierThreads.addElement(notifierThread);
-                            logger.debug("Number of publishing threads: " + mNotifierThreads.size());
+                            logger.info("RequestNotifier: - publishing threads: " + mNotifierThreads.size());
                             if (mPublishingQueuePriority > 0) {
                                 notifierThread.setPriority(mPublishingQueuePriority);
                             }
                             notifierThread.start();
                         }
+
                     } catch (Throwable e) {
-                        logger.warn("addToNotify  Exception: " + e.getMessage(), e);
+                        logger.warn("Unable to notify listeners: " + e.getMessage(), e);
                     }
                 }
+
             } else {
                 mSearchForRequests = true;
             }
@@ -451,28 +464,33 @@ public class RequestNotifier {
      * @param id request request
      */
     public void recoverPublishingQueue(String id) {
-        logger.debug("recoverPublishingQueue  mRequests.size()=" + mRequests.size() + "(" + mMaxRequests + ")" +
-                      " requests by adding request " + id);
+
+        logger.info("RequestNotifier: Recovering publishing queue for request " + id);
+        logger.info("RequestNotifier: - requests: " + mRequests.size());
+        logger.info("RequestNotifier: - max requests: " + mMaxRequests);
+
         if (mRequests.size() == 0) {
+            logger.info("RequestNotifier: Extending buffer");
             mRequests.addElement(id);
-            logger.debug("recoverPublishingQueue  extended buffer to " + mRequests.size() + "(" + mMaxRequests + ")" +
-                      " requests by adding request " + id);
+
             if (morePublishingThreads()) {
                 synchronized (this) {
                     mSearchForRequests = true;
                 }
+
                 try {
-                    Thread notifierThread = new Thread(new RunListeners(this));
+                    Thread notifierThread = new Thread(new RunListeners(this), "RequestNotifier-recoverPublishingQueue");
                     if (notifierThread != null) {
                         mNotifierThreads.addElement(notifierThread);
-                        logger.debug("Number of publishing threads: " + mNotifierThreads.size());
+                        logger.info("RequestNotifier: - publishing threads: " + mNotifierThreads.size());
                         if (mPublishingQueuePriority > 0) {
                             notifierThread.setPriority(mPublishingQueuePriority);
                         }
                         notifierThread.start();
                     }
+
                 } catch (Throwable e) {
-                    logger.warn("recoverPublishingQueue  Exception: " + e.getMessage(), e);
+                    logger.warn("Unable to recover publishing queue: " + e.getMessage(), e);
                 }
             }
         }
