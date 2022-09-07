@@ -90,6 +90,11 @@ public class CRSPKIMessage {
             new OBJECT_IDENTIFIER(new long[] { 1, 2, 840, 113549, 1, 1, 1 }
             );
 
+    /* PKCS 1 - rsaEncryption */
+    public static OBJECT_IDENTIFIER RSAES_OAEP_ENCRYPTION =
+            new OBJECT_IDENTIFIER(new long[] { 1, 2, 840, 113549, 1, 1, 7 }
+            );
+
     public static OBJECT_IDENTIFIER DES_CBC_ENCRYPTION =
             new OBJECT_IDENTIFIER(new long[] { 1, 3, 14, 3, 2, 7 }
             );
@@ -837,7 +842,7 @@ public class CRSPKIMessage {
 
         riAlgid = ri.getKeyEncryptionAlgorithmID();
 
-        if (!riAlgid.getOID().equals(RSA_ENCRYPTION)) {
+        if (!(riAlgid.getOID().equals(RSA_ENCRYPTION) || riAlgid.getOID().equals(RSAES_OAEP_ENCRYPTION))) {
             throw new Exception("Request is protected by a key which we can't decrypt");
         }
 
