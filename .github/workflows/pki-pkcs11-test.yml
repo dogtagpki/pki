@@ -1,0 +1,208 @@
+name: PKI PKCS11 CLI
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+
+jobs:
+  # https://github.com/dogtagpki/pki/wiki/PKI-PKCS11-CLI
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Retrieve runner image
+        uses: actions/cache@v3
+        with:
+          key: pki-tools-runner-${{ inputs.os }}-${{ github.run_id }}
+          path: pki-tools-runner.tar
+
+      - name: Load runner image
+        run: docker load --input pki-tools-runner.tar
+
+      - name: Set up runner container
+        run: |
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
+
+      - name: Create HSM token
+        run: |
+          docker exec pki dnf install -y dnf-plugins-core softhsm
+          docker exec pki softhsm2-util --init-token \
+              --label HSM \
+              --so-pin Secret.123 \
+              --pin Secret.123 \
+              --free
+          docker exec pki softhsm2-util --show-slots
+
+      - name: Create cert in internal token
+        run: |
+          docker exec pki pki nss-cert-request \
+              --subject "CN=Certificate 1" \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --csr cert1.csr
+          docker exec pki pki nss-cert-issue \
+              --csr cert1.csr \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --cert cert1.crt
+          docker exec pki pki nss-cert-import \
+              --cert cert1.crt \
+              --trust CT,C,C \
+              cert1
+
+      - name: Create cert in HSM
+        run: |
+          echo "internal=" > password.conf
+          echo "hardware-HSM=Secret.123" >> password.conf
+
+          docker exec pki pki \
+              --token HSM \
+              -f $SHARED/password.conf \
+              nss-cert-request \
+              --subject "CN=Certificate 2" \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --csr cert2.csr
+          docker exec pki pki \
+              --token HSM \
+              -f $SHARED/password.conf \
+              nss-cert-issue \
+              --csr cert2.csr \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --cert cert2.crt
+          docker exec pki pki \
+              --token HSM \
+              -f $SHARED/password.conf \
+              nss-cert-import \
+              --cert cert2.crt \
+              --trust CT,C,C \
+              cert2
+
+      - name: Verify certs creation
+        run: |
+          # internal token should have cert1 and cert2
+          docker exec pki certutil -L -d /root/.dogtag/nssdb | tee output
+          cat output | sed -n 's/^\s*\(\S\+\)\s\+\S\+\s*$/\1/p' > expected
+
+          docker exec pki pki pkcs11-cert-find | tee output
+          sed -n 's/^\s*Cert ID:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff actual expected
+
+          docker exec pki pki pkcs11-cert-show cert1
+          docker exec pki pki pkcs11-cert-export cert1
+
+          docker exec pki pki pkcs11-cert-show cert2
+          docker exec pki pki pkcs11-cert-export cert2
+
+          # HSM should have cert2 only
+          echo "Secret.123" > password.txt
+          docker exec pki certutil -L \
+              -d /root/.dogtag/nssdb \
+              -h HSM \
+              -f $SHARED/password.txt | tee output
+          sed -n 's/^\s*\(\S\+\)\s\+\S\+\s*$/\1/p' output > expected
+
+          docker exec pki pki \
+              --token HSM \
+              -f $SHARED/password.conf \
+              pkcs11-cert-find | tee output
+          sed -n 's/^\s*Cert ID:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff actual expected
+
+          docker exec pki pki \
+              --token HSM \
+              -f $SHARED/password.conf \
+              pkcs11-cert-show \
+              HSM:cert2
+          docker exec pki pki \
+              --token HSM \
+              -f $SHARED/password.conf \
+              pkcs11-cert-export \
+              HSM:cert2
+
+      - name: Verify cert keys creation
+        run: |
+          # internal token should have cert1's key
+          docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^\s*<.\+>\s\+\S\+\s\+\(\S\+\)\s\+.*$/\1/p' output > cert1key
+
+          docker exec pki pki pkcs11-key-find | tee output
+          sed -n 's/^\s*Key ID:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff actual cert1key
+
+          docker exec pki pki pkcs11-key-show `cat cert1key`
+
+          # HSM should have cert2's key
+          docker exec pki certutil -K \
+              -d /root/.dogtag/nssdb \
+              -h HSM \
+              -f $SHARED/password.txt | tee output
+          sed -n 's/^\s*<.\+>\s\+\S\+\s\+\(\S\+\)\s\+.*$/\1/p' output > cert2key
+
+          docker exec pki pki \
+              --token HSM \
+              -f $SHARED/password.conf \
+              pkcs11-key-find | tee output
+          sed -n 's/^\s*Key ID:\s*HSM:\(\S\+\)\s*$/\1/p' output > actual
+          diff actual cert2key
+
+          docker exec pki pki \
+              --token HSM \
+              -f $SHARED/password.conf \
+              pkcs11-key-show \
+              HSM:`cat cert2key`
+
+      - name: Remove certs
+        run: |
+          docker exec pki pki pkcs11-cert-del cert1
+          docker exec pki pki pkcs11-cert-del cert2
+          docker exec pki pki --token HSM -f $SHARED/password.conf pkcs11-cert-del HSM:cert2
+
+      - name: Remove cert keys
+        run: |
+          docker exec pki pki pkcs11-key-del `cat cert1key`
+          docker exec pki pki \
+              --token HSM \
+              -f $SHARED/password.conf \
+              pkcs11-key-del \
+              HSM:`cat cert2key`
+
+      - name: Verify certs removal
+        run: |
+          # internal token should have no certs
+          docker exec pki certutil -L -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^\s*\(\S\+\)\s\+\S\+\s*$/\1/p' output > actual
+          diff actual /dev/null
+
+          # HSM should have no certs
+          docker exec pki certutil -L \
+              -d /root/.dogtag/nssdb \
+              -h HSM \
+              -f $SHARED/password.txt | tee output
+          sed -n 's/^\s*\(\S\+\)\s\+\S\+\s*$/\1/p' output > actual
+          diff actual /dev/null
+
+      - name: Verify cert keys removal
+        run: |
+          # internal token should have no cert keys
+          docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^\s*<.\+>\s\+\S\+\s\+\(\S\+\)\s\+.*$/\1/p' output > actual
+          diff actual /dev/null
+
+          # HSM should have no cert keys
+          docker exec pki certutil -K \
+              -d /root/.dogtag/nssdb \
+              -h HSM \
+              -f $SHARED/password.txt | tee output
+          sed -n 's/^\s*<.\+>\s\+\S\+\s\+\(\S\+\)\s\+.*$/\1/p' output > actual
+          diff actual /dev/null
+
+      - name: Remove HSM token
+        run: docker exec pki softhsm2-util --delete-token --token HSM
