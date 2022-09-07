@@ -86,13 +86,13 @@ public class CertRequestService extends PKIService implements CertRequestResourc
     @Override
     public Response getRequestInfo(RequestId id) {
 
-        logger.info("CertRequestService: Retrieving certificate request " + id);
-
         if (id == null) {
             String message = "Unable to get certificate request info: Missing request ID";
             logger.error(message);
             throw new BadRequestException(message);
         }
+
+        logger.info("CertRequestService: Retrieving certificate request " + id.toHexString());
         CertRequestInfo info;
 
         CertRequestDAO dao = new CertRequestDAO();
@@ -208,7 +208,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
     @Override
     public Response approveRequest(RequestId id, CertReviewResponse data) {
 
-        logger.info("CertRequestService: Approving certificate request " + id);
+        logger.info("CertRequestService: Approving certificate request " + id.toHexString());
 
         changeRequestState(id, data, "approve");
         return createNoContentResponse();
@@ -217,7 +217,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
     @Override
     public Response rejectRequest(RequestId id, CertReviewResponse data) {
 
-        logger.info("CertRequestService: Rejecting certificate request " + id);
+        logger.info("CertRequestService: Rejecting certificate request " + id.toHexString());
 
         changeRequestState(id, data, "reject");
         return createNoContentResponse();
@@ -226,7 +226,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
     @Override
     public Response cancelRequest(RequestId id, CertReviewResponse data) {
 
-        logger.info("CertRequestService: Canceling certificate request " + id);
+        logger.info("CertRequestService: Canceling certificate request " + id.toHexString());
 
         changeRequestState(id, data, "cancel");
         return createNoContentResponse();
@@ -235,7 +235,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
     @Override
     public Response updateRequest(RequestId id, CertReviewResponse data) {
 
-        logger.info("CertRequestService: Updating certificate request " + id);
+        logger.info("CertRequestService: Updating certificate request " + id.toHexString());
 
         changeRequestState(id, data, "update");
         return createNoContentResponse();
@@ -244,7 +244,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
     @Override
     public Response validateRequest(RequestId id, CertReviewResponse data) {
 
-        logger.info("CertRequestService: Validating certificate request " + id);
+        logger.info("CertRequestService: Validating certificate request " + id.toHexString());
 
         changeRequestState(id, data, "validate");
         return createNoContentResponse();
@@ -253,7 +253,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
     @Override
     public Response unassignRequest(RequestId id, CertReviewResponse data) {
 
-        logger.info("CertRequestService: Unassigning certificate request " + id);
+        logger.info("CertRequestService: Unassigning certificate request " + id.toHexString());
 
         changeRequestState(id, data, "unassign");
         return createNoContentResponse();
@@ -262,7 +262,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
     @Override
     public Response assignRequest(RequestId id, CertReviewResponse data) {
 
-        logger.info("CertRequestService: Assigning certificate request " + id);
+        logger.info("CertRequestService: Assigning certificate request " + id.toHexString());
 
         changeRequestState(id, data, "assign");
         return createNoContentResponse();
@@ -336,13 +336,13 @@ public class CertRequestService extends PKIService implements CertRequestResourc
     @Override
     public Response reviewRequest(@PathParam("id") RequestId id) {
 
-        logger.info("CertRequestService: Reviewing certificate request " + id);
-
         if (id == null) {
             String message = "Unable to review cert request: Missing request ID";
             logger.error(message);
             throw new BadRequestException(message);
         }
+
+        logger.info("CertRequestService: Reviewing certificate request " + id.toHexString());
         CertReviewResponse info;
 
         CertRequestDAO dao = new CertRequestDAO();
@@ -359,9 +359,9 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             throw new RequestNotFoundException(id);
         }
 
-        logger.info("CertRequestService:   Profile: " + info.getProfileName());
-        logger.info("CertRequestService:   Type: " + info.getRequestType());
-        logger.info("CertRequestService:   Status: " + info.getRequestStatus());
+        logger.info("CertRequestService: - profile: " + info.getProfileName());
+        logger.info("CertRequestService: - type: " + info.getRequestType());
+        logger.info("CertRequestService: - status: " + info.getRequestStatus());
 
         return createOKResponse(info);
     }
