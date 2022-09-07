@@ -1,0 +1,209 @@
+name: Basic KRA
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+
+jobs:
+  # docs/installation/kra/Installing_KRA.md
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Retrieve runner image
+        uses: actions/cache@v3
+        with:
+          key: pki-kra-runner-${{ inputs.os }}-${{ github.run_id }}
+          path: pki-kra-runner.tar
+
+      - name: Load runner image
+        run: docker load --input pki-kra-runner.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-container-create.sh ds
+        env:
+          IMAGE: ${{ needs.init.outputs.db-image }}
+          HOSTNAME: ds.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect DS container to network
+        run: docker network connect example ds --alias ds.example.com
+
+      - name: Set up PKI container
+        run: |
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
+
+      - name: Connect PKI container to network
+        run: docker network connect example pki --alias pki.example.com
+
+      - name: Install CA
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_hostname=ds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
+
+          docker exec pki pki-server cert-find
+
+      - name: Install KRA
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/kra.cfg \
+              -s KRA \
+              -D pki_ds_hostname=ds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
+
+      - name: Check KRA storage cert
+        run: |
+          docker exec pki pki-server cert-export kra_storage \
+              --csr-file kra_storage.csr \
+              --cert-file kra_storage.crt
+          docker exec pki openssl req -text -noout -in kra_storage.csr
+          docker exec pki openssl x509 -text -noout -in kra_storage.crt
+
+      - name: Check KRA transport cert
+        run: |
+          docker exec pki pki-server cert-export kra_transport \
+              --csr-file kra_transport.csr \
+              --cert-file kra_transport.crt
+          docker exec pki openssl req -text -noout -in kra_transport.csr
+          docker exec pki openssl x509 -text -noout -in kra_transport.crt
+
+      - name: Check KRA audit signing cert
+        run: |
+          docker exec pki pki-server cert-export kra_audit_signing \
+              --csr-file kra_audit_signing.csr \
+              --cert-file kra_audit_signing.crt
+          docker exec pki openssl req -text -noout -in kra_audit_signing.csr
+          docker exec pki openssl x509 -text -noout -in kra_audit_signing.crt
+
+      - name: Check subsystem cert
+        run: |
+          docker exec pki pki-server cert-export subsystem \
+              --csr-file subsystem.csr \
+              --cert-file subsystem.crt
+          docker exec pki openssl req -text -noout -in subsystem.csr
+          docker exec pki openssl x509 -text -noout -in subsystem.crt
+
+      - name: Check SSL server cert
+        run: |
+          docker exec pki pki-server cert-export sslserver \
+              --csr-file sslserver.csr \
+              --cert-file sslserver.crt
+          docker exec pki openssl req -text -noout -in sslserver.csr
+          docker exec pki openssl x509 -text -noout -in sslserver.crt
+
+      - name: Check KRA admin cert
+        run: |
+          docker exec pki openssl x509 -text -noout -in /root/.dogtag/pki-tomcat/ca_admin.cert
+
+      - name: Run PKI healthcheck
+        run: docker exec pki pki-healthcheck --failures-only
+
+      - name: Verify KRA admin
+        run: |
+          docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
+          docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
+          docker exec pki pki client-cert-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+          docker exec pki pki -n caadmin kra-user-show kraadmin
+
+      - name: Verify KRA connector in CA
+        run: |
+          docker exec pki bash -c "pki -n caadmin ca-kraconnector-show | sed -n 's/\s*Host:\s\+\(\S\+\):.*/\1/p' > ${SHARED}/kraconnector.host"
+          echo pki.example.com > kra.hostname
+          diff kra.hostname kraconnector.host
+
+      - name: Switch to RSNv3
+        run: |
+          docker exec pki pki-server stop --wait
+
+          # switch cert request ID generator to RSNv3
+          docker exec pki pki-server ca-config-unset dbs.beginRequestNumber
+          docker exec pki pki-server ca-config-unset dbs.endRequestNumber
+          docker exec pki pki-server ca-config-unset dbs.requestIncrement
+          docker exec pki pki-server ca-config-unset dbs.requestLowWaterMark
+          docker exec pki pki-server ca-config-unset dbs.requestCloneTransferNumber
+          docker exec pki pki-server ca-config-unset dbs.requestRangeDN
+
+          docker exec pki pki-server ca-config-set dbs.request.id.generator random
+          docker exec pki pki-server ca-config-set dbs.request.id.length 128
+
+          # switch cert ID generator to RSNv3
+          docker exec pki pki-server ca-config-unset dbs.beginSerialNumber
+          docker exec pki pki-server ca-config-unset dbs.endSerialNumber
+          docker exec pki pki-server ca-config-unset dbs.serialIncrement
+          docker exec pki pki-server ca-config-unset dbs.serialLowWaterMark
+          docker exec pki pki-server ca-config-unset dbs.serialCloneTransferNumber
+          docker exec pki pki-server ca-config-unset dbs.serialRangeDN
+
+          docker exec pki pki-server ca-config-set dbs.cert.id.generator random
+          docker exec pki pki-server ca-config-set dbs.cert.id.length 128
+
+          # switch key request ID generator to RSNv3
+          docker exec pki pki-server kra-config-unset dbs.beginRequestNumber
+          docker exec pki pki-server kra-config-unset dbs.endRequestNumber
+          docker exec pki pki-server kra-config-unset dbs.requestIncrement
+          docker exec pki pki-server kra-config-unset dbs.requestLowWaterMark
+          docker exec pki pki-server kra-config-unset dbs.requestCloneTransferNumber
+          docker exec pki pki-server kra-config-unset dbs.requestRangeDN
+
+          docker exec pki pki-server kra-config-set dbs.request.id.generator random
+          docker exec pki pki-server kra-config-set dbs.request.id.length 128
+
+          # switch key ID generator to RSNv3
+          docker exec pki pki-server kra-config-unset dbs.beginSerialNumber
+          docker exec pki pki-server kra-config-unset dbs.endSerialNumber
+          docker exec pki pki-server kra-config-unset dbs.serialIncrement
+          docker exec pki pki-server kra-config-unset dbs.serialLowWaterMark
+          docker exec pki pki-server kra-config-unset dbs.serialCloneTransferNumber
+          docker exec pki pki-server kra-config-unset dbs.serialRangeDN
+
+          docker exec pki pki-server kra-config-set dbs.key.id.generator random
+          docker exec pki pki-server kra-config-set dbs.key.id.length 128
+
+          # restart PKI server
+          docker exec pki pki-server start --wait
+
+      - name: Verify cert key archival
+        run: |
+          docker exec pki /usr/share/pki/tests/kra/bin/test-cert-key-archival.sh
+
+      - name: Gather artifacts
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki ds
+          tests/bin/pki-artifacts-save.sh pki
+        continue-on-error: true
+
+      - name: Remove KRA
+        run: docker exec pki pkidestroy -i pki-tomcat -s KRA -v
+
+      - name: Remove CA
+        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: kra-basic-${{ inputs.os }}
+          path: |
+            /tmp/artifacts/pki
