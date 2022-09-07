@@ -506,19 +506,21 @@ public abstract class PublisherProcessor {
             LdapRule rule = e.nextElement();
             logger.info("PublisherProcessor: - name: " + rule.getInstanceName());
 
-            logger.info("PublisherProcessor:   enabled: " + rule.enabled());
+            logger.debug("PublisherProcessor:   enabled: " + rule.enabled());
             if (!rule.enabled()) {
+                logger.info("PublisherProcessor:   rule disabled");
                 continue;
             }
 
-            logger.info("PublisherProcessor:   type: " + rule.getType());
+            logger.debug("PublisherProcessor:   type: " + rule.getType());
             if (!publishingType.equals(rule.getType())) {
+                logger.info("PublisherProcessor:   type doesn't match");
                 continue;
             }
 
             // check if the predicate match
             ILdapExpression exp = rule.getPredicate();
-            logger.info("PublisherProcessor:   predicate: " + exp);
+            logger.debug("PublisherProcessor:   predicate: " + exp);
 
             try {
                 if (exp != null && !exp.evaluate(req)) {
