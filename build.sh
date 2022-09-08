@@ -269,7 +269,9 @@ while getopts v-: arg ; do
             CMAKE=$(readlink -f "$LONG_OPTARG")
             ;;
         java-home=?*)
-            JAVA_HOME=$(readlink -f "$LONG_OPTARG")
+            # Don't convert Java home into an absolute path since that
+            # will prevent PKI from running with other OpenJDK releases.
+            JAVA_HOME="$LONG_OPTARG"
             ;;
         jni-dir=?*)
             JNI_DIR=$(readlink -f "$LONG_OPTARG")
