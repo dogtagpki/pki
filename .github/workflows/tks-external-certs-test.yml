@@ -1,0 +1,212 @@
+name: TKS with external certs
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Retrieve runner image
+        uses: actions/cache@v3
+        with:
+          key: pki-tks-runner-${{ inputs.os }}-${{ github.run_id }}
+          path: pki-tks-runner.tar
+
+      - name: Load runner image
+        run: docker load --input pki-tks-runner.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up CA DS container
+        run: |
+          tests/bin/ds-container-create.sh cads
+        env:
+          IMAGE: ${{ needs.init.outputs.db-image }}
+          HOSTNAME: cads.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect CA DS container to network
+        run: docker network connect example cads --alias cads.example.com
+
+      - name: Set up CA container
+        run: |
+          tests/bin/runner-init.sh ca
+        env:
+          HOSTNAME: ca.example.com
+
+      - name: Connect CA container to network
+        run: docker network connect example ca --alias ca.example.com
+
+      - name: Install CA in CA container
+        run: |
+          docker exec ca pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_hostname=cads.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -D pki_cert_id_generator=random \
+              -D pki_request_id_generator=random \
+              -v
+
+          docker exec ca pki-server cert-find
+
+      - name: Initialize CA admin in CA container
+        run: |
+          docker exec ca pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
+          docker exec ca pki client-cert-import ca_signing --ca-cert ${SHARED}/ca_signing.crt
+          docker exec ca pki client-cert-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+
+      - name: Set up TKS DS container
+        run: |
+          tests/bin/ds-container-create.sh tksds
+        env:
+          IMAGE: ${{ needs.init.outputs.db-image }}
+          HOSTNAME: tksds.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect TKS DS container to network
+        run: docker network connect example tksds --alias tksds.example.com
+
+      - name: Set up TKS container
+        run: |
+          tests/bin/runner-init.sh tks
+        env:
+          HOSTNAME: tks.example.com
+
+      - name: Connect TKS container to network
+        run: docker network connect example tks --alias tks.example.com
+
+      - name: Install TKS in TKS container (step 1)
+        run: |
+          docker exec tks pkispawn \
+              -f /usr/share/pki/server/examples/installation/tks.cfg \
+              -s TKS \
+              -D pki_security_domain_hostname=ca.example.com \
+              -D pki_cert_chain_nickname=ca_signing \
+              -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
+              -D pki_ds_hostname=tksds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -D pki_external=True \
+              -D pki_external_step_two=False \
+              -D pki_subsystem_csr_path=${SHARED}/subsystem.csr \
+              -D pki_sslserver_csr_path=${SHARED}/sslserver.csr \
+              -D pki_audit_signing_csr_path=${SHARED}/tks_audit_signing.csr \
+              -D pki_admin_csr_path=${SHARED}/tks_admin.csr \
+              -v
+
+      - name: Issue subsystem cert
+        run: |
+          docker exec ca openssl req -text -noout -in ${SHARED}/subsystem.csr
+          docker exec ca bash -c "pki ca-cert-request-submit --profile caSubsystemCert --csr-file ${SHARED}/subsystem.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${SHARED}/subsystem.reqid"
+          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat subsystem.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${SHARED}/subsystem.certid"
+          docker exec ca bash -c "pki ca-cert-export `cat subsystem.certid` --output-file ${SHARED}/subsystem.crt"
+          docker exec ca openssl x509 -text -noout -in ${SHARED}/subsystem.crt
+
+      - name: Issue SSL server cert
+        run: |
+          docker exec ca openssl req -text -noout -in ${SHARED}/sslserver.csr
+          docker exec ca bash -c "pki ca-cert-request-submit --profile caServerCert --csr-file ${SHARED}/sslserver.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${SHARED}/sslserver.reqid"
+          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat sslserver.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${SHARED}/sslserver.certid"
+          docker exec ca bash -c "pki ca-cert-export `cat sslserver.certid` --output-file ${SHARED}/sslserver.crt"
+          docker exec ca openssl x509 -text -noout -in ${SHARED}/sslserver.crt
+
+      - name: Issue TKS audit signing cert
+        run: |
+          docker exec ca openssl req -text -noout -in ${SHARED}/tks_audit_signing.csr
+          docker exec ca bash -c "pki ca-cert-request-submit --profile caAuditSigningCert --csr-file ${SHARED}/tks_audit_signing.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${SHARED}/tks_audit_signing.reqid"
+          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat tks_audit_signing.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${SHARED}/tks_audit_signing.certid"
+          docker exec ca bash -c "pki ca-cert-export `cat tks_audit_signing.certid` --output-file ${SHARED}/tks_audit_signing.crt"
+          docker exec ca openssl x509 -text -noout -in ${SHARED}/tks_audit_signing.crt
+
+      - name: Issue TKS admin cert
+        run: |
+          docker exec ca openssl req -text -noout -in ${SHARED}/tks_admin.csr
+          docker exec ca bash -c "pki ca-cert-request-submit --profile caUserCert --csr-file ${SHARED}/tks_admin.csr --subject uid=tksadmin | sed -n 's/Request ID: *\(.*\)/\1/p' > ${SHARED}/tks_admin.reqid"
+          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat tks_admin.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${SHARED}/tks_admin.certid"
+          docker exec ca bash -c "pki ca-cert-export `cat tks_admin.certid` --output-file ${SHARED}/tks_admin.crt"
+          docker exec ca openssl x509 -text -noout -in ${SHARED}/tks_admin.crt
+
+      - name: Install TKS in TKS container (step 2)
+        run: |
+          docker exec tks pkispawn \
+              -f /usr/share/pki/server/examples/installation/tks.cfg \
+              -s TKS \
+              -D pki_security_domain_hostname=ca.example.com \
+              -D pki_cert_chain_nickname=ca_signing \
+              -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
+              -D pki_ds_hostname=tksds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -D pki_external=True \
+              -D pki_external_step_two=True \
+              -D pki_subsystem_csr_path=${SHARED}/subsystem.csr \
+              -D pki_sslserver_csr_path=${SHARED}/sslserver.csr \
+              -D pki_audit_signing_csr_path=${SHARED}/tks_audit_signing.csr \
+              -D pki_admin_csr_path=${SHARED}/tks_admin.csr \
+              -D pki_subsystem_cert_path=${SHARED}/subsystem.crt \
+              -D pki_sslserver_cert_path=${SHARED}/sslserver.crt \
+              -D pki_audit_signing_cert_path=${SHARED}/tks_audit_signing.crt \
+              -D pki_admin_cert_path=${SHARED}/tks_admin.crt \
+              -v
+
+          docker exec tks pki-server cert-find
+
+      - name: Run PKI healthcheck
+        run: docker exec tks pki-healthcheck --failures-only
+
+      - name: Verify TKS admin
+        run: |
+          docker exec tks pki client-cert-import ca_signing --ca-cert ${SHARED}/ca_signing.crt
+          docker exec tks pki client-cert-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/tks_admin_cert.p12 \
+              --pkcs12-password Secret.123
+          docker exec tks pki -n tksadmin tks-user-show tksadmin
+
+      - name: Gather artifacts from CA containers
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/ca cads
+          tests/bin/pki-artifacts-save.sh ca
+        continue-on-error: true
+
+      - name: Gather artifacts from TKS containers
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/tks tksds
+          tests/bin/pki-artifacts-save.sh tks
+        continue-on-error: true
+
+      - name: Remove TKS
+        run: docker exec tks pkidestroy -i pki-tomcat -s TKS -v
+
+      - name: Remove CA
+        run: docker exec ca pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Upload artifacts from CA containers
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: tks-external-certs-ca-${{ inputs.os }}
+          path: |
+            /tmp/artifacts/ca
+
+      - name: Upload artifacts from TKS containers
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: tks-external-certs-tks-${{ inputs.os }}
+          path: |
+            /tmp/artifacts/tks
