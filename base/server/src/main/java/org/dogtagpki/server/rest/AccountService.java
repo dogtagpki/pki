@@ -71,9 +71,9 @@ public class AccountService extends PKIService {
 
         if (principal instanceof GenericPrincipal) {
             String[] roles = ((GenericPrincipal) principal).getRoles();
-            logger.info("- Roles:");
+            logger.info("Roles:");
             for (String role : roles) {
-                logger.info("  - " + role);
+                logger.info("- " + role);
             }
             account.setRoles(Arrays.asList(roles));
         }
