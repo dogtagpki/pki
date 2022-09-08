@@ -1,0 +1,134 @@
+name: Basic TKS
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+
+jobs:
+  # docs/installation/tks/Installing_TKS.md
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Retrieve runner image
+        uses: actions/cache@v3
+        with:
+          key: pki-tks-runner-${{ inputs.os }}-${{ github.run_id }}
+          path: pki-tks-runner.tar
+
+      - name: Load runner image
+        run: docker load --input pki-tks-runner.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-container-create.sh ds
+        env:
+          IMAGE: ${{ needs.init.outputs.db-image }}
+          HOSTNAME: ds.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect DS container to network
+        run: docker network connect example ds --alias ds.example.com
+
+      - name: Set up PKI container
+        run: |
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
+
+      - name: Connect PKI container to network
+        run: docker network connect example pki --alias pki.example.com
+
+      - name: Install CA
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_hostname=ds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -D pki_cert_id_generator=random \
+              -D pki_request_id_generator=random \
+              -v
+
+          docker exec pki pki-server cert-find
+
+      - name: Install TKS
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/tks.cfg \
+              -s TKS \
+              -D pki_ds_hostname=ds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -v
+
+      - name: Check TKS audit signing cert
+        run: |
+          docker exec pki pki-server cert-export tks_audit_signing \
+              --csr-file tks_audit_signing.csr \
+              --cert-file tks_audit_signing.crt
+          docker exec pki openssl req -text -noout -in tks_audit_signing.csr
+          docker exec pki openssl x509 -text -noout -in tks_audit_signing.crt
+
+      - name: Check subsystem cert
+        run: |
+          docker exec pki pki-server cert-export subsystem \
+              --csr-file subsystem.csr \
+              --cert-file subsystem.crt
+          docker exec pki openssl req -text -noout -in subsystem.csr
+          docker exec pki openssl x509 -text -noout -in subsystem.crt
+
+      - name: Check SSL server cert
+        run: |
+          docker exec pki pki-server cert-export sslserver \
+              --csr-file sslserver.csr \
+              --cert-file sslserver.crt
+          docker exec pki openssl req -text -noout -in sslserver.csr
+          docker exec pki openssl x509 -text -noout -in sslserver.crt
+
+      - name: Check TKS admin cert
+        run: |
+          docker exec pki openssl x509 -text -noout -in /root/.dogtag/pki-tomcat/ca_admin.cert
+
+      - name: Run PKI healthcheck
+        run: docker exec pki pki-healthcheck --failures-only
+
+      - name: Verify TKS admin
+        run: |
+          docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
+          docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
+          docker exec pki pki client-cert-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+          docker exec pki pki -n caadmin tks-user-show tksadmin
+
+      - name: Gather artifacts
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki ds
+          tests/bin/pki-artifacts-save.sh pki
+        continue-on-error: true
+
+      - name: Remove TKS
+        run: docker exec pki pkidestroy -i pki-tomcat -s TKS -v
+
+      - name: Remove CA
+        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: tks-basic-test-${{ inputs.os }}
+          path: |
+            /tmp/artifacts/pki
