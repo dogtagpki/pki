@@ -1,0 +1,161 @@
+name: IPA ACME
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Retrieve runner image
+        uses: actions/cache@v3
+        with:
+          key: ipa-runner-${{ inputs.os }}-${{ github.run_id }}
+          path: ipa-runner.tar
+
+      - name: Load runner image
+        run: docker load --input ipa-runner.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Run IPA container
+        run: |
+          tests/bin/runner-init.sh ipa
+        env:
+          IMAGE: ipa-runner
+          HOSTNAME: ipa.example.com
+
+      - name: Connect IPA container to network
+        run: docker network connect example ipa --alias ipa.example.com --alias ipa-ca.example.com
+
+      - name: Install IPA server in IPA container
+        run: |
+          docker exec ipa sysctl net.ipv6.conf.lo.disable_ipv6=0
+          docker exec ipa ipa-server-install \
+              -U \
+              --domain example.com \
+              -r EXAMPLE.COM \
+              -p Secret.123 \
+              -a Secret.123 \
+              --no-host-dns \
+              --no-ntp
+          docker exec ipa bash -c "echo Secret.123 | kinit admin"
+          docker exec ipa ipa ping
+
+      - name: Install KRA in IPA container
+        run: |
+          docker exec ipa ipa-kra-install -p Secret.123
+          docker exec ipa pki-server ca-config-find | grep ca.connector.KRA
+
+      - name: Verify CA admin in IPA container
+        run: |
+          docker exec ipa pki-server cert-export ca_signing --cert-file ca_signing.crt
+          docker exec ipa pki client-cert-import ca_signing --ca-cert ca_signing.crt
+          docker exec ipa pki client-cert-import \
+              --pkcs12 /root/ca-agent.p12 \
+              --pkcs12-password Secret.123
+          docker exec ipa pki -n ipa-ca-agent ca-user-show admin
+
+      - name: Enable ACME in IPA container
+        run: |
+          docker exec ipa ipa-acme-manage enable
+          docker exec ipa ipa-acme-manage status
+          echo "Available" > expected
+          docker exec ipa bash -c "pki acme-info | sed -n 's/\s*Status:\s\+\(\S\+\).*/\1/p' > ${SHARED}/actual"
+          diff expected actual
+
+      - name: Run client container
+        run: |
+          docker run \
+              --detach \
+              --name=client \
+              --hostname=client.example.com \
+              --privileged \
+              --tmpfs /tmp \
+              --tmpfs /run \
+              ipa-runner \
+              /usr/sbin/init
+
+      - name: Connect client container to network
+        run: docker network connect example client --alias client.example.com
+
+      - name: Install IPA client in client container
+        run: |
+          docker exec client sysctl net.ipv6.conf.lo.disable_ipv6=0
+          docker exec client ipa-client-install \
+              -U \
+              --server=ipa.example.com \
+              --domain=example.com \
+              --realm=EXAMPLE.COM \
+              -p admin \
+              -w Secret.123 \
+              --no-ntp
+          docker exec client bash -c "echo Secret.123 | kinit admin"
+          docker exec client klist
+
+      - name: Verify certbot in client container
+        run: |
+          docker exec client certbot register \
+              --server https://ipa-ca.example.com/acme/directory \
+              --email user1@example.com \
+              --agree-tos \
+              --non-interactive
+          docker exec client certbot certonly \
+              --server https://ipa-ca.example.com/acme/directory \
+              -d client.example.com \
+               --standalone \
+              --non-interactive
+          docker exec client certbot renew \
+              --server https://ipa-ca.example.com/acme/directory \
+              --cert-name client.example.com \
+              --force-renewal \
+              --non-interactive
+          docker exec client certbot revoke \
+              --server https://ipa-ca.example.com/acme/directory \
+              --cert-name client.example.com \
+              --non-interactive
+          docker exec client certbot update_account \
+              --server https://ipa-ca.example.com/acme/directory \
+              --email user2@example.com \
+              --non-interactive
+          docker exec client certbot unregister \
+              --server https://ipa-ca.example.com/acme/directory \
+              --non-interactive
+
+      - name: Disable ACME in IPA container
+        run: |
+          docker exec ipa ipa-acme-manage disable
+          docker exec ipa ipa-acme-manage status
+          echo "Unavailable" > expected
+          docker exec ipa bash -c "pki acme-info | sed -n 's/\s*Status:\s\+\(\S\+\).*/\1/p' > ${SHARED}/actual"
+          diff expected actual
+
+      - name: Gather artifacts from IPA container
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh ipa --instance EXAMPLE-COM
+          tests/bin/pki-artifacts-save.sh ipa
+          tests/bin/ipa-artifacts-save.sh ipa
+        continue-on-error: true
+
+      - name: Remove IPA server from IPA container
+        run: docker exec ipa ipa-server-install --uninstall -U
+
+      - name: Upload artifacts from IPA container
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ipa-acme-${{ inputs.os }}
+          path: |
+            /tmp/artifacts/ipa
