@@ -1,0 +1,178 @@
+name: Basic IPA
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Retrieve runner image
+        uses: actions/cache@v3
+        with:
+          key: ipa-runner-${{ inputs.os }}-${{ github.run_id }}
+          path: ipa-runner.tar
+
+      - name: Load runner image
+        run: docker load --input ipa-runner.tar
+
+      - name: Run IPA container
+        run: |
+          tests/bin/runner-init.sh ipa
+        env:
+          IMAGE: ipa-runner
+          HOSTNAME: ipa.example.com
+
+      - name: Install IPA server
+        run: |
+          docker exec ipa sysctl net.ipv6.conf.lo.disable_ipv6=0
+          docker exec ipa ipa-server-install \
+              -U \
+              --domain example.com \
+              -r EXAMPLE.COM \
+              -p Secret.123 \
+              -a Secret.123 \
+              --no-host-dns \
+              --no-ntp
+          docker exec ipa bash -c "echo Secret.123 | kinit admin"
+          docker exec ipa ipa ping
+
+          docker exec ipa pki-server cert-export ca_signing --cert-file ca_signing.crt
+
+      - name: Check DS certs
+        run: |
+          docker exec ipa ls -la /etc/dirsrv/slapd-EXAMPLE-COM
+          docker exec ipa pki -d /etc/dirsrv/slapd-EXAMPLE-COM nss-cert-find
+          docker exec ipa pki -d /etc/dirsrv/slapd-EXAMPLE-COM nss-cert-show "EXAMPLE.COM IPA CA"
+          docker exec ipa pki -d /etc/dirsrv/slapd-EXAMPLE-COM nss-cert-show "Server-Cert"
+          docker exec ipa pki \
+              -d /etc/dirsrv/slapd-EXAMPLE-COM \
+              -C /etc/dirsrv/slapd-EXAMPLE-COM/pwdfile.txt \
+              nss-key-find
+
+      - name: Check PKI certs
+        run: |
+          docker exec ipa ls -la /etc/pki/pki-tomcat/alias
+          docker exec ipa pki-server cert-find
+
+      - name: Check CA admin cert
+        run: |
+          docker exec ipa ls -la /root/.dogtag/pki-tomcat
+          docker exec ipa openssl x509 -text -noout -in /root/.dogtag/pki-tomcat/ca_admin.cert
+
+      - name: "Check CA admin PKCS #12 file"
+        run: |
+          docker exec ipa pki client-cert-import --ca-cert ca_signing.crt ca_signing
+          docker exec ipa pki client-cert-import \
+              --pkcs12 /root/ca-agent.p12 \
+              --pkcs12-password Secret.123
+          docker exec ipa pki nss-cert-find
+          docker exec ipa pki nss-cert-show ipa-ca-agent
+
+      - name: Check CA admin user
+        run: |
+          docker exec ipa pki -n ipa-ca-agent ca-user-find
+          docker exec ipa pki -n ipa-ca-agent ca-user-show admin
+          docker exec ipa pki -n ipa-ca-agent ca-user-membership-find admin
+
+      - name: Check RA agent cert
+        run: |
+          docker exec ipa ls -la /var/lib/ipa
+          docker exec ipa openssl x509 -text -noout -in /var/lib/ipa/ra-agent.pem
+
+          # import RA agent cert and key into a PKCS #12 file
+          # then import it into the client's NSS database
+          docker exec ipa openssl pkcs12 -export \
+              -in /var/lib/ipa/ra-agent.pem \
+              -inkey /var/lib/ipa/ra-agent.key \
+              -out ra-agent.p12 \
+              -passout pass:Secret.123 \
+              -name ipa-ra-agent
+          docker exec ipa pki client-cert-import \
+              --pkcs12 ra-agent.p12 \
+              --pkcs12-password Secret.123
+          docker exec ipa pki nss-cert-find
+          docker exec ipa pki nss-cert-show ipa-ra-agent
+
+      - name: Check RA agent user
+        run: |
+          docker exec ipa pki -n ipa-ca-agent ca-user-show ipara
+          docker exec ipa pki -n ipa-ca-agent ca-user-membership-find ipara
+
+      - name: Check HTTPD certs
+        run: |
+          docker exec ipa ls -la /var/lib/ipa/certs
+          docker exec ipa openssl x509 -text -noout -in /var/lib/ipa/certs/httpd.crt
+
+      - name: Install KRA
+        run: |
+          docker exec ipa ipa-kra-install -p Secret.123
+          docker exec ipa pki-server ca-config-find | grep ca.connector.KRA
+
+      - name: Run PKI healthcheck
+        run: docker exec ipa pki-healthcheck --failures-only
+
+      - name: Configure test environment
+        run: |
+          docker exec ipa bash -c "cp -r /etc/ipa/* ~/.ipa"
+          docker exec ipa bash -c "echo Secret.123 > ~/.ipa/.dmpw"
+          docker exec ipa bash -c "echo 'wait_for_dns=5' >> ~/.ipa/default.conf"
+
+      - name: Run test_caacl_plugin.py
+        run: |
+          docker exec ipa ipa-run-tests -x --verbose \
+              test_xmlrpc/test_caacl_plugin.py
+
+      - name: Run test_caacl_profile_enforcement.py
+        run: |
+          docker exec ipa ipa-run-tests -x --verbose \
+              test_xmlrpc/test_caacl_profile_enforcement.py
+
+      - name: Run test_cert_plugin.py
+        run: |
+          docker exec ipa ipa-run-tests -x --verbose \
+              test_xmlrpc/test_cert_plugin.py
+
+      - name: Run test_certprofile_plugin.py
+        run: |
+          docker exec ipa ipa-run-tests -x --verbose \
+              test_xmlrpc/test_certprofile_plugin.py
+
+      - name: Run test_ca_plugin.py
+        run: |
+          docker exec ipa ipa-run-tests -x --verbose \
+              test_xmlrpc/test_ca_plugin.py
+
+      - name: Run test_vault_plugin.py
+        run: |
+          docker exec ipa ipa-run-tests -x --verbose \
+              test_xmlrpc/test_vault_plugin.py
+
+      - name: Gather artifacts
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh ipa --instance EXAMPLE-COM
+          tests/bin/pki-artifacts-save.sh ipa
+          tests/bin/ipa-artifacts-save.sh ipa
+        continue-on-error: true
+
+      - name: Remove IPA server
+        run: docker exec ipa ipa-server-install --uninstall -U
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ipa-basic-test-${{ inputs.os }}
+          path: |
+            /tmp/artifacts/ipa
