@@ -165,7 +165,7 @@ public class RequestInQListener implements IRequestListener {
         mn.setFrom(mSenderEmail);
         mn.setTo(mRecipientEmail);
         mn.setSubject(mEmailSubject + " (request id: " +
-                r.getRequestId() + ")");
+                r.getRequestId().toHexString() + ")");
 
         /*
          * get form file from disk
@@ -237,7 +237,7 @@ public class RequestInQListener implements IRequestListener {
 
         RequestId reqId = r.getRequestId();
 
-        mContentParams.put(IEmailFormProcessor.TOKEN_REQUEST_ID, reqId.toString());
+        mContentParams.put(IEmailFormProcessor.TOKEN_REQUEST_ID, reqId.toHexString());
 
         mContentParams.put(IEmailFormProcessor.TOKEN_ID, mId);
 
