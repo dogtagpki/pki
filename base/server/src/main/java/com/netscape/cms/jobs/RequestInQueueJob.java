@@ -25,6 +25,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
+import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -113,6 +114,9 @@ public class RequestInQueueJob extends Job
     @Override
     public void init(ISubsystem owner, String id, String implName, ConfigStore config) throws
             EBaseException {
+
+        logger.info("RequestInQueueJob: Initializing job " + id);
+
         mConfig = config;
         mId = id;
         mImplName = implName;
@@ -140,17 +144,31 @@ public class RequestInQueueJob extends Job
         JobsScheduler scheduler = (JobsScheduler) owner;
 
         mJobCron = scheduler.createJobCron(mCron);
+        logger.info("RequestInQueueJob: - cron: " + mCron);
 
         // initialize the summary related config info
         ConfigStore sc = mConfig.getSubStore(PROP_SUMMARY, ConfigStore.class);
+        boolean enabled = sc.getBoolean(PROP_ENABLED, false);
+        logger.info("RequestInQueueJob: - enabled: " + enabled);
 
-        if (sc.getBoolean(PROP_ENABLED, false)) {
+        if (enabled) {
             mSummary = true;
+
             mSummaryMailSubject = sc.getString(PROP_EMAIL_SUBJECT);
+            logger.info("RequestInQueueJob: - subject: " + mSummaryMailSubject);
+
             mMailForm = sc.getString(PROP_EMAIL_TEMPLATE);
-            //		mItemForm = sc.getString(PROP_ITEM_TEMPLATE);
+            logger.info("RequestInQueueJob: - mail template: " + mMailForm);
+
+            // mItemForm = sc.getString(PROP_ITEM_TEMPLATE);
+            // logger.info("RequestInQueueJob: - item template: " + mItemForm);
+
             mSummarySenderEmail = sc.getString(PROP_SENDER_EMAIL);
+            logger.info("RequestInQueueJob: - sender email: " + mSummarySenderEmail);
+
             mSummaryReceiverEmail = sc.getString(PROP_RECEIVER_EMAIL);
+            logger.info("RequestInQueueJob: - receiver email: " + mSummaryReceiverEmail);
+
         } else {
             mSummary = false;
         }
@@ -161,6 +179,9 @@ public class RequestInQueueJob extends Job
      */
     @Override
     public void run() {
+
+        logger.info("RequestInQueueJob: Running job " + mId);
+
         if (mSummary == false)
             return;
 
@@ -168,12 +189,14 @@ public class RequestInQueueJob extends Job
         DateFormat dateFormat = DateFormat.getDateTimeInstance();
         String nowString = dateFormat.format(date);
 
+        logger.info("RequestInQueueJob: Searching for pending requests");
         int count = 0;
         RequestList list =
                 mReqQ.listRequestsByStatus(RequestStatus.PENDING);
 
         while (list != null && list.hasMoreElements()) {
-            list.nextRequestId();
+            RequestId requestID = list.nextRequestId();
+            logger.info("RequestInQueueJob: - " + requestID.toHexString());
 
             /*  This is way too slow
              // get request from request id

@@ -95,6 +95,8 @@ public class RequestInQListener implements IRequestListener {
     public void init(ISubsystem sub, ConfigStore config)
             throws EListenersException, EPropertyNotFound, EBaseException {
 
+        logger.info("RequestInQListener: Initializing RequestInQListener");
+
         CAEngine engine = CAEngine.getInstance();
         CAEngineConfig cs = engine.getConfig();
         mSubsystem = (CertificateAuthority) sub;
@@ -104,12 +106,18 @@ public class RequestInQListener implements IRequestListener {
         ConfigStore rq = nc.getSubStore(PROP_REQ_IN_Q_SUBSTORE, ConfigStore.class);
 
         mEnabled = rq.getBoolean(PROP_ENABLED, false);
+        logger.info("RequestInQListener: - enabled: " + mEnabled);
 
         mSenderEmail = rq.getString(PROP_SENDER_EMAIL);
+        logger.info("RequestInQListener: - sender email: " + mSenderEmail);
+
         if (mSenderEmail == null) {
             throw new EListenersException(CMS.getLogMessage("NO_NOTIFY_SENDER_EMAIL_CONFIG_FOUND"));
         }
+
         mRecipientEmail = rq.getString(PROP_RECVR_EMAIL);
+        logger.info("RequestInQListener: - recipient email: " + mRecipientEmail);
+
         if (mRecipientEmail == null) {
             throw new EListenersException(CMS.getLogMessage("NO_NOTIFY_RECVR_EMAIL_CONFIG_FOUND"));
         }
@@ -118,8 +126,10 @@ public class RequestInQListener implements IRequestListener {
         if (mEmailSubject == null) {
             mEmailSubject = "Request in Queue";
         }
+        logger.info("RequestInQListener: - email subject: " + mEmailSubject);
 
         mFormPath = rq.getString(PROP_EMAIL_TEMPLATE);
+        logger.info("RequestInQListener: - email template: " + mFormPath);
 
         // make available http host and port for forming url in templates
         mHttpHost = cs.getHostname();
@@ -141,6 +151,8 @@ public class RequestInQListener implements IRequestListener {
      */
     @Override
     public void accept(Request r) {
+
+        logger.info("RequestInQListener: Accepting request " + r.getRequestId().toHexString());
 
         if (mEnabled != true)
             return;
@@ -176,6 +188,8 @@ public class RequestInQListener implements IRequestListener {
             mn.setContentType("text/html");
         }
         mn.setContent(c);
+
+        logger.info("RequestInQListener: Sending notification to " + mRecipientEmail);
 
         try {
             mn.sendNotification();

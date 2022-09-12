@@ -70,6 +70,7 @@ public class RunListeners implements Runnable {
             }
 
             if (mListeners != null && mRequest != null) {
+                logger.info("RunListeners: Processing request " + mRequest.getRequestId().toHexString());
 
                 while (mListeners.hasMoreElements()) {
                     IRequestListener l = mListeners.nextElement();

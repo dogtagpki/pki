@@ -359,9 +359,11 @@ public class RequestNotifier {
         logger.info("RequestNotifier: - max threads: " + mMaxThreads);
 
         if (mIsPublishingQueueEnabled) {
+            logger.info("RequestNotifier: Notifying " + mListeners.size() + " listener(s) through a queue");
             addToNotify(r);
 
         } else if (mMaxThreads == 0) {
+            logger.info("RequestNotifier: Notifying " + mListeners.size() + " listener(s) synchronously");
             Enumeration<IRequestListener> listeners = mListeners.elements();
             if (listeners != null && r != null) {
                 while (listeners.hasMoreElements()) {
@@ -372,7 +374,7 @@ public class RequestNotifier {
             }
 
         } else {
-            logger.info("RequestNotifier: Running listeners");
+            logger.info("RequestNotifier: Notifying " + mListeners.size() + " listener(s) asynchronously");
             try {
                 new Thread(new RunListeners(r, mListeners.elements()), "RequestNotifier-notify").start();
             } catch (Throwable e) {
