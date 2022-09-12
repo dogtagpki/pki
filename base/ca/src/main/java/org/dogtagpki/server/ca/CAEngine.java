@@ -911,6 +911,7 @@ public class CAEngine extends CMSEngine {
             startPublisherProcessor();
             initCertIssuedListener();
             initCertRevokedListener();
+            initRequestInQueueListener();
         }
 
         super.startupSubsystems();
