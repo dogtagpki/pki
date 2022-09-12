@@ -62,6 +62,14 @@ jobs:
       - name: Build PKI packages
         run: ./build.sh --with-timestamp --work-dir=build rpm
 
+      - name: Upload PKI packages
+        uses: actions/upload-artifact@v2
+        with:
+          name: pki-build-${{ matrix.os }}
+          path: |
+            build/RPMS/
+            build/SRPMS/
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 

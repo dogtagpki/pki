@@ -3,188 +3,92 @@ name: CA Tests
 on: [push, pull_request]
 
 jobs:
-  init:
-    name: Initializing workflow
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.init.outputs.matrix }}
-      repo: ${{ steps.init.outputs.repo }}
-      db-image: ${{ steps.init.outputs.db-image }}
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@v2
-
-      - name: Initialize workflow
-        id: init
-        env:
-          BASE64_MATRIX: ${{ secrets.BASE64_MATRIX }}
-          BASE64_REPO: ${{ secrets.BASE64_REPO }}
-          BASE64_DATABASE: ${{ secrets.BASE64_DATABASE }}
-        run: |
-          tests/bin/init-workflow.sh
-
-  # docs/development/Building_PKI.md
-  build:
-    name: Building PKI
-    needs: init
-    runs-on: ubuntu-latest
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
-    container: registry.fedoraproject.org/fedora:${{ matrix.os }}
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@v2
-
-      - name: Install dependencies
-        run: |
-          dnf install -y dnf-plugins-core rpm-build moby-engine
-          dnf copr enable -y ${{ needs.init.outputs.repo }}
-          dnf builddep -y --allowerasing --spec ./pki.spec --nogpgcheck
-
-      - name: Build PKI packages
-        run: ./build.sh --with-pkgs=base,server,ca,tests --with-timestamp --work-dir=build rpm
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-
-      - name: Build runner image
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          build-args: |
-            OS_VERSION=${{ matrix.os }}
-            COPR_REPO=${{ needs.init.outputs.repo }}
-          tags: pki-runner
-          target: pki-runner
-          outputs: type=docker,dest=pki-ca-runner.tar
-
-      - name: Store runner image
-        uses: actions/cache@v3
-        with:
-          key: pki-ca-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-ca-runner.tar
-
-      - name: Build server image
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          build-args: |
-            OS_VERSION=${{ matrix.os }}
-            COPR_REPO=${{ needs.init.outputs.repo }}
-          tags: pki-ca
-          target: pki-ca
-          outputs: type=docker,dest=pki-ca-server.tar
-
-      - name: Store server image
-        uses: actions/cache@v3
-        with:
-          key: pki-ca-server-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-ca-server.tar
+  call-build-workflow:
+    uses: ./.github/workflows/build.yml
+    with:
+      key_container: ca
+    secrets: inherit
 
   ca-basic-test:
     name: Basic CA
-    needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    needs: call-build-workflow
     uses: ./.github/workflows/ca-basic-test.yml
     with:
       os: ${{ matrix.os }}
 
   ca-ecc-test:
     name: CA with ECC
-    needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    needs: call-build-workflow
     uses: ./.github/workflows/ca-ecc-test.yml
     with:
       os: ${{ matrix.os }}
 
   ca-rsa-pss-test:
     name: CA with RSA/PSS
-    needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    needs: call-build-workflow
     uses: ./.github/workflows/ca-rsa-pss-test.yml
     with:
       os: ${{ matrix.os }}
 
   ca-existing-certs-test:
     name: CA with existing certs
-    needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    needs: call-build-workflow
     uses: ./.github/workflows/ca-existing-certs-test.yml
     with:
       os: ${{ matrix.os }}
 
   ca-existing-nssdb-test:
     name: CA with existing NSS database
-    needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    needs: call-build-workflow
     uses: ./.github/workflows/ca-existing-nssdb-test.yml
     with:
       os: ${{ matrix.os }}
 
   ca-existing-ds-test:
     name: CA with existing DS
-    needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    needs: call-build-workflow
     uses: ./.github/workflows/ca-existing-ds-test.yml
     with:
       os: ${{ matrix.os }}
 
   ca-shared-token-test:
     name: CA with shared token
-    needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    needs: call-build-workflow
     uses: ./.github/workflows/ca-shared-token-test.yml
     with:
       os: ${{ matrix.os }}
 
   ca-hsm-test:
     name: CA with HSM
-    needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    needs: call-build-workflow
     uses: ./.github/workflows/ca-hsm-test.yml
     with:
       os: ${{ matrix.os }}
 
   ca-container-test:
     name: CA container
-    needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    needs: call-build-workflow
     uses: ./.github/workflows/ca-container-test.yml
     with:
       os: ${{ matrix.os }}
 
   subca-basic-test:
     name: Basic Sub-CA
-    needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    needs: call-build-workflow
     uses: ./.github/workflows/subca-basic-test.yml
     with:
       os: ${{ matrix.os }}
 
   subca-cmc-test:
     name: Sub-CA with CMC
-    needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    needs: call-build-workflow
     uses: ./.github/workflows/subca-cmc-test.yml
     with:
       os: ${{ matrix.os }}
 
   subca-external-test:
     name: Sub-CA with external cert
-    needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    needs: call-build-workflow
     uses: ./.github/workflows/subca-external-test.yml
     with:
       os: ${{ matrix.os }}
