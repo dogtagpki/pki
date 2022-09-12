@@ -145,6 +145,15 @@ jobs:
     with:
       os: ${{ matrix.os }}
 
+  ca-notification-request-test:
+    name: CA with request notification
+    needs: [init, build]
+    strategy:
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    uses: ./.github/workflows/ca-notification-request-test.yml
+    with:
+      os: ${{ matrix.os }}
+
   scep-test:
     name: SCEP responder
     needs: [init, build]
