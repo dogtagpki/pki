@@ -29,7 +29,6 @@ import org.dogtagpki.server.ca.CAEngineConfig;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
@@ -257,7 +256,7 @@ public class RenewalNotificationJob
      * @exception EBaseException
      */
     @Override
-    public void init(ISubsystem owner, String id, String implName, ConfigStore config) throws EBaseException {
+    public void init(JobsScheduler scheduler, String id, String implName, ConfigStore config) throws EBaseException {
         mConfig = config;
         mId = id;
         mImplName = implName;
@@ -272,8 +271,6 @@ public class RenewalNotificationJob
         }
 
         // parse cron string into a JobCron class
-        JobsScheduler scheduler = (JobsScheduler) owner;
-
         mJobCron = scheduler.createJobCron(mCron);
     }
 

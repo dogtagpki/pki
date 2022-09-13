@@ -23,7 +23,6 @@ import java.util.Hashtable;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.notification.IMailNotification;
@@ -31,6 +30,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.jobs.JobCron;
+import com.netscape.cmscore.jobs.JobsScheduler;
 import com.netscape.cmscore.notification.EmailTemplate;
 import com.netscape.cmscore.request.Request;
 
@@ -112,7 +112,7 @@ public abstract class Job implements Runnable {
      * @param config configuration store for this instance
      * @exception EBaseException any initialization failure
      */
-    public abstract void init(ISubsystem owner, String id, String implName, ConfigStore config) throws EBaseException;
+    public abstract void init(JobsScheduler scheduler, String id, String implName, ConfigStore config) throws EBaseException;
 
     @Override
     public abstract void run();

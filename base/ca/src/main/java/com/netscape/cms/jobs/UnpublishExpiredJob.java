@@ -27,7 +27,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.request.RequestId;
@@ -117,7 +116,7 @@ public class UnpublishExpiredJob extends Job
      * initialize from the configuration file
      */
     @Override
-    public void init(ISubsystem owner, String id, String implName, ConfigStore config) throws EBaseException {
+    public void init(JobsScheduler scheduler, String id, String implName, ConfigStore config) throws EBaseException {
         mConfig = config;
         mId = id;
         mImplName = implName;
@@ -136,8 +135,6 @@ public class UnpublishExpiredJob extends Job
         }
 
         // parse cron string into a JobCron class
-        JobsScheduler scheduler = (JobsScheduler) owner;
-
         mJobCron = scheduler.createJobCron(mCron);
 
         // initialize the summary related config info

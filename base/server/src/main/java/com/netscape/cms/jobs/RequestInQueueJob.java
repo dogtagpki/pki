@@ -23,7 +23,6 @@ import java.util.Date;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
@@ -112,7 +111,7 @@ public class RequestInQueueJob extends Job
      * @exception EBaseException
      */
     @Override
-    public void init(ISubsystem owner, String id, String implName, ConfigStore config) throws
+    public void init(JobsScheduler scheduler, String id, String implName, ConfigStore config) throws
             EBaseException {
 
         logger.info("RequestInQueueJob: Initializing job " + id);
@@ -141,8 +140,6 @@ public class RequestInQueueJob extends Job
         }
 
         // parse cron string into a JobCron class
-        JobsScheduler scheduler = (JobsScheduler) owner;
-
         mJobCron = scheduler.createJobCron(mCron);
         logger.info("RequestInQueueJob: - cron: " + mCron);
 

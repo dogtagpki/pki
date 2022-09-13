@@ -27,7 +27,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
@@ -120,7 +119,7 @@ public class PublishCertsJob extends Job
      * initialize from the configuration file
      */
     @Override
-    public void init(ISubsystem owner, String id, String implName, ConfigStore config) throws EBaseException {
+    public void init(JobsScheduler scheduler, String id, String implName, ConfigStore config) throws EBaseException {
 
         logger.info("PublishCertsJob: Initializing job " + id);
 
@@ -144,8 +143,6 @@ public class PublishCertsJob extends Job
         }
 
         // parse cron string into a JobCron class
-        JobsScheduler scheduler = (JobsScheduler) owner;
-
         mJobCron = scheduler.createJobCron(mCron);
 
         // initialize the summary related config info
