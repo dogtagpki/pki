@@ -31,4 +31,11 @@ public class JobsConfig extends ConfigStore {
     public JobConfig getJobConfig(String id) {
         return getSubStore(id, JobConfig.class);
     }
+
+    /**
+     * Creates jobsScheduler.job.<id>.* parameters.
+     */
+    public JobConfig createJobConfig(String id) {
+        return makeSubStore(id, JobConfig.class);
+    }
 }

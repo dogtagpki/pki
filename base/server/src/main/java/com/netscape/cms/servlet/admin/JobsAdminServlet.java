@@ -37,6 +37,7 @@ import com.netscape.cms.jobs.Job;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.jobs.JobConfig;
 import com.netscape.cmscore.jobs.JobPluginsConfig;
 import com.netscape.cmscore.jobs.JobsConfig;
 import com.netscape.cmscore.jobs.JobsScheduler;
@@ -424,7 +425,7 @@ public class JobsAdminServlet extends AdminServlet {
 
         JobsSchedulerConfig destStore = mConfig.getJobsSchedulerConfig();
         JobsConfig instancesConfig = destStore.getJobsConfig();
-        ConfigStore substore = instancesConfig.makeSubStore(id);
+        JobConfig substore = instancesConfig.createJobConfig(id);
 
         if (configParams != null) {
             for (int i = 0; i < configParams.length; i++) {
@@ -819,7 +820,7 @@ public class JobsAdminServlet extends AdminServlet {
 
         String[] configParams = mJobsSched.getConfigParams(implname);
 
-        ConfigStore substore = instancesConfig.makeSubStore(id);
+        JobConfig substore = instancesConfig.createJobConfig(id);
 
         substore.put(JobsScheduler.PROP_PLUGIN, implname);
         if (configParams != null) {
@@ -956,7 +957,7 @@ public class JobsAdminServlet extends AdminServlet {
     private static void restore(JobsConfig store,
             String id, NameValuePairs saveParams) {
         store.removeSubStore(id);
-        ConfigStore rstore = store.makeSubStore(id);
+        JobConfig rstore = store.createJobConfig(id);
 
         for (String key : saveParams.keySet()) {
             String value = saveParams.get(key);
