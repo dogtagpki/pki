@@ -37,6 +37,7 @@ import com.netscape.cms.jobs.Job;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.jobs.JobPluginsConfig;
 import com.netscape.cmscore.jobs.JobsScheduler;
 import com.netscape.cmscore.jobs.JobsSchedulerConfig;
 
@@ -306,7 +307,7 @@ public class JobsAdminServlet extends AdminServlet {
         }
 
         JobsSchedulerConfig destStore = mConfig.getJobsSchedulerConfig();
-        ConfigStore instancesConfig = destStore.getSubStore(scope, ConfigStore.class);
+        JobPluginsConfig instancesConfig = destStore.getJobPluginsConfig();
 
         // Does the class exist?
         Class<?> newImpl = null;
@@ -574,7 +575,7 @@ public class JobsAdminServlet extends AdminServlet {
         mJobsSched.getPlugins().remove(id);
 
         JobsSchedulerConfig destStore = mConfig.getJobsSchedulerConfig();
-        ConfigStore instancesConfig = destStore.getSubStore(scope, ConfigStore.class);
+        JobPluginsConfig instancesConfig = destStore.getJobPluginsConfig();
 
         instancesConfig.removeSubStore(id);
         // commiting

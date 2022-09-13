@@ -24,4 +24,11 @@ public class JobsSchedulerConfig extends ConfigStore {
     public JobsSchedulerConfig(String name, SimpleProperties source) {
         super(name, source);
     }
+
+    /**
+     * Returns jobsScheduler.impl.* parameters.
+     */
+    public JobPluginsConfig getJobPluginsConfig() {
+        return getSubStore("impl", JobPluginsConfig.class);
+    }
 }

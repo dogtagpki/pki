@@ -158,13 +158,13 @@ public class JobsScheduler implements Runnable {
         logger.info("JobsScheduler: - interval: " + i);
         setInterval(i);
 
-        ConfigStore c = mConfig.getSubStore(PROP_IMPL, ConfigStore.class);
-        Enumeration<String> mImpls = c.getSubStoreNames();
+        JobPluginsConfig pluginsConfig = mConfig.getJobPluginsConfig();
+        Enumeration<String> mImpls = pluginsConfig.getSubStoreNames();
 
         // register all job plugins
         while (mImpls.hasMoreElements()) {
             String id = mImpls.nextElement();
-            String pluginPath = c.getString(id + "." + PROP_CLASS);
+            String pluginPath = pluginsConfig.getString(id + "." + PROP_CLASS);
 
             JobPlugin plugin = new JobPlugin(id, pluginPath);
 
@@ -173,7 +173,7 @@ public class JobsScheduler implements Runnable {
 
         logger.info("JobsScheduler: Jobs: ");
         // register all jobs
-        c = config.getSubStore(PROP_JOB, ConfigStore.class);
+        ConfigStore c = config.getSubStore(PROP_JOB, ConfigStore.class);
         Enumeration<String> jobs = c.getSubStoreNames();
 
         while (jobs.hasMoreElements()) {
