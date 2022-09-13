@@ -19,6 +19,7 @@ javac(pki-server-classes
         ${LDAPJDK_JAR}
         ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR}
         ${TOMCATJSS_JAR}
+        ${JAVAX_ANNOTATIONS_API_JAR}
         ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR}
         ${PKI_TOMCAT_JAR} ${PKI_CERTSRV_JAR}
     OUTPUT_DIR
