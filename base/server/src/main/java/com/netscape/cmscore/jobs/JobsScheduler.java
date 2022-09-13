@@ -23,7 +23,6 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.jobs.EJobsException;
 import com.netscape.certsrv.jobs.JobPlugin;
 import com.netscape.cms.jobs.Job;
@@ -48,7 +47,7 @@ import com.netscape.cmscore.base.ConfigStore;
  * @see JobCron
  * @version $Revision$, $Date$
  */
-public class JobsScheduler implements Runnable, ISubsystem {
+public class JobsScheduler implements Runnable {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JobsScheduler.class);
 
@@ -114,7 +113,7 @@ public class JobsScheduler implements Runnable, ISubsystem {
     public Hashtable<String, Job> mJobs = new Hashtable<>();
     private Hashtable<String, Thread> mJobThreads = new Hashtable<>();
 
-    private ConfigStore mConfig;
+    private JobsSchedulerConfig mConfig;
 
     // in milliseconds. daemon wakeup interval, default 1 minute.
     private long mInterval = 0;
@@ -141,8 +140,7 @@ public class JobsScheduler implements Runnable, ISubsystem {
      * jobScheduler.job.[job name].[any job specific params]=[values]
      * @param config jobsScheduler configStore
      */
-    @Override
-    public void init(ConfigStore config) throws EBaseException, EJobsException {
+    public void init(JobsSchedulerConfig config) throws EBaseException, EJobsException {
 
         logger.info("JobsScheduler: Initializing scheduler");
 
@@ -435,7 +433,6 @@ public class JobsScheduler implements Runnable, ISubsystem {
      *
      * @return name of the Jobs Scheduler subsystem
      */
-    @Override
     public String getId() {
         return mId;
     }
@@ -447,7 +444,6 @@ public class JobsScheduler implements Runnable, ISubsystem {
      *
      * @param id name to be applied to an Jobs Scheduler subsystem
      */
-    @Override
     public void setId(String id) throws EBaseException {
         mId = id;
     }
@@ -466,7 +462,6 @@ public class JobsScheduler implements Runnable, ISubsystem {
     /**
      * registers the administration servlet with the administration subsystem.
      */
-    @Override
     public void startup() throws EBaseException {
         //remove, already logged from S_ADMIN
         //String infoMsg = "JobsScheduler: subsystem administration Servlet registered";
@@ -477,7 +472,6 @@ public class JobsScheduler implements Runnable, ISubsystem {
      * shuts down Jobs one by one.
      * <P>
      */
-    @Override
     public void shutdown() {
         for (Job job : mJobs.values()) {
             job.stop();
@@ -490,8 +484,7 @@ public class JobsScheduler implements Runnable, ISubsystem {
      *
      * @return configuration store of this subsystem
      */
-    @Override
-    public ConfigStore getConfigStore() {
+    public JobsSchedulerConfig getConfigStore() {
         return mConfig;
     }
 

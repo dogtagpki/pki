@@ -28,7 +28,6 @@ import javax.servlet.http.HttpServletResponse;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.common.Constants;
-import com.netscape.certsrv.common.DestDef;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
@@ -39,6 +38,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.jobs.JobsScheduler;
+import com.netscape.cmscore.jobs.JobsSchedulerConfig;
 
 /**
  * A class representing an administration servlet for the
@@ -305,7 +305,7 @@ public class JobsAdminServlet extends AdminServlet {
             return;
         }
 
-        ConfigStore destStore = mConfig.getSubStore(DestDef.DEST_JOBS_ADMIN, ConfigStore.class);
+        JobsSchedulerConfig destStore = mConfig.getJobsSchedulerConfig();
         ConfigStore instancesConfig = destStore.getSubStore(scope, ConfigStore.class);
 
         // Does the class exist?
@@ -420,7 +420,7 @@ public class JobsAdminServlet extends AdminServlet {
         // are there, but not checking the values are valid
         String[] configParams = mJobsSched.getConfigParams(implname);
 
-        ConfigStore destStore = mConfig.getSubStore(DestDef.DEST_JOBS_ADMIN, ConfigStore.class);
+        JobsSchedulerConfig destStore = mConfig.getJobsSchedulerConfig();
         ConfigStore instancesConfig = destStore.getSubStore(scope, ConfigStore.class);
         ConfigStore substore = instancesConfig.makeSubStore(id);
 
@@ -573,7 +573,7 @@ public class JobsAdminServlet extends AdminServlet {
         // then delete this job plugin
         mJobsSched.getPlugins().remove(id);
 
-        ConfigStore destStore = mConfig.getSubStore(DestDef.DEST_JOBS_ADMIN, ConfigStore.class);
+        JobsSchedulerConfig destStore = mConfig.getJobsSchedulerConfig();
         ConfigStore instancesConfig = destStore.getSubStore(scope, ConfigStore.class);
 
         instancesConfig.removeSubStore(id);
@@ -621,7 +621,7 @@ public class JobsAdminServlet extends AdminServlet {
         mJobsSched.getInstances().remove(id);
 
         // remove the configuration.
-        ConfigStore destStore = mConfig.getSubStore(DestDef.DEST_JOBS_ADMIN, ConfigStore.class);
+        JobsSchedulerConfig destStore = mConfig.getJobsSchedulerConfig();
         ConfigStore instancesConfig = destStore.getSubStore(scope, ConfigStore.class);
 
         instancesConfig.removeSubStore(id);
@@ -808,7 +808,7 @@ public class JobsAdminServlet extends AdminServlet {
 
         // remove old substore.
 
-        ConfigStore destStore = mConfig.getSubStore(DestDef.DEST_JOBS_ADMIN, ConfigStore.class);
+        JobsSchedulerConfig destStore = mConfig.getJobsSchedulerConfig();
         ConfigStore instancesConfig = destStore.getSubStore(scope, ConfigStore.class);
 
         instancesConfig.removeSubStore(id);
@@ -902,7 +902,7 @@ public class JobsAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
-        ConfigStore config = mConfig.getSubStore(DestDef.DEST_JOBS_ADMIN, ConfigStore.class);
+        JobsSchedulerConfig config = mConfig.getJobsSchedulerConfig();
 
         params.put(Constants.PR_ENABLE,
                 config.getString(JobsScheduler.PROP_ENABLED,
@@ -918,7 +918,7 @@ public class JobsAdminServlet extends AdminServlet {
     private void setSettings(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException, EBaseException {
         //Save New Settings to the config file
-        ConfigStore config = mConfig.getSubStore(DestDef.DEST_JOBS_ADMIN, ConfigStore.class);
+        JobsSchedulerConfig config = mConfig.getJobsSchedulerConfig();
 
         String enabled = config.getString(JobsScheduler.PROP_ENABLED);
         String enabledSetTo = req.getParameter(Constants.PR_ENABLE);

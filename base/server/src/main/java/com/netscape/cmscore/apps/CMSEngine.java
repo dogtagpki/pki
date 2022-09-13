@@ -69,6 +69,7 @@ import com.netscape.cmscore.base.FileConfigStorage;
 import com.netscape.cmscore.cert.OidLoaderSubsystem;
 import com.netscape.cmscore.cert.X500NameSubsystem;
 import com.netscape.cmscore.dbs.DBSubsystem;
+import com.netscape.cmscore.jobs.JobsSchedulerConfig;
 import com.netscape.cmscore.jobs.JobsScheduler;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
@@ -713,7 +714,7 @@ public class CMSEngine {
     }
 
     public void initJobsScheduler() throws Exception {
-        ConfigStore jobsSchedulerConfig = config.getSubStore(JobsScheduler.ID, ConfigStore.class);
+        JobsSchedulerConfig jobsSchedulerConfig = config.getJobsSchedulerConfig();
         jobsScheduler.init(jobsSchedulerConfig);
         jobsScheduler.startup();
     }

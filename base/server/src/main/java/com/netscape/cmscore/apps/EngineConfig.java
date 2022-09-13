@@ -13,6 +13,7 @@ import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
 import com.netscape.cmscore.dbs.DBSubsystem;
+import com.netscape.cmscore.jobs.JobsSchedulerConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.security.JssSubsystemConfig;
@@ -120,5 +121,12 @@ public class EngineConfig extends ConfigStore {
 
     public JssSubsystemConfig getJssSubsystemConfig() {
         return getSubStore("jss", JssSubsystemConfig.class);
+    }
+
+    /**
+     * Returns jobsScheduler.* parameters.
+     */
+    public JobsSchedulerConfig getJobsSchedulerConfig() {
+        return getSubStore("jobsScheduler", JobsSchedulerConfig.class);
     }
 }
