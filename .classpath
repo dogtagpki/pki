@@ -60,5 +60,6 @@
 	<classpathentry kind="lib" path="/usr/share/java/jackson-modules/jackson-module-jaxb-annotations.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/apache-commons-net.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/hamcrest/hamcrest.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/jakarta-annotations/jakarta.annotation-api.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

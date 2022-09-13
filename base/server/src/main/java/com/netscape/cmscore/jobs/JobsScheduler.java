@@ -321,23 +321,29 @@ public class JobsScheduler implements Runnable {
                 if (isShowTime(job, cal) == true) {
                     //	logger.info("JobsScheduler: show time for: "+job.getId());
 
-                    // if previous thread still alive, skip
-                    Thread jthread = mJobThreads.get(job.getId());
-
-                    if ((jthread == null) || (!jthread.isAlive())) {
-                        Thread jobThread = new Thread(job, job.getId());
-
-                        jobThread.start();
-                        // put into job thread control
-                        mJobThreads.put(job.getId(), jobThread);
-                    } else {
-                        // previous thread still alive, log it
-                        logger.info("JobsScheduler: Job " + job.getId() + " still running...skipping this round");
-                    }
+                    startJob(job.getId());
                 }
             } // for
 
         }
+    }
+
+    public synchronized void startJob(String id) {
+
+        Thread thread = mJobThreads.get(id);
+
+        if (thread != null && thread.isAlive()) {
+            logger.info("JobsScheduler: Job " + id + " still running");
+            return;
+        }
+
+        logger.info("JobsScheduler: Starting job " + id);
+
+        Job job = mJobs.get(id);
+        thread = new Thread(job, id);
+        mJobThreads.put(id, thread);
+
+        thread.start();
     }
 
     /**
