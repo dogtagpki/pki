@@ -642,6 +642,12 @@ public class ConfigStore implements Cloneable {
      * @return The sub-store created
      */
     public ConfigStore makeSubStore(String name) {
+        return makeSubStore(name, ConfigStore.class);
+    }
+
+    public <T extends ConfigStore> T makeSubStore(String name, Class<T> clazz) {
+
+        String fullname = getFullName(name);
 
         /*
          String names=(String)mSource.get(getFullName(PROP_SUBSTORES));
@@ -654,7 +660,15 @@ public class ConfigStore implements Cloneable {
          }
          mSource.put(getFullName(PROP_SUBSTORES), name);
          */
-        return new ConfigStore(getFullName(name), mSource);
+
+        try {
+            Constructor<T> constructor = clazz.getDeclaredConstructor(String.class, SimpleProperties.class);
+            return constructor.newInstance(fullname, mSource);
+
+        } catch (NoSuchMethodException | InvocationTargetException
+                | IllegalAccessException | InstantiationException | IllegalArgumentException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
