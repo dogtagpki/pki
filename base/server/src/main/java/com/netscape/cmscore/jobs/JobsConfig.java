@@ -24,4 +24,11 @@ public class JobsConfig extends ConfigStore {
     public JobsConfig(String name, SimpleProperties source) {
         super(name, source);
     }
+
+    /**
+     * Returns jobsScheduler.job.<id>.* parameters.
+     */
+    public JobConfig getJobConfig(String id) {
+        return getSubStore(id, JobConfig.class);
+    }
 }

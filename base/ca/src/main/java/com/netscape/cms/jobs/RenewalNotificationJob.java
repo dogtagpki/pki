@@ -41,6 +41,7 @@ import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.ElementProcessor;
+import com.netscape.cmscore.jobs.JobConfig;
 import com.netscape.cmscore.jobs.JobCron;
 import com.netscape.cmscore.jobs.JobsScheduler;
 import com.netscape.cmscore.notification.EmailFormProcessor;
@@ -256,7 +257,7 @@ public class RenewalNotificationJob
      * @exception EBaseException
      */
     @Override
-    public void init(JobsScheduler scheduler, String id, String implName, ConfigStore config) throws EBaseException {
+    public void init(JobsScheduler scheduler, String id, String implName, JobConfig config) throws EBaseException {
         mConfig = config;
         mId = id;
         mImplName = implName;
@@ -521,7 +522,7 @@ public class RenewalNotificationJob
      * @return configuration store
      */
     @Override
-    public ConfigStore getConfigStore() {
+    public JobConfig getConfigStore() {
         return mConfig;
     }
 

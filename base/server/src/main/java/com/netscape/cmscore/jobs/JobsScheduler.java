@@ -180,7 +180,8 @@ public class JobsScheduler implements Runnable {
             String jobName = jobs.nextElement();
             logger.info("JobsScheduler: - " + jobName);
 
-            String implName = c.getString(jobName + "." + PROP_PLUGIN);
+            JobConfig jobConfig = c.getJobConfig(jobName);
+            String implName = jobConfig.getString(PROP_PLUGIN);
             JobPlugin plugin = mJobPlugins.get(implName);
 
             if (plugin == null) {
@@ -192,9 +193,7 @@ public class JobsScheduler implements Runnable {
             // instantiate and init the job
             try {
                 Job job = (Job) Class.forName(classPath).getDeclaredConstructor().newInstance();
-                ConfigStore jconfig = c.getSubStore(jobName, ConfigStore.class);
-
-                job.init(this, jobName, implName, jconfig);
+                job.init(this, jobName, implName, jobConfig);
 
                 // register the job
                 mJobs.put(jobName, job);

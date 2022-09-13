@@ -35,6 +35,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.jobs.JobConfig;
 import com.netscape.cmscore.jobs.JobCron;
 import com.netscape.cmscore.jobs.JobsScheduler;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
@@ -119,7 +120,7 @@ public class PublishCertsJob extends Job
      * initialize from the configuration file
      */
     @Override
-    public void init(JobsScheduler scheduler, String id, String implName, ConfigStore config) throws EBaseException {
+    public void init(JobsScheduler scheduler, String id, String implName, JobConfig config) throws EBaseException {
 
         logger.info("PublishCertsJob: Initializing job " + id);
 

@@ -28,7 +28,7 @@ import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.jobs.JobConfig;
 import com.netscape.cmscore.jobs.JobCron;
 import com.netscape.cmscore.jobs.JobsScheduler;
 import com.netscape.cmscore.notification.EmailTemplate;
@@ -58,7 +58,7 @@ public abstract class Job implements Runnable {
 
     // variables used by the Job Scheduler Daemon
     protected String mImplName = null;
-    protected ConfigStore mConfig;
+    protected JobConfig mConfig;
     protected String mId = null;
     protected String mCron = null;
     protected JobCron mJobCron;
@@ -112,7 +112,7 @@ public abstract class Job implements Runnable {
      * @param config configuration store for this instance
      * @exception EBaseException any initialization failure
      */
-    public abstract void init(JobsScheduler scheduler, String id, String implName, ConfigStore config) throws EBaseException;
+    public abstract void init(JobsScheduler scheduler, String id, String implName, JobConfig config) throws EBaseException;
 
     @Override
     public abstract void run();
@@ -162,7 +162,7 @@ public abstract class Job implements Runnable {
      *
      * @return configuration store
      */
-    public ConfigStore getConfigStore() {
+    public JobConfig getConfigStore() {
         return mConfig;
     }
 

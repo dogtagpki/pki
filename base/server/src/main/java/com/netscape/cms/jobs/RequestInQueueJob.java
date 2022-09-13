@@ -29,6 +29,7 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.jobs.JobConfig;
 import com.netscape.cmscore.jobs.JobCron;
 import com.netscape.cmscore.jobs.JobsScheduler;
 import com.netscape.cmscore.notification.EmailFormProcessor;
@@ -111,7 +112,7 @@ public class RequestInQueueJob extends Job
      * @exception EBaseException
      */
     @Override
-    public void init(JobsScheduler scheduler, String id, String implName, ConfigStore config) throws
+    public void init(JobsScheduler scheduler, String id, String implName, JobConfig config) throws
             EBaseException {
 
         logger.info("RequestInQueueJob: Initializing job " + id);
