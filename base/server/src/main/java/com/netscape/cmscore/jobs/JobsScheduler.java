@@ -173,7 +173,7 @@ public class JobsScheduler implements Runnable {
 
         logger.info("JobsScheduler: Jobs: ");
         // register all jobs
-        ConfigStore c = config.getSubStore(PROP_JOB, ConfigStore.class);
+        JobsConfig c = config.getJobsConfig();
         Enumeration<String> jobs = c.getSubStoreNames();
 
         while (jobs.hasMoreElements()) {

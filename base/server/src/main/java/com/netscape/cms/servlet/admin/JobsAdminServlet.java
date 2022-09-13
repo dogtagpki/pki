@@ -38,6 +38,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.jobs.JobPluginsConfig;
+import com.netscape.cmscore.jobs.JobsConfig;
 import com.netscape.cmscore.jobs.JobsScheduler;
 import com.netscape.cmscore.jobs.JobsSchedulerConfig;
 
@@ -422,7 +423,7 @@ public class JobsAdminServlet extends AdminServlet {
         String[] configParams = mJobsSched.getConfigParams(implname);
 
         JobsSchedulerConfig destStore = mConfig.getJobsSchedulerConfig();
-        ConfigStore instancesConfig = destStore.getSubStore(scope, ConfigStore.class);
+        JobsConfig instancesConfig = destStore.getJobsConfig();
         ConfigStore substore = instancesConfig.makeSubStore(id);
 
         if (configParams != null) {
@@ -623,7 +624,7 @@ public class JobsAdminServlet extends AdminServlet {
 
         // remove the configuration.
         JobsSchedulerConfig destStore = mConfig.getJobsSchedulerConfig();
-        ConfigStore instancesConfig = destStore.getSubStore(scope, ConfigStore.class);
+        JobsConfig instancesConfig = destStore.getJobsConfig();
 
         instancesConfig.removeSubStore(id);
         // commiting
@@ -810,7 +811,7 @@ public class JobsAdminServlet extends AdminServlet {
         // remove old substore.
 
         JobsSchedulerConfig destStore = mConfig.getJobsSchedulerConfig();
-        ConfigStore instancesConfig = destStore.getSubStore(scope, ConfigStore.class);
+        JobsConfig instancesConfig = destStore.getJobsConfig();
 
         instancesConfig.removeSubStore(id);
 
@@ -952,7 +953,7 @@ public class JobsAdminServlet extends AdminServlet {
     }
 
     // convenience routine.
-    private static void restore(ConfigStore store,
+    private static void restore(JobsConfig store,
             String id, NameValuePairs saveParams) {
         store.removeSubStore(id);
         ConfigStore rstore = store.makeSubStore(id);

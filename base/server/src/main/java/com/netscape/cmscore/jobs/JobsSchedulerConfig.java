@@ -31,4 +31,11 @@ public class JobsSchedulerConfig extends ConfigStore {
     public JobPluginsConfig getJobPluginsConfig() {
         return getSubStore("impl", JobPluginsConfig.class);
     }
+
+    /**
+     * Returns jobsScheduler.job.* parameters.
+     */
+    public JobsConfig getJobsConfig() {
+        return getSubStore("job", JobsConfig.class);
+    }
 }
