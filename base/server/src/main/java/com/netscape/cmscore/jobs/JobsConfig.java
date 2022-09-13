@@ -38,4 +38,11 @@ public class JobsConfig extends ConfigStore {
     public JobConfig createJobConfig(String id) {
         return makeSubStore(id, JobConfig.class);
     }
+
+    /**
+     * Removes jobsScheduler.job.<id>.* parameters.
+     */
+    public void removeJobConfig(String id) {
+        removeSubStore(id);
+    }
 }

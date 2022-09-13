@@ -454,7 +454,7 @@ public class JobsAdminServlet extends AdminServlet {
         try {
             jobsInst = (Job) Class.forName(className).getDeclaredConstructor().newInstance();
         } catch (Exception e) {
-            instancesConfig.removeSubStore(id);
+            instancesConfig.removeJobConfig(id);
             sendResponse(ERROR,
                     new EJobsException(
                             CMS.getUserMessage(getLocale(req), "CMS_JOB_LOAD_CLASS_FAILED", className)).toString(),
@@ -469,7 +469,7 @@ public class JobsAdminServlet extends AdminServlet {
             jobsInst.init(scheduler, id, implname, substore);
         } catch (EBaseException e) {
             // don't commit in this case and cleanup the new substore.
-            instancesConfig.removeSubStore(id);
+            instancesConfig.removeJobConfig(id);
             sendResponse(ERROR, e.toString(getLocale(req)), null, resp);
             return;
         }
@@ -479,7 +479,7 @@ public class JobsAdminServlet extends AdminServlet {
             mConfig.commit(true);
         } catch (EBaseException e) {
             // clean up.
-            instancesConfig.removeSubStore(id);
+            instancesConfig.removeJobConfig(id);
             sendResponse(ERROR,
                     CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_COMMIT_FAILED"),
                     null, resp);
@@ -627,7 +627,7 @@ public class JobsAdminServlet extends AdminServlet {
         JobsSchedulerConfig destStore = mConfig.getJobsSchedulerConfig();
         JobsConfig instancesConfig = destStore.getJobsConfig();
 
-        instancesConfig.removeSubStore(id);
+        instancesConfig.removeJobConfig(id);
         // commiting
         try {
             mConfig.commit(true);
@@ -814,7 +814,7 @@ public class JobsAdminServlet extends AdminServlet {
         JobsSchedulerConfig destStore = mConfig.getJobsSchedulerConfig();
         JobsConfig instancesConfig = destStore.getJobsConfig();
 
-        instancesConfig.removeSubStore(id);
+        instancesConfig.removeJobConfig(id);
 
         // create new substore.
 
@@ -956,7 +956,7 @@ public class JobsAdminServlet extends AdminServlet {
     // convenience routine.
     private static void restore(JobsConfig store,
             String id, NameValuePairs saveParams) {
-        store.removeSubStore(id);
+        store.removeJobConfig(id);
         JobConfig rstore = store.createJobConfig(id);
 
         for (String key : saveParams.keySet()) {
