@@ -360,11 +360,12 @@ public class JobsScheduler implements Runnable {
      * Is it time for the job?
      */
     protected boolean isShowTime(Job job, Calendar now) {
-        JobCron jcron = job.getJobCron();
 
+        JobCron jcron = job.getJobCron();
         logger.info("JobsScheduler: jobcron: " + jcron);
+
         if (jcron == null) {
-            // the impossible has happened
+            // unscheduled job
             return false;
         }
 

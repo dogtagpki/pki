@@ -137,12 +137,9 @@ public class PublishCertsJob extends Job
         mCron = mConfig.getCron();
         logger.info("PublishCertsJob: - cron: " + mCron);
 
-        if (mCron == null) {
-            return;
+        if (mCron != null) {
+            mJobCron = scheduler.createJobCron(mCron);
         }
-
-        // parse cron string into a JobCron class
-        mJobCron = scheduler.createJobCron(mCron);
 
         // initialize the summary related config info
         ConfigStore sc = mConfig.getSubStore(PROP_SUMMARY, ConfigStore.class);

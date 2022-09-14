@@ -271,11 +271,9 @@ public class RenewalNotificationJob
         mCron = mConfig.getCron();
         logger.info("RenewalNotificationJob: - cron: " + mCron);
 
-        if (mCron == null) {
-            return;
+        if (mCron != null) {
+            mJobCron = scheduler.createJobCron(mCron);
         }
-
-        mJobCron = scheduler.createJobCron(mCron);
     }
 
     /**

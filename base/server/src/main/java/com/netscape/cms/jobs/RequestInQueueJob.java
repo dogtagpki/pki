@@ -137,11 +137,9 @@ public class RequestInQueueJob extends Job
         mCron = mConfig.getCron();
         logger.info("RequestInQueueJob: - cron: " + mCron);
 
-        if (mCron == null) {
-            return;
+        if (mCron != null) {
+            mJobCron = scheduler.createJobCron(mCron);
         }
-
-        mJobCron = scheduler.createJobCron(mCron);
 
         // initialize the summary related config info
         ConfigStore sc = mConfig.getSubStore(PROP_SUMMARY, ConfigStore.class);

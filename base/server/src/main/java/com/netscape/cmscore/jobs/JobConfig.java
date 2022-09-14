@@ -51,6 +51,6 @@ public class JobConfig extends ConfigStore {
      * Returns jobsScheduler.job.<id>.cron parameter.
      */
     public String getCron() throws EBaseException {
-        return getString("cron");
+        return getString("cron", null);
     }
 }
