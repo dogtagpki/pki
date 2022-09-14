@@ -98,7 +98,7 @@ public abstract class Job implements Runnable {
         boolean enabled = false;
 
         try {
-            enabled = mConfig.getBoolean(PROP_ENABLED, false);
+            enabled = mConfig.isEnabled();
         } catch (EBaseException e) {
         }
         return enabled;

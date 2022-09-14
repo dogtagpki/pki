@@ -5,6 +5,7 @@
 //
 package com.netscape.cmscore.jobs;
 
+import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
@@ -23,5 +24,12 @@ public class JobConfig extends ConfigStore {
 
     public JobConfig(String name, SimpleProperties source) {
         super(name, source);
+    }
+
+    /**
+     * Returns jobsScheduler.job.<id>.enabled parameter.
+     */
+    public boolean isEnabled() throws EBaseException {
+        return getBoolean("enabled", false);
     }
 }
