@@ -703,7 +703,7 @@ public class JobsAdminServlet extends AdminServlet {
         }
 
         Job jobInst = mJobsSched.getInstances().get(id);
-        ConfigStore config = jobInst.getConfigStore();
+        JobConfig config = jobInst.getConfigStore();
         String[] configParams = jobInst.getConfigParams();
         NameValuePairs params = new NameValuePairs();
 

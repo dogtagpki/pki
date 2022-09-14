@@ -27,7 +27,6 @@ import com.netscape.certsrv.jobs.EJobsException;
 import com.netscape.certsrv.jobs.JobPlugin;
 import com.netscape.cms.jobs.Job;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * This is a daemon thread that handles scheduled jobs like cron would
@@ -308,11 +307,8 @@ public class JobsScheduler implements Runnable {
             for (Enumeration<Job> e = mJobs.elements(); e.hasMoreElements(); ) {
                 Job job = e.nextElement();
 
-                // is it enabled?
-                ConfigStore cs = job.getConfigStore();
-
                 try {
-                    if (cs.getBoolean(PROP_ENABLED, false) == false)
+                    if (!job.isEnabled())
                         continue;
                 } catch (Exception ex) {
                     continue; // ignore this job

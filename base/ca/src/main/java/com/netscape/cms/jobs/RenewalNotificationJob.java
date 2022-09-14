@@ -42,7 +42,6 @@ import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.ElementProcessor;
 import com.netscape.cmscore.jobs.JobConfig;
-import com.netscape.cmscore.jobs.JobCron;
 import com.netscape.cmscore.jobs.JobsScheduler;
 import com.netscape.cmscore.notification.EmailFormProcessor;
 import com.netscape.cmscore.notification.EmailResolverKeys;
@@ -474,56 +473,6 @@ public class RenewalNotificationJob
         } catch (EBaseException ex) {
             logger.warn("RenewalNotificationJob: " + CMS.getLogMessage("Configuration error:", ex.toString()), ex);
         }
-    }
-
-    /**
-     * get instance id.
-     *
-     * @return a String identifier
-     */
-    @Override
-    public String getId() {
-        return mId;
-    }
-
-    /**
-     * set instance id.
-     *
-     * @param id String id of the instance
-     */
-    @Override
-    public void setId(String id) {
-        mId = id;
-    }
-
-    /**
-     * get cron string associated with this job
-     *
-     * @return a JobCron object that represents the schedule of this job
-     */
-    @Override
-    public JobCron getJobCron() {
-        return mJobCron;
-    }
-
-    /**
-     * gets the plugin name of this job.
-     *
-     * @return a String that is the name of this implementation
-     */
-    @Override
-    public String getImplName() {
-        return mImplName;
-    }
-
-    /**
-     * Gets the configuration substore used by this job
-     *
-     * @return configuration store
-     */
-    @Override
-    public JobConfig getConfigStore() {
-        return mConfig;
     }
 
     protected void mailUser(String subject,
