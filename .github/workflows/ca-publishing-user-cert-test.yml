@@ -72,13 +72,21 @@ jobs:
           objectClass: organizationalUnit
           ou: people
 
-          dn: uid=testuser,ou=people,dc=pki,dc=example,dc=com
+          dn: uid=testuser1,ou=people,dc=pki,dc=example,dc=com
           objectClass: person
           objectClass: organizationalPerson
           objectClass: inetOrgPerson
-          uid: testuser
-          cn: Test User
-          sn: User
+          uid: testuser1
+          cn: Test User 1
+          sn: User 1
+
+          dn: uid=testuser2,ou=people,dc=pki,dc=example,dc=com
+          objectClass: person
+          objectClass: organizationalPerson
+          objectClass: inetOrgPerson
+          uid: testuser2
+          cn: Test User 2
+          sn: User 2
           EOF
 
       - name: Configure user cert publishing
@@ -128,7 +136,7 @@ jobs:
           # configure task to run every minute
           docker exec pki pki-server ca-config-set ca.certStatusUpdateInterval 60
 
-      - name: Configure unpublish expired job
+      - name: Configure unpublish expired job to run automatically
         run: |
           # configure job to run every minute
           docker exec pki pki-server ca-config-set jobsScheduler.enabled true
@@ -150,14 +158,14 @@ jobs:
               --pkcs12-password Secret.123
           docker exec pki pki -n caadmin ca-user-show caadmin
 
-      - name: Check user before enrollment
+      - name: Check user 1 before enrollment
         run: |
           docker exec pki ldapsearch \
               -H ldap://ds.example.com:3389 \
               -x \
               -D "cn=Directory Manager" \
               -w Secret.123 \
-              -b "uid=testuser,ou=people,dc=pki,dc=example,dc=com" \
+              -b "uid=testuser1,ou=people,dc=pki,dc=example,dc=com" \
               -o ldif_wrap=no \
               -t | tee output
 
@@ -166,9 +174,9 @@ jobs:
           echo "0" > expected
           diff expected actual
 
-      - name: Enroll user cert
+      - name: Enroll user 1 cert
         run: |
-          docker exec pki pki client-cert-request uid=testuser | tee output
+          docker exec pki pki client-cert-request uid=testuser1 | tee output
 
           REQUEST_ID=$(sed -n -e 's/^ *Request ID: *\(.*\)$/\1/p' output)
           echo "REQUEST_ID: $REQUEST_ID"
@@ -185,14 +193,14 @@ jobs:
           echo "VALID" > expected
           diff expected actual
 
-      - name: Check user after enrollment
+      - name: Check user 1 after enrollment
         run: |
           docker exec pki ldapsearch \
               -H ldap://ds.example.com:3389 \
               -x \
               -D "cn=Directory Manager" \
               -w Secret.123 \
-              -b "uid=testuser,ou=people,dc=pki,dc=example,dc=com" \
+              -b "uid=testuser1,ou=people,dc=pki,dc=example,dc=com" \
               -o ldif_wrap=no \
               -t | tee output
 
@@ -210,7 +218,7 @@ jobs:
               -inform DER \
               -text -noout
 
-      - name: Revoke user cert
+      - name: Revoke user 1 cert
         run: |
           CERT_ID=$(cat cert.id)
           docker exec pki pki -n caadmin ca-cert-hold $CERT_ID --force
@@ -222,14 +230,14 @@ jobs:
           echo "REVOKED" > expected
           diff expected actual
 
-      - name: Check user after revocation
+      - name: Check user 1 after revocation
         run: |
           docker exec pki ldapsearch \
               -H ldap://ds.example.com:3389 \
               -x \
               -D "cn=Directory Manager" \
               -w Secret.123 \
-              -b "uid=testuser,ou=people,dc=pki,dc=example,dc=com" \
+              -b "uid=testuser1,ou=people,dc=pki,dc=example,dc=com" \
               -o ldif_wrap=no \
               -t | tee output
 
@@ -238,7 +246,7 @@ jobs:
           echo "0" > expected
           diff expected actual
 
-      - name: Unrevoke user cert
+      - name: Unrevoke user 1 cert
         run: |
           CERT_ID=$(cat cert.id)
           docker exec pki pki -n caadmin ca-cert-release-hold $CERT_ID --force
@@ -250,14 +258,14 @@ jobs:
           echo "VALID" > expected
           diff expected actual
 
-      - name: Check user after unrevocation
+      - name: Check user 1 after unrevocation
         run: |
           docker exec pki ldapsearch \
               -H ldap://ds.example.com:3389 \
               -x \
               -D "cn=Directory Manager" \
               -w Secret.123 \
-              -b "uid=testuser,ou=people,dc=pki,dc=example,dc=com" \
+              -b "uid=testuser1,ou=people,dc=pki,dc=example,dc=com" \
               -o ldif_wrap=no \
               -t | tee output
 
@@ -275,7 +283,7 @@ jobs:
               -inform DER \
               -text -noout
 
-      - name: Wait for expiration
+      - name: Wait for user 1 cert expiration
         run: |
           sleep 120
 
@@ -287,14 +295,142 @@ jobs:
           echo "EXPIRED" > expected
           diff expected actual
 
-      - name: Check user after expiration
+      - name: Check user 1 after expiration
         run: |
           docker exec pki ldapsearch \
               -H ldap://ds.example.com:3389 \
               -x \
               -D "cn=Directory Manager" \
               -w Secret.123 \
-              -b "uid=testuser,ou=people,dc=pki,dc=example,dc=com" \
+              -b "uid=testuser1,ou=people,dc=pki,dc=example,dc=com" \
+              -o ldif_wrap=no \
+              -t | tee output
+
+          # there should be no cert attributes
+          grep "userCertificate;binary:" output | wc -l > actual
+          echo "0" > expected
+          diff expected actual
+
+      - name: Configure unpublish expired job to run manually
+        run: |
+          docker exec pki pki-server ca-config-unset jobsScheduler.job.unpublishExpiredCerts.cron
+
+      - name: Restart CA subsystem
+        run: |
+          docker exec pki pki-server ca-undeploy --wait
+          docker exec pki pki-server ca-deploy --wait
+
+      - name: Check user 2 before enrollment
+        run: |
+          docker exec pki ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -x \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b "uid=testuser2,ou=people,dc=pki,dc=example,dc=com" \
+              -o ldif_wrap=no \
+              -t | tee output
+
+          # there should be no cert attributes
+          grep "userCertificate;binary:" output | wc -l > actual
+          echo "0" > expected
+          diff expected actual
+
+      - name: Enroll user 2 cert
+        run: |
+          docker exec pki pki client-cert-request uid=testuser2 | tee output
+
+          REQUEST_ID=$(sed -n -e 's/^ *Request ID: *\(.*\)$/\1/p' output)
+          echo "REQUEST_ID: $REQUEST_ID"
+
+          docker exec pki pki -n caadmin ca-cert-request-approve $REQUEST_ID --force | tee output
+          CERT_ID=$(sed -n -e 's/^ *Certificate ID: *\(.*\)$/\1/p' output)
+          echo "CERT_ID: $CERT_ID"
+          echo $CERT_ID > cert.id
+
+          docker exec pki pki ca-cert-show $CERT_ID | tee output
+
+          # cert should be valid
+          sed -n "s/^ *Status: \(.*\)$/\1/p" output > actual
+          echo "VALID" > expected
+          diff expected actual
+
+      - name: Check user 2 after enrollment
+        run: |
+          docker exec pki ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -x \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b "uid=testuser2,ou=people,dc=pki,dc=example,dc=com" \
+              -o ldif_wrap=no \
+              -t | tee output
+
+          # there should be one cert attribute
+          grep "userCertificate;binary:" output | wc -l > actual
+          echo "1" > expected
+          diff expected actual
+
+          FILENAME=$(sed -n 's/userCertificate;binary:< file:\/\/\(.*\)$/\1/p' output)
+          echo "FILENAME: $FILENAME"
+
+          # check the cert
+          docker exec pki openssl x509 \
+              -in "$FILENAME" \
+              -inform DER \
+              -text -noout
+
+      - name: Wait for user 2 cert expiration
+        run: |
+          sleep 120
+
+          CERT_ID=$(cat cert.id)
+          docker exec pki pki ca-cert-show $CERT_ID | tee output
+
+          # cert should be expired
+          sed -n "s/^ *Status: \(.*\)$/\1/p" output > actual
+          echo "EXPIRED" > expected
+          diff expected actual
+
+      - name: Check user 2 after expiration
+        run: |
+          docker exec pki ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -x \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b "uid=testuser2,ou=people,dc=pki,dc=example,dc=com" \
+              -o ldif_wrap=no \
+              -t | tee output
+
+          # there should still be one cert attribute
+          grep "userCertificate;binary:" output | wc -l > actual
+          echo "1" > expected
+          diff expected actual
+
+          FILENAME=$(sed -n 's/userCertificate;binary:< file:\/\/\(.*\)$/\1/p' output)
+          echo "FILENAME: $FILENAME"
+
+          # check the cert
+          docker exec pki openssl x509 \
+              -in "$FILENAME" \
+              -inform DER \
+              -text -noout
+
+      - name: Run unpublish job manually
+        run: |
+          docker exec pki pki -n caadmin ca-job-start unpublishExpiredCerts
+
+      - name: Check user 2 after manual execution
+        run: |
+          sleep 10
+
+          docker exec pki ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -x \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b "uid=testuser2,ou=people,dc=pki,dc=example,dc=com" \
               -o ldif_wrap=no \
               -t | tee output
 
