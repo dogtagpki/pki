@@ -25,6 +25,7 @@ import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmstools.cli.SubsystemCLI;
 import com.netscape.cmstools.config.ConfigCLI;
 import com.netscape.cmstools.group.GroupCLI;
+import com.netscape.cmstools.job.JobCLI;
 import com.netscape.cmstools.logging.AuditCLI;
 import com.netscape.cmstools.selftests.SelfTestCLI;
 import com.netscape.cmstools.user.UserCLI;
@@ -43,6 +44,7 @@ public class TKSCLI extends SubsystemCLI {
         addModule(new TKSCertCLI(this));
         addModule(new ConfigCLI(this));
         addModule(new GroupCLI(this));
+        addModule(new JobCLI(this));
         addModule(new SelfTestCLI(this));
         addModule(new TPSConnectorCLI(this));
         addModule(new TKSKeyCLI(this));

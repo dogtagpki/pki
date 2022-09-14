@@ -31,6 +31,11 @@ public class JobClient extends Client {
         resource = createProxy(JobResource.class);
     }
 
+    public JobCollection findJobs() throws Exception {
+        Response response = resource.findJobs();
+        return client.getEntity(response, JobCollection.class);
+    }
+
     public void startJob(String id) throws Exception {
         Response response = resource.startJob(id);
         client.getEntity(response, Void.class);
