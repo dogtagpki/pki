@@ -7,6 +7,7 @@ package com.netscape.cmstools.job;
 
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.job.JobClient;
+import org.dogtagpki.job.JobInfo;
 
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.cmstools.cli.SubsystemCLI;
@@ -21,6 +22,7 @@ public class JobCLI extends CLI {
     public JobCLI(SubsystemCLI parent) {
         super("job", "Job management commands", parent);
 
+        addModule(new JobFindCLI(this));
         addModule(new JobStartCLI(this));
     }
 
@@ -35,5 +37,17 @@ public class JobCLI extends CLI {
         jobClient = new JobClient(client, subsystem);
 
         return jobClient;
+    }
+
+    public static void printJob(JobInfo jobData) {
+        System.out.println("  Job ID: " + jobData.getID());
+        System.out.println("  Enabled: " + jobData.isEnabled());
+
+        String cron = jobData.getCron();
+        if (cron != null) {
+            System.out.println("  Cron: " + cron);
+        }
+
+        System.out.println("  Plugin: " + jobData.getPluginName());
     }
 }

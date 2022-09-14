@@ -10,6 +10,7 @@ import org.dogtagpki.server.rest.AccountService;
 import org.dogtagpki.server.rest.AuditService;
 import org.dogtagpki.server.rest.AuthMethodInterceptor;
 import org.dogtagpki.server.rest.GroupService;
+import org.dogtagpki.server.rest.JobService;
 import org.dogtagpki.server.rest.MessageFormatInterceptor;
 import org.dogtagpki.server.rest.PKIExceptionMapper;
 import org.dogtagpki.server.rest.SelfTestService;
@@ -28,6 +29,9 @@ public class TKSApplication extends Application {
 
         // audit
         classes.add(AuditService.class);
+
+        // job management
+        classes.add(JobService.class);
 
         // selftests
         classes.add(SelfTestService.class);

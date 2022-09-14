@@ -24,6 +24,7 @@ import com.netscape.certsrv.tps.TPSClient;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmstools.cli.SubsystemCLI;
 import com.netscape.cmstools.group.GroupCLI;
+import com.netscape.cmstools.job.JobCLI;
 import com.netscape.cmstools.logging.ActivityCLI;
 import com.netscape.cmstools.logging.AuditCLI;
 import com.netscape.cmstools.selftests.SelfTestCLI;
@@ -52,6 +53,7 @@ public class TPSCLI extends SubsystemCLI {
         addModule(new TPSConfigCLI(this));
         addModule(new ConnectorCLI(this));
         addModule(new GroupCLI(this));
+        addModule(new JobCLI(this));
         addModule(new ProfileCLI(this));
         addModule(new SelfTestCLI(this));
         addModule(new TokenCLI(this));

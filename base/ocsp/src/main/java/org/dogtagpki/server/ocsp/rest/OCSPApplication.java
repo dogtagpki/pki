@@ -10,6 +10,7 @@ import org.dogtagpki.server.rest.AccountService;
 import org.dogtagpki.server.rest.AuditService;
 import org.dogtagpki.server.rest.AuthMethodInterceptor;
 import org.dogtagpki.server.rest.GroupService;
+import org.dogtagpki.server.rest.JobService;
 import org.dogtagpki.server.rest.MessageFormatInterceptor;
 import org.dogtagpki.server.rest.PKIExceptionMapper;
 import org.dogtagpki.server.rest.SelfTestService;
@@ -33,6 +34,9 @@ public class OCSPApplication extends Application {
 
         // security domain
         classes.add(OCSPSecurityDomainService.class);
+
+        // job management
+        classes.add(JobService.class);
 
         // selftests
         classes.add(SelfTestService.class);

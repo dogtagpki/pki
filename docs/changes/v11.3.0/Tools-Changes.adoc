@@ -4,3 +4,8 @@
 
 The `pki-server <subsystem>-redeploy` command has been added to undeploy
 then redeploy a subsystem.
+
+== New pki <subsystem>-job-* CLI ==
+
+The `pki <subsystem>-job-*` commands have been added to manage jobs in a subsystem.
+These commands can only be used by the administrator.
