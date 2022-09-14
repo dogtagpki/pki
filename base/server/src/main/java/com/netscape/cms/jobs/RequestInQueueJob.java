@@ -135,13 +135,13 @@ public class RequestInQueueJob extends Job
         mReqQ = engine.getRequestQueue();
 
         mCron = mConfig.getCron();
+        logger.info("RequestInQueueJob: - cron: " + mCron);
+
         if (mCron == null) {
             return;
         }
 
-        // parse cron string into a JobCron class
         mJobCron = scheduler.createJobCron(mCron);
-        logger.info("RequestInQueueJob: - cron: " + mCron);
 
         // initialize the summary related config info
         ConfigStore sc = mConfig.getSubStore(PROP_SUMMARY, ConfigStore.class);

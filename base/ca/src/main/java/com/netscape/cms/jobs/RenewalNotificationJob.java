@@ -257,6 +257,9 @@ public class RenewalNotificationJob
      */
     @Override
     public void init(JobsScheduler scheduler, String id, String implName, JobConfig config) throws EBaseException {
+
+        logger.info("RenewalNotificationJob: Initializing job " + id);
+
         mConfig = config;
         mId = id;
         mImplName = implName;
@@ -266,11 +269,12 @@ public class RenewalNotificationJob
         mCertDB = engine.getCertificateRepository();
 
         mCron = mConfig.getCron();
+        logger.info("RenewalNotificationJob: - cron: " + mCron);
+
         if (mCron == null) {
             return;
         }
 
-        // parse cron string into a JobCron class
         mJobCron = scheduler.createJobCron(mCron);
     }
 

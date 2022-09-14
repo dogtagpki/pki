@@ -134,7 +134,6 @@ public class PublishCertsJob extends Job
         mRepository = engine.getCertificateRepository();
         mPublisherProcessor = engine.getPublisherProcessor();
 
-        // read from the configuration file
         mCron = mConfig.getCron();
         logger.info("PublishCertsJob: - cron: " + mCron);
 

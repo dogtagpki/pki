@@ -117,6 +117,9 @@ public class UnpublishExpiredJob extends Job
      */
     @Override
     public void init(JobsScheduler scheduler, String id, String implName, JobConfig config) throws EBaseException {
+
+        logger.info("UnpublishExpiredJob: Initializing job " + id);
+
         mConfig = config;
         mId = id;
         mImplName = implName;
@@ -128,13 +131,13 @@ public class UnpublishExpiredJob extends Job
         mRepository = engine.getCertificateRepository();
         mPublisherProcessor = engine.getPublisherProcessor();
 
-        // read from the configuration file
         mCron = mConfig.getCron();
+        logger.info("UnpublishExpiredJob: - cron: " + mCron);
+
         if (mCron == null) {
             return;
         }
 
-        // parse cron string into a JobCron class
         mJobCron = scheduler.createJobCron(mCron);
 
         // initialize the summary related config info
