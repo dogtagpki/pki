@@ -759,6 +759,11 @@
    </context-param>
 
    <context-param>
+      <param-name>resteasy.role.based.security</param-name>
+      <param-value>true</param-value>
+   </context-param>
+
+   <context-param>
       <param-name>resteasy.resource.method-interceptors</param-name>
       <param-value>
          org.jboss.resteasy.core.ResourceMethodSecurityInterceptor
