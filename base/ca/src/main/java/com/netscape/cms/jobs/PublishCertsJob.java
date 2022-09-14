@@ -36,7 +36,6 @@ import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.jobs.JobConfig;
-import com.netscape.cmscore.jobs.JobCron;
 import com.netscape.cmscore.jobs.JobsScheduler;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.notification.EmailFormProcessor;
@@ -136,7 +135,7 @@ public class PublishCertsJob extends Job
         mPublisherProcessor = engine.getPublisherProcessor();
 
         // read from the configuration file
-        mCron = mConfig.getString(JobCron.PROP_CRON);
+        mCron = mConfig.getCron();
         logger.info("PublishCertsJob: - cron: " + mCron);
 
         if (mCron == null) {

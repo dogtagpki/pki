@@ -30,7 +30,6 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.jobs.JobConfig;
-import com.netscape.cmscore.jobs.JobCron;
 import com.netscape.cmscore.jobs.JobsScheduler;
 import com.netscape.cmscore.notification.EmailFormProcessor;
 import com.netscape.cmscore.request.RequestList;
@@ -135,7 +134,7 @@ public class RequestInQueueJob extends Job
 
         mReqQ = engine.getRequestQueue();
 
-        mCron = mConfig.getString(JobCron.PROP_CRON);
+        mCron = mConfig.getCron();
         if (mCron == null) {
             return;
         }

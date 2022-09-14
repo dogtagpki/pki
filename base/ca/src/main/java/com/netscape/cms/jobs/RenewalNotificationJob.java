@@ -266,7 +266,7 @@ public class RenewalNotificationJob
         mCA = engine.getCA();
         mCertDB = engine.getCertificateRepository();
 
-        mCron = mConfig.getString(JobCron.PROP_CRON);
+        mCron = mConfig.getCron();
         if (mCron == null) {
             return;
         }

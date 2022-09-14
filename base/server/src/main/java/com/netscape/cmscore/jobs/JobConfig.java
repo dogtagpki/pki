@@ -46,4 +46,11 @@ public class JobConfig extends ConfigStore {
     public void setPluginName(String pluginName) throws EBaseException {
         putString("pluginName", pluginName);
     }
+
+    /**
+     * Returns jobsScheduler.job.<id>.cron parameter.
+     */
+    public String getCron() throws EBaseException {
+        return getString("cron");
+    }
 }
