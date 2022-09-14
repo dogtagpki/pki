@@ -445,7 +445,7 @@ public class JobsAdminServlet extends AdminServlet {
             }
         }
 
-        substore.put(JobsScheduler.PROP_PLUGIN, implname);
+        substore.setPluginName(implname);
 
         // Instantiate an object for this implementation
         String className = plugin.getClassPath();
@@ -788,14 +788,13 @@ public class JobsAdminServlet extends AdminServlet {
 
         Job oldinst =
                 mJobsSched.getInstances().get(id);
-        ConfigStore oldConfig = oldinst.getConfigStore();
+        JobConfig oldConfig = oldinst.getConfigStore();
 
         String[] oldConfigParms = oldinst.getConfigParams();
         NameValuePairs saveParams = new NameValuePairs();
 
         // implName is always required so always include it it.
-        saveParams.put(JobsScheduler.PROP_PLUGIN,
-                oldConfig.get(JobsScheduler.PROP_PLUGIN));
+        saveParams.put(JobsScheduler.PROP_PLUGIN, oldConfig.getPluginName());
         if (oldConfigParms != null) {
             for (int i = 0; i < oldConfigParms.length; i++) {
                 String key = oldConfigParms[i];
@@ -822,7 +821,7 @@ public class JobsAdminServlet extends AdminServlet {
 
         JobConfig substore = instancesConfig.createJobConfig(id);
 
-        substore.put(JobsScheduler.PROP_PLUGIN, implname);
+        substore.setPluginName(implname);
         if (configParams != null) {
             for (int i = 0; i < configParams.length; i++) {
                 String key = configParams[i];

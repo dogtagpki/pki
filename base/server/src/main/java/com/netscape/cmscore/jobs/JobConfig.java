@@ -32,4 +32,18 @@ public class JobConfig extends ConfigStore {
     public boolean isEnabled() throws EBaseException {
         return getBoolean("enabled", false);
     }
+
+    /**
+     * Returns jobsScheduler.job.<id>.pluginName parameter.
+     */
+    public String getPluginName() throws EBaseException {
+        return getString("pluginName");
+    }
+
+    /**
+     * Sets jobsScheduler.job.<id>.pluginName parameter.
+     */
+    public void setPluginName(String pluginName) throws EBaseException {
+        putString("pluginName", pluginName);
+    }
 }

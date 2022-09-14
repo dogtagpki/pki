@@ -181,7 +181,7 @@ public class JobsScheduler implements Runnable {
             logger.info("JobsScheduler: - " + jobName);
 
             JobConfig jobConfig = c.getJobConfig(jobName);
-            String implName = jobConfig.getString(PROP_PLUGIN);
+            String implName = jobConfig.getPluginName();
             JobPlugin plugin = mJobPlugins.get(implName);
 
             if (plugin == null) {
