@@ -58,7 +58,14 @@ jobs:
 
       - name: Wait for PKI server to start
         run: |
-          tests/bin/pki-start-wait.sh client http://pki.example.com:8080
+          docker exec client curl \
+              --retry 60 \
+              --retry-delay 0 \
+              --retry-connrefused \
+              -s \
+              -k \
+              -o /dev/null \
+              http://pki.example.com:8080
 
       - name: Stop PKI server
         run: |
