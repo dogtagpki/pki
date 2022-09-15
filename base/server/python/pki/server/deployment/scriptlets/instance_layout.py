@@ -191,9 +191,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # subsystem(s) will eventually be deployed.
         #
         logger.info('Deploying HTTP rewrite rules (rewrite.config)')
-        os.symlink(
+        instance.symlink(
             os.path.join(shared_conf_path, 'Catalina', 'localhost', 'rewrite.config'),
-            os.path.join(localhost_dir, 'rewrite.config')
+            os.path.join(localhost_dir, 'rewrite.config'),
+            force=True,
         )
 
         logger.info('Deploying ROOT web application')
