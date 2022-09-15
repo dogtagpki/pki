@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.SignatureException;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
@@ -24,11 +26,16 @@ import org.apache.commons.codec.binary.Base64;
 
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.SubjectAlternativeNameExtension;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.BadRequestException;
+import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * The EST API frontend.
@@ -123,18 +130,33 @@ public class ESTFrontend {
     private Response enroll(Optional<String> label, byte[] data) throws PKIException {
         PKCS10 csr = parseCSR(data);
 
-        Object authzData = getRequestAuthorizer().authorizeSimpleenroll(makeAuthzData(label), csr);
+        Object authzResult = getRequestAuthorizer().authorizeSimpleenroll(makeAuthzData(label), csr);
 
-        X509Certificate cert = getBackend().simpleenroll(label, csr, authzData);
+        X509Certificate cert = getBackend().simpleenroll(label, csr, authzResult);
         return certResponse(cert);
     }
 
     private Response reenroll(Optional<String> label, byte[] data) throws PKIException {
         PKCS10 csr = parseCSR(data);
 
-        Object authzData = getRequestAuthorizer().authorizeSimplereenroll(makeAuthzData(label), csr);
+        ESTRequestAuthorizationData authzData = makeAuthzData(label);
 
-        X509Certificate cert = getBackend().simplereenroll(label, csr, authzData);
+        // TODO implement interface for retrieval of to-be-renewed cert.
+        // For now, we unconditionally use the client certificate (if available).
+        X509Certificate toBeRenewed = null;
+        if (authzData.clientCertChain != null && authzData.clientCertChain.length > 0) {
+            toBeRenewed = authzData.clientCertChain[0];
+        }
+
+        if (toBeRenewed == null) {
+            throw new ForbiddenException("Unable to locate certificate to be renewed.");
+        }
+
+        ensureCSRMatchesToBeRenewedCert(csr, toBeRenewed);
+
+        Object authzResult = getRequestAuthorizer().authorizeSimplereenroll(authzData, csr);
+
+        X509Certificate cert = getBackend().simplereenroll(label, csr, authzResult);
         return certResponse(cert);
     }
 
@@ -181,6 +203,74 @@ public class ESTFrontend {
             // Other kinds of errors to be treated as server error
             throw new PKIException("Internal server error decoding CSR: "+ e, e);
         }
+    }
+
+    /** Ensure subject info in CSR matches the certificate.
+     *
+     * https://www.rfc-editor.org/rfc/rfc7030#section-4.2.2 states:
+     *
+     *    The request Subject field and SubjectAltName extension MUST be
+     *    identical to the corresponding fields in the certificate being
+     *    renewed/rekeyed.
+     *
+     * This function implements that requirement.
+     *
+     * @throws ForbiddenException if fields are not identical.
+     */
+    public static void ensureCSRMatchesToBeRenewedCert(PKCS10 csr, X509Certificate cert_)
+            throws ForbiddenException {
+        // use a JSS X509CertImpl for easier access to the inner parts
+        X509CertImpl cert;
+        if (cert_ instanceof X509CertImpl) {
+            cert = (X509CertImpl) cert_;
+        } else {
+            // construct X509CertImpl
+            try {
+                cert = new X509CertImpl(cert_.getEncoded());
+            } catch (CertificateException e) {
+                throw new ForbiddenException("Failed to decode certificate to be renewed.");
+            }
+        }
+
+        // Compare Subject DNs.
+        //
+        // This comparison does not perform StringPrep or caseIgnoreMatch.
+        // However, RFC 7030 says the values must be "identical", not "equal"
+        // or "equivalent", so this seems reasonable.
+        //
+        if (!csr.getSubjectName().equals(cert.getSubjectName())) {
+            throw new ForbiddenException("CSR subject does not match certificate to be renewed.");
+        }
+
+        // Compare SAN
+        SubjectAlternativeNameExtension csrSAN = null;
+        try {
+            csrSAN = (SubjectAlternativeNameExtension)
+                CryptoUtil.getExtensionFromPKCS10(csr, SubjectAlternativeNameExtension.NAME);
+        } catch (IOException | CertificateException e) {
+            throw new BadRequestException("Failed to decode SAN extension in CSR");
+        }
+
+        // TODO get SAN from t-b-r cert; compare
+        SubjectAlternativeNameExtension certSAN = (SubjectAlternativeNameExtension)
+            cert.getExtension(PKIXExtensions.SubjectAlternativeName_Id.toString());
+
+        if (csrSAN != null && certSAN != null) {
+            if (!Arrays.equals(csrSAN.getExtensionValue(), certSAN.getExtensionValue())) {
+                throw new ForbiddenException(
+                    "SAN extensions of certificate to be renewed and CSR are not identical.");
+            }
+        } else if (csrSAN == null && certSAN != null) {
+            throw new ForbiddenException(
+                "Certificate to be renewed has SubjectAlternativeName extension, "
+                + "but CSR does not."
+            );
+        } else if (csrSAN != null && certSAN == null) {
+            throw new ForbiddenException(
+                "Certificate to be renewed does not have SubjectAlternativeName extension, "
+                + "but CSR does."
+            );
+        } // else both null, which is valid
     }
 
     /** Build a response containing the issued certificate
