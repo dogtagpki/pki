@@ -61,9 +61,19 @@ jobs:
       - name: Install dependencies in client container
         run: docker exec client dnf install -y certbot
 
+      - name: Wait for ACME container to start
+        run: |
+          docker exec client curl \
+              --retry 60 \
+              --retry-delay 0 \
+              --retry-connrefused \
+              -s \
+              -k \
+              -o /dev/null \
+              http://pki.example.com:8080/acme/directory
+
       - name: Verify certbot in client container
         run: |
-          tests/bin/pki-start-wait.sh client http://pki.example.com:8080/acme/directory
           docker exec client certbot register \
               --server http://pki.example.com:8080/acme/directory \
               --email user1@example.com \
