@@ -179,8 +179,11 @@ public class ExternalProcessRequestAuthorizer extends ESTRequestAuthorizer {
             if (data.principal instanceof GenericPrincipal) {
                 roles = ((GenericPrincipal) data.principal).getRoles();
             }
-            generator.writeFieldName("roles");
-            generator.writeArray(roles, 0, roles.length);
+            generator.writeArrayFieldStart("roles");
+            for (int i = 0; i < roles.length; i++) {
+                generator.writeString(roles[i]);
+            }
+            generator.writeEndArray();
 
             generator.writeEndObject();  // end principal
 
