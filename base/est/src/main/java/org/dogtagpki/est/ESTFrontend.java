@@ -29,6 +29,7 @@ import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
 import org.mozilla.jss.netscape.security.x509.SubjectAlternativeNameExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ForbiddenException;
@@ -238,7 +239,8 @@ public class ESTFrontend {
         // However, RFC 7030 says the values must be "identical", not "equal"
         // or "equivalent", so this seems reasonable.
         //
-        if (!csr.getSubjectName().equals(cert.getSubjectName())) {
+        X500Name certSubj = (X500Name) cert.getSubjectDN();
+        if (!csr.getSubjectName().equals(certSubj)) {
             throw new ForbiddenException("CSR subject does not match certificate to be renewed.");
         }
 
