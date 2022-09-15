@@ -1281,7 +1281,7 @@ public class CRSEnrollment extends HttpServlet {
             sk = kw.unwrapSymmetric(req.getWrappedKey(),
                               skt,
                               SymmetricKey.Usage.DECRYPT,
-                              0); // keylength is ignored
+                              ea.getKeyStrength() / 8);
 
             skinternal = cx.getKeyGenerator().clone(sk);
 
