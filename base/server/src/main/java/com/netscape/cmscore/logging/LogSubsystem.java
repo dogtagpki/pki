@@ -56,7 +56,6 @@ public class LogSubsystem implements ILogSubsystem {
 
     public static final String PROP_CLASS = "class";
     public static final String PROP_PLUGIN = "pluginName";
-    public static final String PROP_INSTANCE = "instance";
 
     public Hashtable<String, LogPlugin> mLogPlugins = new Hashtable<>();
     public Hashtable<String, ILogEventListener> mLogInsts = new Hashtable<>();
@@ -102,12 +101,12 @@ public class LogSubsystem implements ILogSubsystem {
         logger.trace("loaded logger plugins");
 
         // load log instances
-        ConfigStore c = config.getSubStore(PROP_INSTANCE, ConfigStore.class);
-        Enumeration<String> instances = c.getSubStoreNames();
+        LoggersConfig loggersConfig = mConfig.getLoggersConfig();
+        Enumeration<String> instances = loggersConfig.getSubStoreNames();
 
         while (instances.hasMoreElements()) {
             String insName = instances.nextElement();
-            String implName = c.getString(insName + "." +
+            String implName = loggersConfig.getString(insName + "." +
                     PROP_PLUGIN);
             LogPlugin plugin =
                     mLogPlugins.get(implName);
@@ -121,7 +120,7 @@ public class LogSubsystem implements ILogSubsystem {
 
             try {
                 logInst = (ILogEventListener) Class.forName(className).getDeclaredConstructor().newInstance();
-                ConfigStore pConfig = c.getSubStore(insName, ConfigStore.class);
+                ConfigStore pConfig = loggersConfig.getSubStore(insName, ConfigStore.class);
 
                 logInst.init(this, pConfig);
                 // for view from console

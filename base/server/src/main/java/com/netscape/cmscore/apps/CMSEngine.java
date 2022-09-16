@@ -79,6 +79,7 @@ import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmscore.logging.LogSubsystem;
 import com.netscape.cmscore.logging.LoggingConfig;
+import com.netscape.cmscore.logging.LoggersConfig;
 import com.netscape.cmscore.registry.PluginRegistry;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestNotifier;
@@ -969,8 +970,8 @@ public class CMSEngine {
          * establish signing key reference using audit signing cert
          * for HSM failover detection
          */
-        LoggingConfig loggingConfig = config.getLoggingConfig();
-        String mSAuditCertNickName = loggingConfig.getString("instance.SignedAudit.signedAuditCertNickname");
+        LoggersConfig loggersConfig = config.getLoggingConfig().getLoggersConfig();
+        String mSAuditCertNickName = loggersConfig.getString("SignedAudit.signedAuditCertNickname");
         logger.debug("CMSEngine: audit signing cert: " + mSAuditCertNickName);
 
         CryptoManager mManager = CryptoManager.getInstance();

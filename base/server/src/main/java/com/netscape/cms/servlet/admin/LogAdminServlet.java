@@ -45,8 +45,9 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.logging.LogSubsystem;
-import com.netscape.cmscore.logging.LoggingConfig;
 import com.netscape.cmscore.logging.LoggerPluginsConfig;
+import com.netscape.cmscore.logging.LoggersConfig;
+import com.netscape.cmscore.logging.LoggingConfig;
 
 /**
  * A class representings an administration servlet for logging
@@ -777,7 +778,7 @@ public class LogAdminServlet extends AdminServlet {
             Vector<String> configParams = logSubsystem.getLogDefaultParams(implname);
 
             LoggingConfig destStore = mConfig.getLoggingConfig();
-            ConfigStore instancesConfig = destStore.getSubStore("instance", ConfigStore.class);
+            LoggersConfig instancesConfig = destStore.getLoggersConfig();
             ConfigStore substore = instancesConfig.makeSubStore(id);
 
             if (configParams != null) {
@@ -1054,7 +1055,7 @@ public class LogAdminServlet extends AdminServlet {
 
             // remove the configuration.
             LoggingConfig destStore = mConfig.getLoggingConfig();
-            ConfigStore instancesConfig = destStore.getSubStore("instance", ConfigStore.class);
+            LoggersConfig instancesConfig = destStore.getLoggersConfig();
 
             instancesConfig.removeSubStore(id);
             // commiting
@@ -1451,7 +1452,7 @@ public class LogAdminServlet extends AdminServlet {
             // remove old substore.
 
             LoggingConfig destStore = mConfig.getLoggingConfig();
-            ConfigStore instancesConfig = destStore.getSubStore("instance", ConfigStore.class);
+            LoggersConfig instancesConfig = destStore.getLoggersConfig();
 
             // create new substore.
 
@@ -2020,7 +2021,7 @@ public class LogAdminServlet extends AdminServlet {
     }
 
     // convenience routine.
-    private static void restore(ConfigStore store,
+    private static void restore(LoggersConfig store,
             String id, NameValuePairs saveParams) {
         store.removeSubStore(id);
         ConfigStore rstore = store.makeSubStore(id);

@@ -31,4 +31,11 @@ public class LoggingConfig extends ConfigStore {
     public LoggerPluginsConfig getLoggerPluginsConfig() {
         return getSubStore("impl", LoggerPluginsConfig.class);
     }
+
+    /**
+     * Returns log.instance.* parameters.
+     */
+    public LoggersConfig getLoggersConfig() {
+        return getSubStore("instance", LoggersConfig.class);
+    }
 }
