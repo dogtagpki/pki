@@ -75,7 +75,7 @@ public class CertRecordProcessor extends ElementProcessor {
         }
 
         issuingDistPointAttempted = true;
-        exts = (CMSCRLExtensions) issuingPoint.getCRLExtensions();
+        exts = issuingPoint.getCRLExtensions();
 
         if (exts == null) {
             return result;

@@ -32,7 +32,6 @@ import java.util.Vector;
 import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
-import org.dogtagpki.server.ca.ICMSCRLExtensions;
 import org.dogtagpki.server.ca.ProfileSubsystemConfig;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.CRLExtensions;
@@ -495,7 +494,7 @@ public class CRLIssuingPoint implements Runnable {
      *
      * @return list of CRL extensions
      */
-    public ICMSCRLExtensions getCRLExtensions() {
+    public CMSCRLExtensions getCRLExtensions() {
         return mCMSCRLExtensions;
     }
 
@@ -2355,7 +2354,7 @@ public class CRLIssuingPoint implements Runnable {
             return null;
         }
 
-        CMSCRLExtensions exts = (CMSCRLExtensions) this.getCRLExtensions();
+        CMSCRLExtensions exts = this.getCRLExtensions();
         CRLExtensions ext = new CRLExtensions();
 
         Vector<String> extNames = exts.getCRLExtensionNames();

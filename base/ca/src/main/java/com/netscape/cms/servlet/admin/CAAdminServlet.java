@@ -31,10 +31,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
-import org.dogtagpki.server.ca.ICMSCRLExtensions;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.util.Utils;
 
+import com.netscape.ca.CMSCRLExtensions;
 import com.netscape.ca.CRLConfig;
 import com.netscape.ca.CRLIssuingPoint;
 import com.netscape.ca.CRLIssuingPointConfig;
@@ -958,7 +958,7 @@ public class CAAdminServlet extends AdminServlet {
         }
 
         CRLIssuingPoint ip = engine.getCRLIssuingPoint(ipId);
-        ICMSCRLExtensions crlExts = ip.getCRLExtensions();
+        CMSCRLExtensions crlExts = ip.getCRLExtensions();
         String id = req.getParameter(Constants.RS_ID);
 
         if (id != null) {
@@ -1004,7 +1004,7 @@ public class CAAdminServlet extends AdminServlet {
             }
 
             CRLIssuingPoint ip = engine.getCRLIssuingPoint(ipId);
-            ICMSCRLExtensions crlExts = ip.getCRLExtensions();
+            CMSCRLExtensions crlExts = ip.getCRLExtensions();
 
             CAConfig caConfig = mCA.getConfigStore();
             CRLConfig crlConfig = caConfig.getCRLConfig();
@@ -1162,7 +1162,7 @@ public class CAAdminServlet extends AdminServlet {
         }
         if (ipId != null) {
             CRLIssuingPoint ip = engine.getCRLIssuingPoint(ipId);
-            ICMSCRLExtensions crlExts = ip.getCRLExtensions();
+            CMSCRLExtensions crlExts = ip.getCRLExtensions();
             name = crlExts.getClassPath(implName);
         }
         if (name != null) {

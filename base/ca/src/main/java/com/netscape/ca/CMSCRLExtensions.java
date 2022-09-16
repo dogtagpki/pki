@@ -28,7 +28,6 @@ import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
 import org.dogtagpki.server.ca.ICMSCRLExtension;
-import org.dogtagpki.server.ca.ICMSCRLExtensions;
 import org.mozilla.jss.netscape.security.extensions.AuthInfoAccessExtension;
 import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.CRLExtensions;
@@ -53,7 +52,10 @@ import com.netscape.cms.crl.CMSIssuingDistributionPointExtension;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 
-public class CMSCRLExtensions implements ICMSCRLExtensions {
+/**
+ * A class representing a list of CRL extensions.
+ */
+public class CMSCRLExtensions {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSCRLExtensions.class);
 
@@ -492,7 +494,12 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
         }
     }
 
-    @Override
+    /**
+     * Reads configuration data and returns them as name value pairs.
+     *
+     * @param id extension id
+     * @return name value pairs with configuration data
+     */
     public NameValuePairs getConfigParams(String id) {
         NameValuePairs nvp = null;
 
@@ -562,7 +569,14 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
         return nvp;
     }
 
-    @Override
+    /**
+     * Updates configuration store for extension identified by id
+     * with data delivered in name value pairs.
+     *
+     * @param id extension id
+     * @param nvp name value pairs with new configuration data
+     * @param config configuration store
+     */
     public void setConfigParams(String id, NameValuePairs nvp, ConfigStore config) {
 
         CAEngine engine = CAEngine.getInstance();
@@ -615,7 +629,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
                 boolean issuingDistPointExtEnabled = false;
                 CMSCRLExtensions cmsCRLExtensions = null;
                 if (ip != null) {
-                    cmsCRLExtensions = (CMSCRLExtensions) ip.getCRLExtensions();
+                    cmsCRLExtensions = ip.getCRLExtensions();
                 }
                 if (cmsCRLExtensions != null) {
                     issuingDistPointExtEnabled =
@@ -679,7 +693,12 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
         }
     }
 
-    @Override
+    /**
+     * Returns class name with its path.
+     *
+     * @param name extension id
+     * @return class name with its path
+     */
     public String getClassPath(String name) {
         Enumeration<String> enum1 = mCRLExtensionClassNames.elements();
 
