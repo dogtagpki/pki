@@ -228,7 +228,7 @@ public class LdapAuthInfo {
     public String getClientCertNickname() throws EBaseException {
 
         if (nickname == null) {
-            nickname = config.getString(PROP_CLIENTCERTNICKNAME);
+            nickname = config.getClientCertNickname();
         }
 
         return nickname;

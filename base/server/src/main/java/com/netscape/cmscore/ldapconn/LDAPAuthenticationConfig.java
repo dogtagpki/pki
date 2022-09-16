@@ -29,4 +29,11 @@ public class LDAPAuthenticationConfig extends ConfigStore {
     public String getAuthType() throws EBaseException {
         return getString(LdapAuthInfo.PROP_LDAPAUTHTYPE);
     }
+
+    /**
+     * Returns <LDAP>.ldapauth.clientCertNickname parameter.
+     */
+    public String getClientCertNickname() throws EBaseException {
+        return getString(LdapAuthInfo.PROP_CLIENTCERTNICKNAME);
+    }
 }

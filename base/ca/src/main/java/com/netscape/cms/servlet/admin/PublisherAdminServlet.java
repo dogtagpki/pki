@@ -722,7 +722,7 @@ public class PublisherAdminServlet extends AdminServlet {
             if (authType.equals(LdapAuthInfo.LDAP_SSLCLIENTAUTH_STR)) {
                 try {
                     //certNickName = authInfo.getParms()[0];
-                    certNickName = authConfig.getString(LdapAuthInfo.PROP_CLIENTCERTNICKNAME);
+                    certNickName = authConfig.getClientCertNickname();
 
                     PKISocketFactory socketFactory = new PKISocketFactory(certNickName);
                     socketFactory.init(socketConfig);
