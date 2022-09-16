@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
 
-import org.dogtagpki.server.ca.ICMSCRLExtension;
+import org.dogtagpki.server.ca.CMSCRLExtension;
 import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.Extension;
@@ -45,7 +45,8 @@ import com.netscape.cmscore.base.ConfigStore;
  * @version $Revision$, $Date$
  */
 public class CMSAuthorityKeyIdentifierExtension
-        implements ICMSCRLExtension, IExtendedPluginInfo {
+        extends CMSCRLExtension
+        implements IExtendedPluginInfo {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSAuthorityKeyIdentifierExtension.class);
 

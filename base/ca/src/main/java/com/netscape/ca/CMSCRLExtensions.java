@@ -27,7 +27,7 @@ import java.util.Vector;
 import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
-import org.dogtagpki.server.ca.ICMSCRLExtension;
+import org.dogtagpki.server.ca.CMSCRLExtension;
 import org.mozilla.jss.netscape.security.extensions.AuthInfoAccessExtension;
 import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.CRLExtensions;
@@ -377,10 +377,10 @@ public class CMSCRLExtensions {
 
                 try {
                     @SuppressWarnings("unchecked")
-                    Class<ICMSCRLExtension> crlExtClass = (Class<ICMSCRLExtension>) Class.forName(extClass);
+                    Class<CMSCRLExtension> crlExtClass = (Class<CMSCRLExtension>) Class.forName(extClass);
 
                     if (crlExtClass != null) {
-                        ICMSCRLExtension cmsCRLExt = crlExtClass.getDeclaredConstructor().newInstance();
+                        CMSCRLExtension cmsCRLExt = crlExtClass.getDeclaredConstructor().newInstance();
 
                         if (cmsCRLExt != null) {
                             String id = cmsCRLExt.getCRLExtOID();
@@ -464,10 +464,10 @@ public class CMSCRLExtensions {
 
             try {
                 @SuppressWarnings("unchecked")
-                Class<ICMSCRLExtension> extClass = (Class<ICMSCRLExtension>) Class.forName(name);
+                Class<CMSCRLExtension> extClass = (Class<CMSCRLExtension>) Class.forName(name);
 
                 if (extClass != null) {
-                    ICMSCRLExtension cmsCRLExt = extClass.getDeclaredConstructor().newInstance();
+                    CMSCRLExtension cmsCRLExt = extClass.getDeclaredConstructor().newInstance();
 
                     if (cmsCRLExt != null) {
                         if (ext != null) {
@@ -541,7 +541,7 @@ public class CMSCRLExtensions {
                         Class<?> extClass = Class.forName(name);
 
                         if (extClass != null) {
-                            ICMSCRLExtension cmsCRLExt = (ICMSCRLExtension) extClass.getDeclaredConstructor().newInstance();
+                            CMSCRLExtension cmsCRLExt = (CMSCRLExtension) extClass.getDeclaredConstructor().newInstance();
 
                             if (cmsCRLExt != null) {
                                 cmsCRLExt.getConfigParams(

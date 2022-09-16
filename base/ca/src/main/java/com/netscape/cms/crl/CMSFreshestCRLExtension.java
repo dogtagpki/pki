@@ -19,7 +19,7 @@ package com.netscape.cms.crl;
 
 import java.io.IOException;
 
-import org.dogtagpki.server.ca.ICMSCRLExtension;
+import org.dogtagpki.server.ca.CMSCRLExtension;
 import org.mozilla.jss.netscape.security.x509.CRLDistributionPoint;
 import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.FreshestCRLExtension;
@@ -42,7 +42,8 @@ import com.netscape.cmscore.base.ConfigStore;
  * @version $Revision$, $Date$
  */
 public class CMSFreshestCRLExtension
-        implements ICMSCRLExtension, IExtendedPluginInfo {
+        extends CMSCRLExtension
+        implements IExtendedPluginInfo {
 
     public final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSFreshestCRLExtension.class);
 

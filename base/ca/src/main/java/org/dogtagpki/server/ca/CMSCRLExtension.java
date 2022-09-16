@@ -28,14 +28,14 @@ import com.netscape.cmscore.base.ConfigStore;
  *
  * @version $Revision$, $Date$
  */
-public interface ICMSCRLExtension {
+public abstract class CMSCRLExtension {
 
     /**
      * Returns CRL extension OID string.
      *
      * @return OID of CRL extension
      */
-    public String getCRLExtOID();
+    public abstract String getCRLExtOID();
 
     /**
      * Sets extension criticality and returns extension
@@ -45,7 +45,7 @@ public interface ICMSCRLExtension {
      * @param critical new criticality to be assigned to CRL extension
      * @return extension with new criticality
      */
-    Extension setCRLExtensionCriticality(Extension ext,
+    public abstract Extension setCRLExtensionCriticality(Extension ext,
             boolean critical);
 
     /**
@@ -57,7 +57,7 @@ public interface ICMSCRLExtension {
      * @param critical criticality to be assigned to CRL extension
      * @return extension new CRL extension
      */
-    Extension getCRLExtension(ConfigStore config, Object crlIssuingPoint, boolean critical);
+    public abstract Extension getCRLExtension(ConfigStore config, Object crlIssuingPoint, boolean critical);
 
     /**
      * Reads configuration data and converts them to name value pairs.
@@ -65,5 +65,5 @@ public interface ICMSCRLExtension {
      * @param config configuration store
      * @param nvp name value pairs obtained from configuration data
      */
-    public void getConfigParams(ConfigStore config, NameValuePairs nvp);
+    public abstract void getConfigParams(ConfigStore config, NameValuePairs nvp);
 }

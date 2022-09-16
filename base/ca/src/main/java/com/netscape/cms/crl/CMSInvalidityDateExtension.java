@@ -20,7 +20,7 @@ package com.netscape.cms.crl;
 import java.io.IOException;
 import java.util.Date;
 
-import org.dogtagpki.server.ca.ICMSCRLExtension;
+import org.dogtagpki.server.ca.CMSCRLExtension;
 import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.InvalidityDateExtension;
 import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
@@ -36,7 +36,8 @@ import com.netscape.cmscore.base.ConfigStore;
  * @version $Revision$, $Date$
  */
 public class CMSInvalidityDateExtension
-        implements ICMSCRLExtension, IExtendedPluginInfo {
+        extends CMSCRLExtension
+        implements IExtendedPluginInfo {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSInvalidityDateExtension.class);
 

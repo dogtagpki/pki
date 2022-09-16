@@ -21,7 +21,7 @@ import java.io.IOException;
 
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
-import org.dogtagpki.server.ca.ICMSCRLExtension;
+import org.dogtagpki.server.ca.CMSCRLExtension;
 import org.mozilla.jss.netscape.security.extensions.AuthInfoAccessExtension;
 import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
 import org.mozilla.jss.netscape.security.x509.Extension;
@@ -42,7 +42,8 @@ import com.netscape.cmscore.base.ConfigStore;
  * @version $Revision$, $Date$
  */
 public class CMSAuthInfoAccessExtension
-        implements ICMSCRLExtension, IExtendedPluginInfo {
+        extends CMSCRLExtension
+        implements IExtendedPluginInfo {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSAuthInfoAccessExtension.class);
 

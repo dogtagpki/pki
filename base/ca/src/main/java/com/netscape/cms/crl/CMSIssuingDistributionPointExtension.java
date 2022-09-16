@@ -20,7 +20,7 @@ package com.netscape.cms.crl;
 import java.io.IOException;
 import java.util.StringTokenizer;
 
-import org.dogtagpki.server.ca.ICMSCRLExtension;
+import org.dogtagpki.server.ca.CMSCRLExtension;
 import org.mozilla.jss.netscape.security.util.BitArray;
 import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.GeneralNames;
@@ -45,7 +45,8 @@ import com.netscape.cmscore.base.ConfigStore;
  * @version $Revision$, $Date$
  */
 public class CMSIssuingDistributionPointExtension
-        implements ICMSCRLExtension, IExtendedPluginInfo {
+        extends CMSCRLExtension
+        implements IExtendedPluginInfo {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSIssuingDistributionPointExtension.class);
 
