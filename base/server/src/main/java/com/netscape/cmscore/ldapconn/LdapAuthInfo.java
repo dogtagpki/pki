@@ -169,7 +169,7 @@ public class LdapAuthInfo {
         String bindPassword = config.getBindPassword();
 
         // Next, see if this password has been requested before
-        String prompt = config.getString(PROP_BINDPW_PROMPT, null);
+        String prompt = config.getBindPasswordPrompt();
 
         if (prompt == null) {
             prompt = "LDAP Authentication";
