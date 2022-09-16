@@ -71,9 +71,7 @@ import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.cmscore.dbs.CRLRepository;
 import com.netscape.cmscore.dbs.CertRecord;
-import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
-import com.netscape.cmscore.dbs.ElementProcessor;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.ldap.LdapRule;
 import com.netscape.cmscore.request.CertRequestRepository;
@@ -2199,34 +2197,19 @@ public class CRLIssuingPoint implements Runnable {
      * <i>Override this method to make a CRL other than the
      * full/complete CRL.</i>
      *
-     * @param p certificate record processor
-     * @return Enumeration of CertRecords to put into CRL.
      * @exception EBaseException if an error occured in the database.
      */
-    public void processRevokedCerts(ElementProcessor p)
-            throws EBaseException {
-        CertRecordProcessor cp = (CertRecordProcessor) p;
+    public void processRevokedCerts() throws EBaseException {
+
+        logger.info("CRLIssuingPoint: Processing revoked certs");
+
+        CertRecordProcessor cp = new CertRecordProcessor(mCRLCerts, this, mAllowExtensions);
+
         String filter = getFilter();
+        logger.info("CRLIssuingPoint: - filter: " + filter);
 
         CAEngine engine = CAEngine.getInstance();
-        synchronized (engine.certStatusUpdateTask) {
-
-            logger.debug("Starting processRevokedCerts (entered lock)");
-            // this code and CertStatusUpdateTask.updateCertStatus() are mutually exclusive
-
-            CertRecordList list = mCertRepository.findCertRecordsInList(
-                    filter,
-                    new String[] {
-                            CertRecord.ATTR_ID, CertRecord.ATTR_REVO_INFO, "objectclass"
-                    },
-                    "serialno",
-                    mPageSize);
-
-            int totalSize = list.getSize();
-
-            list.processCertRecords(0, totalSize - 1, cp);
-            logger.debug("processRevokedCerts done");
-        }
+        engine.certStatusUpdateTask.processRevokedCerts(cp, filter, mPageSize);
     }
 
     /**
@@ -2927,8 +2910,7 @@ public class CRLIssuingPoint implements Runnable {
             if (statsSub != null) {
                 statsSub.startTiming("generation");
             }
-            CertRecordProcessor cp = new CertRecordProcessor(mCRLCerts, this, mAllowExtensions);
-            processRevokedCerts(cp);
+            processRevokedCerts();
 
             if (statsSub != null) {
                 statsSub.endTiming("generation");

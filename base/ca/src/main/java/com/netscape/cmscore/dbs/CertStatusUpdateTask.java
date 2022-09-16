@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 import org.dogtagpki.server.ca.CAEngine;
 
 import com.netscape.ca.CRLIssuingPoint;
+import com.netscape.ca.CertRecordProcessor;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.apps.CMS;
 
@@ -217,12 +218,13 @@ public class CertStatusUpdateTask implements Runnable {
     /**
      * Updates certificate status.
      *
+     * This code and processRevokedCerts() are mutually exclusive.
+     *
      * @exception EBaseException failed to update
      */
     public synchronized void updateCertStatus() throws Exception {
 
         logger.info("CertStatusUpdateTask: Updating cert status");
-        // this code and CRLIssuingPoint.processRevokedCerts() are mutually exclusive
 
         logger.debug(CMS.getLogMessage("CMSCORE_DBS_START_VALID_SEARCH"));
         updateInvalidCertificates();
@@ -235,6 +237,32 @@ public class CertStatusUpdateTask implements Runnable {
         logger.debug(CMS.getLogMessage("CMSCORE_DBS_START_REVOKED_EXPIRED_SEARCH"));
         updateRevokedExpiredCertificates();
         logger.debug(CMS.getLogMessage("CMSCORE_DBS_FINISH_REVOKED_EXPIRED_SEARCH"));
+    }
+
+    /**
+     * Processes revoked certificates.
+     *
+     * This code and updateCertStatus() are mutually exclusive.
+     */
+    public synchronized void processRevokedCerts(
+            CertRecordProcessor cp,
+            String filter,
+            int pageSize) throws EBaseException {
+
+        logger.info("CertStatusUpdateTask: Processing revoked certs");
+
+        CertRecordList list = repository.findCertRecordsInList(
+                filter,
+                new String[] {
+                        CertRecord.ATTR_ID, CertRecord.ATTR_REVO_INFO, "objectclass"
+                },
+                "serialno",
+                pageSize);
+
+        int totalSize = list.getSize();
+        list.processCertRecords(0, totalSize - 1, cp);
+
+        logger.info("CertStatusUpdateTask: Done processing revoked certs");
     }
 
     @Override
