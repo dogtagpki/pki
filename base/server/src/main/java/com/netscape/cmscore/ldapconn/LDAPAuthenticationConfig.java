@@ -43,4 +43,11 @@ public class LDAPAuthenticationConfig extends ConfigStore {
     public String getBindDN() throws EBaseException {
         return getString(LdapAuthInfo.PROP_BINDDN);
     }
+
+    /**
+     * Returns <LDAP>.ldapauth.bindPassword parameter.
+     */
+    public String getBindPassword() throws EBaseException {
+        return getString(LdapAuthInfo.PROP_BINDPW, null);
+    }
 }

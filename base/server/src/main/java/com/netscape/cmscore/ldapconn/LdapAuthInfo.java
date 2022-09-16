@@ -166,7 +166,7 @@ public class LdapAuthInfo {
 
         // Passwords should only be written to the file for testing,
         // never in production
-        String bindPassword = config.getString(PROP_BINDPW, null);
+        String bindPassword = config.getBindPassword();
 
         // Next, see if this password has been requested before
         String prompt = config.getString(PROP_BINDPW_PROMPT, null);
