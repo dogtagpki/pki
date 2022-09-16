@@ -55,6 +55,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.logging.LogSubsystem;
+import com.netscape.cmscore.logging.LoggerConfig;
 import com.netscape.cmscore.logging.LoggersConfig;
 
 /**
@@ -78,28 +79,29 @@ public class AuditService extends SubsystemService implements AuditResource {
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
         LoggersConfig loggersConfig = cs.getLoggingConfig().getLoggersConfig();
+        LoggerConfig loggerConfig = loggersConfig.getLoggerConfig("SignedAudit");
 
         AuditConfig auditConfig = new AuditConfig();
         String val = null;
         Boolean boolval = false;
         Integer integerval;
 
-        val = loggersConfig.getBoolean("SignedAudit.enable", false) ? "Enabled" : "Disabled";
+        val = loggerConfig.getBoolean("enable", false) ? "Enabled" : "Disabled";
         auditConfig.setStatus(val);
         if (auditParams != null)
             auditParams.put("enable", val);
 
-        boolval = loggersConfig.getBoolean("SignedAudit.logSigning", false);
+        boolval = loggerConfig.getBoolean("logSigning", false);
         if (auditParams != null)
             auditParams.put("logSigning", boolval ? "true" : "false");
         auditConfig.setSigned(boolval);
 
-        integerval = loggersConfig.getInteger("SignedAudit.flushInterval", 5);
+        integerval = loggerConfig.getInteger("flushInterval", 5);
         auditConfig.setInterval(integerval);
         if (auditParams != null)
             auditParams.put("flushInterval", integerval.toString());
 
-        integerval = loggersConfig.getInteger("SignedAudit.bufferSize", 512);
+        integerval = loggerConfig.getInteger("bufferSize", 512);
         auditConfig.setBufferSize(integerval);
         if (auditParams != null)
             auditParams.put("bufferSize", integerval.toString());
@@ -114,7 +116,7 @@ public class AuditService extends SubsystemService implements AuditResource {
         }
 
         // overwrite with enabled events
-        val = loggersConfig.getString("SignedAudit.events", "");
+        val = loggerConfig.getString("events", "");
         if (auditParams != null)
             auditParams.put("events", val);
         for (String event : StringUtils.split(val, ", ")) {
@@ -122,7 +124,7 @@ public class AuditService extends SubsystemService implements AuditResource {
         }
 
         // overwrite with mandatory events
-        val = loggersConfig.getString("SignedAudit.mandatory.events", "");
+        val = loggerConfig.getString("mandatory.events", "");
         if (auditParams != null)
             auditParams.put("mandatory.events", val);
         for (String event : StringUtils.split(val, ", ")) {
@@ -167,6 +169,7 @@ public class AuditService extends SubsystemService implements AuditResource {
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
         LoggersConfig loggersConfig = cs.getLoggingConfig().getLoggersConfig();
+        LoggerConfig loggerConfig = loggersConfig.getLoggerConfig("SignedAudit");
 
         try {
             AuditConfig currentAuditConfig = createAuditConfig();
@@ -174,17 +177,17 @@ public class AuditService extends SubsystemService implements AuditResource {
 
             if (auditConfig.getSigned() != null) {
                 logger.info("AuditService: - log signing: " + auditConfig.getSigned());
-                loggersConfig.putBoolean("SignedAudit.logSigning", auditConfig.getSigned());
+                loggerConfig.putBoolean("logSigning", auditConfig.getSigned());
             }
 
             if (auditConfig.getInterval() != null) {
                 logger.info("AuditService: - flush interval: " + auditConfig.getInterval());
-                loggersConfig.putInteger("SignedAudit.flushInterval", auditConfig.getInterval());
+                loggerConfig.putInteger("flushInterval", auditConfig.getInterval());
             }
 
             if (auditConfig.getBufferSize() != null) {
                 logger.info("AuditService: - buffer size: " + auditConfig.getBufferSize());
-                loggersConfig.putInteger("SignedAudit.bufferSize", auditConfig.getBufferSize());
+                loggerConfig.putInteger("bufferSize", auditConfig.getBufferSize());
             }
 
             Map<String, String> eventConfigs = auditConfig.getEventConfigs();
@@ -240,7 +243,7 @@ public class AuditService extends SubsystemService implements AuditResource {
                     }
                 }
 
-                loggersConfig.putString("SignedAudit.events", StringUtils.join(selected, ","));
+                loggerConfig.putString("events", StringUtils.join(selected, ","));
             }
 
             for (String name : currentEventConfigs.keySet()) {
@@ -283,15 +286,16 @@ public class AuditService extends SubsystemService implements AuditResource {
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
         LoggersConfig loggersConfig = cs.getLoggingConfig().getLoggersConfig();
+        LoggerConfig loggerConfig = loggersConfig.getLoggerConfig("SignedAudit");
 
         try {
             auditModParams.put("Action", action);
 
             if ("enable".equals(action)) {
-                loggersConfig.putBoolean("SignedAudit.enable", true);
+                loggerConfig.putBoolean("enable", true);
 
             } else if ("disable".equals(action)) {
-                loggersConfig.putBoolean("SignedAudit.enable", false);
+                loggerConfig.putBoolean("enable", false);
 
             } else {
                 BadRequestException e = new BadRequestException("Invalid action " + action);
@@ -327,8 +331,9 @@ public class AuditService extends SubsystemService implements AuditResource {
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
         LoggersConfig loggersConfig = cs.getLoggingConfig().getLoggersConfig();
+        LoggerConfig loggerConfig = loggersConfig.getLoggerConfig("SignedAudit");
 
-        String filename = loggersConfig.get("SignedAudit.fileName");
+        String filename = loggerConfig.get("fileName");
         return new File(filename);
     }
 

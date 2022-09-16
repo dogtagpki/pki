@@ -45,6 +45,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.logging.LogSubsystem;
+import com.netscape.cmscore.logging.LoggerConfig;
 import com.netscape.cmscore.logging.LoggerPluginsConfig;
 import com.netscape.cmscore.logging.LoggersConfig;
 import com.netscape.cmscore.logging.LoggingConfig;
@@ -779,7 +780,7 @@ public class LogAdminServlet extends AdminServlet {
 
             LoggingConfig destStore = mConfig.getLoggingConfig();
             LoggersConfig instancesConfig = destStore.getLoggersConfig();
-            ConfigStore substore = instancesConfig.makeSubStore(id);
+            LoggerConfig substore = instancesConfig.createLoggerConfig(id);
 
             if (configParams != null) {
                 for (int i = 0; i < configParams.size(); i++) {
@@ -1056,8 +1057,8 @@ public class LogAdminServlet extends AdminServlet {
             // remove the configuration.
             LoggingConfig destStore = mConfig.getLoggingConfig();
             LoggersConfig instancesConfig = destStore.getLoggersConfig();
+            instancesConfig.removeLoggerConfig(id);
 
-            instancesConfig.removeSubStore(id);
             // commiting
             try {
                 mConfig.commit(true);
@@ -1460,7 +1461,7 @@ public class LogAdminServlet extends AdminServlet {
 
             //instancesConfig.removeSubStore(id);
 
-            ConfigStore substore = instancesConfig.makeSubStore(id);
+            LoggerConfig substore = instancesConfig.createLoggerConfig(id);
 
             substore.put("pluginName", implname);
 
@@ -2023,8 +2024,8 @@ public class LogAdminServlet extends AdminServlet {
     // convenience routine.
     private static void restore(LoggersConfig store,
             String id, NameValuePairs saveParams) {
-        store.removeSubStore(id);
-        ConfigStore rstore = store.makeSubStore(id);
+        store.removeLoggerConfig(id);
+        LoggerConfig rstore = store.createLoggerConfig(id);
 
         for (String key : saveParams.keySet()) {
             String value = saveParams.get(key);

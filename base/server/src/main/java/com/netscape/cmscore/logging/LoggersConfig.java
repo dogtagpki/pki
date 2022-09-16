@@ -24,4 +24,25 @@ public class LoggersConfig extends ConfigStore {
     public LoggersConfig(String name, SimpleProperties source) {
         super(name, source);
     }
+
+    /**
+     * Returns log.instance.<id>.* parameters.
+     */
+    public LoggerConfig getLoggerConfig(String id) {
+        return getSubStore(id, LoggerConfig.class);
+    }
+
+    /**
+     * Creates log.instance.<id>.* parameters.
+     */
+    public LoggerConfig createLoggerConfig(String id) {
+        return makeSubStore(id, LoggerConfig.class);
+    }
+
+    /**
+     * Removes log.instance.<id>.* parameters.
+     */
+    public void removeLoggerConfig(String id) {
+        removeSubStore(id);
+    }
 }
