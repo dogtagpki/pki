@@ -35,7 +35,7 @@ import org.mozilla.jss.symkey.SessionKey;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.logging.ILogEventListener;
+import com.netscape.certsrv.logging.LogEventListener;
 import com.netscape.certsrv.selftests.EDuplicateSelfTestException;
 import com.netscape.certsrv.selftests.EInvalidSelfTestException;
 import com.netscape.certsrv.selftests.EMissingSelfTestException;
@@ -336,7 +336,7 @@ public class TKSKnownSessionKey
      * @exception Exception self test exception
      */
     @Override
-    public void runSelfTest(ILogEventListener listener) throws Exception {
+    public void runSelfTest(LogEventListener listener) throws Exception {
 
         TKSEngine engine = TKSEngine.getInstance();
         TKSEngineConfig cs = engine.getConfig();

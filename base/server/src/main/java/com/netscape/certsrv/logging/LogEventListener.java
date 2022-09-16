@@ -30,8 +30,8 @@ import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.cmscore.base.ConfigStore;
 
 /**
- * An interface represents a log event listener.
- * A ILogEventListener is registered to a specific
+ * A class representing a log event listener.
+ * A LogEventListener is registered to a specific
  * ILogQueue to be notified of created ILogEvents.
  * the log queue will notify all its registered listeners
  * of the logged event. The listener will then proceed to
@@ -40,32 +40,32 @@ import com.netscape.cmscore.base.ConfigStore;
  *
  * @version $Revision$, $Date$
  */
-public interface ILogEventListener extends EventListener {
+public abstract class LogEventListener implements EventListener {
 
     /**
      * The event notification method: Logs event.
      *
      * @param event The log event to be processed.
      */
-    public void log(ILogEvent event) throws ELogException;
+    public abstract void log(ILogEvent event) throws ELogException;
 
     /**
      * Flushes the log buffers (if any). Will result in the messages
      * being actually written to their destination.
      */
-    public void flush();
+    public abstract void flush();
 
     /**
      * Closes the log file and destroys any associated threads.
      */
-    public void shutdown();
+    public abstract void shutdown();
 
     /**
      * Get the configuration store for the log event listener.
      *
      * @return The configuration store of this log event listener.
      */
-    public ConfigStore getConfigStore();
+    public abstract ConfigStore getConfigStore();
 
     /**
      * Initialize this log listener
@@ -74,13 +74,12 @@ public interface ILogEventListener extends EventListener {
      * @param config Configuration store for this log listener.
      * @exception initialization error.
      */
-    public void init(ISubsystem owner, ConfigStore config) throws EBaseException;
+    public abstract void init(ISubsystem owner, ConfigStore config) throws EBaseException;
 
     /**
      * Startup the instance.
      */
-    public void startup()
-            throws EBaseException;
+    public abstract void startup() throws EBaseException;
 
     /**
      * Retrieve last "maxLine" number of system logs with log level &gt; "level"
@@ -94,14 +93,14 @@ public interface ILogEventListener extends EventListener {
      * @exception IOException For input/output problems.
      * @exception EBaseException For other problems.
      */
-    public NameValuePairs retrieveLogContent(Hashtable<String, String> req) throws ServletException,
+    public abstract NameValuePairs retrieveLogContent(Hashtable<String, String> req) throws ServletException,
             IOException, EBaseException;
 
     /**
      * Retrieve list of log files.
      *
      */
-    public NameValuePairs retrieveLogList(Hashtable<String, String> req) throws ServletException,
+    public abstract NameValuePairs retrieveLogList(Hashtable<String, String> req) throws ServletException,
             IOException, EBaseException;
 
     /**
@@ -109,26 +108,26 @@ public interface ILogEventListener extends EventListener {
      *
      * @return String name of event listener implementation.
      */
-    public String getImplName();
+    public abstract String getImplName();
 
     /**
      * Returns the description of this log event listener.
      *
      * @return String with listener description.
      */
-    public String getDescription();
+    public abstract String getDescription();
 
     /**
      * Return list of default config parameters for this log event listener.
      *
      * @return Vector of default parameters.
      */
-    public Vector<String> getDefaultParams();
+    public abstract Vector<String> getDefaultParams();
 
     /**
      * Return list of instance config parameters for this log event listener.
      *
      * @return Vector of instance parameters.
      */
-    public Vector<String> getInstanceParams();
+    public abstract Vector<String> getInstanceParams();
 }

@@ -26,7 +26,7 @@ package com.netscape.cms.selftests;
 
 import java.util.Locale;
 
-import com.netscape.certsrv.logging.ILogEventListener;
+import com.netscape.certsrv.logging.LogEventListener;
 import com.netscape.certsrv.selftests.EDuplicateSelfTestException;
 import com.netscape.certsrv.selftests.EInvalidSelfTestException;
 import com.netscape.certsrv.selftests.EMissingSelfTestException;
@@ -172,5 +172,5 @@ public abstract class SelfTest {
      * @param logger specifies logging subsystem
      * @exception Exception self test exception
      */
-    public abstract void runSelfTest(ILogEventListener logger) throws Exception;
+    public abstract void runSelfTest(LogEventListener logger) throws Exception;
 }

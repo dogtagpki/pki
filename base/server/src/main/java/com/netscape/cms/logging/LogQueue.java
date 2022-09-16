@@ -20,14 +20,14 @@ package com.netscape.cms.logging;
 import java.util.Vector;
 
 import com.netscape.certsrv.logging.ILogEvent;
-import com.netscape.certsrv.logging.ILogEventListener;
+import com.netscape.certsrv.logging.LogEventListener;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.cmscore.apps.CMS;
 
 /**
  * A class represents a log queue. A log queue
  * is a queue of pending log events to be dispatched
- * to a set of registered ILogEventListeners.
+ * to a set of registered LogEventListeners.
  *
  * @author mzhao
  * @version $Revision$, $Date$
@@ -35,7 +35,7 @@ import com.netscape.cmscore.apps.CMS;
 public class LogQueue {
 
     private static LogQueue mLogQueue = new LogQueue();
-    protected Vector<ILogEventListener> mListeners = new Vector<>();
+    protected Vector<LogEventListener> mListeners = new Vector<>();
 
     /**
      * Constructs a log queue.
@@ -60,7 +60,7 @@ public class LogQueue {
      */
     public void shutdown() {
         for (int i = 0; i < mListeners.size(); i++) {
-            ILogEventListener listener = mListeners.elementAt(i);
+            LogEventListener listener = mListeners.elementAt(i);
             listener.shutdown();
         }
     }
@@ -71,7 +71,7 @@ public class LogQueue {
      * @param listener The log event listener to be registered
      *            to this queue.
      */
-    public void addLogEventListener(ILogEventListener listener) {
+    public void addLogEventListener(LogEventListener listener) {
         //Make sure we don't have duplicated listener
         if (!mListeners.contains(listener)) {
             mListeners.addElement(listener);
@@ -83,7 +83,7 @@ public class LogQueue {
      *
      * @param listener The log event listener to be removed from this queue.
      */
-    public void removeLogEventListener(ILogEventListener listener) {
+    public void removeLogEventListener(LogEventListener listener) {
         mListeners.removeElement(listener);
     }
 

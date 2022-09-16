@@ -37,9 +37,9 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ELogException;
-import com.netscape.certsrv.logging.ILogEventListener;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
+import com.netscape.certsrv.logging.LogEventListener;
 import com.netscape.certsrv.selftests.EDuplicateSelfTestException;
 import com.netscape.certsrv.selftests.EInvalidSelfTestException;
 import com.netscape.certsrv.selftests.EMissingSelfTestException;
@@ -74,7 +74,7 @@ public class SelfTestSubsystem implements ISubsystem {
     public static final String PROP_ON_DEMAND = "onDemand";
     public static final String PROP_STARTUP = "startup";
 
-    private static ILogEventListener mLogger;
+    private static LogEventListener mLogger;
     private static Logger mErrorLogger = Logger.getLogger();
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
@@ -907,12 +907,12 @@ public class SelfTestSubsystem implements ISubsystem {
     //
 
     /**
-     * Returns the ILogEventListener of this subsystem.
+     * Returns the LogEventListener of this subsystem.
      * This method may return null.
      *
-     * @return ILogEventListener of this subsystem
+     * @return LogEventListener of this subsystem
      */
-    public ILogEventListener getSelfTestLogger() {
+    public LogEventListener getSelfTestLogger() {
         return mLogger;
     }
 
@@ -922,7 +922,7 @@ public class SelfTestSubsystem implements ISubsystem {
      * @param logger log event listener
      * @param msg self test log message
      */
-    public void log(ILogEventListener logger, String msg) {
+    public void log(LogEventListener logger, String msg) {
 
         if (logger != null) {
             // log the message to the "selftests.log" log
@@ -1273,7 +1273,7 @@ public class SelfTestSubsystem implements ISubsystem {
 
                 Object o = Class.forName(loggerValue).getDeclaredConstructor().newInstance();
 
-                if (!(o instanceof ILogEventListener)) {
+                if (!(o instanceof LogEventListener)) {
                     // NOTE:  These messages can only be logged to the
                     //        "transactions" log, since the "selftests.log"
                     //        will not exist!
@@ -1290,11 +1290,11 @@ public class SelfTestSubsystem implements ISubsystem {
                     throw new EInvalidSelfTestException(
                         "The self test plugin named " +
                         loggerFullName + " contains a value " +
-                        loggerValue + " which is not an instance of ILogEventListener.");
+                        loggerValue + " which is not an instance of LogEventListener.");
                 }
 
                 // initialize the self tests logger
-                mLogger = (ILogEventListener) o;
+                mLogger = (LogEventListener) o;
                 mLogger.init(this, loggerConfig);
 
             } catch (EMissingSelfTestException | EInvalidSelfTestException e) {

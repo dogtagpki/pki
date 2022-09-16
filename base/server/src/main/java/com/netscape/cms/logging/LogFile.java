@@ -72,7 +72,7 @@ import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ELogException;
 import com.netscape.certsrv.logging.ILogEvent;
-import com.netscape.certsrv.logging.ILogEventListener;
+import com.netscape.certsrv.logging.LogEventListener;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogSource;
 import com.netscape.certsrv.logging.SignedAuditEvent;
@@ -95,7 +95,7 @@ import netscape.ldap.client.JDAPFilterSubString;
  *
  * @version $Revision$, $Date$
  **/
-public class LogFile implements ILogEventListener, IExtendedPluginInfo {
+public class LogFile extends LogEventListener implements IExtendedPluginInfo {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LogFile.class);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();

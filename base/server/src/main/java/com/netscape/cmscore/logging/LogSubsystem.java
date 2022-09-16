@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.logging.ELogException;
-import com.netscape.certsrv.logging.ILogEventListener;
+import com.netscape.certsrv.logging.LogEventListener;
 import com.netscape.certsrv.logging.LogPlugin;
 import com.netscape.cms.logging.LogQueue;
 import com.netscape.cmscore.apps.CMS;
@@ -65,7 +65,7 @@ public class LogSubsystem implements ISubsystem {
     public static final String PROP_PLUGIN = "pluginName";
 
     public Hashtable<String, LogPlugin> mLogPlugins = new Hashtable<>();
-    public Hashtable<String, ILogEventListener> mLogInsts = new Hashtable<>();
+    public Hashtable<String, LogEventListener> mLogInsts = new Hashtable<>();
     public Set<String> auditEvents = new TreeSet<>();
 
     /**
@@ -123,10 +123,10 @@ public class LogSubsystem implements ISubsystem {
             }
             String className = plugin.getClassPath();
             // Instantiate and init the log listener.
-            ILogEventListener logInst = null;
+            LogEventListener logInst = null;
 
             try {
-                logInst = (ILogEventListener) Class.forName(className).getDeclaredConstructor().newInstance();
+                logInst = (LogEventListener) Class.forName(className).getDeclaredConstructor().newInstance();
                 ConfigStore pConfig = loggersConfig.getSubStore(insName, ConfigStore.class);
 
                 logInst.init(this, pConfig);
@@ -176,7 +176,7 @@ public class LogSubsystem implements ISubsystem {
             String instName = enum1.nextElement();
 
             logger.trace("about to call inst=" + instName + " in LogSubsystem.startup()");
-            ILogEventListener inst = mLogInsts.get(instName);
+            LogEventListener inst = mLogInsts.get(instName);
 
             inst.startup();
         }
@@ -216,7 +216,7 @@ public class LogSubsystem implements ISubsystem {
      * @param log the log event listener
      * @return the log event listener's plugin name
      */
-    public String getLogPluginName(ILogEventListener log) {
+    public String getLogPluginName(LogEventListener log) {
         ConfigStore cs = log.getConfigStore();
         if (cs == null) {
             return "";
@@ -233,9 +233,9 @@ public class LogSubsystem implements ISubsystem {
      * Retrieve the log event listener by instance name
      *
      * @param insName the log instance name in String
-     * @return the log instance in ILogEventListener
+     * @return the log instance in LogEventListener
      */
-    public ILogEventListener getLogInstance(String insName) {
+    public LogEventListener getLogInstance(String insName) {
         return mLogInsts.get(insName);
     }
 
@@ -254,10 +254,10 @@ public class LogSubsystem implements ISubsystem {
      * get the list of log instances that are available
      *
      * @return log instances in a Hashtable. Each entry in the
-     *         Hashtable contains the name/value pair of instName/ILogEventListener
+     *         Hashtable contains the name/value pair of instName/LogEventListener
      * @see LogPlugin
      */
-    public Hashtable<String, ILogEventListener> getLogInsts() {
+    public Hashtable<String, LogEventListener> getLogInsts() {
         return mLogInsts;
     }
 
@@ -284,11 +284,11 @@ public class LogSubsystem implements ISubsystem {
         }
 
         // a temporary instance
-        ILogEventListener LogInst = null;
+        LogEventListener LogInst = null;
         String className = plugin.getClassPath();
 
         try {
-            LogInst = (ILogEventListener) Class.forName(className).getDeclaredConstructor().newInstance();
+            LogInst = (LogEventListener) Class.forName(className).getDeclaredConstructor().newInstance();
             Vector<String> v = LogInst.getDefaultParams();
 
             return v;
@@ -310,7 +310,7 @@ public class LogSubsystem implements ISubsystem {
      */
     public Vector<String> getLogInstanceParams(String insName) throws
             ELogException {
-        ILogEventListener logInst = getLogInstance(insName);
+        LogEventListener logInst = getLogInstance(insName);
 
         if (logInst == null) {
             return null;

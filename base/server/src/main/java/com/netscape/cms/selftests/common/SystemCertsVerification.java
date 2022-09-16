@@ -27,7 +27,7 @@ package com.netscape.cms.selftests.common;
 import java.util.Locale;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.logging.ILogEventListener;
+import com.netscape.certsrv.logging.LogEventListener;
 import com.netscape.certsrv.selftests.EDuplicateSelfTestException;
 import com.netscape.certsrv.selftests.EInvalidSelfTestException;
 import com.netscape.certsrv.selftests.EMissingSelfTestException;
@@ -204,7 +204,7 @@ public class SystemCertsVerification
      * @exception Exception self test exception
      */
     @Override
-    public void runSelfTest(ILogEventListener logger) throws Exception {
+    public void runSelfTest(LogEventListener logger) throws Exception {
 
         try {
             if (("ca".equalsIgnoreCase(mSubId) || "ocsp".equalsIgnoreCase(mSubId)) && !mFullCAandOCSPVerify) {

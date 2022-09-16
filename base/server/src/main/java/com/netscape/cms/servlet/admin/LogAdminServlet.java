@@ -37,7 +37,7 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ELogException;
 import com.netscape.certsrv.logging.ELogNotFound;
 import com.netscape.certsrv.logging.ELogPluginNotFound;
-import com.netscape.certsrv.logging.ILogEventListener;
+import com.netscape.certsrv.logging.LogEventListener;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogPlugin;
 import com.netscape.certsrv.logging.event.ConfigSignedAuditEvent;
@@ -271,7 +271,7 @@ public class LogAdminServlet extends AdminServlet {
                             return;
                         }
 
-                        ILogEventListener loginst =
+                        LogEventListener loginst =
                                 logSubsystem.getLogInstance(instName);
 
                         if (loginst != null) {
@@ -298,7 +298,7 @@ public class LogAdminServlet extends AdminServlet {
                                     null, resp);
                             return;
                         }
-                        ILogEventListener loginst =
+                        LogEventListener loginst =
                                 logSubsystem.getLogInstance(instName);
 
                         if (loginst != null) {
@@ -344,7 +344,7 @@ public class LogAdminServlet extends AdminServlet {
 
         for (; e.hasMoreElements();) {
             String name = e.nextElement();
-            ILogEventListener value = logSubsystem.getLogInstance(name);
+            LogEventListener value = logSubsystem.getLogInstance(name);
 
             if (value == null)
                 continue;
@@ -496,10 +496,10 @@ public class LogAdminServlet extends AdminServlet {
             LoggerPluginsConfig instancesConfig = destStore.getLoggerPluginsConfig();
 
             // Does the class exist?
-            Class<ILogEventListener> newImpl = null;
+            Class<LogEventListener> newImpl = null;
 
             try {
-                newImpl = (Class<ILogEventListener>) Class.forName(classPath);
+                newImpl = (Class<LogEventListener>) Class.forName(classPath);
             } catch (ClassNotFoundException e) {
                 // store a message in the signed audit log file
                 if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
@@ -532,7 +532,7 @@ public class LogAdminServlet extends AdminServlet {
 
             // is the class an ILogEventListner?
             try {
-                if (ILogEventListener.class.isAssignableFrom(newImpl) == false) {
+                if (LogEventListener.class.isAssignableFrom(newImpl) == false) {
                     // store a message in the signed audit log file
                     if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
 
@@ -807,10 +807,10 @@ public class LogAdminServlet extends AdminServlet {
 
             // Instantiate an object for this implementation
             String className = plugin.getClassPath();
-            ILogEventListener logInst = null;
+            LogEventListener logInst = null;
 
             try {
-                logInst = (ILogEventListener) Class.forName(className).getDeclaredConstructor().newInstance();
+                logInst = (LogEventListener) Class.forName(className).getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 instancesConfig.removeSubStore(id);
 
@@ -954,7 +954,7 @@ public class LogAdminServlet extends AdminServlet {
             String desc = "unknown";
 
             try {
-                ILogEventListener lp = (ILogEventListener) Class.forName(c).getDeclaredConstructor().newInstance();
+                LogEventListener lp = (LogEventListener) Class.forName(c).getDeclaredConstructor().newInstance();
 
                 desc = lp.getDescription();
             } catch (Exception exp) {
@@ -968,7 +968,7 @@ public class LogAdminServlet extends AdminServlet {
         return;
     }
 
-    public String getLogPluginName(ILogEventListener log) {
+    public String getLogPluginName(LogEventListener log) {
         ConfigStore cs = log.getConfigStore();
 
         try {
@@ -1201,7 +1201,7 @@ public class LogAdminServlet extends AdminServlet {
             // DON'T remove log if any instance
             for (Enumeration<String> e = logSubsystem.getLogInsts().keys(); e.hasMoreElements();) {
                 String name = e.nextElement();
-                ILogEventListener log = logSubsystem.getLogInstance(name);
+                LogEventListener log = logSubsystem.getLogInstance(name);
 
                 if (getLogPluginName(log) == id) {
                     // store a message in the signed audit log file
@@ -1431,7 +1431,7 @@ public class LogAdminServlet extends AdminServlet {
 
             // save old instance substore params in case new one fails.
 
-            ILogEventListener oldinst =
+            LogEventListener oldinst =
                     logSubsystem.getLogInstance(id);
             Vector<String> oldConfigParms = oldinst.getInstanceParams();
             NameValuePairs saveParams = new NameValuePairs();
@@ -1632,10 +1632,10 @@ public class LogAdminServlet extends AdminServlet {
 
             String className = plugin.getClassPath();
             @SuppressWarnings("unused")
-            ILogEventListener newMgrInst = null;
+            LogEventListener newMgrInst = null;
 
             try {
-                newMgrInst = (ILogEventListener) Class.forName(className).getDeclaredConstructor().newInstance();
+                newMgrInst = (LogEventListener) Class.forName(className).getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 // check to see if the log file path parameter was changed
                 newLogPath = auditCheckLogPath(req);
@@ -2000,7 +2000,7 @@ public class LogAdminServlet extends AdminServlet {
             return;
         }
 
-        ILogEventListener logInst = logSubsystem.getLogInstance(id);
+        LogEventListener logInst = logSubsystem.getLogInstance(id);
         Vector<String> configParams = logInst.getInstanceParams();
         NameValuePairs params = new NameValuePairs();
 

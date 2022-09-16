@@ -33,7 +33,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.logging.ILogEventListener;
+import com.netscape.certsrv.logging.LogEventListener;
 import com.netscape.certsrv.selftests.EDuplicateSelfTestException;
 import com.netscape.certsrv.selftests.EInvalidSelfTestException;
 import com.netscape.certsrv.selftests.EMissingSelfTestException;
@@ -201,7 +201,7 @@ public class CAValidity
      * @exception Exception self test exception
      */
     @Override
-    public void runSelfTest(ILogEventListener logger) throws Exception {
+    public void runSelfTest(LogEventListener logger) throws Exception {
 
         CAEngine engine = CAEngine.getInstance();
         CertificateAuthority ca = (CertificateAuthority) engine.getSubsystem(mCaSubId);

@@ -32,7 +32,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.logging.ILogEventListener;
+import com.netscape.certsrv.logging.LogEventListener;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.certsrv.selftests.EDuplicateSelfTestException;
@@ -202,7 +202,7 @@ public class OCSPPresence
      * @exception Exception self test exception
      */
     @Override
-    public void runSelfTest(ILogEventListener logger) throws Exception {
+    public void runSelfTest(LogEventListener logger) throws Exception {
 
         OCSPEngine engine = OCSPEngine.getInstance();
         IOCSPAuthority ocsp = (IOCSPAuthority) engine.getSubsystem(mOcspSubId);
