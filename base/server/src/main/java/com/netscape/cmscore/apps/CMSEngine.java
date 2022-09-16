@@ -57,6 +57,7 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cms.password.PasswordChecker;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.authentication.AuthSubsystem;
@@ -138,7 +139,9 @@ public class CMSEngine {
     private String mServerCertNickname = null;
     private boolean ready;
 
+    private Logger mainLogger = new Logger();
     private Debug debug = new Debug();
+
     private PluginRegistry pluginRegistry = new PluginRegistry();
     private PKIServerSocketListener serverSocketListener = null;
     protected LogSubsystem logSubsystem = LogSubsystem.getInstance();
@@ -197,6 +200,10 @@ public class CMSEngine {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Logger getMainLogger() {
+        return mainLogger;
     }
 
     public PluginRegistry getPluginRegistry() {

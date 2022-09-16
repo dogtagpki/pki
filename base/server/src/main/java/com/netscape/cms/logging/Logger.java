@@ -35,7 +35,6 @@ import com.netscape.certsrv.logging.LogSource;
  */
 public class Logger implements ILogger {
 
-    protected static Logger mLogger = new Logger();
     protected LogQueue mLogQueue = LogQueue.getLogQueue();
     protected static Hashtable<LogCategory, LogEventFactory> mFactories = new Hashtable<>();
 
@@ -62,13 +61,6 @@ public class Logger implements ILogger {
         this.category = category;
         this.source = source;
         this.level = level;
-    }
-
-    /**
-     * get default single global logger
-     */
-    static public Logger getLogger() {
-        return mLogger;
     }
 
     public static Logger getLogger(LogCategory category, LogSource source) {

@@ -75,7 +75,7 @@ public class SelfTestSubsystem implements ISubsystem {
     public static final String PROP_STARTUP = "startup";
 
     private static LogEventListener mLogger;
-    private static Logger mErrorLogger = Logger.getLogger();
+    private static Logger mErrorLogger;
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     ////////////////////////
@@ -1194,6 +1194,9 @@ public class SelfTestSubsystem implements ISubsystem {
             logger.error("SelfTestSubsystem: Missing selftest configuration");
             throw new EBaseException("Missing selftest configuration");
         }
+
+        CMSEngine engine = CMS.getCMSEngine();
+        mErrorLogger = engine.getMainLogger();
 
         mConfig = config;
 
