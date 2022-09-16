@@ -437,12 +437,12 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
 
         if (mOn) {
             if (mRegister) {
-                engine.getMainLogger().getLogQueue().addLogEventListener(this);
+                engine.getLogQueue().addLogEventListener(this);
             }
         } else {
             // shutdown the listener, remove the listener
             if (mRegister) {
-                engine.getMainLogger().getLogQueue().removeLogEventListener(this);
+                engine.getLogQueue().removeLogEventListener(this);
                 shutdown();
             }
         }

@@ -34,17 +34,12 @@ import com.netscape.cmscore.apps.CMS;
  */
 public class LogQueue {
 
-    private static LogQueue mLogQueue = new LogQueue();
     protected Vector<LogEventListener> mListeners = new Vector<>();
 
     /**
      * Constructs a log queue.
      */
     public LogQueue() {
-    }
-
-    public static LogQueue getLogQueue() {
-        return mLogQueue;
     }
 
     /**

@@ -23,6 +23,7 @@ import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.LogSource;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * A class represents certificate server logger
@@ -97,7 +98,8 @@ public class SignedAuditLogger extends Logger {
             throw e;
         }
 
-        mLogQueue.log(event);
+        CMSEngine engine = CMS.getCMSEngine();
+        engine.getLogQueue().log(event);
     }
 
     @Override

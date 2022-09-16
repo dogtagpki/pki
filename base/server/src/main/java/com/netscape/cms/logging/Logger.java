@@ -23,6 +23,8 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogCategory;
 import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.LogSource;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * A class represents certificate server logger
@@ -35,7 +37,6 @@ import com.netscape.certsrv.logging.LogSource;
  */
 public class Logger implements ILogger {
 
-    protected LogQueue mLogQueue = LogQueue.getLogQueue();
     protected static Hashtable<LogCategory, LogEventFactory> mFactories = new Hashtable<>();
 
     static {
@@ -72,14 +73,6 @@ public class Logger implements ILogger {
         }
 
         return factory.createLogger(category, source);
-    }
-
-    /**
-     * Retrieves the associated log queue.
-     */
-    @Override
-    public LogQueue getLogQueue() {
-        return mLogQueue;
     }
 
     /**
@@ -243,8 +236,10 @@ public class Logger implements ILogger {
     public void log(LogCategory evtClass, LogSource source, int level, String msg,
             Object params[], boolean multiline) {
         LogEvent iLEvent = create(evtClass, source, level, msg, params, multiline);
-        if (iLEvent != null)
-            mLogQueue.log(iLEvent);
+        if (iLEvent != null) {
+            CMSEngine engine = CMS.getCMSEngine();
+            engine.getLogQueue().log(iLEvent);
+        }
     }
 
     //******************** end  multiline log *************************
