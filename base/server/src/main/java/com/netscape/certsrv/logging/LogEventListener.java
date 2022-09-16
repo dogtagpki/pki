@@ -47,7 +47,7 @@ public abstract class LogEventListener implements EventListener {
      *
      * @param event The log event to be processed.
      */
-    public abstract void log(ILogEvent event) throws ELogException;
+    public abstract void log(LogEvent event) throws ELogException;
 
     /**
      * Flushes the log buffers (if any). Will result in the messages

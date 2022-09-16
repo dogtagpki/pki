@@ -21,7 +21,15 @@ import java.text.MessageFormat;
 
 import com.netscape.certsrv.base.EBaseException;
 
-public class LogEvent implements ILogEvent {
+/**
+ * A class which all loggable events must extend. CMS comes
+ * with a limited set of LogEvent types to implement: audit, system, and
+ * signed audit. This is the base class of all the subsequent implemented types.
+ * A log event represents a certain kind of log message designed for a specific purpose.
+ * For instance, an audit type event represents messages having to do with auditable CMS
+ * actions. The resulting message will ultimately appear into a specific log file.
+ */
+public class LogEvent {
 
     private static final long serialVersionUID = 1L;
 
@@ -160,11 +168,11 @@ public class LogEvent implements ILogEvent {
 
     /**
      * Retrieves log source.
+     * This is the subsystem responsible
+     * for creating the log event.
      *
-     * @return the component source
-     *         where this message event was triggered
+     * @return log source.
      */
-    @Override
     public LogSource getSource() {
         return mSource;
     }
@@ -186,7 +194,6 @@ public class LogEvent implements ILogEvent {
      *
      * @return Integer log level value.
      */
-    @Override
     public int getLevel() {
         return mLevel;
     }
@@ -196,7 +203,6 @@ public class LogEvent implements ILogEvent {
      *
      * @return Integer NTEventType value.
      */
-    @Override
     public int getNTEventType() {
         return mNTEventType;
     }
@@ -235,11 +241,10 @@ public class LogEvent implements ILogEvent {
 
     /**
      * Retrieves log multiline attribute.
+     * True if this message consists of more than one line.
      *
-     * @return Boolean whether or not this event is multiline.
-     *         A multiline message simply consists of more than one line.
+     * @return Boolean of multiline status.
      */
-    @Override
     public boolean getMultiline() {
         return mMultiline;
     }
@@ -259,7 +264,6 @@ public class LogEvent implements ILogEvent {
      *
      * @return Long integer of the time the event was created.
      */
-    @Override
     public long getTimeStamp() {
         return mTimeStamp;
     }
@@ -270,7 +274,6 @@ public class LogEvent implements ILogEvent {
      *
      * @return String containing the type of event.
      */
-    @Override
     public String getEventType() {
         return mEventType;
     }
@@ -281,7 +284,6 @@ public class LogEvent implements ILogEvent {
      *
      * @param eventType String containing the type of event.
      */
-    @Override
     public void setEventType(String eventType) {
         mEventType = eventType;
     }

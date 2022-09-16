@@ -17,8 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.logging;
 
-import com.netscape.certsrv.logging.ILogEvent;
 import com.netscape.certsrv.logging.LogCategory;
+import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.LogSource;
 
 /**
@@ -38,14 +38,14 @@ public abstract class LogEventFactory {
     /**
      * Creates a log event.
      */
-    public abstract ILogEvent create();
+    public abstract LogEvent create();
 
     /**
      * Releases previously created event.
      *
      * @param event The log event.
      */
-    public void release(ILogEvent event) {
+    public void release(LogEvent event) {
         // do nothing
     }
 }

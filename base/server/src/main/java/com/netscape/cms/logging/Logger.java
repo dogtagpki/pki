@@ -19,7 +19,6 @@ package com.netscape.cms.logging;
 
 import java.util.Hashtable;
 
-import com.netscape.certsrv.logging.ILogEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogCategory;
 import com.netscape.certsrv.logging.LogEvent;
@@ -251,14 +250,14 @@ public class Logger implements ILogger {
      */
     public void log(LogCategory evtClass, LogSource source, int level, String msg,
             Object params[], boolean multiline) {
-        ILogEvent iLEvent = create(evtClass, source, level, msg, params, multiline);
+        LogEvent iLEvent = create(evtClass, source, level, msg, params, multiline);
         if (iLEvent != null)
             mLogQueue.log(iLEvent);
     }
 
     //******************** end  multiline log *************************
 
-    public ILogEvent create(int level, String msg, Object params[], boolean multiline) {
+    public LogEvent create(int level, String msg, Object params[], boolean multiline) {
         return create(category, source, level, msg, params, multiline);
     }
 
@@ -267,7 +266,7 @@ public class Logger implements ILogger {
      * events here.
      */
     @Override
-    public ILogEvent create(LogCategory evtClass, LogSource source, int level,
+    public LogEvent create(LogCategory evtClass, LogSource source, int level,
             String msg, Object params[], boolean multiline) {
 
         LogEventFactory f = factory == null ? mFactories.get(evtClass) : factory;
@@ -276,7 +275,7 @@ public class Logger implements ILogger {
             throw new RuntimeException("Unknown logger category: " + evtClass);
         }
 
-        LogEvent event = (LogEvent) f.create();
+        LogEvent event = f.create();
         update(event, source, level, msg, params, multiline);
         return event;
     }
@@ -307,7 +306,7 @@ public class Logger implements ILogger {
      *
      * @param event a log event
      */
-    public void release(ILogEvent event) {
+    public void release(LogEvent event) {
         // do nothing for now.
     }
 

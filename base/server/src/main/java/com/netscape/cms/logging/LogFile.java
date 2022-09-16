@@ -71,9 +71,9 @@ import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ELogException;
-import com.netscape.certsrv.logging.ILogEvent;
-import com.netscape.certsrv.logging.LogEventListener;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.LogEvent;
+import com.netscape.certsrv.logging.LogEventListener;
 import com.netscape.certsrv.logging.LogSource;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.cmscore.apps.CMS;
@@ -693,7 +693,7 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
                 ILogger.SUCCESS,
                 base64Encode(sigBytes));
 
-        ILogEvent ev = signedAuditLogger.create(
+        LogEvent ev = signedAuditLogger.create(
                 ILogger.LL_SECURITY,
                 auditMessage,
                 o,
@@ -906,7 +906,7 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
      *
      * @param event The log event
      */
-    protected synchronized void doLog(ILogEvent event) throws ELogException {
+    protected synchronized void doLog(LogEvent event) throws ELogException {
         doLog(event, false);
     }
 
@@ -920,7 +920,7 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
      * by subclasses, so you can call it and know that it will do exactly
      * what you see below.
      */
-    private synchronized void doLog(ILogEvent event, boolean noFlush)
+    private synchronized void doLog(LogEvent event, boolean noFlush)
             throws ELogException {
 
         String entry = logEvt2String(event);
@@ -1045,7 +1045,7 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
      * @param ev The event to be logged.
      */
     @Override
-    public void log(ILogEvent ev) throws ELogException {
+    public void log(LogEvent ev) throws ELogException {
 
         if (!mOn || mLevel > ev.getLevel()) {
             return;
@@ -1224,7 +1224,7 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
         return !eval(event, f);
     }
 
-    public String logEvt2String(ILogEvent ev) {
+    public String logEvt2String(LogEvent ev) {
         String entry = null;
 
         // Hmm.. multiple threads could hit this and reset the time.

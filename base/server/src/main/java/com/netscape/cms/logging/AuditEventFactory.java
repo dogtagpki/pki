@@ -18,7 +18,7 @@
 package com.netscape.cms.logging;
 
 import com.netscape.certsrv.logging.AuditEvent;
-import com.netscape.certsrv.logging.ILogEvent;
+import com.netscape.certsrv.logging.LogEvent;
 
 /**
  * A log event object for handling audit messages
@@ -40,7 +40,7 @@ public class AuditEventFactory extends LogEventFactory {
      * Creates a log event.
      */
     @Override
-    public ILogEvent create() {
+    public LogEvent create() {
         return new AuditEvent();
     }
 }

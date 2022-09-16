@@ -35,8 +35,8 @@ import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ELogException;
-import com.netscape.certsrv.logging.ILogEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 
@@ -492,7 +492,7 @@ public class RollingLogFile extends LogFile {
      * @param ev The event to be logged.
      **/
     @Override
-    public synchronized void log(ILogEvent ev) throws ELogException {
+    public synchronized void log(LogEvent ev) throws ELogException {
         //xxx, Shall we log first without checking if it exceed the maximum?
         super.log(ev); // Will increment mBytesWritten
 

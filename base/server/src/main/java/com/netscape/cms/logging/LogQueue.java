@@ -19,7 +19,7 @@ package com.netscape.cms.logging;
 
 import java.util.Vector;
 
-import com.netscape.certsrv.logging.ILogEvent;
+import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.LogEventListener;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.cmscore.apps.CMS;
@@ -92,7 +92,7 @@ public class LogQueue {
      *
      * @param event the log event
      */
-    public void log(ILogEvent event) {
+    public void log(LogEvent event) {
         for (int i = 0; i < mListeners.size(); i++) {
 
             boolean isAudit = false;

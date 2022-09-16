@@ -353,7 +353,7 @@ public interface ILogger {
      * @param multiline True if the message has more than one line, otherwise false.
      * @return ILogEvent, a log event.
      */
-    public ILogEvent create(LogCategory evtClass, LogSource source, int level,
+    public LogEvent create(LogCategory evtClass, LogSource source, int level,
             String msg, Object params[], boolean multiline);
 
     /**

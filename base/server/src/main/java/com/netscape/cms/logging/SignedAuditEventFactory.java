@@ -17,7 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.logging;
 
-import com.netscape.certsrv.logging.ILogEvent;
+import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 
 /**
@@ -41,7 +41,7 @@ public class SignedAuditEventFactory extends LogEventFactory {
      * Creates a log event.
      */
     @Override
-    public ILogEvent create() {
+    public LogEvent create() {
         return new SignedAuditEvent();
     }
 }
