@@ -36,4 +36,11 @@ public class LDAPAuthenticationConfig extends ConfigStore {
     public String getClientCertNickname() throws EBaseException {
         return getString(LdapAuthInfo.PROP_CLIENTCERTNICKNAME);
     }
+
+    /**
+     * Returns <LDAP>.ldapauth.bindDN parameter.
+     */
+    public String getBindDN() throws EBaseException {
+        return getString(LdapAuthInfo.PROP_BINDDN);
+    }
 }

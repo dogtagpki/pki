@@ -845,7 +845,7 @@ public class PublisherAdminServlet extends AdminServlet {
                 }
                 try {
                     //bindAs = authInfo.getParms()[0];
-                    bindAs = authConfig.getString(LdapAuthInfo.PROP_BINDDN);
+                    bindAs = authConfig.getBindDN();
                     conn.authenticate(version, bindAs, pwd);
                     params.put(Constants.PR_AUTH_OK,
                             "Authentication: Basic authentication" +

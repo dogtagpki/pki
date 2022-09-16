@@ -153,7 +153,7 @@ public class LdapAuthInfo {
     public String getBindDN() throws EBaseException {
 
         if (bindDN == null) {
-            bindDN = config.getString(PROP_BINDDN);
+            bindDN = config.getBindDN();
         }
 
         return bindDN;
