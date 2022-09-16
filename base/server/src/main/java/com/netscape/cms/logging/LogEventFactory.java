@@ -22,9 +22,9 @@ import com.netscape.certsrv.logging.ILogEventFactory;
 import com.netscape.certsrv.logging.LogCategory;
 import com.netscape.certsrv.logging.LogSource;
 
-public abstract class LogFactory implements ILogEventFactory {
+public abstract class LogEventFactory implements ILogEventFactory {
 
-    public LogFactory() {
+    public LogEventFactory() {
     }
 
     public Logger createLogger(LogCategory category, LogSource source) {

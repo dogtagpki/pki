@@ -23,7 +23,7 @@ import com.netscape.cms.logging.LogQueue;
  * An interface represents a logger for certificate server. This object is used to
  * issue log messages for the various types of logging event types. A log message results
  * in a ILogEvent being created. This event is then placed on a ILogQueue to be ultimately
- * written to the destination log file. This object also maintains a collection of ILogFactory objects
+ * written to the destination log file. This object also maintains a collection of LogEventFactory objects
  * which are used to create the supported types of ILogEvents. CMS comes out of the box with three event
  * types: "signedAudit", "system", and "audit".
  *

@@ -38,13 +38,13 @@ public class Logger implements ILogger {
 
     protected static Logger mLogger = new Logger();
     protected LogQueue mLogQueue = LogQueue.getLogQueue();
-    protected static Hashtable<LogCategory, LogFactory> mFactories = new Hashtable<>();
+    protected static Hashtable<LogCategory, LogEventFactory> mFactories = new Hashtable<>();
 
     static {
         register(EV_AUDIT, new AuditEventFactory());
     }
 
-    LogFactory factory;
+    LogEventFactory factory;
     LogCategory category;
     LogSource source;
     int level = ILogger.LL_INFO;
@@ -52,13 +52,13 @@ public class Logger implements ILogger {
     public Logger() {
     }
 
-    public Logger(LogFactory factory, LogCategory category, LogSource source) {
+    public Logger(LogEventFactory factory, LogCategory category, LogSource source) {
         this.factory = factory;
         this.category = category;
         this.source = source;
     }
 
-    public Logger(LogFactory factory, LogCategory category, LogSource source, int level) {
+    public Logger(LogEventFactory factory, LogCategory category, LogSource source, int level) {
         this.factory = factory;
         this.category = category;
         this.source = source;
@@ -74,7 +74,7 @@ public class Logger implements ILogger {
 
     public static Logger getLogger(LogCategory category, LogSource source) {
 
-        LogFactory factory = mFactories.get(category);
+        LogEventFactory factory = mFactories.get(category);
 
         if (factory == null) {
             throw new RuntimeException("Unknown logger category: " + category);
@@ -97,7 +97,7 @@ public class Logger implements ILogger {
      * @param evtClass the event class name: ILogger.EV_SYSTEM or ILogger.EV_AUDIT
      * @param f the event factory name
      */
-    public static void register(LogCategory evtClass, LogFactory f) {
+    public static void register(LogCategory evtClass, LogEventFactory f) {
         mFactories.put(evtClass, f);
     }
 
@@ -270,7 +270,7 @@ public class Logger implements ILogger {
     public ILogEvent create(LogCategory evtClass, LogSource source, int level,
             String msg, Object params[], boolean multiline) {
 
-        LogFactory f = factory == null ? mFactories.get(evtClass) : factory;
+        LogEventFactory f = factory == null ? mFactories.get(evtClass) : factory;
 
         if (f == null) {
             throw new RuntimeException("Unknown logger category: " + evtClass);

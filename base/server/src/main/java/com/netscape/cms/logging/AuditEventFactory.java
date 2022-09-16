@@ -28,7 +28,7 @@ import com.netscape.certsrv.logging.ILogEvent;
  * @author mzhao
  * @version $Revision$, $Date$
  */
-public class AuditEventFactory extends LogFactory {
+public class AuditEventFactory extends LogEventFactory {
 
     /**
      * Constructs a audit event factory.

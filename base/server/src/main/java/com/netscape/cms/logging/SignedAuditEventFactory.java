@@ -29,7 +29,7 @@ import com.netscape.certsrv.logging.SignedAuditEvent;
  * @author cfu
  * @version $Revision$, $Date$
  */
-public class SignedAuditEventFactory extends LogFactory {
+public class SignedAuditEventFactory extends LogEventFactory {
 
     /**
      * Constructs a system event factory.
