@@ -16,6 +16,7 @@ import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.jobs.JobsSchedulerConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
+import com.netscape.cmscore.logging.LoggingConfig;
 import com.netscape.cmscore.security.JssSubsystemConfig;
 import com.netscape.cmscore.usrgrp.UGSubsystemConfig;
 import com.netscape.cmsutil.password.PasswordStoreConfig;
@@ -131,5 +132,12 @@ public class EngineConfig extends ConfigStore {
      */
     public JobsSchedulerConfig getJobsSchedulerConfig() {
         return getSubStore("jobsScheduler", JobsSchedulerConfig.class);
+    }
+
+    /**
+     * Returns log.* parameters.
+     */
+    public LoggingConfig getLoggingConfig() {
+        return getSubStore("log", LoggingConfig.class);
     }
 }

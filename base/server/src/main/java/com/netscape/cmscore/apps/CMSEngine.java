@@ -69,8 +69,8 @@ import com.netscape.cmscore.base.FileConfigStorage;
 import com.netscape.cmscore.cert.OidLoaderSubsystem;
 import com.netscape.cmscore.cert.X500NameSubsystem;
 import com.netscape.cmscore.dbs.DBSubsystem;
-import com.netscape.cmscore.jobs.JobsSchedulerConfig;
 import com.netscape.cmscore.jobs.JobsScheduler;
+import com.netscape.cmscore.jobs.JobsSchedulerConfig;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
@@ -78,6 +78,7 @@ import com.netscape.cmscore.ldapconn.LdapConnInfo;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmscore.logging.LogSubsystem;
+import com.netscape.cmscore.logging.LoggingConfig;
 import com.netscape.cmscore.registry.PluginRegistry;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestNotifier;
@@ -107,10 +108,6 @@ public class CMSEngine {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSEngine.class);
 
     private static final String SERVER_XML = "server.xml";
-
-    // used for testing HSM issues
-    public static final String PROP_SIGNED_AUDIT_CERT_NICKNAME =
-                              "log.instance.SignedAudit.signedAuditCertNickname";
 
     public String id;
     public String name;
@@ -651,7 +648,7 @@ public class CMSEngine {
     }
 
     public void initLogSubsystem() throws Exception {
-        ConfigStore logConfig = config.getSubStore(LogSubsystem.ID, ConfigStore.class);
+        LoggingConfig logConfig = config.getLoggingConfig();
         logSubsystem.init(logConfig);
         logSubsystem.startup();
     }
@@ -972,7 +969,8 @@ public class CMSEngine {
          * establish signing key reference using audit signing cert
          * for HSM failover detection
          */
-        String mSAuditCertNickName = config.getString(PROP_SIGNED_AUDIT_CERT_NICKNAME);
+        LoggingConfig loggingConfig = config.getLoggingConfig();
+        String mSAuditCertNickName = loggingConfig.getString("instance.SignedAudit.signedAuditCertNickname");
         logger.debug("CMSEngine: audit signing cert: " + mSAuditCertNickName);
 
         CryptoManager mManager = CryptoManager.getInstance();

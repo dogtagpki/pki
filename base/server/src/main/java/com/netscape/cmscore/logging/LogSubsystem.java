@@ -50,9 +50,7 @@ public class LogSubsystem implements ILogSubsystem {
 
     private static LogSubsystem mInstance = new LogSubsystem();
     private static LogQueue mLogQueue = LogQueue.getLogQueue();
-    private ConfigStore mConfig;
-
-    public static final String PROP_LOGGING = "log";
+    private LoggingConfig mConfig;
 
     public static final String ID = "log";
 
@@ -88,7 +86,7 @@ public class LogSubsystem implements ILogSubsystem {
      */
     @Override
     public void init(ConfigStore config) throws EBaseException {
-        mConfig = config;
+        mConfig = (LoggingConfig) config;
         mLogQueue.init();
 
         // load log plugin implementation
@@ -195,7 +193,7 @@ public class LogSubsystem implements ILogSubsystem {
      * @return configuration store of this subsystem
      */
     @Override
-    public ConfigStore getConfigStore() {
+    public LoggingConfig getConfigStore() {
         return mConfig;
     }
 
