@@ -77,6 +77,9 @@ public class EngineConfig extends ConfigStore {
         putInteger("cs.state", state);
     }
 
+    /**
+     * Returns internaldb.* parameters.
+     */
     public LDAPConfig getInternalDBConfig() {
         return getSubStore("internaldb", LDAPConfig.class);
     }

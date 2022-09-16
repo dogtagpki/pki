@@ -714,7 +714,7 @@ public class PublisherAdminServlet extends AdminServlet {
             int port = connInfo.getPort();
             boolean secure = connInfo.getSecure();
             //int authType = authInfo.getAuthType();
-            String authType = authConfig.getString(LdapAuthInfo.PROP_LDAPAUTHTYPE);
+            String authType = authConfig.getAuthType();
             int version = connInfo.getVersion();
             String bindAs = null;
             String certNickName = null;
@@ -968,7 +968,7 @@ public class PublisherAdminServlet extends AdminServlet {
                 // publish crl
                 try {
                     logger.debug("PublisherAdminServlet: about to update CRL");
-                    CRLIssuingPoint masterCRLIssuingPoint = (CRLIssuingPoint) engine.getMasterCRLIssuingPoint();
+                    CRLIssuingPoint masterCRLIssuingPoint = engine.getMasterCRLIssuingPoint();
                     if (masterCRLIssuingPoint != null) {
                         masterCRLIssuingPoint.publishCRL();
                     }

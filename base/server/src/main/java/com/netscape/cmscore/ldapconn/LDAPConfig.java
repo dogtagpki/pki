@@ -22,6 +22,9 @@ import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
 
+/**
+ * Provides <LDAP>.* parameters.
+ */
 public class LDAPConfig extends ConfigStore {
 
     public LDAPConfig(ConfigStorage storage) {
@@ -64,10 +67,16 @@ public class LDAPConfig extends ConfigStore {
         putString("dbuser", dbuser);
     }
 
+    /**
+     * Returns <LDAP>.ldapconn.* parameters.
+     */
     public LDAPConnectionConfig getConnectionConfig() {
         return getSubStore("ldapconn", LDAPConnectionConfig.class);
     }
 
+    /**
+     * Returns <LDAP>.ldapauth.* parameters.
+     */
     public LDAPAuthenticationConfig getAuthenticationConfig() {
         return getSubStore("ldapauth", LDAPAuthenticationConfig.class);
     }

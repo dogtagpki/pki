@@ -134,7 +134,7 @@ public class LdapAuthInfo {
         this.port = port;
         this.secure = secure;
 
-        String authTypeStr = config.getString(PROP_LDAPAUTHTYPE);
+        String authTypeStr = config.getAuthType();
 
         if (authTypeStr.equals(LDAP_BASICAUTH_STR)) {
             mType = LDAP_AUTHTYPE_BASICAUTH;
