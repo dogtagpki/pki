@@ -28,23 +28,27 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.logging.ELogException;
 import com.netscape.certsrv.logging.ILogEventListener;
-import com.netscape.certsrv.logging.ILogSubsystem;
 import com.netscape.certsrv.logging.LogPlugin;
 import com.netscape.cms.logging.LogQueue;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 
 /**
- * A class represents a log subsystem.
- * <P>
+ * A class representing a log subsystem.
+ * The logging component is a framework that handles different types of log types,
+ * each represented by an LogFile, and each implements a log plugin.
+ * CMS comes with three standard log types: "signedAudit", "system", and
+ * "transaction". Each log plugin can be instantiated into log
+ * instances. Each log instance can be individually configured and is
+ * associated with its own configuration entries in the configuration file.
  *
  * @author thomask
  * @author mzhao
- * @version $Revision$, $Date$
  */
-public class LogSubsystem implements ILogSubsystem {
+public class LogSubsystem implements ISubsystem {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LogSubsystem.class);
 
@@ -52,6 +56,9 @@ public class LogSubsystem implements ILogSubsystem {
     private static LogQueue mLogQueue = LogQueue.getLogQueue();
     private LoggingConfig mConfig;
 
+    /**
+     * The ID of this component
+     */
     public static final String ID = "log";
 
     public static final String PROP_CLASS = "class";
@@ -202,7 +209,13 @@ public class LogSubsystem implements ILogSubsystem {
         return mInstance;
     }
 
-    @Override
+    /**
+     * Retrieve plugin name (implementation name) of the log event
+     * listener. If no plug name found, an empty string is returned
+     *
+     * @param log the log event listener
+     * @return the log event listener's plugin name
+     */
     public String getLogPluginName(ILogEventListener log) {
         ConfigStore cs = log.getConfigStore();
         if (cs == null) {
@@ -217,24 +230,50 @@ public class LogSubsystem implements ILogSubsystem {
     }
 
     /**
-     * Retrieve log instance by it's name
+     * Retrieve the log event listener by instance name
+     *
+     * @param insName the log instance name in String
+     * @return the log instance in ILogEventListener
      */
-    @Override
     public ILogEventListener getLogInstance(String insName) {
         return mLogInsts.get(insName);
     }
 
-    @Override
+    /**
+     * get the list of log plugins that are available
+     *
+     * @return log plugins in a Hashtable. Each entry in the
+     *         Hashtable contains the name/value pair of pluginName/LogPlugin
+     * @see LogPlugin
+     */
     public Hashtable<String, LogPlugin> getLogPlugins() {
         return mLogPlugins;
     }
 
-    @Override
+    /**
+     * get the list of log instances that are available
+     *
+     * @return log instances in a Hashtable. Each entry in the
+     *         Hashtable contains the name/value pair of instName/ILogEventListener
+     * @see LogPlugin
+     */
     public Hashtable<String, ILogEventListener> getLogInsts() {
         return mLogInsts;
     }
 
-    @Override
+    /**
+     * Get the default configuration parameter names associated with a
+     * plugin. It is used by
+     * administration servlet to handle log configuration when a new
+     * log instance is added.
+     *
+     * @param implName The implementation name for which the
+     *            configuration parameters are to be configured
+     * @return a Vector of default configuration paramter names
+     *         associated with this log plugin
+     * @exception ELogException when instantiation of the plugin
+     *                implementation fails.
+     */
     public Vector<String> getLogDefaultParams(String implName) throws
             ELogException {
         // is this a registered implname?
@@ -259,7 +298,16 @@ public class LogSubsystem implements ILogSubsystem {
         }
     }
 
-    @Override
+    /**
+     * Get the default configuration parameter names associated with a
+     * log instance. It is used by administration servlet to handle
+     * log instance configuration.
+     *
+     * @param insName The instance name for which the configuration
+     *            parameters are to be configured
+     * @return a Vector of default configuration paramter names
+     *         associated with this log instance.
+     */
     public Vector<String> getLogInstanceParams(String insName) throws
             ELogException {
         ILogEventListener logInst = getLogInstance(insName);
