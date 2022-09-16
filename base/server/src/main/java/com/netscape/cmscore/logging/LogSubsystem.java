@@ -55,7 +55,6 @@ public class LogSubsystem implements ILogSubsystem {
     public static final String ID = "log";
 
     public static final String PROP_CLASS = "class";
-    public static final String PROP_IMPL = "impl";
     public static final String PROP_PLUGIN = "pluginName";
     public static final String PROP_INSTANCE = "instance";
 
@@ -90,12 +89,12 @@ public class LogSubsystem implements ILogSubsystem {
         mLogQueue.init();
 
         // load log plugin implementation
-        ConfigStore c = config.getSubStore(PROP_IMPL, ConfigStore.class);
-        Enumeration<String> mImpls = c.getSubStoreNames();
+        LoggerPluginsConfig pluginsConfig = mConfig.getLoggerPluginsConfig();
+        Enumeration<String> mImpls = pluginsConfig.getSubStoreNames();
 
         while (mImpls.hasMoreElements()) {
             String id = mImpls.nextElement();
-            String pluginPath = c.getString(id + "." + PROP_CLASS);
+            String pluginPath = pluginsConfig.getString(id + "." + PROP_CLASS);
             LogPlugin plugin = new LogPlugin(id, pluginPath);
 
             mLogPlugins.put(id, plugin);
@@ -103,7 +102,7 @@ public class LogSubsystem implements ILogSubsystem {
         logger.trace("loaded logger plugins");
 
         // load log instances
-        c = config.getSubStore(PROP_INSTANCE, ConfigStore.class);
+        ConfigStore c = config.getSubStore(PROP_INSTANCE, ConfigStore.class);
         Enumeration<String> instances = c.getSubStoreNames();
 
         while (instances.hasMoreElements()) {

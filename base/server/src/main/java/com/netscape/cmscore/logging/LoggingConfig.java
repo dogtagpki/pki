@@ -24,4 +24,11 @@ public class LoggingConfig extends ConfigStore {
     public LoggingConfig(String name, SimpleProperties source) {
         super(name, source);
     }
+
+    /**
+     * Returns log.impl.* parameters.
+     */
+    public LoggerPluginsConfig getLoggerPluginsConfig() {
+        return getSubStore("impl", LoggerPluginsConfig.class);
+    }
 }

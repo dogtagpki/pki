@@ -46,6 +46,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.logging.LogSubsystem;
 import com.netscape.cmscore.logging.LoggingConfig;
+import com.netscape.cmscore.logging.LoggerPluginsConfig;
 
 /**
  * A class representings an administration servlet for logging
@@ -490,7 +491,7 @@ public class LogAdminServlet extends AdminServlet {
             }
 
             LoggingConfig destStore = mConfig.getLoggingConfig();
-            ConfigStore instancesConfig = destStore.getSubStore("impl", ConfigStore.class);
+            LoggerPluginsConfig instancesConfig = destStore.getLoggerPluginsConfig();
 
             // Does the class exist?
             Class<ILogEventListener> newImpl = null;
@@ -1221,7 +1222,7 @@ public class LogAdminServlet extends AdminServlet {
             logSubsystem.getLogPlugins().remove(id);
 
             LoggingConfig destStore = mConfig.getLoggingConfig();
-            ConfigStore instancesConfig = destStore.getSubStore("impl", ConfigStore.class);
+            LoggerPluginsConfig instancesConfig = destStore.getLoggerPluginsConfig();
 
             instancesConfig.removeSubStore(id);
             // commiting
