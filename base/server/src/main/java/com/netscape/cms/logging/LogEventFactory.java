@@ -18,11 +18,15 @@
 package com.netscape.cms.logging;
 
 import com.netscape.certsrv.logging.ILogEvent;
-import com.netscape.certsrv.logging.ILogEventFactory;
 import com.netscape.certsrv.logging.LogCategory;
 import com.netscape.certsrv.logging.LogSource;
 
-public abstract class LogEventFactory implements ILogEventFactory {
+/**
+ * A class representing a log event factory.
+ * This factory will be responsible for creating and returning
+ * ILogEvent objects on demand.
+ */
+public abstract class LogEventFactory {
 
     public LogEventFactory() {
     }
@@ -32,12 +36,16 @@ public abstract class LogEventFactory implements ILogEventFactory {
     }
 
     /**
-     * Releases an log event.
-     *
-     * @param e the log event
+     * Creates a log event.
      */
-    @Override
-    public void release(ILogEvent e) {
+    public abstract ILogEvent create();
+
+    /**
+     * Releases previously created event.
+     *
+     * @param event The log event.
+     */
+    public void release(ILogEvent event) {
         // do nothing
     }
 }
