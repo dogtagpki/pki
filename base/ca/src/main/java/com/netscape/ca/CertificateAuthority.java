@@ -652,7 +652,7 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
             ipConfig.setUpdateSchema(1);
 
             // crl extensions
-            CRLIssuingPointExtensionsConfig extsConfig = ipConfig.getExtensionsConfig();
+            CRLExtensionsConfig extsConfig = ipConfig.getExtensionsConfig();
 
             // AuthorityInformationAccess
             extsConfig.putString("AuthorityInformationAccess.enable", "false");

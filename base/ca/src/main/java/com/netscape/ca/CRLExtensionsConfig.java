@@ -12,13 +12,13 @@ import com.netscape.cmscore.base.SimpleProperties;
 /**
  * Provides ca.crl.<name>.extension.* parameters.
  */
-public class CRLIssuingPointExtensionsConfig extends ConfigStore {
+public class CRLExtensionsConfig extends ConfigStore {
 
-    public CRLIssuingPointExtensionsConfig(ConfigStorage storage) {
+    public CRLExtensionsConfig(ConfigStorage storage) {
         super(storage);
     }
 
-    public CRLIssuingPointExtensionsConfig(String name, SimpleProperties source) {
+    public CRLExtensionsConfig(String name, SimpleProperties source) {
         super(name, source);
     }
 }

@@ -70,7 +70,7 @@ public class CMSCRLExtensions {
 
     @SuppressWarnings("unused")
     private CRLIssuingPointConfig mConfig;
-    private CRLIssuingPointExtensionsConfig mCRLExtConfig;
+    private CRLExtensionsConfig mCRLExtConfig;
 
     private Vector<String> mCRLExtensionNames = new Vector<>();
     private Vector<String> mCRLEntryExtensionNames = new Vector<>();

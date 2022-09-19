@@ -1388,7 +1388,7 @@ public class CRLIssuingPoint implements Runnable {
                             CAConfig caConfig = mCA.getConfigStore();
                             CRLConfig crlConfig = caConfig.getCRLConfig();
                             CRLIssuingPointConfig ipConfig = crlConfig.getCRLIssuingPointConfig(mId);
-                            CRLIssuingPointExtensionsConfig crlExtsConfig = ipConfig.getExtensionsConfig();
+                            CRLExtensionsConfig crlExtsConfig = ipConfig.getExtensionsConfig();
                             ConfigStore crlExtsSubStore = crlExtsConfig.getSubStore(IssuingDistributionPointExtension.NAME, ConfigStore.class);
 
                             if (crlExtsSubStore != null) {

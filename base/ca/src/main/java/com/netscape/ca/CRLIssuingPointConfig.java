@@ -308,7 +308,7 @@ public class CRLIssuingPointConfig extends ConfigStore {
     /**
      * Returns ca.crl.<name>.extension.* parameters.
      */
-    public CRLIssuingPointExtensionsConfig getExtensionsConfig() {
-        return getSubStore("extension", CRLIssuingPointExtensionsConfig.class);
+    public CRLExtensionsConfig getExtensionsConfig() {
+        return getSubStore("extension", CRLExtensionsConfig.class);
     }
 }

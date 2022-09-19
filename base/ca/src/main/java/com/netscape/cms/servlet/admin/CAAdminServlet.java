@@ -38,7 +38,7 @@ import com.netscape.ca.CMSCRLExtensions;
 import com.netscape.ca.CRLConfig;
 import com.netscape.ca.CRLIssuingPoint;
 import com.netscape.ca.CRLIssuingPointConfig;
-import com.netscape.ca.CRLIssuingPointExtensionsConfig;
+import com.netscape.ca.CRLExtensionsConfig;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -1009,7 +1009,7 @@ public class CAAdminServlet extends AdminServlet {
             CAConfig caConfig = mCA.getConfigStore();
             CRLConfig crlConfig = caConfig.getCRLConfig();
             CRLIssuingPointConfig ipConfig = crlConfig.getCRLIssuingPointConfig(ipId);
-            CRLIssuingPointExtensionsConfig crlExtsConfig = ipConfig.getExtensionsConfig();
+            CRLExtensionsConfig crlExtsConfig = ipConfig.getExtensionsConfig();
 
             String id = req.getParameter(Constants.RS_ID);
 
@@ -1103,7 +1103,7 @@ public class CAAdminServlet extends AdminServlet {
         CAConfig caConfig = mCA.getConfigStore();
         CRLConfig crlConfig = caConfig.getCRLConfig();
         CRLIssuingPointConfig ipConfig = crlConfig.getCRLIssuingPointConfig(id);
-        CRLIssuingPointExtensionsConfig crlExtsConfig = ipConfig.getExtensionsConfig();
+        CRLExtensionsConfig crlExtsConfig = ipConfig.getExtensionsConfig();
 
         if (crlExtsConfig != null) {
             Enumeration<String> enumExts = crlExtsConfig.getSubStoreNames();
