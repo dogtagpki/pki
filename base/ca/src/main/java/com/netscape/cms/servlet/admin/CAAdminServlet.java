@@ -36,9 +36,10 @@ import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.ca.CMSCRLExtensions;
 import com.netscape.ca.CRLConfig;
+import com.netscape.ca.CRLExtensionConfig;
+import com.netscape.ca.CRLExtensionsConfig;
 import com.netscape.ca.CRLIssuingPoint;
 import com.netscape.ca.CRLIssuingPointConfig;
-import com.netscape.ca.CRLExtensionsConfig;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -1014,7 +1015,7 @@ public class CAAdminServlet extends AdminServlet {
             String id = req.getParameter(Constants.RS_ID);
 
             if (id != null) {
-                ConfigStore crlExtSubStore = crlExtsConfig.getSubStore(id, ConfigStore.class);
+                CRLExtensionConfig crlExtSubStore = crlExtsConfig.getExtensionConfig(id);
 
                 Enumeration<String> e = req.getParameterNames();
 
@@ -1111,7 +1112,7 @@ public class CAAdminServlet extends AdminServlet {
             while (enumExts.hasMoreElements()) {
                 String extName = enumExts.nextElement();
                 boolean crlExtEnabled = false;
-                ConfigStore crlExtSubStore = crlExtsConfig.getSubStore(extName, ConfigStore.class);
+                CRLExtensionConfig crlExtSubStore = crlExtsConfig.getExtensionConfig(extName);
                 Enumeration<String> properties = crlExtSubStore.getPropertyNames();
 
                 while (properties.hasMoreElements()) {

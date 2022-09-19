@@ -21,4 +21,11 @@ public class CRLExtensionsConfig extends ConfigStore {
     public CRLExtensionsConfig(String name, SimpleProperties source) {
         super(name, source);
     }
+
+    /**
+     * Returns ca.crl.<name>.extension.<id>.* parameters.
+     */
+    public CRLExtensionConfig getExtensionConfig(String id) {
+        return getSubStore(id, CRLExtensionConfig.class);
+    }
 }

@@ -655,91 +655,102 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
             CRLExtensionsConfig extsConfig = ipConfig.getExtensionsConfig();
 
             // AuthorityInformationAccess
-            extsConfig.putString("AuthorityInformationAccess.enable", "false");
-            extsConfig.putString("AuthorityInformationAccess.critical", "false");
-            extsConfig.putString("AuthorityInformationAccess.type", "CRLExtension");
-            extsConfig.putString("AuthorityInformationAccess.class", "com.netscape.cms.crl.CMSAuthInfoAccessExtension");
-            extsConfig.putString("AuthorityInformationAccess.numberOfAccessDescriptions", "1");
-            extsConfig.putString("AuthorityInformationAccess.accessMethod0", "caIssuers");
-            extsConfig.putString("AuthorityInformationAccess.accessLocationType0", "URI");
-            extsConfig.putString("AuthorityInformationAccess.accessLocation0", "");
+            CRLExtensionConfig extConfig = extsConfig.getExtensionConfig("AuthorityInformationAccess");
+            extConfig.putString("enable", "false");
+            extConfig.putString("critical", "false");
+            extConfig.putString("type", "CRLExtension");
+            extConfig.putString("class", "com.netscape.cms.crl.CMSAuthInfoAccessExtension");
+            extConfig.putString("numberOfAccessDescriptions", "1");
+            extConfig.putString("accessMethod0", "caIssuers");
+            extConfig.putString("accessLocationType0", "URI");
+            extConfig.putString("accessLocation0", "");
 
             // AuthorityKeyIdentifier
-            extsConfig.putString("AuthorityKeyIdentifier.enable", "false");
-            extsConfig.putString("AuthorityKeyIdentifier.critical", "false");
-            extsConfig.putString("AuthorityKeyIdentifier.type", "CRLExtension");
-            extsConfig.putString("AuthorityKeyIdentifier.class", "com.netscape.cms.crl.CMSAuthorityKeyIdentifierExtension");
+            extConfig = extsConfig.getExtensionConfig("AuthorityKeyIdentifier");
+            extConfig.putString("enable", "false");
+            extConfig.putString("critical", "false");
+            extConfig.putString("type", "CRLExtension");
+            extConfig.putString("class", "com.netscape.cms.crl.CMSAuthorityKeyIdentifierExtension");
 
             // IssuerAlternativeName
-            extsConfig.putString("IssuerAlternativeName.enable", "false");
-            extsConfig.putString("IssuerAlternativeName.critical", "false");
-            extsConfig.putString("IssuerAlternativeName.type", "CRLExtension");
-            extsConfig.putString("IssuerAlternativeName.class", "com.netscape.cms.crl.CMSIssuerAlternativeNameExtension");
-            extsConfig.putString("IssuerAlternativeName.numNames", "0");
-            extsConfig.putString("IssuerAlternativeName.nameType0", "");
-            extsConfig.putString("IssuerAlternativeName.name0", "");
+            extConfig = extsConfig.getExtensionConfig("IssuerAlternativeName");
+            extConfig.putString("enable", "false");
+            extConfig.putString("critical", "false");
+            extConfig.putString("type", "CRLExtension");
+            extConfig.putString("class", "com.netscape.cms.crl.CMSIssuerAlternativeNameExtension");
+            extConfig.putString("numNames", "0");
+            extConfig.putString("nameType0", "");
+            extConfig.putString("name0", "");
 
             // CRLNumber
-            extsConfig.putString("CRLNumber.enable", "true");
-            extsConfig.putString("CRLNumber.critical", "false");
-            extsConfig.putString("CRLNumber.type", "CRLExtension");
-            extsConfig.putString("CRLNumber.class", "com.netscape.cms.crl.CMSCRLNumberExtension");
+            extConfig = extsConfig.getExtensionConfig("CRLNumber");
+            extConfig.putString("enable", "true");
+            extConfig.putString("critical", "false");
+            extConfig.putString("type", "CRLExtension");
+            extConfig.putString("class", "com.netscape.cms.crl.CMSCRLNumberExtension");
 
             // DeltaCRLIndicator
-            extsConfig.putString("DeltaCRLIndicator.enable", "false");
-            extsConfig.putString("DeltaCRLIndicator.critical", "true");
-            extsConfig.putString("DeltaCRLIndicator.type", "CRLExtension");
-            extsConfig.putString("DeltaCRLIndicator.class", "com.netscape.cms.crl.CMSDeltaCRLIndicatorExtension");
+            extConfig = extsConfig.getExtensionConfig("DeltaCRLIndicator");
+            extConfig.putString("enable", "false");
+            extConfig.putString("critical", "true");
+            extConfig.putString("type", "CRLExtension");
+            extConfig.putString("class", "com.netscape.cms.crl.CMSDeltaCRLIndicatorExtension");
 
             // IssuingDistributionPoint
-            extsConfig.putString("IssuingDistributionPoint.enable", "false");
-            extsConfig.putString("IssuingDistributionPoint.critical", "true");
-            extsConfig.putString("IssuingDistributionPoint.type", "CRLExtension");
-            extsConfig.putString("IssuingDistributionPoint.class", "com.netscape.cms.crl.CMSIssuingDistributionPointExtension");
-            extsConfig.putString("IssuingDistributionPoint.pointType", "");
-            extsConfig.putString("IssuingDistributionPoint.pointName", "");
-            extsConfig.putString("IssuingDistributionPoint.onlyContainsUserCerts", "false");
-            extsConfig.putString("IssuingDistributionPoint.onlyContainsCACerts", "false");
-            extsConfig.putString("IssuingDistributionPoint.onlySomeReasons", "");
+            extConfig = extsConfig.getExtensionConfig("IssuingDistributionPoint");
+            extConfig.putString("enable", "false");
+            extConfig.putString("critical", "true");
+            extConfig.putString("type", "CRLExtension");
+            extConfig.putString("class", "com.netscape.cms.crl.CMSIssuingDistributionPointExtension");
+            extConfig.putString("pointType", "");
+            extConfig.putString("pointName", "");
+            extConfig.putString("onlyContainsUserCerts", "false");
+            extConfig.putString("onlyContainsCACerts", "false");
+            extConfig.putString("onlySomeReasons", "");
             //"keyCompromise,cACompromise,affiliationChanged,superseded,cessationOfOperation,certificateHold");
-            extsConfig.putString("IssuingDistributionPoint.indirectCRL", "false");
+            extConfig.putString("indirectCRL", "false");
 
             // CRLReason
-            extsConfig.putString("CRLReason.enable", "true");
-            extsConfig.putString("CRLReason.critical", "false");
-            extsConfig.putString("CRLReason.type", "CRLEntryExtension");
-            extsConfig.putString("CRLReason.class", "com.netscape.cms.crl.CMSCRLReasonExtension");
+            extConfig = extsConfig.getExtensionConfig("CRLReason");
+            extConfig.putString("enable", "true");
+            extConfig.putString("critical", "false");
+            extConfig.putString("type", "CRLEntryExtension");
+            extConfig.putString("class", "com.netscape.cms.crl.CMSCRLReasonExtension");
 
             // HoldInstruction - removed by RFC 5280
-            // extsConfig.putString("HoldInstruction.enable", "false");
-            // extsConfig.putString("HoldInstruction.critical", "false");
-            // extsConfig.putString("HoldInstruction.type", "CRLEntryExtension");
-            // extsConfig.putString("HoldInstruction.class", "com.netscape.cms.crl.CMSHoldInstructionExtension");
-            // extsConfig.putString("HoldInstruction.instruction", "none");
+            // extConfig = extsConfig.getExtensionConfig("HoldInstruction");
+            // extConfig.putString("enable", "false");
+            // extConfig.putString("critical", "false");
+            // extConfig.putString("type", "CRLEntryExtension");
+            // extConfig.putString("class", "com.netscape.cms.crl.CMSHoldInstructionExtension");
+            // extConfig.putString("instruction", "none");
 
             // InvalidityDate
-            extsConfig.putString("InvalidityDate.enable", "true");
-            extsConfig.putString("InvalidityDate.critical", "false");
-            extsConfig.putString("InvalidityDate.type", "CRLEntryExtension");
-            extsConfig.putString("InvalidityDate.class", "com.netscape.cms.crl.CMSInvalidityDateExtension");
+            extConfig = extsConfig.getExtensionConfig("InvalidityDate");
+            extConfig.putString("enable", "true");
+            extConfig.putString("critical", "false");
+            extConfig.putString("type", "CRLEntryExtension");
+            extConfig.putString("class", "com.netscape.cms.crl.CMSInvalidityDateExtension");
 
             // CertificateIssuer
-            // extsConfig.putString("CertificateIssuer.enable", "false");
-            // extsConfig.putString("CertificateIssuer.critical", "true");
-            // extsConfig.putString("CertificateIssuer.type", "CRLEntryExtension");
-            // extsConfig.putString("CertificateIssuer.class", "com.netscape.cms.crl.CMSCertificateIssuerExtension");
-            // extsConfig.putString("CertificateIssuer.numNames", "0");
-            // extsConfig.putString("CertificateIssuer.nameType0", "");
-            // extsConfig.putString("CertificateIssuer.name0", "");
+            // extConfig = extsConfig.getExtensionConfig("CertificateIssuer");
+            // extConfig.putString("enable", "false");
+            // extConfig.putString("critical", "true");
+            // extConfig.putString("type", "CRLEntryExtension");
+            // extConfig.putString("class", "com.netscape.cms.crl.CMSCertificateIssuerExtension");
+            // extConfig.putString("numNames", "0");
+            // extConfig.putString("nameType0", "");
+            // extConfig.putString("name0", "");
 
             // FreshestCRL
-            extsConfig.putString("FreshestCRL.enable", "false");
-            extsConfig.putString("FreshestCRL.critical", "false");
-            extsConfig.putString("FreshestCRL.type", "CRLExtension");
-            extsConfig.putString("FreshestCRL.class", "com.netscape.cms.crl.CMSFreshestCRLExtension");
-            extsConfig.putString("FreshestCRL.numPoints", "0");
-            extsConfig.putString("FreshestCRL.pointType0", "");
-            extsConfig.putString("FreshestCRL.pointName0", "");
+            extConfig = extsConfig.getExtensionConfig("FreshestCRL");
+            extConfig.putString("enable", "false");
+            extConfig.putString("critical", "false");
+            extConfig.putString("type", "CRLExtension");
+            extConfig.putString("class", "com.netscape.cms.crl.CMSFreshestCRLExtension");
+            extConfig.putString("numPoints", "0");
+            extConfig.putString("pointType0", "");
+            extConfig.putString("pointName0", "");
 
             String issuingPointClassName = null;
             Class<CRLIssuingPoint> issuingPointClass = null;

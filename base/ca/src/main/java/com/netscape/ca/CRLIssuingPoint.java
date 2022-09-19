@@ -66,7 +66,6 @@ import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.cmscore.dbs.CRLRepository;
 import com.netscape.cmscore.dbs.CertRecord;
@@ -1389,7 +1388,7 @@ public class CRLIssuingPoint implements Runnable {
                             CRLConfig crlConfig = caConfig.getCRLConfig();
                             CRLIssuingPointConfig ipConfig = crlConfig.getCRLIssuingPointConfig(mId);
                             CRLExtensionsConfig crlExtsConfig = ipConfig.getExtensionsConfig();
-                            ConfigStore crlExtsSubStore = crlExtsConfig.getSubStore(IssuingDistributionPointExtension.NAME, ConfigStore.class);
+                            CRLExtensionConfig crlExtsSubStore = crlExtsConfig.getExtensionConfig(IssuingDistributionPointExtension.NAME);
 
                             if (crlExtsSubStore != null) {
                                 String val = "";
