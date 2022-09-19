@@ -109,6 +109,15 @@ jobs:
     with:
       os: ${{ matrix.os }}
 
+  ca-crl-test:
+    name: CA CRL database
+    needs: [init, build]
+    strategy:
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    uses: ./.github/workflows/ca-crl-test.yml
+    with:
+      os: ${{ matrix.os }}
+
   ca-publishing-ca-cert-test:
     name: CA with CA cert publishing
     needs: [init, build]
