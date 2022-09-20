@@ -1,0 +1,6 @@
+= Tools Changes =
+
+== New pki-server <subsystem>-redeploy CLI ==
+
+The `pki-server <subsystem>-redeploy` command has been added to undeploy
+then redeploy a subsystem.

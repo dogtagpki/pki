@@ -271,8 +271,7 @@ jobs:
           docker exec ca pki-server ca-config-set ca.crl.MasterCRL.alwaysUpdate true
 
           # restart CA subsystem
-          docker exec ca pki-server ca-undeploy --wait
-          docker exec ca pki-server ca-deploy --wait
+          docker exec ca pki-server ca-redeploy --wait
 
       - name: Configure revocation info store in OCSP
         run: |
@@ -292,8 +291,7 @@ jobs:
           docker exec ocsp pki-server ocsp-config-set ocsp.storeId ldapStore
 
           # restart OCSP subsystem
-          docker exec ocsp pki-server ocsp-undeploy --wait
-          docker exec ocsp pki-server ocsp-deploy --wait
+          docker exec ocsp pki-server ocsp-redeploy --wait
 
       - name: Check OCSP responder with no CRLs
         run: |

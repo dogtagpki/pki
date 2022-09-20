@@ -146,8 +146,7 @@ jobs:
 
       - name: Restart CA subsystem
         run: |
-          docker exec pki pki-server ca-undeploy --wait
-          docker exec pki pki-server ca-deploy --wait
+          docker exec pki pki-server ca-redeploy --wait
 
       - name: Check CA admin
         run: |
@@ -317,8 +316,7 @@ jobs:
 
       - name: Restart CA subsystem
         run: |
-          docker exec pki pki-server ca-undeploy --wait
-          docker exec pki pki-server ca-deploy --wait
+          docker exec pki pki-server ca-redeploy --wait
 
       - name: Check user 2 before enrollment
         run: |

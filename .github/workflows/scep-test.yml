@@ -78,9 +78,12 @@ jobs:
       - name: Configure SCEP in CA
         run: |
           docker exec pki pki-server ca-config-set ca.scep.enable true
+
           docker exec pki bash -c "echo UID:$(cat client.ip) > /etc/pki/pki-tomcat/ca/flatfile.txt"
           docker exec pki bash -c "echo PWD:Secret.123 >> /etc/pki/pki-tomcat/ca/flatfile.txt"
-          docker exec pki pki-server restart --wait
+
+          # restart CA subsystem
+          docker exec pki pki-server ca-redeploy --wait
 
       - name: Install SSCEP in client container
         run: |

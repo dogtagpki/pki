@@ -239,8 +239,7 @@ jobs:
           docker exec ca pki-server ca-config-set ca.crl.MasterCRL.alwaysUpdate true
 
           # restart CA subsystem
-          docker exec ca pki-server ca-undeploy --wait
-          docker exec ca pki-server ca-deploy --wait
+          docker exec ca pki-server ca-redeploy --wait
 
       - name: Check OCSP responder with no CRLs
         run: |

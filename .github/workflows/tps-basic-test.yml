@@ -156,8 +156,9 @@ jobs:
           docker exec pki pki-server tps-config-set \
               auths.instance.ldap1.ldap.basedn \
               ou=people,dc=example,dc=com
-          docker exec pki pki-server tps-undeploy --wait
-          docker exec pki pki-server tps-deploy --wait
+
+          # restart TPS subsystem
+          docker exec pki pki-server tps-redeploy --wait
 
       - name: Add token
         run: |

@@ -115,8 +115,7 @@ jobs:
           docker exec pki pki-server ca-config-set ca.publish.enable true
 
           # restart CA subsystem
-          docker exec pki pki-server ca-undeploy --wait
-          docker exec pki pki-server ca-deploy --wait
+          docker exec pki pki-server ca-redeploy --wait
 
       - name: Check published CA cert
         run: |

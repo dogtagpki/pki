@@ -68,8 +68,8 @@ jobs:
           # enable signed audit log
           docker exec pki pki-server ca-config-set log.instance.SignedAudit.logSigning true
 
-          # restart PKI server
-          docker exec pki pki-server restart --wait
+          # restart CA subsystem
+          docker exec pki pki-server ca-redeploy --wait
 
       - name: Check CA signing cert
         run: |

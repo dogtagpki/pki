@@ -161,9 +161,8 @@ jobs:
               -e "s/^\(enable\)=.*/\1=true/" \
               /var/lib/pki/pki-tomcat/ca/profiles/ca/caFullCMCSharedTokenCert.cfg
 
-          # restart CA
-          docker exec pki pki-server ca-undeploy --wait
-          docker exec pki pki-server ca-deploy --wait
+          # restart CA subsystem
+          docker exec pki pki-server ca-redeploy --wait
 
       # https://github.com/dogtagpki/pki/wiki/Generating-CMC-Shared-Token
       - name: Generate shared token for user
