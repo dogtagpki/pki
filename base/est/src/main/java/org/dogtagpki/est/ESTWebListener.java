@@ -20,7 +20,17 @@ public class ESTWebListener implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent event) {
+        String path = event.getServletContext().getContextPath();
+        String id;
+
+        if ("".equals(path)) {
+            id = "ROOT";
+        } else {
+            id = path.substring(1);
+        }
         ESTEngine engine = createEngine();
+        engine.setId(id);
+
         try {
             engine.start(event.getServletContext().getContextPath());
         } catch (Throwable e) {
