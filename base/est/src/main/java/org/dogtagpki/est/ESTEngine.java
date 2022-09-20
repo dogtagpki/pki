@@ -4,6 +4,13 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.Properties;
 
+import org.apache.catalina.realm.RealmBase;
+
+import com.netscape.cms.realm.RealmCommon;
+import com.netscape.cms.realm.RealmConfig;
+import com.netscape.cms.tomcat.ProxyRealm;
+
+
 /**
  * Engine that manages the EST backend(s) according to configuration.
  *
@@ -14,6 +21,10 @@ public class ESTEngine {
     private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ESTEngine.class);
 
     private static ESTEngine INSTANCE;
+
+    private String id;
+
+    private RealmCommon realm;
 
     private ESTBackend backend;
     private ESTRequestAuthorizer requestAuthorizer;
@@ -46,6 +57,7 @@ public class ESTEngine {
 
         initBackend(estConfDir + File.separator + "backend.conf");
         initRequestAuthorizer(estConfDir + File.separator + "authorizer.conf");
+        initRealm(estConfDir + File.separator + "realm.conf");
 
         logger.info("EST engine started");
     }
@@ -60,6 +72,9 @@ public class ESTEngine {
             requestAuthorizer.stop();
         }
 
+        if (realm != null) {
+            realm.stop();
+        }
         logger.info("EST engine stopped");
     }
 
@@ -107,6 +122,39 @@ public class ESTEngine {
         requestAuthorizer = clazz.getDeclaredConstructor().newInstance();
         requestAuthorizer.setConfig(config);
         requestAuthorizer.start();
+    }
+
+    private void initRealm(String filename) throws Throwable {
+        RealmConfig realmConfig = null;
+        File realmConfigFile = new File(filename);
+        
+        if (realmConfigFile.exists()) {
+            logger.info("Loading EST realm config from " + realmConfigFile);
+            Properties props = new Properties();
+            try (FileReader reader = new FileReader(realmConfigFile)) {
+                props.load(reader);
+            }
+            realmConfig = RealmConfig.fromProperties(props);
+
+        } else {
+            logger.info("Loading default realm config");
+            realmConfig = new RealmConfig();
+        }
+
+        logger.info("Initializing EST realm");
+        String className = realmConfig.getClassName();
+        if (className == null) {
+            throw new RuntimeException("File " + filename + " misses 'class' property");
+        }
+        Class<RealmCommon> realmClass = (Class<RealmCommon>) Class.forName(className);
+        realm = realmClass.getDeclaredConstructor().newInstance();
+        realm.setConfig(realmConfig);
+        realm.start();
+        ProxyRealm.registerRealm(id, realm);
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
 }
