@@ -4,6 +4,7 @@
 	<classpathentry kind="src" path="base/util/src/main/java"/>
 	<classpathentry kind="src" path="base/util/src/test/java"/>
 	<classpathentry kind="src" path="base/common/src/main/java"/>
+	<classpathentry including="*" kind="src" path="base/est/src/main/java"/>
 	<classpathentry kind="src" path="base/common/src/test/java"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/common/examples/java"/>
 	<classpathentry kind="src" path="base/tools/src/main/java"/>
