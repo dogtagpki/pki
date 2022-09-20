@@ -7,8 +7,10 @@ package org.dogtagpki.est;
 
 import java.io.IOException;
 import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
 import java.util.concurrent.TimeUnit;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -68,17 +70,21 @@ public class ExternalProcessRequestAuthorizer extends ESTRequestAuthorizer {
     public Object authorizeSimpleenroll(
         ESTRequestAuthorizationData data, PKCS10 csr)
             throws PKIException {
-        return check(OPERATION_SIMPLEENROLL, data, csr);
+        return check(OPERATION_SIMPLEENROLL, data, csr, null);
     }
 
     @Override
     public Object authorizeSimplereenroll(
-        ESTRequestAuthorizationData data, PKCS10 csr)
+        ESTRequestAuthorizationData data, PKCS10 csr, X509Certificate toBeRenewed)
             throws PKIException {
-        return check(OPERATION_SIMPLEREENROLL, data, csr);
+        return check(OPERATION_SIMPLEREENROLL, data, csr, toBeRenewed);
     }
 
-    String check(String op, ESTRequestAuthorizationData authzData, PKCS10 csr)
+    String check(
+            String op,
+            ESTRequestAuthorizationData authzData,
+            PKCS10 csr,
+            X509Certificate toBeRenewed)
             throws PKIException {
         logger.debug("About to execute command: " + this.executable);
         ProcessBuilder pb = new ProcessBuilder(this.executable);
@@ -88,6 +94,7 @@ public class ExternalProcessRequestAuthorizer extends ESTRequestAuthorizer {
         data.operation = op;
         data.authzData = authzData;
         data.csr = csr;
+        data.toBeRenewed = toBeRenewed;
         ObjectMapper mapper = new ObjectMapper();
 
         Process p;
@@ -140,6 +147,15 @@ public class ExternalProcessRequestAuthorizer extends ESTRequestAuthorizer {
         @JsonProperty("csr")
         String getCSR() throws IOException {
             return Base64.encodeBase64String(csr.toByteArray());
+        }
+
+        X509Certificate toBeRenewed;
+
+        @JsonProperty("toBeRenewed")
+        @JsonInclude(JsonInclude.Include.NON_NULL)
+        String getToBeRenewed() throws CertificateEncodingException {
+            if (null == toBeRenewed) return null;
+            return Base64.encodeBase64String(toBeRenewed.getEncoded());
         }
 
     }
