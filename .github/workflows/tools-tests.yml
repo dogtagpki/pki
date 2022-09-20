@@ -64,13 +64,13 @@ jobs:
             COPR_REPO=${{ needs.init.outputs.repo }}
           tags: pki-runner
           target: pki-runner
-          outputs: type=docker,dest=pki-tools-runner.tar
+          outputs: type=docker,dest=pki-runner.tar
 
       - name: Store runner image
         uses: actions/cache@v3
         with:
           key: pki-tools-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-tools-runner.tar
+          path: pki-runner.tar
 
   PKICertImport-test:
     name: PKICertImport
