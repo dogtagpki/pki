@@ -155,7 +155,7 @@ public class ESTFrontend {
 
         ensureCSRMatchesToBeRenewedCert(csr, toBeRenewed);
 
-        Object authzResult = getRequestAuthorizer().authorizeSimplereenroll(authzData, csr);
+        Object authzResult = getRequestAuthorizer().authorizeSimplereenroll(authzData, csr, toBeRenewed);
 
         X509Certificate cert = getBackend().simplereenroll(label, csr, authzResult);
         return certResponse(cert);
