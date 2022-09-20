@@ -56,13 +56,13 @@ jobs:
             COPR_REPO=${{ needs.init.outputs.repo }}
           tags: pki-runner
           target: pki-runner
-          outputs: type=docker,dest=pki-ca-runner.tar
+          outputs: type=docker,dest=pki-runner.tar
 
       - name: Store runner image
         uses: actions/cache@v3
         with:
           key: pki-ca-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-ca-runner.tar
+          path: pki-runner.tar
 
   ca-clone-test:
     name: CA clone

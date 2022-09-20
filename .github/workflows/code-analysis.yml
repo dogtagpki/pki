@@ -27,10 +27,10 @@ jobs:
         uses: actions/cache@v3
         with:
           key: pki-sonar-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-sonar-runner.tar
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input pki-sonar-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Set up PKI container
         run: |

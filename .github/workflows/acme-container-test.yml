@@ -22,19 +22,19 @@ jobs:
         uses: actions/cache@v3
         with:
           key: pki-acme-runner-${{ inputs.os }}-${{ github.run_id }}
-          path: pki-acme-runner.tar
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input pki-acme-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Retrieve server image
         uses: actions/cache@v3
         with:
           key: pki-acme-server-${{ inputs.os }}-${{ github.run_id }}
-          path: pki-acme-server.tar
+          path: pki-acme.tar
 
       - name: Load ACME image
-        run: docker load --input pki-acme-server.tar
+        run: docker load --input pki-acme.tar
 
       - name: Create network
         run: docker network create example

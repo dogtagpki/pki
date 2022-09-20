@@ -136,13 +136,13 @@ jobs:
             COPR_REPO=${{ needs.init.outputs.repo }}
           tags: pki-runner
           target: pki-runner
-          outputs: type=docker,dest=pki-sonar-runner.tar
+          outputs: type=docker,dest=pki-runner.tar
 
       - name: Store runner image
         uses: actions/cache@v3
         with:
           key: pki-sonar-runner-${{ matrix.os }}-${{ github.event.workflow_run.id }}
-          path: pki-sonar-runner.tar
+          path: pki-runner.tar
         
   sonarcloud:
     name: Sonar Cloud code analysis
@@ -158,10 +158,10 @@ jobs:
         uses: actions/cache@v3
         with:
           key: pki-sonar-runner-${{ matrix.os }}-${{ github.event.workflow_run.id }}
-          path: pki-sonar-runner.tar
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input pki-sonar-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Checkout pulled branch
         uses: actions/checkout@v2

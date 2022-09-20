@@ -56,13 +56,13 @@ jobs:
             COPR_REPO=${{ needs.init.outputs.repo }}
           tags: pki-runner
           target: pki-runner
-          outputs: type=docker,dest=pki-kra-runner.tar
+          outputs: type=docker,dest=pki-runner.tar
 
       - name: Store runner image
         uses: actions/cache@v3
         with:
           key: pki-kra-runner-${{ matrix.os }}-${{ github.run_id }}
-          path: pki-kra-runner.tar
+          path: pki-runner.tar
 
   kra-basic-test:
     name: Basic KRA

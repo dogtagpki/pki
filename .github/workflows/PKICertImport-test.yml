@@ -21,10 +21,10 @@ jobs:
         uses: actions/cache@v3
         with:
           key: pki-tools-runner-${{ inputs.os }}-${{ github.run_id }}
-          path: pki-tools-runner.tar
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input pki-tools-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Set up runner container
         run: |

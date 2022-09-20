@@ -22,10 +22,10 @@ jobs:
         uses: actions/cache@v3
         with:
           key: pki-kra-runner-${{ inputs.os }}-${{ github.run_id }}
-          path: pki-kra-runner.tar
+          path: pki-runner.tar
 
       - name: Load runner image
-        run: docker load --input pki-kra-runner.tar
+        run: docker load --input pki-runner.tar
 
       - name: Create network
         run: docker network create example
