@@ -5,6 +5,8 @@
 //
 package org.dogtagpki.est;
 
+import java.security.cert.X509Certificate;
+
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 
 import com.netscape.certsrv.base.PKIException;
@@ -47,7 +49,7 @@ public abstract class ESTRequestAuthorizer {
      *         issuance backend (null allowed)
      */
     public abstract Object authorizeSimplereenroll(
-        ESTRequestAuthorizationData data, PKCS10 csr)
+        ESTRequestAuthorizationData data, PKCS10 csr, X509Certificate toBeRenewed)
             throws PKIException;
 
 }
