@@ -88,8 +88,8 @@ jobs:
           docker exec pki pki-server ca-config-set dbs.cert.id.generator random
           docker exec pki pki-server ca-config-set dbs.cert.id.length 128
 
-          # restart PKI server
-          docker exec pki pki-server restart --wait
+          # restart CA subsystem
+          docker exec pki pki-server ca-redeploy --wait
 
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --failures-only

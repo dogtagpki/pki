@@ -70,7 +70,9 @@ jobs:
           docker exec root sed -i \
               -e "s/\(policyset.caCertSet.2.default.params.range\)=.*/\1=7300/" \
               /var/lib/pki/pki-tomcat/ca/profiles/ca/caCMCcaCert.cfg
-          docker exec root pki-server restart --wait
+
+          # restart CA subsystem
+          docker exec root pki-server ca-redeploy --wait
 
       - name: Install root CA admin cert
         run: |

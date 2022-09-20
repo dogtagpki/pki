@@ -25,11 +25,13 @@ from __future__ import print_function
 
 import getopt
 import getpass
+import inspect
 import logging
 import os
 import subprocess
 import sys
 import tempfile
+import textwrap
 
 import pki.cli
 import pki.nssdb
@@ -364,6 +366,114 @@ class SubsystemUndeployCLI(pki.cli.CLI):
         logger.info('Undeploying %s webapp', name)
         instance.undeploy_webapp(
             name,
+            wait=wait,
+            max_wait=max_wait,
+            timeout=timeout)
+
+
+class SubsystemRedeployCLI(pki.cli.CLI):
+    '''
+    Redeploy {subsystem} subsystem
+    '''
+
+    help = '''\
+        Usage: pki-server {subsystem}-redeploy [OPTIONS] [name]
+
+          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+              --wait                         Wait until started.
+              --max-wait <seconds>           Maximum wait time (default: 60).
+              --timeout <seconds>            Connection timeout.
+          -v, --verbose                      Run in verbose mode.
+              --debug                        Run in debug mode.
+              --help                         Show help message.
+    '''
+
+    def __init__(self, parent):
+        super().__init__(
+            'redeploy',
+            inspect.cleandoc(self.__class__.__doc__).format(
+                subsystem=parent.name.upper()))
+
+        self.parent = parent
+
+    def print_help(self):
+        print(textwrap.dedent(self.__class__.help).format(
+            subsystem=self.parent.name))
+
+    def execute(self, argv):
+
+        try:
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'wait', 'max-wait=', 'timeout=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        name = self.parent.name
+        instance_name = 'pki-tomcat'
+        wait = False
+        max_wait = 60
+        timeout = None
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--wait':
+                wait = True
+
+            elif o == '--max-wait':
+                max_wait = int(a)
+
+            elif o == '--timeout':
+                timeout = int(a)
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('Unknown option: %s', o)
+                self.print_help()
+                sys.exit(1)
+
+        if len(args) > 0:
+            name = args[0]
+
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+
+        if not instance.exists():
+            raise Exception('Invalid instance: %s' % instance_name)
+
+        instance.load()
+
+        descriptor = os.path.join(pki.server.PKIServer.SHARE_DIR,
+                                  '%s/conf/Catalina/localhost/%s.xml' % (name, name))
+        doc_base = os.path.join(pki.server.PKIServer.SHARE_DIR,
+                                '%s/webapps/%s' % (name, name))
+
+        logger.info('Undeploying %s webapp', name)
+        instance.undeploy_webapp(
+            name,
+            wait=True,
+            max_wait=max_wait,
+            timeout=timeout)
+
+        logger.info('Deploying %s webapp', name)
+        instance.deploy_webapp(
+            name,
+            descriptor,
+            doc_base,
             wait=wait,
             max_wait=max_wait,
             timeout=timeout)

@@ -48,6 +48,7 @@ class OCSPCLI(pki.cli.CLI):
 
         self.add_module(pki.server.cli.subsystem.SubsystemDeployCLI(self))
         self.add_module(pki.server.cli.subsystem.SubsystemUndeployCLI(self))
+        self.add_module(pki.server.cli.subsystem.SubsystemRedeployCLI(self))
         self.add_module(pki.server.cli.audit.AuditCLI(self))
         self.add_module(OCSPCloneCLI())
         self.add_module(OCSPCRLCLI())

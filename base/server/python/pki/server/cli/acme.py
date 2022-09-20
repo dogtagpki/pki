@@ -56,8 +56,10 @@ class ACMECLI(pki.cli.CLI):
 
         self.add_module(ACMECreateCLI())
         self.add_module(ACMERemoveCLI())
+
         self.add_module(pki.server.cli.subsystem.SubsystemDeployCLI(self))
         self.add_module(pki.server.cli.subsystem.SubsystemUndeployCLI(self))
+        self.add_module(pki.server.cli.subsystem.SubsystemRedeployCLI(self))
 
         self.add_module(ACMEMetadataCLI())
         self.add_module(ACMEDatabaseCLI())
