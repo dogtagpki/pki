@@ -78,6 +78,8 @@ public class CAInfoService extends PKIService implements CAInfoResource {
     private static String archivalMechanism = CAInfo.KEYWRAP_MECHANISM;
     private static String encryptAlgorithm;
     private static String keyWrapAlgorithm;
+    private static String rsaPublicKeyWrapAlgorithm;
+    private static String caRsaPublicKeyWrapAlgorithm;
 
     @Override
     public Response getInfo() throws Exception {
@@ -88,6 +90,7 @@ public class CAInfoService extends PKIService implements CAInfoResource {
         CAInfo info = new CAInfo();
 
         addKRAInfo(info);
+        info.setCaRsaPublicKeyWrapAlgorithm(caRsaPublicKeyWrapAlgorithm);
 
         return createOKResponse(info);
     }
@@ -122,6 +125,7 @@ public class CAInfoService extends PKIService implements CAInfoResource {
             info.setArchivalMechanism(archivalMechanism);
             info.setEncryptAlgorithm(encryptAlgorithm);
             info.setKeyWrapAlgorithm(keyWrapAlgorithm);
+            info.setRsaPublicKeyWrapAlgorithm(rsaPublicKeyWrapAlgorithm);
         }
     }
 
@@ -138,6 +142,8 @@ public class CAInfoService extends PKIService implements CAInfoResource {
             archivalMechanism = kraInfo.getArchivalMechanism();
             encryptAlgorithm = kraInfo.getEncryptAlgorithm();
             keyWrapAlgorithm = kraInfo.getWrapAlgorithm();
+            rsaPublicKeyWrapAlgorithm = kraInfo.getRsaPublicKeyWrapAlgorithm();
+            caRsaPublicKeyWrapAlgorithm =  getCaRsaPublicKeyWrapAlgorithm();
 
             // mark info as authoritative
             kraInfoAuthoritative = true;
@@ -200,5 +206,22 @@ public class CAInfoService extends PKIService implements CAInfoResource {
 
         return new PKIClient(config);
     }
+
+    private static String getCaRsaPublicKeyWrapAlgorithm() throws EBaseException {
+
+        CAEngine engine = CAEngine.getInstance();
+        CAEngineConfig cs = engine.getConfig();
+
+        boolean useOAEP = cs.getBoolean("keyWrap.useOAEP", false);
+
+        String result = "RSA";
+
+        if(useOAEP == true) {
+            result = "RSA_OAEP";
+        }
+
+        return result;
+    }
+
 
 }
