@@ -17,6 +17,7 @@ public class KRAInfoTest {
         before.setRecoveryMechanism("keywrap");
         before.setEncryptAlgorithm("AES/CBC/Pad");
         before.setWrapAlgorithm("AES KeyWrap/Padding");
+        before.setRsaPublicKeyWrapAlgorithm("RSA");
     }
 
     @Test
