@@ -203,7 +203,6 @@ BuildRequires:    apr-devel
 BuildRequires:    apr-util-devel
 BuildRequires:    cyrus-sasl-devel
 BuildRequires:    httpd-devel >= 2.4.2
-BuildRequires:    pcre-devel
 BuildRequires:    systemd
 BuildRequires:    zlib
 BuildRequires:    zlib-devel
