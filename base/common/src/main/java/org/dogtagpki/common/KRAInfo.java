@@ -18,9 +18,14 @@
 
 package org.dogtagpki.common;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.netscape.certsrv.base.RESTMessage;
 
 /**
@@ -34,7 +39,9 @@ public class KRAInfo extends RESTMessage {
     String recoveryMechanism;
     String encryptAlgorithm;
     String wrapAlgorithm;
+    String rsaPublicKeyWrapAlgorithm;
 
+    @JsonProperty("ArchivalMechanism")
     public String getArchivalMechanism() {
         return archivalMechanism;
     }
@@ -43,6 +50,7 @@ public class KRAInfo extends RESTMessage {
         this.archivalMechanism = archivalMechanism;
     }
 
+    @JsonProperty("RecoveryMechanism")
     public String getRecoveryMechanism() {
         return recoveryMechanism;
     }
@@ -51,6 +59,7 @@ public class KRAInfo extends RESTMessage {
         this.recoveryMechanism = recoveryMechanism;
     }
 
+   @JsonProperty("EncryptionAlgorithm")
     public String getEncryptAlgorithm() {
         return encryptAlgorithm;
     }
@@ -59,12 +68,22 @@ public class KRAInfo extends RESTMessage {
         this.encryptAlgorithm = encryptAlgorithm;
     }
 
+    @JsonProperty("WrapAlgorithm")
     public String getWrapAlgorithm() {
         return wrapAlgorithm;
     }
 
     public void setWrapAlgorithm(String wrapAlgorithm) {
         this.wrapAlgorithm = wrapAlgorithm;
+    }
+
+    @JsonProperty("RsaPublicKeyWrapAlgorithm")
+    public String getRsaPublicKeyWrapAlgorithm() {
+        return rsaPublicKeyWrapAlgorithm;
+    }
+
+    public void setRsaPublicKeyWrapAlgorithm(String rsaPublicKeyWrapAlgorithm) {
+        this.rsaPublicKeyWrapAlgorithm = rsaPublicKeyWrapAlgorithm;
     }
 
     @Override
@@ -75,6 +94,7 @@ public class KRAInfo extends RESTMessage {
         result = prime * result + ((encryptAlgorithm == null) ? 0 : encryptAlgorithm.hashCode());
         result = prime * result + ((recoveryMechanism == null) ? 0 : recoveryMechanism.hashCode());
         result = prime * result + ((wrapAlgorithm == null) ? 0 : wrapAlgorithm.hashCode());
+        result = prime * result + ((rsaPublicKeyWrapAlgorithm == null) ? 0 : rsaPublicKeyWrapAlgorithm.hashCode());
         return result;
     }
 
@@ -105,10 +125,89 @@ public class KRAInfo extends RESTMessage {
         if (wrapAlgorithm == null) {
             if (other.wrapAlgorithm != null)
                 return false;
-        } else if (!wrapAlgorithm.equals(other.wrapAlgorithm))
+        } else if (!wrapAlgorithm.equals(other.wrapAlgorithm)) {
+            return false;
+        } else if (!rsaPublicKeyWrapAlgorithm.equals(other.rsaPublicKeyWrapAlgorithm))
             return false;
         return true;
     }
 
+    public Element toDOM(Document document) {
+
+        Element infoElement = document.createElement("KRAInfo");
+
+        toDOM(document, infoElement);
+
+        if (archivalMechanism != null) {
+            Element archivalElement = document.createElement("ArchivalMechanism");
+            archivalElement.appendChild(document.createTextNode(archivalMechanism));
+            infoElement.appendChild(archivalElement);
+        }
+
+        if (recoveryMechanism != null) {
+            Element recoveryElement = document.createElement("RecoveryMechanism");
+            recoveryElement.appendChild(document.createTextNode(recoveryMechanism));
+            infoElement.appendChild(recoveryElement);
+        }
+
+        if (encryptAlgorithm != null) {
+            Element encryptElement = document.createElement("EncryptionAlgorithm");
+            encryptElement.appendChild(document.createTextNode(encryptAlgorithm));
+            infoElement.appendChild(encryptElement);
+        }
+
+        if (wrapAlgorithm != null) {
+            Element wrapElement = document.createElement("WrapAlgorithm");
+            wrapElement.appendChild(document.createTextNode(wrapAlgorithm));
+            infoElement.appendChild(wrapElement);
+        }
+
+        if (rsaPublicKeyWrapAlgorithm != null) {
+            Element rsaPublicWrapElement = document.createElement("RsaPublicKeyWrapAlgorithm");
+            rsaPublicWrapElement.appendChild(document.createTextNode(rsaPublicKeyWrapAlgorithm));
+            infoElement.appendChild(rsaPublicWrapElement);
+        }
+
+        return infoElement;
+    }
+
+    public static KRAInfo fromDOM(Element infoElement) {
+
+        KRAInfo info = new KRAInfo();
+
+        fromDOM(infoElement, info);
+
+        NodeList archivalList = infoElement.getElementsByTagName("ArchivalMechanism");
+        if (archivalList.getLength() > 0) {
+            String value = archivalList.item(0).getTextContent();
+            info.setArchivalMechanism(value);
+        }
+
+        NodeList recoveryList = infoElement.getElementsByTagName("RecoveryMechanism");
+        if (recoveryList.getLength() > 0) {
+            String value = recoveryList.item(0).getTextContent();
+            info.setRecoveryMechanism(value);
+        }
+
+        NodeList encryptionList = infoElement.getElementsByTagName("EncryptionAlgorithm");
+        if (encryptionList.getLength() > 0) {
+            String value = encryptionList.item(0).getTextContent();
+            info.setEncryptAlgorithm(value);
+        }
+
+        NodeList wrapList = infoElement.getElementsByTagName("WrapAlgorithm");
+        if (wrapList.getLength() > 0) {
+            String value = wrapList.item(0).getTextContent();
+            info.setWrapAlgorithm(value);
+        }
+
+        NodeList rsaPublicKeyWrapList = infoElement.getElementsByTagName("RsaPublicKeyWrapAlgorithm");
+        if (rsaPublicKeyWrapList.getLength() > 0) {
+            String value = rsaPublicKeyWrapList.item(0).getTextContent();
+            info.setRsaPublicKeyWrapAlgorithm(value);
+        }
+
+        return info;
+    }
 }
 
