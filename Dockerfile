@@ -19,7 +19,7 @@ FROM registry.fedoraproject.org/fedora:$OS_VERSION AS fedora-runner
 
 RUN dnf install -y systemd \
     && dnf clean all \
-    && rm -rf /var/cache/yum
+    && rm -rf /var/cache/dnf
 
 CMD [ "/usr/sbin/init" ]
 
@@ -35,7 +35,10 @@ RUN if [ -n "$COPR_REPO" ]; then dnf install -y dnf-plugins-core; dnf copr enabl
 COPY build/RPMS /tmp/RPMS/
 
 # Install PKI packages
-RUN dnf localinstall -y /tmp/RPMS/*; rm -rf /tmp/RPMS
+RUN dnf localinstall -y /tmp/RPMS/* \
+    && dnf clean all \
+    && rm -rf /var/cache/dnf \
+    && rm -rf /tmp/RPMS
 
 ################################################################################
 FROM pki-runner AS pki-server

@@ -33,19 +33,21 @@ EXPOSE 8080 8443
 RUN if [ -n "$COPR_REPO" ]; then dnf install -y dnf-plugins-core; dnf copr enable -y $COPR_REPO; fi
 
 # Install packages
-RUN dnf install -y bind-utils iputils abrt-java-connector postgresql postgresql-jdbc
+RUN dnf install -y rpm-build bind-utils iputils abrt-java-connector postgresql postgresql-jdbc \
+    && dnf clean all \
+    && rm -rf /var/cache/dnf
 
 # Import PKI sources
 COPY . /tmp/pki/
 WORKDIR /tmp/pki
 
-# Build PKI packages
-RUN dnf install -y dnf-plugins-core rpm-build
-RUN dnf builddep -y --spec pki.spec
-RUN ./build.sh --with-pkgs=base,server,acme --work-dir=/tmp/build rpm
-
-# Install PKI packages
-RUN dnf localinstall -y /tmp/build/RPMS/*
+# Build and install PKI packages
+RUN dnf builddep -y --spec pki.spec \
+    && ./build.sh --with-pkgs=base,server,acme --work-dir=build rpm \
+    && dnf localinstall -y build/RPMS/* \
+    && dnf clean all \
+    && rm -rf /var/cache/dnf \
+    && rm -rf build
 
 # Install PostgreSQL JDBC driver
 RUN ln -s /usr/share/java/postgresql-jdbc/postgresql.jar /usr/share/pki/server/common/lib/postgresql.jar

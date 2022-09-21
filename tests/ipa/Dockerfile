@@ -25,9 +25,14 @@ RUN if [ -n "$COPR_REPO" ]; then dnf install -y dnf-plugins-core; dnf copr enabl
 COPY build/RPMS /tmp/RPMS/
 
 # Install PKI packages
-RUN dnf localinstall -y /tmp/RPMS/*; rm -rf /tmp/RPMS
+RUN dnf localinstall -y /tmp/RPMS/* \
+    && dnf clean all \
+    && rm -rf /var/cache/dnf \
+    && rm -rf /tmp/RPMS
 
 # Install IPA packages
-RUN dnf copr enable -y @freeipa/freeipa-master-nightly
-RUN dnf install -y freeipa-server freeipa-server-dns freeipa-healthcheck freeipa-client \
-    certbot python3-ipatests
+RUN dnf copr enable -y @freeipa/freeipa-master-nightly \
+    && dnf install -y freeipa-server freeipa-server-dns freeipa-healthcheck freeipa-client \
+           python3-ipatests certbot \
+    && dnf clean all \
+    && rm -rf /var/cache/dnf

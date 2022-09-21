@@ -33,21 +33,21 @@ EXPOSE 8080 8443
 RUN if [ -n "$COPR_REPO" ]; then dnf install -y dnf-plugins-core; dnf copr enable -y $COPR_REPO; fi
 
 # Install packages
-RUN dnf install -y rpm-build
+RUN dnf install -y rpm-build \
+    && dnf clean all \
+    && rm -rf /var/cache/dnf
 
 # Import PKI sources
 COPY . /tmp/pki/
 WORKDIR /tmp/pki
 
-# Install PKI dependencies
-RUN dnf builddep -y --spec pki.spec
-
 # Build and install PKI packages
-RUN ./build.sh --with-pkgs=base,server,ca --work-dir=/tmp/build rpm \
-    && dnf localinstall -y /tmp/build/RPMS/* \
+RUN dnf builddep -y --spec pki.spec \
+    && ./build.sh --with-pkgs=base,server,ca --work-dir=build rpm \
+    && dnf localinstall -y build/RPMS/* \
     && dnf clean all \
     && rm -rf /var/cache/dnf \
-    && rm -rf /tmp/build
+    && rm -rf build
 
 # Create PKI server
 RUN pki-server create --group root
