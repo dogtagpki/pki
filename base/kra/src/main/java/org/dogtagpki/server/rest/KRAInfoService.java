@@ -61,7 +61,7 @@ public class KRAInfoService extends PKIService implements KRAInfoResource {
         info.setRecoveryMechanism(getRecoveryMechanism());
         info.setEncryptAlgorithm(getEncryptAlgorithm());
         info.setWrapAlgorithm(getWrapAlgorithm());
-
+        info.setRsaPublicKeyWrapAlgorithm(getRsaPublicKeyWrapAlgorithm());
         return createOKResponse(info);
     }
 
@@ -113,6 +113,22 @@ public class KRAInfoService extends PKIService implements KRAInfoResource {
             return "AES/CBC/Padding";
         }
         return params.getPayloadEncryptionAlgorithm().toString();
+    }
+
+    String getRsaPublicKeyWrapAlgorithm() throws EBaseException {
+
+        KRAEngine engine = KRAEngine.getInstance();
+        KRAEngineConfig cs = engine.getConfig();
+
+        boolean useOAEP = cs.getBoolean("keyWrap.useOAEP", false);
+
+        String result = "RSA";
+
+        if(useOAEP == true) { 
+            result = "RSA_OAEP";
+        }
+        
+        return result; 
     }
 }
 
