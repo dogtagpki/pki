@@ -77,6 +77,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         deployer.configure_id_generators(subsystem)
 
+        #configure oaep, applies to any subsystem
+        useOAEPKeyWrap = \
+            deployer.mdict['pki_use_oaep_rsa_keywrap']
+
+        if useOAEPKeyWrap == "True":
+            subsystem.config['keyWrap.useOAEP'] = 'true'
+
         if subsystem.name == 'ca':
             serial_number_range_start = deployer.mdict.get('pki_serial_number_range_start')
             if serial_number_range_start:

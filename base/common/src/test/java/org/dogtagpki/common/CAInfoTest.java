@@ -17,6 +17,8 @@ public class CAInfoTest {
         before.setArchivalMechanism(CAInfo.KEYWRAP_MECHANISM);
         before.setEncryptAlgorithm(CAInfo.ENCRYPT_MECHANISM);
         before.setKeyWrapAlgorithm(CAInfo.KEYWRAP_MECHANISM);
+        before.setRsaPublicKeyWrapAlgorithm(CAInfo.RSA_PUBLIC_KEY_WRAP);
+        before.setCaRsaPublicKeyWrapAlgorithm(CAInfo.RSA_PUBLIC_KEY_WRAP);
     }
 
     @Test
