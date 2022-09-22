@@ -105,37 +105,37 @@ add_custom_target(pki-lib ALL
 add_custom_command(
     TARGET pki-lib
     COMMAND ${CMAKE_COMMAND} -E make_directory lib
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_CLI_JAR} lib/commons-cli.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_CODEC_JAR} lib/commons-codec.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_IO_JAR} lib/commons-io.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_LANG3_JAR} lib/commons-lang3.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_LOGGING_JAR} lib/commons-logging.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_NET_JAR} lib/commons-net.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${HTTPCLIENT_JAR} lib/httpclient.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${HTTPCORE_JAR} lib/httpcore.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_CORE_JAR} lib/jackson-core.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_DATABIND_JAR} lib/jackson-databind.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_ANNOTATIONS_JAR} lib/jackson-annotations.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_JAXRS_BASE_JAR} lib/jackson-jaxrs-base.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_JAXRS_JSON_PROVIDER_JAR} lib/jackson-jaxrs-json-provider.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_JAXB_ANNOTATIONS_JAR} lib/jackson-module-jaxb-annotations.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAVAX_ACTIVATION_JAR} lib/javax.activation.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAVAX_ANNOTATIONS_API_JAR} lib/javax.annotations-api.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAXB_API_JAR} lib/jaxb-api.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAXRS_API_JAR} lib/jaxrs-api.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JBOSS_LOGGING_JAR} lib/jboss-logging.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JSS_JAR} lib/jss.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JSS_SYMKEY_JAR} lib/jss-symkey.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${LDAPJDK_JAR} lib/ldapjdk.jar
-    COMMAND ln -sf ${P11_KIT_TRUST} lib/p11-kit-trust.so
-    COMMAND ln -sf /usr/share/java/pki/pki-certsrv.jar ${CMAKE_CURRENT_BINARY_DIR}/lib/pki-certsrv.jar
-    COMMAND ln -sf /usr/share/java/pki/pki-tools.jar ${CMAKE_CURRENT_BINARY_DIR}/lib/pki-tools.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_CLIENT_JAR} lib/resteasy-client.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_JACKSON2_PROVIDER_JAR} lib/resteasy-jackson2-provider.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_JAXRS_JAR} lib/resteasy-jaxrs.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${SERVLET_JAR} lib/servlet.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${SLF4J_API_JAR} lib/slf4j-api.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${SLF4J_JDK14_JAR} lib/slf4j-jdk14.jar
+    COMMAND ln -sf ../../../..${COMMONS_CLI_JAR} lib/commons-cli.jar
+    COMMAND ln -sf ../../../..${COMMONS_CODEC_JAR} lib/commons-codec.jar
+    COMMAND ln -sf ../../../..${COMMONS_IO_JAR} lib/commons-io.jar
+    COMMAND ln -sf ../../../..${COMMONS_LANG3_JAR} lib/commons-lang3.jar
+    COMMAND ln -sf ../../../..${COMMONS_LOGGING_JAR} lib/commons-logging.jar
+    COMMAND ln -sf ../../../..${COMMONS_NET_JAR} lib/commons-net.jar
+    COMMAND ln -sf ../../../..${HTTPCLIENT_JAR} lib/httpclient.jar
+    COMMAND ln -sf ../../../..${HTTPCORE_JAR} lib/httpcore.jar
+    COMMAND ln -sf ../../../..${JACKSON2_CORE_JAR} lib/jackson-core.jar
+    COMMAND ln -sf ../../../..${JACKSON2_DATABIND_JAR} lib/jackson-databind.jar
+    COMMAND ln -sf ../../../..${JACKSON2_ANNOTATIONS_JAR} lib/jackson-annotations.jar
+    COMMAND ln -sf ../../../..${JACKSON2_JAXRS_BASE_JAR} lib/jackson-jaxrs-base.jar
+    COMMAND ln -sf ../../../..${JACKSON2_JAXRS_JSON_PROVIDER_JAR} lib/jackson-jaxrs-json-provider.jar
+    COMMAND ln -sf ../../../..${JACKSON2_JAXB_ANNOTATIONS_JAR} lib/jackson-module-jaxb-annotations.jar
+    COMMAND ln -sf ../../../..${JAVAX_ACTIVATION_JAR} lib/javax.activation.jar
+    COMMAND ln -sf ../../../..${JAVAX_ANNOTATIONS_API_JAR} lib/javax.annotations-api.jar
+    COMMAND ln -sf ../../../..${JAXB_API_JAR} lib/jaxb-api.jar
+    COMMAND ln -sf ../../../..${JAXRS_API_JAR} lib/jaxrs-api.jar
+    COMMAND ln -sf ../../../..${JBOSS_LOGGING_JAR} lib/jboss-logging.jar
+    COMMAND ln -sf ../../../..${JSS_JAR} lib/jss.jar
+    COMMAND ln -sf ../../../..${JSS_SYMKEY_JAR} lib/jss-symkey.jar
+    COMMAND ln -sf ../../../..${LDAPJDK_JAR} lib/ldapjdk.jar
+    COMMAND ln -sf ../../../..${P11_KIT_TRUST} lib/p11-kit-trust.so
+    COMMAND ln -sf ../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-certsrv.jar ${CMAKE_CURRENT_BINARY_DIR}/lib/pki-certsrv.jar
+    COMMAND ln -sf ../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-tools.jar ${CMAKE_CURRENT_BINARY_DIR}/lib/pki-tools.jar
+    COMMAND ln -sf ../../../..${RESTEASY_CLIENT_JAR} lib/resteasy-client.jar
+    COMMAND ln -sf ../../../..${RESTEASY_JACKSON2_PROVIDER_JAR} lib/resteasy-jackson2-provider.jar
+    COMMAND ln -sf ../../../..${RESTEASY_JAXRS_JAR} lib/resteasy-jaxrs.jar
+    COMMAND ln -sf ../../../..${SERVLET_JAR} lib/servlet.jar
+    COMMAND ln -sf ../../../..${SLF4J_API_JAR} lib/slf4j-api.jar
+    COMMAND ln -sf ../../../..${SLF4J_JDK14_JAR} lib/slf4j-jdk14.jar
 )
 
 add_custom_target(pki-man ALL

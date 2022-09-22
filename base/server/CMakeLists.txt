@@ -110,8 +110,8 @@ add_custom_target(pki-server-lib ALL
 add_custom_command(
     TARGET pki-server-lib
     COMMAND ${CMAKE_COMMAND} -E make_directory lib
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${SLF4J_API_JAR} lib/slf4j-api.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${SLF4J_JDK14_JAR} lib/slf4j-jdk14.jar
+    COMMAND ln -sf ../../../../..${SLF4J_API_JAR} lib/slf4j-api.jar
+    COMMAND ln -sf ../../../../..${SLF4J_JDK14_JAR} lib/slf4j-jdk14.jar
 )
 
 # Create /usr/share/pki/server/common/lib. This can be customized for different platforms in RPM spec.
@@ -122,32 +122,32 @@ add_custom_target(pki-server-common-lib ALL
 add_custom_command(
     TARGET pki-server-common-lib
     COMMAND ${CMAKE_COMMAND} -E make_directory common/lib
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_CODEC_JAR} common/lib/commons-codec.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_IO_JAR} common/lib/commons-io.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_LANG3_JAR} common/lib/commons-lang3.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_LOGGING_JAR} common/lib/commons-logging.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${COMMONS_NET_JAR} common/lib/commons-net.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${HTTPCLIENT_JAR} common/lib/httpclient.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${HTTPCORE_JAR} common/lib/httpcore.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_CORE_JAR} common/lib/jackson-core.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_DATABIND_JAR} common/lib/jackson-databind.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_ANNOTATIONS_JAR} common/lib/jackson-annotations.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_JAXRS_BASE_JAR} common/lib/jackson-jaxrs-base.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_JAXRS_JSON_PROVIDER_JAR} common/lib/jackson-jaxrs-json-provider.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_JAXB_ANNOTATIONS_JAR} common/lib/jackson-module-jaxb-annotations.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAVAX_ACTIVATION_JAR} common/lib/javax.activation.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAVAX_ANNOTATIONS_API_JAR} common/lib/javax.annotations-api.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAXB_API_JAR} common/lib/jaxb-api.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAXRS_API_JAR} common/lib/jaxrs-api.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JBOSS_LOGGING_JAR} common/lib/jboss-logging.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JSS_JAR} common/lib/jss.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${JSS_SYMKEY_JAR} common/lib/jss-symkey.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${LDAPJDK_JAR} common/lib/ldapjdk.jar
-    COMMAND ln -sf /usr/share/java/pki/pki-tomcat.jar ${CMAKE_CURRENT_BINARY_DIR}/common/lib/pki-tomcat.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_CLIENT_JAR} common/lib/resteasy-client.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_JACKSON2_PROVIDER_JAR} common/lib/resteasy-jackson2-provider.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_JAXRS_JAR} common/lib/resteasy-jaxrs.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${TOMCATJSS_JAR} common/lib/tomcatjss.jar
+    COMMAND ln -sf ../../../../../..${COMMONS_CODEC_JAR} common/lib/commons-codec.jar
+    COMMAND ln -sf ../../../../../..${COMMONS_IO_JAR} common/lib/commons-io.jar
+    COMMAND ln -sf ../../../../../..${COMMONS_LANG3_JAR} common/lib/commons-lang3.jar
+    COMMAND ln -sf ../../../../../..${COMMONS_LOGGING_JAR} common/lib/commons-logging.jar
+    COMMAND ln -sf ../../../../../..${COMMONS_NET_JAR} common/lib/commons-net.jar
+    COMMAND ln -sf ../../../../../..${HTTPCLIENT_JAR} common/lib/httpclient.jar
+    COMMAND ln -sf ../../../../../..${HTTPCORE_JAR} common/lib/httpcore.jar
+    COMMAND ln -sf ../../../../../..${JACKSON2_CORE_JAR} common/lib/jackson-core.jar
+    COMMAND ln -sf ../../../../../..${JACKSON2_DATABIND_JAR} common/lib/jackson-databind.jar
+    COMMAND ln -sf ../../../../../..${JACKSON2_ANNOTATIONS_JAR} common/lib/jackson-annotations.jar
+    COMMAND ln -sf ../../../../../..${JACKSON2_JAXRS_BASE_JAR} common/lib/jackson-jaxrs-base.jar
+    COMMAND ln -sf ../../../../../..${JACKSON2_JAXRS_JSON_PROVIDER_JAR} common/lib/jackson-jaxrs-json-provider.jar
+    COMMAND ln -sf ../../../../../..${JACKSON2_JAXB_ANNOTATIONS_JAR} common/lib/jackson-module-jaxb-annotations.jar
+    COMMAND ln -sf ../../../../../..${JAVAX_ACTIVATION_JAR} common/lib/javax.activation.jar
+    COMMAND ln -sf ../../../../../..${JAVAX_ANNOTATIONS_API_JAR} common/lib/javax.annotations-api.jar
+    COMMAND ln -sf ../../../../../..${JAXB_API_JAR} common/lib/jaxb-api.jar
+    COMMAND ln -sf ../../../../../..${JAXRS_API_JAR} common/lib/jaxrs-api.jar
+    COMMAND ln -sf ../../../../../..${JBOSS_LOGGING_JAR} common/lib/jboss-logging.jar
+    COMMAND ln -sf ../../../../../..${JSS_JAR} common/lib/jss.jar
+    COMMAND ln -sf ../../../../../..${JSS_SYMKEY_JAR} common/lib/jss-symkey.jar
+    COMMAND ln -sf ../../../../../..${LDAPJDK_JAR} common/lib/ldapjdk.jar
+    COMMAND ln -sf ../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-tomcat.jar ${CMAKE_CURRENT_BINARY_DIR}/common/lib/pki-tomcat.jar
+    COMMAND ln -sf ../../../../../..${RESTEASY_CLIENT_JAR} common/lib/resteasy-client.jar
+    COMMAND ln -sf ../../../../../..${RESTEASY_JACKSON2_PROVIDER_JAR} common/lib/resteasy-jackson2-provider.jar
+    COMMAND ln -sf ../../../../../..${RESTEASY_JAXRS_JAR} common/lib/resteasy-jaxrs.jar
+    COMMAND ln -sf ../../../../../..${TOMCATJSS_JAR} common/lib/tomcatjss.jar
 )
 
 # Create /usr/share/pki/server/webapps/pki/WEB-INF/lib. This can be customized for different platforms in RPM spec.
@@ -158,10 +158,10 @@ add_custom_target(pki-server-webapp-lib ALL
 add_custom_command(
     TARGET pki-server-webapp-lib
     COMMAND ${CMAKE_COMMAND} -E make_directory webapp/lib
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${SLF4J_API_JAR} webapp/lib/slf4j-api.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${SLF4J_JDK14_JAR} webapp/lib/slf4j-jdk14.jar
-    COMMAND ln -sf /usr/share/java/pki/pki-certsrv.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-certsrv.jar
-    COMMAND ln -sf /usr/share/java/pki/pki-cms.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-cms.jar
+    COMMAND ln -sf ../../../../../../../..${SLF4J_API_JAR} webapp/lib/slf4j-api.jar
+    COMMAND ln -sf ../../../../../../../..${SLF4J_JDK14_JAR} webapp/lib/slf4j-jdk14.jar
+    COMMAND ln -sf ../../../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-certsrv.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-certsrv.jar
+    COMMAND ln -sf ../../../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-cms.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-cms.jar
 )
 
 add_custom_target(pki-server-man ALL
