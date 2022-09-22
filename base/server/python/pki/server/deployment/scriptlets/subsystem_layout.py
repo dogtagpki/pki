@@ -206,8 +206,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         subsystem = instance.get_subsystem(subsystem_name)
 
-        subsystem.config['preop.subsystem.name'] = deployer.mdict['pki_subsystem_name']
-
         certs = subsystem.find_system_certs()
         for cert in certs:
 

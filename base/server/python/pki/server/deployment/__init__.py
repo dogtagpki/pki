@@ -3258,7 +3258,7 @@ class PKIDeployer:
             subsystem.config['cloning.ca.type'] = ca_type
 
         tps_uid = 'TPS-%s-%s' % (self.mdict['pki_hostname'], self.mdict['pki_https_port'])
-        full_name = subsystem.config['preop.subsystem.name']
+        full_name = self.mdict['pki_subsystem_name']
         subsystem_cert = subsystem.get_subsystem_cert('subsystem').get('data')
 
         logger.info('Registering TPS in CA')
