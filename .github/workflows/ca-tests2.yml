@@ -30,19 +30,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
-    container: registry.fedoraproject.org/fedora:${{ matrix.os }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
-
-      - name: Install dependencies
-        run: |
-          dnf install -y dnf-plugins-core rpm-build moby-engine
-          dnf copr enable -y ${{ needs.init.outputs.repo }}
-          dnf builddep -y --allowerasing --spec ./pki.spec --nogpgcheck
-
-      - name: Build PKI packages
-        run: ./build.sh --with-pkgs=base,server,ca,tests --with-timestamp --work-dir=build rpm
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
