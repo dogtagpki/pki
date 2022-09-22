@@ -60,7 +60,7 @@ add_custom_target(pki-DRMTool-cfg-link ALL
 
 add_custom_command(
     TARGET pki-DRMTool-cfg-link
-    COMMAND ln -sf ${SHARE_INSTALL_PREFIX}/pki/tools/KRATool.cfg ${CMAKE_CURRENT_BINARY_DIR}/DRMTool.cfg
+    COMMAND ln -sf ../../../..${JAVA_JAR_INSTALL_DIR}/pki/tools/KRATool.cfg ${CMAKE_CURRENT_BINARY_DIR}/DRMTool.cfg
 )
 
 install(
@@ -129,7 +129,7 @@ add_custom_target(pki-DRMTool-man-link ALL
 
 add_custom_command(
     TARGET pki-DRMTool-man-link
-    COMMAND ln -sf ${MAN_INSTALL_DIR}/man1/KRATool.1.gz ${CMAKE_CURRENT_BINARY_DIR}/DRMTool.1.gz
+    COMMAND ln -sf ../..${MAN_INSTALL_DIR}/man1/KRATool.1.gz ${CMAKE_CURRENT_BINARY_DIR}/DRMTool.1.gz
 )
 
 install(
