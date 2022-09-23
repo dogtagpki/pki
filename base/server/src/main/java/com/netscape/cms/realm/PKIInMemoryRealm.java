@@ -8,6 +8,8 @@ package com.netscape.cms.realm;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.catalina.LifecycleException;
 
@@ -28,16 +30,21 @@ public class PKIInMemoryRealm extends RealmCommon {
 
     @Override
     public void initInternal () throws LifecycleException {
-
         username = config.getParameter("username");
         password = config.getParameter("password");
+        String roleList = config.getParameter("roles");
 
         user = new User();
         user.setUserID(username);
         user.setFullName("Administrator");
 
-        roles = new ArrayList<>();
-        roles.add("Administrators");
+        if (roleList == null) {
+            roles = new ArrayList<>();
+            roles.add("Administrators");
+        }
+        else {
+            roles = Stream.of(roleList.split(",")).map(String::trim).collect(Collectors.toList());
+        }
     }
 
     @Override
