@@ -87,13 +87,13 @@ jobs:
           BASE64_DATABASE: ${{ secrets.BASE64_DATABASE }}
         run: |
           tests/bin/init-workflow.sh
+
   build:
     name: Building PKI
     needs: [init, retrieve-pr]
     runs-on: ubuntu-latest
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
-    container: registry.fedoraproject.org/fedora:${{ matrix.os }}
     steps:
       - name: Install git
         run: |
