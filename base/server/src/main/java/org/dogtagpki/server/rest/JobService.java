@@ -5,7 +5,6 @@
 //
 package org.dogtagpki.server.rest;
 
-import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.core.Response;
 
 import org.dogtagpki.job.JobResource;
@@ -19,7 +18,6 @@ import com.netscape.cmscore.jobs.JobsScheduler;
 /**
  * @author Endi S. Dewata
  */
-@RolesAllowed("Administrators")
 public class JobService extends SubsystemService implements JobResource {
 
     public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JobService.class);
