@@ -13,3 +13,8 @@ The actual paths to the CSRs and certificates need to be specified during instal
 
 The `tokendb.hostport` parameter in TPS's `CS.cfg` is no longer used
 so it has been removed.
+
+== Remove pkicreate.*, pkiremove.*, and os.* ==
+
+The `pkicreate.*`, `pkiremove.*`, and `os.*` parameters in `CS.cfg` are no longer used
+so they have been removed.
