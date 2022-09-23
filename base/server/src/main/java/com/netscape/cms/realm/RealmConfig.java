@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 //
-package org.dogtagpki.acme.realm;
+package com.netscape.cms.realm;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -23,7 +23,7 @@ import com.netscape.certsrv.util.JSONSerializer;
  */
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class ACMERealmConfig implements JSONSerializer {
+public class RealmConfig implements JSONSerializer {
 
     @JsonProperty("class")
     private String className;
@@ -64,9 +64,9 @@ public class ACMERealmConfig implements JSONSerializer {
         return parameters.remove(name);
     }
 
-    public static ACMERealmConfig fromProperties(Properties props) throws Exception {
+    public static RealmConfig fromProperties(Properties props) throws Exception {
 
-        ACMERealmConfig config = new ACMERealmConfig();
+        RealmConfig config = new RealmConfig();
 
         for (Entry<Object, Object> entry : props.entrySet()) {
 
