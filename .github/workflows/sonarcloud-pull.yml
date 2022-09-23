@@ -95,10 +95,6 @@ jobs:
     strategy:
       matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
-      - name: Install git
-        run: |
-          dnf install -y git
-
       - name: Clone repository
         uses: actions/checkout@v2
         with:
