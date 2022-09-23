@@ -6,6 +6,8 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 import logging
+import re
+
 import pki
 
 logger = logging.getLogger(__name__)
@@ -19,12 +21,28 @@ class RemoveUnusedParams(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     def upgrade_subsystem(self, instance, subsystem):
 
-        if subsystem.name != 'tps':
-            return
-
         self.backup(subsystem.cs_conf)
 
-        logger.info('Remove tokendb.hostport')
-        subsystem.config.pop('tokendb.hostport', None)
+        for name in list(subsystem.config.keys()):
+
+            remove = False
+
+            if re.match(r'pkicreate\.', name):
+                remove = True
+
+            elif re.match(r'pkiremove\.', name):
+                remove = True
+
+            elif re.match(r'os\.', name):
+                remove = True
+
+            elif re.match(r'tokendb\.hostport$', name):
+                remove = True
+
+            if not remove:
+                continue
+
+            logger.info('Removing %s', name)
+            subsystem.config.pop(name, None)
 
         subsystem.save()
