@@ -1992,7 +1992,7 @@ class KRAConnector:
         self.password = deployer.password
         self.ca_cert = os.path.join(self.mdict['pki_server_database_path'], "ca.crt")
 
-    def deregister(self, critical_failure=False):
+    def deregister(self, instance, critical_failure=False):
         krahost = None
         kraport = None
         try:
@@ -2006,7 +2006,10 @@ class KRAConnector:
                 self.mdict['pki_target_cs_cfg'])
 
             krahost = cs_cfg.get('service.machineName')
-            kraport = cs_cfg.get('pkicreate.secure_port')
+
+            server_config = instance.get_server_config()
+            kraport = server_config.get_secure_port()
+
             proxy_secure_port = cs_cfg.get('proxy.securePort', '')
 
             if proxy_secure_port != '':
@@ -2148,7 +2151,7 @@ class TPSConnector:
         self.mdict = deployer.mdict
         self.password = deployer.password
 
-    def deregister(self, critical_failure=False):
+    def deregister(self, instance, critical_failure=False):
         tkshost = None
         tksport = None
         try:
@@ -2161,7 +2164,10 @@ class TPSConnector:
             cs_cfg = PKIConfigParser.read_simple_configuration_file(
                 self.mdict['pki_target_cs_cfg'])
             tpshost = cs_cfg.get('service.machineName')
-            tpsport = cs_cfg.get('pkicreate.secure_port')
+
+            server_config = instance.get_server_config()
+            tpsport = server_config.get_secure_port()
+
             tkshost = cs_cfg.get('tps.connector.tks1.host')
             tksport = cs_cfg.get('tps.connector.tks1.port')
             if tkshost is None or tksport is None:

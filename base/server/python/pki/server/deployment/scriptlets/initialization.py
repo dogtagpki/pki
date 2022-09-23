@@ -198,10 +198,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.configuration_file.populate_non_default_ports()
 
             # remove kra connector from CA if this is a KRA
-            deployer.kra_connector.deregister()
+            deployer.kra_connector.deregister(instance)
 
             # remove tps connector from TKS if this is a TPS
-            deployer.tps_connector.deregister()
+            deployer.tps_connector.deregister(instance)
 
             # de-register instance from its Security Domain
             #
