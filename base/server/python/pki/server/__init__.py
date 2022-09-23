@@ -1206,7 +1206,7 @@ grant codeBase "file:%s" {
         self.store_properties(self.jss_conf, jss_config)
 
     def get_server_config(self):
-        server_config = ServerConfiguration(self.server_xml)
+        server_config = ServerConfig(self.server_xml)
         server_config.load()
         return server_config
 
@@ -1588,7 +1588,7 @@ class ExternalCert(object):
         self.token = token
 
 
-class ServerConfiguration(object):
+class ServerConfig(object):
 
     def __init__(self, filename):
         self.filename = filename
