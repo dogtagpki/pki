@@ -192,3 +192,13 @@ VOLUME [ \
     "/var/lib/tomcats/pki/conf/acme/realm" ]
 
 CMD [ "/usr/share/pki/acme/bin/pki-acme-run" ]
+
+################################################################################
+FROM pki-runner AS ipa-runner
+
+# Install IPA packages
+RUN dnf copr enable -y @freeipa/freeipa-master-nightly \
+    && dnf install -y freeipa-server freeipa-server-dns freeipa-healthcheck freeipa-client \
+           python3-ipatests certbot \
+    && dnf clean all \
+    && rm -rf /var/cache/dnf
