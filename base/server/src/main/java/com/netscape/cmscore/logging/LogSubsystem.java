@@ -32,8 +32,8 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.logging.ELogException;
 import com.netscape.certsrv.logging.LogEventListener;
 import com.netscape.certsrv.logging.LogPlugin;
+import com.netscape.cms.logging.LogQueue;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
 
 /**
@@ -91,9 +91,7 @@ public class LogSubsystem implements ISubsystem {
     @Override
     public void init(ConfigStore config) throws EBaseException {
         mConfig = (LoggingConfig) config;
-
-        CMSEngine engine = CMS.getCMSEngine();
-        engine.getLogQueue().init();
+        LogQueue.getInstance().init();
 
         // load log plugin implementation
         LoggerPluginsConfig pluginsConfig = mConfig.getLoggerPluginsConfig();
@@ -189,8 +187,7 @@ public class LogSubsystem implements ISubsystem {
      */
     @Override
     public void shutdown() {
-        CMSEngine engine = CMS.getCMSEngine();
-        engine.getLogQueue().shutdown();
+        LogQueue.getInstance().shutdown();
     }
 
     /**

@@ -57,7 +57,6 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.logging.LogQueue;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.password.PasswordChecker;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -140,7 +139,6 @@ public class CMSEngine {
     private String mServerCertNickname = null;
     private boolean ready;
 
-    private LogQueue logQueue = new LogQueue();
     private Logger mainLogger = new Logger();
     private Debug debug = new Debug();
 
@@ -202,14 +200,6 @@ public class CMSEngine {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    /**
-     * Retrieves the log queue. The log queue is where issued log events
-     * are collected for later processing.
-     */
-    public LogQueue getLogQueue() {
-        return logQueue;
     }
 
     public Logger getMainLogger() {
