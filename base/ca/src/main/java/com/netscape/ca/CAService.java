@@ -136,7 +136,7 @@ public class CAService implements IService {
                 new getCertsForChallenge(this));
         mServants.put(
                 Request.UNREVOCATION_REQUEST,
-                new serviceUnrevoke(this));
+                new ServiceUnrevoke(this));
         mServants.put(
                 Request.GETCACHAIN_REQUEST,
                 new ServiceGetCAChain(this));
@@ -1830,94 +1830,6 @@ class serviceRevoke implements IServant {
         }
 
         logger.debug("serviceRevoke sendStatus=" + sendStatus);
-
-        return sendStatus;
-    }
-}
-
-class serviceUnrevoke implements IServant {
-
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(serviceUnrevoke.class);
-
-    private CAService mService;
-
-    public serviceUnrevoke(CAService service) {
-        mService = service;
-    }
-
-    @Override
-    public boolean service(Request request)
-            throws EBaseException {
-        boolean sendStatus = true;
-        BigInteger oldSerialNo[] =
-                request.getExtDataInBigIntegerArray(Request.OLD_SERIALS);
-
-        if (oldSerialNo == null || oldSerialNo.length < 1) {
-            logger.error(CMS.getLogMessage("CMSCORE_CA_UNREVOKE_MISSING_SERIAL"));
-            throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_MISSING_SERIAL_NUMBER"));
-        }
-
-        CAEngine engine = CAEngine.getInstance();
-        CertificateRepository cr = engine.getCertificateRepository();
-
-        String svcerrors[] = null;
-        boolean needOldCerts = false;
-        X509CertImpl oldCerts[] = request.getExtDataInCertArray(Request.OLD_CERTS);
-
-        if (oldCerts == null || oldCerts.length < 1) {
-            needOldCerts = true;
-            oldCerts = new X509CertImpl[oldSerialNo.length];
-        }
-
-        for (int i = 0; i < oldSerialNo.length; i++) {
-            try {
-                if (oldSerialNo[i].compareTo(new BigInteger("0")) < 0) {
-                    logger.error(CMS.getLogMessage("CMSCORE_CA_UNREVOKE_MISSING_SERIAL"));
-                    throw new ECAException(
-                            CMS.getUserMessage("CMS_CA_MISSING_SERIAL_NUMBER"));
-                }
-                if (needOldCerts) {
-                    CertRecord certRec = cr.readCertificateRecord(oldSerialNo[i]);
-
-                    oldCerts[i] = certRec.getCertificate();
-                }
-                mService.unrevokeCert(oldSerialNo[i], request.getRequestId().toString());
-            } catch (ECAException e) {
-                logger.warn(CMS.getLogMessage("CMSCORE_CA_UNREVOKE_FAILED", oldSerialNo[i].toString(),
-                        request.getRequestId().toString()), e);
-                if (svcerrors == null) {
-                    svcerrors = new String[oldSerialNo.length];
-                }
-                svcerrors[i] = e.toString();
-            }
-        }
-
-        // if clone ca, send unrevoked cert serials to CLA
-        if (CAService.mCLAConnector != null) {
-            request.setRequestType(Request.CLA_UNCERT4CRL_REQUEST);
-            sendStatus = CAService.mCLAConnector.send(request);
-            if (sendStatus && request.getExtDataInString(Request.ERROR) != null) {
-                request.setExtData(Request.RESULT, Request.RES_SUCCESS);
-                request.deleteExtData(Request.ERROR);
-            } else {
-                request.setExtData(Request.RESULT,
-                        Request.RES_ERROR);
-                request.setExtData(Request.ERROR,
-                        new ECAException(CMS.getUserMessage("CMS_CA_SEND_CLA_REQUEST")));
-                return sendStatus;
-            }
-
-        }
-
-        if (needOldCerts) {
-            request.setExtData(Request.OLD_CERTS, oldCerts);
-        }
-
-        if (svcerrors != null) {
-            request.setExtData(Request.SVCERRORS, svcerrors);
-            throw new ECAException(CMS.getUserMessage("CMS_CA_UNREVOKE_FAILED"));
-        }
 
         return sendStatus;
     }
