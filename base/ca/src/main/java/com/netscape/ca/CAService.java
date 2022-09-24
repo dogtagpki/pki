@@ -1282,11 +1282,3 @@ public class CAService implements IService {
         return requesterID;
     }
 }
-
-///
-/// servant classes
-///
-
-interface IServant {
-    public boolean service(Request request) throws EBaseException;
-}
