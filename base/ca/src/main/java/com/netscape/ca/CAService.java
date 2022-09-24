@@ -23,7 +23,6 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
-import java.security.cert.CRLException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
@@ -57,7 +56,6 @@ import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
 import org.mozilla.jss.netscape.security.x509.SerialNumber;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X500NameAttrMap;
-import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509ExtensionException;
@@ -87,8 +85,6 @@ import com.netscape.cmscore.connector.LocalConnector;
 import com.netscape.cmscore.connector.RemoteAuthority;
 import com.netscape.cmscore.crmf.CRMFParser;
 import com.netscape.cmscore.crmf.PKIArchiveOptionsContainer;
-import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
-import com.netscape.cmscore.dbs.CRLRepository;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
@@ -148,7 +144,7 @@ public class CAService implements IService {
                 new serviceGetCAChain(this));
         mServants.put(
                 Request.GETCRL_REQUEST,
-                new serviceGetCRL(this));
+                new ServiceGetCRL(this));
         mServants.put(
                 Request.GETREVOCATIONINFO_REQUEST,
                 new ServiceGetRevocationInfo(this));
@@ -1952,45 +1948,6 @@ class serviceGetCAChain implements IServant {
             throw new EBaseException(e.toString(), e);
         }
         request.setExtData(Request.CACERTCHAIN, certChainOut.toByteArray());
-        return true;
-    }
-}
-
-class serviceGetCRL implements IServant {
-
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(serviceGetCRL.class);
-
-    public serviceGetCRL(CAService service) {
-    }
-
-    @Override
-    public boolean service(Request request)
-            throws EBaseException {
-        try {
-            CAEngine engine = CAEngine.getInstance();
-            CRLRepository crlRepository = engine.getCRLRepository();
-
-            CRLIssuingPointRecord crlRec = crlRepository.readCRLIssuingPointRecord(CertificateAuthority.PROP_MASTER_CRL);
-            X509CRLImpl crl = new X509CRLImpl(crlRec.getCRL());
-
-            request.setExtData(Request.CRL, crl.getEncoded());
-
-        } catch (EBaseException e) {
-            logger.error(CMS.getLogMessage("CMSCORE_CA_GETCRL_FIND_CRL"), e);
-            throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_CRL_ISSUEPT_NOT_FOUND", e.toString()), e);
-
-        } catch (CRLException e) {
-            logger.error(CMS.getLogMessage("CMSCORE_CA_GETCRL_INST_CRL", CertificateAuthority.PROP_MASTER_CRL), e);
-            throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_CRL_ISSUEPT_NOGOOD", CertificateAuthority.PROP_MASTER_CRL), e);
-
-        } catch (X509ExtensionException e) {
-            logger.error(CMS.getLogMessage("CMSCORE_CA_GETCRL_NO_ISSUING_REC"), e);
-            throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_CRL_ISSUEPT_EXT_NOGOOD",
-                            CertificateAuthority.PROP_MASTER_CRL), e);
-        }
         return true;
     }
 }
