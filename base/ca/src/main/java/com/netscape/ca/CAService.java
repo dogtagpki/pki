@@ -154,7 +154,7 @@ public class CAService implements IService {
                 new serviceGetRevocationInfo(this));
         mServants.put(
                 Request.GETCERTS_REQUEST,
-                new serviceGetCertificates(this));
+                new ServiceGetCertificates(this));
         mServants.put(
                 Request.CLA_CERT4CRL_REQUEST,
                 new ServiceCert4Crl(this));
@@ -2027,36 +2027,6 @@ class serviceGetRevocationInfo implements IServant {
 
                     revokedCerts[0] = revokedCert;
                     request.setExtData(Request.REVOKED_CERTS, revokedCerts);
-                }
-            }
-        }
-        return true;
-    }
-}
-
-class serviceGetCertificates implements IServant {
-
-    public serviceGetCertificates(CAService service) {
-    }
-
-    @Override
-    public boolean service(Request request)
-            throws EBaseException {
-
-        CAEngine engine = CAEngine.getInstance();
-        CertificateRepository certDB = engine.getCertificateRepository();
-
-        Enumeration<String> enum1 = request.getExtDataKeys();
-
-        while (enum1.hasMoreElements()) {
-            String name = enum1.nextElement();
-
-            if (name.equals(Request.CERT_FILTER)) {
-                String filter = request.getExtDataInString(Request.CERT_FILTER);
-                X509CertImpl[] certs = certDB.getX509Certificates(filter);
-
-                if (certs != null) {
-                    request.setExtData(Request.OLD_CERTS, certs);
                 }
             }
         }
