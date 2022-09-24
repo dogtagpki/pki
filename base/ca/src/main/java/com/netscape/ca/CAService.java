@@ -20,7 +20,6 @@ package com.netscape.ca;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
-import java.security.Principal;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
@@ -153,7 +152,7 @@ public class CAService implements IService {
                 new ServiceUnCert4Crl(this));
         mServants.put(
                 Request.GETCERT_STATUS_REQUEST,
-                new getCertStatus(this));
+                new GetCertStatus(this));
     }
 
     public void init(ConfigStore config) throws EBaseException {
@@ -1572,55 +1571,6 @@ class getCertsForChallenge implements IServant {
             certs[i] = cr.getX509Certificate(serialNoArray[i]);
         }
         request.setExtData(Request.OLD_CERTS, certs);
-        return true;
-    }
-}
-
-class getCertStatus implements IServant {
-
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(getCertStatus.class);
-
-    private CertificateAuthority mCA;
-    private CAService mService;
-
-    public getCertStatus(CAService service) {
-        mService = service;
-        mCA = mService.getCA();
-    }
-
-    @Override
-    public boolean service(Request request) throws EBaseException {
-        BigInteger serialno = request.getExtDataInBigInteger("serialNumber");
-        String issuerDN = request.getExtDataInString("issuerDN");
-
-        CAEngine engine = CAEngine.getInstance();
-        CertificateRepository certDB = engine.getCertificateRepository();
-
-        String status = null;
-
-        if (serialno != null) {
-            CertRecord record = null;
-
-            try {
-                record = certDB.readCertificateRecord(serialno);
-            } catch (EBaseException ee) {
-                logger.warn(ee.toString());
-            }
-
-            if (record != null) {
-                status = record.getStatus();
-                if (status.equals("VALID")) {
-                    X509CertImpl cacert = mCA.getCACert();
-                    Principal p = cacert.getSubjectName();
-
-                    if (!p.toString().equals(issuerDN)) {
-                        status = "INVALIDCERTROOT";
-                    }
-                }
-            }
-        }
-
-        request.setExtData(Request.CERT_STATUS, status);
         return true;
     }
 }
