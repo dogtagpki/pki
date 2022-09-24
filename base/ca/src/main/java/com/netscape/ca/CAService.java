@@ -128,7 +128,7 @@ public class CAService implements IService {
                 new ServiceCheckChallenge(this));
         mServants.put(
                 Request.GETCERTS_FOR_CHALLENGE_REQUEST,
-                new getCertsForChallenge(this));
+                new GetCertsForChallenge(this));
         mServants.put(
                 Request.UNREVOCATION_REQUEST,
                 new ServiceUnrevoke(this));
@@ -1544,33 +1544,6 @@ class serviceRenewal implements IServant {
             logger.error(CMS.getLogMessage("CMSCORE_CA_NO_RENEW", request.getRequestId().toString()));
             throw new ECAException(CMS.getUserMessage("CMS_CA_RENEW_FAILED"));
         }
-        return true;
-    }
-}
-
-class getCertsForChallenge implements IServant {
-
-    public getCertsForChallenge(CAService service) {
-    }
-
-    @Override
-    public boolean service(Request request)
-            throws EBaseException {
-
-        CAEngine engine = CAEngine.getInstance();
-        CertificateRepository cr = engine.getCertificateRepository();
-
-        BigInteger[] serialNoArray =
-                request.getExtDataInBigIntegerArray(CAService.SERIALNO_ARRAY);
-        if (serialNoArray == null) {
-            throw new ECAException(CMS.getLogMessage("CMS_CA_MISSING_SERIAL_NUMBER"));
-        }
-        X509CertImpl[] certs = new X509CertImpl[serialNoArray.length];
-
-        for (int i = 0; i < serialNoArray.length; i++) {
-            certs[i] = cr.getX509Certificate(serialNoArray[i]);
-        }
-        request.setExtData(Request.OLD_CERTS, certs);
         return true;
     }
 }
