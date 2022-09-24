@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.ca;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -42,7 +41,6 @@ import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.CRLExtensions;
 import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
 import org.mozilla.jss.netscape.security.x509.CertificateAlgorithmId;
-import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
 import org.mozilla.jss.netscape.security.x509.CertificateSerialNumber;
@@ -141,7 +139,7 @@ public class CAService implements IService {
                 new serviceUnrevoke(this));
         mServants.put(
                 Request.GETCACHAIN_REQUEST,
-                new serviceGetCAChain(this));
+                new ServiceGetCAChain(this));
         mServants.put(
                 Request.GETCRL_REQUEST,
                 new ServiceGetCRL(this));
@@ -1922,32 +1920,5 @@ class serviceUnrevoke implements IServant {
         }
 
         return sendStatus;
-    }
-}
-
-class serviceGetCAChain implements IServant {
-
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(serviceGetCAChain.class);
-
-    private CertificateAuthority mCA;
-    private CAService mService;
-
-    public serviceGetCAChain(CAService service) {
-        mService = service;
-        mCA = mService.getCA();
-    }
-
-    @Override
-    public boolean service(Request request) throws EBaseException {
-        CertificateChain certChain = mCA.getCACertChain();
-        ByteArrayOutputStream certChainOut = new ByteArrayOutputStream();
-        try {
-            certChain.encode(certChainOut);
-        } catch (IOException e) {
-            logger.error(e.toString(), e);
-            throw new EBaseException(e.toString(), e);
-        }
-        request.setExtData(Request.CACERTCHAIN, certChainOut.toByteArray());
-        return true;
     }
 }
