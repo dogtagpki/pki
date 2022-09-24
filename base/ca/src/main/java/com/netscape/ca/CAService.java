@@ -151,7 +151,7 @@ public class CAService implements IService {
                 new serviceGetCRL(this));
         mServants.put(
                 Request.GETREVOCATIONINFO_REQUEST,
-                new serviceGetRevocationInfo(this));
+                new ServiceGetRevocationInfo(this));
         mServants.put(
                 Request.GETCERTS_REQUEST,
                 new ServiceGetCertificates(this));
@@ -1990,45 +1990,6 @@ class serviceGetCRL implements IServant {
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_CRL_ISSUEPT_EXT_NOGOOD",
                             CertificateAuthority.PROP_MASTER_CRL), e);
-        }
-        return true;
-    }
-}
-
-class serviceGetRevocationInfo implements IServant {
-
-    public serviceGetRevocationInfo(CAService service) {
-    }
-
-    @Override
-    public boolean service(Request request)
-            throws EBaseException {
-
-        CAEngine engine = CAEngine.getInstance();
-        CertificateRepository certDB = engine.getCertificateRepository();
-
-        Enumeration<String> enum1 = request.getExtDataKeys();
-
-        while (enum1.hasMoreElements()) {
-            String name = enum1.nextElement();
-            RevocationInfo info = null;
-            if (name.equals(Request.ISSUED_CERTS)) {
-                X509CertImpl certsToCheck[] =
-                        request.getExtDataInCertArray(Request.ISSUED_CERTS);
-                if (certsToCheck != null) {
-                    info = certDB.isCertificateRevoked(certsToCheck[0]);
-                }
-                if (info != null) {
-                    RevokedCertImpl revokedCerts[] = new RevokedCertImpl[1];
-                    RevokedCertImpl revokedCert = new RevokedCertImpl(
-                            certsToCheck[0].getSerialNumber(),
-                            info.getRevocationDate(),
-                            info.getCRLEntryExtensions());
-
-                    revokedCerts[0] = revokedCert;
-                    request.setExtData(Request.REVOKED_CERTS, revokedCerts);
-                }
-            }
         }
         return true;
     }
