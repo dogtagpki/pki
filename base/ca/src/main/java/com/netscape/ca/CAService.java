@@ -160,7 +160,7 @@ public class CAService implements IService {
                 new serviceCert4Crl(this));
         mServants.put(
                 Request.CLA_UNCERT4CRL_REQUEST,
-                new serviceUnCert4Crl(this));
+                new ServiceUnCert4Crl(this));
         mServants.put(
                 Request.GETCERT_STATUS_REQUEST,
                 new getCertStatus(this));
@@ -2139,60 +2139,6 @@ class serviceCert4Crl implements IServant {
         if (svcerrors != null) {
             request.setExtData(Request.SVCERRORS, svcerrors);
             throw new ECAException(CMS.getUserMessage("CMS_CA_CERT4CRL_FAILED"));
-        }
-
-        return true;
-    }
-}
-
-class serviceUnCert4Crl implements IServant {
-
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(serviceUnCert4Crl.class);
-
-    public serviceUnCert4Crl(CAService service) {
-    }
-
-    @Override
-    public boolean service(Request request)
-            throws EBaseException {
-        BigInteger oldSerialNo[] =
-                request.getExtDataInBigIntegerArray(Request.OLD_SERIALS);
-
-        if (oldSerialNo == null || oldSerialNo.length < 1) {
-            logger.error(CMS.getLogMessage("CMSCORE_CA_UNREVOKE_MISSING_SERIAL"));
-            throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_MISSING_SERIAL_NUMBER"));
-        }
-
-        CAEngine engine = CAEngine.getInstance();
-        CertificateRepository cr = engine.getCertificateRepository();
-
-        String svcerrors[] = null;
-
-        for (int i = 0; i < oldSerialNo.length; i++) {
-            try {
-                cr.deleteCertificateRecord(oldSerialNo[i]);
-
-                // inform all CRLIssuingPoints about unrevoked certificate
-
-                for (CRLIssuingPoint ip : engine.getCRLIssuingPoints()) {
-                    if (ip != null) {
-                        ip.addUnrevokedCert(oldSerialNo[i]);
-                    }
-                }
-            } catch (EBaseException e) {
-                logger.warn(CMS.getLogMessage("CMSCORE_CA_DELETE_CERT_ERROR", oldSerialNo[i].toString(), e.toString()), e);
-                if (svcerrors == null) {
-                    svcerrors = new String[oldSerialNo.length];
-                }
-                svcerrors[i] = e.toString();
-            }
-
-        }
-
-        if (svcerrors != null) {
-            request.setExtData(Request.SVCERRORS, svcerrors);
-            throw new ECAException(CMS.getUserMessage("CMS_CA_UNCERT4CRL_FAILED"));
         }
 
         return true;
