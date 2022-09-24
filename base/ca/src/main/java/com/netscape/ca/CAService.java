@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -112,7 +111,7 @@ public class CAService implements IService {
         // init services.
         mServants.put(
                 Request.ENROLLMENT_REQUEST,
-                new serviceIssue(this));
+                new ServiceIssue(this));
         mServants.put(
                 Request.RENEWAL_REQUEST,
                 new ServiceRenewal(this));
@@ -1290,91 +1289,4 @@ public class CAService implements IService {
 
 interface IServant {
     public boolean service(Request request) throws EBaseException;
-}
-
-class serviceIssue implements IServant {
-
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(serviceIssue.class);
-
-    private CAService mService;
-
-    public serviceIssue(CAService service) {
-        mService = service;
-    }
-
-    @Override
-    public boolean service(Request request)
-            throws EBaseException {
-        // XXX This is ugly. should associate attributes with
-        // request types, not policy.
-        // XXX how do we know what to look for in request ?
-
-        boolean requestContentsAreNull = request.getExtDataInCertInfoArray(Request.CERT_INFO) == null;
-        return !requestContentsAreNull && serviceX509(request);
-    }
-
-    public boolean serviceX509(Request request)
-            throws EBaseException {
-        // XXX This is ugly. should associate attributes with
-        // request types, not policy.
-        // XXX how do we know what to look for in request ?
-        X509CertInfo certinfos[] =
-                request.getExtDataInCertInfoArray(Request.CERT_INFO);
-
-        if (certinfos == null || certinfos[0] == null) {
-            logger.error(CMS.getLogMessage("CMSCORE_CA_CERT_REQUEST_NOT_FOUND", request.getRequestId().toString()));
-            throw new ECAException(CMS.getUserMessage("CMS_CA_MISSING_INFO_IN_ISSUEREQ"));
-        }
-
-        CAEngine engine = CAEngine.getInstance();
-        CertificateRepository cr = engine.getCertificateRepository();
-
-        String challengePassword =
-                request.getExtDataInString(CAService.CHALLENGE_PHRASE);
-
-        X509CertImpl[] certs = new X509CertImpl[certinfos.length];
-        String rid = request.getRequestId().toString();
-        int i;
-
-        for (i = 0; i < certinfos.length; i++) {
-            try {
-                certs[i] = mService.issueX509Cert(rid, certinfos[i]);
-            } catch (EBaseException e) {
-                logger.error(CMS.getLogMessage("CMSCORE_CA_ISSUE_ERROR", Integer.toString(i), rid, e.toString()), e);
-                throw e;
-            }
-        }
-        String crmfReqId = request.getExtDataInString(Request.CRMF_REQID);
-        EBaseException ex = null;
-
-        for (i = 0; i < certs.length; i++) {
-            try {
-                mService.storeX509Cert(rid, certs[i], crmfReqId, challengePassword);
-            } catch (EBaseException e) {
-                String message = CMS.getLogMessage("CMSCORE_CA_STORE_ERROR", Integer.toString(i), rid, e.toString());
-                logger.warn(message, e);
-                ex = e; // save to throw later.
-                break;
-            }
-        }
-        if (ex != null) {
-            for (int j = 0; j < i; j++) {
-                // delete the stored cert records from the database.
-                // we issue all or nothing.
-                BigInteger serialNo =
-                        ((X509Certificate) certs[i]).getSerialNumber();
-
-                try {
-                    cr.deleteCertificateRecord(serialNo);
-                } catch (EBaseException e) {
-                    logger.warn(CMS.getLogMessage("CMSCORE_CA_DELETE_CERT_ERROR", serialNo.toString(), e.toString()), e);
-                }
-            }
-            throw ex;
-        }
-
-        request.setExtData(Request.ISSUED_CERTS, certs);
-
-        return true;
-    }
 }
