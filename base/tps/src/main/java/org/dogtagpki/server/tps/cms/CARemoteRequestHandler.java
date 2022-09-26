@@ -40,6 +40,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
+import com.netscape.certsrv.connector.ConnectorConfig;
 import com.netscape.certsrv.connector.ConnectorsConfig;
 import com.netscape.cmscore.connector.HttpConnector;
 import com.netscape.cmsutil.http.HttpResponse;
@@ -310,13 +311,14 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         TPSEngineConfig tpsEngineConfig = engine.getConfig();
         TPSConfig tpsConfig = tpsEngineConfig.getTPSConfig();
         ConnectorsConfig connectorsConfig = tpsConfig.getConnectorsConfig();
+        ConnectorConfig connectorConfig = connectorsConfig.getConnectorConfig(connid);
 
         //ToDo: I"m not sure why these are not used, let's check this out.
         //It's working though.
 
         /*
-        String configName = connid + ".uri.getBySerial";
-        String servlet = connectorsConfig.getString(configName, "/ca/ee/ca/displayBySerial");
+        String configName = "uri.getBySerial";
+        String servlet = connectorConfig.getString(configName, "/ca/ee/ca/displayBySerial");
         */
 
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
@@ -795,6 +797,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         TPSEngineConfig conf = engine.getConfig();
         TPSConfig tpsConfig = conf.getTPSConfig();
         ConnectorsConfig connectorsConfig = tpsConfig.getConnectorsConfig();
+        ConnectorConfig connectorConfig = connectorsConfig.getConnectorConfig(conn);
 
         /*
          * first, see if ca Subject Key Identifier (SKI) is in
@@ -802,7 +805,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
          * calculate that every time.
          */
         try {
-            return connectorsConfig.getString(conn + ".caSKI");
+            return connectorConfig.getString("caSKI");
         } catch (EPropertyNotFound e) {
             // caSKI not yet calculated; proceed to calculate
             logger.warn(method + " caSKI not yet calculated:" + e.getMessage(), e);
@@ -811,7 +814,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         }
 
         try {
-            String caNickname = connectorsConfig.getString(conn + ".caNickname");
+            String caNickname = connectorConfig.getString("caNickname");
             logger.debug(method + " Calculating caSKI...searching for ca cert in nss db:"
                     + caNickname);
             CryptoManager cm = CryptoManager.getInstance();
@@ -821,7 +824,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
                 // now retrieve caSKI and store in config
                 caSkiString = Util.getCertSkiString(caCert);
                 logger.debug(method + " caSKI calculated. Saving it.");
-                connectorsConfig.putString(conn + ".caSKI", caSkiString);
+                connectorConfig.putString("caSKI", caSkiString);
                 conf.commit(false);
             } catch (IOException e) {
                 throw e;

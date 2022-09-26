@@ -115,6 +115,7 @@ import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.connector.ConnectorConfig;
 import com.netscape.certsrv.connector.ConnectorsConfig;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
@@ -2220,6 +2221,7 @@ public abstract class EnrollProfile extends Profile {
         CAEngineConfig cs = engine.getConfig();
         CAConfig caConfig = cs.getCAConfig();
         ConnectorsConfig connectorsConfig = caConfig.getConnectorsConfig();
+        ConnectorConfig kraConnectorConfig = connectorsConfig.getConnectorConfig("KRA");
 
         try {
             CertRequest certReq = certReqMsg.getCertReq();
@@ -2235,7 +2237,7 @@ public abstract class EnrollProfile extends Profile {
                     req.setExtData(Request.REQUEST_ARCHIVE_OPTIONS,
                             toByteArray(opt));
                     try {
-                        String transportCert = connectorsConfig.getString("KRA.transportCert", "");
+                        String transportCert = kraConnectorConfig.getString("transportCert", "");
                         req.setExtData(Request.REQUEST_TRANSPORT_CERT, transportCert);
                     } catch (EBaseException ee) {
                         logger.warn("EnrollProfile: fillCertReqMsg - Exception reading transportCert: " + ee.getMessage(), ee);

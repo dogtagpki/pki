@@ -60,6 +60,7 @@ import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.connector.Connector;
+import com.netscape.certsrv.connector.ConnectorConfig;
 import com.netscape.certsrv.connector.ConnectorsConfig;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
@@ -176,7 +177,7 @@ public class CAService implements IService {
     }
 
     public void startup() throws EBaseException {
-        ConfigStore kraConfig = connectorsConfig.getSubStore("KRA", ConfigStore.class);
+        ConnectorConfig kraConfig = connectorsConfig.getConnectorConfig("KRA");
 
         if (kraConfig != null) {
             mArchivalRequired = kraConfig.getBoolean(
@@ -189,7 +190,7 @@ public class CAService implements IService {
         }
 
         // clone ca to CLA (clone master) connector
-        ConfigStore claConfig = connectorsConfig.getSubStore("CLA", ConfigStore.class);
+        ConnectorConfig claConfig = connectorsConfig.getConnectorConfig("CLA");
 
         if (claConfig != null) {
             mCLAConnector = getConnector(claConfig);

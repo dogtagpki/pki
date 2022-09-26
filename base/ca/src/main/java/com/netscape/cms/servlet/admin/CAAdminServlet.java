@@ -47,6 +47,7 @@ import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.certsrv.connector.ConnectorConfig;
 import com.netscape.certsrv.connector.ConnectorsConfig;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
@@ -1341,12 +1342,12 @@ public class CAAdminServlet extends AdminServlet {
             throws IOException, EBaseException {
         CAConfig caConfig = mCA.getConfigStore();
         ConnectorsConfig connectorsConfig = caConfig.getConnectorsConfig();
-        ConfigStore caConnectorConfig = null;
+        ConnectorConfig caConnectorConfig = null;
 
         if (isKRAConnector(req)) {
-            caConnectorConfig = connectorsConfig.getSubStore("KRA", ConfigStore.class);
+            caConnectorConfig = connectorsConfig.getConnectorConfig("KRA");
         } else if (isCLAConnector(req)) {
-            caConnectorConfig = connectorsConfig.getSubStore("CLA", ConfigStore.class);
+            caConnectorConfig = connectorsConfig.getConnectorConfig("CLA");
         }
 
         Enumeration<String> enum1 = req.getParameterNames();
@@ -1374,14 +1375,14 @@ public class CAAdminServlet extends AdminServlet {
 
         CAConfig caConfig = mCA.getConfigStore();
         ConnectorsConfig connectorsConfig = caConfig.getConnectorsConfig();
-        ConfigStore caConnectorConfig = null;
+        ConnectorConfig caConnectorConfig = null;
 
         //        String nickname = CMS.getServerCertNickname();
 
         if (isKRAConnector(req)) {
-            caConnectorConfig = connectorsConfig.getSubStore("KRA", ConfigStore.class);
+            caConnectorConfig = connectorsConfig.getConnectorConfig("KRA");
         } else if (isCLAConnector(req)) {
-            caConnectorConfig = connectorsConfig.getSubStore("CLA", ConfigStore.class);
+            caConnectorConfig = connectorsConfig.getConnectorConfig("CLA");
         }
 
         Enumeration<String> enum1 = req.getParameterNames();

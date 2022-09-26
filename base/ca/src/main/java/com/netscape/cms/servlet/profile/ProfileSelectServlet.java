@@ -35,6 +35,7 @@ import org.dogtagpki.server.ca.CAEngineConfig;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.connector.ConnectorConfig;
 import com.netscape.certsrv.connector.ConnectorsConfig;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
@@ -95,6 +96,7 @@ public class ProfileSelectServlet extends ProfileServlet {
         CAEngineConfig cs = engine.getConfig();
         CAConfig caConfig = cs.getCAConfig();
         ConnectorsConfig connectorsConfig = caConfig.getConnectorsConfig();
+        ConnectorConfig kraConnectorConfig = connectorsConfig.getConnectorConfig("KRA");
 
         AuthToken authToken = null;
         ArgSet args = new ArgSet();
@@ -235,12 +237,12 @@ public class ProfileSelectServlet extends ProfileServlet {
         args.set(ARG_ERROR_REASON, "");
 
         try {
-            boolean keyArchivalEnabled = connectorsConfig.getBoolean("KRA.enable", false);
+            boolean keyArchivalEnabled = kraConnectorConfig.getBoolean("enable", false);
             if (keyArchivalEnabled == true) {
                 logger.debug("ProfileSelectServlet: keyArchivalEnabled is true");
 
                 // output transport certificate if present
-                args.set("transportCert", connectorsConfig.getString("KRA.transportCert", ""));
+                args.set("transportCert", kraConnectorConfig.getString("transportCert", ""));
             } else {
                 logger.debug("ProfileSelectServlet: keyArchivalEnabled is false");
                 args.set("transportCert", "");

@@ -31,11 +31,11 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.connector.Connector;
+import com.netscape.certsrv.connector.ConnectorConfig;
 import com.netscape.certsrv.connector.ConnectorsConfig;
 import com.netscape.certsrv.system.ConnectorNotFoundException;
 import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.cms.servlet.processors.CAProcessor;
-import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -76,11 +76,12 @@ public class KRAConnectorProcessor extends CAProcessor {
         CAEngineConfig cs = engine.getConfig();
         CAConfig caConfig = cs.getCAConfig();
         ConnectorsConfig connectorsConfig = caConfig.getConnectorsConfig();
+        ConnectorConfig kraConnectorConfig = connectorsConfig.getConnectorConfig("KRA");
 
-        String host = connectorsConfig.getString("KRA.host");
+        String host = kraConnectorConfig.getString("host");
         logger.info("KRAConnectorProcessor: KRA connector host: " + host);
 
-        String port = connectorsConfig.getString("KRA.port");
+        String port = kraConnectorConfig.getString("port");
         logger.info("KRAConnectorProcessor: KRA connector port: " + port);
 
         if ((host == null) || (port == null)) {
@@ -90,7 +91,7 @@ public class KRAConnectorProcessor extends CAProcessor {
 
         if ((host.equals(newHost)) && port.equals(newPort)) {
             logger.info("KRAConnectorProcessor: Removing the last KRA connector");
-            connectorsConfig.removeSubStore("KRA");
+            connectorsConfig.removeConnectorConfig("KRA");
             cs.commit(true);
             deleteConnector();
             return;
@@ -117,7 +118,7 @@ public class KRAConnectorProcessor extends CAProcessor {
 
         if (finalList.size() == 0) {
             logger.info("KRAConnectorProcessor: Removing the last KRA connector");
-            connectorsConfig.removeSubStore("KRA");
+            connectorsConfig.removeConnectorConfig("KRA");
             cs.commit(true);
             deleteConnector();
             return;
@@ -131,8 +132,8 @@ public class KRAConnectorProcessor extends CAProcessor {
             port = finalList.get(0).split(":")[1];
             logger.info("KRAConnectorProcessor: KRA connector port: " + port);
 
-            connectorsConfig.putString("KRA.host", host);
-            connectorsConfig.putString("KRA.port", port);
+            kraConnectorConfig.putString("host", host);
+            kraConnectorConfig.putString("port", port);
             cs.commit(true);
             replaceConnector();
             return;
@@ -140,7 +141,7 @@ public class KRAConnectorProcessor extends CAProcessor {
 
         String finalString = StringUtils.join(finalList, " ");
         logger.info("KRAConnectorProcessor: KRA connector host: " + finalString);
-        connectorsConfig.putString("KRA.host", finalString.trim());
+        kraConnectorConfig.putString("host", finalString.trim());
         cs.commit(true);
         replaceConnector();
     }
@@ -176,7 +177,7 @@ public class KRAConnectorProcessor extends CAProcessor {
         CAConfig caConfig = cs.getCAConfig();
         ConnectorsConfig connectorsConfig = caConfig.getConnectorsConfig();
 
-        ConfigStore kraConnectorConfig = connectorsConfig.getSubStore("KRA", ConfigStore.class);
+        ConnectorConfig kraConnectorConfig = connectorsConfig.getConnectorConfig("KRA");
         Connector kraConnector = caService.getConnector(kraConnectorConfig);
         caService.setKRAConnector(kraConnector);
 
@@ -203,6 +204,7 @@ public class KRAConnectorProcessor extends CAProcessor {
         CAEngineConfig cs = engine.getConfig();
         CAConfig caConfig = cs.getCAConfig();
         ConnectorsConfig connectorsConfig = caConfig.getConnectorsConfig();
+        ConnectorConfig kraConnectorConfig = connectorsConfig.getConnectorConfig("KRA");
 
         String newHost = info.getHost();
         String newPort = info.getPort();
@@ -214,20 +216,20 @@ public class KRAConnectorProcessor extends CAProcessor {
         }
 
         if (connectorExists) {
-            String currentHost = connectorsConfig.getString("KRA.host");
-            String currentPort = connectorsConfig.getString("KRA.port");
+            String currentHost = kraConnectorConfig.getString("host");
+            String currentPort = kraConnectorConfig.getString("port");
 
             if ((!currentHost.equals(newHost)) || (!currentPort.equals(newPort))) {
                 //existing connector is not the same
 
                 // check transport cert
-                String transportCert = connectorsConfig.getString("KRA.transportCert");
+                String transportCert = kraConnectorConfig.getString("transportCert");
                 if (!transportCert.equals(newTransportCert)) {
                     logger.error("KRAConnectorProcessor: KRA connector already exists");
                     throw new BadRequestException("KRA connector already exists");
                 }
 
-                addHostPortToConnector(connectorsConfig, newHost, newPort, currentHost, currentPort);
+                addHostPortToConnector(kraConnectorConfig, newHost, newPort, currentHost, currentPort);
                 cs.commit(true);
                 replaceConnector();
                 return;
@@ -237,19 +239,19 @@ public class KRAConnectorProcessor extends CAProcessor {
         // connector does not exist, or existing connector is the same host/port and we are replacing it
         logger.info("KRAConnectorProcessor: Storing KRA connector");
 
-        connectorsConfig.putString("KRA.host", info.getHost());
-        connectorsConfig.putString("KRA.port", info.getPort());
-        connectorsConfig.putString("KRA.enable", info.getEnable() != null ? info.getEnable() : "true");
-        connectorsConfig.putString("KRA.local", info.getLocal() != null ? info.getLocal(): "false");
-        connectorsConfig.putString("KRA.timeout", info.getTimeout() != null ?  info.getTimeout() : "30");
-        connectorsConfig.putString("KRA.uri", info.getUri() != null ? info.getUri() : "/kra/agent/kra/connector");
-        connectorsConfig.putString("KRA.transportCert", info.getTransportCert());
+        kraConnectorConfig.putString("host", info.getHost());
+        kraConnectorConfig.putString("port", info.getPort());
+        kraConnectorConfig.putString("enable", info.getEnable() != null ? info.getEnable() : "true");
+        kraConnectorConfig.putString("local", info.getLocal() != null ? info.getLocal(): "false");
+        kraConnectorConfig.putString("timeout", info.getTimeout() != null ?  info.getTimeout() : "30");
+        kraConnectorConfig.putString("uri", info.getUri() != null ? info.getUri() : "/kra/agent/kra/connector");
+        kraConnectorConfig.putString("transportCert", info.getTransportCert());
 
         String nickname = cs.getString("ca.subsystem.nickname", "");
         String tokenname = cs.getString("ca.subsystem.tokenname", "");
         if (!CryptoUtil.isInternalToken(tokenname))
             nickname = tokenname + ":" + nickname;
-        connectorsConfig.putString("KRA.nickName", nickname);
+        kraConnectorConfig.putString("nickName", nickname);
         cs.commit(true);
 
         replaceConnector();
@@ -266,15 +268,16 @@ public class KRAConnectorProcessor extends CAProcessor {
         CAEngineConfig cs = engine.getConfig();
         CAConfig caConfig = cs.getCAConfig();
         ConnectorsConfig connectorsConfig = caConfig.getConnectorsConfig();
+        ConnectorConfig kraConnectorConfig = connectorsConfig.getConnectorConfig("KRA");
 
         KRAConnectorInfo info = new KRAConnectorInfo();
-        info.setHost(connectorsConfig.getString("KRA.host"));
-        info.setPort(connectorsConfig.getString("KRA.port"));
-        info.setEnable(connectorsConfig.getString("KRA.enable"));
-        info.setLocal(connectorsConfig.getString("KRA.local"));
-        info.setTimeout(connectorsConfig.getString("KRA.timeout"));
-        info.setUri(connectorsConfig.getString("KRA.uri"));
-        info.setTransportCert(connectorsConfig.getString("KRA.transportCert"));
+        info.setHost(kraConnectorConfig.getString("host"));
+        info.setPort(kraConnectorConfig.getString("port"));
+        info.setEnable(kraConnectorConfig.getString("enable"));
+        info.setLocal(kraConnectorConfig.getString("local"));
+        info.setTimeout(kraConnectorConfig.getString("timeout"));
+        info.setUri(kraConnectorConfig.getString("uri"));
+        info.setTransportCert(kraConnectorConfig.getString("transportCert"));
 
         return info;
     }
@@ -284,6 +287,7 @@ public class KRAConnectorProcessor extends CAProcessor {
         CAEngineConfig cs = engine.getConfig();
         CAConfig caConfig = cs.getCAConfig();
         ConnectorsConfig connectorsConfig = caConfig.getConnectorsConfig();
+        ConnectorConfig kraConnectorConfig = connectorsConfig.getConnectorConfig("KRA");
 
         if ((newHost == null) || (newPort == null)) {
             logger.error("KRAConnectorProcessor: Missing KRA connector host, port, or transport certificate");
@@ -291,11 +295,11 @@ public class KRAConnectorProcessor extends CAProcessor {
         }
 
         if (connectorExists) {
-            String currentHost = connectorsConfig.getString("KRA.host");
-            String currentPort = connectorsConfig.getString("KRA.port");
+            String currentHost = kraConnectorConfig.getString("host");
+            String currentPort = kraConnectorConfig.getString("port");
 
             if ((!currentHost.equals(newHost)) || (!currentPort.equals(newPort))) {
-                addHostPortToConnector(connectorsConfig, newHost, newPort, currentHost, currentPort);
+                addHostPortToConnector(kraConnectorConfig, newHost, newPort, currentHost, currentPort);
                 cs.commit(true);
                 replaceConnector();
             }
@@ -305,7 +309,7 @@ public class KRAConnectorProcessor extends CAProcessor {
     }
 
     private void addHostPortToConnector(
-            ConnectorsConfig connectorsConfig,
+            ConnectorConfig kraConnectorConfig,
             String newHost,
             String newPort,
             String currentHost,
@@ -324,10 +328,10 @@ public class KRAConnectorProcessor extends CAProcessor {
                 }
             }
 
-            connectorsConfig.putString("KRA.host", currentHost + " " + hostport);
+            kraConnectorConfig.putString("host", currentHost + " " + hostport);
         } else {
             // host is not a list, turn it into one
-            connectorsConfig.putString("KRA.host", currentHost + ":" + currentPort + " " + hostport);
+            kraConnectorConfig.putString("host", currentHost + ":" + currentPort + " " + hostport);
         }
     }
 }

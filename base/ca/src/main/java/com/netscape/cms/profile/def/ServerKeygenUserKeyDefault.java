@@ -43,6 +43,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.ca.CertificateAuthority;
+import com.netscape.certsrv.connector.ConnectorConfig;
 import com.netscape.certsrv.connector.ConnectorsConfig;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
@@ -292,9 +293,10 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
             CertificateAuthority ca = engine.getCA();
             CAConfig caConfig = ca.getConfigStore();
             ConnectorsConfig connectorsConfig = caConfig.getConnectorsConfig();
+            ConnectorConfig kraConnectorConfig = connectorsConfig.getConnectorConfig("KRA");
 
             try {
-                String transportNickname = connectorsConfig.getString("KRA.transportCertNickname", "KRA Transport Certificate");
+                String transportNickname = kraConnectorConfig.getString("transportCertNickname", "KRA Transport Certificate");
                 transCert = cm.findCertByNickname(transportNickname);
             } catch (Exception e) {
                 logger.debug(method + "'KRA transport certificate' not found in nssdb; need to be manually setup for Server-Side keygen enrollment");

@@ -31,6 +31,7 @@ import org.dogtagpki.server.tps.TPSSubsystem;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.connector.Connector;
+import com.netscape.certsrv.connector.ConnectorConfig;
 import com.netscape.certsrv.connector.ConnectorsConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.connector.HttpConnector;
@@ -109,7 +110,7 @@ public class ConnectionManager
         while (connector_enu.hasMoreElements()) {
             String connectorID = connector_enu.nextElement();
             logger.debug("ConnectionManager: initConnectors(): initializing connector " + connectorID);
-            ConfigStore connectorConfig = connectorsConfig.getSubStore(connectorID, ConfigStore.class);
+            ConnectorConfig connectorConfig = connectorsConfig.getConnectorConfig(connectorID);
             Connector conn = null;
             boolean enable = connectorConfig.getBoolean("enable", false);
             if (!enable) {

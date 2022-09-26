@@ -29,6 +29,7 @@ import org.dogtagpki.tps.main.TPSBuffer;
 import org.dogtagpki.tps.main.Util;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.connector.ConnectorConfig;
 import com.netscape.certsrv.connector.ConnectorsConfig;
 import com.netscape.cmscore.connector.HttpConnector;
 import com.netscape.cmsutil.http.HttpResponse;
@@ -117,6 +118,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
         TPSEngineConfig conf = engine.getConfig();
         TPSConfig tpsConfig = conf.getTPSConfig();
         ConnectorsConfig connectorsConfig = tpsConfig.getConnectorsConfig();
+        ConnectorConfig connectorConfig = connectorsConfig.getConnectorConfig(connid);
 
         boolean serverKeygen = false;
 
@@ -136,7 +138,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
         logger.debug(method + " final serverkegGen enabled? " + serverKeygen);
 
         if (keySet == null)
-            keySet = connectorsConfig.getString(connid + ".keySet", "defKeySet");
+            keySet = connectorConfig.getString("keySet", "defKeySet");
 
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         HttpConnector conn =
@@ -269,6 +271,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
         TPSEngineConfig conf = engine.getConfig();
         TPSConfig tpsConfig = conf.getTPSConfig();
         ConnectorsConfig connectorsConfig = tpsConfig.getConnectorsConfig();
+        ConnectorConfig connectorConfig = connectorsConfig.getConnectorConfig(connid);
 
         boolean serverKeygen = false;
 
@@ -288,7 +291,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
         logger.debug(method + " final serverkegGen enabled? " + serverKeygen);
 
         if (keySet == null)
-            keySet = connectorsConfig.getString(connid + ".keySet", "defKeySet");
+            keySet = connectorConfig.getString("keySet", "defKeySet");
 
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         HttpConnector conn =
@@ -457,6 +460,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
         TPSEngineConfig conf = engine.getConfig();
         TPSConfig tpsConfig = conf.getTPSConfig();
         ConnectorsConfig connectorsConfig = tpsConfig.getConnectorsConfig();
+        ConnectorConfig connectorConfig = connectorsConfig.getConnectorConfig(connid);
 
         boolean serverKeygen = false;
 
@@ -475,7 +479,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
         }
 
         if (keySet == null)
-            keySet = connectorsConfig.getString(connid + ".keySet", "defKeySet");
+            keySet = connectorConfig.getString("keySet", "defKeySet");
 
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         HttpConnector conn =
@@ -600,9 +604,10 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
         TPSEngineConfig conf = engine.getConfig();
         TPSConfig tpsConfig = conf.getTPSConfig();
         ConnectorsConfig connectorsConfig = tpsConfig.getConnectorsConfig();
+        ConnectorConfig connectorConfig = connectorsConfig.getConnectorConfig(connid);
 
         if (keySet == null)
-            keySet = connectorsConfig.getString(connid + ".keySet", "defKeySet");
+            keySet = connectorConfig.getString("keySet", "defKeySet");
 
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         HttpConnector conn =
@@ -775,9 +780,10 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
         TPSEngineConfig conf = engine.getConfig();
         TPSConfig tpsConfig = conf.getTPSConfig();
         ConnectorsConfig connectorsConfig = tpsConfig.getConnectorsConfig();
+        ConnectorConfig connectorConfig = connectorsConfig.getConnectorConfig(connid);
 
         if (keySet == null)
-            keySet = connectorsConfig.getString(connid + ".keySet", "defKeySet");
+            keySet = connectorConfig.getString("keySet", "defKeySet");
 
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         HttpConnector conn =
