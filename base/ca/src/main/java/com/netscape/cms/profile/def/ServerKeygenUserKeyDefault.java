@@ -43,6 +43,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.ca.CertificateAuthority;
+import com.netscape.certsrv.connector.ConnectorsConfig;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
@@ -286,11 +287,14 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
             String transportCertStr = null;
             CryptoManager cm = CryptoManager.getInstance();
             org.mozilla.jss.crypto.X509Certificate transCert = null;
+
+            CAEngine engine = CAEngine.getInstance();
+            CertificateAuthority ca = engine.getCA();
+            CAConfig caConfig = ca.getConfigStore();
+            ConnectorsConfig connectorsConfig = caConfig.getConnectorsConfig();
+
             try {
-                CAEngine engine = CAEngine.getInstance();
-                CertificateAuthority ca = engine.getCA();
-                CAConfig caConfig = ca.getConfigStore();
-                String transportNickname = caConfig.getString("connector.KRA.transportCertNickname", "KRA Transport Certificate");
+                String transportNickname = connectorsConfig.getString("KRA.transportCertNickname", "KRA Transport Certificate");
                 transCert = cm.findCertByNickname(transportNickname);
             } catch (Exception e) {
                 logger.debug(method + "'KRA transport certificate' not found in nssdb; need to be manually setup for Server-Side keygen enrollment");
@@ -298,7 +302,7 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
 
                 /* future; cert nickname can't be controlled yet at import in jss
                 logger.debug(method + "KRA transport certificate not found in nssdb; getting from CS.cfg");
-                transportCertStr = CMS.getConfigStore().getString("ca.connector.KRA.transportCert", "");
+                transportCertStr = connectorsConfig.getString("KRA.transportCert", "");
                 logger.debug(method + "transportCert found in CS.cfg: " + transportCertStr);
 
                 byte[] transportCertB = Utils.base64decode(transportCertStr);
@@ -319,7 +323,6 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
                 EncryptionAlgorithm encryptAlgorithm =
                         EncryptionAlgorithm.AES_128_CBC_PAD;
 
-                CAEngine engine = CAEngine.getInstance();
                 ConfigStore caCfg = engine.getConfigStore();
 
                 boolean useOAEP = caCfg.getBoolean("keyWrap.useOAEP",false);

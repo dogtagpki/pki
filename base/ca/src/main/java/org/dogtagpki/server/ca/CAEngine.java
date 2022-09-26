@@ -59,6 +59,7 @@ import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.certsrv.ca.CATypeException;
 import com.netscape.certsrv.ca.ECAException;
+import com.netscape.certsrv.connector.ConnectorsConfig;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.publish.CRLPublisher;
 import com.netscape.certsrv.request.IRequestListener;
@@ -832,7 +833,8 @@ public class CAEngine extends CMSEngine {
 
             startSerialNumberUpdateTask();
 
-            caService.init(caConfig.getSubStore("connector", ConfigStore.class));
+            ConnectorsConfig connectorsConfig = caConfig.getConnectorsConfig();
+            caService.init(connectorsConfig);
 
             initListeners();
 

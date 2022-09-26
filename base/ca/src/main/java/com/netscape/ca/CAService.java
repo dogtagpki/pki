@@ -60,6 +60,7 @@ import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.connector.Connector;
+import com.netscape.certsrv.connector.ConnectorsConfig;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.logging.ILogger;
@@ -102,7 +103,7 @@ public class CAService implements IService {
     private CertificateAuthority mCA = null;
     private Hashtable<String, IServant> mServants = new Hashtable<>();
     private Connector mKRAConnector = null;
-    private ConfigStore mConfig;
+    private ConnectorsConfig connectorsConfig;
     private boolean mArchivalRequired = true;
 
     public CAService(CertificateAuthority ca) {
@@ -153,8 +154,8 @@ public class CAService implements IService {
                 new GetCertStatus(this));
     }
 
-    public void init(ConfigStore config) throws EBaseException {
-        mConfig = config;
+    public void init(ConnectorsConfig connectorsConfig) throws EBaseException {
+        this.connectorsConfig = connectorsConfig;
 
         try {
             // MOVED TO com.netscape.certsrv.apps.CMS
@@ -175,7 +176,7 @@ public class CAService implements IService {
     }
 
     public void startup() throws EBaseException {
-        ConfigStore kraConfig = mConfig.getSubStore("KRA", ConfigStore.class);
+        ConfigStore kraConfig = connectorsConfig.getSubStore("KRA", ConfigStore.class);
 
         if (kraConfig != null) {
             mArchivalRequired = kraConfig.getBoolean(
@@ -188,7 +189,7 @@ public class CAService implements IService {
         }
 
         // clone ca to CLA (clone master) connector
-        ConfigStore claConfig = mConfig.getSubStore("CLA", ConfigStore.class);
+        ConfigStore claConfig = connectorsConfig.getSubStore("CLA", ConfigStore.class);
 
         if (claConfig != null) {
             mCLAConnector = getConnector(claConfig);
@@ -603,7 +604,7 @@ public class CAService implements IService {
         // NOTE:  In this implementation, the "oldSerialNo"
         //        parameter is NOT used!
 
-        boolean doUTF8 = mConfig.getBoolean("dnUTF8Encoding", false);
+        boolean doUTF8 = connectorsConfig.getBoolean("dnUTF8Encoding", false);
 
         logger.debug("dnUTF8Encoding " + doUTF8);
 

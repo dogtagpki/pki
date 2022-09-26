@@ -21,6 +21,7 @@ package org.dogtagpki.server.tps.cms;
 import java.util.Hashtable;
 
 import org.dogtagpki.server.connector.IRemoteRequest;
+import org.dogtagpki.server.tps.TPSConfig;
 import org.dogtagpki.server.tps.TPSEngineConfig;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.channel.SecureChannel;
@@ -28,6 +29,7 @@ import org.dogtagpki.tps.main.TPSBuffer;
 import org.dogtagpki.tps.main.Util;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.connector.ConnectorsConfig;
 import com.netscape.cmscore.connector.HttpConnector;
 import com.netscape.cmsutil.http.HttpResponse;
 
@@ -113,6 +115,8 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSEngineConfig conf = engine.getConfig();
+        TPSConfig tpsConfig = conf.getTPSConfig();
+        ConnectorsConfig connectorsConfig = tpsConfig.getConnectorsConfig();
 
         boolean serverKeygen = false;
 
@@ -132,7 +136,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
         logger.debug(method + " final serverkegGen enabled? " + serverKeygen);
 
         if (keySet == null)
-            keySet = conf.getString("tps.connector." + connid + ".keySet", "defKeySet");
+            keySet = connectorsConfig.getString(connid + ".keySet", "defKeySet");
 
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         HttpConnector conn =
@@ -263,6 +267,8 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSEngineConfig conf = engine.getConfig();
+        TPSConfig tpsConfig = conf.getTPSConfig();
+        ConnectorsConfig connectorsConfig = tpsConfig.getConnectorsConfig();
 
         boolean serverKeygen = false;
 
@@ -282,7 +288,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
         logger.debug(method + " final serverkegGen enabled? " + serverKeygen);
 
         if (keySet == null)
-            keySet = conf.getString("tps.connector." + connid + ".keySet", "defKeySet");
+            keySet = connectorsConfig.getString(connid + ".keySet", "defKeySet");
 
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         HttpConnector conn =
@@ -449,6 +455,8 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSEngineConfig conf = engine.getConfig();
+        TPSConfig tpsConfig = conf.getTPSConfig();
+        ConnectorsConfig connectorsConfig = tpsConfig.getConnectorsConfig();
 
         boolean serverKeygen = false;
 
@@ -467,7 +475,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
         }
 
         if (keySet == null)
-            keySet = conf.getString("tps.connector." + connid + ".keySet", "defKeySet");
+            keySet = connectorsConfig.getString(connid + ".keySet", "defKeySet");
 
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         HttpConnector conn =
@@ -590,8 +598,11 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSEngineConfig conf = engine.getConfig();
+        TPSConfig tpsConfig = conf.getTPSConfig();
+        ConnectorsConfig connectorsConfig = tpsConfig.getConnectorsConfig();
+
         if (keySet == null)
-            keySet = conf.getString("tps.connector." + connid + ".keySet", "defKeySet");
+            keySet = connectorsConfig.getString(connid + ".keySet", "defKeySet");
 
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         HttpConnector conn =
@@ -762,9 +773,11 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSEngineConfig conf = engine.getConfig();
+        TPSConfig tpsConfig = conf.getTPSConfig();
+        ConnectorsConfig connectorsConfig = tpsConfig.getConnectorsConfig();
 
         if (keySet == null)
-            keySet = conf.getString("tps.connector." + connid + ".keySet", "defKeySet");
+            keySet = connectorsConfig.getString(connid + ".keySet", "defKeySet");
 
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         HttpConnector conn =

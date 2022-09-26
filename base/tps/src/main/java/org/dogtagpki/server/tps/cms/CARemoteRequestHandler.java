@@ -25,6 +25,7 @@ import java.util.Hashtable;
 import java.util.List;
 
 import org.dogtagpki.server.connector.IRemoteRequest;
+import org.dogtagpki.server.tps.TPSConfig;
 import org.dogtagpki.server.tps.TPSEngineConfig;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.engine.TPSEngine;
@@ -39,6 +40,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
+import com.netscape.certsrv.connector.ConnectorsConfig;
 import com.netscape.cmscore.connector.HttpConnector;
 import com.netscape.cmsutil.http.HttpResponse;
 import com.netscape.cmsutil.xml.XMLObject;
@@ -305,14 +307,16 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         }
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngineConfig tpsEngineConfig = engine.getConfig();
+        TPSConfig tpsConfig = tpsEngineConfig.getTPSConfig();
+        ConnectorsConfig connectorsConfig = tpsConfig.getConnectorsConfig();
 
         //ToDo: I"m not sure why these are not used, let's check this out.
         //It's working though.
 
         /*
-        ConfigStore conf = CMS.getConfigStore();
-        String configName = "tps.connector." + connid + ".uri.getBySerial";
-        String servlet = conf.getString(configName, "/ca/ee/ca/displayBySerial");
+        String configName = connid + ".uri.getBySerial";
+        String servlet = connectorsConfig.getString(configName, "/ca/ee/ca/displayBySerial");
         */
 
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
@@ -789,6 +793,8 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSEngineConfig conf = engine.getConfig();
+        TPSConfig tpsConfig = conf.getTPSConfig();
+        ConnectorsConfig connectorsConfig = tpsConfig.getConnectorsConfig();
 
         /*
          * first, see if ca Subject Key Identifier (SKI) is in
@@ -796,9 +802,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
          * calculate that every time.
          */
         try {
-            String configName = "tps.connector." + conn + ".caSKI";
-            logger.debug(method + " retriving configName=" + configName);
-            return conf.getString(configName);
+            return connectorsConfig.getString(conn + ".caSKI");
         } catch (EPropertyNotFound e) {
             // caSKI not yet calculated; proceed to calculate
             logger.warn(method + " caSKI not yet calculated:" + e.getMessage(), e);
@@ -807,8 +811,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         }
 
         try {
-            String caNickname =
-                    conf.getString("tps.connector." + conn + ".caNickname");
+            String caNickname = connectorsConfig.getString(conn + ".caNickname");
             logger.debug(method + " Calculating caSKI...searching for ca cert in nss db:"
                     + caNickname);
             CryptoManager cm = CryptoManager.getInstance();
@@ -818,7 +821,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
                 // now retrieve caSKI and store in config
                 caSkiString = Util.getCertSkiString(caCert);
                 logger.debug(method + " caSKI calculated. Saving it.");
-                conf.putString("tps.connector." + conn + ".caSKI", caSkiString);
+                connectorsConfig.putString(conn + ".caSKI", caSkiString);
                 conf.commit(false);
             } catch (IOException e) {
                 throw e;

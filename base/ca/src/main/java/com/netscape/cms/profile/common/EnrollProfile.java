@@ -40,6 +40,7 @@ import javax.crypto.Mac;
 import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthToken;
+import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
 import org.mozilla.jss.CryptoManager;
@@ -114,6 +115,7 @@ import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.connector.ConnectorsConfig;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.ECMCBadIdentityException;
@@ -2216,6 +2218,8 @@ public abstract class EnrollProfile extends Profile {
 
         CAEngine engine = CAEngine.getInstance();
         CAEngineConfig cs = engine.getConfig();
+        CAConfig caConfig = cs.getCAConfig();
+        ConnectorsConfig connectorsConfig = caConfig.getConnectorsConfig();
 
         try {
             CertRequest certReq = certReqMsg.getCertReq();
@@ -2231,7 +2235,7 @@ public abstract class EnrollProfile extends Profile {
                     req.setExtData(Request.REQUEST_ARCHIVE_OPTIONS,
                             toByteArray(opt));
                     try {
-                        String transportCert = cs.getString("ca.connector.KRA.transportCert", "");
+                        String transportCert = connectorsConfig.getString("KRA.transportCert", "");
                         req.setExtData(Request.REQUEST_TRANSPORT_CERT, transportCert);
                     } catch (EBaseException ee) {
                         logger.warn("EnrollProfile: fillCertReqMsg - Exception reading transportCert: " + ee.getMessage(), ee);

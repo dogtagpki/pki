@@ -25,6 +25,7 @@ import org.dogtagpki.common.CAInfo;
 import org.dogtagpki.common.CAInfoResource;
 import org.dogtagpki.common.KRAInfo;
 import org.dogtagpki.common.KRAInfoClient;
+import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
@@ -36,6 +37,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
+import com.netscape.certsrv.connector.ConnectorsConfig;
 import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.cms.servlet.admin.KRAConnectorProcessor;
 import com.netscape.cms.servlet.base.PKIService;
@@ -176,7 +178,9 @@ public class CAInfoService extends PKIService implements CAInfoResource {
 
         CAEngine engine = CAEngine.getInstance();
         CAEngineConfig cs = engine.getConfig();
-        ConfigStore kraConnectorConfig = cs.getSubStore(KRAConnectorProcessor.PREFIX, ConfigStore.class);
+        CAConfig caConfig = cs.getCAConfig();
+        ConnectorsConfig connectorsConfig = caConfig.getConnectorsConfig();
+        ConfigStore kraConnectorConfig = connectorsConfig.getSubStore("KRA", ConfigStore.class);
 
         ClientConfig config = new ClientConfig();
         int port = Integer.parseInt(connInfo.getPort());

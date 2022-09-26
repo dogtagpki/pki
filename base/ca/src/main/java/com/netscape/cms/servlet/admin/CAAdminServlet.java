@@ -47,6 +47,7 @@ import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.certsrv.connector.ConnectorsConfig;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequestListener;
@@ -1339,13 +1340,13 @@ public class CAAdminServlet extends AdminServlet {
     private void getConnectorConfig(HttpServletRequest req, HttpServletResponse resp)
             throws IOException, EBaseException {
         CAConfig caConfig = mCA.getConfigStore();
-        ConfigStore connectorConfig = caConfig.getSubStore("connector", ConfigStore.class);
+        ConnectorsConfig connectorsConfig = caConfig.getConnectorsConfig();
         ConfigStore caConnectorConfig = null;
 
         if (isKRAConnector(req)) {
-            caConnectorConfig = connectorConfig.getSubStore("KRA", ConfigStore.class);
+            caConnectorConfig = connectorsConfig.getSubStore("KRA", ConfigStore.class);
         } else if (isCLAConnector(req)) {
-            caConnectorConfig = connectorConfig.getSubStore("CLA", ConfigStore.class);
+            caConnectorConfig = connectorsConfig.getSubStore("CLA", ConfigStore.class);
         }
 
         Enumeration<String> enum1 = req.getParameterNames();
@@ -1372,15 +1373,15 @@ public class CAAdminServlet extends AdminServlet {
             throws IOException, EBaseException {
 
         CAConfig caConfig = mCA.getConfigStore();
-        ConfigStore connectorConfig = caConfig.getSubStore("connector", ConfigStore.class);
+        ConnectorsConfig connectorsConfig = caConfig.getConnectorsConfig();
         ConfigStore caConnectorConfig = null;
 
         //        String nickname = CMS.getServerCertNickname();
 
         if (isKRAConnector(req)) {
-            caConnectorConfig = connectorConfig.getSubStore("KRA", ConfigStore.class);
+            caConnectorConfig = connectorsConfig.getSubStore("KRA", ConfigStore.class);
         } else if (isCLAConnector(req)) {
-            caConnectorConfig = connectorConfig.getSubStore("CLA", ConfigStore.class);
+            caConnectorConfig = connectorsConfig.getSubStore("CLA", ConfigStore.class);
         }
 
         Enumeration<String> enum1 = req.getParameterNames();
