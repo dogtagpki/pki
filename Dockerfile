@@ -24,33 +24,37 @@ RUN dnf install -y systemd \
 CMD [ "/usr/sbin/init" ]
 
 ################################################################################
-FROM fedora-runner AS pki-builder
+FROM fedora-runner AS pki-deps
 
 ARG COPR_REPO
 
 # Enable COPR repo if specified
 RUN if [ -n "$COPR_REPO" ]; then dnf install -y dnf-plugins-core; dnf copr enable -y $COPR_REPO; fi
 
-# Install packages
+# Install PKI runtime dependencies
+RUN dnf install -y dogtag-pki \
+    && dnf remove -y dogtag-* --noautoremove \
+    && dnf clean all \
+    && rm -rf /var/cache/dnf
+
+################################################################################
+FROM pki-deps AS pki-builder
+
+# Install build tools
 RUN dnf install -y rpm-build
 
 # Import PKI sources
 COPY . /root/pki/
 WORKDIR /root/pki
 
-# Install PKI dependencies
+# Install PKI build dependencies
 RUN dnf builddep -y --spec pki.spec
 
 # Build and install PKI packages
 RUN ./build.sh --work-dir=build rpm
 
 ################################################################################
-FROM fedora-runner AS pki-runner
-
-ARG COPR_REPO
-
-# Enable COPR repo if specified
-RUN if [ -n "$COPR_REPO" ]; then dnf install -y dnf-plugins-core; dnf copr enable -y $COPR_REPO; fi
+FROM pki-deps AS pki-runner
 
 # Copy PKI packages
 COPY --from=pki-builder /root/pki/build/RPMS/* /tmp/RPMS/
@@ -65,7 +69,6 @@ RUN dnf localinstall -y /tmp/RPMS/* \
 FROM pki-runner AS pki-server
 
 ARG SUMMARY="Dogtag PKI Server"
-ARG COPR_REPO
 
 LABEL name="pki-server" \
       summary="$SUMMARY" \
@@ -115,7 +118,6 @@ CMD [ "/usr/share/pki/server/bin/pki-server-run" ]
 FROM pki-runner AS pki-ca
 
 ARG SUMMARY="Dogtag PKI Certificate Authority"
-ARG COPR_REPO
 
 LABEL name="pki-ca" \
       summary="$SUMMARY" \
@@ -143,7 +145,6 @@ CMD [ "/usr/share/pki/ca/bin/pki-ca-run" ]
 FROM pki-server AS pki-acme
 
 ARG SUMMARY="Dogtag PKI ACME Responder"
-ARG COPR_REPO
 
 LABEL name="pki-acme" \
       summary="$SUMMARY" \
