@@ -30,15 +30,15 @@ public class JobService extends SubsystemService implements JobResource {
 
     public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JobService.class);
 
-    public JobInfo createJobData(String id, JobConfig jobConfig) throws EBaseException {
+    public JobInfo createJobInfo(String id, JobConfig jobConfig) throws EBaseException {
 
-        JobInfo jobData = new JobInfo();
-        jobData.setID(id);
-        jobData.setEnabled(jobConfig.isEnabled());
-        jobData.setCron(jobConfig.getCron());
-        jobData.setPluginName(jobConfig.getPluginName());
+        JobInfo jobInfo = new JobInfo();
+        jobInfo.setID(id);
+        jobInfo.setEnabled(jobConfig.isEnabled());
+        jobInfo.setCron(jobConfig.getCron());
+        jobInfo.setPluginName(jobConfig.getPluginName());
 
-        return jobData;
+        return jobInfo;
     }
 
     @Override
@@ -59,8 +59,8 @@ public class JobService extends SubsystemService implements JobResource {
             logger.info("JobService: - " + id);
 
             JobConfig jobConfig = jobsConfig.getJobConfig(id);
-            JobInfo jobData = createJobData(id, jobConfig);
-            response.addEntry(jobData);
+            JobInfo jobInfo = createJobInfo(id, jobConfig);
+            response.addEntry(jobInfo);
         }
 
         return createOKResponse(response);

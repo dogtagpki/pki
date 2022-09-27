@@ -46,7 +46,7 @@ public class JobFindCLI extends CommandCLI {
         Collection<JobInfo> entries = response.getEntries();
         boolean first = true;
 
-        for (JobInfo jobData : entries) {
+        for (JobInfo jobInfo : entries) {
 
             if (first) {
                 first = false;
@@ -54,7 +54,7 @@ public class JobFindCLI extends CommandCLI {
                 System.out.println();
             }
 
-            JobCLI.printJob(jobData);
+            JobCLI.printJob(jobInfo);
         }
     }
 }

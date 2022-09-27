@@ -39,15 +39,15 @@ public class JobCLI extends CLI {
         return jobClient;
     }
 
-    public static void printJob(JobInfo jobData) {
-        System.out.println("  Job ID: " + jobData.getID());
-        System.out.println("  Enabled: " + jobData.isEnabled());
+    public static void printJob(JobInfo jobInfo) {
+        System.out.println("  Job ID: " + jobInfo.getID());
+        System.out.println("  Enabled: " + jobInfo.isEnabled());
 
-        String cron = jobData.getCron();
+        String cron = jobInfo.getCron();
         if (cron != null) {
             System.out.println("  Cron: " + cron);
         }
 
-        System.out.println("  Plugin: " + jobData.getPluginName());
+        System.out.println("  Plugin: " + jobInfo.getPluginName());
     }
 }
