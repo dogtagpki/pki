@@ -5,6 +5,8 @@
 //
 package com.netscape.cmscore.jobs;
 
+import java.util.Vector;
+
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
@@ -29,6 +31,8 @@ public class JobsConfig extends ConfigStore {
      * Returns jobsScheduler.job.<id>.* parameters.
      */
     public JobConfig getJobConfig(String id) {
+        Vector<String> names = getSubStoreNames();
+        if (!names.contains(id)) return null;
         return getSubStore(id, JobConfig.class);
     }
 
