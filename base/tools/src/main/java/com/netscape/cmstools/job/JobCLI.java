@@ -5,6 +5,8 @@
 //
 package com.netscape.cmstools.job;
 
+import java.util.Map;
+
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.job.JobClient;
 import org.dogtagpki.job.JobInfo;
@@ -23,6 +25,7 @@ public class JobCLI extends CLI {
         super("job", "Job management commands", parent);
 
         addModule(new JobFindCLI(this));
+        addModule(new JobShowCLI(this));
         addModule(new JobStartCLI(this));
     }
 
@@ -49,5 +52,15 @@ public class JobCLI extends CLI {
         }
 
         System.out.println("  Plugin: " + jobInfo.getPluginName());
+
+        Map<String, String> params = jobInfo.getParameters();
+        if (!params.isEmpty()) {
+            System.out.println();
+            System.out.println("  Parameters:");
+            for (String name : params.keySet()) {
+                String value = params.get(name);
+                System.out.println("  - " + name + ": " + value);
+            }
+        }
     }
 }

@@ -5,6 +5,9 @@
 //
 package org.dogtagpki.job;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -21,6 +24,8 @@ public class JobInfo implements JSONSerializer {
     boolean enabled;
     String cron;
     String pluginName;
+
+    Map<String, String> parameters = new LinkedHashMap<>();
 
     public String getID() {
         return id;
@@ -54,6 +59,18 @@ public class JobInfo implements JSONSerializer {
         this.pluginName = pluginName;
     }
 
+    public Map<String, String> getParameters() {
+        return parameters;
+    }
+
+    public String getParameter(String name) {
+        return parameters.get(name);
+    }
+
+    public void setParameter(String name, String value) {
+        parameters.put(name, value);
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -61,6 +78,7 @@ public class JobInfo implements JSONSerializer {
         result = prime * result + ((cron == null) ? 0 : cron.hashCode());
         result = prime * result + (enabled ? 1231 : 1237);
         result = prime * result + ((id == null) ? 0 : id.hashCode());
+        result = prime * result + ((parameters == null) ? 0 : parameters.hashCode());
         result = prime * result + ((pluginName == null) ? 0 : pluginName.hashCode());
         return result;
     }
@@ -85,6 +103,11 @@ public class JobInfo implements JSONSerializer {
             if (other.id != null)
                 return false;
         } else if (!id.equals(other.id))
+            return false;
+        if (parameters == null) {
+            if (other.parameters != null)
+                return false;
+        } else if (!parameters.equals(other.parameters))
             return false;
         if (pluginName == null) {
             if (other.pluginName != null)

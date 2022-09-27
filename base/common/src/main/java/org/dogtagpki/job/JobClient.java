@@ -36,6 +36,11 @@ public class JobClient extends Client {
         return client.getEntity(response, JobCollection.class);
     }
 
+    public JobInfo getJob(String id) throws Exception {
+        Response response = resource.getJob(id);
+        return client.getEntity(response, JobInfo.class);
+    }
+
     public void startJob(String id) throws Exception {
         Response response = resource.startJob(id);
         client.getEntity(response, Void.class);

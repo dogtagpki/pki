@@ -9,6 +9,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -22,6 +23,10 @@ public interface JobResource {
 
     @GET
     public Response findJobs() throws EBaseException;
+
+    @GET
+    @Path("{id}")
+    public Response getJob(@PathParam("id") String id) throws EBaseException;
 
     @POST
     public Response startJob(String id) throws EBaseException;
