@@ -1039,6 +1039,18 @@ public class UserService extends SubsystemService implements UserResource {
 
         if (userID == null) throw new BadRequestException("User ID is null.");
         if (groupID == null) throw new BadRequestException("Group ID is null.");
+        User user = null;
+
+        try {
+            user = userGroupManager.getUser(userID);
+        } catch (Exception e) {
+            throw new PKIException(getUserMessage("CMS_USRGRP_SRVLT_USER_NOT_EXIST", headers));
+        }
+
+        if (user == null) {
+            logger.error(CMS.getLogMessage("USRGRP_SRVLT_USER_NOT_EXIST"));
+            throw new UserNotFoundException(userID);
+        }
 
         try {
             GroupMemberData groupMemberData = new GroupMemberData();
