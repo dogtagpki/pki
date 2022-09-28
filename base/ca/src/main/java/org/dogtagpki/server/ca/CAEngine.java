@@ -402,7 +402,7 @@ public class CAEngine extends CMSEngine {
         logger.info("CAEngine: Loading listener plugins");
 
         ConfigStore pluginsConfig = listenersConfig.getSubStore(ICertificateAuthority.PROP_IMPL, ConfigStore.class);
-        Enumeration<String> pluginNames = pluginsConfig.getSubStoreNames();
+        Enumeration<String> pluginNames = pluginsConfig.getSubStoreNames().elements();
 
         while (pluginNames.hasMoreElements()) {
             String id = pluginNames.nextElement();
@@ -416,7 +416,7 @@ public class CAEngine extends CMSEngine {
         logger.info("CAEngine: Creating listener instances");
 
         ConfigStore instancesConfig = listenersConfig.getSubStore(ICertificateAuthority.PROP_INSTANCE, ConfigStore.class);
-        Enumeration<String> instanceNames = instancesConfig.getSubStoreNames();
+        Enumeration<String> instanceNames = instancesConfig.getSubStoreNames().elements();
 
         while (instanceNames.hasMoreElements()) {
             String id = instanceNames.nextElement();
@@ -509,7 +509,7 @@ public class CAEngine extends CMSEngine {
             return;
         }
 
-        Enumeration<String> ipIDs = crlConfig.getSubStoreNames();
+        Enumeration<String> ipIDs = crlConfig.getSubStoreNames().elements();
 
         if (ipIDs == null || !ipIDs.hasMoreElements()) {
             logger.error(CMS.getLogMessage("CMSCORE_CA_CA_NO_MASTER_CRL_SUBSTORE"));

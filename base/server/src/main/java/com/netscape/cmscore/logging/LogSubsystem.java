@@ -95,7 +95,7 @@ public class LogSubsystem implements ISubsystem {
 
         // load log plugin implementation
         LoggerPluginsConfig pluginsConfig = mConfig.getLoggerPluginsConfig();
-        Enumeration<String> mImpls = pluginsConfig.getSubStoreNames();
+        Enumeration<String> mImpls = pluginsConfig.getSubStoreNames().elements();
 
         while (mImpls.hasMoreElements()) {
             String id = mImpls.nextElement();
@@ -108,7 +108,7 @@ public class LogSubsystem implements ISubsystem {
 
         // load log instances
         LoggersConfig loggersConfig = mConfig.getLoggersConfig();
-        Enumeration<String> instances = loggersConfig.getSubStoreNames();
+        Enumeration<String> instances = loggersConfig.getSubStoreNames().elements();
 
         while (instances.hasMoreElements()) {
             String insName = instances.nextElement();

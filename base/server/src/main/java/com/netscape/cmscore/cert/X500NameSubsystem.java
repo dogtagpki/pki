@@ -151,7 +151,7 @@ public class X500NameSubsystem implements ISubsystem {
             throws EBaseException {
         X500NameAttrMap globalMap = X500NameAttrMap.getDefault();
         ConfigStore attrSubStore = mConfig.getSubStore(PROP_ATTR, ConfigStore.class);
-        Enumeration<String> attrNames = attrSubStore.getSubStoreNames();
+        Enumeration<String> attrNames = attrSubStore.getSubStoreNames().elements();
 
         while (attrNames.hasMoreElements()) {
             String name = attrNames.nextElement();

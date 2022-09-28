@@ -105,7 +105,7 @@ public class ConnectionManager
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         TPSConfig conf = subsystem.getConfigStore();
         ConnectorsConfig connectorsConfig = conf.getConnectorsConfig();
-        Enumeration<String> connector_enu = connectorsConfig.getSubStoreNames();
+        Enumeration<String> connector_enu = connectorsConfig.getSubStoreNames().elements();
         connectors = new Hashtable<>();
         while (connector_enu.hasMoreElements()) {
             String connectorID = connector_enu.nextElement();

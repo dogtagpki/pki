@@ -123,7 +123,7 @@ public abstract class AAclAuthz implements IAuthzManager {
         ConfigStore i = evalConfig.getSubStore(PROP_IMPL, ConfigStore.class);
 
         IAccessEvaluator evaluator = null;
-        Enumeration<String> mImpls = i.getSubStoreNames();
+        Enumeration<String> mImpls = i.getSubStoreNames().elements();
 
         while (mImpls.hasMoreElements()) {
             String type = mImpls.nextElement();

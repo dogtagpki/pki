@@ -98,7 +98,7 @@ public class AuthzSubsystem implements ISubsystem {
             // get authz manager plugins.
 
             ConfigStore c = mConfig.getSubStore(PROP_IMPL, ConfigStore.class);
-            Enumeration<String> mImpls = c.getSubStoreNames();
+            Enumeration<String> mImpls = c.getSubStoreNames().elements();
 
             while (mImpls.hasMoreElements()) {
                 String id = mImpls.nextElement();
@@ -114,7 +114,7 @@ public class AuthzSubsystem implements ISubsystem {
             // get authz manager instances.
 
             AuthzManagersConfig instancesConfig = mConfig.getAuthzManagersConfig();
-            Enumeration<String> instances = instancesConfig.getSubStoreNames();
+            Enumeration<String> instances = instancesConfig.getSubStoreNames().elements();
 
             while (instances.hasMoreElements()) {
                 String insName = instances.nextElement();

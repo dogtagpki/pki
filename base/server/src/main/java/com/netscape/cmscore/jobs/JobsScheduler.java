@@ -158,7 +158,7 @@ public class JobsScheduler implements Runnable {
         setInterval(i);
 
         JobPluginsConfig pluginsConfig = mConfig.getJobPluginsConfig();
-        Enumeration<String> mImpls = pluginsConfig.getSubStoreNames();
+        Enumeration<String> mImpls = pluginsConfig.getSubStoreNames().elements();
 
         // register all job plugins
         while (mImpls.hasMoreElements()) {
@@ -173,7 +173,7 @@ public class JobsScheduler implements Runnable {
         logger.info("JobsScheduler: Jobs: ");
         // register all jobs
         JobsConfig c = config.getJobsConfig();
-        Enumeration<String> jobs = c.getSubStoreNames();
+        Enumeration<String> jobs = c.getSubStoreNames().elements();
 
         while (jobs.hasMoreElements()) {
             String jobName = jobs.nextElement();

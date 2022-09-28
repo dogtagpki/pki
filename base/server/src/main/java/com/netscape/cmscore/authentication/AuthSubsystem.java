@@ -175,7 +175,7 @@ public class AuthSubsystem implements ISubsystem {
         mAuthMgrPlugins.put(SSLCLIENTCERT_PLUGIN_ID, plugin);
 
         ConfigStore c = mConfig.getSubStore(PROP_IMPL, ConfigStore.class);
-        Enumeration<String> pluginIDs = c.getSubStoreNames();
+        Enumeration<String> pluginIDs = c.getSubStoreNames().elements();
 
         while (pluginIDs.hasMoreElements()) {
             String pluginID = pluginIDs.nextElement();
@@ -237,7 +237,7 @@ public class AuthSubsystem implements ISubsystem {
         mAuthMgrInsts.put(SSLCLIENTCERT_AUTHMGR_ID, new AuthManagerProxy(true, sslClientCertAuth));
 
         AuthManagersConfig instancesConfig = mConfig.getAuthManagersConfig();
-        Enumeration<String> instNames = instancesConfig.getSubStoreNames();
+        Enumeration<String> instNames = instancesConfig.getSubStoreNames().elements();
 
         while (instNames.hasMoreElements()) {
             String instName = instNames.nextElement();

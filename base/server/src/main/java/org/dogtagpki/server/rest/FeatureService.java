@@ -28,7 +28,7 @@ public class FeatureService extends PKIService implements FeatureResource {
 
         ConfigStore cs = config.getSubStore("features", ConfigStore.class);
         ArrayList<Feature> features = new ArrayList<>();
-        Enumeration<String> tags = cs.getSubStoreNames();
+        Enumeration<String> tags = cs.getSubStoreNames().elements();
         while (tags.hasMoreElements()) {
             String tag = tags.nextElement();
             Feature feature = createFeature(cs, tag);
@@ -45,7 +45,7 @@ public class FeatureService extends PKIService implements FeatureResource {
         EngineConfig config = engine.getConfig();
 
         ConfigStore cs = config.getSubStore("features", ConfigStore.class);
-        Enumeration<String> tags = cs.getSubStoreNames();
+        Enumeration<String> tags = cs.getSubStoreNames().elements();
         while(tags.hasMoreElements()) {
             String tag = tags.nextElement();
             if (tag.equals(id)) {

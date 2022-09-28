@@ -788,7 +788,7 @@ public class CRLIssuingPoint implements Runnable {
         CAEngineConfig engineConfig = engine.getConfig();
         ProfileSubsystemConfig profileSubsystemConfig = engineConfig.getProfileSubsystemConfig();
         if (profileSubsystemConfig != null)
-            e = profileSubsystemConfig.getSubStoreNames();
+            e = profileSubsystemConfig.getSubStoreNames().elements();
         if (list == null)
             return null;
         if (list.length() > 0 && list.charAt(list.length() - 1) == ',')

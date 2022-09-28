@@ -53,7 +53,7 @@ public class JobService extends SubsystemService implements JobResource {
         JobsSchedulerConfig jobsSchedulerConfig = engineConfig.getJobsSchedulerConfig();
         JobsConfig jobsConfig = jobsSchedulerConfig.getJobsConfig();
 
-        Enumeration<String> list = jobsConfig.getSubStoreNames();
+        Enumeration<String> list = jobsConfig.getSubStoreNames().elements();
         while (list.hasMoreElements()) {
             String id = list.nextElement();
             logger.info("JobService: - " + id);

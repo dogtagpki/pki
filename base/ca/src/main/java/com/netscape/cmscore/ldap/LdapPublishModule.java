@@ -204,7 +204,7 @@ public class LdapPublishModule implements IRequestListener {
             logger.debug("No ldap publishing configurations.");
             return;
         }
-        Enumeration<String> substores = types.getSubStoreNames();
+        Enumeration<String> substores = types.getSubStoreNames().elements();
 
         while (substores.hasMoreElements()) {
             String certType = substores.nextElement();

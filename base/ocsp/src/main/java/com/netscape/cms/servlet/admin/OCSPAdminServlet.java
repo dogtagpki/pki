@@ -424,7 +424,7 @@ public class OCSPAdminServlet extends AdminServlet {
         ConfigStore config = mOCSP.getConfigStore();
         String defStore = config.getString(IOCSPAuthority.PROP_DEF_STORE_ID);
         ConfigStore SubStore = config.getSubStore(IOCSPAuthority.PROP_STORE, ConfigStore.class);
-        Enumeration<String> enumStores = SubStore.getSubStoreNames();
+        Enumeration<String> enumStores = SubStore.getSubStoreNames().elements();
 
         while (enumStores.hasMoreElements()) {
             String storeName = enumStores.nextElement();

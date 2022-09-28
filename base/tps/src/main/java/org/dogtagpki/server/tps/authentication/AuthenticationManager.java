@@ -86,7 +86,7 @@ public class AuthenticationManager
         AuthenticationConfig authConfig = conf.getAuthenticationConfig();
 
         AuthManagersConfig authInstSubstore = authConfig.getAuthManagersConfig();
-        Enumeration<String> auth_enu = authInstSubstore.getSubStoreNames();
+        Enumeration<String> auth_enu = authInstSubstore.getSubStoreNames().elements();
         authInstances = new Hashtable<>();
         while (auth_enu.hasMoreElements()) {
             String authInstID = auth_enu.nextElement();
@@ -179,7 +179,7 @@ public class AuthenticationManager
                     + uiSub.getName() + ".id" + " null or empty.");
             throw new EBaseException("config " + uiSub.getName() + ".id" + " not found");
         }
-        Enumeration<String> uiParam_enu = uiParamSub.getSubStoreNames();
+        Enumeration<String> uiParam_enu = uiParamSub.getSubStoreNames().elements();
         while (uiParam_enu.hasMoreElements()) {
             String id = uiParam_enu.nextElement();
             logger.debug("AuthenticationManager: createAuthentication(): id param=" +

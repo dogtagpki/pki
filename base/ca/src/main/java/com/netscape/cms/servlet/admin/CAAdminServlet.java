@@ -580,7 +580,7 @@ public class CAAdminServlet extends AdminServlet {
 
             CAConfig caConfig = mCA.getConfigStore();
             CRLConfig crlConfig = caConfig.getCRLConfig();
-            Enumeration<String> crlNames = crlConfig.getSubStoreNames();
+            Enumeration<String> crlNames = crlConfig.getSubStoreNames().elements();
 
             while (crlNames.hasMoreElements()) {
                 String name = crlNames.nextElement();
@@ -740,7 +740,7 @@ public class CAAdminServlet extends AdminServlet {
             CAConfig caConfig = mCA.getConfigStore();
             CRLConfig crlConfig = caConfig.getCRLConfig();
             boolean done = false;
-            Enumeration<String> crlNames = crlConfig.getSubStoreNames();
+            Enumeration<String> crlNames = crlConfig.getSubStoreNames().elements();
 
             while (crlNames.hasMoreElements()) {
                 String name = crlNames.nextElement();
@@ -860,7 +860,7 @@ public class CAAdminServlet extends AdminServlet {
                 CAConfig caConfig = mCA.getConfigStore();
                 CRLConfig crlConfig = caConfig.getCRLConfig();
                 boolean done = false;
-                Enumeration<String> crlNames = crlConfig.getSubStoreNames();
+                Enumeration<String> crlNames = crlConfig.getSubStoreNames().elements();
 
                 while (crlNames.hasMoreElements()) {
                     String name = crlNames.nextElement();
@@ -1109,7 +1109,7 @@ public class CAAdminServlet extends AdminServlet {
         CRLExtensionsConfig crlExtsConfig = ipConfig.getExtensionsConfig();
 
         if (crlExtsConfig != null) {
-            Enumeration<String> enumExts = crlExtsConfig.getSubStoreNames();
+            Enumeration<String> enumExts = crlExtsConfig.getSubStoreNames().elements();
 
             while (enumExts.hasMoreElements()) {
                 String extName = enumExts.nextElement();

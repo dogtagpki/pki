@@ -105,7 +105,7 @@ public abstract class PublisherProcessor {
         PublishingPublisherConfig publisherConfig = config.getPublisherConfig();
 
         ConfigStore c = publisherConfig.getSubStore(PROP_IMPL, ConfigStore.class);
-        Enumeration<String> mImpls = c.getSubStoreNames();
+        Enumeration<String> mImpls = c.getSubStoreNames().elements();
 
         while (mImpls.hasMoreElements()) {
             String id = mImpls.nextElement();
@@ -117,7 +117,7 @@ public abstract class PublisherProcessor {
         }
 
         c = publisherConfig.getSubStore(PROP_INSTANCE, ConfigStore.class);
-        Enumeration<String> instances = c.getSubStoreNames();
+        Enumeration<String> instances = c.getSubStoreNames().elements();
 
         while (instances.hasMoreElements()) {
             String insName = instances.nextElement();
@@ -179,7 +179,7 @@ public abstract class PublisherProcessor {
         PublishingMapperConfig mapperConfig = config.getMapperConfig();
 
         c = mapperConfig.getSubStore(PROP_IMPL, ConfigStore.class);
-        mImpls = c.getSubStoreNames();
+        mImpls = c.getSubStoreNames().elements();
         while (mImpls.hasMoreElements()) {
             String id = mImpls.nextElement();
             logger.info("PublisherProcessor: Loading mapper plugin " + id);
@@ -190,7 +190,7 @@ public abstract class PublisherProcessor {
         }
 
         c = mapperConfig.getSubStore(PROP_INSTANCE, ConfigStore.class);
-        instances = c.getSubStoreNames();
+        instances = c.getSubStoreNames().elements();
         while (instances.hasMoreElements()) {
             String insName = instances.nextElement();
             logger.info("PublisherProcessor: Loading mapper instance " + insName);
@@ -247,7 +247,7 @@ public abstract class PublisherProcessor {
         PublishingRuleConfig ruleConfig = config.getRuleConfig();
 
         c = ruleConfig.getSubStore(PROP_IMPL, ConfigStore.class);
-        mImpls = c.getSubStoreNames();
+        mImpls = c.getSubStoreNames().elements();
         while (mImpls.hasMoreElements()) {
             String id = mImpls.nextElement();
             logger.info("PublisherProcessor: Loading rule plugin " + id);
@@ -259,7 +259,7 @@ public abstract class PublisherProcessor {
         }
 
         c = ruleConfig.getSubStore(PROP_INSTANCE, ConfigStore.class);
-        instances = c.getSubStoreNames();
+        instances = c.getSubStoreNames().elements();
         while (instances.hasMoreElements()) {
             String insName = instances.nextElement();
             logger.info("PublisherProcessor: Loading rule instance " + insName);

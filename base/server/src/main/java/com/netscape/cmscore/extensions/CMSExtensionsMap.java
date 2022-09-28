@@ -57,7 +57,7 @@ public class CMSExtensionsMap {
     public void init(ConfigStore config) throws EBaseException {
         mConfig = config;
 
-        Enumeration<String> sstores = mConfig.getSubStoreNames();
+        Enumeration<String> sstores = mConfig.getSubStoreNames().elements();
 
         while (sstores.hasMoreElements()) {
             String name = sstores.nextElement();

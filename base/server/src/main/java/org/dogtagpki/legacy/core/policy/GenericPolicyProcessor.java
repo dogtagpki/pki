@@ -207,7 +207,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
 
         // Read all registered policies first..
         ConfigStore c = config.getSubStore(PROP_IMPL, ConfigStore.class);
-        Enumeration<String> mImpls = c.getSubStoreNames();
+        Enumeration<String> mImpls = c.getSubStoreNames().elements();
 
         while (mImpls.hasMoreElements()) {
             String id = mImpls.nextElement();

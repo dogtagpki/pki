@@ -214,7 +214,7 @@ public class CMSCRLExtensions {
         }
 
         if (crlExtConfig != null) {
-            Enumeration<String> enumExts = crlExtConfig.getSubStoreNames();
+            Enumeration<String> enumExts = crlExtConfig.getSubStoreNames().elements();
 
             while (enumExts.hasMoreElements()) {
                 String extName = enumExts.nextElement();

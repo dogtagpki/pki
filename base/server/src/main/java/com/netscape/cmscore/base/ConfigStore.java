@@ -765,7 +765,7 @@ public class ConfigStore implements Cloneable {
      *
      * @return list of substore names
      */
-    public Enumeration<String> getSubStoreNames() {
+    public Vector<String> getSubStoreNames() {
         // XXX - this operation is expensive!!!
         Map<String, String> map = getProperties();
 
@@ -780,7 +780,7 @@ public class ConfigStore implements Cloneable {
             v.addElement(name);
         }
 
-        return v.elements();
+        return v;
     }
 
     /**
@@ -837,7 +837,7 @@ public class ConfigStore implements Cloneable {
 
             mStoreName = getName();
             mSource = new SimpleProperties();
-            Enumeration<String> subs = getSubStoreNames();
+            Enumeration<String> subs = getSubStoreNames().elements();
 
             while (subs.hasMoreElements()) {
                 String name = subs.nextElement();
