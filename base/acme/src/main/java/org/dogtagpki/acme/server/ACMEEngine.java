@@ -11,7 +11,6 @@ import java.math.BigInteger;
 import java.net.URL;
 import java.security.KeyFactory;
 import java.security.MessageDigest;
-import java.security.Principal;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Signature;
@@ -37,7 +36,6 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
-import org.apache.catalina.realm.RealmBase;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -56,8 +54,6 @@ import org.dogtagpki.acme.database.ACMEDatabase;
 import org.dogtagpki.acme.database.ACMEDatabaseConfig;
 import org.dogtagpki.acme.issuer.ACMEIssuer;
 import org.dogtagpki.acme.issuer.ACMEIssuerConfig;
-import org.dogtagpki.acme.realm.ACMERealm;
-import org.dogtagpki.acme.realm.ACMERealmConfig;
 import org.dogtagpki.acme.scheduler.ACMEScheduler;
 import org.dogtagpki.acme.scheduler.ACMESchedulerConfig;
 import org.dogtagpki.acme.validator.ACMEValidator;
@@ -79,6 +75,8 @@ import org.mozilla.jss.netscape.security.x509.SubjectAlternativeNameExtension;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
+import com.netscape.cms.realm.RealmCommon;
+import com.netscape.cms.realm.RealmConfig;
 import com.netscape.cms.tomcat.ProxyRealm;
 
 /**
@@ -87,7 +85,7 @@ import com.netscape.cms.tomcat.ProxyRealm;
 @WebListener
 public class ACMEEngine implements ServletContextListener {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ACMEEngine.class);
+    public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ACMEEngine.class);
 
     public static ACMEEngine INSTANCE;
 
@@ -115,8 +113,8 @@ public class ACMEEngine implements ServletContextListener {
     private ACMESchedulerConfig schedulerConfig;
     private ACMEScheduler scheduler;
 
-    private ACMERealmConfig realmConfig;
-    private ACMERealm realm;
+    private RealmConfig realmConfig;
+    private RealmCommon realm;
 
     private boolean noncesPersistent;
     private Map<String, ACMENonce> nonces = new ConcurrentHashMap<>();
@@ -443,53 +441,23 @@ public class ACMEEngine implements ServletContextListener {
             try (FileReader reader = new FileReader(realmConfigFile)) {
                 props.load(reader);
             }
-            realmConfig = ACMERealmConfig.fromProperties(props);
+            realmConfig = RealmConfig.fromProperties(props);
 
         } else {
             logger.info("Loading default ACME realm config");
-            realmConfig = new ACMERealmConfig();
+            realmConfig = new RealmConfig();
         }
 
         logger.info("Initializing ACME realm");
 
         String className = realmConfig.getClassName();
-        Class<ACMERealm> realmClass = (Class<ACMERealm>) Class.forName(className);
+        Class<RealmCommon> realmClass = (Class<RealmCommon>) Class.forName(className);
 
         realm = realmClass.getDeclaredConstructor().newInstance();
         realm.setConfig(realmConfig);
-        realm.init();
+        realm.start();
 
-        ProxyRealm.registerRealm(name, new RealmBase() {
-            @Override
-            public Principal getPrincipal(String username) {
-                return null;
-            }
-
-            @Override
-            public String getPassword(String username) {
-                return null;
-            }
-
-            @Override
-            public Principal authenticate(String username, String password) {
-                try {
-                    return realm.authenticate(username, password);
-                } catch (Exception e) {
-                    logger.warn("Unable to authenticate with username: " + e.getMessage(), e);
-                    throw new RuntimeException(e);
-                }
-            }
-
-            @Override
-            public Principal authenticate(final X509Certificate[] certs) {
-                try {
-                    return realm.authenticate(certs);
-                } catch (Exception e) {
-                    logger.warn("Unable to authenticate with certificate: " + e.getMessage(), e);
-                    throw new RuntimeException(e);
-                }
-            }
-        });
+        ProxyRealm.registerRealm(name, realm);
     }
 
     public void start() throws Exception {
@@ -558,7 +526,7 @@ public class ACMEEngine implements ServletContextListener {
     public void shutdownRealm() throws Exception {
         if (realm == null) return;
 
-        realm.close();
+        realm.stop();
         realm = null;
     }
 
