@@ -75,7 +75,6 @@ public class SelfTestSubsystem implements ISubsystem {
     public static final String PROP_STARTUP = "startup";
 
     private static LogEventListener mLogger;
-    private static Logger mErrorLogger = new Logger();
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     ////////////////////////
@@ -933,18 +932,10 @@ public class SelfTestSubsystem implements ISubsystem {
             try {
                 logger.log(ev);
             } catch (ELogException le) {
-                // log the message to the "transactions" log
-                mErrorLogger.log(ILogger.EV_AUDIT,
-                        ILogger.S_OTHER,
-                        ILogger.LL_INFO,
-                        msg + " - " + le.toString());
+                SelfTestSubsystem.logger.warn(msg + ": " + le.getMessage(), le);
             }
         } else {
-            // log the message to the "transactions" log
-            mErrorLogger.log(ILogger.EV_AUDIT,
-                    ILogger.S_OTHER,
-                    ILogger.LL_INFO,
-                    msg);
+            SelfTestSubsystem.logger.info(msg);
         }
     }
 

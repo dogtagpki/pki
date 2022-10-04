@@ -14,7 +14,13 @@ The actual paths to the CSRs and certificates need to be specified during instal
 The `tokendb.hostport` parameter in TPS's `CS.cfg` is no longer used
 so it has been removed.
 
-== Remove pkicreate.*, pkiremove.*, and os.* ==
+== Remove pkicreate.<name>, pkiremove.<name>, and os.<name> ==
 
-The `pkicreate.*`, `pkiremove.*`, and `os.*` parameters in `CS.cfg` are no longer used
+The `pkicreate.<name>`, `pkiremove.<name>`, and `os.<name>` parameters in `CS.cfg` are no longer used
 so they have been removed.
+
+== Remove system and transaction logs ==
+
+The system and transaction logs have been replaced with debug and signed audit logs.
+The `log.instance.System.<name>` and `log.instance.Transactions.<name>` parameters in `CS.cfg`
+are no longer used so they have been removed.

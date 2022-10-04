@@ -27,13 +27,19 @@ class RemoveUnusedParams(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
             remove = False
 
-            if re.match(r'pkicreate\.', name):
+            if re.match(r'log\.instance\.System\.', name):
                 remove = True
 
-            elif re.match(r'pkiremove\.', name):
+            elif re.match(r'log\.instance\.Transactions\.', name):
                 remove = True
 
             elif re.match(r'os\.', name):
+                remove = True
+
+            elif re.match(r'pkicreate\.', name):
+                remove = True
+
+            elif re.match(r'pkiremove\.', name):
                 remove = True
 
             elif re.match(r'tokendb\.hostport$', name):
