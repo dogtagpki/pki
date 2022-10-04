@@ -15,6 +15,10 @@ jobs:
     env:
       SHARED: /tmp/workdir/pki
     steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get -y install libxml2-utils
+
       - name: Clone repository
         uses: actions/checkout@v2
 
@@ -62,10 +66,28 @@ jobs:
               -D pki_request_id_generator=random \
               -v
 
+      - name: Configure caUserCert profile
+        run: |
+          # set cert validity to 1 minute
+          VALIDITY_DEFAULT="policyset.userCertSet.2.default.params"
+          docker exec pki sed -i \
+              -e "s/^$VALIDITY_DEFAULT.range=.*$/$VALIDITY_DEFAULT.range=1/" \
+              -e "/^$VALIDITY_DEFAULT.range=.*$/a $VALIDITY_DEFAULT.rangeUnit=minute" \
+              /etc/pki/pki-tomcat/ca/profiles/ca/caUserCert.cfg
+
+          # check updated profile
+          docker exec pki cat /etc/pki/pki-tomcat/ca/profiles/ca/caUserCert.cfg
+
+      - name: Configure CRL
+        run: |
+          # update cert status every minute
+          docker exec pki pki-server ca-config-set ca.certStatusUpdateInterval 60
+
           # update CRL immediately after each cert revocation
           docker exec pki pki-server ca-config-set ca.crl.MasterCRL.alwaysUpdate true
 
-          # restart CA subsystem
+      - name: Restart CA subsystem
+        run: |
           docker exec pki pki-server ca-redeploy --wait
 
       - name: Run PKI healthcheck
@@ -117,9 +139,9 @@ jobs:
           echo "0" > expected
           diff expected actual
 
-      - name: Enroll user cert
+      - name: Enroll user 1 cert
         run: |
-          docker exec pki pki client-cert-request uid=testuser | tee output
+          docker exec pki pki client-cert-request uid=testuser1 | tee output
 
           REQUEST_ID=$(sed -n -e 's/^ *Request ID: *\(.*\)$/\1/p' output)
           echo "REQUEST_ID: $REQUEST_ID"
@@ -136,7 +158,7 @@ jobs:
           echo "VALID" > expected
           diff expected actual
 
-      - name: Revoke user cert
+      - name: Revoke user 1 cert
         run: |
           CERT_ID=$(cat cert.id)
           docker exec pki pki -n caadmin ca-cert-hold $CERT_ID --force
@@ -148,7 +170,7 @@ jobs:
           echo "REVOKED" > expected
           diff expected actual
 
-      - name: Check CRL after revocation
+      - name: Check CRL after user 1 cert revocation
         run: |
           docker exec pki ldapsearch \
               -H ldap://ds.example.com:3389 \
@@ -186,7 +208,7 @@ jobs:
           echo "1" > expected
           diff expected actual
 
-      - name: Unrevoke user cert
+      - name: Unrevoke user 1 cert
         run: |
           CERT_ID=$(cat cert.id)
           docker exec pki pki -n caadmin ca-cert-release-hold $CERT_ID --force
@@ -198,7 +220,7 @@ jobs:
           echo "VALID" > expected
           diff expected actual
 
-      - name: Check CRL after unrevocation
+      - name: Check CRL after user 1 cert unrevocation
         run: |
           docker exec pki ldapsearch \
               -H ldap://ds.example.com:3389 \
@@ -228,6 +250,139 @@ jobs:
           # CRL number should be 3
           echo "X509v3 CRL Number: " > expected
           echo "3" >> expected
+          sed -En 'N; s/^ *(X509v3 CRL Number: .*)\n *(.*)$/\1\n\2/p; D' output | tee actual
+          diff expected actual
+
+          # there should be no revoked certs
+          grep "Serial Number:" output | wc -l > actual
+          echo "0" > expected
+          diff expected actual
+
+      - name: Enroll user 2 cert
+        run: |
+          docker exec pki pki client-cert-request uid=testuser2 | tee output
+
+          REQUEST_ID=$(sed -n -e 's/^ *Request ID: *\(.*\)$/\1/p' output)
+          echo "REQUEST_ID: $REQUEST_ID"
+
+          docker exec pki pki -n caadmin ca-cert-request-approve $REQUEST_ID --force | tee output
+          CERT_ID=$(sed -n -e 's/^ *Certificate ID: *\(.*\)$/\1/p' output)
+          echo "CERT_ID: $CERT_ID"
+          echo $CERT_ID > cert.id
+
+          docker exec pki pki ca-cert-show $CERT_ID | tee output
+
+          # cert should be valid
+          sed -n "s/^ *Status: \(.*\)$/\1/p" output > actual
+          echo "VALID" > expected
+          diff expected actual
+
+      - name: Revoke user 2 cert
+        run: |
+          CERT_ID=$(cat cert.id)
+          docker exec pki pki -n caadmin ca-cert-hold $CERT_ID --force
+
+          docker exec pki pki ca-cert-show $CERT_ID | tee output
+
+          # cert should be revoked
+          sed -n "s/^ *Status: \(.*\)$/\1/p" output > actual
+          echo "REVOKED" > expected
+          diff expected actual
+
+      - name: Check CRL after user 2 cert revocation
+        run: |
+          docker exec pki ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -x \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b "cn=MasterCRL,ou=crlIssuingPoints,ou=ca,dc=ca,dc=pki,dc=example,dc=com" \
+              -o ldif_wrap=no \
+              -t \
+              "(objectClass=crlIssuingPointRecord)" | tee output
+
+          # there should be one CRL attribute
+          grep "certificateRevocationList:" output | wc -l > actual
+          echo "1" > expected
+          diff expected actual
+
+          FILENAME=$(sed -n 's/certificateRevocationList:< file:\/\/\(.*\)$/\1/p' output)
+          echo "FILENAME: $FILENAME"
+
+          # check the CRL
+          docker exec pki openssl crl \
+              -in "$FILENAME" \
+              -inform DER \
+              -text \
+              -noout | tee output
+
+          # CRL number should be 4
+          echo "X509v3 CRL Number: " > expected
+          echo "4" >> expected
+          sed -En 'N; s/^ *(X509v3 CRL Number: .*)\n *(.*)$/\1\n\2/p; D' output | tee actual
+          diff expected actual
+
+          # there should be one revoked cert
+          grep "Serial Number:" output | wc -l > actual
+          echo "1" > expected
+          diff expected actual
+
+      - name: Wait for user 2 cert expiration
+        run: |
+          sleep 120
+
+          CERT_ID=$(cat cert.id)
+          docker exec pki pki ca-cert-show $CERT_ID | tee output
+
+          # cert should be revoked and expired
+          sed -n "s/^ *Status: \(.*\)$/\1/p" output > actual
+          echo "REVOKED_EXPIRED" > expected
+          diff expected actual
+
+      - name: Force CRL update after user 2 cert expiration
+        run: |
+          # https://github.com/dogtagpki/pki/wiki/UpdateCRL-Service
+          docker exec pki curl \
+              -d "xml=true" \
+              --cert-type P12 \
+              --cert /root/.dogtag/pki-tomcat/ca_admin_cert.p12:Secret.123 \
+              -sk \
+              https://pki.example.com:8443/ca/agent/ca/updateCRL \
+              | xmllint --format -
+
+          # wait for CRL update
+          sleep 10
+
+      - name: Check CRL after user 2 cert expiration
+        run: |
+          docker exec pki ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -x \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b "cn=MasterCRL,ou=crlIssuingPoints,ou=ca,dc=ca,dc=pki,dc=example,dc=com" \
+              -o ldif_wrap=no \
+              -t \
+              "(objectClass=crlIssuingPointRecord)" | tee output
+
+          # there should be one CRL attribute
+          grep "certificateRevocationList:" output | wc -l > actual
+          echo "1" > expected
+          diff expected actual
+
+          FILENAME=$(sed -n 's/certificateRevocationList:< file:\/\/\(.*\)$/\1/p' output)
+          echo "FILENAME: $FILENAME"
+
+          # check the CRL
+          docker exec pki openssl crl \
+              -in "$FILENAME" \
+              -inform DER \
+              -text \
+              -noout | tee output
+
+          # CRL number should be 5
+          echo "X509v3 CRL Number: " > expected
+          echo "5" >> expected
           sed -En 'N; s/^ *(X509v3 CRL Number: .*)\n *(.*)$/\1\n\2/p; D' output | tee actual
           diff expected actual
 
