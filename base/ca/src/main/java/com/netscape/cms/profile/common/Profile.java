@@ -270,7 +270,7 @@ public abstract class Profile {
         }
 
         // handle profile input plugins
-        ConfigStore inputStore = profileConfig.getSubStore("input", ConfigStore.class);
+        ProfileInputsConfig inputStore = profileConfig.getProfileInputsConfig();
         String input_list = inputStore.getString(PROP_INPUT_LIST, "");
         StringTokenizer input_st = new StringTokenizer(input_list, ",");
 
@@ -556,8 +556,10 @@ public abstract class Profile {
      */
     public void deleteProfileInput(String inputId) throws EProfileException {
         try {
-            mConfig.removeSubStore("input." + inputId);
-            String list = mConfig.getString("input." + PROP_INPUT_LIST, null);
+            ProfileInputsConfig inputsConfig = mConfig.getProfileInputsConfig();
+            inputsConfig.removeSubStore(inputId);
+
+            String list = inputsConfig.getString(PROP_INPUT_LIST, null);
             StringTokenizer st = new StringTokenizer(list, ",");
             String newlist = "";
             StringBuffer sb = new StringBuffer();
@@ -586,7 +588,7 @@ public abstract class Profile {
             }
 
             mInputs.remove(inputId);
-            mConfig.putString("input." + PROP_INPUT_LIST, newlist);
+            inputsConfig.putString(PROP_INPUT_LIST, newlist);
             mConfig.putString("lastModified",
                     Long.toString(new Date().getTime()));
             mConfig.commit(false);
@@ -783,8 +785,8 @@ public abstract class Profile {
     public ProfileInput createProfileInput(String id, String inputId,
             NameValuePairs nvps, boolean createConfig)
             throws EProfileException {
-        ConfigStore inputStore = mConfig.getSubStore("input", ConfigStore.class);
 
+        ProfileInputsConfig inputsConfig = mConfig.getProfileInputsConfig();
         PluginInfo inputInfo = registry.getPluginInfo("profileInput", inputId);
 
         if (inputInfo == null) {
@@ -808,8 +810,8 @@ public abstract class Profile {
         } else {
             logger.debug("Profile: initing " + id + " input");
 
-            logger.debug("Profile: inputStore " + inputStore);
-            input.init(this, inputStore);
+            logger.debug("Profile: inputs: " + inputsConfig);
+            input.init(this, inputsConfig);
 
             mInputs.put(id, input);
             mInputIds.addElement(id);
@@ -819,11 +821,11 @@ public abstract class Profile {
             String list = null;
 
             try {
-                list = inputStore.getString(PROP_INPUT_LIST, null);
+                list = inputsConfig.getString(PROP_INPUT_LIST, null);
             } catch (EBaseException e) {
             }
             if (list == null || list.equals("")) {
-                inputStore.putString(PROP_INPUT_LIST, id);
+                inputsConfig.putString(PROP_INPUT_LIST, id);
             } else {
                 StringTokenizer st1 = new StringTokenizer(list, ",");
 
@@ -834,17 +836,17 @@ public abstract class Profile {
                         throw new EProfileException("Duplicate input id: " + id);
                     }
                 }
-                inputStore.putString(PROP_INPUT_LIST, list + "," + id);
+                inputsConfig.putString(PROP_INPUT_LIST, list + "," + id);
             }
             String prefix = id + ".";
 
-            inputStore.putString(prefix + "name",
+            inputsConfig.putString(prefix + "name",
                     inputInfo.getName(Locale.getDefault()));
-            inputStore.putString(prefix + "class_id", inputId);
+            inputsConfig.putString(prefix + "class_id", inputId);
 
             for (String name : nvps.keySet()) {
 
-                inputStore.putString(prefix + "params." + name, nvps.get(name));
+                inputsConfig.putString(prefix + "params." + name, nvps.get(name));
                 try {
                     if (input != null) {
                         input.setConfig(name, nvps.get(name));
