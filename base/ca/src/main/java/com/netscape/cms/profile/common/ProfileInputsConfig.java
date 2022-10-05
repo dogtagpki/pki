@@ -24,4 +24,18 @@ public class ProfileInputsConfig extends ConfigStore {
     public ProfileInputsConfig(String name, SimpleProperties source) {
         super(name, source);
     }
+
+    /**
+     * Returns profile input configuration.
+     */
+    public ProfileInputConfig getProfileInputConfig(String id) {
+        return getSubStore(id, ProfileInputConfig.class);
+    }
+
+    /**
+     * Removes profile input configuration.
+     */
+    public void removeProfileInputConfig(String id) {
+        removeSubStore(id);
+    }
 }

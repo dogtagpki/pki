@@ -70,6 +70,7 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.cms.profile.common.CAEnrollProfile;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.profile.common.ProfileConfig;
+import com.netscape.cms.profile.common.ProfileInputConfig;
 import com.netscape.cms.profile.common.ProfileInputsConfig;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cms.servlet.profile.PolicyConstraintFactory;
@@ -295,7 +296,8 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         ProfileConfig profileConfig = profile.getConfigStore();
         ProfileInputsConfig inputStore = profileConfig.getProfileInputsConfig();
         String name = profileInput.getName(locale);
-        String classId = inputStore.getString(inputId + ".class_id");
+        ProfileInputConfig inputConfig = inputStore.getProfileInputConfig(inputId);
+        String classId = inputConfig.getString("class_id");
 
         ProfileInput input = new ProfileInput(inputId, name, classId);
 

@@ -276,8 +276,9 @@ public abstract class Profile {
 
         while (input_st.hasMoreTokens()) {
             String input_id = input_st.nextToken();
-            String inputClassId = inputStore.getString(input_id + "." +
-                    PROP_CLASS_ID);
+
+            ProfileInputConfig inputConfig = inputStore.getProfileInputConfig(input_id);
+            String inputClassId = inputConfig.getString(PROP_CLASS_ID);
             PluginInfo inputInfo = registry.getPluginInfo("profileInput", inputClassId);
             String inputClass = inputInfo.getClassName();
 
@@ -290,7 +291,6 @@ public abstract class Profile {
                 throw new EBaseException(e.toString());
             }
 
-            ConfigStore inputConfig = inputStore.getSubStore(input_id, ConfigStore.class);
             input.init(this, inputConfig);
             mInputs.put(input_id, input);
             mInputIds.addElement(input_id);
@@ -557,7 +557,7 @@ public abstract class Profile {
     public void deleteProfileInput(String inputId) throws EProfileException {
         try {
             ProfileInputsConfig inputsConfig = mConfig.getProfileInputsConfig();
-            inputsConfig.removeSubStore(inputId);
+            inputsConfig.removeProfileInputConfig(inputId);
 
             String list = inputsConfig.getString(PROP_INPUT_LIST, null);
             StringTokenizer st = new StringTokenizer(list, ",");
@@ -838,15 +838,14 @@ public abstract class Profile {
                 }
                 inputsConfig.putString(PROP_INPUT_LIST, list + "," + id);
             }
-            String prefix = id + ".";
 
-            inputsConfig.putString(prefix + "name",
-                    inputInfo.getName(Locale.getDefault()));
-            inputsConfig.putString(prefix + "class_id", inputId);
+            ProfileInputConfig inputConfig = inputsConfig.getProfileInputConfig(id);
+            inputConfig.putString("name", inputInfo.getName(Locale.getDefault()));
+            inputConfig.putString("class_id", inputId);
 
             for (String name : nvps.keySet()) {
 
-                inputsConfig.putString(prefix + "params." + name, nvps.get(name));
+                inputConfig.putString("params." + name, nvps.get(name));
                 try {
                     if (input != null) {
                         input.setConfig(name, nvps.get(name));
