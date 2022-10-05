@@ -72,6 +72,7 @@ import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.profile.common.ProfileConfig;
 import com.netscape.cms.profile.common.ProfileInputConfig;
 import com.netscape.cms.profile.common.ProfileInputsConfig;
+import com.netscape.cms.profile.common.ProfileOutputsConfig;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cms.servlet.profile.PolicyConstraintFactory;
 import com.netscape.cms.servlet.profile.PolicyDefaultFactory;
@@ -319,7 +320,8 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         if (profileOutput == null)
             return null;
 
-        ConfigStore outputStore = profile.getConfigStore().getSubStore("output", ConfigStore.class);
+        ProfileConfig profileConfig = profile.getConfigStore();
+        ProfileOutputsConfig outputStore = profileConfig.getProfileOutputsConfig();
         String name = profileOutput.getName(locale);
         String classId = outputStore.getString(outputId + ".class_id");
 

@@ -31,4 +31,11 @@ public class ProfileConfig extends ConfigStore {
     public ProfileInputsConfig getProfileInputsConfig() {
         return getSubStore("input", ProfileInputsConfig.class);
     }
+
+    /**
+     * Returns profile outputs configuration.
+     */
+    public ProfileOutputsConfig getProfileOutputsConfig() {
+        return getSubStore("output", ProfileOutputsConfig.class);
+    }
 }

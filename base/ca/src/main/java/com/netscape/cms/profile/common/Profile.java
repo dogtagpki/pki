@@ -297,7 +297,7 @@ public abstract class Profile {
         }
 
         // handle profile output plugins
-        ConfigStore outputStore = profileConfig.getSubStore("output", ConfigStore.class);
+        ProfileOutputsConfig outputStore = profileConfig.getProfileOutputsConfig();
         String output_list = outputStore.getString(PROP_OUTPUT_LIST, "");
         StringTokenizer output_st = new StringTokenizer(output_list, ",");
 
@@ -616,8 +616,10 @@ public abstract class Profile {
      */
     public void deleteProfileOutput(String outputId) throws EProfileException {
         try {
-            mConfig.removeSubStore("output." + outputId);
-            String list = mConfig.getString("output." + PROP_OUTPUT_LIST, null);
+            ProfileOutputsConfig outputsConfig = mConfig.getProfileOutputsConfig();
+            outputsConfig.removeSubStore(outputId);
+
+            String list = outputsConfig.getString(PROP_OUTPUT_LIST, null);
             StringTokenizer st = new StringTokenizer(list, ",");
             String newlist = "";
             StringBuffer sb = new StringBuffer();
@@ -646,7 +648,7 @@ public abstract class Profile {
             }
 
             mOutputs.remove(outputId);
-            mConfig.putString("output." + PROP_OUTPUT_LIST, newlist);
+            outputsConfig.putString(PROP_OUTPUT_LIST, newlist);
             mConfig.putString("lastModified",
                     Long.toString(new Date().getTime()));
             mConfig.commit(false);
@@ -685,8 +687,8 @@ public abstract class Profile {
             NameValuePairs nvps, boolean createConfig)
 
     throws EProfileException {
-        ConfigStore outputStore = mConfig.getSubStore("output", ConfigStore.class);
 
+        ProfileOutputsConfig outputsConfig = mConfig.getProfileOutputsConfig();
         PluginInfo outputInfo = registry.getPluginInfo("profileOutput", outputId);
 
         if (outputInfo == null) {
@@ -709,8 +711,8 @@ public abstract class Profile {
         } else {
             logger.debug("Profile: initing " + id + " output");
 
-            logger.debug("Profile: outputStore " + outputStore);
-            output.init(outputStore);
+            logger.debug("Profile: outputStore " + outputsConfig);
+            output.init(outputsConfig);
 
             mOutputs.put(id, output);
             mOutputIds.addElement(id);
@@ -720,11 +722,11 @@ public abstract class Profile {
             String list = null;
 
             try {
-                list = outputStore.getString(PROP_OUTPUT_LIST, null);
+                list = outputsConfig.getString(PROP_OUTPUT_LIST, null);
             } catch (EBaseException e) {
             }
             if (list == null || list.equals("")) {
-                outputStore.putString(PROP_OUTPUT_LIST, id);
+                outputsConfig.putString(PROP_OUTPUT_LIST, id);
             } else {
                 StringTokenizer st1 = new StringTokenizer(list, ",");
 
@@ -735,17 +737,17 @@ public abstract class Profile {
                         throw new EProfileException("Duplicate output id: " + id);
                     }
                 }
-                outputStore.putString(PROP_OUTPUT_LIST, list + "," + id);
+                outputsConfig.putString(PROP_OUTPUT_LIST, list + "," + id);
             }
             String prefix = id + ".";
 
-            outputStore.putString(prefix + "name",
+            outputsConfig.putString(prefix + "name",
                     outputInfo.getName(Locale.getDefault()));
-            outputStore.putString(prefix + "class_id", outputId);
+            outputsConfig.putString(prefix + "class_id", outputId);
 
             for (String name : nvps.keySet()) {
 
-                outputStore.putString(prefix + "params." + name, nvps.get(name));
+                outputsConfig.putString(prefix + "params." + name, nvps.get(name));
                 try {
                     if (output != null) {
                         output.setConfig(name, nvps.get(name));
