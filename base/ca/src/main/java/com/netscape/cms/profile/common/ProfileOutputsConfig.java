@@ -24,4 +24,18 @@ public class ProfileOutputsConfig extends ConfigStore {
     public ProfileOutputsConfig(String name, SimpleProperties source) {
         super(name, source);
     }
+
+    /**
+     * Returns profile output configuration.
+     */
+    public ProfileOutputConfig getProfileOutputConfig(String id) {
+        return getSubStore(id, ProfileOutputConfig.class);
+    }
+
+    /**
+     * Removes profile output configuration.
+     */
+    public void removeProfileOutputConfig(String id) {
+        removeSubStore(id);
+    }
 }

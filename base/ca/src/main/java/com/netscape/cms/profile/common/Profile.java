@@ -304,8 +304,8 @@ public abstract class Profile {
         while (output_st.hasMoreTokens()) {
             String output_id = output_st.nextToken();
 
-            String outputClassId = outputStore.getString(output_id + "." +
-                    PROP_CLASS_ID);
+            ProfileOutputConfig outputConfig = outputStore.getProfileOutputConfig(output_id);
+            String outputClassId = outputConfig.getString(PROP_CLASS_ID);
             PluginInfo outputInfo = registry.getPluginInfo("profileOutput", outputClassId);
             String outputClass = outputInfo.getClassName();
 
@@ -319,7 +319,7 @@ public abstract class Profile {
                         outputClass + " " + e.getMessage(), e);
                 throw new EBaseException(e.toString());
             }
-            ConfigStore outputConfig = outputStore.getSubStore(output_id, ConfigStore.class);
+
             output.init(outputConfig);
             mOutputs.put(output_id, output);
             mOutputIds.addElement(output_id);
@@ -617,7 +617,7 @@ public abstract class Profile {
     public void deleteProfileOutput(String outputId) throws EProfileException {
         try {
             ProfileOutputsConfig outputsConfig = mConfig.getProfileOutputsConfig();
-            outputsConfig.removeSubStore(outputId);
+            outputsConfig.removeProfileOutputConfig(outputId);
 
             String list = outputsConfig.getString(PROP_OUTPUT_LIST, null);
             StringTokenizer st = new StringTokenizer(list, ",");
@@ -739,15 +739,14 @@ public abstract class Profile {
                 }
                 outputsConfig.putString(PROP_OUTPUT_LIST, list + "," + id);
             }
-            String prefix = id + ".";
 
-            outputsConfig.putString(prefix + "name",
-                    outputInfo.getName(Locale.getDefault()));
-            outputsConfig.putString(prefix + "class_id", outputId);
+            ProfileOutputConfig outputConfig = outputsConfig.getProfileOutputConfig(id);
+            outputConfig.putString("name", outputInfo.getName(Locale.getDefault()));
+            outputConfig.putString("class_id", outputId);
 
             for (String name : nvps.keySet()) {
 
-                outputsConfig.putString(prefix + "params." + name, nvps.get(name));
+                outputConfig.putString("params." + name, nvps.get(name));
                 try {
                     if (output != null) {
                         output.setConfig(name, nvps.get(name));
