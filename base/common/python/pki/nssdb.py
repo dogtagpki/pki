@@ -316,18 +316,43 @@ class NSSDatabase(object):
 
         return password_file
 
-    def get_password_file(self, tmpdir, token, filename=None):
+    def get_all_passwords(self):
+        """Return a string of all tokens/passwords NL-delimited"""
+
+        # Hardcode the token names. NSS tooling does not provide a
+        # public way to determine it other than scraping modutil
+        # output.
+        if pki.FIPS.is_enabled():
+            dbname = 'NSS FIPS 140-2 Certificate DB'
+        else:
+            dbname = 'NSS Certificate DB'
+
+        passwords = []
+        for token, pw in self.passwords.items():
+            if token.startswith('hardware-'):
+                token = token.replace('hardware-', '')
+                passwords.append(f'{token}:{pw}')
+            elif token == INTERNAL_TOKEN_NAME:
+                passwords.append(f'{dbname}:{pw}')
+
+        return '\n'.join(passwords)
+
+    def get_password_file(self, tmpdir, token, filename=None,
+                          all_tokens=False):
 
         # if no password map is provided, use password file
         if not self.passwords:
             return self.password_file
 
         # if password map is provided, get token password
-        if normalize_token(token):
-            token = 'hardware-%s' % token
+        if all_tokens:
+            password = self.get_all_passwords()
         else:
-            token = INTERNAL_TOKEN_NAME
-        password = self.passwords[token]
+            if normalize_token(token):
+                token = 'hardware-%s' % token
+            else:
+                token = INTERNAL_TOKEN_NAME
+            password = self.passwords[token]
 
         # then store it in a temp file
         return self.create_password_file(
@@ -790,8 +815,8 @@ class NSSDatabase(object):
         if self.token:
             cmd.extend(['-h', self.token])
 
-        password_file = self.get_password_file(self.tmpdir,
-                                               INTERNAL_TOKEN_NAME)
+        password_file = self.get_password_file(self.tmpdir, None,
+                                               all_tokens=True)
         cmd.extend(['-f', password_file])
 
         cmd.extend([
