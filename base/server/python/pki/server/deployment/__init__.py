@@ -2037,13 +2037,18 @@ class PKIDeployer:
 
         logger.info('Setting up trust flags')
 
+        if pki.nssdb.normalize_token(self.mdict.get('pki_token_name')):
+            token = self.mdict['pki_token_name'] + ":"
+        else:
+            token = ""
+
         if subsystem.type == 'CA':
             nssdb.modify_cert(
-                nickname=self.mdict['pki_ca_signing_nickname'],
+                nickname=token + self.mdict['pki_ca_signing_nickname'],
                 trust_attributes='CTu,Cu,Cu')
 
         nssdb.modify_cert(
-            nickname=self.mdict['pki_audit_signing_nickname'],
+            nickname=token + self.mdict['pki_audit_signing_nickname'],
             trust_attributes='u,u,Pu')
 
         # Reset the NSS database ownership and permissions
