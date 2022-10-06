@@ -1328,3 +1328,7 @@ jobs:
           docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
           sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\).*/\1/p' output | sort > expected
           diff actual expected
+
+  update-version-test:
+    name: Update Version
+    uses: ./.github/workflows/update-version-test.yml
