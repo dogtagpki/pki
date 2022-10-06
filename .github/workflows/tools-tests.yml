@@ -453,3 +453,7 @@ jobs:
 
       - name: Remove HSM token
         run: softhsm2-util --delete-token --token HSM
+
+  update-version-test:
+    name: Update Version
+    uses: ./.github/workflows/update-version-test.yml
