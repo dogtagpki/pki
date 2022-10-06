@@ -7,6 +7,7 @@ package org.dogtagpki.job;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -24,6 +25,7 @@ public class JobInfo implements JSONSerializer {
     boolean enabled;
     String cron;
     String pluginName;
+    String owner;
 
     Map<String, String> parameters = new LinkedHashMap<>();
 
@@ -59,6 +61,14 @@ public class JobInfo implements JSONSerializer {
         this.pluginName = pluginName;
     }
 
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
     public Map<String, String> getParameters() {
         return parameters;
     }
@@ -73,14 +83,7 @@ public class JobInfo implements JSONSerializer {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((cron == null) ? 0 : cron.hashCode());
-        result = prime * result + (enabled ? 1231 : 1237);
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
-        result = prime * result + ((parameters == null) ? 0 : parameters.hashCode());
-        result = prime * result + ((pluginName == null) ? 0 : pluginName.hashCode());
-        return result;
+        return Objects.hash(cron, enabled, id, owner, parameters, pluginName);
     }
 
     @Override
@@ -92,29 +95,9 @@ public class JobInfo implements JSONSerializer {
         if (getClass() != obj.getClass())
             return false;
         JobInfo other = (JobInfo) obj;
-        if (cron == null) {
-            if (other.cron != null)
-                return false;
-        } else if (!cron.equals(other.cron))
-            return false;
-        if (enabled != other.enabled)
-            return false;
-        if (id == null) {
-            if (other.id != null)
-                return false;
-        } else if (!id.equals(other.id))
-            return false;
-        if (parameters == null) {
-            if (other.parameters != null)
-                return false;
-        } else if (!parameters.equals(other.parameters))
-            return false;
-        if (pluginName == null) {
-            if (other.pluginName != null)
-                return false;
-        } else if (!pluginName.equals(other.pluginName))
-            return false;
-        return true;
+        return Objects.equals(cron, other.cron) && enabled == other.enabled && Objects.equals(id, other.id)
+                && Objects.equals(owner, other.owner) && Objects.equals(parameters, other.parameters)
+                && Objects.equals(pluginName, other.pluginName);
     }
 
     @Override

@@ -53,4 +53,11 @@ public class JobConfig extends ConfigStore {
     public String getCron() throws EBaseException {
         return getString("cron", null);
     }
+
+    /**
+     * Returns jobsScheduler.job.<id>.owner parameter.
+     */
+    public String getOwner() throws EBaseException {
+        return getString("owner", null);
+    }
 }

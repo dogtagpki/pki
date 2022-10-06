@@ -53,6 +53,11 @@ public class JobCLI extends CLI {
 
         System.out.println("  Plugin: " + jobInfo.getPluginName());
 
+        String owner = jobInfo.getOwner();
+        if (owner != null) {
+            System.out.println("  Owner: " + owner);
+        }
+
         Map<String, String> params = jobInfo.getParameters();
         if (!params.isEmpty()) {
             System.out.println();

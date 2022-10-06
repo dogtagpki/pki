@@ -232,6 +232,10 @@ public class JobsScheduler implements Runnable {
         return mJobs;
     }
 
+    public Job getJob(String id) {
+        return mJobs.get(id);
+    }
+
     /**
      * when wake up:
      * . execute the scheduled job(s)
