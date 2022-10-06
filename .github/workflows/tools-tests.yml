@@ -193,3 +193,7 @@ jobs:
     uses: ./.github/workflows/rpminspect-test.yml
     with:
       os: ${{ matrix.os }}
+
+  update-version-test:
+    name: Update Version
+    uses: ./.github/workflows/update-version-test.yml
