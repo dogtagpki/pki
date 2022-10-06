@@ -10,9 +10,12 @@ URL:              http://www.dogtagpki.org/
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 
+# For development (i.e. unsupported) releases, use x.y.z-0.n.<phase>.
+# For official (i.e. supported) releases, use x.y.z-r where r >=1.
+%global           release_number 1
 Version:          10.8.3
-Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
-# global          _phase -a1
+Release:          %{?release_number}%{?_timestamp}%{?_commit_id}%{?dist}
+#global           _phase
 
 # To create a tarball from a version tag:
 # $ git archive \
