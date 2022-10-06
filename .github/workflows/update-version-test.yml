@@ -1,0 +1,41 @@
+name: Update Version
+
+on:
+  workflow_call:
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Setup git
+        run: |
+          sudo apt-get -y install git
+          git config --global user.name "Dr. John Doe"
+          git config --global user.email jdoe@example.com
+
+      - name: Update to version with a phase
+        run: |
+          ./update_version.sh 12 1 0 beta1
+          git tag --points-at HEAD  > actual
+          echo v12.1.0-beta1 > expected
+          diff expected actual
+
+      - name: Update to version without a phase
+        run: |
+          ./update_version.sh 12 1 0
+          git tag --points-at HEAD  > actual
+          echo v12.1.0 > expected
+          diff expected actual
+
+      - name: Update to version with a phase again
+        run: |
+          ./update_version.sh 12 2 0 alpha1
+          git tag --points-at HEAD  > actual
+          echo v12.2.0-alpha1 > expected
+          diff expected actual

@@ -1078,3 +1078,7 @@ jobs:
           sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\).*/\1/p' output | sort > actual
           certutil -K -d /root/.dogtag/nssdb | sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\).*/\1/p' | sort > expected
           diff actual expected
+
+  update-version-test:
+    name: Update Version
+    uses: ./.github/workflows/update-version-test.yml
