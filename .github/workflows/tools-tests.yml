@@ -574,3 +574,7 @@ jobs:
           certutil -L -d /root/.dogtag/nssdb | sed -n 's/^sslserver *\(\S\+\)/\1/p' > actual
           echo "u,u,u" > expected
           diff actual expected
+
+  update-version-test:
+    name: Update Version
+    uses: ./.github/workflows/update-version-test.yml
