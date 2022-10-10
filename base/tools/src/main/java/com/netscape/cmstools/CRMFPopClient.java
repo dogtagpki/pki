@@ -91,6 +91,7 @@ import org.mozilla.jss.util.Password;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
+import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -909,7 +910,7 @@ public class CRMFPopClient {
 
         if (verbose) System.out.println("--------------------");
         String line = null;
-        String requestID = null;
+        RequestId requestID = null;
         String status = null;
         String reason = null;
         while ((line = reader.readLine()) != null) {
@@ -918,7 +919,7 @@ public class CRMFPopClient {
             if (line.startsWith("requestList.requestId=")) {
                 int i = line.indexOf("\"");
                 int j = line.indexOf("\";", i+1);
-                requestID = line.substring(i+1, j);
+                requestID = new RequestId(line.substring(i+1, j));
 
             } else if (line.startsWith("errorCode=")) {
                 int i = line.indexOf("\"");
@@ -950,7 +951,7 @@ public class CRMFPopClient {
         if (verbose) System.out.println("--------------------");
 
         if (requestID != null) {
-            System.out.println("Request ID: " + requestID);
+            System.out.println("Request ID: " + requestID.toHexString());
         }
 
         if (status != null) {
