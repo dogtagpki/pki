@@ -4,7 +4,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.Properties;
 
-import org.apache.catalina.realm.RealmBase;
+import org.apache.catalina.Realm;
+import org.apache.catalina.util.LifecycleBase;
 
 import com.netscape.cms.realm.RealmCommon;
 import com.netscape.cms.realm.RealmConfig;
@@ -24,7 +25,7 @@ public class ESTEngine {
 
     private String id;
 
-    private RealmCommon realm;
+    private Realm realm;
 
     private ESTBackend backend;
     private ESTRequestAuthorizer requestAuthorizer;
@@ -73,7 +74,11 @@ public class ESTEngine {
         }
 
         if (realm != null) {
-            realm.stop();
+            if (realm instanceof RealmCommon) {
+                ((RealmCommon) realm).stop();
+            } else if (realm instanceof LifecycleBase) {
+                ((LifecycleBase) realm).stop();
+            }
         }
         logger.info("EST engine stopped");
     }
@@ -146,11 +151,19 @@ public class ESTEngine {
         if (className == null) {
             throw new RuntimeException("File " + filename + " misses 'class' property");
         }
-        Class<RealmCommon> realmClass = (Class<RealmCommon>) Class.forName(className);
+        Class<Realm> realmClass = (Class<Realm>) Class.forName(className);
         realm = realmClass.getDeclaredConstructor().newInstance();
-        realm.setConfig(realmConfig);
-        realm.start();
+
+        // registerRealm() does some required setup for RealmBase instances.
+        // So we have to invoke registerRealm() /before/ start().
         ProxyRealm.registerRealm(id, realm);
+
+        if (realm instanceof RealmCommon) {
+            ((RealmCommon) realm).setConfig(realmConfig);
+            ((RealmCommon) realm).start();
+        } else if (realm instanceof LifecycleBase) {
+            ((LifecycleBase) realm).start();
+        }
     }
 
     public void setId(String id) {
