@@ -13,6 +13,7 @@ import org.apache.catalina.Container;
 import org.apache.catalina.Context;
 import org.apache.catalina.CredentialHandler;
 import org.apache.catalina.Realm;
+import org.apache.catalina.realm.RealmBase;
 import org.apache.catalina.Wrapper;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
@@ -65,6 +66,12 @@ public class ProxyRealm implements Realm {
     public static void registerRealm(String contextName, Realm realm) {
         ProxyRealm proxy = proxies.get(contextName);
         if (proxy == null) return;
+
+        if (realm instanceof RealmBase) {
+            // RealmBase instances from Tomcat require Container to be set.
+            // Propagate it from the ProxyRealm to the RealmBase instance.
+            ((RealmBase) realm).setContainer(proxy.getContainer());
+        }
 
         proxy.setRealm(realm);
     }
