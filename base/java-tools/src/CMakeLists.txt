@@ -45,14 +45,6 @@ find_file(XALAN_JAR
         /usr/share/java
 )
 
-find_file(XERCES_JAR
-    NAMES
-        xerces-j2.jar
-    PATHS
-        ${JAVA_LIB_INSTALL_DIR}
-        /usr/share/java
-)
-
 find_file(RESTEASY_JAXRS_JAR
     NAMES
         resteasy-jaxrs.jar
@@ -87,7 +79,7 @@ javac(pki-tools-classes
         *.java
     CLASSPATH
         ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR}
-        ${XALAN_JAR} ${XERCES_JAR}
+        ${XALAN_JAR}
         ${JSS_JAR} ${LDAPJDK_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_IO_JAR}
         ${APACHE_COMMONS_CLI_JAR} ${APACHE_COMMONS_LANG_JAR}
         ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}

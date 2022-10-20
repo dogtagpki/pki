@@ -196,14 +196,6 @@ find_file(XALAN_JAR
         /usr/share/java
 )
 
-find_file(XERCES_JAR
-    NAMES
-        xerces-j2.jar
-    PATHS
-        ${JAVA_LIB_INSTALL_DIR}
-        /usr/share/java
-)
-
 # The order is important!
 if (APPLICATION_FLAVOR_PKI_CORE OR
     APPLICATION_FLAVOR_PKI_CONSOLE)
