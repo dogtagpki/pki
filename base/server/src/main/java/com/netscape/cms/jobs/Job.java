@@ -112,7 +112,24 @@ public abstract class Job implements Runnable {
      * @param config configuration store for this instance
      * @exception EBaseException any initialization failure
      */
-    public abstract void init(JobsScheduler scheduler, String id, String implName, JobConfig config) throws EBaseException;
+    public void init(JobsScheduler scheduler, String id, String implName, JobConfig config) throws EBaseException {
+
+        logger.info("Job: Initializing job " + id);
+
+        mId = id;
+
+        mImplName = implName;
+        logger.info("Job: - plugin: " + implName);
+
+        mConfig = config;
+
+        mCron = config.getCron();
+        logger.info("Job: - cron: " + mCron);
+
+        if (mCron != null) {
+            mJobCron = scheduler.createJobCron(mCron);
+        }
+    }
 
     @Override
     public abstract void run();
