@@ -168,7 +168,7 @@ jobs:
 
       - name: Upload artifacts from root container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: subca-basic-root-${{ inputs.os }}
           path: |
@@ -176,7 +176,7 @@ jobs:
 
       - name: Upload artifacts from subordinate container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: subca-basic-subordinate-${{ inputs.os }}
           path: |
