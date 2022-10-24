@@ -131,14 +131,14 @@ jobs:
 
       - name: Upload artifacts from server container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: acme-container-server-${{ inputs.os }}
           path: /tmp/artifacts/server
 
       - name: Upload artifacts from client container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: acme-container-client-${{ inputs.os }}
           path: /tmp/artifacts/client

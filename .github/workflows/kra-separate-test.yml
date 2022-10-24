@@ -155,7 +155,7 @@ jobs:
 
       - name: Upload artifacts from CA containers
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: kra-separate-ca-${{ inputs.os }}
           path: |
@@ -163,7 +163,7 @@ jobs:
 
       - name: Upload artifacts from KRA containers
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: kra-separate-kra-${{ inputs.os }}
           path: |

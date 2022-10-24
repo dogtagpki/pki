@@ -197,7 +197,7 @@ jobs:
 
       - name: Upload artifacts from CA containers
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: tks-external-certs-ca-${{ inputs.os }}
           path: |
@@ -205,7 +205,7 @@ jobs:
 
       - name: Upload artifacts from TKS containers
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: tks-external-certs-tks-${{ inputs.os }}
           path: |

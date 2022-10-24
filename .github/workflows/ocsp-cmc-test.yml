@@ -290,7 +290,7 @@ jobs:
 
       - name: Upload artifacts from CA containers
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ocsp-cmc-ca-${{ inputs.os }}
           path: |
@@ -298,7 +298,7 @@ jobs:
 
       - name: Upload artifacts from OCSP containers
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ocsp-cmc-ocsp-${{ inputs.os }}
           path: |

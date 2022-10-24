@@ -300,7 +300,7 @@ jobs:
 
       - name: Upload artifacts from CA containers
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: tps-external-certs-ca-${{ inputs.os }}
           path: |
@@ -308,7 +308,7 @@ jobs:
 
       - name: Upload artifacts from KRA containers
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: tps-external-certs-kra-${{ inputs.os }}
           path: |
@@ -316,7 +316,7 @@ jobs:
 
       - name: Upload artifacts from TKS containers
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: tps-external-certs-tks-${{ inputs.os }}
           path: |
@@ -324,7 +324,7 @@ jobs:
 
       - name: Upload artifacts from TPS containers
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: tps-external-certs-tps-${{ inputs.os }}
           path: |

@@ -60,7 +60,7 @@ jobs:
           echo ${{ github.event.pull_request.base.ref }} > ./pr/BaseBranch
 
       - name: Upload pr as artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: pr
           path: pr/

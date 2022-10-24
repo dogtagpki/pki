@@ -145,7 +145,7 @@ jobs:
 
       - name: Upload artifacts from primary container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ipa-clone-primary-${{ inputs.os }}
           path: |
@@ -153,7 +153,7 @@ jobs:
 
       - name: Upload artifacts from secondary container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ipa-clone-secondary-${{ inputs.os }}
           path: |
