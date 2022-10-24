@@ -114,11 +114,7 @@ public class RequestInQueueJob extends Job
     public void init(JobsScheduler scheduler, String id, String implName, JobConfig config) throws
             EBaseException {
 
-        logger.info("RequestInQueueJob: Initializing job " + id);
-
-        mConfig = config;
-        mId = id;
-        mImplName = implName;
+        super.init(scheduler, id, implName, config);
 
         CMSEngine engine = CMS.getCMSEngine();
 
@@ -133,13 +129,6 @@ public class RequestInQueueJob extends Job
         }
 
         mReqQ = engine.getRequestQueue();
-
-        mCron = mConfig.getCron();
-        logger.info("RequestInQueueJob: - cron: " + mCron);
-
-        if (mCron != null) {
-            mJobCron = scheduler.createJobCron(mCron);
-        }
 
         // initialize the summary related config info
         ConfigStore sc = mConfig.getSubStore(PROP_SUMMARY, ConfigStore.class);
