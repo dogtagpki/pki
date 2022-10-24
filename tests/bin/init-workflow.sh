@@ -8,7 +8,7 @@ else
 fi
 
 echo "MATRIX: $MATRIX"
-echo "::set-output name=matrix::$MATRIX"
+echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
 
 if [ "$BASE64_REPO" == "" ]
 then
@@ -18,7 +18,7 @@ else
 fi
 
 echo "REPO: $REPO"
-echo "::set-output name=repo::$REPO"
+echo "repo=$REPO" >> $GITHUB_OUTPUT
 
 if [ "$BASE64_DATABASE" != "" ]
 then
@@ -27,4 +27,4 @@ then
 fi
 
 echo "DB_IMAGE: $DB_IMAGE"
-echo "::set-output name=db-image::$DB_IMAGE"
+echo "db-image=$DB_IMAGE" >> $GITHUB_OUTPUT
