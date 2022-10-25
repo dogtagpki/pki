@@ -48,7 +48,7 @@ jobs:
           outputs: type=docker,dest=/tmp/pki-runner.tar
 
       - name: Upload runner image
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: pki-runner-${{ matrix.os }}
           path: /tmp/pki-runner.tar
@@ -123,7 +123,7 @@ jobs:
 
       - name: Upload artifacts
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: tks-${{ matrix.os }}
           path: |
@@ -250,7 +250,7 @@ jobs:
 
       - name: Upload artifacts from CA container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: tks-separate-ca-${{ matrix.os }}
           path: |
@@ -258,7 +258,7 @@ jobs:
 
       - name: Upload artifacts from TKS container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: tks-separate-tks-${{ matrix.os }}
           path: |
@@ -449,7 +449,7 @@ jobs:
 
       - name: Upload artifacts from primary container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: tks-clone-primary-${{ matrix.os }}
           path: |
@@ -457,7 +457,7 @@ jobs:
 
       - name: Upload artifacts from secondary container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: tks-clone-secondary-${{ matrix.os }}
           path: |
@@ -465,7 +465,7 @@ jobs:
 
       - name: Upload artifacts from tertiary container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: tks-clone-tertiary-${{ matrix.os }}
           path: |
