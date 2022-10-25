@@ -286,7 +286,7 @@ jobs:
 
       - name: Upload artifacts from primary containers
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ca-clone-primary-${{ matrix.os }}
           path: |
@@ -294,7 +294,7 @@ jobs:
 
       - name: Upload artifacts from secondary containers
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ca-clone-secondary-${{ matrix.os }}
           path: |
@@ -302,7 +302,7 @@ jobs:
 
       - name: Upload artifacts from tertiary containers
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ca-clone-tertiary-${{ matrix.os }}
           path: |
@@ -458,7 +458,7 @@ jobs:
 
       - name: Upload artifacts
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ca-secure-ds-${{ matrix.os }}
           path: |
@@ -766,7 +766,7 @@ jobs:
 
       - name: Upload artifacts from primary containers
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ca-secure-ds-primary-${{ matrix.os }}
           path: |
@@ -774,7 +774,7 @@ jobs:
 
       - name: Upload artifacts from secondary containers
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ca-secure-ds-secondary-${{ matrix.os }}
           path: |
@@ -899,7 +899,7 @@ jobs:
 
       - name: Upload artifacts
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ca-random-v1-${{ matrix.os }}
           path: |
@@ -993,7 +993,7 @@ jobs:
 
       - name: Upload artifacts
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ca-random-v3-${{ matrix.os }}
           path: |
@@ -1206,7 +1206,7 @@ jobs:
 
       - name: Upload artifacts
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ca-file-crl-${{ matrix.os }}
           path: |
@@ -1327,7 +1327,7 @@ jobs:
 
       - name: Upload artifacts
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: scep-${{ matrix.os }}
           path: |

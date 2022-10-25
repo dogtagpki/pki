@@ -162,7 +162,7 @@ jobs:
 
       - name: Upload artifacts from server container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: pki-server-test-${{ matrix.os }}
           path: |
@@ -267,7 +267,7 @@ jobs:
 
       - name: Upload artifacts from server container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: pki-server-https-pem-test-${{ matrix.os }}
           path: |
@@ -370,7 +370,7 @@ jobs:
 
       - name: Upload artifacts from server container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: pki-server-https-jks-test-${{ matrix.os }}
           path: |
@@ -475,7 +475,7 @@ jobs:
 
       - name: Upload artifacts from server container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: pki-server-https-pkcs12-test-${{ matrix.os }}
           path: |
@@ -589,7 +589,7 @@ jobs:
 
       - name: Upload artifacts from server container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: pki-server-https-nss-test-${{ matrix.os }}
           path: |
@@ -659,7 +659,7 @@ jobs:
 
       - name: Upload artifacts from server container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: pki-container-test-${{ matrix.os }}
           path: /tmp/artifacts/server

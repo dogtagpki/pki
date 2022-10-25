@@ -265,7 +265,7 @@ jobs:
 
       - name: Upload artifacts from server containers
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: acme-server-${{ matrix.os }}
           path: |
@@ -273,7 +273,7 @@ jobs:
 
       - name: Upload artifacts from client container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: acme-client-${{ matrix.os }}
           path: /tmp/artifacts/client
@@ -467,7 +467,7 @@ jobs:
 
       - name: Upload artifacts from server containers
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: acme-switchover-server-${{ matrix.os }}
           path: |
@@ -475,7 +475,7 @@ jobs:
 
       - name: Upload artifacts from client container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: acme-switchover-client-${{ matrix.os }}
           path: /tmp/artifacts/client
@@ -596,14 +596,14 @@ jobs:
 
       - name: Upload artifacts from server container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: acme-container-server-${{ matrix.os }}
           path: /tmp/artifacts/server
 
       - name: Upload artifacts from client container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: acme-container-client-${{ matrix.os }}
           path: /tmp/artifacts/client

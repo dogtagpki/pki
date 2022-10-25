@@ -265,7 +265,7 @@ jobs:
 
       - name: Upload artifacts
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ca-${{ matrix.os }}
           path: |
@@ -405,7 +405,7 @@ jobs:
 
       - name: Upload artifacts
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ca-ecc-${{ matrix.os }}
           path: |
@@ -581,7 +581,7 @@ jobs:
 
       - name: Upload artifacts
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ca-rsa-pss-${{ matrix.os }}
           path: |
@@ -750,7 +750,7 @@ jobs:
 
       - name: Upload artifacts from root container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ca-root-${{ matrix.os }}
           path: |
@@ -758,7 +758,7 @@ jobs:
 
       - name: Upload artifacts from subordinate container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ca-subordinate-${{ matrix.os }}
           path: |
@@ -980,7 +980,7 @@ jobs:
 
       - name: Upload artifacts from root container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ca-root-cmc-${{ matrix.os }}
           path: |
@@ -988,7 +988,7 @@ jobs:
 
       - name: Upload artifacts from subordinate container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ca-subordinate-cmc-${{ matrix.os }}
           path: |
@@ -1128,7 +1128,7 @@ jobs:
 
       - name: Upload artifacts
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ca-external-cert-${{ matrix.os }}
           path: |
@@ -1300,7 +1300,7 @@ jobs:
 
       - name: Upload artifacts
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ca-existing-certs-${{ matrix.os }}
           path: |
