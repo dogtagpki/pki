@@ -69,7 +69,7 @@ jobs:
           outputs: type=docker,dest=/tmp/pki-runner.tar
 
       - name: Upload runner image
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: pki-runner-${{ matrix.os }}
           path: /tmp/pki-runner.tar
@@ -178,7 +178,7 @@ jobs:
 
       - name: Upload artifacts
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: kra-${{ matrix.os }}
           path: |
@@ -322,7 +322,7 @@ jobs:
 
       - name: Upload artifacts from CA containers
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: kra-separate-ca-${{ matrix.os }}
           path: |
@@ -330,7 +330,7 @@ jobs:
 
       - name: Upload artifacts from KRA containers
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: kra-separate-kra-${{ matrix.os }}
           path: |
@@ -548,7 +548,7 @@ jobs:
 
       - name: Upload artifacts from CA containers
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: kra-external-certs-ca-${{ matrix.os }}
           path: |
@@ -556,7 +556,7 @@ jobs:
 
       - name: Upload artifacts from KRA containers
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: kra-external-certs-kra-${{ matrix.os }}
           path: |
@@ -873,7 +873,7 @@ jobs:
 
       - name: Upload artifacts from CA containers
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: kra-cmc-ca-${{ matrix.os }}
           path: |
@@ -881,7 +881,7 @@ jobs:
 
       - name: Upload artifacts from KRA containers
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: kra-cmc-kra-${{ matrix.os }}
           path: |
@@ -1119,7 +1119,7 @@ jobs:
 
       - name: Upload artifacts from primary containers
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: kra-clone-primary-${{ matrix.os }}
           path: |
@@ -1127,7 +1127,7 @@ jobs:
 
       - name: Upload artifacts from secondary containers
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: kra-clone-secondary-${{ matrix.os }}
           path: |
@@ -1135,7 +1135,7 @@ jobs:
 
       - name: Upload artifacts from tertiary containers
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: kra-clone-tertiary-${{ matrix.os }}
           path: |
@@ -1304,7 +1304,7 @@ jobs:
 
       - name: Upload artifacts
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: kra-standalone-${{ matrix.os }}
           path: |

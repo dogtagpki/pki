@@ -69,7 +69,7 @@ jobs:
           outputs: type=docker,dest=/tmp/pki-runner.tar
 
       - name: Upload runner image
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: pki-runner-${{ matrix.os }}
           path: /tmp/pki-runner.tar
