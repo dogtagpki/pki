@@ -50,7 +50,7 @@ jobs:
           outputs: type=docker,dest=/tmp/pki-runner.tar
 
       - name: Upload runner image
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: pki-runner-${{ matrix.os }}
           path: /tmp/pki-runner.tar
@@ -215,7 +215,7 @@ jobs:
 
       - name: Upload artifacts from IPA container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ipa-${{ matrix.os }}
           path: |
@@ -346,7 +346,7 @@ jobs:
 
       - name: Upload artifacts from primary container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ipa-clone-primary-${{ matrix.os }}
           path: |
@@ -354,7 +354,7 @@ jobs:
 
       - name: Upload artifacts from secondary container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ipa-clone-secondary-${{ matrix.os }}
           path: |

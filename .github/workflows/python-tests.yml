@@ -48,7 +48,7 @@ jobs:
         run: ./build.sh --with-pkgs=base,server,tests --with-timestamp --with-commit-id --work-dir=build rpm
 
       - name: Upload PKI packages
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: pki-build-${{ matrix.os }}
           path: build/RPMS/

@@ -50,7 +50,7 @@ jobs:
           outputs: type=docker,dest=/tmp/pki-runner.tar
 
       - name: Upload runner image
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: pki-runner-${{ matrix.os }}
           path: /tmp/pki-runner.tar
@@ -127,7 +127,7 @@ jobs:
 
       - name: Upload artifacts
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ocsp-${{ matrix.os }}
           path: |
@@ -298,7 +298,7 @@ jobs:
 
       - name: Upload artifacts from CA container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ocsp-external-certs-ca-${{ matrix.os }}
           path: |
@@ -306,7 +306,7 @@ jobs:
 
       - name: Upload artifacts from OCSP container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ocsp-external-certs-ocsp-${{ matrix.os }}
           path: |
@@ -498,7 +498,7 @@ jobs:
 
       - name: Upload artifacts from primary container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ocsp-clone-primary-${{ matrix.os }}
           path: |
@@ -506,7 +506,7 @@ jobs:
 
       - name: Upload artifacts from secondary container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ocsp-clone-secondary-${{ matrix.os }}
           path: |
@@ -514,7 +514,7 @@ jobs:
 
       - name: Upload artifacts from tertiary container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ocsp-clone-tertiary-${{ matrix.os }}
           path: |
@@ -651,7 +651,7 @@ jobs:
 
       - name: Upload artifacts
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ocsp-standalone-${{ matrix.os }}
           path: |
