@@ -2274,7 +2274,7 @@ class NSSDatabase(object):
                 n = n + 1
 
             logger.debug('Number of certs in PKCS #7: %s', n)
-            # Return if there aren't and certificates to add.
+            # Return if there aren't any certificates to add.
             if n < 1:
                 return
 
