@@ -48,7 +48,7 @@ jobs:
           outputs: type=docker,dest=/tmp/pki-runner.tar
 
       - name: Upload runner image
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: pki-runner-${{ matrix.os }}
           path: /tmp/pki-runner.tar
@@ -131,7 +131,7 @@ jobs:
 
       - name: Upload artifacts
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ca-${{ matrix.os }}
           path: |
@@ -217,7 +217,7 @@ jobs:
 
       - name: Upload artifacts
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ca-ecc-${{ matrix.os }}
           path: |
@@ -341,7 +341,7 @@ jobs:
 
       - name: Upload artifacts from root container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ca-root-${{ matrix.os }}
           path: |
@@ -349,7 +349,7 @@ jobs:
 
       - name: Upload artifacts from subordinate container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ca-subordinate-${{ matrix.os }}
           path: |
@@ -440,7 +440,7 @@ jobs:
 
       - name: Upload artifacts
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ca-external-cert-${{ matrix.os }}
           path: |
@@ -584,7 +584,7 @@ jobs:
 
       - name: Upload artifacts
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ca-existing-certs-${{ matrix.os }}
           path: |
@@ -750,7 +750,7 @@ jobs:
 
       - name: Upload artifacts from primary container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ca-clone-primary-${{ matrix.os }}
           path: |
@@ -758,7 +758,7 @@ jobs:
 
       - name: Upload artifacts from secondary container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ca-clone-secondary-${{ matrix.os }}
           path: |
@@ -766,7 +766,7 @@ jobs:
 
       - name: Upload artifacts from tertiary container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ca-clone-tertiary-${{ matrix.os }}
           path: |
@@ -907,7 +907,7 @@ jobs:
 
       - name: Upload artifacts
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ca-secure-ds-${{ matrix.os }}
           path: |
@@ -1180,7 +1180,7 @@ jobs:
 
       - name: Upload artifacts from primary container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ca-secure-ds-primary-${{ matrix.os }}
           path: |
@@ -1188,7 +1188,7 @@ jobs:
 
       - name: Upload artifacts from secondary container
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ca-secure-ds-secondary-${{ matrix.os }}
           path: |
@@ -1298,7 +1298,7 @@ jobs:
 
       - name: Upload artifacts
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: scep-${{ matrix.os }}
           path: |
