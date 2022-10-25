@@ -1,0 +1,122 @@
+name: CA connection with DS
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+
+jobs:
+  # docs/installation/ca/Installing_CA.md
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      - name: Retrieve runner image
+        uses: actions/cache@v3
+        with:
+          key: pki-ca-runner-${{ inputs.os }}-${{ github.run_id }}
+          path: pki-runner.tar
+
+      - name: Load runner image
+        run: docker load --input pki-runner.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-container-create.sh ds
+        env:
+          IMAGE: ${{ needs.init.outputs.db-image }}
+          COPR_REPO: ${{ needs.init.outputs.repo }}
+          HOSTNAME: ds.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect DS container to network
+        run: docker network connect example ds --alias ds.example.com
+
+      - name: Set up PKI container
+        run: |
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
+
+      - name: Connect PKI container to network
+        run: docker network connect example pki --alias pki.example.com
+
+      - name: Install CA
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_hostname=ds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -D pki_cert_id_generator=random \
+              -D pki_request_id_generator=random \
+              -v
+          docker exec pki pki-server ca-config-set cms.password.skipLdapConnTest true
+          docker exec pki pki-server ca-config-set internaldb.minConns 0
+          docker exec pki pki-server restart --wait
+          docker exec pki curl -s http://pki.example.com:8080/ca/admin/ca/getStatus
+
+      - name: Initialize PKI client
+        run: |
+          docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
+          docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
+          docker exec pki pki info
+
+      - name: Create csr requesst
+        run: |
+          docker exec pki pki nss-cert-request --subject "CN=$HOSTNAME" --ext /usr/share/pki/server/certs/sslserver.conf  --csr sslserver.csr
+
+      - name: Test request enrollment
+        run: |
+          docker exec pki pki ca-cert-request-submit --profile caServerCert --csr-file sslserver.csr  | tee output
+          grep "Reason:" output | wc -l > actual
+          echo "0" > expected
+          diff expected actual
+          
+      - name: Stop the DS
+        run: |
+          docker stop ds
+          sleep 10
+          docker exec pki pki ca-cert-request-submit --profile caServerCert --csr-file sslserver.csr  | tee output
+          grep "Reason:" output | wc -l > actual
+          echo "1" > expected
+          diff expected actual
+
+      - name: Restart the DS
+        run: |
+          docker start ds
+          sleep 20
+          docker exec pki pki ca-cert-request-submit --profile caServerCert --csr-file sslserver.csr  | tee output
+          grep "Reason:" output | wc -l > actual
+          echo "0" > expected
+          diff expected actual
+
+      - name: Start without the DS
+        run: |
+          docker stop ds
+          sleep 20
+          docker exec pki pki-server restart --wait
+          docker exec pki curl -s http://pki.example.com:8080/ca/admin/ca/getStatus
+          docker exec pki pki ca-cert-request-submit --profile caServerCert --csr-file sslserver.csr | tee output
+          grep "Reason:" output | wc -l > actual
+          echo "1" > expected
+          diff expected actual
+  
+      - name: Start the DS with running CA
+        run: |
+          docker start ds
+          sleep 60
+          docker exec pki pki ca-cert-request-submit --profile caServerCert --csr-file sslserver.csr | tee output
+          grep "Reason:" output | wc -l > actual
+          echo "0" > expected
+          diff expected actual

@@ -232,7 +232,7 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
      */
     private void init() throws ELdapException {
 
-        if (mMinConns <= 0)
+        if (mMinConns < 0)
             throw new ELdapException("Invalid minimum number of connections: " + mMinConns);
 
         if (mMaxConns <= 0)
@@ -259,11 +259,13 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
 
         mConns = new LdapBoundConnection[mMaxConns];
 
-        // Create connection handle and make initial connection
-        makeConnection(mErrorIfDown);
+        if (mMinConns > 0) {
+            // Create connection handle and make initial connection
+            makeConnection(mErrorIfDown);
 
-        // initalize minimum number of connection handles available.
-        makeMinimum();
+            // initalize minimum number of connection handles available.
+            makeMinimum();
+        }
     }
 
     /**
@@ -275,36 +277,10 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
 
         logger.debug("LdapBoundConnFactory: makeConnection(" + errorIfDown + ")");
 
-        try {
-            PKISocketFactory socketFactory;
-            if (mAuthInfo.getAuthType() == LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH) {
-                socketFactory = new PKISocketFactory(mAuthInfo.getClientCertNickname());
-            } else {
-                socketFactory = new PKISocketFactory(mConnInfo.getSecure());
-            }
-            socketFactory.init(config);
-
-            mMasterConn = new LdapBoundConnection(socketFactory, mConnInfo, mAuthInfo);
-            mMasterConn.connectionFactory = this;
-
-        } catch (EBaseException e) {
-            throw new ELdapException("Unable to create socket factory: " + e.getMessage(), e);
-
-        } catch (LDAPException e) {
-            if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
-                // need to intercept this because message from LDAP is
-                // "DSA is unavailable" which confuses with DSA PKI.
-                String message = "LDAP server is unavailable: " + mConnInfo.getHost() + ":" + mConnInfo.getPort();
-                logger.error("LdapBoundConnFactory: " + message, e);
-                if (errorIfDown) {
-                    throw new ELdapServerDownException(message, e);
-                }
-            } else {
-                String message = "Unable to connect to LDAP server: " + e.getMessage();
-                logger.error("LdapBoundConnFactory: " + message, e);
-                throw new ELdapException(message, e);
-            }
-        }
+       mMasterConn = makeNewConnection(errorIfDown);
+       if (mMasterConn != null) {
+           mMasterConn.connectionFactory = this;
+       }
     }
 
     /**
@@ -356,20 +332,25 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
      */
     private void makeMinimum() throws ELdapException {
         String method = "LdapBoundConnFactory.makeMinimum: ";
-        if (mMasterConn == null || !mMasterConn.isConnected()) {
-            logger.debug(method + "master conn not available; returning");
-            return;
+        boolean cloning = false;
+        int realMin = Math.max(mMinConns, 1);
+        if (mMasterConn != null && mMasterConn.isConnected() && doCloning) {
+            logger.debug(method + "connections will be cloned from the master");
+            cloning = true;
+        } else {
+            logger.debug(method + "master conn not available.");
         }
+
         int increment;
         logger.debug(method + "begins: total connections: " + mTotal);
         logger.debug(method + "begins: available connections: " + mNumConns);
 
-        if (mNumConns < mMinConns && mTotal <= mMaxConns) {
-            increment = Math.min(mMinConns - mNumConns, mMaxConns - mTotal);
+        if (mNumConns < realMin && mTotal <= mMaxConns) {
+            increment = Math.min(realMin - mNumConns, mMaxConns - mTotal);
             logger.debug(method + "increasing minimum connections by " + increment);
 
             for (int i = increment - 1; i >= 0; i--) {
-                mConns[i] = doCloning ? (LdapBoundConnection) mMasterConn.clone() : makeNewConnection(true);
+                mConns[i] = cloning ? (LdapBoundConnection) mMasterConn.clone() : makeNewConnection(true);
             }
 
             mTotal += increment;
@@ -429,75 +410,72 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
      */
     public synchronized LdapBoundConnection getConn(boolean waitForConn)
             throws ELdapException {
-        boolean waited = false;
-
-        logger.debug("LdapBoundConnFactory: getting a connection");
+        LdapBoundConnection conn = null;
+        String method = "LdapBoundConnFactory (" + id + ").getConn: ";
+        logger.debug(method + "initial values. Total: " + mTotal + ", pool: " + mNumConns);
 
         if (mMasterConn != null)
-            logger.debug("LdapBoundConnFactory: master connection is connected: " + mMasterConn.isConnected());
+            logger.debug(method + "master connection is connected: " + mMasterConn.isConnected());
         else
-            logger.debug("LdapBoundConnFactory: master connection is null");
+            logger.debug(method + "master connection is null");
 
-        if (mMasterConn == null || !mMasterConn.isConnected()) {
+        if ((mMasterConn == null || !mMasterConn.isConnected()) && mMinConns > 0) {
             try {
                 makeConnection(true);
             } catch (ELdapException e) {
                 mMasterConn = null;
-                logger.error("LdapBoundConnFactory: Unable to create master connection: " + e.getMessage(), e);
-                throw e;
+                throw new ELdapException("LdapBoundConnFactory: Unable to create master connection. " + e.getMessage(), e);
             }
         }
-
-        if (mNumConns == 0)
-            makeMinimum();
 
         if (mNumConns == 0) {
-            if (!waitForConn)
-                return null;
-            try {
+            makeMinimum();
+        }
+
+
+        while (mNumConns == 0) {
+            logger.warn("LdapBoundConnFactory: waiting connections for " + mConnInfo.getHost() + ":" + mConnInfo.getPort());
+            if (!waitForConn) {
                 logger.warn("LdapBoundConnFactory: out of LDAP connections");
-                waited = true;
-                while (mNumConns == 0)
-                    wait();
+                return null;
+            }
+            try {
+                wait();
             } catch (InterruptedException e) {
+                logger.warn("LdapBoundConnFactory: connection wait interrupted");
+                return null;
+            }
+            if (mMinConns == 0) {
+                makeMinimum();
             }
         }
+
         mNumConns--;
-        LdapBoundConnection conn = mConns[mNumConns];
+        conn = mConns[mNumConns];
+        mConns[mNumConns] = null;
+        logger.debug("LdapBoundConnFactory: number of connections: " + mNumConns);
 
-        boolean isConnected = false;
-        if (conn != null) {
-            isConnected = conn.isConnected();
-        }
 
-        logger.debug("LdapBoundConnFactory: connection already connected: " + isConnected);
-
-        //If masterConn is still alive, lets try to bring this one
-        //back to life
-
-        if (!isConnected && mMasterConn != null && mMasterConn.isConnected()) {
+        if (conn == null || !conn.isConnected()) {
             logger.debug("LdapBoundConnFactory: reestablishing connection");
-
-            if (doCloning) {
-                mConns[mNumConns] = (LdapBoundConnection) mMasterConn.clone();
-            } else {
-                try {
-                    mConns[mNumConns] = makeNewConnection(true);
-                } catch (ELdapException e) {
-                    mConns[mNumConns] = null;
+            try {
+                if (mMinConns > 0 &&
+                        doCloning &&
+                        mMasterConn != null) {
+                    conn = (LdapBoundConnection) mMasterConn.clone();
+                } else {
+                    conn = makeNewConnection(true);
                 }
+            } catch (ELdapException e) {
+                mTotal--;
+                String message = "Unable to reestablish LDAP connection: " + e.getMessage();
+                logger.error("LdapBoundConnFactory: " + message, e);
+                throw new ELdapException(message, e);
             }
-            conn = mConns[mNumConns];
-
             logger.debug("LdapBoundConnFactory: connection reestablished");
         }
 
-        mConns[mNumConns] = null;
 
-        if (waited) {
-            logger.warn("LdapBoundConnFactory: connections are available for " + mConnInfo.getHost() + ":" + mConnInfo.getPort());
-        }
-        logger.debug("LdapBoundConnFactory: number of connections: " + mNumConns);
 
         try {
             // Before returning the connection, set the SIZELIMIT option; this
@@ -508,7 +486,7 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
         } catch (LDAPException e) {
             throw new ELdapException("Unable to set LDAP size limit: " + e.getMessage(), e);
         }
-
+        logger.debug(method + " final values. Total: " + mTotal + ", pool: " + mNumConns);
         return conn;
     }
 
@@ -532,6 +510,9 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
      */
     @Override
     public synchronized void returnConn(LDAPConnection conn) {
+        String method = "LdapBoundConnFactory (" + id + ").returnConn: ";
+        logger.debug(method + "initial values. Total: " + mTotal + ", pool: " + mNumConns);
+
         if (conn == null) {
             return;
         }
@@ -546,18 +527,37 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
 
         if (boundconn.connectionFactory != this) {
             logger.warn("LdapBoundConnFactory: Unknown connection");
+            try {
+                boundconn.disconnect();
+            } catch(LDAPException e) {
+                logger.warn("LdapBoundConnFactory: Unable to disconnect: " + e.getMessage(), e);
+            }
+            return;
+
         }
 
         for (int i = 0; i < mNumConns; i++) {
             if (mConns[i] == conn) {
                 logger.warn("LdapBoundConnFactory: Connection already returned");
+                --mTotal;
+                notifyAll();
+                return;
             }
         }
 
-        mConns[mNumConns++] = boundconn;
-        logger.debug("LdapBoundConnFactory: number of connections: " + mNumConns);
+        if (mNumConns < mMinConns) {
+            mConns[mNumConns++] = boundconn;
+        } else {
+            try {
+                boundconn.disconnect();
+            } catch(LDAPException e) {
+                logger.warn("LdapBoundConnFactory: Unable to disconnect: " + e.getMessage(), e);
+            }
+            --mTotal;
+        }
+        notifyAll();
+        logger.debug(method + " final values. Total: " + mTotal + ", pool: " + mNumConns);
 
-        notify();
     }
 
     @Override
@@ -597,6 +597,7 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
             mMasterConn = null;
             mTotal = 0;
             mNumConns = 0;
+            mConns = new LdapBoundConnection[mMaxConns];
         } else {
             String message = "Unable to reset LDAP connection factory due to outstanding connections";
             logger.error("LdapBoundConnFactory: " + message);

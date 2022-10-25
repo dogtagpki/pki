@@ -929,9 +929,10 @@ public class CAEngine extends CMSEngine {
 
     public boolean haveAuthorityContainer() throws EBaseException {
 
-        LDAPConnection conn = connectionFactory.getConn();
+        LDAPConnection conn = null;
 
         try {
+            conn = connectionFactory.getConn(true);
             LDAPSearchResults results = conn.search(
                     getAuthorityBaseDN(),
                     LDAPConnection.SCOPE_BASE,
@@ -940,7 +941,7 @@ public class CAEngine extends CMSEngine {
                     false);
             return results != null;
 
-        } catch (LDAPException e) {
+        } catch (LDAPException | ELdapException e) {
             return false;
 
         } finally {
