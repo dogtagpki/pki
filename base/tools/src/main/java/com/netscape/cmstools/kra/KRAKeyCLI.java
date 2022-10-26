@@ -151,5 +151,8 @@ public class KRAKeyCLI extends CLI {
         if (info.getRequestType() != null) System.out.println("  Type: "+info.getRequestType());
         if (info.getRequestStatus() != null) System.out.println("  Status: "+info.getRequestStatus());
         if (info.getRealm() != null) System.out.println("  Realm: "+ info.getRealm());
+
+        System.out.println("  Creation Time: " + info.getCreationTime());
+        System.out.println("  Modification Time: " + info.getModificationTime());
     }
 }

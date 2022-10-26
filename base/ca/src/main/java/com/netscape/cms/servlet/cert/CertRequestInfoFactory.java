@@ -20,6 +20,7 @@ package com.netscape.cms.servlet.cert;
 
 import java.lang.reflect.Method;
 import java.math.BigInteger;
+import java.util.Date;
 
 import javax.ws.rs.Path;
 import javax.ws.rs.core.UriBuilder;
@@ -62,23 +63,28 @@ public class CertRequestInfoFactory {
         String error = request.getExtDataInString(Request.ERROR);
         info.setErrorMessage(error);
 
-        if (requestType == null || requestStatus != RequestStatus.COMPLETE)
-            return info;
+        if (requestType != null && requestStatus == RequestStatus.COMPLETE) {
 
-        X509CertImpl impl = request.getExtDataInCert(Request.REQUEST_ISSUED_CERT);
-        if (impl == null && requestType.equals(Request.REVOCATION_REQUEST)) {
-            // revocation request; try and get serial of revoked cert
-            X509CertImpl[] certs =
-                request.getExtDataInCertArray(Request.OLD_CERTS);
-            if (certs != null && certs.length > 0)
-                impl = certs[0];
+            X509CertImpl impl = request.getExtDataInCert(Request.REQUEST_ISSUED_CERT);
+            if (impl == null && requestType.equals(Request.REVOCATION_REQUEST)) {
+                // revocation request; try and get serial of revoked cert
+                X509CertImpl[] certs =
+                    request.getExtDataInCertArray(Request.OLD_CERTS);
+                if (certs != null && certs.length > 0)
+                    impl = certs[0];
+            }
+
+            if (impl != null) {
+                BigInteger serialNo = impl.getSerialNumber();
+                info.setCertId(new CertId(serialNo));
+            }
         }
 
-        if (impl == null)
-            return info;
+        Date creationTime = request.getCreationTime();
+        info.setCreationTime(creationTime);
 
-        BigInteger serialNo = impl.getSerialNumber();
-        info.setCertId(new CertId(serialNo));
+        Date modificationTime = request.getModificationTime();
+        info.setModificationTime(modificationTime);
 
         return info;
     }
