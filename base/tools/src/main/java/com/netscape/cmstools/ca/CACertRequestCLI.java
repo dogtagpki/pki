@@ -121,6 +121,9 @@ public class CACertRequestCLI extends CLI {
         if (info.getCertId() != null) {
             System.out.println("  Certificate ID: " + info.getCertId().toHexString());
         }
+
+        System.out.println("  Creation Time: " + info.getCreationTime());
+        System.out.println("  Modification Time: " + info.getModificationTime());
     }
 
     public static void printCertReviewResponse(CertReviewResponse response) {

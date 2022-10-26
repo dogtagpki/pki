@@ -621,6 +621,9 @@ public class KeyRequestDAO extends CMSRequestDAO {
             ret.setRealm(request.getRealm());
         }
 
+        ret.setCreationTime(request.getCreationTime());
+        ret.setModificationTime(request.getModificationTime());
+
         return ret;
     }
 

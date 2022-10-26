@@ -19,6 +19,8 @@ package com.netscape.certsrv.request;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Date;
+import java.util.Objects;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
@@ -48,6 +50,9 @@ public class CMSRequestInfo implements JSONSerializer {
     protected RequestStatus requestStatus;
     protected String requestURL;
     protected String realm;
+
+    protected Date creationTime;
+    protected Date modificationTime;
 
     public RequestId getRequestID() {
         return requestID;
@@ -122,16 +127,25 @@ public class CMSRequestInfo implements JSONSerializer {
         this.realm = realm;
     }
 
+    public Date getCreationTime() {
+        return creationTime;
+    }
+
+    public void setCreationTime(Date creationTime) {
+        this.creationTime = creationTime;
+    }
+
+    public Date getModificationTime() {
+        return modificationTime;
+    }
+
+    public void setModificationTime(Date modificationTime) {
+        this.modificationTime = modificationTime;
+    }
+
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((realm == null) ? 0 : realm.hashCode());
-        result = prime * result + ((requestID == null) ? 0 : requestID.hashCode());
-        result = prime * result + ((requestStatus == null) ? 0 : requestStatus.hashCode());
-        result = prime * result + ((requestType == null) ? 0 : requestType.hashCode());
-        result = prime * result + ((requestURL == null) ? 0 : requestURL.hashCode());
-        return result;
+        return Objects.hash(creationTime, modificationTime, realm, requestID, requestStatus, requestType, requestURL);
     }
 
     @Override
@@ -143,32 +157,10 @@ public class CMSRequestInfo implements JSONSerializer {
         if (getClass() != obj.getClass())
             return false;
         CMSRequestInfo other = (CMSRequestInfo) obj;
-        if (realm == null) {
-            if (other.realm != null)
-                return false;
-        } else if (!realm.equals(other.realm))
-            return false;
-        if (requestID == null) {
-            if (other.requestID != null)
-                return false;
-        } else if (!requestID.equals(other.requestID))
-            return false;
-        if (requestStatus == null) {
-            if (other.requestStatus != null)
-                return false;
-        } else if (!requestStatus.equals(other.requestStatus))
-            return false;
-        if (requestType == null) {
-            if (other.requestType != null)
-                return false;
-        } else if (!requestType.equals(other.requestType))
-            return false;
-        if (requestURL == null) {
-            if (other.requestURL != null)
-                return false;
-        } else if (!requestURL.equals(other.requestURL))
-            return false;
-        return true;
+        return Objects.equals(creationTime, other.creationTime)
+                && Objects.equals(modificationTime, other.modificationTime) && Objects.equals(realm, other.realm)
+                && Objects.equals(requestID, other.requestID) && Objects.equals(requestStatus, other.requestStatus)
+                && Objects.equals(requestType, other.requestType) && Objects.equals(requestURL, other.requestURL);
     }
 
     public void toDOM(Document document, Element infoElement) {
