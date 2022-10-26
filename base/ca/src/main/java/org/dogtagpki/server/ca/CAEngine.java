@@ -164,6 +164,7 @@ public class CAEngine extends CMSEngine {
     protected AsyncLoader loader = new AsyncLoader(10 /* 10s timeout */);
     protected boolean foundHostCA;
     protected AuthorityMonitor authorityMonitor;
+    protected boolean enableAuthorityMonitor = true;
 
     public CAEngine() {
         super("CA");
@@ -562,7 +563,7 @@ public class CAEngine extends CMSEngine {
 
     public void initAuthorityMonitor() throws Exception {
 
-        if (!haveAuthorityContainer()) {
+        if (!(enableAuthorityMonitor && haveAuthorityContainer())) {
             return;
         }
 
@@ -805,6 +806,8 @@ public class CAEngine extends CMSEngine {
         String schedulerClass = caConfig.getString("requestSchedulerClass", null);
         logger.info("CAEngine: - scheduler: " + schedulerClass);
 
+        enableAuthorityMonitor = caConfig.getBoolean("enableAuthorityMonitor", enableAuthorityMonitor);
+        logger.info("CAEngine: - enable AuthorityMonitor: " + enableAuthorityMonitor);
         requestRepository = new CertRequestRepository(dbSubsystem);
         requestRepository.init();
 
@@ -941,7 +944,7 @@ public class CAEngine extends CMSEngine {
                     false);
             return results != null;
 
-        } catch (LDAPException | ELdapException e) {
+        } catch (LDAPException e) {
             return false;
 
         } finally {
