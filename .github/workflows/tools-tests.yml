@@ -37,12 +37,12 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Cache pki-deps image
-        id: cache-pki-deps
+      - name: Cache Docker layers
+        id: cache-buildx
         uses: actions/cache@v3
         with:
-          key: pki-deps-${{ matrix.os }}-${{ hashFiles('pki.spec') }}
-          path: /tmp/cache-pki-deps
+          key: buildx-${{ matrix.os }}-${{ hashFiles('pki.spec') }}
+          path: /tmp/.buildx-cache
 
       - name: Build pki-deps image
         uses: docker/build-push-action@v3
@@ -53,8 +53,20 @@ jobs:
             COPR_REPO=${{ needs.init.outputs.repo }}
           tags: pki-deps
           target: pki-deps
-          cache-to: type=local,dest=/tmp/cache-pki-deps
-        if: steps.cache-pki-deps.outputs.cache-hit != 'true'
+          cache-to: type=local,dest=/tmp/.buildx-cache
+        if: steps.cache-buildx.outputs.cache-hit != 'true'
+
+      - name: Build pki-builder-deps image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          build-args: |
+            OS_VERSION=${{ matrix.os }}
+            COPR_REPO=${{ needs.init.outputs.repo }}
+          tags: pki-builder-deps
+          target: pki-builder-deps
+          cache-to: type=local,dest=/tmp/.buildx-cache
+        if: steps.cache-buildx.outputs.cache-hit != 'true'
 
       - name: Build builder image
         uses: docker/build-push-action@v3
@@ -65,7 +77,7 @@ jobs:
             COPR_REPO=${{ needs.init.outputs.repo }}
           tags: pki-builder
           target: pki-builder
-          cache-from: type=local,src=/tmp/cache-pki-deps
+          cache-from: type=local,src=/tmp/.buildx-cache
           outputs: type=docker,dest=pki-builder.tar
 
       - name: Store builder image
@@ -83,7 +95,7 @@ jobs:
             COPR_REPO=${{ needs.init.outputs.repo }}
           tags: pki-runner
           target: pki-runner
-          cache-from: type=local,src=/tmp/cache-pki-deps
+          cache-from: type=local,src=/tmp/.buildx-cache
           outputs: type=docker,dest=pki-runner.tar
 
       - name: Store runner image

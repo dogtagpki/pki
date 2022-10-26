@@ -38,17 +38,23 @@ RUN dnf install -y dogtag-pki \
     && rm -rf /var/cache/dnf
 
 ################################################################################
-FROM pki-deps AS pki-builder
+FROM pki-deps AS pki-builder-deps
 
 # Install build tools
 RUN dnf install -y rpm-build
 
 # Import PKI sources
-COPY . /root/pki/
+COPY pki.spec /root/pki/
 WORKDIR /root/pki
 
 # Install PKI build dependencies
 RUN dnf builddep -y --spec pki.spec
+
+################################################################################
+FROM pki-builder-deps AS pki-builder
+
+# Import PKI sources
+COPY . /root/pki/
 
 # Build and install PKI packages
 RUN ./build.sh --work-dir=build rpm
