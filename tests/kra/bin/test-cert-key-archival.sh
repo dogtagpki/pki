@@ -35,9 +35,18 @@ echo "u,u,u" > expected
 diff expected actual
 
 # https://github.com/dogtagpki/pki/wiki/Retrieving-Archived-Certificate-Key
-# Currently there's no mechanism in KRA to find the key that corresponds to
-# a cert so the test will try to find all keys in KRA instead.
-# TODO: add mechanism to find the cert's exact key
+# Currently there's no mechanism in KRA to find the key and the request that correspond
+# to a cert so the test will try to find all keys and all requests in KRA instead.
+# TODO: add mechanism to find the cert's exact key and request
+
+pki -u kraadmin -w Secret.123 kra-key-request-find | tee output
+
+REQUEST_ID=$(sed -n "s/^\s*Request ID:\s*\(\S*\)$/\1/p" output)
+echo "Request ID: $REQUEST_ID"
+
+# verify that the request ID is not empty
+[ ! -z "$REQUEST_ID" ]
+
 pki -u kraadmin -w Secret.123 kra-key-find | tee output
 
 KEY_ID=$(sed -n "s/^\s*Key ID:\s*\(\S*\)$/\1/p" output)
