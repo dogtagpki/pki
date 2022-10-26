@@ -806,8 +806,9 @@ public class CAEngine extends CMSEngine {
         String schedulerClass = caConfig.getString("requestSchedulerClass", null);
         logger.info("CAEngine: - scheduler: " + schedulerClass);
 
-        enableAuthorityMonitor = caConfig.getBoolean("enableAuthorityMonitor", enableAuthorityMonitor);
+        enableAuthorityMonitor = caConfig.getBoolean("authorityMonitor.enable", enableAuthorityMonitor);
         logger.info("CAEngine: - enable AuthorityMonitor: " + enableAuthorityMonitor);
+
         requestRepository = new CertRequestRepository(dbSubsystem);
         requestRepository.init();
 
