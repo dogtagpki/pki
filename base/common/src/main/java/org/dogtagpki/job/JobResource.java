@@ -43,5 +43,6 @@ public interface JobResource {
      * This method can only be executed by an admin or the job owner.
      */
     @POST
-    public Response startJob(String id) throws EBaseException;
+    @Path("{id}/start")
+    public Response startJob(@PathParam("id") String id) throws EBaseException;
 }
