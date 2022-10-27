@@ -77,7 +77,14 @@ public class DateMapper extends DBAttrMapper {
         }
 
         logger.debug("DateMapper: Mapping " + name + " to " + mLdapName);
-        attrs.add(new LDAPAttribute(mLdapName, dateToDB((Date) obj)));
+
+        Date value = (Date) obj;
+        logger.debug("DateMapper: - value: " + value);
+
+        String dbValue = dateToDB(value);
+        logger.debug("DateMapper: - database value: " + dbValue);
+
+        attrs.add(new LDAPAttribute(mLdapName, dbValue));
     }
 
     /**
@@ -91,8 +98,16 @@ public class DateMapper extends DBAttrMapper {
 
         if (attr == null)
             return;
-        parent.set(name, dateFromDB(
-                attr.getStringValues().nextElement()));
+
+        logger.debug("DateMapper: Mapping " + mLdapName + " to " + name);
+
+        String dbValue = attr.getStringValues().nextElement();
+        logger.debug("DateMapper: - database value: " + dbValue);
+
+        Date value = dateFromDB(dbValue);
+        logger.debug("DateMapper: - value: " + value);
+
+        parent.set(name, value);
     }
 
     /**
