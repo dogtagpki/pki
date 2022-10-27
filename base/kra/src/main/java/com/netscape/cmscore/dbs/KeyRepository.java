@@ -73,7 +73,7 @@ public class KeyRepository extends Repository {
             setIDGenerator(value);
         }
 
-        if (idGenerator == RANDOM) {
+        if (idGenerator == IDGenerator.RANDOM) {
 
             idLength = dbConfig.getInteger(PROP_KEY_ID_LENGTH);
             logger.info("KeyRepository: - key ID length: " + idLength);

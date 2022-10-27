@@ -24,9 +24,9 @@ import java.util.Hashtable;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.dbs.DBVirtualList;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.certsrv.dbs.DBVirtualList;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.request.IRequestVirtualList;
@@ -88,7 +88,7 @@ public class RequestRepository extends Repository {
             setIDGenerator(value);
         }
 
-        if (idGenerator == RANDOM) {
+        if (idGenerator == IDGenerator.RANDOM) {
 
             idLength = dbConfig.getInteger(PROP_REQUEST_ID_LENGTH);
             logger.debug("RequestRepository: - request ID length: " + idLength);
