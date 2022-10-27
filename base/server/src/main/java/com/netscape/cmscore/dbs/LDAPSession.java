@@ -20,11 +20,11 @@ package com.netscape.cmscore.dbs;
 import java.util.Enumeration;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.DBVirtualList;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.EDBNotAvailException;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.certsrv.dbs.DBVirtualList;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.cmscore.apps.CMS;
@@ -306,12 +306,11 @@ public class LDAPSession extends DBSSession {
     public DBSearchResults search(String base, String filter, int maxSize)
             throws EBaseException {
 
-        logger.info("LDAPSession: Searching " + base + " for " + filter);
-
         try {
+            String ldapfilter = dbSubsystem.getRegistry().getFilter(filter);
+            logger.info("LDAPSession: Searching " + base + " for " + ldapfilter);
+
             String ldapattrs[] = null;
-            String ldapfilter =
-                    dbSubsystem.getRegistry().getFilter(filter);
 
             LDAPSearchConstraints cons = new LDAPSearchConstraints();
 
@@ -336,12 +335,11 @@ public class LDAPSession extends DBSSession {
     public DBSearchResults search(String base, String filter, int maxSize,String sortAttribute)
             throws EBaseException {
 
-        logger.info("LDAPSession: Searching " + base + " for " + filter);
-
         try {
+            String ldapfilter = dbSubsystem.getRegistry().getFilter(filter);
+            logger.info("LDAPSession: Searching " + base + " for " + ldapfilter);
+
             String ldapattrs[] = null;
-            String ldapfilter =
-                    dbSubsystem.getRegistry().getFilter(filter);
 
             LDAPSearchConstraints cons = new LDAPSearchConstraints();
 
@@ -372,12 +370,11 @@ public class LDAPSession extends DBSSession {
     public DBSearchResults search(String base, String filter, int maxSize, int timeLimit)
             throws EBaseException {
 
-        logger.info("LDAPSession: Searching " + base + " for " + filter);
-
         try {
+            String ldapfilter = dbSubsystem.getRegistry().getFilter(filter);
+            logger.info("LDAPSession: Searching " + base + " for " + ldapfilter);
+
             String ldapattrs[] = null;
-            String ldapfilter =
-                    dbSubsystem.getRegistry().getFilter(filter);
 
             LDAPSearchConstraints cons = new LDAPSearchConstraints();
 
@@ -403,12 +400,11 @@ public class LDAPSession extends DBSSession {
     public DBSearchResults search(String base, String filter, int maxSize,
             int timeLimit, String sortAttribute) throws EBaseException {
 
-        logger.info("LDAPSession: Searching " + base + " for " + filter);
-
         try {
+            String ldapfilter = dbSubsystem.getRegistry().getFilter(filter);
+            logger.info("LDAPSession: Searching " + base + " for " + ldapfilter);
+
             String ldapattrs[] = null;
-            String ldapfilter =
-                    dbSubsystem.getRegistry().getFilter(filter);
 
             LDAPSearchConstraints cons = new LDAPSearchConstraints();
 
@@ -445,17 +441,14 @@ public class LDAPSession extends DBSSession {
     public DBSearchResults search(String base, String filter,
             String attrs[]) throws EBaseException {
 
-        logger.info("LDAPSession: Searching " + base + " for " + filter);
-
         try {
-            String ldapattrs[] = null;
+            String ldapfilter = dbSubsystem.getRegistry().getFilter(filter);
+            logger.info("LDAPSession: Searching " + base + " for " + ldapfilter);
 
+            String ldapattrs[] = null;
             if (attrs != null) {
-                ldapattrs = dbSubsystem.getRegistry(
-                        ).getLDAPAttributes(attrs);
+                ldapattrs = dbSubsystem.getRegistry().getLDAPAttributes(attrs);
             }
-            String ldapfilter =
-                    dbSubsystem.getRegistry().getFilter(filter);
 
             /*LogDoc
              *
@@ -485,16 +478,15 @@ public class LDAPSession extends DBSSession {
     public LDAPSearchResults persistentSearch(String base, String filter, String attrs[])
             throws EBaseException {
 
-        logger.info("LDAPSession: Searching " + base + " for " + filter);
-
         try {
+            String ldapfilter = dbSubsystem.getRegistry().getFilter(filter);
+            logger.info("LDAPSession: Searching " + base + " for " + ldapfilter);
+
             String ldapattrs[] = null;
             if (attrs != null) {
                 ldapattrs = dbSubsystem.getRegistry(
                         ).getLDAPAttributes(attrs);
             }
-            String ldapfilter =
-                    dbSubsystem.getRegistry().getFilter(filter);
 
             Integer version = (Integer) (mConn.getOption(LDAPv3.PROTOCOL_VERSION));
 
