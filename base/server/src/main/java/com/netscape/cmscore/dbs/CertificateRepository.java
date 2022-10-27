@@ -117,7 +117,7 @@ public class CertificateRepository extends Repository {
             setIDGenerator(value);
         }
 
-        if (idGenerator == RANDOM) {
+        if (idGenerator == IDGenerator.RANDOM) {
 
             idLength = mDBConfig.getInteger(PROP_CERT_ID_LENGTH);
             logger.debug("CertificateRepository: - cert ID length: " + idLength);
@@ -331,7 +331,7 @@ public class CertificateRepository extends Repository {
     public synchronized BigInteger getNextSerialNumber()
             throws EBaseException {
 
-        if (idGenerator == RANDOM) {
+        if (idGenerator == IDGenerator.RANDOM) {
             return super.getNextSerialNumber();
         }
 
@@ -405,7 +405,7 @@ public class CertificateRepository extends Repository {
 
     public void updateCounter() {
 
-        if (idGenerator == RANDOM) {
+        if (idGenerator == IDGenerator.RANDOM) {
             return;
         }
 

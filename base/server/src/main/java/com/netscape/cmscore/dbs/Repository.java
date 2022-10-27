@@ -50,8 +50,28 @@ public abstract class Repository {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Repository.class);
 
-    public static final int LEGACY = 0;
-    public static final int RANDOM = 1;
+    public enum IDGenerator {
+        LEGACY("legacy"),
+        RANDOM("random");
+
+        private String name;
+
+        private IDGenerator(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
+
+        public static IDGenerator fromString(String name) {
+            for (IDGenerator idGenerator : values()) {
+                if (idGenerator.name.equals(name)) return idGenerator;
+            }
+            throw new IllegalArgumentException("Invalid ID generator: " + name);
+        }
+    }
 
     // (the next serialNo to be issued) - 1
     private BigInteger mSerialNo = null;
@@ -82,7 +102,7 @@ public abstract class Repository {
 
     private BigInteger mLastSerialNo = null;
 
-    protected int idGenerator;
+    protected IDGenerator idGenerator = IDGenerator.LEGACY;
     protected int idLength;
 
     protected SecureRandom secureRandom;
@@ -168,20 +188,16 @@ public abstract class Repository {
         mLastSerialNo = lastSN;
     }
 
-    public int getIDGenerator() throws Exception {
+    public IDGenerator getIDGenerator() {
         return idGenerator;
     }
 
-    protected void setIDGenerator(String generator) throws Exception {
-        if ("random".equals(generator)) {
-            idGenerator = RANDOM;
+    protected void setIDGenerator(IDGenerator idGenerator) {
+        this.idGenerator = idGenerator;
+    }
 
-        } else if ("legacy".equals(generator)) {
-            idGenerator = LEGACY;
-
-        } else {
-            throw new Exception("Invalid ID generator: " + generator);
-        }
+    protected void setIDGenerator(String idGenerator) {
+        this.idGenerator = IDGenerator.fromString(idGenerator);
     }
 
     /**
@@ -189,7 +205,7 @@ public abstract class Repository {
      */
     protected void initCache() throws EBaseException {
 
-        if (idGenerator == RANDOM) {
+        if (idGenerator == IDGenerator.RANDOM) {
             return;
         }
 
@@ -291,7 +307,7 @@ public abstract class Repository {
     public synchronized BigInteger getNextSerialNumber() throws
             EBaseException {
 
-        if (idGenerator == RANDOM) {
+        if (idGenerator == IDGenerator.RANDOM) {
 
             logger.debug("Repository: Generating random serial number");
 
@@ -630,7 +646,7 @@ public abstract class Repository {
      */
     public void checkRanges() throws EBaseException {
 
-        if (idGenerator == RANDOM) {
+        if (idGenerator == IDGenerator.RANDOM) {
             return;
         }
 

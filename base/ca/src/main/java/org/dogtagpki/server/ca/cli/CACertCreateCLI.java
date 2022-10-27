@@ -53,7 +53,7 @@ import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.FileConfigStorage;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.DBSubsystem;
-import com.netscape.cmscore.dbs.Repository;
+import com.netscape.cmscore.dbs.Repository.IDGenerator;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.request.CertRequestRepository;
@@ -285,7 +285,7 @@ public class CACertCreateCLI extends CommandCLI {
             BigInteger serialNumber;
 
             if (serial == null) {
-                if (certificateRepository.getIDGenerator() != Repository.RANDOM) {
+                if (certificateRepository.getIDGenerator() != IDGenerator.RANDOM) {
                     throw new CLIException("Unable to generate random certificate ID");
                 }
                 serialNumber = certificateRepository.getNextSerialNumber();

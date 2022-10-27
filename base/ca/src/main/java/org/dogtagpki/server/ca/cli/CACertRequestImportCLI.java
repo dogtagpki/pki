@@ -31,7 +31,7 @@ import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.FileConfigStorage;
 import com.netscape.cmscore.dbs.DBSubsystem;
-import com.netscape.cmscore.dbs.Repository;
+import com.netscape.cmscore.dbs.Repository.IDGenerator;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.request.CertRequestRepository;
@@ -186,7 +186,7 @@ public class CACertRequestImportCLI extends CommandCLI {
             requestRepository.init();
 
             if (requestID == null) {
-                if (requestRepository.getIDGenerator() != Repository.RANDOM) {
+                if (requestRepository.getIDGenerator() != IDGenerator.RANDOM) {
                     throw new Exception("Unable to generate random request ID");
                 }
                 requestID = requestRepository.createRequestID();
