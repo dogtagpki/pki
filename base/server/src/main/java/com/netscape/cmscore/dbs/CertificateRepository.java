@@ -33,8 +33,8 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.DBVirtualList;
+import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.certdb.CertId;
@@ -773,13 +773,11 @@ public class CertificateRepository extends Repository {
         }
     }
 
-    public void updateStatus(Vector<BigInteger> list, String status) throws EBaseException {
-
-        logger.debug("transitCertList " + status);
+    public void updateStatus(Vector<CertId> list, String status) throws EBaseException {
 
         for (int i = 0; i < list.size(); i++) {
-            BigInteger serialNumber = list.elementAt(i);
-            updateStatus(serialNumber, status);
+            CertId certID = list.elementAt(i);
+            updateStatus(certID, status);
         }
     }
 
@@ -1004,14 +1002,14 @@ public class CertificateRepository extends Repository {
      * @param status certificate status
      * @exception EBaseException failed to update status
      */
-    public void updateStatus(BigInteger id, String status) throws EBaseException {
+    public void updateStatus(CertId id, String status) throws EBaseException {
 
-        logger.debug("CertificateRepository: Updating the status of cert " + id + " to " + status);
+        logger.info("CertificateRepository: Updating cert " + id.toHexString() + " status to " + status);
 
         ModificationSet mods = new ModificationSet();
         mods.add(CertRecord.ATTR_CERT_STATUS, Modification.MOD_REPLACE, status);
 
-        modifyCertificateRecord(id, mods);
+        modifyCertificateRecord(id.toBigInteger(), mods);
     }
 
     /**
