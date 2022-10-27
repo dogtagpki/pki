@@ -1256,6 +1256,7 @@ public class CRSEnrollment extends HttpServlet {
         KeyWrapper kw;
         Cipher cip;
         EncryptionAlgorithm ea;
+        boolean padding = false;
 
         // Unwrap the session key with the Cert server key
         try {
@@ -1263,6 +1264,7 @@ public class CRSEnrollment extends HttpServlet {
             AlgorithmParameterSpec keyWrapConfig = null;
             if(mUseOAEPKeyWrap) {
                 keyWrapConfig = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT);
+                padding = true;
             }
             kw.initUnwrap(cx.getPrivateKey(), keyWrapConfig);
 
@@ -1284,7 +1286,7 @@ public class CRSEnrollment extends HttpServlet {
             sk = kw.unwrapSymmetric(req.getWrappedKey(),
                               skt,
                               SymmetricKey.Usage.DECRYPT,
-                              ea.getKeyStrength() / 8);
+                              padding ? ea.getKeyStrength() / 8 : 0);
 
             skinternal = cx.getKeyGenerator().clone(sk);
 
