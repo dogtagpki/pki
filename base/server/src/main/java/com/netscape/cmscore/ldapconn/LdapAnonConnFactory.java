@@ -201,7 +201,9 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
         logger.debug("LdapAnonConnFactory: secure: " + mConnInfo.getSecure());
 
         // initalize minimum number of connection handles available.
-        makeMinimum(mErrorIfDown);
+        if (mMinConns > 0) {
+            makeMinimum(mErrorIfDown);
+        }
         mInited = true;
     }
 
@@ -209,10 +211,10 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
      * make the mininum configured connections
      */
     protected void makeMinimum(boolean errorIfDown) throws ELdapException {
-
+        int realMin = Math.max(mMinConns, 1);
         try {
-            if (mNumConns < mMinConns && mTotal < mMaxConns) {
-                int increment = Math.min(mMinConns - mNumConns, mMaxConns - mTotal);
+            if (mNumConns < realMin && mTotal < mMaxConns) {
+                int increment = Math.min(realMin - mNumConns, mMaxConns - mTotal);
                 logger.debug("LdapAnonConnFactory: increasing minimum connections by " + increment);
 
                 PKISocketFactory socketFactory = new PKISocketFactory(mConnInfo.getSecure());
@@ -302,60 +304,54 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
      */
     public synchronized LDAPConnection getConn(boolean waitForConn)
             throws ELdapException {
-        boolean waited = false;
+        AnonConnection conn = null;
+        String method = "LdapAnonConnFactory (" + id + ").getConn: ";
+        logger.debug(method + "initial values. Total: " + mTotal + ", pool: " + mNumConns);
 
         logger.debug("LdapAnonConnFactory: getting a connection");
-
-        if (mNumConns == 0)
-            makeMinimum(true);
-
         if (mNumConns == 0) {
-            if (!waitForConn)
-                return null;
-            try {
+            makeMinimum(true);
+        }
+
+        while (mNumConns == 0) {
+            logger.warn("LdapAnonConnFactory: waiting connections for " + mConnInfo.getHost() + ":" + mConnInfo.getPort());
+            if (!waitForConn) {
                 logger.warn("LdapAnonConnFactory: out of LDAP connections");
-                waited = true;
-                while (mNumConns == 0) {
-                    wait();
-                }
+                return null;
+            }
+            try {
+                wait();
             } catch (InterruptedException e) {
+                logger.warn("LdapAnonConnFactory: connection wait interrupted");
+                return null;
+            }
+            if (mMinConns == 0) {
+                makeMinimum(true);
             }
         }
 
         mNumConns--;
-        AnonConnection conn = mConns[mNumConns];
+        conn = mConns[mNumConns];
 
         mConns[mNumConns] = null;
-        if (waited) {
-            logger.warn("LdapAnonConnFactory: connections are available for " + mConnInfo.getHost() + ":" + mConnInfo.getPort());
-        }
         logger.debug("LdapAnonConnFactory: number of connections: " + mNumConns);
 
-        //Beginning of fix for Bugzilla #630176
-        boolean isConnected = false;
-        if (conn != null) {
-            isConnected = conn.isConnected();
-        }
 
-        if (!isConnected) {
+        if (conn == null || !conn.isConnected()) {
             logger.debug("LdapAnonConnFactory: reestablishing connection");
 
             conn = null;
             try {
                 PKISocketFactory socketFactory = new PKISocketFactory(mConnInfo.getSecure());
                 socketFactory.init(config);
-
                 conn = new AnonConnection(socketFactory, mConnInfo);
-
             } catch (LDAPException e) {
+                mTotal--;
                 String message = "Unable to reestablish LDAP connection: " + e.getMessage();
                 logger.error("LdapAnonConnFactory: " + message, e);
-
                 throw new ELdapException(message, e);
             }
         }
-        //This is the end of the fix for Bugzilla #630176
-
         try {
             // Before returning the connection, set the SIZELIMIT option; this
             // ensures that if the connection is recycled and the previous owner
@@ -365,7 +361,7 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
         } catch (LDAPException e) {
             throw new ELdapException("Unable to set LDAP size limit: " + e.getMessage(), e);
         }
-
+        logger.debug(method + " final values. Total: " + mTotal + ", pool: " + mNumConns);
         return conn;
     }
 
@@ -390,6 +386,9 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
      */
     @Override
     public synchronized void returnConn(LDAPConnection conn) {
+        String method = "LdapAnonConnFactory (" + id + ").returnConn: ";
+        logger.debug(method + "initial values. Total: " + mTotal + ", pool: " + mNumConns);
+
         if (conn == null) {
             return;
         }
@@ -410,25 +409,38 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
         for (int i = 0; i < mNumConns; i++) {
             if (mConns[i] == anon) {
                 logger.warn("LdapAnonConnFactory: Connection already returned");
+                --mTotal;
+                notifyAll();
+                return;
             }
         }
 
-        // this returned connection might authenticate as someone other than
-        // anonymonus. Reset it to anonymous first before it returns
-        // to the pool.  Do this by calling connect() again on this connection
-        // to avoid doing an explicit anonymous bind
-        try {
-            anon.connect(mConnInfo.getHost(), mConnInfo.getPort());
-        } catch (LDAPException e) {
-            logger.warn("LdapAnonConnFactory: Unable to reauthenticate as anonymous");
-        }
+        if(mNumConns < mMinConns) {
+            // this returned connection might authenticate as someone other than
+            // anonymonus. Reset it to anonymous first before it returns
+            // to the pool.  Do this by calling connect() again on this connection
+            // to avoid doing an explicit anonymous bind
+            try {
+                anon.connect(mConnInfo.getHost(), mConnInfo.getPort());
+            } catch (LDAPException e) {
+                logger.warn("LdapAnonConnFactory: Unable to reauthenticate as anonymous");
+            }
 
-        // return the connection even if can't reauthentication anon.
-        // most likely server was down.
-        mConns[mNumConns++] = anon;
+            // return the connection even if can't reauthentication anon.
+            // most likely server was down.
+            mConns[mNumConns++] = anon;
+        } else {
+            try {
+                anon.disconnect();
+            } catch (LDAPException e) {
+                logger.warn("LdapAnonConnFactory: Unable to disconnect: " + e.getMessage(), e);
+            }
+            --mTotal;
+        }
         logger.debug("LdapAnonConnFactory: number of connections: " + mNumConns);
 
-        notify();
+        notifyAll();
+        logger.debug(method + " final values. Total: " + mTotal + ", pool: " + mNumConns);
     }
 
     @Override
@@ -466,6 +478,7 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
             }
             mTotal = 0;
             mNumConns = 0;
+            mConns = new AnonConnection[mMaxConns];
         } else {
             String message = "Unable to reset LDAP connection factory due to outstanding connections";
             logger.error("LdapAnonConnFactory: " + message);

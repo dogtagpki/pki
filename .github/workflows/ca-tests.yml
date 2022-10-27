@@ -173,6 +173,15 @@ jobs:
     with:
       os: ${{ matrix.os }}
 
+  ca-ds-connection-test:
+    name: CA connection with DS
+    needs: [init, build]
+    strategy:
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    uses: ./.github/workflows/ca-ds-connection-test.yml
+    with:
+      os: ${{ matrix.os }}
+
   subca-basic-test:
     name: Basic Sub-CA
     needs: [init, build]

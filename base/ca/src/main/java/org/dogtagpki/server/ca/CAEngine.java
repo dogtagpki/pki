@@ -164,6 +164,7 @@ public class CAEngine extends CMSEngine {
     protected AsyncLoader loader = new AsyncLoader(10 /* 10s timeout */);
     protected boolean foundHostCA;
     protected AuthorityMonitor authorityMonitor;
+    protected boolean enableAuthorityMonitor = true;
 
     public CAEngine() {
         super("CA");
@@ -562,7 +563,7 @@ public class CAEngine extends CMSEngine {
 
     public void initAuthorityMonitor() throws Exception {
 
-        if (!haveAuthorityContainer()) {
+        if (!(enableAuthorityMonitor && haveAuthorityContainer())) {
             return;
         }
 
@@ -805,6 +806,9 @@ public class CAEngine extends CMSEngine {
         String schedulerClass = caConfig.getString("requestSchedulerClass", null);
         logger.info("CAEngine: - scheduler: " + schedulerClass);
 
+        enableAuthorityMonitor = caConfig.getBoolean("authorityMonitor.enable", enableAuthorityMonitor);
+        logger.info("CAEngine: - enable AuthorityMonitor: " + enableAuthorityMonitor);
+
         requestRepository = new CertRequestRepository(dbSubsystem);
         requestRepository.init();
 
@@ -929,9 +933,10 @@ public class CAEngine extends CMSEngine {
 
     public boolean haveAuthorityContainer() throws EBaseException {
 
-        LDAPConnection conn = connectionFactory.getConn();
+        LDAPConnection conn = null;
 
         try {
+            conn = connectionFactory.getConn(true);
             LDAPSearchResults results = conn.search(
                     getAuthorityBaseDN(),
                     LDAPConnection.SCOPE_BASE,

@@ -250,7 +250,7 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
                     log("Unable to close socket: " + e1.getMessage(), e1);
                 }
             }
-            throw new LDAPException(message);
+            throw new LDAPException(message, LDAPException.UNAVAILABLE);
         }
 
         return s;
