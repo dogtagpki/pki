@@ -313,43 +313,34 @@ public class FlatFileAuth
     }
 
     private String writeFile(String key) {
-        BufferedReader reader = null;
-        BufferedWriter writer = null;
-        String name = null;
-        boolean commentOutNextLine = false;
-        boolean done = false;
-        String line = null;
-        try {
-            reader = new BufferedReader(new FileReader(mFilename));
-            name = mFilename + "." + mDateFormat.format(new Date()) + "~";
-            writer = new BufferedWriter(new FileWriter(name));
-            if (reader != null && writer != null) {
-                while ((line = reader.readLine()) != null) {
-                    if (commentOutNextLine) {
-                        writer.write("#");
-                        commentOutNextLine = false;
-                    }
-                    if (line.indexOf(key) > -1) {
-                        writer.write("#");
-                        commentOutNextLine = true;
-                    }
-                    writer.write(line);
-                    writer.newLine();
-                }
-                done = true;
-            }
-        } catch (Exception e) {
-            logger.warn("FlatFileAuth: " + CMS.getLogMessage("FILE_ERROR", e.getMessage()), e);
-        }
 
-        try {
-            if (reader != null) {
-                reader.close();
+        String name = mFilename + "." + mDateFormat.format(new Date()) + "~";
+        boolean done = false;
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(mFilename));
+                BufferedWriter writer = new BufferedWriter(new FileWriter(name))) {
+
+            boolean commentOutNextLine = false;
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+
+                if (commentOutNextLine) {
+                    writer.write("#");
+                    commentOutNextLine = false;
+                }
+
+                if (line.indexOf(key) > -1) {
+                    writer.write("#");
+                    commentOutNextLine = true;
+                }
+
+                writer.write(line);
+                writer.newLine();
             }
-            if (writer != null) {
-                writer.flush();
-                writer.close();
-            }
+
+            done = true;
+
         } catch (Exception e) {
             logger.warn("FlatFileAuth: " + CMS.getLogMessage("FILE_ERROR", e.getMessage()), e);
         }
@@ -398,51 +389,54 @@ public class FlatFileAuth
      */
     protected Hashtable<String, Hashtable<String, String>> readFile(File f, String[] keys)
             throws IOException {
-        logger.debug("FlatFileAuth: Reading file: " + f.getName());
-        BufferedReader file = new BufferedReader(new FileReader(f));
 
-        String line;
+        logger.debug("FlatFileAuth: Reading file: " + f.getName());
+
         Hashtable<String, Hashtable<String, String>> allusers = new Hashtable<>();
         Hashtable<String, String> entry = null;
-        int linenum = 0;
 
-        while ((line = file.readLine()) != null) {
-            linenum++;
-            line = line.trim();
-            if (line.length() > 0 && line.charAt(0) == '#') {
-                continue;
-            }
-            int colon = line.indexOf(':');
+        try (BufferedReader file = new BufferedReader(new FileReader(f))) {
 
-            if (entry == null) {
-                entry = new Hashtable<>();
-            }
+            int linenum = 0;
+            String line;
 
-            if (colon == -1) { // no colon -> empty line signifies end of record
-                if (!line.trim().equals("")) {
-                    if (file != null) {
-                        file.close();
+            while ((line = file.readLine()) != null) {
+
+                linenum++;
+                line = line.trim();
+
+                if (line.length() > 0 && line.charAt(0) == '#') {
+                    continue;
+                }
+
+                if (entry == null) {
+                    entry = new Hashtable<>();
+                }
+
+                int colon = line.indexOf(':');
+                if (colon == -1) { // no colon -> empty line signifies end of record
+
+                    if (!line.trim().equals("")) {
+                        throw new IOException(FFAUTH + ": Parsing error, " +
+                                "colon missing from line " + linenum + " of " + f.getName());
                     }
-                    throw new IOException(FFAUTH + ": Parsing error, " +
-                            "colon missing from line " + linenum + " of " + f.getName());
+
+                    if (entry.size() > 0) {
+                        putEntry(allusers, entry, keys);
+                        entry = null;
+                    }
+
+                    continue;
                 }
-                if (entry.size() > 0) {
-                    putEntry(allusers, entry, keys);
-                    entry = null;
-                }
-                continue;
+
+                String attr = line.substring(0, colon).trim();
+                String val = line.substring(colon + 1).trim();
+
+                entry.put(attr, val);
             }
-
-            String attr = line.substring(0, colon).trim();
-            String val = line.substring(colon + 1).trim();
-
-            entry.put(attr, val);
         }
 
         putEntry(allusers, entry, keys);
-        if (file != null) {
-            file.close();
-        }
         return allusers;
     }
 
