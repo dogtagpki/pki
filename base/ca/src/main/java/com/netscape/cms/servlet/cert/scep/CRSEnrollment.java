@@ -2137,11 +2137,10 @@ public class CRSEnrollment extends HttpServlet {
                 INTEGER modulus = (INTEGER) pubKeySeq.elementAt(0);
                 signingCertKeySize = modulus.bitLength();
 
-                try {
-                    FileOutputStream fos = new FileOutputStream("pubkey.der");
+                try (FileOutputStream fos = new FileOutputStream("pubkey.der")) {
                     fos.write(signingCert.getPublicKey().getEncoded());
-                    fos.close();
                 } catch (Exception e) {
+                    logger.warn("Unable to store public key: " + e.getMessage(), e);
                 }
 
             } catch (InvalidBERException e) {
