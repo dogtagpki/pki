@@ -34,6 +34,7 @@ import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ca.ECAException;
+import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.ElementProcessor;
@@ -217,6 +218,8 @@ public class CertRecordProcessor extends ElementProcessor {
             CertRecord certRecord = (CertRecord) o;
 
             BigInteger serialNumber = certRecord.getSerialNumber();
+            CertId certID = new CertId(serialNumber);
+
             Date revocationDate = certRecord.getRevocationDate();
             RevocationInfo revInfo = certRecord.getRevocationInfo();
 
@@ -233,8 +236,8 @@ public class CertRecordProcessor extends ElementProcessor {
             boolean includeCert = checkRevokedCertExtensions(crlExts);
 
             if (includeCert == true) {
+                logger.info("CertRecordProcessor: Adding cert " + certID.toHexString() + " into CRL");
                 crlCerts.put(serialNumber, newRevokedCert);
-                logger.debug("Putting certificate serial: 0x" + serialNumber.toString(16) + " into CRL hashtable");
             }
 
         } catch (EBaseException e) {
