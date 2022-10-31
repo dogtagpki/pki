@@ -147,6 +147,7 @@ public class CRLRepository extends Repository {
 
         try {
             String name = mLdapCRLIssuingPointName + "=" + rec.getId() + "," + mBaseDN;
+            logger.info("CRLRepository: Adding " + name);
 
             s.add(name, rec);
         } finally {
@@ -199,6 +200,8 @@ public class CRLRepository extends Repository {
             s = dbSubsystem.createSession();
 
             String name = mLdapCRLIssuingPointName + "=" + id + "," + mBaseDN;
+            logger.info("CRLRepository: Reading " + name);
+
             rec = (CRLIssuingPointRecord) s.read(name);
 
         } finally {
@@ -221,6 +224,7 @@ public class CRLRepository extends Repository {
         try {
             s = dbSubsystem.createSession();
             String name = mLdapCRLIssuingPointName + "=" + id + "," + mBaseDN;
+            logger.info("CRLRepository: Deleting " + name);
 
             if (s != null)
                 s.delete(name);
@@ -243,6 +247,7 @@ public class CRLRepository extends Repository {
 
         try {
             String name = mLdapCRLIssuingPointName + "=" + id + "," + mBaseDN;
+            logger.info("CRLRepository: Modifying " + name);
 
             if (s != null)
                 s.modify(name, mods);
