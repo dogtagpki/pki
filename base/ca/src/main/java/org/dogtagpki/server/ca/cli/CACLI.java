@@ -21,7 +21,6 @@ package org.dogtagpki.server.ca.cli;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.server.cli.SDCLI;
 import org.dogtagpki.server.cli.SubsystemGroupCLI;
-import org.dogtagpki.server.cli.SubsystemRangeCLI;
 import org.dogtagpki.server.cli.SubsystemUserCLI;
 
 /**
@@ -36,7 +35,7 @@ public class CACLI extends CLI {
         addModule(new CADBCLI(this));
         addModule(new SubsystemGroupCLI(this));
         addModule(new CAProfileCLI(this));
-        addModule(new SubsystemRangeCLI(this));
+        addModule(new CARangeCLI(this));
         addModule(new SubsystemUserCLI(this));
         addModule(new SDCLI(this));
     }
