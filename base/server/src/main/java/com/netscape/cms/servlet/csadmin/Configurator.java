@@ -317,7 +317,7 @@ public class Configurator {
         logger.error("Configurator.createRSAKeyPair: tag " + tag);
         KeyPair pair = null;
         do {
-            if("transport".equals(tag) || "storage".equals(tag)) {
+            if("transport".equals(tag) || "storage".equals(tag) || "subsystem".equals(tag)) {
                 pair = CryptoUtil.generateRSAKeyPair(token,size,
                                 CryptoUtil.RSA_KEYPAIR_USAGES,
                                 CryptoUtil.RSA_KEYPAIR_USAGES_MASK);
