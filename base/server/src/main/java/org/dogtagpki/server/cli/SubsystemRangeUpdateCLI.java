@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.dbs.Repository.IDGenerator;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
@@ -22,6 +23,7 @@ import com.netscape.cmscore.ldapconn.LdapBoundConnection;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
+import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmsutil.password.IPasswordStore;
 import com.netscape.cmsutil.password.PasswordStoreConfig;
 
@@ -33,7 +35,7 @@ import netscape.ldap.LDAPModification;
  */
 public class SubsystemRangeUpdateCLI extends SubsystemCLI {
 
-    public static Logger logger = LoggerFactory.getLogger(SubsystemRangeUpdateCLI.class);
+    public static final Logger logger = LoggerFactory.getLogger(SubsystemRangeUpdateCLI.class);
 
     public SubsystemRangeUpdateCLI(CLI parent) {
         super("update", "Update " + parent.getParent().getName().toUpperCase() + " ranges", parent);
@@ -107,8 +109,6 @@ public class SubsystemRangeUpdateCLI extends SubsystemCLI {
         LdapBoundConnection conn = new LdapBoundConnection(socketFactory, connInfo, authInfo);
 
         try {
-            logger.info("Updating serial number range");
-
             BigInteger endSerialNumber = new BigInteger(dbConfig.getEndSerialNumber());
             BigInteger nextSerialNumber = endSerialNumber.add(BigInteger.ONE);
 
@@ -130,10 +130,20 @@ public class SubsystemRangeUpdateCLI extends SubsystemCLI {
             DatabaseConfig dbConfig,
             String baseDN) throws Exception {
 
+        String value = dbConfig.getString(
+                RequestRepository.PROP_REQUEST_ID_GENERATOR,
+                RequestRepository.DEFAULT_REQUEST_ID_GENERATOR);
+        IDGenerator idGenerator = IDGenerator.fromString(value);
+
+        if (idGenerator != IDGenerator.LEGACY) {
+            logger.info("No need to update request ID range");
+            return;
+        }
+
         LdapBoundConnection conn = new LdapBoundConnection(socketFactory, connInfo, authInfo);
 
         try {
-            logger.info("Updating request number range");
+            logger.info("Updating request ID range");
 
             BigInteger endRequestNumber = new BigInteger(dbConfig.getEndRequestNumber());
             BigInteger nextRequestNumber = endRequestNumber.add(BigInteger.ONE);
