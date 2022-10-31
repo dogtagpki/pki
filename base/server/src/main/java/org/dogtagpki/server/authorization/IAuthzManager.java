@@ -28,7 +28,6 @@ import com.netscape.certsrv.authorization.EAuthzInternalError;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.evaluators.IAccessEvaluator;
 import com.netscape.cms.authorization.ACL;
-import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * Authorization Manager interface needs to be implemented by all
@@ -129,7 +128,7 @@ public interface IAuthzManager {
      *
      * @return The configuration store of this authorization manager.
      */
-    public ConfigStore getConfigStore();
+    public AuthzManagerConfig getConfigStore();
 
     /**
      * Get ACL entries

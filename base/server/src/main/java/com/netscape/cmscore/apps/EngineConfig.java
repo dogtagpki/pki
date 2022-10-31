@@ -93,6 +93,9 @@ public class EngineConfig extends ConfigStore {
         return getSubStore("auths", AuthenticationConfig.class);
     }
 
+    /**
+     * Returns authz.* parameters.
+     */
     public AuthorizationConfig getAuthorizationConfig() {
         return getSubStore("authz", AuthorizationConfig.class);
     }

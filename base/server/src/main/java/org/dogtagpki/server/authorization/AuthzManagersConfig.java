@@ -9,6 +9,9 @@ import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
 
+/**
+ * Provides authz.instance.* parameters.
+ */
 public class AuthzManagersConfig extends ConfigStore {
 
     public AuthzManagersConfig(ConfigStorage storage) {
@@ -19,6 +22,9 @@ public class AuthzManagersConfig extends ConfigStore {
         super(name, source);
     }
 
+    /**
+     * Returns authz.instance.<name>.* parameters.
+     */
     public AuthzManagerConfig getAuthzManagerConfig(String name) {
         return getSubStore(name, AuthzManagerConfig.class);
     }

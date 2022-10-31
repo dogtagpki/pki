@@ -59,8 +59,6 @@ public class AuthzSubsystem implements ISubsystem {
 
     public final static String PROP_CLASS = "class";
     public final static String PROP_IMPL = "impl";
-    public final static String PROP_PLUGIN = "pluginName";
-    public final static String PROP_REALM = "realm";
 
     public Hashtable<String, AuthzMgrPlugin> mAuthzMgrPlugins = new Hashtable<>();
     public Hashtable<String, AuthzManagerProxy> mAuthzMgrInsts = new Hashtable<>();
@@ -120,7 +118,7 @@ public class AuthzSubsystem implements ISubsystem {
                 String insName = instances.nextElement();
 
                 AuthzManagerConfig authzMgrConfig = instancesConfig.getAuthzManagerConfig(insName);
-                String implName = authzMgrConfig.getString(PROP_PLUGIN);
+                String implName = authzMgrConfig.getPluginName();
                 AuthzMgrPlugin plugin =
                         mAuthzMgrPlugins.get(implName);
 
@@ -513,10 +511,10 @@ public class AuthzSubsystem implements ISubsystem {
         for (AuthzManagerProxy proxy : mAuthzMgrInsts.values()) {
             IAuthzManager mgr = proxy.getAuthzManager();
             if (mgr != null) {
-                ConfigStore cfg = mgr.getConfigStore();
+                AuthzManagerConfig cfg = mgr.getConfigStore();
                 String mgrRealmString = null;
                 try {
-                    mgrRealmString = cfg.getString(PROP_REALM, null);
+                    mgrRealmString = cfg.getRealmName();
                 } catch (EBaseException e) {
                     // never mind
                 }
