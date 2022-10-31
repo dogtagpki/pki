@@ -80,6 +80,8 @@ public class CertificateRepository extends Repository {
     private static final BigInteger BI_MINUS_ONE = BigInteger.ONE.negate();
 
     public static final String PROP_CERT_ID_GENERATOR = "cert.id.generator";
+    public static final String DEFAULT_CERT_ID_GENERATOR = "legacy";
+
     public static final String PROP_CERT_ID_LENGTH = "cert.id.length";
 
     private boolean mConsistencyCheck = false;
@@ -110,12 +112,9 @@ public class CertificateRepository extends Repository {
         mBaseDN = mDBConfig.getSerialDN() + "," + dbSubsystem.getBaseDN();
         logger.debug("CertificateRepository: - base DN: " + mBaseDN);
 
-        String value = mDBConfig.getString(PROP_CERT_ID_GENERATOR, null);
+        String value = mDBConfig.getString(PROP_CERT_ID_GENERATOR, DEFAULT_CERT_ID_GENERATOR);
         logger.debug("CertificateRepository: - cert ID generator: " + value);
-
-        if (value != null) {
-            setIDGenerator(value);
-        }
+        setIDGenerator(value);
 
         if (idGenerator == IDGenerator.RANDOM) {
 

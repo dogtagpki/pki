@@ -42,6 +42,8 @@ public class KeyRepository extends Repository {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyRepository.class);
 
     public static final String PROP_KEY_ID_GENERATOR = "key.id.generator";
+    public static final String DEFAULT_KEY_ID_GENERATOR = "legacy";
+
     public static final String PROP_KEY_ID_LENGTH = "key.id.length";
 
     /**
@@ -66,12 +68,9 @@ public class KeyRepository extends Repository {
         mBaseDN = dbConfig.getSerialDN() + "," + dbSubsystem.getBaseDN();
         logger.info("KeyRepository: - base DN: " + mBaseDN);
 
-        String value = dbConfig.getString(PROP_KEY_ID_GENERATOR, null);
+        String value = dbConfig.getString(PROP_KEY_ID_GENERATOR, DEFAULT_KEY_ID_GENERATOR);
         logger.info("KeyRepository: - key ID generator: " + value);
-
-        if (value != null) {
-            setIDGenerator(value);
-        }
+        setIDGenerator(value);
 
         if (idGenerator == IDGenerator.RANDOM) {
 

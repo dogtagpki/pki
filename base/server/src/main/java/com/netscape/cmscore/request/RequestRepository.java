@@ -54,6 +54,8 @@ public class RequestRepository extends Repository {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestRepository.class);
 
     public static final String PROP_REQUEST_ID_GENERATOR = "request.id.generator";
+    public static final String DEFAULT_REQUEST_ID_GENERATOR = "legacy";
+
     public static final String PROP_REQUEST_ID_LENGTH = "request.id.length";
 
     protected String filter;
@@ -81,12 +83,9 @@ public class RequestRepository extends Repository {
         mBaseDN = dbConfig.getRequestDN() + "," + dbSubsystem.getBaseDN();
         logger.debug("RequestRepository: - base DN: " + mBaseDN);
 
-        String value = dbConfig.getString(PROP_REQUEST_ID_GENERATOR, null);
+        String value = dbConfig.getString(PROP_REQUEST_ID_GENERATOR, DEFAULT_REQUEST_ID_GENERATOR);
         logger.debug("RequestRepository: - request ID generator: " + value);
-
-        if (value != null) {
-            setIDGenerator(value);
-        }
+        setIDGenerator(value);
 
         if (idGenerator == IDGenerator.RANDOM) {
 
