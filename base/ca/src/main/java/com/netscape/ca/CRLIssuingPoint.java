@@ -55,6 +55,7 @@ import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.dbs.EDBNotAvailException;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
+import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.DeltaCRLGenerationEvent;
 import com.netscape.certsrv.logging.event.DeltaCRLPublishingEvent;
@@ -1029,23 +1030,33 @@ public class CRLIssuingPoint implements Runnable {
                     if (x509crl != null) {
                         mLastFullUpdate = x509crl.getThisUpdate();
                         if (mEnableCRLCache) {
+                            logger.info("CRLIssuingPoint: Loading CRL cache");
+
                             if (mCRLCacheIsCleared && mUpdatingCRL == CRL_UPDATE_DONE) {
                                 mRevokedCerts = crlRecord.getRevokedCerts();
                                 if (mRevokedCerts == null) {
                                     mRevokedCerts = new Hashtable<>();
                                 }
+                                logger.debug("CRLIssuingPoint: - revoked certs: " + mRevokedCerts.size());
+
                                 mUnrevokedCerts = crlRecord.getUnrevokedCerts();
                                 if (mUnrevokedCerts == null) {
                                     mUnrevokedCerts = new Hashtable<>();
                                 }
+                                logger.debug("CRLIssuingPoint: - unrevoked certs: " + mUnrevokedCerts.size());
+
                                 mExpiredCerts = crlRecord.getExpiredCerts();
                                 if (mExpiredCerts == null) {
                                     mExpiredCerts = new Hashtable<>();
                                 }
+                                logger.debug("CRLIssuingPoint: - expired certs: " + mExpiredCerts.size());
+
                                 if (isDeltaCRLEnabled()) {
                                     mNextUpdate = x509crl.getNextUpdate();
                                 }
+
                                 mCRLCerts = x509crl.getListOfRevokedCertificates();
+                                logger.debug("CRLIssuingPoint: - CRL certs: " + mCRLCerts.size());
                             }
                             if (mFirstUnsaved != null && !mFirstUnsaved.equals(CRLIssuingPointRecord.CLEAN_CACHE)) {
                                 recoverCRLCache();
@@ -2068,8 +2079,10 @@ public class CRLIssuingPoint implements Runnable {
                         logger.debug("CRLIssuingPoint:run(): before CRL generation");
                         try {
                             if (doCacheUpdate) {
+                                logger.info("CRLIssuingPoint: Updating CRL cache");
                                 updateCRLCacheRepository();
                             } else if (mAutoUpdateInterval > 0 || mDoLastAutoUpdate || mDoManualUpdate) {
+                                logger.info("CRLIssuingPoint: Updating CRL");
                                 updateCRL();
                             }
                             // reset if no exception
@@ -2113,8 +2126,10 @@ public class CRLIssuingPoint implements Runnable {
      */
     private void updateCRL() throws EBaseException {
         if (mDoManualUpdate && mSignatureAlgorithmForManualUpdate != null) {
+            logger.info("CRLIssuingPoint: Updating CRL now with " + mSignatureAlgorithmForManualUpdate);
             updateCRLNow(mSignatureAlgorithmForManualUpdate);
         } else {
+            logger.info("CRLIssuingPoint: Updating CRL now");
             updateCRLNow();
         }
     }
@@ -2214,6 +2229,9 @@ public class CRLIssuingPoint implements Runnable {
      * Clears CRL cache
      */
     public void clearCRLCache() {
+
+        logger.info("CRLIssuingPoint: Clearing CRL cache");
+
         mCRLCacheIsCleared = true;
         mCRLCerts.clear();
         mRevokedCerts.clear();
@@ -2226,6 +2244,9 @@ public class CRLIssuingPoint implements Runnable {
      * Clears delta-CRL cache
      */
     public void clearDeltaCRLCache() {
+
+        logger.info("CRLIssuingPoint: Clearing delta CRL cache");
+
         mRevokedCerts.clear();
         mUnrevokedCerts.clear();
         mExpiredCerts.clear();
@@ -2237,6 +2258,9 @@ public class CRLIssuingPoint implements Runnable {
      * @throws EBaseException
      */
     private void recoverCRLCache() throws EBaseException {
+
+        logger.info("CRLIssuingPoint: Recovering CRL cache");
+
         if (mEnableCacheRecovery) {
             // 553815 - original filter was not aligned with any VLV index
             // String filter = "(&(requeststate=complete)"+
@@ -2434,6 +2458,10 @@ public class CRLIssuingPoint implements Runnable {
                                    BigInteger serialNumber,
                                    RevokedCertImpl revokedCert,
                                    String requestId) {
+
+        CertId certID = new CertId(serialNumber);
+        logger.info("CRLIssuingPoint: Updating revoked cert " + certID.toHexString());
+
         synchronized (cacheMonitor) {
             if (requestId != null && mFirstUnsaved != null &&
                     mFirstUnsaved.equals(CRLIssuingPointRecord.CLEAN_CACHE)) {
@@ -2455,6 +2483,7 @@ public class CRLIssuingPoint implements Runnable {
 
                         mCRLCerts.put(serialNumber, newRevokedCert);
                     }
+
                 } else {
                     Date revocationDate = revokedCert.getRevocationDate();
                     CRLExtensions entryExt = getRequiredEntryExtensions(revokedCert.getExtensions());
@@ -2463,6 +2492,7 @@ public class CRLIssuingPoint implements Runnable {
 
                     mRevokedCerts.put(serialNumber, newRevokedCert);
                 }
+
             } else if (certType == UNREVOKED_CERT) {
                 if (mRevokedCerts.containsKey(serialNumber)) {
                     mRevokedCerts.remove(serialNumber);
@@ -2481,6 +2511,10 @@ public class CRLIssuingPoint implements Runnable {
                 }
             }
         }
+
+        logger.debug("CRLIssuingPoint: - CRL certs: " + mCRLCerts.size());
+        logger.debug("CRLIssuingPoint: - revoked certs: " + mRevokedCerts.size());
+        logger.debug("CRLIssuingPoint: - unrevoked certs: " + mUnrevokedCerts.size());
     }
 
     /**
@@ -2502,6 +2536,9 @@ public class CRLIssuingPoint implements Runnable {
      */
     public void addRevokedCert(BigInteger serialNumber, RevokedCertImpl revokedCert,
                                String requestId) {
+
+        CertId certID = new CertId(serialNumber);
+        logger.info("CRLIssuingPoint: Adding revoked cert " + certID.toHexString());
 
         CertRecordProcessor cp = new CertRecordProcessor(mCRLCerts, this, mAllowExtensions);
         boolean includeCert = true;
@@ -2538,6 +2575,10 @@ public class CRLIssuingPoint implements Runnable {
      * @param requestId unrevocation request id
      */
     public void addUnrevokedCert(BigInteger serialNumber, String requestId) {
+
+        CertId certID = new CertId(serialNumber);
+        logger.info("CRLIssuingPoint: Adding unrevoked cert " + certID.toHexString());
+
         if (mEnable && mEnableCRLCache) {
             updateRevokedCert(UNREVOKED_CERT, serialNumber, null, requestId);
 
@@ -2558,6 +2599,9 @@ public class CRLIssuingPoint implements Runnable {
      * @param serialNumber serial number of expired and revoked certificate
      */
     public void addExpiredCert(BigInteger serialNumber) {
+
+        CertId certID = new CertId(serialNumber);
+        logger.info("CRLIssuingPoint: Adding expired cert " + certID.toHexString());
 
         if (mEnable && mEnableCRLCache && (!mIncludeExpiredCerts)) {
             if (!(mExpiredCerts.containsKey(serialNumber))) {
@@ -2582,6 +2626,8 @@ public class CRLIssuingPoint implements Runnable {
                 }
             }
         }
+
+        logger.debug("CRLIssuingPoint: - expired certs: " + mExpiredCerts.size());
     }
 
     private Object repositoryMonitor = new Object();
@@ -2760,7 +2806,7 @@ public class CRLIssuingPoint implements Runnable {
             throws EBaseException {
 
         logger.info("CRLIssuingPoint: Updating " + mId);
-
+        logger.debug("CRLIssuingPoint: - signing algorithm: " + signingAlgorithm);
         logger.debug("CRLIssuingPoint: - enable: " + mEnable);
         logger.debug("CRLIssuingPoint: - enable CRL updates: " + mEnableCRLUpdates);
         logger.debug("CRLIssuingPoint: - do last auto update: " + mDoLastAutoUpdate);
@@ -2775,7 +2821,7 @@ public class CRLIssuingPoint implements Runnable {
         logger.debug("CRLIssuingPoint: - delta CRL enabled: " + isDeltaCRLEnabled());
         logger.debug("CRLIssuingPoint: - CRL cache enabled: " + mEnableCRLCache);
         logger.debug("CRLIssuingPoint: - cache recovery enabled: " + mCRLCacheIsCleared);
-        logger.debug("CRLIssuingPoint: - cache size: " + mCRLCerts.size());
+        logger.debug("CRLIssuingPoint: - CRL certs: " + mCRLCerts.size());
         logger.debug("CRLIssuingPoint: - revoked certs: " + mRevokedCerts.size());
         logger.debug("CRLIssuingPoint: - unrevoked certs: " + mUnrevokedCerts.size());
         logger.debug("CRLIssuingPoint: - expired certs: " + mExpiredCerts.size());
@@ -2941,8 +2987,10 @@ public class CRLIssuingPoint implements Runnable {
                     if (!clonedUnrevokedCerts.isEmpty()) {
                         for (Enumeration<BigInteger> e = clonedUnrevokedCerts.keys(); e.hasMoreElements();) {
                             BigInteger serialNumber = e.nextElement();
+                            CertId certID = new CertId(serialNumber);
 
                             if (mCRLCerts.containsKey(serialNumber)) {
+                                logger.info("CRLIssuingPoint: Removing unrevoked cert " + certID.toHexString() + " from cache");
                                 mCRLCerts.remove(serialNumber);
                             }
                             mUnrevokedCerts.remove(serialNumber);
@@ -2952,7 +3000,9 @@ public class CRLIssuingPoint implements Runnable {
                     if (!clonedRevokedCerts.isEmpty()) {
                         for (Enumeration<BigInteger> e = clonedRevokedCerts.keys(); e.hasMoreElements();) {
                             BigInteger serialNumber = e.nextElement();
+                            CertId certID = new CertId(serialNumber);
 
+                            logger.info("CRLIssuingPoint: Adding revoked cert " + certID.toHexString() + " to cache");
                             mCRLCerts.put(serialNumber, mRevokedCerts.get(serialNumber));
                             mRevokedCerts.remove(serialNumber);
                         }
@@ -2961,11 +3011,13 @@ public class CRLIssuingPoint implements Runnable {
                     if (!clonedExpiredCerts.isEmpty()) {
                         for (Enumeration<BigInteger> e = clonedExpiredCerts.keys(); e.hasMoreElements();) {
                             BigInteger serialNumber = e.nextElement();
+                            CertId certID = new CertId(serialNumber);
 
                             if ((!mIncludeExpiredCertsOneExtraTime) ||
                                     (mLastFullUpdate != null &&
                                     mLastFullUpdate.after((mExpiredCerts.get(serialNumber)).getRevocationDate())) ||
                                     mLastFullUpdate == null) {
+                                logger.info("CRLIssuingPoint: Removing expired cert " + certID.toHexString() + " from cache");
                                 if (mCRLCerts.containsKey(serialNumber)) {
                                     mCRLCerts.remove(serialNumber);
                                 }
@@ -2978,6 +3030,8 @@ public class CRLIssuingPoint implements Runnable {
             }
             mSplits[5] += System.currentTimeMillis();
         }
+
+        logger.debug("CRLIssuingPoint: - CRL certs: " + mCRLCerts.size());
 
         clonedRevokedCerts.clear();
         clonedUnrevokedCerts.clear();
@@ -3180,8 +3234,11 @@ public class CRLIssuingPoint implements Runnable {
 
             mSplits[7] -= System.currentTimeMillis();
 
+            logger.debug("CRLIssuingPoint: - CRL certs: " + mCRLCerts.size());
+
             // #56123 - dont generate CRL if no revoked certificates
             if (mConfigStore.getNoCRLIfNoRevokedCert()) {
+
                 if (mCRLCerts.size() == 0) {
                     logger.debug("CRLIssuingPoint: No Revoked Certificates Found And noCRLIfNoRevokedCert is set to true - No CRL Generated");
                     signedAuditLogger.log(FullCRLGenerationEvent.createSuccessEvent(
