@@ -13,6 +13,7 @@ javac(pki-est-classes
         ${JACKSON2_CORE_JAR}
         ${JACKSON2_DATABIND_JAR}
         ${TOMCAT_CATALINA_JAR}
+        ${TOMCAT_UTIL_JAR}
         ${JSS_JAR}
         ${PKI_CMSUTIL_JAR}
         ${PKI_CERTSRV_JAR}

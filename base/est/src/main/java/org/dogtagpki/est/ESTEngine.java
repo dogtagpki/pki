@@ -2,10 +2,13 @@ package org.dogtagpki.est;
 
 import java.io.File;
 import java.io.FileReader;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.catalina.Realm;
+import org.apache.catalina.realm.RealmBase;
 import org.apache.catalina.util.LifecycleBase;
+import org.apache.tomcat.util.IntrospectionUtils;
 
 import com.netscape.cms.realm.RealmCommon;
 import com.netscape.cms.realm.RealmConfig;
@@ -158,8 +161,24 @@ public class ESTEngine {
         // So we have to invoke registerRealm() /before/ start().
         ProxyRealm.registerRealm(id, realm);
 
+        // configure realm
         if (realm instanceof RealmCommon) {
             ((RealmCommon) realm).setConfig(realmConfig);
+        } else if (realm instanceof RealmBase) {
+            // RealmBase subclasses are configured by setting properties
+            // via introspection.
+            for (Map.Entry<String, String> entry : realmConfig.getParameters().entrySet()) {
+                boolean result =
+                    IntrospectionUtils.setProperty(realm, entry.getKey(), entry.getValue());
+                if (!result) {
+                    throw new RuntimeException(
+                        "Failed to set Realm property '" + entry.getKey() + "'.");
+                }
+            }
+        }
+
+        // start realm
+        if (realm instanceof RealmCommon) {
             ((RealmCommon) realm).start();
         } else if (realm instanceof LifecycleBase) {
             ((LifecycleBase) realm).start();
