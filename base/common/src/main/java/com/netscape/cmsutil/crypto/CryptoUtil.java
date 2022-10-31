@@ -2238,6 +2238,22 @@ public class CryptoUtil {
         km.generateUniqueNamedKey(nickname);
     }
 
+     public static void createSharedSecret(String nickname, KeyGenAlgorithm alg, int keySize)
+        throws NotInitializedException, TokenException, Exception {
+
+        CryptoManager cm = CryptoManager.getInstance();
+        CryptoToken token = cm.getInternalKeyStorageToken();
+
+        SymmetricKey sharedSecretKey = CryptoUtil.generateKey(
+                token,
+                alg,
+                keySize,
+                sess_key_usages,
+                false, cm.FIPSEnabled() /* sensitive */);
+
+        sharedSecretKey.setNickName(nickname);
+    }
+
     public static void deleteSharedSecret(String nickname) throws NotInitializedException, TokenException,
             InvalidKeyException {
         CryptoManager cm = CryptoManager.getInstance();
@@ -2262,6 +2278,26 @@ public class CryptoUtil {
         kg.temporaryKeys(true);
 
         return kg.generate();
+    }
+
+    public static SymmetricKey createAESSessionKeyOnInternal(int keySize) throws Exception {
+
+        String method = "CryptoUtil.createAESSessionKeyOnInternal ";
+        logger.debug(method + "Entering... keySize: " + keySize);
+
+        CryptoManager cm = CryptoManager.getInstance();
+        CryptoToken token = cm.getInternalKeyStorageToken();
+        KeyGenerator kg = token.getKeyGenerator(KeyGenAlgorithm.AES);
+
+        SymmetricKey sessionKey = CryptoUtil.generateKey(
+                token,
+                KeyGenAlgorithm.AES,
+                keySize,
+                sess_key_usages,
+                true, cm.FIPSEnabled() /* sensitive */);
+
+
+        return sessionKey;
     }
 
     // Return a list of two wrapped keys:
@@ -2310,17 +2346,66 @@ public class CryptoUtil {
         return listWrappedKeys;
     }
 
-    public static void importSharedSecret(byte[] wrappedSessionKey, byte[] wrappedSharedSecret,
-            String subsystemCertNickname, String sharedSecretNickname)
-            throws Exception, NotInitializedException, TokenException,
+    // Return a list of two wrapped keys:
+    // first element: temp AES key wrapped by cert ,
+    // second element: shared secret wrapped by temp AES key
+
+    public static List<byte[]> exportSharedSecret(String nickname, java.security.cert.X509Certificate wrappingCert,
+            SymmetricKey wrappingKey, boolean useOAEPKeyWrap) throws Exception {
+
+        CryptoManager cm = CryptoManager.getInstance();
+        CryptoToken token = cm.getInternalKeyStorageToken();
+        String method = "CrytoUtil.exportSharedSecret";
+        List<byte[]> listWrappedKeys = new ArrayList<byte[]>();
+
+        logger.debug(method + " nickname: " + nickname);
+
+        SymmetricKey sharedSecretKey = null;
+
+        try {
+            sharedSecretKey = getSymKeyByName(token, nickname);
+        } catch (Exception e) {
+            logger.debug(method + " can't find shared secret: " + nickname);
+            throw new IOException("Shared secret " + nickname + " does not exist");
+        }
+
+        PublicKey pub = wrappingCert.getPublicKey();
+        PK11PubKey pubK = PK11PubKey.fromSPKI(pub.getEncoded());
+
+        //Wrap the temp AES key with the cert
+        byte[] wrappedKey = wrapUsingPublicKey(token, pubK, wrappingKey, useOAEPKeyWrap ? KeyWrapAlgorithm.RSA_OAEP: KeyWrapAlgorithm.RSA);
+
+        listWrappedKeys.add(wrappedKey);
+        //Use the AES key to wrap the shared secret
+
+        KeyWrapAlgorithm  wrapAlg = KeyWrapAlgorithm.AES_CBC_PAD;
+        int ivLen = wrapAlg.getBlockSize();
+        byte[] iv = new byte[ivLen];
+
+        IVParameterSpec ivsp = new IVParameterSpec(iv);
+
+        byte[] wrappedSharedSecret = wrapUsingSymmetricKey(token, wrappingKey, sharedSecretKey, ivsp, wrapAlg);
+
+        listWrappedKeys.add(wrappedSharedSecret);
+
+        if (listWrappedKeys.size() != 2) {
+            throw new IOException("Can't write out shared secret data to export for nickname: " + nickname);
+        }
+
+        return listWrappedKeys;
+    }
+
+    public static void importSharedSecret(byte[] wrappedSessionKey,byte[] wrappedSharedSecret,String subsystemCertNickname,String sharedSecretNickname) throws Exception, NotInitializedException, TokenException,
             NoSuchAlgorithmException, ObjectNotFoundException, InvalidKeyException, InvalidAlgorithmParameterException,
             IOException {
 
         CryptoManager cm = CryptoManager.getInstance();
         CryptoToken token = cm.getInternalKeyStorageToken();
 
-        KeyManager km = new KeyManager(token);
+        String method = "CryptoUtil.importSharedSecret ";
+        logger.debug(method + " nickname: " + sharedSecretNickname);
 
+        KeyManager km = new KeyManager(token);
         if (km.uniqueNamedKeyExists(sharedSecretNickname)) {
             throw new IOException("Shared secret " + sharedSecretNickname + " already exists");
         }
@@ -2328,21 +2413,42 @@ public class CryptoUtil {
         //Unwrap session key
 
         KeyWrapper keyWrap = token.getKeyWrapper(KeyWrapAlgorithm.RSA);
+        KeyWrapper keyWrapOAEP = token.getKeyWrapper(KeyWrapAlgorithm.RSA_OAEP);
+        logger.debug(method + " subsytemCertNickname: " + subsystemCertNickname);
+        System.out.println(method + " subsytemCertNickname: " + subsystemCertNickname);
+
         X509Certificate cert = cm.findCertByNickname(subsystemCertNickname);
+        logger.debug(method + " subsystemCert: " + cert);
         PrivateKey subsystemPrivateKey = cm.findPrivKeyByCert(cert);
         keyWrap.initUnwrap(subsystemPrivateKey, null);
 
-        SymmetricKey unwrappedSessionKey = keyWrap.unwrapSymmetric(wrappedSessionKey, SymmetricKey.DES3,
+        SymmetricKey unwrappedSessionKey = null;
+        //Since we don't know if aes was used to wrap the key, try with and without.
+        try {
+            unwrappedSessionKey =  keyWrap.unwrapSymmetric(wrappedSessionKey, SymmetricKey.AES,
                 0);
-
-        SymmetricKey unwrappedSharedSecret = null;
+        } catch(Exception e) {
+            System.out.println(method + " exception found, trying RSA-OAEP: " + e);
+           //Since the first attempt is with RSA, try it with RSA-OAEP, to possibly appease our hsm
+            OAEPParameterSpec config = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256,
+                    PSource.PSpecified.DEFAULT);
+            keyWrapOAEP.initUnwrap(subsystemPrivateKey,config);
+            System.out.println("About to unwrap session key with private key, using OAEP");
+            unwrappedSessionKey = keyWrapOAEP.unwrapSymmetric(wrappedSessionKey, SymmetricKey.AES,
+            SymmetricKey.Usage.UNWRAP, 0);
+        }
 
         //Unwrap shared secret permanently with session key
+        EncryptionAlgorithm encAlg = EncryptionAlgorithm.AES_CBC_PAD;
+        int ivLen = encAlg.getIVLength();
+        byte[] iv = new byte[ivLen];
 
-        KeyWrapper sharedSecretWrap = token.getKeyWrapper(KeyWrapAlgorithm.DES3_ECB);
-        sharedSecretWrap.initUnwrap(unwrappedSessionKey, null);
-        unwrappedSharedSecret = sharedSecretWrap.unwrapSymmetricPerm(wrappedSharedSecret, SymmetricKey.DES3, 0);
-        unwrappedSharedSecret.setNickName(sharedSecretNickname);
+        IVParameterSpec ivsp = new IVParameterSpec(iv);
+
+        byte[] unwrappedSharedSecret = decryptUsingSymmetricKey(token, ivsp, wrappedSharedSecret,
+            unwrappedSessionKey, encAlg);
+        SymmetricKey importedSharedSecret =  unwrapAESSKeyFromBytes(token, unwrappedSharedSecret, true);
+        importedSharedSecret.setNickName(sharedSecretNickname);
     }
 
     public static SymmetricKey getSymKeyByName(CryptoToken token, String name) throws Exception {
@@ -2497,6 +2603,56 @@ public class CryptoUtil {
                     keyType, pubKey);
         }
         return pk;
+    }
+
+     public static SymmetricKey unwrapAESSKeyFromBytes(CryptoToken token, byte[] inputKeyArray,
+            boolean isPerm)
+            throws Exception {
+
+        byte[] finalInputKeyArray = inputKeyArray;
+        String method = "CryptoUtil.unwrapAESKeyFromBytes: ";
+
+        logger.debug(method + "begins:  isPerm: " + isPerm);
+	//for now assume 128 bits aes
+        if(inputKeyArray.length > 16) {
+            throw new Exception(method + "invalid input data size.");
+        }
+
+        KeyGenerator kg;
+        SymmetricKey finalAESKey;
+        try {
+            kg = token.getKeyGenerator(KeyGenAlgorithm.AES);
+
+            kg.setKeyUsages(sess_key_usages);
+            kg.temporaryKeys(true);
+            kg.initialize(128);
+            SymmetricKey tempKey = kg.generate();
+
+            Cipher encryptor = token.getCipherContext(EncryptionAlgorithm.AES_128_CBC);
+
+            int ivLength = EncryptionAlgorithm.AES_128_CBC.getIVLength();
+            byte[] iv = null;
+
+            if (ivLength > 0) {
+                iv = new byte[ivLength];
+            }
+
+            encryptor.initEncrypt(tempKey, new IVParameterSpec(iv));
+            byte[] wrappedKey = encryptor.doFinal(finalInputKeyArray);
+
+            KeyWrapper keyWrap = token.getKeyWrapper(KeyWrapAlgorithm.AES_CBC);
+            keyWrap.initUnwrap(tempKey, new IVParameterSpec(iv));
+
+            if(isPerm)
+                finalAESKey = keyWrap.unwrapSymmetricPerm(wrappedKey, SymmetricKey.AES, 16);
+            else
+                finalAESKey = keyWrap.unwrapSymmetric(wrappedKey, SymmetricKey.AES, 16);
+
+        } catch (Exception e) {
+            throw new Exception(method + " Can't unwrap key onto token!");
+        }
+
+        return finalAESKey;
     }
 
     /**
