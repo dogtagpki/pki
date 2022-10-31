@@ -122,7 +122,7 @@ public class CAProfileImportCLI extends CommandCLI {
         }
         socketFactory.init(socketConfig);
 
-        LdapBoundConnection conn = new LdapBoundConnection(socketFactory, connInfo, authInfo);
+        ProfileSubsystemConfig profileSubsystemConfig = cs.getProfileSubsystemConfig();
 
         try {
             SubsystemsConfig subsystemsConfig = cs.getSubsystemsConfig();
@@ -134,11 +134,17 @@ public class CAProfileImportCLI extends CommandCLI {
                 if (! LDAPProfileSubsystem.class.isAssignableFrom(clazz)) continue;
 
                 logger.info("Importing profiles into LDAP");
-                importProfiles(cs, pluginRegistry, conn, baseDN, inputFolder);
+                importProfiles(
+                        socketFactory,
+                        connInfo,
+                        authInfo,
+                        profileSubsystemConfig,
+                        pluginRegistry,
+                        baseDN,
+                        inputFolder);
             }
 
         } finally {
-            conn.disconnect();
             pluginRegistry.shutdown();
         }
     }
@@ -147,13 +153,36 @@ public class CAProfileImportCLI extends CommandCLI {
      * Import profiles from the filesystem into the database.
      */
     public void importProfiles(
-            CAEngineConfig engineConfig,
+            PKISocketFactory socketFactory,
+            LdapConnInfo connInfo,
+            LdapAuthInfo authInfo,
+            ProfileSubsystemConfig profileSubsystemConfig,
+            PluginRegistry pluginRegistry,
+            String baseDN,
+            String inputFolder) throws Exception {
+
+        LdapBoundConnection conn = new LdapBoundConnection(socketFactory, connInfo, authInfo);
+
+        try {
+            importProfiles(
+                    profileSubsystemConfig,
+                    pluginRegistry,
+                    conn,
+                    baseDN,
+                    inputFolder);
+
+        } finally {
+            conn.disconnect();
+        }
+    }
+
+    public void importProfiles(
+            ProfileSubsystemConfig profileSubsystemConfig,
             PluginRegistry pluginRegistry,
             LDAPConnection conn,
             String baseDN,
             String inputFolder) throws Exception {
 
-        ProfileSubsystemConfig profileSubsystemConfig = engineConfig.getProfileSubsystemConfig();
         String profileIds = profileSubsystemConfig.getString("list", "");
         StringTokenizer st = new StringTokenizer(profileIds, ",");
 
