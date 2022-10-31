@@ -80,9 +80,31 @@ public class SubsystemRangeUpdateCLI extends SubsystemCLI {
         }
         socketFactory.init(socketConfig);
 
-        LdapBoundConnection conn = new LdapBoundConnection(socketFactory, connInfo, authInfo);
-
         DatabaseConfig dbConfig = cs.getDatabaseConfig();
+
+        updateSerialNumberRange(
+                socketFactory,
+                connInfo,
+                authInfo,
+                dbConfig,
+                baseDN);
+
+        updateRequestNumberRange(
+                socketFactory,
+                connInfo,
+                authInfo,
+                dbConfig,
+                baseDN);
+    }
+
+    public void updateSerialNumberRange(
+            PKISocketFactory socketFactory,
+            LdapConnInfo connInfo,
+            LdapAuthInfo authInfo,
+            DatabaseConfig dbConfig,
+            String baseDN) throws Exception {
+
+        LdapBoundConnection conn = new LdapBoundConnection(socketFactory, connInfo, authInfo);
 
         try {
             logger.info("Updating serial number range");
@@ -96,6 +118,21 @@ public class SubsystemRangeUpdateCLI extends SubsystemCLI {
 
             conn.modify(serialDN, serialmod);
 
+        } finally {
+            conn.disconnect();
+        }
+    }
+
+    public void updateRequestNumberRange(
+            PKISocketFactory socketFactory,
+            LdapConnInfo connInfo,
+            LdapAuthInfo authInfo,
+            DatabaseConfig dbConfig,
+            String baseDN) throws Exception {
+
+        LdapBoundConnection conn = new LdapBoundConnection(socketFactory, connInfo, authInfo);
+
+        try {
             logger.info("Updating request number range");
 
             BigInteger endRequestNumber = new BigInteger(dbConfig.getEndRequestNumber());
