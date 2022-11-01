@@ -1,0 +1,459 @@
+name: CA database pruning
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+      db-image:
+        required: false
+        type: string
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Retrieve runner image
+        uses: actions/cache@v3
+        with:
+          key: pki-ca-runner-${{ inputs.os }}-${{ github.run_id }}
+          path: pki-runner.tar
+
+      - name: Load runner image
+        run: docker load --input pki-runner.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-container-create.sh ds
+        env:
+          IMAGE: ${{ inputs.db-image }}
+          HOSTNAME: ds.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect DS container to network
+        run: docker network connect example ds --alias ds.example.com
+
+      - name: Set up PKI container
+        run: |
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
+
+      - name: Connect PKI container to network
+        run: docker network connect example pki --alias pki.example.com
+
+      - name: Install CA
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_hostname=ds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -D pki_request_id_generator=random \
+              -D pki_cert_id_generator=random \
+              -v
+
+      - name: Configure server cert profile
+        run: |
+          # set cert validity to 1 minute
+          VALIDITY_DEFAULT="policyset.serverCertSet.2.default.params"
+          docker exec pki sed -i \
+              -e "s/^$VALIDITY_DEFAULT.range=.*$/$VALIDITY_DEFAULT.range=1/" \
+              -e "/^$VALIDITY_DEFAULT.range=.*$/a $VALIDITY_DEFAULT.rangeUnit=minute" \
+              /etc/pki/pki-tomcat/ca/profiles/ca/caServerCert.cfg
+
+          # check updated profile
+          docker exec pki cat /etc/pki/pki-tomcat/ca/profiles/ca/caServerCert.cfg
+
+      - name: Configure user cert profile
+        run: |
+          # set cert validity to 3 minute
+          VALIDITY_DEFAULT="policyset.userCertSet.2.default.params"
+          docker exec pki sed -i \
+              -e "s/^$VALIDITY_DEFAULT.range=.*$/$VALIDITY_DEFAULT.range=3/" \
+              -e "/^$VALIDITY_DEFAULT.range=.*$/a $VALIDITY_DEFAULT.rangeUnit=minute" \
+              /etc/pki/pki-tomcat/ca/profiles/ca/caUserCert.cfg
+
+          # check updated profile
+          docker exec pki cat /etc/pki/pki-tomcat/ca/profiles/ca/caUserCert.cfg
+
+      - name: Configure cert status update task
+        run: |
+          # configure task to run every minute
+          docker exec pki pki-server ca-config-set ca.certStatusUpdateInterval 60
+
+      - name: Configure pruning job
+        run: |
+          # configure pruning to run manually without retention time
+          docker exec pki pki-server ca-config-set jobsScheduler.enabled true
+          docker exec pki pki-server ca-config-set jobsScheduler.job.pruning.enabled true
+          docker exec pki pki-server ca-config-set jobsScheduler.job.pruning.certRetentionTime 0
+          docker exec pki pki-server ca-config-set jobsScheduler.job.pruning.certRetentionUnit minute
+          docker exec pki pki-server ca-config-set jobsScheduler.job.pruning.requestRetentionTime 0
+          docker exec pki pki-server ca-config-set jobsScheduler.job.pruning.requestRetentionUnit minute
+
+      - name: Restart CA subsystem
+        run: |
+          docker exec pki pki-server ca-redeploy --wait
+
+      - name: Install CA admin cert
+        run: |
+          docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
+          docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
+          docker exec pki pki client-cert-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+          docker exec pki pki -n caadmin ca-user-show caadmin
+
+      - name: Check initial certs and requests
+        run: |
+          # there should be 6 requests initially
+          docker exec pki pki -n caadmin ca-cert-request-find | tee output
+
+          echo "6" > expected
+          grep "Request ID:" output | wc -l > actual
+          diff expected actual
+
+          # there should be 6 certs initially
+          docker exec pki pki ca-cert-find | tee output
+
+          echo "6" > expected
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+      - name: Enroll server cert
+        run: |
+          docker exec pki pki client-cert-request \
+              --profile caServerCert \
+              cn=server.example.com | tee output
+
+          REQUEST_ID=$(sed -n -e 's/^ *Request ID: *\(.*\)$/\1/p' output)
+          echo "REQUEST_ID: $REQUEST_ID"
+          echo $REQUEST_ID > server-request-id
+
+          docker exec pki pki -n caadmin ca-cert-request-approve $REQUEST_ID --force | tee output
+          CERT_ID=$(sed -n -e 's/^ *Certificate ID: *\(.*\)$/\1/p' output)
+          echo "CERT_ID: $CERT_ID"
+          echo $CERT_ID > server-cert-id
+
+      - name: Create incomplete server cert request
+        run: |
+          docker exec pki pki client-cert-request \
+              --profile caServerCert \
+              cn=server.example.com | tee output
+
+          REQUEST_ID=$(sed -n -e 's/^ *Request ID: *\(.*\)$/\1/p' output)
+          echo "REQUEST_ID: $REQUEST_ID"
+          echo $REQUEST_ID > incomplete-server-request-id
+
+      - name: Enroll user cert
+        run: |
+          docker exec pki pki client-cert-request \
+              --profile caUserCert \
+              uid=testuser | tee output
+
+          REQUEST_ID=$(sed -n -e 's/^ *Request ID: *\(.*\)$/\1/p' output)
+          echo "REQUEST_ID: $REQUEST_ID"
+          echo $REQUEST_ID > user-request-id
+
+          docker exec pki pki -n caadmin ca-cert-request-approve $REQUEST_ID --force | tee output
+          CERT_ID=$(sed -n -e 's/^ *Certificate ID: *\(.*\)$/\1/p' output)
+          echo "CERT_ID: $CERT_ID"
+          echo $CERT_ID > user-cert-id
+
+      - name: Create incomplete user cert request
+        run: |
+          docker exec pki pki client-cert-request \
+              --profile caUserCert \
+              uid=testuser | tee output
+
+          REQUEST_ID=$(sed -n -e 's/^ *Request ID: *\(.*\)$/\1/p' output)
+          echo "REQUEST_ID: $REQUEST_ID"
+          echo $REQUEST_ID > incomplete-user-request-id
+
+      - name: Check certs after enrollments
+        run: |
+          # there should be 8 certs now
+          docker exec pki pki ca-cert-find | tee output
+
+          echo "8" > expected
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+          # the server cert should exist
+          CERT_ID=$(cat server-cert-id)
+          docker exec pki pki ca-cert-show $CERT_ID | tee output
+
+          # the server cert should be valid
+          sed -n "s/^ *Status: \(.*\)$/\1/p" output > actual
+          echo "VALID" > expected
+          diff expected actual
+
+          # the user cert should exist
+          CERT_ID=$(cat user-cert-id)
+          docker exec pki pki ca-cert-show $CERT_ID | tee output
+
+          # the user cert should be valid
+          sed -n "s/^ *Status: \(.*\)$/\1/p" output > actual
+          echo "VALID" > expected
+          diff expected actual
+
+      - name: Check requests after enrollments
+        run: |
+          # there should be 10 requests now
+          docker exec pki pki -n caadmin ca-cert-request-find | tee output
+
+          echo "10" > expected
+          grep "Request ID:" output | wc -l > actual
+          diff expected actual
+
+          # the completed server request should exist
+          REQUEST_ID=$(cat server-request-id)
+          docker exec pki pki ca-cert-request-show $REQUEST_ID
+
+          # the incomplete server request should exist
+          REQUEST_ID=$(cat incomplete-server-request-id)
+          docker exec pki pki ca-cert-request-show $REQUEST_ID
+
+          # the completed user request should exist
+          REQUEST_ID=$(cat user-request-id)
+          docker exec pki pki ca-cert-request-show $REQUEST_ID
+
+          # the incomplete user request should exist
+          REQUEST_ID=$(cat incomplete-user-request-id)
+          docker exec pki pki ca-cert-request-show $REQUEST_ID
+
+      - name: Wait for server cert expiration
+        run: |
+          sleep 120
+
+      - name: Check certs after server cert expiration
+        run: |
+          # there should still be 8 certs
+          docker exec pki pki ca-cert-find | tee output
+
+          echo "8" > expected
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+          # the server cert should still exist
+          CERT_ID=$(cat server-cert-id)
+          docker exec pki pki ca-cert-show $CERT_ID | tee output
+
+          # the server cert should be expired now
+          sed -n "s/^ *Status: \(.*\)$/\1/p" output > actual
+          echo "EXPIRED" > expected
+          diff expected actual
+
+          # the user cert should still exist
+          CERT_ID=$(cat user-cert-id)
+          docker exec pki pki ca-cert-show $CERT_ID | tee output
+
+          # the user cert should still be valid
+          sed -n "s/^ *Status: \(.*\)$/\1/p" output > actual
+          echo "VALID" > expected
+          diff expected actual
+
+      - name: Check requests after server cert expiration
+        run: |
+          # there should still be 10 requests
+          docker exec pki pki -n caadmin ca-cert-request-find | tee output
+
+          echo "10" > expected
+          grep "Request ID:" output | wc -l > actual
+          diff expected actual
+
+          # the completed server request should still exist
+          REQUEST_ID=$(cat server-request-id)
+          docker exec pki pki ca-cert-request-show $REQUEST_ID
+
+          # the incomplete server request should still exist
+          REQUEST_ID=$(cat incomplete-server-request-id)
+          docker exec pki pki ca-cert-request-show $REQUEST_ID
+
+          # the completed user request should still exist
+          REQUEST_ID=$(cat user-request-id)
+          docker exec pki pki ca-cert-request-show $REQUEST_ID
+
+          # the incomplete user request should still exist
+          REQUEST_ID=$(cat incomplete-user-request-id)
+          docker exec pki pki ca-cert-request-show $REQUEST_ID
+
+      - name: Start the first pruning
+        run: |
+          docker exec pki pki -n caadmin ca-job-start pruning
+
+          sleep 30
+
+      - name: Check certs after the first pruning
+        run: |
+          # there should be 7 certs now
+          docker exec pki pki ca-cert-find | tee output
+
+          echo "7" > expected
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+          # the expired server cert should be removed
+          CERT_ID=$(cat server-cert-id)
+          docker exec pki pki ca-cert-show $CERT_ID \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          echo "CertNotFoundException: Certificate ID $CERT_ID not found" > expected
+          diff expected stderr
+
+          # the user cert should still exist
+          CERT_ID=$(cat user-cert-id)
+          docker exec pki pki ca-cert-show $CERT_ID | tee output
+
+          # the user cert should still be valid
+          sed -n "s/^ *Status: \(.*\)$/\1/p" output > actual
+          echo "VALID" > expected
+          diff expected actual
+
+      - name: Check requests after the first pruning
+        run: |
+          # there should be 7 requests now
+          docker exec pki pki -n caadmin ca-cert-request-find | tee output
+
+          echo "7" > expected
+          grep "Request ID:" output | wc -l > actual
+          diff expected actual
+
+          # the completed server request should be removed
+          REQUEST_ID=$(cat server-request-id)
+          docker exec pki pki ca-cert-request-show $REQUEST_ID \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          echo "RequestNotFoundException: Request ID $REQUEST_ID not found" > expected
+          diff expected stderr
+
+          # the incomplete server request should be removed
+          REQUEST_ID=$(cat incomplete-server-request-id)
+          docker exec pki pki ca-cert-request-show $REQUEST_ID \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          echo "RequestNotFoundException: Request ID $REQUEST_ID not found" > expected
+          diff expected stderr
+
+          # the completed user request should still exist
+          REQUEST_ID=$(cat user-request-id)
+          docker exec pki pki ca-cert-request-show $REQUEST_ID
+
+          # the incomplete user request should be removed
+          REQUEST_ID=$(cat incomplete-user-request-id)
+          docker exec pki pki ca-cert-request-show $REQUEST_ID \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          echo "RequestNotFoundException: Request ID $REQUEST_ID not found" > expected
+          diff expected stderr
+
+      - name: Wait for user cert expiration
+        run: |
+          sleep 120
+
+      - name: Check certs after user cert expiration
+        run: |
+          # there should still be 7 certs
+          docker exec pki pki ca-cert-find | tee output
+
+          echo "7" > expected
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+          # the user cert should still exist
+          CERT_ID=$(cat user-cert-id)
+          docker exec pki pki ca-cert-show $CERT_ID | tee output
+
+          # the user cert should be expired now
+          sed -n "s/^ *Status: \(.*\)$/\1/p" output > actual
+          echo "EXPIRED" > expected
+          diff expected actual
+
+      - name: Check requests after user cert expiration
+        run: |
+          # there should still be 7 requests
+          docker exec pki pki -n caadmin ca-cert-request-find | tee output
+
+          echo "7" > expected
+          grep "Request ID:" output | wc -l > actual
+          diff expected actual
+
+          # the completed user request should still exist
+          REQUEST_ID=$(cat user-request-id)
+          docker exec pki pki ca-cert-request-show $REQUEST_ID
+
+      - name: Start the second pruning
+        run: |
+          docker exec pki pki -n caadmin ca-job-start pruning
+
+          sleep 30
+
+      - name: Check certs after the second pruning
+        run: |
+          # there should be 6 certs again
+          docker exec pki pki ca-cert-find | tee output
+
+          echo "6" > expected
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+          # the expired user cert should be removed
+          CERT_ID=$(cat user-cert-id)
+          docker exec pki pki ca-cert-show $CERT_ID \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          echo "CertNotFoundException: Certificate ID $CERT_ID not found" > expected
+          diff expected stderr
+
+      - name: Check requests after the second pruning
+        run: |
+          # there should be 6 requests again
+          docker exec pki pki -n caadmin ca-cert-request-find | tee output
+
+          echo "6" > expected
+          grep "Request ID:" output | wc -l > actual
+          diff expected actual
+
+          # the completed user request should be removed
+          REQUEST_ID=$(cat user-request-id)
+          docker exec pki pki ca-cert-request-show $REQUEST_ID \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          echo "RequestNotFoundException: Request ID $REQUEST_ID not found" > expected
+          diff expected stderr
+
+      - name: Check debug log
+        if: always()
+        run: |
+          docker exec pki ls /var/log/pki/pki-tomcat/ca | tee output
+          FILENAME=$(sed -n "/^debug\./p" output | sort | tail -1)
+          docker exec pki cat /var/log/pki/pki-tomcat/ca/$FILENAME
+
+      - name: Gather artifacts
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki ds
+          tests/bin/pki-artifacts-save.sh pki
+        continue-on-error: true
+
+      - name: Remove CA
+        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ca-pruning-${{ inputs.os }}
+          path: |
+            /tmp/artifacts/pki
