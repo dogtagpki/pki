@@ -79,6 +79,7 @@ jobs:
     uses: ./.github/workflows/ipa-basic-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   ipa-acme-test:
     name: IPA ACME
@@ -88,6 +89,7 @@ jobs:
     uses: ./.github/workflows/ipa-acme-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   ipa-clone-test:
     name: IPA clone
@@ -97,3 +99,4 @@ jobs:
     uses: ./.github/workflows/ipa-clone-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}

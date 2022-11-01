@@ -79,6 +79,7 @@ jobs:
     uses: ./.github/workflows/tps-basic-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   tps-separate-test:
     name: TPS on separate instance
@@ -88,6 +89,7 @@ jobs:
     uses: ./.github/workflows/tps-separate-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   tps-external-certs-test:
     name: TPS with external certs
@@ -97,6 +99,7 @@ jobs:
     uses: ./.github/workflows/tps-external-certs-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   tps-clone-test:
     name: TPS clone
@@ -106,3 +109,4 @@ jobs:
     uses: ./.github/workflows/tps-clone-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}

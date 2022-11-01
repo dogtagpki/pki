@@ -79,6 +79,7 @@ jobs:
     uses: ./.github/workflows/kra-basic-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   kra-separate-test:
     name: KRA on separate instance
@@ -88,6 +89,7 @@ jobs:
     uses: ./.github/workflows/kra-separate-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   kra-external-certs-test:
     name: KRA with external certs
@@ -97,6 +99,7 @@ jobs:
     uses: ./.github/workflows/kra-external-certs-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   kra-cmc-test:
     name: KRA with CMC
@@ -106,6 +109,7 @@ jobs:
     uses: ./.github/workflows/kra-cmc-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   kra-clone-test:
     name: KRA clone
@@ -115,6 +119,7 @@ jobs:
     uses: ./.github/workflows/kra-clone-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   kra-standalone-test:
     name: Standalone KRA
@@ -124,6 +129,7 @@ jobs:
     uses: ./.github/workflows/kra-standalone-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   kra-rsnv3-test:
     name: KRA with RSNv3
@@ -133,3 +139,4 @@ jobs:
     uses: ./.github/workflows/kra-rsnv3-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}

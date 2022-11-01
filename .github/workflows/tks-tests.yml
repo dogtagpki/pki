@@ -79,6 +79,7 @@ jobs:
     uses: ./.github/workflows/tks-basic-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   tks-separate-test:
     name: TKS on separate instance
@@ -88,6 +89,7 @@ jobs:
     uses: ./.github/workflows/tks-separate-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   tks-external-certs-test:
     name: TKS with external certs
@@ -97,6 +99,7 @@ jobs:
     uses: ./.github/workflows/tks-external-certs-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   tks-clone-test:
     name: TKS clone
@@ -106,3 +109,4 @@ jobs:
     uses: ./.github/workflows/tks-clone-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}

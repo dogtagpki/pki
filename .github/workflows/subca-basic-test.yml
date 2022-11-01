@@ -6,6 +6,9 @@ on:
       os:
         required: true
         type: string
+      db-image:
+        required: false
+        type: string
 
 jobs:
   # docs/installation/ca/Installing_Subordinate_CA.md
@@ -34,7 +37,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh rootds
         env:
-          IMAGE: ${{ needs.init.outputs.db-image }}
+          IMAGE: ${{ inputs.db-image }}
           HOSTNAME: rootds.example.com
           PASSWORD: Secret.123
 
@@ -70,7 +73,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh subds
         env:
-          IMAGE: ${{ needs.init.outputs.db-image }}
+          IMAGE: ${{ inputs.db-image }}
           HOSTNAME: subds.example.com
           PASSWORD: Secret.123
 

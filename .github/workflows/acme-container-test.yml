@@ -6,6 +6,9 @@ on:
       os:
         required: true
         type: string
+      db-image:
+        required: false
+        type: string
 
 jobs:
   # docs/installation/podman/Deploying_PKI_ACME_Responder_on_Podman.md

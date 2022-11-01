@@ -6,6 +6,9 @@ on:
       os:
         required: true
         type: string
+      db-image:
+        required: false
+        type: string
 
 jobs:
   # https://github.com/dogtagpki/pki/wiki/Installing-Standalone-OCSP
@@ -39,7 +42,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh cads
         env:
-          IMAGE: ${{ needs.init.outputs.db-image }}
+          IMAGE: ${{ inputs.db-image }}
           HOSTNAME: cads.example.com
           PASSWORD: Secret.123
 
@@ -78,7 +81,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh ocspds
         env:
-          IMAGE: ${{ needs.init.outputs.db-image }}
+          IMAGE: ${{ inputs.db-image }}
           HOSTNAME: ocspds.example.com
           PASSWORD: Secret.123
 

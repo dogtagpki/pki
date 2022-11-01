@@ -6,6 +6,9 @@ on:
       os:
         required: true
         type: string
+      db-image:
+        required: false
+        type: string
 
 jobs:
   # https://github.com/dogtagpki/pki/wiki/Issuing-User-Certificate-with-CMC-Shared-Token
@@ -34,7 +37,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh ds
         env:
-          IMAGE: ${{ needs.init.outputs.db-image }}
+          IMAGE: ${{ inputs.db-image }}
           HOSTNAME: ds.example.com
           PASSWORD: Secret.123
 

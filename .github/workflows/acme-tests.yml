@@ -97,6 +97,7 @@ jobs:
     uses: ./.github/workflows/acme-certbot-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   acme-switchover-test:
     name: ACME server switchover
@@ -106,6 +107,7 @@ jobs:
     uses: ./.github/workflows/acme-switchover-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   acme-container-test:
     name: ACME container
@@ -115,3 +117,4 @@ jobs:
     uses: ./.github/workflows/acme-container-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}

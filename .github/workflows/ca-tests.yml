@@ -97,6 +97,7 @@ jobs:
     uses: ./.github/workflows/ca-basic-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   ca-ecc-test:
     name: CA with ECC
@@ -106,6 +107,7 @@ jobs:
     uses: ./.github/workflows/ca-ecc-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   ca-rsa-pss-test:
     name: CA with RSA/PSS
@@ -115,6 +117,7 @@ jobs:
     uses: ./.github/workflows/ca-rsa-pss-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   ca-existing-certs-test:
     name: CA with existing certs
@@ -124,6 +127,7 @@ jobs:
     uses: ./.github/workflows/ca-existing-certs-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   ca-existing-nssdb-test:
     name: CA with existing NSS database
@@ -133,6 +137,7 @@ jobs:
     uses: ./.github/workflows/ca-existing-nssdb-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   ca-existing-ds-test:
     name: CA with existing DS
@@ -142,6 +147,7 @@ jobs:
     uses: ./.github/workflows/ca-existing-ds-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   ca-shared-token-test:
     name: CA with shared token
@@ -151,6 +157,7 @@ jobs:
     uses: ./.github/workflows/ca-shared-token-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   ca-hsm-test:
     name: CA with HSM
@@ -160,6 +167,7 @@ jobs:
     uses: ./.github/workflows/ca-hsm-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   ca-container-test:
     name: CA container
@@ -169,6 +177,7 @@ jobs:
     uses: ./.github/workflows/ca-container-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   ca-ds-connection-test:
     name: CA connection with DS
@@ -178,6 +187,7 @@ jobs:
     uses: ./.github/workflows/ca-ds-connection-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   subca-basic-test:
     name: Basic Sub-CA
@@ -187,6 +197,7 @@ jobs:
     uses: ./.github/workflows/subca-basic-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   subca-cmc-test:
     name: Sub-CA with CMC
@@ -196,6 +207,7 @@ jobs:
     uses: ./.github/workflows/subca-cmc-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   subca-external-test:
     name: Sub-CA with external cert
@@ -205,3 +217,4 @@ jobs:
     uses: ./.github/workflows/subca-external-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}

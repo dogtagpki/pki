@@ -6,6 +6,9 @@ on:
       os:
         required: true
         type: string
+      db-image:
+        required: false
+        type: string
 
 jobs:
   # docs/admin/server/Configuring-HTTPS-Connector-with-PEM-Files.adoc

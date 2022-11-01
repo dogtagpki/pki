@@ -97,6 +97,7 @@ jobs:
     uses: ./.github/workflows/server-basic-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   server-https-pem-test:
     name: HTTPS connector with PEM files
@@ -106,6 +107,7 @@ jobs:
     uses: ./.github/workflows/server-https-pem-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   server-https-jks-test:
     name: HTTPS connector with JKS file
@@ -115,6 +117,7 @@ jobs:
     uses: ./.github/workflows/server-https-jks-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   server-https-pkcs12-test:
     name: "HTTPS connector with PKCS #12 file"
@@ -124,6 +127,7 @@ jobs:
     uses: ./.github/workflows/server-https-pkcs12-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   server-https-nss-test:
     name: HTTPS connector with NSS database
@@ -133,6 +137,7 @@ jobs:
     uses: ./.github/workflows/server-https-nss-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   server-upgrade-test:
     name: Server upgrade
@@ -142,6 +147,7 @@ jobs:
     uses: ./.github/workflows/server-upgrade-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   server-container-test:
     name: Server container
@@ -151,3 +157,4 @@ jobs:
     uses: ./.github/workflows/server-container-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}

@@ -79,6 +79,7 @@ jobs:
     uses: ./.github/workflows/ocsp-basic-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   ocsp-separate-test:
     name: OCSP on separate instance
@@ -88,6 +89,7 @@ jobs:
     uses: ./.github/workflows/ocsp-separate-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   ocsp-external-certs-test:
     name: OCSP with external certs
@@ -97,6 +99,7 @@ jobs:
     uses: ./.github/workflows/ocsp-external-certs-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   ocsp-cmc-test:
     name: OCSP with CMC
@@ -106,6 +109,7 @@ jobs:
     uses: ./.github/workflows/ocsp-cmc-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   ocsp-clone-test:
     name: OCSP clone
@@ -115,6 +119,7 @@ jobs:
     uses: ./.github/workflows/ocsp-clone-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   ocsp-crl-direct-test:
     name: OCSP with direct CRL publishing
@@ -124,6 +129,7 @@ jobs:
     uses: ./.github/workflows/ocsp-crl-direct-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
 
   ocsp-crl-ldap-test:
     name: OCSP with LDAP-based CRL publishing
@@ -133,3 +139,4 @@ jobs:
     uses: ./.github/workflows/ocsp-crl-ldap-test.yml
     with:
       os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
