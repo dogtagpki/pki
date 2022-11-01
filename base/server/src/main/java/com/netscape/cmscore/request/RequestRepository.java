@@ -322,7 +322,24 @@ public class RequestRepository extends Repository {
             dbs.modify(dn, mods);
 
         } catch (EBaseException e) {
-            logger.warn("RequestRepository: " + e.getMessage(), e);
+            logger.error("RequestRepository: " + e.getMessage(), e);
+            throw e;
+
+        } finally {
+            dbs.close();
+        }
+    }
+
+    public void removeRequest(RequestId requestID) throws EBaseException {
+
+        DBSSession dbs = dbSubsystem.createSession();
+
+        try {
+            String name = "cn=" + requestID + "," + mBaseDN;
+            dbs.delete(name);
+
+        } catch (EBaseException e) {
+            logger.error("RequestRepository: " + e.getMessage(), e);
             throw e;
 
         } finally {
