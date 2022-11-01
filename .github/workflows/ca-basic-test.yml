@@ -35,7 +35,6 @@ jobs:
           tests/bin/ds-container-create.sh ds
         env:
           IMAGE: ${{ needs.init.outputs.db-image }}
-          COPR_REPO: ${{ needs.init.outputs.repo }}
           HOSTNAME: ds.example.com
           PASSWORD: Secret.123
 
