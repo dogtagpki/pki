@@ -24,3 +24,10 @@ so they have been removed.
 The system and transaction logs have been replaced with debug and signed audit logs.
 The `log.instance.System.<name>` and `log.instance.Transactions.<name>` parameters in `CS.cfg`
 are no longer used so they have been removed.
+
+== Add CA database pruning ==
+
+The CA provides a mechanism to automatically prune expired certificates and incomplete requests from CA database:
+
+* link:https://github.com/dogtagpki/pki/wiki/CA-Database-Pruning[CA Database Pruning]
+* link:https://github.com/dogtagpki/pki/wiki/Configuring-CA-Database-Pruning[Configuring CA Database Pruning]
