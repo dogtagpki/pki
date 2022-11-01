@@ -68,6 +68,7 @@ import com.netscape.certsrv.profile.ProfileResource;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.cms.profile.common.CAEnrollProfile;
+import com.netscape.cms.profile.common.ProfilePoliciesConfig;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.profile.common.ProfileConfig;
 import com.netscape.cms.profile.common.ProfileInputConfig;
@@ -279,7 +280,8 @@ public class ProfileService extends SubsystemService implements ProfileResource 
 
     public ProfilePolicy createProfilePolicy(Profile profile, String setId, String policyId) throws EBaseException {
         com.netscape.cms.profile.common.ProfilePolicy policy = profile.getProfilePolicy(setId, policyId);
-        ConfigStore policyStore = profile.getConfigStore().getSubStore("policyset." + setId + "." + policy.getId(), ConfigStore.class);
+        ProfilePoliciesConfig policiesConfig = profile.getConfigStore().getPoliciesConfig();
+        ConfigStore policyStore = policiesConfig.getSubStore(setId + "." + policy.getId(), ConfigStore.class);
 
         ProfilePolicy p = new ProfilePolicy();
         String constraintClassId = policyStore.getString("constraint.class_id");
@@ -903,7 +905,8 @@ public class ProfileService extends SubsystemService implements ProfileResource 
                             def.getClassId(), con.getClassId());
 
                     // change specific elements to match incoming data for PolicyDefault
-                    ConfigStore pstore = profile.getConfigStore().getSubStore("policyset." + setId + "." + policy.getId(), ConfigStore.class);
+                    ProfilePoliciesConfig policiesConfig = profile.getConfigStore().getPoliciesConfig();
+                    ConfigStore pstore = policiesConfig.getSubStore(setId + "." + policy.getId(), ConfigStore.class);
                     if (!def.getName().isEmpty()) {
                         pstore.putString("default.name", def.getName());
                     }

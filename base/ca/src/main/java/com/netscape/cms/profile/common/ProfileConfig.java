@@ -38,4 +38,11 @@ public class ProfileConfig extends ConfigStore {
     public ProfileOutputsConfig getProfileOutputsConfig() {
         return getSubStore("output", ProfileOutputsConfig.class);
     }
+
+    /**
+     * Returns profile policies configuration.
+     */
+    public ProfilePoliciesConfig getPoliciesConfig() {
+        return getSubStore("policyset", ProfilePoliciesConfig.class);
+    }
 }

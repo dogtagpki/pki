@@ -355,7 +355,7 @@ public abstract class Profile {
         }
 
         // handle profile policy plugins
-        ConfigStore policySetStore = profileConfig.getSubStore("policyset", ConfigStore.class);
+        ProfilePoliciesConfig policySetStore = profileConfig.getPoliciesConfig();
         String setlist = policySetStore.getString("list", "");
         StringTokenizer st = new StringTokenizer(setlist, ",");
 
@@ -471,7 +471,7 @@ public abstract class Profile {
             return;
         }
         try {
-            ConfigStore policySetSubStore = mConfig.getSubStore("policyset", ConfigStore.class);
+            ProfilePoliciesConfig policySetSubStore = mConfig.getPoliciesConfig();
             ConfigStore policySubStore = policySetSubStore.getSubStore(setId, ConfigStore.class);
 
             policySubStore.removeSubStore(policyId);
@@ -900,7 +900,8 @@ public abstract class Profile {
 
         Vector<ProfilePolicy> policies = mPolicySet.get(setId);
 
-        ConfigStore policyStore = mConfig.getSubStore("policyset." + setId, ConfigStore.class);
+        ProfilePoliciesConfig policySetStore = mConfig.getPoliciesConfig();
+        ConfigStore policyStore = policySetStore.getSubStore(setId, ConfigStore.class);
         if (policies == null) {
             policies = new Vector<>();
             mPolicySet.put(setId, policies);
@@ -917,7 +918,7 @@ public abstract class Profile {
                     }
                     setlist.append(k);
                 }
-                mConfig.putString("policyset.list", setlist.toString());
+                policySetStore.putString("list", setlist.toString());
             }
         } else {
             String ids = null;
@@ -955,7 +956,6 @@ public abstract class Profile {
         }
 
         // Now make sure we aren't trying to add a policy that already exists
-        ConfigStore policySetStore = mConfig.getSubStore("policyset", ConfigStore.class);
         String setlist = null;
         try {
             setlist = policySetStore.getString("list", "");
