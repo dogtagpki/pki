@@ -20,6 +20,7 @@ package com.netscape.cms.servlet.cert.scep;
 import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
 import java.security.InvalidAlgorithmParameterException;
+import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
@@ -58,9 +59,11 @@ import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyGenerator;
+import org.mozilla.jss.crypto.KeyPairGeneratorSpi;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapper;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
+import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.netscape.security.extensions.CertInfo;
@@ -84,6 +87,7 @@ import org.mozilla.jss.netscape.security.x509.GeneralName;
 import org.mozilla.jss.netscape.security.x509.GeneralNameInterface;
 import org.mozilla.jss.netscape.security.x509.GeneralNames;
 import org.mozilla.jss.netscape.security.x509.IPAddressName;
+import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
 import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
 import org.mozilla.jss.netscape.security.x509.OIDMap;
 import org.mozilla.jss.netscape.security.x509.RDN;
@@ -1285,10 +1289,13 @@ public class CRSEnrollment extends HttpServlet {
                               SymmetricKey.Usage.DECRYPT,
                               padding ? ea.getKeyStrength() / 8 : 0);
 
-            skinternal = cx.getKeyGenerator().clone(sk);
+            if(mUseOAEPKeyWrap) {
+                skinternal = moveSymmetricToInternalToken(cx, sk, skt, ea);
+            } else {
+                skinternal = cx.getKeyGenerator().clone(sk);
+            }
 
             cip = skinternal.getOwningToken().getCipherContext(ea);
-
             cip.initDecrypt(skinternal, (new IVParameterSpec(req.getIV())));
 
             decryptedP10bytes = cip.doFinal(req.getEncryptedPkcs10());
@@ -1301,6 +1308,28 @@ public class CRSEnrollment extends HttpServlet {
             throw new CRSFailureException("Could not unwrap PKCS10 blob: " + e.getMessage());
         }
 
+    }
+
+    private SymmetricKey moveSymmetricToInternalToken(CryptoContext cx, SymmetricKey sk, SymmetricKey.Type skt, EncryptionAlgorithm ea)
+            throws Exception {
+        KeyPairGeneratorSpi.Usage[] usage = {
+                KeyPairGeneratorSpi.Usage.WRAP,
+                KeyPairGeneratorSpi.Usage.UNWRAP,
+                KeyPairGeneratorSpi.Usage.ENCRYPT,
+                KeyPairGeneratorSpi.Usage.DECRYPT};
+        KeyPair keyPairWrap = CryptoUtil.generateRSAKeyPair(cx.getInternalToken(), 2048, true, true, false, usage, usage);
+        KeyIdentifier ki = CryptoUtil.createKeyIdentifier(keyPairWrap);
+
+        KeyWrapper kw = sk.getOwningToken().getKeyWrapper(KeyWrapAlgorithm.RSA_OAEP);
+        AlgorithmParameterSpec algSpec = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT);
+        kw.initWrap(keyPairWrap.getPublic(), algSpec);
+        byte[] wrappedSK = kw.wrap(sk);
+
+        KeyWrapper kwInt = cx.getInternalToken().getKeyWrapper(KeyWrapAlgorithm.RSA_OAEP);
+        PrivateKey pk = CryptoUtil.findPrivateKey(ki.getIdentifier());
+        kwInt.initUnwrap(pk, algSpec);
+
+        return kwInt.unwrapSymmetric(wrappedSK, skt, SymmetricKey.Usage.DECRYPT, ea.getKeyStrength() / 8);
     }
 
     private void getDetailFromRequest(CRSPKIMessage req, CRSPKIMessage crsResp)
@@ -2228,7 +2257,6 @@ public class CRSEnrollment extends HttpServlet {
             if(mUseOAEPKeyWrap) {
                 keyWrapAlg = KeyWrapAlgorithm.RSA_OAEP;
             }
-
             try {
                 return signingCertPrivKey.getOwningToken().getKeyWrapper(keyWrapAlg);
             } catch (TokenException e) {
