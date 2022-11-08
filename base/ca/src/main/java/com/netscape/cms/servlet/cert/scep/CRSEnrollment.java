@@ -88,7 +88,6 @@ import org.mozilla.jss.netscape.security.x509.GeneralName;
 import org.mozilla.jss.netscape.security.x509.GeneralNameInterface;
 import org.mozilla.jss.netscape.security.x509.GeneralNames;
 import org.mozilla.jss.netscape.security.x509.IPAddressName;
-import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
 import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
 import org.mozilla.jss.netscape.security.x509.OIDMap;
 import org.mozilla.jss.netscape.security.x509.RDN;
@@ -1321,7 +1320,6 @@ public class CRSEnrollment extends HttpServlet {
                 KeyPairGeneratorSpi.Usage.ENCRYPT,
                 KeyPairGeneratorSpi.Usage.DECRYPT};
         KeyPair keyPairWrap = CryptoUtil.generateRSAKeyPair(cx.getInternalToken(), 2048, true, true, false, usage, usage);
-        KeyIdentifier ki = CryptoUtil.createKeyIdentifier(keyPairWrap);
 
         KeyWrapper kw = sk.getOwningToken().getKeyWrapper(KeyWrapAlgorithm.RSA_OAEP);
         AlgorithmParameterSpec algSpec = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT);
@@ -1329,7 +1327,7 @@ public class CRSEnrollment extends HttpServlet {
         byte[] wrappedSK = kw.wrap(sk);
 
         KeyWrapper kwInt = cx.getInternalToken().getKeyWrapper(KeyWrapAlgorithm.RSA_OAEP);
-        PrivateKey pk = CryptoUtil.findPrivateKey(ki.getIdentifier());
+        PrivateKey pk = (PrivateKey) keyPairWrap.getPrivate() ;
         kwInt.initUnwrap(pk, algSpec);
 
         return kwInt.unwrapSymmetric(wrappedSK, skt, SymmetricKey.Usage.DECRYPT, ea.getKeyStrength() / 8);
@@ -2002,14 +2000,18 @@ public class CRSEnrollment extends HttpServlet {
                 SymmetricKey sk;
                 SymmetricKey skinternal;
                 EncryptionAlgorithm ea;
+                SymmetricKey.Type skt;
                 switch(String.valueOf(mEncryptionAlgorithm)) {
                     case "DES3":
+                        skt = SymmetricKey.DES3;
                         ea = EncryptionAlgorithm.DES3_CBC;
                         break;
                     case "AES":
+                        skt = SymmetricKey.AES;
                         ea = EncryptionAlgorithm.AES_128_CBC;
                         break;
                     default:
+                        skt = SymmetricKey.DES;
                         ea = EncryptionAlgorithm.DES_CBC;
                 }
 
@@ -2042,7 +2044,12 @@ public class CRSEnrollment extends HttpServlet {
 
                 // we have to move the key onto the internal token.
                 //skinternal = cx.getInternalKeyStorageToken().cloneKey(sk);
-                skinternal = cx.getInternalToken().cloneKey(sk);
+
+                if(mUseOAEPKeyWrap) {
+                    skinternal = moveSymmetricToInternalToken(cx, sk, skt, ea);
+                } else {
+                    skinternal = cx.getInternalToken().cloneKey(sk);
+                }
 
                 KeyWrapper kw = cx.getInternalKeyWrapper();
                 AlgorithmParameterSpec keyWrapConfig = null;
