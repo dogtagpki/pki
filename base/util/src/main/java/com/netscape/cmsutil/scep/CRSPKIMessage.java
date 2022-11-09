@@ -91,7 +91,7 @@ public class CRSPKIMessage {
             new OBJECT_IDENTIFIER(new long[] { 1, 2, 840, 113549, 1, 1, 1 }
             );
 
-    /* PKCS 1 - rsaEncryption */
+    /* PKCS 1 - rsaOaepEncryption */
     public static OBJECT_IDENTIFIER RSAES_OAEP_ENCRYPTION =
             new OBJECT_IDENTIFIER(new long[] { 1, 2, 840, 113549, 1, 1, 7 }
             );
