@@ -164,6 +164,8 @@ public class CRSEnrollment extends HttpServlet {
 
     private static final long serialVersionUID = 8483002540957382369L;
 
+    private static final String OAEP_SHA = "SHA-256";
+
     protected ProfileSubsystem mProfileSubsystem;
     protected String mProfileId = null;
     protected CertificateAuthority mAuthority;
@@ -1263,7 +1265,7 @@ public class CRSEnrollment extends HttpServlet {
             kw = cx.getKeyWrapper();
             AlgorithmParameterSpec keyWrapConfig = null;
             if(mUseOAEPKeyWrap) {
-                keyWrapConfig = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT);
+                keyWrapConfig = new OAEPParameterSpec(OAEP_SHA, "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT);
                 padding = true;
             }
             kw.initUnwrap(cx.getPrivateKey(), keyWrapConfig);
@@ -1319,7 +1321,7 @@ public class CRSEnrollment extends HttpServlet {
         KeyPair keyPairWrap = CryptoUtil.generateRSAKeyPair(cx.getInternalToken(), 2048, true, true, false, usage, usage);
 
         KeyWrapper kw = sk.getOwningToken().getKeyWrapper(KeyWrapAlgorithm.RSA_OAEP);
-        AlgorithmParameterSpec algSpec = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT);
+        AlgorithmParameterSpec algSpec = new OAEPParameterSpec(OAEP_SHA, "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT);
         kw.initWrap(keyPairWrap.getPublic(), algSpec);
         byte[] wrappedSK = kw.wrap(sk);
 
@@ -2049,7 +2051,7 @@ public class CRSEnrollment extends HttpServlet {
                 KeyWrapper kw = cx.getInternalKeyWrapper();
                 AlgorithmParameterSpec keyWrapConfig = null;
                 if(mUseOAEPKeyWrap) {
-                    keyWrapConfig = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT);
+                    keyWrapConfig = new OAEPParameterSpec(OAEP_SHA, "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT);
                 }
                 kw.initWrap(rcpPK, keyWrapConfig);
 
@@ -2128,7 +2130,7 @@ public class CRSEnrollment extends HttpServlet {
         private CryptoManager cm;
         private CryptoToken internalToken;
         private CryptoToken keyStorageToken;
-        private CryptoToken internalKeyStorageToken;
+        private CryptoToken internalKeyStorageToken = null;
         private KeyGenerator keyGen;
         private Enumeration<?> externalTokens = null;
         private org.mozilla.jss.crypto.X509Certificate signingCert;
@@ -2165,7 +2167,7 @@ public class CRSEnrollment extends HttpServlet {
                     break;
                 default:
                     kga = KeyGenAlgorithm.DES;
-            }
+                }
                 cm = CryptoManager.getInstance();
                 internalToken = cm.getInternalCryptoToken();
                 keyGen = internalToken.getKeyGenerator(kga);
@@ -2176,8 +2178,6 @@ public class CRSEnrollment extends HttpServlet {
                 if (CryptoUtil.isInternalToken(mTokenName)) {
                     internalKeyStorageToken = keyStorageToken;
                     logger.debug("CRSEnrollment: CryptoContext: internal token name: '" + mTokenName + "'");
-                } else {
-                    internalKeyStorageToken = null;
                 }
                 if (!mUseCA && internalKeyStorageToken == null) {
                     PasswordCallback cb = new PWCBsdr();
