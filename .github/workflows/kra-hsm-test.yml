@@ -1,0 +1,262 @@
+name: KRA with HSM
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+      db-image:
+        required: false
+        type: string
+
+jobs:
+  # docs/installation/kra/Installing_KRA_with_HSM.md
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      - name: Retrieve runner image
+        uses: actions/cache@v3
+        with:
+          key: pki-kra-runner-${{ inputs.os }}-${{ github.run_id }}
+          path: pki-runner.tar
+
+      - name: Load runner image
+        run: docker load --input pki-runner.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-container-create.sh ds
+        env:
+          IMAGE: ${{ inputs.db-image }}
+          HOSTNAME: ds.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect DS container to network
+        run: docker network connect example ds --alias ds.example.com
+
+      - name: Set up PKI container
+        run: |
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
+
+      - name: Connect PKI container to network
+        run: docker network connect example pki --alias pki.example.com
+
+      - name: Install dependencies
+        run: |
+          docker exec pki dnf install -y softhsm
+
+      - name: Create SoftHSM token
+        run: |
+          # allow PKI user to access SoftHSM files
+          docker exec pki usermod pkiuser -a -G ods
+
+          # create SoftHSM token for PKI server
+          docker exec pki runuser -u pkiuser -- \
+              softhsm2-util \
+              --init-token \
+              --label HSM \
+              --so-pin Secret.123 \
+              --pin Secret.123 \
+              --free
+
+          docker exec pki ls -laR /var/lib/softhsm/tokens
+
+      - name: Install CA with HSM
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_hostname=ds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -D pki_hsm_enable=True \
+              -D pki_token_name=HSM \
+              -D pki_token_password=Secret.123 \
+              -D pki_server_database_password=Secret.123 \
+              -D pki_ca_signing_token=HSM \
+              -D pki_ocsp_signing_token=HSM \
+              -D pki_audit_signing_token=HSM \
+              -D pki_subsystem_token=HSM \
+              -D pki_sslserver_token=internal \
+              -D pki_cert_id_generator=random \
+              -D pki_request_id_generator=random \
+              -v
+
+      - name: Check system certs in internal token
+        run: |
+          # CA should create 5 certs in internal token
+          echo "5" > expected
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-find | tee output
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check system certs in HSM
+        run: |
+          # CA should create 4 certs in HSM
+          echo "4" > expected
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-find | tee output
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+      - name: Install KRA with HSM
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/kra.cfg \
+              -s KRA \
+              -D pki_ds_hostname=ds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -D pki_hsm_enable=True \
+              -D pki_token_name=HSM \
+              -D pki_token_password=Secret.123 \
+              -D pki_server_database_password=Secret.123 \
+              -D pki_storage_token=HSM \
+              -D pki_transport_token=HSM \
+              -D pki_audit_signing_token=HSM \
+              -D pki_subsystem_token=HSM \
+              -D pki_sslserver_token=internal \
+              -D pki_key_id_generator=random \
+              -D pki_request_id_generator=random \
+              -v
+
+      - name: Check system certs in internal token
+        run: |
+          # KRA should create 3 additional certs in internal token
+          echo "8" > expected
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-find | tee output
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check kra_storage cert in internal token
+        run: |
+          echo ",," > expected
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-show \
+              kra_storage | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check kra_transport cert in internal token
+        run: |
+          echo ",," > expected
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-show \
+              kra_transport | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check kra_audit_signing cert in internal token
+        run: |
+          echo ",,P" > expected
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-show \
+              kra_audit_signing | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check system certs in HSM
+        run: |
+          # KRA should create 3 additional certs in HSM
+          echo "7" > expected
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-find | tee output
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check kra_storage cert in HSM
+        run: |
+          echo "u,u,u" > expected
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-show \
+              HSM:kra_storage | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check kra_transport cert in HSM
+        run: |
+          echo "u,u,u" > expected
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-show \
+              HSM:kra_transport | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check kra_audit_signing cert in HSM
+        run: |
+          echo "u,u,Pu" > expected
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-show \
+              HSM:kra_audit_signing | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+      - name: Run PKI healthcheck
+        run: docker exec pki pki-healthcheck --failures-only
+
+      - name: Check KRA admin
+        run: |
+          docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
+          docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
+          docker exec pki pki client-cert-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+          docker exec pki pki -n caadmin kra-user-show kraadmin
+
+      - name: Gather artifacts
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki ds
+          tests/bin/pki-artifacts-save.sh pki
+        continue-on-error: true
+
+      - name: Remove KRA
+        run: docker exec pki pkidestroy -i pki-tomcat -s KRA -v
+
+      - name: Remove CA
+        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Remove SoftHSM token
+        run: |
+          docker exec pki ls -laR /var/lib/softhsm/tokens
+          docker exec pki runuser -u pkiuser -- softhsm2-util --delete-token --token HSM
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: kra-hsm-${{ inputs.os }}
+          path: |
+            /tmp/artifacts/pki
