@@ -36,8 +36,13 @@ public class PruningJob extends Job implements IExtendedPluginInfo {
 
     int certRetentionTime;
     int certRetentionUnit;
+    int certSearchSizeLimit;
+    int certSearchTimeLimit;
+
     int requestRetentionTime;
     int requestRetentionUnit;
+    int requestSearchSizeLimit;
+    int requestSearchTimeLimit;
 
     CertificateRepository certRepository;
     RequestRepository requestRepository;
@@ -49,8 +54,12 @@ public class PruningJob extends Job implements IExtendedPluginInfo {
                 "cron",
                 "certRetentionTime",
                 "certRetentionUnit",
+                "certSearchSizeLimit",
+                "certSearchTimeLimit",
                 "requestRetentionTime",
-                "requestRetentionUnit"
+                "requestRetentionUnit",
+                "requestSearchSizeLimit",
+                "requestSearchTimeLimit"
         };
     }
 
@@ -65,8 +74,12 @@ public class PruningJob extends Job implements IExtendedPluginInfo {
                 "enabled;boolean;Enable this plugin",
                 "certRetentionTime;integer;Certificate retention time (default: 30)",
                 "certRetentionUnit;integer;Certificate retention unit: year, month, day (default), hour, minute",
+                "certSearchSizeLimit;integer;Certificate search size limit (default: 1000)",
+                "certSearchTimeLimit;integer;Certificate search time limit in seconds (default: 0)",
                 "requestRetentionTime;integer;Request retention time (default: 30)",
                 "requestRetentionUnit;integer;Request retention unit: year, month, day (default), hour, minute",
+                "requestSearchSizeLimit;integer;Request search size limit (default: 1000)",
+                "requestSearchTimeLimit;integer;Request search time limit in seconds (default: 0)",
                 IExtendedPluginInfo.HELP_TOKEN + ";configuration-jobrules-pruningjobs",
         };
     }
@@ -102,21 +115,35 @@ public class PruningJob extends Job implements IExtendedPluginInfo {
         requestRepository = engine.getRequestRepository();
         certRepository = engine.getCertificateRepository();
 
-        String certRetentionTimeStr = config.getString("certRetentionTime", "30");
-        logger.info("PruningJob: - cert retention time: " + certRetentionTimeStr);
-        certRetentionTime = Integer.parseInt(certRetentionTimeStr);
+        certRetentionTime = config.getInteger("certRetentionTime", 30);
+        logger.info("PruningJob: - cert retention time: " + certRetentionTime);
 
         String certRetentionUnitStr = config.getString("certRetentionUnit", "day");
         logger.info("PruningJob: - cert retention unit: " + certRetentionUnitStr);
         certRetentionUnit = parseRetentionUnit(certRetentionUnitStr);
 
-        String requestRetentionTimeStr = config.getString("requestRetentionTime", "30");
-        logger.info("PruningJob: - request retention time: " + requestRetentionTimeStr);
-        requestRetentionTime = Integer.parseInt(requestRetentionTimeStr);
+        // default LDAPSearchConstraints.maxRes is 1000
+        certSearchSizeLimit = config.getInteger("certSearchSizeLimit", 1000);
+        logger.info("PruningJob: - cert search size limit: " + certSearchSizeLimit);
+
+        // default LDAPSearchConstraints.serverTimeLimit is 0
+        certSearchTimeLimit = config.getInteger("certSearchTimeLimit", 0);
+        logger.info("PruningJob: - cert search time limit: " + certSearchTimeLimit);
+
+        requestRetentionTime = config.getInteger("requestRetentionTime", 30);
+        logger.info("PruningJob: - request retention time: " + requestRetentionTime);
 
         String requestRetentionUnitStr = config.getString("requestRetentionUnit", "day");
         logger.info("PruningJob: - request retention unit: " + requestRetentionUnitStr);
         requestRetentionUnit = parseRetentionUnit(requestRetentionUnitStr);
+
+        // default LDAPSearchConstraints.maxRes is 1000
+        requestSearchSizeLimit = config.getInteger("requestSearchSizeLimit", 1000);
+        logger.info("PruningJob: - request search size limit: " + requestSearchSizeLimit);
+
+        // default LDAPSearchConstraints.serverTimeLimit is 0
+        requestSearchTimeLimit = config.getInteger("requestSearchTimeLimit", 0);
+        logger.info("PruningJob: - request search time limit: " + requestSearchTimeLimit);
     }
 
     public void pruneCertRecord(CertRecord certRecord) throws Exception {
@@ -158,10 +185,11 @@ public class PruningJob extends Job implements IExtendedPluginInfo {
         String filter = "(&(x509Cert.notAfter<=" + time + ")(!(x509Cert.notAfter=" + time + ")))";
         logger.info("PruningJob: - filter: " + filter);
 
-        Enumeration<Object> certRecords = certRepository.findCertRecs(filter);
+        Enumeration<CertRecord> certRecords = certRepository.searchCertificates(
+                filter, certSearchSizeLimit, certSearchTimeLimit);
 
         while (certRecords.hasMoreElements()) {
-            CertRecord certRecord = (CertRecord) certRecords.nextElement();
+            CertRecord certRecord = certRecords.nextElement();
 
             CertId certID = new CertId(certRecord.getSerialNumber());
             logger.info("PruningJob: Pruning cert " + certID.toHexString());
@@ -191,7 +219,8 @@ public class PruningJob extends Job implements IExtendedPluginInfo {
                 "(!(" + RequestRecord.ATTR_MODIFY_TIME + "=" + time + ")))";
         logger.info("PruningJob: - filter: " + filter);
 
-        RequestList requestRecords = requestRepository.listRequestsByFilter(filter);
+        RequestList requestRecords = requestRepository.listRequestsByFilter(
+                filter, requestSearchSizeLimit, requestSearchTimeLimit);
 
         while (requestRecords.hasMoreElements()) {
             RequestId requestID = requestRecords.nextElement();
