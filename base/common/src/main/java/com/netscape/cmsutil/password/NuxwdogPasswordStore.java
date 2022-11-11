@@ -50,8 +50,9 @@ public class NuxwdogPasswordStore implements IPasswordStore {
      */
     private void populateTokenTags(String confFile) throws IOException {
         Properties props = new Properties();
-        InputStream in = new FileInputStream(confFile);
-        props.load(in);
+        try (InputStream in = new FileInputStream(confFile)) {
+            props.load(in);
+        }
 
         tags.add(CryptoUtil.INTERNAL_TOKEN_NAME);
 
