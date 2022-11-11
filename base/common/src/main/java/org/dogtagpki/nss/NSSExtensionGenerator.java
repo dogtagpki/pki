@@ -7,6 +7,7 @@ package org.dogtagpki.nss;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -74,7 +75,9 @@ public class NSSExtensionGenerator {
     public void init(String filename) throws Exception {
 
         Properties properties = new Properties();
-        properties.load(new FileInputStream(filename));
+        try (InputStream is = new FileInputStream(filename)) {
+            properties.load(is);
+        }
 
         parameters.clear();
         for (String name : properties.stringPropertyNames()) {
