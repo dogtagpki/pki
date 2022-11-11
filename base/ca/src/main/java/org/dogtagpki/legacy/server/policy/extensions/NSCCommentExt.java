@@ -22,6 +22,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.security.cert.CertificateException;
 import java.util.Vector;
 
@@ -206,9 +207,10 @@ public class NSCCommentExt extends APolicyRule
         }
         if (mInputType.equals("File")) {
             //		if ((mUserNoticeDisplayText.equals("")) && !(mCommentFile.equals(""))) {
-            try {
-                // Read the comments file
-                BufferedReader fis = new BufferedReader(new FileReader(mCommentFile));
+
+            // Read the comments file
+            try (Reader r = new FileReader(mCommentFile);
+                    BufferedReader fis = new BufferedReader(r)) {
 
                 String line = null;
                 StringBuffer buffer = new StringBuffer();
@@ -216,7 +218,7 @@ public class NSCCommentExt extends APolicyRule
                 while ((line = fis.readLine()) != null)
                     buffer.append(line);
                 mUserNoticeDisplayText = new String(buffer);
-                fis.close();
+
             } catch (IOException e) {
                 setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
                         NAME, " Comment Text file not found : " + mCommentFile);
