@@ -22,10 +22,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.util.Enumeration;
@@ -288,23 +290,16 @@ public class CMSTemplate extends CMSFile {
 
         // Debug.trace("FormCache:loadFile");
 
-        /* create input stream, can throw IOException */
-        FileInputStream inStream = new FileInputStream(template);
-        InputStreamReader inReader = new InputStreamReader(inStream, mCharset);
-        ;
-        BufferedReader in = new BufferedReader(inReader);
         StringBuffer buf = new StringBuffer();
-        String line;
+        try (InputStream inStream = new FileInputStream(template);
+                Reader inReader = new InputStreamReader(inStream, mCharset);
+                BufferedReader in = new BufferedReader(inReader)) {
 
-        while ((line = in.readLine()) != null) {
-            buf.append(line);
-            buf.append('\n');
-        }
-        try {
-            in.close();
-            inStream.close();
-        } catch (IOException e) {
-            logger.warn("CMSTemplate: " + CMS.getLogMessage("CMSGW_ERR_CLOSE_TEMPL_FILE", mAbsPath, e.getMessage()), e);
+            String line;
+            while ((line = in.readLine()) != null) {
+                buf.append(line);
+                buf.append('\n');
+            }
         }
         return buf.toString();
     }
