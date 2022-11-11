@@ -20,6 +20,7 @@ package com.netscape.cms.servlet.common;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -48,9 +49,10 @@ public class CMSFile {
         int fileSize = (int) file.length();
 
         mContent = new byte[fileSize];
-        FileInputStream fileIn = new FileInputStream(file);
-        int actualSize = fileIn.read(mContent);
-        fileIn.close();
+        int actualSize;
+        try (InputStream fileIn = new FileInputStream(file)) {
+            actualSize = fileIn.read(mContent);
+        }
 
         if (actualSize != fileSize) {
             byte[] actualContent = new byte[actualSize];
