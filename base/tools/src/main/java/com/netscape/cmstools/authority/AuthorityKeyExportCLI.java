@@ -1,5 +1,6 @@
 package com.netscape.cmstools.authority;
 
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.PublicKey;
@@ -159,6 +160,8 @@ public class AuthorityKeyExportCLI extends CommandCLI {
                 params,
                 aid);
 
-        Files.newOutputStream(Paths.get(filename)).write(data);
+        try (OutputStream os = Files.newOutputStream(Paths.get(filename))) {
+            os.write(data);
+        }
     }
 }
