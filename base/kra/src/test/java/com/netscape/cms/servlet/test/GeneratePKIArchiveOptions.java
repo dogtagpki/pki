@@ -10,6 +10,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Writer;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -91,11 +92,10 @@ public class GeneratePKIArchiveOptions {
     }
 
     private static void write_file(String data, String outFile) throws IOException {
-        FileWriter fstream = new FileWriter(outFile);
-        BufferedWriter out = new BufferedWriter(fstream);
-        out.write(data);
-        //Close the output stream
-        out.close();
+        try (Writer fstream = new FileWriter(outFile);
+                BufferedWriter out = new BufferedWriter(fstream)) {
+            out.write(data);
+        }
     }
 
     public static void main(String args[]) throws Exception {
