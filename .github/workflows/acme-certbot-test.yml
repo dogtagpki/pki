@@ -65,6 +65,24 @@ jobs:
               -D pki_request_id_generator=random \
               -v
 
+      - name: Install CA admin cert
+        run: |
+          docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
+          docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
+          docker exec pki pki client-cert-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+          docker exec pki pki -n caadmin ca-user-show caadmin
+
+      - name: Check initial CA certs
+        run: |
+          docker exec pki pki ca-cert-find | tee output
+
+          # there should be 6 certs
+          echo "6" > expected
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
       - name: Set up ACME database in DS container
         run: |
           docker exec ds ldapmodify \
@@ -95,17 +113,97 @@ jobs:
               -D url=ldap://ds.example.com:3389
           docker exec pki pki-server acme-deploy --wait
 
+      - name: Check initial ACME accounts
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=accounts,dc=acme,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          # there should be no accounts
+          echo "0" > expected
+          grep "^dn:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check initial ACME orders
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=orders,dc=acme,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          # there should be no orders
+          echo "0" > expected
+          grep "^dn:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check initial ACME authorizations
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=authorizations,dc=acme,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          # there should be no authorizations
+          echo "0" > expected
+          grep "^dn:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check initial ACME challenges
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=challenges,dc=acme,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          # there should be no challenges
+          echo "0" > expected
+          grep "^dn:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check initial ACME certs
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=certificates,dc=acme,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          # there should be no certs
+          echo "0" > expected
+          grep "^dn:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check CA certs after ACME installation
+        run: |
+          docker exec pki pki ca-cert-find | tee output
+
+          # there should be 6 certs
+          echo "6" > expected
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
       - name: Run PKI healthcheck in PKI container
         run: docker exec pki pki-healthcheck --failures-only
-
-      - name: Verify admin user in PKI container
-        run: |
-          docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
-          docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
-          docker exec pki pki client-cert-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
-              --pkcs12-password Secret.123
-          docker exec pki pki -n caadmin ca-user-show caadmin
 
       - name: Verify ACME in PKI container
         run: docker exec pki pki acme-info
@@ -119,40 +217,342 @@ jobs:
       - name: Connect client container to network
         run: docker network connect example client --alias client.example.com
 
-      - name: Install dependencies in client container
+      - name: Install certbot in client container
         run: docker exec client dnf install -y certbot
 
-      - name: Verify certbot in client container
+      - name: Register ACME account
         run: |
           docker exec client certbot register \
               --server http://pki.example.com:8080/acme/directory \
-              --email user1@example.com \
+              --email testuser@example.com \
               --agree-tos \
               --non-interactive
+
+      - name: Check ACME accounts after registration
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=accounts,dc=acme,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          # there should be one account
+          echo "1" > expected
+          grep "^dn:" output | wc -l > actual
+          diff expected actual
+
+          # status should be valid
+          echo "valid" > expected
+          sed -n 's/^acmeStatus: *\(.*\)$/\1/p' output > actual
+          diff expected actual
+
+          # email should be testuser@example.com
+          echo "mailto:testuser@example.com" > expected
+          sed -n 's/^acmeAccountContact: *\(.*\)$/\1/p' output > actual
+          diff expected actual
+
+      - name: Enroll client cert
+        run: |
           docker exec client certbot certonly \
               --server http://pki.example.com:8080/acme/directory \
               -d client.example.com \
               --standalone \
               --non-interactive
-          docker exec client openssl x509 -text -noout -in /etc/letsencrypt/live/client.example.com/fullchain.pem
+
+      - name: Check client cert
+        run: |
+          docker exec client pki client-cert-import \
+              --cert /etc/letsencrypt/live/client.example.com/fullchain.pem \
+              client1
+
+          # store serial number
+          docker exec client pki nss-cert-show client1 | tee output
+          sed -n 's/^ *Serial Number: *\(.*\)/\1/p' output > serial1.txt
+
+          # subject should be CN=client.example.com
+          echo "CN=client.example.com" > expected
+          sed -n 's/^ *Subject DN: *\(.*\)/\1/p' output > actual
+          diff expected actual
+
+      - name: Check ACME orders after enrollment
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=orders,dc=acme,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          # there should be one order
+          echo "1" > expected
+          grep "^dn:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check ACME authorizations after enrollment
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=authorizations,dc=acme,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          # there should be one authorization
+          echo "1" > expected
+          grep "^dn:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check ACME challenges after enrollment
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=challenges,dc=acme,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          # there should be one challenge
+          echo "1" > expected
+          grep "^dn:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check ACME certs after enrollment
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=certificates,dc=acme,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          # there should be no certs (they are stored in CA)
+          echo "0" > expected
+          grep "^dn:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check CA certs after enrollment
+        run: |
+          docker exec pki pki ca-cert-find | tee output
+
+          # there should be 7 certs
+          echo "7" > expected
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+          # check client cert
+          SERIAL=$(cat serial1.txt)
+          docker exec pki pki ca-cert-show $SERIAL | tee output
+
+          # subject should be CN=client.example.com
+          echo "CN=client.example.com" > expected
+          sed -n 's/^ *Subject DN: *\(.*\)/\1/p' output > actual
+          diff expected actual
+
+      - name: Renew client cert
+        run: |
           docker exec client certbot renew \
               --server http://pki.example.com:8080/acme/directory \
               --cert-name client.example.com \
               --force-renewal \
               --no-random-sleep-on-renew \
               --non-interactive
-          docker exec client openssl x509 -text -noout -in /etc/letsencrypt/live/client.example.com/fullchain.pem
+
+      - name: Check renewed client cert
+        run: |
+          docker exec client pki client-cert-import \
+              --cert /etc/letsencrypt/live/client.example.com/fullchain.pem \
+              client2
+
+          # store serial number
+          docker exec client pki nss-cert-show client2 | tee output
+          sed -n 's/^ *Serial Number: *\(.*\)/\1/p' output > serial2.txt
+
+          # subject should be CN=client.example.com
+          echo "CN=client.example.com" > expected
+          sed -n 's/^ *Subject DN: *\(.*\)/\1/p' output > actual
+          diff expected actual
+
+      - name: Check ACME orders after renewal
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=orders,dc=acme,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          # there should be two orders
+          echo "2" > expected
+          grep "^dn:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check ACME authorizations after renewal
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=authorizations,dc=acme,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          # there should be two authorizations
+          echo "2" > expected
+          grep "^dn:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check ACME challenges after renewal
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=challenges,dc=acme,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          # there should be two challenges
+          echo "2" > expected
+          grep "^dn:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check ACME certs after renewal
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=certificates,dc=acme,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          # there should be no certs (they are stored in CA)
+          echo "0" > expected
+          grep "^dn:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check CA certs after renewal
+        run: |
+          docker exec pki pki ca-cert-find | tee output
+
+          # there should be 8 certs
+          echo "8" > expected
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+          # check renewed client cert
+          SERIAL=$(cat serial2.txt)
+          docker exec pki pki ca-cert-show $SERIAL | tee output
+
+          # subject should be CN=client.example.com
+          echo "CN=client.example.com" > expected
+          sed -n 's/^ *Subject DN: *\(.*\)/\1/p' output > actual
+          diff expected actual
+
+      - name: Revoke client cert
+        run: |
           docker exec client certbot revoke \
               --server http://pki.example.com:8080/acme/directory \
               --cert-name client.example.com \
               --non-interactive
+
+      - name: Check CA certs after revocation
+        run: |
+          docker exec pki pki ca-cert-find | tee output
+
+          # there should be 8 certs
+          echo "8" > expected
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+          # check original client cert
+          SERIAL=$(cat serial1.txt)
+          docker exec pki pki ca-cert-show $SERIAL | tee output
+
+          # status should be valid
+          echo "VALID" > expected
+          sed -n 's/^ *Status: *\(.*\)/\1/p' output > actual
+          diff expected actual
+
+          # check renewed-then-revoked client cert
+          SERIAL=$(cat serial2.txt)
+          docker exec pki pki ca-cert-show $SERIAL | tee output
+
+          # status should be revoked
+          echo "REVOKED" > expected
+          sed -n 's/^ *Status: *\(.*\)/\1/p' output > actual
+          diff expected actual
+
+      - name: Update ACME account
+        run: |
           docker exec client certbot update_account \
               --server http://pki.example.com:8080/acme/directory \
-              --email user2@example.com \
+              --email newuser@example.com \
               --non-interactive
+
+      - name: Check ACME accounts after update
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=accounts,dc=acme,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          # there should be one account
+          echo "1" > expected
+          grep "^dn:" output | wc -l > actual
+          diff expected actual
+
+          # email should be newuser@example.com
+          echo "mailto:newuser@example.com" > expected
+          sed -n 's/^acmeAccountContact: *\(.*\)$/\1/p' output > actual
+          diff expected actual
+
+      - name: Remove ACME account
+        run: |
           docker exec client certbot unregister \
               --server http://pki.example.com:8080/acme/directory \
               --non-interactive
+
+      - name: Check ACME accounts after unregistration
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=accounts,dc=acme,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          # there should be one account
+          echo "1" > expected
+          grep "^dn:" output | wc -l > actual
+          diff expected actual
+
+          # status should be deactivated
+          echo "deactivated" > expected
+          sed -n 's/^acmeStatus: *\(.*\)$/\1/p' output > actual
+          diff expected actual
 
       - name: Gather artifacts from server containers
         if: always()
