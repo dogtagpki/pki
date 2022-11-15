@@ -57,11 +57,6 @@ disable=W0511,W0105,W0142,C,R,W0232,W0707
 # mypackage.mymodule.MyReporterClass.
 output-format=text
 
-# Put messages in a separate file for each module / package specified on the
-# command line instead of printing them on stdout. Reports (if any) will be
-# written in a file name "pylint_global.[txt|html]".
-files-output=no
-
 # Tells whether to display a full report or only the messages
 reports=yes
 
@@ -144,9 +139,6 @@ generated-members=REQUEST,acl_users,aq_parent
 
 [BASIC]
 
-# List of builtins function names that should not be used, separated by a comma
-bad-functions=map,filter,apply,input
-
 # Regular expression which should only match correct module names
 module-rgx=(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$
 
@@ -200,9 +192,6 @@ max-locals=15
 
 # Maximum number of return / yield for function / method body
 max-returns=6
-
-# Maximum number of branch for function / method body
-max-branchs=12
 
 # Maximum number of statements in function / method body
 max-statements=50

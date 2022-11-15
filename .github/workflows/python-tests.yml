@@ -99,4 +99,7 @@ jobs:
           HOSTNAME: pki.example.com
 
       - name: Run Python lint
-        run: docker exec pki /usr/share/pki/tests/bin/pki-lint
+        run: |
+          docker exec pki pylint-3 --version
+          docker exec pki python3-flake8 --version
+          docker exec pki /usr/share/pki/tests/bin/pki-lint
