@@ -275,7 +275,7 @@ class PKIConfigParser:
             pki.specification_version()))
 
         charset = string.digits + string.ascii_lowercase + string.ascii_uppercase
-        self.deployer.main_config = configparser.SafeConfigParser({
+        self.deployer.main_config = configparser.ConfigParser({
             'application_version': application_version,
             'pki_instance_name': default_instance_name,
             'pki_http_port': default_http_port,
@@ -292,7 +292,7 @@ class PKIConfigParser:
         # Make keys case-sensitive!
         self.deployer.main_config.optionxform = str
 
-        self.deployer.user_config = configparser.SafeConfigParser()
+        self.deployer.user_config = configparser.ConfigParser()
         self.deployer.user_config.optionxform = str
 
         with open(config.default_deployment_cfg, encoding='utf-8') as f:
