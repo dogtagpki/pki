@@ -140,3 +140,13 @@ jobs:
     with:
       os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
+
+  ocsp-hsm-test:
+    name: OCSP with HSM
+    needs: [init, build]
+    strategy:
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    uses: ./.github/workflows/ocsp-hsm-test.yml
+    with:
+      os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
