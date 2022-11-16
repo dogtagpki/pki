@@ -61,10 +61,14 @@ jobs:
     displayName: Get list of files from RPM packages
 
   - script: |
+      # get Python <major>.<minor> version
+      docker exec runner python3 --version | tee output
+      VERSION=$(sed 's/Python \([0-9]\+\.[0-9]\+\)\..*/\1/' output)
+
       docker exec runner \
           /root/src/build.sh \
           --work-dir=/root/build \
-          --python-dir=/usr/lib/python3.10/site-packages \
+          --python-dir=/usr/lib/python$VERSION/site-packages \
           dist
     displayName: Build PKI with CMake
 
