@@ -110,3 +110,13 @@ jobs:
     with:
       os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
+
+  tks-hsm-test:
+    name: TKS with HSM
+    needs: [init, build]
+    strategy:
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    uses: ./.github/workflows/tks-hsm-test.yml
+    with:
+      os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
