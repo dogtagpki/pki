@@ -37,6 +37,7 @@ import com.netscape.certsrv.logging.event.ClientAccessSessionEstablishEvent;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSSLSocketFactoryExt;
@@ -52,10 +53,11 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
 
     private static SignedAuditLogger signedAuditLogger = SignedAuditLogger.getLogger();
     private boolean secure;
-    private String mClientAuthCertNickname;
-    private boolean mClientAuth;
+    private String mClientAuthCertNickname = null;
+    private boolean mClientAuth = false;
     private boolean keepAlive;
     PKIClientSocketListener sockListener = null;
+    private String mClientCiphers = null;
 
     /*
      * Per Bugzilla 1585722, the parameter "external" was introduced
@@ -89,6 +91,7 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
         init (null);
     }
     public void init(PKISocketConfig config) {
+        String method = "ldapconn/PKISocketFactory.init: ";
         try {
             if (!external) {
                 if (config == null) {
@@ -96,6 +99,34 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
                     config = engine.getConfig().getSocketConfig();
                 }
                 keepAlive = config.isKeepAlive();
+
+                /*
+                 * about ciphers
+                 * # for RSA, in CS.cfg
+                 * tcp.clientCiphers=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+                 *
+                 * # for ECC, in CS.cfg
+                 * tcp.clientCiphers=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384
+                 *
+                 * Note: this setting will affect ALL TLS socket creations after
+                 *   unless overwritten by further settings such as either:
+                 *   CA->KRA: ca.connector.KRA.clientCiphers
+                 *   TPS->KRA/CA/TKS: tps.connector.<ca|kra|tks id>.clientCiphers
+                 */
+                try {
+                    mClientCiphers = config.getClientCiphers();
+                    if (mClientCiphers != null) {
+                        mClientCiphers = mClientCiphers.trim();
+                        if (!mClientCiphers.isEmpty()) {
+                            CryptoUtil.setClientCiphers(mClientCiphers);
+                            log(method +"config tcp.clientCiphers: " + mClientCiphers);
+                        } else
+                            log(method +"config tcp.clientCiphers: not found");
+                     }
+                } catch (Exception econf) {
+                    // handled as default below
+                    log(method +"config tcp.clientCiphers: Exception treated as ciphers not set: " + econf.toString());
+                }
             } else {
                 keepAlive = true;
             }
@@ -139,6 +170,26 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
 
         s.addSocketListener(sockListener);
 
+       /** opt for general setting in constructor init() above rather than
+        *   socket-specific setting
+        if (mClientCiphers != null && !mClientCiphers.isEmpty())
+            CryptoUtil.setClientCiphers(s, mClientCiphers);
+        else { // if tcp.clientCiphers in CS.cfg not set, take default
+            //  debug default ciphers
+            int ciphers[] = s.getImplementedCipherSuites();
+            if (ciphers == null)
+                log(method + "hmm... no ciphers returned from getImplementedCipherSuites");
+            for (int cipher : ciphers) {
+                boolean enabled = SSLSocket.getCipherPreferenceDefault(cipher);
+                String cipherString = "0x" + Integer.toHexString(cipher);
+                if (enabled) {
+                    log (method + "cipher " + cipherString + " enabled by default");
+                } else
+                    log (method + "cipher " + cipherString + " NOT enabled by default");
+            }
+        }
+        */
+
         SSLHandshakeCompletedListener listener = null;
 
         listener = new ClientHandshakeCB(this);
@@ -146,7 +197,7 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
 
         if (mClientAuthCertNickname != null) {
             mClientAuth = true;
-            log("LdapJssSSLSocket: set client auth cert nickname " +
+            log(method +"LdapJssSSLSocket: set client auth cert nickname " +
                     mClientAuthCertNickname);
 
             //We have already established the manual cert selection callback
