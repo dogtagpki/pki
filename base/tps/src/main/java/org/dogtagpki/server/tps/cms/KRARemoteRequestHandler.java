@@ -55,6 +55,7 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
      * @param cuid is the token id
      * @param userid is the user id
      * @param sDesKey is the des key provided by the TKS for key encryption
+     * @param sAesKey is the aes key provided by the TKS to wrap another key
      * @param archive true or false
      *
      * @returns KRAServerSideKeyGenResponse
@@ -65,6 +66,7 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
             String cuid,
             String userid,
             String sDesKey,
+            String sAesKey,
             boolean archive)
             throws EBaseException {
 
@@ -106,7 +108,9 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
                     "&" + IRemoteRequest.KRA_KEYGEN_EC_KeyCurve + "=" +
                     eckeycurve +
                     "&" + IRemoteRequest.KRA_Trans_DesKey + "=" +
-                    sDesKey;
+                    sDesKey +
+                    "&" + IRemoteRequest.KRA_Trans_AesKey + "=" +
+                    sAesKey; 
 
             //logger.debug("KRARemoteRequestHandler: outgoing request for ECC: " + request);
 
@@ -126,9 +130,11 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
                     "&" + IRemoteRequest.KRA_KEYGEN_KeySize + "=" +
                     keysize +
                     "&" + IRemoteRequest.KRA_Trans_DesKey + "=" +
-                    sDesKey;
+                    sDesKey +
+                    "&" + IRemoteRequest.KRA_Trans_AesKey + "=" +
+                    sAesKey; 
 
-            //logger.debug("KRARemoteRequestHandler: outgoing request for RSA: " + request);
+            logger.debug("KRARemoteRequestHandler: outgoing request for RSA: " + request);
 
             resp =
                     conn.send("GenerateKeyPair",
@@ -221,7 +227,8 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
      *
      * @param cuid is the token id
      * @param userid is the user id
-     * @param sDesKey is the des key provided by the TKS for key encryption
+     * @param sDesKey is the des key provided by the TKS for key encryption (SCP01)
+     * @param aAesKey is the aes key provided by the TKS for key encryption (SCP03)
      * @param b64cert is the Base64 encoding of a certificate used to recover
      *
      * @returns KRARecoverKeyResponse
@@ -230,24 +237,27 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
             String cuid,
             String userid,
             String sDesKey,
+            String sAesKey,
             String b64cert)
             throws EBaseException {
-        return recoverKey(cuid, userid, sDesKey, b64cert, BigInteger.valueOf(0));
+        return recoverKey(cuid, userid, sDesKey, sAesKey, b64cert, BigInteger.valueOf(0));
     }
 
     public KRARecoverKeyResponse recoverKey(
             String cuid,
             String userid,
             String sDesKey,
+            String sAesKey,
             String b64cert,
             BigInteger keyid)
             throws EBaseException {
 
-        logger.debug("KRARemoteRequestHandler: recoverKey(): begins.");
+        logger.debug("KRARemoteRequestHandler: recoverKey(): begins. " );
         if (b64cert == null && keyid == BigInteger.valueOf(0)) {
             throw new EBaseException("KRARemoteRequestHandler: recoverKey(): one of b64cert or kid has to be a valid value");
         }
-        if (cuid == null || userid == null || sDesKey == null) {
+        if (cuid == null || userid == null 
+                                ) {
             throw new EBaseException("KRARemoteRequestHandler: recoverKey(): input parameter null.");
         }
 
@@ -264,6 +274,16 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
 
         String sendMsg = null;
         try {
+            String desPart = " ";
+            String aesPart = " ";
+
+            if(sDesKey != null) {
+                desPart = "&" + IRemoteRequest.KRA_Trans_DesKey + "=" + sDesKey;
+            }
+	    if(sAesKey != null) {
+                aesPart = "&" + IRemoteRequest.KRA_Trans_AesKey + "=" + sAesKey;
+            }
+
             if (b64cert != null) { // recover by cert
                 // logger.debug("KRARemoteRequestHandler: recoverKey(): uriEncoded cert= " + b64cert);
                 sendMsg = IRemoteRequest.TOKEN_CUID + "=" +
@@ -271,9 +291,8 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
                         "&" + IRemoteRequest.KRA_UserId + "=" +
                         userid +
                         "&" + IRemoteRequest.KRA_RECOVERY_CERT + "=" +
-                        b64cert  +
-                        "&" + IRemoteRequest.KRA_Trans_DesKey + "=" +
-                        sDesKey;
+                        b64cert  + desPart + aesPart;
+
             } else if (keyid != BigInteger.valueOf(0)) { // recover by keyid ... keyid != BigInteger.valueOf(0)
                 logger.debug("KRARemoteRequestHandler: recoverKey(): keyid = " + keyid);
                 sendMsg = IRemoteRequest.TOKEN_CUID + "=" +
@@ -281,9 +300,8 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
                         "&" + IRemoteRequest.KRA_UserId + "=" +
                         userid +
                         "&" + IRemoteRequest.KRA_RECOVERY_KEYID + "=" +
-                        keyid.toString() +
-                        "&" + IRemoteRequest.KRA_Trans_DesKey + "=" +
-                        sDesKey;
+                        keyid.toString() + desPart + aesPart;
+
             }
         } catch (Exception e) {
             logger.debug("KRARemoteRequestHandler: recoverKey(): uriEncode failed: " + e);

@@ -38,6 +38,7 @@ import org.dogtagpki.server.kra.KRAConfig;
 import org.dogtagpki.server.kra.KRAEngine;
 import org.dogtagpki.server.kra.KRAEngineConfig;
 import org.mozilla.jss.NoSuchTokenException;
+import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyPairAlgorithm;
 import org.mozilla.jss.crypto.KeyPairGenerator;
@@ -1823,6 +1824,7 @@ public KeyPair generateKeyPair(String alg, int keySize, String keyCurve,
             InvalidParameterException, PQGParamGenException {
         return generateKeyPair(kpAlg, keySize, keyCurve, pqg, usageList, true);
     }
+
     public KeyPair generateKeyPair(
             KeyPairAlgorithm kpAlg, int keySize, String keyCurve, PQGParams pqg,
             KeyPairGeneratorSpi.Usage[] usageList, boolean temp)
@@ -1830,7 +1832,7 @@ public KeyPair generateKeyPair(String alg, int keySize, String keyCurve,
             InvalidParameterException, PQGParamGenException {
 
         KRAEngine engine = KRAEngine.getInstance();
-        CryptoToken token = getKeygenToken();
+	CryptoToken token = getKeygenToken();
 
         logger.debug("NetkeyKeygenService: key pair is to be generated on slot: " + token.getName());
 

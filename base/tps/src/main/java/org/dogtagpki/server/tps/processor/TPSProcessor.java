@@ -803,11 +803,17 @@ public class TPSProcessor {
 
                 TPSBuffer drmDesKey = null;
                 TPSBuffer kekDesKey = null;
+		TPSBuffer kekAesKey = null;
                 TPSBuffer keyCheck = null;
+                TPSBuffer drmAesKey = null;
 
                 drmDesKey = resp.getDRM_Trans_DesKey();
                 keyCheck = resp.getKeyCheck();
                 kekDesKey = resp.getKekWrappedDesKey();
+                kekAesKey = resp.getKekWrappedAesKey();
+       
+                drmAesKey = resp.getDRM_Trans_AesKey();
+		//logger.debug("drmAesKey " + drmAesKey);
 
                 if (checkServerSideKeyGen(connId)) {
                     logger.debug("TPSProcessor.generateSecureChannel: true for checkServerSideKeyGen");
@@ -822,6 +828,10 @@ public class TPSProcessor {
                 channel = new SecureChannel(this, sessionKey, encSessionKey, drmDesKey,
                         kekDesKey, keyCheck, keyDiversificationData, cardChallenge,
                         cardCryptogram, hostChallenge, hostCryptogram, keyInfoData, platProtInfo);
+
+                //logger.debug(" drm wrapped aes key: " + drmAesKey.toHexString()); 
+                channel.setDrmWrappedAesKey(drmAesKey);
+		channel.setKekAesKey(kekAesKey);
 
             } catch (Exception e) {
                 logger.error("TPSProcessor: " + e.getMessage(), e);
@@ -939,8 +949,11 @@ public class TPSProcessor {
 
             TPSBuffer drmDesKeyBuff = resp.getDRM_Trans_DesKey();
             TPSBuffer kekDesKeyBuff = resp.getKekWrappedDesKey();
+	    TPSBuffer kekAesKeyBuff = resp.getKekWrappedAesKey();
 
-            /*
+            TPSBuffer drmAesKeyBuff = resp.getDRM_Trans_AesKey();
+
+	    /*
             if (encSessionKeyBuff != null)
                 logger.debug(method + " encSessionKeyBuff: " + encSessionKeyBuff.toHexString());
 
@@ -961,7 +974,7 @@ public class TPSProcessor {
 
             if (kekDesKeyBuff != null)
                 logger.debug(method + " kekDesKeyBuff: " + kekDesKeyBuff.toHexString());
-            */
+	    */
 
             if (encSessionKeyBuff != null)
                 encSessionKeySCP03 = (PK11SymKey) protocol.unwrapWrappedSymKeyOnToken(token, sharedSecret,
@@ -984,6 +997,9 @@ public class TPSProcessor {
                     keyCheckBuff, keyDiversificationData, cardChallenge,
                     cardCryptogram, hostChallenge, hostCryptogramBuff, keyInfoData,
                     platProtInfo);
+
+            channel.setDrmWrappedAesKey(drmAesKeyBuff);
+            channel.setKekAesKey(kekAesKeyBuff);
         }
 
         if (channel == null) {

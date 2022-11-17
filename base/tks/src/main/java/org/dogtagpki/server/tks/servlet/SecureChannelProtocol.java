@@ -1320,9 +1320,6 @@ public class SecureChannelProtocol {
 
     }
 
-    // Will be needed for aes based server side keygen to come
-    /* Commenting out until phase 2 is worked on.
-     *
     public SymmetricKey generateAESSymKey(String selectedToken, int keySize) throws EBaseException {
         String method = "SecureChannelProtocol.generateAESSymKey: ";
 
@@ -1345,7 +1342,6 @@ public class SecureChannelProtocol {
 
         return symKey;
     }
-    */
 
     public byte[] ecbEncrypt(SymmetricKey devKey, SymmetricKey symKey, String selectedToken) throws EBaseException {
         byte[] result = null;
@@ -1364,13 +1360,19 @@ public class SecureChannelProtocol {
 
         } catch (TokenException e) {
         }
-        SymmetricKey des2 = this.extractDes2FromDes3(symKey, devKeyToken);
 
-        //SecureChannelProtocol.debugByteArray(des2.getEncoded(), method + " raw des2 key, to be wrapped.");
+        SymmetricKey toBeWrapped = null;
+	if(symKey.getType() == SymmetricKey.Type.AES) {
+            toBeWrapped = symKey;
+        } else {
+            toBeWrapped = this.extractDes2FromDes3(symKey, devKeyToken);
+        }
 
-        result = this.wrapSessionKey(selectedToken, des2, devKey);
+        //SecureChannelProtocol.debugByteArray(toBeWrapped.getEncoded(), method + " raw sym key, to be wrapped.");
 
-        // SecureChannelProtocol.debugByteArray(result, " Wrapped des2 key");
+        result = this.wrapSessionKey(selectedToken, toBeWrapped, devKey);
+
+        SecureChannelProtocol.debugByteArray(result, " Wrapped sym key");
 
         return result;
     }
@@ -1495,6 +1497,11 @@ public class SecureChannelProtocol {
                 keyWrap.initWrap(wrapper, null);
                 wrappedSessKeyData = keyWrap.wrap(sessionKey);
 
+		//Cipher decryptor = token.getCipherContext(EncryptionAlgorithm.DES3_ECB);
+		//decryptor.initDecrypt(wrapper,null);
+		//byte[] recovered = decryptor.doFinal(wrappedSessKeyData);
+		//debugByteArray(recovered, "Raw unwrapped aes session key");
+
             } catch (Exception e) {
                 logger.error(method + " " + e.getMessage(), e);
                 throw new EBaseException(e);
@@ -1513,10 +1520,23 @@ public class SecureChannelProtocol {
                     iv = new byte[ivLength]; // all zeroes
                 }
 
+		//debugByteArray(iv, "iv");
                 keyWrap = token.getKeyWrapper(KeyWrapAlgorithm.AES_CBC);
                 keyWrap.initWrap(wrapper, new IVParameterSpec(iv));
                 wrappedSessKeyData = keyWrap.wrap(sessionKey);
 
+                //debug print out the raw  wrapped key. Only use for development if needed.
+		//
+                //Cipher decryptor = token.getCipherContext(EncryptionAlgorithm.AES_128_CBC);
+                //decryptor.initDecrypt(wrapper,new IVParameterSpec(iv));
+                //byte[] recovered = decryptor.doFinal(wrappedSessKeyData);
+		//debugByteArray(wrappedSessKeyData,"Raw wrappedSessionKeyDAta");
+		//debugByteArray(recovered, "Raw unwrappedSessionKey!");
+
+		//Cipher encryptor = token.getCipherContext(EncryptionAlgorithm.AES_128_CBC);
+		//encryptor.initEncrypt(wrapper, new IVParameterSpec(iv));
+		//byte[] reEncrypted = encryptor.doFinal(recovered);
+		//debugByteArray(reEncrypted, "re encrypted key");
 
             } catch (Exception e) {
                 logger.error(method + " " + e.getMessage(), e);
@@ -1608,6 +1628,7 @@ public class SecureChannelProtocol {
 
         String method = "SecureChannelProtocol.computeKeyCheck_SCP03:";
 
+        logger.debug(method + " Entering computeKeyCheck_SCP03");
         if (symKey == null || selectedToken == null) {
             throw new EBaseException(method + " invalid input data!");
         }
@@ -1630,7 +1651,7 @@ public class SecureChannelProtocol {
         //Get the 3 bytes needed
         System.arraycopy(output, 0, finalOutput, 0, 3);
 
-        //SecureChannelProtocol.debugByteArray(finalOutput, method + " output: ");
+        SecureChannelProtocol.debugByteArray(finalOutput, method + " output: ");
 
         return finalOutput;
     }
