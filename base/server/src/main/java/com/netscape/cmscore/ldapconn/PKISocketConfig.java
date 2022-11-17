@@ -26,4 +26,8 @@ public class PKISocketConfig extends PropConfigStore {
     public boolean isKeepAlive() throws EBaseException {
         return getBoolean("keepAlive", true);
     }
+
+    public String getClientCiphers() throws EBaseException {
+        return getString("clientCiphers", "");
+    }
 }
