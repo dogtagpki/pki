@@ -65,7 +65,7 @@ public class JssSSLSocketFactory implements ISocketFactory {
          * TPS->KRA/CA/TKS: tps.connector.<ca|kra|tks id>.clientCiphers
          *
          * example for RSA CA, in CS.cfg
-         * ca.connector.KRA.clientCiphers=TLS_DHE_RSA_WITH_AES_128_CBC_SHA256,TLS_DHE_RSA_WITH_AES_256_CBC_SHA256,TLS_DHE_RSA_WITH_AES_128_GCM_SHA256,TLS_DHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+         * ca.connector.KRA.clientCiphers=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
          *
          * example for ECC CA, in CS.cfg
          * ca.connector.KRA.clientCiphers=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384
@@ -97,11 +97,6 @@ public class JssSSLSocketFactory implements ISocketFactory {
 
         try {
             s = new SSLSocket(host, port, null, 0, certApprovalCallback,
-                    clientCertCallback);
-
-            Socket js = new Socket(InetAddress.getByName(host), port);
-            s = new SSLSocket(js, host,
-                    certApprovalCallback,
                     clientCertCallback);
 
             s.setUseClientMode(true);
