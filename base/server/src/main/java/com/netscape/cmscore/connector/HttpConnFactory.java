@@ -64,13 +64,13 @@ public class HttpConnFactory {
             int timeout) throws EBaseException {
 
         logger.debug("In HttpConnFactory constructor mTimeout " + timeout);
+        mClientCiphers = clientCiphers;
         if (mClientCiphers != null)
             logger.debug("In HttpConnFactory constructor mClientCiphers: " + mClientCiphers);
         else
             logger.debug("In HttpConnFactory constructor mClientCiphers not specified, will take default ");
         mDest = dest;
         mNickname = nickname;
-        mClientCiphers = clientCiphers;
         mTimeout = timeout;
 
         init(minConns, maxConns);

@@ -53,8 +53,8 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
 
     private static SignedAuditLogger signedAuditLogger = SignedAuditLogger.getLogger();
     private boolean secure;
-    private String mClientAuthCertNickname;
-    private boolean mClientAuth;
+    private String mClientAuthCertNickname = null;
+    private boolean mClientAuth = false;
     private boolean keepAlive;
     PKIClientSocketListener sockListener = null;
     private String mClientCiphers = null;
