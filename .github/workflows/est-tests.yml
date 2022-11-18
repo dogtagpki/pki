@@ -1,0 +1,83 @@
+name: EST Tests
+
+on: [push, pull_request]
+
+jobs:
+  init:
+    name: Initialization
+    uses: ./.github/workflows/init.yml
+    secrets: inherit
+
+  # docs/development/Building_PKI.md
+  build:
+    name: Building PKI
+    needs: init
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Cache Docker layers
+        id: cache-buildx
+        uses: actions/cache@v3
+        with:
+          key: buildx-${{ matrix.os }}-${{ hashFiles('pki.spec') }}
+          path: /tmp/.buildx-cache
+
+      - name: Build pki-deps image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          build-args: |
+            OS_VERSION=${{ matrix.os }}
+            COPR_REPO=${{ needs.init.outputs.repo }}
+          tags: pki-deps
+          target: pki-deps
+          cache-to: type=local,dest=/tmp/.buildx-cache
+        if: steps.cache-buildx.outputs.cache-hit != 'true'
+
+      - name: Build pki-builder-deps image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          build-args: |
+            OS_VERSION=${{ matrix.os }}
+            COPR_REPO=${{ needs.init.outputs.repo }}
+          tags: pki-builder-deps
+          target: pki-builder-deps
+          cache-to: type=local,dest=/tmp/.buildx-cache
+        if: steps.cache-buildx.outputs.cache-hit != 'true'
+
+      - name: Build runner image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          build-args: |
+            OS_VERSION=${{ matrix.os }}
+            COPR_REPO=${{ needs.init.outputs.repo }}
+          tags: pki-runner
+          target: pki-runner
+          cache-from: type=local,src=/tmp/.buildx-cache
+          outputs: type=docker,dest=pki-runner.tar
+
+      - name: Store runner image
+        uses: actions/cache@v3
+        with:
+          key: pki-est-runner-${{ matrix.os }}-${{ github.run_id }}
+          path: pki-runner.tar
+
+  est-basic-test:
+    name: Basic EST
+    needs: [init, build]
+    strategy:
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    uses: ./.github/workflows/est-basic-test.yml
+    with:
+      os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
+
