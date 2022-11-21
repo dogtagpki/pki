@@ -52,7 +52,7 @@ jobs:
 
           docker exec ipa pki-server cert-export ca_signing --cert-file ca_signing.crt
 
-      - name: Check DS certs
+      - name: Check DS certs and keys
         run: |
           docker exec ipa ls -la /etc/dirsrv/slapd-EXAMPLE-COM
           docker exec ipa pki -d /etc/dirsrv/slapd-EXAMPLE-COM nss-cert-find
@@ -62,11 +62,24 @@ jobs:
               -d /etc/dirsrv/slapd-EXAMPLE-COM \
               -C /etc/dirsrv/slapd-EXAMPLE-COM/pwdfile.txt \
               nss-key-find
+          docker exec ipa certutil -K \
+              -d /etc/dirsrv/slapd-EXAMPLE-COM \
+              -f /etc/dirsrv/slapd-EXAMPLE-COM/pwdfile.txt
 
-      - name: Check PKI certs
+      - name: Check PKI certs and keys
         run: |
-          docker exec ipa ls -la /etc/pki/pki-tomcat/alias
+          # check certs
           docker exec ipa pki-server cert-find
+
+          # check keys
+          docker exec ipa certutil -K \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/alias/pwdfile.txt | tee output
+
+          # there should be no orphaned keys
+          echo "0" > expected
+          grep "(orphan)" output | wc -l > actual
+          diff expected actual
 
       - name: Check CA admin cert
         run: |

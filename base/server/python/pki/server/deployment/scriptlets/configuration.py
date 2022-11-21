@@ -286,7 +286,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     timeout=deployer.request_timeout)
 
                 # Remove temp SSL server cert.
-                deployer.remove_temp_sslserver_cert(instance, system_certs['sslserver'])
+                deployer.remove_temp_sslserver_cert(instance)
 
             # Store perm SSL server cert nickname and token
             nickname = system_certs['sslserver']['nickname']

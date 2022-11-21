@@ -1790,14 +1790,10 @@ class PKIDeployer:
             nssdb.close()
             shutil.rmtree(tmpdir)
 
-    def remove_temp_sslserver_cert(self, instance, sslserver):
-
-        # TODO: replace with pki-server cert-import sslserver
+    def remove_temp_sslserver_cert(self, instance):
 
         nickname = self.mdict['pki_self_signed_nickname']
-        token = sslserver['token']
-
-        logger.info('Removing temp SSL server cert from internal token: %s', nickname)
+        logger.info('Removing temp SSL server cert: %s', nickname)
 
         nssdb = instance.open_nssdb(
             user=self.mdict['pki_user'],
@@ -1805,14 +1801,8 @@ class PKIDeployer:
         )
 
         try:
-            # Remove temp SSL server cert from internal token.
-            # Remove temp key too if the perm cert uses HSM.
-            if pki.nssdb.normalize_token(token):
-                remove_key = True
-            else:
-                remove_key = False
-
-            nssdb.remove_cert(nickname=nickname, remove_key=remove_key)
+            # remove temp SSL server cert and key
+            nssdb.remove_cert(nickname=nickname, remove_key=True)
 
         finally:
             nssdb.close()

@@ -63,6 +63,23 @@ jobs:
               -D pki_random_serial_numbers_enable=True \
               -v
 
+      - name: Check CA certs and keys
+        run: |
+          # check certs
+          docker exec pki pki-server cert-find
+
+          # check keys
+          echo "Secret.123" > password.txt
+          docker cp password.txt pki:password.txt
+          docker exec pki certutil -K \
+              -d /etc/pki/pki-tomcat/alias \
+              -f password.txt | tee output
+
+          # there should be no orphaned keys
+          echo "0" > expected
+          grep "(orphan)" output | wc -l > actual
+          diff expected actual
+
       # https://github.com/dogtagpki/pki/wiki/Configuring-CA-with-Random-Serial-Numbers-v3
       - name: Switch to RSNv3
         run: |

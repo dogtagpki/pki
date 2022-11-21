@@ -64,14 +64,22 @@ jobs:
               -D pki_request_id_generator=random \
               -v
 
-          # set buffer size to 0 so that revocation takes effect immediately
-          docker exec pki pki-server ca-config-set auths.revocationChecking.bufferSize 0
+      - name: Check CA certs and keys
+        run: |
+          # check certs
+          docker exec pki pki-server cert-find
 
-          # enable signed audit log
-          docker exec pki pki-server ca-config-set log.instance.SignedAudit.logSigning true
+          # check keys
+          echo "Secret.123" > password.txt
+          docker cp password.txt pki:password.txt
+          docker exec pki certutil -K \
+              -d /etc/pki/pki-tomcat/alias \
+              -f password.txt | tee output
 
-          # restart CA subsystem
-          docker exec pki pki-server ca-redeploy --wait
+          # there should be no orphaned keys
+          echo "0" > expected
+          grep "(orphan)" output | wc -l > actual
+          diff expected actual
 
       - name: Check CA signing cert
         run: |
@@ -119,6 +127,17 @@ jobs:
 
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --failures-only
+
+      - name: Update CA configuration
+        run: |
+          # set buffer size to 0 so that revocation takes effect immediately
+          docker exec pki pki-server ca-config-set auths.revocationChecking.bufferSize 0
+
+          # enable signed audit log
+          docker exec pki pki-server ca-config-set log.instance.SignedAudit.logSigning true
+
+          # restart CA subsystem
+          docker exec pki pki-server ca-redeploy --wait
 
       - name: Initialize PKI client
         run: |
