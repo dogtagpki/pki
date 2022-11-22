@@ -75,11 +75,7 @@ public class CLI {
     }
 
     public String getFullName() {
-        if (parent == null) {
-            return name;
-        } else {
-            return parent.getFullName() + "-" + name;
-        }
+        return parent == null ? name : parent.getFullName() + "-" + name;
     }
 
     public String getFullModuleName(String moduleName) {

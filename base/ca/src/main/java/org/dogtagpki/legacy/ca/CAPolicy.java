@@ -87,11 +87,7 @@ public class CAPolicy implements IPolicy {
 
     public boolean isProfileRequest(Request request) {
         String profileId = request.getExtDataInString(Request.PROFILE_ID);
-
-        if (profileId == null || profileId.equals(""))
-            return false;
-        else
-            return true;
+        return profileId != null && !profileId.equals("");
     }
 
     /**
