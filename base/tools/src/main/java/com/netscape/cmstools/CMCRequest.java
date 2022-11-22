@@ -26,6 +26,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.math.BigInteger;
@@ -1649,9 +1650,8 @@ public class CMCRequest {
         System.out.println(method + " begins.");
 
         byte[] bb = new byte[10000];
-        FileInputStream fis = null;
-        try {
-            fis = new FileInputStream(prevResponse);
+
+        try (InputStream fis = new FileInputStream(prevResponse)) {
             while (fis.available() > 0)
                 fis.read(bb, 0, 10000);
         } catch (Exception e) {
@@ -2010,18 +2010,16 @@ public class CMCRequest {
                 }
             }
 
-            FileInputStream inputBlob = null;
-            FileOutputStream outputBlob = null;
-            try {
-                inputBlob = new FileInputStream(ifilename);
+            byte[] data = null;
+            try (InputStream inputBlob = new FileInputStream(ifilename)) {
+                data = new byte[inputBlob.available()];
+                inputBlob.read(data);
             } catch (FileNotFoundException e) {
                 System.out.println("can''t find file " +
                         ifilename + e);
                 System.exit(1);
             }
 
-            byte data[] = new byte[inputBlob.available()];
-            inputBlob.read(data);
             System.out.println("TEST_CMC: input read");
             ContentInfo.Template ci_template = new ContentInfo.Template();
             ContentInfo ci =
