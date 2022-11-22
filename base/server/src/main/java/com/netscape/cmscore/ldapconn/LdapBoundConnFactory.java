@@ -132,7 +132,6 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
         logger.debug("Creating LdapBoundConnFactory(" + id + ")");
 
         this.id = id;
-        this.config = config;
 
         this.mMinConns = minConns;
         this.mMaxConns = maxConns;
@@ -161,7 +160,6 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
         logger.debug("Creating LdapBoundConnFactory(" + id + ")");
 
         this.id = id;
-        this.config = config;
 
         this.mMinConns = minConns;
         this.mMaxConns = maxConns;

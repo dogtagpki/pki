@@ -104,7 +104,6 @@ public class TPSSubsystem implements IAuthority {
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSEngineConfig cs = engine.getConfig();
 
-        this.owner = owner;
         this.config = cs.getTPSConfig();
 
         DBSubsystem dbSubsystem = engine.getDBSubsystem();
