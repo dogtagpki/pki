@@ -1293,11 +1293,7 @@ public class CRSEnrollment extends HttpServlet {
                               SymmetricKey.Usage.DECRYPT,
                               padding ? ea.getKeyStrength() / 8 : 0);
 
-            if(mUseOAEPKeyWrap) {
-                skinternal = moveSymmetricToInternalToken(cx, sk, skt, ea);
-            } else {
-                skinternal = cx.getKeyGenerator().clone(sk);
-            }
+            skinternal = moveSymmetricToInternalToken(cx, sk, skt, ea);
 
             cip = skinternal.getOwningToken().getCipherContext(ea);
             cip.initDecrypt(skinternal, (new IVParameterSpec(req.getIV())));
@@ -1323,12 +1319,17 @@ public class CRSEnrollment extends HttpServlet {
                 KeyPairGeneratorSpi.Usage.DECRYPT};
         KeyPair keyPairWrap = CryptoUtil.generateRSAKeyPair(cx.getInternalToken(), 2048, true, true, false, usage, usage);
 
-        KeyWrapper kw = sk.getOwningToken().getKeyWrapper(KeyWrapAlgorithm.RSA_OAEP);
-        AlgorithmParameterSpec algSpec = new OAEPParameterSpec(OAEP_SHA, "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT);
+        KeyWrapAlgorithm kwAlg = KeyWrapAlgorithm.RSA;
+        AlgorithmParameterSpec algSpec = null;
+        if(mUseOAEPKeyWrap) {
+            kwAlg = KeyWrapAlgorithm.RSA_OAEP;
+            algSpec = new OAEPParameterSpec(OAEP_SHA, "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT);
+        }
+        KeyWrapper kw = sk.getOwningToken().getKeyWrapper(kwAlg);;
         kw.initWrap(keyPairWrap.getPublic(), algSpec);
         byte[] wrappedSK = kw.wrap(sk);
 
-        KeyWrapper kwInt = cx.getInternalToken().getKeyWrapper(KeyWrapAlgorithm.RSA_OAEP);
+        KeyWrapper kwInt = cx.getInternalToken().getKeyWrapper(kwAlg);
         PrivateKey pk = (PrivateKey) keyPairWrap.getPrivate() ;
         kwInt.initUnwrap(pk, algSpec);
 
@@ -2047,11 +2048,7 @@ public class CRSEnrollment extends HttpServlet {
                 // we have to move the key onto the internal token.
                 //skinternal = cx.getInternalKeyStorageToken().cloneKey(sk);
 
-                if(mUseOAEPKeyWrap) {
-                    skinternal = moveSymmetricToInternalToken(cx, sk, skt, ea);
-                } else {
-                    skinternal = cx.getInternalToken().cloneKey(sk);
-                }
+                skinternal = moveSymmetricToInternalToken(cx, sk, skt, ea);
 
                 KeyWrapper kw = cx.getInternalKeyWrapper();
                 AlgorithmParameterSpec keyWrapConfig = null;
