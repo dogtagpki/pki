@@ -22,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.StringWriter;
 import java.net.URLEncoder;
 import java.nio.file.Files;
@@ -906,48 +907,52 @@ public class CRMFPopClient {
 
         HttpEntity entity = response.getEntity();
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(entity.getContent()));
-
         if (verbose) System.out.println("--------------------");
         String line = null;
         RequestId requestID = null;
         String status = null;
         String reason = null;
-        while ((line = reader.readLine()) != null) {
-            if (verbose) System.out.println(line);
 
-            if (line.startsWith("requestList.requestId=")) {
-                int i = line.indexOf("\"");
-                int j = line.indexOf("\";", i+1);
-                requestID = new RequestId(line.substring(i+1, j));
+        try (Reader r = new InputStreamReader(entity.getContent());
+                BufferedReader reader = new BufferedReader(r)) {
 
-            } else if (line.startsWith("errorCode=")) {
-                int i = line.indexOf("\"");
-                int j = line.indexOf("\";", i+1);
-                String errorCode = line.substring(i+1, j);
+            while ((line = reader.readLine()) != null) {
+                if (verbose) System.out.println(line);
 
-                if ("0".equals(errorCode)) {
-                    status = "completed";
+                if (line.startsWith("requestList.requestId=")) {
+                    int i = line.indexOf("\"");
+                    int j = line.indexOf("\";", i+1);
+                    requestID = new RequestId(line.substring(i+1, j));
 
-                } else if ("1".equals(errorCode)) {
-                    status = "failed";
+                } else if (line.startsWith("errorCode=")) {
+                    int i = line.indexOf("\"");
+                    int j = line.indexOf("\";", i+1);
+                    String errorCode = line.substring(i+1, j);
 
-                } else if ("2".equals(errorCode)) {
-                    status = "pending";
+                    if ("0".equals(errorCode)) {
+                        status = "completed";
 
-                } else if ("3".equals(errorCode)) {
-                    status = "rejected";
+                    } else if ("1".equals(errorCode)) {
+                        status = "failed";
 
-                } else {
-                    status = "unknown";
+                    } else if ("2".equals(errorCode)) {
+                        status = "pending";
+
+                    } else if ("3".equals(errorCode)) {
+                        status = "rejected";
+
+                    } else {
+                        status = "unknown";
+                    }
+
+                } else if (line.startsWith("errorReason=")) {
+                    int i = line.indexOf("\"");
+                    int j = line.indexOf("\";", i+1);
+                    reason = line.substring(i+1, j);
                 }
-
-            } else if (line.startsWith("errorReason=")) {
-                int i = line.indexOf("\"");
-                int j = line.indexOf("\";", i+1);
-                reason = line.substring(i+1, j);
             }
         }
+
         if (verbose) System.out.println("--------------------");
 
         if (requestID != null) {
