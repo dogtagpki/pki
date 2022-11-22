@@ -134,17 +134,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  caGetDomainXML  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.csadmin.GetDomainXML  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caGetDomainXML </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  caUpdateDomainXML  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.csadmin.UpdateDomainXML  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -2062,11 +2051,6 @@
    <servlet-mapping>
       <servlet-name>  caGetConfigEntries  </servlet-name>
       <url-pattern>   /admin/ca/getConfigEntries  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  caGetDomainXML </servlet-name>
-      <url-pattern>   /admin/ca/getDomainXML  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>

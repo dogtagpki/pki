@@ -652,17 +652,6 @@
 
    [PKI_OPEN_STANDALONE_COMMENT]
    <servlet>
-      <servlet-name>  kraGetDomainXML  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.csadmin.GetDomainXML  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> kra         </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> kraGetDomainXML </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  kraUpdateDomainXML  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.csadmin.UpdateDomainXML  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -988,11 +977,6 @@
    </servlet-mapping>
 
    [PKI_OPEN_STANDALONE_COMMENT]
-   <servlet-mapping>
-      <servlet-name>  kraGetDomainXML </servlet-name>
-      <url-pattern>   /admin/kra/getDomainXML  </url-pattern>
-   </servlet-mapping>
-
    <servlet-mapping>
       <servlet-name>  kraUpdateDomainXML </servlet-name>
       <url-pattern>   /agent/kra/updateDomainXML  </url-pattern>

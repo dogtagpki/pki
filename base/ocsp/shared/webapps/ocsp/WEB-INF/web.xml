@@ -365,17 +365,6 @@
 
    [PKI_OPEN_STANDALONE_COMMENT]
    <servlet>
-      <servlet-name>  ocspGetDomainXML  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.csadmin.GetDomainXML  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ocsp        </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> ocspGetDomainXML </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  ocspUpdateDomainXML  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.csadmin.UpdateDomainXML  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -622,11 +611,6 @@
    </servlet-mapping>
 
    [PKI_OPEN_STANDALONE_COMMENT]
-   <servlet-mapping>
-      <servlet-name>  ocspGetDomainXML </servlet-name>
-      <url-pattern>   /admin/ocsp/getDomainXML  </url-pattern>
-   </servlet-mapping>
-
    <servlet-mapping>
       <servlet-name>  ocspUpdateDomainXML </servlet-name>
       <url-pattern>   /agent/ocsp/updateDomainXML  </url-pattern>
