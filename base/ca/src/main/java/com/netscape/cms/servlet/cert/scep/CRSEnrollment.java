@@ -1312,6 +1312,7 @@ public class CRSEnrollment extends HttpServlet {
 
     private SymmetricKey moveSymmetricToInternalToken(CryptoContext cx, SymmetricKey sk, SymmetricKey.Type skt, EncryptionAlgorithm ea)
             throws Exception {
+        boolean padding = false;
         KeyPairGeneratorSpi.Usage[] usage = {
                 KeyPairGeneratorSpi.Usage.WRAP,
                 KeyPairGeneratorSpi.Usage.UNWRAP,
@@ -1324,6 +1325,7 @@ public class CRSEnrollment extends HttpServlet {
         if(mUseOAEPKeyWrap) {
             kwAlg = KeyWrapAlgorithm.RSA_OAEP;
             algSpec = new OAEPParameterSpec(OAEP_SHA, "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT);
+            padding = true;
         }
         KeyWrapper kw = sk.getOwningToken().getKeyWrapper(kwAlg);;
         kw.initWrap(keyPairWrap.getPublic(), algSpec);
@@ -1333,7 +1335,7 @@ public class CRSEnrollment extends HttpServlet {
         PrivateKey pk = (PrivateKey) keyPairWrap.getPrivate() ;
         kwInt.initUnwrap(pk, algSpec);
 
-        return kwInt.unwrapSymmetric(wrappedSK, skt, SymmetricKey.Usage.DECRYPT, ea.getKeyStrength() / 8);
+        return kwInt.unwrapSymmetric(wrappedSK, skt, SymmetricKey.Usage.DECRYPT, padding ? ea.getKeyStrength() / 8 : 0);
     }
 
     private void getDetailFromRequest(CRSPKIMessage req, CRSPKIMessage crsResp)
