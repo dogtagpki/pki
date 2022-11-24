@@ -20,7 +20,7 @@ pki_hsm_enable=True
 pki_hsm_libfile=/usr/lib64/pkcs11/libsofthsm2.so
 pki_hsm_modulename=softhsm
 pki_token_name=token
-pki_token_password=Secret.123
+pki_token_password=Secret.HSM
 
 [KRA]
 pki_admin_cert_file=ca_admin.cert

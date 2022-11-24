@@ -41,14 +41,14 @@ jobs:
           docker exec pki dnf install -y dnf-plugins-core softhsm
           docker exec pki softhsm2-util --init-token \
               --label HSM \
-              --so-pin Secret.123 \
-              --pin Secret.123 \
+              --so-pin Secret.HSM \
+              --pin Secret.HSM \
               --free
           docker exec pki softhsm2-util --show-slots
 
           # create password.conf
           echo "internal=" > password.conf
-          echo "hardware-HSM=Secret.123" >> password.conf
+          echo "hardware-HSM=Secret.HSM" >> password.conf
 
       - name: Create key in HSM
         run: |
@@ -92,7 +92,7 @@ jobs:
 
           docker exec pki certutil -K -d /root/.dogtag/nssdb || true
 
-          echo "Secret.123" > password.txt
+          echo "Secret.HSM" > password.txt
           docker exec pki certutil -K \
               -d /root/.dogtag/nssdb \
               -f $SHARED/password.txt \

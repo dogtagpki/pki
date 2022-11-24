@@ -41,8 +41,8 @@ jobs:
           docker exec pki dnf install -y dnf-plugins-core softhsm
           docker exec pki softhsm2-util --init-token \
               --label HSM \
-              --so-pin Secret.123 \
-              --pin Secret.123 \
+              --so-pin Secret.HSM \
+              --pin Secret.HSM \
               --free
           docker exec pki softhsm2-util --show-slots
 
@@ -64,7 +64,7 @@ jobs:
       - name: Create cert in HSM
         run: |
           echo "internal=" > password.conf
-          echo "hardware-HSM=Secret.123" >> password.conf
+          echo "hardware-HSM=Secret.HSM" >> password.conf
 
           docker exec pki pki \
               --token HSM \
@@ -105,7 +105,7 @@ jobs:
           docker exec pki pki pkcs11-cert-export cert2
 
           # HSM should have cert2 only
-          echo "Secret.123" > password.txt
+          echo "Secret.HSM" > password.txt
           docker exec pki certutil -L \
               -d /root/.dogtag/nssdb \
               -h HSM \

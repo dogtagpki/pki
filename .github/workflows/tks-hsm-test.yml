@@ -67,8 +67,8 @@ jobs:
               softhsm2-util \
               --init-token \
               --label HSM \
-              --so-pin Secret.123 \
-              --pin Secret.123 \
+              --so-pin Secret.HSM \
+              --pin Secret.HSM \
               --free
 
           docker exec pki ls -laR /var/lib/softhsm/tokens
@@ -82,7 +82,7 @@ jobs:
               -D pki_ds_ldap_port=3389 \
               -D pki_hsm_enable=True \
               -D pki_token_name=HSM \
-              -D pki_token_password=Secret.123 \
+              -D pki_token_password=Secret.HSM \
               -D pki_server_database_password=Secret.123 \
               -D pki_ca_signing_token=HSM \
               -D pki_ocsp_signing_token=HSM \
@@ -124,7 +124,7 @@ jobs:
               -D pki_ds_ldap_port=3389 \
               -D pki_hsm_enable=True \
               -D pki_token_name=HSM \
-              -D pki_token_password=Secret.123 \
+              -D pki_token_password=Secret.HSM \
               -D pki_server_database_password=Secret.123 \
               -D pki_audit_signing_token=HSM \
               -D pki_subsystem_token=HSM \
