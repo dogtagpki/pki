@@ -1,0 +1,525 @@
+name: CA with existing HSM
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+      db-image:
+        required: false
+        type: string
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      - name: Retrieve runner image
+        uses: actions/cache@v3
+        with:
+          key: pki-ca-runner-${{ inputs.os }}-${{ github.run_id }}
+          path: pki-runner.tar
+
+      - name: Load runner image
+        run: docker load --input pki-runner.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-container-create.sh ds
+        env:
+          IMAGE: ${{ inputs.db-image }}
+          HOSTNAME: ds.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect DS container to network
+        run: docker network connect example ds --alias ds.example.com
+
+      - name: Set up PKI container
+        run: |
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
+
+      - name: Connect PKI container to network
+        run: docker network connect example pki --alias pki.example.com
+
+      - name: Install dependencies
+        run: |
+          docker exec pki dnf install -y softhsm
+
+      - name: Create SoftHSM token
+        run: |
+          # allow PKI user to access SoftHSM files
+          docker exec pki usermod pkiuser -a -G ods
+
+          # create SoftHSM token for PKI server
+          docker exec pki runuser -u pkiuser -- \
+              softhsm2-util \
+              --init-token \
+              --label HSM \
+              --so-pin Secret.HSM \
+              --pin Secret.HSM \
+              --free
+
+      - name: Create PKI server
+        run: |
+          docker exec pki pki-server create
+          docker exec pki pki-server nss-create --no-password
+
+          docker exec pki pki-server password-add "hardware-HSM" --password "Secret.HSM"
+          docker exec pki cat /etc/pki/pki-tomcat/password.conf
+
+      - name: Create CA signing cert in HSM
+        run: |
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-request \
+              --subject "CN=CA Signing Certificate" \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --csr /tmp/ca_signing.csr
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-issue \
+              --csr /tmp/ca_signing.csr \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --cert /tmp/ca_signing.crt
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-import \
+              --cert /tmp/ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
+          # check original cert
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-show \
+              HSM:ca_signing | tee ca_signing.crt.before
+
+          # check original key
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-key-find \
+              --nickname HSM:ca_signing | tee ca_signing.key.before
+
+      - name: Create CA OCSP signing cert in HSM
+        run: |
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-request \
+              --subject "CN=OCSP Signing Certificate" \
+              --ext /usr/share/pki/server/certs/ocsp_signing.conf \
+              --csr /tmp/ca_ocsp_signing.csr
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-issue \
+              --issuer HSM:ca_signing \
+              --csr /tmp/ca_ocsp_signing.csr \
+              --ext /usr/share/pki/server/certs/ocsp_signing.conf \
+              --cert /tmp/ca_ocsp_signing.crt
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-import \
+              --cert /tmp/ca_ocsp_signing.crt \
+              ca_ocsp_signing
+
+          # check original cert
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-show \
+              HSM:ca_ocsp_signing | tee ca_ocsp_signing.crt.before
+
+          # check original key
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-key-find \
+              --nickname HSM:ca_ocsp_signing | tee ca_ocsp_signing.key.before
+
+      - name: Create CA audit signing cert in HSM
+        run: |
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-request \
+              --subject "CN=Audit Signing Certificate" \
+              --ext /usr/share/pki/server/certs/audit_signing.conf \
+              --csr /tmp/ca_audit_signing.csr
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-issue \
+              --issuer HSM:ca_signing \
+              --csr /tmp/ca_audit_signing.csr \
+              --ext /usr/share/pki/server/certs/audit_signing.conf \
+              --cert /tmp/ca_audit_signing.crt
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-import \
+              --cert /tmp/ca_audit_signing.crt \
+              --trust ,,P \
+              ca_audit_signing
+
+          # check original cert
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-show \
+              HSM:ca_audit_signing | tee ca_audit_signing.crt.before
+
+          # check original key
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-key-find \
+              --nickname HSM:ca_audit_signing | tee ca_audit_signing.key.before
+
+      - name: Create subsystem cert in HSM
+        run: |
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-request \
+              --subject "CN=Subsystem Certificate" \
+              --ext /usr/share/pki/server/certs/subsystem.conf \
+              --csr /tmp/subsystem.csr
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-issue \
+              --issuer HSM:ca_signing \
+              --csr /tmp/subsystem.csr \
+              --ext /usr/share/pki/server/certs/subsystem.conf \
+              --cert /tmp/subsystem.crt
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-import \
+              --cert /tmp/subsystem.crt \
+              subsystem
+
+          # check original cert
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-show \
+              HSM:subsystem | tee subsystem.crt.before
+
+          # check original key
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-key-find \
+              --nickname HSM:subsystem | tee subsystem.key.before
+
+      - name: Create SSL server cert in server's NSS database
+        run: |
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-cert-request \
+              --subject "CN=pki.example.com" \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --csr /tmp/sslserver.csr
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-issue \
+              --issuer HSM:ca_signing \
+              --csr /tmp/sslserver.csr \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --cert /tmp/sslserver.crt
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-cert-import \
+              --cert /tmp/sslserver.crt \
+              sslserver
+
+          # check original cert
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-cert-show \
+              sslserver | tee sslserver.crt.before
+
+          # check original key
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-key-find \
+              --nickname sslserver | tee sslserver.key.before
+
+      - name: Create admin cert in client's NSS database
+        run: |
+          docker exec pki pki \
+              nss-cert-request \
+              --subject "CN=Administrator" \
+              --ext /usr/share/pki/server/certs/admin.conf \
+              --csr /tmp/admin.csr
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-issue \
+              --issuer HSM:ca_signing \
+              --csr /tmp/admin.csr \
+              --ext /usr/share/pki/server/certs/admin.conf \
+              --cert /tmp/admin.crt
+          docker exec pki pki \
+              nss-cert-import \
+              --cert /tmp/admin.crt \
+              caadmin
+          docker exec pki pki \
+              nss-cert-show \
+              caadmin
+
+      - name: Check SoftHSM files
+        run: |
+          docker exec pki ls -lR /var/lib/softhsm/tokens
+
+      - name: Install CA with existing HSM
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_hostname=ds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -D pki_cert_id_generator=random \
+              -D pki_request_id_generator=random \
+              -D pki_existing=True \
+              -D pki_hsm_enable=True \
+              -D pki_token_name=HSM \
+              -D pki_token_password=Secret.HSM \
+              -D pki_ca_signing_token=HSM \
+              -D pki_ocsp_signing_token=HSM \
+              -D pki_audit_signing_token=HSM \
+              -D pki_subsystem_token=HSM \
+              -D pki_sslserver_token=internal \
+              -D pki_ca_signing_csr_path=/tmp/ca_signing.csr \
+              -D pki_ocsp_signing_csr_path=/tmp/ca_ocsp_signing.csr \
+              -D pki_audit_signing_csr_path=/tmp/ca_audit_signing.csr \
+              -D pki_subsystem_csr_path=/tmp/subsystem.csr \
+              -D pki_sslserver_csr_path=/tmp/sslserver.csr \
+              -D pki_admin_cert_path=/tmp/admin.crt \
+              -D pki_admin_csr_path=/tmp/admin.csr \
+              -v
+
+      - name: Run PKI healthcheck
+        run: docker exec pki pki-healthcheck --failures-only
+
+      - name: Check CA signing cert in HSM
+        run: |
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-show \
+              HSM:ca_signing | tee ca_signing.crt.after
+
+          # cert should not change
+          diff ca_signing.crt.before ca_signing.crt.after
+
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-key-find \
+              --nickname HSM:ca_signing | tee ca_signing.key.after
+
+          # key should not change
+          diff ca_signing.key.before ca_signing.key.after
+
+      - name: Check CA OCSP signing cert in HSM
+        run: |
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-show \
+              HSM:ca_ocsp_signing | tee ca_ocsp_signing.crt.after
+
+          # cert should not change
+          diff ca_ocsp_signing.crt.before ca_ocsp_signing.crt.after
+
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-key-find \
+              --nickname HSM:ca_ocsp_signing | tee ca_ocsp_signing.key.after
+
+          # key should not change
+          diff ca_ocsp_signing.key.before ca_ocsp_signing.key.after
+
+      - name: Check CA audit signing cert in HSM
+        run: |
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-show \
+              HSM:ca_audit_signing | tee ca_audit_signing.crt.after
+
+          # cert should not change
+          diff ca_audit_signing.crt.before ca_audit_signing.crt.after
+
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-key-find \
+              --nickname HSM:ca_audit_signing | tee ca_audit_signing.key.after
+
+          # key should not change
+          diff ca_audit_signing.key.before ca_audit_signing.key.after
+
+      - name: Check subsystem cert in HSM
+        run: |
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-show \
+              HSM:subsystem | tee subsystem.cert.actual
+
+          # cert should not change
+          diff subsystem.crt.before subsystem.cert.actual
+
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-key-find \
+              --nickname HSM:subsystem | tee subsystem.key.after
+
+          # key should not change
+          diff subsystem.key.before subsystem.key.after
+
+      - name: Check SSL server cert in server's NSS database
+        run: |
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-cert-show \
+              sslserver | tee sslserver.crt.after
+
+          # cert should not change
+          diff sslserver.crt.before sslserver.crt.after
+
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-key-find \
+              --nickname sslserver | tee sslserver.key.after
+
+          # key should not change
+          diff sslserver.key.before sslserver.key.after
+
+      - name: Check CA admin cert
+        run: |
+          docker exec pki pki client-cert-import ca_signing --ca-cert /tmp/ca_signing.crt
+          docker exec pki pki -n caadmin ca-user-show caadmin
+
+      - name: Check CA certs and requests
+        run: |
+          docker exec pki pki ca-cert-find
+          docker exec pki pki -n caadmin ca-cert-request-find
+
+      - name: Gather artifacts
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki ds
+          tests/bin/pki-artifacts-save.sh pki
+        continue-on-error: true
+
+      - name: Remove CA
+        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Remove SoftHSM token
+        run: |
+          docker exec pki runuser -u pkiuser -- softhsm2-util --delete-token --token HSM
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ca-existing-hsm-${{ inputs.os }}
+          path: |
+            /tmp/artifacts/pki
