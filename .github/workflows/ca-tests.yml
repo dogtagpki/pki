@@ -139,6 +139,16 @@ jobs:
       os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
+  ca-existing-hsm-test:
+    name: CA with existing HSM
+    needs: [init, build]
+    strategy:
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    uses: ./.github/workflows/ca-existing-hsm-test.yml
+    with:
+      os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
+
   ca-existing-ds-test:
     name: CA with existing DS
     needs: [init, build]
