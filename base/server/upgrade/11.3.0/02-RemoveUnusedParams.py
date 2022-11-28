@@ -45,6 +45,12 @@ class RemoveUnusedParams(pki.server.upgrade.PKIServerUpgradeScriptlet):
             elif re.match(r'tokendb\.hostport$', name):
                 remove = True
 
+            elif re.match(r'logAudit\.', name):
+                remove = True
+
+            elif re.match(r'logError\.', name):
+                remove = True
+
             if not remove:
                 continue
 
