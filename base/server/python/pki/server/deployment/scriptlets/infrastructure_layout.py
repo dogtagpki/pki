@@ -57,19 +57,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('Creating %s', deployer.mdict['pki_path'])
             deployer.directory.create(deployer.mdict['pki_path'])
 
-        # NOTE:  If "infrastructure_layout" scriptlet execution has been
-        #        successfully executed to this point, the "pkidestroy" command
-        #        may always be utilized to remove the entire infrastructure.
-        #
-        # no need to establish top-level infrastructure logs
-        # since it now stores 'pkispawn'/'pkidestroy' logs
-        # and will already exist
-        # deployer.directory.create(deployer.mdict['pki_log_path'])
-        # establish top-level infrastructure configuration
-        if deployer.mdict['pki_configuration_path'] != \
-           config.PKI_DEPLOYMENT_CONFIGURATION_ROOT:
-            deployer.directory.create(deployer.mdict['pki_configuration_path'])
-
     def destroy(self, deployer):
 
         # if this is not the last subsystem, skip
@@ -81,17 +68,4 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if deployer.mdict['pki_path'] != "/var/lib/pki":
             logger.info('Removing %s', deployer.mdict['pki_path'])
             pki.util.rmtree(deployer.mdict['pki_path'],
-                            deployer.force)
-
-        # do NOT remove top-level infrastructure logs
-        # since it now stores 'pkispawn'/'pkidestroy' logs
-        # deployer.directory.delete(deployer.mdict['pki_log_path'])
-        # remove top-level infrastructure configuration
-
-        if deployer.directory.is_empty(deployer.mdict['pki_configuration_path']) and \
-            deployer.mdict['pki_configuration_path'] != \
-                config.PKI_DEPLOYMENT_CONFIGURATION_ROOT:
-
-            logger.info('Removing %s', deployer.mdict['pki_configuration_path'])
-            pki.util.rmtree(deployer.mdict['pki_configuration_path'],
                             deployer.force)
