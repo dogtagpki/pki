@@ -41,16 +41,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         logger.info('Setting up infrastructure')
 
-        # NOTE:  It was determined that since the "pkidestroy" command
-        #        relies upon a symbolic link to a replica of the original
-        #        deployment configuration file used by the
-        #        "pkispawn" command of an instance, it is necessary to
-        #        create any required instance and subsystem directories
-        #        in this top-level "infrastructure_layout" scriptlet
-        #        (rather than the "instance_layout" and "subsystem_layout"
-        #        scriptlets) so that a copy of this configuration file can
-        #        be saved, and the required symbolic link can be created.
-        #
         # establish the top-level infrastructure, instance, and subsystem
         # registry directories for storage of a copy of the original
         # deployment configuration file used to spawn this instance,
@@ -77,8 +67,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.directory.create(deployer.mdict['pki_path'])
 
         deployer.directory.create(deployer.mdict['pki_instance_path'])
-
-        deployer.directory.create(deployer.mdict['pki_subsystem_path'])
 
         # NOTE:  If "infrastructure_layout" scriptlet execution has been
         #        successfully executed to this point, the "pkidestroy" command

@@ -117,7 +117,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         instance.store_passwords()
 
         # if this is not the first subsystem, skip
-        if len(deployer.instance.tomcat_instance_subsystems()) != 1:
+        if len(deployer.instance.tomcat_instance_subsystems()) > 0:
             logger.info('Installing %s instance', deployer.mdict['pki_instance_name'])
             return
 
