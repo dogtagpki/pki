@@ -1,0 +1,308 @@
+name: Sub-CA with HSM
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+      db-image:
+        required: false
+        type: string
+
+jobs:
+  # docs/installation/ca/Installing_CA_with_External_CA_Signing_Certificate.md
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      - name: Retrieve runner image
+        uses: actions/cache@v3
+        with:
+          key: pki-ca-runner-${{ inputs.os }}-${{ github.run_id }}
+          path: pki-runner.tar
+
+      - name: Load runner image
+        run: docker load --input pki-runner.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-container-create.sh ds
+        env:
+          IMAGE: ${{ inputs.db-image }}
+          HOSTNAME: ds.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect DS container to network
+        run: docker network connect example ds --alias ds.example.com
+
+      - name: Set up PKI container
+        run: |
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
+
+      - name: Connect PKI container to network
+        run: docker network connect example pki --alias pki.example.com
+
+      - name: Create root CA in NSS database
+        run: |
+          docker exec pki pki \
+              -d nssdb \
+              nss-cert-request \
+              --subject "CN=Root CA Signing Certificate" \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --csr root-ca_signing.csr
+          docker exec pki pki \
+              -d nssdb \
+              nss-cert-issue \
+              --csr root-ca_signing.csr \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --cert root-ca_signing.crt
+          docker exec pki pki \
+              -d nssdb \
+              nss-cert-import \
+              --cert root-ca_signing.crt \
+              --trust CT,C,C \
+              root-ca_signing
+
+      - name: Install dependencies
+        run: |
+          docker exec pki dnf install -y softhsm
+
+      - name: Create SoftHSM token
+        run: |
+          # allow PKI user to access SoftHSM files
+          docker exec pki usermod pkiuser -a -G ods
+
+          # create SoftHSM token for PKI server
+          docker exec pki runuser -u pkiuser -- \
+              softhsm2-util \
+              --init-token \
+              --label HSM \
+              --so-pin Secret.HSM \
+              --pin Secret.HSM \
+              --free
+
+          docker exec pki ls -laR /var/lib/softhsm/tokens
+
+      - name: Install subordinate CA (step 1)
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca-external-cert-step1.cfg \
+              -s CA \
+              -D pki_ds_hostname=ds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -D pki_hsm_enable=True \
+              -D pki_token_name=HSM \
+              -D pki_token_password=Secret.HSM \
+              -D pki_ca_signing_token=HSM \
+              -D pki_ocsp_signing_token=HSM \
+              -D pki_audit_signing_token=HSM \
+              -D pki_subsystem_token=HSM \
+              -D pki_sslserver_token=internal \
+              -D pki_cert_id_generator=random \
+              -D pki_request_id_generator=random \
+              -v
+
+      - name: Issue subordinate CA signing cert
+        run: |
+          docker exec pki pki -d nssdb nss-cert-issue \
+              --issuer root-ca_signing \
+              --csr ca_signing.csr \
+              --ext /usr/share/pki/server/certs/subca_signing.conf \
+              --cert ca_signing.crt
+
+      - name: Install subordinate CA (step 2)
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca-external-cert-step2.cfg \
+              -s CA \
+              -D pki_ds_hostname=ds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -D pki_hsm_enable=True \
+              -D pki_token_name=HSM \
+              -D pki_token_password=Secret.HSM \
+              -D pki_ca_signing_token=HSM \
+              -D pki_ocsp_signing_token=HSM \
+              -D pki_audit_signing_token=HSM \
+              -D pki_subsystem_token=HSM \
+              -D pki_sslserver_token=internal \
+              -D pki_cert_id_generator=random \
+              -D pki_request_id_generator=random \
+              -v
+
+      - name: Check system certs in internal token
+        run: |
+          # there should be 6 certs
+          echo "6" > expected
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-find | tee output
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check root CA signing cert in internal token
+        run: |
+          echo "CT,C,C" > expected
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-show \
+              root-ca_signing | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check ca_signing cert in internal token
+        run: |
+          echo "CT,C,C" > expected
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-show \
+              ca_signing | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check ca_ocsp_signing cert in internal token
+        run: |
+          echo ",," > expected
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-show \
+              ca_ocsp_signing | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check ca_audit_signing cert in internal token
+        run: |
+          echo ",,P" > expected
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-show \
+              ca_audit_signing | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check subsystem cert in internal token
+        run: |
+          echo ",," > expected
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-show \
+              subsystem | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check sslserver cert in internal token
+        run: |
+          echo "u,u,u" > expected
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-show \
+              sslserver | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check system certs in HSM
+        run: |
+          echo "4" > expected
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-find | tee output
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check ca_signing cert in HSM
+        run: |
+          echo "CTu,Cu,Cu" > expected
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-show \
+              HSM:ca_signing | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check ca_ocsp_signing cert in HSM
+        run: |
+          echo "u,u,u" > expected
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-show \
+              HSM:ca_ocsp_signing | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check ca_audit_signing cert in HSM
+        run: |
+          echo "u,u,Pu" > expected
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-show \
+              HSM:ca_audit_signing | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check subsystem cert in HSM
+        run: |
+          echo "u,u,u" > expected
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-show \
+              HSM:subsystem | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+      - name: Run PKI healthcheck
+        run: docker exec pki pki-healthcheck --failures-only
+
+      - name: Check CA admin cert
+        run: |
+          docker exec pki pki client-cert-import ca_signing --ca-cert root-ca_signing.crt
+          docker exec pki pki client-cert-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+          docker exec pki pki -n caadmin ca-user-show caadmin
+
+      - name: Check CA certs and requests
+        run: |
+          docker exec pki pki ca-cert-find
+          docker exec pki pki -n caadmin ca-cert-request-find
+
+      - name: Gather artifacts
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki ds
+          tests/bin/pki-artifacts-save.sh pki
+        continue-on-error: true
+
+      - name: Remove subordinate CA
+        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Remove SoftHSM token
+        run: |
+          docker exec pki runuser -u pkiuser -- softhsm2-util --delete-token --token HSM
+
+      - name: Upload artifacts from container
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: subca-hsm-${{ inputs.os }}
+          path: |
+            /tmp/artifacts/pki

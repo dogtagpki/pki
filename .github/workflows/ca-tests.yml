@@ -228,3 +228,13 @@ jobs:
     with:
       os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
+
+  subca-hsm-test:
+    name: Sub-CA with HSM
+    needs: [init, build]
+    strategy:
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    uses: ./.github/workflows/subca-hsm-test.yml
+    with:
+      os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
