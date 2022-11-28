@@ -12,5 +12,6 @@ docker cp $CONTAINER:/var/log/ipareplica-conncheck.log $ARTIFACTS/var/log
 docker cp $CONTAINER:/var/log/ipareplica-install.log $ARTIFACTS/var/log
 docker cp $CONTAINER:/var/log/ipaserver-install.log $ARTIFACTS/var/log
 docker cp $CONTAINER:/var/log/ipaserver-uninstall.log $ARTIFACTS/var/log
+docker cp $CONTAINER:/var/log/ipaserver-kra-install.log $ARTIFACTS/var/log
 docker cp $CONTAINER:/var/log/ipa $ARTIFACTS/var/log
 docker cp $CONTAINER:/var/log/httpd $ARTIFACTS/var/log
