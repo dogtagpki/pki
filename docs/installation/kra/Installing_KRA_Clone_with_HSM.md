@@ -22,7 +22,7 @@ pki_server_database_password=Secret.123
 pki_hsm_enable=True
 pki_hsm_libfile=/usr/lib64/pkcs11/libsofthsm2.so
 pki_hsm_modulename=softhsm
-pki_token_name=token
+pki_token_name=HSM
 pki_token_password=Secret.HSM
 
 [KRA]
@@ -82,16 +82,16 @@ kra_audit_signing                                            ,,P
 Verify that the HSM contains the following certificates:
 
 ```
-$ certutil -L -d /etc/pki/pki-tomcat/alias -h token -f token.pwd
+$ certutil -L -d /etc/pki/pki-tomcat/alias -h HSM -f HSM.pwd
 
 Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI
 
-token:kra_transport                                          u,u,u
-token:kra_storage                                            u,u,u
-token:subsystem                                              u,u,u
-token:kra_audit_signing                                      u,u,Pu
-token:sslserver/replica.example.com                          u,u,u
+HSM:kra_transport                                            u,u,u
+HSM:kra_storage                                              u,u,u
+HSM:subsystem                                                u,u,u
+HSM:kra_audit_signing                                        u,u,Pu
+HSM:sslserver/replica.example.com                            u,u,u
 ```
 
 Verifying Admin Certificate

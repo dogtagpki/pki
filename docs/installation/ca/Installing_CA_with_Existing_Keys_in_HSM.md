@@ -22,7 +22,7 @@ pki_server_database_password=Secret.123
 pki_hsm_enable=True
 pki_hsm_libfile=/usr/lib64/pkcs11/libsofthsm2.so
 pki_hsm_modulename=softhsm
-pki_token_name=token
+pki_token_name=HSM
 pki_token_password=Secret.123
 
 [CA]
@@ -68,9 +68,9 @@ Exporting Existing System Certificates and CSRs
 Export the system certificates from the existing CA with the following commands:
 
 ```
-$ certutil -L -d /etc/pki/pki-tomcat/alias -h token -f token.pwd -n "token:ca_signing" -a > ca_signing.crt
-$ certutil -L -d /etc/pki/pki-tomcat/alias -h token -f token.pwd -n "token:ca_ocsp_signing" -a > ca_ocsp_signing.crt
-$ certutil -L -d /etc/pki/pki-tomcat/alias -h token -f token.pwd -n "token:ca_audit_signing" -a > ca_audit_signing.crt
+$ certutil -L -d /etc/pki/pki-tomcat/alias -h HSM -f HSM.pwd -n "HSM:ca_signing" -a > ca_signing.crt
+$ certutil -L -d /etc/pki/pki-tomcat/alias -h HSM -f HSM.pwd -n "HSM:ca_ocsp_signing" -a > ca_ocsp_signing.crt
+$ certutil -L -d /etc/pki/pki-tomcat/alias -h HSM -f HSM.pwd -n "HSM:ca_audit_signing" -a > ca_audit_signing.crt
 ```
 
 Export the CSRs from the existing CA with the following commands:
@@ -147,16 +147,16 @@ ca_audit_signing                                             ,,P
 Verify that the HSM contains the following certificates:
 
 ```
-$ certutil -L -d /etc/pki/pki-tomcat/alias -h token -f token.pwd
+$ certutil -L -d /etc/pki/pki-tomcat/alias -h HSM -f HSM.pwd
 
 Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI
 
-token:ca_signing                                             CTu,Cu,Cu
-token:ca_ocsp_signing                                        u,u,u
-token:subsystem/pki.example.com                              u,u,u
-token:ca_audit_signing                                       u,u,Pu
-token:sslserver/pki.example.com                              u,u,u
+HSM:ca_signing                                               CTu,Cu,Cu
+HSM:ca_ocsp_signing                                          u,u,u
+HSM:subsystem/pki.example.com                                u,u,u
+HSM:ca_audit_signing                                         u,u,Pu
+HSM:sslserver/pki.example.com                                u,u,u
 ```
 
 Verifying Admin Certificate

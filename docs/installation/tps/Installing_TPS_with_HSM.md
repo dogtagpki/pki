@@ -19,7 +19,7 @@ pki_server_database_password=Secret.123
 pki_hsm_enable=True
 pki_hsm_libfile=/usr/lib64/pkcs11/libsofthsm2.so
 pki_hsm_modulename=softhsm
-pki_token_name=token
+pki_token_name=HSM
 pki_token_password=Secret.HSM
 
 [TPS]
@@ -73,14 +73,14 @@ tps_audit_signing                                            ,,P
 Verify that the HSM contains the following certificates:
 
 ```
-$ certutil -L -d /etc/pki/pki-tomcat/alias -h token -f token.pwd
+$ certutil -L -d /etc/pki/pki-tomcat/alias -h HSM -f HSM.pwd
 
 Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI
 
-token:subsystem                                              u,u,u
-token:tps_audit_signing                                      u,u,Pu
-token:sslserver                                              u,u,u
+HSM:subsystem                                                u,u,u
+HSM:tps_audit_signing                                        u,u,Pu
+HSM:sslserver                                                u,u,u
 ```
 
 Verifying Admin Certificate
