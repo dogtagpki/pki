@@ -25,7 +25,6 @@ import logging
 # PKI Deployment Imports
 from .. import pkiconfig as config
 from .. import pkiscriptlet
-import pki.util
 
 logger = logging.getLogger(__name__)
 
@@ -50,22 +49,5 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             for k in sensitive_parameters:
                 deployer.user_config.remove_option(s, k)
 
-        # establish top-level infrastructure, instance, and subsystem
-        # base directories and create the "registry" symbolic link that
-        # the "pkidestroy" executable relies upon
-        if deployer.mdict['pki_path'] != "/var/lib/pki":
-            logger.info('Creating %s', deployer.mdict['pki_path'])
-            deployer.directory.create(deployer.mdict['pki_path'])
-
     def destroy(self, deployer):
-
-        # if this is not the last subsystem, skip
-        if deployer.instance.pki_instance_subsystems() > 0:
-            return
-
-        logger.info('Cleaning up infrastructure')
-
-        if deployer.mdict['pki_path'] != "/var/lib/pki":
-            logger.info('Removing %s', deployer.mdict['pki_path'])
-            pki.util.rmtree(deployer.mdict['pki_path'],
-                            deployer.force)
+        pass
