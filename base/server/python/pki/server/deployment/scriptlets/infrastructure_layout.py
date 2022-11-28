@@ -41,15 +41,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         logger.info('Setting up infrastructure')
 
-        # establish the top-level infrastructure, instance, and subsystem
-        # registry directories for storage of a copy of the original
-        # deployment configuration file used to spawn this instance,
-        # and save a copy of this file
-        #
-        # The top level directories should exist and be owned by the rpm.
-
-        deployer.directory.create(deployer.mdict['pki_instance_registry_path'])
-
         # Archive the user deployment configuration excluding the sensitive
         # parameters
         sensitive_parameters = deployer.mdict['sensitive_parameters'].split()
@@ -65,8 +56,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if deployer.mdict['pki_path'] != "/var/lib/pki":
             logger.info('Creating %s', deployer.mdict['pki_path'])
             deployer.directory.create(deployer.mdict['pki_path'])
-
-        deployer.directory.create(deployer.mdict['pki_instance_path'])
 
         # NOTE:  If "infrastructure_layout" scriptlet execution has been
         #        successfully executed to this point, the "pkidestroy" command

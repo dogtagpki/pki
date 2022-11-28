@@ -48,6 +48,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         instance = self.instance
         instance.load()
 
+        # Create /var/lib/pki/<instance>
+        instance.makedirs(deployer.mdict['pki_instance_path'], force=True)
+
         instance_conf_path = deployer.mdict['pki_instance_configuration_path']
 
         logger.info('Creating %s', instance_conf_path)
@@ -264,6 +267,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # to /lib/systemd/system/pki-tomcatd@.service
             deployer.symlink.create(deployer.mdict['pki_systemd_service'],
                                     deployer.mdict['pki_systemd_service_link'])
+
+        # Create /etc/sysconfig/pki/tomcat/<instance>
+        instance.makedirs(deployer.mdict['pki_instance_registry_path'], force=True)
 
         # Copy /usr/share/pki/setup/pkidaemon_registry
         # to /etc/sysconfig/pki/tomcat/<instance>/<instance>
