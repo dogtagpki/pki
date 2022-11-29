@@ -132,8 +132,9 @@ class ClonesPlugin(Plugin):
         ca_subsystem = self.instance.get_subsystem('ca')
         if ca_subsystem:
             # make sure this CA is the security domain
-            service_host = ca_subsystem.config.get('service.machineName')
-            service_port = ca_subsystem.config.get('service.unsecurePort')
+            service_host = ca_subsystem.config.get('machineName')
+            server_config = self.instance.get_server_config()
+            service_port = server_config.get_unsecure_port()
             sechost = ca_subsystem.config.get('securitydomain.host')
             secport = ca_subsystem.config.get('securitydomain.httpport')
 
