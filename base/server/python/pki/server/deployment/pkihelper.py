@@ -2005,7 +2005,7 @@ class KRAConnector:
             cs_cfg = PKIConfigParser.read_simple_configuration_file(
                 self.mdict['pki_target_cs_cfg'])
 
-            krahost = cs_cfg.get('service.machineName')
+            krahost = cs_cfg.get('machineName')
 
             server_config = instance.get_server_config()
             kraport = server_config.get_secure_port()
@@ -2163,7 +2163,7 @@ class TPSConnector:
 
             cs_cfg = PKIConfigParser.read_simple_configuration_file(
                 self.mdict['pki_target_cs_cfg'])
-            tpshost = cs_cfg.get('service.machineName')
+            tpshost = cs_cfg.get('machineName')
 
             server_config = instance.get_server_config()
             tpsport = server_config.get_secure_port()
@@ -2248,7 +2248,7 @@ class SecurityDomain:
             self.mdict['pki_target_cs_cfg'])
 
         # assign key name/value pairs
-        machinename = cs_cfg.get('service.machineName')
+        machinename = cs_cfg.get('machineName')
         sport = cs_cfg.get('service.securityDomainPort')
         sechost = cs_cfg.get('securitydomain.host')
         seceeport = cs_cfg.get('securitydomain.httpseeport')

@@ -51,6 +51,27 @@ class RemoveUnusedParams(pki.server.upgrade.PKIServerUpgradeScriptlet):
             elif re.match(r'logError\.', name):
                 remove = True
 
+            elif re.match(r'service\.clientauth_securePort$', name):
+                remove = True
+
+            elif re.match(r'service\.instanceDir$', name):
+                remove = True
+
+            elif re.match(r'service\.instanceID$', name):
+                remove = True
+
+            elif re.match(r'service\.machineName$', name):
+                remove = True
+
+            elif re.match(r'service\.non_clientauth_securePort$', name):
+                remove = True
+
+            elif re.match(r'service\.securePort$', name):
+                remove = True
+
+            elif re.match(r'service\.unsecurePort$', name):
+                remove = True
+
             if not remove:
                 continue
 
