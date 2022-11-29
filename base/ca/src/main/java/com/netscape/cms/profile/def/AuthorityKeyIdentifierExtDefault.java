@@ -124,11 +124,7 @@ public class AuthorityKeyIdentifierExtDefault extends CAEnrollDefault {
             if (ext == null) {
                 return null;
             }
-            if (ext.isCritical()) {
-                return "true";
-            } else {
-                return "false";
-            }
+            return ext.isCritical() ? "true" : "false";
         } else if (name.equals(VAL_KEY_ID)) {
             ext =
                     (AuthorityKeyIdentifierExtension) getExtension(
