@@ -837,7 +837,9 @@ pkgs=base\
     %{?_verbose:-v} \
     --product-name="%{product_name}" \
     --product-id=%{product_id} \
+%if %{with theme}
     --theme=%{theme} \
+%endif
     --work-dir=%{_vpath_builddir} \
     --prefix-dir=%{_prefix} \
     --include-dir=%{_includedir} \
