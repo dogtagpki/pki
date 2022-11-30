@@ -14,9 +14,9 @@ License:          GPLv2 and LGPLv2
 # For development (i.e. unsupported) releases, use x.y.z-0.n.<phase>.
 # For official (i.e. supported) releases, use x.y.z-r where r >=1.
 %global           release_number 1
-Version:          10.13.3
+Version:          10.13.4
 Release:          %{?release_number}%{?_timestamp}%{?_commit_id}%{?dist}
-#global           _phase -alpha1
+#global           _phase
 
 # To create a tarball from a version tag:
 # $ git archive \
@@ -35,9 +35,8 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{ver
 
 # md2man isn't available on i686. Additionally, we aren't generally multi-lib
 # compatible (https://fedoraproject.org/wiki/Packaging:Java)
-# so dropping i686 everywhere but RHEL-8 (which we've already shipped) seems
-# safest.
-%if ! 0%{?rhel} || 0%{?rhel} > 8
+# so dropping i686.
+%if ! 0%{?rhel} || 0%{?rhel} >= 8
 ExcludeArch: i686
 %endif
 
