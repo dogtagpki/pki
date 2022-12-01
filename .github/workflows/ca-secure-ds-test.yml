@@ -37,7 +37,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh ds
         env:
-          IMAGE: ${{ inputs.db-image }}
+          IMAGE: pki-runner
           HOSTNAME: ds.example.com
           PASSWORD: Secret.123
 

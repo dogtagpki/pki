@@ -20,6 +20,11 @@ then
     exit 1
 fi
 
+if [ "$IMAGE" == "" ]
+then
+    IMAGE=quay.io/389ds/dirsrv
+fi
+
 create_server() {
 
     echo "Creating DS server"
@@ -94,7 +99,7 @@ dc: pki
 EOF
 }
 
-if [ "$IMAGE" == "" ]
+if [ "$IMAGE" == "pki-runner" ]
 then
     create_server
 else
