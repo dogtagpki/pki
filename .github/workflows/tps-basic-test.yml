@@ -144,12 +144,12 @@ jobs:
       - name: Set up TPS authentication
         run: |
           # import sample TPS users
-          docker exec ds ldapadd \
+          docker exec pki ldapadd \
               -H ldap://ds.example.com:3389 \
               -D "cn=Directory Manager" \
               -w Secret.123 \
               -f /usr/share/pki/tps/auth/ds/create.ldif
-          docker exec ds ldapadd \
+          docker exec pki ldapadd \
               -H ldap://ds.example.com:3389 \
               -D "cn=Directory Manager" \
               -w Secret.123 \
