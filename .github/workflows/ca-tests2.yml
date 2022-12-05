@@ -81,6 +81,16 @@ jobs:
       os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
+  ca-clone-hsm-test:
+    name: CA clone with HSM
+    needs: [init, build]
+    strategy:
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    uses: ./.github/workflows/ca-clone-hsm-test.yml
+    with:
+      os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
+
   ca-secure-ds-test:
     name: CA with secure DS
     needs: [init, build]

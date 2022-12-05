@@ -1,0 +1,342 @@
+name: CA clone with HSM
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+      db-image:
+        required: false
+        type: string
+
+jobs:
+  # docs/installation/ca/Installing_CA_Clone_with_HSM.md
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      - name: Retrieve runner image
+        uses: actions/cache@v3
+        with:
+          key: pki-ca-runner-${{ inputs.os }}-${{ github.run_id }}
+          path: pki-runner.tar
+
+      - name: Load runner image
+        run: docker load --input pki-runner.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up primary DS container
+        run: |
+          tests/bin/ds-container-create.sh primaryds
+        env:
+          IMAGE: ${{ inputs.db-image }}
+          HOSTNAME: primaryds.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect primary DS container to network
+        run: docker network connect example primaryds --alias primaryds.example.com
+
+      - name: Set up primary PKI container
+        run: |
+          tests/bin/runner-init.sh primary
+        env:
+          HOSTNAME: primary.example.com
+
+      - name: Connect primary PKI container to network
+        run: docker network connect example primary --alias primary.example.com
+
+      - name: Install dependencies in primary PKI container
+        run: |
+          docker exec primary dnf install -y softhsm
+
+      - name: Create SoftHSM token in primary PKI container
+        run: |
+          # allow PKI user to access SoftHSM files
+          docker exec primary usermod pkiuser -a -G ods
+
+          # create SoftHSM token for PKI server
+          docker exec primary runuser -u pkiuser -- \
+              softhsm2-util \
+              --init-token \
+              --label HSM \
+              --so-pin Secret.HSM \
+              --pin Secret.HSM \
+              --free
+
+          docker exec primary ls -laR /var/lib/softhsm/tokens
+
+          docker exec primary runuser -u pkiuser -- \
+              softhsm2-util --show-slots
+
+      - name: Install CA in primary PKI container
+        run: |
+          docker exec primary pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_hostname=primaryds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -D pki_hsm_enable=True \
+              -D pki_token_name=HSM \
+              -D pki_token_password=Secret.HSM \
+              -D pki_ca_signing_token=HSM \
+              -D pki_ocsp_signing_token=HSM \
+              -D pki_audit_signing_token=HSM \
+              -D pki_subsystem_token=HSM \
+              -D pki_sslserver_token=internal \
+              -D pki_cert_id_generator=random \
+              -D pki_request_id_generator=random \
+              -v
+
+      - name: Check system certs in internal token
+        run: |
+          # there should be 5 certs
+          echo "5" > expected
+          docker exec primary pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-find | tee output
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check system certs in HSM
+        run: |
+          # there should be 4 certs
+          echo "4" > expected
+          docker exec primary pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-find | tee output
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+      - name: Copy keys from primary PKI container
+        run: |
+          docker exec primary ls -laR /var/lib/softhsm/tokens
+          docker cp primary:/var/lib/softhsm/tokens/. tokens
+          ls -laR tokens
+
+      - name: Set up secondary DS container
+        run: |
+          tests/bin/ds-container-create.sh secondaryds
+        env:
+          IMAGE: ${{ inputs.db-image }}
+          HOSTNAME: secondaryds.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect secondary DS container to network
+        run: docker network connect example secondaryds --alias secondaryds.example.com
+
+      - name: Set up secondary PKI container
+        run: |
+          tests/bin/runner-init.sh secondary
+        env:
+          HOSTNAME: secondary.example.com
+
+      - name: Connect secondary PKI container to network
+        run: docker network connect example secondary --alias secondary.example.com
+
+      - name: Install dependencies in secondary PKI container
+        run: |
+          docker exec secondary dnf install -y softhsm
+
+      - name: Copy keys to secondary PKI container
+        run: |
+          # allow PKI user to access SoftHSM files
+          docker exec secondary usermod pkiuser -a -G ods
+
+          docker cp tokens/. secondary:/var/lib/softhsm/tokens
+          docker exec secondary chown -R pkiuser:pkiuser /var/lib/softhsm/tokens
+          docker exec secondary ls -laR /var/lib/softhsm/tokens
+
+          docker exec secondary runuser -u pkiuser -- \
+              softhsm2-util --show-slots
+
+      - name: Install CA in secondary PKI container
+        run: |
+          docker exec primary pki-server cert-export ca_signing \
+              --cert-file ${SHARED}/ca_signing.crt
+          docker exec secondary pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca-clone.cfg \
+              -s CA \
+              -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
+              -D pki_ds_hostname=secondaryds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -D pki_hsm_enable=True \
+              -D pki_token_name=HSM \
+              -D pki_token_password=Secret.HSM \
+              -D pki_ca_signing_token=HSM \
+              -D pki_ocsp_signing_token=HSM \
+              -D pki_audit_signing_token=HSM \
+              -D pki_subsystem_token=HSM \
+              -D pki_sslserver_token=internal \
+              -D pki_cert_id_generator=random \
+              -D pki_request_id_generator=random \
+              -v
+
+      - name: Check system certs in internal token
+        run: |
+          # there should be 3 certs
+          # NOTE: ideally it should match the
+          # primary CA, but it works fine as is
+          # TODO: investigate the discrepancy
+          echo "3" > expected
+          docker exec secondary pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-find | tee output
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check system certs in HSM
+        run: |
+          # there should be 4 certs
+          echo "4" > expected
+          docker exec secondary pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-find | tee output
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+      - name: Set up tertiary DS container
+        run: |
+          tests/bin/ds-container-create.sh tertiaryds
+        env:
+          IMAGE: ${{ inputs.db-image }}
+          HOSTNAME: tertiaryds.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect tertiary DS container to network
+        run: docker network connect example tertiaryds --alias tertiaryds.example.com
+
+      - name: Set up tertiary PKI container
+        run: |
+          tests/bin/runner-init.sh tertiary
+        env:
+          HOSTNAME: tertiary.example.com
+
+      - name: Connect tertiary PKI container to network
+        run: docker network connect example tertiary --alias tertiary.example.com
+
+      - name: Install dependencies in tertiary PKI container
+        run: |
+          docker exec tertiary dnf install -y softhsm
+
+      - name: Copy keys to tertiary PKI container
+        run: |
+          # allow PKI user to access SoftHSM files
+          docker exec tertiary usermod pkiuser -a -G ods
+
+          docker cp tokens/. tertiary:/var/lib/softhsm/tokens
+          docker exec tertiary chown -R pkiuser:pkiuser /var/lib/softhsm/tokens
+          docker exec tertiary ls -laR /var/lib/softhsm/tokens
+
+          docker exec tertiary runuser -u pkiuser -- \
+              softhsm2-util --show-slots
+
+      - name: Install CA in tertiary PKI container
+        run: |
+          docker exec tertiary pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca-clone-of-clone.cfg \
+              -s CA \
+              -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
+              -D pki_ds_hostname=tertiaryds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -D pki_hsm_enable=True \
+              -D pki_token_name=HSM \
+              -D pki_token_password=Secret.HSM \
+              -D pki_ca_signing_token=HSM \
+              -D pki_ocsp_signing_token=HSM \
+              -D pki_audit_signing_token=HSM \
+              -D pki_subsystem_token=HSM \
+              -D pki_sslserver_token=internal \
+              -D pki_cert_id_generator=random \
+              -D pki_request_id_generator=random \
+              -v
+
+      - name: Check system certs in internal token
+        run: |
+          # there should be 3 certs
+          # NOTE: ideally it should match the
+          # primary CA, but it works fine as is
+          # TODO: investigate the discrepancy
+          echo "3" > expected
+          docker exec tertiary pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-find | tee output
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check system certs in HSM
+        run: |
+          # there should be 4 certs
+          echo "4" > expected
+          docker exec tertiary pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-find | tee output
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+      - name: Gather artifacts from primary containers
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/primary primaryds
+          tests/bin/pki-artifacts-save.sh primary
+        continue-on-error: true
+
+      - name: Gather artifacts from secondary containers
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/secondary secondaryds
+          tests/bin/pki-artifacts-save.sh secondary
+        continue-on-error: true
+
+      - name: Gather artifacts from tertiary containers
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/tertiary tertiaryds
+          tests/bin/pki-artifacts-save.sh tertiary
+        continue-on-error: true
+
+      - name: Remove CA from tertiary PKI container
+        run: docker exec tertiary pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Remove CA from secondary PKI container
+        run: docker exec secondary pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Remove CA from primary PKI container
+        run: docker exec primary pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Upload artifacts from primary containers
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ca-clone-primary-${{ inputs.os }}
+          path: |
+            /tmp/artifacts/primary
+
+      - name: Upload artifacts from secondary containers
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ca-clone-secondary-${{ inputs.os }}
+          path: |
+            /tmp/artifacts/secondary
+
+      - name: Upload artifacts from tertiary containers
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ca-clone-tertiary-${{ inputs.os }}
+          path: |
+            /tmp/artifacts/tertiary
