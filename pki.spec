@@ -8,19 +8,19 @@ Name:             pki
 
 # Upstream version number:
 %global           major_version 11
-%global           minor_version 3
+%global           minor_version 4
 %global           update_version 0
 
 # Downstream release number:
 # - development/stabilization (unsupported): 0.<n> where n >= 1
 # - GA/update (supported): <n> where n >= 1
-%global           release_number 0.2
+%global           release_number 0.1
 
 # Development phase:
 # - development (unsupported): alpha<n> where n >= 1
 # - stabilization (unsupported): beta<n> where n >= 1
 # - GA/update (supported): <none>
-%global           phase beta1
+%global           phase alpha1
 
 %undefine         timestamp
 %undefine         commit_id
@@ -186,9 +186,9 @@ BuildRequires:    python3-six
 
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
-BuildRequires:    jss = 5.3
-BuildRequires:    tomcatjss = 8.3
-BuildRequires:    ldapjdk = 5.3
+BuildRequires:    jss = 5.4
+BuildRequires:    tomcatjss = 8.4
+BuildRequires:    ldapjdk = 5.4
 
 BuildRequires:    systemd-units
 
@@ -372,8 +372,8 @@ Requires:         apache-commons-net
 Requires:         slf4j
 Requires:         slf4j-jdk14
 Requires:         jpackage-utils >= 0:1.7.5-10
-Requires:         jss = 5.3
-Requires:         ldapjdk = 5.3
+Requires:         jss = 5.4
+Requires:         ldapjdk = 5.4
 Requires:         %{product_id}-base = %{version}-%{release}
 Requires:         resteasy-client >= 3.0.17-1
 Requires:         resteasy-core >= 3.0.17-1
@@ -449,7 +449,7 @@ Requires:         systemd
 Requires(post):   systemd-units
 Requires(postun): systemd-units
 Requires(pre):    shadow-utils
-Requires:         tomcatjss = 8.3
+Requires:         tomcatjss = 8.4
 
 # pki-healthcheck depends on the following library
 %if 0%{?rhel}
@@ -722,12 +722,12 @@ This package provides %{product_name} API documentation.
 Summary:          %{product_name} Console Package
 BuildArch:        noarch
 
-BuildRequires:    idm-console-framework >= 2.0
+BuildRequires:    idm-console-framework = 2.0
 
 Obsoletes:        pki-console < %{version}-%{release}
 Provides:         pki-console = %{version}-%{release}
 
-Requires:         idm-console-framework >= 2.0
+Requires:         idm-console-framework = 2.0
 Requires:         %{product_id}-java = %{version}-%{release}
 Requires:         %{product_id}-console-theme = %{version}-%{release}
 
