@@ -58,12 +58,9 @@ public class generateCRMFRequest {
             System.out.println("ERROR: failed to generate request");
             return false;
         }
-        PrintStream ps = null;
-        try {
-            ps = new PrintStream(new FileOutputStream(output_file));
+        try (PrintStream ps = new PrintStream(new FileOutputStream(output_file))) {
             ps.println(cert_request);
             ps.flush();
-            ps.close();
         } catch (Exception E) {
             System.err.println("Error in writing to file");
         }
