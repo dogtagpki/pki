@@ -106,6 +106,7 @@ jobs:
               -s CA \
               -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
               -D pki_clone_pkcs12_path=${SHARED}/ca-certs.p12 \
+              -D pki_clone_pkcs12_password=Secret.123 \
               -D pki_ds_hostname=secondaryds.example.com \
               -D pki_ds_ldap_port=3389 \
               -D pki_cert_id_generator=random \
@@ -122,6 +123,7 @@ jobs:
               -s OCSP \
               -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
               -D pki_clone_pkcs12_path=${SHARED}/ocsp-certs.p12 \
+              -D pki_clone_pkcs12_password=Secret.123 \
               -D pki_ds_hostname=secondaryds.example.com \
               -D pki_ds_ldap_port=3389 \
               -v
@@ -166,6 +168,7 @@ jobs:
               -s CA \
               -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
               -D pki_clone_pkcs12_path=${SHARED}/ca-certs.p12 \
+              -D pki_clone_pkcs12_password=Secret.123 \
               -D pki_ds_hostname=tertiaryds.example.com \
               -D pki_ds_ldap_port=3389 \
               -D pki_cert_id_generator=random \
@@ -182,6 +185,7 @@ jobs:
               -s OCSP \
               -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
               -D pki_clone_pkcs12_path=${SHARED}/ocsp-certs.p12 \
+              -D pki_clone_pkcs12_password=Secret.123 \
               -D pki_ds_hostname=tertiaryds.example.com \
               -D pki_ds_ldap_port=3389 \
               -v
