@@ -35,16 +35,10 @@ The branch names follow the following formats:
 
 During development PKI may require dependencies that are only available in [COPR repositories](https://github.com/dogtagpki/pki/wiki/COPR-Repositories).
 
-The COPR repository names follow the following formats:
-
-- `@pki/master`
-- `@pki/<major>`
-- `@pki/<major>.<minor>`
-
 Enable the COPR repository that corresponds to the current branch:
 
 ````bash
-$ sudo dnf copr -y enable <repository>
+$ sudo dnf copr -y enable @pki/11.3
 ````
 
 To install PKI dependencies:

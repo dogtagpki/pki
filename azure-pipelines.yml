@@ -28,7 +28,7 @@ jobs:
 
   - script: |
       docker exec runner dnf install -y dnf-plugins-core rpm-build maven
-      docker exec runner dnf copr enable -y @pki/master
+      docker exec runner dnf copr enable -y @pki/11.3
       docker exec runner dnf builddep -y --spec /root/src/pki.spec
     displayName: Install PKI dependencies
 
