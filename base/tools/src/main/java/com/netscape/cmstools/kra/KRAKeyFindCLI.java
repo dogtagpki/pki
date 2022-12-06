@@ -78,6 +78,10 @@ public class KRAKeyFindCLI extends CommandCLI {
         option.setArgName("realm");
         options.addOption(option);
 
+        option = new Option(null, "owner", true, "Owner name");
+        option.setArgName("owner");
+        options.addOption(option);
+
         option = new Option(null, "output-format", true, "Output format: text (default), json");
         option.setArgName("format");
         options.addOption(option);
@@ -95,6 +99,7 @@ public class KRAKeyFindCLI extends CommandCLI {
         String clientKeyID = cmd.getOptionValue("clientKeyID");
         String status = cmd.getOptionValue("status");
         String realm = cmd.getOptionValue("realm");
+        String ownerName = cmd.getOptionValue("owner");
         String outputFormat = cmd.getOptionValue("output-format", "text");
 
         String s = cmd.getOptionValue("maxResults");
@@ -113,7 +118,7 @@ public class KRAKeyFindCLI extends CommandCLI {
         mainCLI.init();
 
         KeyClient keyClient = keyCLI.getKeyClient();
-        KeyInfoCollection keys = keyClient.listKeys(clientKeyID, status, maxResults, maxTime, start, size, realm);
+        KeyInfoCollection keys = keyClient.listKeys(clientKeyID, status, maxResults, maxTime, start, size, realm, ownerName);
 
         if ("json".equalsIgnoreCase(outputFormat)) {
             System.out.println(keys.toJSON());

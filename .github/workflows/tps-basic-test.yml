@@ -202,8 +202,17 @@ jobs:
           docker exec pki pki -n caadmin tps-token-show $CUID | tee output
           sed -n 's/\s*Status:\s\+\(\S\+\)\s*/\1/p' output > actual
           diff expected actual
-
+          
           docker exec pki pki -n caadmin tps-cert-find --token $CUID
+
+      - name: KRA key find
+        run: |          
+          CUID=$(cat cuid | tr [:lower:] [:upper:])
+          USER="testuser"
+          echo $CUID:$USER > expected
+          docker exec pki pki -n caadmin kra-key-find --owner $CUID:$USER | tee output
+          sed -n 's/\s*Owner:\s\+\(\S\+\)\s*/\1/p' output > actual
+          diff expected actual
 
       - name: Gather artifacts
         if: always()

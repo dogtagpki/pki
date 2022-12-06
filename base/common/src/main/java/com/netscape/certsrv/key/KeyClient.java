@@ -133,15 +133,15 @@ public class KeyClient extends Client {
      * @return a KeyInfoCollection object.
      */
     public KeyInfoCollection listKeys(String clientKeyID, String status, Integer maxSize, Integer maxTime,
-            Integer start, Integer size, String realm) throws Exception {
-        Response response = keyClient.listKeys(clientKeyID, status, maxSize, maxTime, start, size, realm);
+            Integer start, Integer size, String realm, String ownerName) throws Exception {
+        Response response = keyClient.listKeys(clientKeyID, status, maxSize, maxTime, start, size, realm, ownerName);
         return client.getEntity(response, KeyInfoCollection.class);
     }
 
     /* for backward compatibility */
     public KeyInfoCollection listKeys(String clientKeyID, String status, Integer maxSize, Integer maxTime,
-            Integer start, Integer size) throws Exception {
-        Response response = keyClient.listKeys(clientKeyID, status, maxSize, maxTime, start, size, null);
+            Integer start, Integer size, String ownerName) throws Exception {
+        Response response = keyClient.listKeys(clientKeyID, status, maxSize, maxTime, start, size, ownerName, null);
         return client.getEntity(response, KeyInfoCollection.class);
     }
 
@@ -726,7 +726,7 @@ public class KeyClient extends Client {
         byte[] nonceData = CryptoUtil.getNonceData(encryptAlgorithm.getIVLength());
         SymmetricKey sessionKey = generateSessionKey();
 	KeyWrapAlgorithm alg = KeyWrapAlgorithm.RSA;
-	
+
 	if(this.useOAEP == true) {
             alg = KeyWrapAlgorithm.RSA_OAEP;
         }

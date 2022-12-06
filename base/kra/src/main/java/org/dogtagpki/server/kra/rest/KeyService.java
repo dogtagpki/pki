@@ -462,9 +462,9 @@ public class KeyService extends SubsystemService implements KeyResource {
      */
     @Override
     public Response listKeys(String clientKeyID, String status, Integer maxResults, Integer maxTime,
-            Integer start, Integer size, String realm) {
+            Integer start, Integer size, String realm, String ownerName) {
 
-        KeyInfoCollection keys = listKeyInfos(clientKeyID, status, maxResults, maxTime, start, size, realm);
+        KeyInfoCollection keys = listKeyInfos(clientKeyID, status, maxResults, maxTime, start, size, realm, ownerName);
 
         try {
             return createOKResponse(keys);
@@ -476,7 +476,7 @@ public class KeyService extends SubsystemService implements KeyResource {
     }
 
     public KeyInfoCollection listKeyInfos(String clientKeyID, String status, Integer maxResults, Integer maxTime,
-            Integer start, Integer size, String realm) {
+            Integer start, Integer size, String realm, String ownerName) {
 
         logger.info("KeyService: Searching for keys");
         logger.info("KeyService: - client key ID: " + clientKeyID);
@@ -504,7 +504,7 @@ public class KeyService extends SubsystemService implements KeyResource {
         }
 
         // get ldap filter
-        String filter = createSearchFilter(status, clientKeyID, realm);
+        String filter = createSearchFilter(status, clientKeyID, realm, ownerName);
         logger.info("KeyService: - filter: " + filter);
 
         maxResults = maxResults == null ? DEFAULT_MAXRESULTS : maxResults;
@@ -572,6 +572,7 @@ public class KeyService extends SubsystemService implements KeyResource {
                 null,
                 null,
                 null,
+                null,
                 null
         );
 
@@ -629,12 +630,17 @@ public class KeyService extends SubsystemService implements KeyResource {
         return ret;
     }
 
-    private String createSearchFilter(String status, String clientKeyID, String realm) {
+    private String createSearchFilter(String status, String clientKeyID, String realm, String ownerName) {
         String filter = "";
         int matches = 0;
 
-        if ((status == null) && (clientKeyID == null)) {
+        if ((status == null) && (clientKeyID == null) && (ownerName == null)) {
             filter = "(serialno=*)";
+            matches ++;
+        }
+
+        if (ownerName != null) {
+            filter = "(keyOwnerName=" + LDAPUtil.escapeFilter(ownerName) + ")";
             matches ++;
         }
 
@@ -659,7 +665,6 @@ public class KeyService extends SubsystemService implements KeyResource {
         if (matches > 1) {
             filter = "(&" + filter + ")";
         }
-
         return filter;
     }
 
