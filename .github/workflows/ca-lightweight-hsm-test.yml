@@ -53,6 +53,24 @@ jobs:
       - name: Connect PKI container to network
         run: docker network connect example pki --alias pki.example.com
 
+      - name: Install dependencies
+        run: |
+          docker exec pki dnf install -y softhsm
+
+      - name: Create SoftHSM token
+        run: |
+          # allow PKI user to access SoftHSM files
+          docker exec pki usermod pkiuser -a -G ods
+
+          # create SoftHSM token for PKI server
+          docker exec pki runuser -u pkiuser -- \
+              softhsm2-util \
+              --init-token \
+              --label HSM \
+              --so-pin Secret.HSM \
+              --pin Secret.HSM \
+              --free
+
       - name: Install CA
         run: |
           docker exec pki pkispawn \
@@ -60,6 +78,15 @@ jobs:
               -s CA \
               -D pki_ds_hostname=ds.example.com \
               -D pki_ds_ldap_port=3389 \
+              -D pki_hsm_enable=True \
+              -D pki_token_name=HSM \
+              -D pki_token_password=Secret.HSM \
+              -D pki_server_database_password=Secret.123 \
+              -D pki_ca_signing_token=HSM \
+              -D pki_ocsp_signing_token=HSM \
+              -D pki_audit_signing_token=HSM \
+              -D pki_subsystem_token=HSM \
+              -D pki_sslserver_token=internal \
               -D pki_cert_id_generator=random \
               -D pki_request_id_generator=random \
               -v
@@ -105,11 +132,11 @@ jobs:
               "(objectClass=*)" | tee output
 
           # check authorityKeyNickname
-          echo "ca_signing" > expected
+          echo "HSM:ca_signing" > expected
           sed -n 's/^authorityKeyNickname:\s*\(.*\)$/\1/p' output > actual
           diff expected actual
 
-      - name: Check certs and keys in NSS database
+      - name: Check certs and keys in internal token
         run: |
           docker exec pki pki \
               -d /etc/pki/pki-tomcat/alias \
@@ -126,8 +153,32 @@ jobs:
               -f /etc/pki/pki-tomcat/password.conf \
               nss-key-find | tee output
 
-          # there should be 5 keys
-          echo "5" > expected
+          # there should be 1 key
+          echo "1" > expected
+          sed -n 's/^\s*Key ID:\s*\(.*\)$/\1/p' output | wc -l > actual
+          diff expected actual
+
+      - name: Check certs and keys in HSM
+        run: |
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-find | tee output
+
+          # there should be 4 certs now
+          echo "4" > expected
+          sed -n 's/^\s*Nickname:\s*\(.*\)$/\1/p' output | wc -l > actual
+          diff expected actual
+
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-key-find | tee output
+
+          # there should be 4 keys now
+          echo "4" > expected
           sed -n 's/^\s*Key ID:\s*\(.*\)$/\1/p' output | wc -l > actual
           diff expected actual
 
@@ -159,7 +210,7 @@ jobs:
               -x \
               -D "cn=Directory Manager" \
               -w Secret.123 \
-              -b "cn=$LWCA_ID,ou=authorities,ou=ca,dc=ca,dc=pki,dc=example,dc=com" \
+              -b "cn=$LWCA_ID, ou=authorities,ou=ca,dc=ca,dc=pki,dc=example,dc=com" \
               -o ldif_wrap=no \
               -LLL \
               "(objectClass=*)" | tee output
@@ -168,8 +219,11 @@ jobs:
           echo "ca_signing $LWCA_ID" > expected
           sed -n 's/^authorityKeyNickname:\s*\(.*\)$/\1/p' output > actual
           diff expected actual
+        # TODO: remove continue-on-error once this issue is fixed:
+        # https://github.com/dogtagpki/pki/issues/2412
+        continue-on-error: true
 
-      - name: Check certs and keys in NSS database
+      - name: Check certs and keys in internal token
         run: |
           docker exec pki pki \
               -d /etc/pki/pki-tomcat/alias \
@@ -186,8 +240,32 @@ jobs:
               -f /etc/pki/pki-tomcat/password.conf \
               nss-key-find | tee output
 
-          # there should be 6 keys now
-          echo "6" > expected
+          # there should be 2 keys now
+          echo "2" > expected
+          sed -n 's/^\s*Key ID:\s*\(.*\)$/\1/p' output | wc -l > actual
+          diff expected actual
+
+      - name: Check certs and keys in HSM
+        run: |
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-find | tee output
+
+          # there should be 4 certs now
+          echo "4" > expected
+          sed -n 's/^\s*Nickname:\s*\(.*\)$/\1/p' output | wc -l > actual
+          diff expected actual
+
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-key-find | tee output
+
+          # there should be 4 keys now
+          echo "4" > expected
           sed -n 's/^\s*Key ID:\s*\(.*\)$/\1/p' output | wc -l > actual
           diff expected actual
 
@@ -219,6 +297,9 @@ jobs:
           echo "CN=Lightweight CA" > expected
           sed -n -e 's/^\s*Issuer DN:\s*\(.*\)$/\1/p' output > actual
           diff expected actual
+        # TODO: remove continue-on-error once this issue is fixed:
+        # https://github.com/dogtagpki/pki/issues/2412
+        continue-on-error: true
 
       - name: Gather artifacts
         if: always()
@@ -230,10 +311,15 @@ jobs:
       - name: Remove CA
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
 
+      - name: Remove SoftHSM token
+        run: |
+          docker exec pki ls -laR /var/lib/softhsm/tokens
+          docker exec pki runuser -u pkiuser -- softhsm2-util --delete-token --token HSM
+
       - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: ca-lightweight-${{ inputs.os }}
+          name: ca-lightweight-hsm-${{ inputs.os }}
           path: |
             /tmp/artifacts/pki

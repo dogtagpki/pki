@@ -209,6 +209,16 @@ jobs:
       os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
+  ca-lightweight-hsm-test:
+    name: Lightweight CA with HSM
+    needs: [init, build]
+    strategy:
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    uses: ./.github/workflows/ca-lightweight-hsm-test.yml
+    with:
+      os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
+
   subca-basic-test:
     name: Basic Sub-CA
     needs: [init, build]
