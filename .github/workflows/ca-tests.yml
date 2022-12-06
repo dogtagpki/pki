@@ -199,6 +199,16 @@ jobs:
       os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
+  ca-lightweight-test:
+    name: Lightweight CA
+    needs: [init, build]
+    strategy:
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    uses: ./.github/workflows/ca-lightweight-test.yml
+    with:
+      os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
+
   subca-basic-test:
     name: Basic Sub-CA
     needs: [init, build]
