@@ -7,6 +7,7 @@ import org.dogtagpki.cli.CLI;
 import com.netscape.certsrv.authority.AuthorityClient;
 import com.netscape.certsrv.authority.AuthorityData;
 import com.netscape.certsrv.client.PKIClient;
+import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.cmstools.ca.CACLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -64,8 +65,10 @@ public class AuthorityCLI extends CLI {
             System.out.println("  Issuer DN:      " + issuerDN);
 
         BigInteger serial = data.getSerial();
-        if (serial != null)
-            System.out.println("  Serial no:      " + serial);
+        if (serial != null) {
+            CertId certID = new CertId(serial);
+            System.out.println("  Serial no:      " + certID.toHexString());
+        }
 
         System.out.println("  Enabled:        " + data.getEnabled());
         System.out.println("  Ready to sign:  " + data.getReady());
