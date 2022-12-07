@@ -15,6 +15,7 @@ jobs:
 
       - name: Setup git
         run: |
+          sudo apt-get update
           sudo apt-get -y install git
           git config --global user.name "Dr. John Doe"
           git config --global user.email jdoe@example.com
