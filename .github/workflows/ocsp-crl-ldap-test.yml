@@ -22,6 +22,7 @@ jobs:
     steps:
       - name: Install dependencies
         run: |
+          sudo apt-get update
           sudo apt-get -y install libxml2-utils
 
       - name: Clone repository
