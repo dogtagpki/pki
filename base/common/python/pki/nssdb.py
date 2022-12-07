@@ -665,6 +665,9 @@ class NSSDatabase(object):
 
         # If HSM is used, import cert into HSM without trust attributes.
         if token:
+
+            logger.info('Importing %s cert into HSM', nickname)
+
             cmd = [
                 'certutil',
                 '-A',
@@ -693,6 +696,9 @@ class NSSDatabase(object):
         # If HSM is not used, or cert has trust attributes,
         # import cert into internal token.
         if not token or trust_attributes != ',,':
+
+            logger.info('Importing %s cert into internal token', nickname)
+
             cmd = [
                 'certutil',
                 '-A',

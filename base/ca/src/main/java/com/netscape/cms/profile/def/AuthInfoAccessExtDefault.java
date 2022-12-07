@@ -504,7 +504,7 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
                     String s = locationType + ":" + location;
                     GeneralNameInterface gn = parseGeneralName(s);
                     if (gn != null) {
-                        logger.info("AuthInfoAccessExtDefault: Adding " + s);
+                        logger.debug("AuthInfoAccessExtDefault: Adding " + s);
                         ext.addAccessDescription(new ObjectIdentifier(method),
                                 new GeneralName(gn));
                     }

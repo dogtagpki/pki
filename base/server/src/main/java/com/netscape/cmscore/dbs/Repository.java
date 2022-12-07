@@ -315,7 +315,7 @@ public abstract class Repository {
             // The following BigInteger constructor will
             // always create a non-negative number.
             BigInteger id = new BigInteger(idLength, secureRandom);
-            logger.info("Repository: id: 0x" + id.toString(16));
+            logger.debug("Repository: - id: 0x" + id.toString(16));
 
             return id;
         }

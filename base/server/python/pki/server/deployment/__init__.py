@@ -1364,7 +1364,7 @@ class PKIDeployer:
             # let pki-server ca-cert-request-import generate the request ID
             request.systemCert.requestID = None
 
-        logger.info('Importing request for %s cert', tag)
+        logger.info('Importing %s cert request into CA database', tag)
         request_pem = pki.nssdb.convert_csr(request.systemCert.request, 'base64', 'pem')
         result = subsystem.import_cert_request(
             request_id=request.systemCert.requestID,
@@ -1836,7 +1836,7 @@ class PKIDeployer:
 
     def import_cert(self, subsystem, tag, request, cert_data):
 
-        logger.info('Importing %s cert', tag)
+        logger.info('Importing %s cert into CA database', tag)
         logger.debug('- cert: %s', cert_data)
 
         pem_cert = pki.nssdb.convert_cert(cert_data, 'base64', 'pem')

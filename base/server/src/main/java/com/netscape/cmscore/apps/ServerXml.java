@@ -36,7 +36,7 @@ public class ServerXml {
 
     public static ServerXml load(String filename) throws Exception {
 
-        logger.info("ServerXml: Parsing " + filename);
+        logger.debug("ServerXml: Parsing " + filename);
 
         ServerXml serverXml = new ServerXml();
 
@@ -68,11 +68,11 @@ public class ServerXml {
             String port = connector.getAttribute("port");
 
             if (scheme != null && scheme.equals("https")) {
-                logger.info("ServerXml: Secure port: " + port);
+                logger.debug("ServerXml: - secure port: " + port);
                 serverXml.setSecurePort(port);
 
             } else {
-                logger.info("ServerXml: Unsecure port: " + port);
+                logger.debug("ServerXml: - unsecure port: " + port);
                 serverXml.setUnsecurePort(port);
             }
         }
