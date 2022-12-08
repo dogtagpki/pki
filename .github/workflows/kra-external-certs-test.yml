@@ -115,49 +115,61 @@ jobs:
       - name: Issue KRA storage cert
         run: |
           docker exec ca openssl req -text -noout -in ${SHARED}/kra_storage.csr
-          docker exec ca bash -c "pki ca-cert-request-submit --profile caStorageCert --csr-file ${SHARED}/kra_storage.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${SHARED}/kra_storage.reqid"
-          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat kra_storage.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${SHARED}/kra_storage.certid"
-          docker exec ca bash -c "pki ca-cert-export `cat kra_storage.certid` --output-file ${SHARED}/kra_storage.crt"
+          docker exec ca pki ca-cert-request-submit --profile caStorageCert --csr-file ${SHARED}/kra_storage.csr | tee output
+          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
+          docker exec ca pki -n caadmin ca-cert-request-approve $REQUEST_ID --force | tee output
+          CERT_ID=$(sed -n 's/Certificate ID: *\(.*\)/\1/p' output)
+          docker exec ca pki ca-cert-export $CERT_ID --output-file ${SHARED}/kra_storage.crt
           docker exec ca openssl x509 -text -noout -in ${SHARED}/kra_storage.crt
 
       - name: Issue KRA transport cert
         run: |
           docker exec ca openssl req -text -noout -in ${SHARED}/kra_transport.csr
-          docker exec ca bash -c "pki ca-cert-request-submit --profile caTransportCert --csr-file ${SHARED}/kra_transport.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${SHARED}/kra_transport.reqid"
-          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat kra_transport.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${SHARED}/kra_transport.certid"
-          docker exec ca bash -c "pki ca-cert-export `cat kra_transport.certid` --output-file ${SHARED}/kra_transport.crt"
+          docker exec ca pki ca-cert-request-submit --profile caTransportCert --csr-file ${SHARED}/kra_transport.csr | tee output
+          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
+          docker exec ca pki -n caadmin ca-cert-request-approve $REQUEST_ID --force | tee output
+          CERT_ID=$(sed -n 's/Certificate ID: *\(.*\)/\1/p' output)
+          docker exec ca pki ca-cert-export $CERT_ID --output-file ${SHARED}/kra_transport.crt
           docker exec ca openssl x509 -text -noout -in ${SHARED}/kra_transport.crt
 
       - name: Issue subsystem cert
         run: |
           docker exec ca openssl req -text -noout -in ${SHARED}/subsystem.csr
-          docker exec ca bash -c "pki ca-cert-request-submit --profile caSubsystemCert --csr-file ${SHARED}/subsystem.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${SHARED}/subsystem.reqid"
-          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat subsystem.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${SHARED}/subsystem.certid"
-          docker exec ca bash -c "pki ca-cert-export `cat subsystem.certid` --output-file ${SHARED}/subsystem.crt"
+          docker exec ca pki ca-cert-request-submit --profile caSubsystemCert --csr-file ${SHARED}/subsystem.csr | tee output
+          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
+          docker exec ca pki -n caadmin ca-cert-request-approve $REQUEST_ID --force | tee output
+          CERT_ID=$(sed -n 's/Certificate ID: *\(.*\)/\1/p' output)
+          docker exec ca pki ca-cert-export $CERT_ID --output-file ${SHARED}/subsystem.crt
           docker exec ca openssl x509 -text -noout -in ${SHARED}/subsystem.crt
 
       - name: Issue SSL server cert
         run: |
           docker exec ca openssl req -text -noout -in ${SHARED}/sslserver.csr
-          docker exec ca bash -c "pki ca-cert-request-submit --profile caServerCert --csr-file ${SHARED}/sslserver.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${SHARED}/sslserver.reqid"
-          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat sslserver.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${SHARED}/sslserver.certid"
-          docker exec ca bash -c "pki ca-cert-export `cat sslserver.certid` --output-file ${SHARED}/sslserver.crt"
+          docker exec ca pki ca-cert-request-submit --profile caServerCert --csr-file ${SHARED}/sslserver.csr | tee output
+          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
+          docker exec ca pki -n caadmin ca-cert-request-approve $REQUEST_ID --force | tee output
+          CERT_ID=$(sed -n 's/Certificate ID: *\(.*\)/\1/p' output)
+          docker exec ca pki ca-cert-export $CERT_ID --output-file ${SHARED}/sslserver.crt
           docker exec ca openssl x509 -text -noout -in ${SHARED}/sslserver.crt
 
       - name: Issue KRA audit signing cert
         run: |
           docker exec ca openssl req -text -noout -in ${SHARED}/kra_audit_signing.csr
-          docker exec ca bash -c "pki ca-cert-request-submit --profile caAuditSigningCert --csr-file ${SHARED}/kra_audit_signing.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > ${SHARED}/kra_audit_signing.reqid"
-          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat kra_audit_signing.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${SHARED}/kra_audit_signing.certid"
-          docker exec ca bash -c "pki ca-cert-export `cat kra_audit_signing.certid` --output-file ${SHARED}/kra_audit_signing.crt"
+          docker exec ca pki ca-cert-request-submit --profile caAuditSigningCert --csr-file ${SHARED}/kra_audit_signing.csr | tee output
+          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
+          docker exec ca pki -n caadmin ca-cert-request-approve $REQUEST_ID --force | tee output
+          CERT_ID=$(sed -n 's/Certificate ID: *\(.*\)/\1/p' output)
+          docker exec ca pki ca-cert-export $CERT_ID --output-file ${SHARED}/kra_audit_signing.crt
           docker exec ca openssl x509 -text -noout -in ${SHARED}/kra_audit_signing.crt
 
       - name: Issue KRA admin cert
         run: |
           docker exec ca openssl req -text -noout -in ${SHARED}/kra_admin.csr
-          docker exec ca bash -c "pki ca-cert-request-submit --profile caUserCert --csr-file ${SHARED}/kra_admin.csr --subject uid=kraadmin | sed -n 's/Request ID: *\(.*\)/\1/p' > ${SHARED}/kra_admin.reqid"
-          docker exec ca bash -c "pki -n caadmin ca-cert-request-approve `cat kra_admin.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > ${SHARED}/kra_admin.certid"
-          docker exec ca bash -c "pki ca-cert-export `cat kra_admin.certid` --output-file ${SHARED}/kra_admin.crt"
+          docker exec ca pki ca-cert-request-submit --profile caUserCert --csr-file ${SHARED}/kra_admin.csr --subject uid=kraadmin | tee output
+          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
+          docker exec ca pki -n caadmin ca-cert-request-approve $REQUEST_ID --force | tee output
+          CERT_ID=$(sed -n 's/Certificate ID: *\(.*\)/\1/p' output)
+          docker exec ca pki ca-cert-export $CERT_ID --output-file ${SHARED}/kra_admin.crt
           docker exec ca openssl x509 -text -noout -in ${SHARED}/kra_admin.crt
 
       - name: Install KRA in KRA container (step 2)
@@ -200,9 +212,10 @@ jobs:
 
       - name: Verify KRA connector in CA
         run: |
-          docker exec ca bash -c "pki -n caadmin ca-kraconnector-show | sed -n 's/\s*Host:\s\+\(\S\+\):.*/\1/p' > ${SHARED}/kraconnector.host"
-          echo kra.example.com > kra.hostname
-          diff kra.hostname kraconnector.host
+          docker exec ca pki -n caadmin ca-kraconnector-show | tee output
+          sed -n 's/\s*Host:\s\+\(\S\+\):.*/\1/p' output > actual
+          echo kra.example.com > expected
+          diff expected actual
 
       - name: Gather artifacts from CA containers
         if: always()

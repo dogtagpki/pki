@@ -131,9 +131,10 @@ jobs:
 
       - name: Verify KRA connector in CA
         run: |
-          docker exec pki bash -c "pki -n caadmin ca-kraconnector-show | sed -n 's/\s*Host:\s\+\(\S\+\):.*/\1/p' > ${SHARED}/kraconnector.host"
-          echo pki.example.com > kra.hostname
-          diff kra.hostname kraconnector.host
+          docker exec pki pki -n caadmin ca-kraconnector-show | tee output
+          sed -n 's/\s*Host:\s\+\(\S\+\):.*/\1/p' output > actual
+          echo pki.example.com > expected
+          diff expected actual
 
       - name: Switch to RSNv3
         run: |

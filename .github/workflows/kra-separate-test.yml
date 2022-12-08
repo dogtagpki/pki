@@ -131,7 +131,7 @@ jobs:
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
 
-          docker exec ca bash pki -n caadmin --ignore-banner ca-kraconnector-show | tee output
+          docker exec ca pki -n caadmin --ignore-banner ca-kraconnector-show | tee output
           sed -n 's/\s*Host:\s\+\(\S\+\):.*/\1/p' output > actual
           echo kra.example.com > expected
           diff expected actual
