@@ -117,7 +117,7 @@ $ pki -c Secret.123 client-cert-import ca_signing --ca-cert ca_signing.crt
 Import admin key and certificate:
 
 ```
-$ pki -c Secret.123 client-cert-import \
+$ pki -c Secret.123 pkcs12-import \
     --pkcs12 ca_admin_cert.p12 \
     --pkcs12-password Secret.123
 ```

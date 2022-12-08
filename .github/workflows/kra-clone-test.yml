@@ -138,7 +138,7 @@ jobs:
         run: |
           docker exec primary cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${SHARED}/ca_admin_cert.p12
           docker exec secondary pki client-cert-import ca_signing --ca-cert ${SHARED}/ca_signing.crt
-          docker exec secondary pki client-cert-import \
+          docker exec secondary pki pkcs12-import \
               --pkcs12 ${SHARED}/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
           docker exec secondary pki -n caadmin kra-user-show kraadmin
@@ -201,7 +201,7 @@ jobs:
       - name: Verify KRA admin in tertiary PKI container
         run: |
           docker exec tertiary pki client-cert-import ca_signing --ca-cert ${SHARED}/ca_signing.crt
-          docker exec tertiary pki client-cert-import \
+          docker exec tertiary pki pkcs12-import \
               --pkcs12 ${SHARED}/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
           docker exec tertiary pki -n caadmin kra-user-show kraadmin

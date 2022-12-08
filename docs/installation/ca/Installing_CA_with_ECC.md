@@ -101,7 +101,7 @@ $ pki client-cert-import ca_signing --ca-cert ca_signing.crt
 Finally, import admin certificate and key with the following command:
 
 ```
-$ pki client-cert-import \
+$ pki pkcs12-import \
     --pkcs12 ~/.dogtag/pki-tomcat/ca_admin_cert.p12 \
     --pkcs12-password Secret.123
 ```
