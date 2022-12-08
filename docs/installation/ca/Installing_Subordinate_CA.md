@@ -69,7 +69,7 @@ $ pki client-cert-import ca_signing --ca-cert root-ca_signing.crt
 Import admin key and certificate:
 
 ```
-$ pki client-cert-import \
+$ pki pkcs12-import \
     --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
     --pkcs12-password Secret.123
 ```

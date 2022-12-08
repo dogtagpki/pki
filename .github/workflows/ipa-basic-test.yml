@@ -89,7 +89,7 @@ jobs:
       - name: "Check CA admin PKCS #12 file"
         run: |
           docker exec ipa pki client-cert-import --ca-cert ca_signing.crt ca_signing
-          docker exec ipa pki client-cert-import \
+          docker exec ipa pki pkcs12-import \
               --pkcs12 /root/ca-agent.p12 \
               --pkcs12-password Secret.123
           docker exec ipa pki nss-cert-find
@@ -114,7 +114,7 @@ jobs:
               -out ra-agent.p12 \
               -passout pass:Secret.123 \
               -name ipa-ra-agent
-          docker exec ipa pki client-cert-import \
+          docker exec ipa pki pkcs12-import \
               --pkcs12 ra-agent.p12 \
               --pkcs12-password Secret.123
           docker exec ipa pki nss-cert-find

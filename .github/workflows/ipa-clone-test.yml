@@ -112,7 +112,9 @@ jobs:
           docker exec primary cp /root/ca-agent.p12 ${SHARED}/ca-agent.p12
           docker exec secondary pki-server cert-export ca_signing --cert-file ca_signing.crt
           docker exec secondary pki client-cert-import ca_signing --ca-cert ca_signing.crt
-          docker exec secondary pki client-cert-import --pkcs12 ${SHARED}/ca-agent.p12 --pkcs12-password Secret.123
+          docker exec secondary pki pkcs12-import \
+              --pkcs12 ${SHARED}/ca-agent.p12 \
+              --pkcs12-password Secret.123
           docker exec secondary pki -n ipa-ca-agent ca-user-show admin
 
       - name: Remove IPA server from secondary container
