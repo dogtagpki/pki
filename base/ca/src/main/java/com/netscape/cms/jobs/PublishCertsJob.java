@@ -201,7 +201,7 @@ public class PublishCertsJob extends Job
         String itemForm = null;
         String itemListContent = null;
 
-        if (mSummary == true) {
+        if (mSummary) {
             contentForm = getTemplateContent(mMailForm);
             itemForm = getTemplateContent(mItemForm);
         }
@@ -231,7 +231,7 @@ public class PublishCertsJob extends Job
                 continue;
             }
 
-            if (mSummary == true)
+            if (mSummary)
                 buildItemParams(cert);
 
             // get request id from cert record MetaInfo
@@ -241,7 +241,7 @@ public class PublishCertsJob extends Job
                 minfo = (MetaInfo) rec.get(CertRecord.ATTR_META_INFO);
             } catch (EBaseException e) {
                 negCount += 1;
-                if (mSummary == true)
+                if (mSummary)
                     buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
                             STATUS_FAILURE);
                 logger.warn("PublishCertsJob: " + CMS.getLogMessage("JOBS_META_INFO_ERROR",
