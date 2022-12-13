@@ -1,24 +1,6 @@
 name: Build PKI
-on:
-  workflow_call:
-    inputs:
-      key_container:
-        required: true
-        type: string
-    secrets:
-      BASE64_MATRIX:
-        required: false
-      BASE64_REPO:
-        required: false
-      BASE64_DATABASE:
-        required: false
-    outputs:
-      matrix:
-        value: ${{ jobs.init.outputs.matrix }}
-      repo:
-        value: ${{ jobs.init.outputs.repo }}
-      db-image:
-        value: ${{ jobs.init.outputs.db-image }}
+
+on: [push, pull_request]
 
 jobs:
   init:
@@ -71,7 +53,25 @@ jobs:
           cache-to: type=local,dest=/tmp/.buildx-cache
         if: steps.cache-buildx.outputs.cache-hit != 'true'
 
-      - name: Build runner image
+      - name: Build pki-builder image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          build-args: |
+            OS_VERSION=${{ matrix.os }}
+            COPR_REPO=${{ needs.init.outputs.repo }}
+          tags: pki-builder
+          target: pki-builder
+          cache-from: type=local,src=/tmp/.buildx-cache
+          outputs: type=docker,dest=pki-builder.tar
+
+      - name: Store pki-builder image
+        uses: actions/cache@v3
+        with:
+          key: pki-builder-${{ matrix.os }}-${{ github.sha }}
+          path: pki-builder.tar
+
+      - name: Build pki-runner image
         uses: docker/build-push-action@v3
         with:
           context: .
@@ -83,8 +83,80 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           outputs: type=docker,dest=pki-runner.tar
 
-      - name: Store runner image
+      - name: Store pki-runner image
         uses: actions/cache@v3
         with:
-          key: pki-${{ inputs.key_container }}-runner-${{ matrix.os }}-${{ github.run_id }}
+          key: pki-runner-${{ matrix.os }}-${{ github.sha }}
           path: pki-runner.tar
+
+      - name: Build pki-server image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          build-args: |
+            OS_VERSION=${{ matrix.os }}
+            COPR_REPO=${{ needs.init.outputs.repo }}
+          tags: pki-server
+          target: pki-server
+          cache-from: type=local,src=/tmp/.buildx-cache
+          outputs: type=docker,dest=pki-server.tar
+
+      - name: Store pki-server image
+        uses: actions/cache@v3
+        with:
+          key: pki-server-${{ matrix.os }}-${{ github.sha }}
+          path: pki-server.tar
+
+      - name: Build pki-ca image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          build-args: |
+            OS_VERSION=${{ matrix.os }}
+            COPR_REPO=${{ needs.init.outputs.repo }}
+          tags: pki-ca
+          target: pki-ca
+          cache-from: type=local,src=/tmp/.buildx-cache
+          outputs: type=docker,dest=pki-ca.tar
+
+      - name: Store pki-ca image
+        uses: actions/cache@v3
+        with:
+          key: pki-ca-${{ matrix.os }}-${{ github.sha }}
+          path: pki-ca.tar
+
+      - name: Build pki-acme image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          build-args: |
+            OS_VERSION=${{ matrix.os }}
+            COPR_REPO=${{ needs.init.outputs.repo }}
+          tags: pki-acme
+          target: pki-acme
+          cache-from: type=local,src=/tmp/.buildx-cache
+          outputs: type=docker,dest=pki-acme.tar
+
+      - name: Store pki-acme image
+        uses: actions/cache@v3
+        with:
+          key: pki-acme-${{ matrix.os }}-${{ github.sha }}
+          path: pki-acme.tar
+
+      - name: Build ipa-runner image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          build-args: |
+            OS_VERSION=${{ matrix.os }}
+            COPR_REPO=${{ needs.init.outputs.repo }}
+          tags: ipa-runner
+          target: ipa-runner
+          cache-from: type=local,src=/tmp/.buildx-cache
+          outputs: type=docker,dest=ipa-runner.tar
+
+      - name: Store ipa-runner image
+        uses: actions/cache@v3
+        with:
+          key: ipa-runner-${{ matrix.os }}-${{ github.sha }}
+          path: ipa-runner.tar
