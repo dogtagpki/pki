@@ -20,13 +20,13 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v3
 
-      - name: Retrieve runner image
+      - name: Retrieve ipa-runner image
         uses: actions/cache@v3
         with:
-          key: ipa-runner-${{ inputs.os }}-${{ github.run_id }}
+          key: ipa-runner-${{ inputs.os }}-${{ github.sha }}
           path: ipa-runner.tar
 
-      - name: Load runner image
+      - name: Load ipa-runner image
         run: docker load --input ipa-runner.tar
 
       - name: Run IPA container

@@ -2,34 +2,57 @@ name: Code Analysis
 on: [push, pull_request]
 
 jobs:
-  call-build-workflow:
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
-    uses: ./.github/workflows/build.yml
-    with:
-      key_container: sonar
+  init:
+    name: Initialization
+    uses: ./.github/workflows/init.yml
     secrets: inherit
 
+  build:
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    name: Waiting for build
+    needs: init
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    steps:
+      - name: Wait for build
+        uses: lewagon/wait-on-check-action@v1.2.0
+        with:
+          ref: ${{ github.ref }}
+          check-name: 'Building PKI (${{ matrix.os }})'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 30
+        if: github.event_name == 'push'
+
+      - name: Wait for build
+        uses: lewagon/wait-on-check-action@v1.2.0
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          check-name: 'Building PKI (${{ matrix.os }})'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 30
+        if: github.event_name == 'pull_request'
 
   sonarcloud:
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
     name: Sonar Cloud code analysis
-    needs: call-build-workflow
+    needs: [init, build]
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki
     strategy:
-      matrix: ${{ fromJSON(needs.call-build-workflow.outputs.matrix) }}
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v3
 
-      - name: Retrieve runner image
+      - name: Retrieve pki-runner image
         uses: actions/cache@v3
         with:
-          key: pki-sonar-runner-${{ matrix.os }}-${{ github.run_id }}
+          key: pki-runner-${{ matrix.os }}-${{ github.sha }}
           path: pki-runner.tar
 
-      - name: Load runner image
+      - name: Load pki-runner image
         run: docker load --input pki-runner.tar
 
       - name: Set up PKI container

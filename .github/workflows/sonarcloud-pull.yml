@@ -74,7 +74,7 @@ jobs:
     secrets: inherit
 
   build:
-    name: Building PKI
+    name: Building PKI for Sonar
     needs: [init, retrieve-pr]
     runs-on: ubuntu-latest
     strategy:
@@ -130,7 +130,7 @@ jobs:
           cache-to: type=local,dest=/tmp/.buildx-cache
         if: steps.cache-buildx.outputs.cache-hit != 'true'
 
-      - name: Build runner image
+      - name: Build pki-runner image
         uses: docker/build-push-action@v3
         with:
           context: .
@@ -142,7 +142,7 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           outputs: type=docker,dest=pki-runner.tar
 
-      - name: Store runner image
+      - name: Store pki-runner image
         uses: actions/cache@v3
         with:
           key: pki-sonar-runner-${{ matrix.os }}-${{ github.event.workflow_run.id }}
@@ -158,13 +158,13 @@ jobs:
     env:
       SHARED: /tmp/workdir/pki
     steps:
-      - name: Retrieve runner image
+      - name: Retrieve pki-runner image
         uses: actions/cache@v3
         with:
           key: pki-sonar-runner-${{ matrix.os }}-${{ github.event.workflow_run.id }}
           path: pki-runner.tar
 
-      - name: Load runner image
+      - name: Load pki-runner image
         run: docker load --input pki-runner.tar
 
       - name: Checkout pulled branch

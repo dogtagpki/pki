@@ -20,13 +20,13 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v3
 
-      - name: Retrieve builder image
+      - name: Retrieve pki-builder image
         uses: actions/cache@v3
         with:
-          key: pki-tools-builder-${{ inputs.os }}-${{ github.run_id }}
+          key: pki-builder-${{ inputs.os }}-${{ github.sha }}
           path: pki-builder.tar
 
-      - name: Load builder image
+      - name: Load pki-builder image
         run: docker load --input pki-builder.tar
 
       - name: Set up builder container
