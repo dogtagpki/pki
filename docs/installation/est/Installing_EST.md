@@ -112,8 +112,9 @@ Configure the authentication. The authentication is build on `com.netscape.cms.t
 ```
 # cat >/etc/pki/pki-tomcat/est/realm.conf <<EOF
 class=com.netscape.cms.realm.PKIInMemoryRealm
-username=admin
-password=***********
+username=alice
+password=4me2Test
+roles=estclient
 EOF
 ```
 
