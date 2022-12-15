@@ -214,13 +214,7 @@ public class CAInfoService extends PKIService implements CAInfoResource {
 
         boolean useOAEP = cs.getBoolean("keyWrap.useOAEP", false);
 
-        String result = "RSA";
-
-        if(useOAEP == true) {
-            result = "RSA_OAEP";
-        }
-
-        return result;
+        return useOAEP ? "RSA_OAEP" : "RSA";
     }
 
 
