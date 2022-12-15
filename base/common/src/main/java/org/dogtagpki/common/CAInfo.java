@@ -22,12 +22,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import com.netscape.certsrv.base.RESTMessage;
 
 /**
@@ -139,6 +137,7 @@ public class CAInfo extends RESTMessage {
     }
 
 
+    @Override
     public Element toDOM(Document document) {
 
         Element infoElement = document.createElement("CAInfo");
