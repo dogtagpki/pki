@@ -77,7 +77,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         deployer.configure_id_generators(subsystem)
 
-        #configure oaep, applies to any subsystem
+        # configure oaep, applies to any subsystem
         useOAEPKeyWrap = \
             deployer.mdict['pki_use_oaep_rsa_keywrap']
 

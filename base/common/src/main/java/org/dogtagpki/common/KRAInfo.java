@@ -132,6 +132,7 @@ public class KRAInfo extends RESTMessage {
         return true;
     }
 
+    @Override
     public Element toDOM(Document document) {
 
         Element infoElement = document.createElement("KRAInfo");
