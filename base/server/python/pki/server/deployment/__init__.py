@@ -508,6 +508,10 @@ class PKIDeployer:
         subsystem.config['internaldb.basedn'] = self.mdict['pki_ds_base_dn']
         subsystem.config['internaldb.database'] = self.mdict['pki_ds_database']
 
+        useOAEPKeyWrap = self.mdict['pki_use_oaep_rsa_keywrap']
+        if useOAEPKeyWrap == "True":
+            subsystem.config['keyWrap.useOAEP'] = 'true'
+
         if subsystem.type == 'CA':
             self.configure_ca(subsystem)
 
