@@ -122,13 +122,7 @@ public class KRAInfoService extends PKIService implements KRAInfoResource {
 
         boolean useOAEP = cs.getBoolean("keyWrap.useOAEP", false);
 
-        String result = "RSA";
-
-        if(useOAEP == true) { 
-            result = "RSA_OAEP";
-        }
-        
-        return result; 
+        return useOAEP ? "RSA_OAEP" : "RSA";
     }
 }
 
