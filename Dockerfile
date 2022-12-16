@@ -11,11 +11,11 @@ ARG COMPONENT="dogtag-pki"
 ARG LICENSE="GPLv2 and LGPLv2"
 ARG ARCH="x86_64"
 ARG VERSION="0"
-ARG OS_VERSION="latest"
+ARG BASE_IMAGE="registry.fedoraproject.org/fedora:latest"
 ARG COPR_REPO="@pki/master"
 
 ################################################################################
-FROM registry.fedoraproject.org/fedora:$OS_VERSION AS pki-base
+FROM $BASE_IMAGE AS pki-base
 
 RUN dnf install -y systemd \
     && dnf clean all \

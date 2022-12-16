@@ -34,7 +34,7 @@ jobs:
         with:
           context: .
           build-args: |
-            OS_VERSION=${{ matrix.os }}
+            BASE_IMAGE=registry.fedoraproject.org/fedora:${{ matrix.os }}
             COPR_REPO=${{ needs.init.outputs.repo }}
           tags: pki-deps
           target: pki-deps
@@ -46,7 +46,7 @@ jobs:
         with:
           context: .
           build-args: |
-            OS_VERSION=${{ matrix.os }}
+            BASE_IMAGE=registry.fedoraproject.org/fedora:${{ matrix.os }}
             COPR_REPO=${{ needs.init.outputs.repo }}
           tags: pki-builder-deps
           target: pki-builder-deps
@@ -58,7 +58,7 @@ jobs:
         with:
           context: .
           build-args: |
-            OS_VERSION=${{ matrix.os }}
+            BASE_IMAGE=registry.fedoraproject.org/fedora:${{ matrix.os }}
             COPR_REPO=${{ needs.init.outputs.repo }}
           tags: pki-builder
           target: pki-builder
@@ -76,7 +76,7 @@ jobs:
         with:
           context: .
           build-args: |
-            OS_VERSION=${{ matrix.os }}
+            BASE_IMAGE=registry.fedoraproject.org/fedora:${{ matrix.os }}
             COPR_REPO=${{ needs.init.outputs.repo }}
           tags: pki-runner
           target: pki-runner
@@ -94,7 +94,7 @@ jobs:
         with:
           context: .
           build-args: |
-            OS_VERSION=${{ matrix.os }}
+            BASE_IMAGE=registry.fedoraproject.org/fedora:${{ matrix.os }}
             COPR_REPO=${{ needs.init.outputs.repo }}
           tags: pki-server
           target: pki-server
@@ -112,7 +112,7 @@ jobs:
         with:
           context: .
           build-args: |
-            OS_VERSION=${{ matrix.os }}
+            BASE_IMAGE=registry.fedoraproject.org/fedora:${{ matrix.os }}
             COPR_REPO=${{ needs.init.outputs.repo }}
           tags: pki-ca
           target: pki-ca
@@ -130,7 +130,7 @@ jobs:
         with:
           context: .
           build-args: |
-            OS_VERSION=${{ matrix.os }}
+            BASE_IMAGE=registry.fedoraproject.org/fedora:${{ matrix.os }}
             COPR_REPO=${{ needs.init.outputs.repo }}
           tags: pki-acme
           target: pki-acme
@@ -148,7 +148,7 @@ jobs:
         with:
           context: .
           build-args: |
-            OS_VERSION=${{ matrix.os }}
+            BASE_IMAGE=registry.fedoraproject.org/fedora:${{ matrix.os }}
             COPR_REPO=${{ needs.init.outputs.repo }}
           tags: ipa-runner
           target: ipa-runner
