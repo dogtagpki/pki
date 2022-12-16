@@ -15,7 +15,7 @@ ARG OS_VERSION="latest"
 ARG COPR_REPO="@pki/master"
 
 ################################################################################
-FROM registry.fedoraproject.org/fedora:$OS_VERSION AS fedora-runner
+FROM registry.fedoraproject.org/fedora:$OS_VERSION AS pki-base
 
 RUN dnf install -y systemd \
     && dnf clean all \
@@ -24,7 +24,7 @@ RUN dnf install -y systemd \
 CMD [ "/usr/sbin/init" ]
 
 ################################################################################
-FROM fedora-runner AS pki-deps
+FROM pki-base AS pki-deps
 
 ARG COPR_REPO
 

@@ -5,8 +5,8 @@ jobs:
   steps:
   - script: |
       docker build \
-          --target fedora-runner \
-          --tag fedora-runner:latest \
+          --target pki-base \
+          --tag pki-base:latest \
           .
 
       docker run \
@@ -14,7 +14,7 @@ jobs:
           -v $BUILD_SOURCESDIRECTORY:/root/src \
           --privileged \
           --detach \
-          fedora-runner:latest
+          pki-base:latest
 
       while :
       do
