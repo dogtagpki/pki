@@ -30,21 +30,21 @@ import netscape.ldap.LDAPException;
  */
 public class LdapAuthInfo {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapAuthInfo.class);
+    public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapAuthInfo.class);
 
-    public final static String PROP_LDAPAUTHTYPE = "authtype";
-    public final static String PROP_CLIENTCERTNICKNAME = "clientCertNickname";
-    public final static String PROP_BINDDN = "bindDN";
-    public final static String PROP_BINDPW = "bindPassword";
-    public final static String PROP_BINDPW_PROMPT = "bindPWPrompt";
-    public final static String PROP_BINDDN_DEFAULT = "cn=Directory Manager";
+    public static final String PROP_LDAPAUTHTYPE = "authtype";
+    public static final String PROP_CLIENTCERTNICKNAME = "clientCertNickname";
+    public static final String PROP_BINDDN = "bindDN";
+    public static final String PROP_BINDPW = "bindPassword";
+    public static final String PROP_BINDPW_PROMPT = "bindPWPrompt";
+    public static final String PROP_BINDDN_DEFAULT = "cn=Directory Manager";
 
-    public final static String LDAP_BASICAUTH_STR = "BasicAuth";
-    public final static String LDAP_SSLCLIENTAUTH_STR = "SslClientAuth";
+    public static final String LDAP_BASICAUTH_STR = "BasicAuth";
+    public static final String LDAP_SSLCLIENTAUTH_STR = "SslClientAuth";
 
-    public final static int LDAP_AUTHTYPE_NONE = 0; // illegal
-    public final static int LDAP_AUTHTYPE_BASICAUTH = 1;
-    public final static int LDAP_AUTHTYPE_SSLCLIENTAUTH = 2;
+    public static final int LDAP_AUTHTYPE_NONE = 0; // illegal
+    public static final int LDAP_AUTHTYPE_BASICAUTH = 1;
+    public static final int LDAP_AUTHTYPE_SSLCLIENTAUTH = 2;
 
     LDAPAuthenticationConfig config;
     String host;
@@ -66,7 +66,7 @@ public class LdapAuthInfo {
     public LdapAuthInfo() {
     }
 
-    public String getPasswordFromStore(String prompt) throws EBaseException {
+    public String getPasswordFromStore(String prompt) {
         String pwd = null;
         logger.debug("LdapAuthInfo: getPasswordFromStore: try to get it from password store");
 
@@ -259,7 +259,8 @@ public class LdapAuthInfo {
         if (secure)
             return true;
 
-        boolean connected = false, authenticated = false;
+        boolean connected = false;
+        boolean authenticated = false;
 
         try {
             conn.connect(host, port);
@@ -282,11 +283,7 @@ public class LdapAuthInfo {
          * }
          **/
 
-        if (connected && !authenticated) {
-            return false;
-        } else {
-            return true;
-        }
+        return !connected || authenticated;
     }
 
     /**
