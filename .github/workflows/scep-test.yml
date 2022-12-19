@@ -90,7 +90,13 @@ jobs:
 
       - name: Install SSCEP in client container
         run: |
-          docker exec client dnf install -y sscep
+          docker pull ghcr.io/dogtagpki/sscep-dist:latest
+          docker create --name=sscep-dist ghcr.io/dogtagpki/sscep-dist:latest
+          docker cp sscep-dist:/root/RPMS /tmp/RPMS/
+          docker rm -f sscep-dist
+
+          docker cp /tmp/RPMS/. client:/root/RPMS/
+          docker exec client bash -c "dnf localinstall -y /root/RPMS/*"
 
       # https://github.com/dogtagpki/pki/wiki/Certificate-Enrollment-with-SSCEP
       - name: Get CA certificate using SSCEP

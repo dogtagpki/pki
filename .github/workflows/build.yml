@@ -71,6 +71,24 @@ jobs:
           key: pki-builder-${{ matrix.os }}-${{ github.sha }}
           path: pki-builder.tar
 
+      - name: Build pki-dist image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          build-args: |
+            BASE_IMAGE=registry.fedoraproject.org/fedora:${{ matrix.os }}
+            COPR_REPO=${{ needs.init.outputs.repo }}
+          tags: pki-dist
+          target: pki-dist
+          cache-from: type=local,src=/tmp/.buildx-cache
+          outputs: type=docker,dest=pki-dist.tar
+
+      - name: Store pki-dist image
+        uses: actions/cache@v3
+        with:
+          key: pki-dist-${{ matrix.os }}-${{ github.sha }}
+          path: pki-dist.tar
+
       - name: Build pki-runner image
         uses: docker/build-push-action@v3
         with:

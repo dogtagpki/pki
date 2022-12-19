@@ -29,17 +29,17 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Retrieve pki-builder image
+      - name: Retrieve pki-dist image
         uses: actions/cache@v3
         with:
-          key: pki-builder-${{ matrix.os }}-${{ github.sha }}
-          path: pki-builder.tar
+          key: pki-dist-${{ matrix.os }}-${{ github.sha }}
+          path: pki-dist.tar
 
-      - name: Publish pki-builder image
+      - name: Publish pki-dist image
         run: |
-          docker load --input pki-builder.tar
-          docker tag pki-builder ghcr.io/${{ github.repository_owner }}/pki-builder
-          docker push ghcr.io/${{ github.repository_owner }}/pki-builder
+          docker load --input pki-dist.tar
+          docker tag pki-dist ghcr.io/${{ github.repository_owner }}/pki-dist:latest
+          docker push ghcr.io/${{ github.repository_owner }}/pki-dist:latest
 
       - name: Retrieve pki-runner image
         uses: actions/cache@v3

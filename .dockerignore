@@ -1,5 +1,6 @@
 pki-acme.tar
 pki-builder.tar
+pki-dist.tar
 pki-ca.tar
 pki-runner.tar
 pki-server.tar

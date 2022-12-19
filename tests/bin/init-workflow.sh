@@ -12,7 +12,7 @@ echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
 
 if [ "$BASE64_REPO" == "" ]
 then
-    REPO="@pki/master"
+    REPO=""
 else
     REPO=$(echo "$BASE64_REPO" | base64 -d)
 fi

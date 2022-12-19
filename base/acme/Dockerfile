@@ -15,7 +15,7 @@ ARG ARCH="x86_64"
 ARG MAINTAINER="Dogtag PKI Team <devel@lists.dogtagpki.org>"
 ARG VENDOR="Dogtag"
 ARG COMPONENT="dogtag-pki"
-ARG COPR_REPO="@pki/master"
+ARG COPR_REPO=""
 
 LABEL name="$NAME" \
       summary="$SUMMARY" \

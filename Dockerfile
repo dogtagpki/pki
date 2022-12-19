@@ -12,12 +12,12 @@ ARG LICENSE="GPLv2 and LGPLv2"
 ARG ARCH="x86_64"
 ARG VERSION="0"
 ARG BASE_IMAGE="registry.fedoraproject.org/fedora:latest"
-ARG COPR_REPO="@pki/master"
+ARG COPR_REPO=""
 
 ################################################################################
 FROM $BASE_IMAGE AS pki-base
 
-RUN dnf install -y systemd \
+RUN dnf install -y dnf-plugins-core systemd \
     && dnf clean all \
     && rm -rf /var/cache/dnf
 
@@ -29,7 +29,7 @@ FROM pki-base AS pki-deps
 ARG COPR_REPO
 
 # Enable COPR repo if specified
-RUN if [ -n "$COPR_REPO" ]; then dnf install -y dnf-plugins-core; dnf copr enable -y $COPR_REPO; fi
+RUN if [ -n "$COPR_REPO" ]; then dnf copr enable -y $COPR_REPO; fi
 
 # Install PKI runtime dependencies
 RUN dnf install -y dogtag-pki \
@@ -48,10 +48,25 @@ COPY pki.spec /root/pki/
 WORKDIR /root/pki
 
 # Install PKI build dependencies
-RUN dnf builddep -y --spec pki.spec
+RUN dnf builddep -y --skip-unavailable --spec pki.spec
 
 ################################################################################
 FROM pki-builder-deps AS pki-builder
+
+# Import JSS packages from
+COPY --from=ghcr.io/dogtagpki/jss-dist:latest /root/RPMS /tmp/RPMS/
+
+# Import Tomcat JSS packages
+COPY --from=ghcr.io/dogtagpki/tomcatjss-dist:latest /root/RPMS /tmp/RPMS/
+
+# Import LDAP SDK packages
+COPY --from=ghcr.io/dogtagpki/ldapjdk-dist:latest /root/RPMS /tmp/RPMS/
+
+# Install build depencencies
+RUN dnf localinstall -y /tmp/RPMS/* \
+    && dnf clean all \
+    && rm -rf /var/cache/dnf \
+    && rm -rf /tmp/RPMS
 
 # Import PKI sources
 COPY . /root/pki/
@@ -60,12 +75,27 @@ COPY . /root/pki/
 RUN ./build.sh --work-dir=build rpm
 
 ################################################################################
+FROM alpine:latest AS pki-dist
+
+# Import PKI packages
+COPY --from=pki-builder /root/pki/build/RPMS /root/RPMS/
+
+################################################################################
 FROM pki-deps AS pki-runner
 
-# Copy PKI packages
-COPY --from=pki-builder /root/pki/build/RPMS/* /tmp/RPMS/
+# Import JSS packages
+COPY --from=ghcr.io/dogtagpki/jss-dist:latest /root/RPMS /tmp/RPMS/
 
-# Install PKI packages
+# Import Tomcat JSS packages
+COPY --from=ghcr.io/dogtagpki/tomcatjss-dist:latest /root/RPMS /tmp/RPMS/
+
+# Import LDAP SDK packages
+COPY --from=ghcr.io/dogtagpki/ldapjdk-dist:latest /root/RPMS /tmp/RPMS/
+
+# Import PKI packages
+COPY --from=pki-dist /root/RPMS /tmp/RPMS/
+
+# Install runtime packages
 RUN dnf localinstall -y /tmp/RPMS/* \
     && dnf clean all \
     && rm -rf /var/cache/dnf \

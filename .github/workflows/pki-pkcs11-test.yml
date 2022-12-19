@@ -38,7 +38,7 @@ jobs:
 
       - name: Create HSM token
         run: |
-          docker exec pki dnf install -y dnf-plugins-core softhsm
+          docker exec pki dnf install -y softhsm
           docker exec pki softhsm2-util --init-token \
               --label HSM \
               --so-pin Secret.HSM \
