@@ -81,6 +81,16 @@ jobs:
       os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
+  kra-oaep-test:
+    name: KRA with RSA OAEP padding
+    needs: [init, build]
+    strategy:
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    uses: ./.github/workflows/kra-oaep-test.yml
+    with:
+      os: ${{ matrix.os }}
+      db-image: ${{ needs.init.outputs.db-image }}
+
   kra-separate-test:
     name: KRA on separate instance
     needs: [init, build]
