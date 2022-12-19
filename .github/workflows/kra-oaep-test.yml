@@ -1,0 +1,165 @@
+name: Basic KRA with RSA OAEP padding
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+      db-image:
+        required: false
+        type: string
+
+jobs:
+  # docs/installation/kra/Installing_KRA.md
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      - name: Retrieve pki-runner image
+        uses: actions/cache@v3
+        with:
+          key: pki-runner-${{ inputs.os }}-${{ github.sha }}
+          path: pki-runner.tar
+
+      - name: Load pki-runner image
+        run: docker load --input pki-runner.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-container-create.sh ds
+        env:
+          IMAGE: ${{ inputs.db-image }}
+          HOSTNAME: ds.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect DS container to network
+        run: docker network connect example ds --alias ds.example.com
+
+      - name: Set up PKI container
+        run: |
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
+
+      - name: Connect PKI container to network
+        run: docker network connect example pki --alias pki.example.com
+
+      - name: Install CA without RSA_OAEP
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_hostname=ds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -D pki_request_id_generator=random \
+              -v
+
+          docker exec pki pki-server cert-find
+
+      - name: Verify oaep is not configured in CA
+        run: |
+          [[ -z `docker exec pki pki-server ca-config-show keyWrap.useOAEP` ]]
+
+      - name: Install KRA without RSA_OAEP
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/kra.cfg \
+              -s KRA \
+              -D pki_ds_hostname=ds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -D pki_request_id_generator=random \
+              -v
+
+      - name: Verify oaep is not configured in KRA
+        run: |
+          [[ -z `docker exec pki pki-server kra-config-show keyWrap.useOAEP` ]]
+
+      - name: Remove pki instance
+        run: |
+          docker exec pki pki-server stop --wait
+          docker exec pki pki-server remove
+          
+      - name: Install CA with RSA_OAEP
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_hostname=ds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -D pki_use_oaep_rsa_keywrap=True \
+              -D pki_request_id_generator=random \
+              -v
+
+          docker exec pki pki-server cert-find
+
+      - name: Verify oaep is configured in CA
+        run: |
+          [[ `docker exec pki pki-server ca-config-show keyWrap.useOAEP` = "true" ]]
+
+      - name: Install KRA with RSA_OAEP
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/kra.cfg \
+              -s KRA \
+              -D pki_ds_hostname=ds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -D pki_use_oaep_rsa_keywrap=True \
+              -D pki_request_id_generator=random \
+              -v
+
+      - name: Verify oaep is configured in KRA
+        run: |
+          [[ `docker exec pki pki-server kra-config-show keyWrap.useOAEP` = "true" ]]
+              
+      - name: Verify CAInfo
+        run: |
+          docker exec pki curl -k https://pki.example.com:8443/ca/rest/info > info
+          echo -n '{"ArchivalMechanism":"keywrap","EncryptionAlgorithm":"AES/CBC/PKCS5Padding","KeyWrapAlgorithm":"AES KeyWrap/Padding","RsaPublicKeyWrapAlgorithm":"RSA_OAEP","CaRsaPublicKeyWrapAlgorithm":"RSA_OAEP","Attributes":{"Attribute":[]}}' > expectedInfo
+          diff expectedInfo info
+            
+      - name: Verify KRAInfo
+        run: |
+          docker exec pki curl -k https://pki.example.com:8443/kra/rest/info > info
+          echo -n '{"ArchivalMechanism":"keywrap","RecoveryMechanism":"keywrap","EncryptionAlgorithm":"AES/CBC/PKCS5Padding","WrapAlgorithm":"AES KeyWrap/Padding","RsaPublicKeyWrapAlgorithm":"RSA_OAEP","Attributes":{"Attribute":[]}}' > expectedInfo
+          diff expectedInfo info
+            
+      - name: Run PKI healthcheck
+        run: docker exec pki pki-healthcheck --failures-only
+
+      - name: Verify KRA admin
+        run: |
+          docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
+          docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
+          docker exec pki pki pkcs12-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+          docker exec pki pki -n caadmin kra-user-show kraadmin
+
+      - name: Verify KRA connector in CA
+        run: |
+          docker exec pki pki -n caadmin ca-kraconnector-show | tee output
+          sed -n 's/\s*Host:\s\+\(\S\+\):.*/\1/p' output > actual
+          echo pki.example.com > expected
+          diff expected actual
+
+      - name: Verify cert key archival
+        run: |
+          docker exec -e CRMFPopClient_Extra pki /usr/share/pki/tests/kra/bin/test-cert-key-archival.sh
+        env:
+          CRMFPopClient_Extra: -oaep
+
+      - name: Remove KRA
+        run: docker exec pki pkidestroy -i pki-tomcat -s KRA -v
+
+      - name: Remove CA
+        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
+
