@@ -138,10 +138,18 @@ jobs:
           docker cp realm.conf pki:/etc/pki/pki-tomcat/est/realm.conf
           docker exec pki pki-server restart --wait
 
+      - name: Install libEST in client container
+        run: |
+          docker pull ghcr.io/dogtagpki/libest-dist:latest
+          docker create --name=libest-dist ghcr.io/dogtagpki/libest-dist:latest
+          docker cp libest-dist:/root/RPMS /tmp/RPMS/
+          docker rm -f libest-dist
+
+          docker cp /tmp/RPMS/. client:/root/RPMS/
+          docker exec client bash -c "dnf localinstall -y /root/RPMS/*"
+
       - name: Configure the client
         run: |
-          docker exec client dnf copr enable -y @pki/libest
-          docker exec client dnf install -y libest
           docker exec client curl -o cacert.p7 -k https://pki.example.com:8443/.well-known/est/cacerts
           docker exec client openssl base64 -d --in cacert.p7 --out cacert.p7.der
           docker exec client openssl pkcs7 --in cacert.p7.der -inform DER -print_certs -out cacert.pem
