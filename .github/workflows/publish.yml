@@ -1,0 +1,54 @@
+name: Publish PKI
+
+on:
+  workflow_run:
+    workflows: [ 'Build PKI' ]
+    branches:
+      - master
+    types:
+      - completed
+
+jobs:
+  init:
+    name: Initialization
+    uses: ./.github/workflows/init.yml
+    secrets: inherit
+    if: github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success'
+
+  publish:
+    name: Publishing PKI
+    needs: init
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    steps:
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Retrieve pki-builder image
+        uses: actions/cache@v3
+        with:
+          key: pki-builder-${{ matrix.os }}-${{ github.sha }}
+          path: pki-builder.tar
+
+      - name: Publish pki-builder image
+        run: |
+          docker load --input pki-builder.tar
+          docker tag pki-builder ghcr.io/${{ github.repository_owner }}/pki-builder
+          docker push ghcr.io/${{ github.repository_owner }}/pki-builder
+
+      - name: Retrieve pki-runner image
+        uses: actions/cache@v3
+        with:
+          key: pki-runner-${{ matrix.os }}-${{ github.sha }}
+          path: pki-runner.tar
+
+      - name: Publish pki-runner image
+        run: |
+          docker load --input pki-runner.tar
+          docker tag pki-runner ghcr.io/${{ github.repository_owner }}/pki-runner
+          docker push ghcr.io/${{ github.repository_owner }}/pki-runner
