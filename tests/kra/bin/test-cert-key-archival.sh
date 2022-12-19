@@ -11,7 +11,8 @@ CRMFPopClient \
     -f caDualCert \
     -n UID=testuser \
     -u testuser \
-    -b kra_transport.crt | tee output
+    -b kra_transport.crt \
+    ${CRMFPopClient_Extra} | tee output
 
 REQUEST_ID=$(sed -n "s/^\s*Request ID:\s*\(\S*\)\s*$/\1/p" output)
 echo "Request ID: $REQUEST_ID"
