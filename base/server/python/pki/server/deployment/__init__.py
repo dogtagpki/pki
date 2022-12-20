@@ -270,6 +270,9 @@ class PKIDeployer:
 
     def configure_ca(self, subsystem):
 
+        if config.str2bool(self.mdict['pki_use_oaep_rsa_keywrap']):
+            subsystem.config['keyWrap.useOAEP'] = 'true'
+
         request_id_generator = self.mdict['pki_request_id_generator']
 
         if request_id_generator == 'random':
@@ -330,6 +333,9 @@ class PKIDeployer:
             subsystem.config['ca.defaultOcspUri'] = ocsp_uri
 
     def configure_kra(self, subsystem):
+
+        if config.str2bool(self.mdict['pki_use_oaep_rsa_keywrap']):
+            subsystem.config['keyWrap.useOAEP'] = 'true'
 
         request_id_generator = self.mdict['pki_request_id_generator']
 
@@ -507,10 +513,6 @@ class PKIDeployer:
         subsystem.config['internaldb.ldapauth.bindDN'] = self.mdict['pki_ds_bind_dn']
         subsystem.config['internaldb.basedn'] = self.mdict['pki_ds_base_dn']
         subsystem.config['internaldb.database'] = self.mdict['pki_ds_database']
-
-        useOAEPKeyWrap = self.mdict['pki_use_oaep_rsa_keywrap']
-        if useOAEPKeyWrap == "True":
-            subsystem.config['keyWrap.useOAEP'] = 'true'
 
         if subsystem.type == 'CA':
             self.configure_ca(subsystem)

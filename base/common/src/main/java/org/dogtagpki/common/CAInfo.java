@@ -18,10 +18,6 @@
 
 package org.dogtagpki.common;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -134,87 +130,6 @@ public class CAInfo extends RESTMessage {
         }
 
         return true;
-    }
-
-
-    @Override
-    public Element toDOM(Document document) {
-
-        Element infoElement = document.createElement("CAInfo");
-
-        toDOM(document, infoElement);
-
-        if (archivalMechanism != null) {
-            Element archivalElement = document.createElement("ArchivalMechanism");
-            archivalElement.appendChild(document.createTextNode(archivalMechanism));
-            infoElement.appendChild(archivalElement);
-        }
-
-        if (encryptAlgorithm != null) {
-            Element encryptElement = document.createElement("EncryptionAlgorithm");
-            encryptElement.appendChild(document.createTextNode(encryptAlgorithm));
-            infoElement.appendChild(encryptElement);
-        }
-
-        if (keyWrapAlgorithm != null) {
-            Element wrapElement = document.createElement("WrapAlgorithm");
-            wrapElement.appendChild(document.createTextNode(keyWrapAlgorithm));
-            infoElement.appendChild(wrapElement);
-        }
-
-        if (rsaPublicKeyWrapAlgorithm != null) {
-            Element rsaPublicWrapElement = document.createElement("RsaPublicKeyWrapAlgorithm");
-            rsaPublicWrapElement.appendChild(document.createTextNode(rsaPublicKeyWrapAlgorithm));
-            infoElement.appendChild(rsaPublicWrapElement);
-        }
-
-        if(caRsaPublicKeyWrapAlgorithm != null) {
-            Element caRsaPublicWrapElement = document.createElement("CaRsaPublicKeyWrapAlgorithm");
-            caRsaPublicWrapElement.appendChild(document.createTextNode(caRsaPublicKeyWrapAlgorithm));
-            infoElement.appendChild(caRsaPublicWrapElement);
-        }
-
-
-        return infoElement;
-    }
-
-    public static CAInfo fromDOM(Element infoElement) {
-
-        CAInfo info = new CAInfo();
-
-        fromDOM(infoElement, info);
-
-        NodeList archivalList = infoElement.getElementsByTagName("ArchivalMechanism");
-        if (archivalList.getLength() > 0) {
-            String value = archivalList.item(0).getTextContent();
-            info.setArchivalMechanism(value);
-        }
-
-        NodeList encryptionList = infoElement.getElementsByTagName("EncryptionAlgorithm");
-        if (encryptionList.getLength() > 0) {
-            String value = encryptionList.item(0).getTextContent();
-            info.setEncryptAlgorithm(value);
-        }
-
-        NodeList wrapList = infoElement.getElementsByTagName("KeyWrapAlgorithm");
-        if (wrapList.getLength() > 0) {
-            String value = wrapList.item(0).getTextContent();
-            info.setKeyWrapAlgorithm(value);
-        }
-
-        NodeList rsaPublicKeyWrapList = infoElement.getElementsByTagName("RsaPublicKeyWrapAlgorithm");
-        if (rsaPublicKeyWrapList.getLength() > 0) {
-            String value = rsaPublicKeyWrapList.item(0).getTextContent();
-            info.setRsaPublicKeyWrapAlgorithm(value);
-        }
-
-        NodeList caRsaPublicKeyWrapList = infoElement.getElementsByTagName("CaRsaPublicKeyWrapAlgorithm");
-        if (caRsaPublicKeyWrapList.getLength() > 0) {
-            String value = caRsaPublicKeyWrapList.item(0).getTextContent();
-            info.setCaRsaPublicKeyWrapAlgorithm(value);
-        }
-
-        return info;
     }
 }
 
