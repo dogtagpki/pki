@@ -196,29 +196,25 @@ public class AuthSubsystem implements ISubsystem {
         logger.info("AuthSubsystem: Loading auth manager instance " + PASSWDUSERDB_AUTHMGR_ID);
 
         PasswdUserDBAuthentication passwdUserDBAuth = new PasswdUserDBAuthentication();
-        passwdUserDBAuth.setAuthenticationConfig(mConfig);
-        passwdUserDBAuth.init(PASSWDUSERDB_AUTHMGR_ID, PASSWDUSERDB_PLUGIN_ID, null);
+        passwdUserDBAuth.init(mConfig, PASSWDUSERDB_AUTHMGR_ID, PASSWDUSERDB_PLUGIN_ID, null);
         mAuthMgrInsts.put(PASSWDUSERDB_AUTHMGR_ID, new AuthManagerProxy(true, passwdUserDBAuth));
 
         logger.info("AuthSubsystem: Loading auth manager instance " + CERTUSERDB_AUTHMGR_ID);
 
         CertUserDBAuthentication certUserDBAuth = new CertUserDBAuthentication();
-        certUserDBAuth.setAuthenticationConfig(mConfig);
-        certUserDBAuth.init(CERTUSERDB_AUTHMGR_ID, CERTUSERDB_PLUGIN_ID, null);
+        certUserDBAuth.init(mConfig, CERTUSERDB_AUTHMGR_ID, CERTUSERDB_PLUGIN_ID, null);
         mAuthMgrInsts.put(CERTUSERDB_AUTHMGR_ID, new AuthManagerProxy(true, certUserDBAuth));
 
         logger.info("AuthSubsystem: Loading auth manager instance " + CHALLENGE_AUTHMGR_ID);
 
         ChallengePhraseAuthentication challengeAuth = new ChallengePhraseAuthentication();
-        challengeAuth.setAuthenticationConfig(mConfig);
-        challengeAuth.init(CHALLENGE_AUTHMGR_ID, CHALLENGE_PLUGIN_ID, null);
+        challengeAuth.init(mConfig, CHALLENGE_AUTHMGR_ID, CHALLENGE_PLUGIN_ID, null);
         mAuthMgrInsts.put(CHALLENGE_AUTHMGR_ID, new AuthManagerProxy(true, challengeAuth));
 
         logger.info("AuthSubsystem: Loading auth manager instance " + CMCAUTH_AUTHMGR_ID);
 
         CMCAuth cmcAuth = new CMCAuth();
-        cmcAuth.setAuthenticationConfig(mConfig);
-        cmcAuth.init(CMCAUTH_AUTHMGR_ID, CMCAUTH_PLUGIN_ID, null);
+        cmcAuth.init(mConfig, CMCAUTH_AUTHMGR_ID, CMCAUTH_PLUGIN_ID, null);
         mAuthMgrInsts.put(CMCAUTH_AUTHMGR_ID, new AuthManagerProxy(true, cmcAuth));
 
         // #56659
@@ -232,8 +228,7 @@ public class AuthSubsystem implements ISubsystem {
         logger.info("AuthSubsystem: Loading auth manager instance " + SSLCLIENTCERT_AUTHMGR_ID);
 
         SSLClientCertAuthentication sslClientCertAuth = new SSLClientCertAuthentication();
-        sslClientCertAuth.setAuthenticationConfig(mConfig);
-        sslClientCertAuth.init(SSLCLIENTCERT_AUTHMGR_ID, SSLCLIENTCERT_PLUGIN_ID, null);
+        sslClientCertAuth.init(mConfig, SSLCLIENTCERT_AUTHMGR_ID, SSLCLIENTCERT_PLUGIN_ID, null);
         mAuthMgrInsts.put(SSLCLIENTCERT_AUTHMGR_ID, new AuthManagerProxy(true, sslClientCertAuth));
 
         AuthManagersConfig instancesConfig = mConfig.getAuthManagersConfig();
@@ -258,7 +253,7 @@ public class AuthSubsystem implements ISubsystem {
 
             try {
                 authMgrInst = (AuthManager) Class.forName(className).getDeclaredConstructor().newInstance();
-                authMgrInst.init(instName, implName, authMgrConfig);
+                authMgrInst.init(mConfig, instName, implName, authMgrConfig);
                 enabled = true;
 
             } catch (ClassNotFoundException e) {

@@ -170,7 +170,9 @@ public abstract class AuthManager {
      * @param config The configuration store for this authentication manager.
      * @exception EBaseException If an initialization error occurred.
      */
-    public abstract void init(String name, String implName, AuthManagerConfig config)
+    public abstract void init(
+            AuthenticationConfig authenticationConfig,
+            String name, String implName, AuthManagerConfig config)
             throws EBaseException;
 
     /**

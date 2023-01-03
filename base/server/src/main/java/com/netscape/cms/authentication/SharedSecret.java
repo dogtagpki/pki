@@ -23,6 +23,7 @@ import java.util.Enumeration;
 
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
+import org.dogtagpki.server.authentication.AuthenticationConfig;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
@@ -160,12 +161,14 @@ public class SharedSecret extends DirBasedAuthentication
     }
 
     @Override
-    public void init(String name, String implName, AuthManagerConfig config)
+    public void init(
+            AuthenticationConfig authenticationConfig,
+            String name, String implName, AuthManagerConfig config)
             throws EBaseException {
         String method = "SharedSecret.init: ";
         String msg = "";
         logger.debug(method + " begins.");
-        super.init(name, implName, config);
+        super.init(authenticationConfig, name, implName, config);
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();

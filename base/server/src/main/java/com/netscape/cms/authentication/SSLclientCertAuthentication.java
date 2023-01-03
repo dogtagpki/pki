@@ -27,6 +27,7 @@ import java.util.StringTokenizer;
 import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
+import org.dogtagpki.server.authentication.AuthenticationConfig;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
@@ -78,8 +79,11 @@ public class SSLclientCertAuthentication extends AuthManager {
      * @param config The configuration store for this authentication manager.
      */
     @Override
-    public void init(String name, String implName, AuthManagerConfig config)
+    public void init(
+            AuthenticationConfig authenticationConfig,
+            String name, String implName, AuthManagerConfig config)
             throws EBaseException {
+        this.authenticationConfig = authenticationConfig;
         mName = name;
         mImplName = implName;
         mConfig = config;

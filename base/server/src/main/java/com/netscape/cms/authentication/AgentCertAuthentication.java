@@ -80,8 +80,11 @@ public class AgentCertAuthentication extends AuthManager {
      * @param config The configuration store for this authentication manager.
      */
     @Override
-    public void init(String name, String implName, AuthManagerConfig config)
+    public void init(
+            AuthenticationConfig authenticationConfig,
+            String name, String implName, AuthManagerConfig config)
             throws EBaseException {
+        this.authenticationConfig = authenticationConfig;
         mName = name;
         mImplName = implName;
         mConfig = config;

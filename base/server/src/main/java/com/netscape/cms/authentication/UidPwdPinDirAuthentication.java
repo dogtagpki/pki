@@ -27,6 +27,7 @@ import java.util.Vector;
 import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
+import org.dogtagpki.server.authentication.AuthenticationConfig;
 
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EAuthException;
@@ -151,9 +152,11 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication {
     }
 
     @Override
-    public void init(String name, String implName, AuthManagerConfig config)
+    public void init(
+            AuthenticationConfig authenticationConfig,
+            String name, String implName, AuthManagerConfig config)
             throws EBaseException {
-        super.init(name, implName, config);
+        super.init(authenticationConfig, name, implName, config);
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();

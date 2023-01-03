@@ -509,7 +509,7 @@ public class RemoteAuthConfig extends CMSServlet {
 
         if (authMgrInst != null) {
             try {
-                authMgrInst.init(instance, plugin, c1);
+                authMgrInst.init(mAuthConfig, instance, plugin, c1);
             } catch (EBaseException e) {
                 c0.removeSubStore(instance);
                 mRemotelySetInstances.remove(instance);

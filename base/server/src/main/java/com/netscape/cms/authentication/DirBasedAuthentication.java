@@ -29,6 +29,7 @@ import java.util.Vector;
 import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
+import org.dogtagpki.server.authentication.AuthenticationConfig;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
@@ -247,16 +248,21 @@ public abstract class DirBasedAuthentication extends AuthManager implements IExt
      * @exception EBaseException If an error occurs during initialization.
      */
     @Override
-    public void init(String name, String implName, AuthManagerConfig config)
+    public void init(
+            AuthenticationConfig authenticationConfig,
+            String name, String implName, AuthManagerConfig config)
             throws EBaseException {
-        init(name, implName, config, true);
+        init(authenticationConfig, name, implName, config, true);
     }
 
-    public void init(String name, String implName, AuthManagerConfig config, boolean needBaseDN)
+    public void init(
+            AuthenticationConfig authenticationConfig,
+            String name, String implName, AuthManagerConfig config, boolean needBaseDN)
             throws EBaseException {
 
         logger.info("DirBasedAuthentication: Initializing " + name);
 
+        this.authenticationConfig = authenticationConfig;
         mName = name;
         mImplName = implName;
         mConfig = config;

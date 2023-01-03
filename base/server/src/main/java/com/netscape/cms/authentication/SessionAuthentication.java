@@ -25,6 +25,7 @@ import java.util.Locale;
 import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
+import org.dogtagpki.server.authentication.AuthenticationConfig;
 
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
@@ -48,8 +49,11 @@ public class SessionAuthentication extends AuthManager {
     }
 
     @Override
-    public void init(String instName, String implName, AuthManagerConfig config)
+    public void init(
+            AuthenticationConfig authenticationConfig,
+            String instName, String implName, AuthManagerConfig config)
             throws EBaseException {
+        this.authenticationConfig = authenticationConfig;
         this.mName = instName;
         this.mImplName = implName;
         this.mConfig = config;
