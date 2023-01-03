@@ -275,6 +275,11 @@ public class HashAuthentication implements AuthManager, IExtendedPluginInfo {
     }
 
     @Override
+    public String getText(Locale locale) {
+        return null;
+    }
+
+    @Override
     public String[] getExtendedPluginInfo() {
         return Utils.getStringArrayFromVector(mExtendedPluginInfo);
     }

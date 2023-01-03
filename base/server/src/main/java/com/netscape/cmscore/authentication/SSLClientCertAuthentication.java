@@ -282,4 +282,9 @@ public class SSLClientCertAuthentication implements AuthManager {
     public String getImplName() {
         return mImplName;
     }
+
+    @Override
+    public String getText(Locale locale) {
+        return null;
+    }
 }

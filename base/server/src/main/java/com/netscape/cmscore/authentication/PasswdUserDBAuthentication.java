@@ -225,6 +225,11 @@ public class PasswdUserDBAuthentication implements AuthManager, IPasswdUserDBAut
         return mImplName;
     }
 
+    @Override
+    public String getText(Locale locale) {
+        return null;
+    }
+
     /**
      * get the list of authentication credential attribute names
      * required by this authentication manager. Generally used by

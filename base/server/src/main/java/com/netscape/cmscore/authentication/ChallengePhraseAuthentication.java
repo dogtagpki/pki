@@ -141,6 +141,11 @@ public class ChallengePhraseAuthentication implements AuthManager {
         return mImplName;
     }
 
+    @Override
+    public String getText(Locale locale) {
+        return null;
+    }
+
     /**
      * authenticates revocation of a certification by a challenge phrase
      * <p>

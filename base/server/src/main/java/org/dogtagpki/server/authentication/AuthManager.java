@@ -75,6 +75,14 @@ public interface AuthManager {
     public String getImplName();
 
     /**
+     * Retrieves the localizable description of this policy.
+     *
+     * @param locale end user locale
+     * @return localized authenticator description
+     */
+    public String getText(Locale locale);
+
+    /**
      * Get the configuration store for this authentication manager.
      *
      * @return The configuration store of this authentication manager.

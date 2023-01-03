@@ -151,6 +151,11 @@ public class CertUserDBAuthentication implements AuthManager {
         return mImplName;
     }
 
+    @Override
+    public String getText(Locale locale) {
+        return null;
+    }
+
     /**
      * authenticates user(agent) by certificate
      * <p>

@@ -409,6 +409,11 @@ public abstract class DirBasedAuthentication
         return mImplName;
     }
 
+    @Override
+    public String getText(Locale locale) {
+        return null;
+    }
+
     /**
      * Authenticates user through LDAP by a set of credentials.
      * Resulting AuthToken a TOKEN_CERTINFO field of a X509CertInfo
