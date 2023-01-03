@@ -17,13 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile;
 
-import java.util.Locale;
-
 import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthToken;
 
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -58,16 +55,6 @@ public interface ProfileAuthenticator extends AuthManager {
      * @return true if the property is not security related
      */
     public boolean isValueWriteable(String name);
-
-    /**
-     * Retrieves the descriptor of the given value
-     * property by name.
-     *
-     * @param locale user locale
-     * @param name property name
-     * @return descriptor of the requested property
-     */
-    public IDescriptor getValueDescriptor(Locale locale, String name);
 
     /**
      * Checks if this authenticator requires SSL client authentication.

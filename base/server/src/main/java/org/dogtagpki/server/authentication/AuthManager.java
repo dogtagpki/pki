@@ -25,6 +25,7 @@ import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.profile.EProfileException;
+import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cmscore.base.ConfigStore;
 
 /**
@@ -96,6 +97,16 @@ public interface AuthManager {
      * @return a list of property names
      */
     public Enumeration<String> getValueNames();
+
+    /**
+     * Retrieves the descriptor of the given value
+     * property by name.
+     *
+     * @param locale user locale
+     * @param name property name
+     * @return descriptor of the requested property
+     */
+    public IDescriptor getValueDescriptor(Locale locale, String name);
 
     /**
      * Initialize this authentication manager.

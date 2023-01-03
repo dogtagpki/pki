@@ -32,6 +32,7 @@ import com.netscape.certsrv.authentication.IPasswdUserDBAuthentication;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.profile.EProfileException;
+import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -233,6 +234,11 @@ public class PasswdUserDBAuthentication implements AuthManager, IPasswdUserDBAut
 
     @Override
     public Enumeration<String> getValueNames() {
+        return null;
+    }
+
+    @Override
+    public IDescriptor getValueDescriptor(Locale locale, String name) {
         return null;
     }
 

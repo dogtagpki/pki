@@ -32,6 +32,7 @@ import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.profile.EProfileException;
+import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.usrgrp.CertUserLocator;
 import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
@@ -159,6 +160,11 @@ public class CertUserDBAuthentication implements AuthManager {
 
     @Override
     public Enumeration<String> getValueNames() {
+        return null;
+    }
+
+    @Override
+    public IDescriptor getValueDescriptor(Locale locale, String name) {
         return null;
     }
 

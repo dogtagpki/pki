@@ -46,6 +46,7 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
+import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -416,6 +417,11 @@ public abstract class DirBasedAuthentication
 
     @Override
     public Enumeration<String> getValueNames() {
+        return null;
+    }
+
+    @Override
+    public IDescriptor getValueDescriptor(Locale locale, String name) {
         return null;
     }
 

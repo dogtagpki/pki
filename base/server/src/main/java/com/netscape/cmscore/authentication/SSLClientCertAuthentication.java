@@ -39,6 +39,7 @@ import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.profile.EProfileException;
+import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -291,6 +292,11 @@ public class SSLClientCertAuthentication implements AuthManager {
 
     @Override
     public Enumeration<String> getValueNames() {
+        return null;
+    }
+
+    @Override
+    public IDescriptor getValueDescriptor(Locale locale, String name) {
         return null;
     }
 }
