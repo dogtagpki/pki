@@ -20,6 +20,7 @@ package com.netscape.cms.profile.def;
 import java.io.IOException;
 import java.util.Locale;
 
+import org.dogtagpki.server.authentication.AuthManager;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
@@ -28,7 +29,6 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
 
@@ -135,7 +135,7 @@ public class AuthTokenSubjectNameDefault extends EnrollDefault {
         // to the certinfo
         try {
             X500Name name = new X500Name(
-                    request.getExtDataInString(ProfileAuthenticator.AUTHENTICATED_NAME));
+                    request.getExtDataInString(AuthManager.AUTHENTICATED_NAME));
 
             logger.debug("AuthTokenSubjectNameDefault: X500Name=" + name.getName());
             info.set(X509CertInfo.SUBJECT, new CertificateSubjectName(name));

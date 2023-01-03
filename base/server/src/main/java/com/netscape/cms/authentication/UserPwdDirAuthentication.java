@@ -25,6 +25,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
 
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
 
@@ -457,7 +458,7 @@ public class UserPwdDirAuthentication extends DirBasedAuthentication
     @Override
     public void populate(AuthToken token, Request request)
             throws EProfileException {
-        request.setExtData(ProfileAuthenticator.AUTHENTICATED_NAME,
+        request.setExtData(AuthManager.AUTHENTICATED_NAME,
                 token.getInString(USER_DN));
     }
 

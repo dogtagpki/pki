@@ -360,9 +360,9 @@ public class SSLclientCertAuthentication implements ProfileAuthenticator {
     @Override
     public void populate(AuthToken token, Request request)
             throws EProfileException {
-        request.setExtData(ProfileAuthenticator.AUTHENTICATED_NAME,
+        request.setExtData(AuthManager.AUTHENTICATED_NAME,
                 token.getInString(TOKEN_USERDN));
-        request.setExtData(ProfileAuthenticator.AUTHENTICATED_NAME,
+        request.setExtData(AuthManager.AUTHENTICATED_NAME,
                 token.getInString("userDN"));
     }
 }

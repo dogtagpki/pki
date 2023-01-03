@@ -27,6 +27,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
@@ -341,7 +342,7 @@ public class CertProcessor extends CAProcessor {
             if (isRenewal) {
                 setInputsIntoRequest(origReq, profile, req, locale);
                 req.setExtData("origNotAfter", BigInteger.valueOf(origNotAfter.getTime()));
-                req.setExtData(ProfileAuthenticator.AUTHENTICATED_NAME, origSubjectDN);
+                req.setExtData(AuthManager.AUTHENTICATED_NAME, origSubjectDN);
                 req.setRequestType("renewal");
             } else {
                 setInputsIntoRequest(data, profile, req);

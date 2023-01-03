@@ -1060,7 +1060,7 @@ public class CMCAuth implements IExtendedPluginInfo, ProfileAuthenticator {
     @Override
     public void populate(AuthToken token, Request request)
             throws EProfileException {
-        request.setExtData(ProfileAuthenticator.AUTHENTICATED_NAME,
+        request.setExtData(AuthManager.AUTHENTICATED_NAME,
                 token.getInString(AuthToken.TOKEN_AUTHENTICATED_CERT_SUBJECT));
     }
 

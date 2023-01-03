@@ -40,8 +40,6 @@ import com.netscape.cmscore.request.Request;
  */
 public interface ProfileAuthenticator extends AuthManager {
 
-    public static final String AUTHENTICATED_NAME = "authenticatedName";
-
     /**
      * Initializes this default policy.
      *

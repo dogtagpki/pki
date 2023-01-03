@@ -30,6 +30,8 @@ import com.netscape.certsrv.base.EBaseException;
  */
 public interface AuthManager {
 
+    public static final String AUTHENTICATED_NAME = "authenticatedName";
+
     /* standard credential for client cert from ssl client auth */
     public static final String CRED_SSL_CLIENT_CERT = "sslClientCert";
 

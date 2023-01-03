@@ -1285,7 +1285,7 @@ public class CMCUserSignedAuth implements IExtendedPluginInfo, ProfileAuthentica
         String method = "CMCUserSignedAuth: populate: ";
         String authenticatedDN = token.getInString(AuthToken.TOKEN_AUTHENTICATED_CERT_SUBJECT);
         if (authenticatedDN != null) {
-            request.setExtData(ProfileAuthenticator.AUTHENTICATED_NAME,
+            request.setExtData(AuthManager.AUTHENTICATED_NAME,
                     authenticatedDN);
             logger.debug(method + "AuthToken.TOKEN_AUTHENTICATED_CERT_SUBJECT is: "+
                     authenticatedDN);
