@@ -68,7 +68,6 @@ public class AgentCertAuthentication extends AuthManager {
     /* config parameters to pass to console (none) */
     protected static String[] mConfigParams = null;
 
-    private String mImplName = null;
     private AuthManagerConfig mConfig;
 
     private CertUserLocator mCULocator = null;
@@ -93,14 +92,6 @@ public class AgentCertAuthentication extends AuthManager {
         mConfig = config;
 
         mCULocator = new ExactMatchCertUserLocator();
-    }
-
-    /**
-     * Gets the plugin name of authentication manager.
-     */
-    @Override
-    public String getImplName() {
-        return mImplName;
     }
 
     @Override

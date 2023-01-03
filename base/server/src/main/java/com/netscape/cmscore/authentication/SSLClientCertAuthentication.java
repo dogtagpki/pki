@@ -69,7 +69,6 @@ public class SSLClientCertAuthentication extends AuthManager {
 
     private ICertificateAuthority mCA = null;
     private CertificateRepository mCertDB;
-    private String mImplName = null;
     private AuthenticationConfig authenticationConfig;
     private AuthManagerConfig mConfig;
 
@@ -265,14 +264,6 @@ public class SSLClientCertAuthentication extends AuthManager {
     @Override
     public AuthManagerConfig getConfigStore() {
         return mConfig;
-    }
-
-    /**
-     * gets the plugin name of this authentication manager.
-     */
-    @Override
-    public String getImplName() {
-        return mImplName;
     }
 
     @Override

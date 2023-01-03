@@ -76,7 +76,6 @@ public class ChallengePhraseAuthentication extends AuthManager {
     protected ICertificateAuthority mCA = null;
     protected CertificateRepository mCertDB;
 
-    private String mImplName = null;
     private AuthenticationConfig authenticationConfig;
     private AuthManagerConfig mConfig;
 
@@ -119,14 +118,6 @@ public class ChallengePhraseAuthentication extends AuthManager {
 
     @Override
     public void init(ConfigStore config) throws EProfileException {
-    }
-
-    /**
-     * Gets the plugin name of authentication manager.
-     */
-    @Override
-    public String getImplName() {
-        return mImplName;
     }
 
     @Override

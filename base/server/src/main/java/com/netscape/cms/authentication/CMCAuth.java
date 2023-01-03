@@ -132,8 +132,6 @@ public class CMCAuth extends AuthManager implements IExtendedPluginInfo {
     private static final String TRAILER = "-----END NEW CERTIFICATE REQUEST-----";
     public static final String TOKEN_CERT_SERIAL = "certSerialToRevoke";
     public static final String REASON_CODE = "reasonCode";
-    /* authentication plug-in name */
-    private String mImplName = null;
 
     /* authentication plug-in fields */
 
@@ -713,14 +711,6 @@ public class CMCAuth extends AuthManager implements IExtendedPluginInfo {
     @Override
     public AuthManagerConfig getConfigStore() {
         return mConfig;
-    }
-
-    /**
-     * gets the plug-in name of this authentication plug-in.
-     */
-    @Override
-    public String getImplName() {
-        return mImplName;
     }
 
     /**

@@ -72,7 +72,6 @@ public class CertUserDBAuthentication extends AuthManager {
     /* config parameters to pass to console (none) */
     protected static String[] mConfigParams = null;
 
-    private String mImplName = null;
     private AuthenticationConfig authenticationConfig;
     private AuthManagerConfig mConfig;
 
@@ -130,14 +129,6 @@ public class CertUserDBAuthentication extends AuthManager {
 
     @Override
     public void init(ConfigStore config) throws EProfileException {
-    }
-
-    /**
-     * Gets the plugin name of authentication manager.
-     */
-    @Override
-    public String getImplName() {
-        return mImplName;
     }
 
     @Override

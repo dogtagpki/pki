@@ -97,9 +97,6 @@ public class FlatFileAuth extends AuthManager implements IExtendedPluginInfo {
 
     protected String FFAUTH = "FlatFileAuth";
 
-    /** name of the authentication manager plugin */
-    protected String mImplName = null;
-
     /** configuration store */
     protected AuthManagerConfig mConfig;
 
@@ -613,11 +610,6 @@ public class FlatFileAuth extends AuthManager implements IExtendedPluginInfo {
 
     @Override
     public void shutdown() {
-    }
-
-    @Override
-    public String getImplName() {
-        return mImplName;
     }
 
     @Override

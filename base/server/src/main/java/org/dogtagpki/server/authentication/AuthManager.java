@@ -56,6 +56,7 @@ public abstract class AuthManager {
     public static final String CRED_HOST_NAME = "hostname";
 
     protected String mName;
+    protected String mImplName;
 
     /**
      * Get the name of this authentication manager instance.
@@ -78,11 +79,12 @@ public abstract class AuthManager {
 
     /**
      * Get name of authentication manager plugin.
-     * <p>
      *
      * @return the name of the authentication manager plugin.
      */
-    public abstract String getImplName();
+    public String getImplName() {
+        return mImplName;
+    }
 
     /**
      * Retrieves the localizable description of this policy.

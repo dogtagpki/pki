@@ -68,7 +68,6 @@ public class PasswdUserDBAuthentication extends AuthManager implements IPasswdUs
     /* configuration params to pass to console (none) */
     protected static String[] mConfigParams = null;
 
-    private String mImplName = null;
     private AuthenticationConfig authenticationConfig;
     private AuthManagerConfig mConfig;
     private LdapAnonConnFactory mAnonConnFactory = null;
@@ -208,14 +207,6 @@ public class PasswdUserDBAuthentication extends AuthManager implements IPasswdUs
 
     @Override
     public void populate(AuthToken token, Request request) throws EProfileException {
-    }
-
-    /**
-     * gets the name of the authentication manager plugin
-     */
-    @Override
-    public String getImplName() {
-        return mImplName;
     }
 
     @Override

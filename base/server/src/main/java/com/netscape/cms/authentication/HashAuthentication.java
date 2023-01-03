@@ -64,7 +64,6 @@ public class HashAuthentication extends AuthManager implements IExtendedPluginIn
     private MessageDigest mSHADigest = null;
     private Hashtable<String, AuthToken> mData = null;
     private AuthManagerConfig mConfig;
-    private String mImplName = null;
     private static Vector<String> mExtendedPluginInfo = null;
     private HashAuthData mHosts = null;
 
@@ -256,14 +255,6 @@ public class HashAuthentication extends AuthManager implements IExtendedPluginIn
     @Override
     public AuthManagerConfig getConfigStore() {
         return mConfig;
-    }
-
-    /**
-     * gets the plugin name of this authentication manager.
-     */
-    @Override
-    public String getImplName() {
-        return mImplName;
     }
 
     @Override

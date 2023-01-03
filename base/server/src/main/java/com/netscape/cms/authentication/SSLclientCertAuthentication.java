@@ -68,7 +68,6 @@ public class SSLclientCertAuthentication extends AuthManager {
     /* config parameters to pass to console (none) */
     protected static String[] mConfigParams = null;
 
-    private String mImplName = null;
     private AuthManagerConfig mConfig;
 
     public SSLclientCertAuthentication() {
@@ -89,14 +88,6 @@ public class SSLclientCertAuthentication extends AuthManager {
         mName = name;
         mImplName = implName;
         mConfig = config;
-    }
-
-    /**
-     * Gets the plugin name of authentication manager.
-     */
-    @Override
-    public String getImplName() {
-        return mImplName;
     }
 
     @Override
