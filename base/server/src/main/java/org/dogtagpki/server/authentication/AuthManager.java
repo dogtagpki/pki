@@ -58,6 +58,7 @@ public abstract class AuthManager {
     protected String mName;
     protected String mImplName;
     protected AuthManagerConfig mConfig;
+    protected String[] mConfigParams;
 
     /**
      * Get the name of this authentication manager instance.
@@ -102,6 +103,19 @@ public abstract class AuthManager {
      */
     public AuthManagerConfig getConfigStore() {
         return mConfig;
+    }
+
+    /**
+     * Get configuration parameters for this implementation.
+     * The configuration parameters returned is passed to the
+     * configuration console so configuration for instances of this
+     * implementation can be made through the console.
+     *
+     * @return a list of configuration parameters.
+     * @exception EBaseException If an internal error occurred
+     */
+    public String[] getConfigParams() {
+        return mConfigParams;
     }
 
     /**
@@ -194,15 +208,4 @@ public abstract class AuthManager {
      * @return The required credential attributes.
      */
     public abstract String[] getRequiredCreds();
-
-    /**
-     * Get configuration parameters for this implementation.
-     * The configuration parameters returned is passed to the
-     * configuration console so configuration for instances of this
-     * implementation can be made through the console.
-     *
-     * @return a list of configuration parameters.
-     * @exception EBaseException If an internal error occurred
-     */
-    public abstract String[] getConfigParams() throws EBaseException;
 }

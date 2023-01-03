@@ -66,9 +66,6 @@ public class HashAuthentication extends AuthManager implements IExtendedPluginIn
     private static Vector<String> mExtendedPluginInfo = null;
     private HashAuthData mHosts = null;
 
-    static String[] mConfigParams =
-            new String[] {};
-
     static {
         mExtendedPluginInfo = new Vector<>();
         mExtendedPluginInfo.add(IExtendedPluginInfo.HELP_TEXT +
@@ -274,17 +271,5 @@ public class HashAuthentication extends AuthManager implements IExtendedPluginIn
     @Override
     public String[] getExtendedPluginInfo() {
         return Utils.getStringArrayFromVector(mExtendedPluginInfo);
-    }
-
-    /**
-     * Returns a list of configuration parameter names.
-     * The list is passed to the configuration console so instances of
-     * this implementation can be configured through the console.
-     *
-     * @return String array of configuration parameter names.
-     */
-    @Override
-    public String[] getConfigParams() {
-        return (mConfigParams);
     }
 }

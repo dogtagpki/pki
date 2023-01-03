@@ -88,11 +88,6 @@ public class SessionAuthentication extends AuthManager {
         return requiredCreds;
     }
 
-    @Override
-    public String[] getConfigParams() {
-        return null;
-    }
-
     /**
      * prepare this authentication manager for shutdown.
      */

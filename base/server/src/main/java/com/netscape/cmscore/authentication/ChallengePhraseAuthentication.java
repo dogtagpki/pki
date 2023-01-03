@@ -71,8 +71,6 @@ public class ChallengePhraseAuthentication extends AuthManager {
     public static final String CRED_CHALLENGE = Request.CHALLENGE_PHRASE;
     protected String[] mRequiredCreds = { CRED_CERT_SERIAL, CRED_CHALLENGE };
 
-    /* config parameters to pass to console (none) */
-    protected static String[] mConfigParams = null;
     protected ICertificateAuthority mCA = null;
     protected CertificateRepository mCertDB;
 
@@ -349,23 +347,6 @@ public class ChallengePhraseAuthentication extends AuthManager {
     @Override
     public String[] getRequiredCreds() {
         return (mRequiredCreds);
-    }
-
-    /**
-     * get the list of configuration parameter names
-     * required by this authentication manager. Generally used by
-     * the Certificate Server Console to display the table for
-     * configuration purposes. ChallengePhraseAuthentication is currently not
-     * exposed in this case, so this method is not to be used.
-     *
-     * @return configuration parameter names in Hashtable of Vectors
-     *         where each hashtable entry's key is the substore name, value is a
-     *         Vector of parameter names. If no substore, the parameter name
-     *         is the Hashtable key itself, with value same as key.
-     */
-    @Override
-    public String[] getConfigParams() {
-        return (mConfigParams);
     }
 
     /**

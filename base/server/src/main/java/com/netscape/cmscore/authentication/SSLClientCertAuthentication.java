@@ -71,14 +71,6 @@ public class SSLClientCertAuthentication extends AuthManager {
     private CertificateRepository mCertDB;
     private AuthenticationConfig authenticationConfig;
 
-    /* Holds configuration parameters accepted by this implementation.
-     * This list is passed to the configuration console so configuration
-     * for instances of this implementation can be configured through the
-     * console.
-     */
-    protected static String[] mConfigParams =
-            new String[] {};
-
     /**
      * Default constructor, initialization must follow.
      */
@@ -231,18 +223,6 @@ public class SSLClientCertAuthentication extends AuthManager {
      */
     @Override
     public void shutdown() {
-    }
-
-    /**
-     * Returns a list of configuration parameter names.
-     * The list is passed to the configuration console so instances of
-     * this implementation can be configured through the console.
-     *
-     * @return String array of configuration parameter names.
-     */
-    @Override
-    public String[] getConfigParams() {
-        return (mConfigParams);
     }
 
     /**

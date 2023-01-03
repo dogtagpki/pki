@@ -151,13 +151,6 @@ public class CMCUserSignedAuth extends AuthManager implements IExtendedPluginInf
 
     /* authentication plug-in fields */
 
-    /* Holds authentication plug-in fields accepted by this implementation.
-     * This list is passed to the configuration console so configuration
-     * for instances of this implementation can be configured through the
-     * console.
-     */
-    protected static String[] mConfigParams = new String[] {};
-
     /* authentication plug-in values */
 
     /* authentication plug-in properties */
@@ -850,19 +843,6 @@ public class CMCUserSignedAuth extends AuthManager implements IExtendedPluginInf
             logger.error(method + e.getMessage(), e);
             throw new EBaseException(method + e.toString());
         }
-    }
-
-    /**
-     * Returns a list of configuration parameter names.
-     * The list is passed to the configuration console so instances of
-     * this implementation can be configured through the console.
-     * <p>
-     *
-     * @return String array of configuration parameter names.
-     */
-    @Override
-    public String[] getConfigParams() {
-        return (mConfigParams);
     }
 
     /**

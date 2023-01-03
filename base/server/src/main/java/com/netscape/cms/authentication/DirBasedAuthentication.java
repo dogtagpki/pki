@@ -543,16 +543,6 @@ public abstract class DirBasedAuthentication extends AuthManager implements IExt
     public abstract String[] getRequiredCreds();
 
     /**
-     * Returns a list of configuration parameter names.
-     * The list is passed to the configuration console so instances of
-     * this implementation can be configured through the console.
-     *
-     * @return String array of configuration parameter names.
-     */
-    @Override
-    public abstract String[] getConfigParams();
-
-    /**
      * disconnects the ldap connections
      */
     @Override

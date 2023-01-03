@@ -65,9 +65,6 @@ public class PasswdUserDBAuthentication extends AuthManager implements IPasswdUs
     /* required credentials. uid, pwd are strings */
     protected static String[] mRequiredCred = { CRED_UID, CRED_PWD };
 
-    /* configuration params to pass to console (none) */
-    protected static String[] mConfigParams = null;
-
     private AuthenticationConfig authenticationConfig;
     private LdapAnonConnFactory mAnonConnFactory = null;
 
@@ -244,17 +241,6 @@ public class PasswdUserDBAuthentication extends AuthManager implements IPasswdUs
     @Override
     public String[] getRequiredCreds() {
         return mRequiredCred;
-    }
-
-    /**
-     * Get the list of configuration parameter names
-     * required by this authentication manager. In this case, an empty list.
-     *
-     * @return String array of configuration parameters.
-     */
-    @Override
-    public String[] getConfigParams() {
-        return mConfigParams;
     }
 
     /**

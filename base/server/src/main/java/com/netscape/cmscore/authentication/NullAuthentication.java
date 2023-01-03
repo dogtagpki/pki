@@ -45,9 +45,6 @@ public class NullAuthentication extends AuthManager {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NullAuthentication.class);
 
-    /* configuration params to pass to console (none) */
-    protected static String[] mConfigParams = null;
-
     protected static String[] mRequiredCred = {};
     private AuthenticationConfig authenticationConfig;
 
@@ -151,17 +148,6 @@ public class NullAuthentication extends AuthManager {
     @Override
     public String[] getRequiredCreds() {
         return (mRequiredCred);
-    }
-
-    /**
-     * Get the list of configuration parameter names
-     * required by this authentication manager. In this case, an empty list.
-     *
-     * @return String array of configuration parameters.
-     */
-    @Override
-    public String[] getConfigParams() {
-        return (mConfigParams);
     }
 
     /**
