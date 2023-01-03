@@ -225,6 +225,10 @@ public class SSLClientCertAuthentication implements AuthManager {
         return authToken;
     }
 
+    @Override
+    public void populate(AuthToken token, Request request) throws EProfileException {
+    }
+
     /**
      * prepare this authentication manager for shutdown.
      */

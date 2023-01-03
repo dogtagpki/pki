@@ -40,6 +40,7 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.request.Request;
 
 /**
  * Hash uid/pwd directory based authentication manager
@@ -232,6 +233,10 @@ public class HashAuthentication implements AuthManager, IExtendedPluginInfo {
         token.set(CRED_UID, uid);
 
         return token;
+    }
+
+    @Override
+    public void populate(AuthToken token, Request request) throws EProfileException {
     }
 
     /**

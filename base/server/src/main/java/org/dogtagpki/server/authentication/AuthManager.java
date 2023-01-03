@@ -27,6 +27,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.request.Request;
 
 /**
  * Authentication Manager interface.
@@ -157,6 +158,17 @@ public interface AuthManager {
      */
     public AuthToken authenticate(AuthCredentials authCred)
             throws EMissingCredential, EInvalidCredentials, EBaseException;
+
+    /**
+     * Populates authentication specific information into the
+     * request for auditing purposes.
+     *
+     * @param token authentication token
+     * @param request request
+     * @exception EProfileException failed to populate
+     */
+    public void populate(AuthToken token, Request request)
+            throws EProfileException;
 
     /**
      * Prepare this authentication manager for a shutdown.

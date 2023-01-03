@@ -32,6 +32,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.request.Request;
 
 /**
  * This authentication does nothing but just returns an empty authToken.
@@ -111,6 +112,10 @@ public class NullAuthentication implements AuthManager {
         authToken.set("authType", "NOAUTH");
 
         return authToken;
+    }
+
+    @Override
+    public void populate(AuthToken token, Request request) throws EProfileException {
     }
 
     /**

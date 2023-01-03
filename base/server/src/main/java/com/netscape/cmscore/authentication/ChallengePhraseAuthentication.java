@@ -323,6 +323,10 @@ public class ChallengePhraseAuthentication implements AuthManager {
         return authToken;
     }
 
+    @Override
+    public void populate(AuthToken token, Request request) throws EProfileException {
+    }
+
     private boolean compareChallengePassword(CertRecord record, String pwd)
             throws EBaseException {
         MetaInfo metaInfo = (MetaInfo) record.get(CertRecord.ATTR_META_INFO);

@@ -41,6 +41,7 @@ import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.ldapconn.LdapAnonConnFactory;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmscore.usrgrp.User;
 
@@ -204,6 +205,10 @@ public class PasswdUserDBAuthentication implements AuthManager, IPasswdUserDBAut
         logger.info(CMS.getLogMessage("CMS_AUTH_AUTHENTICATED", uid));
 
         return authToken;
+    }
+
+    @Override
+    public void populate(AuthToken token, Request request) throws EProfileException {
     }
 
     /**

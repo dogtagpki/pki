@@ -39,6 +39,7 @@ import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.usrgrp.ExactMatchCertUserLocator;
 import com.netscape.cmscore.usrgrp.User;
 
@@ -257,6 +258,10 @@ public class CertUserDBAuthentication implements AuthManager {
         logger.info("CertUserDBAuthentication: " + CMS.getLogMessage("CMS_AUTH_AUTHENTICATED", user.getUserID()));
 
         return authToken;
+    }
+
+    @Override
+    public void populate(AuthToken token, Request request) throws EProfileException {
     }
 
     /**

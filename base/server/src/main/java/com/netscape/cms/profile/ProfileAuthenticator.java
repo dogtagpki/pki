@@ -18,10 +18,6 @@
 package com.netscape.cms.profile;
 
 import org.dogtagpki.server.authentication.AuthManager;
-import org.dogtagpki.server.authentication.AuthToken;
-
-import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.cmscore.request.Request;
 
 /**
  * This interface represents an authenticator for profile.
@@ -33,15 +29,4 @@ import com.netscape.cmscore.request.Request;
  * @version $Revision$, $Date$
  */
 public interface ProfileAuthenticator extends AuthManager {
-
-    /**
-     * Populates authentication specific information into the
-     * request for auditing purposes.
-     *
-     * @param token authentication token
-     * @param request request
-     * @exception EProfileException failed to populate
-     */
-    public void populate(AuthToken token, Request request)
-            throws EProfileException;
 }
