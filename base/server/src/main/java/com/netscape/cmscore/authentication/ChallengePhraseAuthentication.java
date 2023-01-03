@@ -35,9 +35,11 @@ import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
+import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.request.Request;
@@ -111,6 +113,10 @@ public class ChallengePhraseAuthentication implements AuthManager {
         } catch (NoSuchAlgorithmException e) {
             throw new EAuthException(CMS.getUserMessage("CMS_AUTHENTICATION_INTERNAL_ERROR", e.getMessage()), e);
         }
+    }
+
+    @Override
+    public void init(ConfigStore config) throws EProfileException {
     }
 
     /**

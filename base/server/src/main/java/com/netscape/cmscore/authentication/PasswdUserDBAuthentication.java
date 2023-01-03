@@ -28,9 +28,11 @@ import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.authentication.IPasswdUserDBAuthentication;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.ldapconn.LdapAnonConnFactory;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
@@ -105,6 +107,10 @@ public class PasswdUserDBAuthentication implements AuthManager, IPasswdUserDBAut
 
         mAnonConnFactory = new LdapAnonConnFactory("PasswdUserDBAuthentication", 3, 20, ldapinfo);
         mAnonConnFactory.init(socketConfig);
+    }
+
+    @Override
+    public void init(ConfigStore config) throws EProfileException {
     }
 
     /**

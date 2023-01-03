@@ -21,6 +21,8 @@ import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.profile.EProfileException;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * Authentication Manager interface.
@@ -63,6 +65,25 @@ public interface AuthManager {
     public String getImplName();
 
     /**
+     * Initialize this authentication manager.
+     *
+     * @param name The name of this authentication manager instance.
+     * @param implName The name of the authentication manager plugin.
+     * @param config The configuration store for this authentication manager.
+     * @exception EBaseException If an initialization error occurred.
+     */
+    public void init(String name, String implName, AuthManagerConfig config)
+            throws EBaseException;
+
+    /**
+     * Initializes this default policy.
+     *
+     * @param config configuration store
+     * @exception EProfileException failed to initialize
+     */
+    public void init(ConfigStore config) throws EProfileException;
+
+    /**
      * Authenticate the given credentials.
      *
      * @param authCred The authentication credentials
@@ -74,17 +95,6 @@ public interface AuthManager {
      */
     public AuthToken authenticate(AuthCredentials authCred)
             throws EMissingCredential, EInvalidCredentials, EBaseException;
-
-    /**
-     * Initialize this authentication manager.
-     *
-     * @param name The name of this authentication manager instance.
-     * @param implName The name of the authentication manager plugin.
-     * @param config The configuration store for this authentication manager.
-     * @exception EBaseException If an initialization error occurred.
-     */
-    public void init(String name, String implName, AuthManagerConfig config)
-            throws EBaseException;
 
     /**
      * Prepare this authentication manager for a shutdown.

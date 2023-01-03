@@ -26,6 +26,8 @@ import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.profile.EProfileException;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * This authentication does nothing but just returns an empty authToken.
@@ -74,6 +76,10 @@ public class NullAuthentication implements AuthManager {
         mName = name;
         mImplName = implName;
         mConfig = config;
+    }
+
+    @Override
+    public void init(ConfigStore config) throws EProfileException {
     }
 
     /**

@@ -26,7 +26,6 @@ import org.dogtagpki.server.authentication.AuthToken;
 
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -39,14 +38,6 @@ import com.netscape.cmscore.request.Request;
  * @version $Revision$, $Date$
  */
 public interface ProfileAuthenticator extends AuthManager {
-
-    /**
-     * Initializes this default policy.
-     *
-     * @param config configuration store
-     * @exception EProfileException failed to initialize
-     */
-    public void init(ConfigStore config) throws EProfileException;
 
     /**
      * Retrieves the configuration store.

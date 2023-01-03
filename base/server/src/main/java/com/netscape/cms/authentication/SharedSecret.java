@@ -41,9 +41,11 @@ import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.MetaInfo;
+import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
@@ -222,6 +224,10 @@ public class SharedSecret extends DirBasedAuthentication
         }
 
         logger.debug(method + " ends.");
+    }
+
+    @Override
+    public void init(ConfigStore config) throws EProfileException {
     }
 
     /**

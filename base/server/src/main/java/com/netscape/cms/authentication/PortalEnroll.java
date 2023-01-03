@@ -34,9 +34,11 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
@@ -167,6 +169,10 @@ public class PortalEnroll extends DirBasedAuthentication {
         mLdapConn = mLdapFactory.getConn();
 
         logger.info("PortalEnroll: " + CMS.getLogMessage("CMS_AUTH_PORTAL_INIT"));
+    }
+
+    @Override
+    public void init(ConfigStore config) throws EProfileException {
     }
 
     /**

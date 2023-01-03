@@ -35,7 +35,9 @@ import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * Hash uid/pwd directory based authentication manager
@@ -98,6 +100,10 @@ public class HashAuthentication implements AuthManager, IExtendedPluginInfo {
             throw new EAuthException(CMS.getUserMessage("CMS_AUTHENTICATION_INTERNAL_ERROR", e.getMessage()));
         }
 
+    }
+
+    @Override
+    public void init(ConfigStore config) throws EProfileException {
     }
 
     public AuthToken getAuthToken(String key) {
