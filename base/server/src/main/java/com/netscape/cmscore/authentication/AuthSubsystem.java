@@ -37,7 +37,6 @@ import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.cms.authentication.CMCAuth;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -110,21 +109,6 @@ public class AuthSubsystem implements ISubsystem {
      * Constant for ssl client authentication manager ID.
      */
     public final static String SSLCLIENTCERT_AUTHMGR_ID = "sslClientCertAuthMgr";
-
-    /**
-     * Constant for CMC authentication plugin ID.
-     */
-    public final static String CMCAUTH_PLUGIN_ID = "CMCAuth";
-
-    /**
-     * Constant for CMC authentication manager ID.
-     */
-    public final static String CMCAUTH_AUTHMGR_ID = "CMCAuth";
-
-    /**
-     * Constant for CMC user-signed authentication manager ID.
-     */
-    public final static String CMC_USER_SIGNED_AUTH_AUTHMGR_ID = "CMCUserSignedAuth";
 
     public Hashtable<String, AuthMgrPlugin> mAuthMgrPlugins = new Hashtable<>();
     public Hashtable<String, AuthManagerProxy> mAuthMgrInsts = new Hashtable<>();
@@ -210,12 +194,6 @@ public class AuthSubsystem implements ISubsystem {
         ChallengePhraseAuthentication challengeAuth = new ChallengePhraseAuthentication();
         challengeAuth.init(mConfig, CHALLENGE_AUTHMGR_ID, CHALLENGE_PLUGIN_ID, null);
         mAuthMgrInsts.put(CHALLENGE_AUTHMGR_ID, new AuthManagerProxy(true, challengeAuth));
-
-        logger.info("AuthSubsystem: Loading auth manager instance " + CMCAUTH_AUTHMGR_ID);
-
-        CMCAuth cmcAuth = new CMCAuth();
-        cmcAuth.init(mConfig, CMCAUTH_AUTHMGR_ID, CMCAUTH_PLUGIN_ID, null);
-        mAuthMgrInsts.put(CMCAUTH_AUTHMGR_ID, new AuthManagerProxy(true, cmcAuth));
 
         // #56659
         // logger.info("AuthSubsystem: Loading auth manager instance " + NULL_AUTHMGR_ID);
