@@ -24,7 +24,6 @@ import java.util.Locale;
 import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
-import org.dogtagpki.server.authentication.AuthenticationConfig;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.authentication.AuthCredentials;
@@ -69,22 +68,12 @@ public class CertUserDBAuthentication extends AuthManager {
     /* required credentials */
     protected String[] mRequiredCreds = { CRED_CERT };
 
-    private AuthenticationConfig authenticationConfig;
-
     private CertUserLocator mCULocator = null;
 
     private boolean mRevocationCheckingEnabled = false;
     private ConfigStore mRevocationChecking;
 
     public CertUserDBAuthentication() {
-    }
-
-    public AuthenticationConfig getAuthenticationConfig() {
-        return authenticationConfig;
-    }
-
-    public void setAuthenticationConfig(AuthenticationConfig authenticationConfig) {
-        this.authenticationConfig = authenticationConfig;
     }
 
     /**

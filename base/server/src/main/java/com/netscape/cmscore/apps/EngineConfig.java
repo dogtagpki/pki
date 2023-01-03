@@ -89,6 +89,9 @@ public class EngineConfig extends ConfigStore {
         return getSubStore("subsystem", SubsystemsConfig.class);
     }
 
+    /**
+     * Returns auths.* parameters.
+     */
     public AuthenticationConfig getAuthenticationConfig() {
         return getSubStore("auths", AuthenticationConfig.class);
     }

@@ -29,7 +29,6 @@ import java.util.Locale;
 import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
-import org.dogtagpki.server.authentication.AuthenticationConfig;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
@@ -69,21 +68,12 @@ public class SSLClientCertAuthentication extends AuthManager {
 
     private ICertificateAuthority mCA = null;
     private CertificateRepository mCertDB;
-    private AuthenticationConfig authenticationConfig;
 
     /**
      * Default constructor, initialization must follow.
      */
     public SSLClientCertAuthentication() {
         super();
-    }
-
-    public AuthenticationConfig getAuthenticationConfig() {
-        return authenticationConfig;
-    }
-
-    public void setAuthenticationConfig(AuthenticationConfig authenticationConfig) {
-        this.authenticationConfig = authenticationConfig;
     }
 
     @Override

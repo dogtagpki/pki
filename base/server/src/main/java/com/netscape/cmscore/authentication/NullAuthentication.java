@@ -23,7 +23,6 @@ import java.util.Locale;
 import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
-import org.dogtagpki.server.authentication.AuthenticationConfig;
 
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
@@ -46,17 +45,8 @@ public class NullAuthentication extends AuthManager {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NullAuthentication.class);
 
     protected static String[] mRequiredCred = {};
-    private AuthenticationConfig authenticationConfig;
 
     public NullAuthentication() {
-    }
-
-    public AuthenticationConfig getAuthenticationConfig() {
-        return authenticationConfig;
-    }
-
-    public void setAuthenticationConfig(AuthenticationConfig authenticationConfig) {
-        this.authenticationConfig = authenticationConfig;
     }
 
     /**

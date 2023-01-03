@@ -40,7 +40,6 @@ import java.util.Vector;
 import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
-import org.dogtagpki.server.authentication.AuthenticationConfig;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -124,8 +123,6 @@ public class CMCAuth extends AuthManager implements IExtendedPluginInfo {
     // IAuthManager parameters //
     /////////////////////////////
 
-    /* authentication plug-in configuration store */
-    private AuthenticationConfig authenticationConfig;
     private boolean mBypassClientAuth = false;
     private static final String HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----";
     private static final String TRAILER = "-----END NEW CERTIFICATE REQUEST-----";
@@ -180,14 +177,6 @@ public class CMCAuth extends AuthManager implements IExtendedPluginInfo {
      * Default constructor, initialization must follow.
      */
     public CMCAuth() {
-    }
-
-    public AuthenticationConfig getAuthenticationConfig() {
-        return authenticationConfig;
-    }
-
-    public void setAuthenticationConfig(AuthenticationConfig authenticationConfig) {
-        this.authenticationConfig = authenticationConfig;
     }
 
     //////////////////////////

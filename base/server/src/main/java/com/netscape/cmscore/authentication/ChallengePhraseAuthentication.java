@@ -26,7 +26,6 @@ import java.util.Locale;
 import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
-import org.dogtagpki.server.authentication.AuthenticationConfig;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.util.Utils;
 
@@ -74,19 +73,9 @@ public class ChallengePhraseAuthentication extends AuthManager {
     protected ICertificateAuthority mCA = null;
     protected CertificateRepository mCertDB;
 
-    private AuthenticationConfig authenticationConfig;
-
     private MessageDigest mSHADigest = null;
 
     public ChallengePhraseAuthentication() {
-    }
-
-    public AuthenticationConfig getAuthenticationConfig() {
-        return authenticationConfig;
-    }
-
-    public void setAuthenticationConfig(AuthenticationConfig authenticationConfig) {
-        this.authenticationConfig = authenticationConfig;
     }
 
     /**

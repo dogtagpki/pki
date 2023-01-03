@@ -55,10 +55,19 @@ public abstract class AuthManager {
     public static final String CRED_SESSION_ID = "sessionID";
     public static final String CRED_HOST_NAME = "hostname";
 
+    protected AuthenticationConfig authenticationConfig;
     protected String mName;
     protected String mImplName;
     protected AuthManagerConfig mConfig;
     protected String[] mConfigParams;
+
+    public AuthenticationConfig getAuthenticationConfig() {
+        return authenticationConfig;
+    }
+
+    public void setAuthenticationConfig(AuthenticationConfig authenticationConfig) {
+        this.authenticationConfig = authenticationConfig;
+    }
 
     /**
      * Get the name of this authentication manager instance.
