@@ -3,9 +3,6 @@ name: Server container
 on:
   workflow_call:
     inputs:
-      os:
-        required: true
-        type: string
       db-image:
         required: false
         type: string
@@ -23,7 +20,7 @@ jobs:
       - name: Retrieve pki-runner image
         uses: actions/cache@v3
         with:
-          key: pki-runner-${{ inputs.os }}-${{ github.sha }}
+          key: pki-runner-${{ github.sha }}
           path: pki-runner.tar
 
       - name: Load pki-runner image
@@ -32,7 +29,7 @@ jobs:
       - name: Retrieve pki-server image
         uses: actions/cache@v3
         with:
-          key: pki-server-${{ inputs.os }}-${{ github.sha }}
+          key: pki-server-${{ github.sha }}
           path: pki-server.tar
 
       - name: Load pki-server image
@@ -81,5 +78,5 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: server-container-test-${{ inputs.os }}
+          name: server-container-test
           path: /tmp/artifacts/server

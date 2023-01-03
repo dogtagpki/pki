@@ -3,9 +3,6 @@ name: IPA ACME
 on:
   workflow_call:
     inputs:
-      os:
-        required: true
-        type: string
       db-image:
         required: false
         type: string
@@ -23,7 +20,7 @@ jobs:
       - name: Retrieve ipa-runner image
         uses: actions/cache@v3
         with:
-          key: ipa-runner-${{ inputs.os }}-${{ github.sha }}
+          key: ipa-runner-${{ github.sha }}
           path: ipa-runner.tar
 
       - name: Load ipa-runner image
@@ -160,6 +157,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: ipa-acme-${{ inputs.os }}
+          name: ipa-acme
           path: |
             /tmp/artifacts/ipa

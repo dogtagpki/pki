@@ -77,8 +77,6 @@ jobs:
     name: Building PKI for Sonar
     needs: [init, retrieve-pr]
     runs-on: ubuntu-latest
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v3
@@ -103,7 +101,7 @@ jobs:
         id: cache-buildx
         uses: actions/cache@v3
         with:
-          key: buildx-${{ matrix.os }}-${{ hashFiles('pki.spec') }}
+          key: buildx-${{ hashFiles('pki.spec') }}
           path: /tmp/.buildx-cache
 
       - name: Build pki-deps image
@@ -111,7 +109,7 @@ jobs:
         with:
           context: .
           build-args: |
-            BASE_IMAGE=registry.fedoraproject.org/fedora:${{ matrix.os }}
+            BASE_IMAGE=${{ needs.init.outputs.base-image }}
             COPR_REPO=${{ needs.init.outputs.repo }}
           tags: pki-deps
           target: pki-deps
@@ -123,7 +121,7 @@ jobs:
         with:
           context: .
           build-args: |
-            BASE_IMAGE=registry.fedoraproject.org/fedora:${{ matrix.os }}
+            BASE_IMAGE=${{ needs.init.outputs.base-image }}
             COPR_REPO=${{ needs.init.outputs.repo }}
           tags: pki-builder-deps
           target: pki-builder-deps
@@ -135,7 +133,7 @@ jobs:
         with:
           context: .
           build-args: |
-            BASE_IMAGE=registry.fedoraproject.org/fedora:${{ matrix.os }}
+            BASE_IMAGE=${{ needs.init.outputs.base-image }}
             COPR_REPO=${{ needs.init.outputs.repo }}
           tags: pki-runner
           target: pki-runner
@@ -145,7 +143,7 @@ jobs:
       - name: Store pki-runner image
         uses: actions/cache@v3
         with:
-          key: pki-sonar-runner-${{ matrix.os }}-${{ github.event.workflow_run.id }}
+          key: pki-sonar-runner-${{ github.event.workflow_run.id }}
           path: pki-runner.tar
         
   sonarcloud:
@@ -153,15 +151,13 @@ jobs:
     needs: [retrieve-pr, init, build]
     if: needs.retrieve-pr.outputs.pr-number != ''
     runs-on: ubuntu-latest
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     env:
       SHARED: /tmp/workdir/pki
     steps:
       - name: Retrieve pki-runner image
         uses: actions/cache@v3
         with:
-          key: pki-sonar-runner-${{ matrix.os }}-${{ github.event.workflow_run.id }}
+          key: pki-sonar-runner-${{ github.event.workflow_run.id }}
           path: pki-runner.tar
 
       - name: Load pki-runner image
