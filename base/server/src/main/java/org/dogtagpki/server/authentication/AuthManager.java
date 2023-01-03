@@ -65,6 +65,13 @@ public interface AuthManager {
     public String getImplName();
 
     /**
+     * Get the configuration store for this authentication manager.
+     *
+     * @return The configuration store of this authentication manager.
+     */
+    public AuthManagerConfig getConfigStore();
+
+    /**
      * Initialize this authentication manager.
      *
      * @param name The name of this authentication manager instance.
@@ -120,11 +127,4 @@ public interface AuthManager {
      */
     public String[] getConfigParams()
             throws EBaseException;
-
-    /**
-     * Get the configuration store for this authentication manager.
-     *
-     * @return The configuration store of this authentication manager.
-     */
-    public AuthManagerConfig getConfigStore();
 }

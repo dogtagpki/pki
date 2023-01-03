@@ -21,7 +21,6 @@ import java.util.Enumeration;
 import java.util.Locale;
 
 import org.dogtagpki.server.authentication.AuthManager;
-import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
 
 import com.netscape.certsrv.profile.EProfileException;
@@ -38,14 +37,6 @@ import com.netscape.cmscore.request.Request;
  * @version $Revision$, $Date$
  */
 public interface ProfileAuthenticator extends AuthManager {
-
-    /**
-     * Retrieves the configuration store.
-     *
-     * @return configuration store
-     */
-    @Override
-    public AuthManagerConfig getConfigStore();
 
     /**
      * Populates authentication specific information into the
