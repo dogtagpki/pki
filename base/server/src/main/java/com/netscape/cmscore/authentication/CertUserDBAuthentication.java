@@ -173,6 +173,11 @@ public class CertUserDBAuthentication implements AuthManager {
         return false;
     }
 
+    @Override
+    public boolean isSSLClientRequired() {
+        return false;
+    }
+
     /**
      * authenticates user(agent) by certificate
      * <p>

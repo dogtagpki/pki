@@ -154,6 +154,11 @@ public class NullAuthentication implements AuthManager {
         return false;
     }
 
+    @Override
+    public boolean isSSLClientRequired() {
+        return false;
+    }
+
     /**
      * get the list of authentication credential attribute names
      * required by this authentication manager. Generally used by

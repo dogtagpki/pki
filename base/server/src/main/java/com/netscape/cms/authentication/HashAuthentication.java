@@ -296,6 +296,11 @@ public class HashAuthentication implements AuthManager, IExtendedPluginInfo {
     }
 
     @Override
+    public boolean isSSLClientRequired() {
+        return false;
+    }
+
+    @Override
     public String[] getExtendedPluginInfo() {
         return Utils.getStringArrayFromVector(mExtendedPluginInfo);
     }

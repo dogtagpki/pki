@@ -163,6 +163,11 @@ public class ChallengePhraseAuthentication implements AuthManager {
         return false;
     }
 
+    @Override
+    public boolean isSSLClientRequired() {
+        return false;
+    }
+
     /**
      * authenticates revocation of a certification by a challenge phrase
      * <p>

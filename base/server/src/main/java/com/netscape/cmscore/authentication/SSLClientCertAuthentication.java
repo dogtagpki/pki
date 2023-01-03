@@ -304,4 +304,9 @@ public class SSLClientCertAuthentication implements AuthManager {
     public boolean isValueWriteable(String name) {
         return false;
     }
+
+    @Override
+    public boolean isSSLClientRequired() {
+        return false;
+    }
 }

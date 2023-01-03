@@ -120,6 +120,13 @@ public interface AuthManager {
     public boolean isValueWriteable(String name);
 
     /**
+     * Checks if this authenticator requires SSL client authentication.
+     *
+     * @return client authentication required or not
+     */
+    public boolean isSSLClientRequired();
+
+    /**
      * Initialize this authentication manager.
      *
      * @param name The name of this authentication manager instance.

@@ -44,11 +44,4 @@ public interface ProfileAuthenticator extends AuthManager {
      */
     public void populate(AuthToken token, Request request)
             throws EProfileException;
-
-    /**
-     * Checks if this authenticator requires SSL client authentication.
-     *
-     * @return client authentication required or not
-     */
-    public boolean isSSLClientRequired();
 }

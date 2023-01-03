@@ -430,6 +430,11 @@ public abstract class DirBasedAuthentication
         return false;
     }
 
+    @Override
+    public boolean isSSLClientRequired() {
+        return false;
+    }
+
     /**
      * Authenticates user through LDAP by a set of credentials.
      * Resulting AuthToken a TOKEN_CERTINFO field of a X509CertInfo
