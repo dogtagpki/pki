@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -392,6 +393,11 @@ public abstract class DirBasedAuthentication
      */
     @Override
     public String getName() {
+        return mName;
+    }
+
+    @Override
+    public String getName(Locale locale) {
         return mName;
     }
 

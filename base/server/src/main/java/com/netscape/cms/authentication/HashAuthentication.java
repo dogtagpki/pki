@@ -23,6 +23,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Locale;
 import java.util.Vector;
 
 import org.dogtagpki.server.authentication.AuthManager;
@@ -257,6 +258,11 @@ public class HashAuthentication implements AuthManager, IExtendedPluginInfo {
      */
     @Override
     public String getName() {
+        return mName;
+    }
+
+    @Override
+    public String getName(Locale locale) {
         return mName;
     }
 

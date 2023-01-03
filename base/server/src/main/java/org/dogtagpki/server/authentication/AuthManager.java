@@ -17,6 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.authentication;
 
+import java.util.Locale;
+
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
@@ -55,6 +57,14 @@ public interface AuthManager {
      * @return the name of this authentication manager.
      */
     public String getName();
+
+    /**
+     * Retrieves the localizable name of this policy.
+     *
+     * @param locale end user locale
+     * @return localized authenticator name
+     */
+    public String getName(Locale locale);
 
     /**
      * Get name of authentication manager plugin.

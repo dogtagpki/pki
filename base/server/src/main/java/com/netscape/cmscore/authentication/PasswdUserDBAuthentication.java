@@ -17,6 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.authentication;
 
+import java.util.Locale;
+
 import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
@@ -207,6 +209,11 @@ public class PasswdUserDBAuthentication implements AuthManager, IPasswdUserDBAut
      */
     @Override
     public String getName() {
+        return mName;
+    }
+
+    @Override
+    public String getName(Locale locale) {
         return mName;
     }
 

@@ -50,14 +50,6 @@ public interface ProfileAuthenticator extends AuthManager {
             throws EProfileException;
 
     /**
-     * Retrieves the localizable name of this policy.
-     *
-     * @param locale end user locale
-     * @return localized authenticator name
-     */
-    public String getName(Locale locale);
-
-    /**
      * Retrieves the localizable description of this policy.
      *
      * @param locale end user locale

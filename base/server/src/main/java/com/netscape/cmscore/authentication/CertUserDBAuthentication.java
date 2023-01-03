@@ -18,6 +18,7 @@
 package com.netscape.cmscore.authentication;
 
 import java.security.cert.X509Certificate;
+import java.util.Locale;
 
 import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
@@ -134,6 +135,11 @@ public class CertUserDBAuthentication implements AuthManager {
      */
     @Override
     public String getName() {
+        return mName;
+    }
+
+    @Override
+    public String getName(Locale locale) {
         return mName;
     }
 
