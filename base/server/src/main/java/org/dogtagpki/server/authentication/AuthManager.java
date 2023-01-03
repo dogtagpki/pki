@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.authentication;
 
+import java.util.Enumeration;
 import java.util.Locale;
 
 import com.netscape.certsrv.authentication.AuthCredentials;
@@ -88,6 +89,13 @@ public interface AuthManager {
      * @return The configuration store of this authentication manager.
      */
     public AuthManagerConfig getConfigStore();
+
+    /**
+     * Retrieves a list of names of the property.
+     *
+     * @return a list of property names
+     */
+    public Enumeration<String> getValueNames();
 
     /**
      * Initialize this authentication manager.

@@ -23,6 +23,7 @@ package com.netscape.cmscore.authentication;
 import java.math.BigInteger;
 import java.security.Principal;
 import java.security.cert.X509Certificate;
+import java.util.Enumeration;
 import java.util.Locale;
 
 import org.dogtagpki.server.authentication.AuthManager;
@@ -285,6 +286,11 @@ public class SSLClientCertAuthentication implements AuthManager {
 
     @Override
     public String getText(Locale locale) {
+        return null;
+    }
+
+    @Override
+    public Enumeration<String> getValueNames() {
         return null;
     }
 }

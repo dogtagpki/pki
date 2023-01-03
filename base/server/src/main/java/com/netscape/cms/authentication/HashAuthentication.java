@@ -280,6 +280,11 @@ public class HashAuthentication implements AuthManager, IExtendedPluginInfo {
     }
 
     @Override
+    public Enumeration<String> getValueNames() {
+        return null;
+    }
+
+    @Override
     public String[] getExtendedPluginInfo() {
         return Utils.getStringArrayFromVector(mExtendedPluginInfo);
     }

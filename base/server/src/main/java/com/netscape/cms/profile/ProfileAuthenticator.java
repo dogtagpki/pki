@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile;
 
-import java.util.Enumeration;
 import java.util.Locale;
 
 import org.dogtagpki.server.authentication.AuthManager;
@@ -48,13 +47,6 @@ public interface ProfileAuthenticator extends AuthManager {
      */
     public void populate(AuthToken token, Request request)
             throws EProfileException;
-
-    /**
-     * Retrieves a list of names of the property.
-     *
-     * @return a list of property names
-     */
-    public Enumeration<String> getValueNames();
 
     /**
      * Checks if the value of the given property should be

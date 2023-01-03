@@ -20,6 +20,7 @@ package com.netscape.cmscore.authentication;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Enumeration;
 import java.util.Locale;
 
 import org.dogtagpki.server.authentication.AuthManager;
@@ -143,6 +144,11 @@ public class ChallengePhraseAuthentication implements AuthManager {
 
     @Override
     public String getText(Locale locale) {
+        return null;
+    }
+
+    @Override
+    public Enumeration<String> getValueNames() {
         return null;
     }
 
