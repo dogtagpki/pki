@@ -26,6 +26,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAConfig;
@@ -41,7 +42,6 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
-import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.profile.common.ProfileInput;
 import com.netscape.cms.profile.common.ProfilePolicy;
@@ -253,7 +253,7 @@ public class ProfileSelectServlet extends ProfileServlet {
 
         // build authentication
         ArgList authlist = new ArgList();
-        ProfileAuthenticator authenticator = null;
+        AuthManager authenticator = null;
 
         try {
             authenticator = ps.getProfileAuthenticator(profile);

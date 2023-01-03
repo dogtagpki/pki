@@ -40,7 +40,6 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.usrgrp.CertUserLocator;
 import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
-import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -58,7 +57,7 @@ import com.netscape.cmscore.usrgrp.User;
  *
  * @version $Revision$, $Date$
  */
-public class AgentCertAuthentication implements ProfileAuthenticator {
+public class AgentCertAuthentication implements AuthManager {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AgentCertAuthentication.class);
 

@@ -31,6 +31,7 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
 
@@ -42,7 +43,6 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
@@ -54,7 +54,7 @@ import com.netscape.cmscore.request.Request;
  * @version $Revision$, $Date$
  */
 public class FlatFileAuth
-        implements ProfileAuthenticator, IExtendedPluginInfo {
+        implements AuthManager, IExtendedPluginInfo {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(FlatFileAuth.class);
 

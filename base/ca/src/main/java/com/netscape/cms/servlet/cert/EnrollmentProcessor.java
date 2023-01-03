@@ -27,6 +27,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthToken;
 
 import com.netscape.certsrv.authentication.AuthCredentials;
@@ -38,7 +39,6 @@ import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
-import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -160,7 +160,7 @@ public class EnrollmentProcessor extends CertProcessor {
             logger.debug("EnrollmentProcessor: set Inputs into profile Context");
             setInputsIntoContext(data, profile, ctx);
 
-            ProfileAuthenticator authenticator = ps.getProfileAuthenticator(profile);
+            AuthManager authenticator = ps.getProfileAuthenticator(profile);
             if (authenticator != null) {
                 logger.debug("EnrollmentProcessor: authenticator " + authenticator.getName() + " found");
                 setCredentialsIntoContext(request, credentials, authenticator, ctx);

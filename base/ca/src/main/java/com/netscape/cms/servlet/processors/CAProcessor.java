@@ -34,6 +34,7 @@ import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
@@ -56,7 +57,6 @@ import com.netscape.certsrv.logging.event.RoleAssumeEvent;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.usrgrp.CertUserLocator;
 import com.netscape.certsrv.util.IStatsSubsystem;
-import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.common.CMSGateway;
 import com.netscape.cms.servlet.common.ServletUtils;
@@ -349,7 +349,7 @@ public class CAProcessor extends Processor {
      *   to the session context
      */
     public AuthToken authenticate(
-            ProfileAuthenticator authenticator,
+            AuthManager authenticator,
             HttpServletRequest request,
             Request origReq,
             SessionContext context,
@@ -412,7 +412,7 @@ public class CAProcessor extends Processor {
     }
 
     public AuthToken authenticate(
-            ProfileAuthenticator authenticator,
+            AuthManager authenticator,
             HttpServletRequest request,
             AuthCredentials credentials) throws EBaseException {
 
@@ -451,7 +451,7 @@ public class CAProcessor extends Processor {
     public AuthToken authenticate(
             HttpServletRequest request,
             Request origReq,
-            ProfileAuthenticator authenticator,
+            AuthManager authenticator,
             SessionContext context,
             boolean isRenewal,
             AuthCredentials credentials) throws EBaseException {

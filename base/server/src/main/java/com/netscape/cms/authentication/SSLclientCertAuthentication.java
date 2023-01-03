@@ -39,7 +39,6 @@ import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.usrgrp.Certificates;
-import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
@@ -52,7 +51,7 @@ import com.netscape.cmscore.request.Request;
  *         <P>
  *
  */
-public class SSLclientCertAuthentication implements ProfileAuthenticator {
+public class SSLclientCertAuthentication implements AuthManager {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SSLclientCertAuthentication.class);
 

@@ -23,13 +23,13 @@ import java.util.Hashtable;
 import java.util.LinkedHashMap;
 
 import org.apache.commons.lang3.StringUtils;
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.profile.common.ProfileConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
@@ -172,7 +172,7 @@ public abstract class AbstractProfileSubsystem implements ISubsystem {
         return mProfileClassIds.get(id);
     }
 
-    public ProfileAuthenticator getProfileAuthenticator(Profile profile) throws EBaseException {
+    public AuthManager getProfileAuthenticator(Profile profile) throws EBaseException {
 
         String authenticatorID = profile.getAuthenticatorId();
         if (StringUtils.isEmpty(authenticatorID)) return null;
@@ -180,7 +180,7 @@ public abstract class AbstractProfileSubsystem implements ISubsystem {
         CAEngine engine = CAEngine.getInstance();
 
         AuthSubsystem authSub = engine.getAuthSubsystem();
-        ProfileAuthenticator auth = (ProfileAuthenticator) authSub.get(authenticatorID);
+        AuthManager auth = authSub.get(authenticatorID);
 
         if (auth == null) {
             throw new EProfileException("Unable to load authenticator: " + authenticatorID);

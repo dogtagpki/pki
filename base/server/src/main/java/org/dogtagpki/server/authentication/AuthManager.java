@@ -31,9 +31,11 @@ import com.netscape.cmscore.request.Request;
 
 /**
  * Authentication Manager interface.
- * <P>
  *
- * @version $Revision$, $Date$
+ * This interface can also be used for profile authentication.
+ * If authentication is successful, request will be processed
+ * immediately. Otherwise, the request will be deferred and
+ * manual approval is then required.
  */
 public interface AuthManager {
 

@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Locale;
 
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
 
@@ -30,7 +31,6 @@ import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
@@ -42,8 +42,7 @@ import com.netscape.cmscore.request.Request;
  * session it will unconditionally approve the request
  * (subject to constraints, etc).
  */
-public class SessionAuthentication
-        implements ProfileAuthenticator {
+public class SessionAuthentication implements AuthManager {
 
     private String instName = null;
     private String implName = null;

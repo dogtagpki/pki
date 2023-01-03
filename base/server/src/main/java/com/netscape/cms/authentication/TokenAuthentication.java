@@ -37,7 +37,6 @@ import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -53,7 +52,7 @@ import com.netscape.cmsutil.xml.XMLObject;
  *
  * @version $Revision$, $Date$
  */
-public class TokenAuthentication implements ProfileAuthenticator {
+public class TokenAuthentication implements AuthManager {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TokenAuthentication.class);
 

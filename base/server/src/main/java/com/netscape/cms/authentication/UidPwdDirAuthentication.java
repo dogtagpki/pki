@@ -36,7 +36,6 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
-import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
@@ -56,7 +55,7 @@ import netscape.ldap.LDAPv3;
  * @version $Revision$, $Date$
  */
 public class UidPwdDirAuthentication extends DirBasedAuthentication
-        implements ProfileAuthenticator {
+        implements AuthManager {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UidPwdDirAuthentication.class);
 

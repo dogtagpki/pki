@@ -39,7 +39,6 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.cms.profile.ProfileAuthenticator;
 // cert server x509 imports
 // java sdk imports.
 import com.netscape.cmscore.apps.CMS;
@@ -63,7 +62,7 @@ import netscape.ldap.LDAPSearchResults;
  * @version $Revision$, $Date$
  */
 public class UserPwdDirAuthentication extends DirBasedAuthentication
-        implements ProfileAuthenticator {
+        implements AuthManager {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UserPwdDirAuthentication.class);
     /* required credentials to authenticate. uid and pwd are strings. */

@@ -45,7 +45,6 @@ import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cms.tomcat.ExternalPrincipal;
@@ -66,7 +65,7 @@ public class CertProcessor extends CAProcessor {
     protected void setCredentialsIntoContext(
             HttpServletRequest request,
             AuthCredentials creds,
-            ProfileAuthenticator authenticator,
+            AuthManager authenticator,
             Map<String, String> ctx) {
 
         Enumeration<String> names = authenticator.getValueNames();
@@ -334,7 +333,7 @@ public class CertProcessor extends CAProcessor {
 
     protected void populateRequests(CertEnrollmentRequest data, boolean isRenewal,
             Locale locale, Date origNotAfter, String origSubjectDN, Request origReq, String profileId,
-            Profile profile, Map<String, String> ctx, ProfileAuthenticator authenticator, AuthToken authToken,
+            Profile profile, Map<String, String> ctx, AuthManager authenticator, AuthToken authToken,
             Request[] reqs) throws Exception {
 
         for (Request req : reqs) {

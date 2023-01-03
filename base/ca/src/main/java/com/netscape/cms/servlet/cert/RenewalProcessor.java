@@ -31,6 +31,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
@@ -47,7 +48,6 @@ import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
-import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.profile.input.SerialNumRenewInput;
@@ -235,8 +235,8 @@ public class RenewalProcessor extends CertProcessor {
             if (aidString != null)
                 ctx.put(EnrollProfile.REQUEST_AUTHORITY_ID, aidString);
 
-            ProfileAuthenticator authenticator = ps.getProfileAuthenticator(renewProfile);
-            ProfileAuthenticator origAuthenticator = ps.getProfileAuthenticator(profile);
+            AuthManager authenticator = ps.getProfileAuthenticator(renewProfile);
+            AuthManager origAuthenticator = ps.getProfileAuthenticator(profile);
 
             if (authenticator != null) {
                 logger.debug("RenewalSubmitter: authenticator " + authenticator.getName() + " found");

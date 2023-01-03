@@ -71,7 +71,6 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
-import com.netscape.cms.profile.ProfileAuthenticator;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.profile.common.ProfileInput;
 import com.netscape.cms.servlet.common.CMCOutputTemplate;
@@ -142,7 +141,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
 
     }
 
-    private void setCredentialsIntoContext(HttpServletRequest request, ProfileAuthenticator authenticator,
+    private void setCredentialsIntoContext(HttpServletRequest request, AuthManager authenticator,
             Map<String, String> ctx) {
         Enumeration<String> authIds = authenticator.getValueNames();
 
@@ -157,7 +156,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         }
     }
 
-    public AuthToken authenticate(ProfileAuthenticator authenticator,
+    public AuthToken authenticate(AuthManager authenticator,
             HttpServletRequest request) throws EBaseException {
         String method = "ProfileSubmitCMCServlet: authenticate: ";
         AuthCredentials credentials = new AuthCredentials();
@@ -400,7 +399,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
             ctx.put("cert_request", Utils.normalizeString(requestB64));
         }
         // passing auths into context
-        ProfileAuthenticator authenticator = null;
+        AuthManager authenticator = null;
 
         try {
             authenticator = ps.getProfileAuthenticator(profile);
