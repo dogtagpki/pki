@@ -12,14 +12,12 @@ jobs:
     name: Waiting for build
     needs: init
     runs-on: ubuntu-latest
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Wait for build
         uses: lewagon/wait-on-check-action@v1.2.0
         with:
           ref: ${{ github.ref }}
-          check-name: 'Building PKI (${{ matrix.os }})'
+          check-name: 'Building PKI'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 30
         if: github.event_name == 'push'
@@ -28,7 +26,7 @@ jobs:
         uses: lewagon/wait-on-check-action@v1.2.0
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-          check-name: 'Building PKI (${{ matrix.os }})'
+          check-name: 'Building PKI'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 30
         if: github.event_name == 'pull_request'
@@ -36,89 +34,62 @@ jobs:
   ocsp-basic-test:
     name: Basic OCSP
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/ocsp-basic-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   ocsp-separate-test:
     name: OCSP on separate instance
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/ocsp-separate-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   ocsp-external-certs-test:
     name: OCSP with external certs
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/ocsp-external-certs-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   ocsp-cmc-test:
     name: OCSP with CMC
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/ocsp-cmc-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   ocsp-clone-test:
     name: OCSP clone
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/ocsp-clone-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   ocsp-standalone-test:
     name: Standalone OCSP
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/ocsp-standalone-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   ocsp-crl-direct-test:
     name: OCSP with direct CRL publishing
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/ocsp-crl-direct-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   ocsp-crl-ldap-test:
     name: OCSP with LDAP-based CRL publishing
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/ocsp-crl-ldap-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   ocsp-hsm-test:
     name: OCSP with HSM
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/ocsp-hsm-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}

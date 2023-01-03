@@ -3,9 +3,6 @@ name: TPS on separate instance
 on:
   workflow_call:
     inputs:
-      os:
-        required: true
-        type: string
       db-image:
         required: false
         type: string
@@ -23,7 +20,7 @@ jobs:
       - name: Retrieve pki-runner image
         uses: actions/cache@v3
         with:
-          key: pki-runner-${{ inputs.os }}-${{ github.sha }}
+          key: pki-runner-${{ github.sha }}
           path: pki-runner.tar
 
       - name: Load pki-runner image
@@ -247,7 +244,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: tps-separate-ca-${{ inputs.os }}
+          name: tps-separate-ca
           path: |
             /tmp/artifacts/ca
 
@@ -255,7 +252,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: tps-separate-kra-${{ inputs.os }}
+          name: tps-separate-kra
           path: |
             /tmp/artifacts/kra
 
@@ -263,7 +260,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: tps-separate-tks-${{ inputs.os }}
+          name: tps-separate-tks
           path: |
             /tmp/artifacts/tks
 
@@ -271,6 +268,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: tps-separate-tps-${{ inputs.os }}
+          name: tps-separate-tps
           path: |
             /tmp/artifacts/tps

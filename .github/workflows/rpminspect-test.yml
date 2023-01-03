@@ -3,9 +3,6 @@ name: rpminspect
 on:
   workflow_call:
     inputs:
-      os:
-        required: true
-        type: string
       db-image:
         required: false
         type: string
@@ -23,7 +20,7 @@ jobs:
       - name: Retrieve pki-builder image
         uses: actions/cache@v3
         with:
-          key: pki-builder-${{ inputs.os }}-${{ github.sha }}
+          key: pki-builder-${{ github.sha }}
           path: pki-builder.tar
 
       - name: Load pki-builder image

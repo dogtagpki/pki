@@ -2,15 +2,15 @@ name: Initialization
 on:
   workflow_call:
     secrets:
-      BASE64_MATRIX:
+      BASE64_OS:
         required: false
       BASE64_REPO:
         required: false
       BASE64_DATABASE:
         required: false
     outputs:
-      matrix:
-        value: ${{ jobs.init.outputs.matrix }}
+      base-image:
+        value: ${{ jobs.init.outputs.base-image }}
       repo:
         value: ${{ jobs.init.outputs.repo }}
       db-image:
@@ -21,7 +21,7 @@ jobs:
     name: Initializing workflow
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.init.outputs.matrix }}
+      base-image: ${{ steps.init.outputs.base-image }}
       repo: ${{ steps.init.outputs.repo }}
       db-image: ${{ steps.init.outputs.db-image }}
     steps:
@@ -31,7 +31,7 @@ jobs:
       - name: Initialize workflow
         id: init
         env:
-          BASE64_MATRIX: ${{ secrets.BASE64_MATRIX }}
+          BASE64_OS: ${{ secrets.BASE64_OS }}
           BASE64_REPO: ${{ secrets.BASE64_REPO }}
           BASE64_DATABASE: ${{ secrets.BASE64_DATABASE }}
         run: |

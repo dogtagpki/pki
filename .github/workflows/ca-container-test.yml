@@ -3,9 +3,6 @@ name: CA container
 on:
   workflow_call:
     inputs:
-      os:
-        required: true
-        type: string
       db-image:
         required: false
         type: string
@@ -24,7 +21,7 @@ jobs:
       - name: Retrieve pki-runner image
         uses: actions/cache@v3
         with:
-          key: pki-runner-${{ inputs.os }}-${{ github.sha }}
+          key: pki-runner-${{ github.sha }}
           path: pki-runner.tar
 
       - name: Load pki-runner image
@@ -33,7 +30,7 @@ jobs:
       - name: Retrieve pki-ca image
         uses: actions/cache@v3
         with:
-          key: pki-ca-${{ inputs.os }}-${{ github.sha }}
+          key: pki-ca-${{ github.sha }}
           path: pki-ca.tar
 
       - name: Load pki-ca image
@@ -690,12 +687,12 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: ca-container-ca-${{ inputs.os }}
+          name: ca-container-ca
           path: /tmp/artifacts/ca
 
       - name: Upload artifacts from client container
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: ca-container-client-${{ inputs.os }}
+          name: ca-container-client
           path: /tmp/artifacts/client

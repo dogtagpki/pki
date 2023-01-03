@@ -3,9 +3,6 @@ name: "HTTPS connector with PKCS #12 file"
 on:
   workflow_call:
     inputs:
-      os:
-        required: true
-        type: string
       db-image:
         required: false
         type: string
@@ -24,7 +21,7 @@ jobs:
       - name: Retrieve pki-runner image
         uses: actions/cache@v3
         with:
-          key: pki-runner-${{ inputs.os }}-${{ github.sha }}
+          key: pki-runner-${{ github.sha }}
           path: pki-runner.tar
 
       - name: Load pki-runner image
@@ -116,6 +113,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: server-https-pkcs12-test-${{ inputs.os }}
+          name: server-https-pkcs12-test
           path: |
             /tmp/artifacts/pki

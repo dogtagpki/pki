@@ -3,9 +3,6 @@ name: ACME container
 on:
   workflow_call:
     inputs:
-      os:
-        required: true
-        type: string
       db-image:
         required: false
         type: string
@@ -24,7 +21,7 @@ jobs:
       - name: Retrieve pki-runner image
         uses: actions/cache@v3
         with:
-          key: pki-runner-${{ inputs.os }}-${{ github.sha }}
+          key: pki-runner-${{ github.sha }}
           path: pki-runner.tar
 
       - name: Load pki-runner image
@@ -33,7 +30,7 @@ jobs:
       - name: Retrieve pki-acme image
         uses: actions/cache@v3
         with:
-          key: pki-acme-${{ inputs.os }}-${{ github.sha }}
+          key: pki-acme-${{ github.sha }}
           path: pki-acme.tar
 
       - name: Load pki-acme image
@@ -137,12 +134,12 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: acme-container-server-${{ inputs.os }}
+          name: acme-container-server
           path: /tmp/artifacts/server
 
       - name: Upload artifacts from client container
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: acme-container-client-${{ inputs.os }}
+          name: acme-container-client
           path: /tmp/artifacts/client

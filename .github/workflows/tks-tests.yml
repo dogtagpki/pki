@@ -12,14 +12,12 @@ jobs:
     name: Waiting for build
     needs: init
     runs-on: ubuntu-latest
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Wait for build
         uses: lewagon/wait-on-check-action@v1.2.0
         with:
           ref: ${{ github.ref }}
-          check-name: 'Building PKI (${{ matrix.os }})'
+          check-name: 'Building PKI'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 30
         if: github.event_name == 'push'
@@ -28,7 +26,7 @@ jobs:
         uses: lewagon/wait-on-check-action@v1.2.0
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-          check-name: 'Building PKI (${{ matrix.os }})'
+          check-name: 'Building PKI'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 30
         if: github.event_name == 'pull_request'
@@ -36,49 +34,34 @@ jobs:
   tks-basic-test:
     name: Basic TKS
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/tks-basic-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   tks-separate-test:
     name: TKS on separate instance
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/tks-separate-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   tks-external-certs-test:
     name: TKS with external certs
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/tks-external-certs-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   tks-clone-test:
     name: TKS clone
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/tks-clone-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   tks-hsm-test:
     name: TKS with HSM
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/tks-hsm-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}

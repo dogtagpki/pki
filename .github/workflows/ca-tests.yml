@@ -12,14 +12,12 @@ jobs:
     name: Waiting for build
     needs: init
     runs-on: ubuntu-latest
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Wait for build
         uses: lewagon/wait-on-check-action@v1.2.0
         with:
           ref: ${{ github.ref }}
-          check-name: 'Building PKI (${{ matrix.os }})'
+          check-name: 'Building PKI'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 30
         if: github.event_name == 'push'
@@ -28,7 +26,7 @@ jobs:
         uses: lewagon/wait-on-check-action@v1.2.0
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-          check-name: 'Building PKI (${{ matrix.os }})'
+          check-name: 'Building PKI'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 30
         if: github.event_name == 'pull_request'
@@ -36,169 +34,118 @@ jobs:
   ca-basic-test:
     name: Basic CA
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/ca-basic-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   ca-ecc-test:
     name: CA with ECC
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/ca-ecc-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   ca-rsa-pss-test:
     name: CA with RSA/PSS
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/ca-rsa-pss-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   ca-existing-certs-test:
     name: CA with existing certs
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/ca-existing-certs-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   ca-existing-nssdb-test:
     name: CA with existing NSS database
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/ca-existing-nssdb-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   ca-existing-hsm-test:
     name: CA with existing HSM
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/ca-existing-hsm-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   ca-existing-ds-test:
     name: CA with existing DS
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/ca-existing-ds-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   ca-shared-token-test:
     name: CA with shared token
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/ca-shared-token-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   ca-hsm-test:
     name: CA with HSM
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/ca-hsm-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   ca-container-test:
     name: CA container
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/ca-container-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   ca-ds-connection-test:
     name: CA connection with DS
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/ca-ds-connection-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   ca-lightweight-test:
     name: Lightweight CA
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/ca-lightweight-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   ca-lightweight-hsm-test:
     name: Lightweight CA with HSM
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/ca-lightweight-hsm-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   subca-basic-test:
     name: Basic Sub-CA
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/subca-basic-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   subca-cmc-test:
     name: Sub-CA with CMC
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/subca-cmc-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   subca-external-test:
     name: Sub-CA with external cert
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/subca-external-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   subca-hsm-test:
     name: Sub-CA with HSM
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/subca-hsm-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}

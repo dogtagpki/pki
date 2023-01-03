@@ -3,9 +3,6 @@ name: CA clone with secure DS
 on:
   workflow_call:
     inputs:
-      os:
-        required: true
-        type: string
       db-image:
         required: false
         type: string
@@ -25,7 +22,7 @@ jobs:
       - name: Retrieve pki-runner image
         uses: actions/cache@v3
         with:
-          key: pki-runner-${{ inputs.os }}-${{ github.sha }}
+          key: pki-runner-${{ github.sha }}
           path: pki-runner.tar
 
       - name: Load pki-runner image
@@ -312,7 +309,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: ca-clone-secure-ds-primary-${{ inputs.os }}
+          name: ca-clone-secure-ds-primary
           path: |
             /tmp/artifacts/primary
 
@@ -320,6 +317,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: ca-clone-secure-ds-secondary-${{ inputs.os }}
+          name: ca-clone-secure-ds-secondary
           path: |
             /tmp/artifacts/secondary

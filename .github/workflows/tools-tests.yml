@@ -12,14 +12,12 @@ jobs:
     name: Waiting for build
     needs: init
     runs-on: ubuntu-latest
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Wait for build
         uses: lewagon/wait-on-check-action@v1.2.0
         with:
           ref: ${{ github.ref }}
-          check-name: 'Building PKI (${{ matrix.os }})'
+          check-name: 'Building PKI'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 30
         if: github.event_name == 'push'
@@ -28,7 +26,7 @@ jobs:
         uses: lewagon/wait-on-check-action@v1.2.0
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-          check-name: 'Building PKI (${{ matrix.os }})'
+          check-name: 'Building PKI'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 30
         if: github.event_name == 'pull_request'
@@ -36,101 +34,71 @@ jobs:
   PKICertImport-test:
     name: PKICertImport
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/PKICertImport-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   pki-nss-rsa-test:
     name: PKI NSS CLI with RSA
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/pki-nss-rsa-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   pki-nss-ecc-test:
     name: PKI NSS CLI with ECC
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/pki-nss-ecc-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   pki-nss-aes-test:
     name: PKI NSS CLI with AES
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/pki-nss-aes-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   pki-nss-hsm-test:
     name: PKI NSS CLI with HSM
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/pki-nss-hsm-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   pki-nss-exts-test:
     name: PKI NSS CLI with Extensions
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/pki-nss-exts-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   pki-pkcs7-test:
     name: PKI PKCS7 CLI
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/pki-pkcs7-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   pki-pkcs11-test:
     name: PKI PKCS11 CLI
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/pki-pkcs11-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   pki-pkcs12-test:
     name: PKI PKCS12 CLI
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/pki-pkcs12-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   rpminspect-test:
     name: rpminspect
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/rpminspect-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   update-version-test:

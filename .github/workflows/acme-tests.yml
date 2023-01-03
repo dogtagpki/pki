@@ -12,14 +12,12 @@ jobs:
     name: Waiting for build
     needs: init
     runs-on: ubuntu-latest
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Wait for build
         uses: lewagon/wait-on-check-action@v1.2.0
         with:
           ref: ${{ github.ref }}
-          check-name: 'Building PKI (${{ matrix.os }})'
+          check-name: 'Building PKI'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 30
         if: github.event_name == 'push'
@@ -28,7 +26,7 @@ jobs:
         uses: lewagon/wait-on-check-action@v1.2.0
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-          check-name: 'Building PKI (${{ matrix.os }})'
+          check-name: 'Building PKI'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 30
         if: github.event_name == 'pull_request'
@@ -36,29 +34,20 @@ jobs:
   acme-certbot-test:
     name: ACME with certbot
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/acme-certbot-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   acme-switchover-test:
     name: ACME server switchover
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/acme-switchover-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
 
   acme-container-test:
     name: ACME container
     needs: [init, build]
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     uses: ./.github/workflows/acme-container-test.yml
     with:
-      os: ${{ matrix.os }}
       db-image: ${{ needs.init.outputs.db-image }}
