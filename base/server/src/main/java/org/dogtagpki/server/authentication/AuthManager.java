@@ -37,7 +37,7 @@ import com.netscape.cmscore.request.Request;
  * immediately. Otherwise, the request will be deferred and
  * manual approval is then required.
  */
-public interface AuthManager {
+public abstract class AuthManager {
 
     public static final String AUTHENTICATED_NAME = "authenticatedName";
 
@@ -61,7 +61,7 @@ public interface AuthManager {
      *
      * @return the name of this authentication manager.
      */
-    public String getName();
+    public abstract String getName();
 
     /**
      * Retrieves the localizable name of this policy.
@@ -69,7 +69,7 @@ public interface AuthManager {
      * @param locale end user locale
      * @return localized authenticator name
      */
-    public String getName(Locale locale);
+    public abstract String getName(Locale locale);
 
     /**
      * Get name of authentication manager plugin.
@@ -77,7 +77,7 @@ public interface AuthManager {
      *
      * @return the name of the authentication manager plugin.
      */
-    public String getImplName();
+    public abstract String getImplName();
 
     /**
      * Retrieves the localizable description of this policy.
@@ -85,21 +85,21 @@ public interface AuthManager {
      * @param locale end user locale
      * @return localized authenticator description
      */
-    public String getText(Locale locale);
+    public abstract String getText(Locale locale);
 
     /**
      * Get the configuration store for this authentication manager.
      *
      * @return The configuration store of this authentication manager.
      */
-    public AuthManagerConfig getConfigStore();
+    public abstract AuthManagerConfig getConfigStore();
 
     /**
      * Retrieves a list of names of the property.
      *
      * @return a list of property names
      */
-    public Enumeration<String> getValueNames();
+    public abstract Enumeration<String> getValueNames();
 
     /**
      * Retrieves the descriptor of the given value
@@ -109,7 +109,7 @@ public interface AuthManager {
      * @param name property name
      * @return descriptor of the requested property
      */
-    public IDescriptor getValueDescriptor(Locale locale, String name);
+    public abstract IDescriptor getValueDescriptor(Locale locale, String name);
 
     /**
      * Checks if the value of the given property should be
@@ -120,14 +120,14 @@ public interface AuthManager {
      * @param name property name
      * @return true if the property is not security related
      */
-    public boolean isValueWriteable(String name);
+    public abstract boolean isValueWriteable(String name);
 
     /**
      * Checks if this authenticator requires SSL client authentication.
      *
      * @return client authentication required or not
      */
-    public boolean isSSLClientRequired();
+    public abstract boolean isSSLClientRequired();
 
     /**
      * Initialize this authentication manager.
@@ -137,7 +137,7 @@ public interface AuthManager {
      * @param config The configuration store for this authentication manager.
      * @exception EBaseException If an initialization error occurred.
      */
-    public void init(String name, String implName, AuthManagerConfig config)
+    public abstract void init(String name, String implName, AuthManagerConfig config)
             throws EBaseException;
 
     /**
@@ -146,7 +146,7 @@ public interface AuthManager {
      * @param config configuration store
      * @exception EProfileException failed to initialize
      */
-    public void init(ConfigStore config) throws EProfileException;
+    public abstract void init(ConfigStore config) throws EProfileException;
 
     /**
      * Authenticate the given credentials.
@@ -158,7 +158,7 @@ public interface AuthManager {
      * @exception EInvalidCredentials If credentials cannot be authenticated.
      * @exception EBaseException If an internal error occurred.
      */
-    public AuthToken authenticate(AuthCredentials authCred)
+    public abstract AuthToken authenticate(AuthCredentials authCred)
             throws EMissingCredential, EInvalidCredentials, EBaseException;
 
     /**
@@ -169,21 +169,21 @@ public interface AuthManager {
      * @param request request
      * @exception EProfileException failed to populate
      */
-    public void populate(AuthToken token, Request request)
+    public abstract void populate(AuthToken token, Request request)
             throws EProfileException;
 
     /**
      * Prepare this authentication manager for a shutdown.
      * Called when the server is exiting for any cleanup needed.
      */
-    public void shutdown();
+    public abstract void shutdown();
 
     /**
      * Gets a list of the required credentials for this authentication manager.
      *
      * @return The required credential attributes.
      */
-    public String[] getRequiredCreds();
+    public abstract String[] getRequiredCreds();
 
     /**
      * Get configuration parameters for this implementation.
@@ -194,6 +194,5 @@ public interface AuthManager {
      * @return a list of configuration parameters.
      * @exception EBaseException If an internal error occurred
      */
-    public String[] getConfigParams()
-            throws EBaseException;
+    public abstract String[] getConfigParams() throws EBaseException;
 }

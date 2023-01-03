@@ -54,8 +54,7 @@ import netscape.ldap.LDAPv3;
  *
  * @version $Revision$, $Date$
  */
-public class UidPwdDirAuthentication extends DirBasedAuthentication
-        implements AuthManager {
+public class UidPwdDirAuthentication extends DirBasedAuthentication {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UidPwdDirAuthentication.class);
 

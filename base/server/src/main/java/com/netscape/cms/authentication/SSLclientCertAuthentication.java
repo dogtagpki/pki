@@ -51,7 +51,7 @@ import com.netscape.cmscore.request.Request;
  *         <P>
  *
  */
-public class SSLclientCertAuthentication implements AuthManager {
+public class SSLclientCertAuthentication extends AuthManager {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SSLclientCertAuthentication.class);
 

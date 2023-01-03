@@ -59,7 +59,7 @@ import com.netscape.cmscore.request.RequestRepository;
  * @author cfu chrisho
  * @version $Revision$, $Date$
  */
-public class ChallengePhraseAuthentication implements AuthManager {
+public class ChallengePhraseAuthentication extends AuthManager {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ChallengePhraseAuthentication.class);
 

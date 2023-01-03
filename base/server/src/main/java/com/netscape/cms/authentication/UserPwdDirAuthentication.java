@@ -61,8 +61,7 @@ import netscape.ldap.LDAPSearchResults;
  *
  * @version $Revision$, $Date$
  */
-public class UserPwdDirAuthentication extends DirBasedAuthentication
-        implements AuthManager {
+public class UserPwdDirAuthentication extends DirBasedAuthentication {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UserPwdDirAuthentication.class);
     /* required credentials to authenticate. uid and pwd are strings. */

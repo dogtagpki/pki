@@ -53,7 +53,7 @@ import com.netscape.cmscore.usrgrp.User;
  * @author cfu
  * @version $Revision$, $Date$
  */
-public class CertUserDBAuthentication implements AuthManager {
+public class CertUserDBAuthentication extends AuthManager {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertUserDBAuthentication.class);
 

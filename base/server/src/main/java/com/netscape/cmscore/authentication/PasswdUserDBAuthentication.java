@@ -58,7 +58,7 @@ import netscape.ldap.LDAPException;
  * @author lhsiao, cfu
  * @version $Revision$, $Date$
  */
-public class PasswdUserDBAuthentication implements AuthManager, IPasswdUserDBAuthentication {
+public class PasswdUserDBAuthentication extends AuthManager implements IPasswdUserDBAuthentication {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PasswdUserDBAuthentication.class);
 

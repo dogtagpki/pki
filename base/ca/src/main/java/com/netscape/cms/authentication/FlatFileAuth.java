@@ -53,8 +53,7 @@ import com.netscape.cmscore.request.Request;
  *
  * @version $Revision$, $Date$
  */
-public class FlatFileAuth
-        implements AuthManager, IExtendedPluginInfo {
+public class FlatFileAuth extends AuthManager implements IExtendedPluginInfo {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(FlatFileAuth.class);
 

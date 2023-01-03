@@ -41,7 +41,7 @@ import com.netscape.cmscore.request.Request;
  * @author chrisho
  * @version $Revision$, $Date$
  */
-public class NullAuthentication implements AuthManager {
+public class NullAuthentication extends AuthManager {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NullAuthentication.class);
 

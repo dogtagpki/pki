@@ -57,7 +57,7 @@ import com.netscape.cmscore.usrgrp.User;
  *
  * @version $Revision$, $Date$
  */
-public class AgentCertAuthentication implements AuthManager {
+public class AgentCertAuthentication extends AuthManager {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AgentCertAuthentication.class);
 

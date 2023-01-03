@@ -42,7 +42,7 @@ import com.netscape.cmscore.request.Request;
  * session it will unconditionally approve the request
  * (subject to constraints, etc).
  */
-public class SessionAuthentication implements AuthManager {
+public class SessionAuthentication extends AuthManager {
 
     private String instName = null;
     private String implName = null;

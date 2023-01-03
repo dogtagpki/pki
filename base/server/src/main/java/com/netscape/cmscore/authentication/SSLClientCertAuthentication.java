@@ -57,7 +57,7 @@ import com.netscape.cmscore.request.RequestRepository;
  * @author chrisho
  * @version $Revision$, $Date$
  */
-public class SSLClientCertAuthentication implements AuthManager {
+public class SSLClientCertAuthentication extends AuthManager {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SSLClientCertAuthentication.class);
 

@@ -111,7 +111,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  *
  * @version $Revision$, $Date$
  */
-public class CMCAuth implements IExtendedPluginInfo, AuthManager {
+public class CMCAuth extends AuthManager implements IExtendedPluginInfo {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMCAuth.class);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();

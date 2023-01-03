@@ -75,8 +75,7 @@ import netscape.ldap.LDAPv3;
  *
  * @version $Revision$, $Date$
  */
-public abstract class DirBasedAuthentication
-        implements AuthManager, IExtendedPluginInfo {
+public abstract class DirBasedAuthentication extends AuthManager implements IExtendedPluginInfo {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DirBasedAuthentication.class);
 
