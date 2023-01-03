@@ -158,6 +158,11 @@ public class ChallengePhraseAuthentication implements AuthManager {
         return null;
     }
 
+    @Override
+    public boolean isValueWriteable(String name) {
+        return false;
+    }
+
     /**
      * authenticates revocation of a certification by a challenge phrase
      * <p>

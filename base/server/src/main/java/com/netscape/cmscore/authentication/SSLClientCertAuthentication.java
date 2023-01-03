@@ -299,4 +299,9 @@ public class SSLClientCertAuthentication implements AuthManager {
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         return null;
     }
+
+    @Override
+    public boolean isValueWriteable(String name) {
+        return false;
+    }
 }

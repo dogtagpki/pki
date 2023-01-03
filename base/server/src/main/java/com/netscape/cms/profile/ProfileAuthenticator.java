@@ -46,17 +46,6 @@ public interface ProfileAuthenticator extends AuthManager {
             throws EProfileException;
 
     /**
-     * Checks if the value of the given property should be
-     * serializable into the request. Passsword or other
-     * security-related value may not be desirable for
-     * storage.
-     *
-     * @param name property name
-     * @return true if the property is not security related
-     */
-    public boolean isValueWriteable(String name);
-
-    /**
      * Checks if this authenticator requires SSL client authentication.
      *
      * @return client authentication required or not

@@ -168,6 +168,11 @@ public class CertUserDBAuthentication implements AuthManager {
         return null;
     }
 
+    @Override
+    public boolean isValueWriteable(String name) {
+        return false;
+    }
+
     /**
      * authenticates user(agent) by certificate
      * <p>

@@ -425,6 +425,11 @@ public abstract class DirBasedAuthentication
         return null;
     }
 
+    @Override
+    public boolean isValueWriteable(String name) {
+        return false;
+    }
+
     /**
      * Authenticates user through LDAP by a set of credentials.
      * Resulting AuthToken a TOKEN_CERTINFO field of a X509CertInfo

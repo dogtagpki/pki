@@ -109,6 +109,17 @@ public interface AuthManager {
     public IDescriptor getValueDescriptor(Locale locale, String name);
 
     /**
+     * Checks if the value of the given property should be
+     * serializable into the request. Passsword or other
+     * security-related value may not be desirable for
+     * storage.
+     *
+     * @param name property name
+     * @return true if the property is not security related
+     */
+    public boolean isValueWriteable(String name);
+
+    /**
      * Initialize this authentication manager.
      *
      * @param name The name of this authentication manager instance.

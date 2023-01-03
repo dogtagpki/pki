@@ -291,6 +291,11 @@ public class HashAuthentication implements AuthManager, IExtendedPluginInfo {
     }
 
     @Override
+    public boolean isValueWriteable(String name) {
+        return false;
+    }
+
+    @Override
     public String[] getExtendedPluginInfo() {
         return Utils.getStringArrayFromVector(mExtendedPluginInfo);
     }
