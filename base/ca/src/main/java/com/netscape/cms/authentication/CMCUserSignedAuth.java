@@ -153,9 +153,6 @@ public class CMCUserSignedAuth extends AuthManager implements IExtendedPluginInf
     /* authentication plug-in name */
     private String mImplName = null;
 
-    /* authentication plug-in instance name */
-    private String mName = null;
-
     /* authentication plug-in fields */
 
     /* Holds authentication plug-in fields accepted by this implementation.
@@ -890,14 +887,6 @@ public class CMCUserSignedAuth extends AuthManager implements IExtendedPluginInf
     @Override
     public String getImplName() {
         return mImplName;
-    }
-
-    /**
-     * gets the name of this authentication plug-in instance
-     */
-    @Override
-    public String getName() {
-        return mName;
     }
 
     /**

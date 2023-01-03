@@ -49,7 +49,6 @@ public class NullAuthentication extends AuthManager {
     protected static String[] mConfigParams = null;
 
     protected static String[] mRequiredCred = {};
-    private String mName = null;
     private String mImplName = null;
     private AuthenticationConfig authenticationConfig;
     private AuthManagerConfig mConfig;
@@ -116,19 +115,6 @@ public class NullAuthentication extends AuthManager {
 
     @Override
     public void populate(AuthToken token, Request request) throws EProfileException {
-    }
-
-    /**
-     * gets the name of this authentication manager instance
-     */
-    @Override
-    public String getName() {
-        return mName;
-    }
-
-    @Override
-    public String getName(Locale locale) {
-        return mName;
     }
 
     /**

@@ -64,7 +64,6 @@ public class HashAuthentication extends AuthManager implements IExtendedPluginIn
     private MessageDigest mSHADigest = null;
     private Hashtable<String, AuthToken> mData = null;
     private AuthManagerConfig mConfig;
-    private String mName = null;
     private String mImplName = null;
     private static Vector<String> mExtendedPluginInfo = null;
     private HashAuthData mHosts = null;
@@ -257,19 +256,6 @@ public class HashAuthentication extends AuthManager implements IExtendedPluginIn
     @Override
     public AuthManagerConfig getConfigStore() {
         return mConfig;
-    }
-
-    /**
-     * gets the name of this authentication manager instance
-     */
-    @Override
-    public String getName() {
-        return mName;
-    }
-
-    @Override
-    public String getName(Locale locale) {
-        return mName;
     }
 
     /**

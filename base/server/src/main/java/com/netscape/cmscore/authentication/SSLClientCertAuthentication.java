@@ -69,7 +69,6 @@ public class SSLClientCertAuthentication extends AuthManager {
 
     private ICertificateAuthority mCA = null;
     private CertificateRepository mCertDB;
-    private String mName = null;
     private String mImplName = null;
     private AuthenticationConfig authenticationConfig;
     private AuthManagerConfig mConfig;
@@ -266,19 +265,6 @@ public class SSLClientCertAuthentication extends AuthManager {
     @Override
     public AuthManagerConfig getConfigStore() {
         return mConfig;
-    }
-
-    /**
-     * gets the name of this authentication manager instance
-     */
-    @Override
-    public String getName() {
-        return mName;
-    }
-
-    @Override
-    public String getName(Locale locale) {
-        return mName;
     }
 
     /**

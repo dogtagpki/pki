@@ -68,7 +68,6 @@ public class AgentCertAuthentication extends AuthManager {
     /* config parameters to pass to console (none) */
     protected static String[] mConfigParams = null;
 
-    private String mName = null;
     private String mImplName = null;
     private AuthManagerConfig mConfig;
 
@@ -94,14 +93,6 @@ public class AgentCertAuthentication extends AuthManager {
         mConfig = config;
 
         mCULocator = new ExactMatchCertUserLocator();
-    }
-
-    /**
-     * Gets the name of this authentication manager.
-     */
-    @Override
-    public String getName() {
-        return mName;
     }
 
     /**

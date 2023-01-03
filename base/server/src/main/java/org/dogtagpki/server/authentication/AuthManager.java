@@ -55,13 +55,16 @@ public abstract class AuthManager {
     public static final String CRED_SESSION_ID = "sessionID";
     public static final String CRED_HOST_NAME = "hostname";
 
+    protected String mName;
+
     /**
      * Get the name of this authentication manager instance.
-     * <p>
      *
      * @return the name of this authentication manager.
      */
-    public abstract String getName();
+    public String getName() {
+        return mName;
+    }
 
     /**
      * Retrieves the localizable name of this policy.
@@ -69,7 +72,9 @@ public abstract class AuthManager {
      * @param locale end user locale
      * @return localized authenticator name
      */
-    public abstract String getName(Locale locale);
+    public String getName(Locale locale) {
+        return mName;
+    }
 
     /**
      * Get name of authentication manager plugin.

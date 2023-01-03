@@ -96,9 +96,6 @@ public abstract class DirBasedAuthentication extends AuthManager implements IExt
 
     // members
 
-    /* name of this authentication manager instance */
-    protected String mName = null;
-
     /* name of the authentication manager plugin */
     protected String mImplName = null;
 
@@ -388,19 +385,6 @@ public abstract class DirBasedAuthentication extends AuthManager implements IExt
         System.arraycopy(mLdapByteAttrs, 0, mLdapAttrs, mLdapStringAttrs.length, mLdapByteAttrs.length);
 
         logger.info("DirBasedAuthentication: Initialization complete");
-    }
-
-    /**
-     * gets the name of this authentication manager instance
-     */
-    @Override
-    public String getName() {
-        return mName;
-    }
-
-    @Override
-    public String getName(Locale locale) {
-        return mName;
     }
 
     /**

@@ -135,9 +135,6 @@ public class CMCAuth extends AuthManager implements IExtendedPluginInfo {
     /* authentication plug-in name */
     private String mImplName = null;
 
-    /* authentication plug-in instance name */
-    private String mName = null;
-
     /* authentication plug-in fields */
 
     /* Holds authentication plug-in fields accepted by this implementation.
@@ -724,14 +721,6 @@ public class CMCAuth extends AuthManager implements IExtendedPluginInfo {
     @Override
     public String getImplName() {
         return mImplName;
-    }
-
-    /**
-     * gets the name of this authentication plug-in instance
-     */
-    @Override
-    public String getName() {
-        return mName;
     }
 
     /**

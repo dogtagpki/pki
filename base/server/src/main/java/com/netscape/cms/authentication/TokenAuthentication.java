@@ -63,7 +63,6 @@ public class TokenAuthentication extends AuthManager {
     /* config parameters to pass to console (none) */
     protected static String[] mConfigParams = null;
 
-    private String mName = null;
     private String mImplName = null;
     private AuthManagerConfig mConfig;
 
@@ -85,14 +84,6 @@ public class TokenAuthentication extends AuthManager {
         mName = name;
         mImplName = implName;
         mConfig = config;
-    }
-
-    /**
-     * Gets the name of this authentication manager.
-     */
-    @Override
-    public String getName() {
-        return mName;
     }
 
     /**

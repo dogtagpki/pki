@@ -44,7 +44,6 @@ import com.netscape.cmscore.request.Request;
  */
 public class SessionAuthentication extends AuthManager {
 
-    private String instName = null;
     private String implName = null;
     private AuthManagerConfig config;
 
@@ -54,17 +53,9 @@ public class SessionAuthentication extends AuthManager {
     @Override
     public void init(String instName, String implName, AuthManagerConfig config)
             throws EBaseException {
-        this.instName = instName;
+        this.mName = instName;
         this.implName = implName;
         this.config = config;
-    }
-
-    /**
-     * Gets the name of this authentication manager.
-     */
-    @Override
-    public String getName() {
-        return instName;
     }
 
     /**
