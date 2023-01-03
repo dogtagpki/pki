@@ -50,7 +50,6 @@ public class NullAuthentication extends AuthManager {
 
     protected static String[] mRequiredCred = {};
     private AuthenticationConfig authenticationConfig;
-    private AuthManagerConfig mConfig;
 
     public NullAuthentication() {
     }
@@ -170,16 +169,5 @@ public class NullAuthentication extends AuthManager {
      */
     @Override
     public void shutdown() {
-    }
-
-    /**
-     * gets the configuration substore used by this authentication
-     * manager
-     *
-     * @return configuration store
-     */
-    @Override
-    public AuthManagerConfig getConfigStore() {
-        return mConfig;
     }
 }

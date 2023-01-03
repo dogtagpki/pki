@@ -144,8 +144,6 @@ public class CMCUserSignedAuth extends AuthManager implements IExtendedPluginInf
     // IAuthManager parameters //
     /////////////////////////////
 
-    /* authentication plug-in configuration store */
-    private AuthManagerConfig mConfig;
     private static final String HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----";
     private static final String TRAILER = "-----END NEW CERTIFICATE REQUEST-----";
     public static final String TOKEN_CERT_SERIAL = "certSerialToRevoke";
@@ -865,18 +863,6 @@ public class CMCUserSignedAuth extends AuthManager implements IExtendedPluginInf
     @Override
     public String[] getConfigParams() {
         return (mConfigParams);
-    }
-
-    /**
-     * gets the configuration substore used by this authentication
-     * plug-in
-     * <p>
-     *
-     * @return configuration store
-     */
-    @Override
-    public AuthManagerConfig getConfigStore() {
-        return mConfig;
     }
 
     /**

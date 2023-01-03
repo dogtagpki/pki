@@ -57,6 +57,7 @@ public abstract class AuthManager {
 
     protected String mName;
     protected String mImplName;
+    protected AuthManagerConfig mConfig;
 
     /**
      * Get the name of this authentication manager instance.
@@ -99,7 +100,9 @@ public abstract class AuthManager {
      *
      * @return The configuration store of this authentication manager.
      */
-    public abstract AuthManagerConfig getConfigStore();
+    public AuthManagerConfig getConfigStore() {
+        return mConfig;
+    }
 
     /**
      * Retrieves a list of names of the property.

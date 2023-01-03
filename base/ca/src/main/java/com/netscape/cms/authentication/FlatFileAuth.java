@@ -97,9 +97,6 @@ public class FlatFileAuth extends AuthManager implements IExtendedPluginInfo {
 
     protected String FFAUTH = "FlatFileAuth";
 
-    /** configuration store */
-    protected AuthManagerConfig mConfig;
-
     /**
      * This array is created as to include all the requested attributes
      *
@@ -598,14 +595,6 @@ public class FlatFileAuth extends AuthManager implements IExtendedPluginInfo {
     @Override
     public String[] getConfigParams() {
         return mConfigParams;
-    }
-
-    /**
-     * Returns the configuration store used by this authentication manager
-     */
-    @Override
-    public AuthManagerConfig getConfigStore() {
-        return mConfig;
     }
 
     @Override

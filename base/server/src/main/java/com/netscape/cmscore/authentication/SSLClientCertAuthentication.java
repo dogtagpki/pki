@@ -70,7 +70,6 @@ public class SSLClientCertAuthentication extends AuthManager {
     private ICertificateAuthority mCA = null;
     private CertificateRepository mCertDB;
     private AuthenticationConfig authenticationConfig;
-    private AuthManagerConfig mConfig;
 
     /* Holds configuration parameters accepted by this implementation.
      * This list is passed to the configuration console so configuration
@@ -254,16 +253,6 @@ public class SSLClientCertAuthentication extends AuthManager {
     @Override
     public String[] getRequiredCreds() {
         return mRequiredCreds;
-    }
-
-    /**
-     * Gets the configuration substore used by this authentication manager
-     *
-     * @return configuration store
-     */
-    @Override
-    public AuthManagerConfig getConfigStore() {
-        return mConfig;
     }
 
     @Override

@@ -69,7 +69,6 @@ public class PasswdUserDBAuthentication extends AuthManager implements IPasswdUs
     protected static String[] mConfigParams = null;
 
     private AuthenticationConfig authenticationConfig;
-    private AuthManagerConfig mConfig;
     private LdapAnonConnFactory mAnonConnFactory = null;
 
     public PasswdUserDBAuthentication() {
@@ -269,16 +268,5 @@ public class PasswdUserDBAuthentication extends AuthManager implements IPasswdUs
         } catch (ELdapException e) {
             logger.error("Unable to disconnect LDAP connections: " + e.getMessage(), e);
         }
-    }
-
-    /**
-     * gets the configuretion substore used by this authentication
-     * manager
-     *
-     * @return configuration store
-     */
-    @Override
-    public AuthManagerConfig getConfigStore() {
-        return mConfig;
     }
 }

@@ -126,7 +126,6 @@ public class CMCAuth extends AuthManager implements IExtendedPluginInfo {
 
     /* authentication plug-in configuration store */
     private AuthenticationConfig authenticationConfig;
-    private AuthManagerConfig mConfig;
     private boolean mBypassClientAuth = false;
     private static final String HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----";
     private static final String TRAILER = "-----END NEW CERTIFICATE REQUEST-----";
@@ -699,18 +698,6 @@ public class CMCAuth extends AuthManager implements IExtendedPluginInfo {
     @Override
     public String[] getConfigParams() {
         return (mConfigParams);
-    }
-
-    /**
-     * gets the configuration substore used by this authentication
-     * plug-in
-     * <p>
-     *
-     * @return configuration store
-     */
-    @Override
-    public AuthManagerConfig getConfigStore() {
-        return mConfig;
     }
 
     /**

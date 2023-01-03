@@ -68,8 +68,6 @@ public class AgentCertAuthentication extends AuthManager {
     /* config parameters to pass to console (none) */
     protected static String[] mConfigParams = null;
 
-    private AuthManagerConfig mConfig;
-
     private CertUserLocator mCULocator = null;
 
     public AgentCertAuthentication() {
@@ -258,17 +256,6 @@ public class AgentCertAuthentication extends AuthManager {
      */
     @Override
     public void shutdown() {
-    }
-
-    /**
-     * gets the configuration substore used by this authentication
-     * manager
-     *
-     * @return configuration store
-     */
-    @Override
-    public AuthManagerConfig getConfigStore() {
-        return mConfig;
     }
 
     // Profile-related methods

@@ -68,8 +68,6 @@ public class SSLclientCertAuthentication extends AuthManager {
     /* config parameters to pass to console (none) */
     protected static String[] mConfigParams = null;
 
-    private AuthManagerConfig mConfig;
-
     public SSLclientCertAuthentication() {
     }
 
@@ -281,17 +279,6 @@ public class SSLclientCertAuthentication extends AuthManager {
      */
     @Override
     public void shutdown() {
-    }
-
-    /**
-     * gets the configuretion substore used by this authentication
-     * manager
-     *
-     * @return configuration store
-     */
-    @Override
-    public AuthManagerConfig getConfigStore() {
-        return mConfig;
     }
 
     // Profile-related methods

@@ -73,7 +73,6 @@ public class CertUserDBAuthentication extends AuthManager {
     protected static String[] mConfigParams = null;
 
     private AuthenticationConfig authenticationConfig;
-    private AuthManagerConfig mConfig;
 
     private CertUserLocator mCULocator = null;
 
@@ -277,16 +276,5 @@ public class CertUserDBAuthentication extends AuthManager {
      */
     @Override
     public void shutdown() {
-    }
-
-    /**
-     * gets the configuretion substore used by this authentication
-     * manager
-     *
-     * @return configuration store
-     */
-    @Override
-    public AuthManagerConfig getConfigStore() {
-        return mConfig;
     }
 }

@@ -63,7 +63,6 @@ public class HashAuthentication extends AuthManager implements IExtendedPluginIn
 
     private MessageDigest mSHADigest = null;
     private Hashtable<String, AuthToken> mData = null;
-    private AuthManagerConfig mConfig;
     private static Vector<String> mExtendedPluginInfo = null;
     private HashAuthData mHosts = null;
 
@@ -245,16 +244,6 @@ public class HashAuthentication extends AuthManager implements IExtendedPluginIn
     @Override
     public String[] getRequiredCreds() {
         return mRequiredCreds;
-    }
-
-    /**
-     * Gets the configuration substore used by this authentication manager
-     *
-     * @return configuration store
-     */
-    @Override
-    public AuthManagerConfig getConfigStore() {
-        return mConfig;
     }
 
     @Override

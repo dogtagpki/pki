@@ -96,9 +96,6 @@ public abstract class DirBasedAuthentication extends AuthManager implements IExt
 
     // members
 
-    /* configuration store */
-    protected AuthManagerConfig mConfig;
-
     /* ldap configuration sub-store */
     protected LDAPConfig mLdapConfig;
 
@@ -568,16 +565,6 @@ public abstract class DirBasedAuthentication extends AuthManager implements IExt
             // ignore
             logger.warn("DirBasedAuthentication: " + CMS.getLogMessage("CMS_AUTH_SHUTDOWN_ERROR", e.toString()), e);
         }
-    }
-
-    /**
-     * Gets the configuration substore used by this authentication manager
-     *
-     * @return configuration store
-     */
-    @Override
-    public AuthManagerConfig getConfigStore() {
-        return mConfig;
     }
 
     /**

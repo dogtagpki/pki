@@ -44,8 +44,6 @@ import com.netscape.cmscore.request.Request;
  */
 public class SessionAuthentication extends AuthManager {
 
-    private AuthManagerConfig config;
-
     public SessionAuthentication() {
     }
 
@@ -54,7 +52,7 @@ public class SessionAuthentication extends AuthManager {
             throws EBaseException {
         this.mName = instName;
         this.mImplName = implName;
-        this.config = config;
+        this.mConfig = config;
     }
 
     @Override
@@ -100,17 +98,6 @@ public class SessionAuthentication extends AuthManager {
      */
     @Override
     public void shutdown() {
-    }
-
-    /**
-     * gets the configuretion substore used by this authentication
-     * manager
-     *
-     * @return configuration store
-     */
-    @Override
-    public AuthManagerConfig getConfigStore() {
-        return config;
     }
 
     // Profile-related methods

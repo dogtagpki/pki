@@ -77,7 +77,6 @@ public class ChallengePhraseAuthentication extends AuthManager {
     protected CertificateRepository mCertDB;
 
     private AuthenticationConfig authenticationConfig;
-    private AuthManagerConfig mConfig;
 
     private MessageDigest mSHADigest = null;
 
@@ -374,17 +373,6 @@ public class ChallengePhraseAuthentication extends AuthManager {
      */
     @Override
     public void shutdown() {
-    }
-
-    /**
-     * gets the configuretion substore used by this authentication
-     * manager
-     *
-     * @return configuration store
-     */
-    @Override
-    public AuthManagerConfig getConfigStore() {
-        return mConfig;
     }
 
     private String hashPassword(String pwd) {
