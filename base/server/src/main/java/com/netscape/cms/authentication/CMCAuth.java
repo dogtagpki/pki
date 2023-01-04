@@ -553,8 +553,7 @@ public class CMCAuth extends AuthManager implements IExtendedPluginInfo {
                                 //throw new ECMSGWException(
                                 //CMSGWResources.ERROR_PKCS101, e.toString());
 
-                                e.printStackTrace();
-                                throw new EBaseException(e.toString());
+                                throw new EBaseException(e);
                             } finally {
                                 if ((sigver == true) && (tokenSwitched == true)){
                                     cm.setThreadToken(savedToken);
@@ -604,8 +603,7 @@ public class CMCAuth extends AuthManager implements IExtendedPluginInfo {
                                 //throw new ECMSGWException(
                                 //CMSGWResources.ERROR_PKCS101, e.toString());
 
-                                e.printStackTrace();
-                                throw new EBaseException(e.toString());
+                                throw new EBaseException(e);
                             }
                         }
 
@@ -623,9 +621,8 @@ public class CMCAuth extends AuthManager implements IExtendedPluginInfo {
                         auditCertSubject,
                         auditSignerInfo));
 
-                //Debug.printStackTrace(e);
                 throw new EInvalidCredentials(CMS.getUserMessage(
-                        "CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+                        "CMS_AUTHENTICATION_INVALID_CREDENTIAL"), e);
             }
 
             signedAuditLogger.log(new CMCSignedRequestSigVerifyEvent(
@@ -933,7 +930,7 @@ public class CMCAuth extends AuthManager implements IExtendedPluginInfo {
             logger.warn("CMCAuth: " + e.getMessage(), e);
         } catch (Exception e) {
             logger.warn("CMCAuth: " + e.getMessage(), e);
-            throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+            throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"), e);
         } finally {
             if ((tokenSwitched == true) && (savedToken != null)){
                 cm.setThreadToken(savedToken);
