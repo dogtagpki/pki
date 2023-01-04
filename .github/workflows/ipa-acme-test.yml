@@ -117,6 +117,7 @@ jobs:
           docker exec client certbot certonly \
               --server https://ipa-ca.example.com/acme/directory \
               -d client.example.com \
+              --key-type rsa \
                --standalone \
               --non-interactive
           docker exec client certbot renew \

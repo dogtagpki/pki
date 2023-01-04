@@ -85,6 +85,7 @@ jobs:
           docker exec client certbot certonly \
               --server http://pki.example.com:8080/acme/directory \
               -d client.example.com \
+              --key-type rsa \
               --standalone \
               --non-interactive
           docker exec client openssl x509 -text -noout -in /etc/letsencrypt/live/client.example.com/fullchain.pem

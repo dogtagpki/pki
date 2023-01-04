@@ -124,12 +124,14 @@ jobs:
           docker exec client certbot certonly \
               --server http://pki.example.com:8080/acme/directory \
               -d client1.example.com \
+              --key-type rsa \
               --standalone \
               --non-interactive
           docker exec client openssl x509 -text -noout -in /etc/letsencrypt/live/client1.example.com/fullchain.pem
           docker exec client certbot certonly \
               --server http://pki.example.com:8080/acme/directory \
               -d client2.example.com \
+              --key-type rsa \
               --standalone \
               --non-interactive
           docker exec client openssl x509 -text -noout -in /etc/letsencrypt/live/client2.example.com/fullchain.pem
