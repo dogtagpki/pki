@@ -32,7 +32,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dogtag.util.cert.CertUtil;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.InternalCertificate;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
@@ -43,18 +42,14 @@ import org.mozilla.jss.pkcs11.PK11Cert;
 
 import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.ConfigRoleEvent;
-import com.netscape.certsrv.ocsp.IOCSPAuthority;
-import com.netscape.certsrv.tks.ITKSAuthority;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.cms.password.PasswordChecker;
 import com.netscape.cmscore.apps.CMS;
@@ -81,11 +76,6 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
     private static final long serialVersionUID = -4341817607402387714L;
     private final static String INFO = "UsrGrpAdminServlet";
-    private final static String RES_CA_GROUP = "certServer.ca.group";
-    private final static String RES_RA_GROUP = "certServer.ra.group";
-    private final static String RES_KRA_GROUP = "certServer.kra.group";
-    private final static String RES_OCSP_GROUP = "certServer.ocsp.group";
-    private final static String RES_TKS_GROUP = "certServer.tks.group";
     private final static String SYSTEM_USER = "$System$";
     //	private final static String RES_GROUP = "root.common.goldfish";
 
@@ -143,7 +133,6 @@ public class UsrGrpAdminServlet extends AdminServlet {
             return;
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
         Locale clientLocale = super.getLocale(req);
 
         try {
@@ -185,19 +174,11 @@ public class UsrGrpAdminServlet extends AdminServlet {
          }
          */
 
+        String subsystemPath = getServletContext().getContextPath();
+        String subsystemID = subsystemPath.substring(1);
+        AUTHZ_RES_NAME = "certServer." + subsystemID + ".group";
+
         try {
-            ISubsystem subsystem = engine.getSubsystem(ICertificateAuthority.ID);
-            if (subsystem != null)
-                AUTHZ_RES_NAME = RES_CA_GROUP;
-            subsystem = engine.getSubsystem(IKeyRecoveryAuthority.ID);
-            if (subsystem != null)
-                AUTHZ_RES_NAME = RES_KRA_GROUP;
-            subsystem = engine.getSubsystem(IOCSPAuthority.ID);
-            if (subsystem != null)
-                AUTHZ_RES_NAME = RES_OCSP_GROUP;
-            subsystem = engine.getSubsystem(ITKSAuthority.ID);
-            if (subsystem != null)
-                AUTHZ_RES_NAME = RES_TKS_GROUP;
             if (scope != null) {
                 if (scope.equals(ScopeDef.SC_USER_TYPE)) {
                     mOp = "read";
