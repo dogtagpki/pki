@@ -19,16 +19,8 @@ package com.netscape.cms.servlet.common;
 
 import java.util.Locale;
 
-import org.dogtagpki.server.ca.ICertificateAuthority;
-
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
-import com.netscape.certsrv.ocsp.IOCSPAuthority;
-import com.netscape.certsrv.tks.ITKSAuthority;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
 
 /**
@@ -60,37 +52,34 @@ public class IndexTemplateFiller implements ICMSTemplateFiller {
         ArgBlock ctx = new ArgBlock();
         CMSTemplateParams params = new CMSTemplateParams(header, ctx);
 
-        CMSEngine engine = CMS.getCMSEngine();
-        ISubsystem ca = engine.getSubsystem(ICertificateAuthority.ID);
-        ISubsystem kra = engine.getSubsystem(IKeyRecoveryAuthority.ID);
-        ISubsystem ocsp = engine.getSubsystem(IOCSPAuthority.ID);
-        ISubsystem tks = engine.getSubsystem(ITKSAuthority.ID);
+        String subsystemPath = cmsReq.getHttpReq().getContextPath();
+        String subsystemID = subsystemPath.substring(1);
 
         ArgBlock rarg = null;
         int count = 0;
 
-        if (ca != null) {
+        if ("ca".equals(subsystemID)) {
             rarg = new ArgBlock();
             rarg.addStringValue(OUT_TYPE, "CertificateAuthority");
             rarg.addStringValue(OUT_ID, "ca");
             params.addRepeatRecord(rarg);
             count++;
         }
-        if (ocsp != null) {
+        if ("ocsp".equals(subsystemID)) {
             rarg = new ArgBlock();
             rarg.addStringValue(OUT_TYPE, "OCSPAuthority");
             rarg.addStringValue(OUT_ID, "ocsp");
             params.addRepeatRecord(rarg);
             count++;
         }
-        if (kra != null) {
+        if ("kra".equals(subsystemID)) {
             rarg = new ArgBlock();
             rarg.addStringValue(OUT_TYPE, "KeyRecoveryAuthority");
             rarg.addStringValue(OUT_ID, "kra");
             params.addRepeatRecord(rarg);
             count++;
         }
-        if (tks != null) {
+        if ("tks".equals(subsystemID)) {
             rarg = new ArgBlock();
             rarg.addStringValue(OUT_TYPE, "TKSAuthority");
             rarg.addStringValue(OUT_ID, "tks");
