@@ -53,6 +53,7 @@ import com.netscape.ca.CRLIssuingPointConfig;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.ca.KeyRetriever;
 import com.netscape.ca.KeyRetrieverRunner;
+import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.AuthorityID;
@@ -1684,6 +1685,30 @@ public class CAEngine extends CMSEngine {
         }
 
         return revoked;
+    }
+
+    public ISharedToken getSharedTokenClass(String configName) {
+
+        String className;
+        try {
+            logger.debug("CAEngine: Getting: " + configName);
+            className = config.getString(configName);
+            logger.debug("CAEngine: Shared Secret plugin class name retrieved: " + className);
+        } catch (Exception e) {
+            logger.warn("CAEngine: Failed to retrieve shared secret plugin class name");
+            return null;
+        }
+
+        ISharedToken tokenClass;
+        try {
+            tokenClass = (ISharedToken) Class.forName(className).getDeclaredConstructor().newInstance();
+            logger.debug("CAEngine: Shared Secret plugin class retrieved");
+        } catch (Exception e) {
+            logger.warn("CAEngine: " + e.getMessage(), e);
+            return null;
+        }
+
+        return tokenClass;
     }
 
     @Override

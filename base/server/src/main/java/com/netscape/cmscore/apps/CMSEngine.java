@@ -49,7 +49,6 @@ import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
@@ -1246,32 +1245,6 @@ public class CMSEngine {
         } catch (Exception e) {
             return null;
         }
-    }
-
-    public ISharedToken getSharedTokenClass(String configName) {
-        String method = "CMSEngine: getSharedTokenClass: ";
-        ISharedToken tokenClass = null;
-
-        String name = null;
-        try {
-            logger.debug(method + "getting :" + configName);
-            name = mConfig.getString(configName);
-            logger.debug(method + "Shared Secret plugin class name retrieved:" +
-                    name);
-        } catch (Exception e) {
-            logger.warn(method + " Failed to retrieve shared secret plugin class name");
-            return null;
-        }
-
-        try {
-            tokenClass = (ISharedToken) Class.forName(name).getDeclaredConstructor().newInstance();
-            logger.debug(method + "Shared Secret plugin class retrieved");
-        } catch (Exception e) {
-            logger.warn("CMSEngine: " + e.getMessage(), e);
-            return null;
-        }
-
-        return tokenClass;
     }
 
     public void disableRequests() {
