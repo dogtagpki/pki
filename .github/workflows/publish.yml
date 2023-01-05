@@ -1,23 +1,32 @@
 name: Publish PKI
 
 on:
-  workflow_run:
-    workflows: [ 'Build PKI' ]
+  push:
     branches:
       - master
-    types:
-      - completed
 
 jobs:
   init:
     name: Initialization
     uses: ./.github/workflows/init.yml
     secrets: inherit
-    if: github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success'
+
+  build:
+    name: Waiting for build
+    needs: init
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for build
+        uses: lewagon/wait-on-check-action@v1.2.0
+        with:
+          ref: ${{ github.ref }}
+          check-name: 'Building PKI'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 30
 
   publish:
     name: Publishing PKI
-    needs: init
+    needs: [init, build]
     runs-on: ubuntu-latest
     steps:
       - name: Log in to the Container registry
