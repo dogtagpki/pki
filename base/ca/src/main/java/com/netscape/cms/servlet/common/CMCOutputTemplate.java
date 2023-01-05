@@ -363,11 +363,15 @@ public class CMCOutputTemplate {
             CAEngineConfig cs = engine.getConfig();
 
             if (success_bpids.size() > 0) {
+                String configName = "cmc.cert.confirmRequired";
                 boolean confirmRequired = false;
                 try {
-                    confirmRequired = cs.getBoolean("cmc.cert.confirmRequired", false);
+                    confirmRequired = cs.getBoolean(configName, false);
                 } catch (Exception e) {
+                    logger.error("Unable to get " + configName + ": " + e.getMessage(), e);
                 }
+
+                logger.debug("CMCOutputTemplate: confirm required: " + confirmRequired);
                 if (confirmRequired) {
                     logger.debug(method + " confirmRequired in the request");
                     cmcStatusInfoV2 =
@@ -1030,12 +1034,15 @@ public class CMCOutputTemplate {
 
                 if (reqSecret == null) {
                     logger.debug(method + "no shared secret in request; Checking signature;");
+                    String configName = "cmc.revokeCert.verify";
                     boolean needVerify = true;
                     try {
-                        needVerify = cs.getBoolean("cmc.revokeCert.verify", true);
+                        needVerify = cs.getBoolean(configName, true);
                     } catch (Exception e) {
+                        logger.error("Unable to get " + configName + ": " + e.getMessage(), e);
                     }
 
+                    logger.debug("CMCOutputTemplate: need verify: " + needVerify);
                     if (needVerify) {
                         if (authManagerId.equals("CMCUserSignedAuth")) {
                             if (reqSignerPrincipal == null) {

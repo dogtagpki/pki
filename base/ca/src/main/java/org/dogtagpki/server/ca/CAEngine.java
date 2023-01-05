@@ -1687,28 +1687,26 @@ public class CAEngine extends CMSEngine {
         return revoked;
     }
 
-    public ISharedToken getSharedTokenClass(String configName) {
+    public ISharedToken createSharedTokenPlugin() {
 
+        String configName = "cmc.sharedSecret.class";
         String className;
+
         try {
-            logger.debug("CAEngine: Getting: " + configName);
-            className = config.getString(configName);
-            logger.debug("CAEngine: Shared Secret plugin class name retrieved: " + className);
+            className = mConfig.getString(configName);
         } catch (Exception e) {
-            logger.warn("CAEngine: Failed to retrieve shared secret plugin class name");
+            logger.error("Unable to get " + configName + ": " + e.getMessage(), e);
             return null;
         }
 
-        ISharedToken tokenClass;
+        logger.debug("CAEngine: shared secret plugin class:" + className);
+
         try {
-            tokenClass = (ISharedToken) Class.forName(className).getDeclaredConstructor().newInstance();
-            logger.debug("CAEngine: Shared Secret plugin class retrieved");
+            return (ISharedToken) Class.forName(className).getDeclaredConstructor().newInstance();
         } catch (Exception e) {
-            logger.warn("CAEngine: " + e.getMessage(), e);
+            logger.error("Unable to create shared secret plugin: " + e.getMessage(), e);
             return null;
         }
-
-        return tokenClass;
     }
 
     @Override

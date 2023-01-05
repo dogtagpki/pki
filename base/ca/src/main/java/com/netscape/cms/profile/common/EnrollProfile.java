@@ -1956,9 +1956,8 @@ public abstract class EnrollProfile extends Profile {
         if (vals.size() < 1)
             return false;
 
-        String configName = "cmc.sharedSecret.class";
         CAEngine engine = CAEngine.getInstance();
-        ISharedToken tokenClass = engine.getSharedTokenClass(configName);
+        ISharedToken tokenClass = engine.createSharedTokenPlugin();
         if (tokenClass == null) {
             logger.warn(method + " Failed to retrieve shared secret authentication plugin class");
             return false;
@@ -2077,18 +2076,15 @@ public abstract class EnrollProfile extends Profile {
             SessionContext context = SessionContext.getContext();
             Integer nums = (Integer) (context.get("numOfControls"));
 
+            String configName = "cmc.lraPopWitness.verify.allow";
             boolean verifyAllow = false; //disable RA by default
             try {
-                String configName = "cmc.lraPopWitness.verify.allow";
-                logger.debug(methodPos + "getting :" + configName);
                 verifyAllow = cs.getBoolean(configName, false);
-                logger.debug(methodPos + "cmc.lraPopWitness.verify.allow is " + verifyAllow);
             } catch (Exception e) {
-                // unlikely to get here
-                String msg = methodPos + " Failed to retrieve cmc.lraPopWitness.verify.allow: " + e.getMessage();
-                logger.error(msg, e);
-                throw new EProfileException(method + msg, e);
+                throw new EProfileException("Unable to get " + configName + ": " + e.getMessage(), e);
             }
+
+            logger.debug("EnrollProfile: verify allow: " + verifyAllow);
             if (verifyAllow) {
                 // check if the LRA POP Witness Control attribute exists
                 if (nums != null && nums.intValue() > 0) {
