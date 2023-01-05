@@ -61,7 +61,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.Constants;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
@@ -1158,8 +1157,6 @@ public class ProcessCertReq extends CMSServlet {
             }
 
             // add authority names to know what privileges can be requested.
-            if (engine.getSubsystem(IKeyRecoveryAuthority.ID) != null)
-                header.addStringValue("localkra", "yes");
             if (engine.getSubsystem(CertificateAuthority.ID) != null)
                 header.addStringValue("localca", "yes");
 
