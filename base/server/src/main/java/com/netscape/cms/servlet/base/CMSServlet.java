@@ -67,10 +67,8 @@ import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
-import com.netscape.certsrv.logging.LogSource;
 import com.netscape.certsrv.logging.event.AuthEvent;
 import com.netscape.certsrv.logging.event.AuthzEvent;
 import com.netscape.certsrv.logging.event.RoleAssumeEvent;
@@ -237,7 +235,6 @@ public abstract class CMSServlet extends HttpServlet {
     protected RequestQueue mRequestQueue;
 
     // system logger.
-    protected LogSource mLogCategory = ILogger.S_OTHER;
     private MessageDigest mSHADigest = null;
 
     protected String mGetClientCert = "false";
@@ -313,18 +310,6 @@ public abstract class CMSServlet extends HttpServlet {
 
         // set default templates.
         setDefaultTemplates(sc);
-
-        // for logging to the right authority category.
-        if (mAuthority == null) {
-            mLogCategory = ILogger.S_OTHER;
-        } else {
-            if (mAuthority instanceof ICertificateAuthority)
-                mLogCategory = ILogger.S_CA;
-            else if (mAuthority instanceof IKeyRecoveryAuthority)
-                mLogCategory = ILogger.S_KRA;
-            else
-                mLogCategory = ILogger.S_OTHER;
-        }
 
         try {
             // get final error message.
