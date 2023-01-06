@@ -41,6 +41,8 @@ import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
+import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.CAEngineConfig;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -93,7 +95,6 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ConfigStore;
@@ -203,8 +204,8 @@ public class CMCAuth extends AuthManager implements IExtendedPluginInfo {
         mImplName = implName;
         mConfig = config;
 
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
+        CAEngine engine = CAEngine.getInstance();
+        CAEngineConfig cs = engine.getConfig();
 
         mBypassClientAuth = cs.getBoolean("cmc.bypassClientAuth", false);
     }
@@ -240,8 +241,8 @@ public class CMCAuth extends AuthManager implements IExtendedPluginInfo {
         String auditCertSubject = ILogger.UNIDENTIFIED;
         String auditSignerInfo = ILogger.UNIDENTIFIED;
 
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
+        CAEngine engine = CAEngine.getInstance();
+        CAEngineConfig cs = engine.getConfig();
 
         SessionContext auditContext = SessionContext.getExistingContext();
         X509Certificate clientCert =
@@ -714,8 +715,8 @@ public class CMCAuth extends AuthManager implements IExtendedPluginInfo {
             AuthToken authToken,
             SignedData cmcFullReq) throws EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
+        CAEngine engine = CAEngine.getInstance();
+        CAEngineConfig cs = engine.getConfig();
 
         String method = "CMCAuth: verifySignerInfo: ";
         String msg = "";
