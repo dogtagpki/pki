@@ -25,7 +25,6 @@ import java.util.Vector;
 import org.dogtagpki.legacy.policy.EPolicyException;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IExpression;
-import org.dogtagpki.legacy.policy.IKeyArchivalPolicy;
 import org.dogtagpki.legacy.policy.IKeyRecoveryPolicy;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.legacy.policy.IPolicyRule;
@@ -86,7 +85,6 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
     PolicySet mRenewalRules = new PolicySet("RenewalRules");
     PolicySet mRevocationRules = new PolicySet("RevocationRules");
     PolicySet mKeyRecoveryRules = new PolicySet("KeyRecoveryRules");
-    PolicySet mKeyArchivalRules = new PolicySet("KeyArchivalRules");
     private String[] mSystemDefaults = null;
     private boolean mInitSystemPolicies;
 
@@ -232,8 +230,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
                 if (!(o instanceof IEnrollmentPolicy) &&
                         !(o instanceof IRenewalPolicy) &&
                         !(o instanceof IRevocationPolicy) &&
-                        !(o instanceof IKeyRecoveryPolicy) &&
-                        !(o instanceof IKeyArchivalPolicy))
+                        !(o instanceof IKeyRecoveryPolicy))
                     throw new EPolicyException(
                             CMS.getUserMessage("CMS_POLICY_INVALID_POLICY_IMPL", clPath));
             } catch (EBaseException e) {
@@ -401,8 +398,6 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             rules = mRevocationRules;
         else if (op.equalsIgnoreCase(Request.KEY_RECOVERY_REQUEST))
             rules = mKeyRecoveryRules;
-        else if (op.equalsIgnoreCase(Request.KEY_ARCHIVAL_REQUEST))
-            rules = mKeyArchivalRules;
         else {
             // It aint' a CMP request. We don't care.
             return PolicyResult.ACCEPTED;
@@ -448,7 +443,6 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         mRenewalRules.printPolicies();
         mRevocationRules.printPolicies();
         mKeyRecoveryRules.printPolicies();
-        mKeyArchivalRules.printPolicies();
     }
 
     @Override
@@ -592,8 +586,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         if (!(impl instanceof IEnrollmentPolicy) &&
                 !(impl instanceof IRenewalPolicy) &&
                 !(impl instanceof IRevocationPolicy) &&
-                !(impl instanceof IKeyRecoveryPolicy) &&
-                !(impl instanceof IKeyArchivalPolicy))
+                !(impl instanceof IKeyRecoveryPolicy))
             throw new EPolicyException(
                     CMS.getUserMessage("CMS_POLICY_INVALID_POLICY_IMPL", classPath));
 
@@ -737,8 +730,6 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             mRevocationRules.removeRule(id);
         if (rule instanceof IKeyRecoveryPolicy)
             mKeyRecoveryRules.removeRule(id);
-        if (rule instanceof IKeyArchivalPolicy)
-            mKeyArchivalRules.removeRule(id);
 
         // Delete the instance
         mInstanceTable.remove(id);
@@ -981,8 +972,6 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
                 mRevocationRules.removeRule(id);
             if (rule instanceof IKeyRecoveryPolicy)
                 mKeyRecoveryRules.removeRule(id);
-            if (rule instanceof IKeyArchivalPolicy)
-                mKeyArchivalRules.removeRule(id);
         } else // replace the rule
         {
             if (rule instanceof IEnrollmentPolicy)
@@ -993,8 +982,6 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
                 mRevocationRules.replaceRule(id, newRule);
             if (rule instanceof IKeyRecoveryPolicy)
                 mKeyRecoveryRules.replaceRule(id, newRule);
-            if (rule instanceof IKeyArchivalPolicy)
-                mKeyArchivalRules.replaceRule(id, newRule);
         }
     }
 
@@ -1027,7 +1014,6 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         PolicySet renewalRules = new PolicySet("RenewalRules");
         PolicySet revocationRules = new PolicySet("RevocationRules");
         PolicySet keyRecoveryRules = new PolicySet("KeyRecoveryRules");
-        PolicySet keyArchivalRules = new PolicySet("KeyArchivalRules");
 
         // add system default rules first.
         try {
@@ -1046,8 +1032,6 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
                     revocationRules.addRule(defRuleName, defRule);
                 else if (defRule instanceof IKeyRecoveryPolicy)
                     keyRecoveryRules.addRule(defRuleName, defRule);
-                else if (defRule instanceof IKeyArchivalPolicy)
-                    keyArchivalRules.addRule(defRuleName, defRule);
                 // else ignore the darned rule.
             }
         } catch (Throwable e) {
@@ -1079,8 +1063,6 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
                 revocationRules.addRule(instanceName, rule);
             else if (rule instanceof IKeyRecoveryPolicy)
                 keyRecoveryRules.addRule(instanceName, rule);
-            else if (rule instanceof IKeyArchivalPolicy)
-                keyArchivalRules.addRule(instanceName, rule);
             // else ignore the darned rule.
         }
 
@@ -1088,7 +1070,6 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         mRenewalRules = renewalRules;
         mRevocationRules = revocationRules;
         mKeyRecoveryRules = keyRecoveryRules;
-        mKeyArchivalRules = keyArchivalRules;
         mPolicyOrder = policyOrder;
 
         // Now change the ordering in the config file.
@@ -1375,8 +1356,6 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             mRevocationRules.addRule(ruleName, rule);
         if (rule instanceof IKeyRecoveryPolicy)
             mKeyRecoveryRules.addRule(ruleName, rule);
-        if (rule instanceof IKeyArchivalPolicy)
-            mKeyArchivalRules.addRule(ruleName, rule);
     }
 
     private boolean isSystemDefaultPolicy(String clPath) {
