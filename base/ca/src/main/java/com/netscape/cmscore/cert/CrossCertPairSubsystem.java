@@ -126,14 +126,8 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
             mBaseDN = ldapConfig.getBaseDN();
 
             mLdapConnFactory = new LdapBoundConnFactory("CrossCertPairSubsystem");
-
-            if (mLdapConnFactory != null) {
-                PKISocketConfig socketConfig = cs.getSocketConfig();
-                mLdapConnFactory.init(socketConfig, ldapConfig, engine.getPasswordStore());
-            } else {
-                logger.warn(CMS.getLogMessage("CMSCORE_DBS_CONF_ERROR", PROP_LDAP));
-                return;
-            }
+            PKISocketConfig socketConfig = cs.getSocketConfig();
+            mLdapConnFactory.init(socketConfig, ldapConfig, engine.getPasswordStore());
 
         } catch (EBaseException e) {
             logger.error("CrossCertPairSubsystem: Unable to initialize subsystem: " + e.getMessage(), e);
@@ -217,7 +211,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
 
                 Enumeration<byte[]> en = caCerts.getByteValues();
 
-                if ((en == null) || (en.hasMoreElements() == false)) {
+                if (en == null || !en.hasMoreElements()) {
                     logger.debug("CrossCertPairSubsystem: 1st potential xcert");
                     addCAcert(conn, cert.getEncoded());
                     logger.debug("CrossCertPairSubsystem: potential cross ca cert added to crossCerts entry successfully");
@@ -229,11 +223,8 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
                 while (en.hasMoreElements()) {
                     val = en.nextElement();
                     logger.debug("CrossCertPairSubsystem: val =" + val.length);
-                    if (val.length == 0) {
-                        continue;
-                    } else {
+                    if (val.length != 0) {
                         X509Certificate inCert = byteArray2X509Cert(val);
-
                         if (arePair(inCert, cert)) {
                             // found a pair,form xcert, write to
                             // crossCertificatePair attr, remove from
@@ -251,7 +242,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
                         }
                     }
                 } //while
-                if (match == false) {
+                if (!match) {
                     // don't find a pair, add it into
                     // caCertificate attr for later pairing
                     // opportunities
@@ -299,11 +290,8 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
     protected boolean arePair(X509Certificate cert1, X509Certificate cert2) {
         // 1. does cert1's issuer match cert2's subject?
         // 2. does cert2's issuer match cert1's subject?
-        if (cert1.getIssuerDN().equals(cert2.getSubjectDN())
-                && cert2.getIssuerDN().equals(cert1.getSubjectDN()))
-            return true;
-        else
-            return false;
+        return cert1.getIssuerDN().equals(cert2.getSubjectDN())
+                && cert2.getIssuerDN().equals(cert1.getSubjectDN());
     }
 
     @Override
@@ -329,7 +317,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
 
         pair.encode(bos);
 
-        if (ByteValueExists(certPairs, bos.toByteArray()) == true) {
+        if (ByteValueExists(certPairs, bos.toByteArray())) {
             logger.debug("CrossCertPairSubsystem: cross cert pair exists in internal db, don't add again");
             return;
         }
@@ -420,7 +408,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
                     DN_XCERTS, null, false);
 
             logger.debug("CrossCertPairSubsystem: trying to publish cert pairs, if any");
-            if ((res == null) || (res.hasMoreElements() == false)) {
+            if (res == null || !res.hasMoreElements()) {
                 logger.debug("CrossCertPairSubsystem: no cross cert pairs to publish");
                 return;
             }
@@ -438,7 +426,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
 
                 Enumeration<byte[]> en = xcerts.getByteValues();
 
-                if ((en == null) || (en.hasMoreElements() == false)) {
+                if (en == null || !en.hasMoreElements()) {
                     logger.debug("CrossCertPairSubsystem: publishCertPair found no pairs in internal db");
                     return;
                 }
@@ -447,9 +435,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
                 while (en.hasMoreElements()) {
                     val = en.nextElement();
                     logger.debug("CrossCertPairSubsystem: val =" + val.length);
-                    if (val.length == 0) {
-                        continue;
-                    } else {
+                    if (val.length != 0) {
                         try {
                             //found a cross cert pair, publish if we could
                             mPublisherProcessor.publishXCertPair(val);
@@ -470,9 +456,8 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
             LDAPConnection conn = mLdapConnFactory.getConn();
             if (conn == null) {
                 throw new ELdapException("No Ldap Connection Available");
-            } else {
-                return conn;
             }
+            return conn;
         }
 
         throw new ELdapException("Ldap Connection Factory is null");
