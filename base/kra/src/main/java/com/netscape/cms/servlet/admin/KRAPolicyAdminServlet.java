@@ -24,7 +24,6 @@ import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.server.kra.KRAEngine;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.kra.KeyRecoveryAuthority;
 
 /**
@@ -78,7 +77,7 @@ public class KRAPolicyAdminServlet extends PolicyAdminServlet {
 
         mProcessor = kra.getPolicyProcessor();
 
-        String policyStatus = IKeyRecoveryAuthority.ID + ".Policy." + IPolicyProcessor.PROP_ENABLE;
+        String policyStatus = KeyRecoveryAuthority.ID + ".Policy." + IPolicyProcessor.PROP_ENABLE;
 
         try {
             if (mConfig.getBoolean(policyStatus, true)) {

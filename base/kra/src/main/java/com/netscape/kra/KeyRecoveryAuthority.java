@@ -56,7 +56,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.keydb.KeyId;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.listeners.EListenersException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
@@ -100,16 +99,31 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  * @author thomask
  * @version $Revision$, $Date$
  */
-public class KeyRecoveryAuthority implements IAuthority, IKeyRecoveryAuthority {
+public class KeyRecoveryAuthority implements IAuthority {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyRecoveryAuthority.class);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
+    public static final String ID = "kra";
+
     public final static String OFFICIAL_NAME = "Data Recovery Manager";
 
-    /**
-     * Internal Constants
-     */
+    public final static String PROP_NAME = "name";
+    public final static String PROP_HTTP = "http";
+    public final static String PROP_POLICY = "policy";
+
+    public final static String PROP_TOKEN = "token";
+    public final static String PROP_SHARE = "share";
+    public final static String PROP_PROTECTOR = "protector";
+    public final static String PROP_LOGGING = "logging";
+    public final static String PROP_QUEUE_REQUESTS = "queueRequests";
+    public final static String PROP_STORAGE_KEY = "storageUnit";
+    public final static String PROP_TRANSPORT_KEY = "transportUnit";
+    public static final String PROP_NEW_NICKNAME = "newNickname";
+    public static final String PROP_KEYDB_INC = "keydbInc";
+
+    public final static String PROP_NOTIFY_SUBSTORE = "notification";
+    public final static String PROP_REQ_IN_Q_SUBSTORE = "requestInQ";
 
     private static final String PARAM_CREDS = "creds";
     private static final String PARAM_LOCK = "lock";
@@ -178,7 +192,12 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyRecoveryAuthority {
         mId = id;
     }
 
-    @Override
+    /**
+     * Returns policy processor of the key recovery
+     * authority.
+     *
+     * @return policy processor
+     */
     public IPolicyProcessor getPolicyProcessor() {
         return mPolicy.getPolicyProcessor();
     }
@@ -209,7 +228,12 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyRecoveryAuthority {
 
     }
 
-    @Override
+    /**
+     * Adds entropy to the token used for supporting server-side keygen
+     * Parameters are set in the config file
+     *
+     * @param logflag create log messages at info level to report entropy shortage
+     */
     public void addEntropy(boolean logflag) {
         logger.debug("KeyRecoveryAuthority addEntropy()");
         if (mEntropyBitsPerKeyPair == 0) {
@@ -427,17 +451,28 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyRecoveryAuthority {
 
     }
 
-    @Override
+    /**
+     * Returns the token that generates user key pairs for supporting server-side keygen
+     *
+     * @return keygen token
+     */
     public CryptoToken getKeygenToken() {
         return mKeygenToken;
     }
 
-    @Override
+    /**
+     * Returns the request listener that listens on
+     * the request completion event.
+     *
+     * @return request listener
+     */
     public IRequestListener getRequestInQListener() {
         return mReqInQListener;
     }
 
-    @Override
+    /**
+     * Retrieves the transport certificate.
+     */
     public org.mozilla.jss.crypto.X509Certificate getTransportCert() {
         return mJssCert;
     }
@@ -520,13 +555,15 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyRecoveryAuthority {
     }
 
     /**
-     * Changes the auto recovery state.
+     * Enables the auto recovery state. Once KRA is in the auto
+     * recovery state, no recovery agents need to be present for
+     * providing credentials. This feature is for enabling
+     * user-based recovery operation.
      *
-     * @param cs list of recovery agent credentials
-     * @param on turn of auto recovery or not
-     * @return operation success or not
+     * @param cs list of agent credentials
+     * @param on true if auto recovery state is on
+     * @return current auto recovery state
      */
-    @Override
     public boolean setAutoRecoveryState(Credential cs[], boolean on) {
         if (on) {
             // check credential before enabling it
@@ -544,9 +581,8 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyRecoveryAuthority {
     /**
      * Retrieves the current auto recovery state.
      *
-     * @return enable or not
+     * @return true if auto recovery state is on
      */
-    @Override
     public boolean getAutoRecoveryState() {
         // maintain in-memory variable; don't store it in config
         return mAutoRecoveryOn;
@@ -559,18 +595,19 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyRecoveryAuthority {
      * @return list of user IDs that are accepted in the
      *         auto recovery mode
      */
-    @Override
     public Enumeration<String> getAutoRecoveryIDs() {
         return mAutoRecovery.keys();
     }
 
     /**
-     * Adds auto recovery mode to the given user id.
+     * Adds credentials to the given authorizated recovery operation.
+     * In distributed recovery mode, recovery agent login to the
+     * agent interface and submit its credential for a particular
+     * recovery operation.
      *
      * @param id new identifier to the auto recovery mode
      * @param creds list of credentials
      */
-    @Override
     public void addAutoRecovery(String id, Credential creds[]) {
         mAutoRecovery.put(id, creds);
     }
@@ -581,14 +618,14 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyRecoveryAuthority {
      * @param id id of user to be removed from auto
      *            recovery mode
      */
-    @Override
     public void removeAutoRecovery(String id) {
         mAutoRecovery.remove(id);
     }
 
     /**
-     * Retrieves number of required agents for
-     * recovery operation.
+     * Returns the number of required agents. In M-out-of-N
+     * recovery schema, only M agents are required even there
+     * are N agents. This method returns M.
      *
      * @return number of required agents
      * @exception EBaseException failed to retrieve info
@@ -618,10 +655,9 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyRecoveryAuthority {
      * Sets number of required agents for
      * recovery operation
      *
-     * @return none
+     * @param number number of agents
      * @exception EBaseException invalid setting
      */
-    @Override
     public void setNoOfRequiredAgents(int number) throws EBaseException {
         if (mConfig.getBoolean("keySplitting")) {
             mStorageKeyUnit.setNoOfRequiredAgents(number);
@@ -631,9 +667,9 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyRecoveryAuthority {
     }
 
     /**
-     * Retrieves recovery identifier.
+     * Returns the current recovery identifier.
      *
-     * @return recovery id
+     * @return recovery identifier
      */
     public String getRecoveryID() {
         return Integer.toString(mRecoveryIDCounter++);
@@ -679,7 +715,12 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyRecoveryAuthority {
         return mRecoveryParams.get(recoveryID);
     }
 
-    @Override
+    /**
+     * Creates PKCS12 package in memory.
+     *
+     * @param recoveryID recovery id
+     * @param pk12 package in bytes
+     */
     public void createPk12(String recoveryID, byte[] pk12)
             throws EBaseException {
         Hashtable<String, Object> h = getRecoveryParams(recoveryID);
@@ -687,13 +728,24 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyRecoveryAuthority {
         h.put(PARAM_PK12, pk12);
     }
 
-    @Override
+    /**
+     * Retrieves PKCS12 package by recovery identifier.
+     *
+     * @param recoveryID recovery id
+     * @return pkcs12 package in bytes
+     */
     public byte[] getPk12(String recoveryID)
             throws EBaseException {
         return (byte[]) getRecoveryParams(recoveryID).get(PARAM_PK12);
     }
 
-    @Override
+    /**
+     * Creates error for a specific recovery operation.
+     *
+     * @param recoveryID recovery id
+     * @param error error
+     * @exception EBaseException failed to create error
+     */
     public void createError(String recoveryID, String error)
             throws EBaseException {
         Hashtable<String, Object> h = getRecoveryParams(recoveryID);
@@ -701,7 +753,12 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyRecoveryAuthority {
         h.put(PARAM_ERROR, error);
     }
 
-    @Override
+    /**
+     * Retrieves error by recovery identifier.
+     *
+     * @param recoveryID recovery id
+     * @return error message
+     */
     public String getError(String recoveryID)
             throws EBaseException {
         return (String) getRecoveryParams(recoveryID).get(PARAM_ERROR);
@@ -710,7 +767,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyRecoveryAuthority {
     /**
      * Retrieve the current approval agents
      */
-    @Override
     public Vector<Credential> getAppAgents(
             String recoveryID) throws EBaseException {
         Hashtable<String, Object> h = getRecoveryParams(recoveryID);
@@ -1305,11 +1361,11 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyRecoveryAuthority {
     }
 
     /**
-     * Execute synchronous request
+     * Process synchronous archival and recovery requests
+     *
      * (TODO(alee): should we do this in a separate thread?
      * @throws EBaseException
      */
-    @Override
     public void processSynchronousRequest(Request request) throws EBaseException {
         SecurityDataProcessor processor = new SecurityDataProcessor(this);
         switch(request.getRequestType()){
@@ -1324,7 +1380,11 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyRecoveryAuthority {
         }
     }
 
-    @Override
+    /**
+     * Are ephemeral requests enabled for SECURITY_DATA recovery and archival
+     *
+     * @param realm authz realm
+     */
     public boolean isEphemeral(String realm) {
         try {
             return mConfig.getBoolean("ephemeralRequests", false);
@@ -1334,7 +1394,11 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyRecoveryAuthority {
         return false;
     }
 
-    @Override
+    /**
+     * Is the SECURITY_DATA retrieval synchronous?
+     *
+     * @param realm
+     */
     public boolean isRetrievalSynchronous(String realm) {
         try {
             return getNoOfRequiredSecurityDataRecoveryAgents() == 1;
@@ -1399,7 +1463,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyRecoveryAuthority {
      *
      * @return storage key unit.
      */
-    @Override
     public IStorageKeyUnit getStorageKeyUnit() {
         return mStorageKeyUnit;
     }
@@ -1409,7 +1472,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyRecoveryAuthority {
      *
      * @return transport key unit
      */
-    @Override
     public ITransportKeyUnit getTransportKeyUnit() {
         return mTransportKeyUnit;
     }
@@ -1420,7 +1482,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyRecoveryAuthority {
      *
      * @return KRA name
      */
-    @Override
     public X500Name getX500Name() {
         return mName;
     }
@@ -1430,12 +1491,10 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyRecoveryAuthority {
     }
 
     /**
-     * Returns the nickname for the id cert of this
-     * subsystem.
+     * Returns the nickname of the transport certificate.
      *
-     * @return nickname of the transport certificate
+     * @return transport certificate nickname.
      */
-    @Override
     public String getNickname() {
         try {
             return mTransportKeyUnit.getNickName();
@@ -1444,7 +1503,11 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyRecoveryAuthority {
         }
     }
 
-    @Override
+    /**
+     * Sets the nickname of the transport certificate.
+     *
+     * @param str nickname
+     */
     public void setNickname(String str) {
         try {
             mTransportKeyUnit.setNickName(str);
@@ -1452,12 +1515,20 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyRecoveryAuthority {
         }
     }
 
-    @Override
+    /**
+     * Returns the new nickname of the transport certifiate.
+     *
+     * @return new nickname
+     */
     public String getNewNickName() throws EBaseException {
         return mConfig.getString(PROP_NEW_NICKNAME, "");
     }
 
-    @Override
+    /**
+     * Sets the new nickname of the transport certifiate.
+     *
+     * @param name new nickname
+     */
     public void setNewNickName(String name) {
         mConfig.putString(PROP_NEW_NICKNAME, name);
     }
@@ -1475,12 +1546,10 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyRecoveryAuthority {
     }
 
     /**
-     * Retrieves replica repository.
-     * <P>
+     * Retrieves replica ID repository.
      *
-     * @return replica repository
+     * @return replica ID repository
      */
-    @Override
     public ReplicaIDRepository getReplicaRepository() {
         return mReplicaRepot;
     }
@@ -1566,8 +1635,10 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyRecoveryAuthority {
      * framework will try to serialize all the attribute into
      * persistent storage. Things like passwords are not
      * desirable to be stored.
+     *
+     * @param id request id
+     * @return volatile requests
      */
-    @Override
     public Hashtable<String, Object> createVolatileRequest(RequestId id) {
         Hashtable<String, Object> params = new Hashtable<>();
 
@@ -1575,12 +1646,21 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyRecoveryAuthority {
         return params;
     }
 
-    @Override
+    /**
+     * Retrieves the request object.
+     *
+     * @param id request id
+     * @return volatile requests
+     */
     public Hashtable<String, Object> getVolatileRequest(RequestId id) {
         return mVolatileRequests.get(id.toString());
     }
 
-    @Override
+    /**
+     * Destroys the request object.
+     *
+     * @param id request id
+     */
     public void destroyVolatileRequest(RequestId id) {
         mVolatileRequests.remove(id.toString());
     }
@@ -1785,12 +1865,22 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyRecoveryAuthority {
         return agents;
     }
 
-   @Override
-public KeyPair generateKeyPair(String alg, int keySize, String keyCurve,
+    /**
+     * Generate an asymmetric key pair.
+     *
+     * @param alg
+     * @param keySize
+     * @param keyCurve
+     * @param pqg
+     * @param usageList - RSA only for now
+     * @return key pair
+     * @throws EBaseException
+     */
+    public KeyPair generateKeyPair(String alg, int keySize, String keyCurve,
             PQGParams pqg, KeyPairGeneratorSpi.Usage[] usageList) throws EBaseException {
         return generateKeyPair(alg, keySize, keyCurve, pqg, usageList, false);
     }
-    @Override
+
     public KeyPair generateKeyPair(String alg, int keySize, String keyCurve,
             PQGParams pqg, KeyPairGeneratorSpi.Usage[] usageList, boolean temp) throws EBaseException {
         KeyPairAlgorithm kpAlg = null;
