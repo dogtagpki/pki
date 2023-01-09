@@ -52,6 +52,7 @@ import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.dbs.CertRecord;
+import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.request.CertRequestRepository;
 import com.netscape.cmscore.request.Request;
 
@@ -459,14 +460,20 @@ public class RenewalServlet extends CMSServlet {
     private BigInteger getCertFromAuthMgr(
             AuthToken authToken, X509Certificate[] certContainer)
             throws EBaseException {
-        X509CertImpl cert =
-                authToken.getInCert(AuthToken.TOKEN_CERT);
+
+        CAEngine engine = CAEngine.getInstance();
+        CertificateRepository certRepository = engine.getCertificateRepository();
+
+        X509CertImpl cert = authToken.getInCert(AuthToken.TOKEN_CERT);
 
         if (cert == null) {
             logger.error(CMS.getLogMessage("CMSGW_MISSING_CERTS_RENEW_FROM_AUTHMGR"));
             throw new ECMSGWException(CMS.getUserMessage("CMS_GW_MISSING_CERTS_RENEW_FROM_AUTHMGR"));
         }
-        if (!isCertFromCA(cert)) {
+
+        X509CertImpl certInDB = certRepository.getX509Certificate(cert.getSerialNumber());
+
+        if (certInDB == null || !certInDB.equals(cert)) {
             logger.error("RenewalServlet: certficate from auth manager for renewal is not from this ca");
             throw new ECMSGWException(CMS.getUserMessage("CMS_GW_INVALID_CERT_FOR_RENEWAL"));
         }

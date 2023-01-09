@@ -223,6 +223,7 @@ public class ReasonToRevoke extends CMSServlet {
             throws EBaseException {
 
         CAEngine engine = CAEngine.getInstance();
+        CertificateRepository certRepository = engine.getCertificateRepository();
 
         header.addStringValue("revokeAll", revokeAll);
         header.addIntegerValue("totalRecordCount", totalRecordCount);
@@ -230,8 +231,9 @@ public class ReasonToRevoke extends CMSServlet {
         try {
             if (mCA != null) {
                 X509CertImpl caCert = mCA.getSigningUnit().getCertImpl();
+                X509CertImpl certInDB = certRepository.getX509Certificate(caCert.getSerialNumber());
 
-                if (isCertFromCA(caCert)) {
+                if (certInDB != null && certInDB.equals(caCert)) {
                     header.addStringValue("caSerialNumber",
                             caCert.getSerialNumber().toString(16));
                 }

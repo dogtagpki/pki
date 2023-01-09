@@ -983,29 +983,6 @@ public abstract class CMSServlet extends HttpServlet {
     }
 
     /**
-     * handy routine for validating if a cert is from this CA.
-     * mAuthority must be a CA.
-     */
-    protected boolean isCertFromCA(X509Certificate cert) {
-        BigInteger serialno = cert.getSerialNumber();
-        X509CertImpl certInDB = (X509CertImpl) getX509Certificate(serialno);
-
-        return certInDB != null && certInDB.equals(cert);
-    }
-
-    /**
-     * handy routine for checking if a list of certs is from this CA.
-     * mAuthortiy must be a CA.
-     */
-    protected boolean areCertsFromCA(X509Certificate[] certs) {
-        for (int i = certs.length - 1; i >= 0; i--) {
-            if (!isCertFromCA(certs[i]))
-                return false;
-        }
-        return true;
-    }
-
-    /**
      * handy routine for getting a certificate from the certificate
      * repository. mAuthority must be a CA.
      */
