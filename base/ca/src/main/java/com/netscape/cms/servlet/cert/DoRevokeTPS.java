@@ -106,11 +106,9 @@ public class DoRevokeTPS extends CMSServlet {
 
         CAEngine engine = CAEngine.getInstance();
 
-        mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
+        mFormPath = "/ca/" + TPL_FILE;
 
-        if (mAuthority instanceof CertificateAuthority) {
-            mCertDB = engine.getCertificateRepository();
-        }
+        mCertDB = engine.getCertificateRepository();
         mPublisherProcessor = engine.getPublisherProcessor();
         mQueue = engine.getRequestQueue();
 
@@ -661,47 +659,45 @@ public class DoRevokeTPS extends CMSServlet {
                     }
                 }
 
-                if (mAuthority instanceof CertificateAuthority) {
-                    // let known update and publish status of all crls.
-                    for (CRLIssuingPoint crl : engine.getCRLIssuingPoints()) {
-                        String crlId = crl.getId();
+                // let known update and publish status of all crls.
+                for (CRLIssuingPoint crl : engine.getCRLIssuingPoints()) {
+                    String crlId = crl.getId();
 
-                        if (crlId.equals(CertificateAuthority.PROP_MASTER_CRL))
-                            continue;
-                        String updateStatusStr = crl.getCrlUpdateStatusStr();
-                        Integer updateResult = revReq.getExtDataInInteger(updateStatusStr);
+                    if (crlId.equals(CertificateAuthority.PROP_MASTER_CRL))
+                        continue;
+                    String updateStatusStr = crl.getCrlUpdateStatusStr();
+                    Integer updateResult = revReq.getExtDataInInteger(updateStatusStr);
 
-                        if (updateResult != null) {
-                            if (!updateResult.equals(Request.RES_SUCCESS)) {
-                                String updateErrorStr = crl.getCrlUpdateErrorStr();
+                    if (updateResult != null) {
+                        if (!updateResult.equals(Request.RES_SUCCESS)) {
+                            String updateErrorStr = crl.getCrlUpdateErrorStr();
 
-                                logger.debug("DoRevoke: " + CMS.getLogMessage("ADMIN_SRVLT_ADDING_HEADER_NO",
-                                        updateStatusStr));
-                                String error =
-                                        revReq.getExtDataInString(updateErrorStr);
+                            logger.debug("DoRevoke: " + CMS.getLogMessage("ADMIN_SRVLT_ADDING_HEADER_NO",
+                                    updateStatusStr));
+                            String error =
+                                    revReq.getExtDataInString(updateErrorStr);
 
-                                o_status = "status=3";
-                                if (error != null) {
-                                    errorString = "error=" + error;
-                                }
+                            o_status = "status=3";
+                            if (error != null) {
+                                errorString = "error=" + error;
                             }
-                            String publishStatusStr = crl.getCrlPublishStatusStr();
-                            Integer publishResult =
-                                    revReq.getExtDataInInteger(publishStatusStr);
+                        }
+                        String publishStatusStr = crl.getCrlPublishStatusStr();
+                        Integer publishResult =
+                                revReq.getExtDataInInteger(publishStatusStr);
 
-                            if (publishResult == null)
-                                continue;
-                            if (!publishResult.equals(Request.RES_SUCCESS)) {
-                                String publishErrorStr =
-                                        crl.getCrlPublishErrorStr();
+                        if (publishResult == null)
+                            continue;
+                        if (!publishResult.equals(Request.RES_SUCCESS)) {
+                            String publishErrorStr =
+                                    crl.getCrlPublishErrorStr();
 
-                                String error =
-                                        revReq.getExtDataInString(publishErrorStr);
+                            String error =
+                                    revReq.getExtDataInString(publishErrorStr);
 
-                                o_status = "status=3";
-                                if (error != null) {
-                                    errorString = "error=Publish CRL Status Error.";
-                                }
+                            o_status = "status=3";
+                            if (error != null) {
+                                errorString = "error=Publish CRL Status Error.";
                             }
                         }
                     }
