@@ -387,7 +387,7 @@ public class DoRevoke extends CMSServlet {
         Hashtable<BigInteger, Long> nonceMap = new Hashtable<>();
         X509Certificate clientCert = getSSLClientCertificate(req);
 
-        processor.setAuthority((CertificateAuthority) certAuthority);
+        processor.setAuthority(engine.getCA());
 
         if (engine.getEnableNonces()) {
             String nonces = req.getParameter("nonce");

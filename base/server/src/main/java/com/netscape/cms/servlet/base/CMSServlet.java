@@ -230,7 +230,6 @@ public abstract class CMSServlet extends HttpServlet {
 
     // the authority, RA, CA, KRA this servlet is serving.
     protected IAuthority mAuthority = null;
-    protected ICertificateAuthority certAuthority;
     protected RequestRepository requestRepository;
     protected RequestQueue mRequestQueue;
 
@@ -299,8 +298,6 @@ public abstract class CMSServlet extends HttpServlet {
 
         if (authority != null) {
             mAuthority = (IAuthority) engine.getSubsystem(authority);
-            if (mAuthority instanceof ICertificateAuthority)
-                certAuthority = (ICertificateAuthority) mAuthority;
         }
 
         requestRepository = engine.getRequestRepository();

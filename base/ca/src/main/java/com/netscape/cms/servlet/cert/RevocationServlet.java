@@ -37,7 +37,6 @@ import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
@@ -210,7 +209,7 @@ public class RevocationServlet extends CMSServlet {
             // generate nonce
             long n = mRandom.nextLong();
             // store nonce in session
-            Map<Object, Long> nonces = ((CertificateAuthority) certAuthority).getNonces(cmsReq.getHttpReq(), "cert-revoke");
+            Map<Object, Long> nonces = engine.getCA().getNonces(cmsReq.getHttpReq(), "cert-revoke");
             nonces.put(old_serial_no, n);
             // return serial number and nonce to client
             header.addStringValue("nonce", old_serial_no+":"+n);
