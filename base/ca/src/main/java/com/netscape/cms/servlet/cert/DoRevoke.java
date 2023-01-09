@@ -97,11 +97,9 @@ public class DoRevoke extends CMSServlet {
 
         CAEngine engine = CAEngine.getInstance();
 
-        mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
+        mFormPath = "/ca/" + TPL_FILE;
 
-        if (mAuthority instanceof CertificateAuthority) {
-            mCertDB = engine.getCertificateRepository();
-        }
+        mCertDB = engine.getCertificateRepository();
         mPublisherProcessor = engine.getPublisherProcessor();
 
         mTemplates.remove(CMSRequest.SUCCESS);
@@ -389,71 +387,65 @@ public class DoRevoke extends CMSServlet {
         Hashtable<BigInteger, Long> nonceMap = new Hashtable<>();
         X509Certificate clientCert = getSSLClientCertificate(req);
 
-        if (mAuthority instanceof CertificateAuthority) {
-            processor.setAuthority((CertificateAuthority) certAuthority);
+        processor.setAuthority((CertificateAuthority) certAuthority);
 
-            if (engine.getEnableNonces()) {
-                String nonces = req.getParameter("nonce");
-                if (nonces == null) {
-                    throw new ForbiddenException("Missing nonce.");
-                }
+        if (engine.getEnableNonces()) {
+            String nonces = req.getParameter("nonce");
+            if (nonces == null) {
+                throw new ForbiddenException("Missing nonce.");
+            }
 
-                // parse serial numbers and nonces
-                for (String s : nonces.split(",")) {
-                    String[] elements = s.split(":");
-                    BigInteger serialNumber = new BigInteger(elements[0].trim());
-                    Long nonce = Long.valueOf(elements[1].trim());
-                    nonceMap.put(serialNumber, nonce);
-                }
+            // parse serial numbers and nonces
+            for (String s : nonces.split(",")) {
+                String[] elements = s.split(":");
+                BigInteger serialNumber = new BigInteger(elements[0].trim());
+                Long nonce = Long.valueOf(elements[1].trim());
+                nonceMap.put(serialNumber, nonce);
             }
         }
 
         try {
             processor.createCRLExtension();
 
-            if (mAuthority instanceof CertificateAuthority) {
+            Enumeration<CertRecord> e = mCertDB.searchCertificates(revokeAll, totalRecordCount, mTimeLimits);
 
-                Enumeration<CertRecord> e = mCertDB.searchCertificates(revokeAll, totalRecordCount, mTimeLimits);
+            while (e != null && e.hasMoreElements()) {
+                CertRecord targetRecord = e.nextElement();
+                X509CertImpl targetCert = targetRecord.getCertificate();
 
-                while (e != null && e.hasMoreElements()) {
-                    CertRecord targetRecord = e.nextElement();
-                    X509CertImpl targetCert = targetRecord.getCertificate();
+                // Verify end-entity cert is not revoked.
+                // TODO: This should be checked during authentication.
+                if (eeSerialNumber != null &&
+                    eeSerialNumber.equals(targetCert.getSerialNumber()) &&
+                    targetRecord.getStatus().equals(CertRecord.STATUS_REVOKED)) {
 
-                    // Verify end-entity cert is not revoked.
-                    // TODO: This should be checked during authentication.
-                    if (eeSerialNumber != null &&
-                        eeSerialNumber.equals(targetCert.getSerialNumber()) &&
-                        targetRecord.getStatus().equals(CertRecord.STATUS_REVOKED)) {
+                    String message = CMS.getLogMessage("CA_CERTIFICATE_ALREADY_REVOKED_1",
+                            targetRecord.getSerialNumber().toString(16));
+                    logger.error(message);
 
-                        String message = CMS.getLogMessage("CA_CERTIFICATE_ALREADY_REVOKED_1",
-                                targetRecord.getSerialNumber().toString(16));
-                        logger.error(message);
-
-                        throw new ECMSGWException(CMS.getLogMessage("CMSGW_UNAUTHORIZED"));
-                    }
-
-                    ArgBlock rarg = new ArgBlock();
-                    rarg.addStringValue("serialNumber", targetCert.getSerialNumber().toString(16));
-
-                    try {
-                        if (mAuthority instanceof CertificateAuthority &&
-                            engine.getEnableNonces() &&
-                            !processor.isMemberOfSubsystemGroup(clientCert)) {
-                            // validate nonce for each certificate
-                            Long nonce = nonceMap.get(targetRecord.getSerialNumber());
-                            processor.validateNonce(req, "cert-revoke", targetRecord.getSerialNumber(), nonce);
-                        }
-
-                        processor.validateCertificateToRevoke(eeSubjectDN, targetRecord, false);
-                        processor.addCertificateToRevoke(targetCert);
-                        rarg.addStringValue("error", null);
-
-                    } catch (PKIException ex) {
-                        rarg.addStringValue("error", ex.getMessage());
-                    }
-
-                    argSet.addRepeatRecord(rarg);
+                    throw new ECMSGWException(CMS.getLogMessage("CMSGW_UNAUTHORIZED"));
                 }
+
+                ArgBlock rarg = new ArgBlock();
+                rarg.addStringValue("serialNumber", targetCert.getSerialNumber().toString(16));
+
+                try {
+                    if (engine.getEnableNonces() &&
+                        !processor.isMemberOfSubsystemGroup(clientCert)) {
+                        // validate nonce for each certificate
+                        Long nonce = nonceMap.get(targetRecord.getSerialNumber());
+                        processor.validateNonce(req, "cert-revoke", targetRecord.getSerialNumber(), nonce);
+                    }
+
+                    processor.validateCertificateToRevoke(eeSubjectDN, targetRecord, false);
+                    processor.addCertificateToRevoke(targetCert);
+                    rarg.addStringValue("error", null);
+
+                } catch (PKIException ex) {
+                    rarg.addStringValue("error", ex.getMessage());
+                }
+
+                argSet.addRepeatRecord(rarg);
             }
 
             int count = processor.getCertificates().size();
@@ -539,52 +531,50 @@ public class DoRevoke extends CMSServlet {
                     }
                 }
 
-                if (mAuthority instanceof CertificateAuthority) {
-                    // let known update and publish status of all crls.
-                    for (CRLIssuingPoint crl : engine.getCRLIssuingPoints()) {
-                        String crlId = crl.getId();
+                // let known update and publish status of all crls.
+                for (CRLIssuingPoint crl : engine.getCRLIssuingPoints()) {
+                    String crlId = crl.getId();
 
-                        if (crlId.equals(CertificateAuthority.PROP_MASTER_CRL))
+                    if (crlId.equals(CertificateAuthority.PROP_MASTER_CRL))
+                        continue;
+
+                    String updateStatusStr = crl.getCrlUpdateStatusStr();
+                    Integer updateResult = revReq.getExtDataInInteger(updateStatusStr);
+
+                    if (updateResult != null) {
+                        if (updateResult.equals(Request.RES_SUCCESS)) {
+                            logger.debug("DoRevoke: "
+                                    + CMS.getLogMessage("ADMIN_SRVLT_ADDING_HEADER", updateStatusStr));
+                            header.addStringValue(updateStatusStr, "yes");
+
+                        } else {
+                            String updateErrorStr = crl.getCrlUpdateErrorStr();
+
+                            logger.debug("DoRevoke: " + CMS.getLogMessage("ADMIN_SRVLT_ADDING_HEADER_NO",
+                                    updateStatusStr));
+                            header.addStringValue(updateStatusStr, "no");
+                            String error = revReq.getExtDataInString(updateErrorStr);
+
+                            if (error != null)
+                                header.addStringValue(updateErrorStr, error);
+                        }
+
+                        String publishStatusStr = crl.getCrlPublishStatusStr();
+                        Integer publishResult = revReq.getExtDataInInteger(publishStatusStr);
+
+                        if (publishResult == null)
                             continue;
 
-                        String updateStatusStr = crl.getCrlUpdateStatusStr();
-                        Integer updateResult = revReq.getExtDataInInteger(updateStatusStr);
+                        if (publishResult.equals(Request.RES_SUCCESS)) {
+                            header.addStringValue(publishStatusStr, "yes");
 
-                        if (updateResult != null) {
-                            if (updateResult.equals(Request.RES_SUCCESS)) {
-                                logger.debug("DoRevoke: "
-                                        + CMS.getLogMessage("ADMIN_SRVLT_ADDING_HEADER", updateStatusStr));
-                                header.addStringValue(updateStatusStr, "yes");
+                        } else {
+                            String publishErrorStr = crl.getCrlPublishErrorStr();
+                            header.addStringValue(publishStatusStr, "no");
+                            String error = revReq.getExtDataInString(publishErrorStr);
 
-                            } else {
-                                String updateErrorStr = crl.getCrlUpdateErrorStr();
-
-                                logger.debug("DoRevoke: " + CMS.getLogMessage("ADMIN_SRVLT_ADDING_HEADER_NO",
-                                        updateStatusStr));
-                                header.addStringValue(updateStatusStr, "no");
-                                String error = revReq.getExtDataInString(updateErrorStr);
-
-                                if (error != null)
-                                    header.addStringValue(updateErrorStr, error);
-                            }
-
-                            String publishStatusStr = crl.getCrlPublishStatusStr();
-                            Integer publishResult = revReq.getExtDataInInteger(publishStatusStr);
-
-                            if (publishResult == null)
-                                continue;
-
-                            if (publishResult.equals(Request.RES_SUCCESS)) {
-                                header.addStringValue(publishStatusStr, "yes");
-
-                            } else {
-                                String publishErrorStr = crl.getCrlPublishErrorStr();
-                                header.addStringValue(publishStatusStr, "no");
-                                String error = revReq.getExtDataInString(publishErrorStr);
-
-                                if (error != null)
-                                    header.addStringValue(publishErrorStr, error);
-                            }
+                            if (error != null)
+                                header.addStringValue(publishErrorStr, error);
                         }
                     }
                 }
