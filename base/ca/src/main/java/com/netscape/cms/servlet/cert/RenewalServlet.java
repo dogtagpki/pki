@@ -39,7 +39,6 @@ import org.mozilla.jss.netscape.security.x509.CertificateValidity;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
@@ -443,14 +442,13 @@ public class RenewalServlet extends CMSServlet {
             logger.error(CMS.getLogMessage("CMSGW_MISSING_SERIALNO_FOR_RENEW"));
             throw new ECMSGWException(CMS.getUserMessage("CMS_GW_MISSING_SERIALNO_FOR_RENEW"));
         }
-        // get cert from db if we're cert authority.
-        if (mAuthority instanceof CertificateAuthority) {
-            cert = getX509Certificate(serialno);
-            if (cert == null) {
-                logger.error(CMS.getLogMessage("CMSGW_MISSING_SERIALNO_FOR_RENEW_1", serialno.toString(16)));
-                throw new ECMSGWException(CMS.getUserMessage("CMS_GW_INVALID_CERT_FOR_RENEWAL"));
-            }
+        // get cert from db
+        cert = getX509Certificate(serialno);
+        if (cert == null) {
+            logger.error(CMS.getLogMessage("CMSGW_MISSING_SERIALNO_FOR_RENEW_1", serialno.toString(16)));
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_INVALID_CERT_FOR_RENEWAL"));
         }
+
         certContainer[0] = cert;
         return serialno;
     }
@@ -468,8 +466,7 @@ public class RenewalServlet extends CMSServlet {
             logger.error(CMS.getLogMessage("CMSGW_MISSING_CERTS_RENEW_FROM_AUTHMGR"));
             throw new ECMSGWException(CMS.getUserMessage("CMS_GW_MISSING_CERTS_RENEW_FROM_AUTHMGR"));
         }
-        if (mAuthority instanceof CertificateAuthority &&
-                !isCertFromCA(cert)) {
+        if (!isCertFromCA(cert)) {
             logger.error("RenewalServlet: certficate from auth manager for renewal is not from this ca");
             throw new ECMSGWException(CMS.getUserMessage("CMS_GW_INVALID_CERT_FOR_RENEWAL"));
         }
