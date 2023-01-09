@@ -106,10 +106,8 @@ public class RevocationServlet extends CMSServlet {
             if (mFormPath == null)
                 mFormPath = "/" + TPL_FILE;
 
-            if (mAuthority instanceof CertificateAuthority) {
-                if (engine.getEnableNonces()) {
-                    mRandom = jssSubsystem.getRandomNumberGenerator();
-                }
+            if (engine.getEnableNonces()) {
+                mRandom = jssSubsystem.getRandomNumberGenerator();
             }
 
             // set to false by revokeByDN=false in web.xml
@@ -208,22 +206,19 @@ public class RevocationServlet extends CMSServlet {
         boolean noInfo = false;
         X509CertImpl[] certsToRevoke = null;
 
-        if (mAuthority instanceof CertificateAuthority) {
-
-            if (engine.getEnableNonces()) {
-                // generate nonce
-                long n = mRandom.nextLong();
-                // store nonce in session
-                Map<Object, Long> nonces = ((CertificateAuthority) certAuthority).getNonces(cmsReq.getHttpReq(), "cert-revoke");
-                nonces.put(old_serial_no, n);
-                // return serial number and nonce to client
-                header.addStringValue("nonce", old_serial_no+":"+n);
-            }
-
-            certsToRevoke = cr.getX509Certificates(
-                        old_cert.getSubjectName().toString(),
-                        CertificateRepository.ALL_UNREVOKED_CERTS);
+        if (engine.getEnableNonces()) {
+            // generate nonce
+            long n = mRandom.nextLong();
+            // store nonce in session
+            Map<Object, Long> nonces = ((CertificateAuthority) certAuthority).getNonces(cmsReq.getHttpReq(), "cert-revoke");
+            nonces.put(old_serial_no, n);
+            // return serial number and nonce to client
+            header.addStringValue("nonce", old_serial_no+":"+n);
         }
+
+        certsToRevoke = cr.getX509Certificates(
+                    old_cert.getSubjectName().toString(),
+                    CertificateRepository.ALL_UNREVOKED_CERTS);
 
         boolean authorized = false;
 
@@ -313,14 +308,13 @@ public class RevocationServlet extends CMSServlet {
             throw new ECMSGWException(CMS.getUserMessage("CMS_GW_MISSING_SERIALNO_FOR_REVOKE"));
         }
 
-        // get cert from db if we're cert authority.
-        if (mAuthority instanceof CertificateAuthority) {
-            cert = getX509Certificate(serialno);
-            if (cert == null) {
-                logger.error(CMS.getLogMessage("CMSGW_INVALID_CERT_FOR_REVOCATION"));
-                throw new ECMSGWException(CMS.getUserMessage("CMS_GW_INVALID_CERT_FOR_REVOCATION"));
-            }
+        // get cert from db
+        cert = getX509Certificate(serialno);
+        if (cert == null) {
+            logger.error(CMS.getLogMessage("CMSGW_INVALID_CERT_FOR_REVOCATION"));
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_INVALID_CERT_FOR_REVOCATION"));
         }
+
         certContainer[0] = cert;
         return serialno;
     }
@@ -338,8 +332,7 @@ public class RevocationServlet extends CMSServlet {
             logger.error(CMS.getLogMessage("CMSGW_MISSING_CERTS_REVOKE_FROM_AUTHMGR"));
             throw new ECMSGWException(CMS.getUserMessage("CMS_GW_MISSING_CERTS_REVOKE_FROM_AUTHMGR"));
         }
-        if (mAuthority instanceof CertificateAuthority &&
-                !isCertFromCA(cert)) {
+        if (!isCertFromCA(cert)) {
             logger.error(CMS.getLogMessage("CMSGW_INVALID_CERT_FOR_REVOCATION"));
             throw new ECMSGWException(CMS.getUserMessage("CMS_GW_INVALID_CERT_FOR_REVOCATION"));
         }
