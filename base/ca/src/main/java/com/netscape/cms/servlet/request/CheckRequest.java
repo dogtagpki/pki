@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.INTEGER;
@@ -96,7 +97,6 @@ public class CheckRequest extends CMSServlet {
 
     // variables
     private String mFormPath = null;
-    private String mAuthorityId = null;
 
     @Override
     public CMSRequest newCMSRequest() {
@@ -122,8 +122,7 @@ public class CheckRequest extends CMSServlet {
 
         super.init(sc);
 
-        mAuthorityId = mAuthority.getId();
-        mFormPath = "/" + mAuthorityId + "/" + TPL_FILE;
+        mFormPath = "/ca/" + TPL_FILE;
 
         mTemplates.remove(CMSRequest.SUCCESS);
     }
@@ -258,8 +257,11 @@ public class CheckRequest extends CMSServlet {
         // xxx need to check why this is not available at startup
         X509Certificate mCACerts[] = null;
 
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA();
+
         try {
-            mCACerts = ((CertificateAuthority) mAuthority).getCACertChain().getChain();
+            mCACerts = ca.getCACertChain().getChain();
         } catch (Exception e) {
             throw new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_CA_CHAIN_NOT_AVAILABLE"));
@@ -306,7 +308,7 @@ public class CheckRequest extends CMSServlet {
         RequestStatus status = r.getRequestStatus();
         String note = r.getExtDataInString("requestNotes");
 
-        header.addStringValue("authority", mAuthorityId);
+        header.addStringValue("authority", "ca");
         header.addStringValue(REQ_ID, r.getRequestId().toString());
         header.addStringValue(STATUS, status.toString());
         header.addLongValue(CREATE_ON, r.getCreationTime().getTime() / 1000);
@@ -472,11 +474,7 @@ public class CheckRequest extends CMSServlet {
                                                 EncapsulatedContentInfo(OBJECT_IDENTIFIER.id_cct_PKIResponse,
                                                         rb);
 
-                                        org.mozilla.jss.crypto.X509Certificate x509cert = null;
-
-                                        if (mAuthority instanceof CertificateAuthority) {
-                                            x509cert = ((CertificateAuthority) mAuthority).getCaX509Cert();
-                                        }
+                                        org.mozilla.jss.crypto.X509Certificate x509cert = ca.getCaX509Cert();
                                         if (x509cert == null)
                                             throw new ECMSGWException(CMS.getUserMessage("CMS_GW_CMC_ERROR",
                                                     "No signing cert found."));
