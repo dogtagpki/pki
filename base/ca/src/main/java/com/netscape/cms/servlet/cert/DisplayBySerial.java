@@ -104,19 +104,17 @@ public class DisplayBySerial extends CMSServlet {
         super.init(sc);
 
         CAEngine engine = CAEngine.getInstance();
-
-        if (mAuthority instanceof CertificateAuthority) {
-            mCertDB = engine.getCertificateRepository();
-        }
+        CertificateAuthority ca = engine.getCA();
+        mCertDB = engine.getCertificateRepository();
 
         try {
-            mCACerts = ((CertificateAuthority) mAuthority).getCACertChain().getChain();
+            mCACerts = ca.getCACertChain().getChain();
         } catch (Exception e) {
             logger.warn(CMS.getLogMessage("CMSGW_CA_CHAIN_NOT_AVAILABLE"), e);
         }
 
         // coming from ee
-        mForm1Path = "/" + mAuthority.getId() + "/" + TPL_FILE1;
+        mForm1Path = "/ca/" + TPL_FILE1;
 
         if (mOutputTemplatePath != null)
             mForm1Path = mOutputTemplatePath;
@@ -313,7 +311,7 @@ public class DisplayBySerial extends CMSServlet {
                 if (metaInfo != null) {
                     String rid = (String) metaInfo.get(CertRecord.META_REQUEST_ID);
 
-                    if (rid != null && mAuthority instanceof CertificateAuthority) {
+                    if (rid != null) {
                         Request r = requestRepository.readRequest(new RequestId(rid));
                         String certType = r.getExtDataInString(Request.HTTP_PARAMS, Request.CERT_TYPE);
 
@@ -371,7 +369,7 @@ public class DisplayBySerial extends CMSServlet {
              req.getServerName() + ":"+
              req.getServerPort() + newRequestURI);
              */
-            header.addStringValue("authorityid", mAuthority.getId());
+            header.addStringValue("authorityid", "ca");
 
             if (!b64CertOnly) {
                 String certFingerprints = "";
