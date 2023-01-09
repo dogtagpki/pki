@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
 
@@ -78,7 +79,7 @@ public class GetCAChain extends CMSServlet {
         // override success to display own output.
         mTemplates.remove(CMSRequest.SUCCESS);
         // coming from ee
-        mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
+        mFormPath = "/ca/" + TPL_FILE;
     }
 
     /**
@@ -173,9 +174,11 @@ public class GetCAChain extends CMSServlet {
          * the whole chain.
          */
 
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA();
+
         if (clientIsMSIE(httpReq) && (op.equals("download") || op.equals("downloadBIN"))) {
-            X509Certificate[] caCerts =
-                    ((CertificateAuthority) mAuthority).getCACertChain().getChain();
+            X509Certificate[] caCerts = ca.getCACertChain().getChain();
 
             try {
                 bytes = caCerts[0].getEncoded();
@@ -185,7 +188,7 @@ public class GetCAChain extends CMSServlet {
                 throw new ECMSGWException(CMS.getUserMessage("CMS_GW_GETTING_CA_CERT_ERROR"), e);
             }
         } else {
-            CertificateChain certChain = ((CertificateAuthority) mAuthority).getCACertChain();
+            CertificateChain certChain = ca.getCACertChain();
 
             if (certChain == null) {
                 logger.error(CMS.getLogMessage("CMSGW_CA_CHAIN_EMPTY"));
@@ -246,8 +249,9 @@ public class GetCAChain extends CMSServlet {
             CMSRequest cmsReq)
             throws EBaseException {
 
-        CertificateChain certChain =
-                ((CertificateAuthority) mAuthority).getCACertChain();
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA();
+        CertificateChain certChain = ca.getCACertChain();
 
         if (certChain == null) {
             cmsReq.setStatus(CMSRequest.ERROR);
