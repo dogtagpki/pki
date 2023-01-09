@@ -88,11 +88,9 @@ public class ReasonToRevoke extends CMSServlet {
         CAEngine engine = CAEngine.getInstance();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
-        mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
-        if (mAuthority instanceof CertificateAuthority) {
-            mCA = (CertificateAuthority) mAuthority;
-            mCertDB = engine.getCertificateRepository();
-        }
+        mFormPath = "/ca/" + TPL_FILE;
+        mCA = engine.getCA();
+        mCertDB = engine.getCertificateRepository();
 
         if (mCA != null && engine.getEnableNonces()) {
             mRandom = jssSubsystem.getRandomNumberGenerator();
