@@ -88,11 +88,9 @@ public class DoUnrevoke extends CMSServlet {
 
         CAEngine engine = CAEngine.getInstance();
 
-        mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
+        mFormPath = "/ca/" + TPL_FILE;
 
-        if (mAuthority instanceof CertificateAuthority) {
-            mCertDB = engine.getCertificateRepository();
-        }
+        mCertDB = engine.getCertificateRepository();
         mPublisherProcessor = engine.getPublisherProcessor();
 
         mTemplates.remove(CMSRequest.SUCCESS);
@@ -246,9 +244,7 @@ public class DoUnrevoke extends CMSServlet {
         processor.setRevocationReason(RevocationReason.CERTIFICATE_HOLD);
         processor.setRequestType(RevocationProcessor.OFF_HOLD);
 
-        if (mAuthority instanceof CertificateAuthority) {
-            processor.setAuthority((CertificateAuthority) mAuthority);
-        }
+        processor.setAuthority(engine.getCA());
 
         try {
             StringBuilder snList = new StringBuilder();
