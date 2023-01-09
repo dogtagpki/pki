@@ -91,9 +91,7 @@ public class DoUnrevokeTPS extends CMSServlet {
 
         CAEngine engine = CAEngine.getInstance();
 
-        if (mAuthority instanceof CertificateAuthority) {
-            mCertDB = engine.getCertificateRepository();
-        }
+        mCertDB = engine.getCertificateRepository();
         mPublisherProcessor = engine.getPublisherProcessor();
         mQueue = engine.getRequestQueue();
 
