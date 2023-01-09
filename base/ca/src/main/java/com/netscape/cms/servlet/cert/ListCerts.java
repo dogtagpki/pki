@@ -103,14 +103,12 @@ public class ListCerts extends CMSServlet {
         // override success to render own template.
         mTemplates.remove(CMSRequest.SUCCESS);
 
-        if (mAuthority instanceof CertificateAuthority) {
-            CertificateAuthority ca = (CertificateAuthority) mAuthority;
+        CertificateAuthority ca = engine.getCA();
 
-            mCertDB = engine.getCertificateRepository();
-            mAuthName = ca.getX500Name();
-        }
+        mCertDB = engine.getCertificateRepository();
+        mAuthName = ca.getX500Name();
 
-        mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
+        mFormPath = "/ca/" + TPL_FILE;
         if (mOutputTemplatePath != null)
             mFormPath = mOutputTemplatePath;
 
@@ -280,13 +278,13 @@ public class ListCerts extends CMSServlet {
 
             revokeAll = req.getParameter("revokeAll");
 
-            if (mAuthority instanceof CertificateAuthority) {
-                X509CertImpl caCert = ((CertificateAuthority) mAuthority).getSigningUnit().getCertImpl();
+            CAEngine engine = CAEngine.getInstance();
+            CertificateAuthority ca = engine.getCA();
+            X509CertImpl caCert = ca.getSigningUnit().getCertImpl();
 
-                //if (isCertFromCA(caCert))
-                header.addStringValue("caSerialNumber",
-                        caCert.getSerialNumber().toString(16));
-            }
+            //if (isCertFromCA(caCert))
+            header.addStringValue("caSerialNumber",
+                    caCert.getSerialNumber().toString(16));
 
             // constructs the ldap filter on the server side
             String queryCertFilter = buildFilter(req);
