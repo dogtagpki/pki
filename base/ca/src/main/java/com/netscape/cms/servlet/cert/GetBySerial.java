@@ -117,7 +117,7 @@ public class GetBySerial extends CMSServlet {
         CertificateRepository certdb = engine.getCertificateRepository();
 
         if (certdb == null) {
-            logger.error(CMS.getLogMessage("CMSGW_CERT_DB_NULL", mAuthority.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_CERT_DB_NULL", "ca"));
             return null;
         }
 
