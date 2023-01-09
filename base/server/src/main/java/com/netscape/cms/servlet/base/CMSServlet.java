@@ -96,7 +96,6 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.base.ConfigStore;
-import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.request.RequestRepository;
@@ -980,32 +979,6 @@ public abstract class CMSServlet extends HttpServlet {
             }
         }
         req.setExtData(Request.HTTP_PARAMS, saveParams);
-    }
-
-    /**
-     * handy routine for getting a certificate from the certificate
-     * repository. mAuthority must be a CA.
-     */
-    protected X509Certificate getX509Certificate(BigInteger serialNo) {
-        if (!(mAuthority instanceof ICertificateAuthority)) {
-            logger.error(CMS.getLogMessage("CMSGW_NOT_CERT_AUTH"));
-            return null;
-        }
-        CertificateRepository certdb = ((ICertificateAuthority) mAuthority).getCertificateRepository();
-
-        if (certdb == null) {
-            logger.error(CMS.getLogMessage("CMSGW_CERT_DB_NULL", mAuthority.toString()));
-            return null;
-        }
-        X509Certificate cert = null;
-
-        try {
-            cert = certdb.getX509Certificate(serialNo);
-        } catch (EBaseException e) {
-            logger.error(CMS.getLogMessage("CMSGW_NO_CERT_REC", serialNo.toString(16), e.toString()), e);
-            return null;
-        }
-        return cert;
     }
 
     /**

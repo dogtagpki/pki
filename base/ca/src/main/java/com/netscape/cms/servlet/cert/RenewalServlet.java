@@ -434,6 +434,10 @@ public class RenewalServlet extends CMSServlet {
     private BigInteger getCertFromAgent(
             IArgBlock httpParams, X509Certificate[] certContainer)
             throws EBaseException {
+
+        CAEngine engine = CAEngine.getInstance();
+        CertificateRepository certRepository = engine.getCertificateRepository();
+
         BigInteger serialno = null;
         X509Certificate cert = null;
 
@@ -444,7 +448,7 @@ public class RenewalServlet extends CMSServlet {
             throw new ECMSGWException(CMS.getUserMessage("CMS_GW_MISSING_SERIALNO_FOR_RENEW"));
         }
         // get cert from db
-        cert = getX509Certificate(serialno);
+        cert = certRepository.getX509Certificate(serialno);
         if (cert == null) {
             logger.error(CMS.getLogMessage("CMSGW_MISSING_SERIALNO_FOR_RENEW_1", serialno.toString(16)));
             throw new ECMSGWException(CMS.getUserMessage("CMS_GW_INVALID_CERT_FOR_RENEWAL"));

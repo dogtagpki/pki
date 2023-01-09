@@ -233,6 +233,7 @@ public class DoUnrevokeTPS extends CMSServlet {
             throws EBaseException {
 
         CAEngine engine = CAEngine.getInstance();
+        CertificateRepository certRepository = engine.getCertificateRepository();
 
         String auditSubjectID = auditSubjectID();
         String auditSerialNumber = auditSerialNumber(serialNumbers[0].toString());
@@ -249,7 +250,7 @@ public class DoUnrevokeTPS extends CMSServlet {
             // certs are for old cloning and they should be removed as soon as possible
             certs = new X509CertImpl[serialNumbers.length];
             for (int i = 0; i < serialNumbers.length; i++) {
-                certs[i] = (X509CertImpl) getX509Certificate(serialNumbers[i]);
+                certs[i] = certRepository.getX509Certificate(serialNumbers[i]);
                 if (snList.length() > 0)
                     snList += ", ";
                 snList += "0x" + serialNumbers[i].toString(16);
