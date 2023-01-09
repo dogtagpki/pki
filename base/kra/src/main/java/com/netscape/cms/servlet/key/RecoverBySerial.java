@@ -104,9 +104,10 @@ public class RecoverBySerial extends CMSServlet {
     @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
-        mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
-        mService = (KeyRecoveryAuthority) mAuthority;
-        repo = ((KeyRecoveryAuthority) mAuthority).getKeyRepository();
+        mFormPath = "/kra/" + TPL_FILE;
+        KRAEngine engine = KRAEngine.getInstance();
+        mService = engine.getKRA();
+        repo = mService.getKeyRepository();
 
         mTemplates.remove(CMSRequest.SUCCESS);
         if (mOutputTemplatePath != null)

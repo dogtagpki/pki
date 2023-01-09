@@ -46,6 +46,10 @@ public class KRAEngine extends CMSEngine {
         return (KRAEngineConfig) mConfig;
     }
 
+    public KeyRecoveryAuthority getKRA() {
+        return (KeyRecoveryAuthority) getSubsystem(KeyRecoveryAuthority.ID);
+    }
+
     public KeyRequestRepository getKeyRequestRepository() {
         return (KeyRequestRepository) requestRepository;
     }

@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
+import org.dogtagpki.server.kra.KRAEngine;
 
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
@@ -81,8 +82,9 @@ public class GetPk12 extends CMSServlet {
     @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
-        mFormPath = "/agent/" + mAuthority.getId() + "/" + TPL_FILE;
-        mService = (KeyRecoveryAuthority) mAuthority;
+        mFormPath = "/agent/kra/" + TPL_FILE;
+        KRAEngine engine = KRAEngine.getInstance();
+        mService = engine.getKRA();
 
         mTemplates.remove(CMSRequest.SUCCESS);
         if (mOutputTemplatePath != null)

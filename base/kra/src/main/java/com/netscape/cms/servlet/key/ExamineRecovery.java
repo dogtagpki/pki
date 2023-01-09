@@ -80,8 +80,9 @@ public class ExamineRecovery extends CMSServlet {
     @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
-        mService = (KeyRecoveryAuthority) mAuthority;
-        mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
+        KRAEngine engine = KRAEngine.getInstance();
+        mService = engine.getKRA();
+        mFormPath = "/kra/" + TPL_FILE;
 
         mTemplates.remove(CMSRequest.SUCCESS);
         if (mOutputTemplatePath != null)
@@ -213,7 +214,7 @@ public class ExamineRecovery extends CMSServlet {
             header.addStringValue("serialNumber", keyID);
             header.addStringValue("recoveryID", recoveryID);
 
-            KeyRepository mKeyDB = ((KeyRecoveryAuthority) mAuthority).getKeyRepository();
+            KeyRepository mKeyDB = mService.getKeyRepository();
             KeyRecord rec = mKeyDB.readKeyRecord(new
                     BigInteger(keyID));
             KeyRecordParser.fillRecordIntoArg(rec, header);

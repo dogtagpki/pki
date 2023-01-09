@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
+import org.dogtagpki.server.kra.KRAEngine;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
@@ -99,7 +100,7 @@ public class SrchKey extends CMSServlet {
     @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
-        mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
+        mFormPath = "/kra/" + TPL_FILE;
 
         /* maxReturns doesn't seem to do anything useful in this
            servlet!!! */
@@ -115,8 +116,10 @@ public class SrchKey extends CMSServlet {
             // do nothing
         }
 
-        mKeyDB = ((KeyRecoveryAuthority) mAuthority).getKeyRepository();
-        mAuthName = ((KeyRecoveryAuthority) mAuthority).getX500Name();
+        KRAEngine engine = KRAEngine.getInstance();
+        KeyRecoveryAuthority kra = engine.getKRA();
+        mKeyDB = kra.getKeyRepository();
+        mAuthName = kra.getX500Name();
 
         mTemplates.remove(CMSRequest.SUCCESS);
         if (mOutputTemplatePath != null)

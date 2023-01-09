@@ -84,8 +84,9 @@ public class GrantRecovery extends CMSServlet {
     @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
-        mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
-        mService = (KeyRecoveryAuthority) mAuthority;
+        mFormPath = "/kra/" + TPL_FILE;
+        KRAEngine engine = KRAEngine.getInstance();
+        mService = engine.getKRA();
 
         mTemplates.remove(CMSRequest.SUCCESS);
 

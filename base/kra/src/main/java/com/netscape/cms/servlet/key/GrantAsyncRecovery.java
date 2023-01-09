@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
+import org.dogtagpki.server.kra.KRAEngine;
 
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
@@ -78,8 +79,9 @@ public class GrantAsyncRecovery extends CMSServlet {
     @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
-        mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
-        mService = (KeyRecoveryAuthority) mAuthority;
+        mFormPath = "/kra/" + TPL_FILE;
+        KRAEngine engine = KRAEngine.getInstance();
+        mService = engine.getKRA();
 
         mTemplates.remove(CMSRequest.SUCCESS);
 

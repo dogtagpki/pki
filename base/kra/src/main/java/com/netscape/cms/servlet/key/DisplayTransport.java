@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
+import org.dogtagpki.server.kra.KRAEngine;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
 
@@ -99,7 +100,9 @@ public class DisplayTransport extends CMSServlet {
         }
 
         try {
-            KeyRecoveryAuthority kra = (KeyRecoveryAuthority) mAuthority;
+            KRAEngine engine = KRAEngine.getInstance();
+            KeyRecoveryAuthority kra = engine.getKRA();
+
             ITransportKeyUnit tu = kra.getTransportKeyUnit();
             org.mozilla.jss.crypto.X509Certificate transportCert =
                     tu.getCertificate();

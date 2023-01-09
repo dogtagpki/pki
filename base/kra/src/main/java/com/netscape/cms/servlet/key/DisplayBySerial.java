@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
+import org.dogtagpki.server.kra.KRAEngine;
 
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzException;
@@ -84,8 +85,10 @@ public class DisplayBySerial extends CMSServlet {
     @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
-        mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
-        mKeyDB = ((KeyRecoveryAuthority) mAuthority).getKeyRepository();
+        mFormPath = "/kra/" + TPL_FILE;
+        KRAEngine engine = KRAEngine.getInstance();
+        KeyRecoveryAuthority kra = engine.getKRA();
+        mKeyDB = kra.getKeyRepository();
 
         mTemplates.remove(CMSRequest.SUCCESS);
         if (mOutputTemplatePath != null)

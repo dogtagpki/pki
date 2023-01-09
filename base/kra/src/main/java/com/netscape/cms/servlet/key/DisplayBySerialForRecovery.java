@@ -87,9 +87,11 @@ public class DisplayBySerialForRecovery extends CMSServlet {
     @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
-        mFormPath = "/agent/" + mAuthority.getId() + "/" + TPL_FILE;
-        mKeyDB = ((KeyRecoveryAuthority) mAuthority).getKeyRepository();
-        mService = (KeyRecoveryAuthority) mAuthority;
+        mFormPath = "/agent/kra/" + TPL_FILE;
+        KRAEngine engine = KRAEngine.getInstance();
+        KeyRecoveryAuthority kra = engine.getKRA();
+        mKeyDB = kra.getKeyRepository();
+        mService = kra;
 
         mTemplates.remove(CMSRequest.SUCCESS);
     }

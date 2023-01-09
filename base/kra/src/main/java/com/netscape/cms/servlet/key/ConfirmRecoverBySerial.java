@@ -27,6 +27,8 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dogtagpki.server.kra.KRAEngine;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -82,9 +84,10 @@ public class ConfirmRecoverBySerial extends CMSServlet {
     @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
-        mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
-        mRecoveryService = (KeyRecoveryAuthority) mAuthority;
-        mKeyDB = ((KeyRecoveryAuthority) mAuthority).getKeyRepository();
+        mFormPath = "/kra/" + TPL_FILE;
+        KRAEngine engine = KRAEngine.getInstance();
+        mRecoveryService = engine.getKRA();
+        mKeyDB = mRecoveryService.getKeyRepository();
 
         mTemplates.remove(CMSRequest.SUCCESS);
     }

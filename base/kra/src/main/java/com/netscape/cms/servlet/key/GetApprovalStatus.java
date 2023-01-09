@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
+import org.dogtagpki.server.kra.KRAEngine;
 
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -84,7 +85,8 @@ public class GetApprovalStatus extends CMSServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         // mFormPath = "/"+authority.getId()+"/"+TPL_FILE;
-        mService = (KeyRecoveryAuthority) mAuthority;
+        KRAEngine engine = KRAEngine.getInstance();
+        mService = engine.getKRA();
 
         mTemplates.remove(CMSRequest.SUCCESS);
     }
