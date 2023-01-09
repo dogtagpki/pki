@@ -33,6 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
+import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.provider.RSAPublicKey;
 import org.mozilla.jss.netscape.security.x509.CRLExtensions;
@@ -47,7 +48,6 @@ import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -55,7 +55,6 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
-import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.RevocationInfo;
@@ -106,8 +105,8 @@ public class SrchCerts extends CMSServlet {
         // override success to render own template.
         mTemplates.remove(CMSRequest.SUCCESS);
 
-        ISubsystem sub = mAuthority;
-        ConfigStore authConfig = sub.getConfigStore();
+        CertificateAuthority ca = engine.getCA();
+        CAConfig authConfig = ca.getConfigStore();
 
         if (authConfig != null) {
             try {
@@ -117,14 +116,11 @@ public class SrchCerts extends CMSServlet {
             }
         }
 
-        if (mAuthority instanceof CertificateAuthority) {
-            CertificateAuthority ca = (CertificateAuthority) mAuthority;
 
-            mCertDB = engine.getCertificateRepository();
-            mAuthName = ca.getX500Name();
-        }
+        mCertDB = engine.getCertificateRepository();
+        mAuthName = ca.getX500Name();
 
-        mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
+        mFormPath = "/ca/" + TPL_FILE;
 
         /* Server-Side time limit */
         try {
