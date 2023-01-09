@@ -27,6 +27,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
 
@@ -74,7 +75,9 @@ public class GetCertChain extends CMSServlet {
 
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
-        CertificateChain certChain = ((CertificateAuthority) mAuthority).getCACertChain();
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA();
+        CertificateChain certChain = ca.getCACertChain();
 
         if (certChain == null) {
             logger.warn("GetCertChain: cannot get the certificate chain.");
