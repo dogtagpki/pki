@@ -107,14 +107,11 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
         super.init(sc);
 
         CAEngine engine = CAEngine.getInstance();
-        String authorityId = mAuthority.getId();
 
-        mFormPath = "/" + authorityId + "/" + TPL_FILE;
+        mFormPath = "/ca/" + TPL_FILE;
 
         mTemplates.remove(CMSRequest.SUCCESS);
-        if (mAuthority instanceof CertificateAuthority) {
-            mCertDB = engine.getCertificateRepository();
-        }
+        mCertDB = engine.getCertificateRepository();
 
         mPublisherProcessor = engine.getPublisherProcessor();
         mQueue = engine.getRequestQueue();
@@ -206,12 +203,10 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
         }
 
         if (serialNoArray != null && serialNoArray.length > 0) {
-            if (mAuthority instanceof CertificateAuthority) {
-                certs = new X509CertImpl[serialNoArray.length];
+            certs = new X509CertImpl[serialNoArray.length];
 
-                for (int i = 0; i < serialNoArray.length; i++) {
-                    certs[i] = cr.getX509Certificate(serialNoArray[i]);
-                }
+            for (int i = 0; i < serialNoArray.length; i++) {
+                certs[i] = cr.getX509Certificate(serialNoArray[i]);
             }
 
             header.addIntegerValue("totalRecordCount", serialNoArray.length);
@@ -312,35 +307,33 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                 entryExtn.set(invalidityDateExtn.getName(), invalidityDateExtn);
             }
 
-            if (mAuthority instanceof CertificateAuthority) {
-                CertRecordList list = mCertDB.findCertRecordsInList(revokeAll, null, totalRecordCount);
-                Enumeration<CertRecord> e = list.getCertRecords(0, totalRecordCount - 1);
+            CertRecordList list = mCertDB.findCertRecordsInList(revokeAll, null, totalRecordCount);
+            Enumeration<CertRecord> e = list.getCertRecords(0, totalRecordCount - 1);
 
-                while (e != null && e.hasMoreElements()) {
-                    CertRecord rec = e.nextElement();
-                    X509CertImpl cert = rec.getCertificate();
-                    ArgBlock rarg = new ArgBlock();
+            while (e != null && e.hasMoreElements()) {
+                CertRecord rec = e.nextElement();
+                X509CertImpl cert = rec.getCertificate();
+                ArgBlock rarg = new ArgBlock();
 
-                    rarg.addBigIntegerValue("serialNumber",
-                            cert.getSerialNumber(), 16);
+                rarg.addBigIntegerValue("serialNumber",
+                        cert.getSerialNumber(), 16);
 
-                    if (rec.getStatus().equals(CertRecord.STATUS_REVOKED)) {
-                        rarg.addStringValue("error", "Certificate " +
-                                cert.getSerialNumber().toString() +
-                                " is already revoked.");
-                    } else {
-                        oldCertsV.addElement(cert);
+                if (rec.getStatus().equals(CertRecord.STATUS_REVOKED)) {
+                    rarg.addStringValue("error", "Certificate " +
+                            cert.getSerialNumber().toString() +
+                            " is already revoked.");
+                } else {
+                    oldCertsV.addElement(cert);
 
-                        RevokedCertImpl revCertImpl =
-                                new RevokedCertImpl(cert.getSerialNumber(),
-                                        new Date(), entryExtn);
+                    RevokedCertImpl revCertImpl =
+                            new RevokedCertImpl(cert.getSerialNumber(),
+                                    new Date(), entryExtn);
 
-                        revCertImplsV.addElement(revCertImpl);
-                        count++;
-                        rarg.addStringValue("error", null);
-                    }
-                    argSet.addRepeatRecord(rarg);
+                    revCertImplsV.addElement(revCertImpl);
+                    count++;
+                    rarg.addStringValue("error", null);
                 }
+                argSet.addRepeatRecord(rarg);
             }
 
             header.addIntegerValue("totalRecordCount", count);
@@ -452,56 +445,55 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                         }
                     }
                 }
-                if (mAuthority instanceof CertificateAuthority) {
-                    // let known update and publish status of all crls.
-                    for (CRLIssuingPoint crl : engine.getCRLIssuingPoints()) {
-                        String crlId = crl.getId();
 
-                        if (crlId.equals(CertificateAuthority.PROP_MASTER_CRL))
+                // let known update and publish status of all crls.
+                for (CRLIssuingPoint crl : engine.getCRLIssuingPoints()) {
+                    String crlId = crl.getId();
+
+                    if (crlId.equals(CertificateAuthority.PROP_MASTER_CRL))
+                        continue;
+                    String updateStatusStr = crl.getCrlUpdateStatusStr();
+                    Integer updateResult = revReq.getExtDataInInteger(updateStatusStr);
+
+                    if (updateResult != null) {
+                        if (updateResult.equals(Request.RES_SUCCESS)) {
+                            logger.debug("ChallengeRevcationServlet1: "
+                                    + CMS.getLogMessage("ADMIN_SRVLT_ADDING_HEADER",
+                                            updateStatusStr));
+                            header.addStringValue(updateStatusStr, "yes");
+                        } else {
+                            String updateErrorStr = crl.getCrlUpdateErrorStr();
+
+                            logger.debug("ChallengeRevcationServlet1: "
+                                    + CMS.getLogMessage("ADMIN_SRVLT_ADDING_HEADER_NO",
+                                            updateStatusStr));
+                            header.addStringValue(updateStatusStr, "no");
+                            String error =
+                                    revReq.getExtDataInString(updateErrorStr);
+
+                            if (error != null)
+                                header.addStringValue(updateErrorStr,
+                                        error);
+                        }
+                        String publishStatusStr = crl.getCrlPublishStatusStr();
+                        Integer publishResult =
+                                revReq.getExtDataInInteger(publishStatusStr);
+
+                        if (publishResult == null)
                             continue;
-                        String updateStatusStr = crl.getCrlUpdateStatusStr();
-                        Integer updateResult = revReq.getExtDataInInteger(updateStatusStr);
+                        if (publishResult.equals(Request.RES_SUCCESS)) {
+                            header.addStringValue(publishStatusStr, "yes");
+                        } else {
+                            String publishErrorStr =
+                                    crl.getCrlPublishErrorStr();
 
-                        if (updateResult != null) {
-                            if (updateResult.equals(Request.RES_SUCCESS)) {
-                                logger.debug("ChallengeRevcationServlet1: "
-                                        + CMS.getLogMessage("ADMIN_SRVLT_ADDING_HEADER",
-                                                updateStatusStr));
-                                header.addStringValue(updateStatusStr, "yes");
-                            } else {
-                                String updateErrorStr = crl.getCrlUpdateErrorStr();
+                            header.addStringValue(publishStatusStr, "no");
+                            String error =
+                                    revReq.getExtDataInString(publishErrorStr);
 
-                                logger.debug("ChallengeRevcationServlet1: "
-                                        + CMS.getLogMessage("ADMIN_SRVLT_ADDING_HEADER_NO",
-                                                updateStatusStr));
-                                header.addStringValue(updateStatusStr, "no");
-                                String error =
-                                        revReq.getExtDataInString(updateErrorStr);
-
-                                if (error != null)
-                                    header.addStringValue(updateErrorStr,
-                                            error);
-                            }
-                            String publishStatusStr = crl.getCrlPublishStatusStr();
-                            Integer publishResult =
-                                    revReq.getExtDataInInteger(publishStatusStr);
-
-                            if (publishResult == null)
-                                continue;
-                            if (publishResult.equals(Request.RES_SUCCESS)) {
-                                header.addStringValue(publishStatusStr, "yes");
-                            } else {
-                                String publishErrorStr =
-                                        crl.getCrlPublishErrorStr();
-
-                                header.addStringValue(publishStatusStr, "no");
-                                String error =
-                                        revReq.getExtDataInString(publishErrorStr);
-
-                                if (error != null)
-                                    header.addStringValue(
-                                            publishErrorStr, error);
-                            }
+                            if (error != null)
+                                header.addStringValue(
+                                        publishErrorStr, error);
                         }
                     }
                 }
