@@ -59,7 +59,7 @@ public class GetEnableStatus extends CMSServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         // coming from agent
-        mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
+        mFormPath = "/ca/" + TPL_FILE;
 
         mTemplates.remove(CMSRequest.SUCCESS);
     }
