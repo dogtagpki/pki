@@ -115,19 +115,15 @@ public class UpdateDir extends CMSServlet {
 
         CAEngine engine = CAEngine.getInstance();
 
-        if (mAuthority != null) {
-            mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
-            if (mAuthority instanceof CertificateAuthority) {
-                mCA = (CertificateAuthority) mAuthority;
-                mPublisherProcessor = engine.getPublisherProcessor();
-                mCRLRepository = engine.getCRLRepository();
-            }
+        mFormPath = "/ca/" + TPL_FILE;
+        mCA = engine.getCA();
+        mPublisherProcessor = engine.getPublisherProcessor();
+        mCRLRepository = engine.getCRLRepository();
 
-            // override success to do output orw own template.
-            mTemplates.remove(CMSRequest.SUCCESS);
-            if (mOutputTemplatePath != null) {
-                mFormPath = mOutputTemplatePath;
-            }
+        // override success to do output orw own template.
+        mTemplates.remove(CMSRequest.SUCCESS);
+        if (mOutputTemplatePath != null) {
+            mFormPath = mOutputTemplatePath;
         }
     }
 
