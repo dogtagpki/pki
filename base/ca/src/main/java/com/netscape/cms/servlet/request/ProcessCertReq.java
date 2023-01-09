@@ -208,7 +208,7 @@ public class ProcessCertReq extends CMSServlet {
             mQueue = engine.getRequestQueue();
             mPublisherProcessor = engine.getPublisherProcessor();
 
-            mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
+            mFormPath = "/ca/" + TPL_FILE;
 
             mParser = CertReqParser.DETAIL_PARSER;
 
@@ -424,8 +424,7 @@ public class ProcessCertReq extends CMSServlet {
                 }
             }
 
-            if (mAuthority != null)
-                header.addStringValue("authorityid", mAuthority.getId());
+            header.addStringValue("authorityid", "ca");
 
             if (toDo != null) {
                 // for audit log
@@ -1495,7 +1494,7 @@ public class ProcessCertReq extends CMSServlet {
         } else {
             AuthToken authToken = getAuthToken(req);
             AuthzToken authzToken = null;
-            String resourceName = "certServer." + mAuthority.getId() + ".group";
+            String resourceName = "certServer.ca.group";
 
             try {
                 authzToken = authorize(mAclMethod, authToken,
