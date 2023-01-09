@@ -24,7 +24,8 @@ import java.util.Enumeration;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
-import org.dogtagpki.server.ca.ICertificateAuthority;
+import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.CAEngineConfig;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
@@ -44,8 +45,6 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
@@ -170,8 +169,8 @@ public class SharedSecret extends DirBasedAuthentication
         logger.debug(method + " begins.");
         super.init(authenticationConfig, name, implName, config);
 
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
+        CAEngine engine = CAEngine.getInstance();
+        CAEngineConfig cs = engine.getConfig();
 
         //TODO later:
         //mRemoveShrTok =
@@ -196,8 +195,7 @@ public class SharedSecret extends DirBasedAuthentication
 
         initLdapConn(config);
 
-        ICertificateAuthority authority = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-        issuanceProtPrivKey = authority.getIssuanceProtPrivKey();
+        issuanceProtPrivKey = engine.getIssuanceProtectionPrivateKey();
         if (issuanceProtPrivKey != null)
             logger.debug(method + "got issuanceProtPrivKey");
         else {
@@ -205,7 +203,7 @@ public class SharedSecret extends DirBasedAuthentication
             logger.error(msg);
             throw new EBaseException(msg);
         }
-        certRepository = authority.getCertificateRepository();
+        certRepository = engine.getCertificateRepository();
         if (certRepository == null) {
             msg = method + "certRepository null";
             logger.error(msg);
@@ -242,8 +240,8 @@ public class SharedSecret extends DirBasedAuthentication
         String method = "SharedSecret.initLdapConn";
         String msg = "";
 
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
+        CAEngine engine = CAEngine.getInstance();
+        CAEngineConfig cs = engine.getConfig();
 
         shrTokLdapConfigStore = config.getLDAPConfig();
         if (shrTokLdapConfigStore == null) {
