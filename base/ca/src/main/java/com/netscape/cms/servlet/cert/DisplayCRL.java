@@ -87,7 +87,7 @@ public class DisplayCRL extends CMSServlet {
     @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
-        mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
+        mFormPath = "/ca/" + TPL_FILE;
 
         if (mOutputTemplatePath != null)
             mFormPath = mOutputTemplatePath;
