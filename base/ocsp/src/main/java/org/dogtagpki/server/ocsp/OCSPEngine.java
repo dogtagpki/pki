@@ -45,6 +45,10 @@ public class OCSPEngine extends CMSEngine {
         return (OCSPEngineConfig) mConfig;
     }
 
+    public OCSPAuthority getOCSP() {
+        return (OCSPAuthority) getSubsystem(OCSPAuthority.ID);
+    }
+
     @Override
     public void initSubsystem(ISubsystem subsystem, ConfigStore subsystemConfig) throws Exception {
 

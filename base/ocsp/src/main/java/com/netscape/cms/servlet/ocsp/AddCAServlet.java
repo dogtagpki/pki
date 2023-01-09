@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
+import org.dogtagpki.server.ocsp.OCSPEngine;
 import org.mozilla.jss.netscape.security.util.Cert;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -79,9 +80,11 @@ public class AddCAServlet extends CMSServlet {
         super.init(sc);
         // override success to display own output.
 
-        mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
+        mFormPath = "/ocsp/" + TPL_FILE;
         mTemplates.remove(CMSRequest.SUCCESS);
-        mOCSPAuthority = (OCSPAuthority) mAuthority;
+
+        OCSPEngine engine = OCSPEngine.getInstance();
+        mOCSPAuthority = engine.getOCSP();
 
         if (mOutputTemplatePath != null)
             mFormPath = mOutputTemplatePath;
