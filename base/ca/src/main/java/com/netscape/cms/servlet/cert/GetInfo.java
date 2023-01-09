@@ -77,8 +77,8 @@ public class GetInfo extends CMSServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
 
-        if (mAuthority instanceof CertificateAuthority)
-            mCA = (CertificateAuthority) mAuthority;
+        CAEngine engine = CAEngine.getInstance();
+        mCA = engine.getCA();
 
         // override success to do output our own template.
         mTemplates.remove(CMSRequest.SUCCESS);
