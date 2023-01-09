@@ -78,7 +78,7 @@ public class GetCRL extends CMSServlet {
         super.init(sc);
 
         mTemplates.remove(CMSRequest.SUCCESS);
-        mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
+        mFormPath = "/ca/" + TPL_FILE;
         if (mOutputTemplatePath != null)
             mFormPath = mOutputTemplatePath;
     }
@@ -115,14 +115,6 @@ public class GetCRL extends CMSServlet {
 
         // Construct an ArgBlock
         IArgBlock args = cmsReq.getHttpParams();
-
-        if (!(mAuthority instanceof CertificateAuthority)) {
-            logger.error(CMS.getLogMessage("CMSGW_CA_FROM_RA_NOT_IMP"));
-            cmsReq.setError(new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_NOT_YET_IMPLEMENTED")));
-            cmsReq.setStatus(CMSRequest.ERROR);
-            return;
-        }
 
         CMSTemplate form = null;
         Locale[] locale = new Locale[1];
@@ -167,7 +159,7 @@ public class GetCRL extends CMSServlet {
         CRLRepository crlRepository = engine.getCRLRepository();
 
         CRLIssuingPointRecord crlRecord = null;
-        CertificateAuthority ca = (CertificateAuthority) mAuthority;
+        CertificateAuthority ca = engine.getCA();
         CRLIssuingPoint crlIP = null;
         if (ca != null)
             crlIP = engine.getCRLIssuingPoint(crlId);
