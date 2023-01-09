@@ -95,16 +95,14 @@ public class Monitor extends CMSServlet {
         // override success to render own template.
         mTemplates.remove(CMSRequest.SUCCESS);
 
-        if (mAuthority instanceof CertificateAuthority) {
-            CertificateAuthority ca = (CertificateAuthority) mAuthority;
+        CertificateAuthority ca = engine.getCA();
 
-            mCertDB = engine.getCertificateRepository();
-            mAuthName = ca.getX500Name();
-        }
+        mCertDB = engine.getCertificateRepository();
+        mAuthName = ca.getX500Name();
 
         requestRepository = engine.getRequestRepository();
 
-        mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
+        mFormPath = "/ca/" + TPL_FILE;
 
         if (mOutputTemplatePath != null)
             mFormPath = mOutputTemplatePath;
