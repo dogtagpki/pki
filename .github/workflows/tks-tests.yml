@@ -50,7 +50,7 @@ jobs:
       - name: Upload runner image
         uses: actions/upload-artifact@v3
         with:
-          name: pki-runner-${{ matrix.os }}
+          name: pki-runner
           path: /tmp/pki-runner.tar
 
   # docs/installation/tks/Installing_TKS.md
@@ -69,7 +69,7 @@ jobs:
       - name: Download runner image
         uses: actions/download-artifact@v2
         with:
-          name: pki-runner-${{ matrix.os }}
+          name: pki-runner
           path: /tmp
 
       - name: Load runner image
@@ -125,7 +125,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: tks-${{ matrix.os }}
+          name: tks
           path: |
             /tmp/artifacts/pki
 
@@ -144,7 +144,7 @@ jobs:
       - name: Download runner image
         uses: actions/download-artifact@v2
         with:
-          name: pki-runner-${{ matrix.os }}
+          name: pki-runner
           path: /tmp
 
       - name: Load runner image
@@ -252,7 +252,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: tks-separate-ca-${{ matrix.os }}
+          name: tks-separate-ca
           path: |
             /tmp/artifacts/ca
 
@@ -260,7 +260,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: tks-separate-tks-${{ matrix.os }}
+          name: tks-separate-tks
           path: |
             /tmp/artifacts/tks
 
@@ -282,7 +282,7 @@ jobs:
       - name: Download runner image
         uses: actions/download-artifact@v2
         with:
-          name: pki-runner-${{ matrix.os }}
+          name: pki-runner
           path: /tmp
 
       - name: Load runner image
@@ -451,7 +451,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: tks-clone-primary-${{ matrix.os }}
+          name: tks-clone-primary
           path: |
             /tmp/artifacts/primary
 
@@ -459,7 +459,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: tks-clone-secondary-${{ matrix.os }}
+          name: tks-clone-secondary
           path: |
             /tmp/artifacts/secondary
 
@@ -467,6 +467,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: tks-clone-tertiary-${{ matrix.os }}
+          name: tks-clone-tertiary
           path: |
             /tmp/artifacts/tertiary
