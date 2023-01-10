@@ -15,7 +15,7 @@ ARG ARCH="x86_64"
 ARG MAINTAINER="Dogtag PKI Team <devel@lists.dogtagpki.org>"
 ARG VENDOR="Dogtag"
 ARG COMPONENT="pki-core"
-ARG COPR_REPO="@pki/10.13"
+ARG COPR_REPO=""
 
 LABEL name="$NAME" \
       summary="$SUMMARY" \
@@ -29,8 +29,10 @@ LABEL name="$NAME" \
 
 EXPOSE 8080 8443
 
+RUN dnf install -y dnf-plugins-core
+
 # Enable COPR repo if specified
-RUN if [ -n "$COPR_REPO" ]; then dnf install -y dnf-plugins-core; dnf copr enable -y $COPR_REPO; fi
+RUN if [ -n "$COPR_REPO" ]; then dnf copr enable -y $COPR_REPO; fi
 
 # Install packages
 RUN dnf install -y bind-utils iputils abrt-java-connector postgresql postgresql-jdbc
