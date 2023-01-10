@@ -4,30 +4,15 @@ on: [push, pull_request]
 
 jobs:
   init:
-    name: Initializing workflow
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.init.outputs.matrix }}
-      repo: ${{ steps.init.outputs.repo }}
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@v3
-
-      - name: Initialize workflow
-        id: init
-        env:
-          BASE64_MATRIX: ${{ secrets.BASE64_MATRIX }}
-          BASE64_REPO: ${{ secrets.BASE64_REPO }}
-        run: |
-          tests/bin/init-workflow.sh
+    name: Initialization
+    uses: ./.github/workflows/init.yml
+    secrets: inherit
 
   # docs/development/Building_PKI.md
   build:
     name: Building PKI
     needs: init
     runs-on: ubuntu-latest
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v3
@@ -40,7 +25,7 @@ jobs:
         with:
           context: .
           build-args: |
-            OS_VERSION=${{ matrix.os }}
+            BASE_IMAGE=${{ needs.init.outputs.base-image }}
             COPR_REPO=${{ needs.init.outputs.repo }}
             BUILD_OPTS=--with-pkgs=base,server,ca,ocsp --with-timestamp --with-commit-id
           tags: pki-runner
@@ -60,8 +45,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PKIDIR: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v3
@@ -135,8 +118,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PKIDIR: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v3
@@ -271,8 +252,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PKIDIR: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v3
@@ -448,8 +427,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PKIDIR: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v3
@@ -653,8 +630,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PKIDIR: /tmp/workdir/pki
-    strategy:
-      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v3
