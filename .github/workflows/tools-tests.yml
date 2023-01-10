@@ -50,7 +50,7 @@ jobs:
       - name: Upload PKI packages
         uses: actions/upload-artifact@v3
         with:
-          name: pki-build-${{ matrix.os }}
+          name: pki-build
           path: build/RPMS/
 
   PKICertImport-test:
@@ -67,7 +67,7 @@ jobs:
       - name: Download PKI packages
         uses: actions/download-artifact@v2
         with:
-          name: pki-build-${{ matrix.os }}
+          name: pki-build
           path: build/RPMS
 
       - name: Install PKI packages
@@ -91,7 +91,7 @@ jobs:
       - name: Download PKI packages
         uses: actions/download-artifact@v2
         with:
-          name: pki-build-${{ matrix.os }}
+          name: pki-build
           path: build/RPMS
 
       - name: Install PKI packages
@@ -237,7 +237,7 @@ jobs:
       - name: Download PKI packages
         uses: actions/download-artifact@v2
         with:
-          name: pki-build-${{ matrix.os }}
+          name: pki-build
           path: build/RPMS
 
       - name: Install PKI packages
@@ -385,7 +385,7 @@ jobs:
       - name: Download PKI packages
         uses: actions/download-artifact@v2
         with:
-          name: pki-build-${{ matrix.os }}
+          name: pki-build
           path: build/RPMS
 
       - name: Install PKI packages
@@ -458,7 +458,7 @@ jobs:
       - name: Download PKI packages
         uses: actions/download-artifact@v2
         with:
-          name: pki-build-${{ matrix.os }}
+          name: pki-build
           path: build/RPMS
 
       - name: Install PKI packages

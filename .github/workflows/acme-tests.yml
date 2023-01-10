@@ -50,7 +50,7 @@ jobs:
       - name: Upload runner image
         uses: actions/upload-artifact@v3
         with:
-          name: pki-runner-${{ matrix.os }}
+          name: pki-runner
           path: /tmp/pki-runner.tar
 
       - name: Build ACME image
@@ -68,7 +68,7 @@ jobs:
       - name: Upload ACME image
         uses: actions/upload-artifact@v3
         with:
-          name: pki-acme-${{ matrix.os }}
+          name: pki-acme
           path: /tmp/pki-acme.tar
 
   # docs/installation/acme/Installing_PKI_ACME_Responder.md
@@ -88,7 +88,7 @@ jobs:
       - name: Download runner image
         uses: actions/download-artifact@v2
         with:
-          name: pki-runner-${{ matrix.os }}
+          name: pki-runner
           path: /tmp
 
       - name: Load runner image
@@ -218,7 +218,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: acme-${{ matrix.os }}
+          name: acme
           path: |
             /tmp/artifacts/pki
 
@@ -239,7 +239,7 @@ jobs:
       - name: Download runner image
         uses: actions/download-artifact@v2
         with:
-          name: pki-runner-${{ matrix.os }}
+          name: pki-runner
           path: /tmp
 
       - name: Load runner image
@@ -383,7 +383,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: acme-switchover-${{ matrix.os }}
+          name: acme-switchover
           path: |
             /tmp/artifacts/pki
 
@@ -403,7 +403,7 @@ jobs:
       - name: Download runner image
         uses: actions/download-artifact@v2
         with:
-          name: pki-runner-${{ matrix.os }}
+          name: pki-runner
           path: /tmp
 
       - name: Load runner image
@@ -412,7 +412,7 @@ jobs:
       - name: Download ACME image
         uses: actions/download-artifact@v2
         with:
-          name: pki-acme-${{ matrix.os }}
+          name: pki-acme
           path: /tmp
 
       - name: Load ACME image
@@ -498,12 +498,12 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: acme-container-server-${{ matrix.os }}
+          name: acme-container-server
           path: /tmp/artifacts/server
 
       - name: Upload artifacts from client container
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: acme-container-client-${{ matrix.os }}
+          name: acme-container-client
           path: /tmp/artifacts/client

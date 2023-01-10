@@ -50,7 +50,7 @@ jobs:
       - name: Upload runner image
         uses: actions/upload-artifact@v3
         with:
-          name: pki-runner-${{ matrix.os }}
+          name: pki-runner
           path: /tmp/pki-runner.tar
 
   # docs/installation/ocsp/Installing_OCSP.md
@@ -69,7 +69,7 @@ jobs:
       - name: Download runner image
         uses: actions/download-artifact@v2
         with:
-          name: pki-runner-${{ matrix.os }}
+          name: pki-runner
           path: /tmp
 
       - name: Load runner image
@@ -125,7 +125,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: ocsp-${{ matrix.os }}
+          name: ocsp
           path: |
             /tmp/artifacts/pki
 
@@ -144,7 +144,7 @@ jobs:
       - name: Download runner image
         uses: actions/download-artifact@v2
         with:
-          name: pki-runner-${{ matrix.os }}
+          name: pki-runner
           path: /tmp
 
       - name: Load runner image
@@ -252,7 +252,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: ocsp-separate-ca-${{ matrix.os }}
+          name: ocsp-separate-ca
           path: |
             /tmp/artifacts/ca
 
@@ -260,7 +260,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: ocsp-separate-ocsp-${{ matrix.os }}
+          name: ocsp-separate-ocsp
           path: |
             /tmp/artifacts/ocsp
 
@@ -280,7 +280,7 @@ jobs:
       - name: Download runner image
         uses: actions/download-artifact@v2
         with:
-          name: pki-runner-${{ matrix.os }}
+          name: pki-runner
           path: /tmp
 
       - name: Load runner image
@@ -429,7 +429,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: ocsp-external-certs-ca-${{ matrix.os }}
+          name: ocsp-external-certs-ca
           path: |
             /tmp/artifacts/ca
 
@@ -437,7 +437,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: ocsp-external-certs-ocsp-${{ matrix.os }}
+          name: ocsp-external-certs-ocsp
           path: |
             /tmp/artifacts/ocsp
 
@@ -457,7 +457,7 @@ jobs:
       - name: Download runner images
         uses: actions/download-artifact@v2
         with:
-          name: pki-runner-${{ matrix.os }}
+          name: pki-runner
           path: /tmp
 
       - name: Load runner image
@@ -627,7 +627,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: ocsp-clone-primary-${{ matrix.os }}
+          name: ocsp-clone-primary
           path: |
             /tmp/artifacts/primary
 
@@ -635,7 +635,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: ocsp-clone-secondary-${{ matrix.os }}
+          name: ocsp-clone-secondary
           path: |
             /tmp/artifacts/secondary
 
@@ -643,7 +643,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: ocsp-clone-tertiary-${{ matrix.os }}
+          name: ocsp-clone-tertiary
           path: |
             /tmp/artifacts/tertiary
 
@@ -662,7 +662,7 @@ jobs:
       - name: Download runner image
         uses: actions/download-artifact@v2
         with:
-          name: pki-runner-${{ matrix.os }}
+          name: pki-runner
           path: /tmp
 
       - name: Load runner image
@@ -778,6 +778,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: ocsp-standalone-${{ matrix.os }}
+          name: ocsp-standalone
           path: |
             /tmp/artifacts/pki

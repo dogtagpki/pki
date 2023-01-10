@@ -50,7 +50,7 @@ jobs:
       - name: Upload runner image
         uses: actions/upload-artifact@v3
         with:
-          name: pki-runner-${{ matrix.os }}
+          name: pki-runner
           path: /tmp/pki-runner.tar
 
   # docs/installation/kra/Installing_KRA.md
@@ -69,7 +69,7 @@ jobs:
       - name: Download runner image
         uses: actions/download-artifact@v2
         with:
-          name: pki-runner-${{ matrix.os }}
+          name: pki-runner
           path: /tmp
 
       - name: Load runner image
@@ -131,7 +131,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: kra-${{ matrix.os }}
+          name: kra
           path: |
             /tmp/artifacts/pki
 
@@ -151,7 +151,7 @@ jobs:
       - name: Download runner image
         uses: actions/download-artifact@v2
         with:
-          name: pki-runner-${{ matrix.os }}
+          name: pki-runner
           path: /tmp
 
       - name: Load runner image
@@ -272,7 +272,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: kra-separate-ca-${{ matrix.os }}
+          name: kra-separate-ca
           path: |
             /tmp/artifacts/ca
 
@@ -280,7 +280,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: kra-separate-kra-${{ matrix.os }}
+          name: kra-separate-kra
           path: |
             /tmp/artifacts/kra
 
@@ -300,7 +300,7 @@ jobs:
       - name: Download runner image
         uses: actions/download-artifact@v2
         with:
-          name: pki-runner-${{ matrix.os }}
+          name: pki-runner
           path: /tmp
 
       - name: Load runner image
@@ -464,7 +464,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: kra-external-certs-ca-${{ matrix.os }}
+          name: kra-external-certs-ca
           path: |
             /tmp/artifacts/ca
 
@@ -472,7 +472,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: kra-external-certs-kra-${{ matrix.os }}
+          name: kra-external-certs-kra
           path: |
             /tmp/artifacts/kra
 
@@ -492,7 +492,7 @@ jobs:
       - name: Download runner image
         uses: actions/download-artifact@v2
         with:
-          name: pki-runner-${{ matrix.os }}
+          name: pki-runner
           path: /tmp
 
       - name: Load runner image
@@ -671,7 +671,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: kra-clone-primary-${{ matrix.os }}
+          name: kra-clone-primary
           path: |
             /tmp/artifacts/primary
 
@@ -679,7 +679,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: kra-clone-secondary-${{ matrix.os }}
+          name: kra-clone-secondary
           path: |
             /tmp/artifacts/secondary
 
@@ -687,7 +687,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: kra-clone-tertiary-${{ matrix.os }}
+          name: kra-clone-tertiary
           path: |
             /tmp/artifacts/tertiary
 
@@ -706,7 +706,7 @@ jobs:
       - name: Download runner image
         uses: actions/download-artifact@v2
         with:
-          name: pki-runner-${{ matrix.os }}
+          name: pki-runner
           path: /tmp
 
       - name: Load runner image
@@ -831,6 +831,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: kra-standalone-${{ matrix.os }}
+          name: kra-standalone
           path: |
             /tmp/artifacts/pki
