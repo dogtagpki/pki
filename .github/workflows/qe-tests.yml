@@ -50,7 +50,7 @@ jobs:
       - name: Upload runner image
         uses: actions/upload-artifact@v3
         with:
-          name: pki-runner-${{ matrix.os }}
+          name: pki-runner
           path: /tmp/pki-runner.tar
 
   # Tier 0
@@ -78,7 +78,7 @@ jobs:
       - name: Download runner image
         uses: actions/download-artifact@v2
         with:
-          name: pki-runner-${{ matrix.os }}
+          name: pki-runner
           path: /tmp
 
       - name: Load runner image
@@ -145,6 +145,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: sanity-${{ matrix.os }}
+          name: sanity
           path: |
             /tmp/artifacts/pki1

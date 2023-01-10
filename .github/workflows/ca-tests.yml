@@ -50,7 +50,7 @@ jobs:
       - name: Upload runner image
         uses: actions/upload-artifact@v3
         with:
-          name: pki-runner-${{ matrix.os }}
+          name: pki-runner
           path: /tmp/pki-runner.tar
 
   # docs/installation/ca/Installing_CA.md
@@ -69,7 +69,7 @@ jobs:
       - name: Download runner image
         uses: actions/download-artifact@v2
         with:
-          name: pki-runner-${{ matrix.os }}
+          name: pki-runner
           path: /tmp
 
       - name: Load runner image
@@ -133,7 +133,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: ca-${{ matrix.os }}
+          name: ca
           path: |
             /tmp/artifacts/pki
 
@@ -153,7 +153,7 @@ jobs:
       - name: Download runner image
         uses: actions/download-artifact@v2
         with:
-          name: pki-runner-${{ matrix.os }}
+          name: pki-runner
           path: /tmp
 
       - name: Load runner image
@@ -219,7 +219,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: ca-ecc-${{ matrix.os }}
+          name: ca-ecc
           path: |
             /tmp/artifacts/pki
 
@@ -239,7 +239,7 @@ jobs:
       - name: Download runner image
         uses: actions/download-artifact@v2
         with:
-          name: pki-runner-${{ matrix.os }}
+          name: pki-runner
           path: /tmp
 
       - name: Load runner image
@@ -343,7 +343,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: ca-root-${{ matrix.os }}
+          name: ca-root
           path: |
             /tmp/artifacts/root
 
@@ -351,7 +351,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: ca-subordinate-${{ matrix.os }}
+          name: ca-subordinate
           path: |
             /tmp/artifacts/subordinate
 
@@ -371,7 +371,7 @@ jobs:
       - name: Download runner image
         uses: actions/download-artifact@v2
         with:
-          name: pki-runner-${{ matrix.os }}
+          name: pki-runner
           path: /tmp
 
       - name: Load runner image
@@ -442,7 +442,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: ca-external-cert-${{ matrix.os }}
+          name: ca-external-cert
           path: |
             /tmp/artifacts/pki
 
@@ -462,7 +462,7 @@ jobs:
       - name: Download runner image
         uses: actions/download-artifact@v2
         with:
-          name: pki-runner-${{ matrix.os }}
+          name: pki-runner
           path: /tmp
 
       - name: Load runner image
@@ -586,7 +586,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: ca-existing-certs-${{ matrix.os }}
+          name: ca-existing-certs
           path: |
             /tmp/artifacts/pki
 
@@ -606,7 +606,7 @@ jobs:
       - name: Download runner image
         uses: actions/download-artifact@v2
         with:
-          name: pki-runner-${{ matrix.os }}
+          name: pki-runner
           path: /tmp
 
       - name: Load runner image
@@ -752,7 +752,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: ca-clone-primary-${{ matrix.os }}
+          name: ca-clone-primary
           path: |
             /tmp/artifacts/primary
 
@@ -760,7 +760,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: ca-clone-secondary-${{ matrix.os }}
+          name: ca-clone-secondary
           path: |
             /tmp/artifacts/secondary
 
@@ -768,7 +768,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: ca-clone-tertiary-${{ matrix.os }}
+          name: ca-clone-tertiary
           path: |
             /tmp/artifacts/tertiary
 
@@ -788,7 +788,7 @@ jobs:
       - name: Download runner image
         uses: actions/download-artifact@v2
         with:
-          name: pki-runner-${{ matrix.os }}
+          name: pki-runner
           path: /tmp
 
       - name: Load runner image
@@ -909,7 +909,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: ca-secure-ds-${{ matrix.os }}
+          name: ca-secure-ds
           path: |
             /tmp/artifacts/pki
 
@@ -930,7 +930,7 @@ jobs:
       - name: Download runner image
         uses: actions/download-artifact@v2
         with:
-          name: pki-runner-${{ matrix.os }}
+          name: pki-runner
           path: /tmp
 
       - name: Load runner image
@@ -1182,7 +1182,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: ca-secure-ds-primary-${{ matrix.os }}
+          name: ca-secure-ds-primary
           path: |
             /tmp/artifacts/primary
 
@@ -1190,7 +1190,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: ca-secure-ds-secondary-${{ matrix.os }}
+          name: ca-secure-ds-secondary
           path: |
             /tmp/artifacts/secondary
 
@@ -1209,7 +1209,7 @@ jobs:
       - name: Download runner image
         uses: actions/download-artifact@v2
         with:
-          name: pki-runner-${{ matrix.os }}
+          name: pki-runner
           path: /tmp
 
       - name: Load runner image
@@ -1300,6 +1300,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: scep-${{ matrix.os }}
+          name: scep
           path: |
             /tmp/artifacts/pki
