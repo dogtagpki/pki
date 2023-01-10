@@ -1,18 +1,19 @@
 #!/bin/bash -e
 
-if [ "$BASE64_MATRIX" == "" ]
+if [ "$BASE64_OS" != "" ]
 then
-    MATRIX="{\"os\":[\"34\"]}"
+    OS_VERSION=$(echo "$BASE64_OS" | base64 -d)
 else
-    MATRIX=$(echo "$BASE64_MATRIX" | base64 -d)
+    OS_VERSION=34
 fi
 
-echo "MATRIX: $MATRIX"
-echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+BASE_IMAGE=registry.fedoraproject.org/fedora:$OS_VERSION
+echo "BASE_IMAGE: $BASE_IMAGE"
+echo "base-image=$BASE_IMAGE" >> $GITHUB_OUTPUT
 
 if [ "$BASE64_REPO" == "" ]
 then
-    REPO="@pki/10"
+    REPO=""
 else
     REPO=$(echo "$BASE64_REPO" | base64 -d)
 fi

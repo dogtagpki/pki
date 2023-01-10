@@ -1,0 +1,32 @@
+name: Initialization
+on:
+  workflow_call:
+    secrets:
+      BASE64_OS:
+        required: false
+      BASE64_REPO:
+        required: false
+    outputs:
+      base-image:
+        value: ${{ jobs.init.outputs.base-image }}
+      repo:
+        value: ${{ jobs.init.outputs.repo }}
+
+jobs:
+  init:
+    name: Initializing workflow
+    runs-on: ubuntu-latest
+    outputs:
+      base-image: ${{ steps.init.outputs.base-image }}
+      repo: ${{ steps.init.outputs.repo }}
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      - name: Initialize workflow
+        id: init
+        env:
+          BASE64_OS: ${{ secrets.BASE64_OS }}
+          BASE64_REPO: ${{ secrets.BASE64_REPO }}
+        run: |
+          tests/bin/init-workflow.sh

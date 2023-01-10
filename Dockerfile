@@ -11,17 +11,19 @@ ARG COMPONENT="pki-core"
 ARG LICENSE="GPLv2 and LGPLv2"
 ARG ARCH="x86_64"
 ARG VERSION="0"
-ARG OS_VERSION="34"
-ARG COPR_REPO="@pki/10"
+ARG BASE_IMAGE="registry.fedoraproject.org/fedora:34"
+ARG COPR_REPO=""
 
 ################################################################################
-FROM registry.fedoraproject.org/fedora:$OS_VERSION AS pki-builder
+FROM $BASE_IMAGE AS pki-builder
 
 ARG COPR_REPO
 ARG BUILD_OPTS
 
+RUN dnf install -y dnf-plugins-core
+
 # Enable COPR repo if specified
-RUN if [ -n "$COPR_REPO" ]; then dnf install -y dnf-plugins-core; dnf copr enable -y $COPR_REPO; fi
+RUN if [ -n "$COPR_REPO" ]; then dnf copr enable -y $COPR_REPO; fi
 
 # Import PKI sources
 COPY . /tmp/pki/
@@ -33,12 +35,14 @@ RUN dnf builddep -y --spec pki.spec
 RUN ./build.sh $BUILD_OPTS --work-dir=build rpm
 
 ################################################################################
-FROM registry.fedoraproject.org/fedora:$OS_VERSION AS pki-runner
+FROM $BASE_IMAGE AS pki-runner
 
 ARG COPR_REPO
 
+RUN dnf install -y dnf-plugins-core
+
 # Enable COPR repo if specified
-RUN if [ -n "$COPR_REPO" ]; then dnf install -y dnf-plugins-core; dnf copr enable -y $COPR_REPO; fi
+RUN if [ -n "$COPR_REPO" ]; then dnf copr enable -y $COPR_REPO; fi
 
 # Import PKI packages
 COPY --from=pki-builder /tmp/pki/build/RPMS /tmp/RPMS/
@@ -47,7 +51,7 @@ COPY --from=pki-builder /tmp/pki/build/RPMS /tmp/RPMS/
 RUN dnf localinstall -y /tmp/RPMS/*; rm -rf /tmp/RPMS
 
 ################################################################################
-FROM registry.fedoraproject.org/fedora:$OS_VERSION AS pki-acme
+FROM $BASE_IMAGE AS pki-acme
 
 ARG SUMMARY="Dogtag PKI ACME Responder"
 ARG COPR_REPO
@@ -64,8 +68,10 @@ LABEL name="pki-acme" \
 
 EXPOSE 8080 8443
 
+RUN dnf install -y dnf-plugins-core
+
 # Enable COPR repo if specified
-RUN if [ -n "$COPR_REPO" ]; then dnf install -y dnf-plugins-core; dnf copr enable -y $COPR_REPO; fi
+RUN if [ -n "$COPR_REPO" ]; then dnf copr enable -y $COPR_REPO; fi
 
 # Install PKI dependencies
 RUN dnf install -y bind-utils iputils abrt-java-connector postgresql postgresql-jdbc
