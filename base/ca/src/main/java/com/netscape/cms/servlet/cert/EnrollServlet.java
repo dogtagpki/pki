@@ -59,6 +59,7 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.CMSServlet;
+import com.netscape.cms.servlet.common.CAServlet;
 import com.netscape.cms.servlet.common.CMSGateway;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
@@ -86,7 +87,7 @@ import com.netscape.cmscore.usrgrp.User;
  *
  * @version $Revision$, $Date$
  */
-public class EnrollServlet extends CMSServlet {
+public class EnrollServlet extends CAServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EnrollServlet.class);
     private static final long serialVersionUID = -6983729702665630013L;

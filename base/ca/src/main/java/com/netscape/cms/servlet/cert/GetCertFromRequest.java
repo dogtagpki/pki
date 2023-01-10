@@ -41,7 +41,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.servlet.base.CMSServlet;
+import com.netscape.cms.servlet.common.CAServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
@@ -56,7 +56,7 @@ import com.netscape.cmscore.request.RequestQueue;
  *
  * @version $Revision$, $Date$
  */
-public class GetCertFromRequest extends CMSServlet {
+public class GetCertFromRequest extends CAServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GetCertFromRequest.class);
     private static final long serialVersionUID = 5310646832256611066L;

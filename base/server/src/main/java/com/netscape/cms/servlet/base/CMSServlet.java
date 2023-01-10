@@ -48,15 +48,9 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
-import org.dogtagpki.server.ca.ICertificateAuthority;
-import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
-import org.mozilla.jss.netscape.security.pkcs.PKCS7;
-import org.mozilla.jss.netscape.security.pkcs.SignerInfo;
 import org.mozilla.jss.netscape.security.util.Utils;
-import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.CRLExtensions;
 import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
-import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.RevocationReason;
 import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
@@ -1160,12 +1154,12 @@ public abstract class CMSServlet extends HttpServlet {
         return httpParams.getValueAsBoolean(CMMF_RESPONSE, false);
     }
 
-    private static final String IMPORT_CERT = "importCert";
-    private static final String IMPORT_CHAIN = "importCAChain";
-    private static final String IMPORT_CERT_MIME_TYPE = "importCertMimeType";
+    protected static final String IMPORT_CERT = "importCert";
+    protected static final String IMPORT_CHAIN = "importCAChain";
+    protected static final String IMPORT_CERT_MIME_TYPE = "importCertMimeType";
     // default mime type
-    private static final String NS_X509_USER_CERT = "application/x-x509-user-cert";
-    private static final String NS_X509_EMAIL_CERT = "application/x-x509-email-cert";
+    protected static final String NS_X509_USER_CERT = "application/x-x509-user-cert";
+    protected static final String NS_X509_EMAIL_CERT = "application/x-x509-email-cert";
 
     // CMC mime types
     public static final String SIMPLE_ENROLLMENT_REQUEST = "application/pkcs10";
@@ -1180,95 +1174,6 @@ public abstract class CMSServlet extends HttpServlet {
 
     public static boolean doFullResponse(IArgBlock httpParams) {
         return httpParams.getValueAsBoolean(FULL_RESPONSE, false);
-    }
-
-    /**
-     * @return false if import cert directly set to false.
-     * @return true if import cert directly is true and import cert.
-     */
-    protected boolean checkImportCertToNav(
-            HttpServletResponse httpResp, IArgBlock httpParams, X509CertImpl cert)
-            throws EBaseException {
-        if (!httpParams.getValueAsBoolean(IMPORT_CERT, false)) {
-            return false;
-        }
-        boolean importCAChain =
-                httpParams.getValueAsBoolean(IMPORT_CHAIN, true);
-        // XXX Temporary workaround because of problem with passing Mime type
-        boolean emailCert =
-                httpParams.getValueAsBoolean("emailCert", false);
-        String importMimeType = (emailCert) ?
-                httpParams.getValueAsString(IMPORT_CERT_MIME_TYPE, NS_X509_EMAIL_CERT) :
-                httpParams.getValueAsString(IMPORT_CERT_MIME_TYPE, NS_X509_USER_CERT);
-
-        //		String importMimeType =
-        //			httpParams.getValueAsString(
-        //				IMPORT_CERT_MIME_TYPE, NS_X509_USER_CERT);
-        importCertToNav(httpResp, cert, importMimeType, importCAChain);
-        return true;
-    }
-
-    /**
-     * handy routine to import cert to old navigator in nav mime type.
-     */
-    public void importCertToNav(
-            HttpServletResponse httpResp, X509CertImpl cert,
-            String contentType, boolean importCAChain)
-            throws EBaseException {
-        ServletOutputStream out = null;
-        byte[] encoding = null;
-
-        logger.debug("CMSServlet: importCertToNav " +
-                       "contentType=" + contentType + " " +
-                       "importCAChain=" + importCAChain);
-        try {
-            out = httpResp.getOutputStream();
-            // CA chain.
-            if (importCAChain) {
-                CertificateChain caChain = null;
-                X509Certificate[] caCerts = null;
-                PKCS7 p7 = null;
-
-                caChain = ((ICertificateAuthority) mAuthority).getCACertChain();
-                caCerts = caChain.getChain();
-
-                // set user + CA cert chain in pkcs7
-                X509CertImpl[] userChain =
-                        new X509CertImpl[caCerts.length + 1];
-
-                userChain[0] = cert;
-                int m = 1, n = 0;
-
-                for (; n < caCerts.length; m++, n++) {
-                    userChain[m] = (X509CertImpl) caCerts[n];
-
-                    /*
-                     System.out.println(
-                     m+"th Cert "+userChain[m].toString());
-                     */
-                }
-                p7 = new PKCS7(new AlgorithmId[0],
-                            new ContentInfo(new byte[0]),
-                            userChain,
-                            new SignerInfo[0]);
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-
-                p7.encodeSignedData(bos, false);
-                encoding = bos.toByteArray();
-                logger.debug("CMServlet: return P7 " + Utils.base64encode(encoding, true));
-            } else {
-                encoding = cert.getEncoded();
-                logger.debug("CMServlet: return Certificate " + Utils.base64encode(encoding, true));
-            }
-            httpResp.setContentType(contentType);
-            out.write(encoding);
-        } catch (IOException e) {
-            logger.error(CMS.getLogMessage("CMSGW_RET_CERT_IMPORT_ERR", e.toString()), e);
-            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_RETURNING_CERT"), e);
-        } catch (CertificateEncodingException e) {
-            logger.error(CMS.getLogMessage("CMSGW_NO_ENCODED_IMP_CERT", e.toString()), e);
-            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_ENCODING_ISSUED_CERT"), e);
-        }
     }
 
     protected static void saveAuthToken(AuthToken token, Request req) {
@@ -1305,29 +1210,6 @@ public abstract class CMSServlet extends HttpServlet {
 
     protected static boolean connectionIsSSL(HttpServletRequest httpReq) {
         return httpReq.isSecure();
-    }
-
-    /**
-     * A system certificate such as the CA signing certificate
-     * should not be allowed to delete.
-     * The main purpose is to avoid revoking the self signed
-     * CA certificate accidentially.
-     */
-    protected boolean isSystemCertificate(BigInteger serialNo) throws EBaseException {
-        if (!(mAuthority instanceof ICertificateAuthority)) {
-            return false;
-        }
-        X509Certificate caCert =
-                ((ICertificateAuthority) mAuthority).getCACert();
-        if (caCert != null) {
-            /* only check this if we are self-signed */
-            if (caCert.getSubjectDN().equals(caCert.getIssuerDN())) {
-                if (caCert.getSerialNumber().equals(serialNo)) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     /**

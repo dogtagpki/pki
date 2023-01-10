@@ -51,7 +51,7 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CertStatusChangeRequestEvent;
 import com.netscape.certsrv.logging.event.CertStatusChangeRequestProcessedEvent;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.servlet.base.CMSServlet;
+import com.netscape.cms.servlet.common.CAServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
@@ -71,7 +71,7 @@ import com.netscape.cmscore.request.RequestQueue;
  *
  * @version $Revision$, $Date$
  */
-public class DoRevokeTPS extends CMSServlet {
+public class DoRevokeTPS extends CAServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DoRevokeTPS.class);
 

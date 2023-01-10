@@ -72,6 +72,7 @@ import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.authentication.HashAuthentication;
 import com.netscape.cms.servlet.base.CMSServlet;
+import com.netscape.cms.servlet.common.CAServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
@@ -93,7 +94,7 @@ import com.netscape.cmscore.request.Request;
  *
  * @version $Revision$, $Date$
  */
-public class HashEnrollServlet extends CMSServlet {
+public class HashEnrollServlet extends CAServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HashEnrollServlet.class);
 

@@ -45,7 +45,7 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.servlet.base.CMSServlet;
+import com.netscape.cms.servlet.common.CAServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
@@ -61,7 +61,7 @@ import com.netscape.cmscore.request.Request;
  *
  * @version $Revision$, $Date$
  */
-public class RenewalServlet extends CMSServlet {
+public class RenewalServlet extends CAServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RenewalServlet.class);
     private static final long serialVersionUID = -3094124661102395244L;
