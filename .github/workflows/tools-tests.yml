@@ -27,9 +27,27 @@ jobs:
 
       - name: Install dependencies
         run: |
-          dnf install -y dnf-plugins-core rpm-build
+          dnf install -y dnf-plugins-core moby-engine rpm-build
           if [ -n "$COPR_REPO" ]; then dnf copr enable -y $COPR_REPO; fi
-          dnf builddep -y --allowerasing --spec ./pki.spec --nogpgcheck
+          dnf builddep -y --skip-unavailable --spec ./pki.spec
+          mkdir -p /tmp/RPMS
+
+          docker pull quay.io/dogtagpki/jss-dist:4.9
+          docker create --name=jss-dist quay.io/dogtagpki/jss-dist:4.9
+          docker cp jss-dist:/root/RPMS/. /tmp/RPMS/
+          docker rm -f jss-dist
+
+          docker pull quay.io/dogtagpki/tomcatjss-dist:7.7
+          docker create --name=tomcatjss-dist quay.io/dogtagpki/tomcatjss-dist:7.7
+          docker cp tomcatjss-dist:/root/RPMS/. /tmp/RPMS/
+          docker rm -f tomcatjss-dist
+
+          docker pull quay.io/dogtagpki/ldapjdk-dist:4.23
+          docker create --name=ldapjdk-dist quay.io/dogtagpki/ldapjdk-dist:4.23
+          docker cp ldapjdk-dist:/root/RPMS/. /tmp/RPMS/
+          docker rm -f ldapjdk-dist
+
+          dnf localinstall -y /tmp/RPMS/*
 
       - name: Build PKI packages
         run: ./build.sh --with-pkgs=base,server --with-timestamp --with-commit-id --work-dir=build rpm
@@ -59,8 +77,26 @@ jobs:
 
       - name: Install PKI packages
         run: |
-          dnf install -y dnf-plugins-core
+          dnf install -y dnf-plugins-core moby-engine
           if [ -n "$COPR_REPO" ]; then dnf copr enable -y $COPR_REPO; fi
+          mkdir -p /tmp/RPMS
+
+          docker pull quay.io/dogtagpki/jss-dist:4.9
+          docker create --name=jss-dist quay.io/dogtagpki/jss-dist:4.9
+          docker cp jss-dist:/root/RPMS/. /tmp/RPMS/
+          docker rm -f jss-dist
+
+          docker pull quay.io/dogtagpki/tomcatjss-dist:7.7
+          docker create --name=tomcatjss-dist quay.io/dogtagpki/tomcatjss-dist:7.7
+          docker cp tomcatjss-dist:/root/RPMS/. /tmp/RPMS/
+          docker rm -f tomcatjss-dist
+
+          docker pull quay.io/dogtagpki/ldapjdk-dist:4.23
+          docker create --name=ldapjdk-dist quay.io/dogtagpki/ldapjdk-dist:4.23
+          docker cp ldapjdk-dist:/root/RPMS/. /tmp/RPMS/
+          docker rm -f ldapjdk-dist
+
+          dnf localinstall -y /tmp/RPMS/*
           dnf -y localinstall build/RPMS/*
 
       - name: Run PKICertImport test
@@ -83,8 +119,26 @@ jobs:
 
       - name: Install PKI packages
         run: |
-          dnf install -y dnf-plugins-core
+          dnf install -y dnf-plugins-core moby-engine
           if [ -n "$COPR_REPO" ]; then dnf copr enable -y $COPR_REPO; fi
+          mkdir -p /tmp/RPMS
+
+          docker pull quay.io/dogtagpki/jss-dist:4.9
+          docker create --name=jss-dist quay.io/dogtagpki/jss-dist:4.9
+          docker cp jss-dist:/root/RPMS/. /tmp/RPMS/
+          docker rm -f jss-dist
+
+          docker pull quay.io/dogtagpki/tomcatjss-dist:7.7
+          docker create --name=tomcatjss-dist quay.io/dogtagpki/tomcatjss-dist:7.7
+          docker cp tomcatjss-dist:/root/RPMS/. /tmp/RPMS/
+          docker rm -f tomcatjss-dist
+
+          docker pull quay.io/dogtagpki/ldapjdk-dist:4.23
+          docker create --name=ldapjdk-dist quay.io/dogtagpki/ldapjdk-dist:4.23
+          docker cp ldapjdk-dist:/root/RPMS/. /tmp/RPMS/
+          docker rm -f ldapjdk-dist
+
+          dnf localinstall -y /tmp/RPMS/*
           dnf -y localinstall build/RPMS/*
 
       # https://github.com/dogtagpki/pki/wiki/Generating-CA-Signing-CSR-with-PKI-NSS
@@ -229,8 +283,26 @@ jobs:
 
       - name: Install PKI packages
         run: |
-          dnf install -y dnf-plugins-core
+          dnf install -y dnf-plugins-core moby-engine
           if [ -n "$COPR_REPO" ]; then dnf copr enable -y $COPR_REPO; fi
+          mkdir -p /tmp/RPMS
+
+          docker pull quay.io/dogtagpki/jss-dist:4.9
+          docker create --name=jss-dist quay.io/dogtagpki/jss-dist:4.9
+          docker cp jss-dist:/root/RPMS/. /tmp/RPMS/
+          docker rm -f jss-dist
+
+          docker pull quay.io/dogtagpki/tomcatjss-dist:7.7
+          docker create --name=tomcatjss-dist quay.io/dogtagpki/tomcatjss-dist:7.7
+          docker cp tomcatjss-dist:/root/RPMS/. /tmp/RPMS/
+          docker rm -f tomcatjss-dist
+
+          docker pull quay.io/dogtagpki/ldapjdk-dist:4.23
+          docker create --name=ldapjdk-dist quay.io/dogtagpki/ldapjdk-dist:4.23
+          docker cp ldapjdk-dist:/root/RPMS/. /tmp/RPMS/
+          docker rm -f ldapjdk-dist
+
+          dnf localinstall -y /tmp/RPMS/*
           dnf -y localinstall build/RPMS/*
 
       # https://github.com/dogtagpki/pki/wiki/Generating-CA-Signing-CSR-with-PKI-NSS
@@ -377,8 +449,26 @@ jobs:
 
       - name: Install PKI packages
         run: |
-          dnf install -y dnf-plugins-core softhsm
+          dnf install -y dnf-plugins-core moby-engine softhsm
           if [ -n "$COPR_REPO" ]; then dnf copr enable -y $COPR_REPO; fi
+          mkdir -p /tmp/RPMS
+
+          docker pull quay.io/dogtagpki/jss-dist:4.9
+          docker create --name=jss-dist quay.io/dogtagpki/jss-dist:4.9
+          docker cp jss-dist:/root/RPMS/. /tmp/RPMS/
+          docker rm -f jss-dist
+
+          docker pull quay.io/dogtagpki/tomcatjss-dist:7.7
+          docker create --name=tomcatjss-dist quay.io/dogtagpki/tomcatjss-dist:7.7
+          docker cp tomcatjss-dist:/root/RPMS/. /tmp/RPMS/
+          docker rm -f tomcatjss-dist
+
+          docker pull quay.io/dogtagpki/ldapjdk-dist:4.23
+          docker create --name=ldapjdk-dist quay.io/dogtagpki/ldapjdk-dist:4.23
+          docker cp ldapjdk-dist:/root/RPMS/. /tmp/RPMS/
+          docker rm -f ldapjdk-dist
+
+          dnf localinstall -y /tmp/RPMS/*
           dnf -y localinstall build/RPMS/*
 
       - name: Create HSM token
@@ -450,8 +540,26 @@ jobs:
 
       - name: Install PKI packages
         run: |
-          dnf install -y dnf-plugins-core
+          dnf install -y dnf-plugins-core moby-engine
           if [ -n "$COPR_REPO" ]; then dnf copr enable -y $COPR_REPO; fi
+          mkdir -p /tmp/RPMS
+
+          docker pull quay.io/dogtagpki/jss-dist:4.9
+          docker create --name=jss-dist quay.io/dogtagpki/jss-dist:4.9
+          docker cp jss-dist:/root/RPMS/. /tmp/RPMS/
+          docker rm -f jss-dist
+
+          docker pull quay.io/dogtagpki/tomcatjss-dist:7.7
+          docker create --name=tomcatjss-dist quay.io/dogtagpki/tomcatjss-dist:7.7
+          docker cp tomcatjss-dist:/root/RPMS/. /tmp/RPMS/
+          docker rm -f tomcatjss-dist
+
+          docker pull quay.io/dogtagpki/ldapjdk-dist:4.23
+          docker create --name=ldapjdk-dist quay.io/dogtagpki/ldapjdk-dist:4.23
+          docker cp ldapjdk-dist:/root/RPMS/. /tmp/RPMS/
+          docker rm -f ldapjdk-dist
+
+          dnf localinstall -y /tmp/RPMS/*
           dnf -y localinstall build/RPMS/*
 
       - name: Generate CA signing cert request
