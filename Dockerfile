@@ -53,7 +53,7 @@ RUN dnf builddep -y --skip-unavailable --spec pki.spec
 ################################################################################
 FROM pki-builder-deps AS pki-builder
 
-# Import JSS packages from
+# Import JSS packages
 COPY --from=ghcr.io/dogtagpki/jss-dist:latest /root/RPMS /tmp/RPMS/
 
 # Import Tomcat JSS packages
