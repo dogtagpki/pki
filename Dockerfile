@@ -29,9 +29,28 @@ RUN if [ -n "$COPR_REPO" ]; then dnf copr enable -y $COPR_REPO; fi
 COPY . /tmp/pki/
 WORKDIR /tmp/pki
 
-# Build PKI packages
+# Install build tools
 RUN dnf install -y git rpm-build
-RUN dnf builddep -y --spec pki.spec
+
+# Install PKI build dependencies
+RUN dnf builddep -y --skip-unavailable --spec pki.spec
+
+# Import JSS packages
+COPY --from=quay.io/dogtagpki/jss-dist:4.9 /root/RPMS /tmp/RPMS/
+
+# Import Tomcat JSS packages
+COPY --from=quay.io/dogtagpki/tomcatjss-dist:7.7 /root/RPMS /tmp/RPMS/
+
+# Import LDAP SDK packages
+COPY --from=quay.io/dogtagpki/ldapjdk-dist:4.23 /root/RPMS /tmp/RPMS/
+
+# Import IDM Console Framework packages
+COPY --from=quay.io/dogtagpki/idm-console-framework-dist:1.3 /root/RPMS /tmp/RPMS/
+
+# Install build dependencies
+RUN dnf localinstall -y /tmp/RPMS/*
+
+# Build PKI packages
 RUN ./build.sh $BUILD_OPTS --work-dir=build rpm
 
 ################################################################################
@@ -43,6 +62,18 @@ RUN dnf install -y dnf-plugins-core
 
 # Enable COPR repo if specified
 RUN if [ -n "$COPR_REPO" ]; then dnf copr enable -y $COPR_REPO; fi
+
+# Import JSS packages
+COPY --from=quay.io/dogtagpki/jss-dist:4.9 /root/RPMS /tmp/RPMS/
+
+# Import Tomcat JSS packages
+COPY --from=quay.io/dogtagpki/tomcatjss-dist:7.7 /root/RPMS /tmp/RPMS/
+
+# Import LDAP SDK packages
+COPY --from=quay.io/dogtagpki/ldapjdk-dist:4.23 /root/RPMS /tmp/RPMS/
+
+# Import IDM Console Framework packages
+COPY --from=quay.io/dogtagpki/idm-console-framework-dist:1.3 /root/RPMS /tmp/RPMS/
 
 # Import PKI packages
 COPY --from=pki-builder /tmp/pki/build/RPMS /tmp/RPMS/
@@ -75,6 +106,18 @@ RUN if [ -n "$COPR_REPO" ]; then dnf copr enable -y $COPR_REPO; fi
 
 # Install PKI dependencies
 RUN dnf install -y bind-utils iputils abrt-java-connector postgresql postgresql-jdbc
+
+# Import JSS packages
+COPY --from=quay.io/dogtagpki/jss-dist:4.9 /root/RPMS /tmp/RPMS/
+
+# Import Tomcat JSS packages
+COPY --from=quay.io/dogtagpki/tomcatjss-dist:7.7 /root/RPMS /tmp/RPMS/
+
+# Import LDAP SDK packages
+COPY --from=quay.io/dogtagpki/ldapjdk-dist:4.23 /root/RPMS /tmp/RPMS/
+
+# Import IDM Console Framework packages
+COPY --from=quay.io/dogtagpki/idm-console-framework-dist:1.3 /root/RPMS /tmp/RPMS/
 
 # Import PKI packages
 COPY --from=pki-builder /tmp/pki/build/RPMS /tmp/RPMS/
