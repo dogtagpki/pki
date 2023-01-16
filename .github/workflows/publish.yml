@@ -1,0 +1,62 @@
+name: Publish PKI
+
+on:
+  push:
+    branches:
+      - v10.13
+
+env:
+  NAMESPACE: ${{ vars.REGISTRY_NAMESPACE || github.repository_owner }}
+
+jobs:
+  init:
+    name: Initialization
+    uses: ./.github/workflows/init.yml
+    secrets: inherit
+    if: vars.REGISTRY != ''
+
+  build:
+    name: Waiting for build
+    needs: init
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for build
+        uses: lewagon/wait-on-check-action@v1.2.0
+        with:
+          ref: ${{ github.ref }}
+          check-name: 'Building PKI'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 30
+
+  publish:
+    name: Publishing PKI
+    needs: [init, build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ vars.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+        if: vars.REGISTRY == 'ghcr.io'
+
+      - name: Log in to other container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ vars.REGISTRY }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+        if: vars.REGISTRY != 'ghcr.io'
+
+      - name: Retrieve pki-dist image
+        uses: actions/cache@v3
+        with:
+          key: pki-dist-${{ github.sha }}
+          path: pki-dist.tar
+
+      - name: Publish pki-dist image
+        run: |
+          docker load --input pki-dist.tar
+          docker tag pki-dist ${{ vars.REGISTRY }}/$NAMESPACE/pki-dist:10.13
+          docker push ${{ vars.REGISTRY }}/$NAMESPACE/pki-dist:10.13
