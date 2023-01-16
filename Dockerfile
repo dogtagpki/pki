@@ -44,6 +44,9 @@ COPY --from=ghcr.io/dogtagpki/tomcatjss-dist:7 /root/RPMS /tmp/RPMS/
 # Import LDAP SDK packages
 COPY --from=ghcr.io/dogtagpki/ldapjdk-dist:4 /root/RPMS /tmp/RPMS/
 
+# Import IDM Console Framework packages
+COPY --from=ghcr.io/dogtagpki/idm-console-framework-dist:1 /root/RPMS /tmp/RPMS/
+
 # Install build dependencies
 RUN dnf localinstall -y /tmp/RPMS/*
 
@@ -68,6 +71,9 @@ COPY --from=ghcr.io/dogtagpki/tomcatjss-dist:7 /root/RPMS /tmp/RPMS/
 
 # Import LDAP SDK packages
 COPY --from=ghcr.io/dogtagpki/ldapjdk-dist:4 /root/RPMS /tmp/RPMS/
+
+# Import IDM Console Framework packages
+COPY --from=ghcr.io/dogtagpki/idm-console-framework-dist:1 /root/RPMS /tmp/RPMS/
 
 # Import PKI packages
 COPY --from=pki-builder /tmp/pki/build/RPMS /tmp/RPMS/
@@ -109,6 +115,9 @@ COPY --from=ghcr.io/dogtagpki/tomcatjss-dist:7 /root/RPMS /tmp/RPMS/
 
 # Import LDAP SDK packages
 COPY --from=ghcr.io/dogtagpki/ldapjdk-dist:4 /root/RPMS /tmp/RPMS/
+
+# Import IDM Console Framework packages
+COPY --from=ghcr.io/dogtagpki/idm-console-framework-dist:1 /root/RPMS /tmp/RPMS/
 
 # Import PKI packages
 COPY --from=pki-builder /tmp/pki/build/RPMS /tmp/RPMS/
