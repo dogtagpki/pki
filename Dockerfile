@@ -15,25 +15,43 @@ ARG BASE_IMAGE="registry.fedoraproject.org/fedora:34"
 ARG COPR_REPO=""
 
 ################################################################################
-FROM $BASE_IMAGE AS pki-builder
+FROM $BASE_IMAGE AS pki-base
+
+RUN dnf install -y dnf-plugins-core systemd \
+    && dnf clean all \
+    && rm -rf /var/cache/dnf
+
+CMD [ "/usr/sbin/init" ]
+
+################################################################################
+FROM pki-base AS pki-deps
 
 ARG COPR_REPO
-ARG BUILD_OPTS
-
-RUN dnf install -y dnf-plugins-core
 
 # Enable COPR repo if specified
 RUN if [ -n "$COPR_REPO" ]; then dnf copr enable -y $COPR_REPO; fi
 
-# Import PKI sources
-COPY . /tmp/pki/
-WORKDIR /tmp/pki
+# Install PKI runtime dependencies
+RUN dnf install -y dogtag-pki \
+    && dnf remove -y jss-* --noautoremove \
+    && dnf clean all \
+    && rm -rf /var/cache/dnf
+
+################################################################################
+FROM pki-deps AS pki-builder-deps
 
 # Install build tools
-RUN dnf install -y git rpm-build
+RUN dnf install -y rpm-build
+
+# Import PKI sources
+COPY pki.spec /root/pki/
+WORKDIR /root/pki
 
 # Install PKI build dependencies
 RUN dnf builddep -y --skip-unavailable --spec pki.spec
+
+################################################################################
+FROM pki-builder-deps AS pki-builder
 
 # Import JSS packages
 COPY --from=ghcr.io/dogtagpki/jss-dist:4 /root/RPMS /tmp/RPMS/
@@ -48,20 +66,25 @@ COPY --from=ghcr.io/dogtagpki/ldapjdk-dist:4 /root/RPMS /tmp/RPMS/
 COPY --from=ghcr.io/dogtagpki/idm-console-framework-dist:1 /root/RPMS /tmp/RPMS/
 
 # Install build dependencies
-RUN dnf localinstall -y /tmp/RPMS/*
+RUN dnf localinstall -y /tmp/RPMS/* \
+    && dnf clean all \
+    && rm -rf /var/cache/dnf \
+    && rm -rf /tmp/RPMS
+
+# Import PKI sources
+COPY . /root/pki/
 
 # Build PKI packages
-RUN ./build.sh $BUILD_OPTS --work-dir=build rpm
+RUN ./build.sh --work-dir=build rpm
 
 ################################################################################
-FROM $BASE_IMAGE AS pki-runner
+FROM alpine:latest AS pki-dist
 
-ARG COPR_REPO
+# Import PKI packages
+COPY --from=pki-builder /root/pki/build/RPMS /root/RPMS/
 
-RUN dnf install -y dnf-plugins-core
-
-# Enable COPR repo if specified
-RUN if [ -n "$COPR_REPO" ]; then dnf copr enable -y $COPR_REPO; fi
+################################################################################
+FROM pki-deps AS pki-runner
 
 # Import JSS packages
 COPY --from=ghcr.io/dogtagpki/jss-dist:4 /root/RPMS /tmp/RPMS/
@@ -76,10 +99,13 @@ COPY --from=ghcr.io/dogtagpki/ldapjdk-dist:4 /root/RPMS /tmp/RPMS/
 COPY --from=ghcr.io/dogtagpki/idm-console-framework-dist:1 /root/RPMS /tmp/RPMS/
 
 # Import PKI packages
-COPY --from=pki-builder /tmp/pki/build/RPMS /tmp/RPMS/
+COPY --from=pki-dist /root/RPMS /tmp/RPMS/
 
-# Install PKI packages
-RUN dnf localinstall -y /tmp/RPMS/*; rm -rf /tmp/RPMS
+# Install runtime packages
+RUN dnf localinstall -y /tmp/RPMS/* \
+    && dnf clean all \
+    && rm -rf /var/cache/dnf \
+    && rm -rf /tmp/RPMS
 
 ################################################################################
 FROM $BASE_IMAGE AS pki-acme
@@ -120,10 +146,13 @@ COPY --from=ghcr.io/dogtagpki/ldapjdk-dist:4 /root/RPMS /tmp/RPMS/
 COPY --from=ghcr.io/dogtagpki/idm-console-framework-dist:1 /root/RPMS /tmp/RPMS/
 
 # Import PKI packages
-COPY --from=pki-builder /tmp/pki/build/RPMS /tmp/RPMS/
+COPY --from=pki-dist /root/RPMS /tmp/RPMS/
 
 # Install PKI packages
-RUN dnf localinstall -y /tmp/RPMS/*; rm -rf /tmp/RPMS
+RUN dnf localinstall -y /tmp/RPMS/* \
+    && dnf clean all \
+    && rm -rf /var/cache/dnf \
+    && rm -rf /tmp/RPMS
 
 # Install PostgreSQL JDBC driver
 RUN ln -s /usr/share/java/postgresql-jdbc/postgresql.jar /usr/share/pki/server/common/lib/postgresql.jar
