@@ -15,6 +15,10 @@ on:
         value: ${{ jobs.init.outputs.repo }}
       db-image:
         value: ${{ jobs.init.outputs.db-image }}
+      registry:
+        value: ${{ jobs.init.outputs.registry }}
+      registry-namespace:
+        value: ${{ jobs.init.outputs.registry-namespace }}
 
 jobs:
   init:
@@ -24,6 +28,8 @@ jobs:
       base-image: ${{ steps.init.outputs.base-image }}
       repo: ${{ steps.init.outputs.repo }}
       db-image: ${{ steps.init.outputs.db-image }}
+      registry: ${{ steps.init.outputs.registry }}
+      registry-namespace: ${{ steps.init.outputs.registry-namespace }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v3
@@ -34,5 +40,7 @@ jobs:
           BASE64_OS: ${{ secrets.BASE64_OS }}
           BASE64_REPO: ${{ secrets.BASE64_REPO }}
           BASE64_DATABASE: ${{ secrets.BASE64_DATABASE }}
+          REGISTRY: ${{ vars.REGISTRY }}
+          REGISTRY_NAMESPACE: ${{ vars.REGISTRY_NAMESPACE }}
         run: |
           tests/bin/init-workflow.sh
