@@ -50,7 +50,6 @@ import org.mozilla.jss.util.ConsolePasswordCallback;
 import org.mozilla.jss.util.PasswordCallback;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.cert.ICrossCertPairSubsystem;
 import com.netscape.certsrv.common.ConfigConstants;
 import com.netscape.certsrv.common.Constants;
@@ -62,7 +61,6 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.ConfigTrustedPublicKeyEvent;
 import com.netscape.certsrv.selftests.EMissingSelfTestException;
 import com.netscape.certsrv.selftests.ESelfTestException;
-import com.netscape.certsrv.tks.ITKSAuthority;
 import com.netscape.cms.selftests.SelfTest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -609,20 +607,8 @@ public class CMSAdminServlet extends AdminServlet {
     private void readSubsystem(HttpServletRequest req,
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
+
         NameValuePairs params = new NameValuePairs();
-
-        CMSEngine engine = CMS.getCMSEngine();
-
-        for (ISubsystem sys : engine.getSubsystems()) {
-            String type = "";
-
-            //get subsystem type
-            if (sys instanceof ITKSAuthority)
-                type = Constants.PR_TKS_INSTANCE;
-            if (!type.trim().equals(""))
-                params.put(sys.getId(), type);
-        }
-
         readSubsystem(params);
 
         sendResponse(SUCCESS, null, params, resp);

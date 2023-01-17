@@ -56,7 +56,7 @@
                                                                                 
    <servlet>
       <servlet-name>  tksserver  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.admin.CMSAdminServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.admin.TKSCMSAdminServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
                          <param-value> tksserver   </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
