@@ -39,15 +39,12 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.request.Request;
-import com.netscape.cmscore.request.RequestQueue;
-import com.netscape.cmscore.request.RequestRepository;
 
 /**
  * Challenge phrase based authentication.
@@ -250,35 +247,8 @@ public class ChallengePhraseAuthentication extends AuthManager {
             } else {
                 bigIntArray = new BigInteger[0];
             }
-        } else {
+        }
 
-            /*
-             * ra, build a request and send through the connection for
-             * authentication
-             */
-            RequestRepository requestRepository = engine.getRequestRepository();
-            RequestQueue queue = engine.getRequestQueue();
-
-            if (queue != null) {
-                Request checkChallengeReq = requestRepository.createRequest(Request.REVOCATION_CHECK_CHALLENGE_REQUEST);
-                checkChallengeReq.setExtData(Request.CHALLENGE_PHRASE, challenge);
-                // pass just serial number instead of whole cert
-                if (serialNum != null)
-                    checkChallengeReq.setExtData(Request.SERIALNUMBER, serialNum);
-                queue.processRequest(checkChallengeReq);
-                // check request status...
-                RequestStatus status = checkChallengeReq.getRequestStatus();
-
-                if (status == RequestStatus.COMPLETE) {
-                    bigIntArray = checkChallengeReq.getExtDataInBigIntegerArray("serialNoArray");
-                } else {
-                    logger.warn(CMS.getLogMessage("CMSCORE_AUTH_INCOMPLETE_REQUEST"));
-                }
-            } else {
-                logger.error(CMS.getLogMessage("CMSCORE_AUTH_FAILED_GET_QUEUE"));
-                throw new EBaseException(CMS.getUserMessage("CMS_BASE_REVOCATION_CHALLENGE_QUEUE_FAILED"));
-            }
-        } // else, ra
         if (bigIntArray != null && bigIntArray.length > 0) {
             logger.debug("ChallengePhraseAuthentication: challenge authentication serialno array not null");
             for (int i = 0; i < bigIntArray.length; i++)
