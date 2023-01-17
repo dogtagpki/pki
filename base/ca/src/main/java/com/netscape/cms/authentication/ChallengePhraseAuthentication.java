@@ -27,9 +27,10 @@ import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
-import org.dogtagpki.server.ca.ICertificateAuthority;
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.util.Utils;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authentication.EAuthUserError;
@@ -40,7 +41,6 @@ import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
@@ -68,7 +68,7 @@ public class ChallengePhraseAuthentication extends AuthManager {
     public static final String CRED_CHALLENGE = Request.CHALLENGE_PHRASE;
     protected String[] mRequiredCreds = { CRED_CERT_SERIAL, CRED_CHALLENGE };
 
-    protected ICertificateAuthority mCA = null;
+    protected CertificateAuthority mCA;
     protected CertificateRepository mCertDB;
 
     private MessageDigest mSHADigest = null;
@@ -151,12 +151,9 @@ public class ChallengePhraseAuthentication extends AuthManager {
     public AuthToken authenticate(AuthCredentials authCred)
             throws EMissingCredential, EInvalidCredentials, EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
-        mCA = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-
-        if (mCA != null) {
-            mCertDB = mCA.getCertificateRepository();
-        }
+        CAEngine engine = CAEngine.getInstance();
+        mCA = engine.getCA();
+        mCertDB = mCA.getCertificateRepository();
 
         AuthToken authToken = new AuthToken(this);
 
@@ -220,33 +217,32 @@ public class ChallengePhraseAuthentication extends AuthManager {
          * cert record in the internal db, from the cert record,
          * where we'll find the challenge phrase
          */
-        if (mCertDB != null) { /* is CA */
-            CertRecord record = null;
+        CertRecord record = null;
 
-            try {
-                record = mCertDB.readCertificateRecord(serialNum);
-            } catch (EBaseException ee) {
-                logger.warn("ChallengePhraseAuthentication: " + ee.getMessage(), ee);
-            }
-            if (record != null) {
-                String status = record.getStatus();
+        try {
+            record = mCertDB.readCertificateRecord(serialNum);
+        } catch (EBaseException ee) {
+            logger.warn("ChallengePhraseAuthentication: " + ee.getMessage(), ee);
+        }
 
-                if (!status.equals("REVOKED")) {
-                    boolean samepwd = compareChallengePassword(record, challenge);
+        if (record != null) {
+            String status = record.getStatus();
 
-                    if (samepwd) {
-                        bigIntArray = new BigInteger[1];
-                        bigIntArray[0] = record.getSerialNumber();
-                    } else
-                        throw new EAuthUserError(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_ATTRIBUTE_VALUE",
-                                "Invalid password"));
+            if (!status.equals("REVOKED")) {
+                boolean samepwd = compareChallengePassword(record, challenge);
 
-                } else {
-                    bigIntArray = new BigInteger[0];
-                }
+                if (samepwd) {
+                    bigIntArray = new BigInteger[1];
+                    bigIntArray[0] = record.getSerialNumber();
+                } else
+                    throw new EAuthUserError(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_ATTRIBUTE_VALUE",
+                            "Invalid password"));
+
             } else {
                 bigIntArray = new BigInteger[0];
             }
+        } else {
+            bigIntArray = new BigInteger[0];
         }
 
         if (bigIntArray != null && bigIntArray.length > 0) {
