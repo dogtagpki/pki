@@ -40,15 +40,12 @@ import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.request.Request;
-import com.netscape.cmscore.request.RequestQueue;
-import com.netscape.cmscore.request.RequestRepository;
 
 /**
  * SSL client based authentication.
@@ -156,52 +153,7 @@ public class SSLClientCertAuthentication extends AuthManager {
             } else {
                 throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_NOT_FOUND"));
             }
-        } else {
-
-            /*
-             * ra, build a request and send through the connection for
-             * authentication
-             */
-            RequestRepository requestRepository = engine.getRequestRepository();
-            RequestQueue queue = engine.getRequestQueue();
-
-            if (queue != null) {
-                Request getCertStatusReq = requestRepository.createRequest(Request.GETCERT_STATUS_REQUEST);
-                // pass just serial number instead of whole cert
-                if (serialNum != null) {
-                    getCertStatusReq.setExtData(SERIALNUMBER, serialNum);
-                    getCertStatusReq.setExtData(ISSUERDN, clientCertIssuerDN);
-                }
-                queue.processRequest(getCertStatusReq);
-                // check request status...
-                RequestStatus status = getCertStatusReq.getRequestStatus();
-
-                if (status == RequestStatus.COMPLETE) {
-                    String certStatus =
-                            getCertStatusReq.getExtDataInString(Request.CERT_STATUS);
-
-                    if (certStatus == null) {
-                        String[] params = { "null status" };
-
-                        throw new EBaseException(
-                                CMS.getUserMessage("CMS_BASE_INVALID_CERT_STATUS", params));
-                    } else if (certStatus.equals("INVALIDCERTROOT")) {
-                        throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ISSUER_NAME"));
-                    } else if (!certStatus.equals("VALID")) {
-                        String[] params = { status.toString() };
-
-                        throw new EBaseException(
-                                CMS.getUserMessage("CMS_BASE_INVALID_CERT_STATUS", params));
-                    }
-                } else {
-                    logger.error(CMS.getLogMessage("CMSCORE_AUTH_INCOMPLETE_REQUEST"));
-                    throw new EBaseException(CMS.getUserMessage("CMS_BASE_REQUEST_IN_BAD_STATE"));
-                }
-            } else {
-                logger.error(CMS.getLogMessage("CMSCORE_AUTH_FAILED_GET_QUEUE"));
-                throw new EBaseException(CMS.getUserMessage("CMS_BASE_GET_QUEUE_FAILED"));
-            }
-        } // else, ra
+        }
 
         authToken.set(AuthToken.TOKEN_CERT, clientCert);
 
