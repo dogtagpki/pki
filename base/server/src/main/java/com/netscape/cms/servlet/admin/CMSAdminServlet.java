@@ -60,8 +60,6 @@ import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.ConfigTrustedPublicKeyEvent;
-import com.netscape.certsrv.ocsp.IOCSPAuthority;
-import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.certsrv.selftests.EMissingSelfTestException;
 import com.netscape.certsrv.selftests.ESelfTestException;
 import com.netscape.certsrv.tks.ITKSAuthority;
@@ -334,16 +332,6 @@ public class CMSAdminServlet extends AdminServlet {
     }
 
     public boolean isSubsystemInstalled(String subsystem) {
-        CMSEngine engine = CMS.getCMSEngine();
-
-        for (ISubsystem sys : engine.getSubsystems()) {
-
-            //get subsystem type
-            if ((sys instanceof IOCSPAuthority) &&
-                    subsystem.equals("ocsp"))
-                return true;
-        }
-
         return false;
     }
 
@@ -629,8 +617,6 @@ public class CMSAdminServlet extends AdminServlet {
             String type = "";
 
             //get subsystem type
-            if (sys instanceof IOCSPAuthority)
-                type = Constants.PR_OCSP_INSTANCE;
             if (sys instanceof ITKSAuthority)
                 type = Constants.PR_TKS_INSTANCE;
             if (!type.trim().equals(""))
@@ -1113,28 +1099,10 @@ public class CMSAdminServlet extends AdminServlet {
     }
 
     void setOCSPNewnickname(String tokenName, String nickname) throws EBaseException {
-
-        CMSEngine engine = CMS.getCMSEngine();
-        IOCSPAuthority ocsp = (IOCSPAuthority) engine.getSubsystem(IOCSPAuthority.ID);
-        SigningUnit signingUnit = ocsp.getSigningUnit();
-
-        if (CryptoUtil.isInternalToken(tokenName)) {
-            signingUnit.setNewNickName(nickname);
-
-        } else if (tokenName.equals("") && nickname.equals("")) {
-            signingUnit.setNewNickName("");
-
-        } else {
-            signingUnit.setNewNickName(tokenName + ":" + nickname);
-        }
     }
 
-    private String getOCSPNewnickname() throws EBaseException {
-        CMSEngine engine = CMS.getCMSEngine();
-        IOCSPAuthority ocsp = (IOCSPAuthority) engine.getSubsystem(IOCSPAuthority.ID);
-        SigningUnit signingUnit = ocsp.getSigningUnit();
-
-        return signingUnit.getNewNickName();
+    String getOCSPNewnickname() throws EBaseException {
+        return null;
     }
 
     String getKRANewnickname() throws EBaseException {
@@ -1473,21 +1441,8 @@ public class CMSAdminServlet extends AdminServlet {
                 installCASigningCert(nickname, nicknameWithoutTokenName, tokenname1);
 
             } else if (certType.equals(Constants.PR_OCSP_SIGNING_CERT)) {
-                IOCSPAuthority ocsp = (IOCSPAuthority) engine.getSubsystem(IOCSPAuthority.ID);
+                installOCSPSigningCert(nickname, nicknameWithoutTokenName, tokenname1);
 
-                if (ocsp != null) {
-                    setOCSPNewnickname("", "");
-                    SigningUnit signingUnit = ocsp.getSigningUnit();
-
-                    if (nickname.equals(nicknameWithoutTokenName)) {
-                        signingUnit.updateConfig(nickname,
-                                CryptoUtil.INTERNAL_TOKEN_NAME);
-                    } else {
-                        signingUnit.updateConfig(nickname, tokenname1);
-                    }
-                } else {
-                    installOCSPSigningCert(nickname, nicknameWithoutTokenName, tokenname1);
-                }
             } else if (certType.equals(Constants.PR_KRA_TRANSPORT_CERT)) {
                 setKRANewnickname("", "");
                 setKRANickname(nickname);
@@ -1769,16 +1724,7 @@ public class CMSAdminServlet extends AdminServlet {
         if (certType.equals(Constants.PR_CA_SIGNING_CERT)) {
             nickname = getCANickname();
         } else if (certType.equals(Constants.PR_OCSP_SIGNING_CERT)) {
-            IOCSPAuthority ocsp = (IOCSPAuthority) engine.getSubsystem(IOCSPAuthority.ID);
-
-            if (ocsp == null) {
-                // this is a local CA service
-                nickname = getOCSPNickname();
-            } else {
-                SigningUnit signingUnit = ocsp.getSigningUnit();
-
-                nickname = signingUnit.getNickname();
-            }
+            nickname = getOCSPNickname();
         } else if (certType.equals(Constants.PR_KRA_TRANSPORT_CERT)) {
             nickname = getKRANickname();
         } else if (certType.equals(Constants.PR_SERVER_CERT)) {
