@@ -15,7 +15,7 @@
 // (C) 2007 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.cmscore.authentication;
+package com.netscape.cms.authentication;
 
 // ldap java sdk
 
