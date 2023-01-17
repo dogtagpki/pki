@@ -35,7 +35,6 @@ import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.ocsp.IOCSPStore;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
@@ -252,7 +251,7 @@ public class OCSPAdminServlet extends AdminServlet {
         try {
             String id = req.getParameter(Constants.RS_ID);
 
-            mOCSP.getConfigStore().putString(IOCSPAuthority.PROP_DEF_STORE_ID,
+            mOCSP.getConfigStore().putString(OCSPAuthority.PROP_DEF_STORE_ID,
                     id);
             commit(true);
 
@@ -422,8 +421,8 @@ public class OCSPAdminServlet extends AdminServlet {
             throws ServletException, IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
         ConfigStore config = mOCSP.getConfigStore();
-        String defStore = config.getString(IOCSPAuthority.PROP_DEF_STORE_ID);
-        ConfigStore SubStore = config.getSubStore(IOCSPAuthority.PROP_STORE, ConfigStore.class);
+        String defStore = config.getString(OCSPAuthority.PROP_DEF_STORE_ID);
+        ConfigStore SubStore = config.getSubStore(OCSPAuthority.PROP_STORE, ConfigStore.class);
         Enumeration<String> enumStores = SubStore.getSubStoreNames().elements();
 
         while (enumStores.hasMoreElements()) {

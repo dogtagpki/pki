@@ -33,7 +33,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.logging.LogEventListener;
-import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.certsrv.selftests.EDuplicateSelfTestException;
 import com.netscape.certsrv.selftests.EInvalidSelfTestException;
@@ -43,6 +42,7 @@ import com.netscape.cms.selftests.SelfTest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
+import com.netscape.ocsp.OCSPAuthority;
 
 //////////////////////
 // class definition //
@@ -206,7 +206,7 @@ public class OCSPValidity
         String logMessage = null;
 
         OCSPEngine engine = OCSPEngine.getInstance();
-        IOCSPAuthority ocsp = (IOCSPAuthority) engine.getSubsystem(mOcspSubId);
+        OCSPAuthority ocsp = (OCSPAuthority) engine.getSubsystem(mOcspSubId);
         if (ocsp == null) {
             // log that the OCSP is not installed
             logMessage = CMS.getLogMessage(

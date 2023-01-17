@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.ocsp.IDefStore;
-import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.base.ConfigStorage;
@@ -32,6 +31,7 @@ import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmsutil.password.IPasswordStore;
 import com.netscape.cmsutil.password.PasswordStoreConfig;
+import com.netscape.ocsp.OCSPAuthority;
 
 /**
  * @author Endi S. Dewata
@@ -85,10 +85,10 @@ public class OCSPCRLIssuingPointFindCLI extends CommandCLI {
         dbSubsystem.init(dbConfig, ldapConfig, socketConfig, passwordStore);
 
         OCSPConfig ocspConfig = cs.getOCSPConfig();
-        String storeID = ocspConfig.getString(IOCSPAuthority.PROP_DEF_STORE_ID);
+        String storeID = ocspConfig.getString(OCSPAuthority.PROP_DEF_STORE_ID);
 
-        String className = ocspConfig.getString(IOCSPAuthority.PROP_STORE + "." + storeID + ".class");
-        ConfigStore storeConfig = ocspConfig.getSubStore(IOCSPAuthority.PROP_STORE + "." + storeID, ConfigStore.class);
+        String className = ocspConfig.getString(OCSPAuthority.PROP_STORE + "." + storeID + ".class");
+        ConfigStore storeConfig = ocspConfig.getSubStore(OCSPAuthority.PROP_STORE + "." + storeID, ConfigStore.class);
 
         IDefStore store = (IDefStore) Class.forName(className).getDeclaredConstructor().newInstance();
         store.init(storeConfig, dbSubsystem);

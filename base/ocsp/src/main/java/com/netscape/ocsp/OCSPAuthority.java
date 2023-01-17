@@ -53,7 +53,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.OCSPSigningInfoEvent;
 import com.netscape.certsrv.ocsp.IDefStore;
-import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.ocsp.IOCSPService;
 import com.netscape.certsrv.ocsp.IOCSPStore;
 import com.netscape.certsrv.security.SigningUnit;
@@ -86,14 +85,21 @@ import com.netscape.cmsutil.ocsp.TBSRequest;
  * @author lhsiao
  * @version $Revision$, $Date$
  */
-public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
+public class OCSPAuthority implements IOCSPService, IAuthority {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OCSPAuthority.class);
     private static final Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
+    public static final String ID = "ocsp";
+
     private long mServedTime = 0;
 
     public final static OBJECT_IDENTIFIER OCSP_NONCE = new OBJECT_IDENTIFIER("1.3.6.1.5.5.7.48.1.2");
+
+    public final static String PROP_DEF_STORE_ID = "storeId";
+    public final static String PROP_STORE = "store";
+    public static final String PROP_NICKNAME = "certNickname";
+    public final static String PROP_NEW_NICKNAME = "newNickname";
 
     private Hashtable<String, IOCSPStore> mStores = new Hashtable<>();
     private String mId = "ocsp";
@@ -212,7 +218,11 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
         }
     }
 
-    @Override
+    /**
+     * This method retrieves the responder ID by its name.
+     *
+     * @return ResponderID an instance of a responder ID
+     */
     public ResponderID getResponderIDByName() {
         try {
             X500Name name = getName();
@@ -227,7 +237,11 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
         }
     }
 
-    @Override
+    /**
+     * This method retrieves the responder ID by its hash.
+     *
+     * @return ResponderID an instance of a responder ID
+     */
     public ResponderID getResponderIDByHash() {
 
         /*
@@ -249,9 +263,10 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
     }
 
     /**
-     * Retrieves supported signing algorithms.
+     * This method retrieves all potential OCSP signing algorithms.
+     *
+     * @return String[] the names of all potential OCSP signing algorithms
      */
-    @Override
     public String[] getOCSPSigningAlgorithms() {
         if (mOCSPSigningAlgorithms != null) {
             return mOCSPSigningAlgorithms;
@@ -287,9 +302,10 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
     }
 
     /**
-     * Retrieves the name of this OCSP server.
+     * This method retrieves the X500Name of an OCSP server instance.
+     *
+     * @return X500Name an instance of the X500 name object
      */
-    @Override
     public X500Name getName() {
         X509CertImpl certImpl = mSigningUnit.getCertImpl();
         return certImpl.getSubjectName();
@@ -417,7 +433,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
             for (int j = 0; j < tbsReq.getExtensionsCount(); j++) {
                 Extension thisExt = tbsReq.getRequestExtensionAt(j);
 
-                if (thisExt.getExtnId().equals(IOCSPAuthority.OCSP_NONCE)) {
+                if (thisExt.getExtnId().equals(OCSPAuthority.OCSP_NONCE)) {
                     nonce = new Extension[1];
                     nonce[0] = thisExt;
                 }
@@ -489,7 +505,11 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
         return mConfig;
     }
 
-    @Override
+    /**
+     * This method retrieves the default signing algorithm.
+     *
+     * @return String the name of the default signing algorithm
+     */
     public String getDefaultAlgorithm() {
         return mSigningUnit.getDefaultAlgorithm();
     }
@@ -497,16 +517,25 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
     public void log(int level, String msg) {
     }
 
-    @Override
+    /**
+     * This method sets the supplied algorithm as the default signing algorithm.
+     *
+     * @param algorithm a string representing the requested algorithm
+     * @exception EBaseException if the algorithm is unknown or disallowed
+     */
     public void setDefaultAlgorithm(String algorithm)
             throws EBaseException {
         mSigningUnit.setDefaultAlgorithm(algorithm);
     }
 
     /**
-     * Signs the Response Data.
+     * This method signs the basic OCSP response data provided as a parameter.
+     *
+     * @param rd response data
+     * @return BasicOCSPResponse signed response data
+     * @exception EBaseException error associated with an inability to sign
+     *                the specified response data
      */
-    @Override
     public BasicOCSPResponse sign(ResponseData rd)
             throws EBaseException {
 
@@ -574,12 +603,10 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
     }
 
     /**
-     * Returns default signing unit used by this CA
-     * <P>
+     * This method retrieves the signing unit.
      *
-     * @return request identifier
+     * @return SigningUnit an instance of a signing unit object
      */
-    @Override
     public SigningUnit getSigningUnit() {
         return mSigningUnit;
     }
@@ -709,22 +736,18 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, IAuthority {
         return mTotalData;
     }
 
-    @Override
     public void incTotalTime(long inc) {
         mTotalTime += inc;
     }
 
-    @Override
     public void incSignTime(long inc) {
         mSignTime += inc;
     }
 
-    @Override
     public void incLookupTime(long inc) {
         mLookupTime += inc;
     }
 
-    @Override
     public void incNumOCSPRequest(long inc) {
         mNumOCSPRequest += inc;
     }
