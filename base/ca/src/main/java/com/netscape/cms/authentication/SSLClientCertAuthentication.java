@@ -30,9 +30,10 @@ import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
-import org.dogtagpki.server.ca.ICertificateAuthority;
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EAuthUserError;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
@@ -41,7 +42,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
@@ -64,7 +64,7 @@ public class SSLClientCertAuthentication extends AuthManager {
     public static final String ISSUERDN = "issuerDN";
     protected static String[] mRequiredCreds = { CRED_CERT };
 
-    private ICertificateAuthority mCA = null;
+    private CertificateAuthority mCA;
     private CertificateRepository mCertDB;
 
     /**
@@ -106,12 +106,9 @@ public class SSLClientCertAuthentication extends AuthManager {
         }
         logger.debug("SSLCertAuth: Got client certificate");
 
-        CMSEngine engine = CMS.getCMSEngine();
-        mCA = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-
-        if (mCA != null) {
-            mCertDB = mCA.getCertificateRepository();
-        }
+        CAEngine engine = CAEngine.getInstance();
+        mCA = engine.getCA();
+        mCertDB = mCA.getCertificateRepository();
 
         X509CertImpl clientCert = (X509CertImpl) x509Certs[0];
 
@@ -127,32 +124,31 @@ public class SSLClientCertAuthentication extends AuthManager {
 
         String clientCertIssuerDN = clientCert.getIssuerName().toString();
 
-        if (mCertDB != null) { /* is CA */
-            CertRecord record = null;
+        CertRecord record = null;
 
-            try {
-                record = mCertDB.readCertificateRecord(serialNum);
-            } catch (EBaseException ee) {
-                logger.warn("SSLClientCertAuthentication: " + ee.getMessage(), ee);
-            }
-            if (record != null) {
-                String status = record.getStatus();
+        try {
+            record = mCertDB.readCertificateRecord(serialNum);
+        } catch (EBaseException ee) {
+            logger.warn("SSLClientCertAuthentication: " + ee.getMessage(), ee);
+        }
 
-                if (status.equals("VALID")) {
+        if (record != null) {
+            String status = record.getStatus();
 
-                    X509CertImpl cacert = mCA.getCACert();
-                    Principal p = cacert.getSubjectName();
+            if (status.equals("VALID")) {
 
-                    if (!p.toString().equals(clientCertIssuerDN)) {
-                        throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ISSUER_NAME"));
-                    }
-                } else {
-                    throw new EBaseException(
-                            CMS.getUserMessage("CMS_BASE_INVALID_CERT_STATUS", status));
+                X509CertImpl cacert = mCA.getCACert();
+                Principal p = cacert.getSubjectName();
+
+                if (!p.toString().equals(clientCertIssuerDN)) {
+                    throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ISSUER_NAME"));
                 }
             } else {
-                throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_NOT_FOUND"));
+                throw new EBaseException(
+                        CMS.getUserMessage("CMS_BASE_INVALID_CERT_STATUS", status));
             }
+        } else {
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_NOT_FOUND"));
         }
 
         authToken.set(AuthToken.TOKEN_CERT, clientCert);
