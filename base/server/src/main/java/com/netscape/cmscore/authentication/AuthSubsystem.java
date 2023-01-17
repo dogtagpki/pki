@@ -44,11 +44,9 @@ import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * Default authentication subsystem
- * <P>
  *
  * @author cfu
  * @author lhsiao
- * @version $Revision$, $Date$
  */
 public class AuthSubsystem implements ISubsystem {
 
@@ -71,19 +69,9 @@ public class AuthSubsystem implements ISubsystem {
     public final static String CERTUSERDB_PLUGIN_ID = "certUserDBAuthPlugin";
 
     /**
-     * Constant for challenge based authentication plugin ID.
-     */
-    public final static String CHALLENGE_PLUGIN_ID = "challengeAuthPlugin";
-
-    /**
      * Constant for null authentication plugin ID.
      */
     public final static String NULL_PLUGIN_ID = "nullAuthPlugin";
-
-    /**
-     * Constant for ssl client authentication plugin ID.
-     */
-    public final static String SSLCLIENTCERT_PLUGIN_ID = "sslClientCertAuthPlugin";
 
     /**
      * Constant for password based authentication manager ID.
@@ -96,24 +84,14 @@ public class AuthSubsystem implements ISubsystem {
     public final static String CERTUSERDB_AUTHMGR_ID = "certUserDBAuthMgr";
 
     /**
-     * Constant for challenge based authentication manager ID.
-     */
-    public final static String CHALLENGE_AUTHMGR_ID = "challengeAuthMgr";
-
-    /**
      * Constant for null authentication manager ID.
      */
     public final static String NULL_AUTHMGR_ID = "nullAuthMgr";
 
-    /**
-     * Constant for ssl client authentication manager ID.
-     */
-    public final static String SSLCLIENTCERT_AUTHMGR_ID = "sslClientCertAuthMgr";
-
     public Hashtable<String, AuthMgrPlugin> mAuthMgrPlugins = new Hashtable<>();
     public Hashtable<String, AuthManagerProxy> mAuthMgrInsts = new Hashtable<>();
     private String mId = "auths";
-    private AuthenticationConfig mConfig;
+    protected AuthenticationConfig mConfig;
 
     public AuthSubsystem() {
     }
@@ -135,12 +113,6 @@ public class AuthSubsystem implements ISubsystem {
         plugin.setVisible(false);
         mAuthMgrPlugins.put(CERTUSERDB_PLUGIN_ID, plugin);
 
-        logger.info("AuthSubsystem: Loading auth manager plugin " + CHALLENGE_PLUGIN_ID);
-
-        plugin = new AuthMgrPlugin(CHALLENGE_PLUGIN_ID, ChallengePhraseAuthentication.class.getName());
-        plugin.setVisible(false);
-        mAuthMgrPlugins.put(CHALLENGE_PLUGIN_ID, plugin);
-
         // Bugscape #56659
         //   Removed NullAuthMgr to harden CMS. Otherwise,
         //   any request submitted for nullAuthMgr will
@@ -151,12 +123,6 @@ public class AuthSubsystem implements ISubsystem {
         // plugin = new AuthMgrPlugin(NULL_PLUGIN_ID, NullAuthentication.class.getName());
         // plugin.setVisible(false);
         // mAuthMgrPlugins.put(NULL_PLUGIN_ID, plugin);
-
-        logger.info("AuthSubsystem: Loading auth manager plugin " + SSLCLIENTCERT_PLUGIN_ID);
-
-        plugin = new AuthMgrPlugin(SSLCLIENTCERT_PLUGIN_ID, SSLClientCertAuthentication.class.getName());
-        plugin.setVisible(false);
-        mAuthMgrPlugins.put(SSLCLIENTCERT_PLUGIN_ID, plugin);
 
         ConfigStore c = mConfig.getSubStore(PROP_IMPL, ConfigStore.class);
         Enumeration<String> pluginIDs = c.getSubStoreNames().elements();
@@ -189,12 +155,6 @@ public class AuthSubsystem implements ISubsystem {
         certUserDBAuth.init(mConfig, CERTUSERDB_AUTHMGR_ID, CERTUSERDB_PLUGIN_ID, null);
         mAuthMgrInsts.put(CERTUSERDB_AUTHMGR_ID, new AuthManagerProxy(true, certUserDBAuth));
 
-        logger.info("AuthSubsystem: Loading auth manager instance " + CHALLENGE_AUTHMGR_ID);
-
-        ChallengePhraseAuthentication challengeAuth = new ChallengePhraseAuthentication();
-        challengeAuth.init(mConfig, CHALLENGE_AUTHMGR_ID, CHALLENGE_PLUGIN_ID, null);
-        mAuthMgrInsts.put(CHALLENGE_AUTHMGR_ID, new AuthManagerProxy(true, challengeAuth));
-
         // #56659
         // logger.info("AuthSubsystem: Loading auth manager instance " + NULL_AUTHMGR_ID);
         //
@@ -202,12 +162,6 @@ public class AuthSubsystem implements ISubsystem {
         // nullAuth.setAuthenticationConfig(mConfig);
         // nullAuth.init(NULL_AUTHMGR_ID, NULL_PLUGIN_ID, null);
         // mAuthMgrInsts.put(NULL_AUTHMGR_ID, new AuthManagerProxy(true, nullAuth));
-
-        logger.info("AuthSubsystem: Loading auth manager instance " + SSLCLIENTCERT_AUTHMGR_ID);
-
-        SSLClientCertAuthentication sslClientCertAuth = new SSLClientCertAuthentication();
-        sslClientCertAuth.init(mConfig, SSLCLIENTCERT_AUTHMGR_ID, SSLCLIENTCERT_PLUGIN_ID, null);
-        mAuthMgrInsts.put(SSLCLIENTCERT_AUTHMGR_ID, new AuthManagerProxy(true, sslClientCertAuth));
 
         AuthManagersConfig instancesConfig = mConfig.getAuthManagersConfig();
         Enumeration<String> instNames = instancesConfig.getSubStoreNames().elements();

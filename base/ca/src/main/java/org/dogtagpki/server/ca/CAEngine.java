@@ -37,6 +37,7 @@ import java.util.TreeSet;
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.legacy.ca.CAPolicy;
 import org.dogtagpki.server.authentication.AuthToken;
+import org.dogtagpki.server.authentication.AuthenticationConfig;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
@@ -65,6 +66,7 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.publish.CRLPublisher;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.util.AsyncLoader;
+import com.netscape.cms.authentication.CAAuthSubsystem;
 import com.netscape.cms.request.RequestScheduler;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -387,6 +389,13 @@ public class CAEngine extends CMSEngine {
 
     public LdapBoundConnFactory getConnectionFactory() {
         return connectionFactory;
+    }
+
+    public void initAuthSubsystem() throws Exception {
+        AuthenticationConfig authConfig = config.getAuthenticationConfig();
+        authSubsystem = new CAAuthSubsystem();
+        authSubsystem.init(authConfig);
+        authSubsystem.startup();
     }
 
     public void initListeners() throws Exception {
