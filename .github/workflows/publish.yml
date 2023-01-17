@@ -10,6 +10,7 @@ jobs:
     name: Initialization
     uses: ./.github/workflows/init.yml
     secrets: inherit
+    if: vars.REGISTRY != ''
 
   build:
     name: Waiting for build
@@ -29,12 +30,21 @@ jobs:
     needs: [init, build]
     runs-on: ubuntu-latest
     steps:
-      - name: Log in to the Container registry
+      - name: Log in to GitHub Container Registry
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+        if: vars.REGISTRY == 'ghcr.io'
+
+      - name: Log in to other container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ vars.REGISTRY }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+        if: vars.REGISTRY != 'ghcr.io'
 
       - name: Retrieve pki-dist image
         uses: actions/cache@v3
@@ -45,17 +55,5 @@ jobs:
       - name: Publish pki-dist image
         run: |
           docker load --input pki-dist.tar
-          docker tag pki-dist ghcr.io/${{ github.repository_owner }}/pki-dist:10
-          docker push ghcr.io/${{ github.repository_owner }}/pki-dist:10
-
-      - name: Retrieve pki-runner image
-        uses: actions/cache@v3
-        with:
-          key: pki-runner-${{ github.sha }}
-          path: pki-runner.tar
-
-      - name: Publish pki-runner image
-        run: |
-          docker load --input pki-runner.tar
-          docker tag pki-runner ghcr.io/${{ github.repository_owner }}/pki-runner:10
-          docker push ghcr.io/${{ github.repository_owner }}/pki-runner:10
+          docker tag pki-dist ${{ needs.init.outputs.registry }}/${{ needs.init.outputs.registry-namespace }}/pki-dist:10
+          docker push ${{ needs.init.outputs.registry }}/${{ needs.init.outputs.registry-namespace }}/pki-dist:10
