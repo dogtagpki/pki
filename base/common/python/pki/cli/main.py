@@ -175,35 +175,50 @@ class PKICLI(pki.cli.CLI):
 
             # get database path
             if args[i] == '-d':
-                self.database = args[i + 1]
+                try:
+                    self.database = args[i + 1]
+                except IndexError:
+                    break
                 pki_options.append(args[i])
                 pki_options.append(args[i + 1])
                 i = i + 2
 
             # get database password
             elif args[i] == '-c':
-                self.password = args[i + 1]
+                try:
+                    self.password = args[i + 1]
+                except IndexError:
+                    break
                 pki_options.append(args[i])
                 pki_options.append(args[i + 1])
                 i = i + 2
 
             # get database password file path
             elif args[i] == '-C':
-                self.password_file = args[i + 1]
+                try:
+                    self.password_file = args[i + 1]
+                except IndexError:
+                    break
                 pki_options.append(args[i])
                 pki_options.append(args[i + 1])
                 i = i + 2
 
             # get database password config path
             elif args[i] == '-f':
-                self.password_conf = args[i + 1]
+                try:
+                    self.password_conf = args[i + 1]
+                except IndexError:
+                    break
                 pki_options.append(args[i])
                 pki_options.append(args[i + 1])
                 i = i + 2
 
             # get token name
             elif args[i] == '--token':
-                self.token = args[i + 1]
+                try:
+                    self.token = args[i + 1]
+                except IndexError:
+                    break
                 pki_options.append(args[i])
                 pki_options.append(args[i + 1])
                 i = i + 2
@@ -228,7 +243,10 @@ class PKICLI(pki.cli.CLI):
 
             # get client type
             elif args[i] == '--client-type':
-                client_type = args[i + 1]
+                try:
+                    client_type = args[i + 1]
+                except IndexError:
+                    break
                 pki_options.append(args[i])
                 pki_options.append(args[i + 1])
                 i = i + 2
