@@ -16,7 +16,7 @@ License:          GPLv2 and LGPLv2
 %global           release_number 1
 Version:          10.14.0
 Release:          %{?release_number}%{?_timestamp}%{?_commit_id}%{?dist}
-#global           _phase -alpha1
+#global           _phase
 
 # To create a tarball from a version tag:
 # $ git archive \
