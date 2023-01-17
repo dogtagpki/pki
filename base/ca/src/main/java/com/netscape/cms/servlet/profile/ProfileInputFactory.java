@@ -3,10 +3,10 @@ package com.netscape.cms.servlet.profile;
 import java.util.Enumeration;
 import java.util.Locale;
 
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.request.Request;
 
 public class ProfileInputFactory {
@@ -34,7 +34,7 @@ public class ProfileInputFactory {
 
     public static ProfileInput create(
             com.netscape.cms.profile.common.ProfileInput input,
-            IArgBlock params,
+            ArgBlock params,
             Locale locale) throws EProfileException {
 
         ProfileInput ret = new ProfileInput();

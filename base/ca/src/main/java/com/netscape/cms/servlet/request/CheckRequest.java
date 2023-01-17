@@ -64,7 +64,6 @@ import org.mozilla.jss.pkix.primitive.Name;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -251,7 +250,7 @@ public class CheckRequest extends CMSServlet {
             }
         }
 
-        IArgBlock httpParams = cmsReq.getHttpParams();
+        ArgBlock httpParams = cmsReq.getHttpParams();
         boolean importCert = httpParams.getValueAsBoolean("importCert",
                 false);
         // xxx need to check why this is not available at startup

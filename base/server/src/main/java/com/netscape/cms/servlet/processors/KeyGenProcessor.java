@@ -26,13 +26,13 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.KeyGenInfo;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.authentication.AuthSubsystem;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * KeyGenProcess parses Certificate request matching the
@@ -61,7 +61,7 @@ public class KeyGenProcessor extends PKIProcessor {
     @Override
     public void fillCertInfo(
             String protocolString, X509CertInfo certInfo,
-            AuthToken authToken, IArgBlock httpParams)
+            AuthToken authToken, ArgBlock httpParams)
             throws EBaseException {
 
         logger.debug("KeyGenProcessor: fillCertInfo");

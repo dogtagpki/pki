@@ -50,7 +50,6 @@ import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.pkix.primitive.Name;
 
 import com.netscape.certsrv.authority.IAuthority;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.request.Request;
@@ -100,7 +99,7 @@ public class GenPendingTemplateFiller implements ICMSTemplateFiller {
 
             fixed.set(ICMSTemplateFiller.REQUEST_ID, reqId);
             // set pendInfo, CMCStatusInfoV2
-            IArgBlock httpParams = cmsReq.getHttpParams();
+            ArgBlock httpParams = cmsReq.getHttpParams();
 
             if (doFullResponse(httpParams)) {
                 SEQUENCE controlSeq = new SEQUENCE();
@@ -273,7 +272,7 @@ public class GenPendingTemplateFiller implements ICMSTemplateFiller {
     /**
      * handy routine to check if client want full enrollment response
      */
-    public static boolean doFullResponse(IArgBlock httpParams) {
+    public static boolean doFullResponse(ArgBlock httpParams) {
         if (httpParams.getValueAsBoolean("fullResponse", false))
             return true;
         else

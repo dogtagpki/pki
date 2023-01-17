@@ -31,13 +31,13 @@ import org.w3c.dom.Node;
 
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmsutil.password.IPasswordStore;
 import com.netscape.cmsutil.xml.XMLObject;
@@ -78,7 +78,7 @@ public class GetConfigEntries extends CMSServlet {
             return;
         }
 
-        IArgBlock args = cmsReq.getHttpParams();
+        ArgBlock args = cmsReq.getHttpParams();
         String op = args.getValueAsString("op", null);
         logger.info("GetConfigEntries: Operation: " + op);
 

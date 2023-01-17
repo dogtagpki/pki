@@ -26,10 +26,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -54,7 +54,7 @@ public class CMSRequest {
     private String reason = null;
 
     // http parameters - handier than getting directly from http request.
-    private IArgBlock mHttpParams = null;
+    private ArgBlock mHttpParams;
 
     // http headers & other info.
     private HttpServletRequest mHttpReq = null;
@@ -96,7 +96,7 @@ public class CMSRequest {
     /**
      * set the HTTP parameters
      */
-    public void setHttpParams(IArgBlock httpParams) {
+    public void setHttpParams(ArgBlock httpParams) {
         mHttpParams = httpParams;
     }
 
@@ -184,7 +184,7 @@ public class CMSRequest {
         mResults.put(name, result);
     }
 
-    public IArgBlock getHttpParams() {
+    public ArgBlock getHttpParams() {
         return mHttpParams;
     }
 

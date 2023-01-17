@@ -39,7 +39,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -215,7 +214,7 @@ public class ReasonToRevoke extends CMSServlet {
         }
     }
 
-    private void process(CMSTemplateParams argSet, IArgBlock header,
+    private void process(CMSTemplateParams argSet, ArgBlock header,
             HttpServletRequest req,
             HttpServletResponse resp,
             String revokeAll, int totalRecordCount,

@@ -62,11 +62,11 @@ import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.pkix.primitive.Name;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -100,13 +100,13 @@ public class CMCProcessor extends PKIProcessor {
     @Override
     public void fillCertInfo(
             String protocolString, X509CertInfo certInfo,
-            AuthToken authToken, IArgBlock httpParams)
+            AuthToken authToken, ArgBlock httpParams)
             throws EBaseException {
     }
 
     @Override
     public X509CertInfo[] fillCertInfoArray(
-            String protocolString, AuthToken authToken, IArgBlock httpParams, Request req)
+            String protocolString, AuthToken authToken, ArgBlock httpParams, Request req)
             throws EBaseException {
 
         logger.debug("CMCProcessor: In CMCProcessor.fillCertInfoArray!");

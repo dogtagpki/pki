@@ -38,7 +38,6 @@ import com.netscape.ca.CRLIssuingPoint;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
@@ -226,7 +225,7 @@ public class DoUnrevoke extends CMSServlet {
      * @param initiative string containing the audit format
      * @exception EBaseException an error has occurred
      */
-    private void process(CMSTemplateParams argSet, IArgBlock header,
+    private void process(CMSTemplateParams argSet, ArgBlock header,
             BigInteger[] serialNumbers,
             HttpServletRequest req,
             HttpServletResponse resp,

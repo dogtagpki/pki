@@ -51,7 +51,6 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.KeyGenInfo;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
@@ -71,6 +70,7 @@ import com.netscape.cms.servlet.processors.PKCS10Processor;
 import com.netscape.cms.servlet.processors.PKIProcessor;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.authentication.AuthSubsystem;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.dbs.CertRecord;
@@ -342,7 +342,7 @@ public class EnrollServlet extends CAServlet {
         processX509(cmsReq);
     }
 
-    private boolean getCertAuthEnrollStatus(IArgBlock httpParams) {
+    private boolean getCertAuthEnrollStatus(ArgBlock httpParams) {
 
         /*
          * === certAuth based enroll ===
@@ -368,7 +368,7 @@ public class EnrollServlet extends CAServlet {
 
     }
 
-    private String getCertAuthEnrollType(IArgBlock httpParams, boolean certAuthEnroll)
+    private String getCertAuthEnrollType(ArgBlock httpParams, boolean certAuthEnroll)
             throws EBaseException {
 
         String certauthEnrollType = null;
@@ -701,7 +701,7 @@ public class EnrollServlet extends CAServlet {
 
         // define variables common to try-catch-blocks
         long startTime = 0;
-        IArgBlock httpParams = null;
+        ArgBlock httpParams = null;
         HttpServletRequest httpReq = null;
         AuthToken authToken = null;
         AuthzToken authzToken = null;

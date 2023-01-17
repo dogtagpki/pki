@@ -35,7 +35,6 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzUnknownRealm;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -268,7 +267,7 @@ public class SrchKeyForRecovery extends CMSServlet {
      * Process the key search.
      */
     private void process(CMSTemplateParams argSet,
-            IArgBlock header, IArgBlock ctx,
+            ArgBlock header, ArgBlock ctx,
             int maxCount, int maxResults, int timeLimit, int sentinel, String publicKeyData,
             String filter,
             HttpServletRequest req, HttpServletResponse resp, Locale locale, String realm)

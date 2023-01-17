@@ -28,13 +28,13 @@ import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * For Face-to-face enrollment, disable EE enrollment feature
@@ -105,7 +105,7 @@ public class DisableEnrollResult extends CMSServlet {
         String dn = sslClientCert.getSubjectDN().toString();
 
         // Construct an ArgBlock
-        IArgBlock args = cmsReq.getHttpParams();
+        ArgBlock args = cmsReq.getHttpParams();
 
         logger.error(CMS.getLogMessage("ADMIN_SRVLT_CA_FROM_RA_NOT_IMP"));
         cmsReq.setError(new ECMSGWException(CMS.getLogMessage("CMSGW_NOT_YET_IMPLEMENTED")));

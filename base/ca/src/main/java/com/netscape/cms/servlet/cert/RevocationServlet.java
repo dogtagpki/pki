@@ -39,7 +39,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -132,7 +131,7 @@ public class RevocationServlet extends CMSServlet {
     @Override
     protected void process(CMSRequest cmsReq)
             throws EBaseException {
-        IArgBlock httpParams = cmsReq.getHttpParams();
+        ArgBlock httpParams = cmsReq.getHttpParams();
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
@@ -295,7 +294,7 @@ public class RevocationServlet extends CMSServlet {
      * get cert to revoke from agent.
      */
     private BigInteger getCertFromAgent(
-            IArgBlock httpParams, X509Certificate[] certContainer)
+            ArgBlock httpParams, X509Certificate[] certContainer)
             throws EBaseException {
 
         CAEngine engine = CAEngine.getInstance();

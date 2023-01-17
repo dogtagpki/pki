@@ -45,7 +45,6 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -345,7 +344,7 @@ public class ListCerts extends CMSServlet {
 
     private void processCertFilter(
             CMSTemplateParams argSet,
-            IArgBlock header,
+            ArgBlock header,
             int maxCount,
             BigInteger sentinel,
             int totalRecordCount,
@@ -624,7 +623,7 @@ public class ListCerts extends CMSServlet {
     /**
      * Fills cert record into argument block.
      */
-    private void fillRecordIntoArg(CertRecord rec, IArgBlock rarg)
+    private void fillRecordIntoArg(CertRecord rec, ArgBlock rarg)
             throws EBaseException {
 
         X509CertImpl xcert = rec.getCertificate();
@@ -634,7 +633,7 @@ public class ListCerts extends CMSServlet {
         }
     }
 
-    private void fillX509RecordIntoArg(CertRecord rec, IArgBlock rarg)
+    private void fillX509RecordIntoArg(CertRecord rec, ArgBlock rarg)
             throws EBaseException {
 
         X509CertImpl cert = rec.getCertificate();

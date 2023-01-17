@@ -45,7 +45,6 @@ import com.netscape.ca.CRLIssuingPoint;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CertStatusChangeRequestEvent;
@@ -307,7 +306,7 @@ public class DoRevokeTPS extends CAServlet {
      * @param locale the system locale
      * @exception EBaseException an error has occurred
      */
-    private void process(CMSTemplateParams argSet, IArgBlock header,
+    private void process(CMSTemplateParams argSet, ArgBlock header,
             int reason, Date invalidityDate,
             String initiative,
             HttpServletRequest req,

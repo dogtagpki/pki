@@ -38,7 +38,6 @@ import com.netscape.ca.CRLIssuingPoint;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -180,7 +179,7 @@ public class GetInfo extends CMSServlet {
         }
     }
 
-    private void process(IArgBlock header) throws EBaseException {
+    private void process(ArgBlock header) throws EBaseException {
 
         CAEngine engine = CAEngine.getInstance();
         CAEngineConfig cs = engine.getConfig();

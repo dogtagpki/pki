@@ -67,7 +67,6 @@ import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.authentication.HashAuthentication;
@@ -176,7 +175,7 @@ public class HashEnrollServlet extends CAServlet {
     @Override
     protected void process(CMSRequest cmsReq)
             throws EBaseException {
-        IArgBlock httpParams = cmsReq.getHttpParams();
+        ArgBlock httpParams = cmsReq.getHttpParams();
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         String certType = null;
 
@@ -275,7 +274,7 @@ public class HashEnrollServlet extends CAServlet {
 
     protected void processX509(CMSRequest cmsReq)
             throws EBaseException {
-        IArgBlock httpParams = cmsReq.getHttpParams();
+        ArgBlock httpParams = cmsReq.getHttpParams();
         HttpServletRequest httpReq = cmsReq.getHttpReq();
 
         // create enrollment request in request repository
@@ -845,7 +844,7 @@ public class HashEnrollServlet extends CAServlet {
     }
 
     protected X509CertInfo[] fillCRMF(
-            String crmf, AuthToken authToken, IArgBlock httpParams, Request req)
+            String crmf, AuthToken authToken, ArgBlock httpParams, Request req)
             throws EBaseException {
         try {
             byte[] crmfBlob = Utils.base64decode(crmf);
@@ -1109,7 +1108,7 @@ public class HashEnrollServlet extends CAServlet {
 
         /**
          * // include all the input data
-         * IArgBlock args = cmsReq.getHttpParams();
+         * ArgBlock args = cmsReq.getHttpParams();
          * Enumeration ele = args.getElements();
          * while (ele.hasMoreElements()) {
          * String eleT = (String)ele.nextElement();
@@ -1135,7 +1134,7 @@ public class HashEnrollServlet extends CAServlet {
     }
 
     private void do_testbed_hack(
-            int nummsgs, X509CertInfo[] certinfo, IArgBlock httpParams)
+            int nummsgs, X509CertInfo[] certinfo, ArgBlock httpParams)
             throws EBaseException {
         if (!mIsTestBed)
             return;

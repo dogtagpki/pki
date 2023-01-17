@@ -32,7 +32,6 @@ import org.dogtagpki.server.authorization.AuthzToken;
 
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -221,7 +220,7 @@ public class SearchReqs extends CMSServlet {
     /**
      * Process the key search.
      */
-    private void process(CMSTemplateParams argSet, IArgBlock header,
+    private void process(CMSTemplateParams argSet, ArgBlock header,
             String filter, AuthToken token,
             int maxResults, int timeLimit,
             HttpServletRequest req, HttpServletResponse resp,

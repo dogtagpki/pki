@@ -38,7 +38,6 @@ import com.netscape.ca.CRLIssuingPoint;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.ICRLPrettyPrint;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -114,7 +113,7 @@ public class GetCRL extends CMSServlet {
         }
 
         // Construct an ArgBlock
-        IArgBlock args = cmsReq.getHttpParams();
+        ArgBlock args = cmsReq.getHttpParams();
 
         CMSTemplate form = null;
         Locale[] locale = new Locale[1];

@@ -35,7 +35,6 @@ import org.dogtagpki.server.kra.KRAEngineConfig;
 
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -200,7 +199,7 @@ public class GrantRecovery extends CMSServlet {
      * @param locale the system locale
      */
     private void process(CMSTemplateParams argSet,
-            IArgBlock header, String recoveryID,
+            ArgBlock header, String recoveryID,
             String agentID, String agentPWD,
             HttpServletRequest req, HttpServletResponse resp,
             Locale locale) {

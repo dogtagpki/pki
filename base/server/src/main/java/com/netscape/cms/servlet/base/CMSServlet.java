@@ -59,7 +59,6 @@ import org.w3c.dom.Node;
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
@@ -437,7 +436,7 @@ public abstract class CMSServlet extends HttpServlet {
         // set servlet context.
         cmsRequest.setServletContext(mServletContext);
 
-        IArgBlock httpArgs = cmsRequest.getHttpParams();
+        ArgBlock httpArgs = cmsRequest.getHttpParams();
 
         // authenticator value from http overrides the value in web.xml.
         String authMgr_http = httpArgs.getValueAsString(AUTHMGR_PARAM, null);
@@ -539,7 +538,7 @@ public abstract class CMSServlet extends HttpServlet {
     public static final String TEMPLATE_NAME = "templateName";
 
     protected void outputArgBlockAsXML(XMLObject xmlObj, Node parent,
-                                       String argBlockName, IArgBlock argBlock) {
+                                       String argBlockName, ArgBlock argBlock) {
         Node argBlockContainer = xmlObj.createContainer(parent, argBlockName);
 
         if (argBlock != null) {
@@ -562,11 +561,11 @@ public abstract class CMSServlet extends HttpServlet {
             outputArgBlockAsXML(xmlObj, root, "header", params.getHeader());
             outputArgBlockAsXML(xmlObj, root, "fixed", params.getFixed());
 
-            Enumeration<IArgBlock> records = params.queryRecords();
+            Enumeration<ArgBlock> records = params.queryRecords();
             Node recordsNode = xmlObj.createContainer(root, "records");
             if (records != null) {
                 while (records.hasMoreElements()) {
-                    IArgBlock record = records.nextElement();
+                    ArgBlock record = records.nextElement();
                     outputArgBlockAsXML(xmlObj, recordsNode, "record", record);
                 }
             }
@@ -586,7 +585,7 @@ public abstract class CMSServlet extends HttpServlet {
             CMSRequest cmsReq, String templateName, ICMSTemplateFiller filler)
             throws IOException {
         try {
-            IArgBlock httpParams = cmsReq.getHttpParams();
+            ArgBlock httpParams = cmsReq.getHttpParams();
 
             Locale[] locale = new Locale[1];
             CMSTemplate template =
@@ -627,7 +626,7 @@ public abstract class CMSServlet extends HttpServlet {
                         PRESERVED, null);
 
                 if (preserved != null) {
-                    IArgBlock fixed = templateParams.getFixed();
+                    ArgBlock fixed = templateParams.getFixed();
 
                     if (fixed != null) {
                         fixed.set(PRESERVED, preserved);
@@ -758,7 +757,7 @@ public abstract class CMSServlet extends HttpServlet {
      * manager.
      */
     public static AuthCredentials getAuthCreds(
-            AuthManager authMgr, IArgBlock argBlock, X509Certificate clientCert)
+            AuthManager authMgr, ArgBlock argBlock, X509Certificate clientCert)
             throws EBaseException {
         // get credentials from http parameters.
         String[] reqCreds = authMgr.getRequiredCreds();
@@ -945,7 +944,7 @@ public abstract class CMSServlet extends HttpServlet {
      * save http headers in a Request.
      */
     protected void saveHttpParams(
-            IArgBlock httpParams, Request req) {
+            ArgBlock httpParams, Request req) {
         Hashtable<String, String> saveParams = new Hashtable<>();
 
         Enumeration<String> names = httpParams.elements();
@@ -1150,7 +1149,7 @@ public abstract class CMSServlet extends HttpServlet {
      */
     private static String CMMF_RESPONSE = "cmmfResponse";
 
-    public static boolean doCMMFResponse(IArgBlock httpParams) {
+    public static boolean doCMMFResponse(ArgBlock httpParams) {
         return httpParams.getValueAsBoolean(CMMF_RESPONSE, false);
     }
 
@@ -1172,7 +1171,7 @@ public abstract class CMSServlet extends HttpServlet {
      */
     public static String FULL_RESPONSE = "fullResponse";
 
-    public static boolean doFullResponse(IArgBlock httpParams) {
+    public static boolean doFullResponse(ArgBlock httpParams) {
         return httpParams.getValueAsBoolean(FULL_RESPONSE, false);
     }
 

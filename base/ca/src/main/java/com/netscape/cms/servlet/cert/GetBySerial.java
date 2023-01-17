@@ -42,7 +42,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.servlet.common.CAServlet;
@@ -160,7 +159,7 @@ public class GetBySerial extends CAServlet {
 
         HttpServletRequest req = cmsReq.getHttpReq();
         HttpServletResponse response = cmsReq.getHttpResp();
-        IArgBlock args = cmsReq.getHttpParams();
+        ArgBlock args = cmsReq.getHttpParams();
 
         AuthToken authToken = authenticate(cmsReq);
 

@@ -37,7 +37,6 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -197,7 +196,7 @@ public class Monitor extends CMSServlet {
         }
     }
 
-    private void process(CMSTemplateParams argSet, IArgBlock header,
+    private void process(CMSTemplateParams argSet, ArgBlock header,
             String startTime, String endTime,
             String interval, String numberOfIntervals,
             Locale locale)
@@ -272,7 +271,7 @@ public class Monitor extends CMSServlet {
         return new Date(d.getTime() + seconds * 1000);
     }
 
-    String getIntervalInfo(IArgBlock arg, Date startDate, Date endDate) {
+    String getIntervalInfo(ArgBlock arg, Date startDate, Date endDate) {
         if (startDate != null && endDate != null) {
             String startTime = DateToZString(startDate);
             String endTime = DateToZString(endDate);

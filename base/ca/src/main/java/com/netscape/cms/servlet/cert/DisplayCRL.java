@@ -40,7 +40,6 @@ import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 
 import com.netscape.ca.CRLIssuingPoint;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.ICRLPrettyPrint;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -168,7 +167,7 @@ public class DisplayCRL extends CMSServlet {
     /**
      * Display information about a particular CRL.
      */
-    private void process(CMSTemplateParams argSet, IArgBlock header,
+    private void process(CMSTemplateParams argSet, ArgBlock header,
                          HttpServletRequest req,
                          HttpServletResponse resp,
                          String crlIssuingPointId,

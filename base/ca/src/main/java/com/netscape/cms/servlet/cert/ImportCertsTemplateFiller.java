@@ -48,7 +48,6 @@ import org.mozilla.jss.pkix.cmmf.PKIStatusInfo;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
@@ -151,7 +150,7 @@ public class ImportCertsTemplateFiller implements ICMSTemplateFiller {
         }
 
         // set cert type.
-        IArgBlock httpParams = cmsReq.getHttpParams();
+        ArgBlock httpParams = cmsReq.getHttpParams();
         String certType =
                 httpParams.getValueAsString(CERT_TYPE, null);
 

@@ -38,7 +38,6 @@ import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -100,7 +99,7 @@ public class GetCAChain extends CMSServlet {
         AuthToken authToken = authenticate(cmsReq);
 
         // Construct an ArgBlock
-        IArgBlock args = cmsReq.getHttpParams();
+        ArgBlock args = cmsReq.getHttpParams();
 
         // Get the operation code
         String op = null;
@@ -156,7 +155,7 @@ public class GetCAChain extends CMSServlet {
     }
 
     private void downloadChain(String op,
-            IArgBlock args,
+            ArgBlock args,
             HttpServletRequest httpReq,
             HttpServletResponse httpResp,
             CMSRequest cmsReq)
@@ -243,7 +242,7 @@ public class GetCAChain extends CMSServlet {
     }
 
     private void displayChain(String op,
-            IArgBlock args,
+            ArgBlock args,
             HttpServletRequest httpReq,
             HttpServletResponse httpResp,
             CMSRequest cmsReq)

@@ -31,7 +31,6 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
@@ -41,6 +40,7 @@ import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -88,12 +88,12 @@ public class PKIProcessor {
 
     protected void fillCertInfo(
             String protocolString, X509CertInfo certInfo,
-            AuthToken authToken, IArgBlock httpParams)
+            AuthToken authToken, ArgBlock httpParams)
             throws EBaseException {
     }
 
     protected X509CertInfo[] fillCertInfoArray(
-            String protocolString, AuthToken authToken, IArgBlock httpParams, Request req)
+            String protocolString, AuthToken authToken, ArgBlock httpParams, Request req)
             throws EBaseException {
         return null;
     }
@@ -177,7 +177,7 @@ public class PKIProcessor {
      * all be seen by and agent.
      */
     public static void fillCertInfoFromForm(
-            X509CertInfo certInfo, IArgBlock httpParams)
+            X509CertInfo certInfo, ArgBlock httpParams)
             throws EBaseException {
 
         logger.debug("PKIProcessor: fillCertInfoFromForm");
@@ -213,7 +213,7 @@ public class PKIProcessor {
     }
 
     public static void fillValidityFromForm(
-            X509CertInfo certInfo, IArgBlock httpParams)
+            X509CertInfo certInfo, ArgBlock httpParams)
             throws EBaseException {
         logger.debug("PKIProcessor: fillValidityFromForm!");
         try {

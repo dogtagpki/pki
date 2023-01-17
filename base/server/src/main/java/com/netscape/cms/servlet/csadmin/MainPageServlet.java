@@ -27,7 +27,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -94,8 +93,8 @@ public class MainPageServlet extends CMSServlet {
         }
     }
 
-    private void process(CMSTemplateParams argSet, IArgBlock header,
-            IArgBlock ctx, HttpServletRequest req, HttpServletResponse resp)
+    private void process(CMSTemplateParams argSet, ArgBlock header,
+            ArgBlock ctx, HttpServletRequest req, HttpServletResponse resp)
             throws EBaseException {
 
         int num = 0;

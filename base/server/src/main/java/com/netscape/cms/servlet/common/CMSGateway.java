@@ -36,7 +36,6 @@ import org.dogtagpki.server.authentication.AuthToken;
 
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -127,7 +126,7 @@ public class CMSGateway {
      * manager.
      */
     public static AuthCredentials getAuthCreds(
-            AuthManager authMgr, IArgBlock argBlock, X509Certificate clientCert)
+            AuthManager authMgr, ArgBlock argBlock, X509Certificate clientCert)
             throws EBaseException {
         // get credentials from http parameters.
         if (authMgr == null)
@@ -166,10 +165,10 @@ public class CMSGateway {
     protected final static String AUTHMGR_PARAM = "authenticator";
 
     public static AuthToken checkAuthManager(
-            HttpServletRequest httpReq, IArgBlock httpParams,
+            HttpServletRequest httpReq, ArgBlock httpParams,
             X509Certificate cert, String authMgrName)
             throws EBaseException {
-        IArgBlock httpArgs = httpParams;
+        ArgBlock httpArgs = httpParams;
 
         if (httpArgs == null)
             httpArgs = new ArgBlock(toHashtable(httpReq));

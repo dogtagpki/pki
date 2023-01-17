@@ -41,7 +41,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.request.RequestStatus;
@@ -51,6 +50,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.authentication.AuthSubsystem;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.request.CertRequestRepository;
@@ -125,7 +125,7 @@ public class RenewalServlet extends CAServlet {
     protected void process(CMSRequest cmsReq)
             throws EBaseException {
         long startTime = new Date().getTime();
-        IArgBlock httpParams = cmsReq.getHttpParams();
+        ArgBlock httpParams = cmsReq.getHttpParams();
         HttpServletRequest httpReq = cmsReq.getHttpReq();
 
         // renewal requires either:
@@ -390,7 +390,7 @@ public class RenewalServlet extends CAServlet {
         // browser must have input type set to nav or cartman since
         // there's no other way to tell
 
-        IArgBlock httpParams = cmsReq.getHttpParams();
+        ArgBlock httpParams = cmsReq.getHttpParams();
 
         if (checkImportCertToNav(cmsReq.getHttpResp(),
                 httpParams, renewed_cert)) {
@@ -432,7 +432,7 @@ public class RenewalServlet extends CAServlet {
      * get certs to renew from agent.
      */
     private BigInteger getCertFromAgent(
-            IArgBlock httpParams, X509Certificate[] certContainer)
+            ArgBlock httpParams, X509Certificate[] certContainer)
             throws EBaseException {
 
         CAEngine engine = CAEngine.getInstance();

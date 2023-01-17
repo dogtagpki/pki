@@ -52,7 +52,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IPrettyPrintFormat;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -106,7 +105,7 @@ public class CertReqParser extends ReqParser {
      * Fills in certificate specific request attributes.
      */
     @Override
-    public void fillRequestIntoArg(Locale l, Request req, CMSTemplateParams argSet, IArgBlock arg)
+    public void fillRequestIntoArg(Locale l, Request req, CMSTemplateParams argSet, ArgBlock arg)
             throws EBaseException {
 
         // in case x509CertInfo is missing, at least add the subject for display
@@ -139,7 +138,7 @@ public class CertReqParser extends ReqParser {
         }
     }
 
-    private void fillX509RequestIntoArg(Locale l, Request req, CMSTemplateParams argSet, IArgBlock arg)
+    private void fillX509RequestIntoArg(Locale l, Request req, CMSTemplateParams argSet, ArgBlock arg)
             throws EBaseException {
 
         // fill in the standard attributes
@@ -700,7 +699,7 @@ public class CertReqParser extends ReqParser {
         return null;
     }
 
-    private void fillRevokeRequestIntoArg(Locale l, Request req, CMSTemplateParams argSet, IArgBlock arg)
+    private void fillRevokeRequestIntoArg(Locale l, Request req, CMSTemplateParams argSet, ArgBlock arg)
             throws EBaseException {
         // fill in the standard attributes
         super.fillRequestIntoArg(l, req, argSet, arg);

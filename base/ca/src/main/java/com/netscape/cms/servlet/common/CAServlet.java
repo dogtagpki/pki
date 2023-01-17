@@ -37,15 +37,15 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ArgBlock;
 
 public abstract class CAServlet extends CMSServlet {
 
     protected boolean checkImportCertToNav(
             HttpServletResponse httpResp,
-            IArgBlock httpParams,
+            ArgBlock httpParams,
             X509CertImpl cert)
             throws EBaseException {
 

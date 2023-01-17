@@ -50,7 +50,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.request.RequestId;
@@ -221,7 +220,7 @@ public class DisplayBySerial extends CMSServlet {
     /**
      * Display information about a particular certificate
      */
-    private void process(IArgBlock header, BigInteger seq,
+    private void process(ArgBlock header, BigInteger seq,
             HttpServletRequest req, Locale locale)
             throws EBaseException {
         String certType[] = new String[1];
@@ -241,7 +240,7 @@ public class DisplayBySerial extends CMSServlet {
         return;
     }
 
-    private void processX509(IArgBlock header, BigInteger seq,
+    private void processX509(ArgBlock header, BigInteger seq,
             HttpServletRequest req, Locale locale)
             throws EBaseException {
         boolean b64CertOnly = false; // for request that needs only b64 cert

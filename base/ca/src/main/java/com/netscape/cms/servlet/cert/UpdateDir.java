@@ -41,7 +41,6 @@ import com.netscape.ca.CRLIssuingPoint;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ldap.ELdapException;
@@ -222,7 +221,7 @@ public class UpdateDir extends CMSServlet {
     }
 
     private void updateCRLIssuingPoint(
-            IArgBlock header,
+            ArgBlock header,
             String crlIssuingPointId,
             CRLIssuingPoint crlIssuingPoint,
             Locale locale) {
@@ -325,7 +324,7 @@ public class UpdateDir extends CMSServlet {
         } // if
     }
 
-    private void process(IArgBlock header,
+    private void process(ArgBlock header,
             String crlIssuingPointId,
             String[] updateValue,
             Locale locale)

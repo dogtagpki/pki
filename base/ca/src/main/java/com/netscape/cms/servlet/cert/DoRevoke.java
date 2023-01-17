@@ -45,7 +45,6 @@ import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ForbiddenException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.logging.AuditFormat;
@@ -349,7 +348,7 @@ public class DoRevoke extends CMSServlet {
      * @param locale the system locale
      * @exception EBaseException an error has occurred
      */
-    private void process(CMSTemplateParams argSet, IArgBlock header,
+    private void process(CMSTemplateParams argSet, ArgBlock header,
             int reason, Date invalidityDate,
             String initiative,
             HttpServletRequest req,

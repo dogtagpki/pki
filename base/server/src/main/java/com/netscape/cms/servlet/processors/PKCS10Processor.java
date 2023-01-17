@@ -37,12 +37,12 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.authentication.AuthSubsystem;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * PKCS10Processor process Certificate Requests in
@@ -76,7 +76,7 @@ public class PKCS10Processor extends PKIProcessor {
 
     public void fillCertInfo(
             PKCS10 pkcs10, X509CertInfo certInfo,
-            AuthToken authToken, IArgBlock httpParams)
+            AuthToken authToken, ArgBlock httpParams)
             throws EBaseException {
 
         mPkcs10 = pkcs10;
@@ -88,7 +88,7 @@ public class PKCS10Processor extends PKIProcessor {
     @Override
     public void fillCertInfo(
             String protocolString, X509CertInfo certInfo,
-            AuthToken authToken, IArgBlock httpParams)
+            AuthToken authToken, ArgBlock httpParams)
             throws EBaseException {
 
         PKCS10 p10 = null;
@@ -222,7 +222,7 @@ public class PKCS10Processor extends PKIProcessor {
 
     }
 
-    private PKCS10 getPKCS10(IArgBlock httpParams)
+    private PKCS10 getPKCS10(ArgBlock httpParams)
             throws EBaseException {
 
         PKCS10 pkcs10 = null;

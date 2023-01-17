@@ -20,8 +20,8 @@ package com.netscape.cms.servlet.key;
 import java.util.Date;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.MetaInfo;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.cert.PrettyPrintFormat;
 import com.netscape.cmscore.dbs.KeyRecord;
 
@@ -64,7 +64,7 @@ public class KeyRecordParser {
     /**
      * Fills key record into argument block.
      */
-    public static void fillRecordIntoArg(KeyRecord rec, IArgBlock rarg)
+    public static void fillRecordIntoArg(KeyRecord rec, ArgBlock rarg)
             throws EBaseException {
         if (rec == null)
             return;

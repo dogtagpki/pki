@@ -20,7 +20,7 @@ package com.netscape.cms.servlet.common;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import com.netscape.certsrv.base.IArgBlock;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * Holds template parameters
@@ -28,35 +28,35 @@ import com.netscape.certsrv.base.IArgBlock;
  * @version $Revision$, $Date$
  */
 public class CMSTemplateParams {
-    private IArgBlock mHeader = null;
-    private IArgBlock mFixed = null;
-    private Vector<IArgBlock> mRepeat = new Vector<>();
+    private ArgBlock mHeader;
+    private ArgBlock mFixed;
+    private Vector<ArgBlock> mRepeat = new Vector<>();
 
     public CMSTemplateParams() {
     }
 
-    public CMSTemplateParams(IArgBlock header, IArgBlock fixed) {
+    public CMSTemplateParams(ArgBlock header, ArgBlock fixed) {
         mHeader = header;
         mFixed = fixed;
     }
 
-    public void setHeader(IArgBlock h) {
+    public void setHeader(ArgBlock h) {
         mHeader = h;
     }
 
-    public IArgBlock getHeader() {
+    public ArgBlock getHeader() {
         return mHeader;
     }
 
-    public void setFixed(IArgBlock f) {
+    public void setFixed(ArgBlock f) {
         mFixed = f;
     }
 
-    public IArgBlock getFixed() {
+    public ArgBlock getFixed() {
         return mFixed;
     }
 
-    public void addRepeatRecord(IArgBlock r) {
+    public void addRepeatRecord(ArgBlock r) {
         mRepeat.addElement(r);
     }
 
@@ -64,7 +64,7 @@ public class CMSTemplateParams {
         mRepeat = new Vector<>();
     }
 
-    public Enumeration<IArgBlock> queryRecords() {
+    public Enumeration<ArgBlock> queryRecords() {
         return mRepeat.elements();
     }
 }

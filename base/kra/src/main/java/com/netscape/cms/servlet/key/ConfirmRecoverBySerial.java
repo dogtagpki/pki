@@ -30,7 +30,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.dogtagpki.server.kra.KRAEngine;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -165,7 +164,7 @@ public class ConfirmRecoverBySerial extends CMSServlet {
     /**
      * Requests for a list of agent passwords.
      */
-    private void process(IArgBlock header, BigInteger seq,
+    private void process(ArgBlock header, BigInteger seq,
             HttpServletRequest req, Locale locale) {
         try {
             header.addBigIntegerValue(OUT_SERIALNO, seq, 10);

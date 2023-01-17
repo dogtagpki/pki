@@ -47,13 +47,13 @@ import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -173,7 +173,7 @@ public class CRMFProcessor extends PKIProcessor {
         }
     }
 
-    public X509CertInfo processIndividualRequest(CertReqMsg certReqMsg, AuthToken authToken, IArgBlock httpParams)
+    public X509CertInfo processIndividualRequest(CertReqMsg certReqMsg, AuthToken authToken, ArgBlock httpParams)
             throws EBaseException {
         logger.debug("CRMFProcessor::processIndividualRequest!");
 
@@ -319,7 +319,7 @@ public class CRMFProcessor extends PKIProcessor {
 
     @Override
     public X509CertInfo[] fillCertInfoArray(
-            String protocolString, AuthToken authToken, IArgBlock httpParams, Request req)
+            String protocolString, AuthToken authToken, ArgBlock httpParams, Request req)
             throws EBaseException {
 
         logger.debug("CRMFProcessor.fillCertInfoArray!");

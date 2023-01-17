@@ -35,7 +35,6 @@ import org.dogtagpki.server.kra.KRAEngineConfig;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -194,7 +193,7 @@ public class DisplayBySerialForRecovery extends CMSServlet {
      * Display information about a particular key.
      * @throws EAuthzException
      */
-    private synchronized void process(IArgBlock header, String publicKeyData,
+    private synchronized void process(ArgBlock header, String publicKeyData,
             BigInteger seq, HttpServletRequest req,
             Locale locale, AuthToken authToken) throws EAuthzException {
 

@@ -23,9 +23,9 @@ import java.util.Locale;
 import org.dogtagpki.server.kra.KRAEngine;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.key.KeyRecordParser;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.request.Request;
 import com.netscape.kra.KeyRecoveryAuthority;
 
@@ -49,7 +49,7 @@ public class KeyReqParser extends ReqParser {
      * Fills in certificate specific request attributes.
      */
     @Override
-    public void fillRequestIntoArg(Locale l, Request req, CMSTemplateParams argSet, IArgBlock arg)
+    public void fillRequestIntoArg(Locale l, Request req, CMSTemplateParams argSet, ArgBlock arg)
             throws EBaseException {
         // fill in the standard attributes
         super.fillRequestIntoArg(l, req, argSet, arg);

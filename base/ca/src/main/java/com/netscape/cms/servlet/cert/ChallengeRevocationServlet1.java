@@ -43,7 +43,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.ca.CRLIssuingPoint;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -129,7 +128,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
      */
     @Override
     protected void process(CMSRequest cmsReq) throws EBaseException {
-        IArgBlock httpParams = cmsReq.getHttpParams();
+        ArgBlock httpParams = cmsReq.getHttpParams();
         HttpServletRequest req = cmsReq.getHttpReq();
         HttpServletResponse resp = cmsReq.getHttpResp();
 
@@ -267,7 +266,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
         }
     }
 
-    private void process(CMSTemplateParams argSet, IArgBlock header,
+    private void process(CMSTemplateParams argSet, ArgBlock header,
             int reason, Date invalidityDate,
             String initiative,
             HttpServletRequest req,

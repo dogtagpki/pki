@@ -20,8 +20,8 @@ package com.netscape.certsrv.authentication;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IAttrSet;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * Authentication Credentials as input to the authMgr. It contains all the
@@ -31,7 +31,7 @@ public class AuthCredentials implements IAttrSet {
 
     private static final long serialVersionUID = 5862936214648594328L;
     private Hashtable<String, Object> authCreds = null;
-    private IArgBlock argblk = null;
+    private ArgBlock argblk;
 
     /**
      * Constructor
@@ -101,7 +101,7 @@ public class AuthCredentials implements IAttrSet {
      *
      * @param blk argblock
      */
-    public void setArgBlock(IArgBlock blk) {
+    public void setArgBlock(ArgBlock blk) {
         argblk = blk;
     }
 
@@ -110,7 +110,7 @@ public class AuthCredentials implements IAttrSet {
      *
      * @return argblock.
      */
-    public IArgBlock getArgBlock() {
+    public ArgBlock getArgBlock() {
         return argblk;
     }
 }

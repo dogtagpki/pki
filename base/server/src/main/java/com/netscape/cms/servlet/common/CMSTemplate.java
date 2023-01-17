@@ -35,8 +35,8 @@ import java.util.Enumeration;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * File templates. This implementation will take
@@ -143,8 +143,8 @@ public class CMSTemplate extends CMSFile {
     public void renderOutput(OutputStream rout, CMSTemplateParams input)
             throws IOException {
         Enumeration<String> e = null;
-        Enumeration<IArgBlock> q = null;
-        IArgBlock r = null;
+        Enumeration<ArgBlock> q = null;
+        ArgBlock r = null;
         CMSTemplateParams data = input;
 
         try (HTTPOutputStreamWriter http_out = (mCharset == null ?

@@ -32,13 +32,13 @@ import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
@@ -80,7 +80,7 @@ public class PortalEnroll extends DirBasedAuthentication {
     protected static String[] mRequiredCreds = { CRED_UID, CRED_PWD };
 
     /* ldap configuration sub-store */
-    private IArgBlock argblk = null;
+    private ArgBlock argblk;
     private String mObjectClass = null;
     private String mBindDN = null;
     private String mBaseDN = null;

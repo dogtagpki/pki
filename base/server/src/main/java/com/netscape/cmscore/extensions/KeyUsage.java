@@ -25,7 +25,6 @@ import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
 import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.extensions.CMSExtension;
 import com.netscape.certsrv.extensions.EExtensionsException;
 import com.netscape.cmscore.apps.CMS;
@@ -89,7 +88,7 @@ public class KeyUsage extends CMSExtension {
     }
 
     @Override
-    public Extension getExtension(IArgBlock args) throws EBaseException {
+    public Extension getExtension(ArgBlock args) throws EBaseException {
         boolean[] bits = new boolean[KeyUsageExtension.NBITS];
         Object[] values = new Object[KeyUsageExtension.NBITS];
         int bit;
@@ -176,7 +175,7 @@ public class KeyUsage extends CMSExtension {
     }
 
     @Override
-    public IArgBlock getFormParams(Extension extension)
+    public ArgBlock getFormParams(Extension extension)
             throws EBaseException {
         KeyUsageExtension ext = null;
 

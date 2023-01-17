@@ -26,7 +26,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * Display certificate request detail to the user.
@@ -67,12 +67,12 @@ public class CertProcessReq extends ProcessReq {
     }
 
     @Override
-    public void addAuthorityName(IArgBlock header) throws EBaseException {
+    public void addAuthorityName(ArgBlock header) throws EBaseException {
         header.addStringValue("localca", "yes");
     }
 
     @Override
-    public void addSigningAlgorithm(IArgBlock header) throws EBaseException {
+    public void addSigningAlgorithm(ArgBlock header) throws EBaseException {
 
         CAEngine engine = CAEngine.getInstance();
         CertificateAuthority ca = engine.getCA();

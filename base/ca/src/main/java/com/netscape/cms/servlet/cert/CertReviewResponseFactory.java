@@ -24,7 +24,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.UriInfo;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.PolicyConstraint;
@@ -39,6 +38,7 @@ import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cms.servlet.profile.PolicyConstraintFactory;
 import com.netscape.cms.servlet.profile.PolicyDefaultFactory;
 import com.netscape.cms.servlet.profile.ProfileInputFactory;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.request.Request;
 
 public class CertReviewResponseFactory {
@@ -132,7 +132,7 @@ public class CertReviewResponseFactory {
             throws EPropertyException, EProfileException {
         HttpServletRequest req = cmsReq.getHttpReq();
         Request ireq = cmsReq.getRequest();
-        IArgBlock params = cmsReq.getHttpParams();
+        ArgBlock params = cmsReq.getHttpParams();
 
         CertReviewResponse ret = new CertReviewResponse();
         ret.setProfileId(profile.getId());

@@ -22,12 +22,12 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
 
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.profile.PolicyDefault;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileParameter;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.request.Request;
 
 public class PolicyDefaultFactory {
@@ -49,7 +49,7 @@ public class PolicyDefaultFactory {
         return ret;
     }
 
-    public static PolicyDefault create(IArgBlock params, Locale locale, com.netscape.cms.profile.def.PolicyDefault def) throws EPropertyException {
+    public static PolicyDefault create(ArgBlock params, Locale locale, com.netscape.cms.profile.def.PolicyDefault def) throws EPropertyException {
         PolicyDefault ret = new PolicyDefault();
         ret.setName(def.getName(locale));
         ret.setText(def.getText(locale));

@@ -39,7 +39,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.keydb.KeyId;
@@ -286,7 +285,7 @@ public class RecoverBySerial extends CMSServlet {
     /**
      * Async Key Recovery - request initiation
      */
-    private void process(IArgBlock header, String seq, String cert,
+    private void process(ArgBlock header, String seq, String cert,
             HttpServletRequest req, String realm) {
 
         // seq is the key id
@@ -338,7 +337,7 @@ public class RecoverBySerial extends CMSServlet {
      * Recovers a key. The p12 will be protected by the password
      * provided by the administrator.
      */
-    private byte[] process(IArgBlock header, String seq, String localAgents,
+    private byte[] process(ArgBlock header, String seq, String localAgents,
             String password, String passwordAgain,
             String cert, String delivery, String nickname,
             HttpServletRequest req, Locale locale) {

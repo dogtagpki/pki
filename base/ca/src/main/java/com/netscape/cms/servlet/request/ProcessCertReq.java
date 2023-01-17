@@ -58,7 +58,6 @@ import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.logging.AuditEvent;
@@ -387,7 +386,7 @@ public class ProcessCertReq extends CMSServlet {
      * @exception EBaseException an error has occurred
      */
     private void processX509(CMSRequest cmsReq,
-            CMSTemplateParams argSet, IArgBlock header,
+            CMSTemplateParams argSet, ArgBlock header,
             BigInteger seqNum, HttpServletRequest req,
             HttpServletResponse resp,
             String toDo, String signatureAlgorithm,
@@ -1474,10 +1473,10 @@ public class ProcessCertReq extends CMSServlet {
     public static final String GRANT_PRIVILEGE = "grantPrivilege";
 
     protected int grant_privileges(
-            CMSRequest cmsReq, Request req, X509Certificate[] certs, IArgBlock header)
+            CMSRequest cmsReq, Request req, X509Certificate[] certs, ArgBlock header)
             throws EBaseException {
         // get privileges to grant
-        IArgBlock httpParams = cmsReq.getHttpParams();
+        ArgBlock httpParams = cmsReq.getHttpParams();
 
         boolean grantTrustedMgr =
                 httpParams.getValueAsBoolean(GRANT_TRUSTEDMGR_PRIVILEGE, false);
@@ -1684,7 +1683,7 @@ class RAReqCompletedFiller extends ImportCertsTemplateFiller {
                 super.getTemplateParams(cmsReq, authority, locale, e);
 
         if (grantError != null) {
-            IArgBlock header = params.getHeader();
+            ArgBlock header = params.getHeader();
 
             if (grantError instanceof String) {
                 header.addStringValue(
@@ -1695,7 +1694,7 @@ class RAReqCompletedFiller extends ImportCertsTemplateFiller {
                 header.addStringValue(
                         ProcessCertReq.GRANT_ERROR, ex.toString(locale));
             }
-            IArgBlock httpParams = cmsReq.getHttpParams();
+            ArgBlock httpParams = cmsReq.getHttpParams();
             String uid = httpParams.getValueAsString(
                     ProcessCertReq.GRANT_UID, null);
 

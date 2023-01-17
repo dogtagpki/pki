@@ -21,7 +21,7 @@ import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
 import org.mozilla.jss.netscape.security.x509.Extension;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.base.ConfigStore;
 
 /**
@@ -57,7 +57,7 @@ public abstract class CMSExtension {
      *
      * @return an instance of the extension.
      */
-    public abstract Extension getExtension(IArgBlock argblock)
+    public abstract Extension getExtension(ArgBlock argblock)
             throws EBaseException;
 
     /**
@@ -66,7 +66,7 @@ public abstract class CMSExtension {
      *
      * @return name value pairs
      */
-    public abstract IArgBlock getFormParams(Extension extension)
+    public abstract ArgBlock getFormParams(Extension extension)
             throws EBaseException;
 
 }

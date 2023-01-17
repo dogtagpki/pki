@@ -21,9 +21,9 @@ import java.math.BigInteger;
 import java.util.Locale;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -48,7 +48,7 @@ public class ReqParser {
     /**
      * Maps request object into argument block.
      */
-    public void fillRequestIntoArg(Locale l, Request req, CMSTemplateParams argSet, IArgBlock arg)
+    public void fillRequestIntoArg(Locale l, Request req, CMSTemplateParams argSet, ArgBlock arg)
             throws EBaseException {
         arg.addStringValue(TYPE, req.getRequestType());
         arg.addBigIntegerValue("seqNum",

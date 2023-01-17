@@ -32,7 +32,6 @@ import org.dogtagpki.server.authorization.AuthzToken;
 
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -194,17 +193,17 @@ public class ProcessReq extends CMSServlet {
         }
     }
 
-    public void addAuthorityName(IArgBlock header) throws EBaseException {
+    public void addAuthorityName(ArgBlock header) throws EBaseException {
     }
 
-    public void addSigningAlgorithm(IArgBlock header) throws EBaseException {
+    public void addSigningAlgorithm(ArgBlock header) throws EBaseException {
     }
 
     /**
      * Sends request information to the calller.
      * returns whether there was an error or not.
      */
-    private void process(CMSTemplateParams argSet, IArgBlock header,
+    private void process(CMSTemplateParams argSet, ArgBlock header,
             BigInteger seqNum, HttpServletRequest req,
             HttpServletResponse resp,
             String doAssign, Locale locale)

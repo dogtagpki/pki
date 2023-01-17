@@ -45,7 +45,6 @@ import com.netscape.ca.CRLIssuingPoint;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.EErrorPublishCRL;
 import com.netscape.certsrv.ldap.ELdapException;
@@ -288,7 +287,7 @@ public class UpdateCRL extends CMSServlet {
         argSet.addRepeatRecord(rarg);
     }
 
-    private void process(CMSTemplateParams argSet, IArgBlock header,
+    private void process(CMSTemplateParams argSet, ArgBlock header,
             HttpServletRequest req,
             HttpServletResponse resp,
             String signatureAlgorithm,

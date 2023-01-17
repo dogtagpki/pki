@@ -22,19 +22,19 @@ import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.profile.ProfileInputFactory;
+import com.netscape.cmscore.base.ArgBlock;
 
 public class CertEnrollmentRequestFactory {
 
     public static CertEnrollmentRequest create(CMSRequest cmsReq, Profile profile, Locale locale)
             throws EProfileException {
-        IArgBlock params = cmsReq.getHttpParams();
+        ArgBlock params = cmsReq.getHttpParams();
 
         CertEnrollmentRequest request = create(params, profile, locale);
 
@@ -45,7 +45,7 @@ public class CertEnrollmentRequestFactory {
         return request;
     }
 
-    public static CertEnrollmentRequest create(IArgBlock params, Profile profile, Locale locale)
+    public static CertEnrollmentRequest create(ArgBlock params, Profile profile, Locale locale)
             throws EProfileException {
         CertEnrollmentRequest request = new CertEnrollmentRequest();
         request.setProfileId(profile.getId());
