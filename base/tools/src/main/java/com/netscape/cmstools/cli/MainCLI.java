@@ -40,6 +40,7 @@ import javax.ws.rs.ProcessingException;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.MissingArgumentException;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.UnrecognizedOptionException;
 import org.apache.commons.lang3.StringUtils;
@@ -673,7 +674,7 @@ public class MainCLI extends CLI {
             // display a generic error
             System.err.println("ERROR: " + t.getMessage());
 
-        } else if (t instanceof UnrecognizedOptionException) {
+        } else if (t instanceof UnrecognizedOptionException || t instanceof MissingArgumentException) {
             // display only the error message
             System.err.println(t.getMessage());
 
