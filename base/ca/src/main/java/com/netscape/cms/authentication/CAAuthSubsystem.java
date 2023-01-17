@@ -22,7 +22,6 @@ import org.dogtagpki.server.authentication.AuthManagerProxy;
 import com.netscape.certsrv.authentication.AuthMgrPlugin;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.authentication.AuthSubsystem;
-import com.netscape.cmscore.authentication.ChallengePhraseAuthentication;
 import com.netscape.cmscore.authentication.SSLClientCertAuthentication;
 
 /**
