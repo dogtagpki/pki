@@ -44,13 +44,13 @@ RUN dnf install -y dnf-plugins-core rpm-build
 RUN dnf builddep -y --skip-unavailable --spec pki.spec
 
 # Import JSS packages
-COPY --from=ghcr.io/dogtagpki/jss-dist:4 /root/RPMS /tmp/RPMS/
+COPY --from=quay.io/dogtagpki/jss-dist:4 /root/RPMS /tmp/RPMS/
 
 # Import Tomcat JSS packages
-COPY --from=ghcr.io/dogtagpki/tomcatjss-dist:7 /root/RPMS /tmp/RPMS/
+COPY --from=quay.io/dogtagpki/tomcatjss-dist:7 /root/RPMS /tmp/RPMS/
 
 # Import LDAP SDK packages
-COPY --from=ghcr.io/dogtagpki/ldapjdk-dist:4 /root/RPMS /tmp/RPMS/
+COPY --from=quay.io/dogtagpki/ldapjdk-dist:4 /root/RPMS /tmp/RPMS/
 
 RUN dnf localinstall -y /tmp/RPMS/*
 

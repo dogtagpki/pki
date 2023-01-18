@@ -54,16 +54,16 @@ RUN dnf builddep -y --skip-unavailable --spec pki.spec
 FROM pki-builder-deps AS pki-builder
 
 # Import JSS packages
-COPY --from=ghcr.io/dogtagpki/jss-dist:4 /root/RPMS /tmp/RPMS/
+COPY --from=quay.io/dogtagpki/jss-dist:4 /root/RPMS /tmp/RPMS/
 
 # Import Tomcat JSS packages
-COPY --from=ghcr.io/dogtagpki/tomcatjss-dist:7 /root/RPMS /tmp/RPMS/
+COPY --from=quay.io/dogtagpki/tomcatjss-dist:7 /root/RPMS /tmp/RPMS/
 
 # Import LDAP SDK packages
-COPY --from=ghcr.io/dogtagpki/ldapjdk-dist:4 /root/RPMS /tmp/RPMS/
+COPY --from=quay.io/dogtagpki/ldapjdk-dist:4 /root/RPMS /tmp/RPMS/
 
 # Import IDM Console Framework packages
-COPY --from=ghcr.io/dogtagpki/idm-console-framework-dist:1 /root/RPMS /tmp/RPMS/
+COPY --from=quay.io/dogtagpki/idm-console-framework-dist:1 /root/RPMS /tmp/RPMS/
 
 # Install build dependencies
 RUN dnf localinstall -y /tmp/RPMS/* \
@@ -87,16 +87,16 @@ COPY --from=pki-builder /root/pki/build/RPMS /root/RPMS/
 FROM pki-deps AS pki-runner
 
 # Import JSS packages
-COPY --from=ghcr.io/dogtagpki/jss-dist:4 /root/RPMS /tmp/RPMS/
+COPY --from=quay.io/dogtagpki/jss-dist:4 /root/RPMS /tmp/RPMS/
 
 # Import Tomcat JSS packages
-COPY --from=ghcr.io/dogtagpki/tomcatjss-dist:7 /root/RPMS /tmp/RPMS/
+COPY --from=quay.io/dogtagpki/tomcatjss-dist:7 /root/RPMS /tmp/RPMS/
 
 # Import LDAP SDK packages
-COPY --from=ghcr.io/dogtagpki/ldapjdk-dist:4 /root/RPMS /tmp/RPMS/
+COPY --from=quay.io/dogtagpki/ldapjdk-dist:4 /root/RPMS /tmp/RPMS/
 
 # Import IDM Console Framework packages
-COPY --from=ghcr.io/dogtagpki/idm-console-framework-dist:1 /root/RPMS /tmp/RPMS/
+COPY --from=quay.io/dogtagpki/idm-console-framework-dist:1 /root/RPMS /tmp/RPMS/
 
 # Import PKI packages
 COPY --from=pki-dist /root/RPMS /tmp/RPMS/
@@ -134,16 +134,16 @@ RUN if [ -n "$COPR_REPO" ]; then dnf copr enable -y $COPR_REPO; fi
 RUN dnf install -y bind-utils iputils abrt-java-connector postgresql postgresql-jdbc
 
 # Import JSS packages
-COPY --from=ghcr.io/dogtagpki/jss-dist:4 /root/RPMS /tmp/RPMS/
+COPY --from=quay.io/dogtagpki/jss-dist:4 /root/RPMS /tmp/RPMS/
 
 # Import Tomcat JSS packages
-COPY --from=ghcr.io/dogtagpki/tomcatjss-dist:7 /root/RPMS /tmp/RPMS/
+COPY --from=quay.io/dogtagpki/tomcatjss-dist:7 /root/RPMS /tmp/RPMS/
 
 # Import LDAP SDK packages
-COPY --from=ghcr.io/dogtagpki/ldapjdk-dist:4 /root/RPMS /tmp/RPMS/
+COPY --from=quay.io/dogtagpki/ldapjdk-dist:4 /root/RPMS /tmp/RPMS/
 
 # Import IDM Console Framework packages
-COPY --from=ghcr.io/dogtagpki/idm-console-framework-dist:1 /root/RPMS /tmp/RPMS/
+COPY --from=quay.io/dogtagpki/idm-console-framework-dist:1 /root/RPMS /tmp/RPMS/
 
 # Import PKI packages
 COPY --from=pki-dist /root/RPMS /tmp/RPMS/
