@@ -87,8 +87,8 @@ jobs:
 
       - name: Install SSCEP in client container
         run: |
-          docker pull ghcr.io/dogtagpki/sscep-dist:latest
-          docker create --name=sscep-dist ghcr.io/dogtagpki/sscep-dist:latest
+          docker pull quay.io/dogtagpki/sscep-dist:latest
+          docker create --name=sscep-dist quay.io/dogtagpki/sscep-dist:latest
           docker cp sscep-dist:/root/RPMS /tmp/RPMS/
           docker rm -f sscep-dist
 

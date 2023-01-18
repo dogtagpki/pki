@@ -137,8 +137,8 @@ jobs:
 
       - name: Install libEST in client container
         run: |
-          docker pull ghcr.io/dogtagpki/libest-dist:latest
-          docker create --name=libest-dist ghcr.io/dogtagpki/libest-dist:latest
+          docker pull quay.io/dogtagpki/libest-dist:latest
+          docker create --name=libest-dist quay.io/dogtagpki/libest-dist:latest
           docker cp libest-dist:/root/RPMS /tmp/RPMS/
           docker rm -f libest-dist
 
