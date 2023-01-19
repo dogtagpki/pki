@@ -42,8 +42,8 @@ import org.dogtagpki.server.tps.engine.TPSEngine;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
-import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.DBVirtualList;
+import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.ldap.LDAPExceptionConverter;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
@@ -70,6 +70,23 @@ public class TokenService extends SubsystemService implements TokenResource {
     public void setTokenStatus(TokenRecord tokenRecord, TokenStatus tokenState, String ipAddress, String remoteUser,
             Map<String, String> auditModParams)
                     throws Exception {
+
+        String method = "TPSService:setTokenStatus: ";
+        String msg = "";
+
+        List<String> authorizedProfiles = getAuthorizedProfiles();
+        if (authorizedProfiles == null) {
+            msg = "authorizedProfiles null";
+            logger.debug(method + msg);
+            throw new PKIException(method + msg);
+        }
+        String type = tokenRecord.getType();
+        // if token not associated with any keyType/profile, disallow access,
+        // unless the user has the "ALL_PROFILES" privilege
+        if (!authorizedProfiles.contains(UserResource.ALL_PROFILES)) {
+            if (((type == null) || type.isEmpty()) || !authorizedProfiles.contains(type))
+               throw new PKIException(method + "Token record restricted");
+        }
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSEngineConfig config = engine.getConfig();
