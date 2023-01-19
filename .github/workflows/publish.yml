@@ -60,3 +60,15 @@ jobs:
           docker load --input pki-dist.tar
           docker tag pki-dist ${{ vars.REGISTRY }}/$NAMESPACE/pki-dist:10.13
           docker push ${{ vars.REGISTRY }}/$NAMESPACE/pki-dist:10.13
+
+      - name: Retrieve pki-acme image
+        uses: actions/cache@v3
+        with:
+          key: pki-acme-${{ github.sha }}
+          path: pki-acme.tar
+
+      - name: Publish pki-acme image
+        run: |
+          docker load --input pki-acme.tar
+          docker tag pki-acme ${{ vars.REGISTRY }}/$NAMESPACE/pki-acme:10.13
+          docker push ${{ vars.REGISTRY }}/$NAMESPACE/pki-acme:10.13
