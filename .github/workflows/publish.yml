@@ -57,3 +57,27 @@ jobs:
           docker load --input pki-dist.tar
           docker tag pki-dist ${{ needs.init.outputs.registry }}/${{ needs.init.outputs.registry-namespace }}/pki-dist:latest
           docker push ${{ needs.init.outputs.registry }}/${{ needs.init.outputs.registry-namespace }}/pki-dist:latest
+
+      - name: Retrieve pki-ca image
+        uses: actions/cache@v3
+        with:
+          key: pki-ca-${{ github.sha }}
+          path: pki-ca.tar
+
+      - name: Publish pki-ca image
+        run: |
+          docker load --input pki-ca.tar
+          docker tag pki-ca ${{ needs.init.outputs.registry }}/${{ needs.init.outputs.registry-namespace }}/pki-ca:latest
+          docker push ${{ needs.init.outputs.registry }}/${{ needs.init.outputs.registry-namespace }}/pki-ca:latest
+
+      - name: Retrieve pki-acme image
+        uses: actions/cache@v3
+        with:
+          key: pki-acme-${{ github.sha }}
+          path: pki-acme.tar
+
+      - name: Publish pki-acme image
+        run: |
+          docker load --input pki-acme.tar
+          docker tag pki-acme ${{ needs.init.outputs.registry }}/${{ needs.init.outputs.registry-namespace }}/pki-acme:latest
+          docker push ${{ needs.init.outputs.registry }}/${{ needs.init.outputs.registry-namespace }}/pki-acme:latest
