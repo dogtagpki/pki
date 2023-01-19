@@ -5,6 +5,9 @@ on:
     branches:
       - master
 
+env:
+  NAMESPACE: ${{ vars.REGISTRY_NAMESPACE || github.repository_owner }}
+
 jobs:
   init:
     name: Initialization
@@ -33,7 +36,7 @@ jobs:
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v2
         with:
-          registry: ghcr.io
+          registry: ${{ vars.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
         if: vars.REGISTRY == 'ghcr.io'
@@ -55,8 +58,8 @@ jobs:
       - name: Publish pki-dist image
         run: |
           docker load --input pki-dist.tar
-          docker tag pki-dist ${{ needs.init.outputs.registry }}/${{ needs.init.outputs.registry-namespace }}/pki-dist:latest
-          docker push ${{ needs.init.outputs.registry }}/${{ needs.init.outputs.registry-namespace }}/pki-dist:latest
+          docker tag pki-dist ${{ vars.REGISTRY }}/$NAMESPACE/pki-dist:latest
+          docker push ${{ vars.REGISTRY }}/$NAMESPACE/pki-dist:latest
 
       - name: Retrieve pki-ca image
         uses: actions/cache@v3
@@ -67,8 +70,8 @@ jobs:
       - name: Publish pki-ca image
         run: |
           docker load --input pki-ca.tar
-          docker tag pki-ca ${{ needs.init.outputs.registry }}/${{ needs.init.outputs.registry-namespace }}/pki-ca:latest
-          docker push ${{ needs.init.outputs.registry }}/${{ needs.init.outputs.registry-namespace }}/pki-ca:latest
+          docker tag pki-ca ${{ vars.REGISTRY }}/$NAMESPACE/pki-ca:latest
+          docker push ${{ vars.REGISTRY }}/$NAMESPACE/pki-ca:latest
 
       - name: Retrieve pki-acme image
         uses: actions/cache@v3
@@ -79,5 +82,5 @@ jobs:
       - name: Publish pki-acme image
         run: |
           docker load --input pki-acme.tar
-          docker tag pki-acme ${{ needs.init.outputs.registry }}/${{ needs.init.outputs.registry-namespace }}/pki-acme:latest
-          docker push ${{ needs.init.outputs.registry }}/${{ needs.init.outputs.registry-namespace }}/pki-acme:latest
+          docker tag pki-acme ${{ vars.REGISTRY }}/$NAMESPACE/pki-acme:latest
+          docker push ${{ vars.REGISTRY }}/$NAMESPACE/pki-acme:latest
