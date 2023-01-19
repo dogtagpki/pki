@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -54,11 +53,11 @@ import com.netscape.certsrv.tps.token.TokenData.TokenStatusData;
 import com.netscape.certsrv.tps.token.TokenResource;
 import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.certsrv.user.UserResource;
-import com.netscape.cmscore.usrgrp.User;
 import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.usrgrp.User;
 
 import netscape.ldap.LDAPException;
 
@@ -72,6 +71,23 @@ public class TokenService extends SubsystemService implements TokenResource {
     public void setTokenStatus(TokenRecord tokenRecord, TokenStatus tokenState, String ipAddress, String remoteUser,
             Map<String, String> auditModParams)
                     throws Exception {
+
+        String method = "TPSService:setTokenStatus: ";
+        String msg = "";
+
+        List<String> authorizedProfiles = getAuthorizedProfiles();
+        if (authorizedProfiles == null) {
+            msg = "authorizedProfiles null";
+            logger.debug(method + msg);
+            throw new PKIException(method + msg);
+        }
+        String type = tokenRecord.getType();
+        // if token not associated with any keyType/profile, disallow access,
+        // unless the user has the "ALL_PROFILES" privilege
+        if (!authorizedProfiles.contains(UserResource.ALL_PROFILES)) {
+            if (((type == null) || type.isEmpty()) || !authorizedProfiles.contains(type))
+               throw new PKIException(method + "Token record restricted");
+        }
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         EngineConfig config = engine.getConfig();
@@ -987,7 +1003,7 @@ public class TokenService extends SubsystemService implements TokenResource {
 
             String type = tokenRecord.getType();
             if ((type != null) && !type.isEmpty() && !authorizedProfiles.contains(UserResource.ALL_PROFILES) && !authorizedProfiles.contains(type))
-                  throw new PKIException(method + "Token record restricted"); 
+                  throw new PKIException(method + "Token record restricted");
 
             //delete all certs associated with this token
             logger.debug(method + "about to remove all certificates associated with the token first");
