@@ -75,6 +75,23 @@ public class TokenService extends SubsystemService implements TokenResource {
     public void setTokenStatus(TokenRecord tokenRecord, TokenStatus tokenState, String ipAddress, String remoteUser,
             Map<String, String> auditModParams)
                     throws Exception {
+        String method = "TPSService:setTokenStatus: ";
+        String msg = "";
+
+        List<String> authorizedProfiles = getAuthorizedProfiles();
+        if (authorizedProfiles == null) {
+            msg = "authorizedProfiles null";
+            CMS.debug(method + msg);
+            throw new PKIException(method + msg);
+        }
+        String type = tokenRecord.getType();
+        // if token not associated with any keyType/profile, disallow access,
+        // unless the user has the "ALL_PROFILES" privilege
+        if (!authorizedProfiles.contains(UserResource.ALL_PROFILES)) {
+            if (((type == null) || type.isEmpty()) || !authorizedProfiles.contains(type))
+               throw new PKIException(method + "Token record restricted");
+        }
+
         TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
         IConfigStore config = CMS.getConfigStore();
 
