@@ -23,6 +23,7 @@ import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.netscape.certsrv.util.JSONSerializer;
 
 /**
@@ -33,15 +34,25 @@ import com.netscape.certsrv.util.JSONSerializer;
 public class TPSCertData implements JSONSerializer {
 
     String id;
+    @JsonProperty("SerialNumber")
     String serialNumber;
+    @JsonProperty("Subject")
     String subject;
+    @JsonProperty("UserID")
     String userID;
+    @JsonProperty("TokenID")
     String tokenID;
+    @JsonProperty("Origin")
     String origin;
+    @JsonProperty("Type")
     String type;
+    @JsonProperty("KeyType")
     String keyType;
+    @JsonProperty("Status")
     String status;
+    @JsonProperty("CreateTime")
     Date createTime;
+    @JsonProperty("ModifyTime")
     Date modifyTime;
 
     public String getID() {
