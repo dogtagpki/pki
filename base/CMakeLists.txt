@@ -151,25 +151,16 @@ find_file(JACKSON2_JAXB_ANNOTATIONS_JAR
         /usr/share/java
 )
 
-find_file(JAXB_API_JAR
-    NAMES
-        jaxb-api.jar
-    PATHS
-        /usr/share/java
+execute_process(
+    COMMAND xmvn-resolve jakarta.xml.bind:jakarta.xml.bind-api
+    OUTPUT_VARIABLE JAXB_API_JAR
+    OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
-find_file(JAVAX_ACTIVATION_JAR
-    NAMES
-        jakarta.activation.jar
-        jakarta-activation.jar
-        javax.activation.jar
-        javax-activation.jar
-    PATHS
-        /usr/share/java/jakarta-activation
-        /usr/share/java/jakarta
-        /usr/share/java/javax-activation
-        /usr/share/java/javax
-        /usr/share/java
+execute_process(
+    COMMAND xmvn-resolve jakarta.activation:jakarta.activation-api
+    OUTPUT_VARIABLE JAVAX_ACTIVATION_JAR
+    OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
 find_file(JAVAX_ANNOTATIONS_API_JAR

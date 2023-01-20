@@ -146,6 +146,7 @@ BuildRequires:    cmake >= 3.0.2
 BuildRequires:    gcc-c++
 BuildRequires:    zip
 BuildRequires:    %{java_devel}
+BuildRequires:    maven-local
 BuildRequires:    javapackages-tools
 
 BuildRequires:    apache-commons-cli
