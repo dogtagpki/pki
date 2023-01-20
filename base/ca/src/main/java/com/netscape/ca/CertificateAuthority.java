@@ -557,24 +557,6 @@ public class CertificateAuthority implements ISubsystem, IAuthority, IOCSPServic
     }
 
     /**
-     * Retrieves the last serial number that can be used for
-     * certificate issuance in this certificate authority.
-     *
-     * @return the last serial number
-     */
-    public String getMaxSerial() {
-        CAEngine engine = CAEngine.getInstance();
-        CertificateRepository certificateRepository = engine.getCertificateRepository();
-        BigInteger serial = certificateRepository.getMaxSerial();
-
-        if (serial != null) {
-            return serial.toString(certificateRepository.getRadix());
-        } else {
-            return "";
-        }
-    }
-
-    /**
      * Sets the last serial number that can be used for
      * certificate issuance in this certificate authority.
      *

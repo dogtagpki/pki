@@ -1752,6 +1752,22 @@ public class CAEngine extends CMSEngine {
         certificateRepository.setTheSerialNumber(new BigInteger(serial));
     }
 
+    /**
+     * Retrieves the last serial number that can be used for
+     * certificate issuance in this certificate authority.
+     *
+     * @return the last serial number
+     */
+    public String getMaxSerial() {
+        BigInteger serial = certificateRepository.getMaxSerial();
+
+        if (serial != null) {
+            return serial.toString(certificateRepository.getRadix());
+        }
+
+        return "";
+    }
+
     @Override
     public void shutdownDatabase() {
         try {

@@ -1509,8 +1509,8 @@ public class CAAdminServlet extends AdminServlet {
     }
 
     private void getMaxSerialConfig(NameValuePairs params) {
-        params.put(Constants.PR_MAXSERIAL,
-                mCA.getMaxSerial());
+        CAEngine engine = CAEngine.getInstance();
+        params.put(Constants.PR_MAXSERIAL, engine.getMaxSerial());
     }
 
     private void setGeneralConfig(HttpServletRequest req, HttpServletResponse resp)
