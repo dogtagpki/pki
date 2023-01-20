@@ -170,7 +170,7 @@ BuildRequires:    zip
 BuildRequires:    %{java_devel}
 BuildRequires:    javapackages-tools
 BuildRequires:    redhat-rpm-config
-BuildRequires:    ldapjdk = 4.24
+BuildRequires:    ldapjdk >= 4.23.0, ldapjdk < 5.0.0
 BuildRequires:    apache-commons-cli
 BuildRequires:    apache-commons-codec
 BuildRequires:    apache-commons-io
@@ -207,8 +207,8 @@ BuildRequires:    python3-six
 
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
-BuildRequires:    jss = 4.10
-BuildRequires:    tomcatjss = 7.8
+BuildRequires:    jss >= 4.9.0, jss < 5.0.0
+BuildRequires:    tomcatjss >= 7.7.0, tomcatjss < 8.0.0
 
 BuildRequires:    systemd-units
 
@@ -333,7 +333,7 @@ Provides:         pki-symkey = %{version}-%{release}
 
 Requires:         %{java_headless}
 Requires:         jpackage-utils >= 0:1.7.5-10
-Requires:         jss = 4.10
+Requires:         jss >= 4.9.0, jss < 5.0.0
 Requires:         nss >= 3.38.0
 
 # Ensure we end up with a useful installation
@@ -421,8 +421,8 @@ Requires:         glassfish-jaxb-api
 Requires:         slf4j
 Requires:         slf4j-jdk14
 Requires:         jpackage-utils >= 0:1.7.5-10
-Requires:         jss = 4.10
-Requires:         ldapjdk = 4.24
+Requires:         jss >= 4.9.0, jss < 5.0.0
+Requires:         ldapjdk >= 4.23.0, ldapjdk < 5.0.0
 Requires:         %{product_id}-base = %{version}-%{release}
 
 %if 0%{?rhel} && 0%{?rhel} <= 8
@@ -514,7 +514,7 @@ Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
 Requires(pre):    shadow-utils
-Requires:         tomcatjss = 7.8
+Requires:         tomcatjss >= 7.7.0, tomcatjss < 8.0.0
 
 # pki-healthcheck depends on the following library
 %if 0%{?rhel}
@@ -779,9 +779,9 @@ BuildArch:        noarch
 Obsoletes:        pki-console < %{version}-%{release}
 Provides:         pki-console = %{version}-%{release}
 
-BuildRequires:    idm-console-framework = 1.4
+BuildRequires:    idm-console-framework >= 1.2.0, idm-console-framework < 2.0.0
 
-Requires:         idm-console-framework = 1.4
+Requires:         idm-console-framework >= 1.2.0, idm-console-framework < 2.0.0
 Requires:         %{product_id}-base-java = %{version}-%{release}
 Requires:         %{product_id}-console-theme = %{version}-%{release}
 
