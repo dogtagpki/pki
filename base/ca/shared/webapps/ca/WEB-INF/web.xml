@@ -468,7 +468,7 @@
 
    <servlet>
       <servlet-name>  caindex  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.IndexServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.base.CAIndexServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
                          <param-value> caindex     </param-value> </init-param>
              <init-param><param-name>  template    </param-name>
@@ -699,7 +699,7 @@
 
    <servlet>
       <servlet-name>  caheader  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.IndexServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.base.CAIndexServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
                          <param-value> caheader    </param-value> </init-param>
              <init-param><param-name>  GetClientCert  </param-name>

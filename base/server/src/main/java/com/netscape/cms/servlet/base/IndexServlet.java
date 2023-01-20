@@ -22,10 +22,7 @@ import java.io.IOException;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
-import org.dogtagpki.server.ca.ICertificateAuthority;
-
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.cms.servlet.common.CMSGateway;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cms.servlet.common.IndexTemplateFiller;
@@ -34,13 +31,9 @@ import com.netscape.cmscore.apps.CMS;
 /**
  * This is the servlet that builds the index page in
  * various ports.
- *
- * @version $Revision$, $Date$
  */
 public class IndexServlet extends CMSServlet {
-    /**
-     *
-     */
+
     private static final long serialVersionUID = -8632685610380549L;
 
     public final static String PROP_TEMPLATE = "template";
@@ -50,7 +43,6 @@ public class IndexServlet extends CMSServlet {
     private String mTemplateName = null;
 
     public IndexServlet() {
-        super();
     }
 
     @Override
@@ -85,25 +77,14 @@ public class IndexServlet extends CMSServlet {
      */
     @Override
     public void process(CMSRequest cmsReq) throws EBaseException {
-        if (CMSGateway.getEnableAdminEnroll() &&
-                mAuthority != null &&
-                mAuthority instanceof ICertificateAuthority) {
-            try {
-                cmsReq.getHttpResp().sendRedirect("/ca/adminEnroll.html");
-            } catch (IOException e) {
-                logger.error(CMS.getLogMessage("CMSGW_FAIL_REDIRECT_ADMIN_ENROLL", e.toString()), e);
-                throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_REDIRECTING_ADMINENROLL1", e.toString()), e);
-            }
-            return;
-        } else {
-            try {
-                renderTemplate(
-                        cmsReq, mTemplateName, new IndexTemplateFiller());
-            } catch (IOException e) {
-                logger.error(CMS.getLogMessage("CMSGW_FAIL_RENDER_TEMPLATE", mTemplateName, e.toString()), e);
-                throw new ECMSGWException(CMS.getLogMessage("CMSG_ERROR_DISPLAY_TEMPLATE"), e);
-            }
+
+        try {
+            renderTemplate(cmsReq, mTemplateName, new IndexTemplateFiller());
+        } catch (IOException e) {
+            logger.error(CMS.getLogMessage("CMSGW_FAIL_RENDER_TEMPLATE", mTemplateName, e.toString()), e);
+            throw new ECMSGWException(CMS.getLogMessage("CMSG_ERROR_DISPLAY_TEMPLATE"), e);
         }
+
         cmsReq.setStatus(CMSRequest.SUCCESS);
     }
 }
