@@ -65,7 +65,6 @@ import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyPairAlgorithm;
 import org.mozilla.jss.crypto.KeyPairGenerator;
 import org.mozilla.jss.crypto.NoSuchItemOnTokenException;
-import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
@@ -419,14 +418,6 @@ public class CertificateAuthority implements ISubsystem, IAuthority, IOCSPServic
         } catch (Exception e) {
             throw new EBaseException(e);
         }
-    }
-
-    /**
-     * get Issuance Protection Private Key
-     */
-    public PrivateKey getIssuanceProtPrivKey() {
-        CAEngine engine = CAEngine.getInstance();
-        return engine.getIssuanceProtectionPrivateKey();
     }
 
     private void checkForNewerCert() throws EBaseException {

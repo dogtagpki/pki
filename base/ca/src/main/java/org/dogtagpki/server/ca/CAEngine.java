@@ -352,6 +352,9 @@ public class CAEngine extends CMSEngine {
         return issuanceProtectionPublicKey;
     }
 
+    /**
+     * Get Issuance Protection Private Key
+     */
     public PrivateKey getIssuanceProtectionPrivateKey() {
         return issuanceProtectionPrivateKey;
     }

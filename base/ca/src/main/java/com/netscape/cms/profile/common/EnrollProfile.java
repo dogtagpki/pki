@@ -1301,8 +1301,7 @@ public abstract class EnrollProfile extends Profile {
 
         CAEngineConfig cs = engine.getConfig();
 
-        CertificateAuthority authority = engine.getCA();
-        PrivateKey issuanceProtPrivKey = authority.getIssuanceProtPrivKey();
+        PrivateKey issuanceProtPrivKey = engine.getIssuanceProtectionPrivateKey();
         if (issuanceProtPrivKey == null) {
             msg = method + "issuanceProtPrivKey null";
             logger.warn(msg);
