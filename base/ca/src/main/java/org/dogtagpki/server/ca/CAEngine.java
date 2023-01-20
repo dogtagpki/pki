@@ -1721,6 +1721,27 @@ public class CAEngine extends CMSEngine {
         }
     }
 
+    /**
+     * Retrieves the next available serial number.
+     *
+     * @return next available serial number
+     */
+    public String getStartSerial() {
+        try {
+            BigInteger serial = certificateRepository.peekNextSerialNumber();
+
+            if (serial == null) {
+                return "";
+            }
+
+            return serial.toString(16);
+
+        } catch (EBaseException e) {
+            // shouldn't get here.
+            return "";
+        }
+    }
+
     @Override
     public void shutdownDatabase() {
         try {

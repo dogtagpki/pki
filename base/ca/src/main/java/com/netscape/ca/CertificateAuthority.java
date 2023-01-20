@@ -557,29 +557,6 @@ public class CertificateAuthority implements ISubsystem, IAuthority, IOCSPServic
     }
 
     /**
-     * Retrieves the next available serial number.
-     *
-     * @return next available serial number
-     */
-    public String getStartSerial() {
-
-        CAEngine engine = CAEngine.getInstance();
-        CertificateRepository certificateRepository = engine.getCertificateRepository();
-
-        try {
-            BigInteger serial = certificateRepository.peekNextSerialNumber();
-
-            if (serial == null)
-                return "";
-            else
-                return serial.toString(16);
-        } catch (EBaseException e) {
-            // shouldn't get here.
-            return "";
-        }
-    }
-
-    /**
      * Sets the next available serial number.
      *
      * @param serial next available serial number
