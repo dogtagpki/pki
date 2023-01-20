@@ -168,7 +168,7 @@ public class CertRequestDAO extends CMSRequestDAO {
             logger.info("CertRequestDAO: Nonce: " + n);
 
             // store nonce in session
-            Map<Object, Long> nonces = ca.getNonces(servletRequest, "cert-request");
+            Map<Object, Long> nonces = engine.getNonces(servletRequest, "cert-request");
             nonces.put(info.getRequestId().toBigInteger(), n);
 
             // return nonce to client

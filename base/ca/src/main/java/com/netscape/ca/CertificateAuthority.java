@@ -35,14 +35,12 @@ import java.security.cert.CertificateParsingException;
 import java.security.interfaces.RSAKey;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
 import org.dogtag.util.cert.CertUtil;
@@ -91,8 +89,6 @@ import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.base.Nonces;
-import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CADisabledException;
 import com.netscape.certsrv.ca.CAEnabledException;
@@ -348,38 +344,6 @@ public class CertificateAuthority implements ISubsystem, IAuthority, IOCSPServic
     @Override
     public void setId(String id) throws EBaseException {
         mId = id;
-    }
-
-    public Map<Object, Long> getNonces(HttpServletRequest request, String name) {
-
-        // Create a new session or use an existing one.
-        HttpSession session = request.getSession(true);
-        if (session == null) {
-            throw new PKIException("Unable to create session.");
-        }
-
-        CAEngine engine = CAEngine.getInstance();
-
-        // Lock the session to prevent concurrent access.
-        // http://yet-another-dev.blogspot.com/2009/08/synchronizing-httpsession.html
-
-        Object lock = request.getSession().getId().intern();
-        synchronized (lock) {
-
-            // Find the existing storage in the session.
-            @SuppressWarnings("unchecked")
-            Map<Object, Long> nonces = (Map<Object, Long>)session.getAttribute("nonces-"+name);
-
-            if (nonces == null) {
-                // If not present, create a new storage.
-                nonces = Collections.synchronizedMap(new Nonces(engine.getMaxNonces()));
-
-                // Put the storage in the session.
-                session.setAttribute("nonces-"+name, nonces);
-            }
-
-            return nonces;
-        }
     }
 
     /**

@@ -1023,7 +1023,8 @@ public class CAProcessor extends Processor {
             throw new BadRequestException("Missing nonce.");
         }
 
-        Map<Object, Long> nonces = authority.getNonces(servletRequest, name);
+        CAEngine engine = CAEngine.getInstance();
+        Map<Object, Long> nonces = engine.getNonces(servletRequest, name);
 
         Long storedNonce = nonces.get(id);
 

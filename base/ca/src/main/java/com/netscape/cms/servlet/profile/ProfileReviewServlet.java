@@ -252,7 +252,7 @@ public class ProfileReviewServlet extends ProfileServlet {
 
         if (authority != null && engine.getEnableNonces()) {
             long n = mRandom.nextLong();
-            Map<Object, Long> nonces = authority.getNonces(request, "cert-request");
+            Map<Object, Long> nonces = engine.getNonces(request, "cert-request");
             nonces.put(req.getRequestId().toBigInteger(), n);
             args.set(ARG_REQUEST_NONCE, Long.toString(n));
         }

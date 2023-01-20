@@ -208,7 +208,7 @@ public class RevocationServlet extends CMSServlet {
             // generate nonce
             long n = mRandom.nextLong();
             // store nonce in session
-            Map<Object, Long> nonces = engine.getCA().getNonces(cmsReq.getHttpReq(), "cert-revoke");
+            Map<Object, Long> nonces = engine.getNonces(cmsReq.getHttpReq(), "cert-revoke");
             nonces.put(old_serial_no, n);
             // return serial number and nonce to client
             header.addStringValue("nonce", old_serial_no+":"+n);

@@ -34,6 +34,9 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.legacy.ca.CAPolicy;
 import org.dogtagpki.server.authentication.AuthToken;
@@ -57,6 +60,8 @@ import com.netscape.ca.KeyRetrieverRunner;
 import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.base.Nonces;
+import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.certsrv.ca.CATypeException;
@@ -1784,6 +1789,36 @@ public class CAEngine extends CMSEngine {
     public void setMaxSerial(String serial) throws EBaseException {
         BigInteger maxSerial = new BigInteger(serial, certificateRepository.getRadix());
         certificateRepository.setMaxSerial(maxSerial);
+    }
+
+    public Map<Object, Long> getNonces(HttpServletRequest request, String name) {
+
+        // Create a new session or use an existing one.
+        HttpSession session = request.getSession(true);
+        if (session == null) {
+            throw new PKIException("Unable to create session.");
+        }
+
+        // Lock the session to prevent concurrent access.
+        // http://yet-another-dev.blogspot.com/2009/08/synchronizing-httpsession.html
+
+        Object lock = request.getSession().getId().intern();
+        synchronized (lock) {
+
+            // Find the existing storage in the session.
+            @SuppressWarnings("unchecked")
+            Map<Object, Long> nonces = (Map<Object, Long>)session.getAttribute("nonces-"+name);
+
+            if (nonces == null) {
+                // If not present, create a new storage.
+                nonces = Collections.synchronizedMap(new Nonces(getMaxNonces()));
+
+                // Put the storage in the session.
+                session.setAttribute("nonces-"+name, nonces);
+            }
+
+            return nonces;
+        }
     }
 
     @Override

@@ -579,7 +579,7 @@ public class CertService extends PKIService implements CertResource {
             // generate nonce
             long n = random.nextLong();
             // store nonce in session
-            Map<Object, Long> nonces = authority.getNonces(servletRequest, "cert-revoke");
+            Map<Object, Long> nonces = engine.getNonces(servletRequest, "cert-revoke");
             nonces.put(certId.toBigInteger(), n);
             // return nonce to client
             certData.setNonce(n);

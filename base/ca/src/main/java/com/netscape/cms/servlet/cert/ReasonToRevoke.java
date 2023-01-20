@@ -262,7 +262,7 @@ public class ReasonToRevoke extends CMSServlet {
                         // generate nonce
                         long n = mRandom.nextLong();
                         // store nonce in session
-                        Map<Object, Long> nonces = mCA.getNonces(req, "cert-revoke");
+                        Map<Object, Long> nonces = engine.getNonces(req, "cert-revoke");
                         nonces.put(xcert.getSerialNumber(), n);
                         // store serial number and nonce
                         noncesList.add(xcert.getSerialNumber()+":"+n);
