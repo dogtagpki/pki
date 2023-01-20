@@ -66,6 +66,7 @@ import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.certsrv.ca.CATypeException;
 import com.netscape.certsrv.ca.ECAException;
+import com.netscape.certsrv.ca.IssuerUnavailableException;
 import com.netscape.certsrv.connector.ConnectorsConfig;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.publish.CRLPublisher;
@@ -1027,6 +1028,16 @@ public class CAEngine extends CMSEngine {
         nsUniqueIds.remove(aid);
     }
 
+    public void ensureAuthorityDNAvailable(X500Name dn)
+            throws IssuerUnavailableException {
+
+        for (CertificateAuthority ca : getCAs()) {
+            if (ca.getX500Name().equals(dn))
+                throw new IssuerUnavailableException(
+                    "DN '" + dn + "' is used by an existing authority");
+        }
+    }
+
     /**
      * Create a CA signed by a parent CA.
      *
@@ -1044,7 +1055,7 @@ public class CAEngine extends CMSEngine {
 
         // check requested DN
         X500Name subjectX500Name = new X500Name(subjectDN);
-        parentCA.ensureAuthorityDNAvailable(subjectX500Name);
+        ensureAuthorityDNAvailable(subjectX500Name);
 
         // generate authority ID and nickname
         AuthorityID aid = new AuthorityID();

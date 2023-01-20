@@ -98,7 +98,6 @@ import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.certsrv.ca.CANotLeafException;
 import com.netscape.certsrv.ca.CATypeException;
 import com.netscape.certsrv.ca.ECAException;
-import com.netscape.certsrv.ca.IssuerUnavailableException;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.logging.ILogger;
@@ -1699,17 +1698,6 @@ public class CertificateAuthority implements ISubsystem, IAuthority, IOCSPServic
 
     public Collection<String> getAuthorityKeyHosts() {
         return authorityKeyHosts;
-    }
-
-    public void ensureAuthorityDNAvailable(X500Name dn)
-            throws IssuerUnavailableException {
-
-        CAEngine engine = CAEngine.getInstance();
-        for (CertificateAuthority ca : engine.getCAs()) {
-            if (ca.getX500Name().equals(dn))
-                throw new IssuerUnavailableException(
-                    "DN '" + dn + "' is used by an existing authority");
-        }
     }
 
     public X509CertImpl generateSigningCert(
