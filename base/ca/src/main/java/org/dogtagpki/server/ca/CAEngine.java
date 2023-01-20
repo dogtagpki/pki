@@ -1742,6 +1742,16 @@ public class CAEngine extends CMSEngine {
         }
     }
 
+    /**
+     * Sets the next available serial number.
+     *
+     * @param serial next available serial number
+     * @exception EBaseException failed to set next available serial number
+     */
+    public void setStartSerial(String serial) throws EBaseException {
+        certificateRepository.setTheSerialNumber(new BigInteger(serial));
+    }
+
     @Override
     public void shutdownDatabase() {
         try {

@@ -1555,8 +1555,10 @@ public class CAAdminServlet extends AdminServlet {
 
             } else if (key.equals(Constants.PR_DEFAULT_ALGORITHM)) {
                 mCA.setDefaultAlgorithm(value);
+
             } else if (key.equals(Constants.PR_SERIAL)) {
-                mCA.setStartSerial(value);
+                engine.setStartSerial(value);
+
             } else if (key.equals(Constants.PR_MAXSERIAL)) {
                 mCA.setMaxSerial(value);
             } else if (key.equals(Constants.PR_SN_MANAGEMENT)) {

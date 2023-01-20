@@ -557,18 +557,6 @@ public class CertificateAuthority implements ISubsystem, IAuthority, IOCSPServic
     }
 
     /**
-     * Sets the next available serial number.
-     *
-     * @param serial next available serial number
-     * @exception EBaseException failed to set next available serial number
-     */
-    public void setStartSerial(String serial) throws EBaseException {
-        CAEngine engine = CAEngine.getInstance();
-        CertificateRepository certificateRepository = engine.getCertificateRepository();
-        certificateRepository.setTheSerialNumber(new BigInteger(serial));
-    }
-
-    /**
      * Retrieves the last serial number that can be used for
      * certificate issuance in this certificate authority.
      *
