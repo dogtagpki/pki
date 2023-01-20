@@ -557,17 +557,6 @@ public class CertificateAuthority implements ISubsystem, IAuthority, IOCSPServic
     }
 
     /**
-     * Retrieves the certificate repository where all the locally
-     * issued certificates are kept.
-     *
-     * @return CA's certificate repository
-     */
-    public CertificateRepository getCertificateRepository() {
-        CAEngine engine = CAEngine.getInstance();
-        return engine.getCertificateRepository();
-    }
-
-    /**
      * Adds CRL issuing point with the given identifier and description.
      *
      * @param crlConfig sub-store with all CRL issuing points

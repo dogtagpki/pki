@@ -153,7 +153,7 @@ public class ChallengePhraseAuthentication extends AuthManager {
 
         CAEngine engine = CAEngine.getInstance();
         mCA = engine.getCA();
-        mCertDB = mCA.getCertificateRepository();
+        mCertDB = engine.getCertificateRepository();
 
         AuthToken authToken = new AuthToken(this);
 

@@ -199,6 +199,12 @@ public class CAEngine extends CMSEngine {
         return (CertRequestRepository) requestRepository;
     }
 
+    /**
+     * Retrieves the certificate repository where all the locally
+     * issued certificates are kept.
+     *
+     * @return certificate repository
+     */
     public CertificateRepository getCertificateRepository() {
         return certificateRepository;
     }

@@ -108,7 +108,7 @@ public class SSLClientCertAuthentication extends AuthManager {
 
         CAEngine engine = CAEngine.getInstance();
         mCA = engine.getCA();
-        mCertDB = mCA.getCertificateRepository();
+        mCertDB = engine.getCertificateRepository();
 
         X509CertImpl clientCert = (X509CertImpl) x509Certs[0];
 
