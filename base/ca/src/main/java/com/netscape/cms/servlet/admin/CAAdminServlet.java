@@ -1560,7 +1560,8 @@ public class CAAdminServlet extends AdminServlet {
                 engine.setStartSerial(value);
 
             } else if (key.equals(Constants.PR_MAXSERIAL)) {
-                mCA.setMaxSerial(value);
+                engine.setMaxSerial(value);
+
             } else if (key.equals(Constants.PR_SN_MANAGEMENT)) {
                 dbSubsystem.setEnableSerialMgmt(Boolean.valueOf(value));
             } else if (key.equals(Constants.PR_RANDOM_SN)) {

@@ -557,20 +557,6 @@ public class CertificateAuthority implements ISubsystem, IAuthority, IOCSPServic
     }
 
     /**
-     * Sets the last serial number that can be used for
-     * certificate issuance in this certificate authority.
-     *
-     * @param serial the last serial number
-     * @exception EBaseException failed to set the last serial number
-     */
-    public void setMaxSerial(String serial) throws EBaseException {
-        CAEngine engine = CAEngine.getInstance();
-        CertificateRepository certificateRepository = engine.getCertificateRepository();
-        BigInteger maxSerial = new BigInteger(serial, certificateRepository.getRadix());
-        certificateRepository.setMaxSerial(maxSerial);
-    }
-
-    /**
      * Retrieves the certificate repository where all the locally
      * issued certificates are kept.
      *

@@ -1768,6 +1768,18 @@ public class CAEngine extends CMSEngine {
         return "";
     }
 
+    /**
+     * Sets the last serial number that can be used for
+     * certificate issuance in this certificate authority.
+     *
+     * @param serial the last serial number
+     * @exception EBaseException failed to set the last serial number
+     */
+    public void setMaxSerial(String serial) throws EBaseException {
+        BigInteger maxSerial = new BigInteger(serial, certificateRepository.getRadix());
+        certificateRepository.setMaxSerial(maxSerial);
+    }
+
     @Override
     public void shutdownDatabase() {
         try {
