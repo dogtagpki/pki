@@ -170,7 +170,7 @@ public abstract class CMSServlet extends HttpServlet {
     private final static String PROP_UNAUTHOR_TEMPLATE_FILLER = "unauthorizedTemplateFiller";
     protected final static String PROP_SUCCESS_TEMPLATE_FILLER = "successTemplateFiller";
     private final static String PROP_ERROR_TEMPLATE_FILLER = "errorTemplateFiller";
-    private final static String PROP_PENDING_TEMPLATE_FILLER = "pendingTemplateFiller";
+    protected final static String PROP_PENDING_TEMPLATE_FILLER = "pendingTemplateFiller";
     private final static String PROP_SVC_PENDING_TEMPLATE_FILLER = "svcpendingTemplateFiller";
     private final static String PROP_REJECTED_TEMPLATE_FILLER = "rejectedTemplateFiller";
     private final static String PROP_EXCEPTION_TEMPLATE_FILLER = "exceptionTemplateFiller";

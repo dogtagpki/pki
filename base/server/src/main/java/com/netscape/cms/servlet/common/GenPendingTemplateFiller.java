@@ -17,37 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.common;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Date;
 import java.util.Locale;
-
-import org.dogtagpki.server.ca.ICertificateAuthority;
-import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.asn1.INTEGER;
-import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
-import org.mozilla.jss.asn1.OCTET_STRING;
-import org.mozilla.jss.asn1.SEQUENCE;
-import org.mozilla.jss.asn1.SET;
-import org.mozilla.jss.crypto.DigestAlgorithm;
-import org.mozilla.jss.crypto.SignatureAlgorithm;
-import org.mozilla.jss.netscape.security.util.Utils;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.pkix.cmc.CMCStatusInfoV2;
-import org.mozilla.jss.pkix.cmc.OtherInfo;
-import org.mozilla.jss.pkix.cmc.PendInfo;
-import org.mozilla.jss.pkix.cmc.ResponseBody;
-import org.mozilla.jss.pkix.cmc.TaggedAttribute;
-import org.mozilla.jss.pkix.cms.ContentInfo;
-import org.mozilla.jss.pkix.cms.EncapsulatedContentInfo;
-import org.mozilla.jss.pkix.cms.IssuerAndSerialNumber;
-import org.mozilla.jss.pkix.cms.SignedData;
-import org.mozilla.jss.pkix.cms.SignerIdentifier;
-import org.mozilla.jss.pkix.cms.SignerInfo;
-import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
-import org.mozilla.jss.pkix.primitive.Name;
 
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.request.RequestId;
@@ -56,13 +26,10 @@ import com.netscape.cmscore.request.Request;
 
 /**
  * default Pending template filler
- *
- * @version $Revision$, $Date$
  */
 public class GenPendingTemplateFiller implements ICMSTemplateFiller {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GenPendingTemplateFiller.class);
-    public static String FULL_RESPONSE = "cmcFullEnrollmentResponse";
 
     public GenPendingTemplateFiller() {
     }
@@ -87,195 +54,22 @@ public class GenPendingTemplateFiller implements ICMSTemplateFiller {
 
         // request status if any.
         Integer sts = cmsReq.getStatus();
-
-        if (sts != null)
+        if (sts != null) {
             fixed.set(ICMSTemplateFiller.REQUEST_STATUS, sts.toString());
+        }
 
         // request id
         Request req = cmsReq.getRequest();
-
         if (req != null) {
             RequestId reqId = req.getRequestId();
-
             fixed.set(ICMSTemplateFiller.REQUEST_ID, reqId);
-            // set pendInfo, CMCStatusInfoV2
-            ArgBlock httpParams = cmsReq.getHttpParams();
-
-            if (doFullResponse(httpParams)) {
-                SEQUENCE controlSeq = new SEQUENCE();
-                int bpid = 1;
-                PendInfo pendInfo = new PendInfo(reqId.toString(), new
-                        Date());
-                OtherInfo otherInfo = new
-                        OtherInfo(OtherInfo.PEND, null, pendInfo);
-                SEQUENCE bpids = new SEQUENCE();
-                String[] reqIdArray =
-                        req.getExtDataInStringArray(Request.CMC_REQIDS);
-
-                for (int i = 0; i < reqIdArray.length; i++) {
-                    bpids.addElement(new INTEGER(reqIdArray[i]));
-                }
-                CMCStatusInfoV2 cmcStatusInfo = new
-                        CMCStatusInfoV2(CMCStatusInfoV2.PENDING, bpids,
-                                (String) null, otherInfo);
-                TaggedAttribute ta = new TaggedAttribute(new
-                        INTEGER(bpid++),
-                        OBJECT_IDENTIFIER.id_cmc_statusInfoV2,
-                        cmcStatusInfo);
-
-                controlSeq.addElement(ta);
-                // copy transactionID, senderNonce,
-                // create recipientNonce
-                // create responseInfo if regInfo exist
-                String[] transIds =
-                        req.getExtDataInStringArray(Request.CMC_TRANSID);
-                SET ids = new SET();
-
-                for (int i = 0; i < transIds.length; i++) {
-                    ids.addElement(new INTEGER(transIds[i]));
-                }
-                ta = new TaggedAttribute(new
-                            INTEGER(bpid++),
-                            OBJECT_IDENTIFIER.id_cmc_transactionId,
-                            ids);
-                controlSeq.addElement(ta);
-
-                String[] senderNonce = req.getExtDataInStringArray(Request.CMC_SENDERNONCE);
-                SET nonces = new SET();
-
-                for (int i = 0; i < senderNonce.length; i++) {
-                    nonces.addElement(new OCTET_STRING(senderNonce[i].getBytes()));
-                }
-                ta = new TaggedAttribute(new
-                            INTEGER(bpid++),
-                            OBJECT_IDENTIFIER.id_cmc_recipientNonce,
-                            nonces);
-                controlSeq.addElement(ta);
-                req.setExtData(Request.CMC_RECIPIENTNONCE, senderNonce);
-
-                Date date = new Date();
-                String salt = "lala123" + date.toString();
-                byte[] dig;
-
-                try {
-                    MessageDigest SHA2Digest = MessageDigest.getInstance("SHA256");
-
-                    dig = SHA2Digest.digest(salt.getBytes());
-                } catch (NoSuchAlgorithmException ex) {
-                    dig = salt.getBytes();
-                }
-                String b64E = Utils.base64encode(dig, true);
-                String[] newNonce = { b64E };
-
-                ta = new TaggedAttribute(new
-                            INTEGER(bpid++),
-                            OBJECT_IDENTIFIER.id_cmc_senderNonce,
-                            new OCTET_STRING(newNonce[0].getBytes()));
-                controlSeq.addElement(ta);
-                req.setExtData(Request.CMC_SENDERNONCE, newNonce);
-
-                ResponseBody rb = new ResponseBody(controlSeq, new
-                        SEQUENCE(), new
-                        SEQUENCE());
-                EncapsulatedContentInfo ci = new
-                        EncapsulatedContentInfo(OBJECT_IDENTIFIER.id_cct_PKIResponse,
-                                rb);
-                org.mozilla.jss.crypto.X509Certificate x509cert = null;
-
-                if (authority instanceof ICertificateAuthority) {
-                    x509cert = ((ICertificateAuthority) authority).getCaX509Cert();
-                }
-                if (x509cert == null)
-                    return params;
-                try {
-                    X509CertImpl cert = new X509CertImpl(x509cert.getEncoded());
-                    ByteArrayInputStream issuer1 = new ByteArrayInputStream(cert.getIssuerName().getEncoded());
-                    Name issuer = (Name) Name.getTemplate().decode(issuer1);
-                    IssuerAndSerialNumber ias = new
-                            IssuerAndSerialNumber(issuer, new INTEGER(cert.getSerialNumber().toString()));
-                    SignerIdentifier si = new
-                            SignerIdentifier(SignerIdentifier.ISSUER_AND_SERIALNUMBER, ias, null);
-
-                    DigestAlgorithm digestAlg = null;
-                    SignatureAlgorithm signAlg = null;
-                    org.mozilla.jss.crypto.PrivateKey privKey = CryptoManager.getInstance().findPrivKeyByCert(x509cert);
-                    org.mozilla.jss.crypto.PrivateKey.Type keyType = privKey.getType();
-
-                    if (keyType.equals(org.mozilla.jss.crypto.PrivateKey.RSA)) {
-                        signAlg = SignatureAlgorithm.RSASignatureWithSHA256Digest;
-                    } else if (keyType.equals(org.mozilla.jss.crypto.PrivateKey.EC)) {
-                        signAlg = SignatureAlgorithm.ECSignatureWithSHA256Digest;
-                    } else {
-                        logger.warn("GenPendingTemplateFiller::getTemplateParams() - keyType " +
-                                keyType + " is unsupported!");
-                        return null;
-                    }
-
-                    MessageDigest SHADigest = null;
-                    byte[] digest = null;
-
-                    try {
-                        SHADigest = MessageDigest.getInstance("SHA256");
-                        digestAlg = DigestAlgorithm.SHA256;
-
-                        ByteArrayOutputStream ostream = new ByteArrayOutputStream();
-
-                        rb.encode(ostream);
-                        digest = SHADigest.digest(ostream.toByteArray());
-                    } catch (NoSuchAlgorithmException ex) {
-                        //log("digest fail");
-                    }
-
-                    SignerInfo signInfo = new
-                            SignerInfo(si, null, null,
-                                    OBJECT_IDENTIFIER.id_cct_PKIResponse,
-                                    digest, signAlg,
-                                    privKey);
-                    SET signInfos = new SET();
-
-                    signInfos.addElement(signInfo);
-
-                    SET digestAlgs = new SET();
-
-                    if (digestAlg != null) {
-                        AlgorithmIdentifier ai = new
-                                AlgorithmIdentifier(digestAlg.toOID(),
-                                        null);
-
-                        digestAlgs.addElement(ai);
-                    }
-
-                    SignedData fResponse = new
-                            SignedData(digestAlgs, ci,
-                                    null, null, signInfos);
-                    ContentInfo fullResponse = new
-                            ContentInfo(ContentInfo.SIGNED_DATA, fResponse);
-                    ByteArrayOutputStream ostream = new
-                            ByteArrayOutputStream();
-
-                    fullResponse.encode(ostream);
-                    byte[] fr = ostream.toByteArray();
-
-                    fixed.set(FULL_RESPONSE, Utils.base64encode(fr, true));
-                } catch (Exception e1) {
-                    e1.printStackTrace();
-                }
-            }
         }
+
         // this authority
         if (authority != null)
             fixed.set(ICMSTemplateFiller.AUTHORITY,
                     authority.getOfficialName());
-        return params;
-    }
 
-    /**
-     * handy routine to check if client want full enrollment response
-     */
-    public static boolean doFullResponse(ArgBlock httpParams) {
-        if (httpParams.getValueAsBoolean("fullResponse", false))
-            return true;
-        else
-            return false;
+        return params;
     }
 }

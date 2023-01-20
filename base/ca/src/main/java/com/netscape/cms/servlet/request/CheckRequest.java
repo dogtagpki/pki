@@ -67,6 +67,8 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.CMSServlet;
+import com.netscape.cms.servlet.common.CAGenPendingTemplateFiller;
+import com.netscape.cms.servlet.common.CMSLoadTemplate;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
@@ -124,6 +126,14 @@ public class CheckRequest extends CMSServlet {
         mFormPath = "/ca/" + TPL_FILE;
 
         mTemplates.remove(CMSRequest.SUCCESS);
+
+        // replace GenPendingTemplateFiller with CAGenPendingTemplateFiller
+        CMSLoadTemplate pendingLoadTemplate = mTemplates.get(CMSRequest.PENDING);
+        mTemplates.put(CMSRequest.PENDING, new CMSLoadTemplate(
+                PROP_PENDING_TEMPLATE,
+                PROP_PENDING_TEMPLATE_FILLER,
+                pendingLoadTemplate.getTemplateName(),
+                new CAGenPendingTemplateFiller()));
     }
 
     /**
