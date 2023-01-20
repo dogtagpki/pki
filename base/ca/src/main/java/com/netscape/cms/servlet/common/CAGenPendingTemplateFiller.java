@@ -24,7 +24,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.Locale;
 
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
@@ -49,6 +48,7 @@ import org.mozilla.jss.pkix.cms.SignerInfo;
 import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.pkix.primitive.Name;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.base.ArgBlock;
@@ -173,8 +173,8 @@ public class CAGenPendingTemplateFiller extends GenPendingTemplateFiller {
         EncapsulatedContentInfo ci = new EncapsulatedContentInfo(OBJECT_IDENTIFIER.id_cct_PKIResponse, rb);
         org.mozilla.jss.crypto.X509Certificate x509cert = null;
 
-        if (authority instanceof ICertificateAuthority) {
-            x509cert = ((ICertificateAuthority) authority).getCaX509Cert();
+        if (authority instanceof CertificateAuthority) {
+            x509cert = ((CertificateAuthority) authority).getCaX509Cert();
         }
 
         if (x509cert == null) {

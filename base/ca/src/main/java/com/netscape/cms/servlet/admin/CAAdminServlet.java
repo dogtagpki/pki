@@ -31,7 +31,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.ca.CMSCRLExtensions;
@@ -267,8 +266,8 @@ public class CAAdminServlet extends AdminServlet {
             throws IOException, EBaseException {
 
         CAConfig config = mCA.getConfigStore();
-        ConfigStore nc = config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE, ConfigStore.class);
-        ConfigStore rc = nc.getSubStore(ICertificateAuthority.PROP_CERT_REVOKED_SUBSTORE, ConfigStore.class);
+        ConfigStore nc = config.getSubStore(CertificateAuthority.PROP_NOTIFY_SUBSTORE, ConfigStore.class);
+        ConfigStore rc = nc.getSubStore(CertificateAuthority.PROP_CERT_REVOKED_SUBSTORE, ConfigStore.class);
 
         getNotificationCompConfig(req, resp, rc);
     }
@@ -277,8 +276,8 @@ public class CAAdminServlet extends AdminServlet {
             throws IOException, EBaseException {
 
         CAConfig config = mCA.getConfigStore();
-        ConfigStore nc = config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE, ConfigStore.class);
-        ConfigStore rc = nc.getSubStore(ICertificateAuthority.PROP_CERT_ISSUED_SUBSTORE, ConfigStore.class);
+        ConfigStore nc = config.getSubStore(CertificateAuthority.PROP_NOTIFY_SUBSTORE, ConfigStore.class);
+        ConfigStore rc = nc.getSubStore(CertificateAuthority.PROP_CERT_ISSUED_SUBSTORE, ConfigStore.class);
 
         getNotificationCompConfig(req, resp, rc);
     }
@@ -292,8 +291,8 @@ public class CAAdminServlet extends AdminServlet {
         NameValuePairs params = new NameValuePairs();
 
         CAConfig config = mCA.getConfigStore();
-        ConfigStore nc = config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE, ConfigStore.class);
-        ConfigStore riq = nc.getSubStore(ICertificateAuthority.PROP_REQ_IN_Q_SUBSTORE, ConfigStore.class);
+        ConfigStore nc = config.getSubStore(CertificateAuthority.PROP_NOTIFY_SUBSTORE, ConfigStore.class);
+        ConfigStore riq = nc.getSubStore(CertificateAuthority.PROP_REQ_IN_Q_SUBSTORE, ConfigStore.class);
 
         Enumeration<String> e = req.getParameterNames();
 
@@ -325,8 +324,8 @@ public class CAAdminServlet extends AdminServlet {
         CAEngine engine = CAEngine.getInstance();
         CAEngineConfig engineConfig = engine.getConfig();
         CAConfig config = engineConfig.getCAConfig();
-        ConfigStore nc = config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE, ConfigStore.class);
-        ConfigStore riq = nc.getSubStore(ICertificateAuthority.PROP_REQ_IN_Q_SUBSTORE, ConfigStore.class);
+        ConfigStore nc = config.getSubStore(CertificateAuthority.PROP_NOTIFY_SUBSTORE, ConfigStore.class);
+        ConfigStore riq = nc.getSubStore(CertificateAuthority.PROP_REQ_IN_Q_SUBSTORE, ConfigStore.class);
 
         //set rest of the parameters
         Enumeration<String> e = req.getParameterNames();
@@ -430,8 +429,8 @@ public class CAAdminServlet extends AdminServlet {
         CAEngine engine = CAEngine.getInstance();
         CAEngineConfig engineConfig = engine.getConfig();
         CAConfig config = engineConfig.getCAConfig();
-        ConfigStore nc = config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE, ConfigStore.class);
-        ConfigStore rc = nc.getSubStore(ICertificateAuthority.PROP_CERT_REVOKED_SUBSTORE, ConfigStore.class);
+        ConfigStore nc = config.getSubStore(CertificateAuthority.PROP_NOTIFY_SUBSTORE, ConfigStore.class);
+        ConfigStore rc = nc.getSubStore(CertificateAuthority.PROP_CERT_REVOKED_SUBSTORE, ConfigStore.class);
 
         setNotificationCompConfig(req, resp, rc, engine.getCertRevokedListener());
     }
@@ -442,8 +441,8 @@ public class CAAdminServlet extends AdminServlet {
         CAEngine engine = CAEngine.getInstance();
         CAEngineConfig engineConfig = engine.getConfig();
         CAConfig config = engineConfig.getCAConfig();
-        ConfigStore nc = config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE, ConfigStore.class);
-        ConfigStore rc = nc.getSubStore(ICertificateAuthority.PROP_CERT_ISSUED_SUBSTORE, ConfigStore.class);
+        ConfigStore nc = config.getSubStore(CertificateAuthority.PROP_NOTIFY_SUBSTORE, ConfigStore.class);
+        ConfigStore rc = nc.getSubStore(CertificateAuthority.PROP_CERT_ISSUED_SUBSTORE, ConfigStore.class);
 
         setNotificationCompConfig(req, resp, rc, engine.getCertIssuedListener());
 
@@ -957,7 +956,7 @@ public class CAAdminServlet extends AdminServlet {
             ipId = name;
         }
         if (ipId == null || ipId.length() <= 0) {
-            ipId = ICertificateAuthority.PROP_MASTER_CRL;
+            ipId = CertificateAuthority.PROP_MASTER_CRL;
         }
 
         CRLIssuingPoint ip = engine.getCRLIssuingPoint(ipId);
@@ -1003,7 +1002,7 @@ public class CAAdminServlet extends AdminServlet {
             String ipId = req.getParameter(Constants.PR_ID);
 
             if (ipId == null || ipId.length() <= 0) {
-                ipId = ICertificateAuthority.PROP_MASTER_CRL;
+                ipId = CertificateAuthority.PROP_MASTER_CRL;
             }
 
             CRLIssuingPoint ip = engine.getCRLIssuingPoint(ipId);
@@ -1100,7 +1099,7 @@ public class CAAdminServlet extends AdminServlet {
         String id = req.getParameter(Constants.PR_ID);
 
         if (id == null || id.length() <= 0) {
-            id = ICertificateAuthority.PROP_MASTER_CRL;
+            id = CertificateAuthority.PROP_MASTER_CRL;
         }
 
         CAConfig caConfig = mCA.getConfigStore();
@@ -1220,7 +1219,7 @@ public class CAAdminServlet extends AdminServlet {
 
             if (id == null || id.length() <= 0 ||
                     id.equals(Constants.RS_ID_CONFIG)) {
-                id = ICertificateAuthority.PROP_MASTER_CRL;
+                id = CertificateAuthority.PROP_MASTER_CRL;
             }
             CRLIssuingPoint ip = engine.getCRLIssuingPoint(id);
 
@@ -1312,7 +1311,7 @@ public class CAAdminServlet extends AdminServlet {
 
         if (id == null || id.length() <= 0 ||
                 id.equals(Constants.RS_ID_CONFIG)) {
-            id = ICertificateAuthority.PROP_MASTER_CRL;
+            id = CertificateAuthority.PROP_MASTER_CRL;
         }
         CAConfig caConfig = mCA.getConfigStore();
         CRLConfig crlConfig = caConfig.getCRLConfig();
@@ -1474,7 +1473,7 @@ public class CAAdminServlet extends AdminServlet {
 
         CAConfig caConfig = mCA.getConfigStore();
 
-        value = caConfig.getString(ICertificateAuthority.PROP_ENABLE_PAST_CATIME, "false");
+        value = caConfig.getString(CertificateAuthority.PROP_ENABLE_PAST_CATIME, "false");
         params.put(Constants.PR_VALIDITY, value);
 
         getSigningAlgConfig(params);
@@ -1552,7 +1551,7 @@ public class CAAdminServlet extends AdminServlet {
                  */
             } else if (key.equals(Constants.PR_VALIDITY)) {
                 engine.setEnablePastCATime(value);
-                caConfig.putString(ICertificateAuthority.PROP_ENABLE_PAST_CATIME, value);
+                caConfig.putString(CertificateAuthority.PROP_ENABLE_PAST_CATIME, value);
 
             } else if (key.equals(Constants.PR_DEFAULT_ALGORITHM)) {
                 mCA.setDefaultAlgorithm(value);

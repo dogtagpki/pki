@@ -26,8 +26,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.dogtagpki.server.ca.ICertificateAuthority;
-
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -55,7 +54,7 @@ public class CloneRedirect extends CMSServlet {
     private String mNewUrl = null;
     private String mFormPath = null;
 
-    private ICertificateAuthority mCA = null;
+    private CertificateAuthority mCA = null;
 
     /**
      * Constructs CloneRedirect servlet.
@@ -75,8 +74,8 @@ public class CloneRedirect extends CMSServlet {
         super.init(sc);
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
 
-        if (mAuthority instanceof ICertificateAuthority) {
-            mCA = (ICertificateAuthority) mAuthority;
+        if (mAuthority instanceof CertificateAuthority) {
+            mCA = (CertificateAuthority) mAuthority;
             ConfigStore authConfig = mCA.getConfigStore();
 
             if (authConfig != null) {
@@ -89,8 +88,8 @@ public class CloneRedirect extends CMSServlet {
             }
         }
 
-        if (mAuthority instanceof ICertificateAuthority)
-            mCA = (ICertificateAuthority) mAuthority;
+        if (mAuthority instanceof CertificateAuthority)
+            mCA = (CertificateAuthority) mAuthority;
 
         // override success to do output with our own template.
         mTemplates.remove(CMSRequest.SUCCESS);

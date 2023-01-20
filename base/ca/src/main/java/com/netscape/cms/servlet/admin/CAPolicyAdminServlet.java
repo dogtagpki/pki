@@ -22,7 +22,6 @@ import javax.servlet.ServletException;
 
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -78,7 +77,7 @@ public class CAPolicyAdminServlet extends PolicyAdminServlet {
 
         mProcessor = engine.getCAPolicy().getPolicyProcessor();
 
-        String policyStatus = ICertificateAuthority.ID + ".Policy." + IPolicyProcessor.PROP_ENABLE;
+        String policyStatus = CertificateAuthority.ID + ".Policy." + IPolicyProcessor.PROP_ENABLE;
 
         try {
             if (mConfig.getBoolean(policyStatus, true)) {

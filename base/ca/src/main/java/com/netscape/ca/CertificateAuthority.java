@@ -50,7 +50,6 @@ import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
-import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NicknameConflictException;
 import org.mozilla.jss.NotInitializedException;
@@ -92,6 +91,7 @@ import org.mozilla.jss.pkix.primitive.Name;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.Nonces;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ca.AuthorityID;
@@ -156,15 +156,62 @@ import com.netscape.cmsutil.ocsp.UnknownInfo;
  * @author lhsiao
  * @version $Revision$, $Date$
  */
-public class CertificateAuthority implements IAuthority, ICertificateAuthority, IOCSPService {
+public class CertificateAuthority implements ISubsystem, IAuthority, IOCSPService {
 
-    public final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertificateAuthority.class);
+    public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertificateAuthority.class);
 
     private static final Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
+    public static final String ID = "ca";
+
+    public static final String PROP_REGISTRATION = "Registration";
+    public static final String PROP_POLICY = "Policy";
+    public static final String PROP_GATEWAY = "gateway";
+    public static final String PROP_CLASS = "class";
+    public static final String PROP_TYPE = "type";
+    public static final String PROP_IMPL = "impl";
+    public static final String PROP_PLUGIN = "plugin";
+    public static final String PROP_INSTANCE = "instance";
+    public static final String PROP_LISTENER_SUBSTORE = "listener";
+    public static final String PROP_LDAP_PUBLISH_SUBSTORE = "ldappublish";
+    public static final String PROP_ENABLE_PUBLISH = "enablePublish";
+    public static final String PROP_ENABLE_LDAP_PUBLISH = "enableLdapPublish";
+
+    public static final String PROP_X509CERT_VERSION = "X509CertVersion";
+    public static final String PROP_ENABLE_PAST_CATIME = "enablePastCATime";
+    public static final String PROP_ENABLE_PAST_CATIME_CACERT = "enablePastCATime_caCert";
+    public static final String PROP_DEF_VALIDITY = "DefaultIssueValidity";
+    public static final String PROP_FAST_SIGNING = "fastSigning";
+    public static final String PROP_ENABLE_ADMIN_ENROLL = "enableAdminEnroll";
+
+    // make this public so agent gateway can access for now.
+    public static final String PROP_CRL_PAGE_SIZE = "pageSize";
+    public static final String PROP_MASTER_CRL = "MasterCRL";
+
+    public static final String PROP_NOTIFY_SUBSTORE = "notification";
+    public static final String PROP_CERT_ISSUED_SUBSTORE = "certIssued";
+    public static final String PROP_CERT_REVOKED_SUBSTORE = "certRevoked";
+    public static final String PROP_REQ_IN_Q_SUBSTORE = "requestInQ";
+    public static final String PROP_PUB_QUEUE_SUBSTORE = "publishingQueue";
+
+    public static final String PROP_ISSUER_NAME = "name";
+    public static final String PROP_CA_NAMES = "CAs";
+
+    public static final String PROP_ENABLE_OCSP = "ocsp";
+    public static final String PROP_ID = "id";
+
     public static final String OFFICIAL_NAME = "Certificate Manager";
 
-    public final static OBJECT_IDENTIFIER OCSP_NONCE = new OBJECT_IDENTIFIER("1.3.6.1.5.5.7.48.1.2");
+    public static final OBJECT_IDENTIFIER OCSP_NONCE = new OBJECT_IDENTIFIER("1.3.6.1.5.5.7.48.1.2");
+
+    public static final int FASTSIGNING_DISABLED = 0;
+    public static final int FASTSIGNING_ENABLED = 1;
+
+    public static final long SECOND = 1000; // 1000 milliseconds
+    public static final long MINUTE = 60 * SECOND;
+    public static final long HOUR = 60 * MINUTE;
+    public static final long DAY = 24 * HOUR;
+    public static final long YEAR = DAY * 365;
 
     protected boolean hostCA;
     protected AuthorityID authorityID = null;
@@ -198,21 +245,6 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
     protected long mTotalData = 0;
     protected long mSignTime = 0;
     protected long mLookupTime = 0;
-
-    public final static int FASTSIGNING_DISABLED = 0;
-    public final static int FASTSIGNING_ENABLED = 1;
-
-    protected static final long SECOND = 1000; // 1000 milliseconds
-    protected static final long MINUTE = 60 * SECOND;
-    protected static final long HOUR = 60 * MINUTE;
-    public final static long DAY = 24 * HOUR;
-    protected static final long YEAR = DAY * 365;
-
-    // for the notification listeners
-
-    /**
-     * Package constants
-     */
 
     /* cache responder ID for performance */
     private ResponderID mResponderIDByName = null;
@@ -389,7 +421,9 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
         }
     }
 
-    @Override
+    /**
+     * get Issuance Protection Private Key
+     */
     public PrivateKey getIssuanceProtPrivKey() {
         CAEngine engine = CAEngine.getInstance();
         return engine.getIssuanceProtectionPrivateKey();
@@ -599,12 +633,11 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
     }
 
     /**
-     * Retrieves certificate repository.
-     * <P>
+     * Retrieves the certificate repository where all the locally
+     * issued certificates are kept.
      *
-     * @return certificate repository
+     * @return CA's certificate repository
      */
-    @Override
     public CertificateRepository getCertificateRepository() {
         CAEngine engine = CAEngine.getInstance();
         return engine.getCertificateRepository();
@@ -1112,16 +1145,19 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
     }
 
     /**
-     * Retrieves certificate chains of this CA.
+     * Retrieves the CA certificate chain.
      *
-     * @return this CA's cert chain.
+     * @return the CA certificate chain
      */
-    @Override
     public CertificateChain getCACertChain() {
         return mSigningUnit.getCertChain();
     }
 
-    @Override
+    /**
+     * Retrieves the CA certificate.
+     *
+     * @return the CA certificate
+     */
     public X509CertImpl getCACert() throws EBaseException {
 
         X509CertImpl caCertImpl = mSigningUnit.getCertImpl();
@@ -1149,7 +1185,11 @@ public class CertificateAuthority implements IAuthority, ICertificateAuthority, 
         }
     }
 
-    @Override
+    /**
+     * Retrieves the CA certificate.
+     *
+     * @return the CA certificate
+     */
     public org.mozilla.jss.crypto.X509Certificate getCaX509Cert() {
         return mSigningUnit.getCert();
     }
