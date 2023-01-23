@@ -18,8 +18,6 @@
 
 package com.netscape.certsrv.tps.profile;
 
-import java.util.Collection;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -30,10 +28,4 @@ import com.netscape.certsrv.base.DataCollection;
  */
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class ProfileCollection extends DataCollection<ProfileData> {
-
-    @Override
-    public Collection<ProfileData> getEntries() {
-        return super.getEntries();
-    }
-}
+public class ProfileCollection extends DataCollection<ProfileData> {}

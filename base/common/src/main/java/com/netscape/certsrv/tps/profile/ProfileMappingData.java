@@ -18,15 +18,12 @@
 
 package com.netscape.certsrv.tps.profile;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonValue;
 import com.netscape.certsrv.util.JSONSerializer;
 
 /**
@@ -64,20 +61,6 @@ public class ProfileMappingData implements JSONSerializer {
 
     public void setProperties(Map<String, String> properties) {
         this.properties = properties;
-    }
-
-    public static class PropertyList {
-        @JsonProperty("Property")
-        public List<Property> properties = new ArrayList<>();
-    }
-
-    public static class Property {
-
-        @JsonValue
-        public String name;
-
-        @JsonValue
-        public String value;
     }
 
     @Override
