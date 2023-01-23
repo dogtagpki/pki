@@ -1188,19 +1188,6 @@ jobs:
       - name: Connect PKI container to network
         run: docker network connect example pki --alias pki.example.com
 
-      - name: Run client container
-        run: |
-          IMAGE=pki-runner \
-          NAME=client \
-          HOSTNAME=client.example.com \
-          tests/bin/runner-init.sh
-
-      - name: Connect client container to network
-        run: |
-          docker network connect example client --alias client.example.com
-          docker inspect -f '{{ .NetworkSettings.Networks.example.IPAddress }}' client > client.ip
-          echo "Client's IP: `cat client.ip`"
-
       - name: Install dependencies in PKI container
         run: docker exec pki dnf install -y 389-ds-base
 
@@ -1210,6 +1197,22 @@ jobs:
       - name: Install CA in PKI container
         run: docker exec pki pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -v
 
+      - name: Set up client container
+        run: |
+          docker run \
+              --name client \
+              --hostname client.example.com \
+              --network example \
+              --network-alias client.example.com \
+              -it \
+              --detach \
+              quay.io/dogtagpki/sscep
+
+      - name: Get client's IP address
+        run: |
+          docker inspect -f '{{ .NetworkSettings.Networks.example.IPAddress }}' client > client.ip
+          echo "Client's IP: `cat client.ip`"
+
       # https://github.com/dogtagpki/pki/wiki/Configuring-SCEP-Responder
       - name: Configure SCEP in CA
         run: |
@@ -1217,10 +1220,6 @@ jobs:
           docker exec pki bash -c "echo UID:$(cat client.ip) > /etc/pki/pki-tomcat/ca/flatfile.txt"
           docker exec pki bash -c "echo PWD:Secret.123 >> /etc/pki/pki-tomcat/ca/flatfile.txt"
           docker exec pki pki-server restart --wait
-
-      - name: Install SSCEP in client container
-        run: |
-          docker exec client dnf install -y sscep
 
       # https://github.com/dogtagpki/pki/wiki/Certificate-Enrollment-with-SSCEP
       - name: Get CA certificate using SSCEP
