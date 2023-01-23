@@ -128,12 +128,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         shared_conf_path = deployer.mdict['pki_source_server_path']
 
-        # Copy /usr/share/pki/server/conf/tomcat.conf to
-        # /var/lib/pki/<instance>/conf/tomcat.conf.
-        deployer.file.copy_with_slot_substitution(
-            os.path.join(shared_conf_path, 'tomcat.conf'),
-            os.path.join(instance_conf_path, 'tomcat.conf'))
-
         # Copy /usr/share/pki/server/conf/server.xml
         # to /etc/pki/<instance>/server.xml.
         deployer.file.copy_with_slot_substitution(
@@ -167,11 +161,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.mdict['pki_target_tomcat_conf_instance_id'],
             overwrite_flag=True)
 
-        # Copy /usr/share/pki/server/conf/tomcat.conf
-        # to /etc/pki/<instance>/tomcat.conf
+        # Copy /usr/share/pki/server/conf/tomcat.conf to
+        # /var/lib/pki/<instance>/conf/tomcat.conf.
         deployer.file.copy_with_slot_substitution(
-            deployer.mdict['pki_source_tomcat_conf'],
-            deployer.mdict['pki_target_tomcat_conf'],
+            os.path.join(shared_conf_path, 'tomcat.conf'),
+            os.path.join(instance_conf_path, 'tomcat.conf'),
             overwrite_flag=True)
 
         # Link /etc/pki/<instance>/web.xml
