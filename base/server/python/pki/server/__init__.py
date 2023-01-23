@@ -659,12 +659,12 @@ grant codeBase "file:%s" {
 
     def create(self, force=False):
 
-        self.makedirs(self.base_dir, force=force)
+        self.makedirs(self.base_dir, exist_ok=True)
 
         bin_dir = os.path.join(Tomcat.SHARE_DIR, 'bin')
         self.symlink(bin_dir, self.bin_dir, force=force)
 
-        self.create_conf_dir(force=force)
+        self.create_conf_dir(exist_ok=True)
 
         catalina_policy = os.path.join(Tomcat.CONF_DIR, 'catalina.policy')
         self.copy(catalina_policy, self.catalina_policy, force=force)
@@ -699,10 +699,10 @@ grant codeBase "file:%s" {
 
         self.create_libs(force=force)
 
-        self.makedirs(self.temp_dir, force=force)
-        self.makedirs(self.webapps_dir, force=force)
-        self.makedirs(self.work_dir, force=force)
-        self.makedirs(self.log_dir, force=force)
+        self.makedirs(self.temp_dir, exist_ok=True)
+        self.makedirs(self.webapps_dir, exist_ok=True)
+        self.makedirs(self.work_dir, exist_ok=True)
+        self.makedirs(self.log_dir, exist_ok=True)
 
         document = etree.parse(self.server_xml, parser)
         server = document.getroot()
@@ -711,13 +711,13 @@ grant codeBase "file:%s" {
             engine_name = engine.get('name')
 
             engine_dir = os.path.join(self.conf_dir, engine_name)
-            self.makedirs(engine_dir, force=force)
+            self.makedirs(engine_dir, exist_ok=True)
 
             for host in engine.findall('Host'):
                 host_name = host.get('name')
 
                 host_dir = os.path.join(engine_dir, host_name)
-                self.makedirs(host_dir, force=force)
+                self.makedirs(host_dir, exist_ok=True)
 
                 # symlink the rewrite.config in the host dir
                 target = os.path.join(
@@ -732,9 +732,9 @@ grant codeBase "file:%s" {
         with open(self.service_conf, 'a', encoding='utf-8') as f:
             print('CATALINA_BASE="%s"' % self.base_dir, file=f)
 
-    def create_conf_dir(self, force=False):
+    def create_conf_dir(self, exist_ok=False):
 
-        self.makedirs(self.conf_dir, force=force)
+        self.makedirs(self.conf_dir, exist_ok=exist_ok)
 
     def create_logging_properties(self, force=False):
 
@@ -833,7 +833,7 @@ grant codeBase "file:%s" {
         lib_dir = os.path.join(PKIServer.SHARE_DIR, 'server', 'lib')
         self.symlink(lib_dir, self.lib_dir, force=force)
 
-        self.makedirs(self.common_dir, force=force)
+        self.makedirs(self.common_dir, exist_ok=True)
 
         common_lib_dir = os.path.join(PKIServer.SHARE_DIR, 'server', 'common', 'lib')
         self.symlink(common_lib_dir, self.common_lib_dir, force=force)
@@ -846,7 +846,7 @@ grant codeBase "file:%s" {
             logger.warning('NSS database already exists: %s', self.nssdb_dir)
             return
 
-        self.makedirs(self.nssdb_dir, force=force)
+        self.makedirs(self.nssdb_dir, exist_ok=True)
 
         self.symlink(self.nssdb_dir, self.nssdb_link, force=force)
 

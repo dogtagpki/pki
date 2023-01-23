@@ -132,7 +132,7 @@ class ACMECreateCLI(pki.cli.CLI):
         instance.load()
 
         acme_conf_dir = os.path.join(instance.conf_dir, name)
-        instance.makedirs(acme_conf_dir, force=force)
+        instance.makedirs(acme_conf_dir, exist_ok=True)
 
         acme_share_dir = os.path.join(pki.server.PKIServer.SHARE_DIR, 'acme')
 

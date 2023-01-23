@@ -138,29 +138,29 @@ class PKISubsystem(object):
     def log_signed_audit_dir(self):
         return os.path.join(self.log_dir, 'signedAudit')
 
-    def create(self, force=False):
+    def create(self, exist_ok=False):
 
         # Create /var/lib/pki/<instance>/<subsystem>
-        self.instance.makedirs(self.base_dir, force=force)
+        self.instance.makedirs(self.base_dir, exist_ok=exist_ok)
 
         # Create /etc/sysconfig/pki/tomcat/<instance>/<subsystem>
-        self.instance.makedirs(self.registry_dir, force=force)
+        self.instance.makedirs(self.registry_dir, exist_ok=exist_ok)
 
-    def create_conf(self, force=False):
+    def create_conf(self, exist_ok=False):
 
         # Create /etc/pki/<instance>/<subsystem>
-        self.instance.makedirs(self.conf_dir, force=force)
+        self.instance.makedirs(self.conf_dir, exist_ok=exist_ok)
 
-    def create_logs(self, force=False):
+    def create_logs(self, exist_ok=False):
 
         # Create /var/log/pki/<instance>/<subsystem>
-        self.instance.makedirs(self.log_dir, force=force)
+        self.instance.makedirs(self.log_dir, exist_ok=exist_ok)
 
         # Create /var/log/pki/<instance>/<subsystem>/archive
-        self.instance.makedirs(self.log_archive_dir, force=force)
+        self.instance.makedirs(self.log_archive_dir, exist_ok=exist_ok)
 
         # Create /var/log/pki/<instance>/<subsystem>/signedAudit
-        self.instance.makedirs(self.log_signed_audit_dir, force=force)
+        self.instance.makedirs(self.log_signed_audit_dir, exist_ok=exist_ok)
 
     def load(self):
 

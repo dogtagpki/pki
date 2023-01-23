@@ -62,9 +62,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         subsystem_name = deployer.mdict['pki_subsystem'].lower()
         subsystem = pki.server.subsystem.PKISubsystemFactory.create(instance, subsystem_name)
 
-        subsystem.create(force=True)
-        subsystem.create_conf(force=True)
-        subsystem.create_logs(force=True)
+        subsystem.create(exist_ok=True)
+        subsystem.create_conf(exist_ok=True)
+        subsystem.create_logs(exist_ok=True)
 
         # Copy /usr/share/pki/server/etc/default.cfg
         # to /etc/sysconfig/pki/tomcat/<instance>/<subsystem>/default.cfg

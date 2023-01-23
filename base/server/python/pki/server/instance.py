@@ -236,7 +236,7 @@ class PKIInstance(pki.server.PKIServer):
         logs_link = os.path.join(self.base_dir, 'logs')
         self.symlink(self.log_dir, logs_link, force=force)
 
-        self.makedirs(self.registry_dir, force=force)
+        self.makedirs(self.registry_dir, exist_ok=True)
 
         # Copy /usr/share/pki/setup/pkidaemon_registry
         # to /etc/sysconfig/pki/tomcat/<instance>/<instance>
@@ -252,12 +252,12 @@ class PKIInstance(pki.server.PKIServer):
 
         self.symlink(PKIInstance.UNIT_FILE, self.unit_file, force=force)
 
-    def create_conf_dir(self, force=False):
+    def create_conf_dir(self, exist_ok=False):
 
-        super().create_conf_dir(force=force)
+        super().create_conf_dir(exist_ok=exist_ok)
 
         conf_link = os.path.join(self.base_dir, 'conf')
-        self.symlink(self.conf_dir, conf_link, force=force)
+        self.symlink(self.conf_dir, conf_link, force=True)
 
     def create_logging_properties(self, force=False):
 
@@ -303,9 +303,9 @@ class PKIInstance(pki.server.PKIServer):
 
         dependencies = project.findall('{%s}dependencies/{%s}dependency' % (xmlns, xmlns))
 
-        self.makedirs(self.lib_dir, force=force)
-        self.makedirs(self.common_dir, force=force)
-        self.makedirs(self.common_lib_dir, force=force)
+        self.makedirs(self.lib_dir, exist_ok=True)
+        self.makedirs(self.common_dir, exist_ok=True)
+        self.makedirs(self.common_lib_dir, exist_ok=True)
 
         for dependency in dependencies:
 

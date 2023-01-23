@@ -49,12 +49,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         instance.load()
 
         # Create /var/lib/pki/<instance>
-        instance.makedirs(deployer.mdict['pki_instance_path'], force=True)
+        instance.makedirs(deployer.mdict['pki_instance_path'], exist_ok=True)
 
         instance_conf_path = deployer.mdict['pki_instance_configuration_path']
 
         logger.info('Creating %s', instance_conf_path)
-        instance.makedirs(instance_conf_path, force=True)
+        instance.makedirs(instance_conf_path, exist_ok=True)
 
         logger.info('Creating %s', deployer.mdict['pki_shared_password_conf'])
 
@@ -181,11 +181,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # Create /etc/pki/<instance>/Catalina
         catalina_dir = os.path.join(instance_conf_path, 'Catalina')
-        instance.makedirs(catalina_dir, force=True)
+        instance.makedirs(catalina_dir, exist_ok=True)
 
         # Create /etc/pki/<instance>/Catalina/localhost
         localhost_dir = os.path.join(catalina_dir, 'localhost')
-        instance.makedirs(localhost_dir, force=True)
+        instance.makedirs(localhost_dir, exist_ok=True)
 
         # Rewrite rules are subsystem-specific, but the config is server-wide.
         # So we deploy them as part of the server config, regardless of which
@@ -280,7 +280,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                                     deployer.mdict['pki_systemd_service_link'])
 
         # Create /etc/sysconfig/pki/tomcat/<instance>
-        instance.makedirs(deployer.mdict['pki_instance_registry_path'], force=True)
+        instance.makedirs(deployer.mdict['pki_instance_registry_path'], exist_ok=True)
 
         # Copy /usr/share/pki/setup/pkidaemon_registry
         # to /etc/sysconfig/pki/tomcat/<instance>/<instance>

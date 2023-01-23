@@ -73,7 +73,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         deployer.file.modify(deployer.mdict['pki_shared_password_conf'])
 
         if not os.path.isdir(deployer.mdict['pki_server_database_path']):
-            instance.makedirs(deployer.mdict['pki_server_database_path'], force=True)
+            instance.makedirs(deployer.mdict['pki_server_database_path'], exist_ok=True)
 
         nssdb = pki.nssdb.NSSDatabase(
             directory=deployer.mdict['pki_server_database_path'],
@@ -417,7 +417,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         deployer.file.modify(deployer.mdict['pki_client_pkcs12_password_conf'])
 
-        pki.util.makedirs(deployer.mdict['pki_client_database_dir'], force=True)
+        pki.util.makedirs(deployer.mdict['pki_client_database_dir'], exist_ok=True)
 
         nssdb = pki.nssdb.NSSDatabase(
             directory=deployer.mdict['pki_client_database_dir'],
