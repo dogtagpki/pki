@@ -491,7 +491,6 @@ public abstract class EnrollProfile extends Profile {
         byte[] challenge = new byte[64];
         random.nextBytes(challenge);
 
-        CertificateAuthority authority = engine.getCA();
         PublicKey issuanceProtPubKey = engine.getIssuanceProtectionPublicKey();
         if (issuanceProtPubKey == null) {
             msg = method + "issuanceProtPubKey null";

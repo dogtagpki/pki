@@ -35,7 +35,6 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 
 import com.netscape.ca.CRLIssuingPoint;
-import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ICRLPrettyPrint;
@@ -158,10 +157,7 @@ public class GetCRL extends CMSServlet {
         CRLRepository crlRepository = engine.getCRLRepository();
 
         CRLIssuingPointRecord crlRecord = null;
-        CertificateAuthority ca = engine.getCA();
-        CRLIssuingPoint crlIP = null;
-        if (ca != null)
-            crlIP = engine.getCRLIssuingPoint(crlId);
+        CRLIssuingPoint crlIP = engine.getCRLIssuingPoint(crlId);
 
         try {
             crlRecord = crlRepository.readCRLIssuingPointRecord(crlId);

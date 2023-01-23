@@ -30,7 +30,6 @@ import org.dogtagpki.server.authentication.AuthenticationConfig;
 import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.util.Utils;
 
-import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authentication.EAuthUserError;
@@ -68,7 +67,6 @@ public class ChallengePhraseAuthentication extends AuthManager {
     public static final String CRED_CHALLENGE = Request.CHALLENGE_PHRASE;
     protected String[] mRequiredCreds = { CRED_CERT_SERIAL, CRED_CHALLENGE };
 
-    protected CertificateAuthority mCA;
     protected CertificateRepository mCertDB;
 
     private MessageDigest mSHADigest = null;
@@ -152,7 +150,6 @@ public class ChallengePhraseAuthentication extends AuthManager {
             throws EMissingCredential, EInvalidCredentials, EBaseException {
 
         CAEngine engine = CAEngine.getInstance();
-        mCA = engine.getCA();
         mCertDB = engine.getCertificateRepository();
 
         AuthToken authToken = new AuthToken(this);

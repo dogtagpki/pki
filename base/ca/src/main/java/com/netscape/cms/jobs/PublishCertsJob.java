@@ -24,7 +24,6 @@ import java.util.Enumeration;
 import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.MetaInfo;
@@ -64,7 +63,6 @@ public class PublishCertsJob extends Job
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PublishCertsJob.class);
 
-    CertificateAuthority mCa;
     RequestRepository requestRepository;
     RequestQueue mReqQ;
     CertificateRepository mRepository;
@@ -124,7 +122,6 @@ public class PublishCertsJob extends Job
         super.init(scheduler, id, implName, config);
 
         CAEngine engine = CAEngine.getInstance();
-        mCa = engine.getCA();
         requestRepository = engine.getRequestRepository();
         mReqQ = engine.getRequestQueue();
         mRepository = engine.getCertificateRepository();

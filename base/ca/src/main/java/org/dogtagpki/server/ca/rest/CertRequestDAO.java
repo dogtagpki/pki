@@ -31,7 +31,6 @@ import javax.ws.rs.core.UriInfo;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.ca.CAEngine;
 
-import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ca.AuthorityID;
@@ -64,7 +63,6 @@ public class CertRequestDAO extends CMSRequestDAO {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertRequestDAO.class);
 
-    private CertificateAuthority ca;
     ProfileSubsystem ps;
     private SecureRandom random = null;
 
@@ -76,7 +74,6 @@ public class CertRequestDAO extends CMSRequestDAO {
         requestRepository = engine.getRequestRepository();
         queue = engine.getRequestQueue();
 
-        ca = engine.getCA();
         if (engine.getEnableNonces()) {
             JssSubsystem jssSubsystem = engine.getJSSSubsystem();
             random = jssSubsystem.getRandomNumberGenerator();

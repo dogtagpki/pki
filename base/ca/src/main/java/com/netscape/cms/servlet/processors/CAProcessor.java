@@ -41,7 +41,6 @@ import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.base.BadRequestException;
@@ -129,7 +128,6 @@ public class CAProcessor extends Processor {
     protected String authMgr;
     protected String getClientCert = "false";
     // subsystems
-    protected CertificateAuthority authority;
     protected AuthzSubsystem authz;
     protected UGSubsystem ug;
     protected CertUserLocator ul;
@@ -148,7 +146,6 @@ public class CAProcessor extends Processor {
         CAEngine engine = CAEngine.getInstance();
         CAEngineConfig config = engine.getConfig();
 
-        authority = engine.getCA();
         authz = engine.getAuthzSubsystem();
         ug = engine.getUGSubsystem();
         ul = new ExactMatchCertUserLocator();
@@ -168,10 +165,6 @@ public class CAProcessor extends Processor {
 
         // currently unused but in servlet config
         // authId = cs.getString(AUTH_ID, "").isEmpty() ? null : cs.getString(AUTH_ID);
-
-        if (authority == null) {
-            throw new EBaseException("CAProcessor: authority is null");
-        }
 
         requestRepository = engine.getRequestRepository();
 

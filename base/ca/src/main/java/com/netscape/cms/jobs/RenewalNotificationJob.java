@@ -26,7 +26,6 @@ import java.util.StringTokenizer;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
 
-import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.MetaInfo;
@@ -175,7 +174,6 @@ public class RenewalNotificationJob
         };
 
     protected CertificateRepository mCertDB;
-    protected CertificateAuthority mCA;
     protected boolean mSummary = false;
     protected String mEmailSender = null;
     protected String mEmailSubject = null;
@@ -261,7 +259,6 @@ public class RenewalNotificationJob
         super.init(scheduler, id, implName, config);
 
         CAEngine engine = CAEngine.getInstance();
-        mCA = engine.getCA();
         mCertDB = engine.getCertificateRepository();
     }
 

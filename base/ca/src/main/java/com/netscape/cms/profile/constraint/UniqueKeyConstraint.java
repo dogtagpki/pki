@@ -30,7 +30,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 
-import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.property.Descriptor;
@@ -70,7 +69,6 @@ public class UniqueKeyConstraint extends EnrollConstraint {
     public static final String CONFIG_ALLOW_SAME_KEY_RENEWAL =
             "allowSameKeyRenewal";
     boolean mAllowSameKeyRenewal = false;
-    public CertificateAuthority mCA;
 
     public UniqueKeyConstraint() {
         super();
@@ -83,9 +81,6 @@ public class UniqueKeyConstraint extends EnrollConstraint {
     @Override
     public void init(ConfigStore config) throws EProfileException {
         super.init(config);
-
-        CAEngine engine = CAEngine.getInstance();
-        mCA = engine.getCA();
     }
 
     @Override
