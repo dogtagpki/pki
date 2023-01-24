@@ -49,18 +49,6 @@ jobs:
       - name: Connect PKI container to network
         run: docker network connect example pki --alias pki.example.com
 
-      - name: Set up client container
-        run: |
-          tests/bin/runner-init.sh client
-        env:
-          HOSTNAME: client.example.com
-
-      - name: Connect client container to network
-        run: |
-          docker network connect example client --alias client.example.com
-          docker inspect -f '{{ .NetworkSettings.Networks.example.IPAddress }}' client > client.ip
-          echo "Client's IP: `cat client.ip`"
-
       - name: Install CA in PKI container
         run: |
           docker exec pki pkispawn \
@@ -74,6 +62,22 @@ jobs:
 
           docker exec pki pki-server cert-find
 
+      - name: Set up client container
+        run: |
+          docker run \
+              --name client \
+              --hostname client.example.com \
+              --network example \
+              --network-alias client.example.com \
+              -it \
+              --detach \
+              quay.io/dogtagpki/sscep
+
+      - name: Get client's IP address
+        run: |
+          docker inspect -f '{{ .NetworkSettings.Networks.example.IPAddress }}' client > client.ip
+          echo "Client's IP: `cat client.ip`"
+
       # https://github.com/dogtagpki/pki/wiki/Configuring-SCEP-Responder
       - name: Configure SCEP in CA
         run: |
@@ -84,16 +88,6 @@ jobs:
 
           # restart CA subsystem
           docker exec pki pki-server ca-redeploy --wait
-
-      - name: Install SSCEP in client container
-        run: |
-          docker pull quay.io/dogtagpki/sscep-dist:latest
-          docker create --name=sscep-dist quay.io/dogtagpki/sscep-dist:latest
-          docker cp sscep-dist:/root/RPMS /tmp/RPMS/
-          docker rm -f sscep-dist
-
-          docker cp /tmp/RPMS/. client:/root/RPMS/
-          docker exec client bash -c "dnf localinstall -y /root/RPMS/*"
 
       # https://github.com/dogtagpki/pki/wiki/Certificate-Enrollment-with-SSCEP
       - name: Get CA certificate using SSCEP
@@ -139,7 +133,6 @@ jobs:
               -E aes \
               -S sha256
           docker exec client openssl x509 -text -noout -in local.crt
-
 
       - name: Gather artifacts
         if: always()
