@@ -783,11 +783,12 @@ public class TPSTokendb {
         boolean revokeCerts = configStore.getBoolean(config, true);
 
         if (!revokeCerts) {
-            throw new TPSException(
+            CMS.debug( method +
                     "certificate revocation (serial " + cert.getSerialNumber() +
                     ") not enabled for tokenType: " + tokenType +
                     ", keyType: " + keyType +
                     ", state: " + tokenReason);
+            return;
         }
 
         // check if expired certificates should be revoked.
@@ -800,12 +801,14 @@ public class TPSTokendb {
             Date notAfter = cert.getValidNotAfter();
             Date now = new Date();
             if (now.after(notAfter)) {
-                throw new TPSException(
+                CMS.debug(method +
                         "revocation not enabled for expired cert: " + cert.getSerialNumber());
+                return;
             }
             if (now.before(notBefore)) {
-                throw new TPSException(
+                CMS.debug(method +
                         "revocation not enabled for cert that is not yet valid: " + cert.getSerialNumber());
+                return;
             }
         }
 
