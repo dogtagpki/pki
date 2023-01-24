@@ -527,7 +527,15 @@ var Table = Backbone.View.extend({
 
         _(self.entries).each(function(item, index) {
             if (!self.matchesFilter(item, self.searchFilter)) return;
-            self.filteredEntries.push(item);
+            if (item["name"]) {
+                //object is already a property
+                self.filteredEntries.push(item);
+            } else {
+                var property = {};
+                property["name"] = index;
+                property["value"] = item;
+                self.filteredEntries.push(property);
+            }
         });
 
         self.sort();

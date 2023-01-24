@@ -26,16 +26,14 @@ var ConnectorModel = Model.extend({
             id: response.id,
             connectorID: response.id,
             status: response.Status,
-            properties: response.Properties.Property
+            properties: response.Properties
         };
     },
     createRequest: function(attributes) {
         return {
             id: attributes.connectorID,
             Status: attributes.status,
-            Properties: {
-                Property: attributes.properties
-            }
+            Properties: attributes.properties
         };
     },
     changeStatus: function(action, options) {
@@ -57,9 +55,6 @@ var ConnectorCollection = Collection.extend({
     urlRoot: "/tps/rest/connectors",
     getEntries: function(response) {
         return response.entries;
-    },
-    getLinks: function(response) {
-        return response.Link;
     },
     parseEntry: function(entry) {
         return new ConnectorModel({

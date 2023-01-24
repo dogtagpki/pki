@@ -447,10 +447,17 @@ var ConfigEntryPage = EntryPage.extend({
 
         var text = "";
         _.each(properties, function(property) {
-            var name = property.name;
-            var value = property.value;
-            text += name + "=" + value + "\n";
+            if (property.name) {
+                var name = property.name;
+                var value = property.value;
+                text += name + "=" + value + "\n";
+            }
         });
+        if (text.length == 0) {
+            for (var property in properties) {
+                 text += property + "=" + properties[property] + "\n";
+            }
+        }
         self.propertiesTextarea.val(text);
     },
     getProperties: function() {
