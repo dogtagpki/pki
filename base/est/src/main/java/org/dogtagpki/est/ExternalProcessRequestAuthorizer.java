@@ -196,7 +196,17 @@ public class ExternalProcessRequestAuthorizer extends ESTRequestAuthorizer {
                 roles = ((GenericPrincipal) data.principal).getRoles();
             }
             generator.writeFieldName("roles");
-            generator.writeArray(roles, 0, roles.length);
+
+            // use this code to work with Jackson 2.10
+            generator.writeStartArray();
+            for (String role : roles) {
+                generator.writeString(role);
+            }
+            generator.writeEndArray();
+
+            // TODO: if Jackson 2.10 no longer needs to be
+            // supported, replace the above code with this:
+            // generator.writeArray(roles, 0, roles.length);
 
             generator.writeEndObject();  // end principal
 
