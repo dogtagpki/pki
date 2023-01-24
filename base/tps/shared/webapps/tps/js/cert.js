@@ -59,9 +59,6 @@ var CertificateCollection = Collection.extend({
     getEntries: function(response) {
         return response.entries;
     },
-    getLinks: function(response) {
-        return response.Link;
-    },
     parseEntry: function(entry) {
         var custModifyTime = (entry.ModifyTime == null) ? undefined : new Date(entry.ModifyTime)
         return new CertificateModel({

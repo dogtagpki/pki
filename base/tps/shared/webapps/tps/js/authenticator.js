@@ -26,16 +26,14 @@ var AuthenticatorModel = Model.extend({
             id: response.id,
             authenticatorID: response.id,
             status: response.Status,
-            properties: response.Properties.Property
+            properties: response.Properties
         };
     },
     createRequest: function(attributes) {
         return {
             id: attributes.authenticatorID,
             Status: attributes.status,
-            Properties: {
-                Property: attributes.properties
-            }
+            properties: attributes.properties
         };
     },
     changeStatus: function(action, options) {
@@ -57,9 +55,6 @@ var AuthenticatorCollection = Collection.extend({
     urlRoot: "/tps/rest/authenticators",
     getEntries: function(response) {
         return response.entries;
-    },
-    getLinks: function(response) {
-        return response.Link;
     },
     parseEntry: function(entry) {
         return new AuthenticatorModel({

@@ -26,7 +26,7 @@ var ProfileModel = Model.extend({
             id: response.id,
             profileID: response.id,
             status: response.Status,
-            properties: response.Properties.Property
+            properties: response.Properties
         };
     },
     createRequest: function(attributes) {
@@ -34,9 +34,7 @@ var ProfileModel = Model.extend({
             id: attributes.id,
             ProfileID: attributes.profileID,
             Status: attributes.status,
-            Properties: {
-                Property: attributes.properties
-            }
+            Properties: attributes.properties
         };
     },
     changeStatus: function(action, options) {
@@ -58,9 +56,6 @@ var ProfileCollection = Collection.extend({
     urlRoot: "/tps/rest/profiles",
     getEntries: function(response) {
         return response.entries;
-    },
-    getLinks: function(response) {
-        return response.Link;
     },
     parseEntry: function(entry) {
         return new ProfileModel({

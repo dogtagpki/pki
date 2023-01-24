@@ -27,15 +27,13 @@ var ConfigModel = Model.extend({
         return {
             id: "config",
             status: response.Status,
-            properties: response.Properties.Property
+            properties: response.Properties
         };
     },
     createRequest: function(entry) {
         return {
             Status: entry.status,
-            Properties: {
-                Property: entry.properties
-            }
+            Properties: entry.properties
         };
     }
 });
@@ -127,12 +125,19 @@ var ConfigPage = EntryPage.extend({
         self.propertiesTable.render();
 
         var text = "";
-        _.each(properties, function(property) {
-            var name = property.name;
-            var value = property.value;
-            text += name + "=" + value + "\n";
+         _.each(properties, function(property) {
+            if (property.name) {
+                var name = property.name;
+                var value = property.value;
+                text += name + "=" + value + "\n";
+            }
         });
-        self.propertiesTextarea.val(text);
+        if (text.length == 0) {
+            for (var property in properties) {
+                 text += property + "=" + properties[property] + "\n";
+            }
+        }
+         self.propertiesTextarea.val(text);
     },
     getProperties: function() {
         var self = this;

@@ -26,16 +26,14 @@ var ProfileMappingModel = Model.extend({
             id: response.id,
             profileMappingID: response.id,
             status: response.Status,
-            properties: response.Properties.Property
+            properties: response.Properties
         };
     },
     createRequest: function(attributes) {
         return {
             id: attributes.profileMappingID,
             Status: attributes.status,
-            Properties: {
-                Property: attributes.properties
-            }
+            properties: attributes.properties
         };
     },
     changeStatus: function(action, options) {
@@ -57,9 +55,6 @@ var ProfileMappingCollection = Collection.extend({
     urlRoot: "/tps/rest/profile-mappings",
     getEntries: function(response) {
         return response.entries;
-    },
-    getLinks: function(response) {
-        return response.Link;
     },
     parseEntry: function(entry) {
         return new ProfileMappingModel({

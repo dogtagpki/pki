@@ -87,9 +87,6 @@ var TokenCollection = Collection.extend({
     getEntries: function(response) {
         return response.entries;
     },
-    getLinks: function(response) {
-        return response.Link;
-    },
     parseEntry: function(entry) {
         var custModifyTimestamp = (entry.ModifyTimestamp == null) ? undefined : new Date(entry.ModifyTimestamp)
         return new TokenModel({
