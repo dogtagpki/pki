@@ -50,16 +50,6 @@ jobs:
       - name: Connect PKI container to network
         run: docker network connect example pki --alias pki.example.com
 
-      - name: Set up client container
-        run: |
-          tests/bin/runner-init.sh client
-        env:
-          HOSTNAME: client.example.com
-
-      - name: Connect client container to network
-        run: |
-          docker network connect example client --alias client.example.com
-
       - name: Install CA
         run: |
           docker exec pki pkispawn \
@@ -135,21 +125,24 @@ jobs:
           docker cp realm.conf pki:/etc/pki/pki-tomcat/est/realm.conf
           docker exec pki pki-server restart --wait
 
-      - name: Install libEST in client container
+      - name: Set up client container
         run: |
-          docker pull quay.io/dogtagpki/libest-dist:latest
-          docker create --name=libest-dist quay.io/dogtagpki/libest-dist:latest
-          docker cp libest-dist:/root/RPMS /tmp/RPMS/
-          docker rm -f libest-dist
+          docker run \
+              --name client \
+              --hostname client.example.com \
+              --network example \
+              --network-alias client.example.com \
+              -it \
+              --detach \
+              quay.io/dogtagpki/libest
 
-          docker cp /tmp/RPMS/. client:/root/RPMS/
-          docker exec client bash -c "dnf localinstall -y /root/RPMS/*"
-
-      - name: Configure the client
+      - name: Get CA certificate
         run: |
           docker exec client curl -o cacert.p7 -k https://pki.example.com:8443/.well-known/est/cacerts
           docker exec client openssl base64 -d --in cacert.p7 --out cacert.p7.der
           docker exec client openssl pkcs7 --in cacert.p7.der -inform DER -print_certs -out cacert.pem
+          docker exec client openssl x509 -in cacert.pem -text -noout
+
           echo "subject=O = EXAMPLE, OU = pki-tomcat, CN = CA Signing Certificate" > expected
           docker exec client openssl x509 -in cacert.pem -noout -subject | tee actual
           diff actual expected
@@ -159,6 +152,8 @@ jobs:
           docker exec -e EST_OPENSSL_CACERT=cacert.pem client estclient -e -s pki.example.com -p 8443 --common-name client.example.com -o . -u alice -h 4me2Test
           docker exec client openssl base64 -d --in cert-0-0.pkcs7 --out cert-0-0.pkcs7.der
           docker exec client openssl pkcs7 -in cert-0-0.pkcs7.der -inform DER -print_certs -out cert.pem
+          docker exec client openssl x509 -in cert.pem -text -noout
+
           docker exec client openssl x509 -in cert.pem -noout -subject -issuer | tee actual
           echo "subject=CN = client.example.com" > expected
           echo "issuer=O = EXAMPLE, OU = pki-tomcat, CN = CA Signing Certificate" >> expected
