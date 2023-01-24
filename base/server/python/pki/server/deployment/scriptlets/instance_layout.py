@@ -140,19 +140,19 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         instance.symlink(
             os.path.join(shared_conf_path, 'catalina.properties'),
             os.path.join(instance_conf_path, 'catalina.properties'),
-            force=True)
+            exist_ok=True)
 
         # Link /etc/pki/<instance>/context.xml
         # to /usr/share/tomcat/conf/context.xml.
         context_xml = os.path.join(pki.server.Tomcat.CONF_DIR, 'context.xml')
-        instance.symlink(context_xml, instance.context_xml, force=True)
+        instance.symlink(context_xml, instance.context_xml, exist_ok=True)
 
         # Link /etc/pki/<instance>/logging.properties
         # to /usr/share/pki/server/conf/logging.properties.
         instance.symlink(
             os.path.join(shared_conf_path, 'logging.properties'),
             os.path.join(instance_conf_path, 'logging.properties'),
-            force=True)
+            exist_ok=True)
 
         # Copy /usr/share/pki/server/conf/tomcat.conf
         # to /etc/sysconfig/<instance>
@@ -171,7 +171,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # Link /etc/pki/<instance>/web.xml
         # to /usr/share/tomcat/conf/web.xml.
         web_xml = os.path.join(pki.server.Tomcat.CONF_DIR, 'web.xml')
-        instance.symlink(web_xml, instance.web_xml, force=True)
+        instance.symlink(web_xml, instance.web_xml, exist_ok=True)
 
         # Create /etc/pki/<instance>/Catalina
         catalina_dir = os.path.join(instance_conf_path, 'Catalina')
@@ -189,7 +189,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         instance.symlink(
             os.path.join(shared_conf_path, 'Catalina', 'localhost', 'rewrite.config'),
             os.path.join(localhost_dir, 'rewrite.config'),
-            force=True,
+            exist_ok=True,
         )
 
         logger.info('Deploying ROOT web application')

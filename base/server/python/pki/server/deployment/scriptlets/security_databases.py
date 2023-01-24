@@ -91,12 +91,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             instance.symlink(
                 deployer.mdict['pki_server_database_path'],
                 deployer.mdict['pki_instance_database_link'],
-                force=True)
+                exist_ok=True)
 
         instance.symlink(
             deployer.mdict['pki_instance_database_link'],
             deployer.mdict['pki_subsystem_database_link'],
-            force=True)
+            exist_ok=True)
 
         if config.str2bool(deployer.mdict['pki_hsm_enable']) and \
                 deployer.mdict['pki_hsm_modulename'] and \

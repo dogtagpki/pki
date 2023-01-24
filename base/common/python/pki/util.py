@@ -119,15 +119,18 @@ def makedirs(
     os.chown(path, uid, gid)
 
 
-def symlink(source, dest, uid=-1, gid=-1, force=False):
+def symlink(
+        source,
+        dest,
+        uid=-1,
+        gid=-1,
+        exist_ok=False):
 
     logger.debug('Command: ln -s %s %s', source, dest)
 
-    if force and os.path.exists(dest):
-        logger.warning('Link already exists: %s', dest)
-        return
+    if not exist_ok or not os.path.exists(dest):
+        os.symlink(source, dest)
 
-    os.symlink(source, dest)
     os.lchown(dest, uid, gid)
 
 

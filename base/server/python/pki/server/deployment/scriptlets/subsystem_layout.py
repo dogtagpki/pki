@@ -104,7 +104,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # to /etc/pki/<instance>/ca/emails
             emails_path = os.path.join(instance.conf_dir, 'ca', 'emails')
             emails_link = os.path.join(instance.base_dir, 'ca', 'emails')
-            instance.symlink(emails_path, emails_link)
+            instance.symlink(emails_path, emails_link, exist_ok=True)
 
             # Copy /usr/share/pki/ca/profiles
             # to /etc/pki/<instance>/ca/profiles
@@ -116,7 +116,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # to /etc/pki/<instance>/ca/profiles
             profiles_path = os.path.join(instance.conf_dir, 'ca', 'profiles')
             profiles_link = os.path.join(instance.base_dir, 'ca', 'profiles')
-            instance.symlink(profiles_path, profiles_link)
+            instance.symlink(profiles_path, profiles_link, exist_ok=True)
 
             # Copy /usr/share/pki/<subsystem>/conf/flatfile.txt
             # to /etc/pki/<instance>/<subsystem>/flatfile.txt
@@ -188,19 +188,22 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # to /etc/pki/<instance>/<subsystem>
         instance.symlink(
             deployer.mdict['pki_subsystem_configuration_path'],
-            deployer.mdict['pki_subsystem_conf_link'])
+            deployer.mdict['pki_subsystem_conf_link'],
+            exist_ok=True)
 
         # Link /var/lib/pki/<instance>/<subsystem>/logs
         # to /var/log/pki/<instance>/<subsystem>
         instance.symlink(
             deployer.mdict['pki_subsystem_log_path'],
-            deployer.mdict['pki_subsystem_logs_link'])
+            deployer.mdict['pki_subsystem_logs_link'],
+            exist_ok=True)
 
         # Link /var/lib/pki/<instance>/<subsystem>/registry
         # to /etc/sysconfig/pki/tomcat/<instance>
         instance.symlink(
             deployer.mdict['pki_instance_registry_path'],
-            deployer.mdict['pki_subsystem_registry_link'])
+            deployer.mdict['pki_subsystem_registry_link'],
+            exist_ok=True)
 
         instance.load()
 

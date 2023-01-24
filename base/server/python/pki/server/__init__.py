@@ -607,12 +607,16 @@ grant codeBase "file:%s" {
             gid=self.gid,
             force=force)
 
-    def symlink(self, source, dest, force=False):
+    def symlink(self, source, dest, exist_ok=False):
 
         logger.info('Creating %s', dest)
 
         pki.util.symlink(
-            source, dest, uid=self.uid, gid=self.gid, force=force)
+            source,
+            dest,
+            uid=self.uid,
+            gid=self.gid,
+            exist_ok=exist_ok)
 
     def copy(self, source, dest, force=False):
 
@@ -662,7 +666,7 @@ grant codeBase "file:%s" {
         self.makedirs(self.base_dir, exist_ok=True)
 
         bin_dir = os.path.join(Tomcat.SHARE_DIR, 'bin')
-        self.symlink(bin_dir, self.bin_dir, force=force)
+        self.symlink(bin_dir, self.bin_dir, exist_ok=True)
 
         self.create_conf_dir(exist_ok=True)
 
@@ -671,10 +675,10 @@ grant codeBase "file:%s" {
 
         catalina_properties = os.path.join(
             PKIServer.SHARE_DIR, 'server', 'conf', 'catalina.properties')
-        self.symlink(catalina_properties, self.catalina_properties, force=force)
+        self.symlink(catalina_properties, self.catalina_properties, exist_ok=True)
 
         context_xml = os.path.join(Tomcat.CONF_DIR, 'context.xml')
-        self.symlink(context_xml, self.context_xml, force=force)
+        self.symlink(context_xml, self.context_xml, exist_ok=True)
 
         self.create_logging_properties(force=force)
         self.create_server_xml()
@@ -695,7 +699,7 @@ grant codeBase "file:%s" {
         tomcat_conf.write()
 
         web_xml = os.path.join(Tomcat.CONF_DIR, 'web.xml')
-        self.symlink(web_xml, self.web_xml, force=force)
+        self.symlink(web_xml, self.web_xml, exist_ok=True)
 
         self.create_libs(force=force)
 
@@ -724,7 +728,7 @@ grant codeBase "file:%s" {
                     PKIServer.SHARE_DIR, 'server', 'conf',
                     'Catalina', 'localhost', 'rewrite.config')
                 link = os.path.join(host_dir, 'rewrite.config')
-                self.symlink(target, link, force=force)
+                self.symlink(target, link, exist_ok=True)
 
         service_conf = os.path.join(SYSCONFIG_DIR, 'tomcat')
         self.copy(service_conf, self.service_conf, force=force)
@@ -828,15 +832,15 @@ grant codeBase "file:%s" {
                 valve.set('className', REWRITE_VALVE_CLASS)
                 host.append(valve)
 
-    def create_libs(self, force=False):
+    def create_libs(self, force=False):  # pylint: disable=W0613
 
         lib_dir = os.path.join(PKIServer.SHARE_DIR, 'server', 'lib')
-        self.symlink(lib_dir, self.lib_dir, force=force)
+        self.symlink(lib_dir, self.lib_dir, exist_ok=True)
 
         self.makedirs(self.common_dir, exist_ok=True)
 
         common_lib_dir = os.path.join(PKIServer.SHARE_DIR, 'server', 'common', 'lib')
-        self.symlink(common_lib_dir, self.common_lib_dir, force=force)
+        self.symlink(common_lib_dir, self.common_lib_dir, exist_ok=True)
 
     def create_nssdb(self, force=False):
 
@@ -848,7 +852,7 @@ grant codeBase "file:%s" {
 
         self.makedirs(self.nssdb_dir, exist_ok=True)
 
-        self.symlink(self.nssdb_dir, self.nssdb_link, force=force)
+        self.symlink(self.nssdb_dir, self.nssdb_link, exist_ok=True)
 
         password = self.passwords.get(pki.nssdb.INTERNAL_TOKEN_NAME)
 

@@ -234,7 +234,7 @@ class PKIInstance(pki.server.PKIServer):
         super().create(force=force)
 
         logs_link = os.path.join(self.base_dir, 'logs')
-        self.symlink(self.log_dir, logs_link, force=force)
+        self.symlink(self.log_dir, logs_link, exist_ok=True)
 
         self.makedirs(self.registry_dir, exist_ok=True)
 
@@ -250,20 +250,20 @@ class PKIInstance(pki.server.PKIServer):
                 'PKI_INSTANCE_PATH': self.base_dir
             })
 
-        self.symlink(PKIInstance.UNIT_FILE, self.unit_file, force=force)
+        self.symlink(PKIInstance.UNIT_FILE, self.unit_file, exist_ok=True)
 
     def create_conf_dir(self, exist_ok=False):
 
         super().create_conf_dir(exist_ok=exist_ok)
 
         conf_link = os.path.join(self.base_dir, 'conf')
-        self.symlink(self.conf_dir, conf_link, force=True)
+        self.symlink(self.conf_dir, conf_link, exist_ok=exist_ok)
 
     def create_logging_properties(self, force=False):
 
         logging_properties = os.path.join(
             pki.server.PKIServer.SHARE_DIR, 'server', 'conf', 'logging.properties')
-        self.symlink(logging_properties, self.logging_properties, force=force)
+        self.symlink(logging_properties, self.logging_properties, exist_ok=True)
 
     def create_libs(self, force=False):
 
@@ -343,7 +343,7 @@ class PKIInstance(pki.server.PKIServer):
             dest = os.path.join(self.common_lib_dir, filename)
 
             logger.info('Linking %s to %s', dest, source)
-            self.symlink(source, dest, force=force)
+            self.symlink(source, dest, exist_ok=True)
 
     def load(self):
 
