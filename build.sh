@@ -33,7 +33,7 @@ CMAKE="cmake"
 JNI_DIR="/usr/lib/java"
 UNIT_DIR="/usr/lib/systemd/system"
 
-PYTHON="/usr/bin/python3"
+PYTHON=
 PYTHON_DIR=
 
 INSTALL_DIR=
@@ -406,6 +406,8 @@ if [ "$DEBUG" = true ] ; then
     echo "CMAKE: $CMAKE"
     echo "JAVA_HOME: $JAVA_HOME"
     echo "JNI_DIR: $JNI_DIR"
+    echo "PYTHON: $PYTHON"
+    echo "PYTHON_DIR: $PYTHON_DIR"
     echo "UNIT_DIR: $UNIT_DIR"
     echo "INSTALL_DIR: $INSTALL_DIR"
     echo "BUILD_TARGET: $BUILD_TARGET"
@@ -591,22 +593,6 @@ if [ "$DEBUG" = true ] ; then
     echo "APP_SERVER: $APP_SERVER"
 fi
 
-if [ "$PYTHON" = "" ] ; then
-    # if release not specified, get from spec template
-
-    regex=$'%global *python_executable *([^\n]+)'
-    if [[ $spec =~ $regex ]] ; then
-        PYTHON="${BASH_REMATCH[1]}"
-    else
-        echo "ERROR: Missing python_executable macro in $SPEC_TEMPLATE"
-        exit 1
-    fi
-fi
-
-if [ "$DEBUG" = true ] ; then
-    echo "PYTHON: $PYTHON"
-fi
-
 ################################################################################
 # Build PKI
 ################################################################################
@@ -661,7 +647,9 @@ if [ "$BUILD_TARGET" = "dist" ] ; then
     OPTIONS+=(-DJAVA_LIB_INSTALL_DIR=$JNI_DIR)
     OPTIONS+=(-DAPP_SERVER=$APP_SERVER)
 
-    OPTIONS+=(-DPYTHON_EXECUTABLE=$PYTHON)
+    if [ "$PYTHON" != "" ] ; then
+        OPTIONS+=(-DPYTHON_EXECUTABLE=$PYTHON)
+    fi
 
     if [ "$PYTHON_DIR" != "" ] ; then
         OPTIONS+=(-DPYTHON3_SITE_PACKAGES=$PYTHON_DIR)

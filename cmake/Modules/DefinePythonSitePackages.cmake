@@ -33,5 +33,5 @@ message(STATUS "Building pki.server for ${PYTHON_VERSION_STRING}")
 
 if (NOT DEFINED PYTHON3_SITE_PACKAGES)
     # Find default site-packages for Python 3
-    find_site_packages("python3" PYTHON3_SITE_PACKAGES)
+    find_site_packages(${PYTHON_EXECUTABLE} PYTHON3_SITE_PACKAGES)
 endif(NOT DEFINED PYTHON3_SITE_PACKAGES)

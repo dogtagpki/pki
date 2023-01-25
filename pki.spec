@@ -60,12 +60,6 @@ ExcludeArch: i686
 %global p11_kit_trust /usr/lib64/pkcs11/p11-kit-trust.so
 
 ################################################################################
-# Python
-################################################################################
-
-%global python_executable /usr/bin/python3
-
-################################################################################
 # Java
 ################################################################################
 
@@ -850,7 +844,8 @@ pkgs=base\
     --java-home=%{java_home} \
     --jni-dir=%{_jnidir} \
     --unit-dir=%{_unitdir} \
-    --python=%{python_executable} \
+    --python=%{python3} \
+    --python-dir=%{python3_sitelib} \
     --with-pkgs=$pkgs \
     %{?with_console:--with-console} \
     %{!?with_test:--without-test} \

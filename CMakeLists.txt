@@ -27,6 +27,10 @@ if (NOT DEFINED P11_KIT_TRUST)
     set(P11_KIT_TRUST "/usr/lib64/pkcs11/p11-kit-trust.so")
 endif(NOT DEFINED P11_KIT_TRUST)
 
+if (NOT DEFINED PYTHON_EXECUTABLE)
+    set(PYTHON_EXECUTABLE "/usr/bin/python3")
+endif(NOT DEFINED PYTHON_EXECUTABLE)
+
 if (NOT DEFINED THEME)
     set(THEME "dogtag")
 endif(NOT DEFINED THEME)
