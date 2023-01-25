@@ -1468,7 +1468,8 @@ class PKISubsystem(object):
                  user_type=None,
                  state=None,
                  tps_profiles=None,
-                 as_current_user=False):
+                 as_current_user=False,
+                 attributes=None):
 
         tmpdir = tempfile.mkdtemp()
 
@@ -1507,6 +1508,14 @@ class PKISubsystem(object):
             if tps_profiles:
                 cmd.append('--tps-profiles')
                 cmd.append(','.join(tps_profiles))
+
+            if attributes:
+                cmd.append('--attributes')
+                attr_str = ''
+                for key in attributes:
+                    attr_str += key + ':' + attributes[key] + ','
+                attr_str = attr_str.strip(',')
+                cmd.append(attr_str)
 
             if logger.isEnabledFor(logging.DEBUG):
                 cmd.append('--debug')
