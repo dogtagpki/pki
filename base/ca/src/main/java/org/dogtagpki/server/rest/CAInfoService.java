@@ -42,6 +42,7 @@ import com.netscape.certsrv.connector.ConnectorsConfig;
 import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.cms.servlet.admin.KRAConnectorProcessor;
 import com.netscape.cms.servlet.base.PKIService;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -191,7 +192,7 @@ public class CAInfoService extends PKIService implements CAInfoResource {
         ClientConfig config = new ClientConfig();
         int port = Integer.parseInt(connInfo.getPort());
         config.setServerURL("https", connInfo.getHost(), port);
-        config.setNSSDatabase(cs.getInstanceDir() + "/alias");
+        config.setNSSDatabase(CMS.getInstanceDir() + "/alias");
 
         // Use client cert specified in KRA connector
         String nickname = kraConnectorConfig.getString("nickName", null);

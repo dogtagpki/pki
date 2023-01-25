@@ -43,8 +43,8 @@ public abstract class SubsystemCLI extends CommandCLI {
 
     protected EngineConfig getEngineConfig(String subsystem) throws Exception {
 
-        String catalinaBase = System.getProperty("catalina.base");
-        String configDir = catalinaBase + File.separator + subsystem;
+        String instanceDir = CMS.getInstanceDir();
+        String configDir = instanceDir + File.separator + subsystem;
         String configFile = configDir + File.separator + "conf" + File.separator + CMS.CONFIG_FILE;
         logger.debug("{}: Loading {}", getClass().getSimpleName(), configFile);
 

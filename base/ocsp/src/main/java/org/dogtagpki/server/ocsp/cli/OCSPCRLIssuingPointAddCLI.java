@@ -68,9 +68,9 @@ public class OCSPCRLIssuingPointAddCLI extends CommandCLI {
         tomcatjss.loadConfig();
         tomcatjss.init();
 
-        String catalinaBase = System.getProperty("catalina.base");
+        String instanceDir = CMS.getInstanceDir();
         String subsystem = parent.getParent().getParent().getName();
-        String subsystemDir = catalinaBase + File.separator + subsystem;
+        String subsystemDir = instanceDir + File.separator + subsystem;
         String configFile = subsystemDir + File.separator +
                 "conf" + File.separator + CMS.CONFIG_FILE;
 

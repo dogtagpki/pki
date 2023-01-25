@@ -94,7 +94,7 @@ public class ACLInterceptor implements ContainerRequestFilter {
         }
 
         // load custom mapping
-        File customMapping = new File(System.getProperty("catalina.base")
+        File customMapping = new File(CMS.getInstanceDir()
                 + "/" + subsystem + "/conf/acl.properties");
         logger.debug("ACLInterceptor: checking " + customMapping);
         if (customMapping.exists()) {

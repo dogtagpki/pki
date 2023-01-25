@@ -51,7 +51,7 @@ public class SubsystemService extends PKIService {
     }
 
     public String getSubsystemConfDir() {
-        return getInstanceDir() + File.separator + getSubsystemName() + File.separator + "conf";
+        return CMS.getInstanceDir() + File.separator + getSubsystemName() + File.separator + "conf";
     }
 
     public String getSharedSubsystemConfDir() {

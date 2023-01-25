@@ -64,6 +64,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.cms.realm.RealmCommon;
 import com.netscape.cms.realm.RealmConfig;
 import com.netscape.cms.tomcat.ProxyRealm;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * @author Endi S. Dewata
@@ -446,8 +447,8 @@ public class ACMEEngine {
 
         logger.info("Starting ACME engine");
 
-        String catalinaBase = System.getProperty("catalina.base");
-        String serverConfDir = catalinaBase + File.separator + "conf";
+        String instanceDir = CMS.getInstanceDir();
+        String serverConfDir = instanceDir + File.separator + "conf";
         String acmeConfDir = serverConfDir + File.separator + id;
 
         logger.info("ACME configuration directory: " + acmeConfDir);

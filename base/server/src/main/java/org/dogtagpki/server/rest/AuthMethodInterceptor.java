@@ -42,6 +42,7 @@ import com.netscape.certsrv.authentication.AuthMethodMapping;
 import com.netscape.certsrv.authentication.ExternalAuthToken;
 import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.cms.realm.PKIPrincipal;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * @author Endi S. Dewata
@@ -77,7 +78,7 @@ public class AuthMethodInterceptor implements ContainerRequestFilter {
         }
 
         // load custom mapping
-        File customMapping = new File(System.getProperty("catalina.base") +
+        File customMapping = new File(CMS.getInstanceDir() +
                 "/" + subsystem + "/conf/auth-method.properties");
         logger.debug("AuthMethodInterceptor: checking " + customMapping);
         if (customMapping.exists()) {

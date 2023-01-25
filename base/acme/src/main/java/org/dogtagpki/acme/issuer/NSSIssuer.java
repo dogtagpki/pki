@@ -26,6 +26,7 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmsutil.password.IPasswordStore;
 import com.netscape.cmsutil.password.PlainPasswordFile;
 
@@ -50,7 +51,7 @@ public class NSSIssuer extends ACMEIssuer {
 
         logger.info("Initializing NSS issuer");
 
-        Path instanceDir = Paths.get(System.getProperty("catalina.base"));
+        Path instanceDir = Paths.get(CMS.getInstanceDir());
 
         String database = config.getParameter("database");
         if (database == null) database = "conf/alias";

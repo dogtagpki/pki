@@ -28,6 +28,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.profile.common.ProfileConfig;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.FileConfigStorage;
@@ -123,15 +124,8 @@ public class ProfileSubsystem
         CAEngineConfig engineConfig = engine.getConfig();
         PluginRegistry registry = engine.getPluginRegistry();
 
-        try {
-            if (configPath == null) {
-                configPath = engineConfig.getInstanceDir() + "/ca/profiles/ca/" + id + ".cfg";
-            }
-
-        } catch (EBaseException e) {
-            String message = "Unable to create profile: " + e.getMessage();
-            logger.error(message, e);
-            throw new EProfileException(message, e);
+        if (configPath == null) {
+            configPath = CMS.getInstanceDir() + "/ca/profiles/ca/" + id + ".cfg";
         }
 
         try {
@@ -171,12 +165,7 @@ public class ProfileSubsystem
         CAEngine engine = CAEngine.getInstance();
         CAEngineConfig cs = engine.getConfig();
 
-        String configPath;
-        try {
-            configPath = cs.getInstanceDir() + "/ca/profiles/ca/" + id + ".cfg";
-        } catch (EBaseException e) {
-            throw new EProfileException("CMS_PROFILE_DELETE_ERROR");
-        }
+        String configPath = CMS.getInstanceDir() + "/ca/profiles/ca/" + id + ".cfg";
 
         if (isProfileEnable(id)) {
             throw new EProfileException("CMS_PROFILE_DELETE_ENABLEPROFILE");
@@ -222,12 +211,7 @@ public class ProfileSubsystem
         CAEngine engine = CAEngine.getInstance();
         CAEngineConfig cs = engine.getConfig();
 
-        String configPath;
-        try {
-            configPath = cs.getInstanceDir() + "/ca/profiles/ca/" + id + ".cfg";
-        } catch (EBaseException e) {
-            throw new EProfileException("CMS_PROFILE_DELETE_ERROR");
-        }
+        String configPath = CMS.getInstanceDir() + "/ca/profiles/ca/" + id + ".cfg";
 
         try {
             if (mProfiles.size() > 0) {

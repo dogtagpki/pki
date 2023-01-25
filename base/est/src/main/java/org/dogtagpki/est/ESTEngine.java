@@ -13,6 +13,7 @@ import org.apache.tomcat.util.IntrospectionUtils;
 import com.netscape.cms.realm.RealmCommon;
 import com.netscape.cms.realm.RealmConfig;
 import com.netscape.cms.tomcat.ProxyRealm;
+import com.netscape.cmscore.apps.CMS;
 
 
 /**
@@ -53,8 +54,8 @@ public class ESTEngine {
         logger.info("Starting EST engine");
 
         String contextPathDirName = "".equals(contextPath) ? "ROOT" : contextPath.substring(1);
-        String catalinaBase = System.getProperty("catalina.base");
-        String serverConfDir = catalinaBase + File.separator + "conf";
+        String instanceDir = CMS.getInstanceDir();
+        String serverConfDir = instanceDir + File.separator + "conf";
         String estConfDir = serverConfDir + File.separator + contextPathDirName;
 
         logger.info("EST configuration directory: " + estConfDir);

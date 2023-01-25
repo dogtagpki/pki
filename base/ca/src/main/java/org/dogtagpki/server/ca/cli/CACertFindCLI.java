@@ -81,14 +81,14 @@ public class CACertFindCLI extends CommandCLI {
 
         int size = 20;
 
-        String catalinaBase = System.getProperty("catalina.base");
+        String instanceDir = CMS.getInstanceDir();
 
         TomcatJSS tomcatjss = TomcatJSS.getInstance();
         tomcatjss.loadConfig();
         tomcatjss.init();
 
         String subsystem = parent.getParent().getName();
-        String confDir = catalinaBase + File.separator + subsystem + File.separator + "conf";
+        String confDir = instanceDir + File.separator + subsystem + File.separator + "conf";
         String configFile = confDir + File.separator + CMS.CONFIG_FILE;
 
         logger.info("Loading " + configFile);
