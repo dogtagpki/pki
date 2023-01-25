@@ -41,14 +41,7 @@ public class TPSPhoneHome extends HttpServlet {
             stream = response.getOutputStream();
             response.setContentType("application/xml");
 
-            String confPath = getConfigPath();
-
-            if(confPath == null) {
-                throw new IOException("TPSPhoneHome.rederPhoneHome: Can not deteriming path to phone home data!");
-            }
-
-            confPath += File.separator + phoneHomeName;
-
+            String confPath = getConfigPath() + File.separator + phoneHomeName;
             logger.debug("TPSPhoneHome.renderPhoneHome: confPath: " + confPath);
 
             input = new FileInputStream(confPath);
@@ -82,30 +75,17 @@ public class TPSPhoneHome extends HttpServlet {
 
         logger.debug("TPSPhoneHome.getConfigPath: entering.");
 
-        String path = null;
         String context = getServletContext().getContextPath();
 
         // get subsystem name by removing the / prefix from the context
         String subsystem = context.startsWith("/") ? context.substring(1) : context;
 
         // catalina.base points to instance dir
-        String instanceDir = null;
-
-        try {
-
-            instanceDir = System.getProperty("catalina.base");
-
-        } catch (Exception e) {
-            logger.warn("TPSPhoneHome.getConfigPath: System.getProperty: " + e.getMessage(), e);
-            return null;
-        }
-
+        String instanceDir = System.getProperty("catalina.base");
         logger.debug("TPSPhoneHome.getConfigPath: instanceDir: " + instanceDir);
 
         //Finish off path of conf directory
-        path = instanceDir + File.separator + "conf" + File.separator +
-                subsystem + File.separator;
-
+        String path = instanceDir + File.separator + "conf" + File.separator + subsystem + File.separator;
         logger.debug("TPSPhoneHome.getConfigPath: returning: " + path);
 
         return path;
