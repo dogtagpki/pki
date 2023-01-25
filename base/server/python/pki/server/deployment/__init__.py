@@ -2086,8 +2086,10 @@ class PKIDeployer:
             'pkidbuser',
             full_name='pkidbuser',
             user_type='agentType',
-            state='1')
-
+            state='1',
+            attributes={
+                'nsPagedSizeLimit': '20000'
+            })
         subsystem_cert = subsystem.get_subsystem_cert('subsystem')
         subject = subsystem_cert['subject']
 
