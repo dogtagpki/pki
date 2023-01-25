@@ -7,6 +7,7 @@ package org.dogtagpki.server.cli;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -16,7 +17,6 @@ import org.dogtagpki.cli.CLI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.certsrv.user.UserData;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
@@ -25,6 +25,8 @@ import com.netscape.cmscore.usrgrp.UGSubsystemConfig;
 import com.netscape.cmscore.usrgrp.User;
 import com.netscape.cmsutil.password.IPasswordStore;
 import com.netscape.cmsutil.password.PasswordStoreConfig;
+
+import netscape.ldap.LDAPAttribute;
 
 /**
  * @author Endi S. Dewata
@@ -71,6 +73,10 @@ public class SubsystemUserAddCLI extends SubsystemCLI {
         option = new Option(null, "tps-profiles", true, "Comma-separated TPS profiles");
         option.setArgName("profiles");
         options.addOption(option);
+
+        option = new Option(null, "attributes", true, "Attributes");
+        option.setArgName("attributes");
+        options.addOption(option);
     }
 
     @Override
@@ -97,6 +103,7 @@ public class SubsystemUserAddCLI extends SubsystemCLI {
         String type = cmd.getOptionValue("type");
         String state = cmd.getOptionValue("state");
         String tpsProfiles = cmd.getOptionValue("tps-profiles");
+        String attributes = cmd.getOptionValue("attributes");
 
         if (passwordFile != null) {
             password = new String(Files.readAllBytes(Paths.get(passwordFile)), "UTF-8").trim();
@@ -118,8 +125,6 @@ public class SubsystemUserAddCLI extends SubsystemCLI {
 
         UGSubsystem ugSubsystem = new UGSubsystem();
 
-        UserData userData = new UserData();
-
         try {
             ugSubsystem.init(ldapConfig, socketConfig, passwordStore);
 
@@ -137,6 +142,15 @@ public class SubsystemUserAddCLI extends SubsystemCLI {
                 user.setTpsProfiles(list);
             }
 
+            if (attributes != null) {
+                String[] attrs = attributes.split(",");
+                List<LDAPAttribute> ldapAttrList = new ArrayList<>();
+                for (String s : attrs) {
+                    String[] split = s.split(":");
+                    ldapAttrList.add(new LDAPAttribute(split[0], split[1]));
+                }
+                user.setAttributes(ldapAttrList);
+            }
             ugSubsystem.addUser(user);
 
         } finally {

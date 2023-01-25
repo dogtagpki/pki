@@ -245,6 +245,22 @@ jobs:
           docker exec ds dsconf localhost backend suffix list | tee actual
           diff expected actual
 
+      - name: Check users have nsPagedSizeLimit attribute set
+        run: |
+            printf "dn: uid=pkidbuser,ou=People,dc=ca,dc=pki,dc=example,dc=com\nnsPagedSizeLimit: 20000\n\n" > expected
+
+            docker exec ds ldapsearch \
+                -H ldap://ds.example.com:3389 \
+                -D "cn=Directory Manager" \
+                -w Secret.123 \
+                -o ldif_wrap=no \
+                -LLL \
+                -b "uid=pkidbuser,ou=People,dc=ca,dc=pki,dc=example,dc=com" \
+                nsPagedSizeLimit \
+                | tee actual
+
+            diff expected actual
+
       - name: Gather artifacts
         if: always()
         run: |
