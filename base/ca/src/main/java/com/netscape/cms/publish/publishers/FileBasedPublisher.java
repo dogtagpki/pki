@@ -39,8 +39,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.filefilter.RegexFileFilter;
-import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.CAEngineConfig;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.util.Base64OutputStream;
 
@@ -214,9 +212,6 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
     @Override
     public void init(ConfigStore config) {
 
-        CAEngine engine = CAEngine.getInstance();
-        CAEngineConfig cs = engine.getConfig();
-
         mConfig = config;
         String dir = null;
 
@@ -247,17 +242,11 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
             mDir = dir;
         } else {
             // maybe it is relative path
-            String mInstanceRoot = null;
+            String instanceDir = CMS.getInstanceDir();
 
-            try {
-                mInstanceRoot = cs.getInstanceDir();
-            } catch (Exception e) {
-                throw new RuntimeException("Invalid Instance Dir " + e);
-            }
-            dirCheck = new File(mInstanceRoot +
-                        File.separator + dir);
+            dirCheck = new File(instanceDir + File.separator + dir);
             if (dirCheck.isDirectory()) {
-                mDir = mInstanceRoot + File.separator + dir;
+                mDir = instanceDir + File.separator + dir;
             } else {
                 throw new RuntimeException("Invalid Directory " + dir);
             }

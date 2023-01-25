@@ -356,7 +356,6 @@ public class CMSEngine {
         config = createConfig(storage);
         config.load();
 
-        instanceDir = config.getInstanceDir();
         instanceId = config.getInstanceID();
 
         mConfig = config;
@@ -364,13 +363,6 @@ public class CMSEngine {
 
     public EngineConfig createConfig(ConfigStorage storage) throws Exception {
         return new EngineConfig(storage);
-    }
-
-    /**
-     * Retrieves the instance root path of this server.
-     */
-    public String getInstanceDir() {
-        return instanceDir;
     }
 
     public synchronized IPasswordStore getPasswordStore() throws EBaseException {
@@ -720,8 +712,7 @@ public class CMSEngine {
 
     public void configurePorts() throws Exception {
 
-        String instanceRoot = config.getInstanceDir();
-        String path = instanceRoot + File.separator + "conf" + File.separator + SERVER_XML;
+        String path = instanceDir + File.separator + "conf" + File.separator + SERVER_XML;
 
         serverXml = ServerXml.load(path);
         unsecurePort = serverXml.getUnsecurePort();
@@ -1143,8 +1134,8 @@ public class CMSEngine {
 
         ready = false;
 
-        String catalinaBase = System.getProperty("catalina.base");
-        String serverConfDir = catalinaBase + File.separator + "conf";
+        instanceDir = CMS.getInstanceDir();
+        String serverConfDir = instanceDir + File.separator + "conf";
         String subsystemConfDir = serverConfDir + File.separator + id;
 
         String path = subsystemConfDir + File.separator + "CS.cfg";

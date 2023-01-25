@@ -38,7 +38,6 @@ public class SystemConfigService extends PKIService {
     public String csSubsystem;
     public String csState;
     public boolean isMasterCA = false;
-    public String instanceRoot;
 
     public SystemConfigService() throws Exception {
 
@@ -53,7 +52,5 @@ public class SystemConfigService extends PKIService {
         if (csType.equals("CA") && domainType.equals("new")) {
             isMasterCA = true;
         }
-
-        instanceRoot = cs.getInstanceDir();
     }
 }

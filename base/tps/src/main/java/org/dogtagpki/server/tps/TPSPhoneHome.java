@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.tps.main.TPSBuffer;
 
+import com.netscape.cmscore.apps.CMS;
+
 public class TPSPhoneHome extends HttpServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSPhoneHome.class);
@@ -80,8 +82,7 @@ public class TPSPhoneHome extends HttpServlet {
         // get subsystem name by removing the / prefix from the context
         String subsystem = context.startsWith("/") ? context.substring(1) : context;
 
-        // catalina.base points to instance dir
-        String instanceDir = System.getProperty("catalina.base");
+        String instanceDir = CMS.getInstanceDir();
         logger.debug("TPSPhoneHome.getConfigPath: instanceDir: " + instanceDir);
 
         //Finish off path of conf directory

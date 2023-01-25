@@ -450,8 +450,8 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
         }
 
         // otherwise, get the port from server.xml
-        String instanceRoot = engineConfig.getInstanceDir();
-        String path = instanceRoot + File.separator + "conf" + File.separator + "server.xml";
+        String instanceDir = CMS.getInstanceDir();
+        String path = instanceDir + File.separator + "conf" + File.separator + "server.xml";
 
         ServerXml serverXml = ServerXml.load(path);
         port = serverXml.getUnsecurePort();

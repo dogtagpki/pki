@@ -70,14 +70,14 @@ public class CAProfileImportCLI extends CommandCLI {
 
         String inputFolder = cmd.getOptionValue("input-folder", "/usr/share/pki/ca/profiles/ca");
 
-        String catalinaBase = System.getProperty("catalina.base");
+        String instanceDir = CMS.getInstanceDir();
 
         TomcatJSS tomcatjss = TomcatJSS.getInstance();
         tomcatjss.loadConfig();
         tomcatjss.init();
 
         String subsystemName = parent.getParent().getName();
-        String configFile = catalinaBase + File.separator + subsystemName + File.separator +
+        String configFile = instanceDir + File.separator + subsystemName + File.separator +
                 "conf" + File.separator + CMS.CONFIG_FILE;
 
         logger.info("Loading " + configFile);
@@ -85,7 +85,7 @@ public class CAProfileImportCLI extends CommandCLI {
         CAEngineConfig cs = new CAEngineConfig(storage);
         cs.load();
 
-        String pluginRegistryFile = catalinaBase + "/conf/" + subsystemName + "/registry.cfg";
+        String pluginRegistryFile = instanceDir + "/conf/" + subsystemName + "/registry.cfg";
         logger.info("Loading " + pluginRegistryFile);
 
         ConfigStore pluginRegistryConfig = cs.getSubStore(PluginRegistry.ID, ConfigStore.class);

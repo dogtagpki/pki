@@ -933,7 +933,7 @@ public class CMSAdminServlet extends AdminServlet {
                 }
             }
 
-            pathname = mConfig.getInstanceDir() + File.separator + "conf" + File.separator;
+            pathname = CMS.getInstanceDir() + File.separator + "conf" + File.separator;
             dir = pathname;
 
             CMSEngine engine = CMS.getCMSEngine();

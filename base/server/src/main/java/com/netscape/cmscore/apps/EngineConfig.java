@@ -54,14 +54,6 @@ public class EngineConfig extends ConfigStore {
         putString("instanceId", instanceID);
     }
 
-    public String getInstanceDir() throws EBaseException {
-        return getString("instanceRoot");
-    }
-
-    public void setInstanceDir(String instanceDir) {
-        putString("instanceRoot", instanceDir);
-    }
-
     public String getType() throws EBaseException {
         return getString("cs.type");
     }

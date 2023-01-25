@@ -23,6 +23,8 @@ import org.dogtagpki.common.AppInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.netscape.cmscore.apps.CMS;
+
 /**
  * @author Endi S. Dewata
  */
@@ -72,7 +74,7 @@ public class AppService {
         Collection<AppInfo> apps = new ArrayList<>();
 
         // get <instance>/conf folder
-        File instanceDir = new File(System.getProperty("catalina.base"));
+        File instanceDir = new File(CMS.getInstanceDir());
         File confDir = new File(instanceDir, "conf");
 
         // get all folders under <instance>/conf

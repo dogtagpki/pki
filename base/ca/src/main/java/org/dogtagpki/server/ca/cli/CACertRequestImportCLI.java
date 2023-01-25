@@ -94,7 +94,7 @@ public class CACertRequestImportCLI extends CommandCLI {
             PKILogger.setLevel(Level.INFO);
         }
 
-        String catalinaBase = System.getProperty("catalina.base");
+        String instanceDir = CMS.getInstanceDir();
 
         TomcatJSS tomcatjss = TomcatJSS.getInstance();
         tomcatjss.loadConfig();
@@ -139,7 +139,7 @@ public class CACertRequestImportCLI extends CommandCLI {
         }
 
         String subsystem = parent.getParent().getParent().getName();
-        String confDir = catalinaBase + File.separator + subsystem + File.separator + "conf";
+        String confDir = instanceDir + File.separator + subsystem + File.separator + "conf";
         String configFile = confDir + File.separator + CMS.CONFIG_FILE;
 
         logger.info("Loading " + configFile);
@@ -149,9 +149,8 @@ public class CACertRequestImportCLI extends CommandCLI {
 
         String profileID = cmd.getOptionValue("profile");
 
-        String instanceRoot = cs.getInstanceDir();
         String configurationRoot = cs.getString("configurationRoot");
-        String profilePath = instanceRoot + configurationRoot + profileID;
+        String profilePath = instanceDir + configurationRoot + profileID;
 
         logger.info("Loading " + profilePath);
         ConfigStorage profileStorage = new FileConfigStorage(profilePath);

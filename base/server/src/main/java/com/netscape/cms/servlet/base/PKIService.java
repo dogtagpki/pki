@@ -44,6 +44,7 @@ import javax.ws.rs.core.UriInfo;
 
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.util.JSONSerializer;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * Base class for CMS RESTful resources
@@ -86,11 +87,7 @@ public class PKIService {
     @Context
     protected ServletContext servletContext;
 
-    public static Path bannerFile = Paths.get(getInstanceDir(), "conf", "banner.txt");
-
-    public static String getInstanceDir() {
-        return System.getProperty("catalina.base");  // provided by Tomcat
-    }
+    public static final Path bannerFile = Paths.get(CMS.getInstanceDir(), "conf", "banner.txt");
 
     public static boolean isBannerEnabled() {
         return Files.exists(bannerFile);

@@ -157,10 +157,10 @@ public class CACertCreateCLI extends CommandCLI {
         tomcatjss.loadConfig();
         tomcatjss.init();
 
-        String catalinaBase = System.getProperty("catalina.base");
+        String instanceDir = CMS.getInstanceDir();
 
         String subsystem = parent.getParent().getName();
-        String confDir = catalinaBase + File.separator + subsystem + File.separator + "conf";
+        String confDir = instanceDir + File.separator + subsystem + File.separator + "conf";
         String configFile = confDir + File.separator + CMS.CONFIG_FILE;
 
         logger.info("Loading " + configFile);
@@ -168,9 +168,8 @@ public class CACertCreateCLI extends CommandCLI {
         CAEngineConfig cs = new CAEngineConfig(storage);
         cs.load();
 
-        String instanceRoot = cs.getInstanceDir();
         String configurationRoot = cs.getString("configurationRoot");
-        String profilePath = instanceRoot + configurationRoot + profileID;
+        String profilePath = instanceDir + configurationRoot + profileID;
 
         logger.info("Loading " + profilePath);
         ConfigStorage profileStorage = new FileConfigStorage(profilePath);
