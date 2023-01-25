@@ -699,6 +699,14 @@ public class UGSubsystem {
             attrs.add(attr);
         }
 
+        List<LDAPAttribute> attributes = user.getAttributes();
+        if (attributes != null) {
+            for (LDAPAttribute attr : attributes) {
+                logger.debug("UGSubsystem: - " +  attr.getName() + ": " + attr.getStringValueArray());
+                attrs.add(attr);
+            }
+        }
+
         LDAPEntry entry = new LDAPEntry(dn, attrs);
 
         SessionContext sessionContext = SessionContext.getContext();
