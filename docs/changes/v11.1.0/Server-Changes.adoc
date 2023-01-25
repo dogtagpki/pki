@@ -24,3 +24,10 @@ Use the following profiles instead:
 * `/usr/share/pki/ca/conf/eccAdminCert.profile`
 * `/usr/share/pki/ca/conf/eccServerCert.profile`
 * `/usr/share/pki/ca/conf/eccSubsystemCert.profile`
+
+== <subsystem>-add-user now accepts attributes as an option ==
+
+The `<subsystem>-add-user` methods accept a new option `--attributes` which takes a comma separated string of single-valued attributes as an argument, for example:
+
+`pki-server <subsystem>-add-user <instance> <other options> --attributes "ham:spam,foo:bar"`
+
