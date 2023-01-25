@@ -34,6 +34,8 @@ import com.netscape.certsrv.user.UserResource;
 import com.netscape.certsrv.util.JSONSerializer;
 import com.netscape.cmscore.apps.CMS;
 
+import netscape.ldap.LDAPAttribute;
+
 /**
  * A class represents a user.
  *
@@ -90,6 +92,7 @@ public class User implements JSONSerializer {
     public final static String ATTR_TPS_PROFILES = "tpsProfiles";
 
     public final static String ATTR_X509_CERTIFICATES = "userCertificates";
+    public final static String ATTRIBUTES = "attributes";
 
     private String mUserid = null;
     private String mUserDN = null;
@@ -102,6 +105,7 @@ public class User implements JSONSerializer {
     private String mUserType = null;
     private X509Certificate mx509Certs[] = null;
     private List<String> tpsProfiles = null;
+    private List<LDAPAttribute> mAttributes = null;
 
     private static final Vector<String> mNames = new Vector<>();
     static {
@@ -115,6 +119,7 @@ public class User implements JSONSerializer {
         mNames.addElement(ATTR_X509_CERTIFICATES);
         mNames.addElement(ATTR_USERTYPE);
         mNames.addElement(ATTR_TPS_PROFILES);
+        mNames.addElement(ATTRIBUTES);
     }
 
     /**
@@ -351,6 +356,14 @@ public class User implements JSONSerializer {
         mCertDN = dn;
     }
 
+    public List<LDAPAttribute> getAttributes() {
+        return mAttributes;
+    }
+
+    public void setAttributes(List<LDAPAttribute> attributes) {
+        mAttributes = attributes;
+    }
+
     @SuppressWarnings("unchecked")
     public void set(String name, Object object) throws EBaseException {
         if (name.equals(ATTR_NAME)) {
@@ -369,7 +382,9 @@ public class User implements JSONSerializer {
             setUserType((String) object);
         } else if (name.equals(ATTR_TPS_PROFILES)) {
             setTpsProfiles((List<String>) object);
-        } else {
+        } else if (name.equals(ATTRIBUTES)) {
+            setAttributes((List<LDAPAttribute>) object);
+        }  else {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
         }
     }
@@ -391,6 +406,8 @@ public class User implements JSONSerializer {
             return getUserType();
         } else if (name.equals(ATTR_TPS_PROFILES)) {
             return getTpsProfiles();
+        } else if (name.equals(ATTRIBUTES)) {
+            return getAttributes();
         } else {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
         }
@@ -420,6 +437,7 @@ public class User implements JSONSerializer {
         result = prime * result + ((mUserid == null) ? 0 : mUserid.hashCode());
         result = prime * result + Arrays.hashCode(mx509Certs);
         result = prime * result + ((tpsProfiles == null) ? 0 : tpsProfiles.hashCode());
+        result = prime * result + ((mAttributes == null) ? 0 : mAttributes.hashCode());
         return result;
     }
 
@@ -483,6 +501,11 @@ public class User implements JSONSerializer {
             if (other.tpsProfiles != null)
                 return false;
         } else if (!tpsProfiles.equals(other.tpsProfiles))
+            return false;
+        if (mAttributes == null) {
+            if (other.mAttributes != null)
+                return false;
+        } else if (!mAttributes.equals(other.mAttributes))
             return false;
         return true;
     }
