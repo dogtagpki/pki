@@ -788,8 +788,6 @@ class PKIConfigParser:
                     "<!--"
             self.mdict['PKI_SECURE_PORT_SLOT'] = \
                 self.mdict['pki_https_port']
-            self.mdict['PKI_SUBSYSTEM_TYPE_SLOT'] = \
-                self.mdict['pki_subsystem'].lower()
             self.mdict['PKI_UNSECURE_PORT_SLOT'] = \
                 self.mdict['pki_http_port']
 
