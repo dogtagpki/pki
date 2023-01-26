@@ -15,11 +15,11 @@ jobs:
       - name: Retrieve runner image
         uses: actions/cache@v3
         with:
-          key: pki-runner-${{ github.sha }}
-          path: pki-runner.tar
+          key: pki-images-${{ github.sha }}
+          path: pki-images.tar
 
       - name: Load runner image
-        run: docker load --input pki-runner.tar
+        run: docker load --input pki-images.tar
 
       - name: Run container
         run: |

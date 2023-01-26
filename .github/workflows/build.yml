@@ -61,13 +61,7 @@ jobs:
           tags: pki-builder
           target: pki-builder
           cache-from: type=local,src=/tmp/.buildx-cache
-          outputs: type=docker,dest=pki-builder.tar
-
-      - name: Store pki-builder image
-        uses: actions/cache@v3
-        with:
-          key: pki-builder-${{ github.sha }}
-          path: pki-builder.tar
+          outputs: type=docker
 
       - name: Build pki-dist image
         uses: docker/build-push-action@v3
@@ -79,13 +73,7 @@ jobs:
           tags: pki-dist
           target: pki-dist
           cache-from: type=local,src=/tmp/.buildx-cache
-          outputs: type=docker,dest=pki-dist.tar
-
-      - name: Store pki-dist image
-        uses: actions/cache@v3
-        with:
-          key: pki-dist-${{ github.sha }}
-          path: pki-dist.tar
+          outputs: type=docker
 
       - name: Build pki-runner image
         uses: docker/build-push-action@v3
@@ -97,13 +85,7 @@ jobs:
           tags: pki-runner
           target: pki-runner
           cache-from: type=local,src=/tmp/.buildx-cache
-          outputs: type=docker,dest=pki-runner.tar
-
-      - name: Store pki-runner image
-        uses: actions/cache@v3
-        with:
-          key: pki-runner-${{ github.sha }}
-          path: pki-runner.tar
+          outputs: type=docker
 
       - name: Build pki-server image
         uses: docker/build-push-action@v3
@@ -115,13 +97,7 @@ jobs:
           tags: pki-server
           target: pki-server
           cache-from: type=local,src=/tmp/.buildx-cache
-          outputs: type=docker,dest=pki-server.tar
-
-      - name: Store pki-server image
-        uses: actions/cache@v3
-        with:
-          key: pki-server-${{ github.sha }}
-          path: pki-server.tar
+          outputs: type=docker
 
       - name: Build pki-ca image
         uses: docker/build-push-action@v3
@@ -133,13 +109,7 @@ jobs:
           tags: pki-ca
           target: pki-ca
           cache-from: type=local,src=/tmp/.buildx-cache
-          outputs: type=docker,dest=pki-ca.tar
-
-      - name: Store pki-ca image
-        uses: actions/cache@v3
-        with:
-          key: pki-ca-${{ github.sha }}
-          path: pki-ca.tar
+          outputs: type=docker
 
       - name: Build pki-acme image
         uses: docker/build-push-action@v3
@@ -151,13 +121,7 @@ jobs:
           tags: pki-acme
           target: pki-acme
           cache-from: type=local,src=/tmp/.buildx-cache
-          outputs: type=docker,dest=pki-acme.tar
-
-      - name: Store pki-acme image
-        uses: actions/cache@v3
-        with:
-          key: pki-acme-${{ github.sha }}
-          path: pki-acme.tar
+          outputs: type=docker
 
       - name: Build ipa-runner image
         uses: docker/build-push-action@v3
@@ -169,10 +133,15 @@ jobs:
           tags: ipa-runner
           target: ipa-runner
           cache-from: type=local,src=/tmp/.buildx-cache
-          outputs: type=docker,dest=ipa-runner.tar
+          outputs: type=docker
 
-      - name: Store ipa-runner image
+      - name: Save PKI images
+        run: |
+          docker images
+          docker save -o pki-images.tar pki-builder pki-dist pki-runner pki-server pki-ca pki-acme ipa-runner
+
+      - name: Store PKI images
         uses: actions/cache@v3
         with:
-          key: ipa-runner-${{ github.sha }}
-          path: ipa-runner.tar
+          key: pki-images-${{ github.sha }}
+          path: pki-images.tar
