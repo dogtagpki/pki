@@ -66,6 +66,13 @@ jobs:
     with:
       db-image: ${{ needs.init.outputs.db-image }}
 
+  server-backup-test:
+    name: Server backup
+    needs: [init, build]
+    uses: ./.github/workflows/server-backup-test.yml
+    with:
+      db-image: ${{ needs.init.outputs.db-image }}
+
   server-upgrade-test:
     name: Server upgrade
     needs: [init, build]
