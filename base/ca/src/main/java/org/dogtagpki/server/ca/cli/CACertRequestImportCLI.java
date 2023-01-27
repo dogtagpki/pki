@@ -148,9 +148,7 @@ public class CACertRequestImportCLI extends CommandCLI {
         cs.load();
 
         String profileID = cmd.getOptionValue("profile");
-
-        String configurationRoot = cs.getString("configurationRoot");
-        String profilePath = instanceDir + configurationRoot + profileID;
+        String profilePath = confDir + File.separator + profileID;
 
         logger.info("Loading " + profilePath);
         ConfigStorage profileStorage = new FileConfigStorage(profilePath);

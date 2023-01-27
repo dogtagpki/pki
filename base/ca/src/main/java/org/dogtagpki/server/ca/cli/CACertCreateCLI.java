@@ -168,8 +168,7 @@ public class CACertCreateCLI extends CommandCLI {
         CAEngineConfig cs = new CAEngineConfig(storage);
         cs.load();
 
-        String configurationRoot = cs.getString("configurationRoot");
-        String profilePath = instanceDir + configurationRoot + profileID;
+        String profilePath = confDir + File.separator + profileID;
 
         logger.info("Loading " + profilePath);
         ConfigStorage profileStorage = new FileConfigStorage(profilePath);
