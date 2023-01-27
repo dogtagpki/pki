@@ -22,7 +22,13 @@ class RemoveUnusedParams(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
         self.backup(subsystem.cs_conf)
 
+        # remove instanceRoot param
         param = 'instanceRoot'
+        logger.info('Removing %s', param)
+        subsystem.config.pop(param, None)
+
+        # remove configurationRoot param
+        param = 'configurationRoot'
         logger.info('Removing %s', param)
         subsystem.config.pop(param, None)
 
