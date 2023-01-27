@@ -44,7 +44,6 @@ public class ProfileSubsystem
 
     private static final String PROP_LIST = "list";
     private static final String PROP_CLASS_ID = "class_id";
-    private static final String PROP_CONFIG = "config";
 
     /**
      * Initializes this subsystem with the given configuration
@@ -67,9 +66,7 @@ public class ProfileSubsystem
         // Configuration File Format:
         // *.list=profile1,profile2
         // *.profile1.class=com.netscape.cms.profile.common.Profile
-        // *.profile1.config=config/profiles/profile1.cfg
         // *.profile2.class=com.netscape.cms.profile.common.Profile
-        // *.profile2.config=config/profiles/profile2.cfg
 
         // read profile id, implementation, and its configuration files
         String ids = cs.getString(PROP_LIST, "");
@@ -91,7 +88,7 @@ public class ProfileSubsystem
 
             logger.debug("- class name: " + info.getClassName());
 
-            String configPath = subStore.getString(PROP_CONFIG);
+            String configPath = CMS.getInstanceDir() + "/ca/profiles/ca/" + id + ".cfg";
             logger.debug("- config: " + configPath);
 
             createProfile(id, classid, info.getClassName(), configPath, false);
@@ -127,13 +124,13 @@ public class ProfileSubsystem
         if (configPath == null) {
             configPath = CMS.getInstanceDir() + "/ca/profiles/ca/" + id + ".cfg";
         }
+        logger.debug("- config: " + configPath);
 
         try {
             // if the file is not there, create one
             File file = new File(configPath);
             file.createNewFile();
 
-            logger.debug("ProfileSubsystem: Loading " + configPath);
             ConfigStorage storage = new FileConfigStorage(configPath);
             ProfileConfig profileConfig = new ProfileConfig(storage);
             profileConfig.load();
@@ -166,6 +163,7 @@ public class ProfileSubsystem
         CAEngineConfig cs = engine.getConfig();
 
         String configPath = CMS.getInstanceDir() + "/ca/profiles/ca/" + id + ".cfg";
+        logger.debug("- config: " + configPath);
 
         if (isProfileEnable(id)) {
             throw new EProfileException("CMS_PROFILE_DELETE_ENABLEPROFILE");
@@ -211,8 +209,6 @@ public class ProfileSubsystem
         CAEngine engine = CAEngine.getInstance();
         CAEngineConfig cs = engine.getConfig();
 
-        String configPath = CMS.getInstanceDir() + "/ca/profiles/ca/" + id + ".cfg";
-
         try {
             if (mProfiles.size() > 0) {
                 mConfig.putString(PROP_LIST,
@@ -220,9 +216,10 @@ public class ProfileSubsystem
             } else {
                 mConfig.putString(PROP_LIST, id);
             }
+
             mConfig.putString(id + "." + PROP_CLASS_ID, classId);
-            mConfig.putString(id + "." + PROP_CONFIG, configPath);
             cs.commit(true);
+
         } catch (EBaseException e) {
             logger.warn("Unable to create profile config: " + e.getMessage(), e);
         }

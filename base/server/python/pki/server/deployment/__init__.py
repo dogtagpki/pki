@@ -2335,7 +2335,9 @@ class PKIDeployer:
         request.systemCert.dnsNames = None
         request.systemCert.adjustValidity = False
 
-        profile_filename = subsystem.config.get('profile.caAdminCert.config')
+        profile_filename = os.path.join(
+            self.mdict['pki_instance_path'],
+            'ca/profiles/ca/%s.cfg' % self.mdict['pki_admin_profile_id'])
         logger.info('Loading %s', profile_filename)
 
         profile = {}

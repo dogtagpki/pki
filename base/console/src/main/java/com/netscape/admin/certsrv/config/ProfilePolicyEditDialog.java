@@ -477,7 +477,6 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
                 nvp.add("impl", mImplName.getText());
                 nvp.add("name", mNameField.getText());
                 nvp.add("desc", mDescField.getText());
-                nvp.add("config", mConfigField.getText());
 */
 
 		for (int i = 0; i < mDefaultTable.getRowCount(); i++) {

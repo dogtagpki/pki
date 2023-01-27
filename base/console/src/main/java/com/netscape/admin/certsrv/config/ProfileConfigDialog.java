@@ -390,7 +390,6 @@ public class ProfileConfigDialog extends CMSBaseConfigDialog
                 nvp.put("visible", (String) (mVisibleField.getSelectedItem()));
                 nvp.put("auth", mAuthField.getText());
                 nvp.put("desc", mDescField.getText());
-           //     nvp.add("config", mConfigField.getText());
                // mAdminConnection.add(DestDef.DEST_CA_PROFILE_ADMIN,
                 mAdminConnection.add(mDest,
                   ScopeDef.SC_PROFILE_RULES, instanceName, nvp);

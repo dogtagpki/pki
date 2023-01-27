@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 import logging
+import re
 
 import pki
 
@@ -31,5 +32,14 @@ class RemoveUnusedParams(pki.server.upgrade.PKIServerUpgradeScriptlet):
         param = 'configurationRoot'
         logger.info('Removing %s', param)
         subsystem.config.pop(param, None)
+
+        # remove profile.*.config params
+        for name in list(subsystem.config.keys()):
+
+            if not re.match(r'profile\..*\.config$', name):
+                continue
+
+            logger.info('Removing %s', name)
+            subsystem.config.pop(name, None)
 
         subsystem.save()

@@ -50,7 +50,6 @@ public interface ScopeDef {
     public final static String SC_PROFILE_DEFAULT_POLICY = "defaultPolicy";
     public final static String SC_PROFILE_CONSTRAINT_POLICY = "constraintPolicy";
     public final static String SC_PROFILE_POLICIES = "policies";
-    public final static String SC_PROFILE_POLICY_CONFIG = "config";
     public final static String SC_PROFILE_INPUT = "profileInput";
     public final static String SC_PROFILE_INPUT_CONFIG = "profileInputConfig";
     public final static String SC_PROFILE_OUTPUT = "profileOutput";
