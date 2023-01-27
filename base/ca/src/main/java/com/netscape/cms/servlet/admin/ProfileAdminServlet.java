@@ -2597,8 +2597,6 @@ public class ProfileAdminServlet extends AdminServlet {
             String auth = req.getParameter("auth");
             String visible = req.getParameter("visible");
 
-            // String config = req.getParameter("config");
-
             profile.setAuthenticatorId(auth);
             profile.setName(getLocale(req), name);
             profile.setDescription(getLocale(req), desc);

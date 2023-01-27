@@ -715,7 +715,6 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
                 nvp.put("desc", mDescField.getText());
                 nvp.put("visible", (String) (mVisibleField.getSelectedItem()));
                 nvp.put("auth", mAuthField.getText());
-        //      nvp.add("config", mConfigField.getText());
 
 /*
          //       mAdminConnection.add(DestDef.DEST_CA_PROFILE_ADMIN,
@@ -807,7 +806,6 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
 		mAuthField.setText(response.get("auth"));
 		mVisibleField.setSelectedItem(response.get("visible"));
 		mImplName.setText(response.get("plugin"));
- //     		mConfigField.setText(response.getValue("config"));
 	    }
             if (enable != null && enable.equals("true")) {
                // disable everything
