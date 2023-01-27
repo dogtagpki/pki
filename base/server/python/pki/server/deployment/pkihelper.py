@@ -2141,7 +2141,16 @@ class KRAConnector:
                    "--host", krahost,
                    "--port", str(kraport)]
 
-        return subprocess.run(command, capture_output=True, check=True, text=True)
+        # don't use capture_output and text params to support Python 3.6
+        # https://stackoverflow.com/questions/53209127/subprocess-unexpected-keyword-argument-capture-output/53209196
+        # https://stackoverflow.com/questions/52663518/python-subprocess-popen-doesnt-take-text-argument
+
+        return subprocess.run(
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=True,
+            universal_newlines=True)
 
 
 class TPSConnector:
@@ -2413,7 +2422,15 @@ class SecurityDomain:
                    "-v",
                    "-r", update_url, sechost + ":" + str(secagentport)]
 
-        return subprocess.run(command, capture_output=True, check=True, text=True)
+        # don't use text param to support Python 3.6
+        # https://stackoverflow.com/questions/52663518/python-subprocess-popen-doesnt-take-text-argument
+
+        return subprocess.run(
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=True,
+            universal_newlines=True)
 
 
 class Systemd(object):

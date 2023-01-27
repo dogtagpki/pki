@@ -240,6 +240,7 @@ class NSSDatabase(object):
             cmd,
             input=None,  # pylint: disable=W0622
             stdout=None,
+            stderr=None,
             capture_output=False,
             check=False,
             text=None,
@@ -256,13 +257,21 @@ class NSSDatabase(object):
             ]
             cmd = runuser + cmd
 
+        if capture_output:
+            stdout = subprocess.PIPE
+            stderr = subprocess.PIPE
+
+        # don't use capture_output and text params to support Python 3.6
+        # https://stackoverflow.com/questions/53209127/subprocess-unexpected-keyword-argument-capture-output/53209196
+        # https://stackoverflow.com/questions/52663518/python-subprocess-popen-doesnt-take-text-argument
+
         result = subprocess.run(
             cmd,
             input=input,
             stdout=stdout,
-            capture_output=capture_output,
+            stderr=stderr,
             check=check,
-            text=text)
+            universal_newlines=text)
 
         if capture_output:
             logger.debug('stdout: %s', stdout)

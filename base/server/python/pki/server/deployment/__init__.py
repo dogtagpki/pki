@@ -2880,10 +2880,14 @@ class PKIDeployer:
                 cmd.append('--verbose')
 
             logger.debug('Command: %s', ' '.join(cmd))
+
+            # don't use text param to support Python 3.6
+            # https://stackoverflow.com/questions/52663518/python-subprocess-popen-doesnt-take-text-argument
+
             subprocess.run(
                 cmd,
                 input=cert,
-                text=True,
+                universal_newlines=True,
                 check=True)
 
         finally:
@@ -3066,10 +3070,14 @@ class PKIDeployer:
         ]
 
         logger.debug('Command: %s', ' '.join(cmd))
+
+        # don't use text param to support Python 3.6
+        # https://stackoverflow.com/questions/52663518/python-subprocess-popen-doesnt-take-text-argument
+
         subprocess.run(
             cmd,
             input=json.dumps(shared_secret),
-            text=True,
+            universal_newlines=True,
             check=True)
 
     def setup_shared_secret(self, instance, subsystem):
