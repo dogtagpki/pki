@@ -625,6 +625,7 @@ if [ "$BUILD_TARGET" = "dist" ] ; then
 
     OPTIONS+=(-DLIB_SUFFIX=64)
     OPTIONS+=(-DBUILD_SHARED_LIBS:BOOL=ON)
+    OPTIONS+=(-DCMAKE_C_FLAGS:STRING="-s")
 
     if [ "$VERBOSE" = true ] ; then
         OPTIONS+=(-DCMAKE_JAVA_COMPILE_FLAGS:STRING="-Xlint:deprecation")
