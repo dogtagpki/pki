@@ -120,7 +120,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         instance.store_passwords()
 
         # if this is not the first subsystem, skip
-        if len(deployer.instance.tomcat_instance_subsystems()) > 0:
+        if len(deployer.tomcat_instance_subsystems()) > 0:
             logger.info('Installing %s instance', deployer.mdict['pki_instance_name'])
             return
 
@@ -287,7 +287,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     def destroy(self, deployer):
 
         # if this is not the last subsystem, skip
-        if len(deployer.instance.tomcat_instance_subsystems()) > 0:
+        if len(deployer.tomcat_instance_subsystems()) > 0:
             return
 
         logger.info('Removing %s instance', deployer.mdict['pki_instance_name'])

@@ -71,7 +71,6 @@ class PKIDeployer:
         self.identity = None
         self.namespace = None
         self.configuration_file = None
-        self.instance = None
         self.directory = None
         self.file = None
         self.symlink = None
@@ -163,7 +162,6 @@ class PKIDeployer:
         self.identity = util.Identity(self)
         self.namespace = util.Namespace(self)
         self.configuration_file = util.ConfigurationFile(self)
-        self.instance = util.Instance(self)
         self.directory = util.Directory(self)
         self.file = util.File(self)
         self.symlink = util.Symlink(self)
@@ -267,6 +265,78 @@ class PKIDeployer:
             raise Exception('Invalid key type: %s' % key_type)
 
         return (key_type, key_size, curve, hash_alg)
+
+    def pki_instance_subsystems(self):
+
+        rv = 0
+
+        # Since ALL directories within the top-level PKI infrastructure
+        # SHOULD represent PKI instances, look for all possible
+        # PKI instances within the top-level PKI infrastructure
+
+        for instance in os.listdir(self.mdict['pki_path']):
+
+            instance_dir = os.path.join(self.mdict['pki_path'], instance)
+            if not os.path.isdir(instance_dir) or os.path.islink(instance_dir):
+                continue
+
+            # Since ANY directory within this PKI instance COULD
+            # be a PKI subsystem, look for all possible
+            # PKI subsystems within this PKI instance
+
+            for name in os.listdir(instance_dir):
+
+                subsystem_dir = os.path.join(instance_dir, name)
+                if not os.path.isdir(subsystem_dir) or os.path.islink(subsystem_dir):
+                    continue
+
+                if name.upper() in config.PKI_SUBSYSTEMS:
+                    rv += 1
+
+        logger.debug(
+            log.PKIHELPER_PKI_INSTANCE_SUBSYSTEMS_2,
+            self.mdict['pki_instance_path'], rv)
+
+        return rv
+
+    def tomcat_instance_subsystems(self):
+
+        # Return list of PKI subsystems in the specified tomcat instance
+
+        rv = []
+
+        for subsystem in config.PKI_SUBSYSTEMS:
+
+            path = os.path.join(self.mdict['pki_instance_path'], subsystem.lower())
+            if os.path.exists(path) and os.path.isdir(path):
+                rv.append(subsystem)
+
+        return rv
+
+    def verify_subsystem_exists(self):
+
+        if os.path.exists(self.mdict['pki_subsystem_path']):
+            return
+
+        logger.error(
+            log.PKI_SUBSYSTEM_DOES_NOT_EXIST_2,
+            self.mdict['pki_subsystem'],
+            self.mdict['pki_instance_name'])
+
+        raise Exception(
+            log.PKI_SUBSYSTEM_DOES_NOT_EXIST_2 % (
+                self.mdict['pki_subsystem'],
+                self.mdict['pki_instance_name']))
+
+    def verify_subsystem_does_not_exist(self):
+
+        if not os.path.exists(self.mdict['pki_subsystem_path']):
+            return
+
+        raise Exception(
+            log.PKI_SUBSYSTEM_ALREADY_EXISTS_2 % (
+                self.mdict['pki_subsystem'],
+                self.mdict['pki_instance_name']))
 
     def configure_ca(self, subsystem):
 
@@ -1997,7 +2067,7 @@ class PKIDeployer:
         system_certs = {}
 
         clone = self.configuration_file.clone
-        tomcat_instance_subsystems = len(self.instance.tomcat_instance_subsystems())
+        tomcat_instance_subsystems = len(self.tomcat_instance_subsystems())
 
         external = config.str2bool(self.mdict['pki_external']) or \
             config.str2bool(self.mdict['pki_existing']) or \

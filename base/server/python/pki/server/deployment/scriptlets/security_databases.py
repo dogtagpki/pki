@@ -222,7 +222,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 # installing a non-CA subsystem on a fresh system.
                 instance.copyfile(ca_cert_path, destination)
 
-        if len(deployer.instance.tomcat_instance_subsystems()) < 2:
+        if len(deployer.tomcat_instance_subsystems()) < 2:
 
             # Check to see if a secure connection is being used for the DS
             if config.str2bool(deployer.mdict['pki_ds_secure_connection']):
@@ -518,18 +518,18 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             external_path)
 
         if len(external_certs) > 0:
-            deployer.instance.load_external_certs(
+            deployer.load_external_certs(
                 os.path.join(deployer.mdict['pki_instance_configuration_path'],
                              'external_certs.conf')
             )
 
             for cert in external_certs:
-                deployer.instance.add_external_cert(cert.nickname, cert.token)
+                deployer.add_external_cert(cert.nickname, cert.token)
 
     def destroy(self, deployer):
 
         # if this is not the last subsystem, skip
-        if len(deployer.instance.tomcat_instance_subsystems()) > 0:
+        if len(deployer.tomcat_instance_subsystems()) > 0:
             return
 
         if deployer.directory.exists(deployer.mdict['pki_client_dir']):

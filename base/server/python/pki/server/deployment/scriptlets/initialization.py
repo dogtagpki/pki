@@ -152,13 +152,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 config.str2bool(deployer.mdict['pki_standalone'])) and \
                     config.str2bool(deployer.mdict['pki_external_step_two']) or \
                config.str2bool(deployer.mdict['pki_skip_installation']):
-                deployer.instance.verify_subsystem_exists()
+                deployer.verify_subsystem_exists()
                 deployer.mdict['pki_skip_installation'] = "True"
 
             else:
                 # verify that this type of "subsystem" does NOT yet
                 # exist for this "instance"
-                deployer.instance.verify_subsystem_does_not_exist()
+                deployer.verify_subsystem_does_not_exist()
                 # detect and avoid any namespace collisions
                 deployer.namespace.collision_detection()
         # verify existence of SENSITIVE configuration file data
@@ -187,7 +187,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         try:
             # verify that this type of "subsystem" currently EXISTS
             # for this "instance"
-            deployer.instance.verify_subsystem_exists()
+            deployer.verify_subsystem_exists()
             # verify that the command-line parameters match the values
             # that are present in the corresponding configuration file
             deployer.configuration_file.verify_command_matches_configuration_file()
