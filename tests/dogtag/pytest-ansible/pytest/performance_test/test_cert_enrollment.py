@@ -68,15 +68,31 @@ class cert_enroll(object):
         inputs = dict()
         inputs['cert_request_type'] = 'pkcs10'
         inputs['cert_request'] = """-----BEGIN CERTIFICATE REQUEST-----
-        MIIBmDCCAQECAQAwWDELMAkGA1UEBhMCVVMxCzAJBgNVBAgMAk5DMRAwDgYDVQQH
+        MIIEnTCCAoUCAQAwWDELMAkGA1UEBhMCVVMxCzAJBgNVBAgMAk5DMRAwDgYDVQQH
         DAdSYWxlaWdoMRUwEwYDVQQKDAxSZWQgSGF0IEluYy4xEzARBgNVBAMMClRlc3RT
-        ZXJ2ZXIwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMJpWz92dSYCvWxllrQC
-        Y5atPKCswUwyppRNGPnKmJ77AdHBBI4dFyET+h/+69jQMTLZMa8FX7SbyHvgbgLB
-        P4Q/RzCSE2S87qFNjriOqiQCqJmcrzDzdncJQiP+O7T6MSpLo3smLP7dK1Vd7vK0
-        Vy8yHwV0eBx7DgYedv2slBPHAgMBAAGgADANBgkqhkiG9w0BAQUFAAOBgQBvkxAG
-        KwkfK3TKwLc5Mg0IWp8zGRVwxdIlghAL8DugNocCNNgmZazglJOOehLuk0/NkLX1
-        ZM5RrVgM09W6kcfWZtIwr5Uje2K/+6tW2ZTGrbizs7CNOTMzA/9H8CkHb4H9P/qR
-        T275zHIocYj4smUnXLwWGsBMeGs+OMMbGvSrHg==
+        ZXJ2ZXIwggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQDAsEgwOUFN9MpJ
+        0kyXqbxtejDWh0m0+u9Dq3gcMGm6AUYggpIWsiIy+rBVSZfM3xj8Oj0vnMQGyhYa
+        LsRku019g1M1gG2M7bLjxbABPmRqsrVVh6494TPSTMoXB0WJ/d5AE4ktVqEzt4kn
+        +mSwojbmgVyQyndefYcQXLHXrFtMJN4TaYJ34Vz78Uo6buSNtXnaZ3DMCNZk3l/U
+        c9Op3/hpBJ+YQorwjZG4d/7rGY8JEShDUpHKJ8J6kaZ3HrhUUqOU+ywCPdtrHPNY
+        JdC33Zz3fs7HAs0FENj+zWKNTHZ/YJ3r59BB33IsWGw/CKOCKJxrUkiHyUXQkmMl
+        +MxNjlFdGhcsJpp6gikZactv6GSfQr6vBOg0139sniu3WdwPO9mBRq32YrJEq4PI
+        7H75a2wuZ/2lTHi1AhNPqX2fEpfEKaoefexezkEsSEqPkTUjU+rv2fzJdtqhVIxT
+        jI4d7zVcNcmrLIsvvtjKwbWS3yiQN2nfBKgsiII+ii4eFbKrQczXDl/2XFt2MzAe
+        zNK2jfkAJmlqx4xu2VYDTdSmcxqz3XETw7Egn2n9YwGX6beVuOqzH299BrbRN7Jp
+        vZ+MtMXi44i9IHzqNWljSjJzLYauRljIGRVj3soKjz8u1NjWH+pyJGODxdNH7AYO
+        lPICvQiWgNwHNn2xhMxKnf+Ob83/kQIDAQABoAAwDQYJKoZIhvcNAQELBQADggIB
+        ALJnAkdcyyyvOGYtpPwPD31J7KvWkY+vX2U0xggL3u4OH40MFsx7/GJM2CKRo5y9
+        qP1UvVqXONSqATPjl4r/wnfWR8GSWCMwQhg+ibzl3YQBdSaPbOdwEnunRCIMlDdE
+        p/midHiyZLYBUtzoz7d4VmoCJacA9JidXV53xhB2U97M6rzZpnh6/eUEtjGQQQuT
+        uCSUjjsl1bVTz4bXOn2PJxCEb2MPYMto7WLkf5JxdwBnROo+BgE4jw62E1MFXg6c
+        8KiJXS6jk1k7vNgHZcNjXLYIC0RRDexizZRe7I3Z85edTgrz8rv/KBW8EFuMjnlX
+        5c/M6NVdtyCHN+ShuZgi083KH3h5tkoM60MvFW9s+v3IHCTRIPxMZvqEQvasVYS0
+        uVo9AZiINYT2MlzO/vvPrDkVmvMrjecgShcSXhe6PelviH8wVDAHCNdwGbbIjQOx
+        DPCxk5CZYoLEhixau8b+rPpCjpFZSDuNw6+n8ojXrhBv5KT6M/9xA8zI76jJ+7h9
+        cU9auWWdOaYysOohyPh6trW/JH+nbZCQGrsIIe/reaSOd7zUCj631lzQVtpLo4ik
+        mHeeIAR7jlZOJuPu9MdUebxWFtxHDOpc7r6IV2RgfBFdm6uBDp/UHRtgULKkSIZA
+        kCrYeSLr942w6B2PSDPhQmPeliSQV4QnJT+0J1Q7fCdH
         -----END CERTIFICATE REQUEST-----"""
         inputs['sn_uid'] = sn_uid
         inputs['sn_e'] = 'example@redhat.com'

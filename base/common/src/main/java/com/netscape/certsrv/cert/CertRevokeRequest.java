@@ -39,6 +39,7 @@ import org.xml.sax.InputSource;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.netscape.certsrv.util.JSONSerializer;
 
 /**
@@ -54,6 +55,7 @@ public class CertRevokeRequest implements JSONSerializer {
     String encoded;
     Long nonce;
 
+    @JsonProperty("Reason")
     public String getReason() {
         return reason;
     }
@@ -62,6 +64,7 @@ public class CertRevokeRequest implements JSONSerializer {
         this.reason = reason;
     }
 
+    @JsonProperty("InvalidityDate")
     public Date getInvalidityDate() {
         return invalidityDate;
     }
@@ -70,6 +73,7 @@ public class CertRevokeRequest implements JSONSerializer {
         this.invalidityDate = invalidityDate;
     }
 
+    @JsonProperty("Comments")
     public String getComments() {
         return comments;
     }
@@ -78,6 +82,7 @@ public class CertRevokeRequest implements JSONSerializer {
         this.comments = comments;
     }
 
+    @JsonProperty("Encoded")
     public String getEncoded() {
         return encoded;
     }
@@ -86,6 +91,7 @@ public class CertRevokeRequest implements JSONSerializer {
         this.encoded = encoded;
     }
 
+    @JsonProperty("Nonce")
     public Long getNonce() {
         return nonce;
     }

@@ -104,6 +104,7 @@ public class CertReviewResponseFactory {
                 logger.debug("policyId:" + id);
                 com.netscape.cms.profile.common.ProfilePolicy policy = profile.getProfilePolicy(profileSetId, id);
                 ProfilePolicy dataPolicy = new ProfilePolicy();
+                dataPolicy.setId(id);
 
                 //populate defaults
                 com.netscape.cms.profile.def.PolicyDefault def = policy.getDefault();
@@ -115,7 +116,6 @@ public class CertReviewResponseFactory {
                 PolicyConstraint dataCons = PolicyConstraintFactory.create(locale, policy.getConstraint(),
                         policy.getConstraint().getClass().getSimpleName());
                 dataPolicy.setConstraint(dataCons);
-
                 dataPolicySet.addPolicy(dataPolicy);
             }
         }
