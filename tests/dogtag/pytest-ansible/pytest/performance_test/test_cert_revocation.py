@@ -55,7 +55,7 @@ class TestClient(threading.Thread):
                 log.info("Revoking Cert : {}".format(self.cert_sn[sn]))
                 revoke_data = self.cert_client.revoke_cert(self.cert_sn[sn], revocation_reason='Key_Compromise')
                 end = timer()
-                revocation_times.append(int(end - start))
+                revocation_times.append(end - start)
             except Exception as error:
                 log.error(error)
         return
@@ -89,7 +89,6 @@ if __name__ == "__main__":
         clients.append(client)
 
     start = timer()
-
     for client in clients:
         client.start()
 
@@ -98,11 +97,10 @@ if __name__ == "__main__":
         client.join()
 
     end = timer()
-
     with open("revocation_times.json", "w") as cf:
         json.dump(revocation_times, cf)
 
-    T = int(end - start)
+    T = end - start
     N = number_of_clients * number_of_tests_per_client
 
     log.info("Number of certs Revoked (N)={}".format(N))
