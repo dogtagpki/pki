@@ -280,23 +280,36 @@ class PKISubsystem(object):
         self.config['%s.%s.cert' % (self.name, cert_id)] = cert.get('data')
         self.config['%s.%s.certreq' % (self.name, cert_id)] = cert.get('request')
 
-    def validate_system_cert(self, cert_id=None):
+    def validate_system_cert(self, cert_id):
 
-        cmd = ['pki-server', 'subsystem-cert-validate',
-               '-i', self.instance.name,
-               self.name]
-
-        if cert_id:
-            cmd.append(cert_id)
+        cmd = [
+            'pki-server',
+            'subsystem-cert-validate',
+            '-i',
+            self.instance.name,
+            self.name,
+            cert_id
+        ]
 
         logger.debug('Command: %s', ' '.join(cmd))
 
+        # don't use capture_output and text params to support Python 3.6
+        # https://stackoverflow.com/questions/53209127/subprocess-unexpected-keyword-argument-capture-output/53209196
+        # https://stackoverflow.com/questions/52663518/python-subprocess-popen-doesnt-take-text-argument
+
         try:
-            print(subprocess.check_output(
+            result = subprocess.run(
                 cmd,
-                stderr=subprocess.STDOUT))
-        except subprocess.CalledProcessError as v:
-            print("pki-server subsystem-cert-validate stdout output:\n", v.output)
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=True,
+                universal_newlines=True)
+
+            logger.debug('%s certificate is valid:\n%s', cert_id, result.stdout)
+
+        except subprocess.CalledProcessError as e:
+            logger.error('Unable to validate %s certificate:\n%s', cert_id, e.stdout)
+            raise
 
     def export_system_cert(
             self,
