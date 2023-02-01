@@ -83,9 +83,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # Copy /usr/share/pki/<subsystem>/conf/registry.cfg
         # to /etc/pki/<instance>/<subsystem>/registry.cfg
+
+        pki_target_registry_cfg = os.path.join(
+            deployer.mdict['pki_subsystem_configuration_path'],
+            'registry.cfg')
+
         instance.copy(
             deployer.mdict['pki_source_registry_cfg'],
-            deployer.mdict['pki_target_registry_cfg'])
+            pki_target_registry_cfg)
 
         if deployer.mdict['pki_subsystem'] == "CA":
 
@@ -164,12 +169,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 params=deployer.mdict)
 
         elif deployer.mdict['pki_subsystem'] == "TPS":
-
-            # Copy /usr/share/pki/<subsystem>/conf/registry.cfg
-            # to /etc/pki/<instance>/<subsystem>/registry.cfg
-            instance.copy(
-                deployer.mdict['pki_source_registry_cfg'],
-                deployer.mdict['pki_target_registry_cfg'])
 
             # Copy /usr/share/pki/<subsystem>/conf/phoneHome.xml
             # to /etc/pki/<instance>/<subsystem>/phoneHome.xml

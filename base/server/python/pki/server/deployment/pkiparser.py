@@ -639,11 +639,6 @@ class PKIConfigParser:
                     self.mdict['pki_instance_configuration_path'],
                     "tomcat.conf")
 
-            self.mdict['pki_target_registry_cfg'] = \
-                os.path.join(
-                    self.mdict['pki_subsystem_configuration_path'],
-                    "registry.cfg")
-
             # subystem-specific slot substitution name/value pairs
             if self.mdict['pki_subsystem'] == "CA":
                 self.mdict['pki_target_flatfile_txt'] = \
@@ -686,11 +681,6 @@ class PKIConfigParser:
                 else:
                     self.mdict['PKI_PROFILE_SUBSYSTEM_SLOT'] = \
                         'ProfileSubsystem'
-            elif self.mdict['pki_subsystem'] == "TPS":
-                self.mdict['pki_target_registry_cfg'] = \
-                    os.path.join(
-                        self.mdict['pki_subsystem_configuration_path'],
-                        "registry.cfg")
 
             # Slot assignment name/value pairs
             #     NOTE:  Master key == Slots key; Master value ==> Slots value
