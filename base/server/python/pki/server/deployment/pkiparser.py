@@ -943,13 +943,6 @@ class PKIConfigParser:
             self.mdict['pki_transport_tag'] = "transport"
             self.mdict['pki_storage_tag'] = "storage"
 
-            # Compose this "systemd" execution management command
-            self.mdict['pki_registry_initscript_command'] = \
-                "systemctl" + " " + \
-                "restart" + " " + \
-                "pki-tomcatd" + "@" + \
-                self.mdict['pki_instance_name'] + "." + "service"
-
         except OSError as exc:
             logger.error(log.PKI_OSERROR_1, exc)
             raise
