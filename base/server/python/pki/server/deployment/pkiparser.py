@@ -804,10 +804,6 @@ class PKIConfigParser:
                 os.path.join(
                     self.mdict['pki_instance_configuration_path'],
                     "pfile")
-            self.mdict['pki_shared_password_conf'] = \
-                os.path.join(
-                    self.mdict['pki_instance_configuration_path'],
-                    "password.conf")
 
             # Configuration scriptlet
             # 'Security Domain' Configuration name/value pairs

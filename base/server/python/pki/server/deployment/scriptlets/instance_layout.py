@@ -56,8 +56,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         logger.info('Creating %s', instance_conf_path)
         instance.makedirs(instance_conf_path, exist_ok=True)
 
-        logger.info('Creating %s', deployer.mdict['pki_shared_password_conf'])
-
         # Configuring internal token password
 
         internal_token = deployer.mdict['pki_self_signed_token']
@@ -117,6 +115,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('Generating random replication manager password')
             instance.passwords['replicationdb'] = pki.generate_password()
 
+        logger.info('Creating %s', instance.password_conf)
         instance.store_passwords()
 
         # if this is not the first subsystem, skip

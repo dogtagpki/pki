@@ -1955,7 +1955,7 @@ class KRAConnector:
                 token_name = pki.nssdb.INTERNAL_TOKEN_NAME
 
             token_pwd = self.password.get_password(
-                self.mdict['pki_shared_password_conf'],
+                instance.password_conf,
                 token_name)
 
             if token_pwd is None or token_pwd == '':
@@ -2173,7 +2173,7 @@ class SecurityDomain:
         self.mdict = deployer.mdict
         self.password = deployer.password
 
-    def deregister(self, critical_failure=False):
+    def deregister(self, instance, critical_failure=False):
         # process this PKI subsystem instance's 'CS.cfg'
         cs_cfg = PKIConfigParser.read_simple_configuration_file(
             self.mdict['pki_target_cs_cfg'])
@@ -2226,6 +2226,7 @@ class SecurityDomain:
 
         try:
             result = self.update_domain_using_agent_port(
+                instance,
                 typeval, secname, params, update_url, sechost, secagentport,
                 critical_failure)
             output = result.stdout.strip()
@@ -2296,7 +2297,9 @@ class SecurityDomain:
                 secname)
 
     def update_domain_using_agent_port(
-            self, typeval, secname, params,
+            self,
+            instance,
+            typeval, secname, params,
             update_url, sechost, secagentport, critical_failure=False):
         cs_cfg = PKIConfigParser.read_simple_configuration_file(
             self.mdict['pki_target_cs_cfg'])
@@ -2321,7 +2324,7 @@ class SecurityDomain:
             token_name = pki.nssdb.INTERNAL_TOKEN_NAME
 
         token_pwd = self.password.get_password(
-            self.mdict['pki_shared_password_conf'],
+            instance.password_conf,
             token_name)
 
         if token_pwd is None:

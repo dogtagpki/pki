@@ -70,7 +70,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         deployer.password.create_password_conf(
             deployer.mdict['pki_shared_pfile'],
             deployer.mdict['pki_server_database_password'], pin_sans_token=True)
-        deployer.file.modify(deployer.mdict['pki_shared_password_conf'])
+        deployer.file.modify(instance.password_conf)
 
         if not os.path.isdir(deployer.mdict['pki_server_database_path']):
             instance.makedirs(deployer.mdict['pki_server_database_path'], exist_ok=True)
@@ -532,6 +532,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if len(deployer.tomcat_instance_subsystems()) > 0:
             return
 
+        instance = self.instance
+
         if deployer.directory.exists(deployer.mdict['pki_client_dir']):
             logger.info('Removing %s', deployer.mdict['pki_client_dir'])
             pki.util.rmtree(deployer.mdict['pki_client_dir'],
@@ -541,6 +543,5 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         pki.util.rmtree(deployer.mdict['pki_server_database_path'],
                         deployer.force)
 
-        logger.info('Removing %s', deployer.mdict['pki_shared_password_conf'])
-        pki.util.remove(deployer.mdict['pki_shared_password_conf'],
-                        deployer.force)
+        logger.info('Removing %s', instance.password_conf)
+        pki.util.remove(instance.password_conf, deployer.force)
