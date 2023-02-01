@@ -627,15 +627,19 @@ def main(argv):
 
     # ALWAYS archive configuration file and manifest file
 
+    pki_user_deployment_cfg_spawn_archive = os.path.join(
+        deployer.mdict['pki_subsystem_archive_log_path'],
+        'spawn_' + config.USER_DEPLOYMENT_CONFIGURATION + '.' + deployer.mdict['pki_timestamp'])
+
     logger.info(
         log.PKI_ARCHIVE_CONFIG_MESSAGE_1,
-        deployer.mdict['pki_user_deployment_cfg_spawn_archive'])
+        pki_user_deployment_cfg_spawn_archive)
 
     # For debugging/auditing purposes, save a timestamped copy of
     # this configuration file in the subsystem archive
     deployer.file.copy(
         deployer.mdict['pki_user_deployment_cfg_replica'],
-        deployer.mdict['pki_user_deployment_cfg_spawn_archive'])
+        pki_user_deployment_cfg_spawn_archive)
 
     logger.info(
         log.PKI_ARCHIVE_MANIFEST_MESSAGE_1,

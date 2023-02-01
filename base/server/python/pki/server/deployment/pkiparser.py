@@ -950,11 +950,6 @@ class PKIConfigParser:
             self.mdict['pki_user_deployment_cfg_replica'] = \
                 os.path.join(self.mdict['pki_subsystem_registry_path'],
                              config.USER_DEPLOYMENT_CONFIGURATION)
-            self.mdict['pki_user_deployment_cfg_spawn_archive'] = \
-                self.mdict['pki_subsystem_archive_log_path'] + "/" + \
-                "spawn" + "_" + \
-                config.USER_DEPLOYMENT_CONFIGURATION + "." + \
-                self.mdict['pki_timestamp']
             self.mdict['pki_manifest'] = \
                 self.mdict['pki_subsystem_registry_path'] + "/" + \
                 "manifest"
