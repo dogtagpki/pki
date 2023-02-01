@@ -84,12 +84,16 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # Copy /usr/share/pki/<subsystem>/conf/registry.cfg
         # to /etc/pki/<instance>/<subsystem>/registry.cfg
 
+        pki_source_registry_cfg = os.path.join(
+            deployer.mdict['pki_source_conf_path'],
+            'registry.cfg')
+
         pki_target_registry_cfg = os.path.join(
             deployer.mdict['pki_subsystem_configuration_path'],
             'registry.cfg')
 
         instance.copy(
-            deployer.mdict['pki_source_registry_cfg'],
+            pki_source_registry_cfg,
             pki_target_registry_cfg)
 
         if deployer.mdict['pki_subsystem'] == "CA":
