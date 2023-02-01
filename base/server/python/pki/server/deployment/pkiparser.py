@@ -813,13 +813,6 @@ class PKIConfigParser:
                 "cn=" + self.mdict['pki_hostname'] + "," + \
                 "o=" + self.mdict['pki_certificate_timestamp']
 
-            # Tomcat NSS security database convenience
-            # symbolic links
-            self.mdict['pki_subsystem_configuration_password_conf_link'] = \
-                os.path.join(
-                    self.mdict['pki_subsystem_configuration_path'],
-                    "password.conf")
-
             # Configuration scriptlet
             # 'Security Domain' Configuration name/value pairs
             # 'Subsystem Name'  Configuration name/value pairs
