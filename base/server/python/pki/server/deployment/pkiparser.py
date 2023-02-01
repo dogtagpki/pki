@@ -943,10 +943,6 @@ class PKIConfigParser:
             self.mdict['pki_transport_tag'] = "transport"
             self.mdict['pki_storage_tag'] = "storage"
 
-            # Finalization name/value pairs
-            self.mdict['pki_default_deployment_cfg_replica'] = \
-                os.path.join(self.mdict['pki_subsystem_registry_path'],
-                             config.DEFAULT_DEPLOYMENT_CONFIGURATION)
             # Compose this "systemd" execution management command
             self.mdict['pki_registry_initscript_command'] = \
                 "systemctl" + " " + \

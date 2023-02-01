@@ -70,7 +70,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # to /etc/sysconfig/pki/tomcat/<instance>/<subsystem>/default.cfg
         deployer.file.copy(
             deployer.mdict['pki_default_deployment_cfg'],
-            deployer.mdict['pki_default_deployment_cfg_replica'])
+            os.path.join(deployer.mdict['pki_subsystem_registry_path'],
+                         config.DEFAULT_DEPLOYMENT_CONFIGURATION))
 
         # Copy /usr/share/pki/<subsystem>/conf/CS.cfg
         # to /etc/pki/<instance>/<subsystem>/CS.cfg
