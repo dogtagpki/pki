@@ -655,11 +655,15 @@ def main(argv):
     # for record in manifest.database:
     #     print tuple(record)
 
+    pki_manifest = os.path.join(
+        deployer.mdict['pki_subsystem_registry_path'],
+        'manifest')
+
     manifest_file = manifest.File(deployer.manifest_db)
-    manifest_file.register(deployer.mdict['pki_manifest'])
+    manifest_file.register(pki_manifest)
     manifest_file.write()
 
-    deployer.file.modify(deployer.mdict['pki_manifest'], silent=True)
+    deployer.file.modify(pki_manifest, silent=True)
 
     # Also, for debugging/auditing purposes, save a timestamped copy of
     # this installation manifest file
@@ -671,7 +675,7 @@ def main(argv):
     logger.info(log.PKI_ARCHIVE_MANIFEST_MESSAGE_1, pki_manifest_spawn_archive)
 
     deployer.file.copy(
-        deployer.mdict['pki_manifest'],
+        pki_manifest,
         pki_manifest_spawn_archive)
 
     external = deployer.configuration_file.external
