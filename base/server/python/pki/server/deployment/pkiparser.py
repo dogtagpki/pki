@@ -799,11 +799,6 @@ class PKIConfigParser:
             if self.mdict['pki_subsystem'] == "CA":
                 self.mdict['PKI_ENABLE_RANDOM_SERIAL_NUMBERS'] = \
                     self.mdict['pki_random_serial_numbers_enable'].lower()
-            # Tomcat NSS security database name/value pairs
-            self.mdict['pki_shared_pfile'] = \
-                os.path.join(
-                    self.mdict['pki_instance_configuration_path'],
-                    "pfile")
 
             # Configuration scriptlet
             # 'Security Domain' Configuration name/value pairs

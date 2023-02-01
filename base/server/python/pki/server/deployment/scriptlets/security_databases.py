@@ -66,9 +66,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # which ONLY contains the 'password' for the purposes of
         # allowing 'certutil' to generate the security databases
 
-        logger.info('Creating password file: %s', deployer.mdict['pki_shared_pfile'])
+        pki_shared_pfile = os.path.join(deployer.mdict['pki_instance_configuration_path'], 'pfile')
+
+        logger.info('Creating password file: %s', pki_shared_pfile)
         deployer.password.create_password_conf(
-            deployer.mdict['pki_shared_pfile'],
+            pki_shared_pfile,
             deployer.mdict['pki_server_database_password'], pin_sans_token=True)
         deployer.file.modify(instance.password_conf)
 
@@ -77,7 +79,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         nssdb = pki.nssdb.NSSDatabase(
             directory=deployer.mdict['pki_server_database_path'],
-            password_file=deployer.mdict['pki_shared_pfile'])
+            password_file=pki_shared_pfile)
 
         try:
             if not nssdb.exists():
@@ -130,7 +132,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             nssdb = pki.nssdb.NSSDatabase(
                 directory=deployer.mdict['pki_server_database_path'],
-                password_file=deployer.mdict['pki_shared_pfile'])
+                password_file=pki_shared_pfile)
 
             try:
                 nssdb.import_pkcs12(
@@ -157,7 +159,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             nssdb = pki.nssdb.NSSDatabase(
                 directory=pki_server_database_path,
-                password_file=deployer.mdict['pki_shared_pfile'])
+                password_file=pki_shared_pfile)
 
             try:
                 logger.info('Importing certificates from %s:', pki_clone_pkcs12_path)
@@ -238,7 +240,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     nickname=deployer.mdict[
                         'pki_ds_secure_connection_ca_nickname'
                     ],
-                    password_file=deployer.mdict['pki_shared_pfile'])
+                    password_file=pki_shared_pfile)
                 if not rv:
                     # Import the directory server CA certificate
                     rv = deployer.certutil.import_cert(
@@ -246,12 +248,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                         deployer.mdict[
                             'pki_ds_secure_connection_ca_trustargs'],
                         deployer.mdict['pki_ds_secure_connection_ca_pem_file'],
-                        password_file=deployer.mdict['pki_shared_pfile'],
+                        password_file=pki_shared_pfile,
                         path=deployer.mdict['pki_server_database_path'],
                         token=deployer.mdict['pki_self_signed_token'])
 
         # Always delete the temporary 'pfile'
-        deployer.file.delete(deployer.mdict['pki_shared_pfile'])
+        deployer.file.delete(pki_shared_pfile)
 
         # Store system cert parameters in installation step to guarantee the
         # parameters exist during configuration step and to allow customization.
