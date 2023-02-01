@@ -809,10 +809,6 @@ class PKIConfigParser:
                     self.mdict['pki_instance_configuration_path'],
                     "password.conf")
 
-            self.mdict['pki_self_signed_subject'] = \
-                "cn=" + self.mdict['pki_hostname'] + "," + \
-                "o=" + self.mdict['pki_certificate_timestamp']
-
             # Configuration scriptlet
             # 'Security Domain' Configuration name/value pairs
             # 'Subsystem Name'  Configuration name/value pairs

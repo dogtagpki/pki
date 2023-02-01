@@ -1792,7 +1792,11 @@ class PKIDeployer:
 
         nickname = self.mdict['pki_self_signed_nickname']
         token = self.mdict['pki_self_signed_token']
-        subject_dn = self.mdict['pki_self_signed_subject']
+
+        subject_dn = \
+            'cn=' + self.mdict['pki_hostname'] + ',' + \
+            'o=' + self.mdict['pki_certificate_timestamp']
+
         serial = self.mdict.get('pki_self_signed_serial_number')
         validity = self.mdict.get('pki_self_signed_validity_period')
         trust_attributes = self.mdict.get('pki_self_signed_trustargs')
