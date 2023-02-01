@@ -670,10 +670,7 @@ class PKIConfigParser:
                     os.path.join(
                         self.mdict['pki_subsystem_configuration_path'],
                         "serverCert.profile")
-                self.mdict['pki_target_subsystemcert_profile'] = \
-                    os.path.join(
-                        self.mdict['pki_subsystem_configuration_path'],
-                        "subsystemCert.profile")
+
                 # in-place slot substitution name/value pairs
                 if config.str2bool(self.mdict['pki_profiles_in_ldap']):
                     self.mdict['PKI_PROFILE_SUBSYSTEM_SLOT'] = \

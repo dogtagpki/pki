@@ -160,9 +160,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             # Copy /usr/share/pki/<subsystem>/conf/<type>SubsystemCert.profile
             # to /etc/pki/<instance>/<subsystem>/subsystemCert.profile
+
+            pki_target_subsystemcert_profile = os.path.join(
+                deployer.mdict['pki_subsystem_configuration_path'],
+                'subsystemCert.profile')
+
             instance.copy(
                 deployer.mdict['pki_source_subsystemcert_profile'],
-                deployer.mdict['pki_target_subsystemcert_profile'])
+                pki_target_subsystemcert_profile)
 
             # Copy /usr/share/pki/<subsystem>/conf/proxy.conf
             # to /etc/pki/<instance>/<subsystem>/proxy.conf
