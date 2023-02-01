@@ -154,9 +154,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             # Copy /usr/share/pki/<subsystem>/conf/<type>ServerCert.profile
             # to /etc/pki/<instance>/<subsystem>/serverCert.profile
+
+            pki_target_servercert_profile = os.path.join(
+                deployer.mdict['pki_subsystem_configuration_path'],
+                'serverCert.profile')
+
             instance.copy(
                 deployer.mdict['pki_source_servercert_profile'],
-                deployer.mdict['pki_target_servercert_profile'])
+                pki_target_servercert_profile)
 
             # Copy /usr/share/pki/<subsystem>/conf/<type>SubsystemCert.profile
             # to /etc/pki/<instance>/<subsystem>/subsystemCert.profile
