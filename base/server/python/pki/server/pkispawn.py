@@ -635,10 +635,21 @@ def main(argv):
         log.PKI_ARCHIVE_CONFIG_MESSAGE_1,
         pki_user_deployment_cfg_spawn_archive)
 
+    # Create /etc/sysconfig/pki/tomcat/<instance>/<subsystem>/deployment.cfg
+
+    pki_user_deployment_cfg_replica = os.path.join(
+        deployer.mdict['pki_subsystem_registry_path'],
+        config.USER_DEPLOYMENT_CONFIGURATION)
+
+    deployer.file.create(pki_user_deployment_cfg_replica)
+
+    with open(pki_user_deployment_cfg_replica, 'w', encoding='utf-8') as f:
+        deployer.user_config.write(f)
+
     # For debugging/auditing purposes, save a timestamped copy of
     # this configuration file in the subsystem archive
     deployer.file.copy(
-        deployer.mdict['pki_user_deployment_cfg_replica'],
+        pki_user_deployment_cfg_replica,
         pki_user_deployment_cfg_spawn_archive)
 
     logger.info(

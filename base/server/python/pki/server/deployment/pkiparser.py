@@ -947,9 +947,6 @@ class PKIConfigParser:
             self.mdict['pki_default_deployment_cfg_replica'] = \
                 os.path.join(self.mdict['pki_subsystem_registry_path'],
                              config.DEFAULT_DEPLOYMENT_CONFIGURATION)
-            self.mdict['pki_user_deployment_cfg_replica'] = \
-                os.path.join(self.mdict['pki_subsystem_registry_path'],
-                             config.USER_DEPLOYMENT_CONFIGURATION)
             self.mdict['pki_manifest'] = \
                 self.mdict['pki_subsystem_registry_path'] + "/" + \
                 "manifest"

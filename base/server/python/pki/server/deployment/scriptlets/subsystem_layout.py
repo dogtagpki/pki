@@ -72,12 +72,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.mdict['pki_default_deployment_cfg'],
             deployer.mdict['pki_default_deployment_cfg_replica'])
 
-        # Create /etc/sysconfig/pki/tomcat/<instance>/<subsystem>/deployment.cfg
-        deployer.file.create(deployer.mdict['pki_user_deployment_cfg_replica'])
-
-        with open(deployer.mdict['pki_user_deployment_cfg_replica'], 'w', encoding='utf-8') as f:
-            deployer.user_config.write(f)
-
         # Copy /usr/share/pki/<subsystem>/conf/CS.cfg
         # to /etc/pki/<instance>/<subsystem>/CS.cfg
         instance.copyfile(
