@@ -950,10 +950,6 @@ class PKIConfigParser:
             self.mdict['pki_manifest'] = \
                 self.mdict['pki_subsystem_registry_path'] + "/" + \
                 "manifest"
-            self.mdict['pki_manifest_spawn_archive'] = \
-                self.mdict['pki_subsystem_archive_log_path'] + "/" + \
-                "spawn" + "_" + "manifest" + "." + \
-                self.mdict['pki_timestamp']
             # Compose this "systemd" execution management command
             self.mdict['pki_registry_initscript_command'] = \
                 "systemctl" + " " + \

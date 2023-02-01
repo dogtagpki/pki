@@ -652,10 +652,6 @@ def main(argv):
         pki_user_deployment_cfg_replica,
         pki_user_deployment_cfg_spawn_archive)
 
-    logger.info(
-        log.PKI_ARCHIVE_MANIFEST_MESSAGE_1,
-        deployer.mdict['pki_manifest_spawn_archive'])
-
     # for record in manifest.database:
     #     print tuple(record)
 
@@ -667,9 +663,16 @@ def main(argv):
 
     # Also, for debugging/auditing purposes, save a timestamped copy of
     # this installation manifest file
+
+    pki_manifest_spawn_archive = os.path.join(
+        deployer.mdict['pki_subsystem_archive_log_path'],
+        'spawn_manifest.' + deployer.mdict['pki_timestamp'])
+
+    logger.info(log.PKI_ARCHIVE_MANIFEST_MESSAGE_1, pki_manifest_spawn_archive)
+
     deployer.file.copy(
         deployer.mdict['pki_manifest'],
-        deployer.mdict['pki_manifest_spawn_archive'])
+        pki_manifest_spawn_archive)
 
     external = deployer.configuration_file.external
     standalone = deployer.configuration_file.standalone
