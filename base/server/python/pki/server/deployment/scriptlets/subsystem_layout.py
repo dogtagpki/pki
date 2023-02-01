@@ -173,9 +173,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             # Copy /usr/share/pki/<subsystem>/conf/phoneHome.xml
             # to /etc/pki/<instance>/<subsystem>/phoneHome.xml
+
+            pki_target_phone_home_xml = os.path.join(
+                deployer.mdict['pki_subsystem_configuration_path'],
+                'phoneHome.xml')
+
             instance.copyfile(
                 deployer.mdict['pki_source_phone_home_xml'],
-                deployer.mdict['pki_target_phone_home_xml'],
+                pki_target_phone_home_xml,
                 slots=deployer.slots,
                 params=deployer.mdict)
 

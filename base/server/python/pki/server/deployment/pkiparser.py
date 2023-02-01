@@ -691,10 +691,6 @@ class PKIConfigParser:
                     os.path.join(
                         self.mdict['pki_subsystem_configuration_path'],
                         "registry.cfg")
-                self.mdict['pki_target_phone_home_xml'] = \
-                    os.path.join(
-                        self.mdict['pki_subsystem_configuration_path'],
-                        "phoneHome.xml")
 
             # Slot assignment name/value pairs
             #     NOTE:  Master key == Slots key; Master value ==> Slots value
