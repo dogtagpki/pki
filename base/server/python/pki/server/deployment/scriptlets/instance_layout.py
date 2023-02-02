@@ -162,7 +162,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # to /etc/sysconfig/<instance>
         deployer.file.copy_with_slot_substitution(
             deployer.mdict['pki_source_tomcat_conf'],
-            deployer.mdict['pki_target_tomcat_conf_instance_id'],
+            instance.service_conf,
             overwrite_flag=True)
 
         # Copy /usr/share/pki/server/conf/tomcat.conf to
@@ -294,6 +294,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if len(deployer.tomcat_instance_subsystems()) > 0:
             return
 
+        instance = self.instance
+
         logger.info('Removing %s instance', deployer.mdict['pki_instance_name'])
 
         logger.info('Removing %s', deployer.systemd.systemd_link)
@@ -327,9 +329,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             path=deployer.mdict['pki_instance_configuration_path'],
             force=deployer.force)
 
-        logger.info('Removing %s', deployer.mdict['pki_target_tomcat_conf_instance_id'])
+        logger.info('Removing %s', instance.service_conf)
         pki.util.remove(
-            path=deployer.mdict['pki_target_tomcat_conf_instance_id'],
+            path=instance.service_conf,
             force=deployer.force)
 
         logger.info('Removing %s', deployer.mdict['pki_instance_registry_path'])

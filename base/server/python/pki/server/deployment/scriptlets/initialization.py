@@ -160,7 +160,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 # exist for this "instance"
                 deployer.verify_subsystem_does_not_exist()
                 # detect and avoid any namespace collisions
-                deployer.namespace.collision_detection()
+                deployer.namespace.collision_detection(instance)
         # verify existence of SENSITIVE configuration file data
         self.verify_sensitive_data(deployer)
         # verify existence of MUTUALLY EXCLUSIVE configuration file data

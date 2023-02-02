@@ -285,7 +285,7 @@ class Namespace:
     def __init__(self, deployer):
         self.mdict = deployer.mdict
 
-    def collision_detection(self):
+    def collision_detection(self, instance):
         # Run simple checks for pre-existing namespace collisions
         if os.path.exists(self.mdict['pki_instance_path']):
             if os.path.exists(self.mdict['pki_subsystem_path']):
@@ -299,17 +299,16 @@ class Namespace:
                         self.mdict['pki_instance_name'],
                         self.mdict['pki_instance_path']))
         else:
-            if os.path.exists(
-                    self.mdict['pki_target_tomcat_conf_instance_id']):
+            if os.path.exists(instance.service_conf):
                 # Top-Level "/etc/sysconfig" path collision
                 logger.error(
                     log.PKIHELPER_NAMESPACE_COLLISION_2,
                     self.mdict['pki_instance_name'],
-                    self.mdict['pki_target_tomcat_conf_instance_id'])
+                    instance.service_conf)
                 raise Exception(
                     log.PKIHELPER_NAMESPACE_COLLISION_2 % (
                         self.mdict['pki_instance_name'],
-                        self.mdict['pki_target_tomcat_conf_instance_id']))
+                        instance.service_conf))
             if os.path.exists(self.mdict['pki_cgroup_systemd_service']):
                 # Systemd cgroup path collision
                 logger.error(

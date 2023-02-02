@@ -617,11 +617,6 @@ class PKIConfigParser:
                not len(self.mdict['pki_subordinate']):
                 self.mdict['pki_subordinate'] = "false"
 
-            # PKI Target (slot substitution) name/value pairs
-            self.mdict['pki_target_tomcat_conf_instance_id'] = \
-                "/etc/sysconfig/" + \
-                self.mdict['pki_instance_name']
-
             # subystem-specific slot substitution name/value pairs
             if self.mdict['pki_subsystem'] == "CA":
 
