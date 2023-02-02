@@ -627,17 +627,9 @@ class PKIConfigParser:
                 os.path.join(
                     self.mdict['pki_instance_configuration_path'],
                     "server.xml")
-            self.mdict['pki_target_context_xml'] = \
-                os.path.join(
-                    self.mdict['pki_instance_configuration_path'],
-                    "context.xml")
             self.mdict['pki_target_tomcat_conf_instance_id'] = \
                 "/etc/sysconfig/" + \
                 self.mdict['pki_instance_name']
-            self.mdict['pki_target_tomcat_conf'] = \
-                os.path.join(
-                    self.mdict['pki_instance_configuration_path'],
-                    "tomcat.conf")
 
             # subystem-specific slot substitution name/value pairs
             if self.mdict['pki_subsystem'] == "CA":
@@ -865,17 +857,6 @@ class PKIConfigParser:
             #
 
             self.mdict['pki_admin_profile_id'] = "caAdminCert"
-
-            self.mdict['pki_ca_signing_tag'] = "signing"
-            if self.mdict['pki_subsystem'] == "CA":
-                self.mdict['pki_ocsp_signing_tag'] = "ocsp_signing"
-            elif self.mdict['pki_subsystem'] == "OCSP":
-                self.mdict['pki_ocsp_signing_tag'] = "signing"
-            self.mdict['pki_sslserver_tag'] = "sslserver"
-            self.mdict['pki_subsystem_tag'] = "subsystem"
-            self.mdict['pki_audit_signing_tag'] = "audit_signing"
-            self.mdict['pki_transport_tag'] = "transport"
-            self.mdict['pki_storage_tag'] = "storage"
 
         except OSError as exc:
             logger.error(log.PKI_OSERROR_1, exc)
