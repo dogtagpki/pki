@@ -633,10 +633,6 @@ class PKIConfigParser:
             self.mdict['PKI_INSTANCE_NAME_SLOT'] = \
                 self.mdict['pki_instance_name']
 
-            self.mdict['PKI_ADMIN_SECURE_PORT_SLOT'] = \
-                self.mdict['pki_https_port']
-            self.mdict['PKI_AGENT_SECURE_PORT_SLOT'] = \
-                self.mdict['pki_https_port']
             self.mdict['PKI_AJP_PORT_SLOT'] = \
                 self.mdict['pki_ajp_port']
             self.mdict['PKI_AJP_HOST_IPv4_SLOT'] = \
@@ -651,24 +647,12 @@ class PKIConfigParser:
                 self.mdict['pki_ajp_secret']
             self.mdict['PKI_AJP_REDIRECT_PORT_SLOT'] = \
                 self.mdict['pki_https_port']
-            self.mdict['PKI_CLOSE_SEPARATE_PORTS_SERVER_COMMENT_SLOT'] = \
-                "-->"
-            self.mdict['PKI_CLOSE_SEPARATE_PORTS_WEB_COMMENT_SLOT'] = \
-                "-->"
             self.mdict['PKI_DS_SECURE_CONNECTION_SLOT'] = \
                 self.mdict['pki_ds_secure_connection'].lower()
-            self.mdict['PKI_EE_SECURE_CLIENT_AUTH_PORT_SLOT'] = \
-                self.mdict['pki_https_port']
-            self.mdict['PKI_EE_SECURE_PORT_SLOT'] = \
-                self.mdict['pki_https_port']
             self.mdict['PKI_INSTANCE_PATH_SLOT'] = \
                 self.mdict['pki_instance_path']
             self.mdict['PKI_HOSTNAME_SLOT'] = \
                 self.mdict['pki_hostname']
-            self.mdict['PKI_OPEN_SEPARATE_PORTS_SERVER_COMMENT_SLOT'] = \
-                "<!--"
-            self.mdict['PKI_OPEN_SEPARATE_PORTS_WEB_COMMENT_SLOT'] = \
-                "<!--"
             if config.str2bool(self.mdict['pki_enable_proxy']):
                 self.mdict['PKI_CLOSE_AJP_PORT_COMMENT_SLOT'] = \
                     ""
