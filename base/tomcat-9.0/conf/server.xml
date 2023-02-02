@@ -120,7 +120,7 @@
                enableLookups="false"
                disableUploadTimeout="true"
                enableOCSP="false"
-               ocspResponderURL="http://[PKI_HOSTNAME]:[PKI_UNSECURE_PORT]/ca/ocsp"
+               ocspResponderURL="http://[pki_hostname]:[PKI_UNSECURE_PORT]/ca/ocsp"
                ocspResponderCertNickname="ocspSigningCert cert-pki-ca"
                ocspCacheSize="1000"
                ocspMinCacheEntryDuration="7200"
