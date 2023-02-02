@@ -645,10 +645,6 @@ class PKIConfigParser:
                     os.path.join(
                         self.mdict['pki_subsystem_configuration_path'],
                         "flatfile.txt")
-                self.mdict['pki_target_proxy_conf'] = \
-                    os.path.join(
-                        self.mdict['pki_subsystem_configuration_path'],
-                        "proxy.conf")
 
                 # in-place slot substitution name/value pairs
                 if config.str2bool(self.mdict['pki_profiles_in_ldap']):
