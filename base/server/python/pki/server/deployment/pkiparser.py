@@ -623,10 +623,6 @@ class PKIConfigParser:
                     self.mdict['pki_subsystem_configuration_path'],
                     "CS.cfg")
 
-            self.mdict['pki_target_server_xml'] = \
-                os.path.join(
-                    self.mdict['pki_instance_configuration_path'],
-                    "server.xml")
             self.mdict['pki_target_tomcat_conf_instance_id'] = \
                 "/etc/sysconfig/" + \
                 self.mdict['pki_instance_name']
