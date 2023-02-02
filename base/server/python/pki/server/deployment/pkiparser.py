@@ -649,11 +649,6 @@ class PKIConfigParser:
                     os.path.join(
                         self.mdict['pki_subsystem_configuration_path'],
                         "proxy.conf")
-                # '*.profile'
-                self.mdict['pki_target_admincert_profile'] = \
-                    os.path.join(
-                        self.mdict['pki_subsystem_configuration_path'],
-                        "adminCert.profile")
 
                 # in-place slot substitution name/value pairs
                 if config.str2bool(self.mdict['pki_profiles_in_ldap']):
