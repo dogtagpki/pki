@@ -641,10 +641,6 @@ class PKIConfigParser:
 
             # subystem-specific slot substitution name/value pairs
             if self.mdict['pki_subsystem'] == "CA":
-                self.mdict['pki_target_flatfile_txt'] = \
-                    os.path.join(
-                        self.mdict['pki_subsystem_configuration_path'],
-                        "flatfile.txt")
 
                 # in-place slot substitution name/value pairs
                 if config.str2bool(self.mdict['pki_profiles_in_ldap']):
