@@ -1914,7 +1914,7 @@ class KRAConnector:
         self.password = deployer.password
         self.ca_cert = os.path.join(self.mdict['pki_server_database_path'], "ca.crt")
 
-    def deregister(self, instance, critical_failure=False):
+    def deregister(self, instance, subsystem, critical_failure=False):
         krahost = None
         kraport = None
         try:
@@ -1924,9 +1924,7 @@ class KRAConnector:
 
             logger.info('Removing KRA connector from all CAs subsystems')
 
-            cs_cfg = PKIConfigParser.read_simple_configuration_file(
-                self.mdict['pki_target_cs_cfg'])
-
+            cs_cfg = PKIConfigParser.read_simple_configuration_file(subsystem.cs_conf)
             krahost = cs_cfg.get('machineName')
 
             server_config = instance.get_server_config()
@@ -2082,7 +2080,7 @@ class TPSConnector:
         self.mdict = deployer.mdict
         self.password = deployer.password
 
-    def deregister(self, instance, critical_failure=False):
+    def deregister(self, instance, subsystem, critical_failure=False):
         tkshost = None
         tksport = None
         try:
@@ -2092,8 +2090,7 @@ class TPSConnector:
 
             logger.info('Removing TPS connector from TKS subsystem')
 
-            cs_cfg = PKIConfigParser.read_simple_configuration_file(
-                self.mdict['pki_target_cs_cfg'])
+            cs_cfg = PKIConfigParser.read_simple_configuration_file(subsystem.cs_conf)
             tpshost = cs_cfg.get('machineName')
 
             server_config = instance.get_server_config()
@@ -2173,12 +2170,9 @@ class SecurityDomain:
         self.mdict = deployer.mdict
         self.password = deployer.password
 
-    def deregister(self, instance, critical_failure=False):
-        # process this PKI subsystem instance's 'CS.cfg'
-        cs_cfg = PKIConfigParser.read_simple_configuration_file(
-            self.mdict['pki_target_cs_cfg'])
+    def deregister(self, instance, subsystem, critical_failure=False):
 
-        # assign key name/value pairs
+        cs_cfg = PKIConfigParser.read_simple_configuration_file(subsystem.cs_conf)
         machinename = cs_cfg.get('machineName')
         sport = cs_cfg.get('service.securityDomainPort')
         sechost = cs_cfg.get('securitydomain.host')
@@ -2227,6 +2221,7 @@ class SecurityDomain:
         try:
             result = self.update_domain_using_agent_port(
                 instance,
+                subsystem,
                 typeval, secname, params, update_url, sechost, secagentport,
                 critical_failure)
             output = result.stdout.strip()
@@ -2299,10 +2294,12 @@ class SecurityDomain:
     def update_domain_using_agent_port(
             self,
             instance,
+            subsystem,
             typeval, secname, params,
             update_url, sechost, secagentport, critical_failure=False):
-        cs_cfg = PKIConfigParser.read_simple_configuration_file(
-            self.mdict['pki_target_cs_cfg'])
+
+        cs_cfg = PKIConfigParser.read_simple_configuration_file(subsystem.cs_conf)
+
         # retrieve subsystem nickname
         subsystemnick_param = typeval.lower() + ".cert.subsystem.nickname"
         subsystemnick = cs_cfg.get(subsystemnick_param)

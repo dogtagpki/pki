@@ -184,6 +184,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         instance = self.instance
         instance.load()
 
+        subsystem = instance.get_subsystem(deployer.mdict['pki_subsystem'].lower())
+
         try:
             # verify that this type of "subsystem" currently EXISTS
             # for this "instance"
@@ -198,10 +200,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.configuration_file.populate_non_default_ports()
 
             # remove kra connector from CA if this is a KRA
-            deployer.kra_connector.deregister(instance)
+            deployer.kra_connector.deregister(instance, subsystem)
 
             # remove tps connector from TKS if this is a TPS
-            deployer.tps_connector.deregister(instance)
+            deployer.tps_connector.deregister(instance, subsystem)
 
             # de-register instance from its Security Domain
             #
@@ -212,7 +214,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             #            tightly-coupled shared instance.
             #
 
-            deployer.security_domain.deregister(instance)
+            deployer.security_domain.deregister(instance, subsystem)
 
         except Exception as e:  # pylint: disable=broad-except
             logger.error(str(e))

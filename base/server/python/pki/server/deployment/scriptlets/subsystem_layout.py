@@ -77,7 +77,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # to /etc/pki/<instance>/<subsystem>/CS.cfg
         instance.copyfile(
             deployer.mdict['pki_source_cs_cfg'],
-            deployer.mdict['pki_target_cs_cfg'],
+            subsystem.cs_conf,
             slots=deployer.slots,
             params=deployer.mdict)
 
