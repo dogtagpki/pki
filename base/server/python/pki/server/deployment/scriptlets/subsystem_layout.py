@@ -148,9 +148,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             # Copy /usr/share/pki/<subsystem>/conf/caOCSPCert.profile
             # to /etc/pki/<instance>/<subsystem>/caOCSPCert.profile
+
+            pki_target_caocspcert_profile = os.path.join(
+                deployer.mdict['pki_subsystem_configuration_path'],
+                'caOCSPCert.profile')
+
             instance.copy(
                 deployer.mdict['pki_source_caocspcert_profile'],
-                deployer.mdict['pki_target_caocspcert_profile'])
+                pki_target_caocspcert_profile)
 
             # Copy /usr/share/pki/<subsystem>/conf/<type>ServerCert.profile
             # to /etc/pki/<instance>/<subsystem>/serverCert.profile
