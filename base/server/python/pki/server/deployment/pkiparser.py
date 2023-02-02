@@ -699,8 +699,6 @@ class PKIConfigParser:
                     "-->"
                 self.mdict['PKI_OPEN_TOMCAT_ACCESS_LOG_COMMENT_SLOT'] = \
                     "<!--"
-            self.mdict['PKI_SECURE_PORT_SLOT'] = \
-                self.mdict['pki_https_port']
 
             if self.mdict['pki_subsystem'] == "TPS":
                 self.mdict['SERVER_KEYGEN_SLOT'] = \

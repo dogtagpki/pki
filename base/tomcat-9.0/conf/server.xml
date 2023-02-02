@@ -81,7 +81,7 @@
     <Connector name="Unsecure"
                port="[pki_http_port]"
                protocol="HTTP/1.1"
-               redirectPort="[PKI_SECURE_PORT]"
+               redirectPort="[pki_https_port]"
                maxHttpHeaderSize="8192"
                acceptCount="100"
                maxThreads="150"
@@ -96,16 +96,16 @@
     <Connector executor="tomcatThreadPool"
                port="[pki_http_port]" protocol="HTTP/1.1"
                connectionTimeout="20000"
-               redirectPort="[PKI_SECURE_PORT]" />
+               redirectPort="[pki_https_port]" />
     -->
 
-    <!-- Define a SSL/TLS HTTP/1.1 Connector on port [PKI_SECURE_PORT]
+    <!-- Define a SSL/TLS HTTP/1.1 Connector on port [pki_https_port]
          This connector uses the NIO implementation that requires the JSSE
          style configuration. When using the APR/native implementation, the
          OpenSSL style configuration is required as described in the APR/native
          documentation -->
     <Connector name="Secure"
-               port="[PKI_SECURE_PORT]"
+               port="[pki_https_port]"
                protocol="org.dogtagpki.tomcat.Http11NioProtocol"
                SSLEnabled="true"
                sslImplementationName="org.dogtagpki.tomcat.JSSImplementation"
