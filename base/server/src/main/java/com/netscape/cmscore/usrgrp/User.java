@@ -20,9 +20,11 @@ package com.netscape.cmscore.usrgrp;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Vector;
+import java.util.Objects;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -49,78 +51,77 @@ public class User implements JSONSerializer {
     /**
      * Constant for userScope
      */
-    public final static String ATTR_SCOPE = "userScope";
+    public static final String ATTR_SCOPE = "userScope";
 
     /**
      * Constant for userName
      */
-    public final static String ATTR_NAME = "userName";
+    public static final String ATTR_NAME = "userName";
 
     /**
      * Constant for userId
      */
-    public final static String ATTR_ID = "userId";
+    public static final String ATTR_ID = "userId";
 
     /**
      * Constant for userFullName
      */
-    public final static String ATTR_FULLNAME = "userFullName";
+    public static final String ATTR_FULLNAME = "userFullName";
 
     /**
      * Constant for userPassword
      */
-    public final static String ATTR_PASSWORD = "userPassword";
+    public static final String ATTR_PASSWORD = "userPassword";
 
     /**
      * Constant for userState
      */
-    public final static String ATTR_STATE = "userstate";
+    public static final String ATTR_STATE = "userstate";
 
     /**
      * Constant for userEmail
      */
-    public final static String ATTR_EMAIL = "userEmail";
+    public static final String ATTR_EMAIL = "userEmail";
 
     /**
      * Constant for usertype
      */
-    public final static String ATTR_USERTYPE = "usertype";
+    public static final String ATTR_USERTYPE = "usertype";
 
     /**
      * Constant for usertype
      */
-    public final static String ATTR_TPS_PROFILES = "tpsProfiles";
+    public static final String ATTR_TPS_PROFILES = "tpsProfiles";
 
-    public final static String ATTR_X509_CERTIFICATES = "userCertificates";
-    public final static String ATTRIBUTES = "attributes";
+    public static final String ATTR_X509_CERTIFICATES = "userCertificates";
+    public static final String ATTRIBUTES = "attributes";
+    public static final String CMS_BASE_INVALID_ATTRIBUTE = "CMS_BASE_INVALID_ATTRIBUTE";
 
-    private String mUserid = null;
-    private String mUserDN = null;
-    private String mFullName = null;
-    private String mPassword = null;
-    private String mEmail = null;
-    private String mPhone = null;
-    private String mState = null;
-    private String mCertDN = null;
-    private String mUserType = null;
-    private X509Certificate mx509Certs[] = null;
-    private List<String> tpsProfiles = null;
-    private List<LDAPAttribute> mAttributes = null;
+    private String userid;
+    private String userDN;
+    private String fullName;
+    private String password;
+    private String email;
+    private String phone;
+    private String state;
+    private String certDN;
+    private String userType;
+    private X509Certificate[] x509Certs;
+    private List<String> tpsProfiles;
+    private List<LDAPAttribute> attrs;
 
-    private static final Vector<String> mNames = new Vector<>();
-    static {
-        mNames.addElement(ATTR_NAME);
-        mNames.addElement(ATTR_ID);
-        mNames.addElement(ATTR_FULLNAME);
-        mNames.addElement(ATTR_PASSWORD);
-        mNames.addElement(ATTR_STATE);
-        mNames.addElement(ATTR_EMAIL);
-        // mNames.addElement(ATTR_PHONENUMBER);
-        mNames.addElement(ATTR_X509_CERTIFICATES);
-        mNames.addElement(ATTR_USERTYPE);
-        mNames.addElement(ATTR_TPS_PROFILES);
-        mNames.addElement(ATTRIBUTES);
-    }
+    private static final Set<String> names = Set.of(
+        ATTR_NAME,
+        ATTR_ID,
+        ATTR_FULLNAME,
+        ATTR_PASSWORD,
+        ATTR_STATE,
+        ATTR_EMAIL,
+        ATTR_X509_CERTIFICATES,
+        ATTR_USERTYPE,
+        ATTR_TPS_PROFILES,
+        ATTRIBUTES
+    );
 
     /**
      * Get TPS profiles
@@ -164,7 +165,7 @@ public class User implements JSONSerializer {
 
     @Deprecated
     public User(String userid) {
-        mUserid = userid;
+        this.userid = userid;
     }
 
     /**
@@ -177,7 +178,7 @@ public class User implements JSONSerializer {
     @Deprecated
     public String getName() {
         //		return mScope.getId() + "://" + mUserid;
-        return mUserid;
+        return userid;
     }
 
     /**
@@ -187,11 +188,11 @@ public class User implements JSONSerializer {
      */
     @JsonProperty("id")
     public String getUserID() {
-        return mUserid;
+        return userid;
     }
 
     public void setUserID(String userID) {
-        mUserid = userID;
+        userid = userID;
     }
 
     /**
@@ -200,7 +201,7 @@ public class User implements JSONSerializer {
      * @return user fullname
      */
     public String getFullName() {
-        return mFullName;
+        return fullName;
     }
 
     /**
@@ -209,7 +210,7 @@ public class User implements JSONSerializer {
      * @param name the given full name
      */
     public void setFullName(String name) {
-        mFullName = name;
+        this.fullName = name;
     }
 
     /**
@@ -218,7 +219,7 @@ public class User implements JSONSerializer {
      * @return user DN
      */
     public String getUserDN() {
-        return mUserDN;
+        return userDN;
     }
 
     /**
@@ -227,7 +228,7 @@ public class User implements JSONSerializer {
      * @param userdn the given user DN
      */
     public void setUserDN(String userdn) {
-        mUserDN = userdn;
+        this.userDN = userdn;
     }
 
     /**
@@ -236,7 +237,7 @@ public class User implements JSONSerializer {
      * @return user type.
      */
     public String getUserType() {
-        return mUserType;
+        return userType;
     }
 
     /**
@@ -245,7 +246,7 @@ public class User implements JSONSerializer {
      * @param userType the given user type
      */
     public void setUserType(String userType) {
-        mUserType = userType;
+        this.userType = userType;
     }
 
     /**
@@ -254,7 +255,7 @@ public class User implements JSONSerializer {
      * @return user password
      */
     public String getPassword() {
-        return mPassword;
+        return password;
     }
 
     /**
@@ -263,7 +264,7 @@ public class User implements JSONSerializer {
      * @param password the given password
      */
     public void setPassword(String password) {
-        mPassword = password;
+        this.password = password;
     }
 
     /**
@@ -272,7 +273,7 @@ public class User implements JSONSerializer {
      * @return email address
      */
     public String getEmail() {
-        return mEmail;
+        return email;
     }
 
     /**
@@ -281,7 +282,7 @@ public class User implements JSONSerializer {
      * @param email the given email address
      */
     public void setEmail(String email) {
-        mEmail = email;
+        this.email = email;
     }
 
     /**
@@ -290,7 +291,7 @@ public class User implements JSONSerializer {
      * @return user phonenumber
      */
     public String getPhone() {
-        return mPhone;
+        return phone;
     }
 
     /**
@@ -299,7 +300,7 @@ public class User implements JSONSerializer {
      * @return user state
      */
     public String getState() {
-        return mState;
+        return state;
     }
 
     /**
@@ -308,7 +309,7 @@ public class User implements JSONSerializer {
      * @param phone user phonenumber
      */
     public void setPhone(String phone) {
-        mPhone = phone;
+        this.phone = phone;
     }
 
     /**
@@ -317,7 +318,7 @@ public class User implements JSONSerializer {
      * @param state the given user state
      */
     public void setState(String state) {
-        mState = state;
+        this.state = state;
     }
 
     /**
@@ -326,7 +327,7 @@ public class User implements JSONSerializer {
      * @return list of certificates
      */
     public X509Certificate[] getX509Certificates() {
-        return mx509Certs;
+        return x509Certs;
     }
 
     /**
@@ -334,8 +335,8 @@ public class User implements JSONSerializer {
      *
      * @param certs list of certificates
      */
-    public void setX509Certificates(X509Certificate certs[]) {
-        mx509Certs = certs;
+    public void setX509Certificates(X509Certificate[] certs) {
+        this.x509Certs = certs;
     }
 
     /**
@@ -344,7 +345,7 @@ public class User implements JSONSerializer {
      * @return certificate DN
      */
     public String getCertDN() {
-        return mCertDN;
+        return certDN;
     }
 
     /**
@@ -353,23 +354,23 @@ public class User implements JSONSerializer {
      * @param dn the given DN
      */
     public void setCertDN(String dn) {
-        mCertDN = dn;
+        this.certDN = dn;
     }
 
     public List<LDAPAttribute> getAttributes() {
-        return mAttributes;
+        return attrs;
     }
 
     public void setAttributes(List<LDAPAttribute> attributes) {
-        mAttributes = attributes;
+        this.attrs = attributes;
     }
 
     @SuppressWarnings("unchecked")
     public void set(String name, Object object) throws EBaseException {
         if (name.equals(ATTR_NAME)) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
+            throw new EBaseException(CMS.getUserMessage(CMS_BASE_INVALID_ATTRIBUTE, name));
         } else if (name.equals(ATTR_ID)) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
+            throw new EBaseException(CMS.getUserMessage(CMS_BASE_INVALID_ATTRIBUTE, name));
         } else if (name.equals(ATTR_FULLNAME)) {
             setFullName((String) object);
         } else if (name.equals(ATTR_STATE)) {
@@ -385,7 +386,7 @@ public class User implements JSONSerializer {
         } else if (name.equals(ATTRIBUTES)) {
             setAttributes((List<LDAPAttribute>) object);
         }  else {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
+            throw new EBaseException(CMS.getUserMessage(CMS_BASE_INVALID_ATTRIBUTE, name));
         }
     }
 
@@ -409,35 +410,26 @@ public class User implements JSONSerializer {
         } else if (name.equals(ATTRIBUTES)) {
             return getAttributes();
         } else {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
+            throw new EBaseException(CMS.getUserMessage(CMS_BASE_INVALID_ATTRIBUTE, name));
         }
     }
 
     public void delete(String name) throws EBaseException {
-        throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
+        throw new EBaseException(CMS.getUserMessage(CMS_BASE_INVALID_ATTRIBUTE, name));
     }
 
     @JsonIgnore
     public Enumeration<String> getElements() {
-        return mNames.elements();
+        return Collections.enumeration(names);
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((mCertDN == null) ? 0 : mCertDN.hashCode());
-        result = prime * result + ((mEmail == null) ? 0 : mEmail.hashCode());
-        result = prime * result + ((mFullName == null) ? 0 : mFullName.hashCode());
-        result = prime * result + ((mPassword == null) ? 0 : mPassword.hashCode());
-        result = prime * result + ((mPhone == null) ? 0 : mPhone.hashCode());
-        result = prime * result + ((mState == null) ? 0 : mState.hashCode());
-        result = prime * result + ((mUserDN == null) ? 0 : mUserDN.hashCode());
-        result = prime * result + ((mUserType == null) ? 0 : mUserType.hashCode());
-        result = prime * result + ((mUserid == null) ? 0 : mUserid.hashCode());
-        result = prime * result + Arrays.hashCode(mx509Certs);
-        result = prime * result + ((tpsProfiles == null) ? 0 : tpsProfiles.hashCode());
-        result = prime * result + ((mAttributes == null) ? 0 : mAttributes.hashCode());
+        result = prime * result + Arrays.hashCode(x509Certs);
+        result = prime * result + Objects.hash(attrs, certDN, email, fullName, password, phone, state,
+                userDN, userType, userid, tpsProfiles);
         return result;
     }
 
@@ -450,67 +442,15 @@ public class User implements JSONSerializer {
         if (getClass() != obj.getClass())
             return false;
         User other = (User) obj;
-        if (mCertDN == null) {
-            if (other.mCertDN != null)
-                return false;
-        } else if (!mCertDN.equals(other.mCertDN))
-            return false;
-        if (mEmail == null) {
-            if (other.mEmail != null)
-                return false;
-        } else if (!mEmail.equals(other.mEmail))
-            return false;
-        if (mFullName == null) {
-            if (other.mFullName != null)
-                return false;
-        } else if (!mFullName.equals(other.mFullName))
-            return false;
-        if (mPassword == null) {
-            if (other.mPassword != null)
-                return false;
-        } else if (!mPassword.equals(other.mPassword))
-            return false;
-        if (mPhone == null) {
-            if (other.mPhone != null)
-                return false;
-        } else if (!mPhone.equals(other.mPhone))
-            return false;
-        if (mState == null) {
-            if (other.mState != null)
-                return false;
-        } else if (!mState.equals(other.mState))
-            return false;
-        if (mUserDN == null) {
-            if (other.mUserDN != null)
-                return false;
-        } else if (!mUserDN.equals(other.mUserDN))
-            return false;
-        if (mUserType == null) {
-            if (other.mUserType != null)
-                return false;
-        } else if (!mUserType.equals(other.mUserType))
-            return false;
-        if (mUserid == null) {
-            if (other.mUserid != null)
-                return false;
-        } else if (!mUserid.equals(other.mUserid))
-            return false;
-        if (!Arrays.equals(mx509Certs, other.mx509Certs))
-            return false;
-        if (tpsProfiles == null) {
-            if (other.tpsProfiles != null)
-                return false;
-        } else if (!tpsProfiles.equals(other.tpsProfiles))
-            return false;
-        if (mAttributes == null) {
-            if (other.mAttributes != null)
-                return false;
-        } else if (!mAttributes.equals(other.mAttributes))
-            return false;
-        return true;
+        return Objects.equals(attrs, other.attrs) && Objects.equals(certDN, other.certDN)
+                && Objects.equals(email, other.email) && Objects.equals(fullName, other.fullName)
+                && Objects.equals(password, other.password) && Objects.equals(phone, other.phone)
+                && Objects.equals(state, other.state) && Objects.equals(userDN, other.userDN)
+                && Objects.equals(userType, other.userType) && Objects.equals(userid, other.userid)
+                && Arrays.equals(x509Certs, other.x509Certs) && Objects.equals(tpsProfiles, other.tpsProfiles);
     }
 
-    public static void main(String args[]) throws Exception {
+    public static void main(String[] args) throws Exception {
 
         User before = new User();
         before.setUserID("testuser");
