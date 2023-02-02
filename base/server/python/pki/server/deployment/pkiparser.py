@@ -701,8 +701,6 @@ class PKIConfigParser:
                     "<!--"
             self.mdict['PKI_SECURE_PORT_SLOT'] = \
                 self.mdict['pki_https_port']
-            self.mdict['PKI_UNSECURE_PORT_SLOT'] = \
-                self.mdict['pki_http_port']
 
             if self.mdict['pki_subsystem'] == "TPS":
                 self.mdict['SERVER_KEYGEN_SLOT'] = \

@@ -74,12 +74,12 @@
          Java HTTP Connector: /docs/config/http.html
          Java AJP  Connector: /docs/config/ajp.html
          APR (HTTP/AJP) Connector: /docs/apr.html
-         Define a non-SSL/TLS HTTP/1.1 Connector on port [PKI_UNSECURE_PORT]
+         Define a non-SSL/TLS HTTP/1.1 Connector on port [pki_http_port]
     -->
 
     <!-- Shared Ports:  Unsecure Port Connector -->
     <Connector name="Unsecure"
-               port="[PKI_UNSECURE_PORT]"
+               port="[pki_http_port]"
                protocol="HTTP/1.1"
                redirectPort="[PKI_SECURE_PORT]"
                maxHttpHeaderSize="8192"
@@ -94,7 +94,7 @@
     <!-- A "Connector" using the shared thread pool-->
     <!--
     <Connector executor="tomcatThreadPool"
-               port="[PKI_UNSECURE_PORT]" protocol="HTTP/1.1"
+               port="[pki_http_port]" protocol="HTTP/1.1"
                connectionTimeout="20000"
                redirectPort="[PKI_SECURE_PORT]" />
     -->
@@ -120,7 +120,7 @@
                enableLookups="false"
                disableUploadTimeout="true"
                enableOCSP="false"
-               ocspResponderURL="http://[pki_hostname]:[PKI_UNSECURE_PORT]/ca/ocsp"
+               ocspResponderURL="http://[pki_hostname]:[pki_http_port]/ca/ocsp"
                ocspResponderCertNickname="ocspSigningCert cert-pki-ca"
                ocspCacheSize="1000"
                ocspMinCacheEntryDuration="7200"
