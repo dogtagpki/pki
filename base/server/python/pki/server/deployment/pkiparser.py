@@ -691,7 +691,7 @@ class PKIConfigParser:
                     "<!--"
 
             if self.mdict['pki_subsystem'] == "CA":
-                self.mdict['PKI_ENABLE_RANDOM_SERIAL_NUMBERS'] = \
+                self.mdict['pki_random_serial_numbers_enable'] = \
                     self.mdict['pki_random_serial_numbers_enable'].lower()
 
             # Configuration scriptlet
