@@ -641,8 +641,6 @@ class PKIConfigParser:
                     self.mdict['pki_ajp_host_ipv4']
             self.mdict['PKI_AJP_HOST_IPv6_SLOT'] = \
                 self.mdict['pki_ajp_host_ipv6']
-            self.mdict['PKI_AJP_REDIRECT_PORT_SLOT'] = \
-                self.mdict['pki_https_port']
             self.mdict['PKI_DS_SECURE_CONNECTION_SLOT'] = \
                 self.mdict['pki_ds_secure_connection'].lower()
             self.mdict['PKI_INSTANCE_PATH_SLOT'] = \
