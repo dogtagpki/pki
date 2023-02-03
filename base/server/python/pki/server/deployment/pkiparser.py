@@ -655,19 +655,21 @@ class PKIConfigParser:
                     "<!--"
                 self.mdict['PKI_OPEN_ENABLE_PROXY_COMMENT_SLOT'] = \
                     "<!--"
+
+            self.mdict['pki_standalone'] = self.mdict['pki_standalone'].lower()
+
             if config.str2bool(self.mdict['pki_standalone']):
                 # Stand-alone PKI
                 self.mdict['PKI_CLOSE_STANDALONE_COMMENT_SLOT'] = \
                     ""
                 self.mdict['PKI_OPEN_STANDALONE_COMMENT_SLOT'] = \
                     ""
-                self.mdict['PKI_STANDALONE_SLOT'] = "true"
             else:
                 self.mdict['PKI_CLOSE_STANDALONE_COMMENT_SLOT'] = \
                     "-->"
                 self.mdict['PKI_OPEN_STANDALONE_COMMENT_SLOT'] = \
                     "<!--"
-                self.mdict['PKI_STANDALONE_SLOT'] = "false"
+
             if config.str2bool(self.mdict['pki_enable_access_log']):
                 self.mdict['PKI_CLOSE_TOMCAT_ACCESS_LOG_COMMENT_SLOT'] = \
                     ""
