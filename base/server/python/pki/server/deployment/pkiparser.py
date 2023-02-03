@@ -700,10 +700,6 @@ class PKIConfigParser:
                 self.mdict['PKI_OPEN_TOMCAT_ACCESS_LOG_COMMENT_SLOT'] = \
                     "<!--"
 
-            if self.mdict['pki_subsystem'] == "TPS":
-                self.mdict['SERVER_KEYGEN_SLOT'] = \
-                    self.mdict['pki_enable_server_side_keygen']
-
             if self.mdict['pki_subsystem'] == "CA":
                 self.mdict['PKI_ENABLE_RANDOM_SERIAL_NUMBERS'] = \
                     self.mdict['pki_random_serial_numbers_enable'].lower()
