@@ -630,8 +630,6 @@ class PKIConfigParser:
 
             # Slot assignment name/value pairs
             #     NOTE:  Master key == Slots key; Master value ==> Slots value
-            self.mdict['PKI_INSTANCE_NAME_SLOT'] = \
-                self.mdict['pki_instance_name']
 
             self.mdict['PKI_AJP_HOST_IPv4_SLOT'] = \
                 self.mdict['pki_ajp_host']

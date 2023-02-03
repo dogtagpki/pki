@@ -246,7 +246,7 @@ class PKIInstance(pki.server.PKIServer):
             params={
                 'pki_user': self.user,
                 'pki_group': self.group,
-                'PKI_INSTANCE_NAME': self.name,
+                'pki_instance_name': self.name,
                 'pki_instance_path': self.base_dir
             })
 
