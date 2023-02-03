@@ -704,9 +704,6 @@ class PKIConfigParser:
                 self.mdict['SERVER_KEYGEN_SLOT'] = \
                     self.mdict['pki_enable_server_side_keygen']
 
-            self.mdict['TOMCAT_SERVER_PORT_SLOT'] = \
-                self.mdict['pki_tomcat_server_port']
-
             if self.mdict['pki_subsystem'] == "CA":
                 self.mdict['PKI_ENABLE_RANDOM_SERIAL_NUMBERS'] = \
                     self.mdict['pki_random_serial_numbers_enable'].lower()
