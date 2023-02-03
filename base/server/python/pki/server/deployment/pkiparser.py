@@ -637,8 +637,6 @@ class PKIConfigParser:
                     self.mdict['pki_ajp_host_ipv4'] != 'localhost4'):
                 self.mdict['PKI_AJP_HOST_IPv4_SLOT'] = \
                     self.mdict['pki_ajp_host_ipv4']
-            self.mdict['PKI_AJP_HOST_IPv6_SLOT'] = \
-                self.mdict['pki_ajp_host_ipv6']
             self.mdict['pki_ds_secure_connection'] = \
                 self.mdict['pki_ds_secure_connection'].lower()
 
