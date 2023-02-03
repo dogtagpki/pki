@@ -139,14 +139,14 @@
 
     </Connector>
 
-    <!-- Define an AJP 1.3 Connector on port [PKI_AJP_PORT] -->
+    <!-- Define an AJP 1.3 Connector on port [pki_ajp_port] -->
 [PKI_OPEN_AJP_PORT_COMMENT]
-    <Connector port="[PKI_AJP_PORT]"
+    <Connector port="[pki_ajp_port]"
                protocol="AJP/1.3"
                redirectPort="[PKI_AJP_REDIRECT_PORT]"
                address="[PKI_AJP_HOST_IPv4]"
                secret="[PKI_AJP_SECRET]" />
-    <Connector port="[PKI_AJP_PORT]"
+    <Connector port="[pki_ajp_port]"
                protocol="AJP/1.3"
                redirectPort="[PKI_AJP_REDIRECT_PORT]"
                address="[PKI_AJP_HOST_IPv6]"

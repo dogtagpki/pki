@@ -633,8 +633,6 @@ class PKIConfigParser:
             self.mdict['PKI_INSTANCE_NAME_SLOT'] = \
                 self.mdict['pki_instance_name']
 
-            self.mdict['PKI_AJP_PORT_SLOT'] = \
-                self.mdict['pki_ajp_port']
             self.mdict['PKI_AJP_HOST_IPv4_SLOT'] = \
                 self.mdict['pki_ajp_host']
             if (self.mdict['pki_ajp_host'] == 'localhost4' and
