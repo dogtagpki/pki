@@ -144,7 +144,7 @@
     <Connector port="[pki_ajp_port]"
                protocol="AJP/1.3"
                redirectPort="[pki_https_port]"
-               address="[PKI_AJP_HOST_IPv4]"
+               address="[pki_ajp_host_ipv4]"
                secret="[pki_ajp_secret]" />
     <Connector port="[pki_ajp_port]"
                protocol="AJP/1.3"

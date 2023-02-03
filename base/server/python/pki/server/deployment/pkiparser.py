@@ -628,15 +628,6 @@ class PKIConfigParser:
                     self.mdict['PKI_PROFILE_SUBSYSTEM_SLOT'] = \
                         'ProfileSubsystem'
 
-            # Slot assignment name/value pairs
-            #     NOTE:  Master key == Slots key; Master value ==> Slots value
-
-            self.mdict['PKI_AJP_HOST_IPv4_SLOT'] = \
-                self.mdict['pki_ajp_host']
-            if (self.mdict['pki_ajp_host'] == 'localhost4' and
-                    self.mdict['pki_ajp_host_ipv4'] != 'localhost4'):
-                self.mdict['PKI_AJP_HOST_IPv4_SLOT'] = \
-                    self.mdict['pki_ajp_host_ipv4']
             self.mdict['pki_ds_secure_connection'] = \
                 self.mdict['pki_ds_secure_connection'].lower()
 
