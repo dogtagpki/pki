@@ -31,3 +31,9 @@ The CA provides a mechanism to automatically prune expired certificates and inco
 
 * link:https://github.com/dogtagpki/pki/wiki/CA-Database-Pruning[CA Database Pruning]
 * link:https://github.com/dogtagpki/pki/wiki/Configuring-CA-Database-Pruning[Configuring CA Database Pruning]
+
+== <subsystem>-add-user now accepts attributes as an option ==
+
+The `<subsystem>-add-user` methods accept a new option `--attributes` which takes a comma separated string of single-valued attributes as an argument, for example:
+
+`pki-server <subsystem>-add-user <instance> <other options> --attributes "ham:spam,foo:bar"`
