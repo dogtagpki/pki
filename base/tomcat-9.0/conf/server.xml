@@ -126,9 +126,9 @@
                ocspMinCacheEntryDuration="7200"
                ocspMaxCacheEntryDuration="14400"
                ocspTimeout="10"
-               passwordFile="[PKI_INSTANCE_PATH]/conf/password.conf"
+               passwordFile="[pki_instance_path]/conf/password.conf"
                passwordClass="org.apache.tomcat.util.net.jss.PlainPasswordFile"
-               certdbDir="[PKI_INSTANCE_PATH]/alias">
+               certdbDir="[pki_instance_path]/alias">
 
         <SSLHostConfig sslProtocol="SSL"
                        certificateVerification="optional">

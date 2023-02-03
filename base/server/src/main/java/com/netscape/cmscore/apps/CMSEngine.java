@@ -929,7 +929,7 @@ public class CMSEngine {
 
         /*
          * autoShutdown.allowed=false
-         * autoShutdown.crumbFile=[PKI_INSTANCE_PATH]/logs/autoShutdown.crumb
+         * autoShutdown.crumbFile=[pki_instance_path]/logs/autoShutdown.crumb
          * autoShutdown.restart.enable=false
          * autoShutdown.restart.max=3
          * autoShutdown.restart.count=0

@@ -247,7 +247,7 @@ class PKIInstance(pki.server.PKIServer):
                 'pki_user': self.user,
                 'pki_group': self.group,
                 'PKI_INSTANCE_NAME': self.name,
-                'PKI_INSTANCE_PATH': self.base_dir
+                'pki_instance_path': self.base_dir
             })
 
         self.symlink(PKIInstance.UNIT_FILE, self.unit_file, exist_ok=True)

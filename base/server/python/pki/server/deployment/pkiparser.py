@@ -643,8 +643,6 @@ class PKIConfigParser:
                 self.mdict['pki_ajp_host_ipv6']
             self.mdict['PKI_DS_SECURE_CONNECTION_SLOT'] = \
                 self.mdict['pki_ds_secure_connection'].lower()
-            self.mdict['PKI_INSTANCE_PATH_SLOT'] = \
-                self.mdict['pki_instance_path']
 
             if config.str2bool(self.mdict['pki_enable_proxy']):
                 self.mdict['PKI_CLOSE_AJP_PORT_COMMENT_SLOT'] = \
