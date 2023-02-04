@@ -143,9 +143,6 @@ class PKISubsystem(object):
         # Create /var/lib/pki/<instance>/<subsystem>
         self.instance.makedirs(self.base_dir, exist_ok=exist_ok)
 
-        # Create /etc/sysconfig/pki/tomcat/<instance>/<subsystem>
-        self.instance.makedirs(self.registry_dir, exist_ok=exist_ok)
-
     def create_conf(self, exist_ok=False):
 
         # Create /etc/pki/<instance>/<subsystem>
@@ -161,6 +158,11 @@ class PKISubsystem(object):
 
         # Create /var/log/pki/<instance>/<subsystem>/signedAudit
         self.instance.makedirs(self.log_signed_audit_dir, exist_ok=exist_ok)
+
+    def create_sysconfig(self, exist_ok=False):
+
+        # Create /etc/sysconfig/pki/tomcat/<instance>/<subsystem>
+        self.instance.makedirs(self.registry_dir, exist_ok=exist_ok)
 
     def load(self):
 
@@ -178,6 +180,12 @@ class PKISubsystem(object):
         if os.path.exists(self.registry_conf):
             logger.info('Loading subsystem registry: %s', self.registry_conf)
             pki.util.load_properties(self.registry_conf, self.registry)
+
+    def remove_sysconfig(self, force=False):
+
+        # Remove /etc/sysconfig/pki/tomcat/<instance>/<subsystem>
+        logger.info('Removing %s', self.registry_dir)
+        pki.util.rmtree(self.registry_dir, force=force)
 
     def remove_logs(self, force=False):
 
@@ -200,10 +208,6 @@ class PKISubsystem(object):
         pki.util.rmtree(self.conf_dir, force=force)
 
     def remove(self, force=False):
-
-        # Remove /etc/sysconfig/pki/tomcat/<instance>/<subsystem>
-        logger.info('Removing %s', self.registry_dir)
-        pki.util.rmtree(self.registry_dir, force=force)
 
         # Remove /var/lib/pki/<instance>/<subsystem>
         logger.info('Removing %s', self.base_dir)

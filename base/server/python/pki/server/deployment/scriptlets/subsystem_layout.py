@@ -66,6 +66,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         subsystem.create_conf(exist_ok=True)
         subsystem.create_logs(exist_ok=True)
 
+        subsystem.create_sysconfig(exist_ok=True)
+
         # Copy /usr/share/pki/server/etc/default.cfg
         # to /etc/sysconfig/pki/tomcat/<instance>/<subsystem>/default.cfg
         deployer.file.copy(
@@ -356,6 +358,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         subsystem = instance.get_subsystem(deployer.mdict['pki_subsystem'].lower())
 
+        subsystem.remove_sysconfig(force=deployer.force)
+
         if deployer.mdict['pki_subsystem'] == "CA":
 
             logger.info('Removing %s', deployer.mdict['pki_subsystem_emails_path'])
@@ -372,5 +376,4 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             subsystem.remove_logs(force=deployer.force)
 
         subsystem.remove_conf(force=deployer.force)
-
         subsystem.remove(force=deployer.force)
