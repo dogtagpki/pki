@@ -1751,6 +1751,15 @@ class ServerConfig(object):
         connector = etree.Element('Connector')
         connector.set('name', name)
 
+        self.add_connector(connector)
+
+        return connector
+
+    def add_connector(self, connector):
+        '''
+        Add connector after the last connector.
+        '''
+
         server = self.document.getroot()
 
         service = server.find('Service[@name="Catalina"]')
@@ -1759,8 +1768,6 @@ class ServerConfig(object):
 
         index = service.index(last_connector) + 1
         service.insert(index, connector)
-
-        return connector
 
     def remove_connector(self, name):
 
