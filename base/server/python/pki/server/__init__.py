@@ -1680,7 +1680,7 @@ class ServerConfig(object):
             if c == className:
                 return listener
 
-        raise KeyError('Listener not found: %s' % className)
+        return None
 
     def create_listener(self, className):
 
@@ -1699,6 +1699,10 @@ class ServerConfig(object):
     def remove_listener(self, className):
 
         listener = self.get_listener(className)
+
+        if listener is None:
+            raise KeyError('Listener not found: %s' % className)
+
         server = listener.getparent()
         server.remove(listener)
 
