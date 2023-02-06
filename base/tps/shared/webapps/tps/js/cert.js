@@ -22,6 +22,7 @@
 var CertificateModel = Model.extend({
     urlRoot: "/tps/rest/certs",
     parseResponse: function(response) {
+        var respModifyTime = (response.ModifyTime == null) ? undefined : new Date(response.ModifyTime)
         return {
             id: response.id,
             serialNumber: response.SerialNumber,
@@ -32,8 +33,8 @@ var CertificateModel = Model.extend({
             type: response.Type,
             keyType: response.KeyType,
             status: response.Status,
-            createTime: response.CreateTime,
-            modifyTime: response.ModifyTime
+            createTime: new Date(response.CreateTime),
+            modifyTime: respModifyTime
         };
     },
     createRequest: function(attributes) {
@@ -62,6 +63,7 @@ var CertificateCollection = Collection.extend({
         return response.Link;
     },
     parseEntry: function(entry) {
+        var custModifyTime = (entry.ModifyTime == null) ? undefined : new Date(entry.ModifyTime)
         return new CertificateModel({
             id: entry.id,
             serialNumber: entry.SerialNumber,
@@ -72,8 +74,8 @@ var CertificateCollection = Collection.extend({
             type: entry.Type,
             keyType: entry.KeyType,
             status: entry.Status,
-            createTime: entry.CreateTime,
-            modifyTime: entry.ModifyTime
+            createTime: new Date(entry.CreateTime),
+            modifyTime: custModifyTime
         });
     }
 });

@@ -38,6 +38,7 @@ var TOKEN_REUSE_MESSAGE = "When reusing a token that was previously " +
 var TokenModel = Model.extend({
     urlRoot: "/tps/rest/tokens",
     parseResponse: function(response) {
+        var respModifyTimestamp = (response.ModifyTimestamp == null) ? undefined : new Date(response.ModifyTimestamp)
         return {
             id: response.id,
             tokenID: response.TokenID,
@@ -48,8 +49,8 @@ var TokenModel = Model.extend({
             appletID: response.AppletID,
             keyInfo: response.KeyInfo,
             policy: response.Policy,
-            createTimestamp: response.createTimestamp,
-            modifyTimestamp: response.modifyTimestamp
+            createTimestamp: new Date(response.CreateTimestamp),
+            modifyTimestamp: respModifyTimestamp
         };
     },
     createRequest: function(attributes) {
@@ -90,6 +91,7 @@ var TokenCollection = Collection.extend({
         return response.Link;
     },
     parseEntry: function(entry) {
+        var custModifyTimestamp = (entry.ModifyTimestamp == null) ? undefined : new Date(entry.ModifyTimestamp)
         return new TokenModel({
             id: entry.id,
             tokenID: entry.TokenID,
@@ -100,8 +102,8 @@ var TokenCollection = Collection.extend({
             appletID: entry.AppletID,
             keyInfo: entry.KeyInfo,
             policy: entry.Policy,
-            createTimestamp: entry.CreateTimestamp,
-            modifyTimestamp: entry.ModifyTimestamp
+            createTimestamp: new Date(entry.CreateTimestamp),
+            modifyTimestamp: custModifyTimestamp
         });
     }
 });
