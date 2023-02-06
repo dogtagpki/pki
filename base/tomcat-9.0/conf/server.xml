@@ -139,20 +139,13 @@
 
     </Connector>
 
-    <!-- Define an AJP 1.3 Connector on port [pki_ajp_port] -->
-[PKI_OPEN_AJP_PORT_COMMENT]
-    <Connector port="[pki_ajp_port]"
-               protocol="AJP/1.3"
-               redirectPort="[pki_https_port]"
-               address="[pki_ajp_host_ipv4]"
-               secret="[pki_ajp_secret]" />
-    <Connector port="[pki_ajp_port]"
-               protocol="AJP/1.3"
-               redirectPort="[pki_https_port]"
-               address="[pki_ajp_host_ipv6]"
-               secret="[pki_ajp_secret]" />
-[PKI_CLOSE_AJP_PORT_COMMENT]
-
+    <!-- Define an AJP 1.3 Connector on port 8009 -->
+    <!--
+    <Connector protocol="AJP/1.3"
+               address="::1"
+               port="8009"
+               redirectPort="8443" />
+    -->
 
     <!-- An Engine represents the entry point (within Catalina) that processes
          every request.  The Engine implementation for Tomcat stand alone

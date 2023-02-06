@@ -23,6 +23,8 @@ from __future__ import absolute_import
 import logging
 import os
 
+from lxml import etree
+
 import pki
 import pki.server.instance
 import pki.util
@@ -138,6 +140,36 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.mdict['pki_source_server_xml'],
             pki_target_server_xml,
             overwrite_flag=True)
+
+        # Update /etc/pki/<instance>/server.xml
+
+        server_config = instance.get_server_config()
+
+        if config.str2bool(deployer.mdict['pki_enable_proxy']):
+
+            logger.info('Adding AJP connector for IPv4')
+
+            connector = etree.Element('Connector')
+            connector.set('port', deployer.mdict['pki_ajp_port'])
+            connector.set('protocol', 'AJP/1.3')
+            connector.set('redirectPort', deployer.mdict['pki_https_port'])
+            connector.set('address', deployer.mdict['pki_ajp_host_ipv4'])
+            connector.set('secret', deployer.mdict['pki_ajp_secret'])
+
+            server_config.add_connector(connector)
+
+            logger.info('Adding AJP connector for IPv6')
+
+            connector = etree.Element('Connector')
+            connector.set('port', deployer.mdict['pki_ajp_port'])
+            connector.set('protocol', 'AJP/1.3')
+            connector.set('redirectPort', deployer.mdict['pki_https_port'])
+            connector.set('address', deployer.mdict['pki_ajp_host_ipv6'])
+            connector.set('secret', deployer.mdict['pki_ajp_secret'])
+
+            server_config.add_connector(connector)
+
+        server_config.save()
 
         # Link /etc/pki/<instance>/catalina.properties
         # to /usr/share/pki/server/conf/catalina.properties.
