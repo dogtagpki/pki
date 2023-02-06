@@ -15,6 +15,11 @@ if (UNIX AND NOT WIN32)
         #       replace '-Wformat-security' with '-Werror=format-security'
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wunused -Wfloat-equal -Wpointer-arith -Wwrite-strings -Werror=format-security")
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wmissing-format-attribute")
+        # https://sourceware.org/annobin/annobin.html/Test-gaps.html
+        # https://sourceware.org/annobin/annobin.html/Test-cf-protection.html
+        # https://sourceware.org/annobin/annobin.html/Test-optimization.html
+        # https://sourceware.org/annobin/annobin.html/Test-glibcxx-assertions.html
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fplugin=annobin -fcf-protection=full -O2 -D_GLIBCXX_ASSERTIONS")
 
         # with -fPIC
         check_c_compiler_flag("-fPIC" WITH_FPIC)
