@@ -74,7 +74,10 @@ public class HttpRequest extends HttpMessage {
             throw e;
         }
 
-        mLine = mMethod + " " + mURI + " " + Http.HttpVers;
+	String protocol = (getHeader("host") != null) ? Http.Vers1_1 : Http.Vers1_0;
+        mLine = mMethod + " " + mURI + " " + protocol;
+	
+
         super.write(writer);
     }
 
