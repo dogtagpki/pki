@@ -88,7 +88,9 @@ public class HttpConnection implements IHttpConnection {
                 mHttpreq.setHeader("Content-Type", contentType );
             }
 
-            mHttpreq.setHeader("Connection", "Keep-Alive");
+
+            mHttpreq.setHeader("Host", dest.getHost());
+            logger.debug("HttpConnection: setting Host to " + dest.getHost());
 
             connect();
 
