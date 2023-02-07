@@ -80,10 +80,10 @@ jobs:
     with:
       db-image: ${{ needs.init.outputs.db-image }}
 
-  kra-rsnv3-test:
-    name: KRA with RSNv3
+  kra-rsnv1-test:
+    name: KRA with RSNv1
     needs: [init, build]
-    uses: ./.github/workflows/kra-rsnv3-test.yml
+    uses: ./.github/workflows/kra-rsnv1-test.yml
     with:
       db-image: ${{ needs.init.outputs.db-image }}
 

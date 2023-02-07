@@ -57,6 +57,8 @@ jobs:
               -s CA \
               -D pki_ds_hostname=ds.example.com \
               -D pki_ds_ldap_port=3389 \
+              -D pki_cert_id_generator=random \
+              -D pki_request_id_generator=random \
               -v
 
           docker exec pki pki-server cert-find
@@ -68,6 +70,8 @@ jobs:
               -s KRA \
               -D pki_ds_hostname=ds.example.com \
               -D pki_ds_ldap_port=3389 \
+              -D pki_key_id_generator=random \
+              -D pki_request_id_generator=random \
               -v
 
       - name: Check KRA storage cert
@@ -132,57 +136,6 @@ jobs:
           sed -n 's/\s*Host:\s\+\(\S\+\):.*/\1/p' output > actual
           echo pki.example.com > expected
           diff expected actual
-
-      - name: Switch to RSNv3
-        run: |
-          docker exec pki pki-server stop --wait
-
-          # switch cert request ID generator to RSNv3
-          docker exec pki pki-server ca-config-unset dbs.beginRequestNumber
-          docker exec pki pki-server ca-config-unset dbs.endRequestNumber
-          docker exec pki pki-server ca-config-unset dbs.requestIncrement
-          docker exec pki pki-server ca-config-unset dbs.requestLowWaterMark
-          docker exec pki pki-server ca-config-unset dbs.requestCloneTransferNumber
-          docker exec pki pki-server ca-config-unset dbs.requestRangeDN
-
-          docker exec pki pki-server ca-config-set dbs.request.id.generator random
-          docker exec pki pki-server ca-config-set dbs.request.id.length 128
-
-          # switch cert ID generator to RSNv3
-          docker exec pki pki-server ca-config-unset dbs.beginSerialNumber
-          docker exec pki pki-server ca-config-unset dbs.endSerialNumber
-          docker exec pki pki-server ca-config-unset dbs.serialIncrement
-          docker exec pki pki-server ca-config-unset dbs.serialLowWaterMark
-          docker exec pki pki-server ca-config-unset dbs.serialCloneTransferNumber
-          docker exec pki pki-server ca-config-unset dbs.serialRangeDN
-
-          docker exec pki pki-server ca-config-set dbs.cert.id.generator random
-          docker exec pki pki-server ca-config-set dbs.cert.id.length 128
-
-          # switch key request ID generator to RSNv3
-          docker exec pki pki-server kra-config-unset dbs.beginRequestNumber
-          docker exec pki pki-server kra-config-unset dbs.endRequestNumber
-          docker exec pki pki-server kra-config-unset dbs.requestIncrement
-          docker exec pki pki-server kra-config-unset dbs.requestLowWaterMark
-          docker exec pki pki-server kra-config-unset dbs.requestCloneTransferNumber
-          docker exec pki pki-server kra-config-unset dbs.requestRangeDN
-
-          docker exec pki pki-server kra-config-set dbs.request.id.generator random
-          docker exec pki pki-server kra-config-set dbs.request.id.length 128
-
-          # switch key ID generator to RSNv3
-          docker exec pki pki-server kra-config-unset dbs.beginSerialNumber
-          docker exec pki pki-server kra-config-unset dbs.endSerialNumber
-          docker exec pki pki-server kra-config-unset dbs.serialIncrement
-          docker exec pki pki-server kra-config-unset dbs.serialLowWaterMark
-          docker exec pki pki-server kra-config-unset dbs.serialCloneTransferNumber
-          docker exec pki pki-server kra-config-unset dbs.serialRangeDN
-
-          docker exec pki pki-server kra-config-set dbs.key.id.generator random
-          docker exec pki pki-server kra-config-set dbs.key.id.length 128
-
-          # restart PKI server
-          docker exec pki pki-server start --wait
 
       - name: Verify cert key archival
         run: |
