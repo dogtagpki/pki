@@ -9,7 +9,7 @@ Name:             pki
 # Upstream version number:
 %global           major_version 11
 %global           minor_version 3
-%global           update_version 0
+%global           update_version 1
 
 # Downstream release number:
 # - development/stabilization (unsupported): 0.<n> where n >= 1
@@ -28,7 +28,7 @@ Name:             pki
 Summary:          %{product_name} Package
 URL:              https://www.dogtagpki.org
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
-License:          GPLv2 and LGPLv2
+License:          GPL-2.0-only and LGPL-2.0-only
 Version:          %{major_version}.%{minor_version}.%{update_version}
 Release:          %{release_number}%{?phase:.}%{?phase}%{?timestamp:.}%{?timestamp}%{?commit_id:.}%{?commit_id}%{?dist}
 
