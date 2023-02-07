@@ -92,7 +92,9 @@ public class HttpConnection {
                 mHttpreq.setHeader("Content-Type", contentType );
             }
 
-            mHttpreq.setHeader("Connection", "Keep-Alive");
+
+            mHttpreq.setHeader("Host", dest.getHost());
+            logger.debug("HttpConnection: setting Host to " + dest.getHost());
 
             connect();
 
