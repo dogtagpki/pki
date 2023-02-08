@@ -1913,7 +1913,7 @@ class KRAConnector:
         self.password = deployer.password
         self.ca_cert = os.path.join(self.mdict['pki_server_database_path'], "ca.crt")
 
-    def deregister(self, instance, subsystem, critical_failure=False):
+    def deregister(self, instance, subsystem, critical_failure=True):
         krahost = None
         kraport = None
         try:
@@ -2080,7 +2080,7 @@ class TPSConnector:
         self.mdict = deployer.mdict
         self.password = deployer.password
 
-    def deregister(self, instance, subsystem, critical_failure=False):
+    def deregister(self, instance, subsystem, critical_failure=True):
         tkshost = None
         tksport = None
         try:
@@ -2171,7 +2171,7 @@ class SecurityDomain:
         self.mdict = deployer.mdict
         self.password = deployer.password
 
-    def deregister(self, instance, subsystem, critical_failure=False):
+    def deregister(self, instance, subsystem, critical_failure=True):
 
         cs_cfg = PKIConfigParser.read_simple_configuration_file(subsystem.cs_conf)
         machinename = cs_cfg.get('machineName')
