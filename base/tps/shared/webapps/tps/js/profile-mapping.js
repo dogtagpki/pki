@@ -31,9 +31,10 @@ var ProfileMappingModel = Model.extend({
     },
     createRequest: function(attributes) {
         return {
-            id: attributes.profileMappingID,
+            id: attributes.id,
+            ProfileMappingID: attributes.profileMappingID,
             Status: attributes.status,
-            properties: attributes.properties
+            Properties: attributes.properties
         };
     },
     changeStatus: function(action, options) {

@@ -18,7 +18,6 @@
 
 package org.dogtagpki.server.tps.rest;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.security.Principal;
@@ -56,28 +55,22 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
         logger.debug("ProfileMappingService.<init>()");
     }
 
-    public ProfileMappingData createProfileMappingData(ProfileMappingRecord profileMappingRecord)
-            throws UnsupportedEncodingException {
-
-        String profileMappingID = profileMappingRecord.getID();
+    public ProfileMappingData createProfileMappingData(ProfileMappingRecord profileMappingRecord) {
 
         ProfileMappingData profileMappingData = new ProfileMappingData();
-        profileMappingData.setID(profileMappingID);
+        profileMappingData.setID(profileMappingRecord.getID());
         profileMappingData.setStatus(profileMappingRecord.getStatus());
         profileMappingData.setProperties(profileMappingRecord.getProperties());
-
-        profileMappingID = URLEncoder.encode(profileMappingID, "UTF-8");
-
         return profileMappingData;
     }
 
     public ProfileMappingRecord createProfileMappingRecord(ProfileMappingData profileMappingData) {
 
+        String id = profileMappingData.getID();
         ProfileMappingRecord profileMappingRecord = new ProfileMappingRecord();
-        profileMappingRecord.setID(profileMappingData.getID());
+        profileMappingRecord.setID(id == null ? profileMappingData.getProfileMappingID() : id);
         profileMappingRecord.setStatus(profileMappingData.getStatus());
         profileMappingRecord.setProperties(profileMappingData.getProperties());
-
         return profileMappingRecord;
     }
 
@@ -155,9 +148,9 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
     public Response addProfileMapping(ProfileMappingData profileMappingData) {
         String method = "ProfileMappingService.addProfileMapping";
 
-        logger.debug("ProfileMappingService.addProfileMapping(\"" + profileMappingData.getID() + "\")");
-
+        logger.debug("ProfileMappingService.addProfileMapping(\"" + profileMappingData.getProfileMappingID() + "\")");
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        ProfileMappingData pmd = null;
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ProfileMappingDatabase database = subsystem.getProfileMappingDatabase();
@@ -169,19 +162,19 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
                 // if status is unspecified or user doesn't have rights to approve, the entry is disabled
                 profileMappingData.setStatus(Constants.CFG_DISABLED);
             }
-
-            database.addRecord(profileMappingData.getID(), createProfileMappingRecord(profileMappingData));
-            profileMappingData = createProfileMappingData(database.getRecord(profileMappingData.getID()));
-            auditMappingResolverChange(ILogger.SUCCESS, method, profileMappingData.getID(),
+            String id = profileMappingData.getProfileMappingID();
+            database.addRecord(id, createProfileMappingRecord(profileMappingData));
+            pmd = createProfileMappingData(database.getRecord(id));
+            auditMappingResolverChange(ILogger.SUCCESS, method, pmd.getID(),
                     profileMappingData.getProperties(), null);
 
-            String profileMappingID = URLEncoder.encode(profileMappingData.getID(), "UTF-8");
+            String profileMappingID = URLEncoder.encode(pmd.getID(), "UTF-8");
             URI uri = uriInfo
                     .getBaseUriBuilder()
                     .path(ProfileMappingResource.class)
                     .path("{profileMappingID}")
                     .build(profileMappingID);
-            return createCreatedResponse(profileMappingData, uri);
+            return createCreatedResponse(pmd, uri);
 
         } catch (PKIException e) {
             logger.error("ProfileMappingService: " + e.getMessage(), e);

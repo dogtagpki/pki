@@ -433,7 +433,7 @@ var ConfigEntryPage = EntryPage.extend({
     saveEntry: function() {
         var self = this;
 
-        if (!self.entry.profileID.match(TPS.PROFILE_ID_PATTERN)) {
+        if (self.entry.length && !self.entry.profileID.match(TPS.PROFILE_ID_PATTERN)) {
             throw "Invalid profile ID: " + self.entry.profileID;
         }
 
