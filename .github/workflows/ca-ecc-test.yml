@@ -59,6 +59,7 @@ jobs:
               -D pki_ds_ldap_port=3389 \
               -D pki_cert_id_generator=random \
               -D pki_request_id_generator=random \
+              -D pki_enable_access_log=False \
               -v
 
       - name: Check CA signing cert

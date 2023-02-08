@@ -1835,6 +1835,48 @@ class ServerConfig(object):
         sslcert = self.get_sslcert(sslhost, certType)
         sslhost.remove(sslcert)
 
+    def get_valves(self):
+        '''
+        Find all valves.
+        '''
+
+        server = self.document.getroot()
+        return server.findall('.//Valve')
+
+    def get_valve(self, className):
+        '''
+        Find valve by class name.
+        '''
+
+        server = self.document.getroot()
+        return server.find('.//Valve[@className="%s"]' % className)
+
+    def add_valve(self, valve):
+        '''
+        Add valve after the last valve.
+        '''
+
+        server = self.document.getroot()
+        valves = server.findall('.//Valve')
+        last_valve = valves[-1]
+
+        service = last_valve.getparent()
+        index = service.index(last_valve) + 1
+        service.insert(index, valve)
+
+    def remove_valve(self, className):
+        '''
+        Remove valve by class name.
+        '''
+
+        valve = self.get_valve(className)
+
+        if valve is None:
+            return
+
+        service = valve.getparent()
+        service.remove(valve)
+
 
 class PKIDatabaseConnection(object):
 

@@ -169,6 +169,28 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             server_config.add_connector(connector)
 
+        if config.str2bool(deployer.mdict['pki_enable_access_log']):
+
+            logger.info('Enabling access log')
+
+            valve = server_config.get_valve('org.apache.catalina.valves.AccessLogValve')
+
+            if valve is None:
+                valve = etree.Element('Valve')
+                valve.set('className', 'org.apache.catalina.valves.AccessLogValve')
+                server_config.add_valve(valve)
+
+            valve.set('directory', 'logs')
+            valve.set('prefix', 'localhost_access_log')
+            valve.set('suffix', '.txt')
+            valve.set('pattern', 'common')
+
+        else:
+
+            logger.info('Disabling access log')
+
+            server_config.remove_valve('org.apache.catalina.valves.AccessLogValve')
+
         server_config.save()
 
         # Link /etc/pki/<instance>/catalina.properties
