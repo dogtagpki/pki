@@ -192,13 +192,11 @@
         <!-- Access log processes all example.
              Documentation at: /docs/config/valve.html
              Note: The pattern used is equivalent to using pattern="common" -->
-        [PKI_OPEN_TOMCAT_ACCESS_LOG_COMMENT]
         <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"
                prefix="localhost_access_log" suffix=".txt"
-               pattern="common"/>
-        [PKI_CLOSE_TOMCAT_ACCESS_LOG_COMMENT]
+               pattern="%h %l %u %t &quot;%r&quot; %s %b" />
 
-	<Valve className="org.apache.catalina.valves.rewrite.RewriteValve"/>
+        <Valve className="org.apache.catalina.valves.rewrite.RewriteValve" />
 
       </Host>
     </Engine>

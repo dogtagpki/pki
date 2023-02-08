@@ -654,17 +654,6 @@ class PKIConfigParser:
                 self.mdict['PKI_OPEN_STANDALONE_COMMENT_SLOT'] = \
                     "<!--"
 
-            if config.str2bool(self.mdict['pki_enable_access_log']):
-                self.mdict['PKI_CLOSE_TOMCAT_ACCESS_LOG_COMMENT_SLOT'] = \
-                    ""
-                self.mdict['PKI_OPEN_TOMCAT_ACCESS_LOG_COMMENT_SLOT'] = \
-                    ""
-            else:
-                self.mdict['PKI_CLOSE_TOMCAT_ACCESS_LOG_COMMENT_SLOT'] = \
-                    "-->"
-                self.mdict['PKI_OPEN_TOMCAT_ACCESS_LOG_COMMENT_SLOT'] = \
-                    "<!--"
-
             if self.mdict['pki_subsystem'] == "CA":
                 self.mdict['pki_random_serial_numbers_enable'] = \
                     self.mdict['pki_random_serial_numbers_enable'].lower()
