@@ -108,6 +108,12 @@ var Model = Backbone.Model.extend({
     save: function(attributes, options) {
         var self = this;
         if (attributes == undefined) attributes = self.attributes;
+        // convert properties into expected format
+        props = {}
+        for (attr in attributes.properties) {
+            props[attributes.properties[attr]["name"]] = attributes.properties[attr]["value"]
+        }
+        attributes.properties = props
         // convert attributes into JSON request
         var request = self.createRequest(attributes);
         // remove old attributes

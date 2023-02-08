@@ -24,7 +24,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.netscape.certsrv.util.JSONSerializer;
+import com.netscape.certsrv.util.StringHashMapValueDeserializer;
 
 /**
  * @author Endi S. Dewata
@@ -36,6 +38,7 @@ public class ProfileData implements JSONSerializer {
     String id;
     String profileID;
     String status;
+    @JsonDeserialize(using = StringHashMapValueDeserializer.class)
     Map<String, String> properties;
 
     public String getID() {
@@ -46,6 +49,7 @@ public class ProfileData implements JSONSerializer {
         this.id = id;
     }
 
+    @JsonProperty("ProfileID")
     public String getProfileID() {
         return profileID;
     }

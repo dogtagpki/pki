@@ -19,22 +19,27 @@
 package com.netscape.certsrv.tps.profile;
 
 import java.util.Map;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.netscape.certsrv.util.JSONSerializer;
+import com.netscape.certsrv.util.StringHashMapValueDeserializer;
 
 /**
  * @author Endi S. Dewata
  */
 @JsonInclude(Include.NON_NULL)
-@JsonIgnoreProperties(ignoreUnknown=true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ProfileMappingData implements JSONSerializer {
 
     String id;
+    String profileMappingID;
     String status;
+    @JsonDeserialize(using = StringHashMapValueDeserializer.class)
     Map<String, String> properties;
 
     public String getID() {
@@ -43,6 +48,15 @@ public class ProfileMappingData implements JSONSerializer {
 
     public void setID(String id) {
         this.id = id;
+    }
+
+    @JsonProperty("ProfileMappingID")
+    public String getProfileMappingID() {
+        return profileMappingID;
+    }
+
+    public void setProfileMappingID(String profileMappingID) {
+        this.profileMappingID = profileMappingID;
     }
 
     @JsonProperty("Status")
@@ -65,12 +79,7 @@ public class ProfileMappingData implements JSONSerializer {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
-        result = prime * result + ((properties == null) ? 0 : properties.hashCode());
-        result = prime * result + ((status == null) ? 0 : status.hashCode());
-        return result;
+        return Objects.hash(id, profileMappingID, properties, status);
     }
 
     @Override
@@ -82,22 +91,19 @@ public class ProfileMappingData implements JSONSerializer {
         if (getClass() != obj.getClass())
             return false;
         ProfileMappingData other = (ProfileMappingData) obj;
-        if (id == null) {
-            if (other.id != null)
-                return false;
-        } else if (!id.equals(other.id))
-            return false;
-        if (properties == null) {
-            if (other.properties != null)
-                return false;
-        } else if (!properties.equals(other.properties))
-            return false;
-        if (status == null) {
-            if (other.status != null)
-                return false;
-        } else if (!status.equals(other.status))
-            return false;
-        return true;
+        return Objects.equals(id, other.id) &&
+                Objects.equals(profileMappingID, other.profileMappingID) &&
+                Objects.equals(properties, other.properties) &&
+                Objects.equals(status, other.status);
+    }
+
+    @Override
+    public String toString() {
+        try {
+            return toJSON();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
