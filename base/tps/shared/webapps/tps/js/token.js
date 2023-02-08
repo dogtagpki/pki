@@ -139,6 +139,17 @@ var TokenDialog = Dialog.extend({
             select.prop("disabled", true);
             saveBtn.prop("disabled", true);
         }
+    },
+    saveField: function(input) {
+        var self = this;
+        var name = input.attr("name");
+        var value;
+        if (name == "status") {
+            value = self.entry.nextStates[input[0].selectedIndex - 1];
+        } else {
+            value = input.val();
+        }
+        self.entry[name] = value;
     }
 });
 
@@ -204,7 +215,7 @@ var TokenPage = EntryPage.extend({
                 if (dialog.entry.status != self.model.attributes.status) {
 
                     self.model.changeStatus({
-                        status: dialog.entry.status,
+                        status: dialog.entry.status.name.name,
                         success: function(data, textStatus, response) {
                             self.render();
                         },
@@ -339,7 +350,7 @@ var TokenTableItem = TableItem.extend({
             if (dialog.entry.status != model.attributes.status) {
 
                 model.changeStatus({
-                    status: dialog.entry.status,
+                    status: dialog.entry.status.name.name,
                     success: function(data, textStatus, response) {
                         self.table.render();
                     },
