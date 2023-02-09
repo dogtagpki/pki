@@ -631,15 +631,6 @@ class PKIConfigParser:
             self.mdict['pki_ds_secure_connection'] = \
                 self.mdict['pki_ds_secure_connection'].lower()
 
-            if config.str2bool(self.mdict['pki_enable_proxy']):
-                self.mdict['PKI_PROXY_SECURE_PORT_SLOT'] = \
-                    self.mdict['pki_proxy_https_port']
-                self.mdict['PKI_PROXY_UNSECURE_PORT_SLOT'] = \
-                    self.mdict['pki_proxy_http_port']
-            else:
-                self.mdict['PKI_PROXY_SECURE_PORT_SLOT'] = ""
-                self.mdict['PKI_PROXY_UNSECURE_PORT_SLOT'] = ""
-
             self.mdict['pki_standalone'] = self.mdict['pki_standalone'].lower()
 
             if config.str2bool(self.mdict['pki_standalone']):

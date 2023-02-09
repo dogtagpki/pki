@@ -254,6 +254,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         subsystem = instance.get_subsystem(subsystem_name)
 
+        if config.str2bool(deployer.mdict['pki_enable_proxy']):
+
+            logger.info('Enabling HTTP proxy')
+
+            subsystem.config['proxy.securePort'] = deployer.mdict['pki_proxy_https_port']
+            subsystem.config['proxy.unsecurePort'] = deployer.mdict['pki_proxy_http_port']
+
         certs = subsystem.find_system_certs()
         for cert in certs:
 
