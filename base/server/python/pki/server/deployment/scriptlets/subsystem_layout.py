@@ -339,6 +339,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 subsystem.config['preop.cert.signing.type'] = 'remote'
                 subsystem.config['preop.cert.signing.profile'] = 'caInstallCACert'
 
+            if config.str2bool(deployer.mdict['pki_profiles_in_ldap']):
+                subsystem.config['subsystem.1.class'] = \
+                    'com.netscape.cmscore.profile.LDAPProfileSubsystem'
+
         # configure OCSP
         if subsystem.type == 'OCSP':
             if clone:
