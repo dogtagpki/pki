@@ -617,17 +617,6 @@ class PKIConfigParser:
                not len(self.mdict['pki_subordinate']):
                 self.mdict['pki_subordinate'] = "false"
 
-            # subystem-specific slot substitution name/value pairs
-            if self.mdict['pki_subsystem'] == "CA":
-
-                # in-place slot substitution name/value pairs
-                if config.str2bool(self.mdict['pki_profiles_in_ldap']):
-                    self.mdict['PKI_PROFILE_SUBSYSTEM_SLOT'] = \
-                        'LDAPProfileSubsystem'
-                else:
-                    self.mdict['PKI_PROFILE_SUBSYSTEM_SLOT'] = \
-                        'ProfileSubsystem'
-
             self.mdict['pki_ds_secure_connection'] = \
                 self.mdict['pki_ds_secure_connection'].lower()
 
