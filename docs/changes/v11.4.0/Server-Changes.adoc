@@ -5,3 +5,8 @@
 The `<subsystem>-add-user` methods accept a new option `--attributes` which takes a comma separated string of single-valued attributes as an argument, for example:
 
 `pki-server <subsystem>-add-user <instance> <other options> --attributes "ham:spam,foo:bar"`
+
+== Relocating pki-certsrv.jar ==
+
+Previously the `pki-certsrv.jar` was installed under `WEB-INF/lib` folder of each web application.
+The file has been moved into the `common/lib` folder such that it is available for the entire server.
