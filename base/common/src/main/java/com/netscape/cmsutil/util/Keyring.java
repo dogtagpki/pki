@@ -22,9 +22,12 @@
 package com.netscape.cmsutil.util;
 
 import java.io.IOException;
+
 import org.mozilla.jss.netscape.security.util.Utils;
 
 public class Keyring {
+
+    public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Keyring.class);
 
     private static String keyring = "@u";
     private static String keyType = "user";
@@ -36,13 +39,23 @@ public class Keyring {
      * @return Key ID
      */
     public static long getKeyID(String keyName) {
-        String[] cmd = { "keyctl", "search", keyring, keyType, keyName };
+
+        String[] cmd = {
+                "keyctl",
+                "search",
+                keyring,
+                keyType,
+                keyName
+        };
+        logger.debug("Command: " + String.join(" ", cmd));
+
         try {
             String output = Utils.exec(cmd, null);
             return Long.parseLong(output);
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return -1;
     }
 
@@ -71,7 +84,13 @@ public class Keyring {
 
         long keyID = getKeyID(keyName);
 
-        String[] cmd = {"keyctl", mode, String.valueOf(keyID)};
+        String[] cmd = {
+                "keyctl",
+                mode,
+                String.valueOf(keyID)
+        };
+        logger.debug("Command: " + String.join(" ", cmd));
+
         try {
             String output = Utils.exec(cmd, null);
             return output;

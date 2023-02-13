@@ -23,7 +23,10 @@
 """
 Module that provides interface to access Kernel Keyring
 """
+import logging
 import subprocess
+
+logger = logging.getLogger(__name__)
 
 
 class Keyring:
@@ -49,7 +52,14 @@ class Keyring:
         :rtype: (bytearray, bytearray)
         """
 
-        cmd = ['keyctl', 'padd', self.key_type, key_name, self.keyring]
+        cmd = [
+            'keyctl',
+            'padd',
+            self.key_type,
+            key_name,
+            self.keyring
+        ]
+        logger.debug('Command: %s', ' '.join(cmd))
 
         p = subprocess.Popen(cmd,
                              stdin=subprocess.PIPE,
@@ -68,7 +78,14 @@ class Keyring:
         :rtype: int
         """
 
-        cmd = ['keyctl', 'search', self.keyring, self.key_type, key_name]
+        cmd = [
+            'keyctl',
+            'search',
+            self.keyring,
+            self.key_type,
+            key_name
+        ]
+        logger.debug('Command: %s', ' '.join(cmd))
 
         return subprocess.check_output(cmd).decode('utf-8').strip()
 
@@ -93,7 +110,12 @@ class Keyring:
 
         key_id = self.get_key_id(key_name)
 
-        cmd = ['keyctl', mode, key_id]
+        cmd = [
+            'keyctl',
+            mode,
+            key_id
+        ]
+        logger.debug('Command: %s', ' '.join(cmd))
 
         return subprocess.check_output(cmd).decode('utf-8')
 
@@ -104,5 +126,12 @@ class Keyring:
         :return: Return code
         :rtype: int
         """
-        cmd = ['keyctl', 'clear', self.keyring]
+
+        cmd = [
+            'keyctl',
+            'clear',
+            self.keyring
+        ]
+        logger.debug('Command: %s', ' '.join(cmd))
+
         return subprocess.check_call(cmd)
