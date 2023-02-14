@@ -152,13 +152,13 @@ find_file(JACKSON2_JAXB_ANNOTATIONS_JAR
 )
 
 execute_process(
-    COMMAND xmvn-resolve jakarta.xml.bind:jakarta.xml.bind-api
+    COMMAND xmvn-resolve jakarta.xml.bind:jakarta.xml.bind-api:4
     OUTPUT_VARIABLE JAXB_API_JAR
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
 execute_process(
-    COMMAND xmvn-resolve jakarta.activation:jakarta.activation-api
+    COMMAND xmvn-resolve jakarta.activation:jakarta.activation-api:2
     OUTPUT_VARIABLE JAVAX_ACTIVATION_JAR
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
