@@ -87,7 +87,12 @@ class Keyring:
         ]
         logger.debug('Command: %s', ' '.join(cmd))
 
-        return subprocess.check_output(cmd).decode('utf-8').strip()
+        result = subprocess.run(cmd, stdout=subprocess.PIPE, check=False)
+
+        if result.returncode == 0:
+            return result.stdout.decode().strip()
+        else:
+            return None
 
     def get_password(self, key_name, output_format='raw'):
         """
