@@ -117,23 +117,34 @@ for subsystem in subsystems:
         for token in token_list:
             tags.add('hardware-' + token)
 
-# 3a. Prompt the user using systemd-ask-password
-# 3b. Store the values in the keyring using keyctl
+# 3a. Search for password in keyring
+# 3b. If not found, ask admin for password
+# 3c. Store password into keyring
 
 for tag in sorted(iter(tags)):
+
+    key_name = instance_name + '/' + tag
+    logger.info('Searching for %s in keyring', key_name)
+
+    key_id = keyring.get_key_id(key_name)
+    logger.debug('Key ID: %s', key_id)
+
+    if key_id is not None:
+        # password exists in keyring
+        continue
+
+    # ask admin for password
+
     if tag.startswith('hardware-'):
         prompt_tag = tag[9:]
     else:
         prompt_tag = tag
 
     prompt = '[' + instance_name + '] Please provide the password for ' + prompt_tag + ':'
-
     cmd_ask_password = ['systemd-ask-password', prompt]
-
     entered_pass = subprocess.check_output(cmd_ask_password)
 
-    key_name = instance_name + '/' + tag
-
+    logger.info('Storing %s into keyring', key_name)
     keyring.put_password(key_name=key_name, password=entered_pass)
 
 # 4. Put this script to sleep in background to keep the keyring fd open until main program starts

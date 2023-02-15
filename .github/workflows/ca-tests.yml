@@ -94,6 +94,13 @@ jobs:
     with:
       db-image: ${{ needs.init.outputs.db-image }}
 
+  ca-nuxwdog-test:
+    name: CA with Nuxwdog
+    needs: [init, build]
+    uses: ./.github/workflows/ca-nuxwdog-test.yml
+    with:
+      db-image: ${{ needs.init.outputs.db-image }}
+
   ca-container-test:
     name: CA container
     needs: [init, build]

@@ -1,0 +1,173 @@
+name: CA with Nuxwdog
+
+on:
+  workflow_call:
+    inputs:
+      db-image:
+        required: false
+        type: string
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      - name: Retrieve PKI images
+        uses: actions/cache@v3
+        with:
+          key: pki-images-${{ github.sha }}
+          path: pki-images.tar
+
+      - name: Load PKI images
+        run: docker load --input pki-images.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-container-create.sh ds
+        env:
+          IMAGE: ${{ inputs.db-image }}
+          HOSTNAME: ds.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect DS container to network
+        run: docker network connect example ds --alias ds.example.com
+
+      - name: Set up PKI container
+        run: |
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
+
+      - name: Connect PKI container to network
+        run: docker network connect example pki --alias pki.example.com
+
+      - name: Install CA
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_hostname=ds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -D pki_cert_id_generator=random \
+              -D pki_request_id_generator=random \
+              -v
+
+      - name: Check CA
+        run: |
+          docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
+          docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
+
+          docker exec pki pki info
+
+          docker exec pki pki pkcs12-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+
+          docker exec pki pki -n caadmin ca-user-show caadmin
+
+      - name: Stop CA
+        run: |
+          docker exec pki pki-server stop --wait -v
+
+      # https://github.com/dogtagpki/pki/blob/master/docs/admin/Nuxwdog.md
+      - name: Enable Nuxwdog
+        run: |
+          # add internal password into keyring
+          PASSWORD=$(docker exec pki grep '^internal=' /etc/pki/pki-tomcat/password.conf | cut -d= -f2)
+          docker exec pki runuser -u pkiuser -- \
+              keyctl add user pki-tomcat/internal $PASSWORD @u
+
+          # add internal database password into keyring
+          PASSWORD=$(docker exec pki grep '^internaldb=' /etc/pki/pki-tomcat/password.conf | cut -d= -f2)
+          docker exec pki runuser -u pkiuser -- \
+              keyctl add user pki-tomcat/internaldb $PASSWORD @u
+
+          # add replication database password into keyring
+          PASSWORD=$(docker exec pki grep '^replicationdb=' /etc/pki/pki-tomcat/password.conf | cut -d= -f2)
+          docker exec pki runuser -u pkiuser -- \
+              keyctl add user pki-tomcat/replicationdb $PASSWORD @u
+
+          docker exec pki runuser -u pkiuser -- keyctl show @u
+
+          # remove password.conf temporarily
+          docker exec pki mv /etc/pki/pki-tomcat/password.conf /tmp
+
+          # install setfacl tool needed for Nuxwdog
+          docker exec pki dnf install -y acl
+
+          docker exec pki pki-server nuxwdog-enable
+
+      - name: Start CA with Nuxwdog
+        run: |
+          docker exec pki systemctl start pki-tomcatd-nuxwdog@pki-tomcat.service
+
+          # wait for server to start
+          docker exec pki curl \
+              --retry 60 \
+              --retry-delay 0 \
+              --retry-connrefused \
+              -s \
+              -k \
+              -o /dev/null \
+              https://pki.example.com:8443
+
+      - name: Check systemd journal
+        if: always()
+        run: |
+          docker exec pki journalctl -x --no-pager -u pki-tomcatd-nuxwdog@pki-tomcat.service
+
+      - name: Check CA again
+        run: |
+          docker exec pki pki info
+          docker exec pki pki -n caadmin ca-user-show caadmin
+
+      - name: Stop CA with Nuxwdog
+        run: |
+          docker exec pki systemctl stop pki-tomcatd-nuxwdog@pki-tomcat.service
+
+      # https://github.com/dogtagpki/pki/blob/master/docs/admin/Nuxwdog.md
+      - name: Disable Nuxwdog
+        run: |
+          docker exec pki pki-server nuxwdog-disable
+
+          # restore password.conf
+          docker exec pki mv /tmp/password.conf /etc/pki/pki-tomcat
+
+          # remove all passwords from keyring
+          docker exec pki runuser -u pkiuser -- keyctl clear @u
+          docker exec pki runuser -u pkiuser -- keyctl show @u
+
+      - name: Start CA
+        run: |
+          docker exec pki pki-server start --wait -v
+
+      - name: Check CA again
+        run: |
+          docker exec pki pki info
+          docker exec pki pki -n caadmin ca-user-show caadmin
+
+      - name: Gather artifacts
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki ds
+          tests/bin/pki-artifacts-save.sh pki
+        continue-on-error: true
+
+      - name: Remove CA
+        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ca-nuxwdog-test
+          path: |
+            /tmp/artifacts/pki
