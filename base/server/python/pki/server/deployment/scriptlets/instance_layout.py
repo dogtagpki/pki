@@ -23,8 +23,6 @@ from __future__ import absolute_import
 import logging
 import os
 
-from lxml import etree
-
 import pki
 import pki.server.instance
 import pki.util
@@ -129,69 +127,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         shared_conf_path = deployer.mdict['pki_source_server_path']
 
-        # Copy /usr/share/pki/server/conf/server.xml
-        # to /etc/pki/<instance>/server.xml.
-
-        pki_target_server_xml = os.path.join(
-            deployer.mdict['pki_instance_configuration_path'],
-            'server.xml')
-
-        deployer.file.copy_with_slot_substitution(
-            deployer.mdict['pki_source_server_xml'],
-            pki_target_server_xml,
-            overwrite_flag=True)
-
-        # Update /etc/pki/<instance>/server.xml
-
-        server_config = instance.get_server_config()
-
-        if config.str2bool(deployer.mdict['pki_enable_proxy']):
-
-            logger.info('Adding AJP connector for IPv4')
-
-            connector = etree.Element('Connector')
-            connector.set('port', deployer.mdict['pki_ajp_port'])
-            connector.set('protocol', 'AJP/1.3')
-            connector.set('redirectPort', deployer.mdict['pki_https_port'])
-            connector.set('address', deployer.mdict['pki_ajp_host_ipv4'])
-            connector.set('secret', deployer.mdict['pki_ajp_secret'])
-
-            server_config.add_connector(connector)
-
-            logger.info('Adding AJP connector for IPv6')
-
-            connector = etree.Element('Connector')
-            connector.set('port', deployer.mdict['pki_ajp_port'])
-            connector.set('protocol', 'AJP/1.3')
-            connector.set('redirectPort', deployer.mdict['pki_https_port'])
-            connector.set('address', deployer.mdict['pki_ajp_host_ipv6'])
-            connector.set('secret', deployer.mdict['pki_ajp_secret'])
-
-            server_config.add_connector(connector)
-
-        if config.str2bool(deployer.mdict['pki_enable_access_log']):
-
-            logger.info('Enabling access log')
-
-            valve = server_config.get_valve('org.apache.catalina.valves.AccessLogValve')
-
-            if valve is None:
-                valve = etree.Element('Valve')
-                valve.set('className', 'org.apache.catalina.valves.AccessLogValve')
-                server_config.add_valve(valve)
-
-            valve.set('directory', 'logs')
-            valve.set('prefix', 'localhost_access_log')
-            valve.set('suffix', '.txt')
-            valve.set('pattern', 'common')
-
-        else:
-
-            logger.info('Disabling access log')
-
-            server_config.remove_valve('org.apache.catalina.valves.AccessLogValve')
-
-        server_config.save()
+        deployer.create_server_xml(instance)
 
         # Link /etc/pki/<instance>/catalina.properties
         # to /usr/share/pki/server/conf/catalina.properties.

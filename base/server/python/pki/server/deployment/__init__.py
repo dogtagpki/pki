@@ -35,6 +35,8 @@ import time
 from time import strftime as date
 import urllib.parse
 
+from lxml import etree
+
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 
@@ -226,6 +228,71 @@ class PKIDeployer:
             subsystem_dict = dict(self.main_config.items(self.subsystem_name))
             subsystem_dict[0] = None
             self.mdict.update(subsystem_dict)
+
+    def create_server_xml(self, instance):
+
+        # Copy /usr/share/pki/server/conf/server.xml
+        # to /etc/pki/<instance>/server.xml
+
+        server_xml = os.path.join(
+            pki.server.PKIServer.SHARE_DIR,
+            'server',
+            'conf',
+            'server.xml')
+
+        self.file.copy_with_slot_substitution(
+            server_xml,
+            instance.server_xml,
+            overwrite_flag=True)
+
+        # Configure /etc/pki/<instance>/server.xml
+        server_config = instance.get_server_config()
+
+        if config.str2bool(self.mdict['pki_enable_proxy']):
+
+            logger.info('Adding AJP connector for IPv4')
+
+            connector = etree.Element('Connector')
+            connector.set('port', self.mdict['pki_ajp_port'])
+            connector.set('protocol', 'AJP/1.3')
+            connector.set('redirectPort', self.mdict['pki_https_port'])
+            connector.set('address', self.mdict['pki_ajp_host_ipv4'])
+            connector.set('secret', self.mdict['pki_ajp_secret'])
+
+            server_config.add_connector(connector)
+
+            logger.info('Adding AJP connector for IPv6')
+
+            connector = etree.Element('Connector')
+            connector.set('port', self.mdict['pki_ajp_port'])
+            connector.set('protocol', 'AJP/1.3')
+            connector.set('redirectPort', self.mdict['pki_https_port'])
+            connector.set('address', self.mdict['pki_ajp_host_ipv6'])
+            connector.set('secret', self.mdict['pki_ajp_secret'])
+
+            server_config.add_connector(connector)
+
+        if config.str2bool(self.mdict['pki_enable_access_log']):
+
+            logger.info('Enabling access log')
+            valve = server_config.get_valve('org.apache.catalina.valves.AccessLogValve')
+
+            if valve is None:
+                valve = etree.Element('Valve')
+                valve.set('className', 'org.apache.catalina.valves.AccessLogValve')
+                server_config.add_valve(valve)
+
+            valve.set('directory', 'logs')
+            valve.set('prefix', 'localhost_access_log')
+            valve.set('suffix', '.txt')
+            valve.set('pattern', 'common')
+
+        else:
+
+            logger.info('Disabling access log')
+            server_config.remove_valve('org.apache.catalina.valves.AccessLogValve')
+
+        server_config.save()
 
     def get_key_params(self, cert_id):
 
