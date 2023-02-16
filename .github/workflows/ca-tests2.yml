@@ -59,20 +59,6 @@ jobs:
     with:
       db-image: ${{ needs.init.outputs.db-image }}
 
-  ca-rsnv1-test:
-    name: CA with RSNv1
-    needs: [init, build]
-    uses: ./.github/workflows/ca-rsnv1-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
-
-  ca-sequential-test:
-    name: CA with Sequential Serial Numbers
-    needs: [init, build]
-    uses: ./.github/workflows/ca-sequential-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
-
   ca-crl-test:
     name: CA CRL database
     needs: [init, build]
@@ -115,10 +101,45 @@ jobs:
     with:
       db-image: ${{ needs.init.outputs.db-image }}
 
-  ca-pruning-test:
-    name: CA database pruning
+  ca-lightweight-test:
+    name: Lightweight CA
     needs: [init, build]
-    uses: ./.github/workflows/ca-pruning-test.yml
+    uses: ./.github/workflows/ca-lightweight-test.yml
+    with:
+      db-image: ${{ needs.init.outputs.db-image }}
+
+  ca-lightweight-hsm-test:
+    name: Lightweight CA with HSM
+    needs: [init, build]
+    uses: ./.github/workflows/ca-lightweight-hsm-test.yml
+    with:
+      db-image: ${{ needs.init.outputs.db-image }}
+
+  subca-basic-test:
+    name: Basic Sub-CA
+    needs: [init, build]
+    uses: ./.github/workflows/subca-basic-test.yml
+    with:
+      db-image: ${{ needs.init.outputs.db-image }}
+
+  subca-cmc-test:
+    name: Sub-CA with CMC
+    needs: [init, build]
+    uses: ./.github/workflows/subca-cmc-test.yml
+    with:
+      db-image: ${{ needs.init.outputs.db-image }}
+
+  subca-external-test:
+    name: Sub-CA with external cert
+    needs: [init, build]
+    uses: ./.github/workflows/subca-external-test.yml
+    with:
+      db-image: ${{ needs.init.outputs.db-image }}
+
+  subca-hsm-test:
+    name: Sub-CA with HSM
+    needs: [init, build]
+    uses: ./.github/workflows/subca-hsm-test.yml
     with:
       db-image: ${{ needs.init.outputs.db-image }}
 

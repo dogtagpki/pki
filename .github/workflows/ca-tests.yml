@@ -101,13 +101,6 @@ jobs:
     with:
       db-image: ${{ needs.init.outputs.db-image }}
 
-  ca-container-test:
-    name: CA container
-    needs: [init, build]
-    uses: ./.github/workflows/ca-container-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
-
   ca-ds-connection-test:
     name: CA connection with DS
     needs: [init, build]
@@ -115,44 +108,30 @@ jobs:
     with:
       db-image: ${{ needs.init.outputs.db-image }}
 
-  ca-lightweight-test:
-    name: Lightweight CA
+  ca-rsnv1-test:
+    name: CA with RSNv1
     needs: [init, build]
-    uses: ./.github/workflows/ca-lightweight-test.yml
+    uses: ./.github/workflows/ca-rsnv1-test.yml
     with:
       db-image: ${{ needs.init.outputs.db-image }}
 
-  ca-lightweight-hsm-test:
-    name: Lightweight CA with HSM
+  ca-sequential-test:
+    name: CA with Sequential Serial Numbers
     needs: [init, build]
-    uses: ./.github/workflows/ca-lightweight-hsm-test.yml
+    uses: ./.github/workflows/ca-sequential-test.yml
     with:
       db-image: ${{ needs.init.outputs.db-image }}
 
-  subca-basic-test:
-    name: Basic Sub-CA
+  ca-pruning-test:
+    name: CA database pruning
     needs: [init, build]
-    uses: ./.github/workflows/subca-basic-test.yml
+    uses: ./.github/workflows/ca-pruning-test.yml
     with:
       db-image: ${{ needs.init.outputs.db-image }}
 
-  subca-cmc-test:
-    name: Sub-CA with CMC
+  ca-container-test:
+    name: CA container
     needs: [init, build]
-    uses: ./.github/workflows/subca-cmc-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
-
-  subca-external-test:
-    name: Sub-CA with external cert
-    needs: [init, build]
-    uses: ./.github/workflows/subca-external-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
-
-  subca-hsm-test:
-    name: Sub-CA with HSM
-    needs: [init, build]
-    uses: ./.github/workflows/subca-hsm-test.yml
+    uses: ./.github/workflows/ca-container-test.yml
     with:
       db-image: ${{ needs.init.outputs.db-image }}
