@@ -307,16 +307,12 @@ backup_instance_configuration_files()
 
 check_deprecated_algorithms() {
 
-    # Check deprecated algorithms in config files and cert profiles.
+    # Check deprecated algorithms in instance config folder which contains
+    # subsystem config files such as CA cert profiles as well.
     # Exclude NSS database files and links to Tomcat standard config files.
     # The result will appear in systemd journal when the server is started.
 
     FILES=$(find /etc/pki/${pki_instance_id} -type f -not -path "/etc/pki/${pki_instance_id}/alias/*")
-
-    if [ -d /var/lib/pki/${pki_instance_id}/ca/profiles ]
-    then
-        FILES="$FILES $(find /var/lib/pki/${pki_instance_id}/ca/profiles -type f)"
-    fi
 
     grep -n -E "SHA\s*$|SHA\s*,|SHAwith|SHA1|SHA-1|SHA_1" $FILES | awk -F: '{ print "WARNING: Deprecated algorithm in " $1 ":" $2 ": " $3 }'
 }
