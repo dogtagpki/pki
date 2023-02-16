@@ -164,7 +164,6 @@ class PKIDeployer:
         self.directory = util.Directory(self)
         self.file = util.File(self)
         self.symlink = util.Symlink(self)
-        self.war = util.War(self)
         self.password = util.Password(self)
         self.hsm = util.HSM(self)
         self.certutil = util.Certutil(self)

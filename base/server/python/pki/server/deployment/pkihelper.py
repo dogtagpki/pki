@@ -41,7 +41,6 @@ from grp import getgrgid
 from grp import getgrnam
 from pwd import getpwnam
 from pwd import getpwuid
-import zipfile
 
 # PKI Deployment Imports
 from . import pkiconfig as config
@@ -1404,50 +1403,6 @@ class Symlink:
         except OSError as exc:
             logger.error(log.PKI_OSERROR_1, exc)
             raise
-
-
-class War:
-    """PKI Deployment War File Class"""
-
-    def __init__(self, deployer):
-        self.mdict = deployer.mdict
-
-    def explode(self, name, path, critical_failure=True):
-        try:
-            if os.path.exists(name) and os.path.isfile(name):
-                if not zipfile.is_zipfile(name):
-                    logger.error(log.PKI_FILE_NOT_A_WAR_FILE_1, name)
-                    if critical_failure:
-                        raise Exception(log.PKI_FILE_NOT_A_WAR_FILE_1 % name)
-                if not os.path.exists(path) or not os.path.isdir(path):
-                    logger.error(log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, path)
-                    if critical_failure:
-                        raise Exception(
-                            log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1,
-                            path)
-                # jar -xf <name> -C <path>
-                logger.info(log.PKIHELPER_JAR_XF_C_2, name, path)
-                # Open war file
-                war = zipfile.ZipFile(name, 'r')
-                # Extract contents of war file to path
-                war.extractall(path)
-            else:
-                logger.error(log.PKI_FILE_MISSING_OR_NOT_A_FILE_1, name)
-                if critical_failure:
-                    raise Exception(log.PKI_FILE_MISSING_OR_NOT_A_FILE_1, name)
-        except OSError as exc:
-            logger.error(log.PKI_OSERROR_1, exc)
-            if critical_failure:
-                raise
-        except zipfile.BadZipfile as exc:
-            logger.error(log.PKI_BADZIPFILE_ERROR_1, exc)
-            if critical_failure:
-                raise
-        except zipfile.LargeZipFile as exc:
-            logger.error(log.PKI_LARGEZIPFILE_ERROR_1, exc)
-            if critical_failure:
-                raise
-        return
 
 
 class Password:
