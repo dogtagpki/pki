@@ -29,6 +29,7 @@ SYSCONF_DIR="/etc"
 SHARE_DIR="/usr/share"
 
 CMAKE="cmake"
+C_FLAGS=
 
 JNI_DIR="/usr/lib/java"
 UNIT_DIR="/usr/lib/systemd/system"
@@ -73,6 +74,7 @@ usage() {
     echo "    --sysconf-dir=<path>   System configuration directory (default: $SYSCONF_DIR)"
     echo "    --share-dir=<path>     Share directory (default: $SHARE_DIR)"
     echo "    --cmake=<path>         Path to CMake executable"
+    echo "    --c-flags=<flags>      C compiler flags"
     echo "    --java-home=<path>     Java home directory"
     echo "    --jni-dir=<path>       JNI directory (default: $JNI_DIR)"
     echo "    --unit-dir=<path>      Systemd unit directory (default: $UNIT_DIR)"
@@ -268,6 +270,9 @@ while getopts v-: arg ; do
         cmake=?*)
             CMAKE=$(readlink -f "$LONG_OPTARG")
             ;;
+        c-flags=?*)
+            C_FLAGS="$LONG_OPTARG"
+            ;;
         java-home=?*)
             # Don't convert Java home into an absolute path since that
             # will prevent PKI from running with other OpenJDK releases.
@@ -339,7 +344,8 @@ while getopts v-: arg ; do
             ;;
         name* | product-name* | product-id* | theme* | work-dir* | \
         prefix-dir* | include-dir* | lib-dir* | sysconf-dir* | share-dir* | \
-        cmake* | java-home* | jni-dir* | unit-dir* | python* | python-dir* | install-dir* | \
+        cmake* | c-flags* | java-home* | jni-dir* | \
+        unit-dir* | python* | python-dir* | install-dir* | \
         source-tag* | spec* | with-pkgs* | without-pkgs* | dist*)
             echo "ERROR: Missing argument for --$OPTARG option" >&2
             exit 1
@@ -404,6 +410,7 @@ if [ "$DEBUG" = true ] ; then
     echo "SYSCONF_DIR: $SYSCONF_DIR"
     echo "SHARE_DIR: $SHARE_DIR"
     echo "CMAKE: $CMAKE"
+    echo "C_FLAGS: $C_FLAGS"
     echo "JAVA_HOME: $JAVA_HOME"
     echo "JNI_DIR: $JNI_DIR"
     echo "PYTHON: $PYTHON"
@@ -625,7 +632,7 @@ if [ "$BUILD_TARGET" = "dist" ] ; then
 
     OPTIONS+=(-DLIB_SUFFIX=64)
     OPTIONS+=(-DBUILD_SHARED_LIBS:BOOL=ON)
-    OPTIONS+=(-DCMAKE_C_FLAGS:STRING="-s")
+    OPTIONS+=(-DCMAKE_C_FLAGS:STRING="$C_FLAGS")
 
     if [ "$VERBOSE" = true ] ; then
         OPTIONS+=(-DCMAKE_JAVA_COMPILE_FLAGS:STRING="-Xlint:deprecation")

@@ -813,6 +813,23 @@ This package provides test suite for %{product_name}.
 # (see /usr/lib/rpm/macros.d/macros.cmake)
 %set_build_flags
 
+# Remove all symbol table and relocation information from the executable.
+C_FLAGS="-s"
+
+%if 0%{?fedora}
+# https://sourceware.org/annobin/annobin.html/Test-gaps.html
+C_FLAGS="$C_FLAGS -fplugin=annobin"
+
+# https://sourceware.org/annobin/annobin.html/Test-cf-protection.html
+C_FLAGS="$C_FLAGS -fcf-protection=full"
+
+# https://sourceware.org/annobin/annobin.html/Test-optimization.html
+C_FLAGS="$C_FLAGS -O2"
+
+# https://sourceware.org/annobin/annobin.html/Test-glibcxx-assertions.html
+C_FLAGS="$C_FLAGS -D_GLIBCXX_ASSERTIONS"
+%endif
+
 pkgs=base\
 %{?with_server:,server}\
 %{?with_ca:,ca}\
@@ -842,6 +859,7 @@ pkgs=base\
     --sysconf-dir=%{_sysconfdir} \
     --share-dir=%{_datadir} \
     --cmake=%{__cmake} \
+    --c-flags="$C_FLAGS" \
     --java-home=%{java_home} \
     --jni-dir=%{_jnidir} \
     --unit-dir=%{_unitdir} \
