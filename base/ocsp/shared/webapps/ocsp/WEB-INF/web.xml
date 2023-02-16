@@ -363,7 +363,6 @@
                          <param-value> ocspGetStatus </param-value> </init-param>
    </servlet>
 
-   [PKI_OPEN_STANDALONE_COMMENT]
    <servlet>
       <servlet-name>  ocspUpdateDomainXML  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.csadmin.UpdateDomainXML  </servlet-class>
@@ -446,7 +445,6 @@
              <init-param><param-name>  interface   </param-name>
                          <param-value> admin          </param-value> </init-param>
    </servlet>
-   [PKI_CLOSE_STANDALONE_COMMENT]
 
    <listener>
       <listener-class> org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap </listener-class>
@@ -610,7 +608,6 @@
       <url-pattern>   /admin/ocsp/getStatus  </url-pattern>
    </servlet-mapping>
 
-   [PKI_OPEN_STANDALONE_COMMENT]
    <servlet-mapping>
       <servlet-name>  ocspUpdateDomainXML </servlet-name>
       <url-pattern>   /agent/ocsp/updateDomainXML  </url-pattern>
@@ -635,7 +632,6 @@
       <servlet-name>  ocspTokenAuthenticate-admin </servlet-name>
       <url-pattern>   /admin/ocsp/tokenAuthenticate  </url-pattern>
    </servlet-mapping>
-   [PKI_CLOSE_STANDALONE_COMMENT]
 
     <security-constraint>
         <web-resource-collection>
@@ -676,7 +672,6 @@
         </user-data-constraint>
     </security-constraint>
 
-   [PKI_OPEN_STANDALONE_COMMENT]
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>Security Domain Services</web-resource-name>
@@ -689,7 +684,6 @@
             <transport-guarantee>CONFIDENTIAL</transport-guarantee>
         </user-data-constraint>
     </security-constraint>
-   [PKI_CLOSE_STANDALONE_COMMENT]
 
     <security-constraint>
         <web-resource-collection>

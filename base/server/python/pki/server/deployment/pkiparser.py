@@ -622,18 +622,6 @@ class PKIConfigParser:
 
             self.mdict['pki_standalone'] = self.mdict['pki_standalone'].lower()
 
-            if config.str2bool(self.mdict['pki_standalone']):
-                # Stand-alone PKI
-                self.mdict['PKI_CLOSE_STANDALONE_COMMENT_SLOT'] = \
-                    ""
-                self.mdict['PKI_OPEN_STANDALONE_COMMENT_SLOT'] = \
-                    ""
-            else:
-                self.mdict['PKI_CLOSE_STANDALONE_COMMENT_SLOT'] = \
-                    "-->"
-                self.mdict['PKI_OPEN_STANDALONE_COMMENT_SLOT'] = \
-                    "<!--"
-
             if self.mdict['pki_subsystem'] == "CA":
                 self.mdict['pki_random_serial_numbers_enable'] = \
                     self.mdict['pki_random_serial_numbers_enable'].lower()
@@ -761,21 +749,6 @@ class PKIConfigParser:
             logger.error(log.PKIHELPER_DICTIONARY_INTERPOLATION_2, err)
             raise
         return
-
-    def compose_pki_slots_dictionary(self):
-        """Read the slots configuration file to create
-           the appropriate PKI slots dictionary"""
-        rv = 0
-        try:
-            parser = configparser.ConfigParser()
-            # Make keys case-sensitive!
-            parser.optionxform = str
-            parser.read(config.PKI_DEPLOYMENT_SLOTS_CONFIGURATION_FILE)
-            # Slots configuration file name/value pairs
-            self.slots_dict.update(dict(parser.items('Tomcat')))
-        except configparser.ParsingError as err:
-            rv = err
-        return rv
 
     @staticmethod
     def read_existing_deployment_data(instance_name):

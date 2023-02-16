@@ -739,9 +739,6 @@ def sanitize_user_deployment_cfg(cfg):
 
 def create_master_dictionary(parser):
 
-    # Read in the PKI slots configuration file.
-    parser.compose_pki_slots_dictionary()
-
     # Combine the various sectional dictionaries into a PKI master dictionary
     parser.compose_pki_master_dictionary()
 
