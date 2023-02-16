@@ -650,7 +650,6 @@
                          <param-value> kraGetStatus </param-value> </init-param>
    </servlet>
 
-   [PKI_OPEN_STANDALONE_COMMENT]
    <servlet>
       <servlet-name>  kraUpdateDomainXML  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.csadmin.UpdateDomainXML  </servlet-class>
@@ -733,7 +732,6 @@
              <init-param><param-name>  interface   </param-name>
                          <param-value> admin          </param-value> </init-param>
    </servlet>
-   [PKI_CLOSE_STANDALONE_COMMENT]
 
 
    <!-- ==================== RESTEasy Configuration =============== -->
@@ -976,7 +974,6 @@
       <url-pattern>   /admin/kra/getStatus  </url-pattern>
    </servlet-mapping>
 
-   [PKI_OPEN_STANDALONE_COMMENT]
    <servlet-mapping>
       <servlet-name>  kraUpdateDomainXML </servlet-name>
       <url-pattern>   /agent/kra/updateDomainXML  </url-pattern>
@@ -1001,7 +998,6 @@
       <servlet-name>  kraTokenAuthenticate-admin </servlet-name>
       <url-pattern>   /admin/kra/tokenAuthenticate  </url-pattern>
    </servlet-mapping>
-   [PKI_CLOSE_STANDALONE_COMMENT]
 
     <security-constraint>
         <web-resource-collection>
@@ -1055,7 +1051,6 @@
         </user-data-constraint>
     </security-constraint>
 
-   [PKI_OPEN_STANDALONE_COMMENT]
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>Security Domain Services</web-resource-name>
@@ -1068,7 +1063,6 @@
             <transport-guarantee>CONFIDENTIAL</transport-guarantee>
         </user-data-constraint>
     </security-constraint>
-   [PKI_CLOSE_STANDALONE_COMMENT]
 
     <security-constraint>
         <web-resource-collection>
