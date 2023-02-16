@@ -35,7 +35,6 @@ import pki.server
 import pki.server.instance
 
 from pki.server.deployment import pkiconfig as config
-from pki.server.deployment import pkimanifest as manifest
 from pki.server.deployment.pkiparser import PKIConfigParser
 from pki.server.deployment import pkilogging
 from pki.server.deployment import pkimessages as log
@@ -625,58 +624,10 @@ def main(argv):
         print()
         sys.exit(1)
 
-    # ALWAYS archive configuration file and manifest file
-
-    pki_user_deployment_cfg_spawn_archive = os.path.join(
-        deployer.mdict['pki_subsystem_archive_log_path'],
-        'spawn_' + config.USER_DEPLOYMENT_CONFIGURATION + '.' + deployer.mdict['pki_timestamp'])
-
-    logger.info(
-        log.PKI_ARCHIVE_CONFIG_MESSAGE_1,
-        pki_user_deployment_cfg_spawn_archive)
-
-    # Create /etc/sysconfig/pki/tomcat/<instance>/<subsystem>/deployment.cfg
-
-    pki_user_deployment_cfg_replica = os.path.join(
-        deployer.mdict['pki_subsystem_registry_path'],
-        config.USER_DEPLOYMENT_CONFIGURATION)
-
-    deployer.file.create(pki_user_deployment_cfg_replica)
-
-    with open(pki_user_deployment_cfg_replica, 'w', encoding='utf-8') as f:
-        deployer.user_config.write(f)
-
-    # For debugging/auditing purposes, save a timestamped copy of
-    # this configuration file in the subsystem archive
-    deployer.file.copy(
-        pki_user_deployment_cfg_replica,
-        pki_user_deployment_cfg_spawn_archive)
-
-    # for record in manifest.database:
-    #     print tuple(record)
-
-    pki_manifest = os.path.join(
-        deployer.mdict['pki_subsystem_registry_path'],
-        'manifest')
-
-    manifest_file = manifest.File(deployer.manifest_db)
-    manifest_file.register(pki_manifest)
-    manifest_file.write()
-
-    deployer.file.modify(pki_manifest, silent=True)
-
-    # Also, for debugging/auditing purposes, save a timestamped copy of
-    # this installation manifest file
-
-    pki_manifest_spawn_archive = os.path.join(
-        deployer.mdict['pki_subsystem_archive_log_path'],
-        'spawn_manifest.' + deployer.mdict['pki_timestamp'])
-
-    logger.info(log.PKI_ARCHIVE_MANIFEST_MESSAGE_1, pki_manifest_spawn_archive)
-
-    deployer.file.copy(
-        pki_manifest,
-        pki_manifest_spawn_archive)
+    # Store user config and installation manifest into
+    # /etc/sysconfig/pki/tomcat/<instance>/<subsystem>
+    deployer.store_config(instance)
+    deployer.store_manifest(instance)
 
     external = deployer.configuration_file.external
     standalone = deployer.configuration_file.standalone

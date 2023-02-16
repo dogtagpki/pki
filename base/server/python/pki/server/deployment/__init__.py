@@ -3489,3 +3489,54 @@ class PKIDeployer:
         subsystem.config['cs.state'] = '1'
 
         subsystem.save()
+
+    def store_config(self, instance):
+
+        subsystem = instance.get_subsystem(self.mdict['pki_subsystem'].lower())
+
+        # Store user's deployment.cfg into
+        # /etc/sysconfig/pki/tomcat/<instance>/<subsystem>/deployment.cfg
+
+        deployment_cfg = os.path.join(subsystem.registry_dir, 'deployment.cfg')
+        logger.info('Creating %s', deployment_cfg)
+
+        self.file.create(deployment_cfg)
+
+        with open(deployment_cfg, 'w', encoding='utf-8') as f:
+            self.user_config.write(f)
+
+        # For debugging/auditing purposes, store user's deployment.cfg into
+        # /var/log/pki/<instance>/<subsystem>/archive/spawn_deployment.cfg.<timestamp>
+
+        deployment_cfg_archive = os.path.join(
+            subsystem.log_archive_dir,
+            'spawn_deployment.cfg.' + self.mdict['pki_timestamp'])
+        logger.info('Creating %s', deployment_cfg_archive)
+
+        self.file.copy(deployment_cfg, deployment_cfg_archive)
+
+    def store_manifest(self, instance):
+
+        subsystem = instance.get_subsystem(self.mdict['pki_subsystem'].lower())
+
+        # Store installation manifest into
+        # /etc/sysconfig/pki/tomcat/<instance>/<subsystem>/manifest
+
+        manifest_file = os.path.join(subsystem.registry_dir, 'manifest')
+        logger.info('Creating %s', manifest_file)
+
+        file = manifest.File(self.manifest_db)
+        file.register(manifest_file)
+        file.write()
+
+        self.file.modify(manifest_file, silent=True)
+
+        # For debugging/auditing purposes, store installation manifest into
+        # /var/log/pki/<instance>/<subsystem>/archive/spawn_manifest.<timestamp>
+
+        manifest_archive = os.path.join(
+            subsystem.log_archive_dir,
+            'spawn_manifest.' + self.mdict['pki_timestamp'])
+        logger.info('Creating %s', manifest_archive)
+
+        self.file.copy(manifest_file, manifest_archive)
