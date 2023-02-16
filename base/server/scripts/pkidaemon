@@ -45,6 +45,21 @@ print_usage()
     exit ${default_error}
 }
 
+# If the root user calls "pki-server run" command, the command
+# will switch to PKI_USER to run the "pkidaemon" script which
+# internally will execute a "find" command.
+
+# The "find" command will go to another folder to do its job,
+# then return to the current folder (e.g. /root). If PKI_USER
+# has no access to that folder the "find" command will fail:
+# https://unix.stackexchange.com/questions/474741/find-failed-to-restore-initial-working-directory-permission-denied
+
+# To avoid the problem, switch to the instance folder first
+# since it's owned by PKI_USER so there won't be a permission
+# issue.
+
+cd /var/lib/pki/${pki_instance_id}
+
 # See how we were called.
 case $command in
     start)
