@@ -193,9 +193,7 @@ class PKIConfigParser:
         self.indent = 0
         self.authdb_connection = None
 
-        # Master and Slot dictionaries
         self.mdict = deployer.mdict
-        self.slots_dict = deployer.slots
 
     def process_command_line_arguments(self):
 

@@ -80,7 +80,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         instance.copyfile(
             deployer.mdict['pki_source_cs_cfg'],
             subsystem.cs_conf,
-            slots=deployer.slots,
             params=deployer.mdict)
 
         # Copy /usr/share/pki/<subsystem>/conf/registry.cfg
@@ -211,7 +210,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             instance.copyfile(
                 deployer.mdict['pki_source_proxy_conf'],
                 pki_target_proxy_conf,
-                slots=deployer.slots,
                 params=deployer.mdict)
 
         elif deployer.mdict['pki_subsystem'] == "TPS":
@@ -226,7 +224,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             instance.copyfile(
                 deployer.mdict['pki_source_phone_home_xml'],
                 pki_target_phone_home_xml,
-                slots=deployer.slots,
                 params=deployer.mdict)
 
         # Link /var/lib/pki/<instance>/<subsystem>/conf

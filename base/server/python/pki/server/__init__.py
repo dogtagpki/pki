@@ -643,14 +643,13 @@ grant codeBase "file:%s" {
             mode=DEFAULT_DIR_MODE,
             force=force)
 
-    def copyfile(self, source, dest, slots=None, params=None, force=False):
+    def copyfile(self, source, dest, params=None, force=False):
 
         logger.info('Creating %s', dest)
 
         pki.util.copyfile(
             source,
             dest,
-            slots=slots,
             params=params,
             uid=self.uid,
             gid=self.gid,

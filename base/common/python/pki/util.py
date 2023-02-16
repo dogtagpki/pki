@@ -182,7 +182,7 @@ def copy(
             copyfile(sourcefile, targetfile, uid=uid, gid=gid, mode=file_mode, force=force)
 
 
-def copyfile(source, dest, slots=None, params=None, uid=None, gid=None, mode=None, force=False):
+def copyfile(source, dest, params=None, uid=None, gid=None, mode=None, force=False):
     """
     Copy a file or link while preserving its attributes.
     """
@@ -211,23 +211,18 @@ def copyfile(source, dest, slots=None, params=None, uid=None, gid=None, mode=Non
     # source is a file
     stat = os.stat(source)
 
-    if not slots and not params:
+    if not params:
         # if no substitution is required, copy the file
         shutil.copyfile(source, dest)
         os.utime(dest, (stat.st_atime, stat.st_mtime))
 
     else:
         # otherwise, customize the file
-        if slots is None:
-            slots = {}
         if params is None:
             params = {}
 
         with open(dest, 'w', encoding='utf-8') as f:
             for line in fileinput.FileInput(source):
-                for slot in slots:
-                    if slot != '__name__' and slots[slot] in line:
-                        line = line.replace(slots[slot], params[slot])
                 line = replace_params(line, params)
                 f.write(line)
 

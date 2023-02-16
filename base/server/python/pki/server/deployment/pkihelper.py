@@ -1047,7 +1047,6 @@ class File:
     def __init__(self, deployer):
         self.deployer = deployer
         self.mdict = deployer.mdict
-        self.slots = deployer.slots
         self.identity = deployer.identity
 
     def create(self, name, uid=None, gid=None,
@@ -1246,7 +1245,6 @@ class File:
             pki.util.copyfile(
                 old_name,
                 new_name,
-                slots=self.slots,
                 params=self.mdict,
                 uid=uid,
                 gid=gid,
