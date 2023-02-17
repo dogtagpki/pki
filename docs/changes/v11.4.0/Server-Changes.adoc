@@ -6,7 +6,7 @@ The `<subsystem>-add-user` methods accept a new option `--attributes` which take
 
 `pki-server <subsystem>-add-user <instance> <other options> --attributes "ham:spam,foo:bar"`
 
-== Relocating pki-certsrv.jar ==
+== Renaming pki-certsrv.jar to pki-common.jar ==
 
 Previously the `pki-certsrv.jar` was installed under `WEB-INF/lib` folder of each web application.
-The file has been moved into the `common/lib` folder such that it is available for the entire server.
+The file has been moved into the `common/lib` folder and renamed into `pki-common.jar` such that it is available for the entire server.

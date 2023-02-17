@@ -127,11 +127,11 @@ jobs:
 
   - script: |
       docker exec runner \
-          jar tvf /root/build/dist/pki-certsrv.jar | awk '{print $8;}' | grep -v '/$' | sort | tee cmake.out
+          jar tvf /root/build/dist/pki-common.jar | awk '{print $8;}' | grep -v '/$' | sort | tee cmake.out
       docker exec runner \
           jar tvf /root/src/base/common/target/pki-common-11.3.0-SNAPSHOT.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort > maven.out
       diff cmake.out maven.out
-    displayName: Compare pki-certsrv.jar
+    displayName: Compare pki-common.jar
 
   - script: |
       docker exec runner \

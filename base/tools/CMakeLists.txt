@@ -21,11 +21,11 @@ javac(pki-tools-classes
         ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
         ${SLF4J_API_JAR} ${JAXB_API_JAR}
         ${JSS_JAR} ${JSS_SYMKEY_JAR} ${LDAPJDK_JAR}
-        ${PKI_CERTSRV_JAR}
+        ${PKI_COMMON_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
     DEPENDS
-        pki-certsrv-jar tkstool
+        pki-common-jar tkstool
 )
 
 configure_file(

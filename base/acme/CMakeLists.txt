@@ -14,9 +14,9 @@ javac(pki-acme-classes
         ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
         ${JSS_JAR}
         ${LDAPJDK_JAR}
-        ${PKI_TOMCAT_JAR} ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR}
+        ${PKI_COMMON_JAR} ${PKI_TOMCAT_JAR} ${PKI_CMS_JAR}
     DEPENDS
-        pki-certsrv-jar pki-cms-jar
+        pki-common-jar pki-cms-jar
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
 )

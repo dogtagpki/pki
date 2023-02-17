@@ -707,7 +707,7 @@ if [ "$BUILD_TARGET" = "dist" ] ; then
 
     if [[ " ${PKGS_TO_BUILD[*]} " =~ " base " ]]; then
         echo "- base:"
-        echo "    $WORK_DIR/dist/pki-certsrv.jar"
+        echo "    $WORK_DIR/dist/pki-common.jar"
         echo "    $WORK_DIR/dist/pki-tools.jar"
     fi
 

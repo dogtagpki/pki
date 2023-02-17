@@ -3,7 +3,7 @@ project(console NONE)
 # build console classes
 javac(pki-console-classes
     DEPENDS
-        pki-certsrv-jar
+        pki-common-jar
     SOURCES
         src/main/java/*.java
     CLASSPATH
@@ -12,7 +12,7 @@ javac(pki-console-classes
         ${SLF4J_API_JAR}
         ${BASE_JAR} ${LDAPJDK_JAR} ${MMC_JAR}
         ${MMC_EN_JAR} ${NMCLF_JAR} ${NMCLF_EN_JAR}
-        ${PKI_CERTSRV_JAR}
+        ${PKI_COMMON_JAR}
         ${JSS_JAR} ${COMMONS_CODEC_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes

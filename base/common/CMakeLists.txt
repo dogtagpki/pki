@@ -1,7 +1,7 @@
 project(common NONE)
 
-# build pki-certsrv
-javac(pki-certsrv-classes
+# build pki-common
+javac(pki-common-classes
     SOURCES
         src/main/java/*.java
     CLASSPATH
@@ -31,9 +31,9 @@ configure_file(
     ${CMAKE_CURRENT_BINARY_DIR}/share/etc/pki.conf
 )
 
-jar(pki-certsrv-jar
+jar(pki-common-jar
     CREATE
-        ${CMAKE_BINARY_DIR}/dist/pki-certsrv.jar
+        ${CMAKE_BINARY_DIR}/dist/pki-common.jar
     OPTIONS
         m
     PARAMS
@@ -41,13 +41,13 @@ jar(pki-certsrv-jar
     INPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
     DEPENDS
-        pki-certsrv-classes
+        pki-common-classes
 )
 
-set(PKI_CERTSRV_JAR ${CMAKE_BINARY_DIR}/dist/pki-certsrv.jar CACHE INTERNAL "pki-certsrv jar file")
+set(PKI_COMMON_JAR ${CMAKE_BINARY_DIR}/dist/pki-common.jar CACHE INTERNAL "pki-common jar file")
 
 if(RUN_TESTS)
-    javac(pki-certsrv-test-classes
+    javac(pki-common-test-classes
         SOURCES
             src/test/java/*.java
         CLASSPATH
@@ -58,12 +58,12 @@ if(RUN_TESTS)
             ${COMMONS_CLI_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_LANG3_JAR}
             ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
             ${JACKSON2_ANNOTATIONS_JAR} ${JACKSON2_JAXB_ANNOTATIONS_JAR} ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
-            ${PKI_CERTSRV_JAR}
+            ${PKI_COMMON_JAR}
             ${HAMCREST_JAR} ${JUNIT_JAR} ${JAXRS_API_JAR}
         OUTPUT_DIR
             ${CMAKE_BINARY_DIR}/test/classes
         DEPENDS
-            pki-certsrv-jar
+            pki-common-jar
     )
 
     execute_process(
@@ -77,7 +77,7 @@ if(RUN_TESTS)
         OUTPUT_VARIABLE DISCOVERED_TESTS
     )
     
-    add_junit_test(test-pki-certsrv
+    add_junit_test(test-pki-common
         CLASSPATH
             ${JAVAX_ACTIVATION_JAR}
             ${JAXB_API_JAR} ${JAXB_IMPL_JAR}
@@ -86,7 +86,7 @@ if(RUN_TESTS)
             ${COMMONS_CLI_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_LANG3_JAR}
             ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
             ${JACKSON2_ANNOTATIONS_JAR} ${JACKSON2_JAXB_ANNOTATIONS_JAR} ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
-            ${PKI_CERTSRV_JAR}
+            ${PKI_COMMON_JAR}
             ${HAMCREST_JAR} ${JUNIT_JAR} ${JAXRS_API_JAR}
             ${CMAKE_BINARY_DIR}/test/classes
         TESTS
@@ -94,7 +94,7 @@ if(RUN_TESTS)
         REPORTS_DIR
             reports
         DEPENDS
-            pki-certsrv-test-classes
+            pki-common-test-classes
     )
 endif(RUN_TESTS)
 
@@ -129,7 +129,7 @@ add_custom_command(
     COMMAND ln -sf ../../../..${JSS_SYMKEY_JAR} lib/jss-symkey.jar
     COMMAND ln -sf ../../../..${LDAPJDK_JAR} lib/ldapjdk.jar
     COMMAND ln -sf ../../../..${P11_KIT_TRUST} lib/p11-kit-trust.so
-    COMMAND ln -sf ../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-certsrv.jar ${CMAKE_CURRENT_BINARY_DIR}/lib/pki-certsrv.jar
+    COMMAND ln -sf ../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-common.jar ${CMAKE_CURRENT_BINARY_DIR}/lib/pki-common.jar
     COMMAND ln -sf ../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-tools.jar ${CMAKE_CURRENT_BINARY_DIR}/lib/pki-tools.jar
     COMMAND ln -sf ../../../..${RESTEASY_CLIENT_JAR} lib/resteasy-client.jar
     COMMAND ln -sf ../../../..${RESTEASY_JACKSON2_PROVIDER_JAR} lib/resteasy-jackson2-provider.jar
@@ -152,7 +152,7 @@ add_custom_command(
 
 install(
     FILES
-        ${CMAKE_BINARY_DIR}/dist/pki-certsrv.jar
+        ${CMAKE_BINARY_DIR}/dist/pki-common.jar
     DESTINATION
         ${JAVA_JAR_INSTALL_DIR}/pki
 )

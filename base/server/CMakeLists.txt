@@ -5,7 +5,7 @@ add_subdirectory(healthcheck)
 # build server classes
 javac(pki-server-classes
     DEPENDS
-        pki-certsrv-jar pki-tools-jar pki-tomcat-jar
+        pki-common-jar pki-tools-jar pki-tomcat-jar
     SOURCES
         src/main/java/*.java
     CLASSPATH
@@ -21,7 +21,7 @@ javac(pki-server-classes
         ${TOMCATJSS_JAR}
         ${JAVAX_ANNOTATIONS_API_JAR}
         ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR}
-        ${PKI_TOMCAT_JAR} ${PKI_CERTSRV_JAR}
+        ${PKI_COMMON_JAR} ${PKI_TOMCAT_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
 )
@@ -57,11 +57,11 @@ if(RUN_TESTS)
     # build pki-server-test
     javac(pki-server-test-classes
         DEPENDS
-            pki-certsrv-test-classes pki-certsrv-jar pki-cms-jar
+            pki-common-test-classes pki-common-jar pki-cms-jar
         SOURCES
             src/test/java/*.java
         CLASSPATH
-            ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR}
+            ${PKI_COMMON_JAR} ${PKI_CMS_JAR}
             ${LDAPJDK_JAR} ${SERVLET_JAR}
             ${JSS_JAR} ${JSS_SYMKEY_JAR}
             ${HAMCREST_JAR} ${JUNIT_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_IO_JAR}
@@ -88,7 +88,7 @@ if(RUN_TESTS)
             pki-server-test-classes
         CLASSPATH
             ${SLF4J_API_JAR} ${SLF4J_SIMPLE_JAR}
-            ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR}
+            ${PKI_COMMON_JAR} ${PKI_CMS_JAR}
             ${LDAPJDK_JAR} ${SERVLET_JAR}
             ${COMMONS_CODEC_JAR} ${COMMONS_LANG3_JAR}
             ${JSS_JAR} ${JSS_SYMKEY_JAR}
@@ -143,7 +143,7 @@ add_custom_command(
     COMMAND ln -sf ../../../../../..${JSS_JAR} common/lib/jss.jar
     COMMAND ln -sf ../../../../../..${JSS_SYMKEY_JAR} common/lib/jss-symkey.jar
     COMMAND ln -sf ../../../../../..${LDAPJDK_JAR} common/lib/ldapjdk.jar
-    COMMAND ln -sf ../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-certsrv.jar ${CMAKE_CURRENT_BINARY_DIR}/common/lib/pki-certsrv.jar
+    COMMAND ln -sf ../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-common.jar ${CMAKE_CURRENT_BINARY_DIR}/common/lib/pki-common.jar
     COMMAND ln -sf ../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-tomcat.jar ${CMAKE_CURRENT_BINARY_DIR}/common/lib/pki-tomcat.jar
     COMMAND ln -sf ../../../../../..${RESTEASY_CLIENT_JAR} common/lib/resteasy-client.jar
     COMMAND ln -sf ../../../../../..${RESTEASY_JACKSON2_PROVIDER_JAR} common/lib/resteasy-jackson2-provider.jar
