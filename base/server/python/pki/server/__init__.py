@@ -534,7 +534,9 @@ grant codeBase "file:%s" {
         classpath = [
             Tomcat.SHARE_DIR + '/bin/bootstrap.jar',
             Tomcat.SHARE_DIR + '/bin/tomcat-juli.jar',
-            '/usr/lib/java/commons-daemon.jar'
+            '/usr/share/java/ant.jar',
+            '/usr/share/java/ant-launcher.jar',
+            '/usr/lib/jvm/java/lib/tools.jar'
         ]
 
         cmd = prefix

@@ -203,6 +203,7 @@ class PKIInstance(pki.server.PKIServer):
                 if current_user != self.user:
                     prefix.extend(['/usr/sbin/runuser', '-u', self.user, '--'])
 
+            # run pki-server upgrade <instance>
             cmd = prefix + ['/usr/sbin/pki-server', 'upgrade']
 
             if logger.isEnabledFor(logging.DEBUG):
@@ -216,6 +217,21 @@ class PKIInstance(pki.server.PKIServer):
             logger.debug('Command: %s', ' '.join(cmd))
             subprocess.run(cmd, env=self.config, check=True)
 
+            # run pki-server migrate <instance>
+            cmd = prefix + ['/usr/sbin/pki-server', 'migrate']
+
+            if logger.isEnabledFor(logging.DEBUG):
+                cmd.append('--debug')
+
+            elif logger.isEnabledFor(logging.INFO):
+                cmd.append('--verbose')
+
+            cmd.append(self.name)
+
+            logger.debug('Command: %s', ' '.join(cmd))
+            subprocess.run(cmd, env=self.config, check=True)
+
+            # run pkidaemon start <instance>
             cmd = prefix + ['/usr/bin/pkidaemon', 'start', self.name]
 
             logger.debug('Command: %s', ' '.join(cmd))
