@@ -584,8 +584,6 @@ class PKIConfigParser:
             self.mdict['pki_timestamp'] = self.deployer.log_timestamp
             self.mdict['pki_certificate_timestamp'] = self.deployer.certificate_timestamp
             self.mdict['pki_architecture'] = self.deployer.architecture
-            self.mdict['pki_default_deployment_cfg'] = \
-                config.default_deployment_cfg
             self.mdict['pki_user_deployment_cfg'] = config.user_deployment_cfg
             self.mdict['pki_deployed_instance_name'] = \
                 config.pki_deployed_instance_name

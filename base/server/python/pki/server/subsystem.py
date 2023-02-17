@@ -119,10 +119,6 @@ class PKISubsystem(object):
         return os.path.join(self.instance.base_dir, self.name)
 
     @property
-    def registry_dir(self):
-        return os.path.join(self.instance.registry_dir, self.name)
-
-    @property
     def conf_dir(self):
         return os.path.join(self.instance.conf_dir, self.name)
 
@@ -137,6 +133,14 @@ class PKISubsystem(object):
     @property
     def log_signed_audit_dir(self):
         return os.path.join(self.log_dir, 'signedAudit')
+
+    @property
+    def registry_dir(self):
+        return os.path.join(self.instance.registry_dir, self.name)
+
+    @property
+    def default_cfg(self):
+        return os.path.join(self.registry_dir, 'default.cfg')
 
     def create(self, exist_ok=False):
 
