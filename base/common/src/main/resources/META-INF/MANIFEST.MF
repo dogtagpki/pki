@@ -1,3 +1,3 @@
-Name: pki-certsrv
+Name: pki-common
 Specification-Version: ${APPLICATION_VERSION}
 Implementation-Version: ${IMPL_VERSION}

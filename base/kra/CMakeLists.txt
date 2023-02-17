@@ -6,7 +6,7 @@ add_subdirectory(${APP_SERVER})
 # build pki-kra
 javac(pki-kra-classes
     DEPENDS
-        pki-certsrv-jar pki-cms-jar
+        pki-common-jar pki-cms-jar
     SOURCES
         src/main/java/*.java
     CLASSPATH
@@ -20,7 +20,7 @@ javac(pki-kra-classes
         ${LDAPJDK_JAR}
         ${SERVLET_JAR}
         ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR}
-        ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${TOMCAT_CATALINA_JAR}
+        ${PKI_COMMON_JAR} ${PKI_CMS_JAR} ${TOMCAT_CATALINA_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
 )

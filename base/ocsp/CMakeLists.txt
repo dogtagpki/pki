@@ -6,7 +6,7 @@ add_subdirectory(${APP_SERVER})
 # build pki-ocsp
 javac(pki-ocsp-classes
     DEPENDS
-        pki-certsrv-jar pki-cms-jar
+        pki-common-jar pki-cms-jar
     SOURCES
         src/main/java/*.java
     CLASSPATH
@@ -19,7 +19,7 @@ javac(pki-ocsp-classes
         ${JSS_JAR} ${JSS_SYMKEY_JAR}
         ${LDAPJDK_JAR}
         ${TOMCATJSS_JAR}
-        ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR}
+        ${PKI_COMMON_JAR} ${PKI_CMS_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
 )

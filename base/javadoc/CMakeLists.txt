@@ -82,7 +82,7 @@ javadoc(pki-javadoc
         ${RESTEASY_JAXRS_JAR} ${RESTEASY_CLIENT_JAR}
         ${JSS_JAR} ${JSS_SYMKEY_JAR}
         ${TOMCATJSS_JAR}
-        ${PKI_CERTSRV_JAR} ${PKI_TOOLS_JAR}
+        ${PKI_COMMON_JAR} ${PKI_TOOLS_JAR}
         ${PKI_JAVADOC_CLASSPATH}
     OPTIONS
         -windowtitle 'pki-javadoc'
@@ -93,7 +93,7 @@ javadoc(pki-javadoc
         -quiet
         ${doclintstr}
     DEPENDS
-        pki-certsrv-jar pki-tools-jar
+        pki-common-jar pki-tools-jar
         ${PKI_JAVADOC_DEPENDS}
 )
 
