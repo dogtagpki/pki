@@ -66,16 +66,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         subsystem.create_conf(exist_ok=True)
         subsystem.create_logs(exist_ok=True)
 
-        subsystem.create_sysconfig(exist_ok=True)
-
-        # Copy /usr/share/pki/server/etc/default.cfg
-        # to /etc/sysconfig/pki/tomcat/<instance>/<subsystem>/default.cfg
-        default_cfg = os.path.join(
-            pki.server.PKIServer.SHARE_DIR,
-            'server',
-            'etc',
-            'default.cfg'),
-        deployer.file.copy(default_cfg, subsystem.default_cfg)
+        subsystem.create_registry(exist_ok=True)
 
         # Copy /usr/share/pki/<subsystem>/conf/CS.cfg
         # to /etc/pki/<instance>/<subsystem>/CS.cfg
@@ -368,7 +359,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         subsystem = instance.get_subsystem(deployer.mdict['pki_subsystem'].lower())
 
-        subsystem.remove_sysconfig(force=deployer.force)
+        subsystem.remove_registry(force=deployer.force)
 
         if deployer.mdict['pki_subsystem'] == "CA":
 

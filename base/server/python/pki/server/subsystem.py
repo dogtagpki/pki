@@ -163,10 +163,23 @@ class PKISubsystem(object):
         # Create /var/log/pki/<instance>/<subsystem>/signedAudit
         self.instance.makedirs(self.log_signed_audit_dir, exist_ok=exist_ok)
 
-    def create_sysconfig(self, exist_ok=False):
+    def create_registry(self, exist_ok=False):
 
-        # Create /etc/sysconfig/pki/tomcat/<instance>/<subsystem>
+        # Create subsystem registry folder at
+        # /etc/sysconfig/pki/tomcat/<instance>/<subsystem>
+
         self.instance.makedirs(self.registry_dir, exist_ok=exist_ok)
+
+        # Copy /usr/share/pki/server/etc/default.cfg
+        # to /etc/sysconfig/pki/tomcat/<instance>/<subsystem>/default.cfg
+
+        default_cfg = os.path.join(
+            pki.server.PKIServer.SHARE_DIR,
+            'server',
+            'etc',
+            'default.cfg')
+
+        self.instance.copy(default_cfg, self.default_cfg)
 
     def load(self):
 
@@ -185,9 +198,17 @@ class PKISubsystem(object):
             logger.info('Loading subsystem registry: %s', self.registry_conf)
             pki.util.load_properties(self.registry_conf, self.registry)
 
-    def remove_sysconfig(self, force=False):
+    def remove_registry(self, force=False):
 
-        # Remove /etc/sysconfig/pki/tomcat/<instance>/<subsystem>
+        # Remove /etc/sysconfig/pki/tomcat/<instance>/<subsystem>/default.cfg
+
+        default_cfg = os.path.join(self.registry_dir, 'default.cfg')
+        logger.info('Removing %s', default_cfg)
+        pki.util.remove(default_cfg, force=force)
+
+        # Remove subsystem registry folder at
+        # /etc/sysconfig/pki/tomcat/<instance>/<subsystem>
+
         logger.info('Removing %s', self.registry_dir)
         pki.util.rmtree(self.registry_dir, force=force)
 
