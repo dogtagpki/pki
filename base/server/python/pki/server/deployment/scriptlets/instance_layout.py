@@ -248,6 +248,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.mdict['pki_instance_log_path'],
             deployer.mdict['pki_instance_logs_link'])
 
+        instance.create_registry()
+
         if config.str2bool(deployer.mdict['pki_systemd_service_create']):
 
             user = deployer.mdict['pki_user']
@@ -266,17 +268,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # to /lib/systemd/system/pki-tomcatd@.service
             deployer.symlink.create(deployer.mdict['pki_systemd_service'],
                                     deployer.mdict['pki_systemd_service_link'])
-
-        # Create /etc/sysconfig/pki/tomcat/<instance>
-        instance.makedirs(deployer.mdict['pki_instance_registry_path'], exist_ok=True)
-
-        # Copy /usr/share/pki/setup/pkidaemon_registry
-        # to /etc/sysconfig/pki/tomcat/<instance>/<instance>
-        deployer.file.copy_with_slot_substitution(
-            deployer.mdict['pki_source_registry'],
-            os.path.join(deployer.mdict['pki_instance_registry_path'],
-                         deployer.mdict['pki_instance_name']),
-            overwrite_flag=True)
 
     def destroy(self, deployer):
 
@@ -304,6 +295,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         deployer.systemd.daemon_reload()
 
+        instance.remove_registry(force=deployer.force)
+
         logger.info('Removing %s', deployer.mdict['pki_instance_path'])
         pki.util.rmtree(path=deployer.mdict['pki_instance_path'],
                         force=deployer.force)
@@ -322,9 +315,4 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         logger.info('Removing %s', instance.service_conf)
         pki.util.remove(
             path=instance.service_conf,
-            force=deployer.force)
-
-        logger.info('Removing %s', deployer.mdict['pki_instance_registry_path'])
-        pki.util.rmtree(
-            path=deployer.mdict['pki_instance_registry_path'],
             force=deployer.force)

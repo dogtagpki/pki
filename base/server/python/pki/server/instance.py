@@ -236,19 +236,7 @@ class PKIInstance(pki.server.PKIServer):
         logs_link = os.path.join(self.base_dir, 'logs')
         self.symlink(self.log_dir, logs_link, exist_ok=True)
 
-        self.makedirs(self.registry_dir, exist_ok=True)
-
-        # Copy /usr/share/pki/setup/pkidaemon_registry
-        # to /etc/sysconfig/pki/tomcat/<instance>/<instance>
-        self.copyfile(
-            PKIInstance.REGISTRY_FILE,
-            self.registry_file,
-            params={
-                'pki_user': self.user,
-                'pki_group': self.group,
-                'pki_instance_name': self.name,
-                'pki_instance_path': self.base_dir
-            })
+        self.create_registry()
 
         self.symlink(PKIInstance.UNIT_FILE, self.unit_file, exist_ok=True)
 
@@ -345,6 +333,26 @@ class PKIInstance(pki.server.PKIServer):
             logger.info('Linking %s to %s', dest, source)
             self.symlink(source, dest, exist_ok=True)
 
+    def create_registry(self):
+
+        # Create instance registry folder at
+        # /etc/sysconfig/pki/tomcat/<instance>
+
+        self.makedirs(self.registry_dir, exist_ok=True)
+
+        # Copy /usr/share/pki/setup/pkidaemon_registry
+        # to /etc/sysconfig/pki/tomcat/<instance>/<instance>
+
+        self.copyfile(
+            PKIInstance.REGISTRY_FILE,
+            self.registry_file,
+            params={
+                'pki_user': self.user,
+                'pki_group': self.group,
+                'pki_instance_name': self.name,
+                'pki_instance_path': self.base_dir
+            })
+
     def load(self):
 
         super().load()
@@ -379,11 +387,7 @@ class PKIInstance(pki.server.PKIServer):
         logger.info('Removing %s', self.unit_file)
         pki.util.unlink(self.unit_file, force=force)
 
-        logger.info('Removing %s', self.registry_file)
-        pki.util.remove(self.registry_file, force=force)
-
-        logger.info('Removing %s', self.registry_dir)
-        pki.util.rmtree(self.registry_dir, force=force)
+        self.remove_registry(force=force)
 
         logs_link = os.path.join(self.base_dir, 'logs')
         logger.info('Removing %s', logs_link)
@@ -409,6 +413,19 @@ class PKIInstance(pki.server.PKIServer):
         pki.util.unlink(conf_link, force=force)
 
         super().remove_conf_dir(force=force)
+
+    def remove_registry(self, force=False):
+
+        # Remove /etc/sysconfig/pki/tomcat/<instance>/<instance>
+
+        logger.info('Removing %s', self.registry_file)
+        pki.util.remove(self.registry_file, force=force)
+
+        # Remove instance registry folder at
+        # /etc/sysconfig/pki/tomcat/<instance>
+
+        logger.info('Removing %s', self.registry_dir)
+        pki.util.rmtree(self.registry_dir, force=force)
 
     @staticmethod
     def read_external_certs(conf_file):
