@@ -303,11 +303,13 @@ class PKIServer(object):
 
         logger.info('Creating catalina.policy')
 
+        # add "do not edit" warning
         filename = '/usr/share/pki/server/conf/catalina.policy'
         logger.info('Appending %s', filename)
         with open(filename, 'r', encoding='utf-8') as f:
             content = f.read()
 
+        # add Tomcat's default policy
         filename = '/usr/share/tomcat/conf/catalina.policy'
         logger.info('Appending %s', filename)
         with open(filename, 'r', encoding='utf-8') as f:
@@ -315,11 +317,13 @@ class PKIServer(object):
 
         content += '\n\n'
 
+        # add PKI's default policy
         filename = '/usr/share/pki/server/conf/pki.policy'
         logger.info('Appending %s', filename)
         with open(filename, 'r', encoding='utf-8') as f:
             content += f.read()
 
+        # generate policies for libraries in <instance>/common/lib
         for root, _, filenames in os.walk(self.common_lib_dir):
             for filename in filenames:
                 filepath = os.path.join(root, filename)
@@ -330,6 +334,7 @@ grant codeBase "file:%s" {
 };
 ''' % filepath
 
+        # add admin's custom policy
         filename = '%s/custom.policy' % self.conf_dir
         if os.path.exists(filename):
             logger.info('Appending %s', filename)
@@ -337,6 +342,7 @@ grant codeBase "file:%s" {
             with open(filename, 'r', encoding='utf-8') as f:
                 content += f.read()
 
+        # store everything into <instance>/conf/catalina.policy
         filename = '%s/catalina.policy' % self.conf_dir
         logger.info('Storing %s', filename)
         with open(filename, 'w', encoding='utf-8') as f:
