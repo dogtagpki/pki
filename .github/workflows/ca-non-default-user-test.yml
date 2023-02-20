@@ -1,0 +1,114 @@
+name: CA with non-default user
+
+on:
+  workflow_call:
+    inputs:
+      db-image:
+        required: false
+        type: string
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      - name: Retrieve PKI images
+        uses: actions/cache@v3
+        with:
+          key: pki-images-${{ github.sha }}
+          path: pki-images.tar
+
+      - name: Load PKI images
+        run: docker load --input pki-images.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-container-create.sh ds
+        env:
+          IMAGE: ${{ inputs.db-image }}
+          HOSTNAME: ds.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect DS container to network
+        run: docker network connect example ds --alias ds.example.com
+
+      - name: Set up PKI container
+        run: |
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
+
+      - name: Connect PKI container to network
+        run: docker network connect example pki --alias pki.example.com
+
+      - name: Create non-default user and group
+        run: |
+          docker exec pki groupadd pki
+          docker exec pki getent group pki
+
+          docker exec pki useradd -g pki pki
+          docker exec pki getent passwd pki
+
+      - name: Install CA with non-default user and group
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_user=pki \
+              -D pki_group=pki \
+              -D pki_ds_hostname=ds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -D pki_cert_id_generator=random \
+              -D pki_request_id_generator=random \
+              -v
+
+      - name: Check PKI server process
+        run: |
+          # get process UID
+          docker exec pki ps -ef | grep catalina.base | tee output
+          cut -d' ' -f1 output > actual
+
+          echo pki > expected
+          diff expected actual
+
+      - name: Run PKI healthcheck
+        run: docker exec pki pki-healthcheck --failures-only
+
+      - name: Initialize PKI client
+        run: |
+          docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
+          docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
+          docker exec pki pki info
+
+      - name: Check CA admin
+        run: |
+          docker exec pki pki pkcs12-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+          docker exec pki pki -n caadmin ca-user-show caadmin
+
+      - name: Gather artifacts
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki ds
+          tests/bin/pki-artifacts-save.sh pki
+        continue-on-error: true
+
+      - name: Remove CA
+        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ca-systemd
+          path: |
+            /tmp/artifacts/pki

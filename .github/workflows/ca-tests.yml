@@ -129,6 +129,13 @@ jobs:
     with:
       db-image: ${{ needs.init.outputs.db-image }}
 
+  ca-non-default-user-test:
+    name: CA with non-default user
+    needs: [init, build]
+    uses: ./.github/workflows/ca-non-default-user-test.yml
+    with:
+      db-image: ${{ needs.init.outputs.db-image }}
+
   ca-container-test:
     name: CA container
     needs: [init, build]
