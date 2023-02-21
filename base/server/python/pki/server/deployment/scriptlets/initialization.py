@@ -217,7 +217,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 #            tightly-coupled shared instance.
                 #
 
-                deployer.security_domain.deregister(instance, subsystem)
+                deployer.leave_security_domain(instance, subsystem)
 
         except Exception as e:  # pylint: disable=broad-except
             logger.error(str(e))

@@ -41,6 +41,7 @@ public class SecurityDomainCLI extends CLI {
         this.mainCLI = mainCLI;
 
         addModule(new SecurityDomainJoinCLI(this));
+        addModule(new SecurityDomainLeaveCLI(this));
         addModule(new SecurityDomainShowCLI(this));
 
         addModule(new SecurityDomainHostCLI(this));
