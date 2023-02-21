@@ -81,7 +81,6 @@ class PKIDeployer:
         self.certutil = None
         self.pk12util = None
         self.kra_connector = None
-        self.security_domain = None
         self.systemd = None
         self.tps_connector = None
         self.nss_db_type = None
@@ -171,7 +170,6 @@ class PKIDeployer:
         self.certutil = util.Certutil(self)
         self.pk12util = util.PK12util(self)
         self.kra_connector = util.KRAConnector(self)
-        self.security_domain = util.SecurityDomain(self)
         self.systemd = util.Systemd(self)
         self.tps_connector = util.TPSConnector(self)
 
@@ -1356,6 +1354,45 @@ class PKIDeployer:
         self.sd_host = sd_subsystem.get_host(sd_hostname, sd_port)
 
         self.get_install_token()
+
+    def leave_security_domain(self, instance, subsystem):
+
+        sd_host = subsystem.config['securitydomain.host']
+        sd_port = subsystem.config['service.securityDomainPort']
+        sd_url = 'https://%s:%s' % (sd_host, sd_port)
+
+        logger.info(
+            'Removing %s from security domain at %s',
+            subsystem.type,
+            sd_url)
+
+        hostname = subsystem.config['machineName']
+
+        server_config = instance.get_server_config()
+        secure_port = server_config.get_secure_port()
+
+        proxy_secure_port = subsystem.config.get('proxy.securePort')
+        if proxy_secure_port:
+            secure_port = proxy_secure_port
+
+        host_id = '%s %s %s' % (subsystem.type, hostname, secure_port)
+
+        try:
+            subsystem.leave_security_domain(
+                sd_url,
+                host_id,
+                hostname,
+                secure_port)
+
+        except subprocess.CalledProcessError:
+            logger.error(
+                'Unable to remove %s from security domain', subsystem.type)
+            logger.error('To remove manually:')
+            logger.error(
+                '$ pki -U %s -n <admin> securitydomain-host-del "%s"',
+                sd_url,
+                host_id)
+            raise
 
     def setup_security_domain(self, instance, subsystem):
 
