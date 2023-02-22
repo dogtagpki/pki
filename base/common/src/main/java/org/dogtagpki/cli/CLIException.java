@@ -22,7 +22,7 @@ public class CLIException extends Exception {
 
     private static final long serialVersionUID = 1L;
 
-    int code;
+    int code = -1;
 
     public CLIException() {
     }
