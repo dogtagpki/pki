@@ -66,7 +66,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         subsystem.create_conf(exist_ok=True)
         subsystem.create_logs(exist_ok=True)
 
-        subsystem.create_registry(exist_ok=True)
+        if config.str2bool(deployer.mdict['pki_registry_enable']):
+            subsystem.create_registry(exist_ok=True)
 
         # Copy /usr/share/pki/<subsystem>/conf/CS.cfg
         # to /etc/pki/<instance>/<subsystem>/CS.cfg
@@ -359,7 +360,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         subsystem = instance.get_subsystem(deployer.mdict['pki_subsystem'].lower())
 
-        subsystem.remove_registry(force=deployer.force)
+        if config.str2bool(deployer.mdict['pki_registry_enable']):
+            subsystem.remove_registry(force=deployer.force)
 
         if deployer.mdict['pki_subsystem'] == "CA":
 
