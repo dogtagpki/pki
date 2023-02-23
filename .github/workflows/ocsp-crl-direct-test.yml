@@ -278,10 +278,13 @@ jobs:
           # remove the random parts of stderr so it can be compared
           sed -i "s/^[^:]*:error:/error:/g" stderr
 
+          # remove file names and line numbers so it can be compared
+          sed -i "s/^\([^:]*:[^:]*:[^:]*:[^:]*:[^:]*:\)[^:]*:[^:]*:/\1/" stderr
+
           # the responder should fail
           echo "Error querying OCSP responder" > expected
-          echo "error:1E800076:HTTP routines:OSSL_HTTP_REQ_CTX_nbio:unexpected content type:crypto/http/http_client.c:676:expected=application/ocsp-response, actual=text/html" >> expected
-          echo "error:1E800067:HTTP routines:OSSL_HTTP_REQ_CTX_exchange:error receiving:crypto/http/http_client.c:874:server=http://ocsp.example.com:8080" >> expected
+          echo "error:1E800076:HTTP routines:OSSL_HTTP_REQ_CTX_nbio:unexpected content type:expected=application/ocsp-response, actual=text/html" >> expected
+          echo "error:1E800067:HTTP routines:OSSL_HTTP_REQ_CTX_exchange:error receiving:server=http://ocsp.example.com:8080" >> expected
 
           diff expected stderr
 
