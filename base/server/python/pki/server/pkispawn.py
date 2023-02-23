@@ -624,10 +624,12 @@ def main(argv):
         print()
         sys.exit(1)
 
-    # Store user config and installation manifest into
-    # /etc/sysconfig/pki/tomcat/<instance>/<subsystem>
-    deployer.store_config(instance)
-    deployer.store_manifest(instance)
+    if config.str2bool(deployer.mdict['pki_registry_enable']):
+
+        # Store user config and installation manifest into
+        # /etc/sysconfig/pki/tomcat/<instance>/<subsystem>
+        deployer.store_config(instance)
+        deployer.store_manifest(instance)
 
     external = deployer.configuration_file.external
     standalone = deployer.configuration_file.standalone

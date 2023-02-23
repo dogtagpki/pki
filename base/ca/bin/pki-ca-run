@@ -325,6 +325,7 @@ pkispawn \
     -D pki_security_domain_setup=False \
     -D pki_security_manager=False \
     -D pki_systemd_service_create=False \
+    -D pki_registry_enable=False \
     -v
 
 echo "################################################################################"

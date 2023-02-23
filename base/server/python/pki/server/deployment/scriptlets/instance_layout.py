@@ -248,7 +248,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.mdict['pki_instance_log_path'],
             deployer.mdict['pki_instance_logs_link'])
 
-        instance.create_registry()
+        if config.str2bool(deployer.mdict['pki_registry_enable']):
+            instance.create_registry()
 
         if config.str2bool(deployer.mdict['pki_systemd_service_create']):
 
@@ -295,7 +296,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         deployer.systemd.daemon_reload()
 
-        instance.remove_registry(force=deployer.force)
+        if config.str2bool(deployer.mdict['pki_registry_enable']):
+            instance.remove_registry(force=deployer.force)
 
         logger.info('Removing %s', deployer.mdict['pki_instance_path'])
         pki.util.rmtree(path=deployer.mdict['pki_instance_path'],
