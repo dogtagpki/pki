@@ -92,6 +92,13 @@ jobs:
     with:
       db-image: ${{ needs.init.outputs.db-image }}
 
+  ipa-subca-test:
+    name: IPA with Sub-CA
+    needs: [init, build]
+    uses: ./.github/workflows/ipa-subca-test.yml
+    with:
+      db-image: ${{ needs.init.outputs.db-image }}
+
   ipa-clone-test:
     name: IPA clone
     needs: [init, build]
