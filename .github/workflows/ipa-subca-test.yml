@@ -1,0 +1,120 @@
+name: IPA with Sub-CA
+
+on:
+  workflow_call:
+    inputs:
+      db-image:
+        required: false
+        type: string
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      - name: Retrieve IPA images
+        uses: actions/cache@v3
+        with:
+          key: ipa-images-${{ github.sha }}
+          path: ipa-images.tar
+
+      - name: Load IPA images
+        run: docker load --input ipa-images.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Run IPA container
+        run: |
+          tests/bin/runner-init.sh ipa
+        env:
+          IMAGE: ipa-runner
+          HOSTNAME: ipa.example.com
+
+      - name: Connect IPA container to network
+        run: docker network connect example ipa --alias ipa.example.com --alias ipa-ca.example.com
+
+      - name: Create root CA
+        run: |
+          docker exec ipa pki \
+              -d nssdb \
+              nss-cert-request \
+              --subject "CN=Root CA Signing Certificate" \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --csr root-ca_signing.csr
+          docker exec ipa pki \
+              -d nssdb \
+              nss-cert-issue \
+              --csr root-ca_signing.csr \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --cert root-ca_signing.crt
+          docker exec ipa pki \
+              -d nssdb \
+              nss-cert-import \
+              --cert root-ca_signing.crt \
+              --trust CT,C,C \
+              root-ca_signing
+
+      - name: Generate IPA cert request
+        run: |
+          docker exec ipa sysctl net.ipv6.conf.lo.disable_ipv6=0
+          docker exec ipa ipa-server-install \
+              -U \
+              --domain example.com \
+              -r EXAMPLE.COM \
+              -p Secret.123 \
+              -a Secret.123 \
+              --no-host-dns \
+              --no-ntp \
+              --external-ca
+
+      - name: Issue IPA cert
+        run: |
+          docker exec ipa pki \
+              -d nssdb \
+              nss-cert-issue \
+              --issuer root-ca_signing \
+              --csr /root/ipa.csr \
+              --ext /usr/share/pki/server/certs/subca_signing.conf \
+              --cert ipa.crt
+
+      - name: Install IPA server with Sub-CA
+        run: |
+          docker exec ipa ipa-server-install \
+              --external-cert-file=/ipa.crt \
+              --external-cert-file=/root-ca_signing.crt \
+              -p Secret.123
+          echo Secret.123 | docker exec -i ipa kinit admin
+          docker exec ipa ipa ping
+
+      - name: Check Sub-CA admin
+        run: |
+          docker exec ipa pki client-cert-import ca_signing --ca-cert root-ca_signing.crt
+          docker exec ipa pki pkcs12-import \
+              --pkcs12 /root/ca-agent.p12 \
+              --pkcs12-password Secret.123
+          docker exec ipa pki -n ipa-ca-agent ca-user-show admin
+
+      - name: Gather artifacts
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh ipa --instance EXAMPLE-COM
+          tests/bin/pki-artifacts-save.sh ipa
+          tests/bin/ipa-artifacts-save.sh ipa
+        continue-on-error: true
+
+      - name: Remove IPA server
+        run: docker exec ipa ipa-server-install --uninstall -U
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ipa-subca
+          path: |
+            /tmp/artifacts/ipa
