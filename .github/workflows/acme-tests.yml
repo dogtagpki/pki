@@ -51,3 +51,10 @@ jobs:
     uses: ./.github/workflows/acme-container-test.yml
     with:
       db-image: ${{ needs.init.outputs.db-image }}
+
+  acme-postgresql-test:
+    name: ACME with postgresql back-end
+    needs: [init, build]
+    uses: ./.github/workflows/acme-postgresql-test.yml
+    with:
+      db-image: ${{ needs.init.outputs.db-image }}
