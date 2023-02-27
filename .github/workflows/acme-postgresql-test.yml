@@ -1,0 +1,561 @@
+name: ACME with postgresql back-end
+
+on:
+  workflow_call:
+    inputs:
+      db-image:
+        required: false
+        type: string
+
+jobs:
+  # docs/installation/acme/Installing_PKI_ACME_Responder.md
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      - name: Retrieve PKI images
+        uses: actions/cache@v3
+        with:
+          key: pki-images-${{ github.sha }}
+          path: pki-images.tar
+
+      - name: Load PKI images
+        run: docker load --input pki-images.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-container-create.sh ds
+        env:
+          IMAGE: ${{ inputs.db-image }}
+          HOSTNAME: ds.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect DS container to network
+        run: docker network connect example ds --alias ds.example.com
+
+      - name: Set up PKI container
+        run: |
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
+
+      - name: Connect PKI container to network
+        run: docker network connect example pki --alias pki.example.com
+
+      - name: Install CA in PKI container
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_hostname=ds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -D pki_cert_id_generator=random \
+              -D pki_request_id_generator=random \
+              -v
+
+      - name: Install CA admin cert
+        run: |
+          docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
+          docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
+          docker exec pki pki pkcs12-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+          docker exec pki pki -n caadmin ca-user-show caadmin
+
+      - name: Check initial CA certs
+        run: |
+          docker exec pki pki ca-cert-find | tee output
+
+          # there should be 6 certs
+          echo "6" > expected
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+      - name: Create postgresql certificates
+        run: |
+          docker exec pki pki nss-cert-request \
+              --subject "CN=postgresql.example.com" \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --csr sslserver.csr
+          REC_ID=$(docker exec pki pki ca-cert-request-submit \
+              --profile caServerCert \
+              --csr-file sslserver.csr \
+              --subject "CN=postgresql.example.com" | grep "Request ID")
+          CERT_ID=$(docker exec pki pki -n caadmin ca-cert-request-approve ${REC_ID:14} --force | \
+              grep "Certificate ID")
+          docker exec pki pki ca-cert-export ${CERT_ID:18} --output-file sslserver.crt
+          docker exec pki pki nss-cert-import --cert sslserver.crt postgresql
+          docker exec pki pk12util -o sslserver.p12 -n postgresql -d /root/.dogtag/nssdb -W secret
+          docker cp pki:sslserver.p12 .
+          openssl pkcs12 -in sslserver.p12 -nocerts -out sslserver.key -noenc -password  pass:secret
+          openssl pkcs12 -in sslserver.p12 -nokeys -clcerts -out sslserver.crt  -password pass:secret
+          openssl pkcs12 -in sslserver.p12 -nokeys -cacerts -out ca.crt  -password pass:secret
+
+      - name: Create postgresql Docker file
+        run: |
+          cat > Dockerfile-Postgresql <<EOF
+          FROM postgres AS postgres-ssl
+
+          # Copy certificates
+          COPY sslserver.key /var/lib/postgresql/server.key
+          COPY sslserver.crt /var/lib/postgresql/server.crt
+          RUN chown postgres:postgres /var/lib/postgresql/server.crt && \
+          chown postgres:postgres /var/lib/postgresql/server.key && \
+          chmod 600 /var/lib/postgresql/server.key
+          EOF
+
+      - name: Build postgrsql image with certificates
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          tags: postgres-ssl
+          target: postgres-ssl
+          file: Dockerfile-Postgresql
+
+      - name: Deploy postgresql
+        run: |
+          docker run -d --name postgresql \
+              --hostname postgresql.example.com \
+              -e POSTGRES_PASSWORD=mysecretpassword \
+              -e POSTGRES_USER=acme \
+              postgres-ssl -c ssl=on \
+              -c ssl_cert_file=/var/lib/postgresql/server.crt \
+              -c ssl_key_file=/var/lib/postgresql/server.key
+
+      - name: Connect DB container to network
+        run: docker network connect example postgresql --alias postgresql.example.com
+
+      - name: Set up database drivers
+        run: |
+          docker exec pki dnf install -y postgresql-jdbc
+          docker exec pki ln -s /usr/share/java/postgresql-jdbc/postgresql.jar /usr/share/pki/server/common/lib
+          docker exec pki ln -s /usr/share/java/ongres-scram/client.jar /usr/share/pki/server/common/lib
+          docker exec pki ln -s /usr/share/java/ongres-scram/common.jar /usr/share/pki/server/common/lib
+          docker exec pki ln -s /usr/share/java/ongres-stringprep/saslprep.jar /usr/share/pki/server/common/lib/
+          docker exec pki ln -s /usr/share/java/ongres-stringprep/stringprep.jar /usr/share/pki/server/common/lib/
+          docker exec pki pki-server restart --wait
+
+      - name: Install ACME in PKI container
+        run: |
+          docker exec pki pki-server acme-create
+          docker exec pki pki-server acme-database-mod \
+              --type postgresql \
+              -Dpassword=mysecretpassword \
+              -Durl='jdbc:postgresql://postgresql.example.com:5432/acme?ssl=true&sslmode=require'
+          docker exec pki pki-server acme-issuer-mod --type pki
+          docker exec pki pki-server acme-realm-mod \
+              --type postgresql \
+              -Dpassword=mysecretpassword \
+              -Durl='jdbc:postgresql://postgresql.example.com:5432/acme?ssl=true&sslmode=require'
+          docker exec pki pki-server acme-deploy --wait
+
+      - name: Run PKI healthcheck in PKI container
+        run: docker exec pki pki-healthcheck --failures-only
+
+      - name: Verify ACME in PKI container
+        run: docker exec pki pki acme-info
+
+      - name: Check initial ACME accounts
+        run: |
+          docker exec  postgresql psql -U acme \
+              -t -A -c 'SELECT * FROM accounts' \
+              acme | tee output
+
+          # there should be no accounts
+          echo "0" > expected
+          cat output | wc -l > actual
+          diff expected actual
+
+      - name: Check initial ACME orders
+        run: |
+          docker exec  postgresql psql -U acme \
+              -t -A -c 'SELECT * FROM orders' \
+              acme | tee output
+
+          # there should be no orders
+          echo "0" > expected
+          cat output | wc -l > actual
+          diff expected actual
+
+      - name: Check initial ACME authorizations
+        run: |
+          docker exec  postgresql psql -U acme \
+              -t -A -c 'SELECT * FROM authorizations' \
+              acme | tee output
+
+          # there should be no authorizations
+          echo "0" > expected
+          cat output | wc -l > actual
+          diff expected actual
+
+      - name: Check initial ACME challenges
+        run: |
+          docker exec  postgresql psql -U acme \
+              -t -A -c 'SELECT * FROM authorization_challenges' \
+              acme | tee output
+
+          # there should be no challenges
+          echo "0" > expected
+          cat output | wc -l > actual
+          diff expected actual
+
+      - name: Check initial ACME certs
+        run: |
+          docker exec  postgresql psql -U acme \
+              -t -A -c 'SELECT * FROM certificates' \
+              acme | tee output
+
+          # there should be no certs
+          echo "0" > expected
+          cat output | wc -l > actual
+          diff expected actual
+
+      - name: Check CA certs after ACME installation
+        run: |
+          docker exec pki pki ca-cert-find | tee output
+
+          # there should be 7 certs
+          echo "7" > expected
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+      - name: Set up client container
+        run: |
+          tests/bin/runner-init.sh client
+        env:
+          HOSTNAME: client.example.com
+
+      - name: Connect client container to network
+        run: docker network connect example client --alias client.example.com
+
+      - name: Install certbot in client container
+        run: docker exec client dnf install -y certbot
+
+      - name: Register ACME account
+        run: |
+          docker exec client certbot register \
+              --server http://pki.example.com:8080/acme/directory \
+              --email testuser@example.com \
+              --agree-tos \
+              --non-interactive
+
+      - name: Check ACME accounts after registration
+        run: |
+          docker exec  postgresql psql -U acme \
+              -t -A -c 'SELECT * FROM accounts LEFT JOIN account_contacts ON accounts.id = account_contacts.account_id' \
+              acme | tee output
+              
+          # there should be one account
+          echo "1" > expected
+          cat output | wc -l > actual
+          diff expected actual
+
+          # status should be valid
+          echo "valid" > expected
+          cat output |  awk -F '|' '{ print $3 }'  > actual
+          diff expected actual
+
+          # email should be testuser@example.com
+          echo "mailto:testuser@example.com" > expected
+          cat output |  awk -F '|' '{ print $6 }' > actual
+          diff expected actual
+
+      - name: Enroll client cert
+        run: |
+          docker exec client certbot certonly \
+              --server http://pki.example.com:8080/acme/directory \
+              -d client.example.com \
+              --key-type rsa \
+              --standalone \
+              --non-interactive
+              
+      - name: Check client cert
+        run: |
+          docker exec client pki client-cert-import \
+              --cert /etc/letsencrypt/live/client.example.com/fullchain.pem \
+              client1
+
+          # store serial number
+          docker exec client pki nss-cert-show client1 | tee output
+          sed -n 's/^ *Serial Number: *\(.*\)/\1/p' output > serial1.txt
+
+          # subject should be CN=client.example.com
+          echo "CN=client.example.com" > expected
+          sed -n 's/^ *Subject DN: *\(.*\)/\1/p' output > actual
+          diff expected actual
+
+      - name: Check ACME orders after enrollment
+        run: |
+          docker exec  postgresql psql -U acme \
+              -t -A -c 'SELECT * FROM orders' \
+              acme | tee output
+
+          # there should be one order
+          echo "1" > expected
+          cat output | wc -l > actual
+          diff expected actual
+
+      - name: Check ACME authorizations after enrollment
+        run: |
+          docker exec  postgresql psql -U acme \
+              -t -A -c 'SELECT * FROM authorizations' \
+              acme | tee output
+
+          # there should be one authorization
+          echo "1" > expected
+          cat output | wc -l > actual
+          diff expected actual
+
+      - name: Check ACME challenges after enrollment
+        run: |
+          docker exec  postgresql psql -U acme \
+              -t -A -c 'SELECT * FROM authorization_challenges' \
+              acme | tee output
+
+          # there should be one challenge
+          echo "1" > expected
+          cat output | wc -l > actual
+          diff expected actual
+
+      - name: Check ACME certs after enrollment
+        run: |
+          docker exec  postgresql psql -U acme \
+              -t -A -c 'SELECT * FROM certificates' \
+              acme | tee output
+
+          # there should be no certs (they are stored in CA)
+          echo "0" > expected
+          cat output | wc -l > actual
+          diff expected actual
+
+      - name: Check CA certs after enrollment
+        run: |
+          docker exec pki pki ca-cert-find | tee output
+
+          # there should be 8 certs
+          echo "8" > expected
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+          # check client cert
+          SERIAL=$(cat serial1.txt)
+          docker exec pki pki ca-cert-show $SERIAL | tee output
+
+          # subject should be CN=client.example.com
+          echo "CN=client.example.com" > expected
+          sed -n 's/^ *Subject DN: *\(.*\)/\1/p' output > actual
+          diff expected actual
+
+      - name: Renew client cert
+        run: |
+          docker exec client certbot renew \
+              --server http://pki.example.com:8080/acme/directory \
+              --cert-name client.example.com \
+              --force-renewal \
+              --no-random-sleep-on-renew \
+              --non-interactive
+
+      - name: Check renewed client cert
+        run: |
+          docker exec client pki client-cert-import \
+              --cert /etc/letsencrypt/live/client.example.com/fullchain.pem \
+              client2
+
+          # store serial number
+          docker exec client pki nss-cert-show client2 | tee output
+          sed -n 's/^ *Serial Number: *\(.*\)/\1/p' output > serial2.txt
+
+          # subject should be CN=client.example.com
+          echo "CN=client.example.com" > expected
+          sed -n 's/^ *Subject DN: *\(.*\)/\1/p' output > actual
+          diff expected actual
+
+      - name: Check ACME orders after renewal
+        run: |
+          docker exec  postgresql psql -U acme \
+              -t -A -c 'SELECT * FROM orders' \
+              acme | tee output
+
+          # there should be two orders
+          echo "2" > expected
+          cat output | wc -l > actual
+          diff expected actual
+
+      - name: Check ACME authorizations after renewal
+        run: |
+          docker exec  postgresql psql -U acme \
+              -t -A -c 'SELECT * FROM authorizations' \
+              acme | tee output
+
+          # there should be two authorizations
+          echo "2" > expected
+          cat output | wc -l > actual
+          diff expected actual
+
+      - name: Check ACME challenges after renewal
+        run: |
+          docker exec  postgresql psql -U acme \
+              -t -A -c 'SELECT * FROM authorization_challenges' \
+              acme | tee output
+
+          # there should be two challenges
+          echo "2" > expected
+          cat output | wc -l > actual
+          diff expected actual
+
+      - name: Check ACME certs after renewal
+        run: |
+          docker exec  postgresql psql -U acme \
+              -t -A -c 'SELECT * FROM certificates' \
+              acme | tee output
+
+          # there should be no certs (they are stored in CA)
+          echo "0" > expected
+          cat output | wc -l > actual
+          diff expected actual
+
+      - name: Check CA certs after renewal
+        run: |
+          docker exec pki pki ca-cert-find | tee output
+
+          # there should be 9 certs
+          echo "9" > expected
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+          # check renewed client cert
+          SERIAL=$(cat serial2.txt)
+          docker exec pki pki ca-cert-show $SERIAL | tee output
+
+          # subject should be CN=client.example.com
+          echo "CN=client.example.com" > expected
+          sed -n 's/^ *Subject DN: *\(.*\)/\1/p' output > actual
+          diff expected actual
+
+      - name: Revoke client cert
+        run: |
+          docker exec client certbot revoke \
+              --server http://pki.example.com:8080/acme/directory \
+              --cert-name client.example.com \
+              --non-interactive
+
+      - name: Check CA certs after revocation
+        run: |
+          docker exec pki pki ca-cert-find | tee output
+
+          # there should be 9 certs
+          echo "9" > expected
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+          # check original client cert
+          SERIAL=$(cat serial1.txt)
+          docker exec pki pki ca-cert-show $SERIAL | tee output
+
+          # status should be valid
+          echo "VALID" > expected
+          sed -n 's/^ *Status: *\(.*\)/\1/p' output > actual
+          diff expected actual
+
+          # check renewed-then-revoked client cert
+          SERIAL=$(cat serial2.txt)
+          docker exec pki pki ca-cert-show $SERIAL | tee output
+
+          # status should be revoked
+          echo "REVOKED" > expected
+          sed -n 's/^ *Status: *\(.*\)/\1/p' output > actual
+          diff expected actual
+
+      - name: Update ACME account
+        run: |
+          docker exec client certbot update_account \
+              --server http://pki.example.com:8080/acme/directory \
+              --email newuser@example.com \
+              --non-interactive
+
+      - name: Check ACME accounts after update
+        run: |
+          docker exec  postgresql psql -U acme \
+              -t -A -c 'SELECT * FROM accounts LEFT JOIN account_contacts ON accounts.id = account_contacts.account_id' \
+              acme | tee output
+
+          # there should be one account
+          echo "1" > expected
+          cat output | wc -l > actual
+          diff expected actual
+
+          # email should be newuser@example.com
+          echo "mailto:newuser@example.com" > expected
+          cat output |  awk -F '|' '{ print $6 }' > actual
+          diff expected actual
+
+      - name: Remove ACME account
+        run: |
+          docker exec client certbot unregister \
+              --server http://pki.example.com:8080/acme/directory \
+              --non-interactive
+
+      - name: Check ACME accounts after unregistration
+        run: |
+          docker exec  postgresql psql -U acme \
+              -t -A -c 'SELECT * FROM accounts LEFT JOIN account_contacts ON accounts.id = account_contacts.account_id' \
+              acme | tee output
+
+          # there should be one account
+          echo "1" > expected
+          cat output | wc -l > actual
+          diff expected actual
+
+          # status should be deactivated
+          echo "deactivated" > expected
+          cat output |  awk -F '|' '{ print $3 }' > actual
+          diff expected actual
+
+      - name: Gather artifacts from server containers
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki ds
+          tests/bin/pki-artifacts-save.sh pki
+        continue-on-error: true
+
+      - name: Gather artifacts from client container
+        if: always()
+        run: |
+          mkdir -p /tmp/artifacts/client
+          docker logs client > /tmp/artifacts/client/container.out 2> /tmp/artifacts/client/container.err
+          mkdir -p /tmp/artifacts/client/etc/letsencrypt
+          docker cp client:/etc/letsencrypt/live /tmp/artifacts/client/etc/letsencrypt
+          mkdir -p /tmp/artifacts/client/var/log/letsencrypt
+          docker cp client:/var/log/letsencrypt/letsencrypt.log /tmp/artifacts/client/var/log/letsencrypt
+        continue-on-error: true
+
+      - name: Remove ACME from PKI container
+        run: |
+          docker exec pki pki-server acme-undeploy --wait
+          docker exec pki pki-server acme-remove
+
+      - name: Remove CA from PKI container
+        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Upload artifacts from server containers
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: acme-postgresql-server
+          path: |
+            /tmp/artifacts/pki
+
+      - name: Upload artifacts from client container
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: acme-postgresql-client
+          path: /tmp/artifacts/client
