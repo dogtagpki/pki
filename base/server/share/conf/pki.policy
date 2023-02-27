@@ -33,11 +33,19 @@ grant codeBase "file:${catalina.base}/lib/-" {
         permission java.security.AllPermission;
 };
 
+grant codeBase "file:/usr/share/java/tomcat-el-api.jar" {
+        permission java.security.AllPermission;
+};
+
 // required for Fedora
 grant codeBase "file:/usr/share/java/tomcat-servlet-api.jar" {
         permission java.security.AllPermission;
 };
 
 grant codeBase "file:/usr/share/java/pki/-" {
+        permission java.security.AllPermission;
+};
+
+grant codeBase "file:${catalina.base}/webapps/-" {
         permission java.security.AllPermission;
 };
