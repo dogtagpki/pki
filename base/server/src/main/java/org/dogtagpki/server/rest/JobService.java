@@ -22,7 +22,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.base.SubsystemService;
-import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.jobs.JobConfig;
@@ -96,7 +95,7 @@ public class JobService extends SubsystemService implements JobResource {
 
         JobCollection response = new JobCollection();
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         EngineConfig engineConfig = engine.getConfig();
         JobsSchedulerConfig jobsSchedulerConfig = engineConfig.getJobsSchedulerConfig();
         JobsConfig jobsConfig = jobsSchedulerConfig.getJobsConfig();
@@ -131,7 +130,7 @@ public class JobService extends SubsystemService implements JobResource {
 
         logger.info("JobService: Getting job " + id);
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         EngineConfig engineConfig = engine.getConfig();
         JobsSchedulerConfig jobsSchedulerConfig = engineConfig.getJobsSchedulerConfig();
         JobsConfig jobsConfig = jobsSchedulerConfig.getJobsConfig();
@@ -162,7 +161,7 @@ public class JobService extends SubsystemService implements JobResource {
 
         logger.info("JobService: Starting job " + id);
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         EngineConfig engineConfig = engine.getConfig();
         JobsSchedulerConfig jobsSchedulerConfig = engineConfig.getJobsSchedulerConfig();
         JobsConfig jobsConfig = jobsSchedulerConfig.getJobsConfig();
