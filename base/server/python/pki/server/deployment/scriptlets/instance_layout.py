@@ -245,9 +245,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             conf_link)
 
         # Link /var/lib/pki/<instance>/logs to /var/log/pki/<instance>
+        logs_link = os.path.join(instance.base_dir, 'logs')
         deployer.symlink.create(
             deployer.mdict['pki_instance_log_path'],
-            deployer.mdict['pki_instance_logs_link'])
+            logs_link)
 
         if config.str2bool(deployer.mdict['pki_registry_enable']):
             instance.create_registry()
