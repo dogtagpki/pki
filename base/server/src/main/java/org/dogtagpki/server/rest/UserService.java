@@ -84,9 +84,6 @@ public class UserService extends SubsystemService implements UserResource {
     public final static String BACK_SLASH = "\\";
     public final static String SYSTEM_USER = "$System$";
 
-    CMSEngine engine = CMS.getCMSEngine();
-    public UGSubsystem userGroupManager = engine.getUGSubsystem();
-
     public UserData createUserData(User user) throws Exception {
 
         UserData userData = new UserData();
@@ -123,6 +120,8 @@ public class UserService extends SubsystemService implements UserResource {
         UserCollection response = new UserCollection();
 
         try {
+            CMSEngine engine = getCMSEngine();
+            UGSubsystem userGroupManager = engine.getUGSubsystem();
             Enumeration<User> users = userGroupManager.findUsersByKeyword(filter);
 
             int i = 0;
@@ -180,8 +179,9 @@ public class UserService extends SubsystemService implements UserResource {
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
-            CMSEngine engine = CMS.getCMSEngine();
+            CMSEngine engine = getCMSEngine();
             EngineConfig cs = engine.getConfig();
+            UGSubsystem userGroupManager = engine.getUGSubsystem();
             User user;
 
             try {
@@ -259,9 +259,6 @@ public class UserService extends SubsystemService implements UserResource {
 
         if (userData == null) throw new BadRequestException("User data is null.");
 
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
-
         String userID = userData.getUserID();
         logger.debug("User ID: " + userID);
 
@@ -285,6 +282,9 @@ public class UserService extends SubsystemService implements UserResource {
                 throw new ForbiddenException(getUserMessage("CMS_ADMIN_SRVLT_SPECIAL_ID", headers, userID));
             }
 
+            CMSEngine engine = getCMSEngine();
+            EngineConfig cs = engine.getConfig();
+            UGSubsystem userGroupManager = engine.getUGSubsystem();
             User user = userGroupManager.createUser(userID);
 
             String fname = userData.getFullName();
@@ -412,16 +412,17 @@ public class UserService extends SubsystemService implements UserResource {
 
         if (userData == null) throw new BadRequestException("User data is null.");
 
-        CMSEngine engine = CMS.getCMSEngine();
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
-        EngineConfig cs = engine.getConfig();
         try {
             if (userID == null) {
                 logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
+            CMSEngine engine = getCMSEngine();
+            EngineConfig cs = engine.getConfig();
+            UGSubsystem userGroupManager = engine.getUGSubsystem();
             User user = userGroupManager.createUser(userID);
 
             String fullName = userData.getFullName();
@@ -525,6 +526,8 @@ public class UserService extends SubsystemService implements UserResource {
             }
 
             // get list of groups, and see if uid belongs to any
+            CMSEngine engine = getCMSEngine();
+            UGSubsystem userGroupManager = engine.getUGSubsystem();
             Enumeration<Group> groups = userGroupManager.findGroups("*");
 
             while (groups.hasMoreElements()) {
@@ -583,6 +586,8 @@ public class UserService extends SubsystemService implements UserResource {
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
+            CMSEngine engine = getCMSEngine();
+            UGSubsystem userGroupManager = engine.getUGSubsystem();
             User user = null;
 
             try {
@@ -640,6 +645,8 @@ public class UserService extends SubsystemService implements UserResource {
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
+            CMSEngine engine = getCMSEngine();
+            UGSubsystem userGroupManager = engine.getUGSubsystem();
             User user = null;
 
             try {
@@ -717,6 +724,8 @@ public class UserService extends SubsystemService implements UserResource {
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
+            CMSEngine engine = getCMSEngine();
+            UGSubsystem userGroupManager = engine.getUGSubsystem();
             User user = userGroupManager.createUser(userID);
 
             String encoded = userCertData.getEncoded();
@@ -944,6 +953,8 @@ public class UserService extends SubsystemService implements UserResource {
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
+            CMSEngine engine = getCMSEngine();
+            UGSubsystem userGroupManager = engine.getUGSubsystem();
             User user = userGroupManager.createUser(userID);
             String certID = userCertData.getID();
 
@@ -998,6 +1009,8 @@ public class UserService extends SubsystemService implements UserResource {
         size = size == null ? DEFAULT_SIZE : size;
 
         try {
+            CMSEngine engine = getCMSEngine();
+            UGSubsystem userGroupManager = engine.getUGSubsystem();
             User user = userGroupManager.getUser(userID);
 
             if (user == null) {
@@ -1039,9 +1052,12 @@ public class UserService extends SubsystemService implements UserResource {
 
         if (userID == null) throw new BadRequestException("User ID is null.");
         if (groupID == null) throw new BadRequestException("Group ID is null.");
+
         User user = null;
 
         try {
+            CMSEngine engine = getCMSEngine();
+            UGSubsystem userGroupManager = engine.getUGSubsystem();
             user = userGroupManager.getUser(userID);
         } catch (Exception e) {
             throw new PKIException(getUserMessage("CMS_USRGRP_SRVLT_USER_NOT_EXIST", headers));
