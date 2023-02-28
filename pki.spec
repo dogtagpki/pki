@@ -167,7 +167,7 @@ BuildRequires:    policycoreutils
 BuildRequires:    python3-lxml
 BuildRequires:    python3-sphinx
 
-BuildRequires:    resteasy >= 3.0.26
+BuildRequires:    pki-resteasy >= 3.0.26
 
 BuildRequires:    python3 >= 3.6
 BuildRequires:    python3-devel
@@ -370,9 +370,7 @@ Requires:         jpackage-utils >= 0:1.7.5-10
 Requires:         jss = 5.4
 Requires:         ldapjdk = 5.4
 Requires:         %{product_id}-base = %{version}-%{release}
-Requires:         resteasy-client >= 3.0.17-1
-Requires:         resteasy-core >= 3.0.17-1
-Requires:         resteasy-jackson2-provider >= 3.0.17-1
+Requires:         pki-resteasy >= 3.0.26
 
 %description -n   %{product_id}-java
 This package provides common and client libraries for Java.
