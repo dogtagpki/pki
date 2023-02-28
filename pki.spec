@@ -1104,7 +1104,7 @@ fi
 %dir %{_sysconfdir}/systemd/system/pki-tomcatd-nuxwdog.target.wants
 %attr(644,-,-) %{_unitdir}/pki-tomcatd-nuxwdog@.service
 %attr(644,-,-) %{_unitdir}/pki-tomcatd-nuxwdog.target
-%{_javadir}/pki/pki-cms.jar
+%{_javadir}/pki/pki-server.jar
 %{_javadir}/pki/pki-tomcat.jar
 %dir %{_sharedstatedir}/pki
 %{_mandir}/man1/pkidaemon.1.gz

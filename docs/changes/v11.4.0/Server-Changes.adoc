@@ -10,3 +10,7 @@ The `<subsystem>-add-user` methods accept a new option `--attributes` which take
 
 Previously the `pki-certsrv.jar` was installed under `WEB-INF/lib` folder of each web application.
 The file has been moved into the `common/lib` folder and renamed into `pki-common.jar` such that it is available for the entire server.
+
+== Renaming pki-cms.jar to pki-server.jar ==
+
+The `pki-cms.jar` has been renamed into `pki-server.jar` to better reflect the content of the file.
