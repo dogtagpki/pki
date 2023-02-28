@@ -5,6 +5,7 @@
 //
 package com.netscape.cmscore.apps;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
@@ -21,7 +22,9 @@ public abstract class PKIWebListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent event) {
 
-        String path = event.getServletContext().getContextPath();
+        ServletContext servletContext = event.getServletContext();
+
+        String path = servletContext.getContextPath();
         String id;
 
         if ("".equals(path)) {
@@ -32,6 +35,7 @@ public abstract class PKIWebListener implements ServletContextListener {
 
         CMSEngine engine = createEngine();
         engine.setID(id);
+        servletContext.setAttribute("engine", engine);
 
         String name = engine.getName();
 
@@ -51,7 +55,9 @@ public abstract class PKIWebListener implements ServletContextListener {
     @Override
     public void contextDestroyed(ServletContextEvent event) {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        ServletContext servletContext = event.getServletContext();
+
+        CMSEngine engine = (CMSEngine) servletContext.getAttribute("engine");
         engine.shutdown();
     }
 }
