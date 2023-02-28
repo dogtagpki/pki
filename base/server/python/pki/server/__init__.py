@@ -1641,6 +1641,10 @@ class ServerConfig(object):
         server = self.document.getroot()
         return server.get('port')
 
+    def set_port(self, port):
+        server = self.document.getroot()
+        server.set('port', port)
+
     def get_unsecure_port(self):
 
         for connector in self.get_connectors():
