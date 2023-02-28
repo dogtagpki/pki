@@ -45,6 +45,7 @@ import javax.ws.rs.core.UriInfo;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.util.JSONSerializer;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * Base class for CMS RESTful resources
@@ -349,5 +350,9 @@ public class PKIService {
         }
 
         return map;
+    }
+
+    public CMSEngine getCMSEngine() {
+        return (CMSEngine) servletContext.getAttribute("engine");
     }
 }
