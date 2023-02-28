@@ -239,9 +239,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             instance.bin_dir)
 
         # Link /var/lib/pki/<instance>/conf to /etc/pki/<instance>
+        conf_link = os.path.join(instance.base_dir, 'conf')
         deployer.symlink.create(
             instance_conf_path,
-            deployer.mdict['pki_instance_conf_link'])
+            conf_link)
 
         # Link /var/lib/pki/<instance>/logs to /var/log/pki/<instance>
         deployer.symlink.create(
