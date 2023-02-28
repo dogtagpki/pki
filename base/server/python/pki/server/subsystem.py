@@ -774,15 +774,15 @@ class PKISubsystem(object):
         tmpdir = tempfile.mkdtemp()
 
         try:
-            # export audit-events.properties from pki-cms.jar
-            cms_jar = \
-                '/usr/share/pki/%s/webapps/%s/WEB-INF/lib/pki-cms.jar' \
+            # export audit-events.properties from pki-server.jar
+            server_jar = \
+                '/usr/share/pki/%s/webapps/%s/WEB-INF/lib/pki-server.jar' \
                 % (self.name, self.name)
 
             cmd = [
                 'jar',
                 'xf',
-                cms_jar,
+                server_jar,
                 'audit-events.properties'
             ]
 

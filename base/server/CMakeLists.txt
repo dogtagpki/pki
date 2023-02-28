@@ -31,12 +31,12 @@ configure_file(
     ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.MF
 )
 
-# build pki-cms.jar
-jar(pki-cms-jar
+# build pki-server.jar
+jar(pki-server-jar
     DEPENDS
         pki-server-classes
     CREATE
-        ${CMAKE_BINARY_DIR}/dist/pki-cms.jar
+        ${CMAKE_BINARY_DIR}/dist/pki-server.jar
     OPTIONS
         m
     PARAMS
@@ -51,17 +51,17 @@ jar(pki-cms-jar
         UserMessages.properties
 )
 
-set(PKI_CMS_JAR ${CMAKE_BINARY_DIR}/dist/pki-cms.jar CACHE INTERNAL "pki-cms jar file")
+set(PKI_SERVER_JAR ${CMAKE_BINARY_DIR}/dist/pki-server.jar CACHE INTERNAL "pki-server jar file")
 
 if(RUN_TESTS)
     # build pki-server-test
     javac(pki-server-test-classes
         DEPENDS
-            pki-common-test-classes pki-common-jar pki-cms-jar
+            pki-common-test-classes pki-common-jar pki-server-jar
         SOURCES
             src/test/java/*.java
         CLASSPATH
-            ${PKI_COMMON_JAR} ${PKI_CMS_JAR}
+            ${PKI_COMMON_JAR} ${PKI_SERVER_JAR}
             ${LDAPJDK_JAR} ${SERVLET_JAR}
             ${JSS_JAR} ${JSS_SYMKEY_JAR}
             ${HAMCREST_JAR} ${JUNIT_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_IO_JAR}
@@ -88,7 +88,7 @@ if(RUN_TESTS)
             pki-server-test-classes
         CLASSPATH
             ${SLF4J_API_JAR} ${SLF4J_SIMPLE_JAR}
-            ${PKI_COMMON_JAR} ${PKI_CMS_JAR}
+            ${PKI_COMMON_JAR} ${PKI_SERVER_JAR}
             ${LDAPJDK_JAR} ${SERVLET_JAR}
             ${COMMONS_CODEC_JAR} ${COMMONS_LANG3_JAR}
             ${JSS_JAR} ${JSS_SYMKEY_JAR}
@@ -161,7 +161,7 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E make_directory webapp/lib
     COMMAND ln -sf ../../../../../../../..${SLF4J_API_JAR} webapp/lib/slf4j-api.jar
     COMMAND ln -sf ../../../../../../../..${SLF4J_JDK14_JAR} webapp/lib/slf4j-jdk14.jar
-    COMMAND ln -sf ../../../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-cms.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-cms.jar
+    COMMAND ln -sf ../../../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-server.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-server.jar
 )
 
 add_custom_target(pki-server-man ALL
@@ -203,7 +203,7 @@ configure_file(
 
 install(
     FILES
-        ${CMAKE_BINARY_DIR}/dist/pki-cms.jar
+        ${CMAKE_BINARY_DIR}/dist/pki-server.jar
     DESTINATION
         ${JAVA_JAR_INSTALL_DIR}/pki
 )

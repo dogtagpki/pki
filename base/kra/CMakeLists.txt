@@ -6,7 +6,7 @@ add_subdirectory(${APP_SERVER})
 # build pki-kra
 javac(pki-kra-classes
     DEPENDS
-        pki-common-jar pki-cms-jar
+        pki-common-jar pki-server-jar
     SOURCES
         src/main/java/*.java
     CLASSPATH
@@ -20,7 +20,7 @@ javac(pki-kra-classes
         ${LDAPJDK_JAR}
         ${SERVLET_JAR}
         ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR}
-        ${PKI_COMMON_JAR} ${PKI_CMS_JAR} ${TOMCAT_CATALINA_JAR}
+        ${PKI_COMMON_JAR} ${PKI_SERVER_JAR} ${TOMCAT_CATALINA_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
 )
@@ -57,7 +57,7 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E make_directory webapp/lib
     COMMAND ln -sf ../../../../../../../..${SLF4J_API_JAR} webapp/lib/slf4j-api.jar
     COMMAND ln -sf ../../../../../../../..${SLF4J_JDK14_JAR} webapp/lib/slf4j-jdk14.jar
-    COMMAND ln -sf ../../../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-cms.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-cms.jar
+    COMMAND ln -sf ../../../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-server.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-server.jar
     COMMAND ln -sf ../../../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-kra.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-kra.jar
 )
 

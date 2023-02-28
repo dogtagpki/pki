@@ -350,12 +350,12 @@ if(WITH_SERVER OR WITH_CA OR WITH_KRA OR WITH_OCSP OR WITH_TKS OR WITH_TPS OR WI
         com.netscape.cms)
 
     list(APPEND PKI_JAVADOC_CLASSPATH
-        ${PKI_TOMCAT_JAR}
-        ${PKI_CMS_JAR})
+        ${PKI_SERVER_JAR}
+        ${PKI_TOMCAT_JAR})
 
     list(APPEND PKI_JAVADOC_DEPENDS
-        pki-tomcat-jar
-        pki-cms-jar)
+        pki-server-jar
+        pki-tomcat-jar)
 
     if(WITH_CA)
         add_subdirectory(ca)

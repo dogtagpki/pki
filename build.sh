@@ -713,8 +713,8 @@ if [ "$BUILD_TARGET" = "dist" ] ; then
 
     if [[ " ${PKGS_TO_BUILD[*]} " =~ " server " ]]; then
         echo "- server:"
+        echo "    $WORK_DIR/dist/pki-server.jar"
         echo "    $WORK_DIR/dist/pki-tomcat.jar"
-        echo "    $WORK_DIR/dist/pki-cms.jar"
     fi
 
     if [[ " ${PKGS_TO_BUILD[*]} " =~ " acme " ]]; then
