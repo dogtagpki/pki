@@ -233,10 +233,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # Create /var/lib/pki/<instance>/work/Catalina/localhost/<subsystem>
         deployer.directory.create(deployer.mdict['pki_tomcat_work_catalina_host_subsystem_path'])
 
-        # Link /var/lib/pki/<instance>/bin to /usr/share/tomcat
+        # Link /var/lib/pki/<instance>/bin to /usr/share/tomcat/bin
         deployer.symlink.create(
             deployer.mdict['pki_tomcat_bin_path'],
-            deployer.mdict['pki_tomcat_bin_link'])
+            instance.bin_dir)
 
         # Link /var/lib/pki/<instance>/conf to /etc/pki/<instance>
         deployer.symlink.create(
