@@ -246,6 +246,9 @@ class PKIDeployer:
         # Configure /etc/pki/<instance>/server.xml
         server_config = instance.get_server_config()
 
+        logger.info('Configuring Tomcat admin port')
+        server_config.set_port(self.mdict['pki_tomcat_server_port'])
+
         if config.str2bool(self.mdict['pki_enable_proxy']):
 
             logger.info('Adding AJP connector for IPv4')
