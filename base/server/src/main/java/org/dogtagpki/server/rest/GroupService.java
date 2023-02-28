@@ -55,9 +55,6 @@ public class GroupService extends SubsystemService implements GroupResource {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GroupService.class);
 
-    CMSEngine engine = CMS.getCMSEngine();
-    public UGSubsystem userGroupManager = engine.getUGSubsystem();
-
     public GroupData createGroupData(Group group) throws Exception {
 
         GroupData groupData = new GroupData();
@@ -92,6 +89,8 @@ public class GroupService extends SubsystemService implements GroupResource {
         size = size == null ? DEFAULT_SIZE : size;
 
         try {
+            CMSEngine engine = getCMSEngine();
+            UGSubsystem userGroupManager = engine.getUGSubsystem();
             Enumeration<Group> groups = userGroupManager.listGroups(filter);
 
             GroupCollection response = new GroupCollection();
@@ -137,7 +136,10 @@ public class GroupService extends SubsystemService implements GroupResource {
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
+            CMSEngine engine = getCMSEngine();
+            UGSubsystem userGroupManager = engine.getUGSubsystem();
             Group group = userGroupManager.getGroupFromName(groupID);
+
             if (group == null) {
                 logger.error(CMS.getLogMessage("USRGRP_SRVLT_GROUP_NOT_EXIST"));
                 throw new GroupNotFoundException(groupID);
@@ -181,6 +183,8 @@ public class GroupService extends SubsystemService implements GroupResource {
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
+            CMSEngine engine = getCMSEngine();
+            UGSubsystem userGroupManager = engine.getUGSubsystem();
             Group group = userGroupManager.createGroup(groupID);
 
             // add description if specified
@@ -243,6 +247,8 @@ public class GroupService extends SubsystemService implements GroupResource {
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
+            CMSEngine engine = getCMSEngine();
+            UGSubsystem userGroupManager = engine.getUGSubsystem();
             Group group = userGroupManager.getGroupFromName(groupID);
 
             if (group == null) {
@@ -305,6 +311,8 @@ public class GroupService extends SubsystemService implements GroupResource {
             }
 
             // if fails, let the exception fall through
+            CMSEngine engine = getCMSEngine();
+            UGSubsystem userGroupManager = engine.getUGSubsystem();
             userGroupManager.removeGroup(groupID);
 
             auditDeleteGroup(groupID, ILogger.SUCCESS);
