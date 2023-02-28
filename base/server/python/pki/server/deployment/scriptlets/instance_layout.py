@@ -216,7 +216,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         instance.create_libs(force=True)
 
         # Create /var/lib/pki/<instance>/temp
-        deployer.directory.create(deployer.mdict['pki_tomcat_tmpdir_path'])
+        deployer.directory.create(instance.temp_dir)
 
         # Create /var/lib/pki/<instance>/work
         deployer.directory.create(deployer.mdict['pki_tomcat_work_path'])
