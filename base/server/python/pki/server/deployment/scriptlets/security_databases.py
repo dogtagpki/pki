@@ -89,14 +89,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         finally:
             nssdb.close()
 
-        if not os.path.islink(deployer.mdict['pki_instance_database_link']):
+        if not os.path.islink(instance.nssdb_link):
             instance.symlink(
                 deployer.mdict['pki_server_database_path'],
-                deployer.mdict['pki_instance_database_link'],
+                instance.nssdb_link,
                 exist_ok=True)
 
         instance.symlink(
-            deployer.mdict['pki_instance_database_link'],
+            instance.nssdb_link,
             deployer.mdict['pki_subsystem_database_link'],
             exist_ok=True)
 
