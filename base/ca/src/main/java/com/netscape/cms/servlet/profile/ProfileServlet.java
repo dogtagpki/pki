@@ -41,13 +41,13 @@ import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
 import com.netscape.certsrv.template.ArgString;
 import com.netscape.certsrv.template.IArgValue;
-import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.ServletUtils;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
+import com.netscape.cmscore.util.StatsSubsystem;
 
 /**
  * This servlet is the base class of all profile servlets.
@@ -260,7 +260,7 @@ public class ProfileServlet extends CMSServlet {
         }
 
         CAEngine engine = CAEngine.getInstance();
-        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
+        StatsSubsystem statsSub = (StatsSubsystem) engine.getSubsystem(StatsSubsystem.ID);
         if (statsSub != null) {
             statsSub.startTiming("output_template");
         }
@@ -385,7 +385,7 @@ public class ProfileServlet extends CMSServlet {
 
     public void startTiming(String event) {
         CAEngine engine = CAEngine.getInstance();
-        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
+        StatsSubsystem statsSub = (StatsSubsystem) engine.getSubsystem(StatsSubsystem.ID);
         if (statsSub != null) {
             statsSub.startTiming(event, true);
         }
@@ -394,7 +394,7 @@ public class ProfileServlet extends CMSServlet {
 
     public void endTiming(String event) {
         CAEngine engine = CAEngine.getInstance();
-        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
+        StatsSubsystem statsSub = (StatsSubsystem) engine.getSubsystem(StatsSubsystem.ID);
         if (statsSub != null) {
             statsSub.endTiming(event);
         }

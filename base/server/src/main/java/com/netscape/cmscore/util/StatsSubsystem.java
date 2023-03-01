@@ -22,7 +22,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.util.IStatsSubsystem;
+import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.util.StatsEvent;
 import com.netscape.cmscore.base.ConfigStore;
 
@@ -30,12 +30,13 @@ import com.netscape.cmscore.base.ConfigStore;
  * A class represents a internal subsystem. This subsystem
  * can be loaded into cert server kernel to perform
  * statistics collection.
- * <P>
  *
  * @author thomask
- * @version $Revision$, $Date$
  */
-public class StatsSubsystem implements IStatsSubsystem {
+public class StatsSubsystem implements ISubsystem {
+
+    public static final String ID = "stats";
+
     private String mId = null;
     private StatsEvent mAllTrans = new StatsEvent(null);
     private Date mStartTime = new Date();
@@ -78,17 +79,21 @@ public class StatsSubsystem implements IStatsSubsystem {
     public synchronized void init(ConfigStore config) throws EBaseException {
     }
 
-    @Override
+    /**
+     * Retrieves the start time since startup or
+     * clearing of statistics.
+     */
     public Date getStartTime() {
         return mStartTime;
     }
 
-    @Override
+    /**
+     * Starts timing of a operation.
+     */
     public void startTiming(String id) {
         startTiming(id, false /* not the main */);
     }
 
-    @Override
     public void startTiming(String id, boolean mainAction) {
         Thread t = Thread.currentThread();
         Vector<StatsMilestone> milestones = null;
@@ -123,7 +128,9 @@ public class StatsSubsystem implements IStatsSubsystem {
         milestones.addElement(new StatsMilestone(id, startTime, newST));
     }
 
-    @Override
+    /**
+     * Stops timing of a operation.
+     */
     public void endTiming(String id) {
         long endTime = new Date().getTime();
         Thread t = Thread.currentThread();
@@ -143,13 +150,17 @@ public class StatsSubsystem implements IStatsSubsystem {
         }
     }
 
-    @Override
+    /**
+     * Resets counters.
+     */
     public void resetCounters() {
         mStartTime = new Date();
         mAllTrans.resetCounters();
     }
 
-    @Override
+    /**
+     * Resets all internal counters.
+     */
     public StatsEvent getMainStatsEvent() {
         return mAllTrans;
     }

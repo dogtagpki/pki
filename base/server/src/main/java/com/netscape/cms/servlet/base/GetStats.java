@@ -33,7 +33,6 @@ import org.dogtagpki.server.authorization.AuthzToken;
 
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.certsrv.util.StatsEvent;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -42,6 +41,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.util.StatsSubsystem;
 
 /**
  * Retrieve information.
@@ -125,7 +125,7 @@ public class GetStats extends CMSServlet {
         ArgBlock fixed = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
-        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
+        StatsSubsystem statsSub = (StatsSubsystem) engine.getSubsystem(StatsSubsystem.ID);
         StatsEvent st = statsSub.getMainStatsEvent();
 
         String op = httpReq.getParameter("op");

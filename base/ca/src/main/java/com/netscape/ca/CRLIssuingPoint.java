@@ -63,7 +63,6 @@ import com.netscape.certsrv.logging.event.FullCRLGenerationEvent;
 import com.netscape.certsrv.logging.event.FullCRLPublishingEvent;
 import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
@@ -75,6 +74,7 @@ import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.ldap.LdapRule;
 import com.netscape.cmscore.request.CertRequestRepository;
 import com.netscape.cmscore.request.Request;
+import com.netscape.cmscore.util.StatsSubsystem;
 
 /**
  * This class encapsulates CRL issuing mechanism. CertificateAuthority
@@ -2950,7 +2950,7 @@ public class CRLIssuingPoint implements Runnable {
             clonedExpiredCerts.clear();
             mSchemaCounter = 0;
 
-            IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
+            StatsSubsystem statsSub = (StatsSubsystem) engine.getSubsystem(StatsSubsystem.ID);
             if (statsSub != null) {
                 statsSub.startTiming("generation");
             }
@@ -3385,7 +3385,7 @@ public class CRLIssuingPoint implements Runnable {
         SessionContext sc = SessionContext.getContext();
 
         CAEngine engine = CAEngine.getInstance();
-        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
+        StatsSubsystem statsSub = (StatsSubsystem) engine.getSubsystem(StatsSubsystem.ID);
         if (statsSub != null) {
             statsSub.startTiming("crl_publishing");
         }

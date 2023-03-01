@@ -55,7 +55,6 @@ import com.netscape.certsrv.logging.event.AuthzEvent;
 import com.netscape.certsrv.logging.event.RoleAssumeEvent;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.usrgrp.CertUserLocator;
-import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.common.CMSGateway;
 import com.netscape.cms.servlet.common.ServletUtils;
@@ -72,6 +71,7 @@ import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmscore.usrgrp.ExactMatchCertUserLocator;
 import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
+import com.netscape.cmscore.util.StatsSubsystem;
 
 public class CAProcessor extends Processor {
 
@@ -206,7 +206,7 @@ public class CAProcessor extends Processor {
 
     public void startTiming(String event) {
         CAEngine engine = CAEngine.getInstance();
-        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
+        StatsSubsystem statsSub = (StatsSubsystem) engine.getSubsystem(StatsSubsystem.ID);
         if (statsSub != null) {
             statsSub.startTiming(event, true);
         }
@@ -215,7 +215,7 @@ public class CAProcessor extends Processor {
 
     public void endTiming(String event) {
         CAEngine engine = CAEngine.getInstance();
-        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
+        StatsSubsystem statsSub = (StatsSubsystem) engine.getSubsystem(StatsSubsystem.ID);
         if (statsSub != null) {
             statsSub.endTiming(event);
         }
@@ -224,7 +224,7 @@ public class CAProcessor extends Processor {
 
     public void endAllEvents() {
         CAEngine engine = CAEngine.getInstance();
-        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
+        StatsSubsystem statsSub = (StatsSubsystem) engine.getSubsystem(StatsSubsystem.ID);
         if (statsSub != null) {
             Iterator<String> iter = statEvents.iterator();
             while (iter.hasNext()) {

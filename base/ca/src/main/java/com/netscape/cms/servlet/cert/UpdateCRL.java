@@ -50,7 +50,6 @@ import com.netscape.certsrv.ca.EErrorPublishCRL;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.event.ScheduleCRLGenerationEvent;
-import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -60,6 +59,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.ldap.LdapRule;
+import com.netscape.cmscore.util.StatsSubsystem;
 
 /**
  * Force the CRL to be updated now.
@@ -120,7 +120,7 @@ public class UpdateCRL extends CMSServlet {
 
 	logger.debug("UpdateCRL:process: Incoming Request: " + req.toString());
         CAEngine engine = CAEngine.getInstance();
-        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
+        StatsSubsystem statsSub = (StatsSubsystem) engine.getSubsystem(StatsSubsystem.ID);
         if (statsSub != null) {
             statsSub.startTiming("crl", true /* main action */);
         }

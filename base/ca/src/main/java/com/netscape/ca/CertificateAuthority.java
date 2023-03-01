@@ -107,7 +107,6 @@ import com.netscape.certsrv.logging.event.OCSPSigningInfoEvent;
 import com.netscape.certsrv.ocsp.IOCSPService;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.security.SigningUnitConfig;
-import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.common.Profile;
@@ -122,6 +121,7 @@ import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.profile.ProfileSubsystem;
+import com.netscape.cmscore.util.StatsSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
 import com.netscape.cmsutil.ocsp.CertID;
@@ -806,7 +806,7 @@ public class CertificateAuthority implements ISubsystem, IAuthority, IOCSPServic
         ensureReady();
         X509CRLImpl signedcrl = null;
 
-        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
+        StatsSubsystem statsSub = (StatsSubsystem) engine.getSubsystem(StatsSubsystem.ID);
         if (statsSub != null) {
             statsSub.startTiming("signing");
         }
@@ -895,7 +895,7 @@ public class CertificateAuthority implements ISubsystem, IAuthority, IOCSPServic
 
         X509CertImpl signedcert = null;
 
-        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
+        StatsSubsystem statsSub = (StatsSubsystem) engine.getSubsystem(StatsSubsystem.ID);
         if (statsSub != null) {
             statsSub.startTiming("signing");
         }
@@ -1400,7 +1400,7 @@ public class CertificateAuthority implements ISubsystem, IAuthority, IOCSPServic
         logger.debug("CertificateAuthority: validating OCSP request");
 
         mNumOCSPRequest++;
-        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
+        StatsSubsystem statsSub = (StatsSubsystem) engine.getSubsystem(StatsSubsystem.ID);
         long startTime = new Date().getTime();
 
         try {
