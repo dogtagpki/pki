@@ -826,6 +826,9 @@ C_FLAGS="$C_FLAGS -O2"
 
 # https://sourceware.org/annobin/annobin.html/Test-glibcxx-assertions.html
 C_FLAGS="$C_FLAGS -D_GLIBCXX_ASSERTIONS"
+
+# https://sourceware.org/annobin/annobin.html/Test-lto.html
+C_FLAGS="$C_FLAGS -flto"
 %endif
 
 pkgs=base\
