@@ -1846,6 +1846,27 @@ class ServerConfig(object):
         sslcert = self.get_sslcert(sslhost, certType)
         sslhost.remove(sslcert)
 
+    def get_realm(self, className):
+        '''
+        Find realm by class name.
+        '''
+
+        server = self.document.getroot()
+        return server.find('.//Realm[@className="%s"]' % className)
+
+    def remove_realm(self, className):
+        '''
+        Remove realm by class name.
+        '''
+
+        realm = self.get_realm(className)
+
+        if realm is None:
+            return
+
+        service = realm.getparent()
+        service.remove(realm)
+
     def get_valves(self):
         '''
         Find all valves.
