@@ -64,8 +64,7 @@ public class DisplayHtmlServlet extends CMSServlet {
         logger.debug("DisplayHtmlServlet about to service ");
         authenticate(cmsReq);
         try {
-            String realpath =
-                    mServletConfig.getServletContext().getRealPath("/" + mHTMLPath);
+            String realpath = servletContext.getRealPath("/" + mHTMLPath);
 
             if (realpath == null) {
                 logger.error(CMS.getLogMessage("CMSGW_NO_FIND_TEMPLATE", mHTMLPath));

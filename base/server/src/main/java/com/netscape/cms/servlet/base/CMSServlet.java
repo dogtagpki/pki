@@ -205,13 +205,12 @@ public abstract class CMSServlet extends HttpServlet {
     // members.
 
     protected ServletConfig servletConfig;
+    protected ServletContext servletContext;
 
     protected boolean mRenderResult = true;
     protected String mFinalErrorMsg = FINAL_ERROR_MSG;
     protected Hashtable<Integer, CMSLoadTemplate> mTemplates = new Hashtable<>();
 
-    protected ServletConfig mServletConfig = null;
-    protected ServletContext mServletContext = null;
     private CMSFileLoader mFileLoader = null;
 
     protected Vector<String> mDontSaveHttpParams = new Vector<>();
@@ -258,7 +257,8 @@ public abstract class CMSServlet extends HttpServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
 
-        this.servletConfig = sc;
+        servletConfig = sc;
+        servletContext = sc.getServletContext();
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
@@ -274,8 +274,6 @@ public abstract class CMSServlet extends HttpServlet {
         }
 
         mConfig = cs.getSubStore(CMSGateway.PROP_CMSGATEWAY, ConfigStore.class);
-        mServletConfig = sc;
-        mServletContext = sc.getServletContext();
         mFileLoader = new CMSFileLoader();
 
         mGetClientCert = sc.getInitParameter(PROP_CLIENTAUTH);
@@ -431,10 +429,10 @@ public abstract class CMSServlet extends HttpServlet {
         cmsRequest.setHttpResp(httpResp);
 
         // set servlet config.
-        cmsRequest.setServletConfig(mServletConfig);
+        cmsRequest.setServletConfig(servletConfig);
 
         // set servlet context.
-        cmsRequest.setServletContext(mServletContext);
+        cmsRequest.setServletContext(servletContext);
 
         ArgBlock httpArgs = cmsRequest.getHttpParams();
 
@@ -444,7 +442,7 @@ public abstract class CMSServlet extends HttpServlet {
         if (authMgr_http != null) {
             mAuthMgr = authMgr_http;
         } else {
-            mAuthMgr = mServletConfig.getInitParameter(PROP_AUTHMGR);
+            mAuthMgr = servletConfig.getInitParameter(PROP_AUTHMGR);
         }
 
         // process request.
@@ -837,12 +835,11 @@ public abstract class CMSServlet extends HttpServlet {
             String templateName, HttpServletRequest httpReq, Locale[] locale)
             throws EBaseException, IOException {
         // this converts to system dependent file seperator char.
-        if (mServletConfig == null) {
+        if (servletConfig == null) {
             logger.error("CMSServlet:getTemplate() - mServletConfig is null!");
             return null;
         }
-        String realpath =
-                mServletConfig.getServletContext().getRealPath("/" + templateName);
+        String realpath = servletContext.getRealPath("/" + templateName);
 
         if (realpath == null) {
             logger.error(CMS.getLogMessage("CMSGW_NO_FIND_TEMPLATE", templateName));

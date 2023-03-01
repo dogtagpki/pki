@@ -270,9 +270,8 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         HttpServletResponse response = cmsReq.getHttpResp();
 
         Locale locale = getLocale(request);
-        String cert_request_type =
-                mServletConfig.getInitParameter("cert_request_type");
-        String outputFormat = mServletConfig.getInitParameter("outputFormat");
+        String cert_request_type = servletConfig.getInitParameter("cert_request_type");
+        String outputFormat = servletConfig.getInitParameter("outputFormat");
 
         int reqlen = request.getContentLength();
         InputStream is = null;
