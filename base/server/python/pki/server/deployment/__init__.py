@@ -273,6 +273,9 @@ class PKIDeployer:
 
             server_config.add_connector(connector)
 
+        logger.info('Removing LockOutRealm')
+        server_config.remove_realm('org.apache.catalina.realm.LockOutRealm')
+
         if config.str2bool(self.mdict['pki_enable_access_log']):
 
             logger.info('Enabling access log')
