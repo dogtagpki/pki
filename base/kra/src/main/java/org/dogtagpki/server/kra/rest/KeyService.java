@@ -66,6 +66,7 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cms.servlet.key.KeyRequestDAO;
+import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmscore.request.Request;
@@ -487,8 +488,11 @@ public class KeyService extends SubsystemService implements KeyResource {
         start = start == null ? 0 : start;
         size = size == null ? DEFAULT_SIZE : size;
 
+        KRAEngine engine = (KRAEngine) getCMSEngine();
+
         if (realm != null) {
             try {
+                AuthzSubsystem authz = engine.getAuthzSubsystem();
                 authz.checkRealm(realm, getAuthToken(), null, "certServer.kra.keys", "list");
 
             } catch (EAuthzAccessDenied e) {
@@ -576,6 +580,8 @@ public class KeyService extends SubsystemService implements KeyResource {
                 null
         );
 
+        KRAEngine engine = (KRAEngine) getCMSEngine();
+
         Collection<KeyInfo> list = infos.getEntries();
         Iterator<KeyInfo> iter = list.iterator();
 
@@ -584,6 +590,7 @@ public class KeyService extends SubsystemService implements KeyResource {
             if (info != null) {
                 // return the first one, but first confirm that the requester has access to this key
                 try {
+                    AuthzSubsystem authz = engine.getAuthzSubsystem();
                     authz.checkRealm(info.getRealm(), getAuthToken(), info.getOwnerName(), "certServer.kra.key", "read");
                 } catch (EAuthzAccessDenied e) {
                     throw new UnauthorizedException("Not authorized to read this key", e);
@@ -817,10 +824,15 @@ public class KeyService extends SubsystemService implements KeyResource {
         auditInfo = "KeyService.getKeyInfo";
         logger.debug(method + "begins.");
 
+        KRAEngine engine = (KRAEngine) getCMSEngine();
+
         KeyRecord rec = null;
         try {
             rec = repo.readKeyRecord(keyId.toBigInteger());
+
+            AuthzSubsystem authz = engine.getAuthzSubsystem();
             authz.checkRealm(rec.getRealm(), getAuthToken(), rec.getOwnerName(), "certServer.kra.key", "read");
+
             KeyInfo info = createKeyDataInfo(rec, true);
             auditKeyInfoSuccess(keyId, null);
 
