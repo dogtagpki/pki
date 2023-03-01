@@ -21,8 +21,8 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ISubsystem;
 
 /**
  * A generic interface for a policy processor. By making a processor
@@ -54,7 +54,7 @@ public interface IPolicyProcessor extends com.netscape.certsrv.request.IPolicy {
     public final static String PROP_IMPL = "impl";
     public final static String PROP_ORDER = "order";
 
-    public ISubsystem getAuthority();
+    public IAuthority getAuthority();
 
     /**
      * Returns the policy substore id.

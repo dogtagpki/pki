@@ -30,9 +30,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 
+import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -86,7 +86,7 @@ public class SearchReqs extends CMSServlet {
         mTemplates.remove(CMSRequest.SUCCESS);
 
         CMSEngine engine = CMS.getCMSEngine();
-        ISubsystem sub = mAuthority;
+        IAuthority sub = mAuthority;
         ConfigStore authConfig = sub.getConfigStore();
 
         if (authConfig != null) {

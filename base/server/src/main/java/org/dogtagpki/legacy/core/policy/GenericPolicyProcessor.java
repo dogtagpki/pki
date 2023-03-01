@@ -33,7 +33,6 @@ import org.dogtagpki.legacy.policy.IRevocationPolicy;
 
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
@@ -117,7 +116,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
     }
 
     @Override
-    public ISubsystem getAuthority() {
+    public IAuthority getAuthority() {
         return mAuthority;
     }
 
