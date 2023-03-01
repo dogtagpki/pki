@@ -12,18 +12,16 @@ import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.system.Feature;
 import com.netscape.certsrv.system.FeatureResource;
 import com.netscape.cms.servlet.base.PKIService;
-import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 
 public class FeatureService extends PKIService implements FeatureResource {
-    ConfigStore cs;
 
     @Override
     public Response listFeatures() {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         EngineConfig config = engine.getConfig();
 
         ConfigStore cs = config.getSubStore("features", ConfigStore.class);
@@ -41,7 +39,7 @@ public class FeatureService extends PKIService implements FeatureResource {
     @Override
     public Response getFeature(String id) {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         EngineConfig config = engine.getConfig();
 
         ConfigStore cs = config.getSubStore("features", ConfigStore.class);
