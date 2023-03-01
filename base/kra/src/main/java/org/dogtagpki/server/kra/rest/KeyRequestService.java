@@ -29,6 +29,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 import org.dogtagpki.server.authentication.AuthToken;
+import org.dogtagpki.server.kra.KRAEngine;
 import org.mozilla.jss.crypto.SymmetricKey;
 
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
@@ -58,6 +59,7 @@ import com.netscape.certsrv.request.RequestNotFoundException;
 import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cms.servlet.key.KeyRequestDAO;
+import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**
@@ -146,6 +148,8 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
             }
         }
 
+        KRAEngine engine = (KRAEngine) getCMSEngine();
+
         KeyRequestDAO dao = new KeyRequestDAO();
         KeyRequestResponse response;
         try {
@@ -155,6 +159,7 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
 
             String realm = data.getRealm();
             if (realm != null) {
+                AuthzSubsystem authz = engine.getAuthzSubsystem();
                 authz.checkRealm(realm, getAuthToken(), null, "certServer.kra.requests.archival", "execute");
             }
             response = dao.submitRequest(data, uriInfo, getRequestor());
@@ -308,8 +313,11 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
         logger.debug("KeyRequestService: client key ID: " + clientKeyID);
         logger.debug("KeyRequestService: realm: " + realm);
 
+        KRAEngine engine = (KRAEngine) getCMSEngine();
+
         if (realm != null) {
             try {
+                AuthzSubsystem authz = engine.getAuthzSubsystem();
                 authz.checkRealm(realm, getAuthToken(), null, "certServer.kra.requests", "list");
             } catch (EAuthzAccessDenied e) {
                 throw new UnauthorizedException("Not authorized to list these requests", e);
@@ -456,14 +464,18 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
             throw new BadRequestException("Invalid key generation request.");
         }
 
+        KRAEngine engine = (KRAEngine) getCMSEngine();
+
         KeyRequestDAO dao = new KeyRequestDAO();
         KeyRequestResponse response;
         try {
             if (getRequestor() == null) {
                 throw new UnauthorizedException("Key generation must be performed by an agent");
             }
+
             String realm = data.getRealm();
             if (realm != null) {
+                AuthzSubsystem authz = engine.getAuthzSubsystem();
                 authz.checkRealm(realm, getAuthToken(), null, "certServer.kra.requests.symkey", "execute");
             }
 
@@ -490,14 +502,18 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
             throw new BadRequestException("Invalid key generation request.");
         }
 
+        KRAEngine engine = (KRAEngine) getCMSEngine();
+
         KeyRequestDAO dao = new KeyRequestDAO();
         KeyRequestResponse response;
         try {
             if (getRequestor() == null) {
                 throw new UnauthorizedException("Key generation must be performed by an agent");
             }
+
             String realm = data.getRealm();
             if (realm != null) {
+                AuthzSubsystem authz = engine.getAuthzSubsystem();
                 authz.checkRealm(realm, getAuthToken(), null, "certServer.kra.requests.asymkey", "execute");
             }
 
