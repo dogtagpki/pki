@@ -51,7 +51,6 @@ import com.netscape.certsrv.logging.AuditResource;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.ConfigSignedAuditEvent;
 import com.netscape.cms.servlet.base.SubsystemService;
-import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.logging.LogSubsystem;
@@ -76,7 +75,7 @@ public class AuditService extends SubsystemService implements AuditResource {
     public AuditConfig createAuditConfig(Map<String, String> auditParams)
             throws UnsupportedEncodingException, EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         EngineConfig cs = engine.getConfig();
         LoggersConfig loggersConfig = cs.getLoggingConfig().getLoggersConfig();
         LoggerConfig loggerConfig = loggersConfig.getLoggerConfig("SignedAudit");
@@ -166,7 +165,7 @@ public class AuditService extends SubsystemService implements AuditResource {
 
         logger.info("AuditService: Updating audit configuration:");
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         EngineConfig cs = engine.getConfig();
         LoggersConfig loggersConfig = cs.getLoggingConfig().getLoggersConfig();
         LoggerConfig loggerConfig = loggersConfig.getLoggerConfig("SignedAudit");
@@ -283,7 +282,7 @@ public class AuditService extends SubsystemService implements AuditResource {
 
         logger.debug("AuditService.changeAuditStatus()");
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         EngineConfig cs = engine.getConfig();
         LoggersConfig loggersConfig = cs.getLoggingConfig().getLoggersConfig();
         LoggerConfig loggerConfig = loggersConfig.getLoggerConfig("SignedAudit");
@@ -328,7 +327,7 @@ public class AuditService extends SubsystemService implements AuditResource {
 
     public File getCurrentLogFile() {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         EngineConfig cs = engine.getConfig();
         LoggersConfig loggersConfig = cs.getLoggingConfig().getLoggersConfig();
         LoggerConfig loggerConfig = loggersConfig.getLoggerConfig("SignedAudit");
