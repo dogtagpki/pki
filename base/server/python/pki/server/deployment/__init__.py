@@ -303,6 +303,9 @@ class PKIDeployer:
             logger.info('Disabling access log')
             server_config.remove_valve('org.apache.catalina.valves.AccessLogValve')
 
+        logger.info('Adding RewriteValve')
+        server_config.create_valve('org.apache.catalina.valves.rewrite.RewriteValve')
+
         server_config.save()
 
     def get_key_params(self, cert_id):
