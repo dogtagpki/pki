@@ -522,10 +522,6 @@ public class KeyRecoveryAuthority implements IAuthority {
         if (!mInitialized)
             return;
 
-        if (mTransportKeyUnit != null) {
-            mTransportKeyUnit.shutdown();
-        }
-
         if (mStorageKeyUnit != null) {
             mStorageKeyUnit.shutdown();
         }

@@ -37,7 +37,6 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.util.WrappingParams;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
@@ -50,8 +49,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  * @author thomask
  * @version $Revision$, $Date$
  */
-public class TransportKeyUnit extends EncryptionUnit implements
-        ISubsystem, ITransportKeyUnit {
+public class TransportKeyUnit extends EncryptionUnit implements ITransportKeyUnit {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TransportKeyUnit.class);
 
@@ -76,25 +74,8 @@ public class TransportKeyUnit extends EncryptionUnit implements
     }
 
     /**
-     * Retrieves subsystem identifier.
-     */
-    @Override
-    public String getId() {
-        return "transportKeyUnit";
-    }
-
-    /**
-     * Sets subsystem identifier.
-     */
-    @Override
-    public void setId(String id) throws EBaseException {
-        throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_OPERATION"));
-    }
-
-    /**
      * Initializes this subsystem.
      */
-    @Override
     public void init(ConfigStore config) throws EBaseException {
         mConfig = config;
         try {
@@ -162,28 +143,6 @@ public class TransportKeyUnit extends EncryptionUnit implements
     @Override
     public CryptoToken getToken(org.mozilla.jss.crypto.X509Certificate cert) {
         return getPrivateKey(cert).getOwningToken();
-    }
-
-    /**
-     * Starts up this subsystem.
-     */
-    @Override
-    public void startup() throws EBaseException {
-    }
-
-    /**
-     * Shutdowns this subsystem.
-     */
-    @Override
-    public void shutdown() {
-    }
-
-    /**
-     * Returns the configuration store of this token.
-     */
-    @Override
-    public ConfigStore getConfigStore() {
-        return mConfig;
     }
 
     public String getNickName() throws EBaseException {
