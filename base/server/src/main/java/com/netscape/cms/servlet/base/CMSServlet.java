@@ -235,8 +235,6 @@ public abstract class CMSServlet extends HttpServlet {
     protected String mAuthzResourceName = null;
 
     protected String mOutputTemplatePath = null;
-    protected CMSEngine engine = CMS.getCMSEngine();
-    private UGSubsystem mUG = engine.getUGSubsystem();
 
     public CMSServlet() {
     }
@@ -1752,6 +1750,8 @@ public abstract class CMSServlet extends HttpServlet {
             return null;
         }
 
+        CMSEngine engine = CMS.getCMSEngine();
+        UGSubsystem mUG = engine.getUGSubsystem();
         Enumeration<Group> groups = null;
 
         try {
