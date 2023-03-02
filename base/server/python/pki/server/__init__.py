@@ -1694,6 +1694,9 @@ class ServerConfig(object):
         return None
 
     def create_listener(self, className):
+        '''
+        Create listener and add it after the last listener.
+        '''
 
         listener = etree.Element('Listener')
         listener.set('className', className)
@@ -1708,6 +1711,9 @@ class ServerConfig(object):
         return listener
 
     def remove_listener(self, className):
+        '''
+        Remove listener by class name.
+        '''
 
         listener = self.get_listener(className)
 
