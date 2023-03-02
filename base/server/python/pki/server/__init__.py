@@ -1889,18 +1889,37 @@ class ServerConfig(object):
         server = self.document.getroot()
         return server.find('.//Valve[@className="%s"]' % className)
 
+    def create_valve(self, className):
+        '''
+        Create valve and add it after the last valve.
+        '''
+
+        valve = etree.Element('Valve')
+        valve.set('className', className)
+
+        self.add_valve(valve)
+
+        return valve
+
     def add_valve(self, valve):
         '''
         Add valve after the last valve.
         '''
 
         server = self.document.getroot()
-        valves = server.findall('.//Valve')
-        last_valve = valves[-1]
 
-        service = last_valve.getparent()
-        index = service.index(last_valve) + 1
-        service.insert(index, valve)
+        # find last valve
+        host = server.find('.//Host[@name="localhost"]')
+        valves = host.findall('Valve')
+
+        # insert new valve after the last valve
+        if len(valves) == 0:
+            index = 0
+        else:
+            last_valve = valves[-1]
+            index = host.index(last_valve) + 1
+
+        host.insert(index, valve)
 
     def remove_valve(self, className):
         '''
