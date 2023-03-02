@@ -110,6 +110,7 @@ class SDHostAddCLI(pki.cli.CLI):
         print('Usage: pki-server sd-host-add [OPTIONS] <host ID>')
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('      --subsystem <type>             Subsystem type')
         print('      --hostname <hostname>          Hostname')
         print('      --unsecure-port <port>         Unsecure port (default: 8080)')
         print('      --secure-port <port>           Secure port (default: 8443)')
@@ -124,7 +125,7 @@ class SDHostAddCLI(pki.cli.CLI):
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'hostname=', 'unsecure-port=', 'secure-port=',
+                'instance=', 'subsystem=', 'hostname=', 'unsecure-port=', 'secure-port=',
                 'domain-manager', 'clone',
                 'verbose', 'debug', 'help'])
 
@@ -134,6 +135,7 @@ class SDHostAddCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
+        subsystem_type = None
         hostname = None
         unsecure_port = '8080'
         secure_port = '8443'
@@ -143,6 +145,9 @@ class SDHostAddCLI(pki.cli.CLI):
         for o, a in opts:
             if o in ('-i', '--instance'):
                 instance_name = a
+
+            elif o == '--subsystem':
+                subsystem_type = a
 
             elif o == '--hostname':
                 hostname = a
@@ -181,6 +186,11 @@ class SDHostAddCLI(pki.cli.CLI):
 
         host_id = args[0]
 
+        if not subsystem_type:
+            logger.error('Missing subsystem type')
+            self.print_help()
+            sys.exit(1)
+
         if not hostname:
             logger.error('Missing hostname')
             self.print_help()
@@ -200,6 +210,7 @@ class SDHostAddCLI(pki.cli.CLI):
 
         subsystem.add_security_domain_host(
             host_id,
+            subsystem_type,
             hostname,
             unsecure_port=unsecure_port,
             secure_port=secure_port,

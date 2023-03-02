@@ -1562,6 +1562,7 @@ class PKIDeployer:
             logger.info('Adding security domain manager')
             subsystem.add_security_domain_host(
                 self.mdict['pki_subsystem_name'],
+                subsystem.type,
                 self.mdict['pki_hostname'],
                 unsecure_port=proxyUnsecurePort,
                 secure_port=proxySecurePort,

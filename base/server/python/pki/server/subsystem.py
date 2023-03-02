@@ -1431,6 +1431,7 @@ class PKISubsystem(object):
     def add_security_domain_host(
             self,
             host_id,
+            subsystem_type,
             hostname,
             unsecure_port='8080',
             secure_port='8443',
@@ -1440,6 +1441,7 @@ class PKISubsystem(object):
 
         cmd = [
             self.name + '-sd-host-add',
+            '--subsystem', subsystem_type,
             '--hostname', hostname
         ]
 

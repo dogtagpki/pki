@@ -45,7 +45,11 @@ public class SDHostAddCLI extends CommandCLI {
 
     @Override
     public void createOptions() {
-        Option option = new Option(null, "hostname", true, "Hostname");
+        Option option = new Option(null, "subsystem", true, "Subsystem type");
+        option.setArgName("type");
+        options.addOption(option);
+
+        option = new Option(null, "hostname", true, "Hostname");
         option.setArgName("hostname");
         options.addOption(option);
 
@@ -71,6 +75,12 @@ public class SDHostAddCLI extends CommandCLI {
         }
 
         String hostID = cmdArgs[0];
+
+        String subsystemType = cmd.getOptionValue("subsystem");
+
+        if (subsystemType == null) {
+            throw new Exception("Missing subsystem type");
+        }
 
         String hostname = cmd.getOptionValue("hostname");
 
@@ -132,7 +142,7 @@ public class SDHostAddCLI extends CommandCLI {
             String sdDN = "ou=Security Domain," + ldapConfig.getBaseDN();
 
             String cn = hostname + ":" + securePort;
-            String dn = "cn=" + LDAPUtil.escapeRDNValue(cn) + ",cn=CAList," + sdDN;
+            String dn = "cn=" + LDAPUtil.escapeRDNValue(cn) + ",cn=" + subsystemType + "List," + sdDN;
             logger.info("Adding " + dn);
 
             LDAPAttributeSet attrs = new LDAPAttributeSet();
