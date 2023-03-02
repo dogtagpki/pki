@@ -105,7 +105,6 @@ public class AdminServlet extends HttpServlet {
     private final static String HDR_LANG = "accept-language";
 
     protected Auditor auditor = Auditor.getAuditor();
-    private UGSubsystem mUG = null;
     protected EngineConfig mConfig = null;
     protected AuthzSubsystem mAuthz;
 
@@ -146,7 +145,6 @@ public class AdminServlet extends HttpServlet {
         super.init(sc);
 
         CMSEngine engine = CMS.getCMSEngine();
-        mUG = engine.getUGSubsystem();
         mConfig = engine.getConfig();
 
         String srcType = AUTHZ_SRC_LDAP;
@@ -269,6 +267,7 @@ public class AdminServlet extends HttpServlet {
             IOException {
 
         CMSEngine engine = CMS.getCMSEngine();
+        UGSubsystem mUG = engine.getUGSubsystem();
         EngineConfig configStore = engine.getConfig();
 
         String auditUID = ILogger.UNIDENTIFIED;
@@ -828,6 +827,8 @@ public class AdminServlet extends HttpServlet {
 
             // get user.
             // this either returns null or throws exception when user not found
+            CMSEngine engine = CMS.getCMSEngine();
+            UGSubsystem mUG = engine.getUGSubsystem();
             User user = mUG.getUser(userid);
 
             if (user == null) {
