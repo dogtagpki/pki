@@ -25,7 +25,6 @@ import java.io.PrintStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -1226,15 +1225,10 @@ public abstract class CMSServlet extends HttpServlet {
         return new RevokedCertImpl(serialNo, new Date(), crlentryexts);
     }
 
-    public static String generateSalt() {
+    protected String hashPassword(String pwd) {
         CMSEngine engine = CMS.getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
-        SecureRandom rnd = jssSubsystem.getRandomNumberGenerator();
-        return Integer.toString(rnd.nextInt());
-    }
-
-    protected String hashPassword(String pwd) {
-        String salt = generateSalt();
+        String salt = jssSubsystem.generateSalt();
         byte[] pwdDigest = mSHADigest.digest((salt + pwd).getBytes());
         String b64E = Utils.base64encode(pwdDigest, true);
 

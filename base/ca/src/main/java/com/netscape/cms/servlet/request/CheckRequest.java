@@ -76,6 +76,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.request.Request;
+import com.netscape.cmscore.security.JssSubsystem;
 
 /**
  * Check the status of a certificate request
@@ -267,6 +268,7 @@ public class CheckRequest extends CMSServlet {
         X509Certificate mCACerts[] = null;
 
         CAEngine engine = CAEngine.getInstance();
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         CertificateAuthority ca = engine.getCA();
 
         try {
@@ -457,7 +459,7 @@ public class CheckRequest extends CMSServlet {
                                             controlSeq.addElement(ta);
                                         }
 
-                                        String salt = CMSServlet.generateSalt();
+                                        String salt = jssSubsystem.generateSalt();
                                         byte[] dig;
 
                                         try {

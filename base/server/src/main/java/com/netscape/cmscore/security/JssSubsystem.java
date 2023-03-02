@@ -359,6 +359,11 @@ public final class JssSubsystem implements ICryptoSubsystem {
         return random;
     }
 
+    public String generateSalt() {
+        SecureRandom rnd = getRandomNumberGenerator();
+        return Integer.toString(rnd.nextInt());
+    }
+
     public void obscureBytes(byte[] memory) {
         obscureBytes(memory,null);
     }
