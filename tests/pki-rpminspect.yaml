@@ -1,0 +1,30 @@
+# rpminspect profile for PKI
+
+---
+inspections:
+    # License check fails because of a bug in rpminspect, see:
+    # https://github.com/rpminspect/rpminspect/issues/858
+    # https://github.com/rpminspect/rpminspect/issues/1117
+    license: off
+
+    # Don't run metadata check as we can't know the build host subdomain
+    # of CI runners in advance to add to an allow list
+    metadata: off
+
+annocheck:
+    # LTO tests fail for the Tools RPM, requires inspection when there is time
+    jobs:
+        - hardened: --skip-lto
+
+# We compile with Java 17
+javabytecode:
+    - fc37: 61
+    - fc38: 61
+    - fc39: 61
+    - fc40: 61
+    - default: 61
+
+runpath:
+   # The TPS needs access to this path
+   allowed_paths:
+        - /usr/lib64/tps

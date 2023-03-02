@@ -49,9 +49,9 @@ jobs:
 
       - name: Install rpminspect
         run: |
-          docker exec builder dnf copr enable -y copr.fedorainfracloud.org/dcantrell/rpminspect
-          docker exec builder dnf install -y rpminspect rpminspect-data-fedora
+          docker exec builder dnf install -y rpminspect-data-fedora
 
       - name: Run rpminspect on SRPM and RPMs
         run: |
+          docker exec builder cp tests/pki-rpminspect.yaml /usr/share/rpminspect/profiles/fedora/pki-rpminspect.yaml
           docker exec builder tests/bin/rpminspect.sh
