@@ -58,7 +58,7 @@ import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.TPSCertRecord;
 import org.dogtagpki.server.tps.dbs.TokenCertStatus;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
-import org.dogtagpki.server.tps.engine.TPSEngine;
+import org.dogtagpki.server.tps.engine.TPS;
 import org.dogtagpki.server.tps.main.ExternalRegAttrs;
 //import org.dogtagpki.server.tps.main.ExternalRegCertToDelete;
 import org.dogtagpki.server.tps.main.ExternalRegCertToRecover;
@@ -680,7 +680,7 @@ public class TPSProcessor {
         logger.debug("TPSProcessor.generateSecureChannel: entering.. keyInfoData: " + keyInfoData.toHexString());
         logger.debug("TPSProcessor.generateSecureChannel: isSCP02: " + platProtInfo.isSCP02());
 
-        TPSEngine engine = getTPSEngine();
+        TPS engine = getTPSEngine();
 
         SecureChannel channel = null;
         TPSBuffer hostCryptogram = null;
@@ -1003,7 +1003,7 @@ public class TPSProcessor {
         TPSEngineConfig configStore = engine.getConfig();
 
         String appletEncryptionConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
-                + TPSEngine.CFG_UPDATE_APPLET_ENCRYPTION;
+                + TPS.CFG_UPDATE_APPLET_ENCRYPTION;
 
         logger.debug("TPSProcessor.checkUpdateAppletEncryption config to check: " + appletEncryptionConfig);
 
@@ -1265,12 +1265,12 @@ public class TPSProcessor {
         AuthCredentials userCred;
         String method = "TPSProcessor:processAuthentication:";
         String opPrefix;
-        if (op.equals(TPSEngine.FORMAT_OP))
-            opPrefix = TPSEngine.OP_FORMAT_PREFIX;
-        else if (op.equals(TPSEngine.ENROLL_OP))
-            opPrefix = TPSEngine.OP_ENROLL_PREFIX;
+        if (op.equals(TPS.FORMAT_OP))
+            opPrefix = TPS.OP_FORMAT_PREFIX;
+        else if (op.equals(TPS.ENROLL_OP))
+            opPrefix = TPS.OP_ENROLL_PREFIX;
         else
-            opPrefix = TPSEngine.OP_PIN_RESET_PREFIX;
+            opPrefix = TPS.OP_PIN_RESET_PREFIX;
 
         userCred = requestUserId(op, cuid, userAuth, beginMsg.getExtensions());
         userid = (String) userCred.get(userAuth.getAuthCredName());
@@ -1606,7 +1606,7 @@ public class TPSProcessor {
                 ".ca.conn";
             logger.debug(method + " getting config: " + config);
         } else {
-            config = TPSEngine.OP_FORMAT_PREFIX + "." +
+            config = TPS.OP_FORMAT_PREFIX + "." +
                 selectedTokenType +
                 ".ca.conn";
             logger.debug(method + " getting config: " + config);
@@ -1635,7 +1635,7 @@ public class TPSProcessor {
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSEngineConfig configStore = engine.getConfig();
-        String configName = TPSEngine.OP_FORMAT_PREFIX + "." + selectedTokenType + ".revokeCert";
+        String configName = TPS.OP_FORMAT_PREFIX + "." + selectedTokenType + ".revokeCert";
         boolean revokeCert = false;
         try {
             logger.debug(method + ": getting config:" + configName);
@@ -1658,7 +1658,7 @@ public class TPSProcessor {
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSEngineConfig configStore = engine.getConfig();
-        String configName = TPSEngine.OP_FORMAT_PREFIX + "." + selectedTokenType + ".revokeCert.reason";
+        String configName = TPS.OP_FORMAT_PREFIX + "." + selectedTokenType + ".revokeCert.reason";
         logger.debug(method + " finding config: " + configName);
 
         RevocationReason revokeReason = RevocationReason.UNSPECIFIED;
@@ -2203,7 +2203,7 @@ public class TPSProcessor {
                 try {
                     userAuth = getAuthentication(authId);
 
-                    processAuthentication(TPSEngine.FORMAT_OP, userAuth, cuid, tokenRecord);
+                    processAuthentication(TPS.FORMAT_OP, userAuth, cuid, tokenRecord);
                     auditAuthSuccess(userid, currentTokenOperation, appletInfo, authId);
 
                 } catch (Exception e) {
@@ -2309,7 +2309,7 @@ public class TPSProcessor {
         // isExternalReg : user already authenticated earlier
         if (!isExternalReg) {
             // authenticate per profile/tokenType configuration
-            configName = TPSEngine.OP_FORMAT_PREFIX + "." + tokenType + ".auth.enable";
+            configName = TPS.OP_FORMAT_PREFIX + "." + tokenType + ".auth.enable";
             boolean isAuthRequired;
             try {
                 logger.debug("TPSProcessor.format: getting config: " + configName);
@@ -2329,8 +2329,8 @@ public class TPSProcessor {
             if (isAuthRequired && !skipAuth) {
                 TPSAuthenticator userAuth = null;
                 try {
-                    userAuth = getAuthentication(TPSEngine.OP_FORMAT_PREFIX, tokenType);
-                    processAuthentication(TPSEngine.FORMAT_OP, userAuth, cuid, tokenRecord);
+                    userAuth = getAuthentication(TPS.OP_FORMAT_PREFIX, tokenType);
+                    processAuthentication(TPS.FORMAT_OP, userAuth, cuid, tokenRecord);
                     auditAuthSuccess(userid, currentTokenOperation, appletInfo,
                             (userAuth != null) ? userAuth.getID() : null);
 
@@ -2379,7 +2379,7 @@ public class TPSProcessor {
                         TPSStatus.STATUS_ERROR_DISABLED_TOKEN);
             }
         } else {
-            checkAllowUnknownToken(TPSEngine.FORMAT_OP);
+            checkAllowUnknownToken(TPS.FORMAT_OP);
 
             tokenRecord.setTokenStatus(TokenStatus.UNFORMATTED);
             logger.debug("TPSProcessor.format: token does not exist");
@@ -2403,19 +2403,19 @@ public class TPSProcessor {
         TPSBuffer build_id = getAppletVersion();
 
         if (build_id == null) {
-            checkAllowNoAppletToken(TPSEngine.OP_FORMAT_PREFIX);
+            checkAllowNoAppletToken(TPS.OP_FORMAT_PREFIX);
         } else {
             appletVersion = formatCurrentAppletVersion(appletInfo);
         }
 
-        String appletRequiredVersion = checkForAppletUpgrade(TPSEngine.OP_FORMAT_PREFIX);
+        String appletRequiredVersion = checkForAppletUpgrade(TPS.OP_FORMAT_PREFIX);
 
         logger.debug("TPSProcessor.format: appletVersion found: " + appletVersion + " requiredVersion: "
                 + appletRequiredVersion);
 
         String tksConnId = getTKSConnectorID();
 
-        upgradeApplet(appletInfo,TPSEngine.OP_FORMAT_PREFIX, appletRequiredVersion,
+        upgradeApplet(appletInfo,TPS.OP_FORMAT_PREFIX, appletRequiredVersion,
                 beginMsg.getExtensions(), tksConnId,
                 10, 90);
         logger.debug("TPSProcessor.format: Completed applet upgrade.");
@@ -2539,17 +2539,17 @@ public class TPSProcessor {
         String opPrefix = null;
         String opDefault = null;
 
-        if (currentTokenOperation.equals(TPSEngine.FORMAT_OP)) {
-            opPrefix = TPSEngine.OP_FORMAT_PREFIX;
-            opDefault = TPSEngine.CFG_DEF_FORMAT_PROFILE_RESOLVER;
+        if (currentTokenOperation.equals(TPS.FORMAT_OP)) {
+            opPrefix = TPS.OP_FORMAT_PREFIX;
+            opDefault = TPS.CFG_DEF_FORMAT_PROFILE_RESOLVER;
 
-        } else if (currentTokenOperation.equals(TPSEngine.ENROLL_OP)) {
-            opDefault = TPSEngine.CFG_DEF_ENROLL_PROFILE_RESOLVER;
-            opPrefix = TPSEngine.OP_ENROLL_PREFIX;
-        } else if (currentTokenOperation.equals(TPSEngine.PIN_RESET_OP)) {
+        } else if (currentTokenOperation.equals(TPS.ENROLL_OP)) {
+            opDefault = TPS.CFG_DEF_ENROLL_PROFILE_RESOLVER;
+            opPrefix = TPS.OP_ENROLL_PREFIX;
+        } else if (currentTokenOperation.equals(TPS.PIN_RESET_OP)) {
 
-            opDefault = TPSEngine.CFG_DEF_PIN_RESET_PROFILE_RESOLVER;
-            opPrefix = TPSEngine.OP_PIN_RESET_PREFIX;
+            opDefault = TPS.CFG_DEF_PIN_RESET_PROFILE_RESOLVER;
+            opPrefix = TPS.OP_PIN_RESET_PREFIX;
         } else {
             throw new TPSException(
                     "TPSProcessor.getResolverInstanceName: Invalid operation type, can not calculate resolver instance!",
@@ -2557,7 +2557,7 @@ public class TPSProcessor {
         }
 
         String config = opPrefix +
-                "." + TPSEngine.CFG_MAPPING_RESOLVER;
+                "." + TPS.CFG_MAPPING_RESOLVER;
 
         logger.debug("TPSProcessor.getResolverInstanceName: getting config: " + config);
         try {
@@ -2585,7 +2585,7 @@ public class TPSProcessor {
             return null;
         }
         String config = "externalReg" +
-                "." + TPSEngine.CFG_MAPPING_RESOLVER;
+                "." + TPS.CFG_MAPPING_RESOLVER;
 
         logger.debug(method + " getting config: " + config);
         try {
@@ -2654,7 +2654,7 @@ public class TPSProcessor {
         TPSEngineConfig configStore = engine.getConfig();
         String info = null;
 
-        String config = "op." + currentTokenOperation + "." + selectedTokenType + "." + TPSEngine.CFG_ISSUER_INFO_VALUE;
+        String config = "op." + currentTokenOperation + "." + selectedTokenType + "." + TPS.CFG_ISSUER_INFO_VALUE;
 
         logger.debug("TPSProcessor.getIssuerInfoValue: getting config: " + config);
         try {
@@ -2705,7 +2705,7 @@ public class TPSProcessor {
         TPSEngineConfig configStore = engine.getConfig();
 
         String issuerEnabledConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
-                + TPSEngine.CFG_ISSUER_INFO_ENABLE;
+                + TPS.CFG_ISSUER_INFO_ENABLE;
 
         logger.debug("TPSProcessor.checkIssuerEnabled config to check: " + issuerEnabledConfig);
 
@@ -2729,7 +2729,7 @@ public class TPSProcessor {
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSEngineConfig configStore = engine.getConfig();
-        String External_Reg_Cfg = TPSEngine.CFG_EXTERNAL_REG + "." + "enable";
+        String External_Reg_Cfg = TPS.CFG_EXTERNAL_REG + "." + "enable";
         logger.debug("TPS_Processor.checkIsExternalReg: getting config:" + External_Reg_Cfg);
 
         try {
@@ -2772,7 +2772,7 @@ public class TPSProcessor {
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSEngineConfig configStore = engine.getConfig();
 
-        String noAppletConfig = operation + "." + selectedTokenType + "." + TPSEngine.CFG_ALLOW_NO_APPLET;
+        String noAppletConfig = operation + "." + selectedTokenType + "." + TPS.CFG_ALLOW_NO_APPLET;
         logger.debug("TPSProcessor.checkAllowNoAppletToken: getting config: " + noAppletConfig);
 
         try {
@@ -2796,7 +2796,7 @@ public class TPSProcessor {
         TPSEngineConfig configStore = engine.getConfig();
 
         String appletUpdate = "op." + currentTokenOperation + "." + selectedTokenType + "."
-                + TPSEngine.CFG_UPDATE_APPLET_ENABLE;
+                + TPS.CFG_UPDATE_APPLET_ENABLE;
         logger.debug("TPSProcessor.checkForAppletUpdateEnabled: getting config: " + appletUpdate);
         try {
             enabled = configStore.getBoolean(appletUpdate, false);
@@ -2829,7 +2829,7 @@ public class TPSProcessor {
         }
 
         String appletRequiredConfig = operation + "." + selectedTokenType + "."
-                + TPSEngine.CFG_APPLET_UPDATE_REQUIRED_VERSION +  protString;
+                + TPS.CFG_APPLET_UPDATE_REQUIRED_VERSION +  protString;
         logger.debug("TPSProcessor.checkForAppletUpgrade: getting config: " + appletRequiredConfig);
         try {
             requiredVersion = configStore.getString(appletRequiredConfig, null);
@@ -2855,7 +2855,7 @@ public class TPSProcessor {
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSEngineConfig configStore = engine.getConfig();
 
-        String unknownConfig = "op." + operation + "." + TPSEngine.CFG_ALLOW_UNKNOWN_TOKEN;
+        String unknownConfig = "op." + operation + "." + TPS.CFG_ALLOW_UNKNOWN_TOKEN;
         logger.debug("TPSProcessor.checkAllowUnknownToken: getting config: " + unknownConfig);
 
         try {
@@ -2899,11 +2899,11 @@ public class TPSProcessor {
         String NetKeyAID = null;
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSEngineConfig configStore = engine.getConfig();
-        logger.debug("TPSProcessor.getNetkeyAID: getting config: " + TPSEngine.CFG_DEF_NETKEY_INSTANCE_AID);
+        logger.debug("TPSProcessor.getNetkeyAID: getting config: " + TPS.CFG_DEF_NETKEY_INSTANCE_AID);
         try {
 
-            NetKeyAID = configStore.getString(TPSEngine.CFG_APPLET_NETKEY_INSTANCE_AID,
-                    TPSEngine.CFG_DEF_NETKEY_INSTANCE_AID);
+            NetKeyAID = configStore.getString(TPS.CFG_APPLET_NETKEY_INSTANCE_AID,
+                    TPS.CFG_DEF_NETKEY_INSTANCE_AID);
 
         } catch (EBaseException e1) {
             logger.error("TPS_Processor.getNetkeyAID: Internal Error obtaining mandatory config values: " + e1.getMessage(), e1);
@@ -2920,11 +2920,11 @@ public class TPSProcessor {
         String NetKeyPAID = null;
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSEngineConfig configStore = engine.getConfig();
-        logger.debug("TPSProcessor.getNetkeyPAID: getting config: " + TPSEngine.CFG_DEF_NETKEY_FILE_AID);
+        logger.debug("TPSProcessor.getNetkeyPAID: getting config: " + TPS.CFG_DEF_NETKEY_FILE_AID);
         try {
 
             NetKeyPAID = configStore.getString(
-                    TPSEngine.CFG_APPLET_NETKEY_FILE_AID, TPSEngine.CFG_DEF_NETKEY_FILE_AID);
+                    TPS.CFG_APPLET_NETKEY_FILE_AID, TPS.CFG_DEF_NETKEY_FILE_AID);
 
         } catch (EBaseException e1) {
             logger.error("TPS_Processor.getNetkeyAID: Internal Error obtaining mandatory config values: " + e1.getMessage(), e1);
@@ -2941,11 +2941,11 @@ public class TPSProcessor {
         String cardMgrAID = null;
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSEngineConfig configStore = engine.getConfig();
-        logger.debug("TPSProcessor.getCardManagerAID: getting config: " + TPSEngine.CFG_APPLET_CARDMGR_INSTANCE_AID);
+        logger.debug("TPSProcessor.getCardManagerAID: getting config: " + TPS.CFG_APPLET_CARDMGR_INSTANCE_AID);
         try {
 
-            cardMgrAID = configStore.getString(TPSEngine.CFG_APPLET_CARDMGR_INSTANCE_AID,
-                    TPSEngine.CFG_DEF_CARDMGR_INSTANCE_AID);
+            cardMgrAID = configStore.getString(TPS.CFG_APPLET_CARDMGR_INSTANCE_AID,
+                    TPS.CFG_DEF_CARDMGR_INSTANCE_AID);
 
         } catch (EBaseException e1) {
             logger.error("TPS_Processor.getNetkeyAID: Internal Error obtaining mandatory config values: " + e1.getMessage(), e1);
@@ -2961,7 +2961,7 @@ public class TPSProcessor {
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSEngineConfig configStore = engine.getConfig();
         String extension = null;
-        String extensionConfig = TPSEngine.CFG_APPLET_EXTENSION;
+        String extensionConfig = TPS.CFG_APPLET_EXTENSION;
 
         try {
             extension = configStore.getString(extensionConfig, "ijc");
@@ -2981,7 +2981,7 @@ public class TPSProcessor {
         TPSEngineConfig configStore = engine.getConfig();
         String directory = null;
 
-        String directoryConfig = operation + "." + selectedTokenType + "." + TPSEngine.CFG_APPLET_DIRECTORY;
+        String directoryConfig = operation + "." + selectedTokenType + "." + TPS.CFG_APPLET_DIRECTORY;
         logger.debug("TPSProcessor.getAppletDirectory: getting config: " + directoryConfig);
 
         //We need a directory
@@ -3004,7 +3004,7 @@ public class TPSProcessor {
         TPSEngineConfig configStore = engine.getConfig();
         int blockSize = 0;
         try {
-            blockSize = configStore.getInteger(TPSEngine.CFG_CHANNEL_BLOCK_SIZE, TPSEngine.CFG_CHANNEL_DEF_BLOCK_SIZE);
+            blockSize = configStore.getInteger(TPS.CFG_CHANNEL_BLOCK_SIZE, TPS.CFG_CHANNEL_DEF_BLOCK_SIZE);
 
         } catch (EBaseException e) {
             throw new TPSException("TPSProcessor.getChannelBlockSize: Internal error finding config value: " + e,
@@ -3022,8 +3022,8 @@ public class TPSProcessor {
         TPSEngineConfig configStore = engine.getConfig();
         int instanceSize = 0;
         try {
-            instanceSize = configStore.getInteger(TPSEngine.CFG_CHANNEL_INSTANCE_SIZE,
-                    TPSEngine.CFG_CHANNEL_DEF_INSTANCE_SIZE);
+            instanceSize = configStore.getInteger(TPS.CFG_CHANNEL_INSTANCE_SIZE,
+                    TPS.CFG_CHANNEL_DEF_INSTANCE_SIZE);
 
         } catch (EBaseException e) {
             throw new TPSException("TPSProcessor.getChannelInstanceSize: Internal error finding config value: " + e,
@@ -3042,8 +3042,8 @@ public class TPSProcessor {
         TPSEngineConfig configStore = engine.getConfig();
         int memSize = 0;
         try {
-            memSize = configStore.getInteger(TPSEngine.CFG_CHANNEL_APPLET_MEMORY_SIZE,
-                    TPSEngine.CFG_CHANNEL_DEF_APPLET_MEMORY_SIZE);
+            memSize = configStore.getInteger(TPS.CFG_CHANNEL_APPLET_MEMORY_SIZE,
+                    TPS.CFG_CHANNEL_DEF_APPLET_MEMORY_SIZE);
 
         } catch (EBaseException e) {
             throw new TPSException("TPSProcessor.getAppletMemorySize: Internal error finding config value: " + e,
@@ -3060,7 +3060,7 @@ public class TPSProcessor {
         TPSEngineConfig configStore = engine.getConfig();
         int ver = 0;
         try {
-            ver = configStore.getInteger(TPSEngine.CFG_CHANNEL_DEFKEY_VERSION, 0x0);
+            ver = configStore.getInteger(TPS.CFG_CHANNEL_DEFKEY_VERSION, 0x0);
 
         } catch (EBaseException e) {
             throw new TPSException("TPSProcessor.getChannelDefKeyVersion: Internal error finding config value: " + e,
@@ -3079,7 +3079,7 @@ public class TPSProcessor {
         TPSEngineConfig configStore = engine.getConfig();
         int index = 0;
         try {
-            index = configStore.getInteger(TPSEngine.CFG_CHANNEL_DEFKEY_INDEX, 0x0);
+            index = configStore.getInteger(TPS.CFG_CHANNEL_DEFKEY_INDEX, 0x0);
 
         } catch (EBaseException e) {
             throw new TPSException("TPSProcessor.getChannelDefKeyIndex: Internal error finding config value: " + e,
@@ -3189,7 +3189,7 @@ public class TPSProcessor {
 
     }
 
-    public TPSEngine getTPSEngine() {
+    public TPS getTPSEngine() {
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
 
@@ -3303,7 +3303,7 @@ public class TPSProcessor {
         TPSEngineConfig configStore = engine.getConfig();
 
         String symmConfig = "op" + "." + currentTokenOperation + "." + selectedTokenType + "."
-                + TPSEngine.CFG_SYMM_KEY_UPGRADE_ENABLED;
+                + TPS.CFG_SYMM_KEY_UPGRADE_ENABLED;
 
         logger.debug("TPSProcessor.checkSymmetricKeysEnabled: getting config:" + symmConfig);
         try {
@@ -3421,7 +3421,7 @@ public class TPSProcessor {
 
                 String connId = getTKSConnectorID();
                 TPSBuffer curKeyInfo = channel.getKeyInfoData();
-                TPSEngine engine = getTPSEngine();
+                TPS engine = getTPSEngine();
 
                 int protocol = 1;
                 if (channel.isSCP02()) {
@@ -3719,26 +3719,26 @@ public class TPSProcessor {
         TPSEngineConfig configStore = engine.getConfig();
 
         String pinResetEnableConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
-                + TPSEngine.CFG_PIN_RESET_ENABLE;
+                + TPS.CFG_PIN_RESET_ENABLE;
 
         logger.debug("TPSProcessor.checkAndHandlePinReset config to check: " + pinResetEnableConfig);
 
         String minLenConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
-                + TPSEngine.CFG_PIN_RESET_MIN_LEN;
+                + TPS.CFG_PIN_RESET_MIN_LEN;
 
         logger.debug("TPSProcessor.checkAndHandlePinReset config to check: " + minLenConfig);
 
         String maxLenConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
-                + TPSEngine.CFG_PIN_RESET_MAX_LEN;
+                + TPS.CFG_PIN_RESET_MAX_LEN;
 
         logger.debug("TPSProcessor.checkAndHandlePinReset config to check: " + maxLenConfig);
 
         String maxRetriesConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
-                + TPSEngine.CFG_PIN_RESET_MAX_RETRIES;
+                + TPS.CFG_PIN_RESET_MAX_RETRIES;
 
         logger.debug("TPSProcessor.checkAndHandlePinReset config to check: " + maxRetriesConfig);
 
-        String pinStringConfig = TPSEngine.CFG_PIN_RESET_STRING;
+        String pinStringConfig = TPS.CFG_PIN_RESET_STRING;
 
         logger.debug("TPSProcessor.checkAndHandlePinReset config to check: " + pinStringConfig);
 
@@ -3786,12 +3786,12 @@ public class TPSProcessor {
 
         String opPrefix = null;
 
-        if (TPSEngine.ENROLL_OP.equals(currentTokenOperation)) {
-            opPrefix = TPSEngine.OP_ENROLL_PREFIX;
-        } else if (TPSEngine.FORMAT_OP.equals(currentTokenOperation)) {
-            opPrefix = TPSEngine.OP_FORMAT_PREFIX;
+        if (TPS.ENROLL_OP.equals(currentTokenOperation)) {
+            opPrefix = TPS.OP_ENROLL_PREFIX;
+        } else if (TPS.FORMAT_OP.equals(currentTokenOperation)) {
+            opPrefix = TPS.OP_FORMAT_PREFIX;
         } else {
-            opPrefix = TPSEngine.OP_PIN_RESET_PREFIX;
+            opPrefix = TPS.OP_PIN_RESET_PREFIX;
         }
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
@@ -3819,7 +3819,7 @@ public class TPSProcessor {
                 TPSAuthenticator userAuth = null;
                 try {
                     userAuth = getAuthentication(opPrefix, tokenType);
-                    processAuthentication(TPSEngine.ENROLL_OP, userAuth, appletInfo.getCUIDhexString(), tokenRecord);
+                    processAuthentication(TPS.ENROLL_OP, userAuth, appletInfo.getCUIDhexString(), tokenRecord);
                     auditAuthSuccess(userid, currentTokenOperation, appletInfo,
                             (userAuth != null) ? userAuth.getID() : null);
 
@@ -4022,7 +4022,7 @@ public class TPSProcessor {
         TPSEngineConfig configStore = engine.getConfig();
 
         String checkBoundedGPKeyVersionConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
-                + TPSEngine.CFG_ENABLE_BOUNDED_GP_KEY_VERSION;
+                + TPS.CFG_ENABLE_BOUNDED_GP_KEY_VERSION;
 
         logger.debug(method + " config to check: " + checkBoundedGPKeyVersionConfig);
 
@@ -4040,9 +4040,9 @@ public class TPSProcessor {
         if (result) {
 
             String minConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
-                    + TPSEngine.CFG_MINIMUM_GP_KEY_VERSION;
+                    + TPS.CFG_MINIMUM_GP_KEY_VERSION;
             String maxConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
-                    + TPSEngine.CFG_MAXIMUM_GP_KEY_VERSION;
+                    + TPS.CFG_MAXIMUM_GP_KEY_VERSION;
 
             logger.debug(method + " config to check: minConfig: " + minConfig + " maxConfig: " + maxConfig);
 
@@ -4169,7 +4169,7 @@ public class TPSProcessor {
         TPSEngineConfig configStore = engine.getConfig();
 
         String checkCUIDMatchesKDDConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
-                + TPSEngine.CFG_CUID_MUST_MATCH_KDD;
+                + TPS.CFG_CUID_MUST_MATCH_KDD;
 
         logger.debug(method + " config to check: " + checkCUIDMatchesKDDConfig);
 
@@ -4251,7 +4251,7 @@ public class TPSProcessor {
         TPSEngineConfig configStore = engine.getConfig();
 
         String checkValidateVersion = "op." + currentTokenOperation + "." + selectedTokenType + "."
-                + TPSEngine.CFG_VALIDATE_CARD_KEY_INFO_AGAINST_DB;
+                + TPS.CFG_VALIDATE_CARD_KEY_INFO_AGAINST_DB;
 
         logger.debug(method + " config to check: " + checkValidateVersion);
 

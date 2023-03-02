@@ -37,9 +37,9 @@ import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 
 import com.netscape.certsrv.base.EBaseException;
 
-public class TPSEngine {
+public class TPS {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSEngine.class);
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPS.class);
 
     public enum RA_Algs {
         ALG_RSA,
@@ -207,7 +207,7 @@ public class TPSEngine {
         //ToDo
     }
 
-    public TPSEngine() {
+    public TPS() {
     }
 
     public int initialize(String cfg_path) {
@@ -229,11 +229,11 @@ public class TPSEngine {
 
         if (cuid == null || kdd == null || keyInfo == null || sequenceCounter == null || derivationConstant == null
                 || tokenType == null) {
-            throw new TPSException("TPSEngine.computeSessionKeySCP02: Invalid input data!",
+            throw new TPSException("TPS.computeSessionKeySCP02: Invalid input data!",
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
         }
 
-        logger.debug("TPSEngine.computeSessionKeySCP02");
+        logger.debug("TPS.computeSessionKeySCP02");
 
         TKSRemoteRequestHandler tks = null;
 
@@ -242,14 +242,14 @@ public class TPSEngine {
             tks = new TKSRemoteRequestHandler(connId, inKeySet);
             resp = tks.computeSessionKeySCP02(kdd,cuid, keyInfo, sequenceCounter, derivationConstant, tokenType);
         } catch (EBaseException e) {
-            throw new TPSException("TPSEngine.computeSessionKeySCP02: Error computing session key!" + e,
+            throw new TPSException("TPS.computeSessionKeySCP02: Error computing session key!" + e,
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
         }
 
         int status = resp.getStatus();
         if (status != 0) {
-            logger.error("TPSEngine.computeSessionKeySCP02: Non zero status result: " + status);
-            throw new TPSException("TPSEngine.computeSessionKeySCP02: invalid returned status: " + status,
+            logger.error("TPS.computeSessionKeySCP02: Non zero status result: " + status);
+            throw new TPSException("TPS.computeSessionKeySCP02: invalid returned status: " + status,
                      TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
 
         }
@@ -270,11 +270,11 @@ public class TPSEngine {
         if (cuid == null || kdd == null || keyInfo == null || card_challenge == null || host_challenge == null
                 || card_cryptogram == null || connId == null || tokenType == null) {
 
-            throw new TPSException("TPSEngine.computeSessionKeySCP03: Invalid input data!",
+            throw new TPSException("TPS.computeSessionKeySCP03: Invalid input data!",
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
         }
 
-        logger.debug("TPSEngine.computeSessionKeysSCP03");
+        logger.debug("TPS.computeSessionKeysSCP03");
 
         TKSRemoteRequestHandler tks = null;
 
@@ -284,14 +284,14 @@ public class TPSEngine {
             resp = tks.computeSessionKeysSCP03(kdd, cuid, keyInfo, card_challenge, card_cryptogram, host_challenge,
                     tokenType);
         } catch (EBaseException e) {
-            throw new TPSException("TPSEngine.computeSessionKeysSCP03: Error computing session keys!" + e,
+            throw new TPSException("TPS.computeSessionKeysSCP03: Error computing session keys!" + e,
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
         }
 
         int status = resp.getStatus();
         if (status != 0) {
-            logger.error("TPSEngine.computeSessionKeysSCP03: Non zero status result: " + status);
-            throw new TPSException("TPSEngine.computeSessionKeysSCP03: invalid returned status: " + status,
+            logger.error("TPS.computeSessionKeysSCP03: Non zero status result: " + status);
+            throw new TPSException("TPS.computeSessionKeysSCP03: invalid returned status: " + status,
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
 
         }
@@ -312,12 +312,12 @@ public class TPSEngine {
         if (cuid == null || kdd == null || keyInfo == null || card_challenge == null || host_challenge == null
                 || card_cryptogram == null || connId == null || tokenType == null) {
 
-            throw new TPSException("TPSEngine.computeSessionKey: Invalid input data!",
+            throw new TPSException("TPS.computeSessionKey: Invalid input data!",
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
 
         }
 
-        logger.debug("TPSEngine.computeSessionKey");
+        logger.debug("TPS.computeSessionKey");
 
         TKSRemoteRequestHandler tks = null;
 
@@ -326,14 +326,14 @@ public class TPSEngine {
             tks = new TKSRemoteRequestHandler(connId, inKeySet);
             resp = tks.computeSessionKey(kdd,cuid, keyInfo, card_challenge, card_cryptogram, host_challenge, tokenType);
         } catch (EBaseException e) {
-            throw new TPSException("TPSEngine.computeSessionKey: Error computing session key!" + e,
+            throw new TPSException("TPS.computeSessionKey: Error computing session key!" + e,
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
         }
 
         int status = resp.getStatus();
         if (status != 0) {
-            logger.error("TPSEngine.computeSessionKey: Non zero status result: " + status);
-            throw new TPSException("TPSEngine.computeSessionKey: invalid returned status: " + status,
+            logger.error("TPS.computeSessionKey: Non zero status result: " + status);
+            throw new TPSException("TPS.computeSessionKey: invalid returned status: " + status,
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
 
         }
@@ -345,7 +345,7 @@ public class TPSEngine {
     public CARetrieveCertResponse recoverCertificate(TPSCertRecord cert, String serialS, String keyType, String caConnID)
             throws TPSException {
 
-        String method = "TPSEngine.recoverCertificate";
+        String method = "TPS.recoverCertificate";
 
         logger.debug(method + ": serial # =" + serialS);
 
@@ -386,7 +386,7 @@ public class TPSEngine {
     public CARenewCertResponse renewCertificate(TPSCertRecord cert, String serialS, String tokenType, String keyType,
             String caConnID) throws TPSException {
 
-        String method = "TPSEngine.renewCertificate";
+        String method = "TPS.renewCertificate";
 
         logger.debug(method + " entering...");
 
@@ -431,7 +431,7 @@ public class TPSEngine {
     public TPSBuffer createKeySetData(TPSBuffer newMasterVersion, TPSBuffer oldVersion, int protocol, TPSBuffer cuid, TPSBuffer kdd, TPSBuffer wrappedDekSessionKey, String connId, String inKeyset)
             throws TPSException {
 
-        String method = "TPSEngine.createKeySetData:";
+        String method = "TPS.createKeySetData:";
         logger.debug(method + " entering...");
 
         if (newMasterVersion == null || oldVersion == null || cuid == null || kdd == null || connId == null) {
@@ -491,7 +491,7 @@ public class TPSEngine {
             isECC = true;
         }
 
-        logger.debug("TPSEngine.isAlgorithmECC: result: " + isECC);
+        logger.debug("TPS.isAlgorithmECC: result: " + isECC);
         return isECC;
 
     }
@@ -534,8 +534,8 @@ public class TPSEngine {
             String userid,
             TPSBuffer sDesKey,
             String b64cert, String drmConnId,BigInteger keyid) throws TPSException {
-        String method = "TPSEngine.recoverKey";
-        logger.debug("TPSEngine.recoverKey");
+        String method = "TPS.recoverKey";
+        logger.debug("TPS.recoverKey");
         if (cuid == null)
             logger.debug(method + ": cuid null");
         else if (userid == null)
@@ -548,7 +548,7 @@ public class TPSEngine {
             logger.debug(method + ": drmConnId null");
 
         if (cuid == null || userid == null || sDesKey == null ||  drmConnId == null) {
-            throw new TPSException("TPSEngine.recoverKey: invalid input data!", TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
+            throw new TPSException("TPS.recoverKey: invalid input data!", TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
         }
 
         KRARecoverKeyResponse resp = null;
@@ -559,34 +559,34 @@ public class TPSEngine {
 
             resp = kra.recoverKey(cuid, userid, Util.specialURLEncode(sDesKey), (b64cert != null) ? Util.uriEncode(b64cert) : b64cert,keyid);
         } catch (EBaseException e) {
-            throw new TPSException("TPSEngine.recoverKey: Problem creating or using KRARemoteRequestHandler! "
+            throw new TPSException("TPS.recoverKey: Problem creating or using KRARemoteRequestHandler! "
                     + e.toString(), TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
 
         } catch (UnsupportedEncodingException e) {
-            throw new TPSException("TPSEngine.recoverKey: Problem creating or using KRARemoteRequestHandler! "
+            throw new TPSException("TPS.recoverKey: Problem creating or using KRARemoteRequestHandler! "
                     + e.toString(), TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
         }
 
         int status = resp.getStatus();
 
         if (status != 0) {
-            throw new TPSException("TPSEngine.recoverKey: Bad status from server: " + status,
+            throw new TPSException("TPS.recoverKey: Bad status from server: " + status,
                     TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
         }
 
         if (resp.getPublicKey() == null) {
-            throw new TPSException("TPSEngine.recoverKey: invalid public key from server! ",
+            throw new TPSException("TPS.recoverKey: invalid public key from server! ",
                     TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
         }
 
         if (resp.getWrappedPrivKey() == null) {
-            throw new TPSException("TPSEngine.recoverKey: invalid private key from server! ",
+            throw new TPSException("TPS.recoverKey: invalid private key from server! ",
                     TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
 
         }
 
         if (resp.getIVParam() == null) {
-            throw new TPSException("TPSEngine.recoverKey: invalid iv vector from server!",
+            throw new TPSException("TPS.recoverKey: invalid iv vector from server!",
                     TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
         }
 
@@ -600,13 +600,13 @@ public class TPSEngine {
             boolean isECC) throws TPSException {
 
 /*
-        logger.debug("TPSEngine.serverSideKeyGen entering... keySize: " + keySize + " cuid: " + cuid + " userid: "
+        logger.debug("TPS.serverSideKeyGen entering... keySize: " + keySize + " cuid: " + cuid + " userid: "
                 + userid + " drmConnId: " + drmConnId + " wrappedDesKey: " + wrappedDesKey + " archive: " + archive
                 + " isECC: " + isECC);
 */
 
         if (cuid == null || userid == null || drmConnId == null || wrappedDesKey == null) {
-            throw new TPSException("TPSEngine.serverSideKeyGen: Invalid input data!",
+            throw new TPSException("TPS.serverSideKeyGen: Invalid input data!",
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
         }
 
@@ -620,30 +620,30 @@ public class TPSEngine {
                     Util.specialURLEncode(wrappedDesKey), archive);
 
         } catch (EBaseException e) {
-            throw new TPSException("TPSEngine.serverSideKeyGen: Problem creating  or using KRARemoteRequestHandler! "
+            throw new TPSException("TPS.serverSideKeyGen: Problem creating  or using KRARemoteRequestHandler! "
                     + e.toString());
         }
 
         int status = resp.getStatus();
 
         if (status != 0) {
-            throw new TPSException("TPSEngine.serverSideKeyGen: Bad status from server: " + status,
+            throw new TPSException("TPS.serverSideKeyGen: Bad status from server: " + status,
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
         }
 
         if (resp.getPublicKey() == null) {
-            throw new TPSException("TPSEngine.serverSideKeyGen: invalid public key from server! ",
+            throw new TPSException("TPS.serverSideKeyGen: invalid public key from server! ",
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
         }
 
         if (resp.getWrappedPrivKey() == null) {
-            throw new TPSException("TPSEngine.serverSideKeyGen: invalid private key from server! ",
+            throw new TPSException("TPS.serverSideKeyGen: invalid private key from server! ",
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
 
         }
 
         if (resp.getIVParam() == null) {
-            throw new TPSException("TPSEngine.serverSideKeyGen: invalid iv vector from server!",
+            throw new TPSException("TPS.serverSideKeyGen: invalid iv vector from server!",
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
         }
 

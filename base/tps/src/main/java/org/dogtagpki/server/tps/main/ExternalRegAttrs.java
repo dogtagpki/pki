@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import org.dogtagpki.server.authentication.AuthManagersConfig;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
 import org.dogtagpki.server.tps.TPSEngineConfig;
-import org.dogtagpki.server.tps.engine.TPSEngine;
+import org.dogtagpki.server.tps.engine.TPS;
 
 import com.netscape.certsrv.base.EBaseException;
 
@@ -50,8 +50,8 @@ public class ExternalRegAttrs {
             logger.debug(method + ": getting config: auths.instance." + configName);
             ldapAttrNameCertsToRecover = instancesConfig.getString(configName, "certsToRecover");
 
-            String RH_Delegation_Cfg = TPSEngine.CFG_EXTERNAL_REG + "." +
-                    TPSEngine.CFG_ER_DELEGATION + ".enable";
+            String RH_Delegation_Cfg = TPS.CFG_EXTERNAL_REG + "." +
+                    TPS.CFG_ER_DELEGATION + ".enable";
             isDelegation = configStore.getBoolean(RH_Delegation_Cfg, false);
 
             configName = authId + ".externalReg.registrationTypeAttributeName";

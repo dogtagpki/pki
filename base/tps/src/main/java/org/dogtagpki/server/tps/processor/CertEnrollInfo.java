@@ -22,7 +22,7 @@ import org.dogtagpki.server.tps.cms.CARenewCertResponse;
 import org.dogtagpki.server.tps.cms.CARetrieveCertResponse;
 import org.dogtagpki.server.tps.cms.KRARecoverKeyResponse;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
-import org.dogtagpki.server.tps.engine.TPSEngine;
+import org.dogtagpki.server.tps.engine.TPS;
 import org.dogtagpki.server.tps.main.ObjectSpec;
 
 public class CertEnrollInfo {
@@ -52,13 +52,13 @@ public class CertEnrollInfo {
     private int startProgress;
     private int endProgress;
 
-    private TPSEngine.ENROLL_MODES enrollmentMode = TPSEngine.ENROLL_MODES.MODE_ENROLL;
+    private TPS.ENROLL_MODES enrollmentMode = TPS.ENROLL_MODES.MODE_ENROLL;
 
-    public void setEnrollmentMode(TPSEngine.ENROLL_MODES mode) {
+    public void setEnrollmentMode(TPS.ENROLL_MODES mode) {
         enrollmentMode = mode;
     }
 
-    public TPSEngine.ENROLL_MODES getEnrollmentMode() {
+    public TPS.ENROLL_MODES getEnrollmentMode() {
         return enrollmentMode;
     }
 
@@ -216,7 +216,7 @@ public class CertEnrollInfo {
     }
 
     public boolean getIsRecoveryMode() {
-        if (enrollmentMode == TPSEngine.ENROLL_MODES.MODE_RECOVERY) {
+        if (enrollmentMode == TPS.ENROLL_MODES.MODE_RECOVERY) {
             return true;
         }
 
@@ -224,7 +224,7 @@ public class CertEnrollInfo {
     }
 
     public boolean getIsRenewalMode() {
-        if (enrollmentMode == TPSEngine.ENROLL_MODES.MODE_RENEWAL) {
+        if (enrollmentMode == TPS.ENROLL_MODES.MODE_RENEWAL) {
             return true;
         }
 
@@ -232,7 +232,7 @@ public class CertEnrollInfo {
     }
 
     public boolean getIsEnrollmentMode() {
-        if (enrollmentMode == TPSEngine.ENROLL_MODES.MODE_ENROLL) {
+        if (enrollmentMode == TPS.ENROLL_MODES.MODE_ENROLL) {
             return true;
         }
 

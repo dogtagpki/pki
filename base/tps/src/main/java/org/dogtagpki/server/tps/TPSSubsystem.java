@@ -35,7 +35,7 @@ import org.dogtagpki.server.tps.dbs.TPSCertDatabase;
 import org.dogtagpki.server.tps.dbs.TPSCertRecord;
 import org.dogtagpki.server.tps.dbs.TokenDatabase;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
-import org.dogtagpki.server.tps.engine.TPSEngine;
+import org.dogtagpki.server.tps.engine.TPS;
 import org.dogtagpki.server.tps.mapping.MappingResolverManager;
 import org.dogtagpki.tps.TPSConnection;
 import org.dogtagpki.tps.main.TPSException;
@@ -80,7 +80,7 @@ public class TPSSubsystem implements IAuthority {
     public AuthenticationManager authManager;
     public MappingResolverManager mappingResolverManager;
 
-    public TPSEngine tpsEngine;
+    public TPS tpsEngine;
     public TokenDB tdb;
 
     public Map<TokenStatus, Collection<TokenStatus>> uiTransitions;
@@ -138,12 +138,12 @@ public class TPSSubsystem implements IAuthority {
         uiTransitions = loadTokenStateTransitions("tokendb.allowedTransitions", allowedTransitions);
 
         operationTransitions = loadAndValidateTokenStateTransitions(
-                defaultConfig, cs, TPSEngine.CFG_OPERATIONS_ALLOWED_TRANSITIONS);
+                defaultConfig, cs, TPS.CFG_OPERATIONS_ALLOWED_TRANSITIONS);
 
         configureTPSConnection(cs);
         tdb = new TokenDB(this);
 
-        tpsEngine = new TPSEngine();
+        tpsEngine = new TPS();
         tpsEngine.init();
     }
 
@@ -278,14 +278,14 @@ public class TPSSubsystem implements IAuthority {
     }
 
     public void configureTPSConnection(ConfigStore cs) {
-        String configValue = TPSEngine.CFG_CONNECTION_PREFIX + "." + TPSEngine.CFG_CONNECTION_MAX_MESSAGE_SIZE;
+        String configValue = TPS.CFG_CONNECTION_PREFIX + "." + TPS.CFG_CONNECTION_MAX_MESSAGE_SIZE;
         int configValueDefault = TPSConnection.MAX_MESSAGE_SIZE_DEFAULT;
 
         logger.debug("TPSConnection: Retrieving config value with name: " + configValue);
         try {
             // Try to set TPSConnection static variable to CS.cfg config value
             TPSConnection.setMaxMessageSize(cs.getInteger(configValue));
-            logger.debug("TPSConnection: " + TPSEngine.CFG_CONNECTION_MAX_MESSAGE_SIZE +
+            logger.debug("TPSConnection: " + TPS.CFG_CONNECTION_MAX_MESSAGE_SIZE +
                     " set to " + TPSConnection.getMaxMessageSize());
         } catch(EBaseException e) {
             // Set TPSConnection static variable to default value
@@ -391,7 +391,7 @@ public class TPSSubsystem implements IAuthority {
         return cm.findCertByNickname(nickname);
     }
 
-    public TPSEngine getEngine() {
+    public TPS getEngine() {
         return tpsEngine;
     }
 

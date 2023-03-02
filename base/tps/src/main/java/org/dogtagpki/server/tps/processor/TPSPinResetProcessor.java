@@ -27,7 +27,7 @@ import org.dogtagpki.server.tps.authentication.TPSAuthenticator;
 import org.dogtagpki.server.tps.channel.SecureChannel;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
-import org.dogtagpki.server.tps.engine.TPSEngine;
+import org.dogtagpki.server.tps.engine.TPS;
 import org.dogtagpki.server.tps.main.ExternalRegAttrs;
 import org.dogtagpki.server.tps.mapping.BaseMappingResolver;
 import org.dogtagpki.server.tps.mapping.FilterMappingParams;
@@ -67,7 +67,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
                      TPSStatus.STATUS_ERROR_MAC_RESET_PIN_PDU);
         }
         setBeginMessage(beginMsg);
-        setCurrentTokenOperation(TPSEngine.PIN_RESET_OP);
+        setCurrentTokenOperation(TPS.PIN_RESET_OP);
         checkIsExternalReg();
 
         resetPin();
@@ -154,7 +154,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
             try {
                 logger.debug(method + " isExternalReg: calling requestUserId");
                 userAuth = getAuthentication(authId);
-                processAuthentication(TPSEngine.PIN_RESET_OP, userAuth, cuid, tokenRecord);
+                processAuthentication(TPS.PIN_RESET_OP, userAuth, cuid, tokenRecord);
                 auditAuthSuccess(userid, currentTokenOperation, appletInfo, authId);
             } catch (Exception e) {
                 auditAuthFailure(userid, currentTokenOperation, appletInfo,

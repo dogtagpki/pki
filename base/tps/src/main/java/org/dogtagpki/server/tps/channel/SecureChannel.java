@@ -20,7 +20,7 @@ package org.dogtagpki.server.tps.channel;
 import java.io.IOException;
 
 import org.dogtagpki.server.tps.TPSEngineConfig;
-import org.dogtagpki.server.tps.engine.TPSEngine;
+import org.dogtagpki.server.tps.engine.TPS;
 import org.dogtagpki.server.tps.processor.TPSProcessor;
 import org.dogtagpki.tps.apdu.APDU;
 import org.dogtagpki.tps.apdu.APDUResponse;
@@ -783,7 +783,7 @@ public class SecureChannel {
         TPSBuffer emptySDAID = new TPSBuffer();
 
         if (isGP211()) {
-            TPSBuffer cardMgrGP211AIDBuff = new TPSBuffer(TPSEngine.CFG_DEF_CARDMGR_211_INSTANCE_AID);
+            TPSBuffer cardMgrGP211AIDBuff = new TPSBuffer(TPS.CFG_DEF_CARDMGR_211_INSTANCE_AID);
             installLoadGP211(packageAID, cardMgrGP211AIDBuff, fileLength);
             return;
         }

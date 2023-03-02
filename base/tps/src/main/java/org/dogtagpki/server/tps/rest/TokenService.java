@@ -38,7 +38,7 @@ import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.TokenDatabase;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
-import org.dogtagpki.server.tps.engine.TPSEngine;
+import org.dogtagpki.server.tps.engine.TPS;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
@@ -98,11 +98,11 @@ public class TokenService extends SubsystemService implements TokenResource {
         TokenStatus newStatus = tokenState;
         String newReason = null;
 
-        boolean clearOnUnformatUserID = config.getBoolean(TPSEngine.CFG_TOKENSERVICE_UNFORMATTED_CLEAR_USERID, true);
-        boolean clearOnUnformatType = config.getBoolean(TPSEngine.CFG_TOKENSERVICE_UNFORMATTED_CLEAR_TYPE, true);
-        boolean clearOnUnformatAppletID = config.getBoolean(TPSEngine.CFG_TOKENSERVICE_UNFORMATTED_CLEAR_APPLETID, true);
-        boolean clearOnUnformatKeyInfo = config.getBoolean(TPSEngine.CFG_TOKENSERVICE_UNFORMATTED_CLEAR_KEYINFO, true);
-        boolean clearOnUnformatPolicy = config.getBoolean(TPSEngine.CFG_TOKENSERVICE_UNFORMATTED_CLEAR_POLICY, true);
+        boolean clearOnUnformatUserID = config.getBoolean(TPS.CFG_TOKENSERVICE_UNFORMATTED_CLEAR_USERID, true);
+        boolean clearOnUnformatType = config.getBoolean(TPS.CFG_TOKENSERVICE_UNFORMATTED_CLEAR_TYPE, true);
+        boolean clearOnUnformatAppletID = config.getBoolean(TPS.CFG_TOKENSERVICE_UNFORMATTED_CLEAR_APPLETID, true);
+        boolean clearOnUnformatKeyInfo = config.getBoolean(TPS.CFG_TOKENSERVICE_UNFORMATTED_CLEAR_KEYINFO, true);
+        boolean clearOnUnformatPolicy = config.getBoolean(TPS.CFG_TOKENSERVICE_UNFORMATTED_CLEAR_POLICY, true);
 
         auditModParams.put("UserID", tokenRecord.getUserID());
 

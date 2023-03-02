@@ -1,6 +1,6 @@
 package org.dogtagpki.server.tps.mapping;
 
-import org.dogtagpki.server.tps.engine.TPSEngine;
+import org.dogtagpki.server.tps.engine.TPS;
 import org.dogtagpki.tps.main.TPSException;
 import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 
@@ -69,7 +69,7 @@ public class FilterMappingResolver extends BaseMappingResolver {
         extKeySet = mappingParams.getString(FilterMappingParams.FILTER_PARAM_EXT_KEY_SET, null);
         logger.debug(method + " param keySet extension: " + extKeySet);
 
-        String configName = prefix + "." + TPSEngine.CFG_PROFILE_MAPPING_ORDER;
+        String configName = prefix + "." + TPS.CFG_PROFILE_MAPPING_ORDER;
 
         try {
             logger.debug(method + " getting mapping order:" +

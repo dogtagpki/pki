@@ -28,7 +28,7 @@ import org.dogtagpki.server.connector.IRemoteRequest;
 import org.dogtagpki.server.tps.TPSConfig;
 import org.dogtagpki.server.tps.TPSEngineConfig;
 import org.dogtagpki.server.tps.TPSSubsystem;
-import org.dogtagpki.server.tps.engine.TPSEngine;
+import org.dogtagpki.server.tps.engine.TPS;
 import org.dogtagpki.tps.main.TPSBuffer;
 import org.dogtagpki.tps.main.Util;
 import org.mozilla.jss.CryptoManager;
@@ -109,7 +109,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSEngineConfig conf = engine.getConfig();
         String profileId =
-                conf.getString(TPSEngine.OP_ENROLL_PREFIX + "." +
+                conf.getString(TPS.OP_ENROLL_PREFIX + "." +
                         tokenType + ".keyGen." +
                         keyType + ".ca.profileId");
 
@@ -424,7 +424,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         TPSEngineConfig conf = engine.getConfig();
 
         String profileId =
-                conf.getString(TPSEngine.OP_ENROLL_PREFIX + "." +
+                conf.getString(TPS.OP_ENROLL_PREFIX + "." +
                         tokenType + ".renewal." +
                         keyType + ".ca.profileId");
 

@@ -34,8 +34,8 @@ import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.TPSCertRecord;
 import org.dogtagpki.server.tps.dbs.TokenCertStatus;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
-import org.dogtagpki.server.tps.engine.TPSEngine;
-import org.dogtagpki.server.tps.engine.TPSEngine.ENROLL_MODES;
+import org.dogtagpki.server.tps.engine.TPS;
+import org.dogtagpki.server.tps.engine.TPS.ENROLL_MODES;
 import org.dogtagpki.server.tps.main.AttributeSpec;
 import org.dogtagpki.server.tps.main.ExternalRegAttrs;
 import org.dogtagpki.server.tps.main.ExternalRegCertToRecover;
@@ -175,7 +175,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
             try {
                 logger.debug(method + " isExternalReg: calling requestUserId");
                 userAuth = getAuthentication(authId);
-                processAuthentication(TPSEngine.ENROLL_OP, userAuth, cuid, tokenRecord);
+                processAuthentication(TPS.ENROLL_OP, userAuth, cuid, tokenRecord);
                 auditAuthSuccess(userid, currentTokenOperation, appletInfo, authId);
 
             } catch (Exception e) {
@@ -358,7 +358,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
             }
         } else {
             logger.debug(method + " token does not exist");
-            checkAllowUnknownToken(TPSEngine.ENROLL_OP);
+            checkAllowUnknownToken(TPS.ENROLL_OP);
             logger.debug(method + "force a format");
             doForceFormat = true;
         }
@@ -1241,7 +1241,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     // ToDo: This section has not been tested to work.. Make sure this works.
 
                     configStore = engine.getConfig();
-                    configName = TPSEngine.OP_ENROLL_PREFIX + "." + getSelectedTokenType()
+                    configName = TPS.OP_ENROLL_PREFIX + "." + getSelectedTokenType()
                             + ".temporaryToken.tokenType";
                     try {
                         String tmpTokenType = configStore.getString(configName);
@@ -1467,7 +1467,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
                             + certsInfo.getCurrentCertIndex());
                     generateCertificate(certsInfo, channel, appletInfo,
                             "encryption",
-                            TPSEngine.ENROLL_MODES.MODE_RECOVERY,
+                            TPS.ENROLL_MODES.MODE_RECOVERY,
                             newCertId, certRecoveredInfo);
 
                     logger.debug(method + "after generateCertificate() with MODE_RECOVERY");
@@ -1554,7 +1554,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
             String graceBeforeS = null;
             String graceAfterS = null;
             try {
-                String keyTypePrefix = TPSEngine.OP_ENROLL_PREFIX + "." + selectedTokenType + ".renewal." + keyType;
+                String keyTypePrefix = TPS.OP_ENROLL_PREFIX + "." + selectedTokenType + ".renewal." + keyType;
 
                 //TODO: profileId is actually gotten in the CARemoteRequestHandler.
                 configName = keyTypePrefix + ".ca.profileId";
@@ -1625,12 +1625,12 @@ public class TPSEnrollProcessor extends TPSProcessor {
                                 getCAConnectorID("renewal", keyType));
                         cEnrollInfo.setRenewedCertData(certResponse);
 
-                        generateCertificate(certsInfo, channel, aInfo, keyType, TPSEngine.ENROLL_MODES.MODE_RENEWAL,
+                        generateCertificate(certsInfo, channel, aInfo, keyType, TPS.ENROLL_MODES.MODE_RENEWAL,
                                 -1, cEnrollInfo);
 
                         numActuallyRenewed++;
 
-                        if (keyType.equals(TPSEngine.CFG_ENCRYPTION)) {
+                        if (keyType.equals(TPS.CFG_ENCRYPTION)) {
                             logger.debug(method
                                     + ": found old encryption cert (just renewed) to attempt to recover back to token, in order to read old emails.");
                             logger.debug(method + " adding cert: " + cert);
@@ -1684,7 +1684,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 try {
 
                     CARetrieveCertResponse certResponse = tps.getEngine().recoverCertificate(toBeRecovered,
-                            serialToRecover, TPSEngine.CFG_ENCRYPTION, getCAConnectorID());
+                            serialToRecover, TPS.CFG_ENCRYPTION, getCAConnectorID());
 
                     String b64cert = certResponse.getCertB64();
                     logger.debug(method +": cert blob recovered");
@@ -1710,7 +1710,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
                             + newCertId);
                     generateCertificate(certsInfo, channel, aInfo,
                             "encryption",
-                            TPSEngine.ENROLL_MODES.MODE_RECOVERY,
+                            TPS.ENROLL_MODES.MODE_RECOVERY,
                             newCertId, cEnrollInfo);
 
                     //We don't want this quasi old encryption cert in the official list.
@@ -1804,7 +1804,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         boolean enabled = false;
 
         try {
-            String configValue = TPSEngine.OP_ENROLL_PREFIX + "." + selectedTokenType + ".renewal."
+            String configValue = TPS.OP_ENROLL_PREFIX + "." + selectedTokenType + ".renewal."
                     + keyType + "." + "enable";
             enabled = configStore.getBoolean(
                     configValue, false);
@@ -1846,8 +1846,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
         String keyType = null;
 
         try {
-            String configValue = TPSEngine.OP_ENROLL_PREFIX + "." + selectedTokenType + "."
-                    + TPSEngine.CFG_RENEW_KEYTYPE_VALUE + "." + keyTypeIndex;
+            String configValue = TPS.OP_ENROLL_PREFIX + "." + selectedTokenType + "."
+                    + TPS.CFG_RENEW_KEYTYPE_VALUE + "." + keyTypeIndex;
             keyType = configStore.getString(
                     configValue, null);
 
@@ -1877,8 +1877,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
         TPSEngineConfig configStore = engine.getConfig();
         int keyTypeNum = 0;
         try {
-            String configValue = TPSEngine.OP_ENROLL_PREFIX + "." + selectedTokenType + "."
-                    + TPSEngine.CFG_RENEW_KEYTYPE_NUM;
+            String configValue = TPS.OP_ENROLL_PREFIX + "." + selectedTokenType + "."
+                    + TPS.CFG_RENEW_KEYTYPE_NUM;
             keyTypeNum = configStore.getInteger(
                     configValue, 0);
 
@@ -1933,10 +1933,10 @@ public class TPSEnrollProcessor extends TPSProcessor {
             keyTypeValue = getRecoveryKeyTypeValue(reason, i);
             scheme = getRecoveryScheme(reason, keyTypeValue);
 
-            if (scheme.equals(TPSEngine.RECOVERY_SCHEME_GENERATE_NEW_KEY_AND_RECOVER_LAST)) {
+            if (scheme.equals(TPS.RECOVERY_SCHEME_GENERATE_NEW_KEY_AND_RECOVER_LAST)) {
 
                 //Make sure we are not signing:
-                if (keyTypeValue.equals(TPSEngine.CFG_SIGNING)) {
+                if (keyTypeValue.equals(TPS.CFG_SIGNING)) {
                     throw new TPSException(
                             method + ": Can't have GenerateNewAndRecoverLast scheme with a signing key!",
                             TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
@@ -1965,7 +1965,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
             keyTypeValue = getRecoveryKeyTypeValue(reason, i);
             scheme = getRecoveryScheme(reason, keyTypeValue);
 
-            if (scheme.equals(TPSEngine.RECOVERY_SCHEME_GENERATE_NEW_KEY_AND_RECOVER_LAST)) {
+            if (scheme.equals(TPS.RECOVERY_SCHEME_GENERATE_NEW_KEY_AND_RECOVER_LAST)) {
                 logger.debug(method + ": scheme GenerateNewKeyAndRecoverLast found.");
                 isGenerateAndRecover = true;
 
@@ -1973,10 +1973,10 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 isGenerateAndRecover = false;
             }
 
-            if (scheme.equals(TPSEngine.RECOVERY_GENERATE_NEW_KEY) || isGenerateAndRecover) {
+            if (scheme.equals(TPS.RECOVERY_GENERATE_NEW_KEY) || isGenerateAndRecover) {
                 legalScheme = true;
                 CertEnrollInfo cEnrollInfo = new CertEnrollInfo();
-                generateCertificate(certsInfo, channel, aInfo, keyTypeValue, TPSEngine.ENROLL_MODES.MODE_ENROLL,
+                generateCertificate(certsInfo, channel, aInfo, keyTypeValue, TPS.ENROLL_MODES.MODE_ENROLL,
                         actualCertIndex, cEnrollInfo);
 
                 actualCertIndex = cEnrollInfo.getCertIdIndex();
@@ -1985,7 +1985,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
             }
 
-            if (scheme.equals(TPSEngine.RECOVERY_RECOVER_LAST) || isGenerateAndRecover) {
+            if (scheme.equals(TPS.RECOVERY_RECOVER_LAST) || isGenerateAndRecover) {
                 legalScheme = true;
                 logger.debug(method + ": scheme RecoverLast found, or isGenerateAndRecove is true");
                 if (isGenerateAndRecover) {
@@ -2044,7 +2044,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     cEnrollInfo.setRecoveredCertData(certResponse);
                     cEnrollInfo.setRecoveredKeyData(keyResponse);
 
-                    generateCertificate(certsInfo, channel, aInfo, keyTypeValue, TPSEngine.ENROLL_MODES.MODE_RECOVERY,
+                    generateCertificate(certsInfo, channel, aInfo, keyTypeValue, TPS.ENROLL_MODES.MODE_RECOVERY,
                             actualCertIndex, cEnrollInfo);
 
                     // unrevoke cert if needed
@@ -2120,7 +2120,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
             String keyType = getConfiguredKeyType(i);
             certsInfo.setCurrentCertIndex(i);
             try {
-                generateCertificate(certsInfo, channel, aInfo, keyType, TPSEngine.ENROLL_MODES.MODE_ENROLL, -1, null);
+                generateCertificate(certsInfo, channel, aInfo, keyType, TPS.ENROLL_MODES.MODE_ENROLL, -1, null);
             } catch (TPSException e) {
                 logger.warn("TPSEnrollProcess.generateCertificates: exception:" + e.getMessage(), e);
                 noFailedCerts = false;
@@ -2155,7 +2155,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSEngineConfig configStore = engine.getConfig();
 
-        String configName = TPSEngine.OP_ENROLL_PREFIX + "." + getSelectedTokenType() + ".keyGen.tokenName";
+        String configName = TPS.OP_ENROLL_PREFIX + "." + getSelectedTokenType() + ".keyGen.tokenName";
         String pattern = null;
 
         try {
@@ -2191,7 +2191,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
      * renewal enrollment
      */
     private void generateCertificate(EnrolledCertsInfo certsInfo, SecureChannel channel, AppletInfo aInfo,
-            String keyType, TPSEngine.ENROLL_MODES mode, int certIdNumOverride, CertEnrollInfo cEnrollInfo)
+            String keyType, TPS.ENROLL_MODES mode, int certIdNumOverride, CertEnrollInfo cEnrollInfo)
             throws TPSException, IOException {
 
         final String method = "TPSEnrollProcessor.generateCertificate";
@@ -2223,7 +2223,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         try {
 
-            String keyTypePrefix = TPSEngine.OP_ENROLL_PREFIX + "." + getSelectedTokenType() + "." + operationModifier
+            String keyTypePrefix = TPS.OP_ENROLL_PREFIX + "." + getSelectedTokenType() + "." + operationModifier
                     + "." + keyType;
             logger.debug(method + ": keyTypePrefix: " + keyTypePrefix);
 
@@ -2396,7 +2396,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
      * Renewal enrollment
      */
     private void enrollOneCertificate(EnrolledCertsInfo certsInfo, CertEnrollInfo cEnrollInfo, AppletInfo aInfo,
-            SecureChannel channel, TPSEngine.ENROLL_MODES mode)
+            SecureChannel channel, TPS.ENROLL_MODES mode)
             throws TPSException, IOException {
 
         String method = "TPSEnrollProcessor.enrollOneCertificate";
@@ -2634,7 +2634,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
                      */
                     TPSEngineConfig configStore = engine.getConfig();
                     String configName;
-                    configName = TPSEngine.OP_ENROLL_PREFIX + "." +
+                    configName = TPS.OP_ENROLL_PREFIX + "." +
                             getSelectedTokenType() + ".keyGen." +
                             cEnrollInfo.getKeyType() + ".dnpattern";
                     try {
@@ -2652,7 +2652,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
                      *     becomes:
                      *       0123456789.abc@redhat.com
                      */
-                    configName = TPSEngine.OP_ENROLL_PREFIX + "." +
+                    configName = TPS.OP_ENROLL_PREFIX + "." +
                             getSelectedTokenType() + ".keyGen." +
                             cEnrollInfo.getKeyType() + ".SANpattern";
                     try {
@@ -3448,7 +3448,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         boolean serverSideKeygen = false;
 
         try {
-            String configValue = cInfo.getKeyTypePrefix() + "." + TPSEngine.CFG_SERVER_KEYGEN_ENABLE;
+            String configValue = cInfo.getKeyTypePrefix() + "." + TPS.CFG_SERVER_KEYGEN_ENABLE;
             logger.debug("TPSEnrollProcessor.checkForServerSideKeyGen: config: " + configValue);
             serverSideKeygen = configStore.getBoolean(
                     configValue, false);
@@ -3476,7 +3476,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         boolean serverKeyArchival = false;
 
         try {
-            String configValue = cInfo.getKeyTypePrefix() + "." + TPSEngine.CFG_SERVER_KEY_ARCHIVAL;
+            String configValue = cInfo.getKeyTypePrefix() + "." + TPS.CFG_SERVER_KEY_ARCHIVAL;
             logger.debug("TPSEnrollProcessor.checkForServerKeyArchival: config: " + configValue);
             serverKeyArchival = configStore.getBoolean(
                     configValue, false);
@@ -3504,8 +3504,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
         boolean objectOverwrite = false;
 
         try {
-            String configValue = TPSEngine.OP_ENROLL_PREFIX + "." + getSelectedTokenType() + ".keyGen."
-                    + cInfo.getKeyType() + "." + TPSEngine.CFG_OVERWRITE;
+            String configValue = TPS.OP_ENROLL_PREFIX + "." + getSelectedTokenType() + ".keyGen."
+                    + cInfo.getKeyType() + "." + TPS.CFG_OVERWRITE;
 
             logger.debug("TPSProcess.checkForObjectOverwrite: config: " + configValue);
             objectOverwrite = configStore.getBoolean(
@@ -3530,8 +3530,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
         String keyType = null;
 
         try {
-            String configValue = TPSEngine.OP_ENROLL_PREFIX + "." + selectedTokenType + "."
-                    + TPSEngine.CFG_KEYGEN_KEYTYPE_VALUE + "." + keyTypeIndex;
+            String configValue = TPS.OP_ENROLL_PREFIX + "." + selectedTokenType + "."
+                    + TPS.CFG_KEYGEN_KEYTYPE_VALUE + "." + keyTypeIndex;
             keyType = configStore.getString(
                     configValue, null);
 
@@ -3557,14 +3557,14 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
     private String getDRMConnectorID(String keyType) throws TPSException {
         if(keyType == null || keyType.isEmpty())
-            keyType = TPSEngine.CFG_ENCRYPTION;
+            keyType = TPS.CFG_ENCRYPTION;
 
         org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
         TPSEngineConfig configStore = engine.getConfig();
         String id = null;
 
-        String config = "op." + currentTokenOperation + "." + selectedTokenType + "." + TPSEngine.CFG_KEYGEN
-                + "." + keyType + "." + TPSEngine.CFG_DRM_CONNECTOR;
+        String config = "op." + currentTokenOperation + "." + selectedTokenType + "." + TPS.CFG_KEYGEN
+                + "." + keyType + "." + TPS.CFG_DRM_CONNECTOR;
 
         logger.debug("TPSEnrollProcessor.getDRMConnectorID: config value: " + config);
         try {
@@ -3587,8 +3587,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
         TPSEngineConfig configStore = engine.getConfig();
         int keyTypeNum = 0;
         try {
-            String configValue = TPSEngine.OP_ENROLL_PREFIX + "." + selectedTokenType + "."
-                    + TPSEngine.CFG_KEYGEN_KEYTYPE_NUM;
+            String configValue = TPS.OP_ENROLL_PREFIX + "." + selectedTokenType + "."
+                    + TPS.CFG_KEYGEN_KEYTYPE_NUM;
             logger.debug(method + "getting config value for:" + configValue);
             keyTypeNum = configStore.getInteger(
                     configValue, 0);
@@ -3616,8 +3616,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
         TPSEngineConfig configStore = engine.getConfig();
         int enrollmentAlg;
         try {
-            String configValue = TPSEngine.OP_ENROLL_PREFIX + "." + selectedTokenType + "."
-                    + TPSEngine.CFG_KEYGEN_ENCRYPTION + "." + TPSEngine.CFG_ALG;
+            String configValue = TPS.OP_ENROLL_PREFIX + "." + selectedTokenType + "."
+                    + TPS.CFG_KEYGEN_ENCRYPTION + "." + TPS.CFG_ALG;
 
             logger.debug("TPSProcess.getEnrollmentAlg: configValue: " + configValue);
 
@@ -3647,9 +3647,9 @@ public class TPSEnrollProcessor extends TPSProcessor {
         TPSEngineConfig configStore = engine.getConfig();
         String keyTypeValue;
         try {
-            String configValue = TPSEngine.OP_ENROLL_PREFIX + "." + selectedTokenType + "." + TPSEngine.CFG_KEYGEN
+            String configValue = TPS.OP_ENROLL_PREFIX + "." + selectedTokenType + "." + TPS.CFG_KEYGEN
                     + "."
-                    + TPSEngine.RECOVERY_OP + "." + reason + "." + TPSEngine.CFG_KEYTYPE_VALUE + "." + index;
+                    + TPS.RECOVERY_OP + "." + reason + "." + TPS.CFG_KEYTYPE_VALUE + "." + index;
 
             logger.debug("TPSProcess.getRecoveryKeyTypeValue: configValue: " + configValue);
 
@@ -3684,9 +3684,9 @@ public class TPSEnrollProcessor extends TPSProcessor {
         TPSEngineConfig configStore = engine.getConfig();
         String scheme = null;
         try {
-            String configValue = TPSEngine.OP_ENROLL_PREFIX + "." + selectedTokenType + "." + TPSEngine.CFG_KEYGEN
+            String configValue = TPS.OP_ENROLL_PREFIX + "." + selectedTokenType + "." + TPS.CFG_KEYGEN
                     + "." + keyTypeValue + "."
-                    + TPSEngine.RECOVERY_OP + "." + reason + "." + TPSEngine.CFG_SCHEME;
+                    + TPS.RECOVERY_OP + "." + reason + "." + TPS.CFG_SCHEME;
 
             logger.debug("TPSProcess.getRecoveryScheme: configValue: " + configValue);
 
@@ -3720,9 +3720,9 @@ public class TPSEnrollProcessor extends TPSProcessor {
         TPSEngineConfig configStore = engine.getConfig();
         int keyTypeNum = 0;
         try {
-            String configValue = TPSEngine.OP_ENROLL_PREFIX + "." + selectedTokenType + "." + TPSEngine.CFG_KEYGEN
-                    + "." + TPSEngine.RECOVERY_OP
-                    + "." + reason + "." + TPSEngine.CFG_KEYTYPE_NUM;
+            String configValue = TPS.OP_ENROLL_PREFIX + "." + selectedTokenType + "." + TPS.CFG_KEYGEN
+                    + "." + TPS.RECOVERY_OP
+                    + "." + reason + "." + TPS.CFG_KEYTYPE_NUM;
 
             logger.debug("TPSEnrollProcessor.getNumberCertsForRecovery: configValue: " + configValue);
             keyTypeNum = configStore.getInteger(
@@ -3915,12 +3915,12 @@ public class TPSEnrollProcessor extends TPSProcessor {
         String scheme = null;
 
         if (isExternalReg == true) {
-            scheme = TPSEngine.CFG_EXTERNAL_REG;
+            scheme = TPS.CFG_EXTERNAL_REG;
         } else {
-            scheme = TPSEngine.CFG_NON_EXTERNAL_REG;
+            scheme = TPS.CFG_NON_EXTERNAL_REG;
         }
 
-        String allowMultiConfig = scheme + "." + TPSEngine.CFG_ALLOW_MULTI_TOKENS_USER;
+        String allowMultiConfig = scheme + "." + TPS.CFG_ALLOW_MULTI_TOKENS_USER;
         logger.debug(method + " trying config: tokendb." + allowMultiConfig);
 
         try {
