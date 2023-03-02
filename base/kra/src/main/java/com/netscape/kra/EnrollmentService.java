@@ -62,7 +62,6 @@ import com.netscape.certsrv.logging.event.SecurityDataArchivalProcessedEvent;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
-import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.key.KeyRecordParser;
@@ -103,7 +102,7 @@ public class EnrollmentService implements IService {
 
     // private
     private KeyRecoveryAuthority mKRA;
-    private ITransportKeyUnit mTransportUnit = null;
+    private TransportKeyUnit mTransportUnit;
     private IStorageKeyUnit mStorageUnit = null;
 
     /**

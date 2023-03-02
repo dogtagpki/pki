@@ -70,7 +70,6 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.security.Credential;
 import com.netscape.certsrv.security.IStorageKeyUnit;
-import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.request.RequestScheduler;
@@ -137,7 +136,7 @@ public class KeyRecoveryAuthority implements IAuthority {
     protected boolean mQueueRequests = false;
     protected String mId = null;
 
-    protected TransportKeyUnit mTransportKeyUnit = null;
+    protected TransportKeyUnit mTransportKeyUnit;
     protected StorageKeyUnit mStorageKeyUnit = null;
     protected Hashtable<String, Credential[]> mAutoRecovery = new Hashtable<>();
     protected boolean mAutoRecoveryOn = false;
@@ -1468,7 +1467,7 @@ public class KeyRecoveryAuthority implements IAuthority {
      *
      * @return transport key unit
      */
-    public ITransportKeyUnit getTransportKeyUnit() {
+    public TransportKeyUnit getTransportKeyUnit() {
         return mTransportKeyUnit;
     }
 

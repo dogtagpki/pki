@@ -34,7 +34,6 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -42,6 +41,7 @@ import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmsutil.json.JSONObject;
 import com.netscape.kra.KeyRecoveryAuthority;
+import com.netscape.kra.TransportKeyUnit;
 
 /**
  * This servlet retrieves the transport certificate from DRM.
@@ -119,7 +119,7 @@ public class GetTransportCert extends CMSServlet {
 
         KRAEngine engine = KRAEngine.getInstance();
         KeyRecoveryAuthority kra = engine.getKRA();
-        ITransportKeyUnit tu = kra.getTransportKeyUnit();
+        TransportKeyUnit tu = kra.getTransportKeyUnit();
         org.mozilla.jss.crypto.X509Certificate transportCert =
                 tu.getCertificate();
 

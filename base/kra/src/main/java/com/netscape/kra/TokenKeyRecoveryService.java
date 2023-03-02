@@ -57,7 +57,6 @@ import com.netscape.certsrv.logging.event.SecurityDataRecoveryProcessedEvent;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
-import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
@@ -97,7 +96,7 @@ public class TokenKeyRecoveryService implements IService {
     private KeyRecoveryAuthority mKRA;
     private KeyRepository mStorage;
     private IStorageKeyUnit mStorageUnit = null;
-    private ITransportKeyUnit mTransportUnit = null;
+    private TransportKeyUnit mTransportUnit;
 
     /**
      * Constructs request processor.

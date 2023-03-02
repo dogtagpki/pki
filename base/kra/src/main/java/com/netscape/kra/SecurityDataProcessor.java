@@ -43,7 +43,6 @@ import com.netscape.certsrv.kra.EKRAException;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalProcessedEvent;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
-import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
@@ -63,7 +62,7 @@ public class SecurityDataProcessor {
     private final static String STATUS_ACTIVE = "active";
 
     private KeyRecoveryAuthority kra;
-    private ITransportKeyUnit transportUnit = null;
+    private TransportKeyUnit transportUnit;
     private IStorageKeyUnit storageUnit = null;
     private KeyRepository keyRepository = null;
 

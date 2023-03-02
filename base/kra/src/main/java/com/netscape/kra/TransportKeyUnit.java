@@ -37,7 +37,6 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.util.WrappingParams;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -47,9 +46,8 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  * is used to protected EE's private key in transit.
  *
  * @author thomask
- * @version $Revision$, $Date$
  */
-public class TransportKeyUnit extends EncryptionUnit implements ITransportKeyUnit {
+public class TransportKeyUnit extends EncryptionUnit {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TransportKeyUnit.class);
 
@@ -133,7 +131,10 @@ public class TransportKeyUnit extends EncryptionUnit implements ITransportKeyUni
         }
     }
 
-    @Override
+    /**
+     * Returns this Unit's crypto token object.
+     * @return CryptoToken object.
+     */
     public CryptoToken getToken() {
         // 390148: returning the token that owns the private
         //         key.
@@ -162,12 +163,20 @@ public class TransportKeyUnit extends EncryptionUnit implements ITransportKeyUni
         return newNickName;
     }
 
-    @Override
+    /**
+     * Returns this Unit's signing algorithm in String format.
+     * @return String of signing algorithm
+     * @throws EBaseException
+     */
     public String getSigningAlgorithm() throws EBaseException {
         return mConfig.getString(PROP_SIGNING_ALGORITHM);
     }
 
-    @Override
+    /**
+     * Sets this Unit's signing algorithm.
+     * @param str String of signing algorithm to set.
+     * @throws EBaseException
+     */
     public void setSigningAlgorithm(String str) throws EBaseException {
         mConfig.putString(PROP_SIGNING_ALGORITHM, str);
     }
@@ -188,8 +197,9 @@ public class TransportKeyUnit extends EncryptionUnit implements ITransportKeyUni
 
     /**
      * Retrieves public key.
+     *
+     * @return certificate
      */
-    @Override
     public org.mozilla.jss.crypto.X509Certificate getCertificate() {
         return mCert;
     }
@@ -198,12 +208,20 @@ public class TransportKeyUnit extends EncryptionUnit implements ITransportKeyUni
         return chain;
     }
 
-    @Override
+    /**
+     * Retrieves new transport certificate.
+     *
+     * @return certificate
+     */
     public org.mozilla.jss.crypto.X509Certificate getNewCertificate() {
         return mNewCert;
     }
 
-    @Override
+    /**
+     * Verifies transport certificate.
+     *
+     * @return certificate
+     */
     public org.mozilla.jss.crypto.X509Certificate verifyCertificate(String transportCert) {
         org.mozilla.jss.crypto.X509Certificate cert = null;
         if (transportCert != null && transportCert.length() > 0) {
@@ -239,7 +257,11 @@ public class TransportKeyUnit extends EncryptionUnit implements ITransportKeyUni
         return mCert.getPublicKey();
     }
 
-    @Override
+    /**
+     * Retrieves private key associated with certificate
+     *
+     * @return certificate
+     */
     public PrivateKey getPrivateKey() {
         return getPrivateKey(mCert);
     }
@@ -266,15 +288,29 @@ public class TransportKeyUnit extends EncryptionUnit implements ITransportKeyUni
         // XXX
     }
 
-    @Override
+    /**
+     * Unwraps symmetric key . This method
+     * unwraps the symmetric key.
+     *
+     * @param encSymmKey wrapped symmetric key to be unwrapped
+     * @return Symmetric key object
+     * @throws Exception
+     */
     public SymmetricKey unwrap_sym(byte encSymmKey[], WrappingParams params) throws Exception {
         return unwrap_session_key(getToken(), encSymmKey, SymmetricKey.Usage.WRAP, params);
     }
 
     /**
-     * Decrypts the user private key.  This is called on the transport unit.
+     * Decrypts the external private key (private key from the end-user).
+     *
+     * @param sessionKey session key that protects the user private
+     * @param symmAlgOID symmetric algorithm
+     * @param symmAlgParams symmetric algorithm parameters
+     * @param privateKey private key data
+     * @param transportCert transport certificate
+     * @return private key data
+     * @throws Exception
      */
-    @Override
     public byte[] decryptExternalPrivate(byte encSymmKey[],
             String wrapOID, byte wrapIV[], byte encValue[],
             org.mozilla.jss.crypto.X509Certificate transCert)
@@ -319,10 +355,17 @@ public class TransportKeyUnit extends EncryptionUnit implements ITransportKeyUni
 
 
     /**
-     * External unwrapping. Unwraps the symmetric key using
-     * the transport private key.
+     * Unwraps the symmetric key using the transport private key.
+     *
+     * @param sessionKey session key that unwrap the symmetric key
+     * @param symmAlgOID symmetric algorithm
+     * @param symmAlgParams symmetric algorithm parameters
+     * @param symmetricKey  symmetric key data
+     * @param type symmetric key algorithm
+     * @param strength symmetric key strength in bytes
+     * @return Symmetric key object
+     * @throws Exception
      */
-    @Override
     public SymmetricKey unwrap_symmetric(byte encSymmKey[],
             String symmAlgOID, byte symmAlgParams[],
             byte encValue[], SymmetricKey.Type algorithm, int strength)
@@ -354,10 +397,15 @@ public class TransportKeyUnit extends EncryptionUnit implements ITransportKeyUni
     }
 
     /**
-     * External unwrapping. Unwraps the data using
-     * the transport private key.
+     * Unwraps the data using the transport private key.
+     *
+     * @param symmAlgOID symmetric algorithm
+     * @param symmAlgParams symmetric algorithm parameters
+     * @param pubKey public key
+     * @param transportCert transport certificate
+     * @return private key object
+     * @throws Exception
      */
-    @Override
     public PrivateKey unwrap(byte encSymmKey[],
             String wrapOID, byte wrapIV[],
             byte encValue[], PublicKey pubKey,

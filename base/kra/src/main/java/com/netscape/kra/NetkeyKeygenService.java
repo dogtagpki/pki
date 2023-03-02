@@ -58,7 +58,6 @@ import com.netscape.certsrv.logging.event.ServerSideKeyGenProcessedEvent;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
-import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.key.KeyRecordParser;
@@ -96,7 +95,7 @@ public class NetkeyKeygenService implements IService {
             "proofOfArchival";
 
     private KeyRecoveryAuthority mKRA;
-    private ITransportKeyUnit mTransportUnit = null;
+    private TransportKeyUnit mTransportUnit;
     private IStorageKeyUnit mStorageUnit = null;
 
     /**
