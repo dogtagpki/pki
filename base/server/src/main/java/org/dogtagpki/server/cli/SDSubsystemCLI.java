@@ -19,6 +19,7 @@ public class SDSubsystemCLI extends CLI {
 
         addModule(new SDSubsystemFindCLI(this));
         addModule(new SDSubsystemAddCLI(this));
+        addModule(new SDSubsystemRemoveCLI(this));
     }
 
     public static void printSubsystem(SecurityDomainHost host) {
