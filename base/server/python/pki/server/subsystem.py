@@ -1766,6 +1766,25 @@ class PKISubsystem(object):
             as_current_user=as_current_user,
             capture_output=True)
 
+    def find_user_certs(
+            self,
+            user_id,
+            as_current_user=False):
+
+        cmd = [self.name + '-user-cert-find']
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        cmd.append(user_id)
+
+        self.run(
+            cmd,
+            as_current_user=as_current_user)
+
     def add_user_cert(self, user_id,
                       cert_data=None,
                       cert_path=None,
