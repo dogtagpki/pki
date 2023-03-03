@@ -1723,6 +1723,27 @@ class ServerConfig(object):
         server = listener.getparent()
         server.remove(listener)
 
+    def get_global_naming_resource(self, name):
+        '''
+        Find global naming resource by name.
+        '''
+
+        server = self.document.getroot()
+        return server.find('GlobalNamingResources/Resource[@name="%s"]' % name)
+
+    def remove_global_naming_resource(self, name):
+        '''
+        Remove global naming resource by name.
+        '''
+
+        resource = self.get_global_naming_resource(name)
+
+        if resource is None:
+            return
+
+        parent = resource.getparent()
+        parent.remove(resource)
+
     def get_connectors(self):
 
         server = self.document.getroot()

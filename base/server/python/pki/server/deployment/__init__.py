@@ -256,6 +256,9 @@ class PKIDeployer:
         logger.info('Adding PKIListener')
         server_config.create_listener('com.netscape.cms.tomcat.PKIListener')
 
+        logger.info('Removing UserDatabase')
+        server_config.remove_global_naming_resource('UserDatabase')
+
         if config.str2bool(self.mdict['pki_enable_proxy']):
 
             logger.info('Adding AJP connector for IPv4')
