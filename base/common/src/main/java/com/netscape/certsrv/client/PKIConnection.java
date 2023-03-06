@@ -29,9 +29,8 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URI;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
 
+import javax.ws.rs.Priorities;
 import javax.ws.rs.client.WebTarget;
 
 import org.apache.http.Header;
@@ -43,11 +42,7 @@ import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.ProtocolException;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.auth.params.AuthPNames;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.params.AuthPolicy;
 import org.apache.http.client.params.HttpClientParams;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeLayeredSocketFactory;
@@ -101,16 +96,6 @@ public class PKIConnection implements AutoCloseable {
 
         // Don't retry operations.
         httpClient.setHttpRequestRetryHandler(new DefaultHttpRequestRetryHandler(0, false));
-
-        if (config.getUsername() != null && config.getPassword() != null) {
-            List<String> authPref = new ArrayList<>();
-            authPref.add(AuthPolicy.BASIC);
-            httpClient.getParams().setParameter(AuthPNames.PROXY_AUTH_PREF, authPref);
-
-            httpClient.getCredentialsProvider().setCredentials(
-                    AuthScope.ANY,
-                    new UsernamePasswordCredentials(config.getUsername(), config.getPassword()));
-        }
 
         httpClient.addRequestInterceptor(new HttpRequestInterceptor() {
             @Override
@@ -218,6 +203,8 @@ public class PKIConnection implements AutoCloseable {
         engine = new ApacheHttpClient4Engine(httpClient);
 
         client = new ResteasyClientBuilder().httpEngine(engine).build();
+
+        client.register(new PKIClientAuthenticator(config), Priorities.AUTHENTICATION);
         client.register(PKIRESTProvider.class);
 
         URI uri = config.getServerURL().toURI();
