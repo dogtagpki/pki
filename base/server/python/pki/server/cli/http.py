@@ -211,7 +211,7 @@ class HTTPConnectorAddCLI(pki.cli.CLI):
 
         server_config = instance.get_server_config()
 
-        connector = server_config.get_connector(name)
+        connector = server_config.get_connector(name=name)
 
         if connector is not None:
             raise Exception('Connector already exists: %s' % name)
@@ -437,7 +437,7 @@ class HTTPConnectorShowCLI(pki.cli.CLI):
         instance.load()
 
         server_config = instance.get_server_config()
-        connector = server_config.get_connector(name)
+        connector = server_config.get_connector(name=name)
 
         if connector is None:
             raise KeyError('Connector not found: %s' % name)
@@ -573,7 +573,7 @@ class HTTPConnectorModCLI(pki.cli.CLI):
         instance.load()
 
         server_config = instance.get_server_config()
-        connector = server_config.get_connector(name)
+        connector = server_config.get_connector(name=name)
 
         if connector is None:
             raise KeyError('Connector not found: %s' % name)
@@ -744,7 +744,7 @@ class SSLHostAddCLI(pki.cli.CLI):
         instance.load()
 
         server_config = instance.get_server_config()
-        connector = server_config.get_connector(connector_name)
+        connector = server_config.get_connector(name=connector_name)
 
         if connector is None:
             raise KeyError('Connector not found: %s' % connector_name)
@@ -832,7 +832,7 @@ class SSLHostDeleteCLI(pki.cli.CLI):
         instance.load()
 
         server_config = instance.get_server_config()
-        connector = server_config.get_connector(connector_name)
+        connector = server_config.get_connector(name=connector_name)
 
         if connector is None:
             raise KeyError('Connector not found: %s' % connector_name)
@@ -903,7 +903,7 @@ class SSLHostFindCLI(pki.cli.CLI):
         instance.load()
 
         server_config = instance.get_server_config()
-        connector = server_config.get_connector(connector_name)
+        connector = server_config.get_connector(name=connector_name)
 
         if connector is None:
             raise KeyError('Connector not found: %s' % connector_name)
@@ -1014,7 +1014,7 @@ class SSLHostModifyCLI(pki.cli.CLI):
         instance.load()
 
         server_config = instance.get_server_config()
-        connector = server_config.get_connector(connector_name)
+        connector = server_config.get_connector(name=connector_name)
 
         if connector is None:
             logger.error('Connector not found: %s', connector_name)
@@ -1110,7 +1110,7 @@ class SSLHostShowCLI(pki.cli.CLI):
         instance.load()
 
         server_config = instance.get_server_config()
-        connector = server_config.get_connector(connector_name)
+        connector = server_config.get_connector(name=connector_name)
 
         if connector is None:
             logger.error('Connector not found: %s', connector_name)
@@ -1263,7 +1263,7 @@ class SSLCertAddCLI(pki.cli.CLI):
         instance.load()
 
         server_config = instance.get_server_config()
-        connector = server_config.get_connector(connector_name)
+        connector = server_config.get_connector(name=connector_name)
 
         if connector is None:
             raise KeyError('Connector not found: %s' % connector_name)
@@ -1364,7 +1364,7 @@ class SSLCertDeleteCLI(pki.cli.CLI):
         instance.load()
 
         server_config = instance.get_server_config()
-        connector = server_config.get_connector(connector_name)
+        connector = server_config.get_connector(name=connector_name)
 
         if connector is None:
             raise KeyError('Connector not found: %s' % connector_name)
@@ -1444,7 +1444,7 @@ class SSLCertFindLI(pki.cli.CLI):
         instance.load()
 
         server_config = instance.get_server_config()
-        connector = server_config.get_connector(connector_name)
+        connector = server_config.get_connector(name=connector_name)
 
         if connector is None:
             raise KeyError('Connector not found: %s' % connector_name)

@@ -264,7 +264,7 @@ class PKIServer(object):
     def export_ca_cert(self):
 
         server_config = self.get_server_config()
-        connector = server_config.get_connector('Secure')
+        connector = server_config.get_connector(name='Secure')
 
         if connector is None:
             # HTTPS connector not configured, skip
@@ -1304,7 +1304,7 @@ grant codeBase "file:%s" {
         # Load SSL server cert nickname from server.xml
 
         server_config = self.get_server_config()
-        connector = server_config.get_connector('Secure')
+        connector = server_config.get_connector(name='Secure')
 
         if connector is None:
             return None
@@ -1324,7 +1324,7 @@ grant codeBase "file:%s" {
             fullname = nickname
 
         server_config = self.get_server_config()
-        connector = server_config.get_connector('Secure')
+        connector = server_config.get_connector(name='Secure')
 
         if connector is None:
             raise KeyError('Connector not found: Secure')
@@ -1773,16 +1773,20 @@ class ServerConfig(object):
 
         return connectors
 
-    def get_connector(self, name):
+    def get_connector(self, name=None, port=None):
+        '''
+        Find connector by name or port.
+        '''
 
-        connectors = self.get_connectors()
+        server = self.document.getroot()
 
-        for connector in connectors:
-            n = connector.get('name')
-            if n == name:
-                return connector
+        xpath = 'Service[@name="Catalina"]/Connector'
+        if name is not None:
+            xpath = xpath + '[@name="%s"]' % name
+        if port is not None:
+            xpath = xpath + '[@port="%s"]' % port
 
-        return None
+        return server.find(xpath)
 
     def create_connector(self, name):
 
@@ -1809,7 +1813,7 @@ class ServerConfig(object):
 
     def remove_connector(self, name):
 
-        connector = self.get_connector(name)
+        connector = self.get_connector(name=name)
 
         if connector is None:
             raise KeyError('Connector not found: %s' % name)
