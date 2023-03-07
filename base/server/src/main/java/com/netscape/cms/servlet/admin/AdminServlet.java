@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -104,6 +105,9 @@ public class AdminServlet extends HttpServlet {
     private final static String HDR_AUTHORIZATION = "Authorization";
     private final static String HDR_LANG = "accept-language";
 
+    protected ServletConfig servletConfig;
+    protected ServletContext servletContext;
+
     protected Auditor auditor = Auditor.getAuditor();
     protected EngineConfig mConfig = null;
     protected AuthzSubsystem mAuthz;
@@ -137,6 +141,10 @@ public class AdminServlet extends HttpServlet {
     public AdminServlet() {
     }
 
+    public CMSEngine getCMSEngine() {
+        return (CMSEngine) servletContext.getAttribute("engine");
+    }
+
     /**
      * Initializes the servlet.
      */
@@ -144,7 +152,10 @@ public class AdminServlet extends HttpServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
 
-        CMSEngine engine = CMS.getCMSEngine();
+        servletConfig = sc;
+        servletContext = sc.getServletContext();
+
+        CMSEngine engine = getCMSEngine();
         mConfig = engine.getConfig();
 
         String srcType = AUTHZ_SRC_LDAP;
@@ -219,7 +230,7 @@ public class AdminServlet extends HttpServlet {
     @Override
     public void service(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         boolean running_state = engine.isInRunningState();
 
         if (!running_state)
@@ -266,7 +277,7 @@ public class AdminServlet extends HttpServlet {
     protected void authenticate(HttpServletRequest req) throws
             IOException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         UGSubsystem mUG = engine.getUGSubsystem();
         EngineConfig configStore = engine.getConfig();
 
@@ -827,7 +838,7 @@ public class AdminServlet extends HttpServlet {
 
             // get user.
             // this either returns null or throws exception when user not found
-            CMSEngine engine = CMS.getCMSEngine();
+            CMSEngine engine = getCMSEngine();
             UGSubsystem mUG = engine.getUGSubsystem();
             User user = mUG.getUser(userid);
 
