@@ -250,6 +250,10 @@ public abstract class CMSServlet extends HttpServlet {
         return httpReqHash;
     }
 
+    public CMSEngine getCMSEngine() {
+        return (CMSEngine) servletContext.getAttribute("engine");
+    }
+
     @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
@@ -257,7 +261,7 @@ public abstract class CMSServlet extends HttpServlet {
         servletConfig = sc;
         servletContext = sc.getServletContext();
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
         mAuthz = engine.getAuthzSubsystem();
@@ -378,7 +382,7 @@ public abstract class CMSServlet extends HttpServlet {
             HttpServletResponse httpResp)
             throws ServletException, IOException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
         boolean running_state = engine.isInRunningState();
