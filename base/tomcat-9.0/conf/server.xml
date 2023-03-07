@@ -69,29 +69,17 @@
          Java HTTP Connector: /docs/config/http.html
          Java AJP  Connector: /docs/config/ajp.html
          APR (HTTP/AJP) Connector: /docs/apr.html
-         Define a non-SSL/TLS HTTP/1.1 Connector on port [pki_http_port]
+         Define a non-SSL/TLS HTTP/1.1 Connector on port 8080
     -->
-
-    <!-- Shared Ports:  Unsecure Port Connector -->
-    <Connector name="Unsecure"
-               port="[pki_http_port]"
-               protocol="HTTP/1.1"
-               redirectPort="[pki_https_port]"
-               maxHttpHeaderSize="8192"
-               acceptCount="100"
-               maxThreads="150"
-               minSpareThreads="25"
-               enableLookups="false"
-               connectionTimeout="80000"
-               disableUploadTimeout="true"
-               />
-
+    <Connector port="8080" protocol="HTTP/1.1"
+               connectionTimeout="20000"
+               redirectPort="8443" />
     <!-- A "Connector" using the shared thread pool-->
     <!--
     <Connector executor="tomcatThreadPool"
-               port="[pki_http_port]" protocol="HTTP/1.1"
+               port="8080" protocol="HTTP/1.1"
                connectionTimeout="20000"
-               redirectPort="[pki_https_port]" />
+               redirectPort="8443" />
     -->
 
     <!-- Define a SSL/TLS HTTP/1.1 Connector on port [pki_https_port]

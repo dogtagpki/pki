@@ -259,6 +259,19 @@ class PKIDeployer:
         logger.info('Removing UserDatabase')
         server_config.remove_global_naming_resource('UserDatabase')
 
+        logger.info('Configuring Unsecure connector')
+        connector = server_config.get_connector(port='8080')
+        connector.set('name', 'Unsecure')
+        connector.set('port', self.mdict['pki_http_port'])
+        connector.set('redirectPort', self.mdict['pki_https_port'])
+        connector.set('maxHttpHeaderSize', '8192')
+        connector.set('acceptCount', '100')
+        connector.set('maxThreads', '150')
+        connector.set('minSpareThreads', '25')
+        connector.set('enableLookups', 'false')
+        connector.set('connectionTimeout', '80000')
+        connector.set('disableUploadTimeout', 'true')
+
         if config.str2bool(self.mdict['pki_enable_proxy']):
 
             logger.info('Adding AJP connector for IPv4')
