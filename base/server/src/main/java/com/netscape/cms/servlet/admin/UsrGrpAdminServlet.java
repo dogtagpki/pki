@@ -92,7 +92,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
      */
     public UsrGrpAdminServlet() {
         super();
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         mAuthz = engine.getAuthzSubsystem();
     }
 
@@ -102,7 +102,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         mMgr = engine.getUGSubsystem();
     }
 
@@ -652,7 +652,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         String auditSubjectID = auditSubjectID();
 
         // ensure that any low-level exceptions are reported
@@ -1930,7 +1930,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         String auditSubjectID = auditSubjectID();
 
         // ensure that any low-level exceptions are reported

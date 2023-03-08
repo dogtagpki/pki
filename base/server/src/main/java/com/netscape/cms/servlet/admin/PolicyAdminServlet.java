@@ -731,7 +731,7 @@ public class PolicyAdminServlet extends AdminServlet {
         String user = combo.substring(0, semicolon);
         String pw = combo.substring(semicolon + 1);
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         engine.putPasswordCache(user, pw);
     }
 

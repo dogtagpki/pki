@@ -75,7 +75,7 @@ public class JobsAdminServlet extends AdminServlet {
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         mJobsSched = (JobsScheduler) engine.getSubsystem(JobsScheduler.ID);
     }
 
@@ -383,7 +383,7 @@ public class JobsAdminServlet extends AdminServlet {
             return;
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
 
         // is the job instance id unique?
         if (mJobsSched.getInstances().containsKey(id)) {
@@ -752,7 +752,7 @@ public class JobsAdminServlet extends AdminServlet {
             return;
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
 
         // Does the job instance exist?
         if (!mJobsSched.getInstances().containsKey(id)) {

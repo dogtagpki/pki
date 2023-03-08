@@ -37,8 +37,8 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ELogException;
 import com.netscape.certsrv.logging.ELogNotFound;
 import com.netscape.certsrv.logging.ELogPluginNotFound;
-import com.netscape.certsrv.logging.LogEventListener;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.LogEventListener;
 import com.netscape.certsrv.logging.LogPlugin;
 import com.netscape.certsrv.logging.event.ConfigSignedAuditEvent;
 import com.netscape.cmscore.apps.CMS;
@@ -95,7 +95,7 @@ public class LogAdminServlet extends AdminServlet {
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         logSubsystem = engine.getLogSubsystem();
     }
 
@@ -339,7 +339,7 @@ public class LogAdminServlet extends AdminServlet {
             IOException, EBaseException {
 
         NameValuePairs params = new NameValuePairs();
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         Enumeration<String> e = logSubsystem.getLogInsts().keys();
 
         for (; e.hasMoreElements();) {

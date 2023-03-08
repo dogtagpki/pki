@@ -307,7 +307,7 @@ public class CMSAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         NameValuePairs params = new NameValuePairs();
 
@@ -321,7 +321,7 @@ public class CMSAdminServlet extends AdminServlet {
             IOException, EBaseException {
 
         NameValuePairs params = new NameValuePairs();
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         params.put(Constants.PR_ALL_NICKNAMES, jssSubsystem.getAllCerts());
@@ -340,7 +340,7 @@ public class CMSAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
 
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
@@ -439,7 +439,7 @@ public class CMSAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
 
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
@@ -544,7 +544,7 @@ public class CMSAdminServlet extends AdminServlet {
     }
 
     public void modifyRADMCert(String nickName) {
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         engine.setServerCertNickname(nickName);
 
         /*
@@ -555,7 +555,7 @@ public class CMSAdminServlet extends AdminServlet {
     }
 
     public void modifyAgentGatewayCert(String nickName) {
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         engine.setServerCertNickname(nickName);
 
         /*
@@ -589,7 +589,7 @@ public class CMSAdminServlet extends AdminServlet {
             //XXX Send response first then shutdown
             sendResponse(SUCCESS, null, params, resp);
             logger.debug("CMSAdminServlet.performTasks(): shutdown server");
-            CMSEngine engine = CMS.getCMSEngine();
+            CMSEngine engine = getCMSEngine();
             engine.shutdown();
             return;
         }
@@ -621,7 +621,7 @@ public class CMSAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         EngineConfig cs = engine.getConfig();
         try {
             String installdate = cs.getString(Constants.PR_STAT_INSTALLDATE, "");
@@ -697,7 +697,7 @@ public class CMSAdminServlet extends AdminServlet {
 
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
         if (selectedToken != null && newKeyName != null) {
@@ -722,7 +722,7 @@ public class CMSAdminServlet extends AdminServlet {
         NameValuePairs params = new NameValuePairs();
         Enumeration<String> e = req.getParameterNames();
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
 
         while (e.hasMoreElements()) {
             String name = e.nextElement();
@@ -842,7 +842,7 @@ public class CMSAdminServlet extends AdminServlet {
             }
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         jssSubsystem.loggedInToken(tokenName, pwd);
 
@@ -866,7 +866,7 @@ public class CMSAdminServlet extends AdminServlet {
             }
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         boolean status = jssSubsystem.isTokenLoggedIn(value);
 
@@ -936,7 +936,7 @@ public class CMSAdminServlet extends AdminServlet {
             pathname = CMS.getInstanceDir() + File.separator + "conf" + File.separator;
             dir = pathname;
 
-            CMSEngine engine = CMS.getCMSEngine();
+            CMSEngine engine = getCMSEngine();
             JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
             KeyPair keypair = null;
@@ -1107,7 +1107,7 @@ public class CMSAdminServlet extends AdminServlet {
 
     private void setRADMNewnickname(String tokenName, String nickName)
             throws EBaseException {
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         engine.setServerCertNickname(tokenName, nickName);
 
         /*
@@ -1127,7 +1127,7 @@ public class CMSAdminServlet extends AdminServlet {
     private String getRADMNewnickname()
             throws EBaseException {
         // assuming the nickname does not change.
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         return engine.getServerCertNickname();
 
         /*
@@ -1139,7 +1139,7 @@ public class CMSAdminServlet extends AdminServlet {
 
     private void setAgentNewnickname(String tokenName, String nickName)
             throws EBaseException {
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         engine.setServerCertNickname(tokenName, nickName);
 
         /*
@@ -1159,7 +1159,7 @@ public class CMSAdminServlet extends AdminServlet {
     private String getAgentNewnickname()
             throws EBaseException {
         // assuming the nickname does not change.
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         return engine.getServerCertNickname();
 
         /*
@@ -1302,7 +1302,7 @@ public class CMSAdminServlet extends AdminServlet {
             pathname = serverRoot + File.separator + serverID
                      + File.separator + "config" + File.separator + pathname;
 
-            CMSEngine engine = CMS.getCMSEngine();
+            CMSEngine engine = getCMSEngine();
             JssSubsystem jssSubsystem = engine.getJSSSubsystem();
             //String nickname = getNickname(certType);
             String nicknameWithoutTokenName = "";
@@ -1616,7 +1616,7 @@ public class CMSAdminServlet extends AdminServlet {
             pathname = serverRoot + File.separator + serverID
                      + File.separator + "config" + File.separator + pathname;
 
-            CMSEngine engine = CMS.getCMSEngine();
+            CMSEngine engine = getCMSEngine();
             ICrossCertPairSubsystem ccps = (ICrossCertPairSubsystem) engine.getSubsystem(ICrossCertPairSubsystem.ID);
 
             try {
@@ -1705,7 +1705,7 @@ public class CMSAdminServlet extends AdminServlet {
 
     public String getNickname(String certType) throws EBaseException {
         String nickname = "";
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
 
         if (certType.equals(Constants.PR_CA_SIGNING_CERT)) {
             nickname = getCANickname();
@@ -1803,7 +1803,7 @@ public class CMSAdminServlet extends AdminServlet {
         if (nickname.equals(""))
             nickname = getNickname(certType);
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         String content = jssSubsystem.getCertPrettyPrint(pkcs,
                 super.getLocale(req));
@@ -1820,7 +1820,7 @@ public class CMSAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         Enumeration<String> enum1 = req.getParameterNames();
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         String nickname = "";
         String serialno = "";
@@ -1863,7 +1863,7 @@ public class CMSAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         Enumeration<String> enum1 = req.getParameterNames();
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         String nickname = "";
         String serialno = "";
@@ -1905,7 +1905,7 @@ public class CMSAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         NameValuePairs pairs = jssSubsystem.getCACerts();
 
@@ -1917,7 +1917,7 @@ public class CMSAdminServlet extends AdminServlet {
             IOException, EBaseException {
 
         String id = req.getParameter(Constants.RS_ID);
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         int mindex = id.indexOf(":SERIAL#<");
         String nickname = id.substring(0, mindex);
@@ -1934,7 +1934,7 @@ public class CMSAdminServlet extends AdminServlet {
             IOException, EBaseException {
 
         String id = req.getParameter(Constants.RS_ID);
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         int mindex = id.indexOf(":SERIAL#<");
         String nickname = id.substring(0, mindex);
@@ -1949,7 +1949,7 @@ public class CMSAdminServlet extends AdminServlet {
     private void getRootCerts(HttpServletRequest req,
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         NameValuePairs pairs = jssSubsystem.getRootCerts();
 
@@ -1959,7 +1959,7 @@ public class CMSAdminServlet extends AdminServlet {
     private void getAllCertsManage(HttpServletRequest req,
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         NameValuePairs pairs = jssSubsystem.getAllCertsManage();
 
@@ -1969,7 +1969,7 @@ public class CMSAdminServlet extends AdminServlet {
     private void getUserCerts(HttpServletRequest req,
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         NameValuePairs pairs = jssSubsystem.getUserCerts();
         sendResponse(SUCCESS, null, pairs, resp);
@@ -1979,7 +1979,7 @@ public class CMSAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         Enumeration<String> enum1 = req.getParameterNames();
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         String nickname = "";
         String date = "";
@@ -2011,7 +2011,7 @@ public class CMSAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         Enumeration<String> enum1 = req.getParameterNames();
 
         while (enum1.hasMoreElements()) {
@@ -2080,7 +2080,7 @@ public class CMSAdminServlet extends AdminServlet {
             }
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         jssSubsystem.checkCertificateExt(certExt);
         sendResponse(SUCCESS, null, null, resp);
@@ -2104,7 +2104,7 @@ public class CMSAdminServlet extends AdminServlet {
             }
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         String subjectName = jssSubsystem.getSubjectDN(nickname);
 
@@ -2129,7 +2129,7 @@ public class CMSAdminServlet extends AdminServlet {
             }
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         String subjectName = jssSubsystem.getSubjectDN(nickname);
 
@@ -2149,7 +2149,7 @@ public class CMSAdminServlet extends AdminServlet {
 
         logger.debug("CMSAdminServlet: setRootCertTrust()");
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         try {
             jssSubsystem.setRootCertTrust(nickname, serialno, issuername, trust);
@@ -2189,7 +2189,7 @@ public class CMSAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         String auditSubjectID = auditSubjectID();
 
         logger.debug("CMSAdminServlet: trustCACert()");
@@ -2277,7 +2277,7 @@ public class CMSAdminServlet extends AdminServlet {
                     ESelfTestException,
                     IOException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
