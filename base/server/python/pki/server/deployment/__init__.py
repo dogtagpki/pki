@@ -272,6 +272,47 @@ class PKIDeployer:
         connector.set('connectionTimeout', '80000')
         connector.set('disableUploadTimeout', 'true')
 
+        logger.info('Adding Secure connector')
+        connector = server_config.create_connector(name='Secure')
+        connector.set('port', self.mdict['pki_https_port'])
+        connector.set('protocol', 'org.dogtagpki.tomcat.Http11NioProtocol')
+        connector.set('SSLEnabled', 'true')
+        connector.set('sslImplementationName', 'org.dogtagpki.tomcat.JSSImplementation')
+        connector.set('scheme', 'https')
+        connector.set('secure', 'true')
+        connector.set('connectionTimeout', '80000')
+        connector.set('keepAliveTimeout', '300000')
+        connector.set('maxHttpHeaderSize', '8192')
+        connector.set('acceptCount', '100')
+        connector.set('maxThreads', '150')
+        connector.set('minSpareThreads', '25')
+        connector.set('enableLookups', 'false')
+        connector.set('disableUploadTimeout', 'true')
+        connector.set('enableOCSP', 'false')
+        connector.set(
+            'ocspResponderURL',
+            'http://%s:%s/ca/ocsp' %
+            (self.mdict['pki_hostname'], self.mdict['pki_http_port']))
+        connector.set('ocspResponderCertNickname', 'ocspSigningCert cert-pki-ca')
+        connector.set('ocspCacheSize', '1000')
+        connector.set('ocspMinCacheEntryDuration', '7200')
+        connector.set('ocspMaxCacheEntryDuration', '14400')
+        connector.set('ocspTimeout', '10')
+        connector.set('passwordFile', instance.password_conf)
+        connector.set('passwordClass', 'org.apache.tomcat.util.net.jss.PlainPasswordFile')
+        connector.set('certdbDir', instance.nssdb_dir)
+
+        logger.info('Adding SSL host configuration')
+        sslhost = server_config.create_sslhost(connector)
+        sslhost.set('sslProtocol', 'SSL')
+        sslhost.set('certificateVerification', 'optional')
+
+        logger.info('Adding SSL certificate configuration')
+        sslcert = server_config.create_sslcert(sslhost)
+        sslcert.set('certificateKeystoreType', 'pkcs11')
+        sslcert.set('certificateKeystoreProvider', 'Mozilla-JSS')
+        sslcert.set('certificateKeyAlias', 'sslserver')
+
         if config.str2bool(self.mdict['pki_enable_proxy']):
 
             logger.info('Adding AJP connector for IPv4')
