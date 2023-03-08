@@ -18,7 +18,7 @@
 
 package org.dogtagpki.server.ocsp;
 
-import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.base.Subsystem;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStorage;
@@ -50,7 +50,7 @@ public class OCSPEngine extends CMSEngine {
     }
 
     @Override
-    public void initSubsystem(ISubsystem subsystem, ConfigStore subsystemConfig) throws Exception {
+    public void initSubsystem(Subsystem subsystem, ConfigStore subsystemConfig) throws Exception {
 
         if (subsystem instanceof OCSPAuthority) {
             // skip initialization during installation

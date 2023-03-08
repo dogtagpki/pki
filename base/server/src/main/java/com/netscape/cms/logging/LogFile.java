@@ -66,7 +66,7 @@ import org.mozilla.jss.util.Base64OutputStream;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.AuditEvent;
@@ -256,7 +256,7 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
     }
 
     @Override
-    public void init(ISubsystem owner, ConfigStore config) throws EBaseException {
+    public void init(Subsystem owner, ConfigStore config) throws EBaseException {
         mConfig = config;
 
         try {

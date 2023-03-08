@@ -34,7 +34,7 @@ import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ELogException;
 import com.netscape.certsrv.logging.ILogger;
@@ -61,7 +61,7 @@ import com.netscape.cmscore.base.ConfigStore;
  * @author mharmsen
  * @author thomask
  */
-public class SelfTestSubsystem implements ISubsystem {
+public class SelfTestSubsystem extends Subsystem {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SelfTestSubsystem.class);
 
@@ -99,7 +99,7 @@ public class SelfTestSubsystem implements ISubsystem {
     public Vector<SelfTestOrderedInstance> mStartupOrder = new Vector<>();
 
     ///////////////////////////
-    // ISubsystem parameters //
+    // Subsystem parameters  //
     ///////////////////////////
 
     private static final String LIST_DELIMITER = ",";
@@ -1132,7 +1132,7 @@ public class SelfTestSubsystem implements ISubsystem {
     }
 
     ////////////////////////
-    // ISubsystem methods //
+    // Subsystem methods  //
     ////////////////////////
 
     /**

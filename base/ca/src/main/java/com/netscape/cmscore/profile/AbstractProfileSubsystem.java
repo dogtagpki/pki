@@ -28,7 +28,7 @@ import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.profile.common.ProfileConfig;
@@ -37,7 +37,7 @@ import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.registry.PluginInfo;
 import com.netscape.cmscore.registry.PluginRegistry;
 
-public abstract class AbstractProfileSubsystem implements ISubsystem {
+public abstract class AbstractProfileSubsystem extends Subsystem {
 
     protected static final String PROP_CHECK_OWNER = "checkOwner";
     protected static final String PROP_ENABLE = "enable";

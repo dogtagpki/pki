@@ -21,14 +21,13 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ISubsystem;
 
 /**
  * Interface for handling cross certs
  *
  * @version $Revision$, $Date$
  */
-public interface ICrossCertPairSubsystem extends ISubsystem {
+public interface ICrossCertPairSubsystem {
 
     public static final String ID = "CrossCertPair";
 

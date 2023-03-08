@@ -19,7 +19,7 @@ package com.netscape.certsrv.publish;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IPluginImpl;
-import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.cmscore.base.ConfigStore;
 
@@ -37,7 +37,7 @@ public interface ILdapPluginImpl extends IPluginImpl {
      * @exception ELdapException initializtion failed due to Ldap error.
      * @exception EBaseException initialization failed.
      */
-    public void init(ISubsystem sys, ConfigStore config) throws EBaseException, ELdapException;
+    public void init(Subsystem sys, ConfigStore config) throws EBaseException, ELdapException;
 
     /**
      * initialize from config store and Isubsystem.

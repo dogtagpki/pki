@@ -23,29 +23,27 @@ import com.netscape.cmscore.base.ConfigStore;
  * This class represents a basic subsystem. Each basic
  * subsystem is named with an identifier and has a
  * configuration store.
- *
- * @version $Revision$, $Date$
  */
-public abstract class Subsystem implements ISubsystem {
+public abstract class Subsystem {
 
     ConfigStore config;
     String id;
 
     /**
-     * Initializes this subsystem.
+     * Initializes this subsystem with the given configuration store.
+     *
      * @param config configuration store
+     * @exception Exception failed to initialize
      */
-    @Override
-    public void init(ConfigStore config) throws EBaseException {
+    public void init(ConfigStore config) throws Exception {
         this.config = config;
     }
 
     /**
-     * Retrieves the configuration store.
+     * Returns the configuration store.
      *
      * @return configuration store
      */
-    @Override
     public ConfigStore getConfigStore() {
         return config;
     }
@@ -54,8 +52,8 @@ public abstract class Subsystem implements ISubsystem {
      * Sets the identifier of this subsystem.
      *
      * @param id subsystem identifier
+     * @exception EBaseException failed to set id
      */
-    @Override
     public void setId(String id) throws EBaseException {
         this.id = id;
     }
@@ -65,8 +63,22 @@ public abstract class Subsystem implements ISubsystem {
      *
      * @return subsystem identifier
      */
-    @Override
     public String getId() {
         return id;
+    }
+
+    /**
+     * Notifies this subsystem if owner is in running mode.
+     *
+     * @exception EBaseException failed to start up
+     */
+    public void startup() throws EBaseException {
+    }
+
+    /**
+     * Stops this system. The owner may call shutdown
+     * anytime after initialization.
+     */
+    public void shutdown() {
     }
 }

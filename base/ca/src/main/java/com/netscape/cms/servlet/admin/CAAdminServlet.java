@@ -1454,7 +1454,7 @@ public class CAAdminServlet extends AdminServlet {
         String value = "false";
 
         /*
-         ISubsystem eeGateway =
+         Subsystem eeGateway =
          SubsystemRegistry.getInstance().get("eeGateway");
          if (eeGateway != null) {
          ConfigStore eeConfig = eeGateway.getConfigStore();
@@ -1517,7 +1517,7 @@ public class CAAdminServlet extends AdminServlet {
             throws IOException, EBaseException {
 
         /*
-         ISubsystem eeGateway =
+         Subsystem eeGateway =
          SubsystemRegistry.getInstance().get("eeGateway");
          */
 

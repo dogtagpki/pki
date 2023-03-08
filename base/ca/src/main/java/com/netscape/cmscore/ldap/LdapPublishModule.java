@@ -32,8 +32,8 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.MetaInfo;
+import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.ldap.ELdapException;
@@ -105,7 +105,7 @@ public class LdapPublishModule implements IRequestListener {
      * initialize ldap publishing module with config store
      */
     @Override
-    public void init(ISubsystem sub, ConfigStore config) throws EBaseException {
+    public void init(Subsystem sub, ConfigStore config) throws EBaseException {
     }
 
     @Override
@@ -516,7 +516,7 @@ class HandleEnrollment implements IRequestListener {
     }
 
     @Override
-    public void init(ISubsystem sub, ConfigStore config) throws EBaseException {
+    public void init(Subsystem sub, ConfigStore config) throws EBaseException {
     }
 
     @Override
@@ -588,7 +588,7 @@ class HandleRenewal implements IRequestListener {
     }
 
     @Override
-    public void init(ISubsystem sub, ConfigStore config) throws EBaseException {
+    public void init(Subsystem sub, ConfigStore config) throws EBaseException {
     }
 
     @Override
@@ -654,7 +654,7 @@ class HandleRevocation implements IRequestListener {
     }
 
     @Override
-    public void init(ISubsystem sub, ConfigStore config) throws EBaseException {
+    public void init(Subsystem sub, ConfigStore config) throws EBaseException {
     }
 
     @Override
@@ -724,7 +724,7 @@ class HandleUnrevocation implements IRequestListener {
     }
 
     @Override
-    public void init(ISubsystem sub, ConfigStore config) throws EBaseException {
+    public void init(Subsystem sub, ConfigStore config) throws EBaseException {
     }
 
     @Override

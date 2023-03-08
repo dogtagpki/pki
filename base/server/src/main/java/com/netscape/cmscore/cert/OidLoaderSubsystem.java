@@ -33,7 +33,7 @@ import org.mozilla.jss.netscape.security.x509.OIDMap;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.base.Subsystem;
 import com.netscape.cmscore.base.ConfigStore;
 
 /**
@@ -41,7 +41,7 @@ import com.netscape.cmscore.base.ConfigStore;
  * @author stevep
  * @version $Revision
  */
-public class OidLoaderSubsystem implements ISubsystem {
+public class OidLoaderSubsystem extends Subsystem {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OidLoaderSubsystem.class);
 

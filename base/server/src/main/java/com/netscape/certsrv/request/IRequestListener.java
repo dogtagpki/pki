@@ -18,7 +18,7 @@
 package com.netscape.certsrv.request;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.base.Subsystem;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
@@ -36,7 +36,7 @@ public interface IRequestListener {
      * @param sub subsystem
      * @param config configuration store
      */
-    public void init(ISubsystem sub, ConfigStore config) throws EBaseException;
+    public void init(Subsystem sub, ConfigStore config) throws EBaseException;
 
     /**
      * Accepts request.

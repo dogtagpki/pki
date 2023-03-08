@@ -88,7 +88,7 @@ import org.mozilla.jss.pkix.primitive.Name;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CADisabledException;
 import com.netscape.certsrv.ca.CAEnabledException;
@@ -150,7 +150,7 @@ import com.netscape.cmsutil.ocsp.UnknownInfo;
  * @author lhsiao
  * @version $Revision$, $Date$
  */
-public class CertificateAuthority implements ISubsystem, IAuthority, IOCSPService {
+public class CertificateAuthority extends Subsystem implements IAuthority, IOCSPService {
 
     public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertificateAuthority.class);
 

@@ -24,8 +24,8 @@ import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.MetaInfo;
+import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
@@ -46,7 +46,7 @@ public class LdapUnrevocationListener implements IRequestListener {
     }
 
     @Override
-    public void init(ISubsystem sys, ConfigStore config) throws EBaseException {
+    public void init(Subsystem sys, ConfigStore config) throws EBaseException {
     }
 
     @Override

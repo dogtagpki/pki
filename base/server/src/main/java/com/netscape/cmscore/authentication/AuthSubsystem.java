@@ -36,7 +36,7 @@ import com.netscape.certsrv.authentication.EAuthMgrPluginNotFound;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.base.Subsystem;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -48,7 +48,7 @@ import com.netscape.cmscore.base.ConfigStore;
  * @author cfu
  * @author lhsiao
  */
-public class AuthSubsystem implements ISubsystem {
+public class AuthSubsystem extends Subsystem {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuthSubsystem.class);
 

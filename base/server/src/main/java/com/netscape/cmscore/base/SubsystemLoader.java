@@ -20,7 +20,7 @@ package com.netscape.cmscore.base;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.base.Subsystem;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -36,8 +36,8 @@ public class SubsystemLoader {
     private static final String PROP_CLASSNAME = "class";
     private static final String PROP_ID = "id";
 
-    public static Vector<ISubsystem> load(ConfigStore config) throws EBaseException {
-        Vector<ISubsystem> v = new Vector<>();
+    public static Vector<Subsystem> load(ConfigStore config) throws EBaseException {
+        Vector<Subsystem> v = new Vector<>();
 
         // load a list of installable subsystems (services)
         for (int i = 0;; i++) {
@@ -59,7 +59,7 @@ public class SubsystemLoader {
             if (className == null)
                 break;
             try {
-                ISubsystem sub = (ISubsystem) Class.forName(className).getDeclaredConstructor().newInstance();
+                Subsystem sub = (Subsystem) Class.forName(className).getDeclaredConstructor().newInstance();
 
                 sub.setId(id);
                 v.addElement(sub);

@@ -29,6 +29,7 @@ import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.cert.ICrossCertPairSubsystem;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.cmscore.apps.CMS;
@@ -65,7 +66,7 @@ import netscape.ldap.LDAPv3;
  * @author cfu
  * @version $Revision$, $Date$
  */
-public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
+public class CrossCertPairSubsystem extends Subsystem implements ICrossCertPairSubsystem {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CrossCertPairSubsystem.class);
 

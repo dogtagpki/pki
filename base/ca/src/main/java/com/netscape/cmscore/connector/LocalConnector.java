@@ -24,8 +24,8 @@ import org.dogtagpki.server.ca.CAEngine;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.connector.Connector;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
@@ -133,7 +133,7 @@ public class LocalConnector extends Connector {
     public class LocalConnListener implements IRequestListener {
 
         @Override
-        public void init(ISubsystem sys, ConfigStore config)
+        public void init(Subsystem sys, ConfigStore config)
                 throws EBaseException {
         }
 

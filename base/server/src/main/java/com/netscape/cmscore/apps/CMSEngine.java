@@ -52,7 +52,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
-import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestStatus;
@@ -158,7 +158,7 @@ public class CMSEngine {
     protected JobsScheduler jobsScheduler = JobsScheduler.getInstance();
 
     public final Map<String, SubsystemInfo> subsystemInfos = new LinkedHashMap<>();
-    public final Map<String, ISubsystem> subsystems = new LinkedHashMap<>();
+    public final Map<String, Subsystem> subsystems = new LinkedHashMap<>();
 
     public String unsecurePort;
     public String securePort;
@@ -845,11 +845,11 @@ public class CMSEngine {
         return securePort;
     }
 
-    public Collection<ISubsystem> getSubsystems() {
+    public Collection<Subsystem> getSubsystems() {
         return subsystems.values();
     }
 
-    public ISubsystem getSubsystem(String name) {
+    public Subsystem getSubsystem(String name) {
         return subsystems.get(name);
     }
 
@@ -876,7 +876,7 @@ public class CMSEngine {
             String className = subsystemConfig.getClassName();
             boolean enabled = subsystemConfig.isEnabled();
 
-            ISubsystem subsystem = (ISubsystem) Class.forName(className).getDeclaredConstructor().newInstance();
+            Subsystem subsystem = (Subsystem) Class.forName(className).getDeclaredConstructor().newInstance();
 
             SubsystemInfo subsystemInfo = new SubsystemInfo(id);
             subsystemInfo.setEnabled(enabled);
@@ -887,7 +887,7 @@ public class CMSEngine {
         }
     }
 
-    public void initSubsystem(ISubsystem subsystem, ConfigStore subsystemConfig) throws Exception {
+    public void initSubsystem(Subsystem subsystem, ConfigStore subsystemConfig) throws Exception {
 
         if (subsystem instanceof SelfTestSubsystem) {
             // skip initialization during installation
@@ -902,7 +902,7 @@ public class CMSEngine {
         for (String id : subsystems.keySet()) {
             logger.info("CMSEngine: Initializing " + id + " subsystem");
 
-            ISubsystem subsystem = subsystems.get(id);
+            Subsystem subsystem = subsystems.get(id);
             SubsystemInfo subsystemInfo = subsystemInfos.get(id);
 
             if (subsystemInfo.updateIdOnInit) {
@@ -1108,7 +1108,7 @@ public class CMSEngine {
 
     protected void startupSubsystems() throws Exception {
 
-        for (ISubsystem subsystem : subsystems.values()) {
+        for (Subsystem subsystem : subsystems.values()) {
             logger.info("CMSEngine: Starting " + subsystem.getId() + " subsystem");
             subsystem.startup();
         }
@@ -1509,11 +1509,11 @@ public class CMSEngine {
     protected void shutdownSubsystems() {
 
         // reverse list of subsystems
-        List<ISubsystem> list = new ArrayList<>();
+        List<Subsystem> list = new ArrayList<>();
         list.addAll(subsystems.values());
         Collections.reverse(list);
 
-        for (ISubsystem subsystem : list) {
+        for (Subsystem subsystem : list) {
             logger.debug("CMSEngine: Stopping " + subsystem.getId() + " subsystem");
             subsystem.shutdown();
         }

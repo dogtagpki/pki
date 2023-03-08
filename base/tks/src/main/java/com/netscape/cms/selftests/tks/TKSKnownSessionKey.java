@@ -34,7 +34,7 @@ import org.dogtagpki.server.tks.TPSConnectorConfig;
 import org.mozilla.jss.symkey.SessionKey;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.logging.LogEventListener;
 import com.netscape.certsrv.selftests.EDuplicateSelfTestException;
 import com.netscape.certsrv.selftests.EInvalidSelfTestException;
@@ -153,7 +153,7 @@ public class TKSKnownSessionKey
         }
 
         String defKeySetMacKey = null;
-        ISubsystem tks = engine.getSubsystem(mTksSubId);
+        Subsystem tks = engine.getSubsystem(mTksSubId);
         if (tks != null) {
             ConfigStore tksConfig = tks.getConfigStore();
             if (tksConfig != null) {

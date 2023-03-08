@@ -25,7 +25,7 @@ import java.util.Vector;
 import javax.servlet.ServletException;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.cmscore.base.ConfigStore;
 
@@ -74,7 +74,7 @@ public abstract class LogEventListener implements EventListener {
      * @param config Configuration store for this log listener.
      * @exception initialization error.
      */
-    public abstract void init(ISubsystem owner, ConfigStore config) throws EBaseException;
+    public abstract void init(Subsystem owner, ConfigStore config) throws EBaseException;
 
     /**
      * Startup the instance.

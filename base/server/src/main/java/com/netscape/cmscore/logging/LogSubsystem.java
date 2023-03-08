@@ -28,7 +28,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.logging.ELogException;
 import com.netscape.certsrv.logging.LogEventListener;
 import com.netscape.certsrv.logging.LogPlugin;
@@ -48,7 +48,7 @@ import com.netscape.cmscore.base.ConfigStore;
  * @author thomask
  * @author mzhao
  */
-public class LogSubsystem implements ISubsystem {
+public class LogSubsystem extends Subsystem {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LogSubsystem.class);
 

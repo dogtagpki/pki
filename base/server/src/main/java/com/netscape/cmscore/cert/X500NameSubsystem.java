@@ -28,7 +28,7 @@ import org.mozilla.jss.netscape.security.x509.DirStrConverter;
 import org.mozilla.jss.netscape.security.x509.X500NameAttrMap;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.base.Subsystem;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 
@@ -43,7 +43,7 @@ import com.netscape.cmscore.base.ConfigStore;
  * @author lhsiao
  * @version $Revision$
  */
-public class X500NameSubsystem implements ISubsystem {
+public class X500NameSubsystem extends Subsystem {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(X500NameSubsystem.class);
 

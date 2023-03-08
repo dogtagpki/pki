@@ -46,7 +46,7 @@ import org.mozilla.jss.crypto.TokenException;
 
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
@@ -57,7 +57,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 /**
  * @author Endi S. Dewata <edewata@redhat.com>
  */
-public class TPSSubsystem implements ISubsystem, IAuthority {
+public class TPSSubsystem extends Subsystem implements IAuthority {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSSubsystem.class);
 
@@ -65,7 +65,7 @@ public class TPSSubsystem implements ISubsystem, IAuthority {
 
     public String id;
     public String nickname;
-    public ISubsystem owner;
+    public Subsystem owner;
     public TPSConfig config;
 
     public ActivityDatabase activityDatabase;

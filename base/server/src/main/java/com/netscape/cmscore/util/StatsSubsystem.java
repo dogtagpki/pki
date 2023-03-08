@@ -22,7 +22,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.util.StatsEvent;
 import com.netscape.cmscore.base.ConfigStore;
 
@@ -33,7 +33,7 @@ import com.netscape.cmscore.base.ConfigStore;
  *
  * @author thomask
  */
-public class StatsSubsystem implements ISubsystem {
+public class StatsSubsystem extends Subsystem {
 
     public static final String ID = "stats";
 

@@ -18,7 +18,7 @@
 package com.netscape.cmscore.request;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.base.Subsystem;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.DBSSession;
 import com.netscape.cmscore.dbs.DBSubsystem;
@@ -70,37 +70,37 @@ public class RequestSubsystem {
     }
 
     //
-    // ISubsystem methods:
+    // Subsystem methods:
     //   getId, setId, init, startup, shutdown, getConfigStore
     //
 
     /**
-     * Implements ISubsystem.getId
+     * Implements Subsystem.getId
      * <p>
      *
-     * @see ISubsystem#getId
+     * @see Subsystem#getId
      */
     public String getId() {
         return mId;
     }
 
-    // ISubsystem.setId
+    // Subsystem.setId
     public void setId(String id)
             throws EBaseException {
         mId = id;
     }
 
-    // ISubsystem.init
+    // Subsystem.init
     public void init(ConfigStore config, DBSubsystem dbSubsystem) {
         this.mConfig = config;
         this.dbSubsystem = dbSubsystem;
     }
 
     /**
-     * Implements ISubsystem.startup
+     * Implements Subsystem.startup
      * <p>
      *
-     * @see ISubsystem#startup
+     * @see Subsystem#startup
      */
     public void startup() {
         logger.info("RequestSubsystem: Request subsystem started");

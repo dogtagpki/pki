@@ -18,7 +18,7 @@
 package com.netscape.cms.listeners;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -90,7 +90,7 @@ public class PinRemovalListener implements IRequestListener {
     }
 
     @Override
-    public void init(ISubsystem sub, ConfigStore config) throws EBaseException {
+    public void init(Subsystem sub, ConfigStore config) throws EBaseException {
         init(null, null, config);
     }
 

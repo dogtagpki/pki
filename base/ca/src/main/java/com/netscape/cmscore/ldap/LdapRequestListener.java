@@ -22,7 +22,7 @@ import java.util.Hashtable;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
@@ -60,7 +60,7 @@ public class LdapRequestListener implements IRequestListener {
     }
 
     @Override
-    public void init(ISubsystem sys, ConfigStore config) throws EBaseException {
+    public void init(Subsystem sys, ConfigStore config) throws EBaseException {
     }
 
     public PublishObject getPublishObject(Request r) {

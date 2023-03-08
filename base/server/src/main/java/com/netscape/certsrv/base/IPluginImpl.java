@@ -64,7 +64,7 @@ public interface IPluginImpl {
      * @param config configuration store
      * @exception EBaseException failed to initialize
      */
-    public void init(ISubsystem sys, String instanceName, String className, ConfigStore config) throws EBaseException;
+    public void init(Subsystem sys, String instanceName, String className, ConfigStore config) throws EBaseException;
 
     /**
      * Shutdowns this plugin.

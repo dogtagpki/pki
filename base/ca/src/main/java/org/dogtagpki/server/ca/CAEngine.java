@@ -59,9 +59,9 @@ import com.netscape.ca.KeyRetriever;
 import com.netscape.ca.KeyRetrieverRunner;
 import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.Nonces;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.certsrv.ca.CATypeException;
@@ -880,7 +880,7 @@ public class CAEngine extends CMSEngine {
     }
 
     @Override
-    public void initSubsystem(ISubsystem subsystem, ConfigStore subsystemConfig) throws Exception {
+    public void initSubsystem(Subsystem subsystem, ConfigStore subsystemConfig) throws Exception {
 
         if (subsystem instanceof CertificateAuthority || subsystem instanceof CrossCertPairSubsystem) {
             // skip initialization during installation

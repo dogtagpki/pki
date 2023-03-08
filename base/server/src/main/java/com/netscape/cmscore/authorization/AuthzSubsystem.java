@@ -38,7 +38,7 @@ import com.netscape.certsrv.authorization.EAuthzMgrNotFound;
 import com.netscape.certsrv.authorization.EAuthzMgrPluginNotFound;
 import com.netscape.certsrv.authorization.EAuthzUnknownRealm;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.base.Subsystem;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -51,7 +51,7 @@ import com.netscape.cmscore.base.ConfigStore;
  * @author cfu
  * @version $Revision$, $Date$
  */
-public class AuthzSubsystem implements ISubsystem {
+public class AuthzSubsystem extends Subsystem {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuthzSubsystem.class);
 

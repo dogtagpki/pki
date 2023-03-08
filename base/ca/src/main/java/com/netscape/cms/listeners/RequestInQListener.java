@@ -26,7 +26,7 @@ import org.dogtagpki.server.ca.CAEngineConfig;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.listeners.EListenersException;
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
@@ -92,7 +92,7 @@ public class RequestInQListener implements IRequestListener {
      * initializes the listener from the configuration
      */
     @Override
-    public void init(ISubsystem sub, ConfigStore config)
+    public void init(Subsystem sub, ConfigStore config)
             throws EListenersException, EPropertyNotFound, EBaseException {
 
         logger.info("RequestInQListener: Initializing RequestInQListener");

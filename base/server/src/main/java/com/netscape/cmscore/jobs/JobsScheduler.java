@@ -23,6 +23,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.jobs.EJobsException;
 import com.netscape.certsrv.jobs.JobPlugin;
 import com.netscape.cms.jobs.Job;
@@ -46,7 +47,7 @@ import com.netscape.cmscore.apps.CMS;
  * @see JobCron
  * @version $Revision$, $Date$
  */
-public class JobsScheduler implements Runnable {
+public class JobsScheduler extends Subsystem implements Runnable {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JobsScheduler.class);
 

@@ -107,8 +107,8 @@ import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
@@ -265,7 +265,7 @@ public class CRSEnrollment extends HttpServlet {
         }
 
         try {
-            ConfigStore authorityConfig = ((ISubsystem) mAuthority).getConfigStore();
+            ConfigStore authorityConfig = ((Subsystem) mAuthority).getConfigStore();
             ConfigStore scepConfig = authorityConfig.getSubStore("scep", ConfigStore.class);
             mEnabled = scepConfig.getBoolean("enable", false);
             mUseOAEPKeyWrap = authorityConfig.getBoolean("keyWrap.useOAEP",false);
