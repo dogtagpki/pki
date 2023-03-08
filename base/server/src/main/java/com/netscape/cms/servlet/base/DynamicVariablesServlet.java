@@ -93,18 +93,6 @@ public class DynamicVariablesServlet extends CMSServlet {
     @SuppressWarnings("unused")
     private ServletConfig mServletCfg;
     private ServletContext mServletCtx = null;
-    private static String mCrlurl = "";
-
-    static {
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
-        ConfigStore config = cs.getSubStore(PROP_CLONING, ConfigStore.class);
-
-        try {
-            mCrlurl = config.getString(PROP_CRLURL, "");
-        } catch (EBaseException e) {
-        }
-    }
 
     public DynamicVariablesServlet() {
         super();
@@ -224,6 +212,7 @@ public class DynamicVariablesServlet extends CMSServlet {
 
             if (os != null) {
                 if (dynvars != null) {
+                    String importCrlUrl = getImportCrlUrl();
                     Enumeration<Integer> k = dynvars.keys();
 
                     while (k.hasMoreElements()) {
@@ -260,7 +249,7 @@ public class DynamicVariablesServlet extends CMSServlet {
                         }
 
                         if (varcode.equals(VAR_CLA_CRL_URL)) {
-                            if (getImportCrlUrl() != null) {
+                            if (importCrlUrl != null) {
                                 toBeWritten = dynvars.get(varcode) +
                                         "=" + "\"" +
                                         getImportCrlUrl() + "\"" +
@@ -337,6 +326,18 @@ public class DynamicVariablesServlet extends CMSServlet {
     }
 
     private String getImportCrlUrl() {
+
+        CMSEngine engine = getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+        ConfigStore config = cs.getSubStore(PROP_CLONING, ConfigStore.class);
+
+        String mCrlurl = "";
+
+        try {
+            mCrlurl = config.getString(PROP_CRLURL, "");
+        } catch (EBaseException e) {
+        }
+
         return mCrlurl;
     }
 }
