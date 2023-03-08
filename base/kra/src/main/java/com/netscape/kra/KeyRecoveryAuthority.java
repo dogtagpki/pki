@@ -54,6 +54,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
+import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.listeners.EListenersException;
@@ -98,7 +99,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  * @author thomask
  * @version $Revision$, $Date$
  */
-public class KeyRecoveryAuthority implements IAuthority {
+public class KeyRecoveryAuthority implements ISubsystem, IAuthority {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyRecoveryAuthority.class);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();

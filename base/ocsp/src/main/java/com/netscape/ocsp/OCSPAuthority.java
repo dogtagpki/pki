@@ -50,6 +50,7 @@ import org.mozilla.jss.pkix.primitive.Name;
 
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.OCSPSigningInfoEvent;
 import com.netscape.certsrv.ocsp.IDefStore;
@@ -85,7 +86,7 @@ import com.netscape.cmsutil.ocsp.TBSRequest;
  * @author lhsiao
  * @version $Revision$, $Date$
  */
-public class OCSPAuthority implements IOCSPService, IAuthority {
+public class OCSPAuthority implements ISubsystem, IAuthority, IOCSPService {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OCSPAuthority.class);
     private static final Logger signedAuditLogger = SignedAuditLogger.getLogger();
