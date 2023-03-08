@@ -1789,6 +1789,9 @@ class ServerConfig(object):
         return server.find(xpath)
 
     def create_connector(self, name):
+        '''
+        Create connector and add it after the last connector.
+        '''
 
         connector = etree.Element('Connector')
         connector.set('name', name)
@@ -1835,6 +1838,9 @@ class ServerConfig(object):
         raise KeyError('SSL host not found: %s' % hostname)
 
     def create_sslhost(self, connector, hostname='_default_'):
+        '''
+        Create SSL host and add it after the last SSL host.
+        '''
 
         sslhost = etree.Element('SSLHostConfig')
         if hostname != '_default_':
@@ -1862,7 +1868,10 @@ class ServerConfig(object):
 
         raise KeyError('SSL certificate not found: %s' % certType)
 
-    def create_sslcert(self, sslhost, certType):
+    def create_sslcert(self, sslhost, certType='UNDEFINED'):
+        '''
+        Create SSL cert and add it after the last SSL cert.
+        '''
 
         sslcert = etree.Element('Certificate')
         if certType != 'UNDEFINED':
