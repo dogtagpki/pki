@@ -26,7 +26,7 @@ import com.netscape.cmscore.base.ConfigStore;
  *
  * @version $Revision$, $Date$
  */
-public abstract class BaseSubsystem implements ISubsystem {
+public abstract class Subsystem implements ISubsystem {
 
     ConfigStore config;
     String id;
