@@ -84,7 +84,7 @@ public class CloneServlet extends CMSServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         mConfig = sc;
         String authority = sc.getInitParameter(PROP_AUTHORITY);
 
@@ -98,7 +98,7 @@ public class CloneServlet extends CMSServlet {
     public void service(HttpServletRequest req,
             HttpServletResponse resp) throws ServletException, IOException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         boolean running_state = engine.isInRunningState();
 
         if (!running_state)
@@ -302,7 +302,7 @@ public class CloneServlet extends CMSServlet {
             String source, String sourceUserId, IPKIMessage msg, AuthToken token)
             throws EBaseException {
         IPKIMessage replymsg = null;
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         RequestRepository requestRepository = engine.getRequestRepository();
         RequestQueue queue = engine.getRequestQueue();
         String srcid = source + ":" + msg.getReqId();

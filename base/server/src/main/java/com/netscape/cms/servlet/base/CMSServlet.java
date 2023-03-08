@@ -1230,7 +1230,7 @@ public abstract class CMSServlet extends HttpServlet {
     }
 
     protected String hashPassword(String pwd) {
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         String salt = jssSubsystem.generateSalt();
         byte[] pwdDigest = mSHADigest.digest((salt + pwd).getBytes());
@@ -1748,7 +1748,7 @@ public abstract class CMSServlet extends HttpServlet {
             return null;
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         UGSubsystem mUG = engine.getUGSubsystem();
         Enumeration<Group> groups = null;
 

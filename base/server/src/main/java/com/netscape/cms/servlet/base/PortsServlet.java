@@ -27,7 +27,6 @@ import javax.servlet.http.HttpServletResponse;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cms.servlet.common.CMSRequest;
-import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.json.JSONObject;
 
@@ -62,7 +61,7 @@ public class PortsServlet extends CMSServlet {
         HttpServletRequest req = cmsReq.getHttpReq();
         HttpServletResponse resp = cmsReq.getHttpResp();
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
 
         String secure = req.getParameter("secure");
         String port = null;

@@ -81,7 +81,7 @@ public class UpdateDomainXML extends CMSServlet {
 
         logger.debug("UpdateDomainXML process: authentication starts");
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
         AuthToken authToken = null;

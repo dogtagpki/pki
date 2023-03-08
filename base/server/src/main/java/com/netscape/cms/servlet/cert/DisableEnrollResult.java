@@ -32,8 +32,6 @@ import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ArgBlock;
 
 /**
@@ -79,9 +77,6 @@ public class DisableEnrollResult extends CMSServlet {
             throws EBaseException {
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
-
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig configStore = engine.getConfig();
 
         AuthToken token = authenticate(cmsReq);
 

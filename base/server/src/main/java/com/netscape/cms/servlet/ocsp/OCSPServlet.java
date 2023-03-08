@@ -39,7 +39,6 @@ import com.netscape.certsrv.logging.event.OCSPGenerationEvent;
 import com.netscape.certsrv.ocsp.IOCSPService;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
-import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.util.StatsSubsystem;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
@@ -104,7 +103,7 @@ public class OCSPServlet extends CMSServlet {
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         StatsSubsystem statsSub = (StatsSubsystem) engine.getSubsystem(StatsSubsystem.ID);
         if (statsSub != null) {
             statsSub.startTiming("ocsp", true /* main action */);

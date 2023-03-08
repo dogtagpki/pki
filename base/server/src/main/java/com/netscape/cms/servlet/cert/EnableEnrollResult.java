@@ -69,7 +69,7 @@ public class EnableEnrollResult extends CMSServlet {
 
         mTemplates.remove(CMSRequest.SUCCESS);
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         random = jssSubsystem.getRandomNumberGenerator();
     }
@@ -88,7 +88,6 @@ public class EnableEnrollResult extends CMSServlet {
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
-        CMSEngine engine = CMS.getCMSEngine();
         AuthToken authToken = authenticate(cmsReq);
 
         AuthzToken authzToken = null;

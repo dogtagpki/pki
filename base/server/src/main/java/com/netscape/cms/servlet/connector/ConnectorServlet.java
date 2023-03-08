@@ -101,7 +101,7 @@ public class ConnectorServlet extends CMSServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         mConfig = sc;
         String authority = sc.getInitParameter(PROP_AUTHORITY);
 
@@ -140,7 +140,7 @@ public class ConnectorServlet extends CMSServlet {
 
         logger.info("ConnectorServlet: Processing request for " + request.getRequestURI());
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         boolean running_state = engine.isInRunningState();
 
         if (!running_state) {
@@ -340,7 +340,6 @@ public class ConnectorServlet extends CMSServlet {
         // x509certinfo from ra into request
         X509CertInfo info = null;
         ByteArrayOutputStream byteStream;
-        CMSEngine engine = CMS.getCMSEngine();
 
         try {
             info = request.getExtDataInCertInfo(Request.REQUEST_CERTINFO);
@@ -452,7 +451,7 @@ public class ConnectorServlet extends CMSServlet {
             auditRequesterID = ILogger.UNIDENTIFIED;
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
 
         IPKIMessage replymsg = null;
 

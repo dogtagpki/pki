@@ -85,7 +85,7 @@ public class SearchReqs extends CMSServlet {
         // override success to render own template.
         mTemplates.remove(CMSRequest.SUCCESS);
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         IAuthority sub = mAuthority;
         ConfigStore authConfig = sub.getConfigStore();
 

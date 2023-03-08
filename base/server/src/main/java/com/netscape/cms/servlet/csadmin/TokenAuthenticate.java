@@ -31,7 +31,6 @@ import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
-import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmsutil.xml.XMLObject;
@@ -67,7 +66,7 @@ public class TokenAuthenticate extends CMSServlet {
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         EngineConfig config = engine.getConfig();
 
         String sessionId = httpReq.getParameter("sessionID");

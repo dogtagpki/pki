@@ -40,7 +40,6 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.request.Request;
 
@@ -211,7 +210,6 @@ public class ProcessReq extends CMSServlet {
 
         header.addBigIntegerValue("seqNum", seqNum, 10);
 
-        CMSEngine engine = CMS.getCMSEngine();
         Request r = requestRepository.readRequest(new RequestId(seqNum));
 
         if (r != null) {

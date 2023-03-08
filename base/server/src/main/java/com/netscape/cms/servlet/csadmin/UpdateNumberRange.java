@@ -64,7 +64,7 @@ public abstract class UpdateNumberRange extends CMSServlet {
     @Override
     protected void process(CMSRequest cmsReq) throws EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
 
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();

@@ -95,7 +95,7 @@ public class GetCookie extends CMSServlet {
         logger.debug("GetCookie start");
         AuthToken authToken = null;
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
         ArgBlock header = new ArgBlock();

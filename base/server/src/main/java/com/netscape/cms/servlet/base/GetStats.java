@@ -90,7 +90,7 @@ public class GetStats extends CMSServlet {
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         AuthToken authToken = authenticate(cmsReq);
         AuthzToken authzToken = null;
 

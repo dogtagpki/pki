@@ -64,7 +64,7 @@ public class GetConfigEntries extends CMSServlet {
 
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         AuthToken authToken = null;
 
         logger.info("GetConfigEntries: Authenticating request");
@@ -207,13 +207,13 @@ public class GetConfigEntries extends CMSServlet {
     }
 
     private String getLDAPPassword() throws EBaseException {
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         IPasswordStore pwdStore = engine.getPasswordStore();
         return pwdStore.getPassword("internaldb", 0);
     }
 
     private String getReplicationPassword() throws EBaseException {
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         IPasswordStore pwdStore = engine.getPasswordStore();
         return pwdStore.getPassword("replicationdb", 0);
     }

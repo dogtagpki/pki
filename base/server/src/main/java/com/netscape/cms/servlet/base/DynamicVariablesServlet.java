@@ -187,7 +187,7 @@ public class DynamicVariablesServlet extends CMSServlet {
             HttpServletResponse httpResp)
             throws ServletException, IOException {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         boolean running_state = engine.isInRunningState();
 
         if (!running_state)

@@ -110,7 +110,7 @@ public class QueryReq extends CMSServlet {
 
         super.init(sc);
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         mQueue = engine.getRequestQueue();
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
 
@@ -405,7 +405,7 @@ public class QueryReq extends CMSServlet {
             int count,
             BigInteger marker) {
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
 
         ArgBlock header = new ArgBlock();
         ArgBlock context = new ArgBlock();

@@ -99,7 +99,7 @@ public class RemoteAuthConfig extends CMSServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;

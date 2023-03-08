@@ -70,7 +70,7 @@ public class GetStatus extends CMSServlet {
         logger.debug("GetStatus: process()");
 
         HttpServletResponse httpResp = cmsReq.getHttpResp();
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         EngineConfig config = engine.getConfig();
 
         int state = config.getState();
