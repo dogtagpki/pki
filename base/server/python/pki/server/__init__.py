@@ -78,6 +78,7 @@ class Tomcat(object):
     SHARE_DIR = '/usr/share/tomcat'
     EXECUTABLE = '/usr/sbin/tomcat'
     UNIT_FILE = '/lib/systemd/system/tomcat@.service'
+    SERVER_XML = CONF_DIR + '/server.xml'
     TOMCAT_CONF = CONF_DIR + '/tomcat.conf'
 
     @classmethod
