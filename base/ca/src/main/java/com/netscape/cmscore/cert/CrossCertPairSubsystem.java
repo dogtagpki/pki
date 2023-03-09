@@ -30,7 +30,6 @@ import org.dogtagpki.server.ca.CAEngineConfig;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.Subsystem;
-import com.netscape.certsrv.cert.ICrossCertPairSubsystem;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
@@ -66,7 +65,7 @@ import netscape.ldap.LDAPv3;
  * @author cfu
  * @version $Revision$, $Date$
  */
-public class CrossCertPairSubsystem extends Subsystem implements ICrossCertPairSubsystem {
+public class CrossCertPairSubsystem extends Subsystem {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CrossCertPairSubsystem.class);
 
@@ -141,12 +140,13 @@ public class CrossCertPairSubsystem extends Subsystem implements ICrossCertPairS
      * the imported cert will be stored in the internal db
      * first until it's pairing cert shows up.
      * If it happens that it finds its pairing
-     * cert already there, then a CertifiatePair is created and put
+     * cert already there, then a CertificatePair is created and put
      * in the internal db "crosscertificatepair;binary" attribute
      *
      * @param certBytes cert in byte array to be imported
+     * @exception EBaseException when certBytes conversion to X509
+     *                certificate fails
      */
-    @Override
     public void importCert(byte[] certBytes) throws EBaseException {
         logger.debug("CrossCertPairSubsystem: importCert(byte[])");
         X509Certificate cert = null;
@@ -292,7 +292,13 @@ public class CrossCertPairSubsystem extends Subsystem implements ICrossCertPairS
                 && cert2.getIssuerDN().equals(cert1.getSubjectDN());
     }
 
-    @Override
+    /**
+     * convert byte array to X509Certificate
+     *
+     * @return X509Certificate the X509Certificate class
+     *         representation of the certificate byte array
+     * @exception CertificateException when conversion fails
+     */
     public X509Certificate byteArray2X509Cert(byte[] certBytes)
             throws CertificateException {
         logger.debug("CrossCertPairSubsystem: in bytearray2X509Cert()");
@@ -390,8 +396,9 @@ public class CrossCertPairSubsystem extends Subsystem implements ICrossCertPairS
 
     /**
      * publish all cert pairs, if publisher is on
+     *
+     * @exception EBaseException when publishing fails
      */
-    @Override
     public synchronized void publishCertPairs() throws EBaseException {
         LDAPConnection conn = null;
 

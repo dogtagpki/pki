@@ -31,7 +31,6 @@ import org.mozilla.jss.asn1.Tag;
 
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.cert.ICrossCertPairSubsystem;
 
 /**
  * This class implements CertificatePair used for Cross Certification
@@ -243,7 +242,7 @@ public class CertificatePair implements ASN1Value {
         logger.debug("CertifiatePair: in certOrders() with byte[]");
 
         CAEngine engine = CAEngine.getInstance();
-        ICrossCertPairSubsystem ccps = (ICrossCertPairSubsystem) engine.getSubsystem(ICrossCertPairSubsystem.ID);
+        CrossCertPairSubsystem ccps = (CrossCertPairSubsystem) engine.getSubsystem(CrossCertPairSubsystem.ID);
         X509Certificate c1 = null;
         X509Certificate c2 = null;
 
