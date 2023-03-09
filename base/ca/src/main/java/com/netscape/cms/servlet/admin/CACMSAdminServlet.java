@@ -17,7 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.admin;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.util.Date;
@@ -32,6 +36,7 @@ import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.crypto.PQGParams;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
@@ -47,6 +52,7 @@ import com.netscape.certsrv.logging.event.ConfigTrustedPublicKeyEvent;
 import com.netscape.certsrv.security.KeyCertData;
 import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.cert.CrossCertPairSubsystem;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.security.JssSubsystem;
@@ -707,6 +713,180 @@ public class CACMSAdminServlet extends CMSAdminServlet {
             signingUnit.updateConfig(fullName, CryptoUtil.INTERNAL_TOKEN_NAME);
         } else {
             signingUnit.updateConfig(fullName, tokenName);
+        }
+    }
+
+    @Override
+    protected void importXCert(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException, EBaseException {
+
+        String auditSubjectID = auditSubjectID();
+
+        // ensure that any low-level exceptions are reported
+        // to the signed audit log and stored as failures
+        try {
+            String b64Cert = "";
+            String pathname = "";
+            String serverRoot = "";
+            String serverID = "";
+            String certpath = "";
+
+            Enumeration<String> names = req.getParameterNames();
+            NameValuePairs results = new NameValuePairs();
+
+            while (names.hasMoreElements()) {
+                String key = names.nextElement();
+                String value = req.getParameter(key);
+
+                // really should be PR_CERT_CONTENT
+                if (key.equals(Constants.PR_PKCS10)) {
+                    b64Cert = value;
+                } else if (key.equals("pathname")) {
+                    pathname = value;
+                } else if (key.equals(Constants.PR_SERVER_ROOT)) {
+                    serverRoot = value;
+                } else if (key.equals(Constants.PR_SERVER_ID)) {
+                    serverID = value;
+                } else if (key.equals(Constants.PR_CERT_FILEPATH)) {
+                    certpath = value;
+                }
+            }
+
+            try {
+                if (b64Cert == null || b64Cert.equals("")) {
+                    if (certpath == null || certpath.equals("")) {
+
+                        audit(new ConfigTrustedPublicKeyEvent(
+                                auditSubjectID,
+                                ILogger.FAILURE,
+                                auditParams(req)));
+
+                        EBaseException ex = new EBaseException(CMS.getLogMessage("BASE_INVALID_FILE_PATH"));
+
+                        throw ex;
+                    }
+
+                    FileInputStream in = new FileInputStream(certpath);
+                    BufferedReader d = new BufferedReader(new InputStreamReader(in));
+                    String content = "";
+
+                    b64Cert = "";
+                    StringBuffer sb = new StringBuffer();
+                    while ((content = d.readLine()) != null) {
+                        sb.append(content);
+                        sb.append("\n");
+                    }
+                    b64Cert = sb.toString();
+                    d.close();
+                    b64Cert = b64Cert.substring(0, b64Cert.length() - 1);
+                }
+
+            } catch (IOException e) {
+
+                audit(new ConfigTrustedPublicKeyEvent(
+                            auditSubjectID,
+                            ILogger.FAILURE,
+                            auditParams(req)));
+
+                throw new EBaseException(CMS.getLogMessage("BASE_OPEN_FILE_FAILED"));
+            }
+
+            logger.debug("CACMSAdminServlet: got b64Cert");
+            b64Cert = Cert.stripBrackets(b64Cert.trim());
+
+            // Base64 decode cert
+            byte[] bCert = null;
+
+            try {
+                bCert = Utils.base64decode(b64Cert);
+
+            } catch (Exception e) {
+                logger.warn("CACMSAdminServlet: exception: " + e);
+            }
+
+            pathname = serverRoot + File.separator + serverID
+                     + File.separator + "config" + File.separator + pathname;
+
+            CAEngine engine = CAEngine.getInstance();
+            CrossCertPairSubsystem ccps = (CrossCertPairSubsystem) engine.getSubsystem(CrossCertPairSubsystem.ID);
+
+            try {
+                //this will import into internal ldap crossCerts entry
+                ccps.importCert(bCert);
+
+            } catch (Exception e) {
+
+                audit(new ConfigTrustedPublicKeyEvent(
+                            auditSubjectID,
+                            ILogger.FAILURE,
+                            auditParams(req)));
+
+                sendResponse(1, "xcert importing failure:" + e, null, resp);
+                return;
+            }
+
+            try {
+                // this will publish all of the cross cert pairs from internal
+                // db to publishing directory, if turned on
+                ccps.publishCertPairs();
+
+            } catch (EBaseException e) {
+
+                audit(new ConfigTrustedPublicKeyEvent(
+                            auditSubjectID,
+                            ILogger.FAILURE,
+                            auditParams(req)));
+
+                sendResponse(1, "xcerts publishing failure:" + e, null, resp);
+                return;
+            }
+
+            JssSubsystem jssSubsystem = engine.getJSSSubsystem();
+            String content = jssSubsystem.getCertPrettyPrint(b64Cert, super.getLocale(req));
+
+            results.put(Constants.PR_NICKNAME, "FBCA cross-signed cert");
+            results.put(Constants.PR_CERT_CONTENT, content);
+
+            audit(new ConfigTrustedPublicKeyEvent(
+                        auditSubjectID,
+                        ILogger.SUCCESS,
+                        auditParams(req)));
+
+            sendResponse(SUCCESS, null, results, resp);
+
+        } catch (EBaseException e) {
+
+            audit(new ConfigTrustedPublicKeyEvent(
+                        auditSubjectID,
+                        ILogger.FAILURE,
+                        auditParams(req)));
+
+            // rethrow the specific exception to be handled later
+            throw e;
+
+        } catch (IOException e) {
+
+            audit(new ConfigTrustedPublicKeyEvent(
+                        auditSubjectID,
+                        ILogger.FAILURE,
+                        auditParams(req)));
+
+            // rethrow the specific exception to be handled later
+            throw e;
+
+        // } catch (ServletException e) {
+        //
+        //     // store a message in the signed audit log file
+        //     auditMessage = CMS.getLogMessage(
+        //                        LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
+        //                        auditSubjectID,
+        //                        ILogger.FAILURE,
+        //                        auditParams(req) );
+        //
+        //     audit(auditMessage);
+        //
+        //     // rethrow the specific exception to be handled later
+        //     throw e;
         }
     }
 }

@@ -50,7 +50,6 @@ import org.mozilla.jss.util.ConsolePasswordCallback;
 import org.mozilla.jss.util.PasswordCallback;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.cert.ICrossCertPairSubsystem;
 import com.netscape.certsrv.common.ConfigConstants;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
@@ -1515,10 +1514,10 @@ public class CMSAdminServlet extends AdminServlet {
     /**
      * For "importing" cross-signed cert into internal db for further
      * cross pair matching and publishing
-     * <P>
      *
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY used when "Certificate Setup Wizard" is used to
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY
+     * used when "Certificate Setup Wizard" is used to
      * import a CA cross-signed certificate into the database
      * </ul>
      *
@@ -1526,173 +1525,8 @@ public class CMSAdminServlet extends AdminServlet {
      * @exception IOException an input/output error has occurred
      * @exception EBaseException failed to import a cross-certificate pair
      */
-    private void importXCert(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
-
-        String auditSubjectID = auditSubjectID();
-
-        // ensure that any low-level exceptions are reported
-        // to the signed audit log and stored as failures
-        try {
-            String b64Cert = "";
-            String pathname = "";
-            String serverRoot = "";
-            String serverID = "";
-            String certpath = "";
-            Enumeration<String> enum1 = req.getParameterNames();
-            NameValuePairs results = new NameValuePairs();
-
-            while (enum1.hasMoreElements()) {
-                String key = enum1.nextElement();
-                String value = req.getParameter(key);
-
-                // really should be PR_CERT_CONTENT
-                if (key.equals(Constants.PR_PKCS10))
-                    b64Cert = value;
-                else if (key.equals("pathname"))
-                    pathname = value;
-                else if (key.equals(Constants.PR_SERVER_ROOT))
-                    serverRoot = value;
-                else if (key.equals(Constants.PR_SERVER_ID))
-                    serverID = value;
-                else if (key.equals(Constants.PR_CERT_FILEPATH))
-                    certpath = value;
-            }
-
-            try {
-                if (b64Cert == null || b64Cert.equals("")) {
-                    if (certpath == null || certpath.equals("")) {
-
-                        audit(new ConfigTrustedPublicKeyEvent(
-                                auditSubjectID,
-                                ILogger.FAILURE,
-                                auditParams(req)));
-
-                        EBaseException ex = new EBaseException(
-                                CMS.getLogMessage("BASE_INVALID_FILE_PATH"));
-
-                        throw ex;
-                    }
-                    FileInputStream in = new FileInputStream(certpath);
-                    BufferedReader d =
-                            new BufferedReader(new InputStreamReader(in));
-                    String content = "";
-
-                    b64Cert = "";
-                    StringBuffer sb = new StringBuffer();
-                    while ((content = d.readLine()) != null) {
-                        sb.append(content);
-                        sb.append("\n");
-                    }
-                    b64Cert = sb.toString();
-                    if (d != null) {
-                        d.close();
-                    }
-                    b64Cert = b64Cert.substring(0, b64Cert.length() - 1);
-                }
-            } catch (IOException ee) {
-
-                audit(new ConfigTrustedPublicKeyEvent(
-                            auditSubjectID,
-                            ILogger.FAILURE,
-                            auditParams(req)));
-
-                throw new EBaseException(
-                        CMS.getLogMessage("BASE_OPEN_FILE_FAILED"));
-            }
-            logger.debug("CMSAdminServlet: got b64Cert");
-            b64Cert = Cert.stripBrackets(b64Cert.trim());
-
-            // Base64 decode cert
-            byte[] bCert = null;
-
-            try {
-                bCert = Utils.base64decode(b64Cert);
-            } catch (Exception e) {
-                logger.warn("CMSAdminServlet: exception: " + e.toString());
-            }
-
-            pathname = serverRoot + File.separator + serverID
-                     + File.separator + "config" + File.separator + pathname;
-
-            CMSEngine engine = getCMSEngine();
-            ICrossCertPairSubsystem ccps = (ICrossCertPairSubsystem) engine.getSubsystem(ICrossCertPairSubsystem.ID);
-
-            try {
-                //this will import into internal ldap crossCerts entry
-                ccps.importCert(bCert);
-            } catch (Exception e) {
-
-                audit(new ConfigTrustedPublicKeyEvent(
-                            auditSubjectID,
-                            ILogger.FAILURE,
-                            auditParams(req)));
-
-                sendResponse(1, "xcert importing failure:" + e.toString(),
-                             null, resp);
-                return;
-            }
-
-            try {
-                // this will publish all of the cross cert pairs from internal
-                // db to publishing directory, if turned on
-                ccps.publishCertPairs();
-            } catch (EBaseException e) {
-
-                audit(new ConfigTrustedPublicKeyEvent(
-                            auditSubjectID,
-                            ILogger.FAILURE,
-                            auditParams(req)));
-
-                sendResponse(1, "xcerts publishing failure:" + e.toString(), null, resp);
-                return;
-            }
-
-            JssSubsystem jssSubsystem = engine.getJSSSubsystem();
-            String content = jssSubsystem.getCertPrettyPrint(b64Cert,
-                    super.getLocale(req));
-
-            results.put(Constants.PR_NICKNAME, "FBCA cross-signed cert");
-            results.put(Constants.PR_CERT_CONTENT, content);
-
-            audit(new ConfigTrustedPublicKeyEvent(
-                        auditSubjectID,
-                        ILogger.SUCCESS,
-                        auditParams(req)));
-
-            sendResponse(SUCCESS, null, results, resp);
-        } catch (EBaseException eAudit1) {
-
-            audit(new ConfigTrustedPublicKeyEvent(
-                        auditSubjectID,
-                        ILogger.FAILURE,
-                        auditParams(req)));
-
-            // rethrow the specific exception to be handled later
-            throw eAudit1;
-        } catch (IOException eAudit2) {
-
-            audit(new ConfigTrustedPublicKeyEvent(
-                        auditSubjectID,
-                        ILogger.FAILURE,
-                        auditParams(req)));
-
-            // rethrow the specific exception to be handled later
-            throw eAudit2;
-            // } catch( ServletException eAudit3 ) {
-            //     // store a message in the signed audit log file
-            //     auditMessage = CMS.getLogMessage(
-            //                        LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
-            //                        auditSubjectID,
-            //                        ILogger.FAILURE,
-            //                        auditParams( req ) );
-            //
-            //     audit( auditMessage );
-            //
-            //     // rethrow the specific exception to be handled later
-            //     throw eAudit3;
-        }
+    protected void importXCert(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException, EBaseException {
     }
 
     String getCANickname() {
