@@ -128,11 +128,13 @@ public class X500NameSubsystem extends Subsystem {
      * </pre>
      *
      * </ul>
-     * <P>
-     * @param config configuration store
+     *
+     * @param config Subsystem configuration
+     * @exception Exception Unable to initialize subsystem
      */
     @Override
-    public synchronized void init(ConfigStore config) throws EBaseException {
+    public synchronized void init(ConfigStore config) throws Exception {
+
         logger.trace(ID + " started");
         mConfig = config;
 

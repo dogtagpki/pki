@@ -347,13 +347,12 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
 
     /**
      * Initializes this CA subsystem.
-     * <P>
-     * @param config configuration of this subsystem
      *
-     * @exception EBaseException failed to initialize this CA
+     * @param config Subsystem configuration
+     * @exception Exception Unable to initialize subsystem
      */
     @Override
-    public void init(ConfigStore config) throws EBaseException {
+    public void init(ConfigStore config) throws Exception {
 
         logger.info("CertificateAuthority: Initializing " +
                 (authorityID == null ? "host CA" : "authority " + authorityID));

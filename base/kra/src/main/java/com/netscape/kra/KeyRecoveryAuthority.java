@@ -297,10 +297,9 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
      * Starts this subsystem. It loads and initializes all
      * necessary components. This subsystem is started by
      * KRASubsystem.
-     * <P>
-     * @param config configuration store for this subsystem
      *
-     * @exception Exception failed to start subsystem
+     * @param config Subsystem configuration
+     * @exception Exception Unable to initialize subsystem
      */
     @Override
     public void init(ConfigStore config) throws Exception {

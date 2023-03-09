@@ -87,13 +87,12 @@ public class LDAPProfileSubsystem
     /**
      * Initializes this subsystem with the given configuration
      * store.
-     * <P>
-     * @param config configuration store
      *
-     * @exception EBaseException failed to initialize
+     * @param config Subsystem configuration
+     * @exception Exception Unable to initialize subsystem
      */
     @Override
-    public void init(ConfigStore config) throws EBaseException {
+    public void init(ConfigStore config) throws Exception {
 
         logger.debug("LDAPProfileSubsystem: start init");
 

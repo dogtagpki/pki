@@ -63,13 +63,12 @@ public class TKSAuthority extends Subsystem implements IAuthority {
 
     /**
      * Initializes this subsystem.
-     * <P>
-     * @param config configuration of this subsystem
      *
-     * @exception EBaseException failed to initialize this RA
+     * @param config Subsystem configuration
+     * @exception Exception Unable to initialize subsystem
      */
     @Override
-    public void init(ConfigStore config) throws EBaseException {
+    public void init(ConfigStore config) throws Exception {
 
         TKSEngine engine = TKSEngine.getInstance();
         TKSEngineConfig engineConfig = engine.getConfig();

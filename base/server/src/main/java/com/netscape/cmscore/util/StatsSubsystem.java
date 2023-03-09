@@ -69,14 +69,15 @@ public class StatsSubsystem extends Subsystem {
      * and it loads and initializes loadable
      * subsystem specified in the configuration
      * store.
-     * <P>
+     *
      * Note that individual subsystem should be initialized in a separated thread if it has dependency on the
      * initialization of other subsystems.
-     * <P>
-     * @param config configuration store
+     *
+     * @param config Subsystem configuration
+     * @exception Exception Unable to initialize subsystem
      */
     @Override
-    public synchronized void init(ConfigStore config) throws EBaseException {
+    public synchronized void init(ConfigStore config) throws Exception {
     }
 
     /**

@@ -138,9 +138,11 @@ public class JobsScheduler extends Subsystem implements Runnable {
      * the config params have the following formats: jobScheduler.impl.[implementation name].class=[package name]
      * jobScheduler.job.[job name].pluginName=[implementation name] jobScheduler.job.[job name].cron=[crontab format]
      * jobScheduler.job.[job name].[any job specific params]=[values]
-     * @param config jobsScheduler configStore
+     *
+     * @param config Subsystem configuration
+     * @exception Exception Unable to initialize subsystem
      */
-    public void init(JobsSchedulerConfig config) throws EBaseException, EJobsException {
+    public void init(JobsSchedulerConfig config) throws Exception {
 
         logger.info("JobsScheduler: Initializing scheduler");
 

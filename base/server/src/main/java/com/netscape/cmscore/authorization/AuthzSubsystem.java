@@ -82,10 +82,12 @@ public class AuthzSubsystem extends Subsystem {
      * Initializes the authorization subsystem from the config store.
      * Load Authorization manager plugins, create and initialize
      * initialize authorization manager instances.
-     * @param config The configuration store.
+     *
+     * @param config Subsystem configuration
+     * @exception Exception Unable to initialize subsystem
      */
     @Override
-    public void init(ConfigStore config) throws EBaseException {
+    public void init(ConfigStore config) throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig engineConfig = engine.getConfig();

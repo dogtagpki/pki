@@ -97,7 +97,7 @@ public class TPSSubsystem extends Subsystem implements IAuthority {
     }
 
     @Override
-    public void init(ConfigStore config) throws EBaseException {
+    public void init(ConfigStore config) throws Exception {
 
         logger.info("Initializing TPS subsystem");
 
@@ -143,8 +143,8 @@ public class TPSSubsystem extends Subsystem implements IAuthority {
         configureTPSConnection(cs);
         tdb = new TokenDB(this);
 
-        tpsEngine = new TPSEngine();
-        tpsEngine.init();
+        this.tpsEngine = new TPSEngine();
+        this.tpsEngine.init();
     }
 
     public Map<TokenStatus, Collection<TokenStatus>> loadTokenStateTransitions(String property, String value) throws EBaseException {

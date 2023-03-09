@@ -222,10 +222,11 @@ public class AuthSubsystem extends Subsystem {
      * Load Authentication manager plugins, create and initialize
      * initialize authentication manager instances.
      *
-     * @param config The configuration store.
+     * @param config Subsystem configuration
+     * @exception Exception Unable to initialize subsystem
      */
     @Override
-    public void init(ConfigStore config) throws EBaseException {
+    public void init(ConfigStore config) throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig engineConfig = engine.getConfig();

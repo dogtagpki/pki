@@ -26,14 +26,14 @@ import com.netscape.cmscore.base.ConfigStore;
  */
 public abstract class Subsystem {
 
-    ConfigStore config;
-    String id;
+    protected ConfigStore config;
+    protected String id;
 
     /**
      * Initializes this subsystem with the given configuration store.
      *
-     * @param config configuration store
-     * @exception Exception failed to initialize
+     * @param config Subsystem configuration
+     * @exception Exception Unable to initialize subsystem
      */
     public void init(ConfigStore config) throws Exception {
         this.config = config;

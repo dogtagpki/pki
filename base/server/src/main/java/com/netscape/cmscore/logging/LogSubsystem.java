@@ -85,11 +85,13 @@ public class LogSubsystem extends Subsystem {
 
     /**
      * Initializes the log subsystem.
-     * <P>
-     * @param config configuration store
+     *
+     * @param config Subsystem configuration
+     * @exception Exception Unable to initialize subsystem
      */
     @Override
-    public void init(ConfigStore config) throws EBaseException {
+    public void init(ConfigStore config) throws Exception {
+
         mConfig = (LoggingConfig) config;
         LogQueue.getInstance().init();
 

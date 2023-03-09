@@ -48,20 +48,19 @@ public class ProfileSubsystem
     /**
      * Initializes this subsystem with the given configuration
      * store.
-     * <P>
-     * @param cs configuration store
      *
-     * @exception EBaseException failed to initialize
+     * @param config Subsystem configuration
+     * @exception Exception Unable to initialize subsystem
      */
     @Override
-    public void init(ConfigStore cs) throws EBaseException {
+    public void init(ConfigStore config) throws Exception {
 
         logger.debug("ProfileSubsystem: initialization");
 
         CAEngine engine = CAEngine.getInstance();
         PluginRegistry registry = engine.getPluginRegistry();
 
-        mConfig = cs;
+        mConfig = config;
 
         // Configuration File Format:
         // *.list=profile1,profile2
@@ -69,14 +68,14 @@ public class ProfileSubsystem
         // *.profile2.class=com.netscape.cms.profile.common.Profile
 
         // read profile id, implementation, and its configuration files
-        String ids = cs.getString(PROP_LIST, "");
+        String ids = config.getString(PROP_LIST, "");
         StringTokenizer st = new StringTokenizer(ids, ",");
 
         while (st.hasMoreTokens()) {
             String id = st.nextToken();
             logger.info("ProfileSubsystem: Loading profile " + id);
 
-            ConfigStore subStore = cs.getSubStore(id, ConfigStore.class);
+            ConfigStore subStore = config.getSubStore(id, ConfigStore.class);
 
             String classid = subStore.getString(PROP_CLASS_ID);
             logger.debug("- class ID: " + classid);

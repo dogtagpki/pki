@@ -1171,13 +1171,12 @@ public class SelfTestSubsystem extends Subsystem {
 
     /**
      * This method initializes this subsystem.
-     * <P>
-     * @param config configuration store
      *
-     * @exception EBaseException base CMS exception
+     * @param config Subsystem configuration
+     * @exception Exception base CMS exception
      */
     @Override
-    public void init(ConfigStore config) throws EBaseException {
+    public void init(ConfigStore config) throws Exception {
 
         logger.debug("SelfTestSubsystem: init()");
 
