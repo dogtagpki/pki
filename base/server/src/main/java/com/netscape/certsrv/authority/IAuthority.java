@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.authority;
 
-import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.base.ConfigStore;
 
 /**
@@ -33,29 +32,6 @@ public interface IAuthority {
      * @return authority identifier
      */
     public String getId();
-
-    /**
-     * Sets specific to this authority.
-     *
-     * @param id authority identifier
-     * @exception EBaseException failed to set id
-     */
-    public void setId(String id) throws EBaseException;
-
-    /**
-     * Initializes this authority with the given configuration store.
-     *
-     * @param config configuration store
-     * @exception Exception failed to initialize
-     */
-    public void init(ConfigStore config) throws Exception;
-
-    /**
-     * Notifies this authority if owner is in running mode.
-     *
-     * @exception EBaseException failed to start up
-     */
-    public void startup() throws EBaseException;
 
     /**
      * Stops this authority. The owner may call shutdown
