@@ -229,17 +229,11 @@ class PKIDeployer:
 
     def create_server_xml(self, instance):
 
-        # Copy /usr/share/pki/server/conf/server.xml
+        # Copy /etc/tomcat/server.xml
         # to /etc/pki/<instance>/server.xml
 
-        server_xml = os.path.join(
-            pki.server.PKIServer.SHARE_DIR,
-            'server',
-            'conf',
-            'server.xml')
-
         self.file.copy_with_slot_substitution(
-            server_xml,
+            pki.server.Tomcat.SERVER_XML,
             instance.server_xml,
             overwrite_flag=True)
 
