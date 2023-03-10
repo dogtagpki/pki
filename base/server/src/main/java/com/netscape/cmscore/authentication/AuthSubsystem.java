@@ -38,7 +38,6 @@ import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.Subsystem;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 
@@ -228,7 +227,6 @@ public class AuthSubsystem extends Subsystem {
     @Override
     public void init(ConfigStore config) throws Exception {
 
-        CMSEngine engine = CMS.getCMSEngine();
         EngineConfig engineConfig = engine.getConfig();
 
         try {

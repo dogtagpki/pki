@@ -96,8 +96,8 @@ public class LDAPProfileSubsystem
 
         logger.debug("LDAPProfileSubsystem: start init");
 
-        CAEngine engine = CAEngine.getInstance();
-        CAEngineConfig cs = engine.getConfig();
+        CAEngine caEngine = (CAEngine) engine;
+        CAEngineConfig cs = caEngine.getConfig();
 
         PKISocketConfig socketConfig = cs.getSocketConfig();
         LDAPConfig dbCfg = cs.getInternalDBConfig();

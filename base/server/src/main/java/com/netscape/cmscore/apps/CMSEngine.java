@@ -643,6 +643,7 @@ public class CMSEngine {
 
     public void initLogSubsystem() throws Exception {
         LoggingConfig logConfig = config.getLoggingConfig();
+        logSubsystem.setCMSEngine(this);
         logSubsystem.init(logConfig);
         logSubsystem.startup();
     }
@@ -675,12 +676,14 @@ public class CMSEngine {
 
     public void initOIDLoaderSubsystem() throws Exception {
         ConfigStore oidLoaderConfig = config.getSubStore(OidLoaderSubsystem.ID, ConfigStore.class);
+        oidLoaderSubsystem.setCMSEngine(this);
         oidLoaderSubsystem.init(oidLoaderConfig);
         oidLoaderSubsystem.startup();
     }
 
     public void initX500NameSubsystem() throws Exception {
         ConfigStore x500NameConfig = config.getSubStore(X500NameSubsystem.ID, ConfigStore.class);
+        x500NameSubsystem.setCMSEngine(this);
         x500NameSubsystem.init(x500NameConfig);
         x500NameSubsystem.startup();
     }
@@ -694,18 +697,21 @@ public class CMSEngine {
     public void initAuthSubsystem() throws Exception {
         AuthenticationConfig authConfig = config.getAuthenticationConfig();
         authSubsystem = new AuthSubsystem();
+        authSubsystem.setCMSEngine(this);
         authSubsystem.init(authConfig);
         authSubsystem.startup();
     }
 
     public void initAuthzSubsystem() throws Exception {
         ConfigStore authzConfig = config.getSubStore(AuthzSubsystem.ID, ConfigStore.class);
+        authzSubsystem.setCMSEngine(this);
         authzSubsystem.init(authzConfig);
         authzSubsystem.startup();
     }
 
     public void initJobsScheduler() throws Exception {
         JobsSchedulerConfig jobsSchedulerConfig = config.getJobsSchedulerConfig();
+        jobsScheduler.setCMSEngine(this);
         jobsScheduler.init(jobsSchedulerConfig);
         jobsScheduler.startup();
     }
@@ -894,6 +900,7 @@ public class CMSEngine {
             if (isPreOpMode()) return;
         }
 
+        subsystem.setCMSEngine(this);
         subsystem.init(subsystemConfig);
     }
 

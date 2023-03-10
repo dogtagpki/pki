@@ -357,8 +357,8 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
         logger.info("CertificateAuthority: Initializing " +
                 (authorityID == null ? "host CA" : "authority " + authorityID));
 
-        CAEngine engine = CAEngine.getInstance();
-        CAEngineConfig cs = engine.getConfig();
+        CAEngine caEngine = (CAEngine) engine;
+        CAEngineConfig cs = caEngine.getConfig();
 
         mConfig = cs.getCAConfig();
 
@@ -375,7 +375,7 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
         } catch (CAMissingCertException | CAMissingKeyException e) {
             logger.warn("CertificateAuthority: CA signing key and cert not (yet) present in NSS database");
             signingUnitException = e;
-            engine.startKeyRetriever(this);
+            caEngine.startKeyRetriever(this);
 
         } catch (Exception e) {
             throw new EBaseException(e);

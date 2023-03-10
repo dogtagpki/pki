@@ -70,8 +70,8 @@ public class TKSAuthority extends Subsystem implements IAuthority {
     @Override
     public void init(ConfigStore config) throws Exception {
 
-        TKSEngine engine = TKSEngine.getInstance();
-        TKSEngineConfig engineConfig = engine.getConfig();
+        TKSEngine tksEngine = (TKSEngine) engine;
+        TKSEngineConfig engineConfig = tksEngine.getConfig();
 
         mConfig = engineConfig.getTKSConfig();
 
