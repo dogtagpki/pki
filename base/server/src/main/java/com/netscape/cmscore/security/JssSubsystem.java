@@ -331,17 +331,10 @@ public final class JssSubsystem implements ICryptoSubsystem {
         // see https://www.dogtagpki.org/wiki/Random_Number_Generator
 
         SecureRandomConfig secureRandomConfig = config.getSecureRandomConfig();
-        logger.debug("JssSubsystem: random:");
-
-        String algorithm = secureRandomConfig.getAlgorithm();
-        logger.debug("JssSubsystem: - algorithm: " + algorithm);
-
-        String provider = secureRandomConfig.getProvider();
-        logger.debug("JssSubsystem: - provider: " + provider);
 
         try {
             // wrap random number generator with PKISecureRandom for audit
-            SecureRandom random = SecureRandom.getInstance(algorithm, provider);
+            SecureRandom random = SecureRandomFactory.create(secureRandomConfig);
             this.random = new PKISecureRandom(random);
 
         } catch (GeneralSecurityException e) {
