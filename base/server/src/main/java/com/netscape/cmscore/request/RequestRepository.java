@@ -67,8 +67,14 @@ public class RequestRepository extends Repository {
      * @param dbSubsystem
      *            the LDAP database system.
      */
-    public RequestRepository(DBSubsystem dbSubsystem, String filter) {
+    public RequestRepository(
+            SecureRandom secureRandom,
+            DBSubsystem dbSubsystem,
+            String filter) {
+
         super(dbSubsystem, 10);
+
+        this.secureRandom = secureRandom;
         this.filter = filter;
     }
 
@@ -91,8 +97,6 @@ public class RequestRepository extends Repository {
 
             idLength = dbConfig.getInteger(PROP_REQUEST_ID_LENGTH);
             logger.debug("RequestRepository: - request ID length: " + idLength);
-
-            secureRandom = SecureRandom.getInstance("pkcs11prng", "Mozilla-JSS");
 
         } else {
             initLegacyGenerator();

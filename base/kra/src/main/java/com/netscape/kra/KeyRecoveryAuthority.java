@@ -24,6 +24,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidParameterException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -87,6 +88,8 @@ import com.netscape.cmscore.request.RequestNotifier;
 import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmscore.request.RequestSubsystem;
+import com.netscape.cmscore.security.SecureRandomConfig;
+import com.netscape.cmscore.security.SecureRandomFactory;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -412,7 +415,10 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
         RequestSubsystem reqSub = engine.getRequestSubsystem();
         int reqdb_inc = mConfig.getInteger("reqdbInc", 5);
 
-        RequestRepository requestRepository = new KeyRequestRepository(dbSubsystem);
+        SecureRandomConfig secureRandomConfig = engineConfig.getJssSubsystemConfig().getSecureRandomConfig();
+        SecureRandom secureRandom = SecureRandomFactory.create(secureRandomConfig);
+
+        RequestRepository requestRepository = new KeyRequestRepository(secureRandom, dbSubsystem);
         requestRepository.init();
 
         engine.setRequestRepository(requestRepository);

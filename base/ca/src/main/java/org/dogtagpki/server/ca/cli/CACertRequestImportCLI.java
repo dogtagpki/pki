@@ -8,6 +8,7 @@ package org.dogtagpki.server.ca.cli;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.SecureRandom;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -36,6 +37,8 @@ import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.request.CertRequestRepository;
 import com.netscape.cmscore.request.Request;
+import com.netscape.cmscore.security.SecureRandomConfig;
+import com.netscape.cmscore.security.SecureRandomFactory;
 import com.netscape.cmsutil.password.IPasswordStore;
 import com.netscape.cmsutil.password.PasswordStoreConfig;
 
@@ -175,11 +178,14 @@ public class CACertRequestImportCLI extends CommandCLI {
         value = cmd.getOptionValue("adjust-validity", "false");
         boolean adjustValidity = Boolean.parseBoolean(value);
 
+        SecureRandomConfig secureRandomConfig = cs.getJssSubsystemConfig().getSecureRandomConfig();
+        SecureRandom secureRandom = SecureRandomFactory.create(secureRandomConfig);
+
         DBSubsystem dbSubsystem = new DBSubsystem();
         dbSubsystem.init(dbConfig, ldapConfig, socketConfig, passwordStore);
 
         try {
-            CertRequestRepository requestRepository = new CertRequestRepository(dbSubsystem);
+            CertRequestRepository requestRepository = new CertRequestRepository(secureRandom, dbSubsystem);
             requestRepository.init();
 
             if (requestID == null) {

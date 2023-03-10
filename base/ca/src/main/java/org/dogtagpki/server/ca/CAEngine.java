@@ -21,6 +21,7 @@ package org.dogtagpki.server.ca;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -98,6 +99,8 @@ import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.request.CertRequestRepository;
 import com.netscape.cmscore.request.RequestNotifier;
 import com.netscape.cmscore.request.RequestQueue;
+import com.netscape.cmscore.security.SecureRandomConfig;
+import com.netscape.cmscore.security.SecureRandomFactory;
 import com.netscape.cmsutil.ldap.LDAPPostReadControl;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
@@ -835,7 +838,10 @@ public class CAEngine extends CMSEngine {
         enableAuthorityMonitor = caConfig.getBoolean("authorityMonitor.enable", enableAuthorityMonitor);
         logger.info("CAEngine: - enable AuthorityMonitor: " + enableAuthorityMonitor);
 
-        requestRepository = new CertRequestRepository(dbSubsystem);
+        SecureRandomConfig secureRandomConfig = config.getJssSubsystemConfig().getSecureRandomConfig();
+        SecureRandom secureRandom = SecureRandomFactory.create(secureRandomConfig);
+
+        requestRepository = new CertRequestRepository(secureRandom, dbSubsystem);
         requestRepository.init();
 
         requestQueue = new RequestQueue(

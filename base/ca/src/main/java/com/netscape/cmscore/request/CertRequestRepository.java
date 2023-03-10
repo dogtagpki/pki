@@ -17,6 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.request;
 
+import java.security.SecureRandom;
+
 import org.dogtag.util.cert.CertUtil;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
@@ -34,8 +36,11 @@ public class CertRequestRepository extends RequestRepository {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertRequestRepository.class);
 
-    public CertRequestRepository(DBSubsystem dbSubsystem) {
-        super(dbSubsystem, "(requeststate=*)");
+    public CertRequestRepository(
+            SecureRandom secureRandom,
+            DBSubsystem dbSubsystem) {
+
+        super(secureRandom, dbSubsystem, "(requeststate=*)");
     }
 
     @Override

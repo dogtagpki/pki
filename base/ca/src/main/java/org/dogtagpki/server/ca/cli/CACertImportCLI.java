@@ -8,6 +8,7 @@ package org.dogtagpki.server.ca.cli;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.SecureRandom;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -37,6 +38,8 @@ import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.request.CertRequestRepository;
 import com.netscape.cmscore.request.Request;
+import com.netscape.cmscore.security.SecureRandomConfig;
+import com.netscape.cmscore.security.SecureRandomFactory;
 import com.netscape.cmsutil.password.IPasswordStore;
 import com.netscape.cmsutil.password.PasswordStoreConfig;
 
@@ -162,6 +165,9 @@ public class CACertImportCLI extends CommandCLI {
         PasswordStoreConfig psc = cs.getPasswordStoreConfig();
         IPasswordStore passwordStore = IPasswordStore.create(psc);
 
+        SecureRandomConfig secureRandomConfig = cs.getJssSubsystemConfig().getSecureRandomConfig();
+        SecureRandom secureRandom = SecureRandomFactory.create(secureRandomConfig);
+
         DBSubsystem dbSubsystem = new DBSubsystem();
         dbSubsystem.init(dbConfig, ldapConfig, socketConfig, passwordStore);
 
@@ -184,7 +190,7 @@ public class CACertImportCLI extends CommandCLI {
 
             logger.info("Updating request record " + requestID.toHexString());
 
-            CertRequestRepository requestRepository = new CertRequestRepository(dbSubsystem);
+            CertRequestRepository requestRepository = new CertRequestRepository(secureRandom, dbSubsystem);
             requestRepository.init();
 
             Request request = requestRepository.readRequest(requestID);

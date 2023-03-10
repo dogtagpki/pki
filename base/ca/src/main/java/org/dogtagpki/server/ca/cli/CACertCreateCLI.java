@@ -10,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.math.BigInteger;
 import java.security.KeyPair;
+import java.security.SecureRandom;
 import java.util.Date;
 
 import org.apache.commons.cli.CommandLine;
@@ -58,6 +59,8 @@ import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.request.CertRequestRepository;
 import com.netscape.cmscore.request.Request;
+import com.netscape.cmscore.security.SecureRandomConfig;
+import com.netscape.cmscore.security.SecureRandomFactory;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.password.IPasswordStore;
 import com.netscape.cmsutil.password.PasswordStoreConfig;
@@ -185,11 +188,14 @@ public class CACertCreateCLI extends CommandCLI {
         PasswordStoreConfig psc = cs.getPasswordStoreConfig();
         IPasswordStore passwordStore = IPasswordStore.create(psc);
 
+        SecureRandomConfig secureRandomConfig = cs.getJssSubsystemConfig().getSecureRandomConfig();
+        SecureRandom secureRandom = SecureRandomFactory.create(secureRandomConfig);
+
         DBSubsystem dbSubsystem = new DBSubsystem();
         dbSubsystem.init(dbConfig, ldapConfig, socketConfig, passwordStore);
 
         try {
-            CertRequestRepository requestRepository = new CertRequestRepository(dbSubsystem);
+            CertRequestRepository requestRepository = new CertRequestRepository(secureRandom, dbSubsystem);
             requestRepository.init();
 
             Request requestRecord = requestRepository.readRequest(new RequestId(requestID));
