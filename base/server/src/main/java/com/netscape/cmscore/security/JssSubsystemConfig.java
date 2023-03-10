@@ -39,8 +39,8 @@ public class JssSubsystemConfig extends ConfigStore {
         return getBoolean("closeDatabases", false);
     }
 
-    public RandomConfig getRandomConfig() {
-        return getSubStore("random", RandomConfig.class);
+    public SecureRandomConfig getSecureRandomConfig() {
+        return getSubStore("random", SecureRandomConfig.class);
     }
 
     public SSLConfig getSSLConfig() {

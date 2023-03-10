@@ -10,16 +10,16 @@ import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
 
-public class RandomConfig extends ConfigStore {
+public class SecureRandomConfig extends ConfigStore {
 
-    public RandomConfig() {
+    public SecureRandomConfig() {
     }
 
-    public RandomConfig(ConfigStorage storage) {
+    public SecureRandomConfig(ConfigStorage storage) {
         super(storage);
     }
 
-    public RandomConfig(String name, SimpleProperties source) {
+    public SecureRandomConfig(String name, SimpleProperties source) {
         super(name, source);
     }
 
