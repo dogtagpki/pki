@@ -890,7 +890,7 @@ public class CMSEngine {
     public void initSubsystem(Subsystem subsystem, ConfigStore subsystemConfig) throws Exception {
 
         if (subsystem instanceof SelfTestSubsystem) {
-            // skip initialization during installation
+            // skip SelfTestSubsystem during installation
             if (isPreOpMode()) return;
         }
 
@@ -1109,6 +1109,12 @@ public class CMSEngine {
     protected void startupSubsystems() throws Exception {
 
         for (Subsystem subsystem : subsystems.values()) {
+
+            if (subsystem instanceof SelfTestSubsystem) {
+                // skip SelfTestSubsystem during installation
+                if (isPreOpMode()) return;
+            }
+
             logger.info("CMSEngine: Starting " + subsystem.getId() + " subsystem");
             subsystem.startup();
         }
