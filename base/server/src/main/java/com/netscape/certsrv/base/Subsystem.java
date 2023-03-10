@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.base;
 
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
 
 /**
@@ -26,8 +27,17 @@ import com.netscape.cmscore.base.ConfigStore;
  */
 public abstract class Subsystem {
 
+    protected CMSEngine engine;
     protected ConfigStore config;
     protected String id;
+
+    public CMSEngine getCMSEngine() {
+        return engine;
+    }
+
+    public void setCMSEngine(CMSEngine engine) {
+        this.engine = engine;
+    }
 
     /**
      * Initializes this subsystem with the given configuration store.

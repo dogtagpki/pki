@@ -101,8 +101,8 @@ public class TPSSubsystem extends Subsystem implements IAuthority {
 
         logger.info("Initializing TPS subsystem");
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
-        TPSEngineConfig cs = engine.getConfig();
+        org.dogtagpki.server.tps.TPSEngine tpsEngine = (org.dogtagpki.server.tps.TPSEngine) engine;
+        TPSEngineConfig cs = tpsEngine.getConfig();
 
         this.config = cs.getTPSConfig();
 

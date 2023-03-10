@@ -48,7 +48,6 @@ import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.selftests.SelfTest;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
 
 //////////////////////
@@ -528,7 +527,6 @@ public class SelfTestSubsystem extends Subsystem {
 
                     logger.error("SelfTestSubsystem: Disabling subsystem due to selftest failure: " + e.getMessage(), e);
 
-                    CMSEngine engine = CMS.getCMSEngine();
                     engine.disableSubsystem();
 
                     throw new ESelfTestException("Selftest failed: " + e.getMessage(), e);
@@ -1717,7 +1715,6 @@ public class SelfTestSubsystem extends Subsystem {
             instance.startupSelfTest();
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
         if (engine.isPreOpMode()) {
             logger.debug("SelfTestSubsystem.startup(): Do not run selftests in pre-op mode");
             return;

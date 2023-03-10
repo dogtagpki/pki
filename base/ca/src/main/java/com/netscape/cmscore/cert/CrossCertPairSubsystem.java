@@ -103,13 +103,13 @@ public class CrossCertPairSubsystem extends Subsystem {
 
         logger.debug("CrossCertPairSubsystem: initializing");
 
-        CAEngine engine = CAEngine.getInstance();
-        CAEngineConfig cs = engine.getConfig();
+        CAEngine caEngine = (CAEngine) engine;
+        CAEngineConfig cs = caEngine.getConfig();
 
         try {
             mConfig = config;
             synchronized (this) {
-                mPublisherProcessor = engine.getPublisherProcessor();
+                mPublisherProcessor = caEngine.getPublisherProcessor();
             }
 
             // initialize LDAP connection factory

@@ -309,8 +309,8 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
         if (mInitialized)
             return;
 
-        KRAEngine engine = KRAEngine.getInstance();
-        KRAEngineConfig engineConfig = engine.getConfig();
+        KRAEngine kraEngine = (KRAEngine) engine;
+        KRAEngineConfig engineConfig = kraEngine.getConfig();
         DBSubsystem dbSubsystem = engine.getDBSubsystem();
 
         mConfig = engineConfig.getKRAConfig();

@@ -409,6 +409,7 @@ public class CAEngine extends CMSEngine {
     public void initAuthSubsystem() throws Exception {
         AuthenticationConfig authConfig = config.getAuthenticationConfig();
         authSubsystem = new CAAuthSubsystem();
+        authSubsystem.setCMSEngine(this);
         authSubsystem.init(authConfig);
         authSubsystem.startup();
     }
@@ -1130,6 +1131,7 @@ public class CAEngine extends CMSEngine {
 
         CAEngineConfig engineConfig = getConfig();
         CAConfig caConfig = engineConfig.getCAConfig();
+        ca.setCMSEngine(this);
         ca.init(caConfig);
 
         updateAuthoritySerialNumber(aid, cert.getSerialNumber());
@@ -1479,6 +1481,7 @@ public class CAEngine extends CMSEngine {
 
             CAEngineConfig engineConfig = getConfig();
             CAConfig caConfig = engineConfig.getCAConfig();
+            ca.setCMSEngine(this);
             ca.init(caConfig);
 
             addCA(aid, ca);

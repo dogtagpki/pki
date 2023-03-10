@@ -142,8 +142,8 @@ public class OCSPAuthority extends Subsystem implements IAuthority, IOCSPService
     @Override
     public void init(ConfigStore config) throws Exception {
 
-        OCSPEngine engine = OCSPEngine.getInstance();
-        OCSPEngineConfig engineConfig = engine.getConfig();
+        OCSPEngine ocspEngine = (OCSPEngine) engine;
+        OCSPEngineConfig engineConfig = ocspEngine.getConfig();
         DBSubsystem dbSubsystem = engine.getDBSubsystem();
 
         try {

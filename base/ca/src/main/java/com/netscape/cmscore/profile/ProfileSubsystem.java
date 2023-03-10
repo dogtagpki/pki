@@ -57,7 +57,6 @@ public class ProfileSubsystem
 
         logger.debug("ProfileSubsystem: initialization");
 
-        CAEngine engine = CAEngine.getInstance();
         PluginRegistry registry = engine.getPluginRegistry();
 
         mConfig = config;
