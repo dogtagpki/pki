@@ -54,8 +54,13 @@ public class KeyRepository extends Repository {
      * @param service db service
      * @exception EBaseException failed to setup key repository
      */
-    public KeyRepository(DBSubsystem dbSubsystem) {
+    public KeyRepository(
+            SecureRandom secureRandom,
+            DBSubsystem dbSubsystem) {
+
         super(dbSubsystem, 16);
+
+        this.secureRandom = secureRandom;
     }
 
     @Override
@@ -76,8 +81,6 @@ public class KeyRepository extends Repository {
 
             idLength = dbConfig.getInteger(PROP_KEY_ID_LENGTH);
             logger.info("KeyRepository: - key ID length: " + idLength);
-
-            secureRandom = SecureRandom.getInstance("pkcs11prng", "Mozilla-JSS");
 
         } else {
             initLegacyGenerator();

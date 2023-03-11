@@ -325,7 +325,10 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
         // create key repository
         int keydb_inc = mConfig.getInteger(PROP_KEYDB_INC, 5);
 
-        mKeyDB = new KeyRepository(dbSubsystem);
+        SecureRandomConfig secureRandomConfig = engineConfig.getJssSubsystemConfig().getSecureRandomConfig();
+        SecureRandom secureRandom = SecureRandomFactory.create(secureRandomConfig);
+
+        mKeyDB = new KeyRepository(secureRandom, dbSubsystem);
         mKeyDB.init();
 
         // read transport key from internal database
@@ -414,9 +417,6 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
 
         RequestSubsystem reqSub = engine.getRequestSubsystem();
         int reqdb_inc = mConfig.getInteger("reqdbInc", 5);
-
-        SecureRandomConfig secureRandomConfig = engineConfig.getJssSubsystemConfig().getSecureRandomConfig();
-        SecureRandom secureRandom = SecureRandomFactory.create(secureRandomConfig);
 
         RequestRepository requestRepository = new KeyRequestRepository(secureRandom, dbSubsystem);
         requestRepository.init();
