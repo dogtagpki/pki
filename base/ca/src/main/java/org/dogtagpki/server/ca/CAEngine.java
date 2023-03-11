@@ -1658,7 +1658,10 @@ public class CAEngine extends CMSEngine {
         int increment = caConfig.getInteger(CertificateRepository.PROP_INCREMENT, 5);
         logger.info("CAEngine: - increment: " + increment);
 
-        certificateRepository = new CertificateRepository(dbSubsystem);
+        SecureRandomConfig secureRandomConfig = config.getJssSubsystemConfig().getSecureRandomConfig();
+        SecureRandom secureRandom = SecureRandomFactory.create(secureRandomConfig);
+
+        certificateRepository = new CertificateRepository(secureRandom, dbSubsystem);
         certificateRepository.init();
     }
 

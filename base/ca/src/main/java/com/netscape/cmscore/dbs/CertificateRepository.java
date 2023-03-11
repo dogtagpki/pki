@@ -44,7 +44,6 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
-import com.netscape.cmscore.security.JssSubsystem;
 
 import netscape.ldap.LDAPSearchResults;
 
@@ -98,8 +97,13 @@ public class CertificateRepository extends Repository {
     /**
      * Constructs a certificate repository.
      */
-    public CertificateRepository(DBSubsystem dbSubsystem) {
+    public CertificateRepository(
+            SecureRandom secureRandom,
+            DBSubsystem dbSubsystem) {
+
         super(dbSubsystem, 16);
+
+        this.secureRandom = secureRandom;
     }
 
     @Override
@@ -120,8 +124,6 @@ public class CertificateRepository extends Repository {
 
             idLength = mDBConfig.getInteger(PROP_CERT_ID_LENGTH);
             logger.debug("CertificateRepository: - cert ID length: " + idLength);
-
-            secureRandom = SecureRandom.getInstance("pkcs11prng", "Mozilla-JSS");
 
         } else {
             initLegacyGenerator();
@@ -253,11 +255,7 @@ public class CertificateRepository extends Repository {
             throw new EBaseException ("Range size is too small to support random certificate serial numbers.");
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
-        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
-
-        SecureRandom random = jssSubsystem.getRandomNumberGenerator();
-        BigInteger randomNumber = new BigInteger(mBitLength, random);
+        BigInteger randomNumber = new BigInteger(mBitLength, secureRandom);
         randomNumber = (randomNumber.multiply(mRangeSize)).shiftRight(mBitLength);
         logger.debug("CertificateRepository: getRandomNumber  randomNumber="+randomNumber);
 

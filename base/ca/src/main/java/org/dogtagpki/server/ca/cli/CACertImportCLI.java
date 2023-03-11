@@ -172,7 +172,7 @@ public class CACertImportCLI extends CommandCLI {
         dbSubsystem.init(dbConfig, ldapConfig, socketConfig, passwordStore);
 
         try {
-            CertificateRepository certificateRepository = new CertificateRepository(dbSubsystem);
+            CertificateRepository certificateRepository = new CertificateRepository(secureRandom, dbSubsystem);
             certificateRepository.init();
 
             logger.info("Creating cert record 0x" + cert.getSerialNumber().toString(16) + ":");

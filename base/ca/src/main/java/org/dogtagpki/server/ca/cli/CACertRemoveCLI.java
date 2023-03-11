@@ -6,6 +6,7 @@
 package org.dogtagpki.server.ca.cli;
 
 import java.io.File;
+import java.security.SecureRandom;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.tomcat.util.net.jss.TomcatJSS;
@@ -26,6 +27,8 @@ import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
+import com.netscape.cmscore.security.SecureRandomConfig;
+import com.netscape.cmscore.security.SecureRandomFactory;
 import com.netscape.cmsutil.password.IPasswordStore;
 import com.netscape.cmsutil.password.PasswordStoreConfig;
 
@@ -89,11 +92,14 @@ public class CACertRemoveCLI extends CommandCLI {
         PasswordStoreConfig psc = cs.getPasswordStoreConfig();
         IPasswordStore passwordStore = IPasswordStore.create(psc);
 
+        SecureRandomConfig secureRandomConfig = cs.getJssSubsystemConfig().getSecureRandomConfig();
+        SecureRandom secureRandom = SecureRandomFactory.create(secureRandomConfig);
+
         DBSubsystem dbSubsystem = new DBSubsystem();
         dbSubsystem.init(dbConfig, ldapConfig, socketConfig, passwordStore);
 
         try {
-            CertificateRepository certificateRepository = new CertificateRepository(dbSubsystem);
+            CertificateRepository certificateRepository = new CertificateRepository(secureRandom, dbSubsystem);
             certificateRepository.init();
 
             logger.info("Removing cert record " + certID);

@@ -283,7 +283,7 @@ public class CACertCreateCLI extends CommandCLI {
 
             logger.info("Issuer: " + issuerName);
 
-            CertificateRepository certificateRepository = new CertificateRepository(dbSubsystem);
+            CertificateRepository certificateRepository = new CertificateRepository(secureRandom, dbSubsystem);
             certificateRepository.init();
 
             BigInteger serialNumber;
