@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 import org.dogtagpki.server.authentication.AuthManagersConfig;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
+import org.dogtagpki.server.tps.TPSEngine;
 import org.dogtagpki.server.tps.TPSEngineConfig;
-import org.dogtagpki.server.tps.engine.TPSEngine;
 
 import com.netscape.certsrv.base.EBaseException;
 
@@ -30,7 +30,7 @@ public class ExternalRegAttrs {
 
     public ExternalRegAttrs(String authId) {
         String method = "ExternalRegAttrs";
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         TPSEngineConfig configStore = engine.getConfig();
         AuthenticationConfig authConfig = configStore.getAuthenticationConfig();
         AuthManagersConfig instancesConfig = authConfig.getAuthManagersConfig();

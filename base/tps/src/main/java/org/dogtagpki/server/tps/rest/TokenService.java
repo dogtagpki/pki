@@ -33,12 +33,12 @@ import java.util.ResourceBundle;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
+import org.dogtagpki.server.tps.TPSEngine;
 import org.dogtagpki.server.tps.TPSEngineConfig;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.TokenDatabase;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
-import org.dogtagpki.server.tps.engine.TPSEngine;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
@@ -88,7 +88,7 @@ public class TokenService extends SubsystemService implements TokenResource {
                throw new PKIException(method + "Token record restricted");
         }
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         TPSEngineConfig config = engine.getConfig();
 
         TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
@@ -194,7 +194,7 @@ public class TokenService extends SubsystemService implements TokenResource {
 
     public TokenData createTokenData(TokenRecord tokenRecord) throws Exception {
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
 
         ResourceBundle labels = getResourceBundle("token-states");
@@ -311,7 +311,7 @@ public class TokenService extends SubsystemService implements TokenResource {
         start = start == null ? 0 : start;
         size = size == null ? DEFAULT_SIZE : size;
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             TokenDatabase database = subsystem.getTokenDatabase();
@@ -458,7 +458,7 @@ public class TokenService extends SubsystemService implements TokenResource {
         }
         logger.info(method + "Retrieving token " + tokenID);
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         try {
             List<String> authorizedProfiles = getAuthorizedProfiles();
             if (authorizedProfiles == null) {
@@ -522,7 +522,7 @@ public class TokenService extends SubsystemService implements TokenResource {
         String remoteUser = servletRequest.getRemoteUser();
         String ipAddress = servletRequest.getRemoteAddr();
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         TokenRecord tokenRecord = null;
         String msg = "add token";
@@ -615,7 +615,7 @@ public class TokenService extends SubsystemService implements TokenResource {
         String remoteUser = servletRequest.getRemoteUser();
         String ipAddress = servletRequest.getRemoteAddr();
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         TokenRecord tokenRecord = null;
         String msg = "replace token";
@@ -717,7 +717,7 @@ public class TokenService extends SubsystemService implements TokenResource {
         String remoteUser = servletRequest.getRemoteUser();
         String ipAddress = servletRequest.getRemoteAddr();
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         TokenRecord tokenRecord = null;
         String msg = "modify token";
@@ -819,7 +819,7 @@ public class TokenService extends SubsystemService implements TokenResource {
         }
 
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
 
         if (tokenStatus == null) {
@@ -964,7 +964,7 @@ public class TokenService extends SubsystemService implements TokenResource {
         String remoteUser = servletRequest.getRemoteUser();
         String ipAddress = servletRequest.getRemoteAddr();
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         TokenRecord tokenRecord = null;
         String msg = "remove token";

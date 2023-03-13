@@ -35,7 +35,6 @@ import org.dogtagpki.server.tps.dbs.TPSCertDatabase;
 import org.dogtagpki.server.tps.dbs.TPSCertRecord;
 import org.dogtagpki.server.tps.dbs.TokenDatabase;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
-import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.dogtagpki.server.tps.mapping.MappingResolverManager;
 import org.dogtagpki.tps.TPSConnection;
 import org.dogtagpki.tps.main.TPSException;
@@ -80,7 +79,6 @@ public class TPSSubsystem extends Subsystem implements IAuthority {
     public AuthenticationManager authManager;
     public MappingResolverManager mappingResolverManager;
 
-    public TPSEngine tpsEngine;
     public TokenDB tdb;
 
     public Map<TokenStatus, Collection<TokenStatus>> uiTransitions;
@@ -101,7 +99,7 @@ public class TPSSubsystem extends Subsystem implements IAuthority {
 
         logger.info("Initializing TPS subsystem");
 
-        org.dogtagpki.server.tps.TPSEngine tpsEngine = (org.dogtagpki.server.tps.TPSEngine) engine;
+        TPSEngine tpsEngine = (TPSEngine) engine;
         TPSEngineConfig cs = tpsEngine.getConfig();
 
         this.config = cs.getTPSConfig();
@@ -142,9 +140,6 @@ public class TPSSubsystem extends Subsystem implements IAuthority {
 
         configureTPSConnection(cs);
         tdb = new TokenDB(this);
-
-        this.tpsEngine = new TPSEngine();
-        this.tpsEngine.init();
     }
 
     public Map<TokenStatus, Collection<TokenStatus>> loadTokenStateTransitions(String property, String value) throws EBaseException {
@@ -380,7 +375,7 @@ public class TPSSubsystem extends Subsystem implements IAuthority {
     public org.mozilla.jss.crypto.X509Certificate getSubsystemCert() throws EBaseException, NotInitializedException,
             ObjectNotFoundException, TokenException {
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         TPSEngineConfig cs = engine.getConfig();
         String nickname = cs.getString("tps.subsystem.nickname", "");
         String tokenname = cs.getString("tps.subsystem.tokenname", "");
@@ -389,10 +384,6 @@ public class TPSSubsystem extends Subsystem implements IAuthority {
 
         CryptoManager cm = CryptoManager.getInstance();
         return cm.findCertByNickname(nickname);
-    }
-
-    public TPSEngine getEngine() {
-        return tpsEngine;
     }
 
     public boolean isUITransitionAllowed(TokenRecord tokenRecord, TokenStatus nextState) throws Exception {

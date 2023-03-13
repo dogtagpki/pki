@@ -29,6 +29,7 @@ import java.util.Map;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
+import org.dogtagpki.server.tps.TPSEngine;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.config.ConnectorDatabase;
 import org.dogtagpki.server.tps.config.ConnectorRecord;
@@ -92,7 +93,7 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
         start = start == null ? 0 : start;
         size = size == null ? DEFAULT_SIZE : size;
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ConnectorDatabase database = subsystem.getConnectorDatabase();
@@ -136,7 +137,7 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
 
         logger.debug("ConnectorService.getConnector(\"" + connectorID + "\")");
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ConnectorDatabase database = subsystem.getConnectorDatabase();
@@ -165,7 +166,7 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
 
         logger.debug("ConnectorService.addConnector(\"" + connectorData.getID() + "\")");
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ConnectorDatabase database = subsystem.getConnectorDatabase();
@@ -228,7 +229,7 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
 
         logger.debug("ConnectorService.updateConnector(\"" + connectorID + "\")");
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ConnectorDatabase database = subsystem.getConnectorDatabase();
@@ -314,7 +315,7 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
 
         logger.debug("ConnectorService.changeStatus(\"" + connectorID + "\", \"" + action + "\")");
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ConnectorDatabase database = subsystem.getConnectorDatabase();
@@ -430,7 +431,7 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
 
         logger.debug("ConnectorService.removeConnector(\"" + connectorID + "\")");
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ConnectorDatabase database = subsystem.getConnectorDatabase();

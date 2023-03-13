@@ -1,5 +1,6 @@
 package org.dogtagpki.server.tps.mapping;
 
+import org.dogtagpki.server.tps.TPSEngine;
 import org.dogtagpki.server.tps.TPSEngineConfig;
 import org.dogtagpki.tps.main.TPSException;
 
@@ -20,7 +21,7 @@ public abstract class BaseMappingResolver {
         instanceName = instName;
         prefix = MappingResolverManager.MAPPING_RESOLVER_CFG +
                 "." + instanceName;
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         configStore = engine.getConfig();
     }
 

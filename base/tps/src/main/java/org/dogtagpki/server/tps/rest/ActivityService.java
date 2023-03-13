@@ -25,6 +25,7 @@ import java.util.List;
 
 import javax.ws.rs.core.Response;
 
+import org.dogtagpki.server.tps.TPSEngine;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.ActivityRecord;
@@ -123,7 +124,7 @@ public class ActivityService extends PKIService implements ActivityResource {
         start = start == null ? 0 : start;
         size = size == null ? DEFAULT_SIZE : size;
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ActivityDatabase database = subsystem.getActivityDatabase();
@@ -189,7 +190,7 @@ public class ActivityService extends PKIService implements ActivityResource {
                         logger.debug(method + "record.tokenType null...getting from token record");
                         String tokenID = record.getTokenID();
                         if ((tokenID != null) && !tokenID.isEmpty()) {
-                            org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+                            TPSEngine engine = TPSEngine.getInstance();
                             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
                             TokenDatabase t_database = subsystem.getTokenDatabase();
                             TokenRecord t_record = t_database.getRecord(tokenID);
@@ -258,7 +259,7 @@ public class ActivityService extends PKIService implements ActivityResource {
                         logger.debug(method + "record.tokenType null...getting from token record");
                         String tokenID = record.getTokenID();
                         if ((tokenID != null) && !tokenID.isEmpty()) {
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
                             TokenDatabase t_database = subsystem.getTokenDatabase();
                             TokenRecord t_record = t_database.getRecord(tokenID);
@@ -303,7 +304,7 @@ public class ActivityService extends PKIService implements ActivityResource {
                 throw new PKIException(method + msg);
             }
 
-            org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+            TPSEngine engine = TPSEngine.getInstance();
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ActivityDatabase database = subsystem.getActivityDatabase();
             ActivityRecord record = database.getRecord(activityID);

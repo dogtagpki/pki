@@ -33,6 +33,7 @@ import java.util.regex.Pattern;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
+import org.dogtagpki.server.tps.TPSEngine;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.config.ProfileDatabase;
 import org.dogtagpki.server.tps.config.ProfileRecord;
@@ -100,7 +101,7 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
         start = start == null ? 0 : start;
         size = size == null ? DEFAULT_SIZE : size;
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         try {
             List<String> authorizedProfiles = getAuthorizedProfiles();
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
@@ -166,7 +167,7 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
             throw new BadRequestException(method + "Missing profile ID");
         }
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         try {
             List<String> authorizedProfiles = getAuthorizedProfiles();
            if ((authorizedProfiles== null) || ((authorizedProfiles != null) && !authorizedProfiles.contains(UserResource.ALL_PROFILES) && !authorizedProfiles.contains(profileID))) {
@@ -219,7 +220,7 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
             }
         }
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ProfileDatabase database = subsystem.getProfileDatabase();
@@ -289,7 +290,7 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
             }
         }
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         try {
             List<String> authorizedProfiles = getAuthorizedProfiles();
             if ((authorizedProfiles== null) || ((authorizedProfiles != null) && !authorizedProfiles.contains(UserResource.ALL_PROFILES) && !authorizedProfiles.contains(profileID))) {
@@ -383,7 +384,7 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
         auditModParams.put("Action", action);
         logger.info(method + "Changing profile " + profileID + " status: " + action);
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         try {
             List<String> authorizedProfiles = getAuthorizedProfiles();
             if ((authorizedProfiles== null) || ((authorizedProfiles != null) && !authorizedProfiles.contains(UserResource.ALL_PROFILES) && !authorizedProfiles.contains(profileID))) {
@@ -506,7 +507,7 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
         auditModParams.put("profileID", profileID);
         logger.info(method + "Removing profile " + profileID);
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ProfileDatabase database = subsystem.getProfileDatabase();

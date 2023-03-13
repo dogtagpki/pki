@@ -270,7 +270,7 @@ public class TokenDB {
 
         boolean testAddCertsFailure = false;
 	//Contrive a very difficult to reproduce testing scenario
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
 	try {
 	    TPSEngineConfig configStore = engine.getConfig();
             // get conn ID
@@ -623,7 +623,7 @@ public class TokenDB {
 
         logger.debug(method + "begins: tokenReason=" + tokenReason);
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         try {
 
             TPSEngineConfig configStore = engine.getConfig();
@@ -692,7 +692,7 @@ public class TokenDB {
         String method = "TokenDB.unrevokeCert";
         String logMsg;
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         try {
             TPSEngineConfig configStore = engine.getConfig();
 
@@ -750,7 +750,7 @@ public class TokenDB {
 
         String method = "TokenDB.checkShouldRevoke:";
         String msg = "";
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         TPSEngineConfig configStore = engine.getConfig();
 
         if (cert == null) {

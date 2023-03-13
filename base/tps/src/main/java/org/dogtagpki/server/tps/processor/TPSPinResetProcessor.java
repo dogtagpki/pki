@@ -19,6 +19,7 @@ package org.dogtagpki.server.tps.processor;
 
 import java.io.IOException;
 
+import org.dogtagpki.server.tps.TPSEngine;
 import org.dogtagpki.server.tps.TPSEngineConfig;
 import org.dogtagpki.server.tps.TPSSession;
 import org.dogtagpki.server.tps.TPSSubsystem;
@@ -27,7 +28,6 @@ import org.dogtagpki.server.tps.authentication.TPSAuthenticator;
 import org.dogtagpki.server.tps.channel.SecureChannel;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
-import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.dogtagpki.server.tps.main.ExternalRegAttrs;
 import org.dogtagpki.server.tps.mapping.BaseMappingResolver;
 import org.dogtagpki.server.tps.mapping.FilterMappingParams;
@@ -50,7 +50,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
 
     @Override
     public void process(BeginOpMsg beginMsg) throws TPSException, IOException {
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         TPSEngineConfig configStore = engine.getConfig();
 
         // Use this only for testing, not for normal operation.
@@ -83,7 +83,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
         logger.debug(method + ": entering...");
 
         String logMsg = null;
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
 
         AppletInfo appletInfo = null;

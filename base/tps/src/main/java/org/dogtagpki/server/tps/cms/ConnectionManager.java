@@ -26,6 +26,7 @@ import java.util.List;
 import javax.ws.rs.core.MediaType;
 
 import org.dogtagpki.server.tps.TPSConfig;
+import org.dogtagpki.server.tps.TPSEngine;
 import org.dogtagpki.server.tps.TPSSubsystem;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -53,7 +54,7 @@ public class ConnectionManager
     public ConnectionManager() throws EBaseException {
         // initialize the ca list for revocation routing:
         //    tps.connCAList=ca1,ca2...ca<n>
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         TPSConfig conf = subsystem.getConfigStore();
         String caListString;
@@ -101,7 +102,7 @@ public class ConnectionManager
 
         logger.debug("ConnectionManager: initConnectors(): begins.");
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         TPSConfig conf = subsystem.getConfigStore();
         ConnectorsConfig connectorsConfig = conf.getConnectorsConfig();

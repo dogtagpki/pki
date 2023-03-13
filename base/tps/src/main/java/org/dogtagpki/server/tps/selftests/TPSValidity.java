@@ -22,6 +22,7 @@ import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
 import java.util.Locale;
 
+import org.dogtagpki.server.tps.TPSEngine;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
@@ -156,7 +157,7 @@ public class TPSValidity extends SelfTest {
     @Override
     public void runSelfTest(LogEventListener logger) throws Exception {
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(tpsSubId);
         if (tps == null) {
             // log that the TPS is not installed

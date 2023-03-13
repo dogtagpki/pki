@@ -29,6 +29,7 @@ import java.util.Map;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
+import org.dogtagpki.server.tps.TPSEngine;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.config.AuthenticatorDatabase;
 import org.dogtagpki.server.tps.config.AuthenticatorRecord;
@@ -92,7 +93,7 @@ public class AuthenticatorService extends SubsystemService implements Authentica
         start = start == null ? 0 : start;
         size = size == null ? DEFAULT_SIZE : size;
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
@@ -136,7 +137,7 @@ public class AuthenticatorService extends SubsystemService implements Authentica
 
         logger.debug("AuthenticatorService.getAuthenticator(\"" + authenticatorID + "\")");
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
@@ -165,7 +166,7 @@ public class AuthenticatorService extends SubsystemService implements Authentica
 
         logger.debug("AuthenticatorService.addAuthenticator(\"" + authenticatorData.getID() + "\")");
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
@@ -229,7 +230,7 @@ public class AuthenticatorService extends SubsystemService implements Authentica
 
         logger.debug("AuthenticatorService.updateAuthenticator(\"" + authenticatorID + "\")");
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
@@ -318,7 +319,7 @@ public class AuthenticatorService extends SubsystemService implements Authentica
 
         logger.debug("AuthenticatorService.changeStatus(\"" + authenticatorID + "\", \"" + action + "\")");
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
@@ -431,7 +432,7 @@ public class AuthenticatorService extends SubsystemService implements Authentica
 
         logger.debug("AuthenticatorService.removeAuthenticator(\"" + authenticatorID + "\")");
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();

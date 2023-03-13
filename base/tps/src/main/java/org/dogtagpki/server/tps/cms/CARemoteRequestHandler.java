@@ -26,9 +26,9 @@ import java.util.List;
 
 import org.dogtagpki.server.connector.IRemoteRequest;
 import org.dogtagpki.server.tps.TPSConfig;
+import org.dogtagpki.server.tps.TPSEngine;
 import org.dogtagpki.server.tps.TPSEngineConfig;
 import org.dogtagpki.server.tps.TPSSubsystem;
-import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.dogtagpki.tps.main.TPSBuffer;
 import org.dogtagpki.tps.main.Util;
 import org.mozilla.jss.CryptoManager;
@@ -106,7 +106,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         if(tokenType == null)
             tokenType = "";
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         TPSEngineConfig conf = engine.getConfig();
         String profileId =
                 conf.getString(TPSEngine.OP_ENROLL_PREFIX + "." +
@@ -307,7 +307,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException(method + ": input parameter null.");
         }
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         TPSEngineConfig tpsEngineConfig = engine.getConfig();
         TPSConfig tpsConfig = tpsEngineConfig.getTPSConfig();
         ConnectorsConfig connectorsConfig = tpsConfig.getConnectorsConfig();
@@ -420,7 +420,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException(method + ": input parameter null.");
         }
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         TPSEngineConfig conf = engine.getConfig();
 
         String profileId =
@@ -557,7 +557,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         }
         logger.debug(method +": revoking serial#:" + serialno + "; reason String:" + reason.toString() + "; reason code:" + reason.getCode());
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         // ConfigStore conf = CMS.getConfigStore();
 
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
@@ -646,7 +646,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException(method + ": input parameter null.");
         }
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         HttpConnector conn =
                 (HttpConnector) subsystem.getConnectionManager().getConnector(unrevCAid);
@@ -740,7 +740,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         String method = "CARemoteRequestHandler: revokeFromOtherCA()";
         logger.debug(method +": begins");
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         List<String> caList =
                 subsystem.getConnectionManager().getCAList();
@@ -793,7 +793,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException(method + ": input parameter conn null.");
         }
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         TPSEngineConfig conf = engine.getConfig();
         TPSConfig tpsConfig = conf.getTPSConfig();
         ConnectorsConfig connectorsConfig = tpsConfig.getConnectorsConfig();

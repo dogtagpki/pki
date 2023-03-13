@@ -1,6 +1,6 @@
 package org.dogtagpki.server.tps.mapping;
 
-import org.dogtagpki.server.tps.engine.TPSEngine;
+import org.dogtagpki.server.tps.TPSEngine;
 import org.dogtagpki.tps.main.TPSException;
 import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 
