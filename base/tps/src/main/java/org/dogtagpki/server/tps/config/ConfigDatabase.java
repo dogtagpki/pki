@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.commons.lang3.StringUtils;
+import org.dogtagpki.server.tps.TPSEngine;
 import org.dogtagpki.server.tps.TPSEngineConfig;
 
 import com.netscape.certsrv.base.BadRequestException;
@@ -43,7 +44,7 @@ public class ConfigDatabase extends Database<ConfigRecord> {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ConfigDatabase.class);
 
-    org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+    TPSEngine engine = TPSEngine.getInstance();
     TPSEngineConfig configStore = engine.getConfig();
 
     public ConfigDatabase() throws EBaseException {

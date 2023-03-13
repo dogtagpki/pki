@@ -28,6 +28,7 @@ import java.util.Map;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
+import org.dogtagpki.server.tps.TPSEngine;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.config.ProfileMappingDatabase;
 import org.dogtagpki.server.tps.config.ProfileMappingRecord;
@@ -86,7 +87,7 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
         start = start == null ? 0 : start;
         size = size == null ? DEFAULT_SIZE : size;
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ProfileMappingDatabase database = subsystem.getProfileMappingDatabase();
@@ -127,7 +128,7 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
 
         logger.debug("ProfileMappingService.getProfileMapping(\"" + profileMappingID + "\")");
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ProfileMappingDatabase database = subsystem.getProfileMappingDatabase();
@@ -149,8 +150,9 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
         String method = "ProfileMappingService.addProfileMapping";
 
         logger.debug("ProfileMappingService.addProfileMapping(\"" + profileMappingData.getProfileMappingID() + "\")");
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         ProfileMappingData pmd = null;
+
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ProfileMappingDatabase database = subsystem.getProfileMappingDatabase();
@@ -196,7 +198,7 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
 
         logger.debug("ProfileMappingService.updateProfileMapping(\"" + profileMappingID + "\")");
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ProfileMappingDatabase database = subsystem.getProfileMappingDatabase();
@@ -284,7 +286,7 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
 
         logger.debug("ProfileMappingService.changeStatus(\"" + profileMappingID + "\", \"" + action + "\")");
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ProfileMappingDatabase database = subsystem.getProfileMappingDatabase();
@@ -402,7 +404,7 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
 
         logger.debug("ProfileMappingService.removeProfileMapping(\"" + profileMappingID + "\")");
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ProfileMappingDatabase database = subsystem.getProfileMappingDatabase();

@@ -36,7 +36,7 @@ public class TPSAccountService extends AccountService {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSAccountService.class);
 
-    org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+    TPSEngine engine = TPSEngine.getInstance();
     TPSEngineConfig configStore = engine.getConfig();
 
     @Override

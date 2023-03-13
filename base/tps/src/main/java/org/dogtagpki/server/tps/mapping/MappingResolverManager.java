@@ -20,6 +20,7 @@ package org.dogtagpki.server.tps.mapping;
 
 import java.util.HashMap;
 
+import org.dogtagpki.server.tps.TPSEngine;
 import org.dogtagpki.server.tps.TPSEngineConfig;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -81,7 +82,7 @@ public class MappingResolverManager
         String method = "mappingResolverManager.initMappingResolverInstance:";
         logger.debug(method + " begins");
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
 
         registry = engine.getPluginRegistry();
 

@@ -19,8 +19,8 @@ package org.dogtagpki.server.tps.channel;
 
 import java.io.IOException;
 
+import org.dogtagpki.server.tps.TPSEngine;
 import org.dogtagpki.server.tps.TPSEngineConfig;
-import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.dogtagpki.server.tps.processor.TPSProcessor;
 import org.dogtagpki.tps.apdu.APDU;
 import org.dogtagpki.tps.apdu.APDUResponse;
@@ -326,7 +326,7 @@ public class SecureChannel {
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
         }
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         TPSEngineConfig configStore = engine.getConfig();
 
         final String keyCapabilities = "keyCapabilities";
@@ -1427,7 +1427,7 @@ public class SecureChannel {
 
         logger.debug("SecureChannel.startEnrollment: entering ...");
 
-        boolean isECC = processor.getTPSEngine().isAlgorithmECC(algorithm);
+        boolean isECC = TPSEngine.getInstance().isAlgorithmECC(algorithm);
 
         GenerateKeyAPDU generate_key_apdu = null;
         GenerateKeyECCAPDU generate_ecc_key_apdu = null;

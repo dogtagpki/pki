@@ -9,6 +9,7 @@ import java.util.Arrays;
 
 import javax.crypto.BadPaddingException;
 
+import org.dogtagpki.server.tps.TPSEngine;
 import org.dogtagpki.tps.main.TPSBuffer;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NoSuchTokenException;
@@ -368,7 +369,7 @@ public class SecureChannelProtocol {
             throw new EBaseException(method + " Invalid key size!");
         }
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         KeyGenerator kg;

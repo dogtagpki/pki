@@ -22,6 +22,7 @@ import java.util.Hashtable;
 
 import org.dogtagpki.server.connector.IRemoteRequest;
 import org.dogtagpki.server.tps.TPSConfig;
+import org.dogtagpki.server.tps.TPSEngine;
 import org.dogtagpki.server.tps.TPSEngineConfig;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.channel.SecureChannel;
@@ -114,7 +115,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException("TKSRemoteRequestHandler: computeSessionKey(): input parameter null.");
         }
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         TPSEngineConfig conf = engine.getConfig();
         TPSConfig tpsConfig = conf.getTPSConfig();
         ConnectorsConfig connectorsConfig = tpsConfig.getConnectorsConfig();
@@ -267,7 +268,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException(method +  " invalid input!");
         }
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         TPSEngineConfig conf = engine.getConfig();
         TPSConfig tpsConfig = conf.getTPSConfig();
         ConnectorsConfig connectorsConfig = tpsConfig.getConnectorsConfig();
@@ -456,7 +457,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException("TKSRemoteRequestHandler: computeSessionKeySCP02(): input parameter null.");
         }
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         TPSEngineConfig conf = engine.getConfig();
         TPSConfig tpsConfig = conf.getTPSConfig();
         ConnectorsConfig connectorsConfig = tpsConfig.getConnectorsConfig();
@@ -600,7 +601,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException("TKSRemoteRequestHandler: createKeySetData(): input parameter null.");
         }
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         TPSEngineConfig conf = engine.getConfig();
         TPSConfig tpsConfig = conf.getTPSConfig();
         ConnectorsConfig connectorsConfig = tpsConfig.getConnectorsConfig();
@@ -699,7 +700,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
 
         logger.debug("TKSRemoteRequestHandler: computeRandomData(): sending request to tks.");
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         HttpConnector conn =
                 (HttpConnector) subsystem.getConnectionManager().getConnector(connid);
@@ -776,7 +777,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException("TKSRemoteRequestHandler: encryptData(): input parameter null.");
         }
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         TPSEngineConfig conf = engine.getConfig();
         TPSConfig tpsConfig = conf.getTPSConfig();
         ConnectorsConfig connectorsConfig = tpsConfig.getConnectorsConfig();

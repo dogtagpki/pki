@@ -17,12 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.tps.processor;
 
+import org.dogtagpki.server.tps.TPSEngine;
 import org.dogtagpki.server.tps.channel.SecureChannel.TokenKeyType;
 import org.dogtagpki.server.tps.cms.CARenewCertResponse;
 import org.dogtagpki.server.tps.cms.CARetrieveCertResponse;
 import org.dogtagpki.server.tps.cms.KRARecoverKeyResponse;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
-import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.dogtagpki.server.tps.main.ObjectSpec;
 
 public class CertEnrollInfo {

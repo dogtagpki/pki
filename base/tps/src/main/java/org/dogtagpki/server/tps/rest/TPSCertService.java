@@ -27,6 +27,7 @@ import java.util.Map;
 
 import javax.ws.rs.core.Response;
 
+import org.dogtagpki.server.tps.TPSEngine;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.dbs.TPSCertDatabase;
 import org.dogtagpki.server.tps.dbs.TPSCertRecord;
@@ -118,7 +119,7 @@ public class TPSCertService extends PKIService implements TPSCertResource {
         start = start == null ? 0 : start;
         size = size == null ? DEFAULT_SIZE : size;
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         try {
             List<String> authorizedProfiles = getAuthorizedProfiles();
             if (authorizedProfiles == null) {
@@ -176,7 +177,7 @@ public class TPSCertService extends PKIService implements TPSCertResource {
 
         logger.debug("TPSCertService.getCert(\"" + certID + "\")");
 
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         try {
             List<String> authorizedProfiles = getAuthorizedProfiles();
             if (authorizedProfiles == null) {

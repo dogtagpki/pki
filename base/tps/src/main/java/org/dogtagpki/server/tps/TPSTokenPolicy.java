@@ -67,7 +67,7 @@ public class TPSTokenPolicy {
     }
 
     public String getDefaultPolicySetString() {
-        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngine engine = TPSEngine.getInstance();
         TPSEngineConfig configStore = engine.getConfig();
         TokenDBConfig tdbConfig = configStore.getTokenDBConfig();
         String policySetString;
