@@ -204,8 +204,8 @@ public class CMCAuth extends AuthManager implements IExtendedPluginInfo {
         mImplName = implName;
         mConfig = config;
 
-        CAEngine engine = CAEngine.getInstance();
-        CAEngineConfig cs = engine.getConfig();
+        CAEngine caEngine = (CAEngine) engine;
+        CAEngineConfig cs = caEngine.getConfig();
 
         mBypassClientAuth = cs.getBoolean("cmc.bypassClientAuth", false);
     }
@@ -241,8 +241,8 @@ public class CMCAuth extends AuthManager implements IExtendedPluginInfo {
         String auditCertSubject = ILogger.UNIDENTIFIED;
         String auditSignerInfo = ILogger.UNIDENTIFIED;
 
-        CAEngine engine = CAEngine.getInstance();
-        CAEngineConfig cs = engine.getConfig();
+        CAEngine caEngine = (CAEngine) engine;
+        CAEngineConfig cs = caEngine.getConfig();
 
         SessionContext auditContext = SessionContext.getExistingContext();
         X509Certificate clientCert =
@@ -715,8 +715,8 @@ public class CMCAuth extends AuthManager implements IExtendedPluginInfo {
             AuthToken authToken,
             SignedData cmcFullReq) throws EBaseException {
 
-        CAEngine engine = CAEngine.getInstance();
-        CAEngineConfig cs = engine.getConfig();
+        CAEngine caEngine = (CAEngine) engine;
+        CAEngineConfig cs = caEngine.getConfig();
 
         String method = "CMCAuth: verifySignerInfo: ";
         String msg = "";

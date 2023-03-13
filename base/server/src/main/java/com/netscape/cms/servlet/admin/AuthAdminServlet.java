@@ -776,6 +776,8 @@ public class AuthAdminServlet extends AdminServlet {
 
             // initialize the authentication manager
             try {
+                CMSEngine engine = getCMSEngine();
+                authMgrInst.setCMSEngine(engine);
                 authMgrInst.init(destStore, id, implname, substore);
             } catch (EBaseException e) {
                 // store a message in the signed audit log file
@@ -1523,6 +1525,8 @@ public class AuthAdminServlet extends AdminServlet {
             // initialize the authentication manager
 
             try {
+                CMSEngine engine = getCMSEngine();
+                newMgrInst.setCMSEngine(engine);
                 newMgrInst.init(destStore, id, implname, substore);
             } catch (EBaseException e) {
                 // store a message in the signed audit log file

@@ -26,6 +26,7 @@ import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
@@ -55,11 +56,20 @@ public abstract class AuthManager {
     public static final String CRED_SESSION_ID = "sessionID";
     public static final String CRED_HOST_NAME = "hostname";
 
+    protected CMSEngine engine;
     protected AuthenticationConfig authenticationConfig;
     protected String mName;
     protected String mImplName;
     protected AuthManagerConfig mConfig;
     protected String[] mConfigParams;
+
+    public CMSEngine getCMSEngine() {
+        return engine;
+    }
+
+    public void setCMSEngine(CMSEngine engine) {
+        this.engine = engine;
+    }
 
     public AuthenticationConfig getAuthenticationConfig() {
         return authenticationConfig;

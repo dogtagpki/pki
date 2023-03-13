@@ -149,8 +149,8 @@ public class ChallengePhraseAuthentication extends AuthManager {
     public AuthToken authenticate(AuthCredentials authCred)
             throws EMissingCredential, EInvalidCredentials, EBaseException {
 
-        CAEngine engine = CAEngine.getInstance();
-        mCertDB = engine.getCertificateRepository();
+        CAEngine caEngine = (CAEngine) engine;
+        mCertDB = caEngine.getCertificateRepository();
 
         AuthToken authToken = new AuthToken(this);
 

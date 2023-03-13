@@ -78,12 +78,14 @@ public class CAAuthSubsystem extends AuthSubsystem {
         logger.info("CAAuthSubsystem: Loading auth manager instance " + CHALLENGE_AUTHMGR_ID);
 
         ChallengePhraseAuthentication challengeAuth = new ChallengePhraseAuthentication();
+        challengeAuth.setCMSEngine(engine);
         challengeAuth.init(mConfig, CHALLENGE_AUTHMGR_ID, CHALLENGE_PLUGIN_ID, null);
         mAuthMgrInsts.put(CHALLENGE_AUTHMGR_ID, new AuthManagerProxy(true, challengeAuth));
 
         logger.info("CAAuthSubsystem: Loading auth manager instance " + SSLCLIENTCERT_AUTHMGR_ID);
 
         SSLClientCertAuthentication sslClientCertAuth = new SSLClientCertAuthentication();
+        sslClientCertAuth.setCMSEngine(engine);
         sslClientCertAuth.init(mConfig, SSLCLIENTCERT_AUTHMGR_ID, SSLCLIENTCERT_PLUGIN_ID, null);
         mAuthMgrInsts.put(SSLCLIENTCERT_AUTHMGR_ID, new AuthManagerProxy(true, sslClientCertAuth));
     }

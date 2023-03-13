@@ -40,7 +40,6 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
@@ -109,8 +108,6 @@ public class TokenAuthentication extends AuthManager {
             throws EMissingCredential, EInvalidCredentials, EBaseException {
 
         logger.debug("TokenAuthentication: start");
-
-        CMSEngine engine = CMS.getCMSEngine();
 
         // force SSL handshake
         SessionContext context = SessionContext.getExistingContext();

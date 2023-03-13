@@ -43,7 +43,6 @@ import com.netscape.certsrv.property.IDescriptor;
 // cert server x509 imports
 // java sdk imports.
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 // cert server imports.
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
@@ -143,7 +142,6 @@ public class UserPwdDirAuthentication extends DirBasedAuthentication {
         super.init(authenticationConfig, name, implName, config);
 
         logger.debug("UserPwdDirAuthentication init");
-        CMSEngine engine = CMS.getCMSEngine();
         mAttrName = mLdapConfig.getString("attrName", null);
         if (mAttrName == null || mAttrName.trim().length() == 0) {
             throw new EPropertyNotFound(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED", "attrName"));

@@ -41,7 +41,6 @@ import com.netscape.certsrv.usrgrp.CertUserLocator;
 import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
@@ -120,7 +119,6 @@ public class AgentCertAuthentication extends AuthManager {
         logger.debug("AgentCertAuthentication: start");
         logger.debug("authenticator instance name is " + getName());
 
-        CMSEngine engine = CMS.getCMSEngine();
         EngineConfig sconfig = engine.getConfig();
         AuthenticationConfig authsConfig = sconfig.getAuthenticationConfig();
         AuthManagersConfig instancesConfig = authsConfig.getAuthManagersConfig();

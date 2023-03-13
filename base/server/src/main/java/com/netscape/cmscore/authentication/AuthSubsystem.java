@@ -145,12 +145,14 @@ public class AuthSubsystem extends Subsystem {
         logger.info("AuthSubsystem: Loading auth manager instance " + PASSWDUSERDB_AUTHMGR_ID);
 
         PasswdUserDBAuthentication passwdUserDBAuth = new PasswdUserDBAuthentication();
+        passwdUserDBAuth.setCMSEngine(engine);
         passwdUserDBAuth.init(mConfig, PASSWDUSERDB_AUTHMGR_ID, PASSWDUSERDB_PLUGIN_ID, null);
         mAuthMgrInsts.put(PASSWDUSERDB_AUTHMGR_ID, new AuthManagerProxy(true, passwdUserDBAuth));
 
         logger.info("AuthSubsystem: Loading auth manager instance " + CERTUSERDB_AUTHMGR_ID);
 
         CertUserDBAuthentication certUserDBAuth = new CertUserDBAuthentication();
+        certUserDBAuth.setCMSEngine(engine);
         certUserDBAuth.init(mConfig, CERTUSERDB_AUTHMGR_ID, CERTUSERDB_PLUGIN_ID, null);
         mAuthMgrInsts.put(CERTUSERDB_AUTHMGR_ID, new AuthManagerProxy(true, certUserDBAuth));
 
@@ -184,6 +186,7 @@ public class AuthSubsystem extends Subsystem {
 
             try {
                 authMgrInst = (AuthManager) Class.forName(className).getDeclaredConstructor().newInstance();
+                authMgrInst.setCMSEngine(engine);
                 authMgrInst.init(mConfig, instName, implName, authMgrConfig);
                 enabled = true;
 
