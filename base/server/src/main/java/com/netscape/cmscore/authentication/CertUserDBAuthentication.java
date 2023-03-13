@@ -37,7 +37,6 @@ import com.netscape.certsrv.usrgrp.CertUserLocator;
 import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.usrgrp.ExactMatchCertUserLocator;
@@ -95,7 +94,6 @@ public class CertUserDBAuthentication extends AuthManager {
         this.authenticationConfig = authenticationConfig;
         mName = name;
         mImplName = implName;
-        CMSEngine engine = CMS.getCMSEngine();
         mConfig = config;
 
         if (authenticationConfig != null) {
@@ -180,7 +178,7 @@ public class CertUserDBAuthentication extends AuthManager {
                 logger.error("CertUserDBAuthentication: " + CMS.getLogMessage("CMSCORE_AUTH_NO_CERT"));
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_NO_CERT"));
             }
-            CMSEngine engine = CMS.getCMSEngine();
+
             if (engine.isRevoked(x509Certs)) {
                 logger.error("CertUserDBAuthentication: " + CMS.getLogMessage("CMSCORE_AUTH_REVOKED_CERT"));
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));

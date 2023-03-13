@@ -40,7 +40,6 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
@@ -158,7 +157,6 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication {
             throws EBaseException {
         super.init(authenticationConfig, name, implName, config);
 
-        CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
         mRemovePin =

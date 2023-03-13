@@ -34,7 +34,6 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.DBSubsystem;
@@ -90,7 +89,6 @@ public class PasswdUserDBAuthentication extends AuthManager implements IPasswdUs
         mImplName = implName;
         mConfig = config;
 
-        CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
         PKISocketConfig socketConfig = cs.getSocketConfig();
@@ -149,7 +147,6 @@ public class PasswdUserDBAuthentication extends AuthManager implements IPasswdUs
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
         UGSubsystem ug = engine.getUGSubsystem();
         User user;
 

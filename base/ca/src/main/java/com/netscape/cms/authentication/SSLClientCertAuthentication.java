@@ -105,8 +105,8 @@ public class SSLClientCertAuthentication extends AuthManager {
         }
         logger.debug("SSLCertAuth: Got client certificate");
 
-        CAEngine engine = CAEngine.getInstance();
-        mCertDB = engine.getCertificateRepository();
+        CAEngine caEngine = (CAEngine) engine;
+        mCertDB = caEngine.getCertificateRepository();
 
         X509CertImpl clientCert = (X509CertImpl) x509Certs[0];
 
@@ -135,7 +135,7 @@ public class SSLClientCertAuthentication extends AuthManager {
 
             if (status.equals("VALID")) {
 
-                CertificateAuthority ca = engine.getCA();
+                CertificateAuthority ca = caEngine.getCA();
                 X509CertImpl cacert = ca.getCACert();
                 Principal p = cacert.getSubjectName();
 

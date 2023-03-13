@@ -50,7 +50,6 @@ import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
@@ -268,7 +267,6 @@ public abstract class DirBasedAuthentication extends AuthManager implements IExt
         mConfig = config;
         String method = "DirBasedAuthentication: init: ";
 
-        CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
         /* initialize ldap server configuration */
@@ -438,7 +436,6 @@ public abstract class DirBasedAuthentication extends AuthManager implements IExt
 
         logger.debug(method + " begins...mBoundConnEnable=" + mBoundConnEnable);
 
-        CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
         PKISocketConfig socketConfig = cs.getSocketConfig();

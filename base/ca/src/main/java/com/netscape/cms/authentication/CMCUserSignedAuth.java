@@ -250,8 +250,8 @@ public class CMCUserSignedAuth extends AuthManager implements IExtendedPluginInf
         String msg = "";
         logger.debug(method + "begins");
 
-        CAEngine engine = CAEngine.getInstance();
-        CAEngineConfig cs = engine.getConfig();
+        CAEngine caEngine = (CAEngine) engine;
+        CAEngineConfig cs = caEngine.getConfig();
 
         String auditSubjectID = getAuditSubjectID();
         String auditReqType = ILogger.UNIDENTIFIED;
@@ -489,7 +489,7 @@ public class CMCUserSignedAuth extends AuthManager implements IExtendedPluginInf
                                     // have a chance to capture user identification info
                                     if (issuerANY != null) {
                                         // get CA signing cert
-                                        CertificateAuthority ca = engine.getCA();
+                                        CertificateAuthority ca = caEngine.getCA();
                                         X500Name caName = ca.getX500Name();
 
                                         try {
@@ -910,8 +910,8 @@ public class CMCUserSignedAuth extends AuthManager implements IExtendedPluginInf
         String msg = "";
         logger.debug(method + "begins");
 
-        CAEngine engine = CAEngine.getInstance();
-        CAEngineConfig cs = engine.getConfig();
+        CAEngine caEngine = (CAEngine) engine;
+        CAEngineConfig cs = caEngine.getConfig();
 
         EncapsulatedContentInfo ci = cmcFullReq.getContentInfo();
         OBJECT_IDENTIFIER id = ci.getContentType();

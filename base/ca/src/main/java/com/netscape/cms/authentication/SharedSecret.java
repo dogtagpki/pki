@@ -169,8 +169,8 @@ public class SharedSecret extends DirBasedAuthentication
         logger.debug(method + " begins.");
         super.init(authenticationConfig, name, implName, config);
 
-        CAEngine engine = CAEngine.getInstance();
-        CAEngineConfig cs = engine.getConfig();
+        CAEngine caEngine = (CAEngine) engine;
+        CAEngineConfig cs = caEngine.getConfig();
 
         //TODO later:
         //mRemoveShrTok =
@@ -195,7 +195,7 @@ public class SharedSecret extends DirBasedAuthentication
 
         initLdapConn(config);
 
-        issuanceProtPrivKey = engine.getIssuanceProtectionPrivateKey();
+        issuanceProtPrivKey = caEngine.getIssuanceProtectionPrivateKey();
         if (issuanceProtPrivKey != null)
             logger.debug(method + "got issuanceProtPrivKey");
         else {
@@ -203,7 +203,7 @@ public class SharedSecret extends DirBasedAuthentication
             logger.error(msg);
             throw new EBaseException(msg);
         }
-        certRepository = engine.getCertificateRepository();
+        certRepository = caEngine.getCertificateRepository();
         if (certRepository == null) {
             msg = method + "certRepository null";
             logger.error(msg);
@@ -240,8 +240,8 @@ public class SharedSecret extends DirBasedAuthentication
         String method = "SharedSecret.initLdapConn";
         String msg = "";
 
-        CAEngine engine = CAEngine.getInstance();
-        CAEngineConfig cs = engine.getConfig();
+        CAEngine caEngine = (CAEngine) engine;
+        CAEngineConfig cs = caEngine.getConfig();
 
         shrTokLdapConfigStore = config.getLDAPConfig();
         if (shrTokLdapConfigStore == null) {
