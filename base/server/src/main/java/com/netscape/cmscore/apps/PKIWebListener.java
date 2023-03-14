@@ -49,7 +49,10 @@ public abstract class PKIWebListener implements ServletContextListener {
         }
 
         // Register realm for this subsystem
-        ProxyRealm.registerRealm(id, new PKIRealm());
+        PKIRealm realm = new PKIRealm();
+        realm.setCMSEngine(engine);
+
+        ProxyRealm.registerRealm(id, realm);
     }
 
     @Override

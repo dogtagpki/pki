@@ -22,7 +22,6 @@ import com.netscape.certsrv.logging.event.AuthEvent;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
-import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.authentication.CertUserDBAuthentication;
@@ -44,6 +43,19 @@ public class PKIRealm extends RealmBase {
 
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
+    protected CMSEngine engine;
+
+    public PKIRealm() {
+    }
+
+    public CMSEngine getCMSEngine() {
+        return engine;
+    }
+
+    public void setCMSEngine(CMSEngine engine) {
+        this.engine = engine;
+    }
+
     protected String getName() {
         return "PKIRealm";
     }
@@ -53,7 +65,6 @@ public class PKIRealm extends RealmBase {
 
         logger.info("PKIRealm: Authenticating user " + username + " with password");
 
-        CMSEngine engine = CMS.getCMSEngine();
         String auditSubjectID = ILogger.UNIDENTIFIED;
         String attemptedAuditUID = username;
 
@@ -115,7 +126,6 @@ public class PKIRealm extends RealmBase {
         // in cert based auth, subject id from cert has already passed SSL authentication
         // what remains is to see if the user exists in the internal user db
         // therefore both auditSubjectID and attemptedAuditUID are the same
-        CMSEngine engine = CMS.getCMSEngine();
         String auditSubjectID = getAuditUserfromCert(certs[0]);
         String attemptedAuditUID = auditSubjectID;
 
@@ -201,7 +211,6 @@ public class PKIRealm extends RealmBase {
     }
 
     protected User getUser(String username) throws EUsrGrpException {
-        CMSEngine engine = CMS.getCMSEngine();
         UGSubsystem ugSub = engine.getUGSubsystem();
         User user = ugSub.getUser(username);
         logger.info("PKIRealm: User DN: " + user.getUserDN());
@@ -212,7 +221,6 @@ public class PKIRealm extends RealmBase {
 
         List<String> roles = new ArrayList<>();
 
-        CMSEngine engine = CMS.getCMSEngine();
         UGSubsystem ugSub = engine.getUGSubsystem();
         Enumeration<Group> groups = ugSub.findGroupsByUser(user.getUserDN(), null);
 
