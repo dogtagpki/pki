@@ -45,8 +45,6 @@ import netscape.ldap.LDAPv3;
 /**
  * A class for ldap acls based authorization manager
  * The ldap server used for acls is the cms internal ldap db.
- *
- * @version $Revision$, $Date$
  */
 public class DirAclAuthz extends AAclAuthz
         implements IExtendedPluginInfo {

@@ -25,11 +25,11 @@ import java.util.Vector;
 
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthorizationConfig;
+import org.dogtagpki.server.authorization.AuthzManager;
 import org.dogtagpki.server.authorization.AuthzManagerConfig;
 import org.dogtagpki.server.authorization.AuthzManagerProxy;
 import org.dogtagpki.server.authorization.AuthzManagersConfig;
 import org.dogtagpki.server.authorization.AuthzToken;
-import org.dogtagpki.server.authorization.IAuthzManager;
 
 import com.netscape.certsrv.authorization.AuthzMgrPlugin;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
@@ -134,10 +134,10 @@ public class AuthzSubsystem extends Subsystem {
 
                 boolean isEnable = false;
                 // Instantiate and init the authorization manager.
-                IAuthzManager authzMgrInst = null;
+                AuthzManager authzMgrInst = null;
 
                 try {
-                    authzMgrInst = (IAuthzManager) Class.forName(className).getDeclaredConstructor().newInstance();
+                    authzMgrInst = (AuthzManager) Class.forName(className).getDeclaredConstructor().newInstance();
 
                     authzMgrInst.init(insName, implName, authzMgrConfig);
                     isEnable = true;
@@ -202,7 +202,7 @@ public class AuthzSubsystem extends Subsystem {
         if (!proxy.isEnable()) {
             throw new EAuthzMgrNotFound(CMS.getUserMessage("CMS_AUTHORIZATION_AUTHZMGR_NOT_FOUND", authzMgrInstName));
         }
-        IAuthzManager authzMgrInst = proxy.getAuthzManager();
+        AuthzManager authzMgrInst = proxy.getAuthzManager();
 
         if (authzMgrInst == null) {
             throw new EAuthzMgrNotFound(CMS.getUserMessage("CMS_AUTHORIZATION_AUTHZMGR_NOT_FOUND", authzMgrInstName));
@@ -235,7 +235,7 @@ public class AuthzSubsystem extends Subsystem {
         if (!proxy.isEnable()) {
             throw new EAuthzMgrNotFound(CMS.getUserMessage("CMS_AUTHORIZATION_AUTHZMGR_NOT_FOUND", authzMgrInstName));
         }
-        IAuthzManager authzMgrInst = proxy.getAuthzManager();
+        AuthzManager authzMgrInst = proxy.getAuthzManager();
 
         if (authzMgrInst == null) {
             throw new EAuthzMgrNotFound(CMS.getUserMessage("CMS_AUTHORIZATION_AUTHZMGR_NOT_FOUND", authzMgrInstName));
@@ -264,7 +264,7 @@ public class AuthzSubsystem extends Subsystem {
         if (!proxy.isEnable()) {
             throw new EAuthzMgrNotFound(CMS.getUserMessage("CMS_AUTHORIZATION_AUTHZMGR_NOT_FOUND", authzMgrInstName));
         }
-        IAuthzManager authzMgrInst = proxy.getAuthzManager();
+        AuthzManager authzMgrInst = proxy.getAuthzManager();
 
         if (authzMgrInst == null) {
             throw new EAuthzMgrNotFound(CMS.getUserMessage("CMS_AUTHORIZATION_AUTHZMGR_NOT_FOUND", authzMgrInstName));
@@ -291,11 +291,11 @@ public class AuthzSubsystem extends Subsystem {
         }
 
         // a temporary instance
-        IAuthzManager authzMgrInst = null;
+        AuthzManager authzMgrInst = null;
         String className = plugin.getClassPath();
 
         try {
-            authzMgrInst = (IAuthzManager) Class.forName(className).getDeclaredConstructor().newInstance();
+            authzMgrInst = (AuthzManager) Class.forName(className).getDeclaredConstructor().newInstance();
             return (authzMgrInst.getConfigParams());
         } catch (Exception e) {
             logger.error("AuthzSubsystem: " + CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_NOT_CREATED", e.toString()), e);
@@ -309,7 +309,7 @@ public class AuthzSubsystem extends Subsystem {
      * @param name name of the authorization manager instance
      * @param authzMgrInst the authorization manager instance to be added
      */
-    public void add(String name, IAuthzManager authzMgrInst) {
+    public void add(String name, AuthzManager authzMgrInst) {
         mAuthzMgrInsts.put(name, new AuthzManagerProxy(true, authzMgrInst));
     }
 
@@ -327,7 +327,7 @@ public class AuthzSubsystem extends Subsystem {
      * @param name name of the authorization manager instance
      * @return the named authorization manager instance
      */
-    public IAuthzManager get(String name) {
+    public AuthzManager get(String name) {
         AuthzManagerProxy proxy = mAuthzMgrInsts.get(name);
 
         if (proxy == null)
@@ -338,12 +338,12 @@ public class AuthzSubsystem extends Subsystem {
     /**
      * Enumerate all authorization manager instances.
      */
-    public Enumeration<IAuthzManager> getAuthzManagers() {
-        Vector<IAuthzManager> inst = new Vector<>();
+    public Enumeration<AuthzManager> getAuthzManagers() {
+        Vector<AuthzManager> inst = new Vector<>();
         Enumeration<String> e = mAuthzMgrInsts.keys();
 
         while (e.hasMoreElements()) {
-            IAuthzManager p = get(e.nextElement());
+            AuthzManager p = get(e.nextElement());
 
             if (p != null) {
                 inst.addElement(p);
@@ -371,13 +371,13 @@ public class AuthzSubsystem extends Subsystem {
      */
 
     /* getconfigparams above should be recoded to use this func */
-    public IAuthzManager getAuthzManagerPlugin(String name) {
+    public AuthzManager getAuthzManagerPlugin(String name) {
         AuthzMgrPlugin plugin = mAuthzMgrPlugins.get(name);
         String classpath = plugin.getClassPath();
-        IAuthzManager authzMgrInst = null;
+        AuthzManager authzMgrInst = null;
 
         try {
-            authzMgrInst = (IAuthzManager) Class.forName(classpath).getDeclaredConstructor().newInstance();
+            authzMgrInst = (AuthzManager) Class.forName(classpath).getDeclaredConstructor().newInstance();
             return (authzMgrInst);
         } catch (Exception e) {
             logger.warn("AuthzSubsystem: " + CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_NOT_CREATED", e.toString()), e);
@@ -424,7 +424,7 @@ public class AuthzSubsystem extends Subsystem {
     @Override
     public void shutdown() {
         for (AuthzManagerProxy proxy : mAuthzMgrInsts.values()) {
-            IAuthzManager mgr = proxy.getAuthzManager();
+            AuthzManager mgr = proxy.getAuthzManager();
 
             //String infoMsg =
             //        "Shutting down authz manager instance " + mgr.getName();
@@ -471,7 +471,7 @@ public class AuthzSubsystem extends Subsystem {
      * @param name of the authorization manager
      * @return the named authorization manager
      */
-    public IAuthzManager getAuthzManager(String name) {
+    public AuthzManager getAuthzManager(String name) {
         return get(name);
     }
 
@@ -509,7 +509,7 @@ public class AuthzSubsystem extends Subsystem {
      */
     public String getAuthzManagerNameByRealm(String realm) throws EAuthzUnknownRealm {
         for (AuthzManagerProxy proxy : mAuthzMgrInsts.values()) {
-            IAuthzManager mgr = proxy.getAuthzManager();
+            AuthzManager mgr = proxy.getAuthzManager();
             if (mgr != null) {
                 AuthzManagerConfig cfg = mgr.getConfigStore();
                 String mgrRealmString = null;

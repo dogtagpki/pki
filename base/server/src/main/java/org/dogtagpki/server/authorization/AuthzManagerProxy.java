@@ -25,7 +25,7 @@ package org.dogtagpki.server.authorization;
  */
 public class AuthzManagerProxy {
     private boolean mEnable;
-    private IAuthzManager mMgr;
+    private AuthzManager mMgr;
 
     /**
      * Constructor
@@ -33,7 +33,7 @@ public class AuthzManagerProxy {
      * @param enable true if the authzMgr is enabled; false otherwise
      * @param mgr authorization manager instance
      */
-    public AuthzManagerProxy(boolean enable, IAuthzManager mgr) {
+    public AuthzManagerProxy(boolean enable, AuthzManager mgr) {
         mEnable = enable;
         mMgr = mgr;
     }
@@ -53,7 +53,7 @@ public class AuthzManagerProxy {
      *
      * @return an authorization manager instance
      */
-    public IAuthzManager getAuthzManager() {
+    public AuthzManager getAuthzManager() {
         return mMgr;
     }
 }

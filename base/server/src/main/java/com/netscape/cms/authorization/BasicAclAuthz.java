@@ -24,8 +24,6 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 
 /**
  * A class for basic acls authorization manager
- *
- * @version $Revision$, $Date$
  */
 public class BasicAclAuthz extends AAclAuthz
         implements IExtendedPluginInfo {

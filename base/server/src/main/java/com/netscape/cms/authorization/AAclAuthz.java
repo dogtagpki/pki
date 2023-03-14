@@ -24,9 +24,9 @@ import java.util.Vector;
 
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthorizationConfig;
+import org.dogtagpki.server.authorization.AuthzManager;
 import org.dogtagpki.server.authorization.AuthzManagerConfig;
 import org.dogtagpki.server.authorization.AuthzToken;
-import org.dogtagpki.server.authorization.IAuthzManager;
 import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.acls.ACLEntry;
@@ -47,7 +47,7 @@ import com.netscape.cmscore.base.ConfigStore;
  * resources, and provides protected method <CODE>checkPermission</CODE> for code that needs to verify access before
  * performing
  * actions.
- * <P>
+ *
  * Here is a sample resourceACLS for a resource
  *
  * <PRE>
@@ -59,13 +59,12 @@ import com.netscape.cmscore.base.ConfigStore;
  *
  * To perform permission checking, code call authz mgr authorize() method to verify access. See AuthzMgr for calling
  * example.
- * <P>
- * default "evaluators" are used to evaluate the "group=.." or "user=.." rules. See evaluator for more info
  *
- * @version $Revision$, $Date$
+ * Default "evaluators" are used to evaluate the "group=.." or "user=.." rules. See evaluator for more info.
+ *
  * @see <A HREF="http://developer.netscape.com/library/documentation/enterprise/admnunix/aclfiles.htm">ACL Files</A>
  */
-public abstract class AAclAuthz implements IAuthzManager {
+public abstract class AAclAuthz extends AuthzManager {
 
     public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AAclAuthz.class);
 

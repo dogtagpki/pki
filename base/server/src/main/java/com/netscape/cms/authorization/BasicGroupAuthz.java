@@ -22,9 +22,9 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import org.dogtagpki.server.authentication.AuthToken;
+import org.dogtagpki.server.authorization.AuthzManager;
 import org.dogtagpki.server.authorization.AuthzManagerConfig;
 import org.dogtagpki.server.authorization.AuthzToken;
-import org.dogtagpki.server.authorization.IAuthzManager;
 import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.acls.EACLsException;
@@ -38,7 +38,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 
-public class BasicGroupAuthz implements IAuthzManager, IExtendedPluginInfo {
+public class BasicGroupAuthz extends AuthzManager implements IExtendedPluginInfo {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(BasicGroupAuthz.class);
 

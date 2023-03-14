@@ -26,7 +26,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.dogtagpki.server.authorization.IAuthzManager;
+import org.dogtagpki.server.authorization.AuthzManager;
 
 import com.netscape.certsrv.acls.ACLEntry;
 import com.netscape.certsrv.base.EBaseException;
@@ -53,7 +53,7 @@ public class ACLAdminServlet extends AdminServlet {
     private static final long serialVersionUID = -322237202045924779L;
     private static final String PROP_EVAL = "accessEvaluator";
     private final static String INFO = "ACLAdminServlet";
-    private IAuthzManager mAuthzMgr = null;
+    private AuthzManager mAuthzMgr;
 
     /**
      * initialize the servlet.

@@ -32,11 +32,8 @@ import com.netscape.cms.authorization.ACL;
 /**
  * Authorization Manager interface needs to be implemented by all
  * authorization managers.
- * <P>
- *
- * @version $Revision$, $Date$
  */
-public interface IAuthzManager {
+public abstract class AuthzManager {
 
     /**
      * Get the name of this authorization manager instance.
@@ -44,7 +41,7 @@ public interface IAuthzManager {
      *
      * @return String the name of this authorization manager.
      */
-    public String getName();
+    public abstract String getName();
 
     /**
      * Get implementation name of authorization manager plugin.
@@ -58,7 +55,7 @@ public interface IAuthzManager {
      *
      * @return The name of the authorization manager plugin.
      */
-    public String getImplName();
+    public abstract String getImplName();
 
     /**
      * <code>accessInit</code> is for servlets who want to initialize their
@@ -75,7 +72,7 @@ public interface IAuthzManager {
      * @param accessInfo the access info string in the format specified in the authorization manager
      * @exception EBaseException error parsing the accessInfo
      */
-    public void accessInit(String accessInfo) throws EBaseException;
+    public abstract void accessInit(String accessInfo) throws EBaseException;
 
     /**
      * Check if the user is authorized to perform the given operation on the
@@ -88,10 +85,10 @@ public interface IAuthzManager {
      * @exception EAuthzInternalError if an internal error occurred.
      * @exception EAuthzAccessDenied if access denied
      */
-    public AuthzToken authorize(AuthToken authToken, String resource, String operation)
+    public abstract AuthzToken authorize(AuthToken authToken, String resource, String operation)
             throws EAuthzInternalError, EAuthzAccessDenied;
 
-    public AuthzToken authorize(AuthToken authToken, String expression)
+    public abstract AuthzToken authorize(AuthToken authToken, String expression)
             throws EAuthzInternalError, EAuthzAccessDenied;
 
     /**
@@ -102,14 +99,14 @@ public interface IAuthzManager {
      * @param config The configuration store for this authorization manager.
      * @exception EBaseException If an initialization error occurred.
      */
-    public void init(String name, String implName, AuthzManagerConfig config)
+    public abstract void init(String name, String implName, AuthzManagerConfig config)
             throws EBaseException;
 
     /**
      * Prepare this authorization manager for a graceful shutdown.
      * Called when the server is exiting for any cleanup needed.
      */
-    public void shutdown();
+    public abstract void shutdown();
 
     /**
      * Get configuration parameters for this implementation.
@@ -120,7 +117,7 @@ public interface IAuthzManager {
      * @return a list of names for configuration parameters.
      * @exception EBaseException If an internal error occurred
      */
-    public String[] getConfigParams()
+    public abstract String[] getConfigParams()
             throws EBaseException;
 
     /**
@@ -128,14 +125,14 @@ public interface IAuthzManager {
      *
      * @return The configuration store of this authorization manager.
      */
-    public AuthzManagerConfig getConfigStore();
+    public abstract AuthzManagerConfig getConfigStore();
 
     /**
      * Get ACL entries
      *
      * @return enumeration of ACL entries.
      */
-    public Enumeration<ACL> getACLs();
+    public abstract Enumeration<ACL> getACLs();
 
     /**
      * Get individual ACL entry for the given name of entry.
@@ -143,7 +140,7 @@ public interface IAuthzManager {
      * @param target The name of the ACL entry
      * @return The ACL entry.
      */
-    public ACL getACL(String target);
+    public abstract ACL getACL(String target);
 
     /**
      * Update ACLs in the database
@@ -154,7 +151,7 @@ public interface IAuthzManager {
      * @param desc The description for this resource
      * @exception EACLsException when update fails.
      */
-    public void updateACLs(String id, String rights, String strACLs,
+    public abstract void updateACLs(String id, String rights, String strACLs,
             String desc) throws EACLsException;
 
     /**
@@ -162,7 +159,7 @@ public interface IAuthzManager {
      *
      * @return All registered evaluators.
      */
-    public Enumeration<IAccessEvaluator> aclEvaluatorElements();
+    public abstract Enumeration<IAccessEvaluator> aclEvaluatorElements();
 
     /**
      * Register new evaluator
@@ -170,12 +167,12 @@ public interface IAuthzManager {
      * @param type Type of evaluator
      * @param evaluator Value of evaluator
      */
-    public void registerEvaluator(String type, IAccessEvaluator evaluator);
+    public abstract void registerEvaluator(String type, IAccessEvaluator evaluator);
 
     /**
      * Return a table of evaluators
      *
      * @return A table of evaluators
      */
-    public Hashtable<String, IAccessEvaluator> getAccessEvaluators();
+    public abstract Hashtable<String, IAccessEvaluator> getAccessEvaluators();
 }
