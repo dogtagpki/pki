@@ -32,7 +32,6 @@ public class UserAccessEvaluator extends AccessEvaluator {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UserAccessEvaluator.class);
 
-    private String mType = "user";
     private String mDescription = "user equivalence evaluator";
 
     private final static String ANYBODY = "anybody";
@@ -42,6 +41,7 @@ public class UserAccessEvaluator extends AccessEvaluator {
      * Class constructor.
      */
     public UserAccessEvaluator() {
+        this.type = "user";
     }
 
     /**
@@ -50,16 +50,6 @@ public class UserAccessEvaluator extends AccessEvaluator {
     @Override
     public void init() {
         logger.debug("UserAccessEvaluator: init");
-    }
-
-    /**
-     * gets the type name for this acl evaluator
-     *
-     * @return type for this acl evaluator: "user" or "at_user"
-     */
-    @Override
-    public String getType() {
-        return mType;
     }
 
     /**
@@ -93,7 +83,7 @@ public class UserAccessEvaluator extends AccessEvaluator {
     @Override
     public boolean evaluate(AuthToken authToken, String type, String op, String value) {
 
-        if (type.equals(mType)) {
+        if (type.equals(this.type)) {
             String s = Utils.stripQuotes(value);
 
             if ((s.equals(ANYBODY) || s.equals(EVERYBODY)) && op.equals("="))
@@ -134,7 +124,7 @@ public class UserAccessEvaluator extends AccessEvaluator {
 
         SessionContext mSC = SessionContext.getContext();
 
-        if (type.equals(mType)) {
+        if (type.equals(this.type)) {
             String s = Utils.stripQuotes(value);
 
             if (s.equals(ANYBODY) && op.equals("="))

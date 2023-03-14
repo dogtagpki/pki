@@ -31,13 +31,13 @@ public class IPAddressAccessEvaluator extends AccessEvaluator {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(IPAddressAccessEvaluator.class);
 
-    private String mType = "ipaddress";
     private String mDescription = "IP Address evaluator";
 
     /**
      * Class constructor.
      */
     public IPAddressAccessEvaluator() {
+        this.type = "ipaddress";
     }
 
     /**
@@ -45,16 +45,6 @@ public class IPAddressAccessEvaluator extends AccessEvaluator {
      */
     @Override
     public void init() {
-    }
-
-    /**
-     * gets the type name for this acl evaluator
-     *
-     * @return type for this acl evaluator: ipaddress
-     */
-    @Override
-    public String getType() {
-        return mType;
     }
 
     /**
@@ -108,7 +98,7 @@ public class IPAddressAccessEvaluator extends AccessEvaluator {
         value = Utils.stripQuotes(value);
         String ipaddress = (String) mSC.get(SessionContext.IPADDRESS);
 
-        if (type.equals(mType)) {
+        if (type.equals(this.type)) {
             if (ipaddress == null) {
                 logger.warn("IPAddressAccessEvaluator: " + CMS.getLogMessage("EVALUATOR_IPADDRESS_NULL"));
                 return false;

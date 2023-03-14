@@ -36,7 +36,6 @@ public class UserOrigReqAccessEvaluator extends AccessEvaluator {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UserOrigReqAccessEvaluator.class);
 
-    private String mType = "user_origreq";
     private String mDescription = "user origreq matching evaluator";
 
     private final static String ANYBODY = "anybody";
@@ -46,6 +45,7 @@ public class UserOrigReqAccessEvaluator extends AccessEvaluator {
      * Class constructor.
      */
     public UserOrigReqAccessEvaluator() {
+        this.type = "user_origreq";
     }
 
     /**
@@ -54,16 +54,6 @@ public class UserOrigReqAccessEvaluator extends AccessEvaluator {
     @Override
     public void init() {
         logger.debug("UserOrigReqAccessEvaluator: init");
-    }
-
-    /**
-     * gets the type name for this acl evaluator
-     *
-     * @return type for this acl evaluator: "user_origreq" or "at_user_origreq"
-     */
-    @Override
-    public String getType() {
-        return mType;
     }
 
     /**
@@ -97,7 +87,7 @@ public class UserOrigReqAccessEvaluator extends AccessEvaluator {
     @Override
     public boolean evaluate(AuthToken authToken, String type, String op, String value) {
         logger.debug("UserOrigReqAccessEvaluator: evaluate() begins");
-        if (type.equals(mType)) {
+        if (type.equals(this.type)) {
             String s = Utils.stripQuotes(value);
 
             if ((s.equals(ANYBODY) || s.equals(EVERYBODY)) && op.equals("="))
@@ -147,7 +137,7 @@ public class UserOrigReqAccessEvaluator extends AccessEvaluator {
 
         SessionContext mSC = SessionContext.getContext();
 
-        if (type.equals(mType)) {
+        if (type.equals(this.type)) {
             // what do I do with s here?
             String s = Utils.stripQuotes(value);
 

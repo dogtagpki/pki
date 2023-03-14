@@ -37,7 +37,6 @@ public class GroupAccessEvaluator extends AccessEvaluator {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GroupAccessEvaluator.class);
 
-    private String mType = "group";
     private UGSubsystem mUG = null;
     private String mDescription = "group membership evaluator";
 
@@ -45,6 +44,7 @@ public class GroupAccessEvaluator extends AccessEvaluator {
      * Class constructor.
      */
     public GroupAccessEvaluator() {
+        this.type = "group";
 
         CMSEngine engine = CMS.getCMSEngine();
         mUG = engine.getUGSubsystem();
@@ -60,16 +60,6 @@ public class GroupAccessEvaluator extends AccessEvaluator {
     @Override
     public void init() {
         logger.debug("GroupAccessEvaluator: init");
-    }
-
-    /**
-     * gets the type name for this acl evaluator
-     *
-     * @return type for this acl evaluator: "group" or "at_group"
-     */
-    @Override
-    public String getType() {
-        return mType;
     }
 
     /**
@@ -105,7 +95,7 @@ public class GroupAccessEvaluator extends AccessEvaluator {
     @Override
     public boolean evaluate(AuthToken authToken, String type, String op, String value) {
 
-        if (type.equals(mType)) {
+        if (type.equals(this.type)) {
             // should define "uid" at a common place
             String uid = null;
 
@@ -162,7 +152,7 @@ public class GroupAccessEvaluator extends AccessEvaluator {
 
         SessionContext mSC = SessionContext.getContext();
 
-        if (type.equals(mType)) {
+        if (type.equals(this.type)) {
             User id = (User) mSC.get(SessionContext.USER);
 
             if (id == null) {

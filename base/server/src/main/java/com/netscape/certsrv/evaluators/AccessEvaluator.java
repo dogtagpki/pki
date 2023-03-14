@@ -28,6 +28,8 @@ import org.dogtagpki.server.authentication.AuthToken;
  */
 public abstract class AccessEvaluator {
 
+    protected String type;
+
     /**
      * Initialize the evaluator
      */
@@ -39,7 +41,9 @@ public abstract class AccessEvaluator {
      *
      * @return type of the evaluator
      */
-    public abstract String getType();
+    public String getType() {
+        return type;
+    }
 
     /**
      * Gets the description of the evaluator
