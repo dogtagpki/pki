@@ -39,7 +39,7 @@ import org.w3c.dom.NodeList;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.ISecurityDomainSessionTable;
+import com.netscape.certsrv.base.SecurityDomainSessionTable;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.base.UnauthorizedException;
@@ -132,11 +132,11 @@ public class SecurityDomainProcessor extends Processor {
         String auditParams = "operation;;issue_token+token;;" + sessionID + "+ip;;" + ip +
                       "+uid;;" + user + "+groupname;;" + group;
 
-        ISecurityDomainSessionTable ctable = engine.getSecurityDomainSessionTable();
+        SecurityDomainSessionTable ctable = engine.getSecurityDomainSessionTable();
         int status = ctable.addEntry(sessionID, ip, user, group);
         String message;
 
-        if (status == ISecurityDomainSessionTable.SUCCESS) {
+        if (status == SecurityDomainSessionTable.SUCCESS) {
             message = CMS.getLogMessage(
                                AuditEvent.SECURITY_DOMAIN_UPDATE,
                                user,

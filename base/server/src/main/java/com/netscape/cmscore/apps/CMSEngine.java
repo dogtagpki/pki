@@ -51,7 +51,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.ISecurityDomainSessionTable;
+import com.netscape.certsrv.base.SecurityDomainSessionTable;
 import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.request.IRequestListener;
@@ -132,7 +132,7 @@ public class CMSEngine {
     private long mStartupTime = 0;
     private boolean isStarted = false;
     private IPasswordStore mPasswordStore = null;
-    private ISecurityDomainSessionTable mSecurityDomainSessionTable = null;
+    private SecurityDomainSessionTable mSecurityDomainSessionTable = null;
     private Timer mSDTimer = null;
     private String mServerCertNickname = null;
     private boolean ready;
@@ -827,7 +827,7 @@ public class CMSEngine {
         return mode;
     }
 
-    public ISecurityDomainSessionTable getSecurityDomainSessionTable() {
+    public SecurityDomainSessionTable getSecurityDomainSessionTable() {
         return mSecurityDomainSessionTable;
     }
 

@@ -22,8 +22,8 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.base.SecurityDomainSessionTable;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -45,7 +45,7 @@ import netscape.ldap.LDAPv3;
  * Entries are stored under ou=Security Domain, ou=sessions, $basedn
  */
 public class LDAPSecurityDomainSessionTable
-        implements ISecurityDomainSessionTable {
+        extends SecurityDomainSessionTable {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LDAPSecurityDomainSessionTable.class);
 

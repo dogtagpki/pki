@@ -20,31 +20,32 @@ package com.netscape.certsrv.base;
 import java.util.Enumeration;
 
 /**
- * This interface defines the abstraction for the cookie table.
+ * This class defines the abstraction for the cookie table.
  **/
-public interface ISecurityDomainSessionTable {
+public abstract class SecurityDomainSessionTable {
+
     public static final int SUCCESS = 0;
     public static final int FAILURE = 1;
 
-    public int addEntry(String sessionID, String ip, String uid, String group) throws Exception;
+    public abstract int addEntry(String sessionID, String ip, String uid, String group) throws Exception;
 
-    public int removeEntry(String sessionID) throws Exception;
+    public abstract int removeEntry(String sessionID) throws Exception;
 
-    public boolean sessionExists(String sessionID) throws Exception;
+    public abstract boolean sessionExists(String sessionID) throws Exception;
 
-    public String getIP(String sessionID) throws Exception;
+    public abstract String getIP(String sessionID) throws Exception;
 
-    public String getUID(String sessionID) throws Exception;
+    public abstract String getUID(String sessionID) throws Exception;
 
-    public String getGroup(String sessionID) throws Exception;
+    public abstract String getGroup(String sessionID) throws Exception;
 
-    public long getBeginTime(String sessionID) throws Exception;
+    public abstract long getBeginTime(String sessionID) throws Exception;
 
-    public int getSize() throws Exception;
+    public abstract int getSize() throws Exception;
 
-    public long getTimeToLive();
+    public abstract long getTimeToLive();
 
-    public Enumeration<String> getSessionIDs() throws Exception;
+    public abstract Enumeration<String> getSessionIDs() throws Exception;
 
-    public void shutdown();
+    public abstract void shutdown();
 }

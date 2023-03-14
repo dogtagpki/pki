@@ -22,13 +22,13 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import com.netscape.certsrv.base.ISecurityDomainSessionTable;
+import com.netscape.certsrv.base.SecurityDomainSessionTable;
 
 /**
  * This object stores the values for IP, uid and group based on the cookie id.
  */
 public class MemorySecurityDomainSessionTable
-        implements ISecurityDomainSessionTable {
+        extends SecurityDomainSessionTable {
 
     private Hashtable<String, Vector<Comparable<?>>> m_sessions;
     private long m_timeToLive;

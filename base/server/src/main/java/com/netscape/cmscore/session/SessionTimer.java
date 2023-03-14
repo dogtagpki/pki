@@ -21,7 +21,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.TimerTask;
 
-import com.netscape.certsrv.base.ISecurityDomainSessionTable;
+import com.netscape.certsrv.base.SecurityDomainSessionTable;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.logging.Logger;
@@ -33,9 +33,9 @@ public class SessionTimer extends TimerTask {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SessionTimer.class);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
-    private ISecurityDomainSessionTable m_sessiontable = null;
+    private SecurityDomainSessionTable m_sessiontable = null;
 
-    public SessionTimer(ISecurityDomainSessionTable table) {
+    public SessionTimer(SecurityDomainSessionTable table) {
         super();
         m_sessiontable = table;
     }
