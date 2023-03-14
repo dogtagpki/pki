@@ -22,8 +22,6 @@ import com.netscape.certsrv.logging.SignedAuditEvent;
 
 public class RoleAssumeEvent extends SignedAuditEvent {
 
-    private static final long serialVersionUID = 1L;
-
     public final static String LOGGING_PROPERTY =
             "LOGGING_SIGNED_AUDIT_ROLE_ASSUME";
 

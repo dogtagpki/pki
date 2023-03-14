@@ -25,8 +25,6 @@ import com.netscape.certsrv.logging.SignedAuditEvent;
 
 public class CertSigningInfoEvent extends SignedAuditEvent {
 
-    private static final long serialVersionUID = 1L;
-
     public final static String CERT_SIGNING_INFO =
             "LOGGING_SIGNED_AUDIT_CERT_SIGNING_INFO";
 

@@ -22,8 +22,6 @@ import com.netscape.certsrv.logging.SignedAuditEvent;
 
 public class CMCUserSignedRequestSigVerifyEvent extends SignedAuditEvent {
 
-    private static final long serialVersionUID = 1L;
-
     public final static String CMC_USER_SIGNED_REQUEST_SIG_VERIFY_SUCCESS =
             "LOGGING_SIGNED_AUDIT_CMC_USER_SIGNED_REQUEST_SIG_VERIFY_SUCCESS";
 

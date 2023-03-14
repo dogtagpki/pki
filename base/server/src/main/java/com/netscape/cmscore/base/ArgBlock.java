@@ -49,7 +49,6 @@ import com.netscape.cmscore.apps.CMS;
 public class ArgBlock {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ArgBlock.class);
-    private static final long serialVersionUID = -6054531129316353282L;
     /*==========================================================
      * variables
      *==========================================================*/

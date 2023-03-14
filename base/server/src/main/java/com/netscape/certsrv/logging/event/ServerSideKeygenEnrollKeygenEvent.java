@@ -22,8 +22,6 @@ import com.netscape.certsrv.request.RequestId;
 
 public class ServerSideKeygenEnrollKeygenEvent extends SignedAuditEvent {
 
-    private static final long serialVersionUID = 1L;
-
     private static final String LOGGING_PROPERTY =
             "LOGGING_SIGNED_AUDIT_SERVER_SIDE_KEYGEN_ENROLL_KEYGEN_REQUEST";
 

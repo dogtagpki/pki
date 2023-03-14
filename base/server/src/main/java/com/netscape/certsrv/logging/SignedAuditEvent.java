@@ -34,8 +34,6 @@ import com.netscape.certsrv.common.Constants;
  */
 public class SignedAuditEvent extends LogEvent {
 
-    private static final long serialVersionUID = 4287822756516673931L;
-
     public final static String RULENAME = "RULENAME";
     public final static String PASSWORD_MASK = "********";
     public final static String NAME_VALUE_DELIMITER = ";;";

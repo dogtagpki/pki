@@ -24,8 +24,6 @@ import com.netscape.certsrv.logging.SignedAuditEvent;
 
 public class RandomGenerationEvent extends SignedAuditEvent {
 
-    private static final long serialVersionUID = 1L;
-
     private final static String RANDOM_GENERATION =
             "LOGGING_SIGNED_AUDIT_RANDOM_GENERATION";
 

@@ -140,8 +140,6 @@ public class AuditEvent extends LogEvent {
     public final static String AUDIT_LOG_SIGNING =
             "LOGGING_SIGNED_AUDIT_AUDIT_LOG_SIGNING_3";
 
-    private static final long serialVersionUID = -844306657733902324L;
-
     public AuditEvent() {
     }
 

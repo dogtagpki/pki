@@ -22,8 +22,6 @@ import com.netscape.certsrv.logging.SignedAuditEvent;
 
 public class OCSPAddCARequestEvent extends SignedAuditEvent {
 
-    private static final long serialVersionUID = 1L;
-
     public final static String OCSP_ADD_CA_REQUEST =
             "LOGGING_SIGNED_AUDIT_OCSP_ADD_CA_REQUEST";
 

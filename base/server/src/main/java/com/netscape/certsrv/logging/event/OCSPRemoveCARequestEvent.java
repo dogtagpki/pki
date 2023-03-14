@@ -22,8 +22,6 @@ import com.netscape.certsrv.logging.SignedAuditEvent;
 
 public class OCSPRemoveCARequestEvent extends SignedAuditEvent {
 
-    private static final long serialVersionUID = 1L;
-
     public final static String OCSP_REMOVE_CA_REQUEST =
             "LOGGING_SIGNED_AUDIT_OCSP_REMOVE_CA_REQUEST";
 

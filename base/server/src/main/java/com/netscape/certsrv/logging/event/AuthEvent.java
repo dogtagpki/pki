@@ -22,8 +22,6 @@ import com.netscape.certsrv.logging.SignedAuditEvent;
 
 public class AuthEvent extends SignedAuditEvent {
 
-    private static final long serialVersionUID = 1L;
-
     public final static String AUTH_SUCCESS =
             "LOGGING_SIGNED_AUDIT_AUTH_SUCCESS";
 
