@@ -38,6 +38,9 @@ public abstract class AuthzManager {
     // name of this authorization manager instance
     protected String name;
 
+    // name of the authorization manager plugin
+    protected String implName;
+
     /**
      * Get the name of this authorization manager instance.
      *
@@ -49,17 +52,18 @@ public abstract class AuthzManager {
 
     /**
      * Get implementation name of authorization manager plugin.
-     * <p>
+     *
      * An example of an implementation name will be:
      *
      * <PRE>
      * com.netscape.cms.BasicAclAuthz
      * </PRE>
-     * <p>
      *
      * @return The name of the authorization manager plugin.
      */
-    public abstract String getImplName();
+    public String getImplName() {
+        return implName;
+    }
 
     /**
      * <code>accessInit</code> is for servlets who want to initialize their

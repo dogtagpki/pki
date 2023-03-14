@@ -76,9 +76,6 @@ public abstract class AAclAuthz extends AuthzManager {
 
     protected static final String ACLS_ATTR = "aclResources";
 
-    /* name of the authorization manager plugin */
-    private String mImplName = null;
-
     private AuthzManagerConfig mConfig;
 
     private Hashtable<String, ACL> mACLs = new Hashtable<>();
@@ -107,7 +104,7 @@ public abstract class AAclAuthz extends AuthzManager {
             throws EBaseException {
 
         this.name = name;
-        mImplName = implName;
+        this.implName = implName;
         mConfig = config;
 
         logger.debug("AAclAuthz: init begins");
@@ -153,14 +150,6 @@ public abstract class AAclAuthz extends AuthzManager {
         }
 
         logger.info("AAclAuthz: initialization done");
-    }
-
-    /**
-     * gets the plugin name of this authorization manager.
-     */
-    @Override
-    public String getImplName() {
-        return mImplName;
     }
 
     /**
