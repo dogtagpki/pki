@@ -24,7 +24,7 @@ import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.evaluators.IAccessEvaluator;
+import com.netscape.certsrv.evaluators.AccessEvaluator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
@@ -32,11 +32,8 @@ import com.netscape.cmscore.usrgrp.User;
 
 /**
  * A class represents a group acls evaluator.
- * <P>
- *
- * @version $Revision$, $Date$
  */
-public class GroupAccessEvaluator implements IAccessEvaluator {
+public class GroupAccessEvaluator extends AccessEvaluator {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GroupAccessEvaluator.class);
 

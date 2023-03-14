@@ -25,16 +25,13 @@ import org.dogtagpki.server.authentication.AuthToken;
  * evaluate if a user belongs to a certain group. An evaluator is
  * generally used for access control expression evaluation, however, it
  * can be used for other evaluation-related operations.
- * <P>
- *
- * @version $Revision$, $Date$
  */
-public interface IAccessEvaluator {
+public abstract class AccessEvaluator {
 
     /**
      * Initialize the evaluator
      */
-    public void init();
+    public abstract void init();
 
     /**
      * Gets the type of the evaluator. Type is defined by each
@@ -42,14 +39,14 @@ public interface IAccessEvaluator {
      *
      * @return type of the evaluator
      */
-    public String getType();
+    public abstract String getType();
 
     /**
      * Gets the description of the evaluator
      *
      * @return a text description for this evaluator
      */
-    public String getDescription();
+    public abstract String getDescription();
 
     /**
      * Evaluates if the given value satisfies the access
@@ -63,7 +60,7 @@ public interface IAccessEvaluator {
      *            of the group.
      * @return true if the evaluation expression is matched; false otherwise.
      */
-    public boolean evaluate(String type, String op, String value);
+    public abstract boolean evaluate(String type, String op, String value);
 
     /**
      * Evaluates if the given value satisfies the access
@@ -78,12 +75,12 @@ public interface IAccessEvaluator {
      *            of the group.
      * @return true if the evaluation expression is matched; false otherwise.
      */
-    public boolean evaluate(AuthToken authToken, String type, String op, String value);
+    public abstract boolean evaluate(AuthToken authToken, String type, String op, String value);
 
     /**
      * Get the supported operators for this evaluator
      *
      * @return Supported operators in string array
      */
-    public String[] getSupportedOperators();
+    public abstract String[] getSupportedOperators();
 }

@@ -26,7 +26,7 @@ import com.netscape.certsrv.acls.EACLsException;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzInternalError;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.evaluators.IAccessEvaluator;
+import com.netscape.certsrv.evaluators.AccessEvaluator;
 import com.netscape.cms.authorization.ACL;
 
 /**
@@ -172,7 +172,7 @@ public abstract class AuthzManager {
      *
      * @return All registered evaluators.
      */
-    public abstract Enumeration<IAccessEvaluator> aclEvaluatorElements();
+    public abstract Enumeration<AccessEvaluator> aclEvaluatorElements();
 
     /**
      * Register new evaluator
@@ -180,12 +180,12 @@ public abstract class AuthzManager {
      * @param type Type of evaluator
      * @param evaluator Value of evaluator
      */
-    public abstract void registerEvaluator(String type, IAccessEvaluator evaluator);
+    public abstract void registerEvaluator(String type, AccessEvaluator evaluator);
 
     /**
      * Return a table of evaluators
      *
      * @return A table of evaluators
      */
-    public abstract Hashtable<String, IAccessEvaluator> getAccessEvaluators();
+    public abstract Hashtable<String, AccessEvaluator> getAccessEvaluators();
 }

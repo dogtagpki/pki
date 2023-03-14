@@ -32,7 +32,7 @@ import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzInternalError;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.evaluators.IAccessEvaluator;
+import com.netscape.certsrv.evaluators.AccessEvaluator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.usrgrp.Group;
@@ -144,19 +144,19 @@ public class BasicGroupAuthz extends AuthzManager implements IExtendedPluginInfo
     }
 
     @Override
-    public Enumeration<IAccessEvaluator> aclEvaluatorElements() {
+    public Enumeration<AccessEvaluator> aclEvaluatorElements() {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public void registerEvaluator(String type, IAccessEvaluator evaluator) {
+    public void registerEvaluator(String type, AccessEvaluator evaluator) {
         // TODO Auto-generated method stub
 
     }
 
     @Override
-    public Hashtable<String, IAccessEvaluator> getAccessEvaluators() {
+    public Hashtable<String, AccessEvaluator> getAccessEvaluators() {
         // TODO Auto-generated method stub
         return null;
     }

@@ -34,7 +34,7 @@ import com.netscape.certsrv.acls.EACLsException;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzInternalError;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.evaluators.IAccessEvaluator;
+import com.netscape.certsrv.evaluators.AccessEvaluator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -77,7 +77,7 @@ public abstract class AAclAuthz extends AuthzManager {
     protected static final String ACLS_ATTR = "aclResources";
 
     private Hashtable<String, ACL> mACLs = new Hashtable<>();
-    private Hashtable<String, IAccessEvaluator> mEvaluators = new Hashtable<>();
+    private Hashtable<String, AccessEvaluator> mEvaluators = new Hashtable<>();
 
     /* Vector of extendedPluginInfo strings */
     protected static Vector<String> mExtendedPluginInfo = null;
@@ -114,7 +114,7 @@ public abstract class AAclAuthz extends AuthzManager {
         ConfigStore evalConfig = mainConfig.getSubStore(PROP_EVAL, ConfigStore.class);
         ConfigStore i = evalConfig.getSubStore(PROP_IMPL, ConfigStore.class);
 
-        IAccessEvaluator evaluator = null;
+        AccessEvaluator evaluator = null;
         Enumeration<String> mImpls = i.getSubStoreNames().elements();
 
         while (mImpls.hasMoreElements()) {
@@ -132,7 +132,7 @@ public abstract class AAclAuthz extends AuthzManager {
 
             // instantiate evaluator
             try {
-                evaluator = (IAccessEvaluator) Class.forName(evalClassPath).getDeclaredConstructor().newInstance();
+                evaluator = (AccessEvaluator) Class.forName(evalClassPath).getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 throw new EACLsException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL",
                             evalClassPath));
@@ -218,7 +218,7 @@ public abstract class AAclAuthz extends AuthzManager {
      * in the expressions.
      */
     @Override
-    public void registerEvaluator(String type, IAccessEvaluator evaluator) {
+    public void registerEvaluator(String type, AccessEvaluator evaluator) {
         mEvaluators.put(type, evaluator);
         logger.info("AAclAuthz: " + type + " evaluator registered");
     }
@@ -428,7 +428,7 @@ public abstract class AAclAuthz extends AuthzManager {
         int i = expression.indexOf("=");
         String type = expression.substring(0, i);
         String value = expression.substring(i + 1);
-        IAccessEvaluator evaluator = mEvaluators.get(type);
+        AccessEvaluator evaluator = mEvaluators.get(type);
 
         if (evaluator == null) {
             logger.warn("AAclAuthz: " + CMS.getLogMessage("AUTHZ_EVALUATOR_NOT_FOUND", type));
@@ -657,7 +657,7 @@ public abstract class AAclAuthz extends AuthzManager {
             type = expression.substring(0, i).trim();
             value = expression.substring(i + len).trim();
         }
-        IAccessEvaluator evaluator = mEvaluators.get(type);
+        AccessEvaluator evaluator = mEvaluators.get(type);
 
         if (evaluator == null) {
             logger.warn("AAclAuthz: " + CMS.getLogMessage("AUTHZ_EVALUATOR_NOT_FOUND", type));
@@ -745,7 +745,7 @@ public abstract class AAclAuthz extends AuthzManager {
      * @return an enumeraton of access evaluators
      */
     @Override
-    public Enumeration<IAccessEvaluator> aclEvaluatorElements() {
+    public Enumeration<AccessEvaluator> aclEvaluatorElements() {
         return (mEvaluators.elements());
     }
 
@@ -755,7 +755,7 @@ public abstract class AAclAuthz extends AuthzManager {
      * @return handle to the access evaluators table
      */
     @Override
-    public Hashtable<String, IAccessEvaluator> getAccessEvaluators() {
+    public Hashtable<String, AccessEvaluator> getAccessEvaluators() {
         return mEvaluators;
     }
 

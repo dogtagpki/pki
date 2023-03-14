@@ -21,7 +21,7 @@ import org.dogtagpki.server.authentication.AuthToken;
 import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.evaluators.IAccessEvaluator;
+import com.netscape.certsrv.evaluators.AccessEvaluator;
 import com.netscape.cmscore.usrgrp.User;
 
 /**
@@ -29,12 +29,10 @@ import com.netscape.cmscore.usrgrp.User;
  * This is primarily used for renewal. During renewal, the orig_req
  * uid is placed in the SessionContext of the renewal session context
  * to be evaluated by this evaluator
- * <P>
  *
  * @author Christina Fu
- * @version $Revision$, $Date$
  */
-public class UserOrigReqAccessEvaluator implements IAccessEvaluator {
+public class UserOrigReqAccessEvaluator extends AccessEvaluator {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UserOrigReqAccessEvaluator.class);
 

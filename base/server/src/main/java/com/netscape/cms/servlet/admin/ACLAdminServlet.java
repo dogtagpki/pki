@@ -34,7 +34,7 @@ import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
-import com.netscape.certsrv.evaluators.IAccessEvaluator;
+import com.netscape.certsrv.evaluators.AccessEvaluator;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.authorization.ACL;
@@ -438,10 +438,10 @@ public class ACLAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException, IOException,
             EBaseException {
         NameValuePairs params = new NameValuePairs();
-        Enumeration<IAccessEvaluator> res = mAuthzMgr.aclEvaluatorElements();
+        Enumeration<AccessEvaluator> res = mAuthzMgr.aclEvaluatorElements();
 
         while (res.hasMoreElements()) {
-            IAccessEvaluator evaluator = res.nextElement();
+            AccessEvaluator evaluator = res.nextElement();
 
             // params.add(evaluator.getType(), evaluator.getDescription());
             params.put(evaluator.getType(), evaluator.getClass().getName());
@@ -454,10 +454,10 @@ public class ACLAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException, IOException,
             EBaseException {
         NameValuePairs params = new NameValuePairs();
-        Enumeration<IAccessEvaluator> res = mAuthzMgr.aclEvaluatorElements();
+        Enumeration<AccessEvaluator> res = mAuthzMgr.aclEvaluatorElements();
 
         while (res.hasMoreElements()) {
-            IAccessEvaluator evaluator = res.nextElement();
+            AccessEvaluator evaluator = res.nextElement();
             String[] operators = evaluator.getSupportedOperators();
             StringBuffer str = new StringBuffer();
 
@@ -625,10 +625,10 @@ public class ACLAdminServlet extends AdminServlet {
             }
 
             // Instantiate an object for this implementation
-            IAccessEvaluator evaluator = null;
+            AccessEvaluator evaluator = null;
 
             try {
-                evaluator = (IAccessEvaluator) Class.forName(classPath).getDeclaredConstructor().newInstance();
+                evaluator = (AccessEvaluator) Class.forName(classPath).getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 logger.error("ACLAdminServlet: " + e.getMessage(), e);
 
@@ -754,7 +754,7 @@ public class ACLAdminServlet extends AdminServlet {
             }
 
             // does the evaluator exist?
-            Hashtable<String, IAccessEvaluator> mEvaluators = mAuthzMgr.getAccessEvaluators();
+            Hashtable<String, AccessEvaluator> mEvaluators = mAuthzMgr.getAccessEvaluators();
 
             if (mEvaluators.containsKey(id) == false) {
                 logger.error("evaluator attempted to be removed not found");

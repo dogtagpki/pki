@@ -21,17 +21,14 @@ import org.dogtagpki.server.authentication.AuthToken;
 import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.evaluators.IAccessEvaluator;
+import com.netscape.certsrv.evaluators.AccessEvaluator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.usrgrp.User;
 
 /**
  * A class represents a user acls evaluator.
- * <P>
- *
- * @version $Revision$, $Date$
  */
-public class UserAccessEvaluator implements IAccessEvaluator {
+public class UserAccessEvaluator extends AccessEvaluator {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UserAccessEvaluator.class);
 
