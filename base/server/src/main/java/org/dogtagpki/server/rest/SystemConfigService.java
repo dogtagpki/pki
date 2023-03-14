@@ -36,7 +36,6 @@ public class SystemConfigService extends PKIService {
     public EngineConfig cs;
     public String csType;
     public String csSubsystem;
-    public String csState;
     public boolean isMasterCA = false;
 
     public SystemConfigService() throws Exception {
@@ -46,7 +45,6 @@ public class SystemConfigService extends PKIService {
 
         csType = cs.getType();
         csSubsystem = csType.toLowerCase();
-        csState = cs.getState() + "";
 
         String domainType = cs.getString("securitydomain.select", "existingdomain");
         if (csType.equals("CA") && domainType.equals("new")) {

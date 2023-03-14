@@ -23,6 +23,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
 import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.CAEngineConfig;
 import org.dogtagpki.server.rest.SystemConfigService;
 
 import com.netscape.certsrv.base.BadRequestException;
@@ -51,6 +52,9 @@ public class CAInstallerService extends SystemConfigService {
             throw new BadRequestException("Missing configuration PIN");
         }
 
+        CAEngine engine = (CAEngine) getCMSEngine();
+        CAEngineConfig cs = engine.getConfig();
+
         PreOpConfig preopConfig = cs.getPreOpConfig();
         String preopPin = preopConfig.getString("pin");
 
@@ -68,11 +72,14 @@ public class CAInstallerService extends SystemConfigService {
         try {
             validatePin(request.getPin());
 
+            CAEngine engine = (CAEngine) getCMSEngine();
+            CAEngineConfig cs = engine.getConfig();
+            String csState = cs.getState() + "";
+
             if (csState.equals("1")) {
                 throw new BadRequestException("System already configured");
             }
 
-            CAEngine engine = CAEngine.getInstance();
             CertRequestRepository requestRepository = engine.getCertRequestRepository();
 
             RequestId requestID = requestRepository.createRequestID();
@@ -95,11 +102,14 @@ public class CAInstallerService extends SystemConfigService {
         try {
             validatePin(request.getPin());
 
+            CAEngine engine = (CAEngine) getCMSEngine();
+            CAEngineConfig cs = engine.getConfig();
+            String csState = cs.getState() + "";
+
             if (csState.equals("1")) {
                 throw new BadRequestException("System already configured");
             }
 
-            CAEngine engine = CAEngine.getInstance();
             CertificateRepository certificateRepository = engine.getCertificateRepository();
 
             BigInteger serialNumber = certificateRepository.getNextSerialNumber();
