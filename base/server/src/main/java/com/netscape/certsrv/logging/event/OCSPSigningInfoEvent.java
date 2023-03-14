@@ -23,8 +23,6 @@ import com.netscape.certsrv.logging.SignedAuditEvent;
 
 public class OCSPSigningInfoEvent extends SignedAuditEvent {
 
-    private static final long serialVersionUID = 1L;
-
     public final static String OCSP_SIGNING_INFO =
             "LOGGING_SIGNED_AUDIT_OCSP_SIGNING_INFO";
 

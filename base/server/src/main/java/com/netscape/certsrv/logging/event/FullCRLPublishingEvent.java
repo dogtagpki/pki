@@ -24,8 +24,6 @@ import com.netscape.certsrv.logging.SignedAuditEvent;
 
 public class FullCRLPublishingEvent extends SignedAuditEvent {
 
-    private static final long serialVersionUID = 1L;
-
     public final static String LOGGING_PROPERTY =
             "LOGGING_SIGNED_AUDIT_FULL_CRL_PUBLISHING";
 

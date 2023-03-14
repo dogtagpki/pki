@@ -31,8 +31,6 @@ import com.netscape.certsrv.base.EBaseException;
  */
 public class LogEvent {
 
-    private static final long serialVersionUID = 1L;
-
     Object mParams[];
 
     String mEventType;

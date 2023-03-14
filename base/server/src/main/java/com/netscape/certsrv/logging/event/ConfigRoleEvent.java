@@ -17,12 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.logging.event;
 
-import com.netscape.certsrv.logging.SignedAuditEvent;
 import org.mozilla.jss.netscape.security.util.Utils;
 
-public class ConfigRoleEvent extends SignedAuditEvent {
+import com.netscape.certsrv.logging.SignedAuditEvent;
 
-    private static final long serialVersionUID = 1L;
+public class ConfigRoleEvent extends SignedAuditEvent {
 
     public final static String LOGGING_PROPERTY =
             "LOGGING_SIGNED_AUDIT_CONFIG_ROLE";

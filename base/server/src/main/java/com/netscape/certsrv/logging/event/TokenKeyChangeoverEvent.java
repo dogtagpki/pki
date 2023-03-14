@@ -21,8 +21,6 @@ import com.netscape.certsrv.logging.SignedAuditEvent;
 
 public class TokenKeyChangeoverEvent extends SignedAuditEvent {
 
-    private static final long serialVersionUID = 1L;
-
     public final static String TOKEN_KEY_CHANGEOVER_SUCCESS =
             "LOGGING_SIGNED_AUDIT_TOKEN_KEY_CHANGEOVER_SUCCESS";
 

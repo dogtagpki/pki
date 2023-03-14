@@ -22,8 +22,6 @@ import com.netscape.certsrv.logging.SignedAuditEvent;
 
 public class OCSPGenerationEvent extends SignedAuditEvent {
 
-    private static final long serialVersionUID = 1L;
-
     private final static String LOGGING_PROPERTY =
             "LOGGING_SIGNED_AUDIT_OCSP_GENERATION";
 

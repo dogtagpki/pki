@@ -22,8 +22,6 @@ import com.netscape.certsrv.logging.SignedAuditEvent;
 
 public class AccessSessionTerminatedEvent extends SignedAuditEvent {
 
-    private static final long serialVersionUID = 1L;
-
     public final static String ACCESS_SESSION_TERMINATED =
             "LOGGING_SIGNED_AUDIT_ACCESS_SESSION_TERMINATED";
 

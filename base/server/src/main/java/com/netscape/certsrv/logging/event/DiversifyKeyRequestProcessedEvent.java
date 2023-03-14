@@ -22,8 +22,6 @@ import com.netscape.certsrv.logging.SignedAuditEvent;
 
 public class DiversifyKeyRequestProcessedEvent extends SignedAuditEvent {
 
-    private static final long serialVersionUID = 1L;
-
     public final static String SUCCESS =
             "LOGGING_SIGNED_AUDIT_DIVERSIFY_KEY_REQUEST_PROCESSED_SUCCESS";
 

@@ -21,8 +21,6 @@ import com.netscape.certsrv.logging.SignedAuditEvent;
 
 public class TokenAppletUpgradeEvent extends SignedAuditEvent {
 
-    private static final long serialVersionUID = 1L;
-
     public final static String TOKEN_APPLET_UPGRADE_SUCCESS =
             "LOGGING_SIGNED_AUDIT_TOKEN_APPLET_UPGRADE_SUCCESS";
 

@@ -22,8 +22,6 @@ import com.netscape.certsrv.logging.SignedAuditEvent;
 
 public class ClientAccessSessionEstablishEvent extends SignedAuditEvent {
 
-    private static final long serialVersionUID = 1L;
-
     public final static String CLIENT_ACCESS_SESSION_ESTABLISH_SUCCESS =
             "LOGGING_SIGNED_AUDIT_CLIENT_ACCESS_SESSION_ESTABLISH_SUCCESS";
 

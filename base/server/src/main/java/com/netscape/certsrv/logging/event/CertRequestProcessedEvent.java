@@ -28,8 +28,6 @@ import com.netscape.cmscore.request.Request;
 
 public class CertRequestProcessedEvent extends SignedAuditEvent {
 
-    private static final long serialVersionUID = 1L;
-
     private final static String LOGGING_PROPERTY =
             "LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED";
 

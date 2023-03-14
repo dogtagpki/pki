@@ -23,8 +23,6 @@ import com.netscape.cmscore.request.Request;
 
 public class CertStatusChangeRequestProcessedEvent extends SignedAuditEvent {
 
-    private static final long serialVersionUID = 1L;
-
     public final static String LOGGING_PROPERTY =
             "LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED";
 

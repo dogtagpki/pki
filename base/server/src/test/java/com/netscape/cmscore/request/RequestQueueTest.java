@@ -51,7 +51,6 @@ public class RequestQueueTest extends CMSBaseTestCase {
     }
 
     static class RequestStub extends RequestDefaultStub {
-        private static final long serialVersionUID = -9058189963961484835L;
 
         String[] keys = new String[] { "key1", "key2" };
         boolean getExtDataKeysCalled = false;
