@@ -37,21 +37,12 @@ public class GroupAccessEvaluator extends AccessEvaluator {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GroupAccessEvaluator.class);
 
-    private UGSubsystem mUG = null;
-
     /**
      * Class constructor.
      */
     public GroupAccessEvaluator() {
         this.type = "group";
         this.description = "group membership evaluator";
-
-        CMSEngine engine = CMS.getCMSEngine();
-        mUG = engine.getUGSubsystem();
-
-        if (mUG == null) {
-            logger.warn("GroupAccessEvaluator: " + CMS.getLogMessage("EVALUTOR_UG_NULL"));
-        }
     }
 
     /**
@@ -85,6 +76,9 @@ public class GroupAccessEvaluator extends AccessEvaluator {
     @Override
     public boolean evaluate(AuthToken authToken, String type, String op, String value) {
 
+        CMSEngine engine = CMS.getCMSEngine();
+        UGSubsystem ug = engine.getUGSubsystem();
+
         if (type.equals(this.type)) {
             // should define "uid" at a common place
             String uid = null;
@@ -110,16 +104,16 @@ public class GroupAccessEvaluator extends AccessEvaluator {
                 logger.debug("GroupAccessEvaluator: evaluate: no groups in authToken");
                 User id = null;
                 try {
-                    id = mUG.getUser(uid);
+                    id = ug.getUser(uid);
                 } catch (EBaseException e) {
                     logger.warn("GroupAccessEvaluator: " + e.getMessage(), e);
                     return false;
                 }
 
                 if (op.equals("=")) {
-                    return mUG.isMemberOf(id, Utils.stripQuotes(value));
+                    return ug.isMemberOf(id, Utils.stripQuotes(value));
                 } else if (op.equals("!=")) {
-                    return !(mUG.isMemberOf(id, Utils.stripQuotes(value)));
+                    return !(ug.isMemberOf(id, Utils.stripQuotes(value)));
                 }
             }
         }
@@ -140,6 +134,8 @@ public class GroupAccessEvaluator extends AccessEvaluator {
     @Override
     public boolean evaluate(String type, String op, String value) {
 
+        CMSEngine engine = CMS.getCMSEngine();
+        UGSubsystem ug = engine.getUGSubsystem();
         SessionContext mSC = SessionContext.getContext();
 
         if (type.equals(this.type)) {
@@ -150,9 +146,9 @@ public class GroupAccessEvaluator extends AccessEvaluator {
                 return false;
             }
             if (op.equals("="))
-                return mUG.isMemberOf(id, Utils.stripQuotes(value));
+                return ug.isMemberOf(id, Utils.stripQuotes(value));
             else
-                return !(mUG.isMemberOf(id, Utils.stripQuotes(value)));
+                return !(ug.isMemberOf(id, Utils.stripQuotes(value)));
 
         }
 
