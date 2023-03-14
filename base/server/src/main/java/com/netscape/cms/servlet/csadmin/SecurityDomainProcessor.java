@@ -82,13 +82,8 @@ public class SecurityDomainProcessor extends Processor {
     public final static String SUCCESS = "0";
     public final static String FAILED = "1";
 
-    SecureRandom random;
-
     public SecurityDomainProcessor(Locale locale) throws EPropertyNotFound, EBaseException {
         super("securitydomain", locale);
-        CMSEngine engine = CMS.getCMSEngine();
-        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
-        random = jssSubsystem.getRandomNumberGenerator();
     }
 
     public static String getEnterpriseGroupName(String subsystemname) {
@@ -129,6 +124,8 @@ public class SecurityDomainProcessor extends Processor {
 
         // generate random session ID
         // use positive number to avoid CLI issues
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
+        SecureRandom random = jssSubsystem.getRandomNumberGenerator();
         Long num = Math.abs(random.nextLong());
         String sessionID = num.toString();
 
