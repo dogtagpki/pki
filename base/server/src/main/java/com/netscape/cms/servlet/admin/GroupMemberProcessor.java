@@ -61,7 +61,6 @@ public class GroupMemberProcessor extends Processor {
     public static String[] multiRoleGroupEnforceList;
 
     CMSEngine engine = CMS.getCMSEngine();
-    public UGSubsystem userGroupManager = engine.getUGSubsystem();
 
     protected UriInfo uriInfo;
 
@@ -97,6 +96,7 @@ public class GroupMemberProcessor extends Processor {
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
             }
 
+            UGSubsystem userGroupManager = engine.getUGSubsystem();
             Group group = userGroupManager.getGroupFromName(groupID);
             if (group == null) {
                 logger.error(CMS.getLogMessage("USRGRP_SRVLT_GROUP_NOT_EXIST"));
@@ -141,6 +141,7 @@ public class GroupMemberProcessor extends Processor {
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
             }
 
+            UGSubsystem userGroupManager = engine.getUGSubsystem();
             Group group = userGroupManager.getGroupFromName(groupID);
             if (group == null) {
                 logger.error(CMS.getLogMessage("USRGRP_SRVLT_GROUP_NOT_EXIST"));
@@ -179,6 +180,7 @@ public class GroupMemberProcessor extends Processor {
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
             }
 
+            UGSubsystem userGroupManager = engine.getUGSubsystem();
             Group group = userGroupManager.getGroupFromName(groupID);
             if (group == null) {
                 logger.error(CMS.getLogMessage("USRGRP_SRVLT_GROUP_NOT_EXIST"));
@@ -282,6 +284,8 @@ public class GroupMemberProcessor extends Processor {
 
     public boolean isDuplicate(String groupID, String memberID) {
 
+        UGSubsystem userGroupManager = engine.getUGSubsystem();
+
         // Let's not mess with users that are already a member of this group
         try {
             boolean isMember = userGroupManager.isMemberOf(memberID, groupID);
@@ -333,6 +337,7 @@ public class GroupMemberProcessor extends Processor {
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
             }
 
+            UGSubsystem userGroupManager = engine.getUGSubsystem();
             Group group = userGroupManager.getGroupFromName(groupID);
             if (group == null) {
                 logger.error(CMS.getLogMessage("USRGRP_SRVLT_GROUP_NOT_EXIST"));
