@@ -49,11 +49,10 @@ public class LDAPSecurityDomainSessionTable
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LDAPSecurityDomainSessionTable.class);
 
-    private long m_timeToLive;
     private LdapBoundConnFactory mLdapConnFactory;
 
     public LDAPSecurityDomainSessionTable(long timeToLive) throws ELdapException, EBaseException {
-        m_timeToLive = timeToLive;
+        this.timeToLive = timeToLive;
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
@@ -309,11 +308,6 @@ public class LDAPSecurityDomainSessionTable
             return Long.parseLong(beginStr);
         }
         return -1;
-    }
-
-    @Override
-    public long getTimeToLive() {
-        return m_timeToLive;
     }
 
     @Override

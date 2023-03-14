@@ -31,11 +31,10 @@ public class MemorySecurityDomainSessionTable
         extends SecurityDomainSessionTable {
 
     private Hashtable<String, Vector<Comparable<?>>> m_sessions;
-    private long m_timeToLive;
 
     public MemorySecurityDomainSessionTable(long timeToLive) {
+        this.timeToLive = timeToLive;
         m_sessions = new Hashtable<>();
-        m_timeToLive = timeToLive;
     }
 
     @Override
@@ -101,11 +100,6 @@ public class MemorySecurityDomainSessionTable
                 return n.longValue();
         }
         return -1;
-    }
-
-    @Override
-    public long getTimeToLive() {
-        return m_timeToLive;
     }
 
     @Override

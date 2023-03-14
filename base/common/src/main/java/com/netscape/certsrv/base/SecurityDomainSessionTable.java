@@ -27,6 +27,8 @@ public abstract class SecurityDomainSessionTable {
     public static final int SUCCESS = 0;
     public static final int FAILURE = 1;
 
+    protected long timeToLive;
+
     public abstract int addEntry(String sessionID, String ip, String uid, String group) throws Exception;
 
     public abstract int removeEntry(String sessionID) throws Exception;
@@ -43,7 +45,9 @@ public abstract class SecurityDomainSessionTable {
 
     public abstract int getSize() throws Exception;
 
-    public abstract long getTimeToLive();
+    public long getTimeToLive() {
+        return timeToLive;
+    }
 
     public abstract Enumeration<String> getSessionIDs() throws Exception;
 
