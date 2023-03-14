@@ -38,13 +38,13 @@ public class GroupAccessEvaluator extends AccessEvaluator {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GroupAccessEvaluator.class);
 
     private UGSubsystem mUG = null;
-    private String mDescription = "group membership evaluator";
 
     /**
      * Class constructor.
      */
     public GroupAccessEvaluator() {
         this.type = "group";
+        this.description = "group membership evaluator";
 
         CMSEngine engine = CMS.getCMSEngine();
         mUG = engine.getUGSubsystem();
@@ -60,16 +60,6 @@ public class GroupAccessEvaluator extends AccessEvaluator {
     @Override
     public void init() {
         logger.debug("GroupAccessEvaluator: init");
-    }
-
-    /**
-     * gets the description for this acl evaluator
-     *
-     * @return description for this acl evaluator
-     */
-    @Override
-    public String getDescription() {
-        return mDescription;
     }
 
     @Override

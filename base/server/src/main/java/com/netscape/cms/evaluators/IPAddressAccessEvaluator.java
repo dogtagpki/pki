@@ -31,13 +31,12 @@ public class IPAddressAccessEvaluator extends AccessEvaluator {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(IPAddressAccessEvaluator.class);
 
-    private String mDescription = "IP Address evaluator";
-
     /**
      * Class constructor.
      */
     public IPAddressAccessEvaluator() {
         this.type = "ipaddress";
+        this.description = "IP Address evaluator";
     }
 
     /**
@@ -45,16 +44,6 @@ public class IPAddressAccessEvaluator extends AccessEvaluator {
      */
     @Override
     public void init() {
-    }
-
-    /**
-     * gets the description for this acl evaluator
-     *
-     * @return description for this acl evaluator
-     */
-    @Override
-    public String getDescription() {
-        return mDescription;
     }
 
     @Override

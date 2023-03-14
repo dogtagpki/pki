@@ -29,6 +29,7 @@ import org.dogtagpki.server.authentication.AuthToken;
 public abstract class AccessEvaluator {
 
     protected String type;
+    protected String description;
 
     /**
      * Initialize the evaluator
@@ -50,7 +51,9 @@ public abstract class AccessEvaluator {
      *
      * @return a text description for this evaluator
      */
-    public abstract String getDescription();
+    public String getDescription() {
+        return description;
+    }
 
     /**
      * Evaluates if the given value satisfies the access

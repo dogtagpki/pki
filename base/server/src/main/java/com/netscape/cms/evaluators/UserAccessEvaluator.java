@@ -32,8 +32,6 @@ public class UserAccessEvaluator extends AccessEvaluator {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UserAccessEvaluator.class);
 
-    private String mDescription = "user equivalence evaluator";
-
     private final static String ANYBODY = "anybody";
     private final static String EVERYBODY = "everybody";
 
@@ -42,6 +40,7 @@ public class UserAccessEvaluator extends AccessEvaluator {
      */
     public UserAccessEvaluator() {
         this.type = "user";
+        this.description = "user equivalence evaluator";
     }
 
     /**
@@ -50,16 +49,6 @@ public class UserAccessEvaluator extends AccessEvaluator {
     @Override
     public void init() {
         logger.debug("UserAccessEvaluator: init");
-    }
-
-    /**
-     * gets the description for this acl evaluator
-     *
-     * @return description for this acl evaluator
-     */
-    @Override
-    public String getDescription() {
-        return mDescription;
     }
 
     @Override

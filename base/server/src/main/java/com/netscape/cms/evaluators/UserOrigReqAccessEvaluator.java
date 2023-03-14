@@ -36,8 +36,6 @@ public class UserOrigReqAccessEvaluator extends AccessEvaluator {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UserOrigReqAccessEvaluator.class);
 
-    private String mDescription = "user origreq matching evaluator";
-
     private final static String ANYBODY = "anybody";
     private final static String EVERYBODY = "everybody";
 
@@ -46,6 +44,7 @@ public class UserOrigReqAccessEvaluator extends AccessEvaluator {
      */
     public UserOrigReqAccessEvaluator() {
         this.type = "user_origreq";
+        this.description = "user origreq matching evaluator";
     }
 
     /**
@@ -54,16 +53,6 @@ public class UserOrigReqAccessEvaluator extends AccessEvaluator {
     @Override
     public void init() {
         logger.debug("UserOrigReqAccessEvaluator: init");
-    }
-
-    /**
-     * gets the description for this acl evaluator
-     *
-     * @return description for this acl evaluator
-     */
-    @Override
-    public String getDescription() {
-        return mDescription;
     }
 
     @Override
