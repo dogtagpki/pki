@@ -24,12 +24,12 @@ import javax.ws.rs.Path;
 
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
-import org.dogtagpki.server.rest.SystemConfigService;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.system.CertificateSetupRequest;
+import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cmscore.apps.PreOpConfig;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.request.CertRequestRepository;
@@ -39,7 +39,7 @@ import com.netscape.cmscore.request.CertRequestRepository;
  *
  */
 @Path("installer")
-public class CAInstallerService extends SystemConfigService {
+public class CAInstallerService extends PKIService {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CAInstallerService.class);
 

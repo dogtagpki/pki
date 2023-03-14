@@ -445,7 +445,6 @@ class ConfigurationFile:
             # Only allowed for Stand-alone PKI
             #
             # ADD checks for valid types of Stand-alone PKI subsystems here
-            # Java method located in the file called 'SystemConfigService.java'
             #
             if self.subsystem != "KRA" and self.subsystem != "OCSP":
                 logger.error(
