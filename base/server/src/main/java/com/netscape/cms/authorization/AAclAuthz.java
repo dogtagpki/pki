@@ -76,8 +76,6 @@ public abstract class AAclAuthz extends AuthzManager {
 
     protected static final String ACLS_ATTR = "aclResources";
 
-    private AuthzManagerConfig mConfig;
-
     private Hashtable<String, ACL> mACLs = new Hashtable<>();
     private Hashtable<String, IAccessEvaluator> mEvaluators = new Hashtable<>();
 
@@ -105,7 +103,7 @@ public abstract class AAclAuthz extends AuthzManager {
 
         this.name = name;
         this.implName = implName;
-        mConfig = config;
+        this.config = config;
 
         logger.debug("AAclAuthz: init begins");
 
@@ -197,14 +195,6 @@ public abstract class AAclAuthz extends AuthzManager {
     @Override
     public Enumeration<ACL> getACLs() {
         return mACLs.elements();
-    }
-
-    /**
-     * Returns the configuration store used by this Authz mgr
-     */
-    @Override
-    public AuthzManagerConfig getConfigStore() {
-        return mConfig;
     }
 
     public String[] getExtendedPluginInfo() {

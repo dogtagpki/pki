@@ -44,9 +44,6 @@ public class BasicGroupAuthz extends AuthzManager implements IExtendedPluginInfo
 
     private static final String GROUP = "group";
 
-    /* configuration store */
-    private AuthzManagerConfig config;
-
     /* group that is allowed to access resources */
     private String groupName;
 
@@ -126,11 +123,6 @@ public class BasicGroupAuthz extends AuthzManager implements IExtendedPluginInfo
     @Override
     public String[] getConfigParams() throws EBaseException {
         return configParams;
-    }
-
-    @Override
-    public AuthzManagerConfig getConfigStore() {
-        return config;
     }
 
     @Override

@@ -41,6 +41,9 @@ public abstract class AuthzManager {
     // name of the authorization manager plugin
     protected String implName;
 
+    // configuration store
+    protected AuthzManagerConfig config;
+
     /**
      * Get the name of this authorization manager instance.
      *
@@ -133,7 +136,9 @@ public abstract class AuthzManager {
      *
      * @return The configuration store of this authorization manager.
      */
-    public abstract AuthzManagerConfig getConfigStore();
+    public AuthzManagerConfig getConfigStore() {
+        return config;
+    }
 
     /**
      * Get ACL entries
