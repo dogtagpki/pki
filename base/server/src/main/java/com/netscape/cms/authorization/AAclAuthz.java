@@ -76,9 +76,6 @@ public abstract class AAclAuthz extends AuthzManager {
 
     protected static final String ACLS_ATTR = "aclResources";
 
-    /* name of this authorization manager instance */
-    private String mName = null;
-
     /* name of the authorization manager plugin */
     private String mImplName = null;
 
@@ -108,7 +105,8 @@ public abstract class AAclAuthz extends AuthzManager {
     @Override
     public void init(String name, String implName, AuthzManagerConfig config)
             throws EBaseException {
-        mName = name;
+
+        this.name = name;
         mImplName = implName;
         mConfig = config;
 
@@ -155,14 +153,6 @@ public abstract class AAclAuthz extends AuthzManager {
         }
 
         logger.info("AAclAuthz: initialization done");
-    }
-
-    /**
-     * gets the name of this authorization manager instance
-     */
-    @Override
-    public String getName() {
-        return mName;
     }
 
     /**
@@ -836,7 +826,7 @@ public abstract class AAclAuthz extends AuthzManager {
             authzToken.set(AuthzToken.TOKEN_AUTHZ_RESOURCE, resource);
             authzToken.set(AuthzToken.TOKEN_AUTHZ_OPERATION, operation);
             authzToken.set(AuthzToken.TOKEN_AUTHZ_STATUS, AuthzToken.AUTHZ_STATUS_SUCCESS);
-            logger.debug(mName + ": authorization passed");
+            logger.debug(name + ": authorization passed");
             return authzToken;
         } catch (EACLsException e) {
             // audit here later

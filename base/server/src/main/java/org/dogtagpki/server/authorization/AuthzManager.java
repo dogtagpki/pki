@@ -35,13 +35,17 @@ import com.netscape.cms.authorization.ACL;
  */
 public abstract class AuthzManager {
 
+    // name of this authorization manager instance
+    protected String name;
+
     /**
      * Get the name of this authorization manager instance.
-     * <p>
      *
      * @return String the name of this authorization manager.
      */
-    public abstract String getName();
+    public String getName() {
+        return name;
+    }
 
     /**
      * Get implementation name of authorization manager plugin.

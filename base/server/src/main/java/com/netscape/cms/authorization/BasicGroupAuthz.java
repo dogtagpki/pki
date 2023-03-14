@@ -44,9 +44,6 @@ public class BasicGroupAuthz extends AuthzManager implements IExtendedPluginInfo
 
     private static final String GROUP = "group";
 
-    /* name of this authorization manager instance */
-    private String name;
-
     /* name of the authorization manager plugin */
     private String implName;
 
@@ -74,11 +71,6 @@ public class BasicGroupAuthz extends AuthzManager implements IExtendedPluginInfo
     @Override
     public String[] getExtendedPluginInfo() {
         return Utils.getStringArrayFromVector(extendedPluginInfo);
-    }
-
-    @Override
-    public String getName() {
-        return name;
     }
 
     @Override
