@@ -91,7 +91,7 @@ import com.netscape.cmscore.security.JssSubsystemConfig;
 import com.netscape.cmscore.security.PWsdrCache;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
 import com.netscape.cmscore.session.LDAPSecurityDomainSessionTable;
-import com.netscape.cmscore.session.SecurityDomainSessionTable;
+import com.netscape.cmscore.session.MemorySecurityDomainSessionTable;
 import com.netscape.cmscore.session.SessionTimer;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmscore.usrgrp.UGSubsystemConfig;
@@ -757,7 +757,7 @@ public class CMSEngine {
         if (source.equals("ldap")) {
             mSecurityDomainSessionTable = new LDAPSecurityDomainSessionTable(Long.parseLong(flushInterval));
         } else {
-            mSecurityDomainSessionTable = new SecurityDomainSessionTable(Long.parseLong(flushInterval));
+            mSecurityDomainSessionTable = new MemorySecurityDomainSessionTable(Long.parseLong(flushInterval));
         }
 
         SessionTimer task = new SessionTimer(mSecurityDomainSessionTable);

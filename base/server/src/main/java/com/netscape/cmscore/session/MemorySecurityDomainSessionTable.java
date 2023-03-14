@@ -27,13 +27,13 @@ import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 /**
  * This object stores the values for IP, uid and group based on the cookie id.
  */
-public class SecurityDomainSessionTable
+public class MemorySecurityDomainSessionTable
         implements ISecurityDomainSessionTable {
 
     private Hashtable<String, Vector<Comparable<?>>> m_sessions;
     private long m_timeToLive;
 
-    public SecurityDomainSessionTable(long timeToLive) {
+    public MemorySecurityDomainSessionTable(long timeToLive) {
         m_sessions = new Hashtable<>();
         m_timeToLive = timeToLive;
     }
