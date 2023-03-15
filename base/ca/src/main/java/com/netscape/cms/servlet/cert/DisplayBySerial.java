@@ -77,14 +77,14 @@ import com.netscape.cmscore.request.Request;
  */
 public class DisplayBySerial extends CMSServlet {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DisplayBySerial.class);
+    public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DisplayBySerial.class);
     private static final long serialVersionUID = -4143700762995036597L;
-    private final static String TPL_FILE1 = "displayBySerial.template";
-    private final static BigInteger MINUS_ONE = new BigInteger("-1");
+    private static final String TPL_FILE1 = "displayBySerial.template";
+    private static final BigInteger MINUS_ONE = BigInteger.valueOf(-1);
 
     private CertificateRepository mCertDB;
     private String mForm1Path = null;
-    private X509Certificate mCACerts[] = null;
+    private X509Certificate[] mCACerts = null;
 
     /**
      * Constructs DisplayBySerial servlet.
@@ -134,7 +134,7 @@ public class DisplayBySerial extends CMSServlet {
     public void process(CMSRequest cmsReq) throws EBaseException {
         BigInteger serialNumber = MINUS_ONE;
         EBaseException error = null;
-        String certType[] = new String[1];
+        String[] certType = new String[1];
 
         HttpServletRequest req = cmsReq.getHttpReq();
         HttpServletResponse resp = cmsReq.getHttpResp();
@@ -223,21 +223,18 @@ public class DisplayBySerial extends CMSServlet {
     private void process(ArgBlock header, BigInteger seq,
             HttpServletRequest req, Locale locale)
             throws EBaseException {
-        String certType[] = new String[1];
+        String[] certType = new String[1];
 
         try {
             getCertRecord(seq, certType); // throw exception on error
 
             if (certType[0].equalsIgnoreCase("x509")) {
                 processX509(header, seq, req, locale);
-                return;
             }
         } catch (EBaseException e) {
             logger.error(CMS.getLogMessage("CMSGW_ERR_DISP_BY_SERIAL", e.toString()), e);
             throw e;
         }
-
-        return;
     }
 
     private void processX509(ArgBlock header, BigInteger seq,
@@ -248,8 +245,6 @@ public class DisplayBySerial extends CMSServlet {
         if (isB64CertOnly != null && isB64CertOnly.equals("true")) {
             b64CertOnly = true;
         }
-
-        CAEngine engine = CAEngine.getInstance();
 
         try {
             CertRecord rec = mCertDB.readCertificateRecord(seq);
@@ -280,16 +275,11 @@ public class DisplayBySerial extends CMSServlet {
                     for (int i = 0; i < extensions.size(); i++) {
                         Extension ext = extensions.elementAt(i);
 
-                        if (ext instanceof NSCertTypeExtension) {
-                            NSCertTypeExtension type = (NSCertTypeExtension) ext;
-
+                        if (ext instanceof NSCertTypeExtension type) {
                             if (((Boolean) type.get(NSCertTypeExtension.EMAIL)).booleanValue())
                                 emailCert = true;
                         }
-                        if (ext instanceof KeyUsageExtension) {
-                            KeyUsageExtension usage =
-                                    (KeyUsageExtension) ext;
-
+                        if (ext instanceof KeyUsageExtension usage) {
                             try {
                                 if (((Boolean) usage.get(KeyUsageExtension.DIGITAL_SIGNATURE)).booleanValue() ||
                                         ((Boolean) usage.get(KeyUsageExtension.DATA_ENCIPHERMENT)).booleanValue())
@@ -342,8 +332,8 @@ public class DisplayBySerial extends CMSServlet {
                     while (enumx.hasMoreElements()) {
                         Extension ext = enumx.nextElement();
 
-                        if (ext instanceof CRLReasonExtension) {
-                            reason = ((CRLReasonExtension) ext).getReason().getCode();
+                        if (ext instanceof CRLReasonExtension crlReasonExtension) {
+                            reason = crlReasonExtension.getReason().getCode();
                         }
                     }
                     header.addIntegerValue("revocationReason", reason);
@@ -392,7 +382,6 @@ public class DisplayBySerial extends CMSServlet {
              */
             // Now formulate a PKCS#7 blob
             X509CertImpl[] certsInChain = new X509CertImpl[1];
-            ;
             if (mCACerts != null) {
                 for (int i = 0; i < mCACerts.length; i++) {
                     if (cert.equals(mCACerts[i])) {
@@ -447,11 +436,9 @@ public class DisplayBySerial extends CMSServlet {
             logger.error(CMS.getLogMessage("CMSGW_ERR_ENCODE_CERT", e.toString()), e);
             throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_ENCODING_ISSUED_CERT"), e);
         }
-
-        return;
     }
 
-    private CertRecord getCertRecord(BigInteger seq, String certtype[])
+    private CertRecord getCertRecord(BigInteger seq, String[] certtype)
             throws EBaseException {
         CertRecord rec = null;
 
@@ -475,15 +462,11 @@ public class DisplayBySerial extends CMSServlet {
             throws NumberFormatException {
         String serialNumString = req.getParameter("serialNumber");
 
-        if (serialNumString != null) {
-            serialNumString = serialNumString.trim();
-            if (serialNumString.startsWith("0x") || serialNumString.startsWith("0X")) {
-                return new BigInteger(serialNumString.substring(2), 16);
-            } else {
-                return new BigInteger(serialNumString);
-            }
-        } else {
+        if (serialNumString == null) {
             throw new NumberFormatException();
         }
+        serialNumString = serialNumString.trim();
+        boolean isHex = serialNumString.startsWith("0x") || serialNumString.startsWith("0X");
+        return isHex ? new BigInteger(serialNumString.substring(2), 16) : new BigInteger(serialNumString);
     }
 }
