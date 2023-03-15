@@ -137,6 +137,7 @@ public abstract class AAclAuthz extends AuthzManager {
             }
 
             if (evaluator != null) {
+                evaluator.setCMSEngine(engine);
                 evaluator.init();
                 // store evaluator
                 registerEvaluator(type, evaluator);

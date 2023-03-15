@@ -45,9 +45,6 @@ public class GroupAccessEvaluator extends AccessEvaluator {
         this.description = "group membership evaluator";
     }
 
-    /**
-     * initialization. nothing for now.
-     */
     @Override
     public void init() {
         logger.debug("GroupAccessEvaluator: init");
@@ -76,7 +73,6 @@ public class GroupAccessEvaluator extends AccessEvaluator {
     @Override
     public boolean evaluate(AuthToken authToken, String type, String op, String value) {
 
-        CMSEngine engine = CMS.getCMSEngine();
         UGSubsystem ug = engine.getUGSubsystem();
 
         if (type.equals(this.type)) {

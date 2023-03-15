@@ -19,6 +19,8 @@ package com.netscape.certsrv.evaluators;
 
 import org.dogtagpki.server.authentication.AuthToken;
 
+import com.netscape.cmscore.apps.CMSEngine;
+
 /**
  * A class represents an evaluator. An evaluator is used to
  * evaluate an expression. For example, one can write an evaluator to
@@ -28,8 +30,17 @@ import org.dogtagpki.server.authentication.AuthToken;
  */
 public abstract class AccessEvaluator {
 
+    protected CMSEngine engine;
     protected String type;
     protected String description;
+
+    public CMSEngine getCMSEngine() {
+        return engine;
+    }
+
+    public void setCMSEngine(CMSEngine engine) {
+        this.engine = engine;
+    }
 
     /**
      * Initialize the evaluator
