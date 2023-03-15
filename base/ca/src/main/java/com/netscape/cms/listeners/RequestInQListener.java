@@ -30,9 +30,9 @@ import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.listeners.EListenersException;
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
-import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.cms.notification.MailNotification;
 import com.netscape.cms.profile.input.SubjectNameInput;
 import com.netscape.cms.profile.input.SubmitterInfoInput;
 import com.netscape.cmscore.apps.CMS;
@@ -160,7 +160,7 @@ public class RequestInQListener implements IRequestListener {
         // regardless of type of request...notify for everything
         // no need for email resolver here...
         CAEngine engine = CAEngine.getInstance();
-        IMailNotification mn = engine.getMailNotification();
+        MailNotification mn = engine.getMailNotification();
 
         mn.setFrom(mSenderEmail);
         mn.setTo(mRecipientEmail);

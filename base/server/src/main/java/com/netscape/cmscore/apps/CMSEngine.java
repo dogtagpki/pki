@@ -53,9 +53,9 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.SecurityDomainSessionTable;
 import com.netscape.certsrv.base.Subsystem;
-import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cms.notification.MailNotification;
 import com.netscape.cms.password.PasswordChecker;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.authentication.AuthSubsystem;
@@ -1227,11 +1227,10 @@ public class CMSEngine {
         mServerCertNickname = newName;
     }
 
-    public IMailNotification getMailNotification() {
+    public MailNotification getMailNotification() {
         try {
-            String className = mConfig.getString("notificationClassName",
-                    "com.netscape.cms.notification.MailNotification");
-            IMailNotification notification = (IMailNotification) Class.forName(className).getDeclaredConstructor().newInstance();
+            String className = mConfig.getString("notificationClassName", MailNotification.class.getName());
+            MailNotification notification = (MailNotification) Class.forName(className).getDeclaredConstructor().newInstance();
 
             return notification;
         } catch (Exception e) {

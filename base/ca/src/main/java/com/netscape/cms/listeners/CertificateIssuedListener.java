@@ -37,9 +37,9 @@ import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.notification.IEmailResolver;
 import com.netscape.certsrv.notification.IEmailResolverKeys;
-import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.cms.notification.MailNotification;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.notification.EmailFormProcessor;
@@ -276,7 +276,7 @@ public class CertificateIssuedListener implements IRequestListener {
 
     private void mailIt(String mEmail, X509CertImpl issuedCert[]) {
         CAEngine engine = CAEngine.getInstance();
-        IMailNotification mn = engine.getMailNotification();
+        MailNotification mn = engine.getMailNotification();
 
         mn.setFrom(mSenderEmail);
         mn.setTo(mEmail);
@@ -345,7 +345,7 @@ public class CertificateIssuedListener implements IRequestListener {
         // now we can mail
         if ((mEmail != null) && !mEmail.equals("")) {
             CAEngine engine = CAEngine.getInstance();
-            IMailNotification mn = engine.getMailNotification();
+            MailNotification mn = engine.getMailNotification();
 
             mn.setFrom(mSenderEmail);
             mn.setTo(mEmail);

@@ -22,7 +22,6 @@ import java.io.PrintStream;
 import java.util.Vector;
 
 import com.netscape.certsrv.notification.ENotificationException;
-import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -35,10 +34,8 @@ import netscape.net.smtp.SmtpClient;
  * This class uses <b>smtp.host</b> in the configuration for smtp
  * host. The port default (25) is used. If no smtp specified, local
  * host is used
- *
- * @version $Revision$, $Date$
  */
-public class MailNotification implements IMailNotification {
+public class MailNotification {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MailNotification.class);
     protected final static String PROP_SMTP_SUBSTORE = "smtp";
@@ -78,7 +75,6 @@ public class MailNotification implements IMailNotification {
     /**
      * send one message to one or more addressees
      */
-    @Override
     public void sendNotification() throws IOException, ENotificationException {
         // create smtp client
         SmtpClient sc = null;
@@ -143,7 +139,6 @@ public class MailNotification implements IMailNotification {
      *
      * @param from email address of the sender
      */
-    @Override
     public void setFrom(String from) {
         mFrom = from;
     }
@@ -153,7 +148,6 @@ public class MailNotification implements IMailNotification {
      *
      * @param subject subject of the email
      */
-    @Override
     public void setSubject(String subject) {
         mSubject = "Subject: " + subject;
     }
@@ -163,7 +157,6 @@ public class MailNotification implements IMailNotification {
      *
      * @param contentType content type of the email
      */
-    @Override
     public void setContentType(String contentType) {
         mContentType = "Content-Type: " + contentType;
     }
@@ -173,7 +166,6 @@ public class MailNotification implements IMailNotification {
      *
      * @param content the message content
      */
-    @Override
     public void setContent(String content) {
         mContent = content;
     }
@@ -183,7 +175,6 @@ public class MailNotification implements IMailNotification {
      *
      * @param addresses a list of email addresses of the recipients
      */
-    @Override
     public void setTo(Vector<String> addresses) {
         // concatenate addresses into comma separated mTo String
 
@@ -194,7 +185,6 @@ public class MailNotification implements IMailNotification {
      *
      * @param to address of the recipient email address
      */
-    @Override
     public void setTo(String to) {
         mTo = to;
     }

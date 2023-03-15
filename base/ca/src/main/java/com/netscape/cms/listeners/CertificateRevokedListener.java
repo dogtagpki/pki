@@ -38,9 +38,9 @@ import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.notification.IEmailResolver;
 import com.netscape.certsrv.notification.IEmailResolverKeys;
-import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.cms.notification.MailNotification;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertificateRepository;
@@ -251,7 +251,7 @@ public class CertificateRevokedListener implements IRequestListener {
 
     private void mailIt(String mEmail, RevokedCertImpl crlentries[]) {
         CAEngine engine = CAEngine.getInstance();
-        IMailNotification mn = engine.getMailNotification();
+        MailNotification mn = engine.getMailNotification();
 
         mn.setFrom(mSenderEmail);
         mn.setTo(mEmail);

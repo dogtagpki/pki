@@ -25,7 +25,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
-import com.netscape.certsrv.notification.IMailNotification;
+import com.netscape.cms.notification.MailNotification;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.jobs.JobConfig;
@@ -215,7 +215,7 @@ public abstract class Job implements Runnable {
 
         // no need for email resolver here...
         CMSEngine engine = CMS.getCMSEngine();
-        IMailNotification mn = engine.getMailNotification();
+        MailNotification mn = engine.getMailNotification();
 
         mn.setFrom(mSummarySenderEmail);
         mn.setTo(mSummaryReceiverEmail);
