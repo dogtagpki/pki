@@ -342,6 +342,7 @@ public class GroupService extends SubsystemService implements GroupResource {
 
         try {
             GroupMemberProcessor processor = new GroupMemberProcessor(getLocale(headers));
+            processor.setCMSEngine(getCMSEngine());
             processor.setUriInfo(uriInfo);
             return createOKResponse(processor.findGroupMembers(groupID, filter, start, size));
 
@@ -362,6 +363,7 @@ public class GroupService extends SubsystemService implements GroupResource {
 
         try {
             GroupMemberProcessor processor = new GroupMemberProcessor(getLocale(headers));
+            processor.setCMSEngine(getCMSEngine());
             processor.setUriInfo(uriInfo);
             return createOKResponse(processor.getGroupMember(groupID, memberID));
 
@@ -382,6 +384,7 @@ public class GroupService extends SubsystemService implements GroupResource {
 
         try {
             GroupMemberProcessor processor = new GroupMemberProcessor(getLocale(headers));
+            processor.setCMSEngine(getCMSEngine());
             processor.setUriInfo(uriInfo);
             groupMemberData = processor.addGroupMember(groupMemberData);
 
@@ -410,6 +413,7 @@ public class GroupService extends SubsystemService implements GroupResource {
 
         try {
             GroupMemberProcessor processor = new GroupMemberProcessor(getLocale(headers));
+            processor.setCMSEngine(getCMSEngine());
             processor.setUriInfo(uriInfo);
             processor.removeGroupMember(groupID, memberID);
 

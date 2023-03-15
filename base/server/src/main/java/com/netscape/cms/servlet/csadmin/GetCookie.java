@@ -189,6 +189,7 @@ public class GetCookie extends CMSServlet {
 
             try {
                 SecurityDomainProcessor processor = new SecurityDomainProcessor(getLocale(httpReq));
+                processor.setCMSEngine(engine);
 
                 InstallToken installToken = processor.getInstallToken(uid, addr, subsystem);
                 String cookie = installToken.getToken();

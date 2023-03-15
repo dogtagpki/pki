@@ -12,6 +12,7 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.logging.Auditor;
 
 public class Processor {
@@ -23,10 +24,19 @@ public class Processor {
 
     protected String id;
     protected Locale locale;
+    protected CMSEngine engine;
 
     public Processor(String id, Locale locale) throws EPropertyNotFound, EBaseException {
         this.id = id;
         this.locale = locale;
+    }
+
+    public CMSEngine getCMSEngine() {
+        return engine;
+    }
+
+    public void setCMSEngine(CMSEngine engine) {
+        this.engine = engine;
     }
 
     public String getUserMessage(String messageId, String... params) {

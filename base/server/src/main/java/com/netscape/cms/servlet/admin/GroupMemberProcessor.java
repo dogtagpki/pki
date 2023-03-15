@@ -41,7 +41,6 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.ConfigRoleEvent;
 import com.netscape.cms.servlet.processors.Processor;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
@@ -59,8 +58,6 @@ public class GroupMemberProcessor extends Processor {
     public final static String MULTI_ROLE_ENFORCE_GROUP_LIST = "multiroles.false.groupEnforceList";
 
     public static String[] multiRoleGroupEnforceList;
-
-    CMSEngine engine = CMS.getCMSEngine();
 
     protected UriInfo uriInfo;
 
@@ -171,7 +168,6 @@ public class GroupMemberProcessor extends Processor {
     public GroupMemberData addGroupMember(GroupMemberData groupMemberData) {
         String groupID = groupMemberData.getGroupID();
 
-        CMSEngine engine = CMS.getCMSEngine();
         EngineConfig config = engine.getConfig();
 
         try {
@@ -251,7 +247,6 @@ public class GroupMemberProcessor extends Processor {
             return true;
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
         EngineConfig config = engine.getConfig();
 
         String groupList = null;

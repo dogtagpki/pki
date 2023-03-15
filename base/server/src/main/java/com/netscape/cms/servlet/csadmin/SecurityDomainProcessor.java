@@ -53,7 +53,6 @@ import com.netscape.certsrv.system.SecurityDomainHost;
 import com.netscape.certsrv.system.SecurityDomainSubsystem;
 import com.netscape.cms.servlet.processors.Processor;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
@@ -96,7 +95,6 @@ public class SecurityDomainProcessor extends Processor {
             String subsystem) throws Exception {
 
         subsystem = subsystem.toUpperCase();
-        CMSEngine engine = CMS.getCMSEngine();
         UGSubsystem ugSubsystem = engine.getUGSubsystem();
 
         String group = getEnterpriseGroupName(subsystem);
@@ -161,9 +159,7 @@ public class SecurityDomainProcessor extends Processor {
 
     public DomainInfo getDomainInfo() throws EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
-
         PKISocketConfig socketConfig = cs.getSocketConfig();
 
         LdapBoundConnFactory connFactory = null;
@@ -391,7 +387,6 @@ public class SecurityDomainProcessor extends Processor {
             String securePort)
             throws EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
         LDAPConfig ldapConfig = cs.getInternalDBConfig();
@@ -503,9 +498,7 @@ public class SecurityDomainProcessor extends Processor {
             String domainManager,
             String clone) throws EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
-
         PKISocketConfig socketConfig = cs.getSocketConfig();
 
         LDAPConfig ldapConfig = cs.getInternalDBConfig();
@@ -627,9 +620,7 @@ public class SecurityDomainProcessor extends Processor {
         LdapBoundConnFactory connFactory = null;
         LDAPConnection conn = null;
 
-        CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
-
         PKISocketConfig socketConfig = cs.getSocketConfig();
 
         try {
@@ -673,9 +664,7 @@ public class SecurityDomainProcessor extends Processor {
         LdapBoundConnFactory connFactory = null;
         LDAPConnection conn = null;
 
-        CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
-
         PKISocketConfig socketConfig = cs.getSocketConfig();
 
         try {

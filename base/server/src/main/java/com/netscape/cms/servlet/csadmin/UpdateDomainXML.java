@@ -168,6 +168,7 @@ public class UpdateDomainXML extends CMSServlet {
         }
 
         SecurityDomainProcessor processor = new SecurityDomainProcessor(getLocale(cmsReq.getHttpReq()));
+        processor.setCMSEngine(engine);
 
         String status;
         if ((operation != null) && (operation.equals("remove"))) {
