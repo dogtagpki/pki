@@ -56,10 +56,6 @@ public class PKIRealm extends RealmBase {
         this.engine = engine;
     }
 
-    protected String getName() {
-        return "PKIRealm";
-    }
-
     @Override
     public Principal authenticate(String username, String password) {
 
