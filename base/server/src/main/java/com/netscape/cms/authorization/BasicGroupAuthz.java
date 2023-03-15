@@ -33,8 +33,6 @@ import com.netscape.certsrv.authorization.EAuthzInternalError;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.evaluators.AccessEvaluator;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 
@@ -81,7 +79,6 @@ public class BasicGroupAuthz extends AuthzManager implements IExtendedPluginInfo
             throw new EAuthzAccessDenied("No userid provided");
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
         UGSubsystem ug = engine.getUGSubsystem();
         Group group = ug.getGroupFromName(groupName);
         if (!group.isMember(user)) {

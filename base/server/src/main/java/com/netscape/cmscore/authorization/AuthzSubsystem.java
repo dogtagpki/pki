@@ -138,7 +138,7 @@ public class AuthzSubsystem extends Subsystem {
 
                 try {
                     authzMgrInst = (AuthzManager) Class.forName(className).getDeclaredConstructor().newInstance();
-
+                    authzMgrInst.setCMSEngine(engine);
                     authzMgrInst.init(insName, implName, authzMgrConfig);
                     isEnable = true;
 

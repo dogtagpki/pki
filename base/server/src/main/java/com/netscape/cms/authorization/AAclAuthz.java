@@ -36,7 +36,6 @@ import com.netscape.certsrv.authorization.EAuthzInternalError;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.evaluators.AccessEvaluator;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 
@@ -108,7 +107,6 @@ public abstract class AAclAuthz extends AuthzManager {
         logger.debug("AAclAuthz: init begins");
 
         // load access evaluators specified in the config file
-        CMSEngine engine = CMS.getCMSEngine();
         EngineConfig mainConfig = engine.getConfig();
 
         ConfigStore evalConfig = mainConfig.getSubStore(PROP_EVAL, ConfigStore.class);
@@ -826,9 +824,8 @@ public abstract class AAclAuthz extends AuthzManager {
         throw new EAuthzAccessDenied(CMS.getUserMessage("CMS_AUTHORIZATION_AUTHZ_ACCESS_DENIED", params));
     }
 
-    public static EvaluationOrder getOrder() {
+    public EvaluationOrder getOrder() {
 
-        CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
         AuthorizationConfig authzConfig = cs.getAuthorizationConfig();
 

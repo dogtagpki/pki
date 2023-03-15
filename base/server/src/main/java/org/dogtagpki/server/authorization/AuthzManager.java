@@ -28,12 +28,15 @@ import com.netscape.certsrv.authorization.EAuthzInternalError;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.evaluators.AccessEvaluator;
 import com.netscape.cms.authorization.ACL;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * Authorization Manager interface needs to be implemented by all
  * authorization managers.
  */
 public abstract class AuthzManager {
+
+    protected CMSEngine engine;
 
     // name of this authorization manager instance
     protected String name;
@@ -43,6 +46,14 @@ public abstract class AuthzManager {
 
     // configuration store
     protected AuthzManagerConfig config;
+
+    public CMSEngine getCMSEngine() {
+        return engine;
+    }
+
+    public void setCMSEngine(CMSEngine engine) {
+        this.engine = engine;
+    }
 
     /**
      * Get the name of this authorization manager instance.
