@@ -39,6 +39,7 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.authorization.ACL;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
 
 /**
@@ -649,6 +650,8 @@ public class ACLAdminServlet extends AdminServlet {
 
             // initialize the access evaluator
             if (evaluator != null) {
+                CMSEngine engine = getCMSEngine();
+                evaluator.setCMSEngine(engine);
                 evaluator.init();
                 // add evaluator to list
                 mAuthzMgr.registerEvaluator(type, evaluator);
