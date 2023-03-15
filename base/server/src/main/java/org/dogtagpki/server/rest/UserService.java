@@ -1053,10 +1053,10 @@ public class UserService extends SubsystemService implements UserResource {
         if (userID == null) throw new BadRequestException("User ID is null.");
         if (groupID == null) throw new BadRequestException("Group ID is null.");
 
+        CMSEngine engine = getCMSEngine();
         User user = null;
 
         try {
-            CMSEngine engine = getCMSEngine();
             UGSubsystem userGroupManager = engine.getUGSubsystem();
             user = userGroupManager.getUser(userID);
         } catch (Exception e) {
@@ -1074,6 +1074,7 @@ public class UserService extends SubsystemService implements UserResource {
             groupMemberData.setGroupID(groupID);
 
             GroupMemberProcessor processor = new GroupMemberProcessor(getLocale(headers));
+            processor.setCMSEngine(engine);
             processor.setUriInfo(uriInfo);
             processor.addGroupMember(groupMemberData);
 
@@ -1104,6 +1105,7 @@ public class UserService extends SubsystemService implements UserResource {
 
         try {
             GroupMemberProcessor processor = new GroupMemberProcessor(getLocale(headers));
+            processor.setCMSEngine(getCMSEngine());
             processor.setUriInfo(uriInfo);
             processor.removeGroupMember(groupID, userID);
 

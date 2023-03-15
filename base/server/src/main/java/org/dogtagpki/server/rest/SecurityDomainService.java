@@ -61,6 +61,8 @@ public class SecurityDomainService extends PKIService implements SecurityDomainR
             String user = servletRequest.getUserPrincipal().getName();
 
             SecurityDomainProcessor processor = new SecurityDomainProcessor(getLocale(headers));
+            processor.setCMSEngine(getCMSEngine());
+
             InstallToken installToken = processor.getInstallToken(user, hostname, subsystem);
             return createOKResponse(installToken);
 
@@ -83,6 +85,8 @@ public class SecurityDomainService extends PKIService implements SecurityDomainR
 
         try {
             SecurityDomainProcessor processor = new SecurityDomainProcessor(getLocale(headers));
+            processor.setCMSEngine(getCMSEngine());
+
             DomainInfo domainInfo = processor.getDomainInfo();
             return createOKResponse(domainInfo);
 
@@ -108,6 +112,7 @@ public class SecurityDomainService extends PKIService implements SecurityDomainR
             Collection<SecurityDomainHost> hosts = new ArrayList<>();
 
             SecurityDomainProcessor processor = new SecurityDomainProcessor(getLocale(headers));
+            processor.setCMSEngine(getCMSEngine());
 
             DomainInfo domainInfo = processor.getDomainInfo();
             logger.debug("SecurityDomainService: domain: " + domainInfo.getName());
@@ -144,6 +149,7 @@ public class SecurityDomainService extends PKIService implements SecurityDomainR
         logger.info("SecurityDomainService: Getting security domain host \"" + hostID + "\"");
         try {
             SecurityDomainProcessor processor = new SecurityDomainProcessor(getLocale(headers));
+            processor.setCMSEngine(getCMSEngine());
 
             DomainInfo domainInfo = processor.getDomainInfo();
             logger.debug("SecurityDomainService: domain: " + domainInfo.getName());
@@ -231,6 +237,8 @@ public class SecurityDomainService extends PKIService implements SecurityDomainR
             logger.debug("SecurityDomainService: clone: " + clone);
 
             SecurityDomainProcessor processor = new SecurityDomainProcessor(getLocale(headers));
+            processor.setCMSEngine(getCMSEngine());
+
             String status = processor.addHost(
                     hostID,
                     type,
@@ -287,6 +295,8 @@ public class SecurityDomainService extends PKIService implements SecurityDomainR
             logger.debug("SecurityDomainService: port: " + port);
 
             SecurityDomainProcessor processor = new SecurityDomainProcessor(getLocale(headers));
+            processor.setCMSEngine(getCMSEngine());
+
             String status = processor.removeHost(hostID, type, hostname, port);
             logger.debug("SecurityDomainService: status: " + status);
 
