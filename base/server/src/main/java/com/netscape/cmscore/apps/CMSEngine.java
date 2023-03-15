@@ -755,7 +755,11 @@ public class CMSEngine {
         String checkInterval = config.getString("securitydomain.checkinterval", "5000");
 
         if (source.equals("ldap")) {
-            mSecurityDomainSessionTable = new LDAPSecurityDomainSessionTable(Long.parseLong(flushInterval));
+            LDAPSecurityDomainSessionTable sessionTable = new LDAPSecurityDomainSessionTable(Long.parseLong(flushInterval));
+            sessionTable.setCMSEngine(this);
+            sessionTable.init();
+            mSecurityDomainSessionTable = sessionTable;
+
         } else {
             mSecurityDomainSessionTable = new MemorySecurityDomainSessionTable(Long.parseLong(flushInterval));
         }

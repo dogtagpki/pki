@@ -25,7 +25,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.SecurityDomainSessionTable;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
@@ -49,12 +48,23 @@ public class LDAPSecurityDomainSessionTable
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LDAPSecurityDomainSessionTable.class);
 
+    protected CMSEngine engine;
     private LdapBoundConnFactory mLdapConnFactory;
 
-    public LDAPSecurityDomainSessionTable(long timeToLive) throws ELdapException, EBaseException {
+    public LDAPSecurityDomainSessionTable(long timeToLive) {
         this.timeToLive = timeToLive;
+    }
 
-        CMSEngine engine = CMS.getCMSEngine();
+    public CMSEngine getCMSEngine() {
+        return engine;
+    }
+
+    public void setCMSEngine(CMSEngine engine) {
+        this.engine = engine;
+    }
+
+    public void init() throws ELdapException, EBaseException {
+
         EngineConfig cs = engine.getConfig();
 
         PKISocketConfig socketConfig = cs.getSocketConfig();
@@ -68,7 +78,6 @@ public class LDAPSecurityDomainSessionTable
     public int addEntry(String sessionId, String ip,
             String uid, String group) throws Exception {
 
-        CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
         LDAPConfig ldapConfig = cs.getInternalDBConfig();
 
@@ -133,7 +142,6 @@ public class LDAPSecurityDomainSessionTable
     @Override
     public int removeEntry(String sessionId) throws Exception {
 
-        CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
         LDAPConfig ldapConfig = cs.getInternalDBConfig();
 
@@ -168,7 +176,6 @@ public class LDAPSecurityDomainSessionTable
     @Override
     public boolean sessionExists(String sessionId) throws Exception {
 
-        CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
         LDAPConfig ldapConfig = cs.getInternalDBConfig();
 
@@ -202,7 +209,6 @@ public class LDAPSecurityDomainSessionTable
 
         logger.debug("LDAPSecurityDomainSessionTable: getSessionIds() ");
 
-        CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
         LDAPConfig ldapConfig = cs.getInternalDBConfig();
 
@@ -252,7 +258,6 @@ public class LDAPSecurityDomainSessionTable
 
     private String getStringValue(String sessionId, String attr) throws Exception {
 
-        CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
         LDAPConfig ldapConfig = cs.getInternalDBConfig();
 
@@ -313,7 +318,6 @@ public class LDAPSecurityDomainSessionTable
     @Override
     public int getSize() throws Exception {
 
-        CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
         LDAPConfig ldapConfig = cs.getInternalDBConfig();
 
