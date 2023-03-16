@@ -17,13 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.security;
 
+import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.CAEngineConfig;
 import org.mozilla.jss.util.Password;
 import org.mozilla.jss.util.PasswordCallback;
 import org.mozilla.jss.util.PasswordCallbackInfo;
 
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.JDialogPasswordCallback;
 
 /*
@@ -48,8 +48,8 @@ public class PWCBsdr implements PasswordCallback {
 
     public PWCBsdr(String prompt) {
 
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
+        CAEngine engine = CAEngine.getInstance();
+        CAEngineConfig cs = engine.getConfig();
 
         mprompt = prompt;
 
