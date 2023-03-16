@@ -260,6 +260,7 @@ public class CAService implements IService {
                 throw new EBaseException(msg);
             }
             connector = new LocalConnector(mCA, authority);
+            connector.setCMSEngine(engine);
             // logger.info("local Connector to "+id+" inited");
         } else {
             String host = config.getString("host");
@@ -291,13 +292,16 @@ public class CAService implements IService {
             //	new HttpConnector(mCA, nickname, remauthority, resendInterval);
 
             String clientCiphers = config.getString("clientCiphers", null);
-            if (timeout == 0)
+            if (timeout == 0) {
                 connector = new HttpConnector(nickname, clientCiphers, remauthority, resendInterval,
                         config);
-            else
+            } else {
                 connector =
                         new HttpConnector(nickname, clientCiphers, remauthority, resendInterval,
                                 config, timeout);
+            }
+
+            connector.setCMSEngine(engine);
             // Change end
 
             // logger.info("remote authority " + host+":"+port+" "+uri+" inited");

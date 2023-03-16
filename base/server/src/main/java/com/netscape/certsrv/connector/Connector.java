@@ -18,6 +18,7 @@
 package com.netscape.certsrv.connector;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.http.HttpResponse;
 
@@ -40,10 +41,18 @@ import com.netscape.cmsutil.http.HttpResponse;
  * ca.connector.KRA.minHttpConns=1                   #Min connection pool connections.
  * ca.connector.KRA.maxHttpConns=10                  #Max connection pool connections.
  * </pre>
- *
- * @version $Revision$, $Date$
  */
 public class Connector {
+
+    protected CMSEngine engine;
+
+    public CMSEngine getCMSEngine() {
+        return engine;
+    }
+
+    public void setCMSEngine(CMSEngine engine) {
+        this.engine = engine;
+    }
 
     /**
      * Sends the request to a remote authority.

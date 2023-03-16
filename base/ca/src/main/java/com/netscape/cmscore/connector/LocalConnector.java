@@ -52,7 +52,6 @@ public class LocalConnector extends Connector {
         logger.debug("Local connector setup for dest " + mDest.getId());
 
         // register for events.
-        CAEngine engine = CAEngine.getInstance();
         engine.registerRequestListener(new LocalConnListener());
 
         logger.debug("Connector inited");
@@ -67,8 +66,8 @@ public class LocalConnector extends Connector {
         logger.debug("send request type " + r.getRequestType() + " status=" + r.getRequestStatus());
         logger.debug("to " + mDest.getId() + " id=" + r.getRequestId());
 
-        CAEngine engine = CAEngine.getInstance();
-        CertRequestRepository requestRepository = engine.getCertRequestRepository();
+        CAEngine caEngine = (CAEngine) engine;
+        CertRequestRepository requestRepository = caEngine.getCertRequestRepository();
         Request destreq = requestRepository.createRequest(r.getRequestType());
 
         logger.debug("local connector dest req " +

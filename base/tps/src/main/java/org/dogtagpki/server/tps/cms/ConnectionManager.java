@@ -206,6 +206,7 @@ public class ConnectionManager
                     new HttpConnector(nickname, clientCiphers, remauthority, resendInterval, conf, timeout);
         }
 
+        connector.setCMSEngine(TPSEngine.getInstance());
         logger.debug("ConnectionManager: createConnector(): ends.");
         return connector;
     }
