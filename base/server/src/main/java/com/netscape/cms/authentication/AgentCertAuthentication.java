@@ -89,6 +89,7 @@ public class AgentCertAuthentication extends AuthManager {
         mConfig = config;
 
         mCULocator = new ExactMatchCertUserLocator();
+        mCULocator.setCMSEngine(engine);
     }
 
     @Override

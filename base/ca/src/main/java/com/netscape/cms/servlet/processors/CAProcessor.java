@@ -148,7 +148,9 @@ public class CAProcessor extends Processor {
 
         authz = engine.getAuthzSubsystem();
         ug = engine.getUGSubsystem();
+
         ul = new ExactMatchCertUserLocator();
+        ul.setCMSEngine(engine);
 
         ConfigStore cs = config.getSubStore("processor." + id, ConfigStore.class);
         this.profileID = cs.getString(PROFILE_ID, "").isEmpty() ? null : cs.getString(PROFILE_ID);

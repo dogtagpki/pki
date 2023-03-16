@@ -18,6 +18,7 @@
 package com.netscape.certsrv.usrgrp;
 
 import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.usrgrp.User;
 
 import netscape.ldap.LDAPException;
@@ -27,6 +28,16 @@ import netscape.ldap.LDAPException;
  * a user
  */
 public abstract class CertUserLocator {
+
+    protected CMSEngine engine;
+
+    public CMSEngine getCMSEngine() {
+        return engine;
+    }
+
+    public void setCMSEngine(CMSEngine engine) {
+        this.engine = engine;
+    }
 
     /**
      * Returns a user whose certificates match with the given certificates

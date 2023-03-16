@@ -172,6 +172,8 @@ public class RegisterUser extends CMSServlet {
 
             // test to see if the cert already belongs to a user
             CertUserLocator cul = new ExactMatchCertUserLocator();
+            cul.setCMSEngine(engine);
+
             com.netscape.certsrv.usrgrp.Certificates c =
                     new com.netscape.certsrv.usrgrp.Certificates(certs);
             user = cul.locateUser(c);

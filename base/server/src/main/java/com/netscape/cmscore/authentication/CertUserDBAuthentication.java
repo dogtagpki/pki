@@ -112,6 +112,7 @@ public class CertUserDBAuthentication extends AuthManager {
         }
 
         mCULocator = new ExactMatchCertUserLocator();
+        mCULocator.setCMSEngine(engine);
     }
 
     @Override

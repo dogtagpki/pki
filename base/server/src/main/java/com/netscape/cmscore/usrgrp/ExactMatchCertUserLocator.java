@@ -23,8 +23,6 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.usrgrp.CertUserLocator;
 import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 
 import netscape.ldap.LDAPException;
 
@@ -39,7 +37,6 @@ import netscape.ldap.LDAPException;
  * @version $Revision$, $Date$
  */
 public class ExactMatchCertUserLocator extends CertUserLocator {
-    private UGSubsystem mUG = null;
 
     /**
      * Constructs certificate matching agent.
@@ -64,8 +61,7 @@ public class ExactMatchCertUserLocator extends CertUserLocator {
     public User locateUser(Certificates certs) throws
             EUsrGrpException, LDAPException, ELdapException {
 
-        CMSEngine engine = CMS.getCMSEngine();
-        mUG = engine.getUGSubsystem();
+        UGSubsystem mUG = engine.getUGSubsystem();
 
         X509Certificate certificates[] = certs.getCertificates();
 

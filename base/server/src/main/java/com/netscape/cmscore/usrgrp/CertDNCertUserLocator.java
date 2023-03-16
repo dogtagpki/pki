@@ -23,8 +23,6 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.usrgrp.CertUserLocator;
 import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 
 import netscape.ldap.LDAPException;
 
@@ -38,7 +36,7 @@ import netscape.ldap.LDAPException;
  * @version $Revision$, $Date$
  */
 public class CertDNCertUserLocator extends CertUserLocator {
-    private UGSubsystem mUG = null;
+
     protected static final String LDAP_ATTR_CERTDN = "seeAlso";
 
     /**
@@ -64,8 +62,7 @@ public class CertDNCertUserLocator extends CertUserLocator {
     public User locateUser(Certificates certs) throws
             EUsrGrpException, LDAPException, ELdapException {
 
-        CMSEngine engine = CMS.getCMSEngine();
-        mUG = engine.getUGSubsystem();
+        UGSubsystem mUG = engine.getUGSubsystem();
 
         X509Certificate certificates[] = certs.getCertificates();
 
