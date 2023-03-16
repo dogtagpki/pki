@@ -26,7 +26,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.evaluators.AccessEvaluator;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmscore.usrgrp.User;
 
@@ -130,7 +129,6 @@ public class GroupAccessEvaluator extends AccessEvaluator {
     @Override
     public boolean evaluate(String type, String op, String value) {
 
-        CMSEngine engine = CMS.getCMSEngine();
         UGSubsystem ug = engine.getUGSubsystem();
         SessionContext mSC = SessionContext.getContext();
 
