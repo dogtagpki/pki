@@ -37,7 +37,7 @@ import netscape.ldap.LDAPException;
  * @author cfu
  * @version $Revision$, $Date$
  */
-public class CertDNCertUserLocator implements CertUserLocator {
+public class CertDNCertUserLocator extends CertUserLocator {
     private UGSubsystem mUG = null;
     protected static final String LDAP_ATTR_CERTDN = "seeAlso";
 

@@ -38,7 +38,7 @@ import netscape.ldap.LDAPException;
  * @author cfu
  * @version $Revision$, $Date$
  */
-public class ExactMatchCertUserLocator implements CertUserLocator {
+public class ExactMatchCertUserLocator extends CertUserLocator {
     private UGSubsystem mUG = null;
 
     /**

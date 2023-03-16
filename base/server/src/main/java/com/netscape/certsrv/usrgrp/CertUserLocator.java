@@ -23,12 +23,10 @@ import com.netscape.cmscore.usrgrp.User;
 import netscape.ldap.LDAPException;
 
 /**
- * This interface defines a certificate mapping strategy to locate
+ * This class defines a certificate mapping strategy to locate
  * a user
- *
- * @version $Revision$, $Date$
  */
-public interface CertUserLocator {
+public abstract class CertUserLocator {
 
     /**
      * Returns a user whose certificates match with the given certificates
@@ -38,7 +36,7 @@ public interface CertUserLocator {
      * @exception LDAPException thrown when LDAP internal database is not available
      * @exception ELdapException thrown when the LDAP search failed
      */
-    public User locateUser(Certificates certs) throws
+    public abstract User locateUser(Certificates certs) throws
             EUsrGrpException, LDAPException, ELdapException;
 
     /**
@@ -46,5 +44,5 @@ public interface CertUserLocator {
      *
      * @return description
      */
-    public String getDescription();
+    public abstract String getDescription();
 }
