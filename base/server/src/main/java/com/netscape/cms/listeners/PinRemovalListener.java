@@ -20,8 +20,6 @@ package com.netscape.cms.listeners;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.request.RequestListener;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
@@ -95,7 +93,6 @@ public class PinRemovalListener extends RequestListener {
     public void init(String name, String ImplName, ConfigStore config)
             throws EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
         mName = name;

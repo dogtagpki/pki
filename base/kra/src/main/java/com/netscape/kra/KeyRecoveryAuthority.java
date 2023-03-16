@@ -66,9 +66,9 @@ import com.netscape.certsrv.logging.event.SecurityDataArchivalRequestEvent;
 import com.netscape.certsrv.logging.event.SecurityDataRecoveryEvent;
 import com.netscape.certsrv.logging.event.SecurityDataRecoveryProcessedEvent;
 import com.netscape.certsrv.request.IPolicy;
-import com.netscape.certsrv.request.RequestListener;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.certsrv.request.RequestListener;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.security.Credential;
 import com.netscape.certsrv.security.IStorageKeyUnit;
@@ -1582,6 +1582,7 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
 
                 try {
                     mReqInQListener = (RequestListener) Class.forName(requestInQListenerClassName).getDeclaredConstructor().newInstance();
+                    mReqInQListener.setCMSEngine(engine);
                     mReqInQListener.init(this, nc);
                 } catch (Exception e1) {
                     logger.warn(CMS.getLogMessage("CMSCORE_KRA_REGISTER_LISTENER", requestInQListenerClassName), e1);

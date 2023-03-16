@@ -19,6 +19,7 @@ package com.netscape.certsrv.request;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.Subsystem;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
@@ -26,6 +27,16 @@ import com.netscape.cmscore.request.Request;
  * An class that defines abilities of request listener,
  */
 public abstract class RequestListener {
+
+    protected CMSEngine engine;
+
+    public CMSEngine getCMSEngine() {
+        return engine;
+    }
+
+    public void setCMSEngine(CMSEngine engine) {
+        this.engine = engine;
+    }
 
     /**
      * Initializes request listener for the specific subsystem

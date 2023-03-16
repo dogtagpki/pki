@@ -465,6 +465,7 @@ public class CAEngine extends CMSEngine {
             String className = plugin.getClassPath();
             RequestListener listener = (RequestListener) Class.forName(className).getDeclaredConstructor().newInstance();
 
+            listener.setCMSEngine(this);
             // listener.init(id, pluginName, instanceConfig);
             listener.init(hostCA, instanceConfig);
             // registerRequestListener(id, (IRequestListener) listener);
@@ -643,6 +644,7 @@ public class CAEngine extends CMSEngine {
                 "com.netscape.cms.listeners.CertificateIssuedListener");
 
         certIssuedListener = (RequestListener) Class.forName(className).getDeclaredConstructor().newInstance();
+        certIssuedListener.setCMSEngine(this);
         certIssuedListener.init(hostCA, listenerConfig);
     }
 
@@ -665,6 +667,7 @@ public class CAEngine extends CMSEngine {
                 "com.netscape.cms.listeners.CertificateRevokedListener");
 
         certRevokedListener = (RequestListener) Class.forName(className).getDeclaredConstructor().newInstance();
+        certRevokedListener.setCMSEngine(this);
         certRevokedListener.init(hostCA, listenerConfig);
     }
 
@@ -687,6 +690,7 @@ public class CAEngine extends CMSEngine {
                 "com.netscape.cms.listeners.RequestInQListener");
 
         requestInQueueListener = (RequestListener) Class.forName(className).getDeclaredConstructor().newInstance();
+        requestInQueueListener.setCMSEngine(this);
         requestInQueueListener.init(hostCA, listenerConfig);
     }
 
