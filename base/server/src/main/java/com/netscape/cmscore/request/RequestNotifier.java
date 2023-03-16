@@ -23,7 +23,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.request.IRequestListener;
+import com.netscape.certsrv.request.RequestListener;
 import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
@@ -39,7 +39,7 @@ public class RequestNotifier {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestNotifier.class);
 
-    private Hashtable<String, IRequestListener> mListeners = new Hashtable<>();
+    private Hashtable<String, RequestListener> mListeners = new Hashtable<>();
     private Vector<Thread> mNotifierThreads = new Vector<>();
     private Vector<String> mRequests = new Vector<>();
     private int mMaxRequests = 100;
@@ -114,7 +114,7 @@ public class RequestNotifier {
      *
      * @param listener listener to be registered
      */
-    public void registerListener(IRequestListener listener) {
+    public void registerListener(RequestListener listener) {
         // XXX should check for duplicates here or allow listeners
         // to register twice and call twice ?
         mListeners.put(listener.getClass().getName(), listener);
@@ -126,7 +126,7 @@ public class RequestNotifier {
      * @param name listener name
      * @param listener listener to be registered
      */
-    public void registerListener(String name, IRequestListener listener) {
+    public void registerListener(String name, RequestListener listener) {
         mListeners.put(name, listener);
     }
 
@@ -135,7 +135,7 @@ public class RequestNotifier {
      *
      * @param listener listener to be removed from the list
      */
-    public void removeListener(IRequestListener listener) {
+    public void removeListener(RequestListener listener) {
         // XXX should check for duplicates here or allow listeners
         // to register twice and call twice ?
         mListeners.remove(listener.getClass().getName());
@@ -165,7 +165,7 @@ public class RequestNotifier {
      * @param name listener name
      * @return listener
      */
-    public IRequestListener getListener(String name) {
+    public RequestListener getListener(String name) {
         return mListeners.get(name);
     }
 
@@ -174,7 +174,7 @@ public class RequestNotifier {
      *
      * @return enumeration of listeners
      */
-    public Enumeration<IRequestListener> getListeners() {
+    public Enumeration<RequestListener> getListeners() {
         return mListeners.elements();
     }
 
@@ -364,10 +364,10 @@ public class RequestNotifier {
 
         } else if (mMaxThreads == 0) {
             logger.info("RequestNotifier: Notifying " + mListeners.size() + " listener(s) synchronously");
-            Enumeration<IRequestListener> listeners = mListeners.elements();
+            Enumeration<RequestListener> listeners = mListeners.elements();
             if (listeners != null && r != null) {
                 while (listeners.hasMoreElements()) {
-                    IRequestListener l = listeners.nextElement();
+                    RequestListener l = listeners.nextElement();
                     logger.info("RequestNotifier: Processing request " + r.getRequestId().toHexString() + " with " + l.getClass().getSimpleName());
                     l.accept(r);
                 }

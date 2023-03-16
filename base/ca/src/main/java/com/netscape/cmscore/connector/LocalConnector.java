@@ -27,8 +27,8 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.connector.Connector;
-import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.certsrv.request.RequestListener;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.CertRequestRepository;
@@ -130,7 +130,7 @@ public class LocalConnector extends Connector {
         return null;
     }
 
-    public class LocalConnListener implements IRequestListener {
+    public class LocalConnListener extends RequestListener {
 
         @Override
         public void init(Subsystem sys, ConfigStore config)

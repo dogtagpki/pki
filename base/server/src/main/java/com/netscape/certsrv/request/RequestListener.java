@@ -23,11 +23,9 @@ import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 /**
- * An interface that defines abilities of request listener,
- *
- * @version $Revision$, $Date$
+ * An class that defines abilities of request listener,
  */
-public interface IRequestListener {
+public abstract class RequestListener {
 
     /**
      * Initializes request listener for the specific subsystem
@@ -36,14 +34,14 @@ public interface IRequestListener {
      * @param sub subsystem
      * @param config configuration store
      */
-    public void init(Subsystem sub, ConfigStore config) throws EBaseException;
+    public abstract void init(Subsystem sub, ConfigStore config) throws EBaseException;
 
     /**
      * Accepts request.
      *
      * @param request request
      */
-    public void accept(Request request);
+    public abstract void accept(Request request);
 
     /**
      * Sets attribute.
@@ -51,5 +49,5 @@ public interface IRequestListener {
      * @param name attribute name
      * @param val attribute value
      */
-    public void set(String name, String val);
+    public abstract void set(String name, String val);
 }

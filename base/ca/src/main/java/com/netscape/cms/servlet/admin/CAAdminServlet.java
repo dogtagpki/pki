@@ -50,7 +50,7 @@ import com.netscape.certsrv.connector.ConnectorConfig;
 import com.netscape.certsrv.connector.ConnectorsConfig;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.request.IRequestListener;
+import com.netscape.certsrv.request.RequestListener;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertificateRepository;
@@ -376,7 +376,7 @@ public class CAAdminServlet extends AdminServlet {
      * handle setting request complete notification config info
      */
     private void setNotificationCompConfig(HttpServletRequest req, HttpServletResponse resp, ConfigStore rc,
-            IRequestListener thisListener) throws IOException, EBaseException {
+            RequestListener thisListener) throws IOException, EBaseException {
 
         //set rest of the parameters
         Enumeration<String> e = req.getParameterNames();

@@ -66,7 +66,7 @@ import com.netscape.certsrv.logging.event.SecurityDataArchivalRequestEvent;
 import com.netscape.certsrv.logging.event.SecurityDataRecoveryEvent;
 import com.netscape.certsrv.logging.event.SecurityDataRecoveryProcessedEvent;
 import com.netscape.certsrv.request.IPolicy;
-import com.netscape.certsrv.request.IRequestListener;
+import com.netscape.certsrv.request.RequestListener;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
@@ -161,7 +161,7 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
     private int mEntropyBlockWarnMilliseconds = 0;
 
     // for the notification listener
-    public IRequestListener mReqInQListener = null;
+    public RequestListener mReqInQListener = null;
 
     public KeyStatusUpdateTask keyStatusUpdateTask;
 
@@ -471,7 +471,7 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
      *
      * @return request listener
      */
-    public IRequestListener getRequestInQListener() {
+    public RequestListener getRequestInQListener() {
         return mReqInQListener;
     }
 
@@ -1581,7 +1581,7 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
                                 "com.netscape.cms.listeners.RequestInQListener");
 
                 try {
-                    mReqInQListener = (IRequestListener) Class.forName(requestInQListenerClassName).getDeclaredConstructor().newInstance();
+                    mReqInQListener = (RequestListener) Class.forName(requestInQListenerClassName).getDeclaredConstructor().newInstance();
                     mReqInQListener.init(this, nc);
                 } catch (Exception e1) {
                     logger.warn(CMS.getLogMessage("CMSCORE_KRA_REGISTER_LISTENER", requestInQListenerClassName), e1);

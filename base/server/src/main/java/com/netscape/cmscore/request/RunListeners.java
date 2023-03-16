@@ -19,7 +19,7 @@ package com.netscape.cmscore.request;
 
 import java.util.Enumeration;
 
-import com.netscape.certsrv.request.IRequestListener;
+import com.netscape.certsrv.request.RequestListener;
 
 /**
  * The RunListeners class implements Runnable interface.
@@ -30,7 +30,7 @@ public class RunListeners implements Runnable {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RunListeners.class);
 
     Request mRequest = null;
-    Enumeration<IRequestListener> mListeners = null;
+    Enumeration<RequestListener> mListeners = null;
     RequestNotifier mRequestNotifier;
 
     /**
@@ -39,7 +39,7 @@ public class RunListeners implements Runnable {
      * @param r request
      * @param listeners list of listeners
      */
-    public RunListeners(Request r, Enumeration<IRequestListener> listeners) {
+    public RunListeners(Request r, Enumeration<RequestListener> listeners) {
         mRequest = r;
         mListeners = listeners;
     }
@@ -73,7 +73,7 @@ public class RunListeners implements Runnable {
                 logger.info("RunListeners: Processing request " + mRequest.getRequestId().toHexString());
 
                 while (mListeners.hasMoreElements()) {
-                    IRequestListener l = mListeners.nextElement();
+                    RequestListener l = mListeners.nextElement();
                     logger.info("RunListeners: Processing request " + mRequest.getRequestId().toHexString() + " with " + l.getClass().getSimpleName());
                     l.accept(mRequest);
                 }

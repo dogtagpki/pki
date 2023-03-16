@@ -32,7 +32,7 @@ import com.netscape.certsrv.publish.MapperProxy;
 import com.netscape.certsrv.publish.PublisherPlugin;
 import com.netscape.certsrv.publish.PublisherProxy;
 import com.netscape.certsrv.publish.RulePlugin;
-import com.netscape.certsrv.request.IRequestListener;
+import com.netscape.certsrv.request.RequestListener;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
@@ -71,7 +71,7 @@ public abstract class PublisherProcessor {
     protected ConfigStore mLdapConfig;
     protected String mId;
 
-    protected IRequestListener requestListener;
+    protected RequestListener requestListener;
     protected boolean mInited;
 
     public PublisherProcessor(String id) {
@@ -90,11 +90,11 @@ public abstract class PublisherProcessor {
         return mConfig;
     }
 
-    public IRequestListener getRequestListener() {
+    public RequestListener getRequestListener() {
         return requestListener;
     }
 
-    public void setRequestListener(IRequestListener requestListener) {
+    public void setRequestListener(RequestListener requestListener) {
         this.requestListener = requestListener;
     }
 

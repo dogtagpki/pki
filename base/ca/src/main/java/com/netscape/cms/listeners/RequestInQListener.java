@@ -30,8 +30,8 @@ import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.listeners.EListenersException;
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
-import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.certsrv.request.RequestListener;
 import com.netscape.cms.notification.MailNotification;
 import com.netscape.cms.profile.input.SubjectNameInput;
 import com.netscape.cms.profile.input.SubmitterInfoInput;
@@ -43,7 +43,7 @@ import com.netscape.cmscore.request.Request;
 
 /**
  * a listener for every request gets into the request queue.
- * <p>
+ *
  * Here is a list of available $TOKENs for email notification templates:
  * <UL>
  * <LI>$RequestorEmail
@@ -55,9 +55,8 @@ import com.netscape.cmscore.request.Request;
  * <LI>$SenderEmail
  * <LI>$RecipientEmail
  * </UL>
- *
  */
-public class RequestInQListener implements IRequestListener {
+public class RequestInQListener extends RequestListener {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestInQListener.class);
 

@@ -7,12 +7,12 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.ca.EErrorPublishCRL;
-import com.netscape.certsrv.request.IRequestListener;
+import com.netscape.certsrv.request.RequestListener;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
-public class RevocationRequestListener implements IRequestListener {
+public class RevocationRequestListener extends RequestListener {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RevocationRequestListener.class);
 

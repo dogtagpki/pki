@@ -19,7 +19,7 @@ package com.netscape.cms.listeners;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.Subsystem;
-import com.netscape.certsrv.request.IRequestListener;
+import com.netscape.certsrv.request.RequestListener;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -39,10 +39,8 @@ import netscape.ldap.LDAPv3;
 
 /**
  * This represnets a listener that removes pin from LDAP directory.
- *
- * @version $Revision$, $Date$
  */
-public class PinRemovalListener implements IRequestListener {
+public class PinRemovalListener extends RequestListener {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PinRemovalListener.class);
 

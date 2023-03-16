@@ -71,7 +71,7 @@ import com.netscape.certsrv.ca.IssuerUnavailableException;
 import com.netscape.certsrv.connector.ConnectorsConfig;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.publish.CRLPublisher;
-import com.netscape.certsrv.request.IRequestListener;
+import com.netscape.certsrv.request.RequestListener;
 import com.netscape.certsrv.util.AsyncLoader;
 import com.netscape.cms.authentication.CAAuthSubsystem;
 import com.netscape.cms.request.RequestScheduler;
@@ -149,9 +149,9 @@ public class CAEngine extends CMSEngine {
     protected PublicKey issuanceProtectionPublicKey;
     protected PrivateKey issuanceProtectionPrivateKey;
 
-    public IRequestListener certIssuedListener;
-    public IRequestListener certRevokedListener;
-    public IRequestListener requestInQueueListener;
+    public RequestListener certIssuedListener;
+    public RequestListener certRevokedListener;
+    public RequestListener requestInQueueListener;
 
     public RetrieveModificationsTask retrieveModificationsTask;
     public CertStatusUpdateTask certStatusUpdateTask;
@@ -379,7 +379,7 @@ public class CAEngine extends CMSEngine {
      *
      * @return the request listener for issued certificates
      */
-    public IRequestListener getCertIssuedListener() {
+    public RequestListener getCertIssuedListener() {
         return certIssuedListener;
     }
 
@@ -388,7 +388,7 @@ public class CAEngine extends CMSEngine {
      *
      * @return the request listener for revoked certificates
      */
-    public IRequestListener getCertRevokedListener() {
+    public RequestListener getCertRevokedListener() {
         return certRevokedListener;
     }
 
@@ -397,7 +397,7 @@ public class CAEngine extends CMSEngine {
      *
      * @return the request in queue listener
      */
-    public IRequestListener getRequestInQueueListener() {
+    public RequestListener getRequestInQueueListener() {
         return requestInQueueListener;
     }
 
@@ -463,7 +463,7 @@ public class CAEngine extends CMSEngine {
             }
 
             String className = plugin.getClassPath();
-            IRequestListener listener = (IRequestListener) Class.forName(className).getDeclaredConstructor().newInstance();
+            RequestListener listener = (RequestListener) Class.forName(className).getDeclaredConstructor().newInstance();
 
             // listener.init(id, pluginName, instanceConfig);
             listener.init(hostCA, instanceConfig);
@@ -642,7 +642,7 @@ public class CAEngine extends CMSEngine {
                 "certificateIssuedListenerClassName",
                 "com.netscape.cms.listeners.CertificateIssuedListener");
 
-        certIssuedListener = (IRequestListener) Class.forName(className).getDeclaredConstructor().newInstance();
+        certIssuedListener = (RequestListener) Class.forName(className).getDeclaredConstructor().newInstance();
         certIssuedListener.init(hostCA, listenerConfig);
     }
 
@@ -664,7 +664,7 @@ public class CAEngine extends CMSEngine {
                 "certificateIssuedListenerClassName",
                 "com.netscape.cms.listeners.CertificateRevokedListener");
 
-        certRevokedListener = (IRequestListener) Class.forName(className).getDeclaredConstructor().newInstance();
+        certRevokedListener = (RequestListener) Class.forName(className).getDeclaredConstructor().newInstance();
         certRevokedListener.init(hostCA, listenerConfig);
     }
 
@@ -686,7 +686,7 @@ public class CAEngine extends CMSEngine {
                 "certificateIssuedListenerClassName",
                 "com.netscape.cms.listeners.RequestInQListener");
 
-        requestInQueueListener = (IRequestListener) Class.forName(className).getDeclaredConstructor().newInstance();
+        requestInQueueListener = (RequestListener) Class.forName(className).getDeclaredConstructor().newInstance();
         requestInQueueListener.init(hostCA, listenerConfig);
     }
 

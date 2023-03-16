@@ -38,8 +38,8 @@ import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.notification.IEmailResolver;
 import com.netscape.certsrv.notification.IEmailResolverKeys;
-import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.certsrv.request.RequestListener;
 import com.netscape.cms.notification.MailNotification;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
@@ -52,7 +52,7 @@ import com.netscape.cmscore.request.Request;
 
 /**
  * a listener for every completed enrollment request
- * <p>
+ *
  * Here is a list of available $TOKENs for email notification templates if certificate is successfully issued:
  * <UL>
  * <LI>$InstanceID
@@ -68,16 +68,14 @@ import com.netscape.cmscore.request.Request;
  * <LI>$SenderEmail
  * <LI>$RecipientEmail
  * </UL>
- * <p>
+ *
  * Here is a list of available $TOKENs for email notification templates if certificate request is revoked:
  * <UL>
  * <LI>$RequestId
  * <LI>$InstanceID
  * </UL>
- *
- * @version $Revision$, $Date$
  */
-public class CertificateRevokedListener implements IRequestListener {
+public class CertificateRevokedListener extends RequestListener {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertificateRevokedListener.class);
 

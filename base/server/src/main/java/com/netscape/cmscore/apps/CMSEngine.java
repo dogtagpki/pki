@@ -53,7 +53,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.SecurityDomainSessionTable;
 import com.netscape.certsrv.base.Subsystem;
-import com.netscape.certsrv.request.IRequestListener;
+import com.netscape.certsrv.request.RequestListener;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.notification.MailNotification;
 import com.netscape.cms.password.PasswordChecker;
@@ -285,14 +285,14 @@ public class CMSEngine {
      * @param name request listener name
      * @return the request listener
      */
-    public IRequestListener getRequestListener(String name) {
+    public RequestListener getRequestListener(String name) {
         return requestNotifier.getListener(name);
     }
 
     /**
      * Registers a request listener.
      */
-    public void registerRequestListener(IRequestListener listener) {
+    public void registerRequestListener(RequestListener listener) {
         requestNotifier.registerListener(listener);
     }
 
@@ -302,7 +302,7 @@ public class CMSEngine {
      * @param name under request listener is going to be registered
      * @param listener request listener to be registered
      */
-    public void registerRequestListener(String name, IRequestListener listener) {
+    public void registerRequestListener(String name, RequestListener listener) {
         requestNotifier.registerListener(name, listener);
     }
 
@@ -311,7 +311,7 @@ public class CMSEngine {
      *
      * @param listener request listener to be removed
      */
-    public void removeRequestListener(IRequestListener listener) {
+    public void removeRequestListener(RequestListener listener) {
         requestNotifier.removeListener(listener);
     }
 
@@ -333,21 +333,21 @@ public class CMSEngine {
     /**
      * get listener from listener list
      */
-    public IRequestListener getPendingListener(String name) {
+    public RequestListener getPendingListener(String name) {
         return pendingNotifier.getListener(name);
     }
 
     /**
      * register listener for pending requests
      */
-    public void registerPendingListener(IRequestListener listener) {
+    public void registerPendingListener(RequestListener listener) {
         pendingNotifier.registerListener(listener);
     }
 
     /**
      * register listener for pending requests with a name.
      */
-    public void registerPendingListener(String name, IRequestListener listener) {
+    public void registerPendingListener(String name, RequestListener listener) {
         pendingNotifier.registerListener(name, listener);
     }
 

@@ -23,11 +23,11 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.Subsystem;
-import com.netscape.certsrv.request.IRequestListener;
+import com.netscape.certsrv.request.RequestListener;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
-public class LdapRequestListener implements IRequestListener {
+public class LdapRequestListener extends RequestListener {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapRequestListener.class);
 
@@ -35,7 +35,7 @@ public class LdapRequestListener implements IRequestListener {
      * handlers for request types (events)
      * each handler implement IRequestListener
      */
-    private Hashtable<String, IRequestListener> mRequestListeners = new Hashtable<>();
+    private Hashtable<String, RequestListener> mRequestListeners = new Hashtable<>();
 
     public LdapRequestListener() {
     }
@@ -135,7 +135,7 @@ public class LdapRequestListener implements IRequestListener {
     public void accept(Request r) {
         String type = r.getRequestType();
 
-        IRequestListener handler = mRequestListeners.get(type);
+        RequestListener handler = mRequestListeners.get(type);
 
         if (handler == null) {
             logger.warn("Nothing to publish for request type " + type);

@@ -41,7 +41,7 @@ import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.publish.ILdapMapper;
 import com.netscape.certsrv.publish.ILdapPlugin;
 import com.netscape.certsrv.publish.ILdapPublisher;
-import com.netscape.certsrv.request.IRequestListener;
+import com.netscape.certsrv.request.RequestListener;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertRecord;
@@ -56,7 +56,7 @@ import netscape.ldap.LDAPConnection;
 /**
  * Handles requests to perform Ldap publishing.
  */
-public class LdapPublishModule implements IRequestListener {
+public class LdapPublishModule extends RequestListener {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapPublishModule.class);
 
@@ -83,7 +83,7 @@ public class LdapPublishModule implements IRequestListener {
      * handlers for request types (events)
      * values implement IRequestListener
      */
-    protected Hashtable<String, IRequestListener> mEventHandlers = new Hashtable<>();
+    protected Hashtable<String, RequestListener> mEventHandlers = new Hashtable<>();
 
     /**
      * instantiate connection factory.
@@ -269,7 +269,7 @@ public class LdapPublishModule implements IRequestListener {
     public void accept(Request request) {
         String type = request.getRequestType();
 
-        IRequestListener handler = mEventHandlers.get(type);
+        RequestListener handler = mEventHandlers.get(type);
 
         if (handler == null) {
             logger.debug("Nothing to publish for request type " + type);
@@ -501,7 +501,7 @@ class LdapMappers {
     public ILdapPlugin publisher = null;
 }
 
-class HandleEnrollment implements IRequestListener {
+class HandleEnrollment extends RequestListener {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HandleEnrollment.class);
 
@@ -577,7 +577,7 @@ class HandleEnrollment implements IRequestListener {
     }
 }
 
-class HandleRenewal implements IRequestListener {
+class HandleRenewal extends RequestListener {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HandleRenewal.class);
 
@@ -643,7 +643,7 @@ class HandleRenewal implements IRequestListener {
     }
 }
 
-class HandleRevocation implements IRequestListener {
+class HandleRevocation extends RequestListener {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HandleRevocation.class);
 
@@ -709,7 +709,7 @@ class HandleRevocation implements IRequestListener {
     }
 }
 
-class HandleUnrevocation implements IRequestListener {
+class HandleUnrevocation extends RequestListener {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HandleUnrevocation.class);
 
