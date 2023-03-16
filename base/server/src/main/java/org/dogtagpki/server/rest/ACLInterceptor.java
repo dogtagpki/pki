@@ -76,6 +76,10 @@ public class ACLInterceptor implements ContainerRequestFilter {
     @Context
     SecurityContext securityContext;
 
+    public CMSEngine getCMSEngine() {
+        return (CMSEngine) servletContext.getAttribute("engine");
+    }
+
     public synchronized void loadProperties() throws IOException {
 
         if (properties != null)
@@ -145,7 +149,7 @@ public class ACLInterceptor implements ContainerRequestFilter {
         if (principal != null)
             logger.debug("ACLInterceptor: principal: " + principal.getName());
 
-        CMSEngine engine = CMS.getCMSEngine();
+        CMSEngine engine = getCMSEngine();
         AuthzSubsystem authzSubsystem = engine.getAuthzSubsystem();
 
         AuthToken authToken = null;
