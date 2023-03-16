@@ -79,6 +79,8 @@ public class HttpConnector extends Connector {
         // this will start resending past requests in parallel.
         if (resendInterval >= 0) {
             mResender = new Resender(nickName, clientCiphers, dest, resendInterval);
+            mResender.setCMSEngine(engine);
+            mResender.init();
         }
     }
 
@@ -113,6 +115,8 @@ public class HttpConnector extends Connector {
         // this will start resending past requests in parallel.
         if (resendInterval >= 0) {
             mResender = new Resender(nickName, clientCiphers, dest, resendInterval);
+            mResender.setCMSEngine(engine);
+            mResender.init();
         }
     }
 

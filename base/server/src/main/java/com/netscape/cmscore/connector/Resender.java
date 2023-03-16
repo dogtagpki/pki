@@ -50,6 +50,7 @@ public class Resender implements Runnable {
 
     public static final int MINUTE = 60;
 
+    protected CMSEngine engine;
     protected RequestRepository requestRepository;
     RequestQueue mQueue;
     protected RemoteAuthority mDest;
@@ -73,9 +74,6 @@ public class Resender implements Runnable {
             String nickName,
             String clientCiphers,
             RemoteAuthority dest) {
-        CMSEngine engine = CMS.getCMSEngine();
-        requestRepository = engine.getRequestRepository();
-        mQueue = engine.getRequestQueue();
         mDest = dest;
         mNickName = nickName;
         mClientCiphers = clientCiphers;
@@ -86,14 +84,24 @@ public class Resender implements Runnable {
             String clientCiphers,
             RemoteAuthority dest,
             int interval) {
-        CMSEngine engine = CMS.getCMSEngine();
-        requestRepository = engine.getRequestRepository();
-        mQueue = engine.getRequestQueue();
         mDest = dest;
         mNickName = nickName;
         mClientCiphers = clientCiphers;
         if (interval > 0)
             mInterval = interval; // interval specified in seconds.
+    }
+
+    public CMSEngine getCMSEngine() {
+        return engine;
+    }
+
+    public void setCMSEngine(CMSEngine engine) {
+        this.engine = engine;
+    }
+
+    public void init() {
+        requestRepository = engine.getRequestRepository();
+        mQueue = engine.getRequestQueue();
     }
 
     // must be done after a subsystem 'start' so queue is initialized.
@@ -139,7 +147,6 @@ public class Resender implements Runnable {
 
     @Override
     public void run() {
-        CMSEngine engine = CMS.getCMSEngine();
         if (! engine.isInRunningState())
             return;
 
