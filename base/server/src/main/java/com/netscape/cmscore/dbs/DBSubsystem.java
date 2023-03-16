@@ -28,7 +28,6 @@ import com.netscape.certsrv.dbs.EDBNotAvailException;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
@@ -63,6 +62,7 @@ public class DBSubsystem {
 
     public final static String ID = "dbs";
 
+    protected EngineConfig engineConfig;
     private DatabaseConfig mDBConfig;
     private LDAPConfig ldapConfig;
     private LdapBoundConnFactory mLdapConnFactory = null;
@@ -119,6 +119,14 @@ public class DBSubsystem {
     public DBSubsystem() {
     }
 
+    public EngineConfig getEngineConfig() {
+        return engineConfig;
+    }
+
+    public void setEngineConfig(EngineConfig engineConfig) {
+        this.engineConfig = engineConfig;
+    }
+
     /**
      * Retrieves subsystem identifier.
      */
@@ -149,9 +157,6 @@ public class DBSubsystem {
     public void setEnableSerialMgmt(boolean v)
             throws EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
-
         if (v) {
             logger.debug("DBSubsystem: Enabling Serial Number Management");
         } else {
@@ -159,7 +164,7 @@ public class DBSubsystem {
         }
 
         mDBConfig.setEnableSerialManagement(v);
-        cs.commit(false);
+        engineConfig.commit(false);
         mEnableSerialMgmt = v;
     }
 
@@ -508,10 +513,9 @@ public class DBSubsystem {
                 }
                 mDBConfig.setNewSchemaEntryAdded("true");
 
-                CMSEngine engine = CMS.getCMSEngine();
-                EngineConfig cs = engine.getConfig();
-                cs.commit(false);
+                engineConfig.commit(false);
             }
+
         } catch (ELdapException e) {
             if (e instanceof ELdapServerDownException) {
                 throw new EDBNotAvailException(

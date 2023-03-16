@@ -82,6 +82,7 @@ public class OCSPCRLIssuingPointFindCLI extends CommandCLI {
         IPasswordStore passwordStore = IPasswordStore.create(psc);
 
         DBSubsystem dbSubsystem = new DBSubsystem();
+        dbSubsystem.setEngineConfig(cs);
         dbSubsystem.init(dbConfig, ldapConfig, socketConfig, passwordStore);
 
         OCSPConfig ocspConfig = cs.getOCSPConfig();

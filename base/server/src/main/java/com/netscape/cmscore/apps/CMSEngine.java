@@ -143,7 +143,7 @@ public class CMSEngine {
     private PKIServerSocketListener serverSocketListener = null;
     protected LogSubsystem logSubsystem = LogSubsystem.getInstance();
     protected JssSubsystem jssSubsystem = JssSubsystem.getInstance();
-    protected DBSubsystem dbSubsystem = new DBSubsystem();
+    protected DBSubsystem dbSubsystem;
 
 
     protected RequestRepository requestRepository;
@@ -661,6 +661,8 @@ public class CMSEngine {
         PKISocketConfig socketConfig = config.getSocketConfig();
         IPasswordStore passwordStore = getPasswordStore();
 
+        dbSubsystem = new DBSubsystem();
+        dbSubsystem.setEngineConfig(config);
         dbSubsystem.init(dbConfig, ldapConfig, socketConfig, passwordStore);
     }
 
@@ -1341,6 +1343,7 @@ public class CMSEngine {
     }
 
     public void shutdownDBSubsystem() {
+        if (dbSubsystem == null) return;
         dbSubsystem.shutdown();
     }
 

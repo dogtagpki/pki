@@ -192,6 +192,7 @@ public class CACertCreateCLI extends CommandCLI {
         SecureRandom secureRandom = SecureRandomFactory.create(secureRandomConfig);
 
         DBSubsystem dbSubsystem = new DBSubsystem();
+        dbSubsystem.setEngineConfig(cs);
         dbSubsystem.init(dbConfig, ldapConfig, socketConfig, passwordStore);
 
         try {
