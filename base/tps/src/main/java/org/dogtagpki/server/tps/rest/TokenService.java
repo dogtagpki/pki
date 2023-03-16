@@ -402,7 +402,7 @@ public class TokenService extends SubsystemService implements TokenResource {
         String method = "TokenService.retrieveTokensWithoutVLV: ";
 
         // search without VLV
-        List<TokenRecord> tokens = (List<TokenRecord>) database.findRecords(filter);
+        List<TokenRecord> tokens = (List<TokenRecord>) database.findRecords(filter, attributes);
         int total = tokens.size();
         logger.debug(method + "total: " + total);
 
