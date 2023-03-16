@@ -56,6 +56,8 @@ public abstract class Job implements Runnable {
     protected static final String STATUS_FAILURE = "failed";
     protected static final String STATUS_SUCCESS = "succeeded";
 
+    protected CMSEngine engine;
+
     // variables used by the Job Scheduler Daemon
     protected String mImplName = null;
     protected JobConfig mConfig;
@@ -77,6 +79,14 @@ public abstract class Job implements Runnable {
     boolean stopped;
 
     public Job() {
+    }
+
+    public CMSEngine getCMSEngine() {
+        return engine;
+    }
+
+    public void setCMSEngine(CMSEngine engine) {
+        this.engine = engine;
     }
 
     /**
@@ -214,7 +224,6 @@ public abstract class Job implements Runnable {
         logger.info("Job: Sending email to " + mSummaryReceiverEmail);
 
         // no need for email resolver here...
-        CMSEngine engine = CMS.getCMSEngine();
         MailNotification mn = engine.getMailNotification();
 
         mn.setFrom(mSummarySenderEmail);

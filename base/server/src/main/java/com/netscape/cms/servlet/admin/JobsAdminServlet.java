@@ -466,6 +466,7 @@ public class JobsAdminServlet extends AdminServlet {
 
         // initialize the job plugin
         try {
+            jobsInst.setCMSEngine(engine);
             jobsInst.init(scheduler, id, implname, substore);
         } catch (EBaseException e) {
             // don't commit in this case and cleanup the new substore.
@@ -861,6 +862,7 @@ public class JobsAdminServlet extends AdminServlet {
         JobsScheduler scheduler = (JobsScheduler) engine.getSubsystem(JobsScheduler.ID);
 
         try {
+            newJobInst.setCMSEngine(engine);
             newJobInst.init(scheduler, id, implname, substore);
         } catch (EBaseException e) {
             // don't commit in this case and cleanup the new substore.

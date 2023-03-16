@@ -26,8 +26,6 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.jobs.JobConfig;
 import com.netscape.cmscore.jobs.JobsScheduler;
@@ -115,8 +113,6 @@ public class RequestInQueueJob extends Job
             EBaseException {
 
         super.init(scheduler, id, implName, config);
-
-        CMSEngine engine = CMS.getCMSEngine();
 
         // read from the configuration file
         String sub = mConfig.getString(PROP_SUBSYSTEM_ID);

@@ -195,6 +195,7 @@ public class JobsScheduler extends Subsystem implements Runnable {
             // instantiate and init the job
             try {
                 Job job = (Job) Class.forName(classPath).getDeclaredConstructor().newInstance();
+                job.setCMSEngine(engine);
                 job.init(this, jobName, implName, jobConfig);
 
                 // register the job
