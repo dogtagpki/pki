@@ -26,9 +26,6 @@ import com.netscape.certsrv.request.CMSRequestInfo;
 import com.netscape.certsrv.request.CMSRequestInfos;
 import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestList;
 import com.netscape.cmscore.request.RequestQueue;
@@ -45,7 +42,6 @@ public abstract class CMSRequestDAO {
 
     protected RequestRepository requestRepository;
     protected RequestQueue queue;
-    protected AuthzSubsystem authz;
 
     private String[] vlvFilters = {
             "(requeststate=*)", "(requesttype=enrollment)",
@@ -63,8 +59,6 @@ public abstract class CMSRequestDAO {
     public static final String ATTR_SERIALNO = "serialNumber";
 
     public CMSRequestDAO() {
-        CMSEngine engine = CMS.getCMSEngine();
-        authz = engine.getAuthzSubsystem();
     }
 
     /**
@@ -88,8 +82,6 @@ public abstract class CMSRequestDAO {
 
         logger.info("CMSRequestDAO: Searching for requests with filter " + filter);
 
-        CMSEngine engine = CMS.getCMSEngine();
-
         CMSRequestInfos ret = new CMSRequestInfos();
         int totalSize = 0;
         int current = 0;
@@ -98,7 +90,6 @@ public abstract class CMSRequestDAO {
 
             logger.debug("CMSRequestDAO: performing VLV search");
 
-            RequestRepository requestRepository = engine.getRequestRepository();
             IRequestVirtualList vlvlist = requestRepository.getPagedRequestsByFilter(
                     start,
                     false,

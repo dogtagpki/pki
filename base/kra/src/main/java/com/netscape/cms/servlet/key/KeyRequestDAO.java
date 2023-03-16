@@ -63,6 +63,7 @@ import com.netscape.certsrv.request.CMSRequestInfos;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.request.CMSRequestDAO;
+import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmscore.request.KeyRequestRepository;
@@ -100,12 +101,14 @@ public class KeyRequestDAO extends CMSRequestDAO {
 
     public static final String ATTR_SERIALNO = "serialNumber";
 
+    protected AuthzSubsystem authz;
     private KeyRepository repo;
     private KeyRecoveryAuthority kra;
     private KeyRecoveryAuthority service;
 
     public KeyRequestDAO() {
         KRAEngine engine = KRAEngine.getInstance();
+        authz = engine.getAuthzSubsystem();
         kra = (KeyRecoveryAuthority) engine.getSubsystem(KeyRecoveryAuthority.ID);
         repo = kra.getKeyRepository();
         requestRepository = engine.getRequestRepository();
