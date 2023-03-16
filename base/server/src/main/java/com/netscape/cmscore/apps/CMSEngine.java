@@ -1563,6 +1563,7 @@ public class CMSEngine {
     public void putPasswordCache(String tag, String pw) {
         try {
             PWsdrCache pwc = new PWsdrCache();
+            pwc.setEngineConfig(config);
             pwc.addEntry(tag, pw);
         } catch (EBaseException e) {
             // intercept this for now -- don't want to change the callers
