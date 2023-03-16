@@ -21,12 +21,12 @@ import java.io.IOException;
 import java.util.Date;
 
 import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 
 /**
@@ -45,12 +45,22 @@ public class SystemInfoServlet extends HttpServlet {
      */
     private static final long serialVersionUID = -438134935001530607L;
 
+    protected ServletConfig servletConfig;
+    protected ServletContext servletContext;
+
     public SystemInfoServlet() {
     }
 
     @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
+
+        servletConfig = sc;
+        servletContext = sc.getServletContext();
+    }
+
+    public CMSEngine getCMSEngine() {
+        return (CMSEngine) servletContext.getAttribute("engine");
     }
 
     /**
@@ -145,7 +155,9 @@ public class SystemInfoServlet extends HttpServlet {
     private void general(HttpServletRequest request,
             HttpServletResponse response)
             throws ServletException, IOException {
-        CMSEngine engine = CMS.getCMSEngine();
+
+        CMSEngine engine = getCMSEngine();
+
         response.getWriter().println("<HTML>");
         response.getWriter().println("<H1>");
         response.getWriter().println("<a href=" + request.getServletPath() + ">");
