@@ -19,6 +19,8 @@ package org.dogtagpki.server.ca.rest;
 
 import javax.ws.rs.core.Response;
 
+import org.dogtagpki.server.ca.CAEngine;
+
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
@@ -39,8 +41,11 @@ public class KRAConnectorService extends PKIService implements KRAConnectorResou
 
         if (info == null) throw new BadRequestException("Missing KRA connector info.");
 
+        CAEngine engine = (CAEngine) getCMSEngine();
+
         try {
             KRAConnectorProcessor processor = new KRAConnectorProcessor(getLocale(headers));
+            processor.setCMSEngine(engine);
             processor.addConnector(info);
             return createNoContentResponse();
         } catch (EBaseException e) {
@@ -52,8 +57,12 @@ public class KRAConnectorService extends PKIService implements KRAConnectorResou
 
     @Override
     public Response addHost(String host, String port) {
+
+        CAEngine engine = (CAEngine) getCMSEngine();
+
         try {
             KRAConnectorProcessor processor = new KRAConnectorProcessor(getLocale(headers));
+            processor.setCMSEngine(engine);
             processor.addHost(host, port);
             return createNoContentResponse();
         } catch (EBaseException e) {
@@ -69,8 +78,11 @@ public class KRAConnectorService extends PKIService implements KRAConnectorResou
         if (host == null) throw new BadRequestException("Missing KRA connector host.");
         if (port == null) throw new BadRequestException("Missing KRA connector port.");
 
+        CAEngine engine = (CAEngine) getCMSEngine();
+
         try {
             KRAConnectorProcessor processor = new KRAConnectorProcessor(getLocale(headers));
+            processor.setCMSEngine(engine);
             processor.removeConnector(host, port);
             return createNoContentResponse();
         } catch (EBaseException e) {
@@ -83,8 +95,11 @@ public class KRAConnectorService extends PKIService implements KRAConnectorResou
     @Override
     public Response getConnectorInfo() {
 
+        CAEngine engine = (CAEngine) getCMSEngine();
+
         try {
             KRAConnectorProcessor processor = new KRAConnectorProcessor(getLocale(headers));
+            processor.setCMSEngine(engine);
             return createOKResponse(processor.getConnectorInfo());
         } catch (EBaseException e) {
             String message = "Unable to get KRA connector: " + e.getMessage();

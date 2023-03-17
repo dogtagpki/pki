@@ -26,6 +26,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.authentication.EAuthException;
@@ -79,7 +80,9 @@ public class ProfileProcessServlet extends ProfileServlet {
         args.set(ARG_ERROR_CODE, "0");
         args.set(ARG_ERROR_REASON, "");
 
+        CAEngine engine = (CAEngine) getCMSEngine();
         RequestProcessor processor = new RequestProcessor("caProfileProcess", locale);
+        processor.setCMSEngine(engine);
 
         String op = request.getParameter("op");
         if (op == null) {

@@ -202,12 +202,17 @@ public class CertRequestDAO extends CMSRequestDAO {
             credentials.set("pwd", password);
         }
 
+        CAEngine engine = CAEngine.getInstance();
+
         HashMap<String, Object> results = null;
         if (data.isRenewal()) {
             RenewalProcessor processor = new RenewalProcessor("caProfileSubmit", locale);
+            processor.setCMSEngine(engine);
             results = processor.processRenewal(data, request, credentials);
+
         } else {
             EnrollmentProcessor processor = new EnrollmentProcessor("caProfileSubmit", locale);
+            processor.setCMSEngine(engine);
             results = processor.processEnrollment(data, request, aid, credentials);
         }
 
@@ -235,7 +240,9 @@ public class CertRequestDAO extends CMSRequestDAO {
             throw new RequestNotFoundException(id);
         }
 
+        CAEngine engine = CAEngine.getInstance();
         RequestProcessor processor = new RequestProcessor("caProfileProcess", locale);
+        processor.setCMSEngine(engine);
 
         AuthToken authToken = null;
 

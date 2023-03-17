@@ -70,6 +70,7 @@ public class CASystemCertService extends PKIService implements CASystemCertResou
 
         CAEngine engine = CAEngine.getInstance();
         KRAConnectorProcessor processor = new KRAConnectorProcessor(getLocale(headers));
+        processor.setCMSEngine(engine);
         KRAConnectorInfo info = processor.getConnectorInfo();
 
         String encodedCert = info.getTransportCert();

@@ -369,6 +369,7 @@ public class DoRevoke extends CMSServlet {
 
         RevocationProcessor processor =
                 new RevocationProcessor(servletConfig.getServletName(), getLocale(req));
+        processor.setCMSEngine(engine);
 
         processor.setStartTime(startTime);
         processor.setInitiative(initiative);

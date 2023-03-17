@@ -148,7 +148,12 @@ public class UpdateConnector extends CMSServlet {
 
         String status = SUCCESS;
         String error = "";
+
+        CAEngine engine = CAEngine.getInstance();
+
         KRAConnectorProcessor processor = new KRAConnectorProcessor(getLocale(httpReq));
+        processor.setCMSEngine(engine);
+
         KRAConnectorInfo info = createConnectorInfo(httpReq);
 
         String url = "https://" + info.getHost() + ":" + info.getPort();
@@ -164,7 +169,6 @@ public class UpdateConnector extends CMSServlet {
             return;
         }
 
-        CAEngine engine = CAEngine.getInstance();
         UGSubsystem ugSubsystem = engine.getUGSubsystem();
 
         String uid = "KRA-" + info.getHost() + "-" + info.getPort();

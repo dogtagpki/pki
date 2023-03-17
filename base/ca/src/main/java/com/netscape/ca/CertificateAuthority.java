@@ -1748,7 +1748,9 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
         Locale locale = Locale.getDefault();
         CertEnrollmentRequest certRequest =
             CertEnrollmentRequestFactory.create(argBlock, profile, locale);
+
         EnrollmentProcessor processor = new EnrollmentProcessor("createSubCA", locale);
+        processor.setCMSEngine(engine);
 
         Map<String, Object> resultMap = processor.processEnrollment(
             certRequest, null, authorityID, null, authToken);
@@ -1812,6 +1814,8 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
 
         RenewalProcessor processor =
             new RenewalProcessor("renewAuthority", httpReq.getLocale());
+        processor.setCMSEngine(engine);
+
         Map<String, Object> resultMap =
             processor.processRenewal(req, httpReq, null);
         com.netscape.cmscore.request.Request requests[] = (com.netscape.cmscore.request.Request[]) resultMap.get(CAProcessor.ARG_REQUESTS);
@@ -1884,6 +1888,7 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
         logger.debug("revokeAuthority: revoking cert");
         RevocationProcessor processor = new RevocationProcessor(
                 "CertificateAuthority.revokeAuthority", httpReq.getLocale());
+        processor.setCMSEngine(engine);
         processor.setSerialNumber(new CertId(authoritySerial));
         processor.setRevocationReason(RevocationReason.UNSPECIFIED);
         processor.setAuthority(this);
