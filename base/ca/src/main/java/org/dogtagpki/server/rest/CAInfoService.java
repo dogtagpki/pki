@@ -104,10 +104,14 @@ public class CAInfoService extends PKIService implements CAInfoResource {
      * any instance data.
      */
     private void addKRAInfo(CAInfo info) throws Exception {
+
+        CAEngine engine = (CAEngine) getCMSEngine();
         KRAConnectorInfo connInfo = null;
+
         try {
             KRAConnectorProcessor processor =
                 new KRAConnectorProcessor(getLocale(headers));
+            processor.setCMSEngine(engine);
             connInfo = processor.getConnectorInfo();
         } catch (Throwable e) {
             // connInfo remains as null
