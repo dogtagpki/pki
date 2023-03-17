@@ -465,20 +465,23 @@ public abstract class CMSServlet extends HttpServlet {
             iCommandQueue.unRegisterProccess(cmsRequest, this);
 
         } catch (EBaseException e) {
+            logger.error(getClass().getSimpleName() + ": " + e.getMessage(), e);
             iCommandQueue.unRegisterProccess(cmsRequest, this);
             // ByteArrayOutputStream os = new ByteArrayOutputStream(); for debugging only
             // PrintStream ps = new PrintStream(os);
             //e.printStackTrace(ps);
             log(e.toString());
             renderException(cmsRequest, e);
-        } catch (Exception ex) {
+
+        } catch (Exception e) {
+            logger.error(getClass().getSimpleName() + ": " + e.getMessage(), e);
             iCommandQueue.unRegisterProccess(cmsRequest, this);
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             PrintStream ps = new PrintStream(os);
 
-            ex.printStackTrace(ps);
+            e.printStackTrace(ps);
             log(os.toString());
-            renderFinalError(cmsRequest, ex);
+            renderFinalError(cmsRequest, e);
         }
 
         // destroy SessionContext
@@ -640,7 +643,7 @@ public abstract class CMSServlet extends HttpServlet {
             cmsReq.getHttpResp().setContentLength(bos.size());
             bos.writeTo(cmsReq.getHttpResp().getOutputStream());
         } catch (Exception e) {
-            logger.error(CMS.getLogMessage("CMSGW_ERR_OUT_TEMPLATE", templateName, e.toString()), e);
+            logger.error(getClass().getSimpleName() + ": " + e.getMessage(), e);
             renderException(cmsReq, new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"), e));
         }
     }
@@ -701,14 +704,16 @@ public abstract class CMSServlet extends HttpServlet {
             cmsReq.getHttpResp().setContentType("text/html");
             cmsReq.getHttpResp().setContentLength(bos.size());
             bos.writeTo(cmsReq.getHttpResp().getOutputStream());
+
         } catch (Exception ex) {
+            logger.error(getClass().getSimpleName() + ": " + ex.getMessage(), ex);
             renderFinalError(cmsReq, ex);
         }
     }
 
     public void renderFinalError(CMSRequest cmsReq, Exception ex)
             throws IOException {
-        logger.debug("Caught exception in renderFinalError: " + ex.getMessage(), ex);
+
         // this template is the last resort for all other unexpected
         // errors in other templates so we can only output text.
         HttpServletResponse httpResp = cmsReq.getHttpResp();
