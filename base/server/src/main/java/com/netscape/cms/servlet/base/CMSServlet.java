@@ -1432,7 +1432,10 @@ public abstract class CMSServlet extends HttpServlet {
 
             // reset the "auditAuthMgrID"
             auditAuthMgrID = authMgrName;
-            AuthToken authToken = CMSGateway.checkAuthManager(httpReq,
+
+            CMSEngine engine = getCMSEngine();
+            CMSGateway gateway = engine.getCMSGateway();
+            AuthToken authToken = gateway.checkAuthManager(httpReq,
                     httpArgs,
                     clientCert,
                     authMgrName);

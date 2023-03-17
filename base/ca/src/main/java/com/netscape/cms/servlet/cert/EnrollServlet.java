@@ -69,6 +69,7 @@ import com.netscape.cms.servlet.processors.KeyGenProcessor;
 import com.netscape.cms.servlet.processors.PKCS10Processor;
 import com.netscape.cms.servlet.processors.PKIProcessor;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.base.ConfigStore;
@@ -329,10 +330,14 @@ public class EnrollServlet extends CAServlet {
     @Override
     protected void process(CMSRequest cmsReq)
             throws EBaseException {
+
+        CMSEngine engine = getCMSEngine();
+        CMSGateway gateway = engine.getCMSGateway();
+
         // SPECIAL CASE:
         // if it is adminEnroll servlet,check if it's enabled
         if (mId.equals(ADMIN_ENROLL_SERVLET_ID) &&
-                !CMSGateway.getEnableAdminEnroll()) {
+                !gateway.getEnableAdminEnroll()) {
             logger.error(CMS.getLogMessage("ADMIN_SRVLT_ENROLL_ACCESS_AFTER_SETUP"));
             throw new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_REDIRECTING_ADMINENROLL_ERROR",
@@ -1476,10 +1481,14 @@ public class EnrollServlet extends CAServlet {
      */
     protected void checkAdminEnroll(CMSRequest cmsReq, X509CertImpl[] issuedCerts)
             throws EBaseException {
+
+        CMSEngine engine = getCMSEngine();
+        CMSGateway gateway = engine.getCMSGateway();
+
         // this is special case, get the admin certificate
         if (mAuthMgr != null && mAuthMgr.equals(AuthSubsystem.PASSWDUSERDB_AUTHMGR_ID)) {
             addAdminAgent(cmsReq, issuedCerts);
-            CMSGateway.disableAdminEnroll();
+            gateway.disableAdminEnroll();
         }
     }
 

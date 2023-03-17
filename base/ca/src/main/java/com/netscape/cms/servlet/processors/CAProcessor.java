@@ -635,7 +635,9 @@ public class CAProcessor extends Processor {
                 // reset the "auditAuthMgrID"
                 auditAuthMgrID = authMgrName;
             }
-            AuthToken authToken = CMSGateway.checkAuthManager(httpReq,
+
+            CMSGateway gateway = engine.getCMSGateway();
+            AuthToken authToken = gateway.checkAuthManager(httpReq,
                     httpArgs,
                     clientCert,
                     authMgrName);

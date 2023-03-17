@@ -25,6 +25,7 @@ import com.netscape.cms.servlet.common.CMSGateway;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * This is the servlet that builds the index page in
@@ -35,7 +36,10 @@ public class CAIndexServlet extends IndexServlet {
     @Override
     public void process(CMSRequest cmsReq) throws EBaseException {
 
-        if (!CMSGateway.getEnableAdminEnroll()) {
+        CMSEngine engine = getCMSEngine();
+        CMSGateway gateway = engine.getCMSGateway();
+
+        if (!gateway.getEnableAdminEnroll()) {
             super.process(cmsReq);
             return;
         }
