@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -39,9 +38,7 @@ import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.TokenDatabase;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
 import org.dogtagpki.server.tps.engine.TPSEngine;
-import org.jboss.resteasy.plugins.providers.atom.Link;
 
-import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -57,8 +54,8 @@ import com.netscape.certsrv.tps.token.TokenData.TokenStatusData;
 import com.netscape.certsrv.tps.token.TokenResource;
 import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.certsrv.user.UserResource;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
+import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.base.SubsystemService;
 
 import netscape.ldap.LDAPException;
@@ -411,7 +408,7 @@ public class TokenService extends SubsystemService implements TokenResource {
 
         String method = "TokenService.retrieveTokensWithoutVLV: ";
 
-        List<TokenRecord> tokens = (List<TokenRecord>) database.findRecords(filter);
+        List<TokenRecord> tokens = (List<TokenRecord>) database.findRecords(filter, attributes);
         int total = tokens.size();
         CMS.debug(method + "total: " + total);
 
