@@ -57,6 +57,7 @@ import com.netscape.certsrv.request.RequestListener;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.notification.MailNotification;
 import com.netscape.cms.password.PasswordChecker;
+import com.netscape.cms.servlet.common.CMSGateway;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.authentication.VerifiedCert;
@@ -155,6 +156,7 @@ public class CMSEngine {
     protected RequestSubsystem requestSubsystem = new RequestSubsystem();
     protected AuthSubsystem authSubsystem;
     protected AuthzSubsystem authzSubsystem = AuthzSubsystem.getInstance();
+    protected CMSGateway gateway;
     protected JobsScheduler jobsScheduler = JobsScheduler.getInstance();
 
     public final Map<String, SubsystemInfo> subsystemInfos = new LinkedHashMap<>();
@@ -253,6 +255,10 @@ public class CMSEngine {
 
     public AuthzSubsystem getAuthzSubsystem() {
         return authzSubsystem;
+    }
+
+    public CMSGateway getCMSGateway() {
+        return gateway;
     }
 
     public JobsScheduler getJobsScheduler() {
@@ -709,6 +715,12 @@ public class CMSEngine {
         authzSubsystem.setCMSEngine(this);
         authzSubsystem.init(authzConfig);
         authzSubsystem.startup();
+    }
+
+    public void initCMSGateway() throws Exception {
+        gateway = new CMSGateway();
+        gateway.setCMSEngine(this);
+        gateway.init();
     }
 
     public void initJobsScheduler() throws Exception {
@@ -1182,6 +1194,7 @@ public class CMSEngine {
 
         initAuthSubsystem();
         initAuthzSubsystem();
+        initCMSGateway();
         initJobsScheduler();
 
         configureAutoShutdown();

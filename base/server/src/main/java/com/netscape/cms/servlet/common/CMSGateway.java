@@ -45,8 +45,6 @@ import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * This class is to hold some general method for servlets.
- *
- * @version $Revision$, $Date$
  */
 public class CMSGateway {
 
@@ -58,30 +56,35 @@ public class CMSGateway {
     public static final String CERT_ATTR =
             "javax.servlet.request.X509Certificate";
 
-    protected static CMSFileLoader mFileLoader = new CMSFileLoader();
+    protected CMSEngine engine;
 
-    protected static boolean mEnableFileServing;
-    private static boolean mEnableAdminEnroll = true;
-    private static ConfigStore mConfig;
+    protected CMSFileLoader mFileLoader = new CMSFileLoader();
 
-    static {
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
-
-        mEnableFileServing = true;
-        mConfig = cs.getSubStore(PROP_CMSGATEWAY, ConfigStore.class);
-        try {
-            mEnableAdminEnroll =
-                    mConfig.getBoolean(PROP_ENABLE_ADMIN_ENROLL, false);
-        } catch (EBaseException e) {
-            logger.error("CMSGateway: " + CMS.getLogMessage("CMSGW_BAD_CONFIG_PARAM"), e);
-        }
-    }
+    protected boolean mEnableFileServing;
+    protected boolean mEnableAdminEnroll = true;
+    protected ConfigStore mConfig;
 
     public CMSGateway() {
     }
 
-    public static Hashtable<String, String> toHashtable(HttpServletRequest req) {
+    public CMSEngine getCMSEngine() {
+        return engine;
+    }
+
+    public void setCMSEngine(CMSEngine engine) {
+        this.engine = engine;
+    }
+
+    public void init() throws Exception {
+
+        EngineConfig cs = engine.getConfig();
+        mConfig = cs.getSubStore(PROP_CMSGATEWAY, ConfigStore.class);
+        mEnableAdminEnroll = mConfig.getBoolean(PROP_ENABLE_ADMIN_ENROLL, false);
+
+        mEnableFileServing = true;
+    }
+
+    public Hashtable<String, String> toHashtable(HttpServletRequest req) {
         Hashtable<String, String> httpReqHash = new Hashtable<>();
         Enumeration<String> names = req.getParameterNames();
 
@@ -97,22 +100,22 @@ public class CMSGateway {
         return httpReqHash;
     }
 
-    public static boolean getEnableAdminEnroll() {
+    public boolean getEnableAdminEnroll() {
         return mEnableAdminEnroll;
     }
 
-    public static void setEnableAdminEnroll(boolean enableAdminEnroll)
+    public void setEnableAdminEnroll(boolean enableAdminEnroll)
             throws EBaseException {
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig mainConfig = engine.getConfig();
+
+        EngineConfig engineConfig = engine.getConfig();
 
         //!!! Is it thread safe? xxxx
         mEnableAdminEnroll = enableAdminEnroll;
         mConfig.putBoolean(PROP_ENABLE_ADMIN_ENROLL, enableAdminEnroll);
-        mainConfig.commit(true);
+        engineConfig.commit(true);
     }
 
-    public static void disableAdminEnroll() throws EBaseException {
+    public void disableAdminEnroll() throws EBaseException {
         setEnableAdminEnroll(false);
 
         /* need to do this in web.xml and restart ws
@@ -125,7 +128,7 @@ public class CMSGateway {
      * construct a authentication credentials to pass into authentication
      * manager.
      */
-    public static AuthCredentials getAuthCreds(
+    public AuthCredentials getAuthCreds(
             AuthManager authMgr, ArgBlock argBlock, X509Certificate clientCert)
             throws EBaseException {
         // get credentials from http parameters.
@@ -164,7 +167,7 @@ public class CMSGateway {
 
     protected final static String AUTHMGR_PARAM = "authenticator";
 
-    public static AuthToken checkAuthManager(
+    public AuthToken checkAuthManager(
             HttpServletRequest httpReq, ArgBlock httpParams,
             X509Certificate cert, String authMgrName)
             throws EBaseException {
@@ -173,7 +176,6 @@ public class CMSGateway {
         if (httpArgs == null)
             httpArgs = new ArgBlock(toHashtable(httpReq));
 
-        CMSEngine engine = CMS.getCMSEngine();
         AuthSubsystem authSub = engine.getAuthSubsystem();
 
         String authMgr_http = httpArgs.getValueAsString(
@@ -210,7 +212,7 @@ public class CMSGateway {
         return authToken;
     }
 
-    public static void renderTemplate(
+    public void renderTemplate(
             String templateName,
             HttpServletRequest req,
             HttpServletResponse resp,
@@ -227,7 +229,7 @@ public class CMSGateway {
 
     // XXX TBD move this to a utility function too.
 
-    public static Locale getLocale(String lang) {
+    public Locale getLocale(String lang) {
         int dash = lang.indexOf('-');
 
         if (dash == -1)
@@ -241,7 +243,7 @@ public class CMSGateway {
      * @param realpathFile the file to get.
      * @param locale array of at least one to be filled with locale found.
      */
-    public static File getLangFile(
+    public File getLangFile(
             HttpServletRequest req, File realpathFile, Locale[] locale)
             throws IOException {
         File file = null;
@@ -315,7 +317,7 @@ public class CMSGateway {
     /**
      * get a template
      */
-    protected static CMSTemplate getTemplate(
+    protected CMSTemplate getTemplate(
             String templateName,
             HttpServletRequest httpReq,
             ServletConfig servletConfig,
@@ -352,7 +354,7 @@ public class CMSGateway {
      * @param lastModified The time value in milliseconds past the epoch to
      *            compare the If-Modified-Since header to.
      */
-    public static boolean modifiedSince(HttpServletRequest req, long lastModified) {
+    public boolean modifiedSince(HttpServletRequest req, long lastModified) {
         long ifModSinceStr;
 
         try {
