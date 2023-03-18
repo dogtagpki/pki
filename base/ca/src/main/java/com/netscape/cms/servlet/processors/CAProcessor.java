@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthToken;
+import org.dogtagpki.server.authorization.AuthorizationConfig;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
@@ -59,6 +60,7 @@ import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.common.CMSGateway;
 import com.netscape.cms.servlet.common.ServletUtils;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.base.ConfigStore;
@@ -144,6 +146,49 @@ public class CAProcessor extends Processor {
         super(id, locale);
     }
 
+    public String getACLMethod(String aclInfo, String authzMgr, String id) throws EBaseException {
+
+        EngineConfig cs = engine.getConfig();
+
+        String srcType = ServletUtils.AUTHZ_SRC_LDAP;
+        AuthzSubsystem authz = engine.getAuthzSubsystem();
+
+        try {
+            AuthorizationConfig authzConfig = cs.getAuthorizationConfig();
+            srcType = authzConfig.getString(ServletUtils.AUTHZ_SRC_TYPE, ServletUtils.AUTHZ_SRC_LDAP);
+        } catch (EBaseException e) {
+            logger.warn("CAProcessor: " + CMS.getLogMessage("ADMIN_SRVLT_FAIL_SRC_TYPE"));
+        }
+
+        String aclMethod = null;
+
+        if (!srcType.equalsIgnoreCase(ServletUtils.AUTHZ_SRC_XML)) {
+            aclMethod = ServletUtils.AUTHZ_MGR_LDAP;
+            logger.debug("CAProcessor: " + CMS.getLogMessage("ADMIN_SRVLT_AUTH_LDAP_NOT_XML", id));
+            return aclMethod;
+        }
+
+        logger.debug("CAProcessor: " + CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_INITED", ""));
+        aclMethod = authzMgr;
+
+        if (aclMethod == null || !aclMethod.equalsIgnoreCase(ServletUtils.AUTHZ_MGR_BASIC)) {
+            logger.warn("CAProcessor: " + CMS.getLogMessage("ADMIN_SRVLT_PROP_ACL_NOT_SPEC",
+                    ServletUtils.PROP_AUTHZ_MGR, id, ServletUtils.AUTHZ_MGR_LDAP));
+            return aclMethod;
+        }
+
+        if (aclInfo == null) {
+            logger.warn("CAProcessor: " + CMS.getLogMessage("ADMIN_SRVLT_PROP_ACL_NOT_SPEC",
+                    ServletUtils.PROP_ACL, id, ServletUtils.AUTHZ_MGR_LDAP));
+            return aclMethod;
+        }
+
+        ServletUtils.addACLInfo(authz, aclMethod, aclInfo);
+        logger.debug("CAProcessor: " + CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_MGR_INIT_DONE", id));
+
+        return aclMethod;
+    }
+
     public void init() throws EPropertyNotFound, EBaseException {
 
         CAEngine caEngine = (CAEngine) engine;
@@ -166,7 +211,7 @@ public class CAProcessor extends Processor {
 
         String aclInfo = cs.getString(ACL_INFO, "").isEmpty() ? null : cs.getString(ACL_INFO);
         String authzMgr = cs.getString(AUTHZ_MGR, "").isEmpty() ? null : cs.getString(AUTHZ_MGR);
-        this.aclMethod = ServletUtils.getACLMethod(aclInfo, authzMgr, id);
+        this.aclMethod = getACLMethod(aclInfo, authzMgr, id);
 
         // currently unused but in servlet config
         // authId = cs.getString(AUTH_ID, "").isEmpty() ? null : cs.getString(AUTH_ID);

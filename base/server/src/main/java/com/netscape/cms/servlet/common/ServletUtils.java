@@ -56,49 +56,4 @@ public class ServletUtils {
             authz.authzMgrAccessInit(aclMethod, acl);
         }
     }
-
-    public static String getACLMethod(String aclInfo, String authzMgr, String id) throws EBaseException {
-
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
-
-        String srcType = AUTHZ_SRC_LDAP;
-        AuthzSubsystem authz = engine.getAuthzSubsystem();
-
-        try {
-            AuthorizationConfig authzConfig = cs.getAuthorizationConfig();
-            srcType = authzConfig.getString(AUTHZ_SRC_TYPE, AUTHZ_SRC_LDAP);
-        } catch (EBaseException e) {
-            logger.warn("ServletUtils: " + CMS.getLogMessage("ADMIN_SRVLT_FAIL_SRC_TYPE"));
-        }
-
-        String aclMethod = null;
-
-        if (srcType.equalsIgnoreCase(AUTHZ_SRC_XML)) {
-            logger.debug("ServletUtils: " + CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_INITED", ""));
-            aclMethod = authzMgr;
-
-            if (aclMethod != null && aclMethod.equalsIgnoreCase(AUTHZ_MGR_BASIC)) {
-                if (aclInfo != null) {
-                    addACLInfo(authz, aclMethod, aclInfo);
-                    logger.debug("ServletUtils: " + CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_MGR_INIT_DONE", id));
-
-                } else {
-                    logger.warn("ServletUtils: " + CMS.getLogMessage(
-                            "ADMIN_SRVLT_PROP_ACL_NOT_SPEC", PROP_ACL, id,
-                            AUTHZ_MGR_LDAP));
-                }
-
-            } else {
-                logger.warn("ServletUtils: " + CMS.getLogMessage("ADMIN_SRVLT_PROP_ACL_NOT_SPEC",
-                        PROP_AUTHZ_MGR, id, AUTHZ_MGR_LDAP));
-            }
-
-        } else {
-            aclMethod = AUTHZ_MGR_LDAP;
-            logger.debug("ServletUtils: " + CMS.getLogMessage("ADMIN_SRVLT_AUTH_LDAP_NOT_XML", id));
-        }
-
-        return aclMethod;
-    }
 }
