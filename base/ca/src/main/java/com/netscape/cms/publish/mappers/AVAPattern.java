@@ -84,7 +84,7 @@ import netscape.ldap.LDAPDN;
  */
 class AVAPattern {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AVAPattern.class);
+    public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AVAPattern.class);
 
     ////////////////
     // parameters //
@@ -155,13 +155,8 @@ class AVAPattern {
             throws ELdapException {
         int c;
 
-        // skip spaces
-        //System.out.println("============ AVAPattern Begin ===========");
-        //System.out.println("skip spaces");
-
         try {
-            while ((c = in.read()) == ' ' || c == '\t') {//System.out.println("spaces read "+(char)c);
-                ;
+            while ((c = in.read()) == ' ' || c == '\t') {
             }
         } catch (IOException e) {
             throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX", "All blank"));
@@ -182,7 +177,7 @@ class AVAPattern {
 
             if (c == -1) {
                 throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
-                            "expecting $subj $ext or $req in ava pattern"));
+                        "expecting $subj $ext or $req in ava pattern"));
             }
 
             if (c == 'r') {
@@ -191,7 +186,7 @@ class AVAPattern {
                             in.read() != 'q' ||
                             in.read() != '.') {
                         throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
-                                    "expecting $req in ava pattern"));
+                                "expecting $req in ava pattern"));
                     }
                 } catch (IOException e) {
                     throw new ELdapException(
@@ -199,7 +194,6 @@ class AVAPattern {
                 }
 
                 mType = TYPE_REQ;
-                //System.out.println("---- mtype $req");
             } else if (c == 's') {
                 try {
                     if (in.read() != 'u' ||
@@ -207,7 +201,7 @@ class AVAPattern {
                             in.read() != 'j' ||
                             in.read() != '.') {
                         throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
-                                    "expecting $subj in ava pattern"));
+                                "expecting $subj in ava pattern"));
                     }
                 } catch (IOException e) {
                     throw new ELdapException(
@@ -215,14 +209,13 @@ class AVAPattern {
                 }
 
                 mType = TYPE_SUBJ;
-                //System.out.println("----- mtype $subj");
             } else if (c == 'e') {
                 try {
                     if (in.read() != 'x' ||
                             in.read() != 't' ||
                             in.read() != '.') {
                         throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
-                                    "expecting $ext in ava pattern"));
+                                "expecting $ext in ava pattern"));
                     }
                 } catch (IOException e) {
                     throw new ELdapException(
@@ -230,10 +223,9 @@ class AVAPattern {
                 }
 
                 mType = TYPE_EXT;
-                //System.out.println("----- mtype $ext");
             } else {
                 throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
-                            "unknown keyword. expecting $subj $ext or $req."));
+                        "unknown keyword. expecting $subj $ext or $req."));
             }
 
             // get request attribute or
@@ -245,7 +237,6 @@ class AVAPattern {
             try {
                 while ((c = in.read()) != ',' &&
                         c != -1 && c != '.' && c != '+') {
-                    //System.out.println("mValue read "+(char)c);
                     valueBuf.append((char) c);
                 }
 
@@ -260,9 +251,8 @@ class AVAPattern {
             mValue = valueBuf.toString().trim();
             if (mValue.length() == 0) {
                 throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
-                            "$subj $ext or $req attribute name expected"));
+                        "$subj $ext or $req attribute name expected"));
             }
-            //System.out.println("----- mValue "+mValue);
 
             // get nth dn xxx not nth request attribute .
             if (c == '.') {
@@ -271,7 +261,6 @@ class AVAPattern {
                 try {
                     while ((c = in.read()) != ',' && c != -1 && c != '.'
                             && c != '+') {
-                        //System.out.println("mElement read "+(char)c);
                         attrNumberBuf.append((char) c);
                     }
 
@@ -287,7 +276,7 @@ class AVAPattern {
 
                 if (attrNumber.length() == 0) {
                     throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
-                                "nth element $req $ext or $subj expected"));
+                            "nth element $req $ext or $subj expected"));
                 }
 
                 try {
@@ -301,8 +290,8 @@ class AVAPattern {
                         mGNType = attrNumber;
                     } else {
                         throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
-                                    "Invalid format in nth element " +
-                                            "$req $ext or $subj"));
+                                "Invalid format in nth element " +
+                                        "$req $ext or $subj"));
                     }
 
                     // get nth request attribute .
@@ -312,8 +301,6 @@ class AVAPattern {
                         try {
                             while ((c = in.read()) != ',' &&
                                     c != -1 && c != '+') {
-                                //System.out.println("mElement read "+
-                                //                   (char)c);
                                 attrNumberBuf1.append((char) c);
                             }
 
@@ -325,8 +312,7 @@ class AVAPattern {
                                     CMS.getUserMessage("CMS_LDAP_INTERNAL_ERROR", ex.toString()));
                         }
 
-                        String attrNumber1 =
-                                attrNumberBuf1.toString().trim();
+                        String attrNumber1 = attrNumberBuf1.toString().trim();
 
                         if (attrNumber1.length() == 0) {
                             throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
@@ -337,13 +323,12 @@ class AVAPattern {
                             mElement = Integer.parseInt(attrNumber1) - 1;
                         } catch (NumberFormatException ex) {
                             throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
-                                        "Invalid format in nth element " +
-                                                "$req or $ext."));
+                                    "Invalid format in nth element " +
+                                            "$req or $ext."));
                         }
                     }
                 }
             }
-            //System.out.println("----- mElement "+mElement);
         } else {
             // value is constant. treat as regular ava.
             mType = TYPE_CONSTANT;
@@ -368,16 +353,6 @@ class AVAPattern {
             }
 
             mValue = valueBuf.toString().trim();
-
-            /*  try {
-             *      AVA ava = mLdapDNStrConverter.parseAVA(
-             *                    valueBuf.toString());
-             *      mValue = ava.toLdapDNString();
-             *      //System.out.println("----- mValue "+mValue);
-             *  } catch (IOException e) {
-             *      throw new ECompSyntaxErr(e.toString());
-             *  }
-             */
         }
     }
 
@@ -396,7 +371,6 @@ class AVAPattern {
                 dn = mTestDN;
             }
 
-            //System.out.println("AVAPattern Using dn "+mTestDN);
             String[] rdns = LDAPDN.explodeDN(dn, false);
 
             String value = null;
@@ -431,8 +405,7 @@ class AVAPattern {
                 for (int i = 0; i < extensions.size(); i++) {
                     Extension ext = extensions.elementAt(i);
 
-                    String extName =
-                            OIDMap.getName(ext.getExtensionId());
+                    String extName = OIDMap.getName(ext.getExtensionId());
 
                     int index = extName.lastIndexOf(".");
 
@@ -440,75 +413,61 @@ class AVAPattern {
                         extName = extName.substring(index + 1);
                     }
 
-                    if (extName.equals(mValue)) {
-                        // Check the extensions one by one.
-                        // For now, just give subjectAltName
-                        // as an example.
-                        if (mValue.equalsIgnoreCase(
-                                SubjectAlternativeNameExtension.NAME)) {
-                            try {
-                                GeneralNames subjectNames = (GeneralNames)
-                                        ((SubjectAlternativeNameExtension)
-                                        ext).get(
-                                                SubjectAlternativeNameExtension.SUBJECT_NAME);
+                    // Check the extensions one by one.
+                    // For now, just give subjectAltName
+                    // as an example.
+                    if (extName.equals(mValue) && mValue.equalsIgnoreCase(
+                            SubjectAlternativeNameExtension.NAME)) {
+                        try {
+                            GeneralNames subjectNames = (GeneralNames) ((SubjectAlternativeNameExtension) ext).get(
+                                    SubjectAlternativeNameExtension.SUBJECT_NAME);
 
-                                if (subjectNames.size() == 0) {
+                            if (subjectNames.isEmpty()) {
+                                break;
+                            }
+
+                            int j = 0;
+                            for (Enumeration<GeneralNameInterface> n = subjectNames.elements(); n.hasMoreElements();) {
+                                GeneralName gn = (GeneralName) n.nextElement();
+                                String gname = gn.toString();
+                                index = gname.indexOf(":");
+
+                                if (index == -1) {
                                     break;
                                 }
 
-                                int j = 0;
+                                String gType = gname.substring(0, index);
 
-                                for (Enumeration<GeneralNameInterface> n =
-                                        subjectNames.elements(); n.hasMoreElements();) {
-
-                                    GeneralName gn = (GeneralName)
-                                            n.nextElement();
-
-                                    String gname = gn.toString();
-
-                                    index = gname.indexOf(":");
-
-                                    if (index == -1) {
-                                        break;
+                                if (mGNType == null) {
+                                    if (mElement == j) {
+                                        gname = gname.substring(index + 2);
+                                        return gname;
                                     }
-
-                                    String gType =
-                                            gname.substring(0, index);
-
-                                    if (mGNType != null) {
-                                        if (mGNType.equalsIgnoreCase(gType)) {
-                                            if (mElement == j) {
-                                                gname =
-                                                        gname.substring(index + 2);
-                                                return gname;
-                                            } else {
-                                                j++;
-                                            }
-                                        }
-                                    } else {
+                                    j++;
+                                } else {
+                                    if (mGNType.equalsIgnoreCase(gType)) {
                                         if (mElement == j) {
-                                            gname =
-                                                    gname.substring(index + 2);
+                                            gname = gname.substring(index + 2);
                                             return gname;
                                         }
                                         j++;
                                     }
                                 }
-                            } catch (IOException e) {
-                                logger.warn("AVAPattern: Publishing attr not formed " +
-                                                "from extension " +
-                                                "-- no attr : " +
-                                                mValue);
                             }
+                        } catch (IOException e) {
+                            logger.warn("AVAPattern: Publishing attr not formed " +
+                                    "from extension " +
+                                    "-- no attr : " +
+                                    mValue);
                         }
                     }
                 }
             }
 
             logger.debug("AVAPattern: Publishing:attr not formed " +
-                            "from extension " +
-                            "-- no attr : " +
-                            mValue);
+                    "from extension " +
+                    "-- no attr : " +
+                    mValue);
 
             return null;
         }
@@ -528,19 +487,11 @@ class AVAPattern {
     }
 
     public String getReqAttr() {
-        if (TYPE_REQ.equals(mType)) {
-            return mValue;
-        } else {
-            return null;
-        }
+        return TYPE_REQ.equals(mType) ? mValue : null;
     }
 
     public String getCertAttr() {
-        if (TYPE_SUBJ.equals(mType)) {
-            return mValue;
-        } else {
-            return null;
-        }
+        return TYPE_SUBJ.equals(mType) ? mValue : null;
     }
 
     /**
