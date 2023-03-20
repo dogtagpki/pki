@@ -828,8 +828,9 @@ public class TokenDB {
             if (!isLastActiveSharedCert(cert.getSerialNumber(), cert.getIssuedBy(), tokenRecord.getId())) {
                 msg = "revocation not permitted as certificate " + cert.getSerialNumber() +
                         " is shared by another active token";
-                logger.error(method + " holdRevocation true; " + msg);
-                throw new TPSException(msg);
+                logger.error(method + " holdRevocationUntilLastCredential true; " + msg);
+                throw new TPSException(msg,
+                    TPSStatus.STATUS_NO_ERROR);
             }
         }
         logger.debug(method + "revocation allowed.");
