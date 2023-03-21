@@ -161,7 +161,7 @@ class CACertCreateCLI(pki.cli.CLI):
 
           -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
               --request <ID>                 Request ID
-              --profile <ID>                 Profile ID
+              --profile <ID>                 Bootstrap profile filename
               --type <type>                  Certificate type: selfsign (default), local
               --key-id <ID>                  Key ID
               --key-token <name>             Key token
@@ -300,7 +300,7 @@ class CACertImportCLI(pki.cli.CLI):
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat)')
         print('      --cert <path>                  Certificate path')
         print('      --format <format>              Certificate format: PEM (default), DER')
-        print('      --profile <ID>                 Profile ID')
+        print('      --profile <filename>           Bootstrap profile filename')
         print('      --request <ID>                 Request ID')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
