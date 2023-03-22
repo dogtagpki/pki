@@ -16,6 +16,6 @@ public class SDCLI extends CLI {
         super("sd", "Security domain management commands", parent);
 
         addModule(new SDCreateCLI(this));
-        addModule(new SDHostCLI(this));
+        addModule(new SDSubsystemCLI(this));
     }
 }

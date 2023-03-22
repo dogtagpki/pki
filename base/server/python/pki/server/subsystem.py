@@ -1428,9 +1428,9 @@ class PKISubsystem(object):
 
         self.run(cmd, as_current_user=as_current_user)
 
-    def add_security_domain_host(
+    def add_security_domain_subsystem(
             self,
-            host_id,
+            subsystem_id,
             subsystem_type,
             hostname,
             unsecure_port='8080',
@@ -1440,7 +1440,7 @@ class PKISubsystem(object):
             as_current_user=False):
 
         cmd = [
-            self.name + '-sd-host-add',
+            self.name + '-sd-subsystem-add',
             '--subsystem', subsystem_type,
             '--hostname', hostname
         ]
@@ -1465,7 +1465,7 @@ class PKISubsystem(object):
         elif logger.isEnabledFor(logging.INFO):
             cmd.append('--verbose')
 
-        cmd.append(host_id)
+        cmd.append(subsystem_id)
 
         self.run(cmd, as_current_user=as_current_user)
 

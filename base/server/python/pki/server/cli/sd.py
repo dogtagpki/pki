@@ -22,7 +22,7 @@ class SDCLI(pki.cli.CLI):
         super().__init__('sd', 'Security domain management commands')
 
         self.add_module(SDCreateCLI())
-        self.add_module(SDHostCLI())
+        self.add_module(SDSubsystemCLI())
 
 
 class SDCreateCLI(pki.cli.CLI):
@@ -93,21 +93,21 @@ class SDCreateCLI(pki.cli.CLI):
         subsystem.create_security_domain(name=name)
 
 
-class SDHostCLI(pki.cli.CLI):
+class SDSubsystemCLI(pki.cli.CLI):
 
     def __init__(self):
-        super().__init__('host', 'Security domain host management commands')
+        super().__init__('subsystem', 'Security domain subsystem management commands')
 
-        self.add_module(SDHostAddCLI())
+        self.add_module(SDSubsystemAddCLI())
 
 
-class SDHostAddCLI(pki.cli.CLI):
+class SDSubsystemAddCLI(pki.cli.CLI):
 
     def __init__(self):
-        super().__init__('add', 'Add security domain host')
+        super().__init__('add', 'Add security domain subsystem')
 
     def print_help(self):
-        print('Usage: pki-server sd-host-add [OPTIONS] <host ID>')
+        print('Usage: pki-server sd-subsystem-add [OPTIONS] <subsystem ID>')
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
         print('      --subsystem <type>             Subsystem type')
@@ -180,11 +180,11 @@ class SDHostAddCLI(pki.cli.CLI):
                 sys.exit(1)
 
         if len(args) < 1:
-            logger.error('Missing host ID')
+            logger.error('Missing subsystem ID')
             self.print_help()
             sys.exit(1)
 
-        host_id = args[0]
+        subsystem_id = args[0]
 
         if not subsystem_type:
             logger.error('Missing subsystem type')
@@ -208,8 +208,8 @@ class SDHostAddCLI(pki.cli.CLI):
             logger.error('No CA subsystem in instance %s', instance_name)
             sys.exit(1)
 
-        subsystem.add_security_domain_host(
-            host_id,
+        subsystem.add_security_domain_subsystem(
+            subsystem_id,
             subsystem_type,
             hostname,
             unsecure_port=unsecure_port,
