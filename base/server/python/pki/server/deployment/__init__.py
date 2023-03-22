@@ -1560,7 +1560,7 @@ class PKIDeployer:
             subsystem.create_security_domain(name=sd_name)
 
             logger.info('Adding security domain manager')
-            subsystem.add_security_domain_host(
+            subsystem.add_security_domain_subsystem(
                 self.mdict['pki_subsystem_name'],
                 subsystem.type,
                 self.mdict['pki_hostname'],

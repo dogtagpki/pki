@@ -12,6 +12,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.tomcat.util.net.jss.TomcatJSS;
 import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.cmscore.apps.CMS;
@@ -37,10 +38,10 @@ import netscape.ldap.LDAPEntry;
 /**
  * @author Endi S. Dewata
  */
-public class SDHostAddCLI extends CommandCLI {
+public class SDSubsystemAddCLI extends CommandCLI {
 
-    public SDHostAddCLI(CLI parent) {
-        super("add", "Add security domain host", parent);
+    public SDSubsystemAddCLI(CLI parent) {
+        super("add", "Add security domain subsystem", parent);
     }
 
     @Override
@@ -71,21 +72,21 @@ public class SDHostAddCLI extends CommandCLI {
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length < 1) {
-            throw new Exception("Missing host ID");
+            throw new CLIException("Missing subsystem ID");
         }
 
-        String hostID = cmdArgs[0];
+        String subsystemID = cmdArgs[0];
 
         String subsystemType = cmd.getOptionValue("subsystem");
 
         if (subsystemType == null) {
-            throw new Exception("Missing subsystem type");
+            throw new CLIException("Missing subsystem type");
         }
 
         String hostname = cmd.getOptionValue("hostname");
 
         if (hostname == null) {
-            throw new Exception("Missing hostname");
+            throw new CLIException("Missing hostname");
         }
 
         String unsecurePort = cmd.getOptionValue("unsecure-port", "8080");
@@ -148,7 +149,7 @@ public class SDHostAddCLI extends CommandCLI {
             LDAPAttributeSet attrs = new LDAPAttributeSet();
             attrs.add(new LDAPAttribute("objectclass", new String[] { "top", "pkiSubsystem" }));
             attrs.add(new LDAPAttribute("cn", cn));
-            attrs.add(new LDAPAttribute("SubsystemName", hostID));
+            attrs.add(new LDAPAttribute("SubsystemName", subsystemID));
             attrs.add(new LDAPAttribute("Host", hostname));
             attrs.add(new LDAPAttribute("UnSecurePort", unsecurePort));
             attrs.add(new LDAPAttribute("SecurePort", securePort));
