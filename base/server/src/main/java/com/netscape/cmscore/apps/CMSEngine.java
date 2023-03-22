@@ -1048,7 +1048,6 @@ public class CMSEngine {
 
             if (mExcludedLdapAttrsEnabled) {
 
-                excludedLdapAttrsList = Arrays.asList(excludedLdapAttrs);
                 String unparsedExcludedLdapAttrs = "";
 
                 try {
@@ -1074,16 +1073,14 @@ public class CMSEngine {
 
     // default for excludedLdapAttrs.enabled == false
     // can be overwritten with excludedLdapAttrs.attrs
-    public List<String> excludedLdapAttrsList = new ArrayList<>();
-
-    public static String excludedLdapAttrs[] = {
+    public List<String> excludedLdapAttrsList = Arrays.asList(
             "req_x509info",
             "publickey",
             "req_extensions",
             "cert_request",
             "req_archive_options",
             "req_key"
-    };
+    );
 
     /**
      * sign some known data to determine if signing key is botched;
