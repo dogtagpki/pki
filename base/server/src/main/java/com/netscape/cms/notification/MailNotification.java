@@ -23,9 +23,6 @@ import java.util.Vector;
 
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.EngineConfig;
-import com.netscape.cmscore.base.ConfigStore;
 
 import netscape.net.smtp.SmtpClient;
 
@@ -38,8 +35,9 @@ import netscape.net.smtp.SmtpClient;
 public class MailNotification {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MailNotification.class);
-    protected final static String PROP_SMTP_SUBSTORE = "smtp";
-    protected final static String PROP_HOST = "host";
+
+    public static final String PROP_SMTP_SUBSTORE = "smtp";
+    public static final String PROP_HOST = "host";
 
     private String mHost = null;
 
@@ -50,26 +48,14 @@ public class MailNotification {
     private String mContentType = null;
 
     public MailNotification() {
-        if (mHost == null) {
-            try {
-                CMSEngine engine = CMS.getCMSEngine();
-                EngineConfig config = engine.getConfig();
-                ConfigStore c = config.getSubStore(PROP_SMTP_SUBSTORE, ConfigStore.class);
+    }
 
-                if (c == null) {
-                    return;
-                }
-                mHost = c.getString(PROP_HOST);
+    public String getHost() {
+        return mHost;
+    }
 
-                // log it
-                if (mHost !=null) {
-               	    String msg =" using external SMTP host: "+mHost;
-               	    logger.debug("MailNotification: "  + msg);
-                }
-            } catch (Exception e) {
-                // don't care
-            }
-        }
+    public void setHost(String host) {
+        mHost = host;
     }
 
     /**

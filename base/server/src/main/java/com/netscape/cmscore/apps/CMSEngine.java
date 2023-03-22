@@ -1251,8 +1251,16 @@ public class CMSEngine {
             String className = mConfig.getString("notificationClassName", MailNotification.class.getName());
             MailNotification notification = (MailNotification) Class.forName(className).getDeclaredConstructor().newInstance();
 
+            ConfigStore cs = config.getSubStore(MailNotification.PROP_SMTP_SUBSTORE, ConfigStore.class);
+            String host = cs.getString(MailNotification.PROP_HOST);
+            logger.debug("CMSEngine: SMTP host: " + host);
+
+            notification.setHost(host);
+
             return notification;
+
         } catch (Exception e) {
+            logger.warn("CMSEngine: Unable to create mail notification: " + e.getMessage(), e);
             return null;
         }
     }
