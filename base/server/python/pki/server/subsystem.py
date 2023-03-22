@@ -1428,6 +1428,24 @@ class PKISubsystem(object):
 
         self.run(cmd, as_current_user=as_current_user)
 
+    def display_security_domain_subsystems(self, as_current_user=False):
+        '''
+        Display security domain subsystems on standard output.
+
+        TODO: Convert this method into find_security_domain_subsystems()
+        which returns a JSON object containing the subsystem information.
+        '''
+
+        cmd = [self.name + '-sd-subsystem-find']
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        self.run(cmd, as_current_user=as_current_user)
+
     def add_security_domain_subsystem(
             self,
             subsystem_id,
