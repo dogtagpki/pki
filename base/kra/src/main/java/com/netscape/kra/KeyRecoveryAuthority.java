@@ -505,7 +505,7 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
 
         if (requestQueue != null) {
             // setup administration operations if everything else is fine
-            requestQueue.recover();
+            engine.recoverRequestQueue();
             logger.debug("KeyRecoveryAuthority startup() call request Q recover");
 
             // Note that we use our instance id for registration.

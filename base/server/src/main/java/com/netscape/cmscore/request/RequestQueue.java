@@ -31,8 +31,6 @@ import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.request.RequestScheduler;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.DBSSession;
 import com.netscape.cmscore.dbs.DBSearchResults;
 import com.netscape.cmscore.dbs.DBSubsystem;
@@ -713,19 +711,6 @@ public class RequestQueue {
      */
     public final void releaseRequest(Request request) {
         // mTable.unlock(request.getRequestId());
-    }
-
-    /**
-     * Resends requests
-     *
-     * New non-blocking recover method.
-     */
-    public void recover() {
-        CMSEngine engine = CMS.getCMSEngine();
-        if (engine.isRunningMode()) {
-            RecoverThread t = new RecoverThread(this);
-            t.start();
-        }
     }
 }
 

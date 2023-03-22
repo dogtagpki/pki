@@ -82,6 +82,7 @@ import com.netscape.cmscore.logging.LoggerConfig;
 import com.netscape.cmscore.logging.LoggersConfig;
 import com.netscape.cmscore.logging.LoggingConfig;
 import com.netscape.cmscore.registry.PluginRegistry;
+import com.netscape.cmscore.request.RecoverThread;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestNotifier;
 import com.netscape.cmscore.request.RequestQueue;
@@ -1129,6 +1130,19 @@ public class CMSEngine {
             logger.warn(method + "continue for " + e.getMessage(), e);
         }
         logger.debug(method + "passed; continue");
+    }
+
+    /**
+     * Resends requests
+     *
+     * New non-blocking recover method.
+     */
+    public void recoverRequestQueue() {
+
+        if (!isRunningMode()) return;
+
+        RecoverThread t = new RecoverThread(requestQueue);
+        t.start();
     }
 
     protected void startupSubsystems() throws Exception {

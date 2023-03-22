@@ -948,7 +948,7 @@ public class CAEngine extends CMSEngine {
         if (!isPreOpMode()) {
 
             caService.startup();
-            requestQueue.recover();
+            recoverRequestQueue();
 
             startPublisherProcessor();
             initCertIssuedListener();
