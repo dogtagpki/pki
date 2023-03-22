@@ -1067,16 +1067,9 @@ public class CMSEngine {
         }
     }
 
-    public boolean isExcludedLdapAttrsEnabled() {
-        return mExcludedLdapAttrsEnabled;
-    }
-
     public boolean isExcludedLdapAttr(String key) {
-        if (isExcludedLdapAttrsEnabled()) {
-            return excludedLdapAttrsList.contains(key);
-        } else {
-            return false;
-        }
+        if (!mExcludedLdapAttrsEnabled) return false;
+        return excludedLdapAttrsList.contains(key);
     }
 
     // default for excludedLdapAttrs.enabled == false
