@@ -46,6 +46,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthToken;
+import org.dogtagpki.server.authorization.AuthorizationConfig;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.CRLExtensions;
@@ -254,6 +255,55 @@ public abstract class CMSServlet extends HttpServlet {
         return (CMSEngine) servletContext.getAttribute("engine");
     }
 
+    public String initializeAuthz(
+            ServletConfig sc,
+            AuthzSubsystem authz,
+            String id) throws EBaseException {
+
+        CMSEngine engine = getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
+        String srcType = AUTHZ_SRC_LDAP;
+
+        try {
+            AuthorizationConfig authzConfig = cs.getAuthorizationConfig();
+            srcType = authzConfig.getString(AUTHZ_SRC_TYPE, AUTHZ_SRC_LDAP);
+
+        } catch (EBaseException e) {
+            logger.warn("CMSServlet: " + CMS.getLogMessage("ADMIN_SRVLT_FAIL_SRC_TYPE"));
+        }
+
+        String aclMethod = null;
+
+        if (!srcType.equalsIgnoreCase(AUTHZ_SRC_XML)) {
+            aclMethod = AUTHZ_MGR_LDAP;
+            logger.debug("CMSServlet: " + CMS.getLogMessage("ADMIN_SRVLT_AUTH_LDAP_NOT_XML", id));
+            return aclMethod;
+        }
+
+        logger.debug("CMSServlet: " + CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_INITED", ""));
+        aclMethod = sc.getInitParameter(PROP_AUTHZ_MGR);
+
+        if (aclMethod == null || !aclMethod.equalsIgnoreCase(AUTHZ_MGR_BASIC)) {
+            logger.warn("CMSServlet: " + CMS.getLogMessage("ADMIN_SRVLT_PROP_ACL_NOT_SPEC",
+                    PROP_AUTHZ_MGR, id, AUTHZ_MGR_LDAP));
+            return aclMethod;
+        }
+
+        String aclInfo = sc.getInitParameter(PROP_ACL);
+
+        if (aclInfo == null) {
+            logger.warn("CMSServlet: " + CMS.getLogMessage("ADMIN_SRVLT_PROP_ACL_NOT_SPEC",
+                    PROP_ACL, id, AUTHZ_MGR_LDAP));
+            return aclMethod;
+        }
+
+        ServletUtils.addACLInfo(authz, aclMethod, aclInfo);
+        logger.debug("CMSServlet: " + CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_MGR_INIT_DONE", id));
+
+        return aclMethod;
+    }
+
     @Override
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
@@ -268,10 +318,10 @@ public abstract class CMSServlet extends HttpServlet {
         mId = sc.getInitParameter(PROP_ID);
 
         try {
-            mAclMethod = ServletUtils.initializeAuthz(sc, mAuthz, mId);
-        } catch (ServletException e) {
+            mAclMethod = initializeAuthz(sc, mAuthz, mId);
+        } catch (EBaseException e) {
             logger.error("CMSServlet: " + e.getMessage(), e);
-            throw e;
+            throw new ServletException("Failed to init authz info from xml config file: " + e.getMessage(), e);
         }
 
         mConfig = cs.getSubStore(CMSGateway.PROP_CMSGATEWAY, ConfigStore.class);

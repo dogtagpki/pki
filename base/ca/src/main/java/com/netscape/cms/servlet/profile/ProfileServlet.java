@@ -45,7 +45,6 @@ import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
-import com.netscape.cms.servlet.common.ServletUtils;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.util.StatsSubsystem;
 
@@ -189,10 +188,10 @@ public class ProfileServlet extends CMSServlet {
         mId = sc.getInitParameter(PROP_ID);
 
         try {
-            mAclMethod = ServletUtils.initializeAuthz(sc, mAuthz, mId);
-        } catch (ServletException e) {
+            mAclMethod = initializeAuthz(sc, mAuthz, mId);
+        } catch (EBaseException e) {
             logger.error("ProfileServlet: " + e.getMessage(), e);
-            throw e;
+            throw new ServletException("Failed to init authz info from xml config file: " + e.getMessage(), e);
         }
     }
 

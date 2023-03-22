@@ -19,9 +19,6 @@ package com.netscape.cms.servlet.common;
 
 import java.util.StringTokenizer;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-
 import org.dogtagpki.server.authorization.AuthorizationConfig;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -47,60 +44,6 @@ public class ServletUtils {
     public final static String PROP_ACL = "ACLinfo";
     public final static String AUTHZ_MGR_BASIC = "BasicAclAuthz";
     public final static String AUTHZ_MGR_LDAP = "DirAclAuthz";
-
-    public static String initializeAuthz(ServletConfig sc,
-            AuthzSubsystem authz, String id) throws ServletException {
-
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
-
-        String srcType = AUTHZ_SRC_LDAP;
-
-        try {
-            AuthorizationConfig authzConfig = cs.getAuthorizationConfig();
-            srcType = authzConfig.getString(AUTHZ_SRC_TYPE, AUTHZ_SRC_LDAP);
-
-        } catch (EBaseException e) {
-            logger.warn("ServletUtils: " + CMS.getLogMessage("ADMIN_SRVLT_FAIL_SRC_TYPE"));
-        }
-
-        String aclMethod = null;
-
-        if (srcType.equalsIgnoreCase(AUTHZ_SRC_XML)) {
-
-            logger.debug("ServletUtils: " + CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_INITED", ""));
-            aclMethod = sc.getInitParameter(PROP_AUTHZ_MGR);
-
-            if (aclMethod != null && aclMethod.equalsIgnoreCase(AUTHZ_MGR_BASIC)) {
-                String aclInfo = sc.getInitParameter(PROP_ACL);
-
-                if (aclInfo != null) {
-                    try {
-                        addACLInfo(authz, aclMethod, aclInfo);
-                    } catch (EBaseException ee) {
-                        throw new ServletException("Failed to init authz info from xml config file");
-                    }
-
-                    logger.debug("ServletUtils: " + CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_MGR_INIT_DONE", id));
-
-                } else {
-                    logger.warn("ServletUtils: " + CMS.getLogMessage(
-                            "ADMIN_SRVLT_PROP_ACL_NOT_SPEC", PROP_ACL, id,
-                            AUTHZ_MGR_LDAP));
-                }
-
-            } else {
-                logger.warn("ServletUtils: " + CMS.getLogMessage("ADMIN_SRVLT_PROP_ACL_NOT_SPEC",
-                        PROP_AUTHZ_MGR, id, AUTHZ_MGR_LDAP));
-            }
-
-        } else {
-            aclMethod = AUTHZ_MGR_LDAP;
-            logger.debug("ServletUtils: " + CMS.getLogMessage("ADMIN_SRVLT_AUTH_LDAP_NOT_XML", id));
-        }
-
-        return aclMethod;
-    }
 
     public static void addACLInfo(AuthzSubsystem authz, String aclMethod,
             String aclInfo) throws EBaseException {
