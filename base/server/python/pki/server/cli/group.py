@@ -39,6 +39,7 @@ class GroupFindCLI(pki.cli.CLI):
         print('Usage: pki-server %s-group-find [OPTIONS]' % self.parent.parent.name)
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('      --member <ID>                  Member ID')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -47,7 +48,7 @@ class GroupFindCLI(pki.cli.CLI):
     def execute(self, argv):
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
+                'instance=', 'member=',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -57,10 +58,14 @@ class GroupFindCLI(pki.cli.CLI):
 
         instance_name = 'pki-tomcat'
         subsystem_name = self.parent.parent.name
+        member_id = None
 
         for o, a in opts:
             if o in ('-i', '--instance'):
                 instance_name = a
+
+            elif o == '--member':
+                member_id = a
 
             elif o in ('-v', '--verbose'):
                 logging.getLogger().setLevel(logging.INFO)
@@ -91,7 +96,7 @@ class GroupFindCLI(pki.cli.CLI):
                          subsystem_name.upper(), instance_name)
             sys.exit(1)
 
-        subsystem.find_groups()
+        subsystem.find_groups(member_id=member_id)
 
 
 class GroupMemberCLI(pki.cli.CLI):

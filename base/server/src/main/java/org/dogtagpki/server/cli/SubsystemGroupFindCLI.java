@@ -8,6 +8,7 @@ package org.dogtagpki.server.cli;
 import java.util.Enumeration;
 
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.cli.CLI;
 import org.slf4j.Logger;
@@ -19,6 +20,7 @@ import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmscore.usrgrp.UGSubsystemConfig;
+import com.netscape.cmscore.usrgrp.User;
 import com.netscape.cmsutil.password.IPasswordStore;
 import com.netscape.cmsutil.password.PasswordStoreConfig;
 
@@ -34,7 +36,18 @@ public class SubsystemGroupFindCLI extends SubsystemCLI {
     }
 
     @Override
+    public void createOptions() {
+
+        Option option = new Option(null, "member", true, "Member ID");
+        option.setArgName("ID");
+        options.addOption(option);
+    }
+
+    @Override
     public void execute(CommandLine cmd) throws Exception {
+
+
+        String memberID = cmd.getOptionValue("member");
 
         initializeTomcatJSS();
         String subsystem = parent.getParent().getName();
@@ -55,7 +68,15 @@ public class SubsystemGroupFindCLI extends SubsystemCLI {
         try {
             ugSubsystem.init(ldapConfig, socketConfig, passwordStore);
 
-            Enumeration<Group> groups = ugSubsystem.listGroups(null);
+            Enumeration<Group> groups;
+            if (memberID != null) {
+                User member = ugSubsystem.getUser(memberID);
+                groups = ugSubsystem.findGroupsByUser(member.getUserDN(), null);
+
+            } else {
+                groups = ugSubsystem.listGroups(null);
+            }
+
             boolean first = true;
 
             while (groups.hasMoreElements()) {
