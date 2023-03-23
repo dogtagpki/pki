@@ -2,11 +2,6 @@
 
 ---
 inspections:
-    # License check fails because of a bug in rpminspect, see:
-    # https://github.com/rpminspect/rpminspect/issues/858
-    # https://github.com/rpminspect/rpminspect/issues/1117
-    license: off
-
     # Don't run metadata check as we can't know the build host subdomain
     # of CI runners in advance to add to an allow list
     metadata: off
