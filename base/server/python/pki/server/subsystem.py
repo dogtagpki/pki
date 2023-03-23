@@ -1642,6 +1642,21 @@ class PKISubsystem(object):
 
         self.run(cmd, as_current_user=as_current_user)
 
+    def remove_group_member(self, group_id, member_id, as_current_user=False):
+
+        cmd = [self.name + '-group-member-del']
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        cmd.append(group_id)
+        cmd.append(member_id)
+
+        self.run(cmd, as_current_user=as_current_user)
+
     def find_users(self, see_also=None, as_current_user=False):
 
         cmd = [self.name + '-user-find']

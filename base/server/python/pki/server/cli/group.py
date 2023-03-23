@@ -108,6 +108,7 @@ class GroupMemberCLI(pki.cli.CLI):
         self.parent = parent
         self.add_module(GroupMemberFindCLI(self))
         self.add_module(GroupMemberAddCLI(self))
+        self.add_module(GroupMemberRemoveCLI(self))
 
 
 class GroupMemberFindCLI(pki.cli.CLI):
@@ -277,3 +278,86 @@ class GroupMemberAddCLI(pki.cli.CLI):
 
         logger.info('Adding %s into %s', member_id, group_id)
         subsystem.add_group_member(group_id, member_id)
+
+
+class GroupMemberRemoveCLI(pki.cli.CLI):
+
+    def __init__(self, parent):
+        super().__init__(
+            'del',
+            'Remove %s group member' % parent.parent.parent.name.upper())
+
+        self.parent = parent
+
+    def print_help(self):
+        print('Usage: pki-server %s-group-member-del [OPTIONS] <group ID> <member ID>'
+              % self.parent.parent.parent.name)
+        print()
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
+        print('      --help                         Show help message.')
+        print()
+
+    def execute(self, argv):
+        try:
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        subsystem_name = self.parent.parent.parent.name
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('Invalid option: %s', o)
+                self.print_help()
+                sys.exit(1)
+
+        if len(args) < 1:
+            logger.error('Missing group ID')
+            self.print_help()
+            sys.exit(1)
+
+        if len(args) < 2:
+            logger.error('Missing member ID')
+            self.print_help()
+            sys.exit(1)
+
+        group_id = args[0]
+        member_id = args[1]
+
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        if not instance.exists():
+            logger.error('Invalid instance: %s', instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem = instance.get_subsystem(subsystem_name)
+
+        if not subsystem:
+            logger.error('No %s subsystem in instance %s',
+                         subsystem_name.upper(), instance_name)
+            sys.exit(1)
+
+        logger.info('Adding %s into %s', member_id, group_id)
+        subsystem.remove_group_member(group_id, member_id)
