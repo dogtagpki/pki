@@ -212,10 +212,7 @@ public abstract class EnrollConstraint extends PolicyConstraint {
     }
 
     protected boolean isOptional(String value) {
-        if (value.equals("") || value.equals("-"))
-            return true;
-        else
-            return false;
+        return value.equals("") || value.equals("-");
     }
 
     protected boolean getBoolean(String value) {

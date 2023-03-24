@@ -321,12 +321,11 @@ public class CloneServlet extends CMSServlet {
 
                 logger.error("CloneServlet: " + errormsg);
                 throw new EBaseException(errormsg);
-            } else {
-                logger.info("CloneServlet: Found request " + thisreqid + " for " + srcid);
-                replymsg = new HttpPKIMessage();
-                replymsg.fromRequest(thisreq);
-                return replymsg;
             }
+            logger.info("CloneServlet: Found request " + thisreqid + " for " + srcid);
+            replymsg = new HttpPKIMessage();
+            replymsg.fromRequest(thisreq);
+            return replymsg;
         }
 
         // if not found process request.

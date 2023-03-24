@@ -68,9 +68,8 @@ public class GeneralNameUtil implements IGeneralNameUtil {
                     netmask = st.nextToken();
                 }
                 return new GeneralName(new IPAddressName(ip, netmask));
-            } else {
-                return form_GeneralName(generalNameChoice, value);
             }
+            return form_GeneralName(generalNameChoice, value);
         } catch (InvalidIPAddressException e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_IP_ADDR", value));
         }

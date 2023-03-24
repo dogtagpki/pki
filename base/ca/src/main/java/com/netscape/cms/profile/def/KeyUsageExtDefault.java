@@ -349,11 +349,7 @@ public class KeyUsageExtDefault extends EnrollExtDefault {
                 if (ext == null) {
                     return null;
                 }
-                if (ext.isCritical()) {
-                    return "true";
-                } else {
-                    return "false";
-                }
+                return ext.isCritical() ? "true" : "false";
             } else if (name.equals(VAL_DIGITAL_SIGNATURE)) {
                 ext = (KeyUsageExtension)
                         getExtension(PKIXExtensions.KeyUsage_Id.toString(), info);

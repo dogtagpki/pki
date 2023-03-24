@@ -79,12 +79,7 @@ public class KeyUsage extends CMSExtension {
 
     private static boolean getBoolean(Object value) {
         String val = (String) value;
-
-        if (val != null &&
-                (val.equalsIgnoreCase("true") || val.equalsIgnoreCase("on")))
-            return true;
-        else
-            return false;
+        return val != null && (val.equalsIgnoreCase("true") || val.equalsIgnoreCase("on"));
     }
 
     @Override
@@ -162,10 +157,11 @@ public class KeyUsage extends CMSExtension {
                     break;
             }
             if (j == bits.length) {
-                if (!mSetDefault)
-                    return null;
-                else
+                if (mSetDefault) {
                     bits = DEF_BITS;
+                } else {
+                    return null;
+                }
             }
             return new KeyUsageExtension(bits);
         } catch (IOException e) {

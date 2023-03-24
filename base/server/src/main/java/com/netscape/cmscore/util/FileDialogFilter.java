@@ -50,14 +50,8 @@ public class FileDialogFilter implements FilenameFilter {
      */
     @Override
     public boolean accept(File dir, String fileName) {
-
         File f = new File(dir, fileName);
-
-        if (f.isDirectory()) {
-            return true;
-        } else {
-            return searchPattern(fileName, filter);
-        }
+        return f.isDirectory() || searchPattern(fileName, filter);
     }
 
     /**

@@ -123,13 +123,10 @@ public class EmailTemplate implements IEmailTemplate {
      */
     @Override
     public boolean isHTML() {
-        if (mTemplateFile.endsWith(".html") ||
+        return mTemplateFile.endsWith(".html") ||
                 mTemplateFile.endsWith(".HTML") ||
                 mTemplateFile.endsWith(".htm") ||
-                mTemplateFile.endsWith(".HTM"))
-            return true;
-        else
-            return false;
+                mTemplateFile.endsWith(".HTM");
     }
 
     /**

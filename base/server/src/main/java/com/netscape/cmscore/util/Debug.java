@@ -34,11 +34,7 @@ public class Debug {
     public static final int WARN = 15;
 
     private static char getNybble(byte b) {
-        if (b < 10) {
-            return (char)('0' + b);
-        } else {
-            return (char)('a' + b - 10);
-        }
+        return b < 10 ? (char)('0' + b) : (char)('a' + b - 10);
     }
 
     public static String dump(byte[] b) {

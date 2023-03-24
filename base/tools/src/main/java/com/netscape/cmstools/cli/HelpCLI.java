@@ -87,15 +87,13 @@ public class HelpCLI extends CommandCLI {
                     manPage = manPage.substring(0, i);
                     continue;
 
-                } else {
-                    // parent command not found, stop
-                    break;
                 }
-
-            } else {
-                // man page found or there's a different error, stop
+                // parent command not found, stop
                 break;
+
             }
+            // man page found or there's a different error, stop
+            break;
         }
     }
 }

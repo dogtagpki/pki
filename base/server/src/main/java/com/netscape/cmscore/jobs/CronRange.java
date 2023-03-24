@@ -74,11 +74,6 @@ public class CronRange {
      *         are within the min/max passed in the params
      */
     public boolean isValidRange(int min, int max) {
-        if ((mEnd < mBegin) ||
-                (mBegin < min) ||
-                (mEnd > max))
-            return false;
-        else
-            return true;
+        return (mEnd >= mBegin) && (mBegin >= min) && (mEnd <= max);
     }
 }

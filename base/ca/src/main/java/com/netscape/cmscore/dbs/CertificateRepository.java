@@ -377,27 +377,24 @@ public class CertificateRepository extends Repository {
     public BigInteger getRangeLength() {
         if (dbSubsystem.getEnableSerialMgmt() && mEnableRandomSerialNumbers) {
             return mMaxSerialNo.subtract(mMinSerialNo).add(BigInteger.ONE);
-        } else {
-            return null;
         }
+        return null;
     }
 
     @Override
     public BigInteger getRandomLimit(BigInteger rangeLength) {
         if (dbSubsystem.getEnableSerialMgmt() && mEnableRandomSerialNumbers) {
             return rangeLength.subtract(mLowWaterMarkNo.shiftRight(1));
-        } else {
-            return null;
         }
+        return null;
     }
 
     @Override
     public BigInteger getNumbersInRange() {
         if (dbSubsystem.getEnableSerialMgmt() && mEnableRandomSerialNumbers) {
             return mMaxSerialNo.subtract(mMinSerialNo).subtract(mCounter);
-        } else {
-            return super.getNumbersInRange();
         }
+        return super.getNumbersInRange();
     }
 
     public void updateCounter() {
@@ -1597,17 +1594,15 @@ public class CertificateRepository extends Repository {
                 logger.debug("processing record: " + i);
                 if (rec == null) {
                     break; // no element returned
-                } else {
-
-                    logger.debug("processing record: " + i + " " + rec.getSerialNumber());
-                    // Check if we are past the 'to' marker
-                    if (toInt != null) {
-                        if (rec.getSerialNumber().compareTo(toInt) > 0) {
-                            break;
-                        }
-                    }
-                    v.addElement(rec);
                 }
+                logger.debug("processing record: " + i + " " + rec.getSerialNumber());
+                // Check if we are past the 'to' marker
+                if (toInt != null) {
+                    if (rec.getSerialNumber().compareTo(toInt) > 0) {
+                        break;
+                    }
+                }
+                v.addElement(rec);
             }
 
         }

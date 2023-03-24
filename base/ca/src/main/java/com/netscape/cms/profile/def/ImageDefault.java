@@ -55,9 +55,8 @@ public class ImageDefault extends EnrollDefault {
         if (name.equals(VAL_IMAGE_URL)) {
             return new Descriptor(IDescriptor.IMAGE_URL, null, null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_IMAGE"));
-        } else {
-            return null;
         }
+        return null;
     }
 
     @Override
@@ -77,10 +76,9 @@ public class ImageDefault extends EnrollDefault {
 
         if (name.equals(VAL_IMAGE_URL)) {
             return request.getExtDataInString(INPUT_IMAGE_URL);
-        } else {
-            throw new EPropertyException(CMS.getUserMessage(
-                        locale, "CMS_INVALID_PROPERTY", name));
         }
+        throw new EPropertyException(CMS.getUserMessage(
+                    locale, "CMS_INVALID_PROPERTY", name));
     }
 
     @Override

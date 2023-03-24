@@ -154,10 +154,9 @@ public class HttpInput {
             if (i.equals("256") || i.equals("512") || i.equals("1024") ||
                     i.equals("2048") || i.equals("4096")) {
                 return i;
-            } else {
-                throw new IOException("Invalid key length '"
-                        + i + "'. Currently supported RSA key lengths are 256, 512, 1024, 2048, 4096.");
             }
+            throw new IOException("Invalid key length '"
+                    + i + "'. Currently supported RSA key lengths are 256, 512, 1024, 2048, 4096.");
         }
         if (keyType.equals("ecc")) {
             int p = 0;
@@ -168,19 +167,9 @@ public class HttpInput {
             }
             if ((p >= 112) && (p <= 571))
                 return i;
-            else {
-                throw new IOException(
-                        "Invalid key length '" + i
-                        + "'. Please consult your security officer for a proper length, or take the default value. Here are examples of some commonly used key lengths: 256, 384, 521.");
-            }
-            /*
-
-                      if (i.equals("256") || i.equals("384") || i.equals("521")) {
-                        return i;
-                      } else {
-                        throw new IOException("Invalid key length '" + i + "'. Currently supported ECC key lengths are 256, 384, 521.");
-                      }
-            */
+            throw new IOException(
+                    "Invalid key length '" + i
+                    + "'. Please consult your security officer for a proper length, or take the default value. Here are examples of some commonly used key lengths: 256, 384, 521.");
         }
         throw new IOException("Invalid key type '" + keyType + "'");
     }

@@ -463,10 +463,6 @@ public class DoUnrevoke extends CMSServlet {
      * @return id string containing the signed audit log message RequesterID
      */
     private CertId auditSerialNumber(String eeSerialNumber) {
-        if (eeSerialNumber != null) {
-            return new CertId(eeSerialNumber.trim());
-        } else {
-            return null;
-        }
+        return eeSerialNumber == null ? null : new CertId(eeSerialNumber.trim());
     }
 }

@@ -66,14 +66,13 @@ public class DBSearchResults implements Enumeration<Object> {
             if (o instanceof LDAPEntry) {
                 entry = (LDAPEntry) o;
                 return mRegistry.createObject(entry.getAttributeSet());
-            } else {
-                if (o instanceof LDAPException)
-                    ;
-                // doing nothing because the last object in the search
-                // results is always LDAPException
-                else
-                    logger.warn("DBSearchResults: result format error class=" + o.getClass().getName());
             }
+            if (o instanceof LDAPException)
+                ;
+            // doing nothing because the last object in the search
+            // results is always LDAPException
+            else
+                logger.warn("DBSearchResults: result format error class=" + o.getClass().getName());
         } catch (Exception e) {
 
             /*LogDoc

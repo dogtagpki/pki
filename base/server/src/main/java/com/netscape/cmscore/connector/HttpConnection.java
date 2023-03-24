@@ -371,13 +371,12 @@ public class HttpConnection {
                 logger.error("HttpConnection: " + msg);
                 throw new EBaseException(CMS.getUserMessage("CMS_BASE_AUTHENTICATE_FAILED", msg));
 
-            } else {
-                // XXX what to do here.
-                String msg = "HttpConnection: request no good " + statuscode + " " + resp.getReasonPhrase();
-
-                logger.error(msg);
-                throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", msg));
             }
+            // XXX what to do here.
+            String msg = "HttpConnection: request no good " + statuscode + " " + resp.getReasonPhrase();
+
+            logger.error(msg);
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", msg));
         }
 
         return resp;
