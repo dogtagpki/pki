@@ -264,9 +264,8 @@ public class CMSTaskModel extends TaskModel implements IMenuInfo {
 			order = p.getString( PREFERENCES_TASK_LIST );
 			if ( (order != null) && (order.trim().length() > 0) ) {
 				return order;
-			} else {
-				order = null;
 			}
+			order = null;
 		}
 
 		LDAPConnection ldc = mConsoleInfo.getLDAPConnection();

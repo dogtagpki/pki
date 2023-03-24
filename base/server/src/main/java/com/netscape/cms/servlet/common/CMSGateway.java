@@ -232,10 +232,7 @@ public class CMSGateway {
     public Locale getLocale(String lang) {
         int dash = lang.indexOf('-');
 
-        if (dash == -1)
-            return new Locale(lang, "");
-        else
-            return new Locale(lang.substring(0, dash), lang.substring(dash + 1));
+        return dash == -1 ? new Locale(lang, "") : new Locale(lang.substring(0, dash), lang.substring(dash + 1));
     }
 
     /**

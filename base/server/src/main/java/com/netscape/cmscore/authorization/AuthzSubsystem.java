@@ -126,9 +126,8 @@ public class AuthzSubsystem extends Subsystem {
                     logger.error("AuthzSubsystem: " + CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_NOT_FOUND", implName));
                     throw new EAuthzMgrPluginNotFound(CMS.getUserMessage("CMS_AUTHORIZATION_AUTHZMGR_PLUGIN_NOT_FOUND",
                             implName));
-                } else {
-                    logger.debug(CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_FOUND", implName));
                 }
+                logger.debug(CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_FOUND", implName));
 
                 String className = plugin.getClassPath();
 

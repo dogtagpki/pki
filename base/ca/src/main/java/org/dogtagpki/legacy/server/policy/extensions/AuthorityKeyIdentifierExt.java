@@ -230,11 +230,10 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
                                     " already has authority key id extension with value " +
                                     authorityKeyIdExt);
                     return PolicyResult.ACCEPTED;
-                } else {
-                    logger.debug("AuthorityKeyIdentifierKeyExt: request id from user " + req.getRequestId() +
-                                    " had authority key identifier - deleted");
-                    extensions.delete(AuthorityKeyIdentifierExtension.NAME);
                 }
+                logger.debug("AuthorityKeyIdentifierKeyExt: request id from user " + req.getRequestId() +
+                                " had authority key identifier - deleted");
+                extensions.delete(AuthorityKeyIdentifierExtension.NAME);
             }
 
             // if no authority key identifier should be set b/c CA does not

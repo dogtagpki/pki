@@ -312,10 +312,9 @@ public class CMCProcessor extends PKIProcessor {
                     if (signKey == null) {
                         throw new ECMSGWException(CMS.getUserMessage("CMS_GW_CMC_ERROR",
                                 "SubjectKeyIdentifier in SignerInfo does not match any publicKey in the request."));
-                    } else {
-                        PK11PubKey pubK = PK11PubKey.fromSPKI(((X509Key) signKey).getKey());
-                        si.verify(digest, id, pubK);
                     }
+                    PK11PubKey pubK = PK11PubKey.fromSPKI(((X509Key) signKey).getKey());
+                    si.verify(digest, id, pubK);
                 }
             }
             // end verify signerInfo

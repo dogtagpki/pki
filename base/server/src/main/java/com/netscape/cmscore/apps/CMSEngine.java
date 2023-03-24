@@ -1238,10 +1238,10 @@ public class CMSEngine {
         if (CryptoUtil.isInternalToken(tokenName))
             newName = nickName;
         else {
-            if (tokenName.equals("") && nickName.equals(""))
+            if (tokenName.equals("") && nickName.equals("")) {
                 return; // not sure the logic
-            else
-                newName = tokenName + ":" + nickName;
+            }
+            newName = tokenName + ":" + nickName;
         }
         setServerCertNickname(newName);
     }

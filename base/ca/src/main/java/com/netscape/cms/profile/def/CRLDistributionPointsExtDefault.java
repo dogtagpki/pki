@@ -374,9 +374,8 @@ public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
                         logger.error("CRLDistributeionPointsExtDefault: addReasons Unknown reason: " + s);
                         throw new EPropertyException(CMS.getUserMessage(
                                     locale, "CMS_INVALID_PROPERTY", s));
-                    } else {
-                        reasonBits |= r.getBitMask();
                     }
+                    reasonBits |= r.getBitMask();
                 }
 
                 if (reasonBits != 0) {
@@ -425,11 +424,7 @@ public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
             if (ext == null) {
                 return null;
             }
-            if (ext.isCritical()) {
-                return "true";
-            } else {
-                return "false";
-            }
+            return ext.isCritical() ? "true" : "false";
         } else if (name.equals(VAL_CRL_DISTRIBUTION_POINTS)) {
             ext = (CRLDistributionPointsExtension)
                     getExtension(PKIXExtensions.CRLDistributionPoints_Id.toString(),

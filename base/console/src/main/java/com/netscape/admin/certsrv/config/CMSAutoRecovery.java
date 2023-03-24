@@ -115,18 +115,17 @@ public class CMSAutoRecovery extends JDialog implements ActionListener,
                 CMSAdminUtil.showMessageDialog(mParentFrame, mResource,
                   PREFIX, "EMPTYFIELD", CMSAdminUtil.ERROR_MESSAGE);
                 return;
-            } else {
-                NameValuePairs nvps = new NameValuePairs();
-                nvps.put(Constants.PR_RECOVERY_AGENT, val);
-                nvps.put(Constants.PR_AUTO_RECOVERY_ON, Constants.TRUE);
+            }
+            NameValuePairs nvps = new NameValuePairs();
+            nvps.put(Constants.PR_RECOVERY_AGENT, val);
+            nvps.put(Constants.PR_AUTO_RECOVERY_ON, Constants.TRUE);
 
-                try {
-                    mAdmin.modify(DestDef.DEST_KRA_ADMIN,
-                      ScopeDef.SC_AUTO_RECOVERY, Constants.RS_ID_CONFIG, nvps);
-                } catch (EAdminException ex) {
-                    CMSAdminUtil.showErrorDialog(mParentFrame, mResource,
-                      ex.getMessage(), CMSAdminUtil.ERROR_MESSAGE);
-                }
+            try {
+                mAdmin.modify(DestDef.DEST_KRA_ADMIN,
+                  ScopeDef.SC_AUTO_RECOVERY, Constants.RS_ID_CONFIG, nvps);
+            } catch (EAdminException ex) {
+                CMSAdminUtil.showErrorDialog(mParentFrame, mResource,
+                  ex.getMessage(), CMSAdminUtil.ERROR_MESSAGE);
             }
             mEnable.setText(mDisableLabel);
             mEnable.setToolTipText(mDisableTip);

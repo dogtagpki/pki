@@ -304,10 +304,10 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
         if (!authorityEnabled)
             throw new CADisabledException("Authority is disabled");
         if (!isReady()) {
-            if (signingUnitException != null)
-                throw signingUnitException;
-            else
+            if (signingUnitException == null) {
                 throw new CAMissingKeyException("Authority does not yet have signing key and cert in local NSSDB");
+            }
+            throw signingUnitException;
         }
     }
 
@@ -456,10 +456,7 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
      * @return true if this is a clone CA
      */
     public boolean isClone() {
-        if (CAService.mCLAConnector != null)
-            return true;
-        else
-            return false;
+        return CAService.mCLAConnector != null;
     }
 
     /**

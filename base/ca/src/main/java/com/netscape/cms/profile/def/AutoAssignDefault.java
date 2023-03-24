@@ -50,9 +50,8 @@ public class AutoAssignDefault extends EnrollDefault {
             return new Descriptor(IDescriptor.STRING,
                     null, "admin", CMS.getUserMessage(locale,
                             "CMS_PROFILE_AUTO_ASSIGN"));
-        } else {
-            return null;
         }
+        return null;
     }
 
     @Override

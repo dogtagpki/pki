@@ -399,11 +399,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
             if (ext == null) {
                 return null;
             }
-            if (ext.isCritical()) {
-                return "true";
-            } else {
-                return "false";
-            }
+            return ext.isCritical() ? "true" : "false";
         } else if (name.equals(VAL_POLICY_QUALIFIERS)) {
             ext = (CertificatePoliciesExtension)
                     getExtension(PKIXExtensions.CertificatePolicies_Id.toString(),

@@ -513,10 +513,7 @@ class AVAPattern {
     }
 
     public String getLdapAttr() {
-        if (mType == TYPE_ATTR)
-            return mValue;
-        else
-            return null;
+        return mType == TYPE_ATTR ? mValue : null;
     }
 
     /**

@@ -774,9 +774,8 @@ public class CRSEnrollment extends HttpServlet {
             if (profile == null) {
                 logger.error("Profile '" + mProfileId + "' not found.");
                 throw new ServletException("Profile '" + mProfileId + "' not found.");
-            } else {
-                logger.debug("Found profile '" + mProfileId + "'.");
             }
+            logger.debug("Found profile '" + mProfileId + "'.");
 
             AuthManager authenticator = null;
             try {
@@ -785,9 +784,8 @@ public class CRSEnrollment extends HttpServlet {
                 if (authenticator == null) {
                     logger.error("Authenticator not found.");
                     throw new ServletException("Authenticator not found.");
-                } else {
-                    logger.debug("Got authenticator=" + authenticator.getClass().getName());
                 }
+                logger.debug("Got authenticator=" + authenticator.getClass().getName());
             } catch (EProfileException e) {
                 throw new ServletException("Authenticator not found.");
             }
@@ -1015,27 +1013,25 @@ public class CRSEnrollment extends HttpServlet {
             String transactionID = req.getTransactionID();
             if (transactionID == null) {
                 throw new ServletException("Error: malformed PKIMessage - missing transactionID");
-            } else {
-                crsResp.setTransactionID(transactionID);
             }
+            crsResp.setTransactionID(transactionID);
 
             // Deal with Nonces
             byte[] sn = req.getSenderNonce();
             if (sn == null) {
                 throw new ServletException("Error: malformed PKIMessage - missing sendernonce");
-            } else {
-                if (mNonceSizeLimit > 0 && sn.length > mNonceSizeLimit) {
-                    byte[] snLimited = (mNonceSizeLimit > 0) ? new byte[mNonceSizeLimit] : null;
-                    System.arraycopy(sn, 0, snLimited, 0, mNonceSizeLimit);
-                    crsResp.setRecipientNonce(snLimited);
-                } else {
-                    crsResp.setRecipientNonce(sn);
-                }
-                byte[] serverNonce = new byte[16];
-                mRandom.nextBytes(serverNonce);
-                crsResp.setSenderNonce(serverNonce);
-                // crsResp.setSenderNonce(new byte[] {0});
             }
+            if (mNonceSizeLimit > 0 && sn.length > mNonceSizeLimit) {
+                byte[] snLimited = (mNonceSizeLimit > 0) ? new byte[mNonceSizeLimit] : null;
+                System.arraycopy(sn, 0, snLimited, 0, mNonceSizeLimit);
+                crsResp.setRecipientNonce(snLimited);
+            } else {
+                crsResp.setRecipientNonce(sn);
+            }
+            byte[] serverNonce = new byte[16];
+            mRandom.nextBytes(serverNonce);
+            crsResp.setSenderNonce(serverNonce);
+            // crsResp.setSenderNonce(new byte[] {0});
 
             // Deal with message type
             String mt = req.getMessageType();
@@ -1661,12 +1657,11 @@ public class CRSEnrollment extends HttpServlet {
                 if (areFingerprintsEqual(cmsRequest, fingerprints)) {
                     logger.debug("created response from request");
                     return makeResponseFromRequest(req, crsResp, cmsRequest);
-                } else {
-                    logger.warn("CRSEnrollment: " + CMS.getLogMessage("CMSGW_ENROLL_FAIL_DUP_TRANS_ID"));
-                    crsResp.setFailInfo(CRSPKIMessage.mFailInfo_badRequest);
-                    crsResp.setPKIStatus(CRSPKIMessage.mStatus_FAILURE);
-                    return null;
                 }
+                logger.warn("CRSEnrollment: " + CMS.getLogMessage("CMSGW_ENROLL_FAIL_DUP_TRANS_ID"));
+                crsResp.setFailInfo(CRSPKIMessage.mFailInfo_badRequest);
+                crsResp.setPKIStatus(CRSPKIMessage.mStatus_FAILURE);
+                return null;
             }
 
             getDetailFromRequest(req, crsResp);
@@ -1688,12 +1683,11 @@ public class CRSEnrollment extends HttpServlet {
                 signedAuditLogger.log(auditMessage);
 
                 return null;
-            } else {
-                Request ireq = postRequest(httpReq, req, crsResp);
-
-                logger.debug("created response");
-                return makeResponseFromRequest(req, crsResp, ireq);
             }
+            Request ireq = postRequest(httpReq, req, crsResp);
+
+            logger.debug("created response");
+            return makeResponseFromRequest(req, crsResp, ireq);
         } catch (CryptoContext.CryptoContextException e) {
             logger.warn("CRSEnrollment: " + CMS.getLogMessage("CMSGW_ENROLL_FAIL_NO_DECRYPT_PKCS10",
                     e.getMessage()), e);
@@ -1792,9 +1786,8 @@ public class CRSEnrollment extends HttpServlet {
             if (reqs == null) {
                 logger.error("CRSEnrollment: No request has been created");
                 return null;
-            } else {
-                logger.debug("CRSEnrollment: Request (" + reqs.length + ") have been created");
             }
+            logger.debug("CRSEnrollment: Request (" + reqs.length + ") have been created");
             // set transaction id
             reqs[0].setSourceId(req.getTransactionID());
             reqs[0].setExtData("profile", "true");

@@ -938,9 +938,8 @@ public class ACMEEngine {
                 // No need to check order expiration since it's irrelevant for revocation.
                 logger.info("Account issued the certificate; revocation OK");
                 return;
-            } else {
-                logger.info("Account did not issue the certificate");
             }
+            logger.info("Account did not issue the certificate");
         }
 
         // Case 2: validate using authorization records (if available)

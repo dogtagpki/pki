@@ -334,18 +334,12 @@ public class CRLIssuingPointRecord implements IDBObj {
      * @return list of recently revoked certificates
      */
     public Hashtable<BigInteger, RevokedCertificate> getCRLCacheNoClone() {
-        if (mCRLCache == null)
-            return null;
-        else
-            return mCRLCache;
+        return mCRLCache == null ? null : mCRLCache;
     }
 
     @SuppressWarnings("unchecked")
     public Hashtable<BigInteger, RevokedCertificate> getCRLCache() {
-        if (mCRLCache == null)
-            return null;
-        else
-            return (Hashtable<BigInteger, RevokedCertificate>) mCRLCache.clone();
+        return mCRLCache == null ? null : (Hashtable<BigInteger, RevokedCertificate>) mCRLCache.clone();
     }
 
     /**
@@ -355,10 +349,7 @@ public class CRLIssuingPointRecord implements IDBObj {
      */
     @SuppressWarnings("unchecked")
     public Hashtable<BigInteger, RevokedCertificate> getRevokedCerts() {
-        if (mRevokedCerts == null)
-            return null;
-        else
-            return (Hashtable<BigInteger, RevokedCertificate>) mRevokedCerts.clone();
+        return mRevokedCerts == null ? null : (Hashtable<BigInteger, RevokedCertificate>) mRevokedCerts.clone();
     }
 
     /**
@@ -368,10 +359,7 @@ public class CRLIssuingPointRecord implements IDBObj {
      */
     @SuppressWarnings("unchecked")
     public Hashtable<BigInteger, RevokedCertificate> getUnrevokedCerts() {
-        if (mUnrevokedCerts == null)
-            return null;
-        else
-            return (Hashtable<BigInteger, RevokedCertificate>) mUnrevokedCerts.clone();
+        return mUnrevokedCerts == null ? null : (Hashtable<BigInteger, RevokedCertificate>) mUnrevokedCerts.clone();
     }
 
     /**
@@ -381,9 +369,6 @@ public class CRLIssuingPointRecord implements IDBObj {
      */
     @SuppressWarnings("unchecked")
     public Hashtable<BigInteger, RevokedCertificate> getExpiredCerts() {
-        if (mExpiredCerts == null)
-            return null;
-        else
-            return (Hashtable<BigInteger, RevokedCertificate>) mExpiredCerts.clone();
+        return mExpiredCerts == null ? null : (Hashtable<BigInteger, RevokedCertificate>) mExpiredCerts.clone();
     }
 }
