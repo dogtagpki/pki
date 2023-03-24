@@ -208,11 +208,15 @@ public class CertRequestDAO extends CMSRequestDAO {
         if (data.isRenewal()) {
             RenewalProcessor processor = new RenewalProcessor("caProfileSubmit", locale);
             processor.setCMSEngine(engine);
+            processor.init();
+
             results = processor.processRenewal(data, request, credentials);
 
         } else {
             EnrollmentProcessor processor = new EnrollmentProcessor("caProfileSubmit", locale);
             processor.setCMSEngine(engine);
+            processor.init();
+
             results = processor.processEnrollment(data, request, aid, credentials);
         }
 
@@ -241,8 +245,10 @@ public class CertRequestDAO extends CMSRequestDAO {
         }
 
         CAEngine engine = CAEngine.getInstance();
+
         RequestProcessor processor = new RequestProcessor("caProfileProcess", locale);
         processor.setCMSEngine(engine);
+        processor.init();
 
         AuthToken authToken = null;
 

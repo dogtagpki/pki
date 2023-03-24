@@ -49,11 +49,14 @@ public class KRAConnectorProcessor extends CAProcessor {
 
     public final static String PREFIX = "ca.connector.KRA";
 
-    public KRAConnectorProcessor(Locale locale) throws EPropertyNotFound, EBaseException {
+    public KRAConnectorProcessor(Locale locale) {
         super("kraconnector", locale);
+    }
 
-        CAEngine engine = CAEngine.getInstance();
-        CAService caService = engine.getCAService();
+    public void init() {
+
+        CAEngine caEngine = (CAEngine) engine;
+        CAService caService = caEngine.getCAService();
         connectorExists = caService.getKRAConnector() != null;
     }
 

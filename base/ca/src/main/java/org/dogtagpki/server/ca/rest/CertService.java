@@ -190,6 +190,8 @@ public class CertService extends PKIService implements CertResource {
         try {
             processor = new RevocationProcessor("caDoRevoke-agent", getLocale(headers));
             processor.setCMSEngine(engine);
+            processor.init();
+
             processor.setStartTime(new Date().getTime());
 
             // TODO: set initiative based on auth info
@@ -353,6 +355,7 @@ public class CertService extends PKIService implements CertResource {
         try {
             processor = new RevocationProcessor("caDoUnrevoke", getLocale(headers));
             processor.setCMSEngine(engine);
+            processor.init();
 
             // TODO: set initiative based on auth info
             processor.setInitiative(AuditFormat.FROMAGENT);

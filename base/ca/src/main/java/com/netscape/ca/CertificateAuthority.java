@@ -1748,6 +1748,7 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
 
         EnrollmentProcessor processor = new EnrollmentProcessor("createSubCA", locale);
         processor.setCMSEngine(engine);
+        processor.init();
 
         Map<String, Object> resultMap = processor.processEnrollment(
             certRequest, null, authorityID, null, authToken);
@@ -1809,9 +1810,9 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
         X509CertImpl caCertImpl = mSigningUnit.getCertImpl();
         req.setSerialNum(new CertId(caCertImpl.getSerialNumber()));
 
-        RenewalProcessor processor =
-            new RenewalProcessor("renewAuthority", httpReq.getLocale());
+        RenewalProcessor processor = new RenewalProcessor("renewAuthority", httpReq.getLocale());
         processor.setCMSEngine(engine);
+        processor.init();
 
         Map<String, Object> resultMap =
             processor.processRenewal(req, httpReq, null);
@@ -1886,6 +1887,8 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
         RevocationProcessor processor = new RevocationProcessor(
                 "CertificateAuthority.revokeAuthority", httpReq.getLocale());
         processor.setCMSEngine(engine);
+        processor.init();
+
         processor.setSerialNumber(new CertId(authoritySerial));
         processor.setRevocationReason(RevocationReason.UNSPECIFIED);
         processor.setAuthority(this);

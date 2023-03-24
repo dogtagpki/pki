@@ -69,8 +69,11 @@ public class CASystemCertService extends PKIService implements CASystemCertResou
     public Response getTransportCert() throws Exception {
 
         CAEngine engine = CAEngine.getInstance();
+
         KRAConnectorProcessor processor = new KRAConnectorProcessor(getLocale(headers));
         processor.setCMSEngine(engine);
+        processor.init();
+
         KRAConnectorInfo info = processor.getConnectorInfo();
 
         String encodedCert = info.getTransportCert();

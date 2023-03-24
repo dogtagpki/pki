@@ -23,7 +23,7 @@ public class Processor {
     protected Locale locale;
     protected CMSEngine engine;
 
-    public Processor(String id, Locale locale) throws EPropertyNotFound, EBaseException {
+    public Processor(String id, Locale locale) {
         this.id = id;
         this.locale = locale;
     }
@@ -34,6 +34,9 @@ public class Processor {
 
     public void setCMSEngine(CMSEngine engine) {
         this.engine = engine;
+    }
+
+    public void init() throws EPropertyNotFound, EBaseException {
     }
 
     public String getUserMessage(String messageId, String... params) {

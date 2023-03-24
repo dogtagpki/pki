@@ -153,6 +153,7 @@ public class UpdateConnector extends CMSServlet {
 
         KRAConnectorProcessor processor = new KRAConnectorProcessor(getLocale(httpReq));
         processor.setCMSEngine(engine);
+        processor.init();
 
         KRAConnectorInfo info = createConnectorInfo(httpReq);
 

@@ -32,8 +32,6 @@ import org.dogtagpki.server.authentication.AuthToken;
 
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.base.BadRequestDataException;
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
@@ -51,7 +49,7 @@ public class EnrollmentProcessor extends CertProcessor {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EnrollmentProcessor.class);
 
-    public EnrollmentProcessor(String id, Locale locale) throws EPropertyNotFound, EBaseException {
+    public EnrollmentProcessor(String id, Locale locale) {
         super(id, locale);
     }
 

@@ -46,6 +46,8 @@ public class KRAConnectorService extends PKIService implements KRAConnectorResou
         try {
             KRAConnectorProcessor processor = new KRAConnectorProcessor(getLocale(headers));
             processor.setCMSEngine(engine);
+            processor.init();
+
             processor.addConnector(info);
             return createNoContentResponse();
         } catch (EBaseException e) {
@@ -63,6 +65,8 @@ public class KRAConnectorService extends PKIService implements KRAConnectorResou
         try {
             KRAConnectorProcessor processor = new KRAConnectorProcessor(getLocale(headers));
             processor.setCMSEngine(engine);
+            processor.init();
+
             processor.addHost(host, port);
             return createNoContentResponse();
         } catch (EBaseException e) {
@@ -83,6 +87,8 @@ public class KRAConnectorService extends PKIService implements KRAConnectorResou
         try {
             KRAConnectorProcessor processor = new KRAConnectorProcessor(getLocale(headers));
             processor.setCMSEngine(engine);
+            processor.init();
+
             processor.removeConnector(host, port);
             return createNoContentResponse();
         } catch (EBaseException e) {
@@ -100,6 +106,8 @@ public class KRAConnectorService extends PKIService implements KRAConnectorResou
         try {
             KRAConnectorProcessor processor = new KRAConnectorProcessor(getLocale(headers));
             processor.setCMSEngine(engine);
+            processor.init();
+
             return createOKResponse(processor.getConnectorInfo());
         } catch (EBaseException e) {
             String message = "Unable to get KRA connector: " + e.getMessage();

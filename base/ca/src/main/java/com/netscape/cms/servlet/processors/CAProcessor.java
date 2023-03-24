@@ -140,11 +140,14 @@ public class CAProcessor extends Processor {
 
     protected LinkedHashSet<String> statEvents = new LinkedHashSet<>();
 
-    public CAProcessor(String id, Locale locale) throws EPropertyNotFound, EBaseException {
+    public CAProcessor(String id, Locale locale) {
         super(id, locale);
+    }
 
-        CAEngine engine = CAEngine.getInstance();
-        CAEngineConfig config = engine.getConfig();
+    public void init() throws EPropertyNotFound, EBaseException {
+
+        CAEngine caEngine = (CAEngine) engine;
+        CAEngineConfig config = caEngine.getConfig();
 
         authz = engine.getAuthzSubsystem();
         ug = engine.getUGSubsystem();
@@ -179,12 +182,12 @@ public class CAProcessor extends Processor {
             profileSubId = ProfileSubsystem.ID;
         }
 
-        ps = engine.getProfileSubsystem(profileSubId);
+        ps = caEngine.getProfileSubsystem(profileSubId);
         if (ps == null) {
             throw new EBaseException("CAProcessor: Profile Subsystem not found");
         }
 
-        certdb = engine.getCertificateRepository();
+        certdb = caEngine.getCertificateRepository();
         if (certdb == null) {
             throw new EBaseException("CAProcessor: Certificate repository not found");
         }

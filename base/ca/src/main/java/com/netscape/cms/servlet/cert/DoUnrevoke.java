@@ -237,6 +237,7 @@ public class DoUnrevoke extends CMSServlet {
         RevocationProcessor processor = new RevocationProcessor(
                 servletConfig.getServletName(), getLocale(req));
         processor.setCMSEngine(engine);
+        processor.init();
 
         processor.setInitiative(initiative);
         processor.setSerialNumber(auditSerialNumber(serialNumbers[0].toString()));

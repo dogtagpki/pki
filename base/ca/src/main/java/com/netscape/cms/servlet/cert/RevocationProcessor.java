@@ -38,7 +38,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.logging.AuditFormat;
@@ -88,7 +87,7 @@ public class RevocationProcessor extends CertProcessor {
     Request request;
     RequestStatus requestStatus;
 
-    public RevocationProcessor(String id, Locale locale) throws EPropertyNotFound, EBaseException {
+    public RevocationProcessor(String id, Locale locale) {
         super(id, locale);
     }
 

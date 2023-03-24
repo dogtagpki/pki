@@ -35,7 +35,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.ExternalAuthToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
@@ -58,7 +57,7 @@ public class CertProcessor extends CAProcessor {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertProcessor.class);
 
-    public CertProcessor(String id, Locale locale) throws EPropertyNotFound, EBaseException {
+    public CertProcessor(String id, Locale locale) {
         super(id, locale);
     }
 

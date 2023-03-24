@@ -36,7 +36,6 @@ import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.certsrv.cert.CertReviewResponse;
@@ -64,7 +63,7 @@ public class RequestProcessor extends CertProcessor {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestProcessor.class);
 
-    public RequestProcessor(String id, Locale locale) throws EPropertyNotFound, EBaseException {
+    public RequestProcessor(String id, Locale locale) {
         super(id, locale);
     }
 

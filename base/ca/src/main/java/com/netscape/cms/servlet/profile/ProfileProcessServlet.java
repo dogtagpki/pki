@@ -79,8 +79,10 @@ public class ProfileProcessServlet extends ProfileServlet {
         args.set(ARG_ERROR_REASON, "");
 
         CAEngine engine = (CAEngine) getCMSEngine();
+
         RequestProcessor processor = new RequestProcessor("caProfileProcess", locale);
         processor.setCMSEngine(engine);
+        processor.init();
 
         String op = request.getParameter("op");
         logger.debug("ProfileProcessServlet: request operation: " + op);

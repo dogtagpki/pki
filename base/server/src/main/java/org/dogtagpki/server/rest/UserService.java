@@ -1076,6 +1076,8 @@ public class UserService extends SubsystemService implements UserResource {
 
             GroupMemberProcessor processor = new GroupMemberProcessor(getLocale(headers));
             processor.setCMSEngine(engine);
+            processor.init();
+
             processor.setUriInfo(uriInfo);
             processor.addGroupMember(groupMemberData);
 
@@ -1107,6 +1109,8 @@ public class UserService extends SubsystemService implements UserResource {
         try {
             GroupMemberProcessor processor = new GroupMemberProcessor(getLocale(headers));
             processor.setCMSEngine(getCMSEngine());
+            processor.init();
+
             processor.setUriInfo(uriInfo);
             processor.removeGroupMember(groupID, userID);
 

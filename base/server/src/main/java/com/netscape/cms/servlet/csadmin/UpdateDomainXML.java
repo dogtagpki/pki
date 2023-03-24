@@ -174,6 +174,7 @@ public class UpdateDomainXML extends CMSServlet {
 
         SecurityDomainProcessor processor = new SecurityDomainProcessor(getLocale(cmsReq.getHttpReq()));
         processor.setCMSEngine(engine);
+        processor.init();
 
         String status;
 

@@ -27,7 +27,6 @@ import javax.ws.rs.core.UriInfo;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ConflictingOperationException;
-import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.SessionContext;
@@ -62,7 +61,7 @@ public class GroupMemberProcessor extends Processor {
 
     protected UriInfo uriInfo;
 
-    public GroupMemberProcessor(Locale locale) throws EBaseException {
+    public GroupMemberProcessor(Locale locale) {
         super("group", locale);
     }
 

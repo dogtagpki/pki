@@ -38,9 +38,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.SecurityDomainSessionTable;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.base.SecurityDomainSessionTable;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.logging.AuditEvent;
@@ -81,7 +80,7 @@ public class SecurityDomainProcessor extends Processor {
     public final static String SUCCESS = "0";
     public final static String FAILED = "1";
 
-    public SecurityDomainProcessor(Locale locale) throws EPropertyNotFound, EBaseException {
+    public SecurityDomainProcessor(Locale locale) {
         super("securitydomain", locale);
     }
 

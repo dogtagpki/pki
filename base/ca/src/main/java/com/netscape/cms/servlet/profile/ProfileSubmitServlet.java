@@ -245,8 +245,10 @@ public class ProfileSubmitServlet extends ProfileServlet {
         Locale locale = getLocale(request);
 
         CAEngine engine = CAEngine.getInstance();
+
         EnrollmentProcessor processor = new EnrollmentProcessor("caProfileSubmit", locale);
         processor.setCMSEngine(engine);
+        processor.init();
 
         String profileId = processor.getProfileID() == null ? request.getParameter("profileId") : processor.getProfileID();
         logger.debug("ProfileSubmitServlet: profile: " + profileId);
@@ -285,8 +287,10 @@ public class ProfileSubmitServlet extends ProfileServlet {
         Locale locale = getLocale(request);
 
         CAEngine engine = (CAEngine) getCMSEngine();
+
         RenewalProcessor processor = new RenewalProcessor("caProfileSubmit", locale);
         processor.setCMSEngine(engine);
+        processor.init();
 
         String profileId = processor.getProfileID() == null ? request.getParameter("profileId") : processor.getProfileID();
         logger.debug("ProfileSubmitServlet: profile: " + profileId);

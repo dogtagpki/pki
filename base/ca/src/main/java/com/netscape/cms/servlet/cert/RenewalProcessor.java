@@ -42,7 +42,6 @@ import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.dbs.certdb.CertId;
@@ -64,7 +63,7 @@ public class RenewalProcessor extends CertProcessor {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RenewalProcessor.class);
 
-    public RenewalProcessor(String id, Locale locale) throws EPropertyNotFound, EBaseException {
+    public RenewalProcessor(String id, Locale locale) {
         super(id, locale);
     }
 
