@@ -32,14 +32,12 @@ import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.dbs.DBSSession;
 import com.netscape.cmscore.dbs.DBSearchResults;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.Repository;
 import com.netscape.cmscore.dbs.RepositoryRecord;
-import com.netscape.cmscore.security.JssSubsystem;
 
 /**
  * TODO: what does this class provide beyond the Repository
@@ -169,21 +167,6 @@ public class RequestRepository extends Repository {
     public RequestId createRequestID() throws EBaseException {
         BigInteger nextSerialNumber = getNextSerialNumber();
         return new RequestId(nextSerialNumber);
-    }
-
-    public RequestId createRequestID(boolean ephemeral) throws EBaseException {
-
-        if (!ephemeral) {
-            return createRequestID();
-        }
-
-        CMSEngine engine = CMS.getCMSEngine();
-        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
-
-        SecureRandom random = jssSubsystem.getRandomNumberGenerator();
-        long id = System.currentTimeMillis() * 10000 + random.nextInt(10000);
-
-        return new RequestId(id);
     }
 
     public Request createRequest(RequestId requestID, String requestType) throws EBaseException {

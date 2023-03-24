@@ -18,6 +18,7 @@
 package com.netscape.cms.servlet.key;
 
 import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -68,6 +69,7 @@ import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmscore.request.KeyRequestRepository;
 import com.netscape.cmscore.request.Request;
+import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.kra.KeyRecoveryAuthority;
 
 /**
@@ -176,6 +178,17 @@ public class KeyRequestDAO extends CMSRequestDAO {
         return info;
     }
 
+    public RequestId createEphemeralRequestID() throws EBaseException {
+
+        KRAEngine engine = KRAEngine.getInstance();
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
+
+        SecureRandom random = jssSubsystem.getRandomNumberGenerator();
+        long id = System.currentTimeMillis() * 10000 + random.nextInt(10000);
+
+        return new RequestId(id);
+    }
+
     /**
      * Submits an archival request and processes it.
      *
@@ -207,7 +220,13 @@ public class KeyRequestDAO extends CMSRequestDAO {
         KeyRequestRepository requestRepository = engine.getKeyRequestRepository();
 
         boolean ephemeral = kra.isEphemeral(realm);
-        RequestId requestID = requestRepository.createRequestID(ephemeral);
+        RequestId requestID;
+        if (ephemeral) {
+            requestID = createEphemeralRequestID();
+        } else {
+            requestID = requestRepository.createRequestID();
+        }
+
         Request request = requestRepository.createRequest(requestID, Request.SECURITY_DATA_ENROLLMENT_REQUEST);
 
         if (pkiArchiveOptions != null) {
@@ -278,7 +297,13 @@ public class KeyRequestDAO extends CMSRequestDAO {
         KRAEngine engine = KRAEngine.getInstance();
         KeyRequestRepository requestRepository = engine.getKeyRequestRepository();
 
-        RequestId requestID = requestRepository.createRequestID(ephemeral);
+        RequestId requestID;
+        if (ephemeral) {
+            requestID = createEphemeralRequestID();
+        } else {
+            requestID = requestRepository.createRequestID();
+        }
+
         Request request = requestRepository.createRequest(requestID, Request.SECURITY_DATA_RECOVERY_REQUEST);
 
         if (rec.getRealm() != null) {
