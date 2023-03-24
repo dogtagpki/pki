@@ -60,7 +60,6 @@ import org.mozilla.jss.crypto.PQGParams;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
-import org.mozilla.jss.netscape.security.extensions.AuthInfoAccessExtension;
 import org.mozilla.jss.netscape.security.extensions.ExtendedKeyUsageExtension;
 import org.mozilla.jss.netscape.security.extensions.NSCertTypeExtension;
 import org.mozilla.jss.netscape.security.extensions.OCSPNoCheckExtension;
@@ -80,11 +79,9 @@ import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.Extensions;
-import org.mozilla.jss.netscape.security.x509.GeneralName;
 import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
 import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
 import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
-import org.mozilla.jss.netscape.security.x509.URIName;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X500Signer;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
@@ -98,8 +95,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.security.KeyCertData;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.dbs.BigIntegerMapper;
@@ -895,32 +890,6 @@ public class KeyCertUtil {
             ExtendedKeyUsageExtension ocspExt =
                     new ExtendedKeyUsageExtension(false, oidSet);
             ext.set(ExtendedKeyUsageExtension.NAME, ocspExt);
-        }
-    }
-
-    public static void setAuthInfoAccess(KeyPair keypair,
-            CertificateExtensions ext, KeyCertData properties) throws IOException,
-            NoSuchAlgorithmException, InvalidKeyException {
-        String aia = properties.getAIA();
-
-        if ((aia != null) && (aia.equals(Constants.TRUE))) {
-            CMSEngine engine = CMS.getCMSEngine();
-            EngineConfig cs = engine.getConfig();
-            String hostname;
-            try {
-                hostname = cs.getHostname();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-            String port = engine.getEENonSSLPort();
-            AuthInfoAccessExtension aiaExt = new AuthInfoAccessExtension(false);
-            if (hostname != null && port != null) {
-                String location = "http://" + hostname + ":" + port + "/ca/ocsp";
-                GeneralName ocspName = new GeneralName(new URIName(location));
-                aiaExt.addAccessDescription(AuthInfoAccessExtension.METHOD_OCSP, ocspName);
-            }
-
-            ext.set(AuthInfoAccessExtension.NAME, aiaExt);
         }
     }
 

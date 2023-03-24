@@ -86,6 +86,10 @@ public abstract class CertificateInfo {
         mConfig = (ConfigStore) mProperties.get("cmsFile");
     }
 
+    public KeyCertData getProperties() {
+        return mProperties;
+    }
+
     protected abstract KeyUsageExtension getKeyUsageExtension() throws IOException;
 
     public abstract String getSubjectName();
@@ -225,7 +229,6 @@ public abstract class CertificateInfo {
         KeyCertUtil.setBasicConstraintsExtension(exts, mProperties);
         KeyCertUtil.setSubjectKeyIdentifier(mKeyPair, exts, mProperties);
         //KeyCertUtil.setOCSPSigning(mKeyPair, exts, mProperties);
-        KeyCertUtil.setAuthInfoAccess(mKeyPair, exts, mProperties);
         KeyCertUtil.setOCSPNoCheck(mKeyPair, exts, mProperties);
         String aki = mProperties.getAKI();
 

@@ -72,6 +72,7 @@ import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.TokenCertificate;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.netscape.security.extensions.AuthInfoAccessExtension;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.DerOutputStream;
 import org.mozilla.jss.netscape.security.util.DerValue;
@@ -81,6 +82,8 @@ import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.CertificateAlgorithmId;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.GeneralName;
+import org.mozilla.jss.netscape.security.x509.URIName;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
@@ -101,6 +104,7 @@ import com.netscape.certsrv.security.ICryptoSubsystem;
 import com.netscape.certsrv.security.KeyCertData;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.cert.CertUtils;
@@ -2035,6 +2039,30 @@ public final class JssSubsystem implements ICryptoSubsystem {
         }
     }
 
+    public void setAuthInfoAccess(
+            CertificateExtensions ext,
+            KeyCertData properties
+            ) throws Exception {
+
+        String aia = properties.getAIA();
+        if (aia == null || !aia.equals(Constants.TRUE)) {
+            return;
+        }
+
+        EngineConfig config = engine.getConfig();
+        String hostname = config.getHostname();
+        String port = engine.getEENonSSLPort();
+
+        AuthInfoAccessExtension aiaExt = new AuthInfoAccessExtension(false);
+        if (hostname != null && port != null) {
+            String location = "http://" + hostname + ":" + port + "/ca/ocsp";
+            GeneralName ocspName = new GeneralName(new URIName(location));
+            aiaExt.addAccessDescription(AuthInfoAccessExtension.METHOD_OCSP, ocspName);
+        }
+
+        ext.set(AuthInfoAccessExtension.NAME, aiaExt);
+    }
+
     @Override
     public X509CertImpl getSignedCert(KeyCertData data, String certType, java.security.PrivateKey priKey)
             throws EBaseException {
@@ -2059,18 +2087,30 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
         try {
             certInfo = cert.getCertInfo();
+
+            CertificateExtensions exts = (CertificateExtensions) certInfo.get(X509CertInfo.EXTENSIONS);
+            KeyCertData keyCertData = cert.getProperties();
+            setAuthInfoAccess(exts, keyCertData);
+
             SignatureAlgorithm sigAlg = (SignatureAlgorithm) data.get(Constants.PR_SIGNATURE_ALGORITHM);
 
             signedCert = signCert(priKey, certInfo, sigAlg);
+
         } catch (NoSuchTokenException e) {
             logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_SIGN_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_NOT_FOUND", ""));
+
         } catch (NotInitializedException e) {
             logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_SIGN_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CRYPTOMANAGER_UNINITIALIZED"));
+
         } catch (PQGParamGenException e) {
             logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_SIGN_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_PQG_GEN_FAILED"));
+
+        } catch (Exception e) {
+            logger.error("JssSubsystem: Unable to sign certificate: " + e.getMessage(), e);
+            throw new EBaseException("Unable to sign certificate: " + e.getMessage(), e);
         }
 
         return signedCert;
