@@ -842,14 +842,14 @@ public class CMCAuth extends AuthManager implements IExtendedPluginInfo {
                                         (X500Name) x509Certs[0].getSubjectDN();
 
                                 // check ssl client cert against cmc signer
-                                if (!clientPrincipal.equals(cmcPrincipal)) {
+                                if (clientPrincipal.equals(cmcPrincipal)) {
+                                    logger.debug(method + "ssl client cert principal and cmc signer principal match");
+                                } else {
                                     msg = "SSL client authentication certificate and CMC signer do not match";
                                     logger.error(method + msg);
                                     s.close();
                                     throw new EInvalidCredentials(
                                             CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL") + ":" + msg);
-                                } else {
-                                    logger.debug(method + "ssl client cert principal and cmc signer principal match");
                                 }
                             }
 

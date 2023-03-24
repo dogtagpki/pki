@@ -245,11 +245,7 @@ public class CMSRequest {
     }
 
     public String getExtData(String type) {
-        if (mRequest != null) {
-            return mRequest.getExtDataInString(type);
-        } else {
-            return null;
-        }
+        return mRequest == null ? null : mRequest.getExtDataInString(type);
     }
 
     // policy errors; set on rejection or possibly deferral.

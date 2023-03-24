@@ -67,12 +67,8 @@ public class CertRecordProcessor extends ElementProcessor {
         boolean result = false;
         CMSCRLExtensions exts = null;
 
-        if (issuingDistPointAttempted == true) {
-            if ((issuingDistPointEnabled == true) && (onlySomeReasons != null)) {
-                return true;
-            } else {
-                return false;
-            }
+        if (issuingDistPointAttempted ) {
+            return issuingDistPointEnabled == true && onlySomeReasons != null;
         }
 
         issuingDistPointAttempted = true;

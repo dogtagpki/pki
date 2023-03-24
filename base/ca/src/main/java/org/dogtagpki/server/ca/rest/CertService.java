@@ -250,11 +250,11 @@ public class CertService extends PKIService implements CertResource {
                     }
                 } else {
                     logger.info("CertService.revokeCert: client cert not issued by this CA");
-                    if (!engine.getAllowExtCASignedAgentCerts()) {
+                    if (engine.getAllowExtCASignedAgentCerts()) {
+                        logger.info("CertService.revokeCert: allowExtCASignedAgentCerts true;");
+                    } else {
                         logger.error("CertService.revokeCert: allowExtCASignedAgentCerts false;");
                         throw new UnauthorizedException(CMS.getLogMessage("CMSGW_UNAUTHORIZED"));
-                    } else {
-                        logger.info("CertService.revokeCert: allowExtCASignedAgentCerts true;");
                     }
                 }
             }

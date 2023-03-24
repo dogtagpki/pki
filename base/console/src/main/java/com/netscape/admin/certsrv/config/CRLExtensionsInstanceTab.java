@@ -84,8 +84,7 @@ public class CRLExtensionsInstanceTab extends CMSPluginInstanceTab {
     {
         if (mId != null && mId.length() > 0)
             return new CRLExtensionsConfigDialog(nvp, parent, conn, dest, mId);
-        else
-            return new CRLExtensionsConfigDialog(nvp, parent, conn, dest);
+        return new CRLExtensionsConfigDialog(nvp, parent, conn, dest);
     }
 
 	@Override

@@ -343,9 +343,8 @@ public class CRLDistributionPointsExt extends APolicyRule
                     if (r == null) {
                         logger.error(CMS.getLogMessage("CA_UNKNOWN_REASON", s));
                         throw new EBaseException("Unknown reason: " + s);
-                    } else {
-                        reasonBits |= r.getBitMask();
                     }
+                    reasonBits |= r.getBitMask();
                 }
                 if (reasonBits != 0) {
                     BitArray ba = new BitArray(8, new byte[] { reasonBits }

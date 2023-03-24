@@ -253,12 +253,13 @@ public abstract class APDU {
         int offset = 0;
         for (short i = (short) (offset + len - 1); i >= offset; i--) {
             byte cur = buffer.at(i);
-            if (cur != (byte) 0xFF) {
+            if (cur == (byte) 0xFF)
+                buffer.setAt(i,(byte) 0x00);
+            else {
                     cur++;
                     buffer.setAt(i, cur);
                     break;
-            } else
-                    buffer.setAt(i,(byte) 0x00);
+            }
         }
 
         System.out.println("enc buffer: " + buffer.toHexString());

@@ -228,8 +228,8 @@ public class CMCResponse {
                                 if (pi == null) {
                                     System.out.println("PendInfo null...skipping");
                                     continue;
-                                } else
-                                    System.out.println("PendInfo present...processing...");
+                                }
+                                System.out.println("PendInfo present...processing...");
                                 if (pi.getPendTime() != null) {
                                     String datePattern = "dd/MMM/yyyy:HH:mm:ss z";
                                     SimpleDateFormat dateFormat = new SimpleDateFormat(datePattern);

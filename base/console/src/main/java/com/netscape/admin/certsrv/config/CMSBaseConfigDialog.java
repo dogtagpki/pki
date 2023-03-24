@@ -466,16 +466,11 @@ public class CMSBaseConfigDialog extends JDialog
 
 	public boolean doHelpSummary(Component c) {
 
-		if (c.equals(mPluginName) ||
+		return c.equals(mPluginName) ||
 			c.equals(mPluginLabel) ||
 			c.equals(mRulenameCaption) ||
 			c.equals(mImplnameCaption) ||
-			c.equals(mImplName) )  {
-			return true;
-		}
-		else {
-			return false;
-		}
+			c.equals(mImplName);
 	}
 
     //=== ACTIONLISTENER =====================
@@ -837,12 +832,7 @@ implements ExtendedPluginInfoComponent
 
 	@Override
     public String getValueAsString() {
-		if (isSelected()) {
-			return "true";
-		}
-		else {
-			return "false";
-		}
+		return isSelected() ? "true" : "false";
 	}
 
 }

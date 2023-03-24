@@ -549,9 +549,8 @@ public class CMSAdminUtil {
             }
             ret += s.substring(start);
             return ret;
-        } else {
-            return wrapText(s, width);
         }
+        return wrapText(s, width);
     }
 
     /**
@@ -1303,11 +1302,7 @@ public class CMSAdminUtil {
     public static Component createTableCell(String syntax, String syntaxVal, String v) {
         if (syntax.equalsIgnoreCase("string") ||
           syntax.equalsIgnoreCase("integer")) {
-            if (v == null) {
-                return new JTextField("");
-            } else {
-                return new JTextField(v);
-            }
+            return v == null ? new JTextField("") : new JTextField(v);
         } else if (syntax.equalsIgnoreCase("choice")) {
             if (syntaxVal != null && syntaxVal.length() > 0) {
                 StringTokenizer st = new StringTokenizer(syntaxVal, ",");

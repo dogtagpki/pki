@@ -266,49 +266,48 @@ public class CMSNetworkPanel extends CMSBaseTab {
           (gatewaySSLPort < MIN_PORT) || (gatewaySSLPort > MAX_PORT)) {
             showMessageDialog("PORTRANGE");
             return false;
-        } else {
-            mModel.progressStart();
-            NameValuePairs nvps = new NameValuePairs();
-            nvps.put(Constants.PR_ADMIN_S_PORT, adminSSLPortStr);
-            nvps.put(Constants.PR_GATEWAY_PORT, gatewayPortStr);
-            nvps.put(Constants.PR_AGENT_S_PORT, agentSSLPortStr);
-
-            if (mGatewaySSLPortText.isEnabled()) {
-                nvps.put(Constants.PR_GATEWAY_S_PORT, gatewaySSLPortStr);
-            }
-
-            if (mGatewaySSLBacklogText.isEnabled()) {
-                nvps.put(Constants.PR_GATEWAY_S_BACKLOG, gatewaySSLBacklogStr);
-            }
-
-            if (mEnable.isSelected()) {
-                nvps.put(Constants.PR_GATEWAY_PORT_ENABLED, Constants.TRUE);
-                nvps.put(Constants.PR_ADMIN_S_BACKLOG, adminSSLBacklogStr);
-                nvps.put(Constants.PR_GATEWAY_BACKLOG, gatewayBacklogStr);
-                nvps.put(Constants.PR_AGENT_S_BACKLOG, agentSSLBacklogStr);
-            } else
-                nvps.put(Constants.PR_GATEWAY_PORT_ENABLED, Constants.FALSE);
-
-            try {
-                mAdmin.modify(DestDef.DEST_SERVER_ADMIN, ScopeDef.SC_NETWORK,
-                  Constants.RS_ID_CONFIG, nvps);
-            } catch (EAdminException e) {
-                showErrorDialog(e.toString());
-                mModel.progressStop();
-                return false;
-            }
-
-            ConsoleInfo consoleInfo = mModel.getConsoleInfo();
-            LDAPConnection conn = consoleInfo.getLDAPConnection();
-            try {
-                LDAPAttribute attr = new LDAPAttribute("nsserverport", adminSSLPortStr);
-                LDAPModification singleChange = new LDAPModification(LDAPModification.REPLACE,
-                  attr);
-                conn.modify(consoleInfo.getCurrentDN(), singleChange);
-            } catch (Exception eee) {
-            }
-            mModel.progressStop();
         }
+        mModel.progressStart();
+        NameValuePairs nvps = new NameValuePairs();
+        nvps.put(Constants.PR_ADMIN_S_PORT, adminSSLPortStr);
+        nvps.put(Constants.PR_GATEWAY_PORT, gatewayPortStr);
+        nvps.put(Constants.PR_AGENT_S_PORT, agentSSLPortStr);
+
+        if (mGatewaySSLPortText.isEnabled()) {
+            nvps.put(Constants.PR_GATEWAY_S_PORT, gatewaySSLPortStr);
+        }
+
+        if (mGatewaySSLBacklogText.isEnabled()) {
+            nvps.put(Constants.PR_GATEWAY_S_BACKLOG, gatewaySSLBacklogStr);
+        }
+
+        if (mEnable.isSelected()) {
+            nvps.put(Constants.PR_GATEWAY_PORT_ENABLED, Constants.TRUE);
+            nvps.put(Constants.PR_ADMIN_S_BACKLOG, adminSSLBacklogStr);
+            nvps.put(Constants.PR_GATEWAY_BACKLOG, gatewayBacklogStr);
+            nvps.put(Constants.PR_AGENT_S_BACKLOG, agentSSLBacklogStr);
+        } else
+            nvps.put(Constants.PR_GATEWAY_PORT_ENABLED, Constants.FALSE);
+
+        try {
+            mAdmin.modify(DestDef.DEST_SERVER_ADMIN, ScopeDef.SC_NETWORK,
+              Constants.RS_ID_CONFIG, nvps);
+        } catch (EAdminException e) {
+            showErrorDialog(e.toString());
+            mModel.progressStop();
+            return false;
+        }
+
+        ConsoleInfo consoleInfo = mModel.getConsoleInfo();
+        LDAPConnection conn = consoleInfo.getLDAPConnection();
+        try {
+            LDAPAttribute attr = new LDAPAttribute("nsserverport", adminSSLPortStr);
+            LDAPModification singleChange = new LDAPModification(LDAPModification.REPLACE,
+              attr);
+            conn.modify(consoleInfo.getCurrentDN(), singleChange);
+        } catch (Exception eee) {
+        }
+        mModel.progressStop();
 
         clearDirtyFlag();
         return true;

@@ -1293,15 +1293,16 @@ public class CMCOutputTemplate {
                                     msg));
 
                             return bpid;
-                        } else {
-                            logger.debug( method + "certificate issuer DN and revocation request issuer DN match");
                         }
+                        logger.debug( method + "certificate issuer DN and revocation request issuer DN match");
                     }
 
                     // in case of user-signed request, check if signer
                     // principal matches that of the revoking cert
                     if ((reqSecret == null) && authManagerId.equals("CMCUserSignedAuth")) {
-                        if (!certPrincipal.equals(reqSignerPrincipal)) {
+                        if (certPrincipal.equals(reqSignerPrincipal)) {
+                            logger.debug(method + "certificate principal and signer match");
+                        } else {
                             msg = " certificate principal and signer do not match";
                             logger.warn(method + msg);
                             OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.BAD_IDENTITY),
@@ -1326,8 +1327,6 @@ public class CMCOutputTemplate {
                                     msg));
 
                             return bpid;
-                        } else {
-                            logger.debug(method + "certificate principal and signer match");
                         }
                     }
 
@@ -1425,27 +1424,26 @@ public class CMCOutputTemplate {
                             auditReasonNum,
                             auditApprovalStatus));
                     return bpid;
-                } else {
-                    OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.INTERNAL_CA_ERROR), null, null);
-                    SEQUENCE failed_bpids = new SEQUENCE();
-                    failed_bpids.addElement(attrbpid);
-                    cmcStatusInfoV2 = new CMCStatusInfoV2(CMCStatusInfoV2.FAILED, failed_bpids, (String) null, otherInfo);
-                    tagattr = new TaggedAttribute(
-                            new INTEGER(bpid++),
-                            OBJECT_IDENTIFIER.id_cmc_statusInfoV2, cmcStatusInfoV2);
-                    controlSeq.addElement(tagattr);
-
-                    audit(new CertStatusChangeRequestProcessedEvent(
-                            auditSubjectID,
-                            ILogger.FAILURE,
-                            auditReqID,
-                            auditSerialNumber,
-                            auditRequestType,
-                            auditReasonNum,
-                            auditApprovalStatus));
-
-                    return bpid;
                 }
+                OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.INTERNAL_CA_ERROR), null, null);
+                SEQUENCE failed_bpids = new SEQUENCE();
+                failed_bpids.addElement(attrbpid);
+                cmcStatusInfoV2 = new CMCStatusInfoV2(CMCStatusInfoV2.FAILED, failed_bpids, (String) null, otherInfo);
+                tagattr = new TaggedAttribute(
+                        new INTEGER(bpid++),
+                        OBJECT_IDENTIFIER.id_cmc_statusInfoV2, cmcStatusInfoV2);
+                controlSeq.addElement(tagattr);
+
+                audit(new CertStatusChangeRequestProcessedEvent(
+                        auditSubjectID,
+                        ILogger.FAILURE,
+                        auditReqID,
+                        auditSerialNumber,
+                        auditRequestType,
+                        auditReasonNum,
+                        auditApprovalStatus));
+
+                return bpid;
             }
         }
 
@@ -1562,7 +1560,9 @@ public class CMCOutputTemplate {
                         }
                     }
 
-                    if (cert != null) {
+                    if (cert == null) {
+                        logger.warn(method + "cert not found");
+                    } else {
                         logger.debug(method + "found cert");
                         PublicKey pbKey = cert.getPublicKey();
                         PK11PubKey pubK = PK11PubKey.fromSPKI(((X509Key) pbKey).getKey());
@@ -1586,8 +1586,6 @@ public class CMCOutputTemplate {
                         }
 
                         return true;
-                    } else {
-                        logger.warn(method + "cert not found");
                     }
                 } else {
                     logger.warn(method + "unsupported SignerIdentifier for CMC revocation");

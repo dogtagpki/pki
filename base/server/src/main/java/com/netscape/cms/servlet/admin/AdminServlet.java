@@ -254,11 +254,7 @@ public class AdminServlet extends HttpServlet {
 
     private String getSCparam(ServletConfig sc, String param, String defVal) {
         String val = sc.getInitParameter(param);
-
-        if (val == null)
-            return defVal;
-        else
-            return val;
+        return val == null ? defVal : val;
     }
 
     /**
@@ -865,24 +861,23 @@ public class AdminServlet extends HttpServlet {
                     }
                 }
                 return true;
-            } else {
-                for (int i = 0; i < mGroupNames.length; i++) {
-                    if (mUG.isMemberOf(user, mGroupNames[i])) {
-                        logger.info(CMS.getLogMessage("ADMIN_SRVLT_GRP_AUTH_SUCC_USER", userid,
-                                        mGroupNames[i]));
-                        return true;
-                    }
-                }
-                StringBuffer groups = new StringBuffer();
-                groups.append(mGroupNames[0]);
-
-                for (int j = 1; j < mGroupNames.length; j++) {
-                    groups.append(",");
-                    groups.append(mGroupNames[j]);
-                }
-                logger.error(CMS.getLogMessage("ADMIN_SRVLT_USER_NOT_ANY_GRP", userid, groups.toString()));
-                return false;
             }
+            for (int i = 0; i < mGroupNames.length; i++) {
+                if (mUG.isMemberOf(user, mGroupNames[i])) {
+                    logger.info(CMS.getLogMessage("ADMIN_SRVLT_GRP_AUTH_SUCC_USER", userid,
+                                    mGroupNames[i]));
+                    return true;
+                }
+            }
+            StringBuffer groups = new StringBuffer();
+            groups.append(mGroupNames[0]);
+
+            for (int j = 1; j < mGroupNames.length; j++) {
+                groups.append(",");
+                groups.append(mGroupNames[j]);
+            }
+            logger.error(CMS.getLogMessage("ADMIN_SRVLT_USER_NOT_ANY_GRP", userid, groups.toString()));
+            return false;
         } catch (EUsrGrpException e) {
             logger.error(CMS.getLogMessage("ADMIN_SRVLT_USR_GRP_ERR", e.toString()), e);
             return false;

@@ -139,17 +139,11 @@ public class CertRequestProcessedEvent extends SignedAuditEvent {
             cert = base64Data.replace("\r", "").replace("\n", "");
         }
 
-        if (cert != null) {
-            cert = cert.trim();
-
-            if (cert.equals("")) {
-                return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-            } else {
-                return cert;
-            }
-        } else {
+        if (cert == null) {
             return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
         }
+        cert = cert.trim();
+        return cert.equals("") ? ILogger.SIGNED_AUDIT_EMPTY_VALUE : cert;
     }
 
     /**

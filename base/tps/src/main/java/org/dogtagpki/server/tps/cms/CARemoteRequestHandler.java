@@ -217,78 +217,77 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
 
         String content = resp.getContent();
 
-        if (content != null && !content.equals("")) {
-            //logger.debug(method + ": got content = " + content);
-            logger.debug(method + ": got content");
-            XMLObject xmlResponse =
-                    getXMLparser(content);
-
-            Hashtable<String, Object> response =
-                    new Hashtable<>();
-
-            /**
-             * When a value is not found in response, keep going so we know
-             * what else is missing
-             * Note: serverKeygen and !serverKeygen returns different set of
-             * response values so "missing" might not be bad
-             */
-            Integer ist = Integer.valueOf(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
-            String value = xmlResponse.getValue(IRemoteRequest.RESPONSE_STATUS_XML);
-            if (value == null) {
-                logger.debug(method + ": Status not found.");
-                //logger.debug(method + ": got content = " + content);
-                logger.debug(method + ": got content");
-            } else {
-                logger.debug(method + ": got Status = " + value);
-                ist = Integer.parseInt(value);
-            }
-            response.put(IRemoteRequest.RESPONSE_STATUS, ist);
-
-            value = xmlResponse.getValue("SubjectDN");
-            if (value == null) {
-                logger.debug(method + ": response missing name-value pair for: " +
-                        IRemoteRequest.CA_RESPONSE_Certificate_SubjectDN);
-            } else {
-                logger.debug(method + ": got IRemoteRequest.CA_RESPONSE_Certificate_SubjectDN = "
-                        + value);
-                response.put(IRemoteRequest.CA_RESPONSE_Certificate_SubjectDN, value);
-            }
-
-            value = xmlResponse.getValue(IRemoteRequest.CA_RESPONSE_Certificate_serial);
-            if (value == null) {
-                logger.debug(method + ": response missing name-value pair for: " +
-                        IRemoteRequest.CA_RESPONSE_Certificate_serial);
-            } else {
-                logger.debug(method + ": got IRemoteRequest.CA_RESPONSE_Certificate_serial = 0x"
-                        + value);
-                response.put(IRemoteRequest.CA_RESPONSE_Certificate_serial, value);
-            }
-
-            value = xmlResponse.getValue(IRemoteRequest.CA_RESPONSE_Certificate_b64);
-            if (value == null) {
-                logger.debug(method + ": response missing name-value pair for: " +
-                        IRemoteRequest.CA_RESPONSE_Certificate_b64);
-            } else {
-                try {
-                    //logger.debug(method + ": got IRemoteRequest.CA_RESPONSE_Certificate_b64 = "
-                    //        + value);
-                    logger.debug(method + ": got IRemoteRequest.CA_RESPONSE_Certificate_b64");
-                    response.put(IRemoteRequest.CA_RESPONSE_Certificate_b64, value);
-                    X509CertImpl newCert = new X509CertImpl(Utils.base64decode(value));
-                    response.put(IRemoteRequest.CA_RESPONSE_Certificate_x509, newCert);
-                    logger.debug(method + ": new cert parsed successfully");
-                } catch (Exception e) {
-                    // we don't exit.  Keep going.
-                    logger.warn(method + ": exception:" + e.getMessage(), e);
-                }
-            }
-
-            logger.debug(method + ": ends.");
-            return new CAEnrollCertResponse(connid, response);
-        } else {
+        if (content == null || content.equals("")) {
             logger.error(method + ": no response content");
             throw new EBaseException(method + ": no response content.");
         }
+        //logger.debug(method + ": got content = " + content);
+        logger.debug(method + ": got content");
+        XMLObject xmlResponse =
+                getXMLparser(content);
+
+        Hashtable<String, Object> response =
+                new Hashtable<>();
+
+        /**
+         * When a value is not found in response, keep going so we know
+         * what else is missing
+         * Note: serverKeygen and !serverKeygen returns different set of
+         * response values so "missing" might not be bad
+         */
+        Integer ist = Integer.valueOf(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
+        String value = xmlResponse.getValue(IRemoteRequest.RESPONSE_STATUS_XML);
+        if (value == null) {
+            logger.debug(method + ": Status not found.");
+            //logger.debug(method + ": got content = " + content);
+            logger.debug(method + ": got content");
+        } else {
+            logger.debug(method + ": got Status = " + value);
+            ist = Integer.parseInt(value);
+        }
+        response.put(IRemoteRequest.RESPONSE_STATUS, ist);
+
+        value = xmlResponse.getValue("SubjectDN");
+        if (value == null) {
+            logger.debug(method + ": response missing name-value pair for: " +
+                    IRemoteRequest.CA_RESPONSE_Certificate_SubjectDN);
+        } else {
+            logger.debug(method + ": got IRemoteRequest.CA_RESPONSE_Certificate_SubjectDN = "
+                    + value);
+            response.put(IRemoteRequest.CA_RESPONSE_Certificate_SubjectDN, value);
+        }
+
+        value = xmlResponse.getValue(IRemoteRequest.CA_RESPONSE_Certificate_serial);
+        if (value == null) {
+            logger.debug(method + ": response missing name-value pair for: " +
+                    IRemoteRequest.CA_RESPONSE_Certificate_serial);
+        } else {
+            logger.debug(method + ": got IRemoteRequest.CA_RESPONSE_Certificate_serial = 0x"
+                    + value);
+            response.put(IRemoteRequest.CA_RESPONSE_Certificate_serial, value);
+        }
+
+        value = xmlResponse.getValue(IRemoteRequest.CA_RESPONSE_Certificate_b64);
+        if (value == null) {
+            logger.debug(method + ": response missing name-value pair for: " +
+                    IRemoteRequest.CA_RESPONSE_Certificate_b64);
+        } else {
+            try {
+                //logger.debug(method + ": got IRemoteRequest.CA_RESPONSE_Certificate_b64 = "
+                //        + value);
+                logger.debug(method + ": got IRemoteRequest.CA_RESPONSE_Certificate_b64");
+                response.put(IRemoteRequest.CA_RESPONSE_Certificate_b64, value);
+                X509CertImpl newCert = new X509CertImpl(Utils.base64decode(value));
+                response.put(IRemoteRequest.CA_RESPONSE_Certificate_x509, newCert);
+                logger.debug(method + ": new cert parsed successfully");
+            } catch (Exception e) {
+                // we don't exit.  Keep going.
+                logger.warn(method + ": exception:" + e.getMessage(), e);
+            }
+        }
+
+        logger.debug(method + ": ends.");
+        return new CAEnrollCertResponse(connid, response);
     }
 
     /**
@@ -338,68 +337,67 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         }
 
         String content = resp.getContent();
-        if (content != null && !content.equals("")) {
-            XMLObject xmlResponse =
-                    getXMLparser(content);
-
-            Hashtable<String, Object> response =
-                    new Hashtable<>();
-
-            //logger.debug(method + ": received:" +
-            //        content);
-            logger.debug(method + ": content received");
-
-            /**
-             * When a value is not found in response, keep going so we know
-             * what else is missing
-             */
-            Integer ist = Integer.valueOf(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
-            String value = xmlResponse.getValue(IRemoteRequest.RESPONSE_STATUS_XML);
-            if (value == null) {
-                logger.debug(method + ": Status not found.");
-                //logger.debug(method + ": got content = " + content);
-                logger.debug(method + ": got content");
-            } else {
-                logger.debug(method + ": got Status = " + value);
-                ist = Integer.parseInt(value);
-            }
-            response.put(IRemoteRequest.RESPONSE_STATUS, ist);
-
-            value = xmlResponse.getValue(IRemoteRequest.CA_RESPONSE_Certificate_chain_b64);
-            if (value == null) {
-                logger.debug(method + ": response missing name-value pair for: " +
-                        IRemoteRequest.CA_RESPONSE_Certificate_chain_b64);
-            } else {
-                //logger.debug(method + ": got IRemoteRequest.CA_RESPONSE_Certificate_chain_b64 = "
-                //        + value);
-                logger.debug(method + ": got IRemoteRequest.CA_RESPONSE_Certificate_chain_b64");
-                response.put(IRemoteRequest.CA_RESPONSE_Certificate_chain_b64, value);
-                try {
-                    X509CertImpl newCert = new X509CertImpl(Utils.base64decode(value));
-                    response.put(IRemoteRequest.CA_RESPONSE_Certificate_x509, newCert);
-                    logger.debug(method + ": retrieved cert parsed successfully");
-                } catch (CertificateException e) {
-                    // we don't exit.  Keep going.
-                    logger.warn(method + ": exception:" + e.getMessage(), e);
-                }
-            }
-
-            value = xmlResponse.getValue(IRemoteRequest.CA_RESPONSE_Certificate_RevocationReason);
-            if (value == null) {
-                logger.debug(method + ": response missing name-value pair for: " +
-                        IRemoteRequest.CA_RESPONSE_Certificate_RevocationReason);
-            } else {
-                logger.debug(method + ": got IRemoteRequest.CA_RESPONSE_Certificate_RevocationReason = "
-                        + value);
-                response.put(IRemoteRequest.CA_RESPONSE_Certificate_RevocationReason, value);
-            }
-
-            logger.debug(method + ": ends.");
-            return new CARetrieveCertResponse(connid, response);
-        } else {
+        if (content == null || content.equals("")) {
             logger.error(method + ": no response content");
             throw new EBaseException(method + ": no response content.");
         }
+        XMLObject xmlResponse =
+                getXMLparser(content);
+
+        Hashtable<String, Object> response =
+                new Hashtable<>();
+
+        //logger.debug(method + ": received:" +
+        //        content);
+        logger.debug(method + ": content received");
+
+        /**
+         * When a value is not found in response, keep going so we know
+         * what else is missing
+         */
+        Integer ist = Integer.valueOf(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
+        String value = xmlResponse.getValue(IRemoteRequest.RESPONSE_STATUS_XML);
+        if (value == null) {
+            logger.debug(method + ": Status not found.");
+            //logger.debug(method + ": got content = " + content);
+            logger.debug(method + ": got content");
+        } else {
+            logger.debug(method + ": got Status = " + value);
+            ist = Integer.parseInt(value);
+        }
+        response.put(IRemoteRequest.RESPONSE_STATUS, ist);
+
+        value = xmlResponse.getValue(IRemoteRequest.CA_RESPONSE_Certificate_chain_b64);
+        if (value == null) {
+            logger.debug(method + ": response missing name-value pair for: " +
+                    IRemoteRequest.CA_RESPONSE_Certificate_chain_b64);
+        } else {
+            //logger.debug(method + ": got IRemoteRequest.CA_RESPONSE_Certificate_chain_b64 = "
+            //        + value);
+            logger.debug(method + ": got IRemoteRequest.CA_RESPONSE_Certificate_chain_b64");
+            response.put(IRemoteRequest.CA_RESPONSE_Certificate_chain_b64, value);
+            try {
+                X509CertImpl newCert = new X509CertImpl(Utils.base64decode(value));
+                response.put(IRemoteRequest.CA_RESPONSE_Certificate_x509, newCert);
+                logger.debug(method + ": retrieved cert parsed successfully");
+            } catch (CertificateException e) {
+                // we don't exit.  Keep going.
+                logger.warn(method + ": exception:" + e.getMessage(), e);
+            }
+        }
+
+        value = xmlResponse.getValue(IRemoteRequest.CA_RESPONSE_Certificate_RevocationReason);
+        if (value == null) {
+            logger.debug(method + ": response missing name-value pair for: " +
+                    IRemoteRequest.CA_RESPONSE_Certificate_RevocationReason);
+        } else {
+            logger.debug(method + ": got IRemoteRequest.CA_RESPONSE_Certificate_RevocationReason = "
+                    + value);
+            response.put(IRemoteRequest.CA_RESPONSE_Certificate_RevocationReason, value);
+        }
+
+        logger.debug(method + ": ends.");
+        return new CARetrieveCertResponse(connid, response);
     }
 
     /**
@@ -447,79 +445,78 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         }
         String content = resp.getContent();
 
-        if (content != null && !content.equals("")) {
-            XMLObject xmlResponse =
-                    getXMLparser(content);
-
-            Hashtable<String, Object> response =
-                    new Hashtable<>();
-
-            logger.debug(method + ": received:" +
-                    content);
-
-            /**
-             * When a value is not found in response, keep going so we know
-             * what else is missing
-             * Note: serverKeygen and !serverKeygen returns different set of
-             * response values so "missing" might not be bad
-             */
-            Integer ist = Integer.valueOf(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
-            String value = xmlResponse.getValue(IRemoteRequest.RESPONSE_STATUS_XML);
-            if (value == null) {
-                logger.debug(method + ": Status not found.");
-                //logger.debug(method + ": got content = " + content);
-                logger.debug(method + ": got content");
-            } else {
-                logger.debug(method + ": got Status = " + value);
-                ist = Integer.parseInt(value);
-            }
-            response.put(IRemoteRequest.RESPONSE_STATUS, ist);
-
-            value = xmlResponse.getValue("SubjectDN");
-            if (value == null) {
-                logger.debug(method + ": response missing name-value pair for: " +
-                        IRemoteRequest.CA_RESPONSE_Certificate_SubjectDN);
-            } else {
-                logger.debug(method + ": got IRemoteRequest.CA_RESPONSE_Certificate_SubjectDN = "
-                        + value);
-                response.put(IRemoteRequest.CA_RESPONSE_Certificate_SubjectDN, value);
-            }
-
-            value = xmlResponse.getValue(IRemoteRequest.CA_RESPONSE_Certificate_serial);
-            if (value == null) {
-                logger.debug(method + ": response missing name-value pair for: " +
-                        IRemoteRequest.CA_RESPONSE_Certificate_serial);
-            } else {
-                logger.debug(method + ": got IRemoteRequest.CA_RESPONSE_Certificate_serial = 0x"
-                        + value);
-                response.put(IRemoteRequest.CA_RESPONSE_Certificate_serial, value);
-            }
-
-            value = xmlResponse.getValue(IRemoteRequest.CA_RESPONSE_Certificate_b64);
-            if (value == null) {
-                logger.debug(method + ": response missing name-value pair for: " +
-                        IRemoteRequest.CA_RESPONSE_Certificate_b64);
-            } else {
-                //logger.debug(method + ": got IRemoteRequest.CA_RESPONSE_Certificate_b64 = "
-                //        + value);
-                logger.debug(method + ": got IRemoteRequest.CA_RESPONSE_Certificate_b64");
-                response.put(IRemoteRequest.CA_RESPONSE_Certificate_b64, value);
-                try {
-                    X509CertImpl newCert = new X509CertImpl(Utils.base64decode(value));
-                    response.put(IRemoteRequest.CA_RESPONSE_Certificate_x509, newCert);
-                    logger.debug(method + ": new cert parsed successfully");
-                } catch (CertificateException e) {
-                    // we don't exit.  Keep going.
-                    logger.warn(method + ": exception:" + e.getMessage(), e);
-                }
-            }
-
-            logger.debug(method + ": ends.");
-            return new CARenewCertResponse(connid, response);
-        } else {
+        if (content == null || content.equals("")) {
             logger.error(method + ": no response content");
             throw new EBaseException(method + ": no response content.");
         }
+        XMLObject xmlResponse =
+                getXMLparser(content);
+
+        Hashtable<String, Object> response =
+                new Hashtable<>();
+
+        logger.debug(method + ": received:" +
+                content);
+
+        /**
+         * When a value is not found in response, keep going so we know
+         * what else is missing
+         * Note: serverKeygen and !serverKeygen returns different set of
+         * response values so "missing" might not be bad
+         */
+        Integer ist = Integer.valueOf(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
+        String value = xmlResponse.getValue(IRemoteRequest.RESPONSE_STATUS_XML);
+        if (value == null) {
+            logger.debug(method + ": Status not found.");
+            //logger.debug(method + ": got content = " + content);
+            logger.debug(method + ": got content");
+        } else {
+            logger.debug(method + ": got Status = " + value);
+            ist = Integer.parseInt(value);
+        }
+        response.put(IRemoteRequest.RESPONSE_STATUS, ist);
+
+        value = xmlResponse.getValue("SubjectDN");
+        if (value == null) {
+            logger.debug(method + ": response missing name-value pair for: " +
+                    IRemoteRequest.CA_RESPONSE_Certificate_SubjectDN);
+        } else {
+            logger.debug(method + ": got IRemoteRequest.CA_RESPONSE_Certificate_SubjectDN = "
+                    + value);
+            response.put(IRemoteRequest.CA_RESPONSE_Certificate_SubjectDN, value);
+        }
+
+        value = xmlResponse.getValue(IRemoteRequest.CA_RESPONSE_Certificate_serial);
+        if (value == null) {
+            logger.debug(method + ": response missing name-value pair for: " +
+                    IRemoteRequest.CA_RESPONSE_Certificate_serial);
+        } else {
+            logger.debug(method + ": got IRemoteRequest.CA_RESPONSE_Certificate_serial = 0x"
+                    + value);
+            response.put(IRemoteRequest.CA_RESPONSE_Certificate_serial, value);
+        }
+
+        value = xmlResponse.getValue(IRemoteRequest.CA_RESPONSE_Certificate_b64);
+        if (value == null) {
+            logger.debug(method + ": response missing name-value pair for: " +
+                    IRemoteRequest.CA_RESPONSE_Certificate_b64);
+        } else {
+            //logger.debug(method + ": got IRemoteRequest.CA_RESPONSE_Certificate_b64 = "
+            //        + value);
+            logger.debug(method + ": got IRemoteRequest.CA_RESPONSE_Certificate_b64");
+            response.put(IRemoteRequest.CA_RESPONSE_Certificate_b64, value);
+            try {
+                X509CertImpl newCert = new X509CertImpl(Utils.base64decode(value));
+                response.put(IRemoteRequest.CA_RESPONSE_Certificate_x509, newCert);
+                logger.debug(method + ": new cert parsed successfully");
+            } catch (CertificateException e) {
+                // we don't exit.  Keep going.
+                logger.warn(method + ": exception:" + e.getMessage(), e);
+            }
+        }
+
+        logger.debug(method + ": ends.");
+        return new CARenewCertResponse(connid, response);
     }
 
     /**
@@ -579,40 +576,39 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         }
         String content = resp.getContent();
 
-        if (content != null && !content.equals("")) {
-            logger.debug(method +": got content = " + content);
-            Hashtable<String, Object> response =
-                    parseResponse(content);
-
-            /**
-             * When a value is not found in response, keep going so we know
-             * what else is missing
-             */
-            Integer ist = Integer.valueOf(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
-            String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
-
-            logger.debug(method +": got status = " + value);
-            ist = Integer.parseInt(value);
-            if (ist != 0) {
-                logger.debug(method +": status not 0, getting error string... ");
-                value = (String) response.get(IRemoteRequest.RESPONSE_ERROR_STRING);
-                if (value == null) {
-                    logger.debug(method +": response missing name-value pair for: " +
-                            IRemoteRequest.RESPONSE_ERROR_STRING);
-                } else {
-                    logger.debug(method +": got IRemoteRequest.RESPONSE_ERROR_STRING = "
-                            + value);
-                    response.put(IRemoteRequest.RESPONSE_ERROR_STRING, value);
-                }
-            }
-            response.put(IRemoteRequest.RESPONSE_STATUS, ist);
-
-            logger.debug(method +": ends.");
-            return new CARevokeCertResponse(revCAid, response);
-        } else {
+        if (content == null || content.equals("")) {
             logger.error(method +": no response content.");
             throw new EBaseException(method +": no response content.");
         }
+        logger.debug(method +": got content = " + content);
+        Hashtable<String, Object> response =
+                parseResponse(content);
+
+        /**
+         * When a value is not found in response, keep going so we know
+         * what else is missing
+         */
+        Integer ist = Integer.valueOf(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
+        String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
+
+        logger.debug(method +": got status = " + value);
+        ist = Integer.parseInt(value);
+        if (ist != 0) {
+            logger.debug(method +": status not 0, getting error string... ");
+            value = (String) response.get(IRemoteRequest.RESPONSE_ERROR_STRING);
+            if (value == null) {
+                logger.debug(method +": response missing name-value pair for: " +
+                        IRemoteRequest.RESPONSE_ERROR_STRING);
+            } else {
+                logger.debug(method +": got IRemoteRequest.RESPONSE_ERROR_STRING = "
+                        + value);
+                response.put(IRemoteRequest.RESPONSE_ERROR_STRING, value);
+            }
+        }
+        response.put(IRemoteRequest.RESPONSE_STATUS, ist);
+
+        logger.debug(method +": ends.");
+        return new CARevokeCertResponse(revCAid, response);
     }
 
     /**
@@ -662,40 +658,39 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         }
         String content = resp.getContent();
 
-        if (content != null && !content.equals("")) {
-            logger.debug(method + ": got content = " + content);
-            Hashtable<String, Object> response =
-                    parseResponse(content);
-
-            /**
-             * When a value is not found in response, keep going so we know
-             * what else is missing
-             */
-            Integer ist = Integer.valueOf(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
-            String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
-
-            logger.debug(method + ": got status = " + value);
-            ist = Integer.parseInt(value);
-            if (ist != 0) {
-                logger.debug(method + ": status not 0, getting error string... ");
-                value = (String) response.get(IRemoteRequest.RESPONSE_ERROR_STRING);
-                if (value == null) {
-                    logger.debug(method + ": response missing name-value pair for: " +
-                            IRemoteRequest.RESPONSE_ERROR_STRING);
-                } else {
-                    logger.debug(method + ": got IRemoteRequest.RESPONSE_ERROR_STRING = "
-                            + value);
-                    response.put(IRemoteRequest.RESPONSE_ERROR_STRING, value);
-                }
-            }
-            response.put(IRemoteRequest.RESPONSE_STATUS, ist);
-
-            logger.debug(method + ": ends.");
-            return new CARevokeCertResponse(unrevCAid, response);
-        } else {
+        if (content == null || content.equals("")) {
             logger.error(method + ": no response content.");
             throw new EBaseException(method + ": no response content.");
         }
+        logger.debug(method + ": got content = " + content);
+        Hashtable<String, Object> response =
+                parseResponse(content);
+
+        /**
+         * When a value is not found in response, keep going so we know
+         * what else is missing
+         */
+        Integer ist = Integer.valueOf(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
+        String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
+
+        logger.debug(method + ": got status = " + value);
+        ist = Integer.parseInt(value);
+        if (ist != 0) {
+            logger.debug(method + ": status not 0, getting error string... ");
+            value = (String) response.get(IRemoteRequest.RESPONSE_ERROR_STRING);
+            if (value == null) {
+                logger.debug(method + ": response missing name-value pair for: " +
+                        IRemoteRequest.RESPONSE_ERROR_STRING);
+            } else {
+                logger.debug(method + ": got IRemoteRequest.RESPONSE_ERROR_STRING = "
+                        + value);
+                response.put(IRemoteRequest.RESPONSE_ERROR_STRING, value);
+            }
+        }
+        response.put(IRemoteRequest.RESPONSE_STATUS, ist);
+
+        logger.debug(method + ": ends.");
+        return new CARevokeCertResponse(unrevCAid, response);
     }
 
     /**
@@ -753,14 +748,10 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
                 String caSkiString = getCaSki(ca);
                 if (certAkiString.equals(caSkiString)) {
                     logger.debug(method + " cert AKI and caCert SKI matched");
-                    if (revoke) {
-                        return revokeCertificate(ca, serialno, reason);
-                    } else {
-                        return unrevokeCertificate(ca, serialno);
-                    }
-                } else { // not a match then iterate to next ca in list
-                    logger.debug(method + " cert AKI and caCert SKI not matched");
+                    return revoke ? revokeCertificate(ca, serialno, reason) : unrevokeCertificate(ca, serialno);
                 }
+                // not a match then iterate to next ca in list
+                logger.debug(method + " cert AKI and caCert SKI not matched");
             } catch (Exception e) {
                 // any issue then iterate to next ca in list
                 logger.warn(method + " issue found, iterate to next ca in list: "
@@ -770,9 +761,8 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         }
         if (exception == null) {
             throw new EBaseException(method + ": signing ca not found");
-        } else {
-            throw new EBaseException(method + exception.toString());
         }
+        throw new EBaseException(method + exception.toString());
     }
 
     /**
@@ -911,29 +901,19 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             logger.warn(method +" exception: " + e.getMessage(), e);
             skipMatch = true;
         }
-        if (!skipMatch) {
-            /* now compare cert's AKI to the ca's SKI
-             *   if matched, continue,
-             *   if not, search in the ca list
-             */
-            logger.debug(method +" cert AKI and caCert SKI matching begins");
-            if (certAkiString.equals(caSkiString)) {
-                logger.debug(method +" cert AKI and caCert SKI matched");
-                if (revoke) {
-                    return revokeCertificate(serialno, reason);
-                } else {
-                    return unrevokeCertificate(serialno);
-                }
-            } else {
-                logger.debug(method +" cert AKI and caCert SKI of the designated issuing ca do not match...calling revokeFromOtherCA to search for another ca");
-                return revokeFromOtherCA(revoke, serialno, certAkiString, reason);
-            }
-        } else {
-            if (revoke) {
-                return revokeCertificate(serialno, reason);
-            } else {
-                return unrevokeCertificate(serialno);
-            }
+        if (skipMatch) {
+            return revoke ? revokeCertificate(serialno, reason) : unrevokeCertificate(serialno);
         }
+        /* now compare cert's AKI to the ca's SKI
+         *   if matched, continue,
+         *   if not, search in the ca list
+         */
+        logger.debug(method +" cert AKI and caCert SKI matching begins");
+        if (certAkiString.equals(caSkiString)) {
+            logger.debug(method +" cert AKI and caCert SKI matched");
+            return revoke ? revokeCertificate(serialno, reason) : unrevokeCertificate(serialno);
+        }
+        logger.debug(method +" cert AKI and caCert SKI of the designated issuing ca do not match...calling revokeFromOtherCA to search for another ca");
+        return revokeFromOtherCA(revoke, serialno, certAkiString, reason);
     }
 }

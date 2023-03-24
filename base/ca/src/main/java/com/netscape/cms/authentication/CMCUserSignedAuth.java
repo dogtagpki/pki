@@ -354,32 +354,31 @@ public class CMCUserSignedAuth extends AuthManager implements IExtendedPluginInf
                             msg = "userToken null; verifySignerInfo failure";
                             logger.error(method + msg);
                             throw new EBaseException(msg);
+                        }
+                        if (selfSigned) {
+                            logger.debug(method
+                                    + " self-signed cmc request will not have user identification info at this point.");
+                            auditSignerInfo = "selfSigned";
                         } else {
-                            if (selfSigned) {
-                                logger.debug(method
-                                        + " self-signed cmc request will not have user identification info at this point.");
-                                auditSignerInfo = "selfSigned";
-                            } else {
-                                logger.debug(method + "signed with user cert");
-                                userid = userToken.getInString("userid");
-                                uid = userToken.getInString("id");
-                                if (userid == null && uid == null) {
-                                    msg = " verifySignerInfo failure... missing id";
-                                    logger.error(method + msg);
-                                    throw new EBaseException(msg);
-                                }
-                                // reset value of auditSignerInfo
-                                if (uid != null && !uid.equals(ILogger.UNIDENTIFIED)) {
-                                    //logger.debug(method + "setting auditSignerInfo to uid:" + uid.trim());
-                                    //auditSignerInfo = uid.trim();
-                                    auditSubjectID = uid.trim();
-                                    authToken.set(AuthToken.USER_ID, auditSubjectID);
-                                } else if (userid != null && !userid.equals(ILogger.UNIDENTIFIED)) {
-                                    //logger.debug(method + "setting auditSignerInfo to userid:" + userid);
-                                    //auditSignerInfo = userid.trim();
-                                    auditSubjectID = userid.trim();
-                                    authToken.set(AuthToken.USER_ID, auditSubjectID);
-                                }
+                            logger.debug(method + "signed with user cert");
+                            userid = userToken.getInString("userid");
+                            uid = userToken.getInString("id");
+                            if (userid == null && uid == null) {
+                                msg = " verifySignerInfo failure... missing id";
+                                logger.error(method + msg);
+                                throw new EBaseException(msg);
+                            }
+                            // reset value of auditSignerInfo
+                            if (uid != null && !uid.equals(ILogger.UNIDENTIFIED)) {
+                                //logger.debug(method + "setting auditSignerInfo to uid:" + uid.trim());
+                                //auditSignerInfo = uid.trim();
+                                auditSubjectID = uid.trim();
+                                authToken.set(AuthToken.USER_ID, auditSubjectID);
+                            } else if (userid != null && !userid.equals(ILogger.UNIDENTIFIED)) {
+                                //logger.debug(method + "setting auditSignerInfo to userid:" + userid);
+                                //auditSignerInfo = userid.trim();
+                                auditSubjectID = userid.trim();
+                                authToken.set(AuthToken.USER_ID, auditSubjectID);
                             }
                         }
                     } else {
@@ -1036,14 +1035,14 @@ public class CMCUserSignedAuth extends AuthManager implements IExtendedPluginInf
                                 cmcPrincipal.toString());
 
                             // check ssl client cert against cmc signer
-                            if (!clientPrincipal.equals(cmcPrincipal)) {
+                            if (clientPrincipal.equals(cmcPrincipal)) {
+                                logger.debug(method + "ssl client cert principal and cmc signer principal match");
+                            } else {
                                 msg = "SSL client authentication certificate and CMC signer do not match";
                                 logger.error(method + msg);
                                 s.close();
                                 throw new EInvalidCredentials(
                                         CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL") + ":" + msg);
-                            } else {
-                                logger.debug(method + "ssl client cert principal and cmc signer principal match");
                             }
 
                             PublicKey signKey = cert.getPublicKey();
@@ -1123,11 +1122,10 @@ public class CMCUserSignedAuth extends AuthManager implements IExtendedPluginInf
                         s.close();
                         return tempToken;
 
-                    } else {
-                        msg = "no certificate found in cmcFullReq";
-                        logger.error(method + msg);
-                        throw new EMissingCredential(msg);
                     }
+                    msg = "no certificate found in cmcFullReq";
+                    logger.error(method + msg);
+                    throw new EMissingCredential(msg);
                 } else if (sid.getType().equals(SignerIdentifier.SUBJECT_KEY_IDENTIFIER)) {
                     logger.debug(method + "SignerIdentifier type: SUBJECT_KEY_IDENTIFIER");
                     logger.debug(method + "selfSigned is true");

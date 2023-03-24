@@ -261,52 +261,50 @@ public class ACLAdminServlet extends AdminServlet {
 
         ACL acl = mAuthzMgr.getACL(resourceId);
 
-        if (acl != null) {
-            Enumeration<String> rightsEnum = acl.rights();
-
-            StringBuffer rights = new StringBuffer();
-
-            if (rightsEnum.hasMoreElements()) {
-                while (rightsEnum.hasMoreElements()) {
-                    if (rights.length() != 0) {
-                        rights.append(",");
-                    }
-                    String right = rightsEnum.nextElement();
-
-                    rights.append(right);
-                }
-            }
-
-            params.put(Constants.PR_ACL_OPS, rights.toString());
-
-            Enumeration<ACLEntry> aclEntryEnum;
-            aclEntryEnum = acl.entries();
-            String acis = "";
-
-            if (aclEntryEnum.hasMoreElements()) {
-                while (aclEntryEnum.hasMoreElements()) {
-                    if (acis != "") {
-                        acis += ";";
-                    }
-                    ACLEntry aclEntry = aclEntryEnum.nextElement();
-                    String aci = aclEntry.getACLEntryString();
-
-                    acis += aci;
-                }
-            }
-
-            params.put(Constants.PR_ACI, acis);
-
-            sendResponse(SUCCESS, null, params, resp);
-            return;
-
-        } else {
+        if (acl == null) {
             logger.error(CMS.getLogMessage("ACLS_SRVLT_RESOURCE_NOT_FOUND"));
             sendResponse(ERROR,
                     CMS.getUserMessage(getLocale(req), "CMS_ACL_RESOURCE_NOT_FOUND"),
                     null, resp);
             return;
         }
+        Enumeration<String> rightsEnum = acl.rights();
+
+        StringBuffer rights = new StringBuffer();
+
+        if (rightsEnum.hasMoreElements()) {
+            while (rightsEnum.hasMoreElements()) {
+                if (rights.length() != 0) {
+                    rights.append(",");
+                }
+                String right = rightsEnum.nextElement();
+
+                rights.append(right);
+            }
+        }
+
+        params.put(Constants.PR_ACL_OPS, rights.toString());
+
+        Enumeration<ACLEntry> aclEntryEnum;
+        aclEntryEnum = acl.entries();
+        String acis = "";
+
+        if (aclEntryEnum.hasMoreElements()) {
+            while (aclEntryEnum.hasMoreElements()) {
+                if (acis != "") {
+                    acis += ";";
+                }
+                ACLEntry aclEntry = aclEntryEnum.nextElement();
+                String aci = aclEntry.getACLEntryString();
+
+                acis += aci;
+            }
+        }
+
+        params.put(Constants.PR_ACI, acis);
+
+        sendResponse(SUCCESS, null, params, resp);
+        return;
     }
 
     /**

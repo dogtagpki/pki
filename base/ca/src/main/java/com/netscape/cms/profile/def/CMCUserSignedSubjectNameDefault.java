@@ -57,9 +57,8 @@ public class CMCUserSignedSubjectNameDefault extends EnrollDefault {
         if (name.equals(VAL_NAME)) {
             return new Descriptor(IDescriptor.STRING, null, null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_SUBJECT_NAME"));
-        } else {
-            return null;
         }
+        return null;
     }
 
     @Override
@@ -115,10 +114,9 @@ public class CMCUserSignedSubjectNameDefault extends EnrollDefault {
             }
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
-        } else {
-            throw new EPropertyException(CMS.getUserMessage(
-                        locale, "CMS_INVALID_PROPERTY", name));
         }
+        throw new EPropertyException(CMS.getUserMessage(
+                    locale, "CMS_INVALID_PROPERTY", name));
     }
 
     @Override

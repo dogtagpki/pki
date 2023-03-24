@@ -107,19 +107,18 @@ public class CMSPageFeeder extends FrameworkInitializer {
 
         if (mPages.containsKey(name.trim())) {
             return mPages.get(name.trim());
-        } else {
-            CMSResourcePage page = new CMSResourcePage(new CMSBaseResourceModel(mConsoleInfo,mServerInfo));
-            String title;
-            try {
-                title = mResource.getString(PREFIX+name.trim());
-            } catch (MissingResourceException e) {
-                title = "Missing Title";
-            }
-            page.setPageTitle(title);
-            mPages.put(name.trim(), page);
-            addPage(page);
-            return page;
         }
+        CMSResourcePage page = new CMSResourcePage(new CMSBaseResourceModel(mConsoleInfo,mServerInfo));
+        String title;
+        try {
+            title = mResource.getString(PREFIX+name.trim());
+        } catch (MissingResourceException e) {
+            title = "Missing Title";
+        }
+        page.setPageTitle(title);
+        mPages.put(name.trim(), page);
+        addPage(page);
+        return page;
     }
 
 

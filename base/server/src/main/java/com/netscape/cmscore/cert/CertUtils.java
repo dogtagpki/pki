@@ -212,10 +212,9 @@ public class CertUtils {
                 cm.setThreadToken(signToken);
                 return new PKCS10(data);
 
-            } else {
-                logger.debug("CertUtils: signature verification disabled");
-                return new PKCS10(data, sigver);
             }
+            logger.debug("CertUtils: signature verification disabled");
+            return new PKCS10(data, sigver);
 
         } catch (Exception e) {
             logger.error("Unable to parse PKCS #10 request: " + e.getMessage(), e);
@@ -323,10 +322,7 @@ public class CertUtils {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if (notBefDiff > 1000 || notAfterDiff > 1000)
-            return false;
-        else
-            return true;
+        return notBefDiff <= 1000 && notAfterDiff <= 1000;
     }
 
     public static boolean isSmimePair(X509CertImpl cert1, X509CertImpl cert2, boolean matchSubjectDN) {
@@ -950,34 +946,33 @@ public class CertUtils {
                     logger.error("CertUtils: verifySystemCertByNickname() failed: cert is good for nothing:" + nickname);
                     throw new Exception("Unusable certificate " + nickname);
 
-                } else {
-                    logger.debug("CertUtils: verifySystemCertByNickname() passed: " + nickname);
-
-                    if ((ccu & CertificateUsage.SSLServer.getUsage()) != 0)
-                        logger.debug("CertUtils: verifySystemCertByNickname(): cert is SSLServer");
-                    if ((ccu & CertificateUsage.SSLClient.getUsage()) != 0)
-                        logger.debug("CertUtils: verifySystemCertByNickname(): cert is SSLClient");
-                    if ((ccu & CertificateUsage.SSLServerWithStepUp.getUsage()) != 0)
-                        logger.debug("CertUtils: verifySystemCertByNickname(): cert is SSLServerWithStepUp");
-                    if ((ccu & CertificateUsage.SSLCA.getUsage()) != 0)
-                        logger.debug("CertUtils: verifySystemCertByNickname(): cert is SSLCA");
-                    if ((ccu & CertificateUsage.EmailSigner.getUsage()) != 0)
-                        logger.debug("CertUtils: verifySystemCertByNickname(): cert is EmailSigner");
-                    if ((ccu & CertificateUsage.EmailRecipient.getUsage()) != 0)
-                        logger.debug("CertUtils: verifySystemCertByNickname(): cert is EmailRecipient");
-                    if ((ccu & CertificateUsage.ObjectSigner.getUsage()) != 0)
-                        logger.debug("CertUtils: verifySystemCertByNickname(): cert is ObjectSigner");
-                    if ((ccu & CertificateUsage.UserCertImport.getUsage()) != 0)
-                        logger.debug("CertUtils: verifySystemCertByNickname(): cert is UserCertImport");
-                    if ((ccu & CertificateUsage.VerifyCA.getUsage()) != 0)
-                        logger.debug("CertUtils: verifySystemCertByNickname(): cert is VerifyCA");
-                    if ((ccu & CertificateUsage.ProtectedObjectSigner.getUsage()) != 0)
-                        logger.debug("CertUtils: verifySystemCertByNickname(): cert is ProtectedObjectSigner");
-                    if ((ccu & CertificateUsage.StatusResponder.getUsage()) != 0)
-                        logger.debug("CertUtils: verifySystemCertByNickname(): cert is StatusResponder");
-                    if ((ccu & CertificateUsage.AnyCA.getUsage()) != 0)
-                        logger.debug("CertUtils: verifySystemCertByNickname(): cert is AnyCA");
                 }
+                logger.debug("CertUtils: verifySystemCertByNickname() passed: " + nickname);
+
+                if ((ccu & CertificateUsage.SSLServer.getUsage()) != 0)
+                    logger.debug("CertUtils: verifySystemCertByNickname(): cert is SSLServer");
+                if ((ccu & CertificateUsage.SSLClient.getUsage()) != 0)
+                    logger.debug("CertUtils: verifySystemCertByNickname(): cert is SSLClient");
+                if ((ccu & CertificateUsage.SSLServerWithStepUp.getUsage()) != 0)
+                    logger.debug("CertUtils: verifySystemCertByNickname(): cert is SSLServerWithStepUp");
+                if ((ccu & CertificateUsage.SSLCA.getUsage()) != 0)
+                    logger.debug("CertUtils: verifySystemCertByNickname(): cert is SSLCA");
+                if ((ccu & CertificateUsage.EmailSigner.getUsage()) != 0)
+                    logger.debug("CertUtils: verifySystemCertByNickname(): cert is EmailSigner");
+                if ((ccu & CertificateUsage.EmailRecipient.getUsage()) != 0)
+                    logger.debug("CertUtils: verifySystemCertByNickname(): cert is EmailRecipient");
+                if ((ccu & CertificateUsage.ObjectSigner.getUsage()) != 0)
+                    logger.debug("CertUtils: verifySystemCertByNickname(): cert is ObjectSigner");
+                if ((ccu & CertificateUsage.UserCertImport.getUsage()) != 0)
+                    logger.debug("CertUtils: verifySystemCertByNickname(): cert is UserCertImport");
+                if ((ccu & CertificateUsage.VerifyCA.getUsage()) != 0)
+                    logger.debug("CertUtils: verifySystemCertByNickname(): cert is VerifyCA");
+                if ((ccu & CertificateUsage.ProtectedObjectSigner.getUsage()) != 0)
+                    logger.debug("CertUtils: verifySystemCertByNickname(): cert is ProtectedObjectSigner");
+                if ((ccu & CertificateUsage.StatusResponder.getUsage()) != 0)
+                    logger.debug("CertUtils: verifySystemCertByNickname(): cert is StatusResponder");
+                if ((ccu & CertificateUsage.AnyCA.getUsage()) != 0)
+                    logger.debug("CertUtils: verifySystemCertByNickname(): cert is AnyCA");
             }
 
         } catch (Exception e) {

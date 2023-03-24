@@ -613,28 +613,27 @@ public class CAProcessor extends Processor {
 
                 logger.error("CAProcessor: no authMgrName");
                 return null;
+            }
+            // save the "Subject DN" of this certificate in case it
+            // must be audited as an authentication failure
+            if (clientCert == null) {
+                logger.debug("CAProcessor: no client certificate found");
             } else {
-                // save the "Subject DN" of this certificate in case it
-                // must be audited as an authentication failure
-                if (clientCert == null) {
-                    logger.debug("CAProcessor: no client certificate found");
-                } else {
-                    String certUID = clientCert.getSubjectDN().getName();
-                    logger.debug("CAProcessor: cert UID: " + certUID);
+                String certUID = clientCert.getSubjectDN().getName();
+                logger.debug("CAProcessor: cert UID: " + certUID);
 
-                    if (certUID != null) {
-                        certUID = certUID.trim();
+                if (certUID != null) {
+                    certUID = certUID.trim();
 
-                        if (!(certUID.equals(""))) {
-                            // reset the "auditUID"
-                            auditUID = certUID;
-                        }
+                    if (!(certUID.equals(""))) {
+                        // reset the "auditUID"
+                        auditUID = certUID;
                     }
                 }
-
-                // reset the "auditAuthMgrID"
-                auditAuthMgrID = authMgrName;
             }
+
+            // reset the "auditAuthMgrID"
+            auditAuthMgrID = authMgrName;
 
             CMSGateway gateway = engine.getCMSGateway();
             AuthToken authToken = gateway.checkAuthManager(httpReq,
@@ -686,8 +685,6 @@ public class CAProcessor extends Processor {
                 String v = t.substring(i + 1);
                 logger.debug("CAProcessor: UID found:" + v);
                 return v;
-            } else {
-                continue;
             }
         }
         return null;

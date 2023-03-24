@@ -110,12 +110,11 @@ public class CRMFParser {
         }
         if (options.size() == 0) {
             throw new IOException("no PKIArchiveOptions found");
-        } else {
-            PKIArchiveOptionsContainer p[] = new PKIArchiveOptionsContainer[options.size()];
-
-            options.copyInto(p);
-            //  options.clear();
-            return p;
         }
+        PKIArchiveOptionsContainer p[] = new PKIArchiveOptionsContainer[options.size()];
+
+        options.copyInto(p);
+        //  options.clear();
+        return p;
     }
 }

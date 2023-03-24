@@ -198,11 +198,10 @@ public class CAPublisherProcessor extends PublisherProcessor {
             if (ca.isClone()) {
                 logger.warn("CAPublisherProcessor: No rule is found for publishing: " + PROP_LOCAL_CA + " in this clone.");
                 return;
-            } else {
-                logger.warn(CMS.getLogMessage("CMSCORE_LDAP_NO_RULE_FOUND", PROP_LOCAL_CA));
-                //throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_RULE_MATCHED", PROP_LOCAL_CA));
-                return;
             }
+            logger.warn(CMS.getLogMessage("CMSCORE_LDAP_NO_RULE_FOUND", PROP_LOCAL_CA));
+            //throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_RULE_MATCHED", PROP_LOCAL_CA));
+            return;
         }
 
         while (rules.hasMoreElements()) {
@@ -265,10 +264,9 @@ public class CAPublisherProcessor extends PublisherProcessor {
             if (ca.isClone()) {
                 logger.warn("CAPublisherProcessor: No rule is found for unpublishing: " + PROP_LOCAL_CA + " in this clone.");
                 return;
-            } else {
-                logger.error("CAPublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_NO_UNPUBLISHING_RULE_FOUND", PROP_LOCAL_CA));
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_RULE_MATCHED", PROP_LOCAL_CA));
             }
+            logger.error("CAPublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_NO_UNPUBLISHING_RULE_FOUND", PROP_LOCAL_CA));
+            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_RULE_MATCHED", PROP_LOCAL_CA));
         }
 
         while (rules.hasMoreElements()) {
@@ -336,10 +334,9 @@ public class CAPublisherProcessor extends PublisherProcessor {
             if (ca.isClone()) {
                 logger.warn("CAPublisherProcessor: No rule is found for publishing: " + PROP_LOCAL_CA + " in this clone.");
                 return;
-            } else {
-                logger.error("CAPublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_NO_RULE_FOUND", PROP_XCERT));
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_RULE_MATCHED", PROP_XCERT));
             }
+            logger.error("CAPublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_NO_RULE_FOUND", PROP_XCERT));
+            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_RULE_MATCHED", PROP_XCERT));
         }
 
         while (rules.hasMoreElements()) {

@@ -477,13 +477,12 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
                 int t = checkTime(time);
                 if (t < 0) {
                     return null;
+                }
+                if (t > t0) {
+                    listedTimes.addElement(Integer.valueOf(t));
+                    t0 = t;
                 } else {
-                    if (t > t0) {
-                        listedTimes.addElement(Integer.valueOf(t));
-                        t0 = t;
-                    } else {
-                        return null;
-                    }
+                    return null;
                 }
             }
         }

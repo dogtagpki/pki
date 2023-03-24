@@ -200,9 +200,8 @@ public class AddCAServlet extends CMSServlet {
                         auditCASubjectDN));
 
                 throw new EBaseException("cert is null");
-            } else {
-                certs = new X509Certificate[1];
             }
+            certs = new X509Certificate[1];
 
             certs[0] = cert;
             leafCert = cert;

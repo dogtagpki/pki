@@ -264,15 +264,14 @@ public abstract class CertificateInfo {
         } catch (IOException e) {
         }
 
-        if (subjKeyExt == null)
+        if (subjKeyExt == null) {
             return;
-        else {
-            KeyIdentifier keyId = (KeyIdentifier) subjKeyExt.get(
-                    SubjectKeyIdentifierExtension.KEY_ID);
-            AuthorityKeyIdentifierExtension authExt =
-                    new AuthorityKeyIdentifierExtension(false, keyId, null, null);
-
-            ext.set(AuthorityKeyIdentifierExtension.NAME, authExt);
         }
+        KeyIdentifier keyId = (KeyIdentifier) subjKeyExt.get(
+                SubjectKeyIdentifierExtension.KEY_ID);
+        AuthorityKeyIdentifierExtension authExt =
+                new AuthorityKeyIdentifierExtension(false, keyId, null, null);
+
+        ext.set(AuthorityKeyIdentifierExtension.NAME, authExt);
     }
 }

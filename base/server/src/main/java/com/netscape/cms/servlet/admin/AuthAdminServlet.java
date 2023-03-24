@@ -175,13 +175,12 @@ public class AuthAdminServlet extends AdminServlet {
                     params.put(Constants.PR_PING, Constants.TRUE);
                     sendResponse(SUCCESS, null, params, resp);
                     return;
-                } else {
-                    //System.out.println("SRVLT_INVALID_OP_TYPE");
-                    sendResponse(ERROR,
-                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_TYPE", op),
-                            null, resp);
-                    return;
                 }
+                //System.out.println("SRVLT_INVALID_OP_TYPE");
+                sendResponse(ERROR,
+                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_TYPE", op),
+                        null, resp);
+                return;
             }
         }
 

@@ -126,7 +126,6 @@ again:
         			status = super.run(null, START_DAEMON_CGI);
         			break again;
 		        }
-		        else
     		        Debug.println("User doesn't want to delete lock file.");
 		    }
             else {
