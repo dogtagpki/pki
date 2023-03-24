@@ -245,7 +245,8 @@ public abstract class EnrollProfile extends Profile {
 
             logger.info("EnrollProfile: Parsing PKCS #10 request:");
 
-            PKCS10 pkcs10 = CertUtils.parsePKCS10(locale, cert_request);
+            CAEngine engine = CAEngine.getInstance();
+            PKCS10 pkcs10 = engine.parsePKCS10(locale, cert_request);
 
             PKCS10Attributes attributes = pkcs10.getAttributes();
             for (PKCS10Attribute attribute : attributes) {

@@ -31,6 +31,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -39,11 +40,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
+import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.legacy.ca.CAPolicy;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.PrivateKey;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.CertificateVersion;
 import org.mozilla.jss.netscape.security.x509.X500Name;
@@ -70,6 +74,7 @@ import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.ca.IssuerUnavailableException;
 import com.netscape.certsrv.connector.ConnectorsConfig;
 import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.publish.CRLPublisher;
 import com.netscape.certsrv.request.RequestListener;
 import com.netscape.certsrv.util.AsyncLoader;
@@ -101,6 +106,7 @@ import com.netscape.cmscore.request.RequestNotifier;
 import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.security.SecureRandomConfig;
 import com.netscape.cmscore.security.SecureRandomFactory;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ldap.LDAPPostReadControl;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
@@ -1847,6 +1853,52 @@ public class CAEngine extends CMSEngine {
             }
 
             return nonces;
+        }
+    }
+
+    public PKCS10 parsePKCS10(Locale locale, String certreq) throws Exception {
+
+        logger.debug("CAEngine: Parsing PKCS #10 request");
+
+        if (certreq == null) {
+            logger.error("CAEngine: Missing PKCS #10 request");
+            throw new EProfileException(CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"));
+        }
+
+        logger.debug(certreq);
+
+        byte[] data = CertUtil.parseCSR(certreq);
+
+        CryptoManager cm = CryptoManager.getInstance();
+        CryptoToken savedToken = null;
+        boolean sigver = true;
+
+        try {
+            sigver = config.getBoolean("ca.requestVerify.enabled", true);
+
+            if (sigver) {
+                logger.debug("CAEngine: signature verification enabled");
+                String tokenName = config.getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
+                savedToken = cm.getThreadToken();
+                CryptoToken signToken = CryptoUtil.getCryptoToken(tokenName);
+
+                logger.debug("CAEngine: setting thread token");
+                cm.setThreadToken(signToken);
+                return new PKCS10(data);
+            }
+
+            logger.debug("CAEngine: signature verification disabled");
+            return new PKCS10(data, sigver);
+
+        } catch (Exception e) {
+            logger.error("Unable to parse PKCS #10 request: " + e.getMessage(), e);
+            throw new EProfileException(CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"), e);
+
+        } finally {
+            if (sigver) {
+                logger.debug("CAEngine: restoring thread token");
+                cm.setThreadToken(savedToken);
+            }
         }
     }
 

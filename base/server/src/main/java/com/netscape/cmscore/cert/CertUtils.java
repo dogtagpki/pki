@@ -40,7 +40,6 @@ import org.dogtag.util.cert.CertUtil;
 import org.mozilla.jss.CertificateUsage;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.SEQUENCE;
-import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.netscape.security.extensions.NSCertTypeExtension;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
@@ -66,7 +65,6 @@ import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
-import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * Utility class with assorted methods to check for
@@ -173,55 +171,6 @@ public class CertUtils {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
         }
         return pkcs10;
-    }
-
-    public static PKCS10 parsePKCS10(Locale locale, String certreq) throws Exception {
-
-        logger.debug("CertUtils: Parsing PKCS #10 request");
-
-        if (certreq == null) {
-            logger.error("CertUtils: Missing PKCS #10 request");
-            throw new EProfileException(CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"));
-        }
-
-        logger.debug(certreq);
-
-        byte[] data = CertUtil.parseCSR(certreq);
-
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
-
-        CryptoManager cm = CryptoManager.getInstance();
-        CryptoToken savedToken = null;
-        boolean sigver = true;
-
-        try {
-            sigver = cs.getBoolean("ca.requestVerify.enabled", true);
-
-            if (sigver) {
-                logger.debug("CertUtils: signature verification enabled");
-                String tokenName = cs.getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
-                savedToken = cm.getThreadToken();
-                CryptoToken signToken = CryptoUtil.getCryptoToken(tokenName);
-
-                logger.debug("CertUtils: setting thread token");
-                cm.setThreadToken(signToken);
-                return new PKCS10(data);
-
-            }
-            logger.debug("CertUtils: signature verification disabled");
-            return new PKCS10(data, sigver);
-
-        } catch (Exception e) {
-            logger.error("Unable to parse PKCS #10 request: " + e.getMessage(), e);
-            throw new EProfileException(CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"), e);
-
-        } finally {
-            if (sigver) {
-                logger.debug("CertUtils: restoring thread token");
-                cm.setThreadToken(savedToken);
-            }
-        }
     }
 
     public static CertReqMsg[] parseCRMF(Locale locale, String certreq) throws Exception {

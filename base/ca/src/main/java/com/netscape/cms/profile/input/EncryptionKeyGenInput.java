@@ -20,6 +20,7 @@ package com.netscape.cms.profile.input;
 import java.util.Locale;
 import java.util.Map;
 
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.DerInputStream;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
@@ -107,14 +108,17 @@ public class EncryptionKeyGenInput extends EnrollInput {
                             "CMS_PROFILE_UNKNOWN_CERT_REQ_TYPE",
                             ""));
         }
+
         if (keygen_request == null) {
             logger.error("EncryptionKeyGenInput: populate - invalid certificate request");
             throw new EProfileException(CMS.getUserMessage(
                         getLocale(request), "CMS_PROFILE_NO_CERT_REQ"));
         }
+
         if (keygen_request_type.startsWith(EnrollProfile.REQ_TYPE_PKCS10)) {
 
-            PKCS10 pkcs10 = CertUtils.parsePKCS10(getLocale(request), keygen_request);
+            CAEngine engine = CAEngine.getInstance();
+            PKCS10 pkcs10 = engine.parsePKCS10(getLocale(request), keygen_request);
 
             if (pkcs10 == null) {
                 throw new EProfileException(CMS.getUserMessage(
@@ -122,6 +126,7 @@ public class EncryptionKeyGenInput extends EnrollInput {
             }
 
             mEnrollProfile.fillPKCS10(getLocale(request), pkcs10, info, request);
+
         } else if (keygen_request_type.startsWith(EnrollProfile.REQ_TYPE_KEYGEN)) {
 
             DerInputStream keygen = CertUtils.parseKeyGen(keygen_request);
@@ -132,6 +137,7 @@ public class EncryptionKeyGenInput extends EnrollInput {
             }
 
             mEnrollProfile.fillKeyGen(getLocale(request), keygen, info, request);
+
         } else if (keygen_request_type.startsWith(EnrollProfile.REQ_TYPE_CRMF)) {
 
             CertReqMsg[] msgs = CertUtils.parseCRMF(getLocale(request), keygen_request);
@@ -147,6 +153,7 @@ public class EncryptionKeyGenInput extends EnrollInput {
             Integer seqNum = request.getExtDataInInteger(EnrollProfile.REQUEST_SEQ_NUM);
 
             mEnrollProfile.fillCertReqMsg(getLocale(request), msgs[seqNum.intValue()], info, request);
+
         } else if (keygen_request_type.startsWith(EnrollProfile.REQ_TYPE_CMC)) {
             TaggedRequest msgs[] = mEnrollProfile.parseCMC(getLocale(request), keygen_request);
 
@@ -164,6 +171,7 @@ public class EncryptionKeyGenInput extends EnrollInput {
             }
 
             mEnrollProfile.fillTaggedRequest(getLocale(request), msgs[seqNum.intValue()], info, request);
+
         } else {
             logger.error("EncryptionKeyGenInput: populate - invalid cert request type " + keygen_request_type);
             throw new EProfileException(CMS.getUserMessage(
@@ -171,6 +179,7 @@ public class EncryptionKeyGenInput extends EnrollInput {
                         "CMS_PROFILE_UNKNOWN_CERT_REQ_TYPE",
                         keygen_request_type));
         }
+
         request.setExtData(Request.REQUEST_CERTINFO, info);
     }
 

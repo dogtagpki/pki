@@ -20,6 +20,7 @@ package com.netscape.cms.profile.input;
 import java.util.Locale;
 import java.util.Map;
 
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.DerInputStream;
@@ -111,6 +112,7 @@ public class CertReqInput extends EnrollInput {
                             "CMS_PROFILE_UNKNOWN_CERT_REQ_TYPE",
                             ""));
         }
+
         if (cert_request == null) {
             logger.error(method + "invalid certificate request");
             throw new EProfileException(CMS.getUserMessage(
@@ -120,7 +122,9 @@ public class CertReqInput extends EnrollInput {
         if (cert_request_type.equals(EnrollProfile.REQ_TYPE_PKCS10)) {
 
             logger.debug(method + "cert_request_type= REQ_TYPE_PKCS10");
-            PKCS10 pkcs10 = CertUtils.parsePKCS10(getLocale(request), cert_request);
+
+            CAEngine engine = CAEngine.getInstance();
+            PKCS10 pkcs10 = engine.parsePKCS10(getLocale(request), cert_request);
 
             if (pkcs10 == null) {
                 throw new EProfileException(CMS.getUserMessage(
@@ -128,6 +132,7 @@ public class CertReqInput extends EnrollInput {
             }
 
             mEnrollProfile.fillPKCS10(getLocale(request), pkcs10, info, request);
+
         } else if (cert_request_type.startsWith(EnrollProfile.REQ_TYPE_KEYGEN)) {
 
             logger.debug(method + "cert_request_type= REQ_TYPE_KEYGEN");
@@ -139,6 +144,7 @@ public class CertReqInput extends EnrollInput {
             }
 
             mEnrollProfile.fillKeyGen(getLocale(request), keygen, info, request);
+
         } else if (cert_request_type.startsWith(EnrollProfile.REQ_TYPE_CRMF)) {
 
             logger.debug(method + "cert_request_type= REQ_TYPE_CRMF");
@@ -154,8 +160,8 @@ public class CertReqInput extends EnrollInput {
             // This profile only handle the first request in CRMF
             Integer seqNum = request.getExtDataInInteger(EnrollProfile.REQUEST_SEQ_NUM);
 
-            mEnrollProfile.fillCertReqMsg(getLocale(request), msgs[seqNum.intValue()], info, request
-                    );
+            mEnrollProfile.fillCertReqMsg(getLocale(request), msgs[seqNum.intValue()], info, request);
+
         } else if (cert_request_type.startsWith(EnrollProfile.REQ_TYPE_CMC)) {
             logger.debug(method + "cert_request_type= REQ_TYPE_CMC");
             // cfu: getPKIDataFromCMCblob() is extracted from parseCMC
@@ -179,6 +185,7 @@ public class CertReqInput extends EnrollInput {
             }
 
             mEnrollProfile.fillTaggedRequest(getLocale(request), msgs[seqNum.intValue()], info, request);
+
         } else {
             logger.error(method + "invalid cert request type " +
                     cert_request_type);
@@ -187,6 +194,7 @@ public class CertReqInput extends EnrollInput {
                             "CMS_PROFILE_UNKNOWN_CERT_REQ_TYPE",
                             cert_request_type));
         }
+
         request.setExtData(Request.REQUEST_CERTINFO, info);
     }
 

@@ -20,6 +20,7 @@ package com.netscape.cms.profile.input;
 import java.util.Locale;
 import java.util.Map;
 
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.DerInputStream;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
@@ -107,20 +108,25 @@ public class DualKeyGenInput extends EnrollInput {
                             "CMS_PROFILE_UNKNOWN_CERT_REQ_TYPE",
                             ""));
         }
+
         if (keygen_request == null) {
             logger.error("DualKeyGenInput: populate - invalid certificate request");
             throw new EProfileException(CMS.getUserMessage(
                         getLocale(request), "CMS_PROFILE_NO_CERT_REQ"));
         }
+
         if (keygen_request_type.startsWith("pkcs10")) {
 
-            PKCS10 pkcs10 = CertUtils.parsePKCS10(getLocale(request), keygen_request);
+            CAEngine engine = CAEngine.getInstance();
+            PKCS10 pkcs10 = engine.parsePKCS10(getLocale(request), keygen_request);
             mEnrollProfile.fillPKCS10(getLocale(request), pkcs10, info, request);
+
         } else if (keygen_request_type.startsWith("keygen")) {
 
             DerInputStream keygen = CertUtils.parseKeyGen(keygen_request);
 
             mEnrollProfile.fillKeyGen(getLocale(request), keygen, info, request);
+
         } else if (keygen_request_type.startsWith("crmf")) {
 
             CertReqMsg[] msgs = CertUtils.parseCRMF(getLocale(request), keygen_request);
@@ -142,6 +148,7 @@ public class DualKeyGenInput extends EnrollInput {
             }
 
             mEnrollProfile.fillCertReqMsg(getLocale(request), msgs[seqNum.intValue()], info, request);
+
         } else {
             logger.error("DualKeyGenInput: populate - invalid cert request type " + keygen_request_type);
             throw new EProfileException(CMS.getUserMessage(
@@ -149,6 +156,7 @@ public class DualKeyGenInput extends EnrollInput {
                         "CMS_PROFILE_UNKNOWN_CERT_REQ_TYPE",
                         keygen_request_type));
         }
+
         request.setExtData(Request.REQUEST_CERTINFO, info);
     }
 
