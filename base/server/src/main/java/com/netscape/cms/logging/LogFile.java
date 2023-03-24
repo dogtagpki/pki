@@ -937,105 +937,104 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
             }
             throw new ELogException(message);
 
-        } else {
-            try {
-                mLogWriter.write(entry, 0/*offset*/, entry.length());
+        }
+        try {
+            mLogWriter.write(entry, 0/*offset*/, entry.length());
 
-                if (mLogSigning == true) {
-                    if (mSignature != null) {
-                        // include newline for calculating MAC
-                        mSignature.update(entry.getBytes("UTF-8"));
-                    } else {
-                        logger.warn("LogFile: missing audit log signature");
-                    }
+            if (mLogSigning == true) {
+                if (mSignature != null) {
+                    // include newline for calculating MAC
+                    mSignature.update(entry.getBytes("UTF-8"));
+                } else {
+                    logger.warn("LogFile: missing audit log signature");
                 }
-                if (mTrace) {
-                    CharArrayWriter cw = new CharArrayWriter(200);
-                    PrintWriter pw = new PrintWriter(cw);
-                    Exception e = new Exception();
-                    e.printStackTrace(pw);
-                    char[] c = cw.toCharArray();
-                    cw.close();
-                    pw.close();
+            }
+            if (mTrace) {
+                CharArrayWriter cw = new CharArrayWriter(200);
+                PrintWriter pw = new PrintWriter(cw);
+                Exception e = new Exception();
+                e.printStackTrace(pw);
+                char[] c = cw.toCharArray();
+                cw.close();
+                pw.close();
 
-                    CharArrayReader cr = new CharArrayReader(c);
-                    LineNumberReader lr = new LineNumberReader(cr);
+                CharArrayReader cr = new CharArrayReader(c);
+                LineNumberReader lr = new LineNumberReader(cr);
 
-                    String text = null;
-                    String method = null;
-                    String fileAndLine = null;
-                    if (lr.ready()) {
+                String text = null;
+                String method = null;
+                String fileAndLine = null;
+                if (lr.ready()) {
+                    text = lr.readLine();
+                    do {
                         text = lr.readLine();
-                        do {
-                            text = lr.readLine();
-                        } while (text.indexOf("logging") != -1);
-                        int p = text.indexOf("(");
-                        fileAndLine = text.substring(p);
+                    } while (text.indexOf("logging") != -1);
+                    int p = text.indexOf("(");
+                    fileAndLine = text.substring(p);
 
-                        String classandmethod = text.substring(0, p);
-                        int q = classandmethod.lastIndexOf(".");
-                        method = classandmethod.substring(q + 1);
-                        mLogWriter.write(fileAndLine, 0/*offset*/, fileAndLine.length());
-                        mLogWriter.write(" ", 0/*offset*/, " ".length());
-                        mLogWriter.write(method, 0/*offset*/, method.length());
-                    }
+                    String classandmethod = text.substring(0, p);
+                    int q = classandmethod.lastIndexOf(".");
+                    method = classandmethod.substring(q + 1);
+                    mLogWriter.write(fileAndLine, 0/*offset*/, fileAndLine.length());
+                    mLogWriter.write(" ", 0/*offset*/, " ".length());
+                    mLogWriter.write(method, 0/*offset*/, method.length());
                 }
-                mLogWriter.newLine();
+            }
+            mLogWriter.newLine();
 
-                if (mLogSigning == true) {
-                    if (mSignature != null) {
-                        mSignature.update(LINE_SEP_BYTE);
-                    } else {
-                        logger.warn("LogFile: missing audit log signature");
-                    }
-                }
-
-            } catch (IOException e) {
-                String message = CMS.getUserMessage("CMS_LOG_WRITE_FAILED", mFileName, entry, e.getMessage());
-                logger.error("LogFile: " + message);
-                System.err.println(message);
-                if (mLogSigning) {
-                    // Failed to write to audit log, shut down CMS
-                    e.printStackTrace();
-                    shutdownCMS();
-                }
-
-            } catch (IllegalStateException e) {
-                String message = CMS.getLogMessage(LOG_SIGNED_AUDIT_EXCEPTION, e.getMessage());
-                logger.error("LogFile: " + message, e);
-                System.err.println(Thread.currentThread().getName() + ": " + message);
-
-            } catch (GeneralSecurityException gse) {
-                // DJN: handle error
-                String message = CMS.getLogMessage(LOG_SIGNED_AUDIT_EXCEPTION, gse.getMessage());
-                logger.error("LogFile: " + message, gse);
-                System.err.println(Thread.currentThread().getName() + ": " + message);
-
-            } catch (Exception ee) { // Make darn sure we got everything
-                String message = CMS.getLogMessage(LOG_SIGNED_AUDIT_EXCEPTION, ee.getMessage());
-                logger.error("LogFile: " + message, ee);
-                System.err.println(Thread.currentThread().getName() + ": " + message);
-
-                if (mLogSigning) {
-                    // Failed to write to audit log, shut down CMS
-                    ee.printStackTrace();
-                    shutdownCMS();
+            if (mLogSigning == true) {
+                if (mSignature != null) {
+                    mSignature.update(LINE_SEP_BYTE);
+                } else {
+                    logger.warn("LogFile: missing audit log signature");
                 }
             }
 
-            // XXX
-            // Although length will be in Unicode dual-bytes, the PrintWriter
-            // will only print out 1 byte per character.  I suppose this could
-            // be dependent on the encoding of your log file, but it ain't that
-            // smart yet.  Also, add one for the newline. (hmm, on NT, CR+LF)
-            int nBytes = entry.length() + 1;
-
-            mBytesWritten += nBytes;
-            mBytesUnflushed += nBytes;
-
-            if (mBufferSize > 0 && mBytesUnflushed > mBufferSize && !noFlush) {
-                flush();
+        } catch (IOException e) {
+            String message = CMS.getUserMessage("CMS_LOG_WRITE_FAILED", mFileName, entry, e.getMessage());
+            logger.error("LogFile: " + message);
+            System.err.println(message);
+            if (mLogSigning) {
+                // Failed to write to audit log, shut down CMS
+                e.printStackTrace();
+                shutdownCMS();
             }
+
+        } catch (IllegalStateException e) {
+            String message = CMS.getLogMessage(LOG_SIGNED_AUDIT_EXCEPTION, e.getMessage());
+            logger.error("LogFile: " + message, e);
+            System.err.println(Thread.currentThread().getName() + ": " + message);
+
+        } catch (GeneralSecurityException gse) {
+            // DJN: handle error
+            String message = CMS.getLogMessage(LOG_SIGNED_AUDIT_EXCEPTION, gse.getMessage());
+            logger.error("LogFile: " + message, gse);
+            System.err.println(Thread.currentThread().getName() + ": " + message);
+
+        } catch (Exception ee) { // Make darn sure we got everything
+            String message = CMS.getLogMessage(LOG_SIGNED_AUDIT_EXCEPTION, ee.getMessage());
+            logger.error("LogFile: " + message, ee);
+            System.err.println(Thread.currentThread().getName() + ": " + message);
+
+            if (mLogSigning) {
+                // Failed to write to audit log, shut down CMS
+                ee.printStackTrace();
+                shutdownCMS();
+            }
+        }
+
+        // XXX
+        // Although length will be in Unicode dual-bytes, the PrintWriter
+        // will only print out 1 byte per character.  I suppose this could
+        // be dependent on the encoding of your log file, but it ain't that
+        // smart yet.  Also, add one for the newline. (hmm, on NT, CR+LF)
+        int nBytes = entry.length() + 1;
+
+        mBytesWritten += nBytes;
+        mBytesUnflushed += nBytes;
+
+        if (mBufferSize > 0 && mBytesUnflushed > mBufferSize && !noFlush) {
+            flush();
         }
     }
 
@@ -1614,32 +1613,31 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
             };
 
             return params;
-        } else {
-            // mType.equals( ILogger.PROP_AUDIT )  ||
-            // mType.equals( ILogger.PROP_SYSTEM )
-            String[] params = {
-                    PROP_TYPE
-                            + ";choice(transaction,signedAudit,system);The log event type this instance is listening to",
-                    PROP_ON + ";boolean;Turn on the listener",
-                    PROP_LEVEL + ";choice(" + ILogger.LL_DEBUG_STRING + "," +
-                            ILogger.LL_INFO_STRING + "," +
-                            ILogger.LL_WARN_STRING + "," +
-                            ILogger.LL_FAILURE_STRING + "," +
-                            ILogger.LL_MISCONF_STRING + "," +
-                            ILogger.LL_CATASTRPHE_STRING + "," +
-                            ILogger.LL_SECURITY_STRING
-                            + ");Only log message with level higher than this filter will be written by this listener",
-                    PROP_FILE_NAME + ";string;The name of the file the log is written to",
-                    PROP_BUFFER_SIZE + ";integer;The size of the buffer to receive log messages in kilobytes(KB)",
-                    PROP_FLUSH_INTERVAL
-                            + ";integer;The maximum time in seconds before the buffer is flushed to the file",
-                    IExtendedPluginInfo.HELP_TOKEN +
-                            ";configuration-logrules-logfile",
-                    IExtendedPluginInfo.HELP_TEXT +
-                            ";Write the log messages to a file"
-            };
-
-            return params;
         }
+        // mType.equals( ILogger.PROP_AUDIT )  ||
+        // mType.equals( ILogger.PROP_SYSTEM )
+        String[] params = {
+                PROP_TYPE
+                        + ";choice(transaction,signedAudit,system);The log event type this instance is listening to",
+                PROP_ON + ";boolean;Turn on the listener",
+                PROP_LEVEL + ";choice(" + ILogger.LL_DEBUG_STRING + "," +
+                        ILogger.LL_INFO_STRING + "," +
+                        ILogger.LL_WARN_STRING + "," +
+                        ILogger.LL_FAILURE_STRING + "," +
+                        ILogger.LL_MISCONF_STRING + "," +
+                        ILogger.LL_CATASTRPHE_STRING + "," +
+                        ILogger.LL_SECURITY_STRING
+                        + ");Only log message with level higher than this filter will be written by this listener",
+                PROP_FILE_NAME + ";string;The name of the file the log is written to",
+                PROP_BUFFER_SIZE + ";integer;The size of the buffer to receive log messages in kilobytes(KB)",
+                PROP_FLUSH_INTERVAL
+                        + ";integer;The maximum time in seconds before the buffer is flushed to the file",
+                IExtendedPluginInfo.HELP_TOKEN +
+                        ";configuration-logrules-logfile",
+                IExtendedPluginInfo.HELP_TEXT +
+                        ";Write the log messages to a file"
+        };
+
+        return params;
     }
 }

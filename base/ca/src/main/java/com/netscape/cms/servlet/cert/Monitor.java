@@ -272,61 +272,60 @@ public class Monitor extends CMSServlet {
     }
 
     String getIntervalInfo(ArgBlock arg, Date startDate, Date endDate) {
-        if (startDate != null && endDate != null) {
-            String startTime = DateToZString(startDate);
-            String endTime = DateToZString(endDate);
-            String filter = null;
-
-            arg.addStringValue("startTime", startTime);
-            arg.addStringValue("endTime", endTime);
-
-            try {
-                if (mCertDB != null) {
-                    filter = Filter(CertRecord.ATTR_CREATE_TIME, startTime, endTime);
-
-                    Enumeration<Object> e = mCertDB.findCertRecs(filter);
-
-                    int count = 0;
-
-                    while (e != null && e.hasMoreElements()) {
-                        CertRecord rec = (CertRecord) e.nextElement();
-
-                        if (rec != null) {
-                            count++;
-                        }
-                    }
-                    arg.addIntegerValue("numberOfCertificates", count);
-                    mTotalCerts += count;
-                }
-
-                if (requestRepository != null) {
-                    filter = Filter(RequestRecord.ATTR_CREATE_TIME, startTime, endTime);
-
-                    RequestList reqList = requestRepository.listRequestsByFilter(filter);
-
-                    int count = 0;
-
-                    while (reqList != null && reqList.hasMoreElements()) {
-                        RequestRecord rec = (RequestRecord) reqList.nextRequest();
-
-                        if (rec != null) {
-                            if (count == 0) {
-                                arg.addStringValue("firstRequest", rec.getRequestId().toString());
-                            }
-                            count++;
-                        }
-                    }
-                    arg.addIntegerValue("numberOfRequests", count);
-                    mTotalReqs += count;
-                }
-            } catch (Exception ex) {
-                return "Exception: " + ex;
-            }
-
-            return null;
-        } else {
+        if (startDate == null || endDate == null) {
             return "Missing start or end date";
         }
+        String startTime = DateToZString(startDate);
+        String endTime = DateToZString(endDate);
+        String filter = null;
+
+        arg.addStringValue("startTime", startTime);
+        arg.addStringValue("endTime", endTime);
+
+        try {
+            if (mCertDB != null) {
+                filter = Filter(CertRecord.ATTR_CREATE_TIME, startTime, endTime);
+
+                Enumeration<Object> e = mCertDB.findCertRecs(filter);
+
+                int count = 0;
+
+                while (e != null && e.hasMoreElements()) {
+                    CertRecord rec = (CertRecord) e.nextElement();
+
+                    if (rec != null) {
+                        count++;
+                    }
+                }
+                arg.addIntegerValue("numberOfCertificates", count);
+                mTotalCerts += count;
+            }
+
+            if (requestRepository != null) {
+                filter = Filter(RequestRecord.ATTR_CREATE_TIME, startTime, endTime);
+
+                RequestList reqList = requestRepository.listRequestsByFilter(filter);
+
+                int count = 0;
+
+                while (reqList != null && reqList.hasMoreElements()) {
+                    RequestRecord rec = (RequestRecord) reqList.nextRequest();
+
+                    if (rec != null) {
+                        if (count == 0) {
+                            arg.addStringValue("firstRequest", rec.getRequestId().toString());
+                        }
+                        count++;
+                    }
+                }
+                arg.addIntegerValue("numberOfRequests", count);
+                mTotalReqs += count;
+            }
+        } catch (Exception ex) {
+            return "Exception: " + ex;
+        }
+
+        return null;
     }
 
     Date StringToDate(String z) {

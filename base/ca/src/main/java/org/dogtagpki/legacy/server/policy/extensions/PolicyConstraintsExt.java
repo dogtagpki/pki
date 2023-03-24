@@ -214,9 +214,8 @@ public class PolicyConstraintsExt extends APolicyRule
             if (policyConstraintsExt != null) {
                 if (agentApproved(req)) {
                     return PolicyResult.ACCEPTED;
-                } else {
-                    extensions.delete(PolicyConstraintsExtension.NAME);
                 }
+                extensions.delete(PolicyConstraintsExtension.NAME);
             }
 
             if (extensions == null) {

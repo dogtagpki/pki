@@ -672,27 +672,26 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                 logger.debug("ProfileSubmitCMCServlet: revocation request");
                 isRevoke = true;
             } else {
-            provedReq = requestRepository.readRequest(new RequestId(reqID.toString()));
-            if (provedReq == null) {
+                provedReq = requestRepository.readRequest(new RequestId(reqID.toString()));
+                if (provedReq == null) {
 
-                Integer nums = (Integer) (context.get("numOfControls"));
-                CMCOutputTemplate template = new CMCOutputTemplate();
-                // if there is only one control GetCert, then simple response
-                // must be returned.
-                if (nums != null && nums.intValue() == 1) {
-                    TaggedAttribute attr1 = (TaggedAttribute) (context.get(OBJECT_IDENTIFIER.id_cmc_getCert));
-                    if (attr1 != null) {
-                        template.createSimpleResponse(response, reqs);
+                    Integer nums = (Integer) (context.get("numOfControls"));
+                    CMCOutputTemplate template = new CMCOutputTemplate();
+                    // if there is only one control GetCert, then simple response
+                    // must be returned.
+                    if (nums != null && nums.intValue() == 1) {
+                        TaggedAttribute attr1 = (TaggedAttribute) (context.get(OBJECT_IDENTIFIER.id_cmc_getCert));
+                        if (attr1 != null) {
+                            template.createSimpleResponse(response, reqs);
+                        } else
+                            template.createFullResponse(response, reqs,
+                                    cert_request_type, null);
                     } else
                         template.createFullResponse(response, reqs,
                                 cert_request_type, null);
-                } else
-                    template.createFullResponse(response, reqs,
-                            cert_request_type, null);
-                return;
-            } else {
+                    return;
+                }
                 logger.debug("ProfileSubmitCMCServlet: provedReq not null");
-            }
             }
         }
 

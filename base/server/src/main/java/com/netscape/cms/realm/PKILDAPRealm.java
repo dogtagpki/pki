@@ -328,9 +328,8 @@ public class PKILDAPRealm extends RealmCommon {
             logger.warn(msg.toString());
             if (e.getLDAPResultCode() == LDAPException.INVALID_CREDENTIALS) {
                 return null;
-            } else {
-                throw new RuntimeException(e);
             }
+            throw new RuntimeException(e);
         } catch (Exception e) {
             logger.error("Problem to verify user credentials", e);
             throw new RuntimeException(e);

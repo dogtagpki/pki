@@ -1047,9 +1047,8 @@ public class LDAPDatabase extends ACMEDatabase {
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
                 return null;
-            } else {
-                throw new Exception("LDAP search failed: " + e, e);
             }
+            throw new Exception("LDAP search failed: " + e, e);
         } finally {
             connFactory.returnConn(conn);
         }

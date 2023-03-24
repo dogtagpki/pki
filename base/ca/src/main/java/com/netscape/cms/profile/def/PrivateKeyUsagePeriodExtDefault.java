@@ -231,11 +231,7 @@ public class PrivateKeyUsagePeriodExtDefault extends EnrollExtDefault {
             if (ext == null) {
                 return null;
             }
-            if (ext.isCritical()) {
-                return "true";
-            } else {
-                return "false";
-            }
+            return ext.isCritical() ? "true" : "false";
         } else if (name.equals(VAL_NOT_BEFORE)) {
             SimpleDateFormat formatter =
                     new SimpleDateFormat(DATE_FORMAT);

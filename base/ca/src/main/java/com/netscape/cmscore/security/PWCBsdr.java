@@ -128,22 +128,20 @@ public class PWCBsdr implements PasswordCallback {
             if (tmpPrompt == null) { /* no name, fail */
                 System.out.println("Shouldn't get here");
                 throw new PasswordCallback.GiveUpException();
-            } else { /* get password from password cache */
-
-                logger.debug("getting tag = " + tmpPrompt);
-                PWsdrCache pwc = new PWsdrCache(mPWcachedb);
-
-                pw = pwc.getEntry(tmpPrompt);
-
-                if (pw != null) {
-                    logger.debug("non-null password returned in first attempt");
-                    return pw;
-                } else { /* password not found */
-                    // we don't want caller to do getPasswordAgain,    for now
-                    logger.error(CMS.getLogMessage("CMSCORE_SECURITY_THROW_CALLBACK"));
-                    throw new PasswordCallback.GiveUpException();
-                }
             }
+            /* get password from password cache */
+            logger.debug("getting tag = " + tmpPrompt);
+            PWsdrCache pwc = new PWsdrCache(mPWcachedb);
+
+            pw = pwc.getEntry(tmpPrompt);
+
+            if (pw == null) { /* password not found */
+                // we don't want caller to do getPasswordAgain,    for now
+                logger.error(CMS.getLogMessage("CMSCORE_SECURITY_THROW_CALLBACK"));
+                throw new PasswordCallback.GiveUpException();
+            }
+            logger.debug("non-null password returned in first attempt");
+            return pw;
         } catch (Throwable e) {
             // System.out.println( "BUG HERE!!!!first!!!!!!!!!!!!!!!!!" );
             // e.printStackTrace();
@@ -237,10 +235,6 @@ class PWsdrDialogPasswordCallback extends JDialogPasswordCallback {
 
     @Override
     public String getPrompt(PasswordCallbackInfo info) {
-        if (mPrompt == null) {
-            return super.getPrompt(info);
-        } else {
-            return mPrompt;
-        }
+        return mPrompt == null ? super.getPrompt(info) : mPrompt;
     }
 }

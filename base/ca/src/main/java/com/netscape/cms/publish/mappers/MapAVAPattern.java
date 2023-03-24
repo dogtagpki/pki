@@ -558,9 +558,8 @@ class MapAVAPattern {
                                                 gname =
                                                         gname.substring(index + 2);
                                                 return mAttr + "=" + gname;
-                                            } else {
-                                                j++;
                                             }
+                                            j++;
                                         }
                                     } else {
                                         if (mElement == j) {
@@ -599,17 +598,11 @@ class MapAVAPattern {
     }
 
     public String getReqAttr() {
-        if (TYPE_REQ.equals(mType))
-            return mValue;
-        else
-            return null;
+        return TYPE_REQ.equals(mType) ? mValue : null;
     }
 
     public String getCertAttr() {
-        if (TYPE_SUBJ.equals(mType))
-            return mValue;
-        else
-            return null;
+        return TYPE_SUBJ.equals(mType) ? mValue : null;
     }
 
     /**

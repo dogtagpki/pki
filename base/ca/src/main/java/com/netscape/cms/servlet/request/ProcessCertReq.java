@@ -1487,37 +1487,35 @@ public class ProcessCertReq extends CMSServlet {
         boolean grantDRMAgent =
                 httpParams.getValueAsBoolean(GRANT_DRMAGENT_PRIVILEGE, false);
 
-        if (!grantTrustedMgr &&
-                !grantCMAgent && !grantRMAgent && !grantDRMAgent) {
+        if (!grantTrustedMgr && !grantCMAgent && !grantRMAgent && !grantDRMAgent) {
             return 0;
-        } else {
-            AuthToken authToken = getAuthToken(req);
-            AuthzToken authzToken = null;
-            String resourceName = "certServer.ca.group";
+        }
+        AuthToken authToken = getAuthToken(req);
+        AuthzToken authzToken = null;
+        String resourceName = "certServer.ca.group";
 
-            try {
-                authzToken = authorize(mAclMethod, authToken,
-                            resourceName, "add");
-            } catch (Exception e) {
-                // do nothing for now
-            }
+        try {
+            authzToken = authorize(mAclMethod, authToken,
+                        resourceName, "add");
+        } catch (Exception e) {
+            // do nothing for now
+        }
 
-            if (authzToken == null) {
-                String[] obj = new String[1];
+        if (authzToken == null) {
+            String[] obj = new String[1];
 
-                if (grantTrustedMgr)
-                    obj[0] = TRUSTED_RA_GROUP;
-                else if (grantRMAgent)
-                    obj[0] = RA_AGENT_GROUP;
-                else if (grantCMAgent)
-                    obj[0] = CA_AGENT_GROUP;
-                else if (grantDRMAgent)
-                    obj[0] = KRA_AGENT_GROUP;
-                else
-                    obj[0] = "unknown group";
+            if (grantTrustedMgr)
+                obj[0] = TRUSTED_RA_GROUP;
+            else if (grantRMAgent)
+                obj[0] = RA_AGENT_GROUP;
+            else if (grantCMAgent)
+                obj[0] = CA_AGENT_GROUP;
+            else if (grantDRMAgent)
+                obj[0] = KRA_AGENT_GROUP;
+            else
+                obj[0] = "unknown group";
 
-                throw new ECMSGWException(CMS.getUserMessage("CMS_GW_UNAUTHORIZED_CREATE_GROUP", obj[0]));
-            }
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_UNAUTHORIZED_CREATE_GROUP", obj[0]));
         }
 
         String uid = httpParams.getValueAsString(GRANT_UID, null);
@@ -1624,8 +1622,7 @@ public class ProcessCertReq extends CMSServlet {
 
             if (group1 == null)
                 throw new ECMSGWException(CMS.getUserMessage("CMS_GW_ADDING_MEMBER", uid, groupname), e);
-            else
-                throw new ECMSGWException(CMS.getUserMessage("CMS_GW_ADDING_MEMBER_1", uid, groupname, groupname1), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_ADDING_MEMBER_1", uid, groupname, groupname1), e);
         }
         return 1;
     }

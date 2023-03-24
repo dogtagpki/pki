@@ -118,9 +118,8 @@ public class LocalConnector extends Connector {
             // no need to transfer contents if request wasn't complete.
             transferRequest(destreq, r);
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     @Override

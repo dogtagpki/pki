@@ -162,10 +162,9 @@ public class LdapCertExactMap implements ILdapMapper, IExtendedPluginInfo {
                 // "DSA is unavailable" which confuses with DSA PKI.
                 logger.error(CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"), e);
                 throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), "" + conn.getPort()), e);
-            } else {
-                logger.error(CMS.getLogMessage("PUBLISH_DN_MAP_EXCEPTION", e.toString()), e);
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND", e.toString()), e);
             }
+            logger.error(CMS.getLogMessage("PUBLISH_DN_MAP_EXCEPTION", e.toString()), e);
+            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND", e.toString()), e);
         }
 
         /*

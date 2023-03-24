@@ -736,20 +736,20 @@ public class LDAPVirtualList<E extends IDBObj> extends DBVirtualList<E> {
 
             }
 
-            if (mJumpToDirection > 0) // handle getting entry in forward direction
-            {
+            // handle getting entry in forward direction
+            if (mJumpToDirection > 0) {
                 return mEntries.elementAt(mJumpToIndex);
-            } else { // handle getting entry in reverse direction
-                int reverse_index = mEntries.size() - mJumpToIndex - 1;
-
-                //logger.debug("reverse direction getting index " + reverse_index);
-
-                if (reverse_index < 0 || reverse_index >= mEntries.size()) {
-                    logger.warn("reverse_index out of range " + reverse_index);
-                    return null;
-                }
-                return mEntries.elementAt(reverse_index);
             }
+            // handle getting entry in reverse direction
+            int reverse_index = mEntries.size() - mJumpToIndex - 1;
+
+            //logger.debug("reverse direction getting index " + reverse_index);
+
+            if (reverse_index < 0 || reverse_index >= mEntries.size()) {
+                logger.warn("reverse_index out of range " + reverse_index);
+                return null;
+            }
+            return mEntries.elementAt(reverse_index);
         }
 
         //logger.debug("getElementAt noJumpto: " + index);
@@ -763,12 +763,7 @@ public class LDAPVirtualList<E extends IDBObj> extends DBVirtualList<E> {
         }
 
         int offset = index - mTop;
-
-        if ((offset < 0) || (offset >= mEntries.size()))
-            //XXX
-            return null; //("No entry at " + index);
-        else
-            return mEntries.elementAt(offset);
+        return (offset < 0) || (offset >= mEntries.size()) ? null : mEntries.elementAt(offset);
     }
 
     @Override
@@ -805,10 +800,9 @@ public class LDAPVirtualList<E extends IDBObj> extends DBVirtualList<E> {
         //guess this is what you really mean to try to improve performance
         if (startidx >= endidx) {
             throw new EBaseException("startidx must be less than endidx");
-        } else {
-            setPageSize(endidx - startidx);
-            getPage(startidx);
         }
+        setPageSize(endidx - startidx);
+        getPage(startidx);
 
         for (int i = startidx; i <= endidx; i++) {
             Object element = getElementAt(i);

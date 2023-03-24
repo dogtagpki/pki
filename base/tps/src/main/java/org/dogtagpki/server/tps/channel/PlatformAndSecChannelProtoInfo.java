@@ -34,40 +34,23 @@ public class PlatformAndSecChannelProtoInfo {
     }
 
     public boolean isGP201() {
-        if(SecureChannel.GP201.equals(platform)) {
-            return true;
-        }
-
-        return false;
+        return SecureChannel.GP201.equals(platform);
     }
 
     public boolean isGP211() {
-        if(SecureChannel.GP211.equals(platform)) {
-            return true;
-        } else {
-            return false;
-        }
+        return SecureChannel.GP211.equals(platform);
     }
 
     public boolean isSCP01() {
-        if(protocol == SecureChannel.SECURE_PROTO_01) {
-            return true;
-        }
-        return false;
+        return protocol == SecureChannel.SECURE_PROTO_01;
     }
 
     public boolean isSCP02() {
-        if(protocol == SecureChannel.SECURE_PROTO_02) {
-            return true;
-        }
-        return false;
+        return protocol == SecureChannel.SECURE_PROTO_02;
     }
 
     public boolean isSCP03() {
-        if(protocol == SecureChannel.SECURE_PROTO_03) {
-            return true;
-        }
-        return false;
+        return protocol == SecureChannel.SECURE_PROTO_03;
     }
 
     public void setProtocol(byte protocol) {

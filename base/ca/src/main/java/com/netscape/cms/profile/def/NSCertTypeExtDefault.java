@@ -290,11 +290,7 @@ public class NSCertTypeExtDefault extends EnrollExtDefault {
                 if (ext == null) {
                     return null;
                 }
-                if (ext.isCritical()) {
-                    return "true";
-                } else {
-                    return "false";
-                }
+                return ext.isCritical() ? "true" : "false";
             } else if (name.equals(VAL_SSL_CLIENT)) {
                 ext = (NSCertTypeExtension)
                         getExtension(NSCertTypeExtension.CertType_Id.toString(), info);

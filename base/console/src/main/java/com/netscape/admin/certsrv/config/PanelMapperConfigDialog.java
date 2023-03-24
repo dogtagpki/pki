@@ -376,11 +376,7 @@ public class PanelMapperConfigDialog extends JDialog
 
     //get the mapper scope
     private String getMapperScope() {
-
-        if (mScope.equals(ScopeDef.SC_CACERT))
-            return ScopeDef.SC_CAMAPPER;
-        else
-            return ScopeDef.SC_USERMAPPER;
+        return mScope.equals(ScopeDef.SC_CACERT) ? ScopeDef.SC_CAMAPPER : ScopeDef.SC_USERMAPPER;
     }
 
     //save the configuration settings for the mapper

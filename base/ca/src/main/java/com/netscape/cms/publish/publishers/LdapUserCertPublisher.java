@@ -243,10 +243,9 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
                 // "DSA is unavailable" which confuses with DSA PKI.
                 logger.error(CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"), e);
                 throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), "" + conn.getPort()), e);
-            } else {
-                logger.error(CMS.getLogMessage("PUBLISH_PUBLISH_ERROR", e.toString()), e);
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_USERCERT_ERROR", e.toString()), e);
             }
+            logger.error(CMS.getLogMessage("PUBLISH_PUBLISH_ERROR", e.toString()), e);
+            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_USERCERT_ERROR", e.toString()), e);
 
         } finally {
             if (altConn != null) {
@@ -312,10 +311,9 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
                 // "DSA is unavailable" which confuses with DSA PKI.
                 logger.error(CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"), e);
                 throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), "" + conn.getPort()), e);
-            } else {
-                logger.error(CMS.getLogMessage("PUBLISH_UNPUBLISH_ERROR"), e);
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_UNPUBLISH_USERCERT_ERROR", e.toString()), e);
             }
+            logger.error(CMS.getLogMessage("PUBLISH_UNPUBLISH_ERROR"), e);
+            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_UNPUBLISH_USERCERT_ERROR", e.toString()), e);
         }
         return;
     }
