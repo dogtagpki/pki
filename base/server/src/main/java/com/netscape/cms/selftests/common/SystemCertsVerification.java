@@ -35,7 +35,6 @@ import com.netscape.certsrv.selftests.ESelfTestException;
 import com.netscape.cms.selftests.SelfTest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
-import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
 
 //////////////////////
@@ -209,9 +208,9 @@ public class SystemCertsVerification
         try {
             if (("ca".equalsIgnoreCase(mSubId) || "ocsp".equalsIgnoreCase(mSubId)) && !mFullCAandOCSPVerify) {
                 //Perform validity only
-                CertUtils.verifySystemCerts(true);
+                engine.verifySystemCerts(true);
             } else {
-                CertUtils.verifySystemCerts(false);
+                engine.verifySystemCerts(false);
             }
 
             String logMessage = CMS.getLogMessage(

@@ -33,6 +33,7 @@ import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.Timer;
 
 import javax.servlet.http.HttpServlet;
@@ -53,8 +54,12 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.SecurityDomainSessionTable;
 import com.netscape.certsrv.base.Subsystem;
+import com.netscape.certsrv.logging.AuditEvent;
+import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.RequestListener;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.notification.MailNotification;
 import com.netscape.cms.password.PasswordChecker;
 import com.netscape.cms.servlet.common.CMSGateway;
@@ -66,6 +71,7 @@ import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.FileConfigStorage;
+import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.cert.OidLoaderSubsystem;
 import com.netscape.cmscore.cert.X500NameSubsystem;
 import com.netscape.cmscore.dbs.DBSubsystem;
@@ -110,6 +116,7 @@ import netscape.ldap.LDAPException;
 public class CMSEngine {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSEngine.class);
+    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     private static final String SERVER_XML = "server.xml";
 
@@ -1749,6 +1756,82 @@ public class CMSEngine {
             } catch (InterruptedException e) {
                 logger.warn("debugSleep: sleep out:" + e.toString());
             }
+        }
+    }
+
+    /**
+     * Go through all system certs and check to see if they are good and audit the result.
+     * Optionally only check certs validity.
+     *
+     * @throws Exception if something is wrong
+     */
+    public void verifySystemCerts(boolean checkValidityOnly) throws Exception {
+
+        String auditMessage = null;
+
+        try {
+            String subsysType = config.getType();
+            if (subsysType.equals("")) {
+                logger.error("CMSEngine: verifySystemCerts() cs.type not defined in CS.cfg. System certificates verification not done");
+                auditMessage = CMS.getLogMessage(
+                            AuditEvent.CIMC_CERT_VERIFICATION,
+                            ILogger.SYSTEM_UID,
+                            ILogger.FAILURE,
+                            "");
+
+                signedAuditLogger.log(auditMessage);
+                throw new Exception("Missing cs.type in CS.cfg");
+            }
+
+            subsysType = CertUtils.toLowerCaseSubsystemType(subsysType);
+            if (subsysType == null) {
+                logger.error("CMSEngine: verifySystemCerts() invalid cs.type in CS.cfg. System certificates verification not done");
+                auditMessage = CMS.getLogMessage(
+                            AuditEvent.CIMC_CERT_VERIFICATION,
+                            ILogger.SYSTEM_UID,
+                            ILogger.FAILURE,
+                            "");
+
+                signedAuditLogger.log(auditMessage);
+                throw new Exception("Invalid cs.type in CS.cfg");
+            }
+
+            String certlist = config.getString(subsysType + ".cert.list", "");
+            if (certlist.equals("")) {
+                logger.error("CMSEngine: verifySystemCerts() "
+                        + subsysType + ".cert.list not defined in CS.cfg. System certificates verification not done");
+                auditMessage = CMS.getLogMessage(
+                            AuditEvent.CIMC_CERT_VERIFICATION,
+                            ILogger.SYSTEM_UID,
+                            ILogger.FAILURE,
+                            "");
+
+                signedAuditLogger.log(auditMessage);
+                throw new Exception("Missing " + subsysType + ".cert.list in CS.cfg");
+            }
+
+            StringTokenizer tokenizer = new StringTokenizer(certlist, ",");
+            while (tokenizer.hasMoreTokens()) {
+                String tag = tokenizer.nextToken();
+                tag = tag.trim();
+                logger.debug("CMSEngine: verifySystemCerts() cert tag=" + tag);
+
+                if (!checkValidityOnly) {
+                    CertUtils.verifySystemCertByTag(tag);
+                } else {
+                    CertUtils.verifySystemCertByTag(tag, true);
+                }
+            }
+
+        } catch (Exception e) {
+            auditMessage = CMS.getLogMessage(
+                        AuditEvent.CIMC_CERT_VERIFICATION,
+                        ILogger.SYSTEM_UID,
+                        ILogger.FAILURE,
+                        "");
+
+            signedAuditLogger.log(auditMessage);
+            throw e;
         }
     }
 }
