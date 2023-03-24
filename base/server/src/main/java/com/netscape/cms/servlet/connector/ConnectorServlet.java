@@ -328,11 +328,7 @@ public class ConnectorServlet extends CMSServlet {
 
     public static boolean isProfileRequest(Request request) {
         String profileId = request.getExtDataInString(Request.PROFILE_ID);
-
-        if (profileId == null || profileId.equals(""))
-            return false;
-        else
-            return true;
+        return profileId != null && !profileId.equals("");
     }
 
     public void normalizeProfileRequest(Request request) {
@@ -492,38 +488,37 @@ public class ConnectorServlet extends CMSServlet {
                     //        does not yet matter at this point!
 
                     throw new EBaseException(errormsg);
+                }
+                String errormsg = "Found request " + thisreqid + " for " + srcid;
+                // for Server-Side Keygen, it could be the 2nd trip
+                // where stage was Request.SSK_STAGE_KEYGEN going on
+                // Request.SSK_STAGE_KEY_RETRIEVE
+                String sskKeygenStage = thisreq.getExtDataInString(Request.SSK_STAGE);
+                if (sskKeygenStage!= null && sskKeygenStage.equalsIgnoreCase(Request.SSK_STAGE_KEYGEN)) {
+                    logger.debug("ConnectorServlet:processRequest: Stage=" + sskKeygenStage);
                 } else {
-                    String errormsg = "Found request " + thisreqid + " for " + srcid;
-                    // for Server-Side Keygen, it could be the 2nd trip
-                    // where stage was Request.SSK_STAGE_KEYGEN going on
-                    // Request.SSK_STAGE_KEY_RETRIEVE
-                    String sskKeygenStage = thisreq.getExtDataInString(Request.SSK_STAGE);
-                    if (sskKeygenStage!= null && sskKeygenStage.equalsIgnoreCase(Request.SSK_STAGE_KEYGEN)) {
-                        logger.debug("ConnectorServlet:processRequest: Stage=" + sskKeygenStage);
-                    } else {
 
-                        logger.debug(method + errormsg);
+                    logger.debug(method + errormsg);
 
-                        replymsg = new HttpPKIMessage();
-                        replymsg.fromRequest(thisreq);
+                    replymsg = new HttpPKIMessage();
+                    replymsg.fromRequest(thisreq);
 
-                        // store a message in the signed audit log file
-                        auditMessage = CMS.getLogMessage(
-                                    AuditEvent.INTER_BOUNDARY,
-                                    auditSubjectID,
-                                    ILogger.SUCCESS,
-                                    auditProtectionMethod,
-                                    auditRequestType,
-                                    auditRequesterID);
+                    // store a message in the signed audit log file
+                    auditMessage = CMS.getLogMessage(
+                                AuditEvent.INTER_BOUNDARY,
+                                auditSubjectID,
+                                ILogger.SUCCESS,
+                                auditProtectionMethod,
+                                auditRequestType,
+                                auditRequesterID);
 
-                        audit(auditMessage);
+                    audit(auditMessage);
 
-                        // NOTE:  The signed audit event
-                        //        LOGGING_SIGNED_AUDIT_PROFILE_CERT_REQUEST
-                        //        does not yet matter at this point!
+                    // NOTE:  The signed audit event
+                    //        LOGGING_SIGNED_AUDIT_PROFILE_CERT_REQUEST
+                    //        does not yet matter at this point!
 
-                        return replymsg;
-                    }
+                    return replymsg;
                 }
             }
 

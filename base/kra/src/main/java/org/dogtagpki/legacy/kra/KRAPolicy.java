@@ -67,10 +67,9 @@ public class KRAPolicy implements IPolicy {
             // For KRA request, there is deferred
             logger.debug("KRA policies return DEFERRED");
             return PolicyResult.REJECTED;
-        } else {
-            logger.debug("KRA policies return ACCEPTED");
-            return mPolicies.apply(r);
         }
+        logger.debug("KRA policies return ACCEPTED");
+        return mPolicies.apply(r);
     }
 
 }

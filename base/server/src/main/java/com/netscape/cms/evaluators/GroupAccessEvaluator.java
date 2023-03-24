@@ -139,11 +139,8 @@ public class GroupAccessEvaluator extends AccessEvaluator {
                 logger.warn("GroupAccessEvaluator: " + CMS.getLogMessage("EVALUTOR_UID_NULL"));
                 return false;
             }
-            if (op.equals("="))
-                return ug.isMemberOf(id, Utils.stripQuotes(value));
-            else
-                return !(ug.isMemberOf(id, Utils.stripQuotes(value)));
-
+            boolean isMemberOfGroup = ug.isMemberOf(id, Utils.stripQuotes(value));
+            return op.equals("=") ? isMemberOfGroup : !isMemberOfGroup;
         }
 
         return false;

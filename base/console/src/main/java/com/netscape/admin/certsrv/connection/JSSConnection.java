@@ -433,26 +433,22 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
     /**
      * Get Header
      */
-	public String getHeader() {
-		if (header == null)
-			return "No Header Read";
-		else
-			return header;
-	}
+    public String getHeader() {
+        return header == null ? "No Header Read" : header;
+    }
 
     /**
      * Get response
      */
 	@Override
     public byte[] getResponse() {
-		if (totalRead == 0)
-			return null;
-		else {
-			byte[] buf = new byte[bodyLen];
-			System.arraycopy(body, 0, buf, 0, bodyLen);
-			return buf;
-		}
-	}
+        if (totalRead == 0) {
+            return null;
+        }
+        byte[] buf = new byte[bodyLen];
+        System.arraycopy(body, 0, buf, 0, bodyLen);
+        return buf;
+}
 
     /**
      * get available
@@ -556,24 +552,12 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
 			if (endOfHeader) {
 				//System.out.println("End of Header");
 				break;
-			} else {
-			    //System.out.println("Header: " + new String(headerLine)
-				//		+ ", nRead: " + nRead);
 			}
 		}
 	}
 
-	private boolean endOfHeader(byte[] hdr, int available) {
-		if (available == 2) {
-			int c1 = hdr[0];
-			int c2 = hdr[1];
-
-			//System.out.println("C1= " + c1);
-			//System.out.println("C2= " + c2);
-
-			return true;
-		} else
-			return false;
+	private boolean endOfHeader(int available) {
+		return available == 2;
 	}
 
 	private void readBody()
@@ -590,7 +574,7 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
 
 	private void processHeader(byte[] buf, int nRead)
 	{
-		if (endOfHeader(buf, nRead)) {
+		if (endOfHeader(nRead)) {
 			endOfHeader = true;
 			return;
 		}

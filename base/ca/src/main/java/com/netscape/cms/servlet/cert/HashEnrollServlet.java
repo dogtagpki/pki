@@ -400,20 +400,19 @@ public class HashEnrollServlet extends CAServlet {
             printError(cmsReq, "3");
             cmsReq.setStatus(CMSRequest.SUCCESS);
             return;
-        } else {
-            authMgr =
-                    authToken.getInString(AuthToken.TOKEN_AUTHMGR_INST_NAME);
-            // don't store agent token in request.
-            // agent currently used for bulk issuance.
-            // if (!authMgr.equals(IAuthSubsystem.CERTUSERDB_AUTHMGR_ID)) {
-            logger.info("Enrollment request was authenticated by " +
-                            authToken.getInString(AuthToken.TOKEN_AUTHMGR_INST_NAME));
-            fillCertInfoFromAuthToken(certInfo, authToken);
-            // save authtoken attrs to request directly (for policy use)
-            saveAuthToken(authToken, req);
-            // req.set(Request.AUTH_TOKEN, authToken);
-            // }
         }
+        authMgr =
+                authToken.getInString(AuthToken.TOKEN_AUTHMGR_INST_NAME);
+        // don't store agent token in request.
+        // agent currently used for bulk issuance.
+        // if (!authMgr.equals(IAuthSubsystem.CERTUSERDB_AUTHMGR_ID)) {
+        logger.info("Enrollment request was authenticated by " +
+                        authToken.getInString(AuthToken.TOKEN_AUTHMGR_INST_NAME));
+        fillCertInfoFromAuthToken(certInfo, authToken);
+        // save authtoken attrs to request directly (for policy use)
+        saveAuthToken(authToken, req);
+        // req.set(Request.AUTH_TOKEN, authToken);
+        // }
 
         // support Enterprise 3.5.1 server where CERT_TYPE=csrCertType
         // instead of certType

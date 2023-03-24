@@ -96,14 +96,14 @@ public class FileConfigStorage extends ConfigStorage {
                 }
 
                 // Proceed only if the backup copy was successful.
-                if (!newName.exists()) {
-                    throw new EBaseException("backup copy failed");
-                } else {
+                if (newName.exists()) {
                     // Make certain that the backup file has
                     // the correct permissions.
                     if (!Utils.isNT()) {
                         Utils.exec("chmod 00660 " + newName.getAbsolutePath());
                     }
+                } else {
+                    throw new EBaseException("backup copy failed");
                 }
             } catch (EBaseException e) {
                 throw new EBaseException("backup copy failed");

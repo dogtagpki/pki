@@ -550,10 +550,10 @@ public class FlatFileAuth extends AuthManager implements IExtendedPluginInfo {
         } catch (EInvalidCredentials e) {
             // If defer on failure is false, then we re-throw the exception
             // which causes the request to be rejected
-            if (!mDeferOnFailure) {
-                throw e;
-            } else {
+            if (mDeferOnFailure) {
                 logger.warn("FlatFileAuth: Since defering on failure - ignore invalid creds");
+            } else {
+                throw e;
             }
         }
 

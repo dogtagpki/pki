@@ -790,12 +790,11 @@ public class EnrollmentService implements IService {
         }
         if (options.size() == 0) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "PKIArchiveOptions found"));
-        } else {
-            PKIArchiveOptionsContainer p[] = new PKIArchiveOptionsContainer[options.size()];
-
-            options.copyInto(p);
-            return p;
         }
+        PKIArchiveOptionsContainer p[] = new PKIArchiveOptionsContainer[options.size()];
+
+        options.copyInto(p);
+        return p;
     }
 
     /**
@@ -945,11 +944,7 @@ public class EnrollmentService implements IService {
             key = base64Data.replace("\r", "").replace("\n", "");
         }
         String checkKey = key.trim();
-        if (checkKey.equals("")) {
-            return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-        } else {
-            return checkKey;
-        }
+        return checkKey.equals("") ? ILogger.SIGNED_AUDIT_EMPTY_VALUE : checkKey;
     }
 
     /**

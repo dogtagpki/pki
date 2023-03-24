@@ -69,11 +69,7 @@ public class InstallWizardInfo extends WizardInfo {
 
     public boolean doKeySplitting() {
         String str = (String)get("kra.keySplitting");
-        if (str != null && str.equals(ConfigConstants.TRUE))
-            return true;
-        else
-            return false;
-
+        return str != null && str.equals(ConfigConstants.TRUE);
     }
 
     public void setAdminFrame(JFrame frame) {
@@ -108,11 +104,7 @@ public class InstallWizardInfo extends WizardInfo {
 
     public boolean isCACloningDone() {
         String str = (String)get(ConfigConstants.STAGE_CACLONING);
-
-        if (str != null && str.equals(ConfigConstants.TRUE))
-            return true;
-        else
-            return false;
+        return str != null && str.equals(ConfigConstants.TRUE);
     }
 
     public void setCACloningDone(String str) {
@@ -482,10 +474,7 @@ public class InstallWizardInfo extends WizardInfo {
 
     public boolean isAgreementDone() {
         String str = (String)get(ConfigConstants.STAGE_REPLICATION_AGREEMENT);
-        if (str != null && str.equals(ConfigConstants.TRUE))
-            return true;
-        else
-            return false;
+        return str != null && str.equals(ConfigConstants.TRUE);
     }
 
     public void setDBCreated(String str) {
@@ -1419,46 +1408,31 @@ public class InstallWizardInfo extends WizardInfo {
 	public boolean hasEntireCAChain() {
         String str = (String)get(Constants.PR_CA_SIGNING_CERT+
 			"hasEntireChain");
-        if (str != null && str.equals(ConfigConstants.TRUE))
-            return true;
-        else
-            return false;
+        return str != null && str.equals(ConfigConstants.TRUE);
 	}
 
 	public boolean hasEntireSSLChain() {
         String str = (String)get(Constants.PR_SERVER_CERT+
 			"hasEntireChain");
-        if (str != null && str.equals(ConfigConstants.TRUE))
-            return true;
-        else
-            return false;
+        return str != null && str.equals(ConfigConstants.TRUE);
 	}
 
 	public boolean hasEntireKRAChain() {
         String str = (String)get(Constants.PR_KRA_TRANSPORT_CERT+
 			"hasEntireChain");
-        if (str != null && str.equals(ConfigConstants.TRUE))
-            return true;
-        else
-            return false;
+        return str != null && str.equals(ConfigConstants.TRUE);
 	}
 
 	public boolean hasEntireOCSPChain() {
         String str = (String)get(Constants.PR_OCSP_SIGNING_CERT+
 			"hasEntireChain");
-        if (str != null && str.equals(ConfigConstants.TRUE))
-            return true;
-        else
-            return false;
+        return str != null && str.equals(ConfigConstants.TRUE);
 	}
 
 	public boolean hasEntireRAChain() {
         String str = (String)get(Constants.PR_RA_SIGNING_CERT+
 			"hasEntireChain");
-        if (str != null && str.equals(ConfigConstants.TRUE))
-            return true;
-        else
-            return false;
+        return str != null && str.equals(ConfigConstants.TRUE);
 	}
 
     public String getOComponent() {
@@ -1594,10 +1568,7 @@ public class InstallWizardInfo extends WizardInfo {
 
     public boolean isCloning() {
         String str = (String)get("cloning");
-        if (str != null && str.equals(ConfigConstants.TRUE))
-            return true;
-        else
-            return false;
+        return str != null && str.equals(ConfigConstants.TRUE);
     }
      public void setCloning(String str) {
         put("cloning", str);

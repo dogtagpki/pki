@@ -167,24 +167,23 @@ public class ChallengePhraseAuthentication extends AuthManager {
 
         BigInteger serialNum = null;
 
-        if (serialNumString == null || serialNumString.equals(""))
+        if (serialNumString == null || serialNumString.equals("")) {
             throw new EMissingCredential(CMS.getUserMessage("CMS_AUTHENTICATION_NULL_CREDENTIAL", CRED_CERT_SERIAL));
-        else {
-            //serialNumString = getDecimalStr(serialNumString);
-            try {
-                serialNumString = serialNumString.trim();
-                if (serialNumString.startsWith("0x") || serialNumString.startsWith("0X")) {
-                    serialNum = new
-                            BigInteger(serialNumString.substring(2), 16);
-                } else {
-                    serialNum = new
-                            BigInteger(serialNumString);
-                }
-
-            } catch (NumberFormatException e) {
-                throw new EAuthUserError(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_ATTRIBUTE_VALUE",
-                        "Invalid serial number"));
+        }
+        //serialNumString = getDecimalStr(serialNumString);
+        try {
+            serialNumString = serialNumString.trim();
+            if (serialNumString.startsWith("0x") || serialNumString.startsWith("0X")) {
+                serialNum = new
+                        BigInteger(serialNumString.substring(2), 16);
+            } else {
+                serialNum = new
+                        BigInteger(serialNumString);
             }
+
+        } catch (NumberFormatException e) {
+            throw new EAuthUserError(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_ATTRIBUTE_VALUE",
+                    "Invalid serial number"));
         }
 
         String challenge = (String) authCred.get(CRED_CHALLENGE);
@@ -279,16 +278,7 @@ public class ChallengePhraseAuthentication extends AuthManager {
             logger.warn("ChallengePhraseAuthentication: challengeString null");
             return false;
         }
-
-        if (!challengeString.equals(hashpwd)) {
-            return false;
-
-            /*
-             logger.error("ChallengePhraseAuthentication: Incorrect challenge phrase password used for revocation");
-             throw new EInvalidCredentials();
-             */
-        } else
-            return true;
+        return challengeString.equals(hashpwd);
     }
 
     /**

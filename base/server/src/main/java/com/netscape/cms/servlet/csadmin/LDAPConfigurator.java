@@ -225,12 +225,10 @@ public class LDAPConfigurator {
             if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
                 logger.info("Entry not found: " + dn);
                 return null;
-
-            } else {
-                String message = "Unable to get " + dn + ": " + e;
-                logger.error(message);
-                throw new Exception(message, e);
             }
+            String message = "Unable to get " + dn + ": " + e;
+            logger.error(message);
+            throw new Exception(message, e);
         }
     }
 

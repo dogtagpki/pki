@@ -319,10 +319,7 @@ public class DynamicVariablesServlet extends CMSServlet {
     }
 
     private String getHttp(HttpServletRequest httpReq) {
-        if (httpReq.isSecure())
-            return "false";
-        else
-            return "true";
+        return httpReq.isSecure() ? "false" : "true";
     }
 
     private String getImportCrlUrl() {

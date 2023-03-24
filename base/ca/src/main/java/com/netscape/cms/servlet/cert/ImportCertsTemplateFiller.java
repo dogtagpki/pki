@@ -106,11 +106,7 @@ public class ImportCertsTemplateFiller implements ICMSTemplateFiller {
             CMSRequest cmsReq, IAuthority authority, Locale locale, Exception e)
             throws Exception {
         Certificate[] certs = (Certificate[]) cmsReq.getResult();
-
-        if (certs instanceof X509CertImpl[])
-            return getX509TemplateParams(cmsReq, authority, locale, e);
-        else
-            return null;
+        return certs instanceof X509CertImpl[] ? getX509TemplateParams(cmsReq, authority, locale, e) : null;
     }
 
     public CMSTemplateParams getX509TemplateParams(

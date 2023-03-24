@@ -62,12 +62,11 @@ public class CommandQueue implements Runnable {
      * @param currentServlet servlet that serves the request object
      */
     public boolean registerProcess(CMSRequest currentRequest, Servlet currentServlet) {
-        if (mShuttingDown == false) {
-            mCommandQueue.put(currentRequest, currentServlet);
-            return true;
-        } else {
+        if (mShuttingDown) {
             return false;
         }
+        mCommandQueue.put(currentRequest, currentServlet);
+        return true;
     }
 
     /**

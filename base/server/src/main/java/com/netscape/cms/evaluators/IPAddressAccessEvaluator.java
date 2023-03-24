@@ -92,11 +92,8 @@ public class IPAddressAccessEvaluator extends AccessEvaluator {
                 logger.warn("IPAddressAccessEvaluator: " + CMS.getLogMessage("EVALUATOR_IPADDRESS_NULL"));
                 return false;
             }
-            if (op.equals("=")) {
-                return ipaddress.matches(value);
-            } else {
-                return !(ipaddress.matches(value));
-            }
+            boolean ipMatches = ipaddress.matches(value);
+            return op.equals("=") ? ipMatches : !ipMatches;
 
         }
 

@@ -725,14 +725,7 @@ public class ConfigStore implements Cloneable {
 
         try {
             Constructor<T> constructor = clazz.getDeclaredConstructor(String.class, SimpleProperties.class);
-
-            if (reference == null) {
-                return constructor.newInstance(fullname, mSource);
-
-            } else {
-                return constructor.newInstance(reference, mSource);
-            }
-
+            return reference == null ? constructor.newInstance(fullname, mSource) : constructor.newInstance(reference, mSource);
         } catch (NoSuchMethodException | InvocationTargetException
                 | IllegalAccessException | InstantiationException | IllegalArgumentException e) {
             throw new RuntimeException(e);
@@ -819,10 +812,7 @@ public class ConfigStore implements Cloneable {
      * @return fill property name
      */
     protected String getFullName(String name) {
-        if (mStoreName == null)
-            return name;
-        else
-            return mStoreName + "." + name;
+        return mStoreName == null ? name : mStoreName + "." + name;
     }
 
     /**

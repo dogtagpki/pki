@@ -250,12 +250,11 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         if (policyOrder == null) {
             return;
             // throw new EPolicyException(PolicyResources.NO_POLICY_ORDERING);
-        } else {
-            StringTokenizer tokens = new StringTokenizer(policyOrder, ",");
+        }
+        StringTokenizer tokens = new StringTokenizer(policyOrder, ",");
 
-            while (tokens.hasMoreTokens()) {
-                mPolicyOrder.addElement(tokens.nextToken().trim());
-            }
+        while (tokens.hasMoreTokens()) {
+            mPolicyOrder.addElement(tokens.nextToken().trim());
         }
 
         // Now Read Policy configurations and construct policy objects
@@ -352,11 +351,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
 
     public boolean isProfileRequest(Request request) {
         String profileId = request.getExtDataInString(Request.PROFILE_ID);
-
-        if (profileId == null || profileId.equals(""))
-            return false;
-        else
-            return true;
+        return profileId != null && !profileId.equals("");
     }
 
     /**
@@ -1093,11 +1088,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
 
     private String getRuleOrderString(Vector<String> rules, String newRule) {
         String currentRules = getRuleOrderString(rules);
-
-        if (currentRules == null || currentRules.length() == 0)
-            return newRule;
-        else
-            return currentRules + "," + newRule;
+        return currentRules.length() == 0 ? newRule : currentRules + "," + newRule;
     }
 
     /**

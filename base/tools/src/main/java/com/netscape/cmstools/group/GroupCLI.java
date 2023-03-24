@@ -44,18 +44,13 @@ public class GroupCLI extends CLI {
         addModule(new GroupAddCLI(this));
         addModule(new GroupModifyCLI(this));
         addModule(new GroupRemoveCLI(this));
-
         addModule(new GroupMemberCLI(this));
     }
 
     @Override
     public String getFullName() {
-        if (parent instanceof MainCLI) {
-            // do not include MainCLI's name
-            return name;
-        } else {
-            return parent.getFullName() + "-" + name;
-        }
+        // do not include MainCLI's name
+        return parent instanceof MainCLI ? name : parent.getFullName() + "-" + name;
     }
 
     @Override

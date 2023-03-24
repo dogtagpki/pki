@@ -201,21 +201,21 @@ public class Fmt {
         boolean octal = ((flags & OC) != 0);
 
         if (hexadecimal) {
-            if ((l & 0xf000000000000000L) != 0)
-                return fmt(
-                        Long.toString(l >>> 60, 16) +
-                                fmt(l & 0x0fffffffffffffffL, 15, HX | ZF),
-                        minWidth, flags | WN);
-            else
+            if ((l & 0xf000000000000000L) == 0) {
                 return fmt(Long.toString(l, 16), minWidth, flags | WN);
+            }
+            return fmt(
+                    Long.toString(l >>> 60, 16) +
+                            fmt(l & 0x0fffffffffffffffL, 15, HX | ZF),
+                    minWidth, flags | WN);
         } else if (octal) {
-            if ((l & 0x8000000000000000L) != 0)
-                return fmt(
-                        Long.toString(l >>> 63, 8) +
-                                fmt(l & 0x7fffffffffffffffL, 21, OC | ZF),
-                        minWidth, flags | WN);
-            else
+            if ((l & 0x8000000000000000L) == 0) {
                 return fmt(Long.toString(l, 8), minWidth, flags | WN);
+            }
+            return fmt(
+                    Long.toString(l >>> 63, 8) +
+                            fmt(l & 0x7fffffffffffffffL, 21, OC | ZF),
+                    minWidth, flags | WN);
         } else
             return fmt(Long.toString(l), minWidth, flags | WN);
     }
@@ -234,12 +234,12 @@ public class Fmt {
     }
 
     public static String fmt(float f, int minWidth, int sigFigs, int flags) {
-        if (sigFigs != 0)
-            return fmt(
-                    sigFigFix(Float.toString(f), sigFigs), minWidth,
-                    flags | WN);
-        else
+        if (sigFigs == 0) {
             return fmt(Float.toString(f), minWidth, flags | WN);
+        }
+        return fmt(
+                sigFigFix(Float.toString(f), sigFigs), minWidth,
+                flags | WN);
     }
 
     // double
@@ -256,12 +256,12 @@ public class Fmt {
     }
 
     public static String fmt(double d, int minWidth, int sigFigs, int flags) {
-        if (sigFigs != 0)
-            return fmt(
-                    sigFigFix(doubleToString(d), sigFigs), minWidth,
-                    flags | WN);
-        else
+        if (sigFigs == 0) {
             return fmt(doubleToString(d), minWidth, flags | WN);
+        }
+        return fmt(
+                sigFigFix(doubleToString(d), sigFigs), minWidth,
+                flags | WN);
     }
 
     // char
@@ -404,10 +404,7 @@ public class Fmt {
         }
         // Else sigFigs == mantFigs, which is fine.
 
-        if (fraction.length() == 0)
-            return sign + number + exponent;
-        else
-            return sign + number + "." + fraction + exponent;
+        return fraction.length() == 0 ? sign + number + exponent : sign + number + "." + fraction + exponent;
     }
 
     /// Improved version of Double.toString(), returns more decimal places.

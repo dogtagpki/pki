@@ -474,11 +474,7 @@ public class EnrollServlet extends CAServlet {
 
         logger.debug("EnrollServlet: signing cert filter " + filter);
 
-        if (!en.hasMoreElements()) {
-            logger.warn("EnrollServlet: pairing encryption cert not found!");
-            return null;
-            // pairing encryption cert not found
-        } else {
+        if (en.hasMoreElements()) {
             X509CertInfo encCertInfo = new CertInfo();
             X509CertInfo[] cInfoArray = new X509CertInfo[] { certInfo,
                     encCertInfo };
@@ -540,6 +536,9 @@ public class EnrollServlet extends CAServlet {
             logger.debug("EnrollServlet: returning cInfoArray of length " + cInfoArray.length);
             return cInfoArray;
         }
+        logger.warn("EnrollServlet: pairing encryption cert not found!");
+        return null;
+        // pairing encryption cert not found
 
     }
 

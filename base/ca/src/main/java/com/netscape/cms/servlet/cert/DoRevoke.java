@@ -245,12 +245,9 @@ public class DoRevoke extends CMSServlet {
                 if (serialNumber == null || sslCert == null ||
                         !(serialNumber.equals(sslCert.getSerialNumber().toString(16)))) {
                     throw new ForbiddenException("Invalid serial number.");
-
-                } else {
-                    eeSubjectDN = sslCert.getSubjectName().toString();
-                    eeSerialNumber = sslCert.getSerialNumber().toString();
                 }
-
+                eeSubjectDN = sslCert.getSubjectName().toString();
+                eeSerialNumber = sslCert.getSerialNumber().toString();
             }
 
             BigInteger serialNumber = parseSerialNumber(eeSerialNumber);

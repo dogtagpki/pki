@@ -166,10 +166,10 @@ public class KeyCertUtil {
             tokenList.append(c.getName());
         }
 
-        if (tokenList.length() == 0)
+        if (tokenList.length() == 0) {
             return CryptoUtil.INTERNAL_TOKEN_NAME;
-        else
-            return (tokenList.toString() + "," + CryptoUtil.INTERNAL_TOKEN_NAME);
+        }
+        return (tokenList.toString() + "," + CryptoUtil.INTERNAL_TOKEN_NAME);
     }
 
     public static String base64Encode(byte[] bytes) throws IOException {
@@ -447,16 +447,15 @@ public class KeyCertUtil {
 
         if (pqg == null) {
             return kpGen.genKeyPair();
-        } else {
-            // DSA
-            KeyPair kp = null;
-
-            do {
-                // 602548 NSS bug - to overcome it, we use isBadDSAKeyPair
-                kp = kpGen.genKeyPair();
-            } while (isBadDSAKeyPair(kp));
-            return kp;
         }
+        // DSA
+        KeyPair kp = null;
+
+        do {
+            // 602548 NSS bug - to overcome it, we use isBadDSAKeyPair
+            kp = kpGen.genKeyPair();
+        } while (isBadDSAKeyPair(kp));
+        return kp;
     }
 
     /**
