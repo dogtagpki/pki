@@ -74,12 +74,13 @@ public class UpdateDomainXML extends CMSServlet {
      */
     @Override
     protected void process(CMSRequest cmsReq) throws EBaseException {
-        logger.debug("UpdateDomainXML: processing...");
+
+        logger.info("UpdateDomainXML: Updating security domain");
 
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
-        logger.debug("UpdateDomainXML process: authentication starts");
+        logger.info("UpdateDomainXML: Authenticating request");
 
         CMSEngine engine = getCMSEngine();
         EngineConfig cs = engine.getConfig();
@@ -97,8 +98,8 @@ public class UpdateDomainXML extends CMSServlet {
             outputError(httpResp, AUTH_FAILURE, "Not authenticated", null);
             return;
         }
-        logger.debug("UpdateDomainXML process: authentication done");
 
+        logger.info("UpdateDomainXML: Authorizing request");
         AuthzToken authzToken = null;
 
         try {
@@ -130,7 +131,9 @@ public class UpdateDomainXML extends CMSServlet {
         String httpport = httpReq.getParameter("httpport");
         String domainmgr = httpReq.getParameter("dm");
         String clone = httpReq.getParameter("clone");
+
         String operation = httpReq.getParameter("operation");
+        logger.info("UpdateDomainXML: Operation: " + operation);
 
         // ensure required parameters are present
         // especially important for DS syntax checking
@@ -167,10 +170,13 @@ public class UpdateDomainXML extends CMSServlet {
             logger.warn("Unable to determine security domain name or basedn. Please run the domaininfo migration script: " + e.getMessage(), e);
         }
 
+        logger.info("UpdateDomainXML: Base DN: " + basedn);
+
         SecurityDomainProcessor processor = new SecurityDomainProcessor(getLocale(cmsReq.getHttpReq()));
         processor.setCMSEngine(engine);
 
         String status;
+
         if ((operation != null) && (operation.equals("remove"))) {
             status = processor.removeHost(name, type, host, sport);
 
@@ -187,6 +193,8 @@ public class UpdateDomainXML extends CMSServlet {
                     domainmgr,
                     clone);
         }
+
+        logger.info("UpdateDomainXML: Status: " + status);
 
         try {
             // send success status back to the requestor
