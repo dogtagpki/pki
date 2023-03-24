@@ -146,7 +146,7 @@ public class CMSEngine {
     private PKIServerSocketListener serverSocketListener = null;
     protected LogSubsystem logSubsystem = LogSubsystem.getInstance();
     protected Auditor auditor;
-    protected JssSubsystem jssSubsystem = JssSubsystem.getInstance();
+    protected JssSubsystem jssSubsystem;
     protected DBSubsystem dbSubsystem;
 
 
@@ -668,6 +668,7 @@ public class CMSEngine {
 
     public void initJssSubsystem() throws Exception {
         JssSubsystemConfig jssConfig = config.getJssSubsystemConfig();
+        jssSubsystem = new JssSubsystem();
         jssSubsystem.init(jssConfig);
         jssSubsystem.startup();
     }

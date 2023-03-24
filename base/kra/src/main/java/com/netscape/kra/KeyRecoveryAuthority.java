@@ -88,6 +88,7 @@ import com.netscape.cmscore.request.RequestNotifier;
 import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmscore.request.RequestSubsystem;
+import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.security.SecureRandomConfig;
 import com.netscape.cmscore.security.SecureRandomFactory;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
@@ -245,8 +246,8 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
         }
         long start = System.currentTimeMillis();
         try {
-            com.netscape.cmscore.security.JssSubsystem.getInstance().
-                    addEntropy(mEntropyBitsPerKeyPair);
+            JssSubsystem jssSubsystem = engine.getJSSSubsystem();
+            jssSubsystem.addEntropy(mEntropyBitsPerKeyPair);
         } catch (Exception e) {
             logger.warn("KeyRecoveryAuthority: " + e.getMessage(), e);
             if (logflag) {

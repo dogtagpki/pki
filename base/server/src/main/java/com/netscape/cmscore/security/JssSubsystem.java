@@ -122,7 +122,6 @@ public final class JssSubsystem implements ICryptoSubsystem {
     private SecureRandom random;
     private String obscureMethod = "zeroes";
 
-    private static JssSubsystem mInstance = new JssSubsystem();
     private Hashtable<String, X509Certificate[]> mNicknameMapCertsTable = new Hashtable<>();
     private Hashtable<String, X509Certificate[]> mNicknameMapUserCertsTable =
             new Hashtable<>();
@@ -204,14 +203,10 @@ public final class JssSubsystem implements ICryptoSubsystem {
                 Integer.valueOf(SSLSocket.TLS_RSA_EXPORT1024_WITH_DES_CBC_SHA));
     }
 
-    public static JssSubsystem getInstance() {
-        return mInstance;
-    }
-
     /**
      * Constructs a Security service subsystem.
      */
-    private JssSubsystem() {
+    public JssSubsystem() {
     }
 
     public String getId() {
