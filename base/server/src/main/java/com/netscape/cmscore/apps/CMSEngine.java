@@ -913,6 +913,7 @@ public class CMSEngine {
             boolean enabled = subsystemConfig.isEnabled();
 
             Subsystem subsystem = (Subsystem) Class.forName(className).getDeclaredConstructor().newInstance();
+            subsystem.setCMSEngine(this);
 
             SubsystemInfo subsystemInfo = new SubsystemInfo(id);
             subsystemInfo.setEnabled(enabled);
@@ -930,7 +931,6 @@ public class CMSEngine {
             if (isPreOpMode()) return;
         }
 
-        subsystem.setCMSEngine(this);
         subsystem.init(subsystemConfig);
     }
 
