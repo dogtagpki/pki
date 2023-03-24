@@ -53,8 +53,6 @@ import com.netscape.cmscore.request.Request;
 
 /**
  * This servlet approves profile-based request.
- *
- * @version $Revision$, $Date$
  */
 public class ProfileProcessServlet extends ProfileServlet {
 
@@ -85,33 +83,41 @@ public class ProfileProcessServlet extends ProfileServlet {
         processor.setCMSEngine(engine);
 
         String op = request.getParameter("op");
+        logger.debug("ProfileProcessServlet: request operation: " + op);
+
         if (op == null) {
-            logger.error("ProfileProcessServlet: No op found");
+            logger.error("ProfileProcessServlet: Missing request operation");
             setError(args, CMS.getUserMessage(locale, "CMS_OP_NOT_FOUND"), request, response);
             return;
         }
 
         String requestId = request.getParameter("requestId");
+        logger.debug("ProfileProcessServlet: request ID: " + requestId);
+
         if (requestId == null || requestId.equals("")) {
-            logger.error("ProfileProcessServlet: Request Id not found");
+            logger.error("ProfileProcessServlet: Missing request ID");
             setError(args, CMS.getUserMessage(locale, "CMS_REQUEST_ID_NOT_FOUND"), request, response);
             return;
         }
 
         Request req = processor.getRequest(requestId);
+
         if (req == null) {
+            logger.error("ProfileProcessServlet: Request not found: " + requestId);
             setError(args, CMS.getUserMessage(locale, "CMS_REQUEST_NOT_FOUND", CMSTemplate.escapeJavaScriptStringHTML(requestId)), request, response);
             return;
         }
 
         String profileId = req.getExtDataInString(Request.PROFILE_ID);
+        logger.debug("ProfileProcessServlet: profile ID: " + profileId);
+
         if (profileId == null || profileId.equals("")) {
-            logger.error("ProfileProcessServlet: Profile Id not found");
+            logger.error("ProfileProcessServlet: Missing profile ID");
             setError(args, CMS.getUserMessage(locale, "CMS_PROFILE_ID_NOT_FOUND",CMSTemplate.escapeJavaScriptStringHTML(profileId)), request, response);
             return;
         }
-        logger.debug("ProfileProcessServlet: profileId=" + profileId);
 
+        logger.info("ProfileProcessServlet: Processing " + op + " operation for request " + requestId);
         // set request in cmsReq for later retrieval
         cmsReq.setRequest(req);
 
@@ -123,34 +129,44 @@ public class ProfileProcessServlet extends ProfileServlet {
             logger.error(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
             setError(args, e.getMessage(), request, response);
             return;
+
         } catch (EAuthException e) {
             logger.error(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
             setError(args, e.getMessage(), request, response);
             return;
+
         } catch (EAuthzException e) {
             logger.error(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
             setError(args, e.getMessage(), request, response);
             return;
+
         } catch (BadRequestDataException e) {
+            logger.error("ProfileProcessServlet: " + e.getMessage(), e);
             setError(args, e.getMessage(), request, response);
             return;
+
         } catch (ERejectException e) {
             logger.debug("ProfileProcessServlet: execution rejected " + e.getMessage());
             args.set(ARG_ERROR_CODE, "1");
             args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale, "CMS_PROFILE_REJECTED", e.toString()));
+
         } catch (EDeferException e) {
             logger.debug("ProfileProcessServlet: execution defered " + e.getMessage());
             args.set(ARG_ERROR_CODE, "1");
             args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale, "CMS_PROFILE_DEFERRED", e.toString()));
+
         } catch (EPropertyException e) {
-            logger.debug("ProfileProcessServlet: execution error " + e.getMessage());
+            logger.debug("ProfileProcessServlet: " + e.getMessage(), e);
             args.set(ARG_ERROR_CODE, "1");
             args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale, "CMS_PROFILE_PROPERTY_ERROR", e.toString()));
+
         } catch (EProfileException e) {
-            logger.debug("ProfileProcessServlet: execution error " + e.getMessage());
+            logger.debug("ProfileProcessServlet: " + e.getMessage(), e);
             args.set(ARG_ERROR_CODE, "1");
             args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"));
+
         } catch (EBaseException e) {
+            logger.error("ProfileProcessServlet: " + e.getMessage(), e);
             setError(args, e.getMessage(), request, response);
             return;
         }
@@ -179,6 +195,7 @@ public class ProfileProcessServlet extends ProfileServlet {
             }
             args.set(ARG_OUTPUT_LIST, outputlist);
         }
+
         try {
             //logger.debug("ProfileProcessServlet: p12 output process begins");
             String p12Str = req.getExtDataInString("req_issued_p12");
@@ -186,6 +203,7 @@ public class ProfileProcessServlet extends ProfileServlet {
                 // not server-side keygen
                 // logger.debug("ProfileProcessServlet: no p12; not server-side keygen");
                 outputTemplate(request, response, args);
+
             } else {
                 // found pkcs12 blob
                 //logger.debug("ProfileProcessServlet: found p12 " /* + p12Str*/);
@@ -200,8 +218,9 @@ public class ProfileProcessServlet extends ProfileServlet {
                 bos.flush();
                 bos.close();
             }
+
         } catch (IOException e) {
-            logger.error("ProfileProcessServlet: p12 output process error" + e);
+            logger.error("ProfileProcessServlet: Unable to process PKCS #12 output: " + e.getMessage(), e);
             setError(args, e.getMessage(), request, response);
             return;
         }
