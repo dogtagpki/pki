@@ -410,9 +410,11 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
         IService service = new KRAService(this);
 
         RequestNotifier requestNotifier = new KRANotify();
+        requestNotifier.setCMSEngine(engine);
         engine.setRequestNotifier(requestNotifier);
 
         RequestNotifier pendingNotifier = new RequestNotifier();
+        pendingNotifier.setCMSEngine(engine);
         engine.setPendingNotifier(pendingNotifier);
 
         RequestSubsystem reqSub = engine.getRequestSubsystem();

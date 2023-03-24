@@ -827,9 +827,11 @@ public class CAEngine extends CMSEngine {
 
         logger.info("CAEngine: Initializing CA request notifier");
         requestNotifier = new CANotify();
+        requestNotifier.setCMSEngine(this);
 
         logger.info("CAEngine: Initializing CA pending request notifier");
         pendingNotifier = new RequestNotifier();
+        pendingNotifier.setCMSEngine(this);
 
         logger.info("CAEngine: Initializing CA request queue");
 

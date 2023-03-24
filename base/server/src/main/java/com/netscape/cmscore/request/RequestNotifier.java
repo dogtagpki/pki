@@ -23,10 +23,9 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.request.RequestListener;
 import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.cmscore.apps.CMS;
+import com.netscape.certsrv.request.RequestListener;
 import com.netscape.cmscore.apps.CMSEngine;
 
 /**
@@ -38,6 +37,8 @@ import com.netscape.cmscore.apps.CMSEngine;
 public class RequestNotifier {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestNotifier.class);
+
+    protected CMSEngine engine;
 
     private Hashtable<String, RequestListener> mListeners = new Hashtable<>();
     private Vector<Thread> mNotifierThreads = new Vector<>();
@@ -55,6 +56,14 @@ public class RequestNotifier {
 
     public RequestNotifier() {
         mPublishingQueuePriority = Thread.currentThread().getPriority();
+    }
+
+    public CMSEngine getCMSEngine() {
+        return engine;
+    }
+
+    public void setCMSEngine(CMSEngine engine) {
+        this.engine = engine;
     }
 
     /**
@@ -92,7 +101,6 @@ public class RequestNotifier {
             mPublishingQueuePriority = Thread.currentThread().getPriority();
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
         RequestRepository requestRepository = engine.getRequestRepository();
 
         if (mIsPublishingQueueEnabled && mSavePublishingStatus > 0 && requestRepository != null) {
@@ -182,7 +190,6 @@ public class RequestNotifier {
 
     public void updatePublishingStatus(String id) {
 
-        CMSEngine engine = CMS.getCMSEngine();
         RequestRepository requestRepository = engine.getRequestRepository();
 
         if (requestRepository != null) {
@@ -211,8 +218,6 @@ public class RequestNotifier {
     public synchronized Request getRequest() {
         Request r = null;
         String id = null;
-
-        CMSEngine engine = CMS.getCMSEngine();
 
         logger.debug("getRequest  mRequests=" + mRequests.size() + "  mSearchForRequests=" + mSearchForRequests);
         if (mSearchForRequests && mRequests.size() == 1) {
@@ -335,7 +340,6 @@ public class RequestNotifier {
         if (mNotifierThreads.size() > 0) {
             mNotifierThreads.remove(notifierThread);
             if (mNotifierThreads.size() == 0) {
-                CMSEngine engine = CMS.getCMSEngine();
                 RequestRepository requestRepository = engine.getRequestRepository();
                 if (requestRepository != null) {
                     requestRepository.setPublishingStatus("-1");
