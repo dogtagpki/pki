@@ -311,10 +311,8 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             throw new ServiceUnavailableException(e.toString(), e);
 
         } catch (EPropertyException e) {
-            String message = CMS.getUserMessage(getLocale(headers),
-                    "CMS_PROFILE_PROPERTY_ERROR", e.getMessage());
-            logger.error(message, e);
-            throw new PKIException(message, e);
+            logger.error("CertRequestService: Unable to change request state: " + e.getMessage(), e);
+            throw new PKIException("Unable to change request state: " + e.getMessage(), e);
 
         } catch (EProfileException e) {
             String message = CMS.getUserMessage(getLocale(headers), "CMS_INTERNAL_ERROR") + ": " + e.getMessage();

@@ -68,8 +68,8 @@ public class ExtensionConstraint extends EnrollConstraint {
                 try {
                     CertUtils.checkOID("", value);
                 } catch (Exception e) {
-                    throw new EPropertyException(
-                            CMS.getUserMessage("CMS_PROFILE_PROPERTY_ERROR", value));
+                    logger.error("ExtensionConstraint: Invalid OID: " + e.getMessage(), e);
+                    throw new EPropertyException("Invalid OID: " + e.getMessage(), e);
                 }
             }
             mConfig.getSubStore("params").putString(name, value);

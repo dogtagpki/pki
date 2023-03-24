@@ -146,22 +146,23 @@ public class ProfileProcessServlet extends ProfileServlet {
             return;
 
         } catch (ERejectException e) {
-            logger.debug("ProfileProcessServlet: execution rejected " + e.getMessage());
+            logger.info("ProfileProcessServlet: Request rejected: " + e.getMessage());
             args.set(ARG_ERROR_CODE, "1");
             args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale, "CMS_PROFILE_REJECTED", e.toString()));
 
         } catch (EDeferException e) {
-            logger.debug("ProfileProcessServlet: execution defered " + e.getMessage());
+            logger.info("ProfileProcessServlet: Request defered: " + e.getMessage());
             args.set(ARG_ERROR_CODE, "1");
             args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale, "CMS_PROFILE_DEFERRED", e.toString()));
 
         } catch (EPropertyException e) {
-            logger.debug("ProfileProcessServlet: " + e.getMessage(), e);
+            String message = CMS.getUserMessage(locale, "CMS_PROFILE_PROPERTY_ERROR", e.toString());
+            logger.error("ProfileProcessServlet: " + message, e);
             args.set(ARG_ERROR_CODE, "1");
-            args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale, "CMS_PROFILE_PROPERTY_ERROR", e.toString()));
+            args.set(ARG_ERROR_REASON, message);
 
         } catch (EProfileException e) {
-            logger.debug("ProfileProcessServlet: " + e.getMessage(), e);
+            logger.error("ProfileProcessServlet: " + e.getMessage(), e);
             args.set(ARG_ERROR_CODE, "1");
             args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"));
 
@@ -197,23 +198,21 @@ public class ProfileProcessServlet extends ProfileServlet {
         }
 
         try {
-            //logger.debug("ProfileProcessServlet: p12 output process begins");
             String p12Str = req.getExtDataInString("req_issued_p12");
             if (p12Str == null) {
-                // not server-side keygen
-                // logger.debug("ProfileProcessServlet: no p12; not server-side keygen");
+                logger.info("ProfileProcessServlet: No server-side keygen");
                 outputTemplate(request, response, args);
 
             } else {
-                // found pkcs12 blob
-                //logger.debug("ProfileProcessServlet: found p12 " /* + p12Str*/);
-                byte[] p12blob = null;
+                logger.info("ProfileProcessServlet: Processing PKCS #12 output for server-side keygen");
+                byte[] p12blob = Utils.base64decode(p12Str);
+
                 HttpServletResponse p12_response = cmsReq.getHttpResp();
-                p12blob = Utils.base64decode(p12Str);
-                OutputStream bos = p12_response.getOutputStream();
                 p12_response.setContentType("application/x-pkcs12");
                 p12_response.setContentLength(p12blob.length);
                 p12_response.setHeader("Content-disposition", "attachment; filename="+  "serverKeyGenCert.p12");
+
+                OutputStream bos = p12_response.getOutputStream();
                 bos.write(p12blob);
                 bos.flush();
                 bos.close();

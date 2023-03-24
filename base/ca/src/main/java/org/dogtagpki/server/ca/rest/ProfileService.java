@@ -839,9 +839,10 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             populateProfileOutputs(data, profile);
             populateProfilePolicies(data, profile);
             ps.commitProfile(profileId);
+
         } catch (EBaseException e) {
-            logger.error("changeProfileData: Error changing profile inputs/outputs/policies: " + e.getMessage(), e);
-            throw new PKIException("Error changing profile data");
+            logger.error("ProfileService: Unable to update profile: " + e.getMessage(), e);
+            throw new PKIException("Unable to update profile: " + e.getMessage(), e);
         }
     }
 

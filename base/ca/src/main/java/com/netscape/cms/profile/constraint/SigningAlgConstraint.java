@@ -80,8 +80,8 @@ public class SigningAlgConstraint extends EnrollConstraint {
                 while (st.hasMoreTokens()) {
                     String v = st.nextToken();
                     if (DEF_CONFIG_ALGORITHMS.indexOf(v) == -1) {
-                        throw new EPropertyException(
-                                CMS.getUserMessage("CMS_PROFILE_PROPERTY_ERROR", v));
+                        logger.error("SigningAlgConstraint: Unsupported signing algorithm: " + v);
+                        throw new EPropertyException("Unsupported signing algorithm: " + v);
                     }
                 }
             }
