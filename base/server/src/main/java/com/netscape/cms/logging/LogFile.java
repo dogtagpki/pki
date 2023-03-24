@@ -77,7 +77,6 @@ import com.netscape.certsrv.logging.LogEventListener;
 import com.netscape.certsrv.logging.LogSource;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 
@@ -400,7 +399,7 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
 
     private static boolean mInSignedAuditLogFailureMode = false;
 
-    private static synchronized void shutdownCMS() {
+    private synchronized void shutdownCMS() {
         if (mInSignedAuditLogFailureMode == false) {
 
             // Set signed audit log failure mode true
@@ -410,7 +409,6 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
 
             logger.error("LogFile: Disabling subsystem due to signed logging failure");
 
-            CMSEngine engine = CMS.getCMSEngine();
             engine.disableSubsystem();
         }
     }
@@ -422,7 +420,6 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
      */
     public void init(ConfigStore config) throws IOException, EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
         String fileName = null;
@@ -600,7 +597,7 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
         }
     }
 
-    private static void setupSigningFailure(String logMessageCode, Exception e)
+    private void setupSigningFailure(String logMessageCode, Exception e)
             throws EBaseException {
         try {
             System.err.println(CMS.getLogMessage(logMessageCode));
@@ -1229,8 +1226,6 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
         // Hmm.. multiple threads could hit this and reset the time.
         // Do we care?
         mDate.setTime(ev.getTimeStamp());
-
-        CMSEngine engine = CMS.getCMSEngine();
 
         // XXX
         // This should follow the Common Log Format which still needs

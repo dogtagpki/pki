@@ -832,6 +832,8 @@ public class LogAdminServlet extends AdminServlet {
 
             // initialize the log
             try {
+                CMSEngine engine = getCMSEngine();
+                logInst.setCMSEngine(engine);
                 logInst.init(logSubsystem, substore);
             } catch (EBaseException e) {
                 // don't commit in this case and cleanup the new substore.

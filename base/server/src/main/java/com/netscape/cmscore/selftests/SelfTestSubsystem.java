@@ -1283,6 +1283,7 @@ public class SelfTestSubsystem extends Subsystem {
 
                 // initialize the self tests logger
                 mLogger = (LogEventListener) o;
+                mLogger.setCMSEngine(engine);
                 mLogger.init(this, loggerConfig);
 
             } catch (EMissingSelfTestException | EInvalidSelfTestException e) {

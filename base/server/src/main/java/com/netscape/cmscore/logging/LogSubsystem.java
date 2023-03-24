@@ -129,7 +129,7 @@ public class LogSubsystem extends Subsystem {
             try {
                 logInst = (LogEventListener) Class.forName(className).getDeclaredConstructor().newInstance();
                 ConfigStore pConfig = loggersConfig.getSubStore(insName, ConfigStore.class);
-
+                logInst.setCMSEngine(engine);
                 logInst.init(this, pConfig);
                 // for view from console
 
