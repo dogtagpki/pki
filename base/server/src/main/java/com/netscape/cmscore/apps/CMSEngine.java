@@ -1817,13 +1817,93 @@ public class CMSEngine {
                 logger.debug("CMSEngine: verifySystemCerts() cert tag=" + tag);
 
                 if (!checkValidityOnly) {
-                    CertUtils.verifySystemCertByTag(tag);
+                    verifySystemCertByTag(tag);
                 } else {
-                    CertUtils.verifySystemCertByTag(tag, true);
+                    verifySystemCertByTag(tag, true);
                 }
             }
 
         } catch (Exception e) {
+            auditMessage = CMS.getLogMessage(
+                        AuditEvent.CIMC_CERT_VERIFICATION,
+                        ILogger.SYSTEM_UID,
+                        ILogger.FAILURE,
+                        "");
+
+            signedAuditLogger.log(auditMessage);
+            throw e;
+        }
+    }
+
+    /**
+     * Verify a certificate by its tag name, do a full verification.
+     *
+     * @throws Exception if something is wrong
+     */
+    public void verifySystemCertByTag(String tag) throws Exception {
+        verifySystemCertByTag(tag,false);
+    }
+
+    /**
+     * Verify a certificate by its tag name.
+     * Perform optional validity check only.
+     *
+     * @throws Exception if something is wrong
+     */
+    public void verifySystemCertByTag(String tag, boolean checkValidityOnly) throws Exception {
+
+        logger.debug("CMSEngine: verifySystemCertByTag(" + tag + ")");
+        String auditMessage = null;
+
+        try {
+            String subsysType = config.getType();
+            if (subsysType.equals("")) {
+                logger.error("CMSEngine: verifySystemCertByTag() cs.type not defined in CS.cfg. System certificates verification not done");
+                throw new Exception("Missing cs.type in CS.cfg");
+            }
+
+            subsysType = CertUtils.toLowerCaseSubsystemType(subsysType);
+            if (subsysType == null) {
+                logger.error("CMSEngine: verifySystemCerts() invalid cs.type in CS.cfg. System certificates verification not done");
+                auditMessage = CMS.getLogMessage(
+                            AuditEvent.CIMC_CERT_VERIFICATION,
+                            ILogger.SYSTEM_UID,
+                            ILogger.FAILURE,
+                            "");
+
+                signedAuditLogger.log(auditMessage);
+                throw new Exception("Invalid cs.type in CS.cfg");
+            }
+
+            String nickname = config.getString(subsysType + ".cert." + tag + ".nickname", "");
+            if (nickname.equals("")) {
+                logger.error("CMSEngine: verifySystemCertByTag() nickname for cert tag " + tag + " undefined in CS.cfg");
+                throw new Exception("Missing nickname for " + tag + " certificate");
+            }
+
+            String certusage = config.getString(subsysType + ".cert." + tag + ".certusage", "");
+            if (certusage.equals("")) {
+                logger.warn("CMSEngine: verifySystemCertByTag() certusage for cert tag "
+                        + tag + " undefined in CS.cfg, getting current certificate usage");
+                // throw new Exception("Missing certificate usage for " + tag + " certificate"); ?
+            }
+
+            if (!checkValidityOnly) {
+                CertUtils.verifySystemCertByNickname(nickname, certusage);
+            } else {
+                CertUtils.verifySystemCertValidityByNickname(nickname);
+            }
+
+            auditMessage = CMS.getLogMessage(
+                    AuditEvent.CIMC_CERT_VERIFICATION,
+                    ILogger.SYSTEM_UID,
+                    ILogger.SUCCESS,
+                        nickname);
+
+            signedAuditLogger.log(auditMessage);
+
+        } catch (Exception e) {
+            logger.error("CMSEngine: verifySystemCertsByTag() failed: " + e.getMessage(), e);
             auditMessage = CMS.getLogMessage(
                         AuditEvent.CIMC_CERT_VERIFICATION,
                         ILogger.SYSTEM_UID,

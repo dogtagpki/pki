@@ -60,15 +60,11 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkix.crmf.CertReqMsg;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.logging.AuditEvent;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -977,86 +973,6 @@ public class CertUtils {
 
         } catch (Exception e) {
             logger.error("CertUtils: verifySystemCertByNickname() failed: " + e.getMessage(), e);
-            throw e;
-        }
-    }
-
-    /*
-     * verify a certificate by its tag name, do a full verification
-     * @throws Exception if something is wrong
-     */
-    public static void verifySystemCertByTag(String tag) throws Exception {
-        verifySystemCertByTag(tag,false);
-    }
-    /*
-     * verify a certificate by its tag name
-     * @throws Exception if something is wrong
-     * perform optional validity check only
-     */
-    public static void verifySystemCertByTag(String tag,boolean checkValidityOnly) throws Exception {
-
-        logger.debug("CertUtils: verifySystemCertByTag(" + tag + ")");
-
-        CMSEngine engine = CMS.getCMSEngine();
-        String auditMessage = null;
-        EngineConfig config = engine.getConfig();
-
-        try {
-            String subsysType = config.getType();
-            if (subsysType.equals("")) {
-                logger.error("CertUtils: verifySystemCertByTag() cs.type not defined in CS.cfg. System certificates verification not done");
-                throw new Exception("Missing cs.type in CS.cfg");
-            }
-
-            subsysType = toLowerCaseSubsystemType(subsysType);
-            if (subsysType == null) {
-                logger.error("CertUtils: verifySystemCerts() invalid cs.type in CS.cfg. System certificates verification not done");
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.CIMC_CERT_VERIFICATION,
-                            ILogger.SYSTEM_UID,
-                            ILogger.FAILURE,
-                            "");
-
-                audit(auditMessage);
-                throw new Exception("Invalid cs.type in CS.cfg");
-            }
-
-            String nickname = config.getString(subsysType + ".cert." + tag + ".nickname", "");
-            if (nickname.equals("")) {
-                logger.error("CertUtils: verifySystemCertByTag() nickname for cert tag " + tag + " undefined in CS.cfg");
-                throw new Exception("Missing nickname for " + tag + " certificate");
-            }
-
-            String certusage = config.getString(subsysType + ".cert." + tag + ".certusage", "");
-            if (certusage.equals("")) {
-                logger.warn("CertUtils: verifySystemCertByTag() certusage for cert tag "
-                        + tag + " undefined in CS.cfg, getting current certificate usage");
-                // throw new Exception("Missing certificate usage for " + tag + " certificate"); ?
-            }
-
-            if(!checkValidityOnly) {
-                verifySystemCertByNickname(nickname, certusage);
-            } else {
-                verifySystemCertValidityByNickname(nickname);
-            }
-
-            auditMessage = CMS.getLogMessage(
-                    AuditEvent.CIMC_CERT_VERIFICATION,
-                    ILogger.SYSTEM_UID,
-                    ILogger.SUCCESS,
-                        nickname);
-
-            audit(auditMessage);
-
-        } catch (Exception e) {
-            logger.error("CertUtils: verifySystemCertsByTag() failed: " + e.getMessage(), e);
-            auditMessage = CMS.getLogMessage(
-                        AuditEvent.CIMC_CERT_VERIFICATION,
-                        ILogger.SYSTEM_UID,
-                        ILogger.FAILURE,
-                        "");
-
-            audit(auditMessage);
             throw e;
         }
     }
