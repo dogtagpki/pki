@@ -116,10 +116,8 @@ public class ReqCertEmailResolver implements IEmailResolver {
                 logger.error("ReqCertEmailResolver: no email resolved, throwing NotificationResources.EMAIL_RESOLVE_FAILED_1.  No request id or cert info found");
                 throw new ENotificationException(CMS.getUserMessage("CMS_NOTIFICATION_EMAIL_RESOLVE_FAILED", ": No request id or cert info found"));
             }
-        } else {
-            logger.info("ReqCertEmailResolver: email resolved: " + mEmail);
         }
-
+        logger.info("ReqCertEmailResolver: email resolved: " + mEmail);
         return mEmail;
     }
 

@@ -492,9 +492,8 @@ public class TokenKeyRecoveryService implements IService {
                     jssSubsystem.obscureBytes(privateKeyData);
                     jssSubsystem.obscureBytes(p);
                     throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_PUBLIC_KEY"));
-                } else {
-                    logger.debug("TokenKeyRecoveryService: private key verified with public key");
                 }
+                logger.debug("TokenKeyRecoveryService: private key verified with public key");
 
                 //encrypt and put in private key
                 wrapped = CryptoUtil.encryptUsingSymmetricKey(
@@ -549,13 +548,12 @@ public class TokenKeyRecoveryService implements IService {
                         "TokenKeyRecoveryService: failed generating wrapped private key",
                         agentId));
                 return false;
-            } else {
-                logger.debug("TokenKeyRecoveryService: got private key data wrapped");
-                request.setExtData("wrappedUserPrivate",
-                        wrappedPrivKeyString);
-                request.setExtData(Request.RESULT, Integer.valueOf(1));
-                logger.debug("TokenKeyRecoveryService: key for " + rCUID + ":" + rUserid + " recovered");
             }
+            logger.debug("TokenKeyRecoveryService: got private key data wrapped");
+            request.setExtData("wrappedUserPrivate",
+                    wrappedPrivKeyString);
+            request.setExtData(Request.RESULT, Integer.valueOf(1));
+            logger.debug("TokenKeyRecoveryService: key for " + rCUID + ":" + rUserid + " recovered");
 
             //convert and put in the public key
             String PubKey = "";
@@ -586,11 +584,10 @@ public class TokenKeyRecoveryService implements IService {
                         "TokenKeyRecoveryService: failed getting publickey encoded",
                         agentId));
                 return false;
-            } else {
-                //logger.debug("TokenKeyRecoveryService: got publicKeyData b64 = " +
-                //        PubKey);
-                logger.debug("TokenKeyRecoveryService: got publicKeyData");
             }
+            //logger.debug("TokenKeyRecoveryService: got publicKeyData b64 = " +
+            //        PubKey);
+            logger.debug("TokenKeyRecoveryService: got publicKeyData");
             request.setExtData("public_key", PubKey);
 
             auditor.log(new SecurityDataRecoveryProcessedEvent(

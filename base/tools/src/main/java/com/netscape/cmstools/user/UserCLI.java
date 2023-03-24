@@ -53,12 +53,8 @@ public class UserCLI extends CLI {
 
     @Override
     public String getFullName() {
-        if (parent instanceof MainCLI) {
-            // do not include MainCLI's name
-            return name;
-        } else {
-            return parent.getFullName() + "-" + name;
-        }
+        // do not include MainCLI's name
+        return parent instanceof MainCLI ? name : parent.getFullName() + "-" + name;
     }
 
     @Override

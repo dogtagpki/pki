@@ -91,9 +91,9 @@ public class RenewGracePeriodConstraint extends EnrollConstraint {
         if (origExpDate_s == null) { // probably not for renewal
             logger.debug(method + " original cert expiration date not found...return without validation");
             return;
-        } else { //should occur when it's renewal
-            logger.debug(method + " original cert expiration date found... validating");
         }
+        //should occur when it's renewal
+        logger.debug(method + " original cert expiration date found... validating");
         BigInteger origExpDate_BI = new BigInteger(origExpDate_s);
         Date origExpDate = new Date(origExpDate_BI.longValue());
         String renew_grace_before_s = getConfig(CONFIG_RENEW_GRACE_BEFORE);

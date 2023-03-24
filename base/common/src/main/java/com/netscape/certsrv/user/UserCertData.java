@@ -46,9 +46,8 @@ public class UserCertData implements JSONSerializer {
     public String getID() {
         if (version == null && serialNumber == null && issuerDN == null && subjectDN == null) {
             return null;
-        } else {
-            return version + ";" + serialNumber + ";" + issuerDN + ";" + subjectDN;
         }
+        return version + ";" + serialNumber + ";" + issuerDN + ";" + subjectDN;
     }
 
     public void setID(String id) {

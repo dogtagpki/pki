@@ -267,9 +267,8 @@ public class RequestNotifier {
                     if (i == 0 && id.equals(r.getRequestId().toString())) {
                         if (s == 1) {
                             break;
-                        } else {
-                            continue;
                         }
+                        continue;
                     }
                     if (mRequests.size() < mMaxRequests) {
                         mRequests.addElement(r.getRequestId().toString());

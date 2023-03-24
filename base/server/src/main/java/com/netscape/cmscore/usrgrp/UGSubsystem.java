@@ -178,10 +178,8 @@ public class UGSubsystem {
             if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
                 logger.info("UGSubsystem: User not found: " + userID);
                 return null;
-
-            } else {
-                throw new EUsrGrpException("Unable to retrieve user: " + userID + ": " + e.getMessage(), e);
             }
+            throw new EUsrGrpException("Unable to retrieve user: " + userID + ": " + e.getMessage(), e);
 
         } finally {
             if (ldapconn != null) returnConn(ldapconn);
@@ -1893,9 +1891,8 @@ public class UGSubsystem {
             LDAPConnection conn = mLdapConnFactory.getConn();
             if (conn == null) {
                 throw new ELdapException("No Ldap Connection Available");
-            } else {
-                return conn;
             }
+            return conn;
         }
 
         throw new ELdapException("Ldap Connection Factory is Unavailable");

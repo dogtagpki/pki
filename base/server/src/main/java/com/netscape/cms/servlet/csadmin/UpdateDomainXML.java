@@ -213,10 +213,7 @@ public class UpdateDomainXML extends CMSServlet {
     }
 
     protected String securityDomainXMLtoLDAP(String xmltag) {
-        if (xmltag.equals("Host"))
-            return "host";
-        else
-            return xmltag;
+        return xmltag.equals("Host") ? "host" : xmltag;
     }
 
     @Override

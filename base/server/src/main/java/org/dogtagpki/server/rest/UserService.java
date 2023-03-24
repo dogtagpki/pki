@@ -295,10 +295,8 @@ public class UserService extends SubsystemService implements UserResource {
                 String msg = getUserMessage("CMS_USRGRP_USER_ADD_FAILED_1", headers, "full name");
                 logger.error(msg);
                 throw new BadRequestException(msg);
-
-            } else {
-                user.setFullName(fname);
             }
+            user.setFullName(fname);
 
             String email = userData.getEmail();
             logger.debug("Email: " + email);

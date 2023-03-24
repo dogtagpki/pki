@@ -307,11 +307,7 @@ public class TokenServlet extends CMSServlet {
     //   if specialDecoded is blank, returns "null"
     //   if specialDecoded != null, returns <ASCII-HEX string representation of specialDecoded>
     private String log_string_from_specialDecoded_byte_array(byte[] specialDecoded) {
-        if (specialDecoded == null) {
-            return "null";
-        } else {
-            return bytesToHex(specialDecoded);
-        }
+        return specialDecoded == null ? "null" : bytesToHex(specialDecoded);
     }
 
     /* Compute Session Key for SCP02
@@ -651,9 +647,8 @@ public class TokenServlet extends CMSServlet {
                     if ((drmTransNickname == null) || (drmTransNickname == "")) {
                         logger.error("TokenServlet.computeSessionKeySCP02:did not find DRM transport certificate nickname");
                         throw new EBaseException("can't find DRM transport certificate nickname");
-                    } else {
-                        logger.debug("TokenServlet.computeSessionKeySCP02:drmtransport_cert_nickname=" + drmTransNickname);
                     }
+                    logger.debug("TokenServlet.computeSessionKeySCP02:drmtransport_cert_nickname=" + drmTransNickname);
 
                     X509Certificate drmTransCert = null;
                     drmTransCert = CryptoManager.getInstance().findCertByNickname(drmTransNickname);
@@ -1220,9 +1215,8 @@ public class TokenServlet extends CMSServlet {
                         if ((drmTransNickname == null) || (drmTransNickname == "")) {
                             logger.error("TokenServlet:did not find DRM transport certificate nickname");
                             throw new Exception("can't find DRM transport certificate nickname");
-                        } else {
-                            logger.debug("TokenServlet:drmtransport_cert_nickname=" + drmTransNickname);
                         }
+                        logger.debug("TokenServlet:drmtransport_cert_nickname=" + drmTransNickname);
 
                         X509Certificate drmTransCert = null;
                         drmTransCert = CryptoManager.getInstance().findCertByNickname(drmTransNickname);
@@ -3128,9 +3122,8 @@ public class TokenServlet extends CMSServlet {
         if ((drmTransNickname == null) || (drmTransNickname == "")) {
             logger.error(method + " did not find DRM transport certificate nickname");
             throw new EBaseException(method + "can't find DRM transport certificate nickname");
-        } else {
-            logger.debug(method + " drmtransport_cert_nickname=" + drmTransNickname);
         }
+        logger.debug(method + " drmtransport_cert_nickname=" + drmTransNickname);
 
         X509Certificate drmTransCert = null;
         try {

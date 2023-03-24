@@ -54,11 +54,7 @@ public class Request implements ASN1Value {
     }
 
     public int getExtensionsCount() {
-        if (singleRequestExtensions == null) {
-            return 0;
-        } else {
-            return singleRequestExtensions.size();
-        }
+        return singleRequestExtensions == null ? 0 : singleRequestExtensions.size();
     }
 
     public Extension getRequestExtensionAt(int index) {
@@ -143,11 +139,10 @@ public class Request implements ASN1Value {
                 return new Request(
                         (CertID) seq.elementAt(0),
                         (SEQUENCE) null);
-            } else {
-                return new Request(
-                        (CertID) seq.elementAt(0),
-                        (SEQUENCE) tag.getContent());
             }
+            return new Request(
+                    (CertID) seq.elementAt(0),
+                    (SEQUENCE) tag.getContent());
         }
     }
 }

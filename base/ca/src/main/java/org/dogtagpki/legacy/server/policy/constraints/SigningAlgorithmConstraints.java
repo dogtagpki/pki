@@ -101,7 +101,7 @@ public class SigningAlgorithmConstraints extends APolicyRule
      */
     @Override
     public void init(IPolicyProcessor owner, ConfigStore config) throws EBaseException {
-        mAuthority = (IAuthority) owner.getAuthority();
+        mAuthority = owner.getAuthority();
 
         // Get allowed algorithms from config file
         if (config != null) {
@@ -225,9 +225,8 @@ public class SigningAlgorithmConstraints extends APolicyRule
                 if (isError) {
                     logger.error("SigningAlgorithmConstraints: " + e.getMessage(), e);
                     throw e;
-                } else {
-                    logger.warn("SigningAlgorithmConstraints: " + e.getMessage(), e);
                 }
+                logger.warn("SigningAlgorithmConstraints: " + e.getMessage(), e);
             }
         }
 

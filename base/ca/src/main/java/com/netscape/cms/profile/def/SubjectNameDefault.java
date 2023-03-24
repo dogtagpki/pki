@@ -59,9 +59,8 @@ public class SubjectNameDefault extends EnrollDefault {
             return new Descriptor(IDescriptor.STRING,
                     null, "CN=TEST", CMS.getUserMessage(locale,
                             "CMS_PROFILE_SUBJECT_NAME"));
-        } else {
-            return null;
         }
+        return null;
     }
 
     @Override
@@ -70,9 +69,8 @@ public class SubjectNameDefault extends EnrollDefault {
             return new Descriptor(IDescriptor.STRING, null, null,
                     CMS.getUserMessage(locale,
                             "CMS_PROFILE_SUBJECT_NAME"));
-        } else {
-            return null;
         }
+        return null;
     }
 
     @Override
@@ -135,10 +133,9 @@ public class SubjectNameDefault extends EnrollDefault {
             }
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
-        } else {
-            throw new EPropertyException(CMS.getUserMessage(
-                        locale, "CMS_INVALID_PROPERTY", name));
         }
+        throw new EPropertyException(CMS.getUserMessage(
+                    locale, "CMS_INVALID_PROPERTY", name));
     }
 
     @Override

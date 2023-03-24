@@ -208,7 +208,9 @@ public class TPSEnrollProcessor extends TPSProcessor {
             // otherwise stop the operation.
             logger.debug(method + " checking if record registrationtype matches currentTokenOperation.");
             if(erAttrs.getRegistrationType() != null && erAttrs.getRegistrationType().length() > 0) {
-                if(!erAttrs.getRegistrationType().equalsIgnoreCase(currentTokenOperation)) {
+                if(erAttrs.getRegistrationType().equalsIgnoreCase(currentTokenOperation)) {
+                    logger.debug(method + ": --> registrationtype matches currentTokenOperation");
+                } else {
                     logger.debug(
                             method + " Error: registrationType " +
                             erAttrs.getRegistrationType() +
@@ -218,8 +220,6 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), logMsg,
                             "failure");
                     throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_LOGIN);
-                } else {
-                    logger.debug(method + ": --> registrationtype matches currentTokenOperation");
                 }
             } else {
                 logger.debug(method + ": --> registrationtype attribute disabled or not found, continuing.");
@@ -236,16 +236,16 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 logger.debug(method + " checking if token cuid matches record cuid");
                 logger.debug(method + " erAttrs.getTokenCUID()=" + erAttrs.getTokenCUID());
                 logger.debug(method + " tokenRecord.getId()=" + tokenRecord.getId());
-                if (!tokenRecord.getId().equalsIgnoreCase(erAttrs.getTokenCUID())) {
+                if (tokenRecord.getId().equalsIgnoreCase(erAttrs.getTokenCUID())) {
+                    logMsg = "isExternalReg: token CUID matches record";
+                    logger.debug(method + logMsg);
+                } else {
                     logMsg = "isExternalReg: token CUID not matching record:" + tokenRecord.getId() + " : " +
                             erAttrs.getTokenCUID();
                     logger.error(method + logMsg);
                     tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), logMsg,
                             "failure");
                     throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_NOT_TOKEN_OWNER);
-                } else {
-                    logMsg = "isExternalReg: token CUID matches record";
-                    logger.debug(method + logMsg);
                 }
             } else {
                 logger.debug(method + " no need to check if token cuid matches record");
@@ -320,7 +320,10 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
             checkInvalidTokenStatus(tokenRecord, ActivityDatabase.OP_ENROLLMENT);
 
-            if (!tps.isOperationTransitionAllowed(tokenRecord, newState)) {
+            if (tps.isOperationTransitionAllowed(tokenRecord, newState)) {
+                logger.debug(method + " token transition allowed " +
+                        tokenRecord.getTokenStatus() + " to " + newState);
+            } else {
                 logger.error(method + " token transition disallowed " +
                         tokenRecord.getTokenStatus() +
                         " to " + newState);
@@ -332,9 +335,6 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
                 throw new TPSException(logMsg,
                         TPSStatus.STATUS_ERROR_DISABLED_TOKEN);
-            } else {
-                logger.debug(method + " token transition allowed " +
-                        tokenRecord.getTokenStatus() + " to " + newState);
             }
 
             tokenPolicy = new TPSTokenPolicy(tps, cuid);
@@ -342,21 +342,19 @@ public class TPSEnrollProcessor extends TPSProcessor {
             if (doForceFormat)
                 logger.debug(method + " Will force format first due to policy.");
 
-            if (!isExternalReg &&
-                    !tokenPolicy.isAllowdTokenReenroll() &&
-                    !tokenPolicy.isAllowdTokenRenew()) {
-                logger.error(method + " token renewal or reEnroll disallowed");
-                logMsg = "Operation renewal or reEnroll for CUID " + cuid +
-                        " Disabled";
-                tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), logMsg,
-                        "failure");
-
-                throw new TPSException(logMsg,
-                        TPSStatus.STATUS_ERROR_DISABLED_TOKEN);
-            } else {
+            if (isExternalReg || tokenPolicy.isAllowdTokenReenroll() || tokenPolicy.isAllowdTokenRenew()) {
                 logMsg = "isExternalReg: skip token policy (reenroll, renewal) check";
                 logger.debug(method + logMsg);
-            }
+            } else {
+                logger.error(method + " token renewal or reEnroll disallowed");
+                logMsg = "Operation renewal or reEnroll for CUID " + cuid +
+                    " Disabled";
+                tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), logMsg,
+                    "failure");
+
+                throw new TPSException(logMsg,
+                    TPSStatus.STATUS_ERROR_DISABLED_TOKEN);
+         }
         } else {
             logger.debug(method + " token does not exist");
             checkAllowUnknownToken(TPSEngine.ENROLL_OP);
@@ -469,18 +467,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
             logger.debug(method + logMsg);
         }
         if (status == TPSStatus.STATUS_NO_ERROR) {
-            if (!generateCertificates(certsInfo, channel, appletInfo)) {
-                logger.error(method + "generateCertificates returned false means cert enrollment unsuccessful");
-                // in case isExternalReg, leave the token alone, do not format
-                if (!isExternalReg) {
-                    logger.warn(method
-                            + "generateCertificates returned false means some certs failed enrollment;  clean up (format) the token");
-                    format(true /*skipAuth*/);
-                }
-                tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), logMsg,
-                        "failure");
-                throw new TPSException("generateCertificates failed", TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
-            } else {
+            if (generateCertificates(certsInfo, channel, appletInfo)) {
                 logger.debug(method + "generateCertificates returned true means cert enrollment successful");
                 /*
                  * isExternalReg -
@@ -525,6 +512,17 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     //tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), logMsg,
                     //"success");
                 }
+            } else {
+                logger.error(method + "generateCertificates returned false means cert enrollment unsuccessful");
+                // in case isExternalReg, leave the token alone, do not format
+                if (!isExternalReg) {
+                    logger.warn(method
+                            + "generateCertificates returned false means some certs failed enrollment;  clean up (format) the token");
+                    format(true /*skipAuth*/);
+                }
+                tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), logMsg,
+                        "failure");
+                throw new TPSException("generateCertificates failed", TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
             }
         }
         // at this point, enrollment, renewal, or recovery have been processed accordingly;
@@ -1168,10 +1166,9 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     tokenPolicy = new TPSTokenPolicy(tps,aInfo.getCUIDhexStringPlain());
                     if (tokenPolicy.isAllowdTokenRenew()) {
                         return processRenewal(certsInfo, channel, aInfo, tokenRecord);
-                    } else {
-                        logMsg = "token is already active; can't renew because renewal is not allowed; will re-enroll if allowed";
-                        logger.debug(method + ":" + logMsg);
                     }
+                    logMsg = "token is already active; can't renew because renewal is not allowed; will re-enroll if allowed";
+                    logger.debug(method + ":" + logMsg);
                     break;
 
                 } else if (tokenRecord.getTokenStatus() == TokenStatus.TERMINATED) {
@@ -1391,14 +1388,13 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 logMsg = " no keyid; retention; skip key recovery; continue";
                 logger.debug(method + logMsg);
                 continue;
-            } else {
-                logMsg = " keyid in user record: " + keyid.toString();
+            }
+            logMsg = " keyid in user record: " + keyid.toString();
+            logger.debug(method + logMsg);
+            if ((getExternalRegRecoverByKeyID() == false) &&
+                    keyid.compareTo(BigInteger.valueOf(0)) != 0) {
+                logMsg = " Recovering by cert; keyid is irrelevant from user record";
                 logger.debug(method + logMsg);
-                if ((getExternalRegRecoverByKeyID() == false) &&
-                        keyid.compareTo(BigInteger.valueOf(0)) != 0) {
-                    logMsg = " Recovering by cert; keyid is irrelevant from user record";
-                    logger.debug(method + logMsg);
-                }
             }
 
             // recover keys
@@ -1411,10 +1407,9 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     logMsg = "channel.getDRMWrappedDesKey() null";
                     logger.warn(method + logMsg);
                     return TPSStatus.STATUS_ERROR_RECOVERY_FAILED;
-                } else {
-                    logMsg = "channel.getDRMWrappedDesKey() not null";
-                    logger.debug(method + logMsg);
                 }
+                logMsg = "channel.getDRMWrappedDesKey() not null";
+                logger.debug(method + logMsg);
 
                 keyResp = TPSEngine.getInstance().recoverKey(cuid,
                         userid,
@@ -3422,18 +3417,16 @@ public class TPSEnrollProcessor extends TPSProcessor {
             throw new TPSException(
                     method + ": parsedPubKey null.",
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
-        } else {
-            logger.debug(method + ": parsedPubKey not null");
         }
+        logger.debug(method + ": parsedPubKey not null");
         byte[] parsedPubKey_ba = parsedPubKey.getEncoded();
         if (parsedPubKey_ba == null) {
             logger.error(method + ": parsedPubKey_ba null");
             throw new TPSException(
                     method + ": parsedPubKey encoding failure.",
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
-        } else {
-            logger.debug(method + ": parsedPubKey getEncoded not null");
         }
+        logger.debug(method + ": parsedPubKey getEncoded not null");
 
         return parsedPubKey;
     }

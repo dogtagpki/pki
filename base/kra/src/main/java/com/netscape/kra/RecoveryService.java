@@ -625,9 +625,8 @@ public class RecoveryService implements IService {
                 if (key == null) {
                     logger.error("RecoverService: createPFX() key null");
                     throw new EBaseException("EncryptedPrivateKeyInfo.createPBE() failed");
-                } else {
-                    logger.debug("RecoverService: createPFX() key not null");
                 }
+                logger.debug("RecoverService: createPFX() key not null");
             } else {
 	        String nonLegacyAlg = engine.getConfig().getString("kra.nonLegacyAlg", "AES/CBC/NoPadding");
                 EncryptionAlgorithm encAlg = EncryptionAlgorithm.fromString(nonLegacyAlg);
@@ -656,9 +655,8 @@ public class RecoveryService implements IService {
                 if (epkiBytes == null) {
                     logger.error("RecoverService: createPFX() epkiBytes null");
                     throw new EBaseException("getEncryptedPrivateKeyInfo returned null");
-                } else {
-                    logger.debug("RecoverService: createPFX() epkiBytes not null");
                 }
+                logger.debug("RecoverService: createPFX() epkiBytes not null");
                 key = new ANY(epkiBytes);
             }
 

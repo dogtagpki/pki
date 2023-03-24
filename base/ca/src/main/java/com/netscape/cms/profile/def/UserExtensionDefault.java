@@ -59,9 +59,8 @@ public class UserExtensionDefault extends EnrollExtDefault {
             return new Descriptor(IDescriptor.STRING, null,
                     "Comment Here...",
                     CMS.getUserMessage(locale, "CMS_PROFILE_OID"));
-        } else {
-            return null;
         }
+        return null;
     }
 
     @Override
@@ -71,9 +70,8 @@ public class UserExtensionDefault extends EnrollExtDefault {
                     IDescriptor.READONLY,
                     null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_OID"));
-        } else {
-            return null;
         }
+        return null;
     }
 
     @Override
@@ -99,10 +97,9 @@ public class UserExtensionDefault extends EnrollExtDefault {
                 return "";
             }
             return ext.getExtensionId().toString();
-        } else {
-            throw new EPropertyException(CMS.getUserMessage(
-                        locale, "CMS_INVALID_PROPERTY", name));
         }
+        throw new EPropertyException(CMS.getUserMessage(
+                    locale, "CMS_INVALID_PROPERTY", name));
     }
 
     @Override

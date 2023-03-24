@@ -255,10 +255,9 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
                     logger.debug("GN size is zero");
                     deleteExtension(PKIXExtensions.SubjectAlternativeName_Id.toString(), info);
                     return;
-                } else {
-                    logger.debug("GN size is non zero (" + gn.size() + ")");
-                    ext.set(SubjectAlternativeNameExtension.SUBJECT_NAME, gn);
                 }
+                logger.debug("GN size is non zero (" + gn.size() + ")");
+                ext.set(SubjectAlternativeNameExtension.SUBJECT_NAME, gn);
             } else {
                 throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
@@ -306,11 +305,7 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
                 if (ext == null) {
                     return null;
                 }
-                if (ext.isCritical()) {
-                    return "true";
-                } else {
-                    return "false";
-                }
+                return ext.isCritical() ? "true" : "false";
             } else if (name.equals(VAL_GENERAL_NAMES)) {
                 ext =
                         (SubjectAlternativeNameExtension)

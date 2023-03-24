@@ -82,11 +82,10 @@ public class TransferProtocolClient extends NetworkClient {
                 if (code != continuingCode ||
                         (response.length() >= 4 && response.charAt(3) == '-')) {
                     continue;
-                } else {
-                    /* seen the end of code sequence */
-                    continuingCode = -1;
-                    break;
                 }
+                /* seen the end of code sequence */
+                continuingCode = -1;
+                break;
             } else if (response.length() >= 4 && response.charAt(3) == '-') {
                 continuingCode = code;
                 continue;

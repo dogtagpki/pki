@@ -250,9 +250,8 @@ public class UniqueKeyConstraint extends EnrollConstraint {
                                 msg = msg + "subject name not match in same key renewal;";
                                 rejected = true;
                                 break;
-                            } else {
-                                logger.debug("subject name match in same key renewal");
                             }
+                            logger.debug("subject name match in same key renewal");
 
                             // find the latest expiration date to keep for
                             // Renewal Grace Period Constraint later
@@ -298,12 +297,11 @@ public class UniqueKeyConstraint extends EnrollConstraint {
             }// allowSameKeyRenewal
         } // (size > 0)
 
-        if (rejected == true) {
+        if (rejected) {
             logger.debug(method + " rejected: " + msg);
             throw new ERejectException(msg);
-        } else {
-            logger.debug(method + " approved");
         }
+        logger.debug(method + " approved");
     }
 
     /**
