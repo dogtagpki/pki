@@ -62,6 +62,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GenericPolicyProcessor.class);
 
+    protected CMSEngine engine;
     protected ConfigStore mConfig;
     protected EngineConfig mGlobalStore = null;
     protected IAuthority mAuthority = null;
@@ -95,6 +96,14 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
 
     public GenericPolicyProcessor(boolean initSystemPolicies) {
         mInitSystemPolicies = initSystemPolicies; // KRA
+    }
+
+    public CMSEngine getCMSEngine() {
+        return engine;
+    }
+
+    public void setCMSEngine(CMSEngine engine) {
+        this.engine = engine;
     }
 
     public void setId(String id) throws EBaseException {
@@ -141,7 +150,6 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
     public synchronized void init(IAuthority owner, ConfigStore config) throws EBaseException {
         logger.debug("GenericPolicyProcessor::init begins");
 
-        CMSEngine engine = CMS.getCMSEngine();
         EngineConfig configStore = engine.getConfig();
 
         mAuthority = owner;

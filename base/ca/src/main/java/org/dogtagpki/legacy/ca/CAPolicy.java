@@ -75,8 +75,11 @@ public class CAPolicy implements IPolicy {
         config.getString(PROP_PROCESSOR, PR_TYPE_CLASSIC);
 
         logger.debug("selected policy processor = " + processorType);
+
         if (processorType.equals(PR_TYPE_CLASSIC)) {
             mPolicies = new GenericPolicyProcessor();
+            mPolicies.setCMSEngine(owner.getCMSEngine());
+
         } else {
             throw new EBaseException("Unknown policy processor type (" +
                     processorType + ")");

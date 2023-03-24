@@ -49,6 +49,7 @@ public class KRAPolicy implements IPolicy {
         mConfig = config;
 
         mPolicies = new GenericPolicyProcessor(false);
+        mPolicies.setCMSEngine(owner.getCMSEngine());
         mPolicies.init(mKRA, mConfig);
     }
 
