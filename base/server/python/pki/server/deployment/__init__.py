@@ -1428,11 +1428,6 @@ class PKIDeployer:
         sd_port = subsystem.config['service.securityDomainPort']
         sd_url = 'https://%s:%s' % (sd_host, sd_port)
 
-        logger.info(
-            'Removing %s from security domain at %s',
-            subsystem.type,
-            sd_url)
-
         hostname = subsystem.config['machineName']
 
         server_config = instance.get_server_config()
@@ -1443,6 +1438,11 @@ class PKIDeployer:
             secure_port = proxy_secure_port
 
         host_id = '%s %s %s' % (subsystem.type, hostname, secure_port)
+
+        logger.info(
+            'Removing %s from security domain at %s',
+            host_id,
+            sd_url)
 
         try:
             subsystem.leave_security_domain(
