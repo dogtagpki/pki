@@ -157,24 +157,23 @@ public class SSLclientCertAuthentication extends AuthManager {
                     // found leaf cert
                     logger.debug("SSLclientCertAuthentication: authenticate: found leaf cert");
                     break;
-                } else {
-                    logger.debug("SSLclientCertAuthentication: authenticate: found cert having BasicConstraints ext");
-                    // it's got BasicConstraints extension
-                    // so it's not likely to be a leaf cert,
-                    // however, check the isCA field regardless
-                    try {
-                        BasicConstraintsExtension bce =
-                                new BasicConstraintsExtension(true, extBytes);
-                        if (bce != null) {
-                            if (!(Boolean) bce.get("is_ca")) {
-                                logger.debug("SSLclientCertAuthentication: authenticate: found CA cert in chain");
-                                break;
-                            } // else found a ca cert, continue
-                        }
-                    } catch (Exception e) {
-                        logger.error("SSLclientCertAuthentication: authenticate: exception: " + e.getMessage(), e);
-                        throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"), e);
+                }
+                logger.debug("SSLclientCertAuthentication: authenticate: found cert having BasicConstraints ext");
+                // it's got BasicConstraints extension
+                // so it's not likely to be a leaf cert,
+                // however, check the isCA field regardless
+                try {
+                    BasicConstraintsExtension bce =
+                            new BasicConstraintsExtension(true, extBytes);
+                    if (bce != null) {
+                        if (!(Boolean) bce.get("is_ca")) {
+                            logger.debug("SSLclientCertAuthentication: authenticate: found CA cert in chain");
+                            break;
+                        } // else found a ca cert, continue
                     }
+                } catch (Exception e) {
+                    logger.error("SSLclientCertAuthentication: authenticate: exception: " + e.getMessage(), e);
+                    throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"), e);
                 }
             }
             if (clientCert == null) {
@@ -235,8 +234,6 @@ public class SSLclientCertAuthentication extends AuthManager {
                 String v = t.substring(i + 1);
                 logger.debug("SSLclientCertAuthentication: getUidFromDN(): uid found:" + v);
                 return v;
-            } else {
-                continue;
             }
         }
         return null;

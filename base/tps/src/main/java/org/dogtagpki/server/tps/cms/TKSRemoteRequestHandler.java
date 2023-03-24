@@ -165,87 +165,86 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
 
         String content = resp.getContent();
 
-        if (content != null && !content.equals("")) {
-            Hashtable<String, Object> response =
-                    parseResponse(content);
-
-            /*
-             * When a value is not found in response, keep going so we know
-             * what else is missing
-             * Note: serverKeygen and !serverKeygen returns different set of
-             *     response values so "missing" might not be bad
-             */
-            Integer ist = Integer.valueOf(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
-            String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
-            if (value == null) {
-                logger.debug("TKSRemoteRequestHandler: computeSessionKey(): status not found.");
-                //logger.debug("TKSRemoteRequestHandler: computeSessionKey(): got content = " + content);
-            } else {
-                logger.debug("TKSRemoteRequestHandler: computeSessionKey(): got status = " + value);
-                ist = Integer.parseInt(value);
-            }
-            response.put(IRemoteRequest.RESPONSE_STATUS, ist);
-
-            value = (String) response.get(IRemoteRequest.TKS_RESPONSE_SessionKey);
-            if (value == null) {
-                logger.debug("TKSRemoteRequestHandler: computeSessionKey(): response missing name-value pair for: " +
-                        IRemoteRequest.TKS_RESPONSE_SessionKey);
-            } else {
-                logger.debug("TKSRemoteRequestHandler: computeSessionKey(): got IRemoteRequest.TKS_RESPONSE_SessionKey");
-                response.put(IRemoteRequest.TKS_RESPONSE_SessionKey, Util.specialDecode(value));
-            }
-
-            value = (String) response.get(IRemoteRequest.TKS_RESPONSE_EncSessionKey);
-            if (value == null) {
-                logger.debug("TKSRemoteRequestHandler: computeSessionKey(): response missing name-value pair for: " +
-                        IRemoteRequest.TKS_RESPONSE_EncSessionKey);
-            } else {
-                logger.debug("TKSRemoteRequestHandler: computeSessionKey(): got IRemoteRequest.TKS_RESPONSE_EncSessionKey");
-                response.put(IRemoteRequest.TKS_RESPONSE_EncSessionKey, Util.specialDecode(value));
-            }
-
-            value = (String) response.get(IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey);
-            if (value == null) {
-                logger.debug("TKSRemoteRequestHandler: computeSessionKey(): response missing name-value pair for: " +
-                        IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey);
-            } else {
-                logger.debug("TKSRemoteRequestHandler: computeSessionKey(): got IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey");
-                response.put(IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey, Util.specialDecode(value));
-            }
-
-            value = (String) response.get(IRemoteRequest.TKS_RESPONSE_KEK_DesKey);
-            if (value == null) {
-                logger.debug("TKSRemoteRequestHandler: computeSessionKey(): response missing name-value pair for: " +
-                        IRemoteRequest.TKS_RESPONSE_KEK_DesKey);
-            } else {
-                logger.debug("TKSRemoteRequestHandler: computeSessionKey(): got IRemoteRequest.TKS_RESPONSE_KEK_DesKey");
-                response.put(IRemoteRequest.TKS_RESPONSE_KEK_DesKey, Util.specialDecode(value));
-            }
-
-            value = (String) response.get(IRemoteRequest.TKS_RESPONSE_KeyCheck);
-            if (value == null) {
-                logger.debug("TKSRemoteRequestHandler: computeSessionKey(): response missing name-value pair for: " +
-                        IRemoteRequest.TKS_RESPONSE_KeyCheck);
-            } else {
-                logger.debug("TKSRemoteRequestHandler: computeSessionKey(): got IRemoteRequest.TKS_RESPONSE_KeyCheck");
-                response.put(IRemoteRequest.TKS_RESPONSE_KeyCheck, Util.specialDecode(value));
-            }
-
-            value = (String) response.get(IRemoteRequest.TKS_RESPONSE_HostCryptogram);
-            if (value == null) {
-                logger.debug("TKSRemoteRequestHandler: computeSessionKey(): response missing name-value pair for: " +
-                        IRemoteRequest.TKS_RESPONSE_HostCryptogram);
-            } else {
-                logger.debug("TKSRemoteRequestHandler: computeSessionKey(): got IRemoteRequest.TKS_RESPONSE_HostCryptogram");
-                response.put(IRemoteRequest.TKS_RESPONSE_HostCryptogram, Util.specialDecode(value));
-            }
-            logger.debug("TKSRemoteRequestHandler: computeSessionKey(): ends.");
-
-            return new TKSComputeSessionKeyResponse(response);
-        } else {
+        if (content == null || content.equals("")) {
             logger.error("TKSRemoteRequestHandler: computeSessionKey(): no response content.");
             throw new EBaseException("TKSRemoteRequestHandler: computeSessionKey(): no response content.");
         }
+        Hashtable<String, Object> response =
+                parseResponse(content);
+
+        /*
+         * When a value is not found in response, keep going so we know
+         * what else is missing
+         * Note: serverKeygen and !serverKeygen returns different set of
+         *     response values so "missing" might not be bad
+         */
+        Integer ist = Integer.valueOf(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
+        String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
+        if (value == null) {
+            logger.debug("TKSRemoteRequestHandler: computeSessionKey(): status not found.");
+            //logger.debug("TKSRemoteRequestHandler: computeSessionKey(): got content = " + content);
+        } else {
+            logger.debug("TKSRemoteRequestHandler: computeSessionKey(): got status = " + value);
+            ist = Integer.parseInt(value);
+        }
+        response.put(IRemoteRequest.RESPONSE_STATUS, ist);
+
+        value = (String) response.get(IRemoteRequest.TKS_RESPONSE_SessionKey);
+        if (value == null) {
+            logger.debug("TKSRemoteRequestHandler: computeSessionKey(): response missing name-value pair for: " +
+                    IRemoteRequest.TKS_RESPONSE_SessionKey);
+        } else {
+            logger.debug("TKSRemoteRequestHandler: computeSessionKey(): got IRemoteRequest.TKS_RESPONSE_SessionKey");
+            response.put(IRemoteRequest.TKS_RESPONSE_SessionKey, Util.specialDecode(value));
+        }
+
+        value = (String) response.get(IRemoteRequest.TKS_RESPONSE_EncSessionKey);
+        if (value == null) {
+            logger.debug("TKSRemoteRequestHandler: computeSessionKey(): response missing name-value pair for: " +
+                    IRemoteRequest.TKS_RESPONSE_EncSessionKey);
+        } else {
+            logger.debug("TKSRemoteRequestHandler: computeSessionKey(): got IRemoteRequest.TKS_RESPONSE_EncSessionKey");
+            response.put(IRemoteRequest.TKS_RESPONSE_EncSessionKey, Util.specialDecode(value));
+        }
+
+        value = (String) response.get(IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey);
+        if (value == null) {
+            logger.debug("TKSRemoteRequestHandler: computeSessionKey(): response missing name-value pair for: " +
+                    IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey);
+        } else {
+            logger.debug("TKSRemoteRequestHandler: computeSessionKey(): got IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey");
+            response.put(IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey, Util.specialDecode(value));
+        }
+
+        value = (String) response.get(IRemoteRequest.TKS_RESPONSE_KEK_DesKey);
+        if (value == null) {
+            logger.debug("TKSRemoteRequestHandler: computeSessionKey(): response missing name-value pair for: " +
+                    IRemoteRequest.TKS_RESPONSE_KEK_DesKey);
+        } else {
+            logger.debug("TKSRemoteRequestHandler: computeSessionKey(): got IRemoteRequest.TKS_RESPONSE_KEK_DesKey");
+            response.put(IRemoteRequest.TKS_RESPONSE_KEK_DesKey, Util.specialDecode(value));
+        }
+
+        value = (String) response.get(IRemoteRequest.TKS_RESPONSE_KeyCheck);
+        if (value == null) {
+            logger.debug("TKSRemoteRequestHandler: computeSessionKey(): response missing name-value pair for: " +
+                    IRemoteRequest.TKS_RESPONSE_KeyCheck);
+        } else {
+            logger.debug("TKSRemoteRequestHandler: computeSessionKey(): got IRemoteRequest.TKS_RESPONSE_KeyCheck");
+            response.put(IRemoteRequest.TKS_RESPONSE_KeyCheck, Util.specialDecode(value));
+        }
+
+        value = (String) response.get(IRemoteRequest.TKS_RESPONSE_HostCryptogram);
+        if (value == null) {
+            logger.debug("TKSRemoteRequestHandler: computeSessionKey(): response missing name-value pair for: " +
+                    IRemoteRequest.TKS_RESPONSE_HostCryptogram);
+        } else {
+            logger.debug("TKSRemoteRequestHandler: computeSessionKey(): got IRemoteRequest.TKS_RESPONSE_HostCryptogram");
+            response.put(IRemoteRequest.TKS_RESPONSE_HostCryptogram, Util.specialDecode(value));
+        }
+        logger.debug("TKSRemoteRequestHandler: computeSessionKey(): ends.");
+
+        return new TKSComputeSessionKeyResponse(response);
     }
 
     public TKSComputeSessionKeyResponse computeSessionKeysSCP03(
@@ -316,102 +315,100 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
 
         String content = resp.getContent();
 
-        if (content != null && !content.equals("")) {
-            Hashtable<String, Object> response =
-                    parseResponse(content);
-
-            /*
-             * When a value is not found in response, keep going so we know
-             * what else is missing
-             * Note: serverKeygen and !serverKeygen returns different set of
-             *     response values so "missing" might not be bad
-             */
-            Integer ist = Integer.valueOf(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
-            String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
-            if (value == null) {
-                logger.debug(method + " status not found.");
-                //logger.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): got content = " + content);
-            } else {
-                logger.debug(method + " got status = " + value);
-                ist = Integer.parseInt(value);
-            }
-            response.put(IRemoteRequest.RESPONSE_STATUS, ist);
-
-            value = (String) response.get(IRemoteRequest.TKS_RESPONSE_EncSessionKey);
-            if (value == null) {
-                logger.debug(method + " response missing name-value pair for: " +
-                        IRemoteRequest.TKS_RESPONSE_EncSessionKey);
-            } else {
-                logger.debug(method+ "got IRemoteRequest.TKS_RESPONSE_EncSessionKey");
-                response.put(IRemoteRequest.TKS_RESPONSE_EncSessionKey, Util.specialDecode(value));
-            }
-
-            value = (String) response.get(IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey);
-            if (value == null) {
-                logger.debug(method + " response missing name-value pair for: " +
-                        IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey);
-            } else {
-                logger.debug(method + "got IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey");
-                response.put(IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey, Util.specialDecode(value));
-            }
-
-            value = (String) response.get(IRemoteRequest.TKS_RESPONSE_MacSessionKey);
-            if (value == null) {
-                logger.debug(method + "response missing name-value pair for: " +
-                        IRemoteRequest.TKS_RESPONSE_MacSessionKey);
-            } else {
-                logger.debug(method + " got IRemoteRequest.TKS_RESPONSE_MacSessionKey");
-                response.put(IRemoteRequest.TKS_RESPONSE_MacSessionKey, Util.specialDecode(value));
-
-            }
-
-
-            value = (String) response.get(IRemoteRequest.TKS_RESPONSE_KekSessionKey);
-            if (value == null) {
-                logger.debug(method + "response missing name-value pair for: " +
-                        IRemoteRequest.TKS_RESPONSE_KekSessionKey);
-            } else {
-                logger.debug(method + " got IRemoteRequest.TKS_RESPONSE_KekSessionKey");
-                response.put(IRemoteRequest.TKS_RESPONSE_KekSessionKey, Util.specialDecode(value));
-            }
-
-            value = (String) response.get(IRemoteRequest.TKS_RESPONSE_KEK_DesKey);
-            if (value == null) {
-                logger.debug(method + "response missing name-value pair for: " +
-                        IRemoteRequest.TKS_RESPONSE_KEK_DesKey);
-            } else {
-                logger.debug(method + " got IRemoteRequest.TKS_RESPONSE_KEK_DesKey");
-                response.put(IRemoteRequest.TKS_RESPONSE_KEK_DesKey, Util.specialDecode(value));
-
-            }
-
-            value = (String) response.get(IRemoteRequest.TKS_RESPONSE_KeyCheck);
-
-            if (value == null) {
-                logger.debug(method + "response missing name-value pair for: " +
-                        IRemoteRequest.TKS_RESPONSE_KeyCheck);
-
-            } else {
-                logger.debug(method + " got IRemoteRequest.TKS_RESPONSE_KeyCheck");
-                response.put(IRemoteRequest.TKS_RESPONSE_KeyCheck, Util.specialDecode(value));
-            }
-
-            value = (String) response.get(IRemoteRequest.TKS_RESPONSE_HostCryptogram);
-            if ( value == null ) {
-                logger.debug(method + " response missing name-value pair for: " + IRemoteRequest.TKS_RESPONSE_HostCryptogram);
-            } else {
-                logger.debug(method + " got " + IRemoteRequest.TKS_RESPONSE_HostCryptogram);
-                response.put(IRemoteRequest.TKS_RESPONSE_HostCryptogram, Util.specialDecode(value));
-            }
-
-            logger.debug(method + " ends.");
-
-            return new TKSComputeSessionKeyResponse(response);
-
-        } else {
+        if (content == null || content.equals("")) {
             logger.error("TKSRemoteRequestHandler: computeSessionKeySCP02(): no response content.");
             throw new EBaseException("TKSRemoteRequestHandler: computeSessionKeySCP02(): no response content.");
         }
+        Hashtable<String, Object> response =
+                parseResponse(content);
+
+        /*
+         * When a value is not found in response, keep going so we know
+         * what else is missing
+         * Note: serverKeygen and !serverKeygen returns different set of
+         *     response values so "missing" might not be bad
+         */
+        Integer ist = Integer.valueOf(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
+        String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
+        if (value == null) {
+            logger.debug(method + " status not found.");
+            //logger.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): got content = " + content);
+        } else {
+            logger.debug(method + " got status = " + value);
+            ist = Integer.parseInt(value);
+        }
+        response.put(IRemoteRequest.RESPONSE_STATUS, ist);
+
+        value = (String) response.get(IRemoteRequest.TKS_RESPONSE_EncSessionKey);
+        if (value == null) {
+            logger.debug(method + " response missing name-value pair for: " +
+                    IRemoteRequest.TKS_RESPONSE_EncSessionKey);
+        } else {
+            logger.debug(method+ "got IRemoteRequest.TKS_RESPONSE_EncSessionKey");
+            response.put(IRemoteRequest.TKS_RESPONSE_EncSessionKey, Util.specialDecode(value));
+        }
+
+        value = (String) response.get(IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey);
+        if (value == null) {
+            logger.debug(method + " response missing name-value pair for: " +
+                    IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey);
+        } else {
+            logger.debug(method + "got IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey");
+            response.put(IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey, Util.specialDecode(value));
+        }
+
+        value = (String) response.get(IRemoteRequest.TKS_RESPONSE_MacSessionKey);
+        if (value == null) {
+            logger.debug(method + "response missing name-value pair for: " +
+                    IRemoteRequest.TKS_RESPONSE_MacSessionKey);
+        } else {
+            logger.debug(method + " got IRemoteRequest.TKS_RESPONSE_MacSessionKey");
+            response.put(IRemoteRequest.TKS_RESPONSE_MacSessionKey, Util.specialDecode(value));
+
+        }
+
+
+        value = (String) response.get(IRemoteRequest.TKS_RESPONSE_KekSessionKey);
+        if (value == null) {
+            logger.debug(method + "response missing name-value pair for: " +
+                    IRemoteRequest.TKS_RESPONSE_KekSessionKey);
+        } else {
+            logger.debug(method + " got IRemoteRequest.TKS_RESPONSE_KekSessionKey");
+            response.put(IRemoteRequest.TKS_RESPONSE_KekSessionKey, Util.specialDecode(value));
+        }
+
+        value = (String) response.get(IRemoteRequest.TKS_RESPONSE_KEK_DesKey);
+        if (value == null) {
+            logger.debug(method + "response missing name-value pair for: " +
+                    IRemoteRequest.TKS_RESPONSE_KEK_DesKey);
+        } else {
+            logger.debug(method + " got IRemoteRequest.TKS_RESPONSE_KEK_DesKey");
+            response.put(IRemoteRequest.TKS_RESPONSE_KEK_DesKey, Util.specialDecode(value));
+
+        }
+
+        value = (String) response.get(IRemoteRequest.TKS_RESPONSE_KeyCheck);
+
+        if (value == null) {
+            logger.debug(method + "response missing name-value pair for: " +
+                    IRemoteRequest.TKS_RESPONSE_KeyCheck);
+
+        } else {
+            logger.debug(method + " got IRemoteRequest.TKS_RESPONSE_KeyCheck");
+            response.put(IRemoteRequest.TKS_RESPONSE_KeyCheck, Util.specialDecode(value));
+        }
+
+        value = (String) response.get(IRemoteRequest.TKS_RESPONSE_HostCryptogram);
+        if ( value == null ) {
+            logger.debug(method + " response missing name-value pair for: " + IRemoteRequest.TKS_RESPONSE_HostCryptogram);
+        } else {
+            logger.debug(method + " got " + IRemoteRequest.TKS_RESPONSE_HostCryptogram);
+            response.put(IRemoteRequest.TKS_RESPONSE_HostCryptogram, Util.specialDecode(value));
+        }
+
+        logger.debug(method + " ends.");
+
+        return new TKSComputeSessionKeyResponse(response);
 
     }
 
@@ -502,74 +499,72 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
 
         String content = resp.getContent();
 
-        if (content != null && !content.equals("")) {
-            Hashtable<String, Object> response =
-                    parseResponse(content);
-
-            /*
-             * When a value is not found in response, keep going so we know
-             * what else is missing
-             * Note: serverKeygen and !serverKeygen returns different set of
-             *     response values so "missing" might not be bad
-             */
-            Integer ist = Integer.valueOf(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
-            String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
-            if (value == null) {
-                logger.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): status not found.");
-                //logger.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): got content = " + content);
-            } else {
-                logger.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): got status = " + value);
-                ist = Integer.parseInt(value);
-            }
-            response.put(IRemoteRequest.RESPONSE_STATUS, ist);
-
-            value = (String) response.get(IRemoteRequest.TKS_RESPONSE_SessionKey);
-            if (value == null) {
-                logger.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): response missing name-value pair for: " +
-                        IRemoteRequest.TKS_RESPONSE_SessionKey);
-            } else {
-                logger.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): got IRemoteRequest.TKS_RESPONSE_SessionKey");
-                response.put(IRemoteRequest.TKS_RESPONSE_SessionKey, Util.specialDecode(value));
-            }
-
-            value = (String) response.get(IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey);
-            if (value == null) {
-                logger.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): response missing name-value pair for: " +
-                        IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey);
-            } else {
-                logger.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): got IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey");
-                response.put(IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey, Util.specialDecode(value));
-            }
-
-            value = (String) response.get(IRemoteRequest.TKS_RESPONSE_KEK_DesKey);
-            if (value == null) {
-                logger.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): response missing name-value pair for: " +
-                        IRemoteRequest.TKS_RESPONSE_KEK_DesKey);
-            } else {
-                logger.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): got IRemoteRequest.TKS_RESPONSE_KEK_DesKey");
-                response.put(IRemoteRequest.TKS_RESPONSE_KEK_DesKey, Util.specialDecode(value));
-
-            }
-
-            value = (String) response.get(IRemoteRequest.TKS_RESPONSE_KeyCheck);
-
-            if (value == null) {
-                logger.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): response missing name-value pair for: " +
-                        IRemoteRequest.TKS_RESPONSE_KeyCheck);
-
-            } else {
-                logger.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): got IRemoteRequest.TKS_RESPONSE_KeyCheck");
-                response.put(IRemoteRequest.TKS_RESPONSE_KeyCheck, Util.specialDecode(value));
-            }
-
-            logger.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): ends.");
-
-            return new TKSComputeSessionKeyResponse(response);
-
-        } else {
+        if (content == null || content.equals("")) {
             logger.error("TKSRemoteRequestHandler: computeSessionKeySCP02(): no response content.");
             throw new EBaseException("TKSRemoteRequestHandler: computeSessionKeySCP02(): no response content.");
         }
+        Hashtable<String, Object> response =
+                parseResponse(content);
+
+        /*
+         * When a value is not found in response, keep going so we know
+         * what else is missing
+         * Note: serverKeygen and !serverKeygen returns different set of
+         *     response values so "missing" might not be bad
+         */
+        Integer ist = Integer.valueOf(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
+        String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
+        if (value == null) {
+            logger.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): status not found.");
+            //logger.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): got content = " + content);
+        } else {
+            logger.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): got status = " + value);
+            ist = Integer.parseInt(value);
+        }
+        response.put(IRemoteRequest.RESPONSE_STATUS, ist);
+
+        value = (String) response.get(IRemoteRequest.TKS_RESPONSE_SessionKey);
+        if (value == null) {
+            logger.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): response missing name-value pair for: " +
+                    IRemoteRequest.TKS_RESPONSE_SessionKey);
+        } else {
+            logger.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): got IRemoteRequest.TKS_RESPONSE_SessionKey");
+            response.put(IRemoteRequest.TKS_RESPONSE_SessionKey, Util.specialDecode(value));
+        }
+
+        value = (String) response.get(IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey);
+        if (value == null) {
+            logger.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): response missing name-value pair for: " +
+                    IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey);
+        } else {
+            logger.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): got IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey");
+            response.put(IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey, Util.specialDecode(value));
+        }
+
+        value = (String) response.get(IRemoteRequest.TKS_RESPONSE_KEK_DesKey);
+        if (value == null) {
+            logger.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): response missing name-value pair for: " +
+                    IRemoteRequest.TKS_RESPONSE_KEK_DesKey);
+        } else {
+            logger.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): got IRemoteRequest.TKS_RESPONSE_KEK_DesKey");
+            response.put(IRemoteRequest.TKS_RESPONSE_KEK_DesKey, Util.specialDecode(value));
+
+        }
+
+        value = (String) response.get(IRemoteRequest.TKS_RESPONSE_KeyCheck);
+
+        if (value == null) {
+            logger.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): response missing name-value pair for: " +
+                    IRemoteRequest.TKS_RESPONSE_KeyCheck);
+
+        } else {
+            logger.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): got IRemoteRequest.TKS_RESPONSE_KeyCheck");
+            response.put(IRemoteRequest.TKS_RESPONSE_KeyCheck, Util.specialDecode(value));
+        }
+
+        logger.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): ends.");
+
+        return new TKSComputeSessionKeyResponse(response);
     }
 
     /*
@@ -632,44 +627,43 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
 
         String content = resp.getContent();
 
-        if (content != null && !content.equals("")) {
-            Hashtable<String, Object> response =
-                    parseResponse(content);
-            if (response == null) {
-                logger.warn("TKSRemoteRequestHandler: createKeySetData(): parseResponse returned null.");
-                return null;
-            }
-
-            /*
-             * When a value is not found in response, keep going so we know
-             * what else is missing
-             */
-            Integer ist = Integer.valueOf(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
-            String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
-            if (value == null) {
-                logger.debug("TKSRemoteRequestHandler: createKeySetData(): status not found.");
-                //logger.debug("TKSRemoteRequestHandler: createKeySetData(): got content = " + content);
-            } else {
-                logger.debug("TKSRemoteRequestHandler: createKeySetData(): got status = " + value);
-                ist = Integer.parseInt(value);
-            }
-            response.put(IRemoteRequest.RESPONSE_STATUS, ist);
-
-            value = (String) response.get(IRemoteRequest.TKS_RESPONSE_KeySetData);
-            if (value == null) {
-                logger.debug("TKSRemoteRequestHandler: createKeySetData(): response missing name-value pair for: " +
-                        IRemoteRequest.TKS_RESPONSE_KeySetData);
-            } else {
-                logger.debug("TKSRemoteRequestHandler: createKeySetData(): got IRemoteRequest.TKS_RESPONSE_KeySetData");
-                response.put(IRemoteRequest.TKS_RESPONSE_KeySetData, Util.specialDecode(value));
-            }
-            logger.debug("TKSRemoteRequestHandler: createKeySetData(): ends.");
-
-            return new TKSCreateKeySetDataResponse(response);
-        } else {
+        if (content == null || content.equals("")) {
             logger.error("TKSRemoteRequestHandler: createKeySetData(): no response content.");
             throw new EBaseException("TKSRemoteRequestHandler: createKeySetData(): no response content.");
         }
+        Hashtable<String, Object> response =
+                parseResponse(content);
+        if (response == null) {
+            logger.warn("TKSRemoteRequestHandler: createKeySetData(): parseResponse returned null.");
+            return null;
+        }
+
+        /*
+         * When a value is not found in response, keep going so we know
+         * what else is missing
+         */
+        Integer ist = Integer.valueOf(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
+        String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
+        if (value == null) {
+            logger.debug("TKSRemoteRequestHandler: createKeySetData(): status not found.");
+            //logger.debug("TKSRemoteRequestHandler: createKeySetData(): got content = " + content);
+        } else {
+            logger.debug("TKSRemoteRequestHandler: createKeySetData(): got status = " + value);
+            ist = Integer.parseInt(value);
+        }
+        response.put(IRemoteRequest.RESPONSE_STATUS, ist);
+
+        value = (String) response.get(IRemoteRequest.TKS_RESPONSE_KeySetData);
+        if (value == null) {
+            logger.debug("TKSRemoteRequestHandler: createKeySetData(): response missing name-value pair for: " +
+                    IRemoteRequest.TKS_RESPONSE_KeySetData);
+        } else {
+            logger.debug("TKSRemoteRequestHandler: createKeySetData(): got IRemoteRequest.TKS_RESPONSE_KeySetData");
+            response.put(IRemoteRequest.TKS_RESPONSE_KeySetData, Util.specialDecode(value));
+        }
+        logger.debug("TKSRemoteRequestHandler: createKeySetData(): ends.");
+
+        return new TKSCreateKeySetDataResponse(response);
     }
 
     /*
@@ -710,42 +704,41 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
 
         String content = resp.getContent();
 
-        if (content != null && !content.equals("")) {
-            Hashtable<String, Object> response =
-                    parseResponse(content);
-
-            /*
-             * When a value is not found in response, keep going so we know
-             * what else is missing
-             */
-            Integer ist = Integer.valueOf(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
-            String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
-            if (value == null) {
-                logger.debug("TKSRemoteRequestHandler: computeRandomData(): status not found.");
-                //logger.debug("TKSRemoteRequestHandler: computeRandomData(): got content = " + content);
-            } else {
-                logger.debug("TKSRemoteRequestHandler: computeRandomData(): got status = " + value);
-                ist = Integer.parseInt(value);
-            }
-            response.put(IRemoteRequest.RESPONSE_STATUS, ist);
-
-            value = (String) response.get(IRemoteRequest.TKS_RESPONSE_RandomData);
-            if (value == null) {
-                logger.debug("TKSRemoteRequestHandler: computeRandomData(): response missing name-value pair for: " +
-                        IRemoteRequest.TKS_RESPONSE_RandomData);
-            } else {
-                //logger.debug("TKSRemoteRequestHandler: computeRandomData(): got IRemoteRequest.TKS_RESPONSE_RandomData"
-                //        + value);
-                logger.debug("TKSRemoteRequestHandler: computeRandomData(): got IRemoteRequest.TKS_RESPONSE_RandomData");
-                response.put(IRemoteRequest.TKS_RESPONSE_RandomData, Util.uriDecodeFromHex(value));
-            }
-            logger.debug("TKSRemoteRequestHandler: computeRandomData(): ends.");
-
-            return new TKSComputeRandomDataResponse(response);
-        } else {
+        if (content == null || content.equals("")) {
             logger.error("TKSRemoteRequestHandler: computeRandomData(): no response content.");
             throw new EBaseException("TKSRemoteRequestHandler: computeRandomData(): no response content.");
         }
+        Hashtable<String, Object> response =
+                parseResponse(content);
+
+        /*
+         * When a value is not found in response, keep going so we know
+         * what else is missing
+         */
+        Integer ist = Integer.valueOf(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
+        String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
+        if (value == null) {
+            logger.debug("TKSRemoteRequestHandler: computeRandomData(): status not found.");
+            //logger.debug("TKSRemoteRequestHandler: computeRandomData(): got content = " + content);
+        } else {
+            logger.debug("TKSRemoteRequestHandler: computeRandomData(): got status = " + value);
+            ist = Integer.parseInt(value);
+        }
+        response.put(IRemoteRequest.RESPONSE_STATUS, ist);
+
+        value = (String) response.get(IRemoteRequest.TKS_RESPONSE_RandomData);
+        if (value == null) {
+            logger.debug("TKSRemoteRequestHandler: computeRandomData(): response missing name-value pair for: " +
+                    IRemoteRequest.TKS_RESPONSE_RandomData);
+        } else {
+            //logger.debug("TKSRemoteRequestHandler: computeRandomData(): got IRemoteRequest.TKS_RESPONSE_RandomData"
+            //        + value);
+            logger.debug("TKSRemoteRequestHandler: computeRandomData(): got IRemoteRequest.TKS_RESPONSE_RandomData");
+            response.put(IRemoteRequest.TKS_RESPONSE_RandomData, Util.uriDecodeFromHex(value));
+        }
+        logger.debug("TKSRemoteRequestHandler: computeRandomData(): ends.");
+
+        return new TKSComputeRandomDataResponse(response);
     }
 
     /*
@@ -802,39 +795,38 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
 
         String content = resp.getContent();
 
-        if (content != null && !content.equals("")) {
-            Hashtable<String, Object> response =
-                    parseResponse(content);
-
-            /*
-             * When a value is not found in response, keep going so we know
-             * what else is missing
-             */
-            Integer ist = Integer.valueOf(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
-            String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
-            if (value == null) {
-                logger.debug("TKSRemoteRequestHandler: encryptData(): status not found.");
-                //logger.debug("TKSRemoteRequestHandler: encryptData(): got content = " + content);
-            } else {
-                logger.debug("TKSRemoteRequestHandler: encryptData(): got status = " + value);
-                ist = Integer.parseInt(value);
-            }
-            response.put(IRemoteRequest.RESPONSE_STATUS, ist);
-
-            value = (String) response.get(IRemoteRequest.TKS_RESPONSE_EncryptedData);
-            if (value == null) {
-                logger.debug("TKSRemoteRequestHandler: encryptData(): response missing name-value pair for: " +
-                        IRemoteRequest.TKS_RESPONSE_EncryptedData);
-            } else {
-                logger.debug("TKSRemoteRequestHandler: encryptData(): got IRemoteRequest.TKS_RESPONSE_EncryptedData");
-                response.put(IRemoteRequest.TKS_RESPONSE_EncryptedData, Util.specialDecode(value));
-            }
-            logger.debug("TKSRemoteRequestHandler: encryptData(): ends.");
-
-            return new TKSEncryptDataResponse(response);
-        } else {
+        if (content == null || content.equals("")) {
             logger.error("TKSRemoteRequestHandler: encryptData(): no response content.");
             throw new EBaseException("TKSRemoteRequestHandler: encryptData(): no response content.");
         }
+        Hashtable<String, Object> response =
+                parseResponse(content);
+
+        /*
+         * When a value is not found in response, keep going so we know
+         * what else is missing
+         */
+        Integer ist = Integer.valueOf(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
+        String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
+        if (value == null) {
+            logger.debug("TKSRemoteRequestHandler: encryptData(): status not found.");
+            //logger.debug("TKSRemoteRequestHandler: encryptData(): got content = " + content);
+        } else {
+            logger.debug("TKSRemoteRequestHandler: encryptData(): got status = " + value);
+            ist = Integer.parseInt(value);
+        }
+        response.put(IRemoteRequest.RESPONSE_STATUS, ist);
+
+        value = (String) response.get(IRemoteRequest.TKS_RESPONSE_EncryptedData);
+        if (value == null) {
+            logger.debug("TKSRemoteRequestHandler: encryptData(): response missing name-value pair for: " +
+                    IRemoteRequest.TKS_RESPONSE_EncryptedData);
+        } else {
+            logger.debug("TKSRemoteRequestHandler: encryptData(): got IRemoteRequest.TKS_RESPONSE_EncryptedData");
+            response.put(IRemoteRequest.TKS_RESPONSE_EncryptedData, Util.specialDecode(value));
+        }
+        logger.debug("TKSRemoteRequestHandler: encryptData(): ends.");
+
+        return new TKSEncryptDataResponse(response);
     }
 }

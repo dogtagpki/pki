@@ -173,11 +173,7 @@ public class SubjectKeyIdentifierExtDefault extends EnrollExtDefault {
             if (ext == null) {
                 return null;
             }
-            if (ext.isCritical()) {
-                return "true";
-            } else {
-                return "false";
-            }
+            return ext.isCritical() ? "true" : "false";
         } else if (name.equals(VAL_KEY_ID)) {
             ext =
                     (SubjectKeyIdentifierExtension) getExtension(

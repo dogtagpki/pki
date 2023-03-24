@@ -480,10 +480,8 @@ public class TokenService extends SubsystemService implements TokenResource {
             }
             String type = record.getType();
             if ((type == null) || type.isEmpty() || authorizedProfiles.contains(UserResource.ALL_PROFILES) || authorizedProfiles.contains(type))
-
                 return createOKResponse(createTokenData(record));
-            else
-                throw new PKIException(method + "Token record restricted");
+            throw new PKIException(method + "Token record restricted");
 
         } catch (EDBException e) {
             Throwable t = e.getCause();

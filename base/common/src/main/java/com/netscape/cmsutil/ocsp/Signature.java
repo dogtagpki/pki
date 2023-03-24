@@ -62,11 +62,7 @@ public class Signature implements ASN1Value {
     }
 
     public int getCertificateCount() {
-        if (certs == null) {
-            return 0;
-        } else {
-            return certs.size();
-        }
+        return certs == null ? 0 : certs.size();
     }
 
     public Certificate getCertificateAt(int index) {

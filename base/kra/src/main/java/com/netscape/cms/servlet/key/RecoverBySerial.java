@@ -298,12 +298,11 @@ public class RecoverBySerial extends CMSServlet {
         if (cert == null || cert.trim().length() == 0) {
             header.addStringValue(OUT_ERROR, "certificate not found");
             return;
-        } else {
-            try {
-                x509cert = Cert.mapCert(cert);
-            } catch (IOException e) {
-                header.addStringValue(OUT_ERROR, e.toString());
-            }
+        }
+        try {
+            x509cert = Cert.mapCert(cert);
+        } catch (IOException e) {
+            header.addStringValue(OUT_ERROR, e.toString());
         }
         if (x509cert == null) {
             header.addStringValue(OUT_ERROR, "invalid X.509 certificate");
@@ -359,12 +358,11 @@ public class RecoverBySerial extends CMSServlet {
             // perform recovery
             header.addStringValue(OUT_ERROR, "certificate not found");
             return null;
-        } else {
-            try {
-                x509cert = Cert.mapCert(cert);
-            } catch (IOException e) {
-                header.addStringValue(OUT_ERROR, e.toString());
-            }
+        }
+        try {
+            x509cert = Cert.mapCert(cert);
+        } catch (IOException e) {
+            header.addStringValue(OUT_ERROR, e.toString());
         }
         if (x509cert == null) {
             header.addStringValue(OUT_ERROR, "invalid X.509 certificate");
@@ -406,28 +404,27 @@ public class RecoverBySerial extends CMSServlet {
 
                     waitThread.start();
                     return null;
-                } else {
-                    Vector<Credential> v = new Vector<>();
+                }
+                Vector<Credential> v = new Vector<>();
 
-                    for (int i = 0; i < mService.getNoOfRequiredAgents(); i++) {
-                        String uid = req.getParameter(IN_UID + i);
-                        String pwd = req.getParameter(IN_PWD + i);
+                for (int i = 0; i < mService.getNoOfRequiredAgents(); i++) {
+                    String uid = req.getParameter(IN_UID + i);
+                    String pwd = req.getParameter(IN_PWD + i);
 
-                        if (uid != null && pwd != null && !uid.equals("") &&
-                                !pwd.equals("")) {
-                            v.addElement(new Credential(uid, pwd));
-                        } else {
-                            header.addStringValue(OUT_ERROR, "Uid(s) or password(s) are not provided");
-                            return null;
-                        }
-                    }
-                    if (v.size() != mService.getNoOfRequiredAgents()) {
+                    if (uid != null && pwd != null && !uid.equals("") &&
+                            !pwd.equals("")) {
+                        v.addElement(new Credential(uid, pwd));
+                    } else {
                         header.addStringValue(OUT_ERROR, "Uid(s) or password(s) are not provided");
                         return null;
                     }
-                    creds = new Credential[v.size()];
-                    v.copyInto(creds);
                 }
+                if (v.size() != mService.getNoOfRequiredAgents()) {
+                    header.addStringValue(OUT_ERROR, "Uid(s) or password(s) are not provided");
+                    return null;
+                }
+                creds = new Credential[v.size()];
+                v.copyInto(creds);
 
                 header.addStringValue(OUT_OP,
                         req.getParameter(OUT_OP));
@@ -443,29 +440,28 @@ public class RecoverBySerial extends CMSServlet {
                         delivery, nickname, agent);
 
                 return pkcs12;
-            } else {
-                String recoveryID = req.getParameter("recoveryID");
+            }
+            String recoveryID = req.getParameter("recoveryID");
 
-                if (recoveryID == null || recoveryID.equals("")) {
-                    header.addStringValue(OUT_ERROR, "No recovery ID specified");
-                    return null;
-                }
-                Hashtable<String, Object> params = mService.createRecoveryParams(recoveryID);
-
-                params.put("keyID", req.getParameter(IN_SERIALNO));
-
-                header.addStringValue("recoveryID", recoveryID);
-
-                params.put("agent", agent);
-
-                // new thread to wait for pk12
-                Thread waitThread = new WaitApprovalThread(recoveryID,
-                        seq, password, x509cert, delivery, nickname,
-                        SessionContext.getContext());
-
-                waitThread.start();
+            if (recoveryID == null || recoveryID.equals("")) {
+                header.addStringValue(OUT_ERROR, "No recovery ID specified");
                 return null;
             }
+            Hashtable<String, Object> params = mService.createRecoveryParams(recoveryID);
+
+            params.put("keyID", req.getParameter(IN_SERIALNO));
+
+            header.addStringValue("recoveryID", recoveryID);
+
+            params.put("agent", agent);
+
+            // new thread to wait for pk12
+            Thread waitThread = new WaitApprovalThread(recoveryID,
+                    seq, password, x509cert, delivery, nickname,
+                    SessionContext.getContext());
+
+            waitThread.start();
+            return null;
         } catch (EBaseException e) {
             header.addStringValue(OUT_ERROR, e.toString(locale));
         } catch (Exception e) {

@@ -32,9 +32,6 @@ public abstract class TKSResponse
 
     public int getStatus() {
         Integer iValue = (Integer) nameValTable.get(IRemoteRequest.RESPONSE_STATUS);
-        if (iValue == null)
-            return IRemoteRequest.RESPONSE_STATUS_NOT_FOUND;
-        else
-            return iValue.intValue();
+        return iValue == null ? IRemoteRequest.RESPONSE_STATUS_NOT_FOUND : iValue.intValue();
     }
 }

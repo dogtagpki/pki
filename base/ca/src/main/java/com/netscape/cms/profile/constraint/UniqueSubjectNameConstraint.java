@@ -168,56 +168,54 @@ public class UniqueSubjectNameConstraint extends EnrollConstraint {
             throw new ERejectException(
                     CMS.getUserMessage(getLocale(request),
                             "CMS_PROFILE_SUBJECT_NAME_NOT_FOUND"));
-        else {
-            certsubjectname = sn.toString();
-            String filter = "x509Cert.subject=" + certsubjectname;
-            Enumeration<CertRecord> sameSubjRecords = null;
-            try {
-                sameSubjRecords = certdb.findCertRecords(filter);
-            } catch (EBaseException e) {
-                logger.warn("UniqueSubjectNameConstraint exception: " + e.getMessage(), e);
-            }
-            while (sameSubjRecords != null && sameSubjRecords.hasMoreElements()) {
-                CertRecord rec = sameSubjRecords.nextElement();
-                String status = rec.getStatus();
+        certsubjectname = sn.toString();
+        String filter = "x509Cert.subject=" + certsubjectname;
+        Enumeration<CertRecord> sameSubjRecords = null;
+        try {
+            sameSubjRecords = certdb.findCertRecords(filter);
+        } catch (EBaseException e) {
+            logger.warn("UniqueSubjectNameConstraint exception: " + e.getMessage(), e);
+        }
+        while (sameSubjRecords != null && sameSubjRecords.hasMoreElements()) {
+            CertRecord rec = sameSubjRecords.nextElement();
+            String status = rec.getStatus();
 
-                RevocationInfo revocationInfo = rec.getRevocationInfo();
-                RevocationReason reason = null;
+            RevocationInfo revocationInfo = rec.getRevocationInfo();
+            RevocationReason reason = null;
 
-                if (revocationInfo != null) {
-                    CRLExtensions crlExts = revocationInfo.getCRLEntryExtensions();
+            if (revocationInfo != null) {
+                CRLExtensions crlExts = revocationInfo.getCRLEntryExtensions();
 
-                    if (crlExts != null) {
-                        Enumeration<Extension> enumx = crlExts.getElements();
+                if (crlExts != null) {
+                    Enumeration<Extension> enumx = crlExts.getElements();
 
-                        while (enumx.hasMoreElements()) {
-                            Extension ext = enumx.nextElement();
+                    while (enumx.hasMoreElements()) {
+                        Extension ext = enumx.nextElement();
 
-                            if (ext instanceof CRLReasonExtension) {
-                                reason = ((CRLReasonExtension) ext).getReason();
-                            }
+                        if (ext instanceof CRLReasonExtension) {
+                            reason = ((CRLReasonExtension) ext).getReason();
                         }
                     }
                 }
-
-                if (status.equals(CertRecord.STATUS_EXPIRED) || status.equals(CertRecord.STATUS_REVOKED_EXPIRED)) {
-                    continue;
-                }
-
-                if (status.equals(CertRecord.STATUS_REVOKED) && reason != null &&
-                        (!reason.equals(RevocationReason.CERTIFICATE_HOLD))) {
-                    continue;
-                }
-
-                if (mKeyUsageExtensionChecking && !sameKeyUsageExtension(rec, info)) {
-                    continue;
-                }
-
-                throw new ERejectException(
-                        CMS.getUserMessage(getLocale(request),
-                                "CMS_PROFILE_SUBJECT_NAME_NOT_UNIQUE",
-                                certsubjectname));
             }
+
+            if (status.equals(CertRecord.STATUS_EXPIRED) || status.equals(CertRecord.STATUS_REVOKED_EXPIRED)) {
+                continue;
+            }
+
+            if (status.equals(CertRecord.STATUS_REVOKED) && reason != null &&
+                    (!reason.equals(RevocationReason.CERTIFICATE_HOLD))) {
+                continue;
+            }
+
+            if (mKeyUsageExtensionChecking && !sameKeyUsageExtension(rec, info)) {
+                continue;
+            }
+
+            throw new ERejectException(
+                    CMS.getUserMessage(getLocale(request),
+                            "CMS_PROFILE_SUBJECT_NAME_NOT_UNIQUE",
+                            certsubjectname));
         }
         logger.debug("UniqueSubjectNameConstraint: validate end");
     }

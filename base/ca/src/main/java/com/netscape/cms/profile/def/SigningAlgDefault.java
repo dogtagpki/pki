@@ -61,9 +61,8 @@ public class SigningAlgDefault extends EnrollDefault {
             return new Descriptor(IDescriptor.CHOICE, DEF_CONFIG_ALGORITHMS,
                     "SHA256withRSA",
                     CMS.getUserMessage(locale, "CMS_PROFILE_SIGNING_ALGORITHM"));
-        } else {
-            return null;
         }
+        return null;
     }
 
     public String getSigningAlg() {
@@ -77,9 +76,8 @@ public class SigningAlgDefault extends EnrollDefault {
             // best pick for the user
             CertificateAuthority ca = engine.getCA();
             return ca.getDefaultAlgorithm();
-        } else {
-            return signingAlg;
         }
+        return signingAlg;
     }
 
     public String getDefSigningAlgorithms() {
@@ -158,10 +156,9 @@ public class SigningAlgDefault extends EnrollDefault {
             }
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
-        } else {
-            throw new EPropertyException(CMS.getUserMessage(
-                        locale, "CMS_INVALID_PROPERTY", name));
         }
+        throw new EPropertyException(CMS.getUserMessage(
+                    locale, "CMS_INVALID_PROPERTY", name));
 
     }
 

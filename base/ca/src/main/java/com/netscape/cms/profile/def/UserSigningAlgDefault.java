@@ -56,9 +56,8 @@ public class UserSigningAlgDefault extends EnrollDefault {
                     IDescriptor.READONLY, null,
                     CMS.getUserMessage(locale,
                             "CMS_PROFILE_SIGNING_ALGORITHM"));
-        } else {
-            return null;
         }
+        return null;
     }
 
     @Override
@@ -90,10 +89,9 @@ public class UserSigningAlgDefault extends EnrollDefault {
                 logger.warn("UserSigningAlgDefault: setValue " + e.getMessage(), e);
                 return ""; //XXX
             }
-        } else {
-            throw new EPropertyException(CMS.getUserMessage(
-                        locale, "CMS_INVALID_PROPERTY", name));
         }
+        throw new EPropertyException(CMS.getUserMessage(
+                    locale, "CMS_INVALID_PROPERTY", name));
     }
 
     @Override

@@ -198,9 +198,8 @@ public class ReqCertSANameEmailResolver implements IEmailResolver {
                                     logger.info("ReqCertSANameEmailResolver: subjectalternatename email used:" + mEmail);
 
                                     break;
-                                } else {
-                                    logger.warn("ReqCertSANameEmailResolver: not an subjectalternatename email");
                                 }
+                                logger.warn("ReqCertSANameEmailResolver: not an subjectalternatename email");
                             }
                         }
                     } catch (IOException e) {
@@ -230,10 +229,8 @@ public class ReqCertSANameEmailResolver implements IEmailResolver {
                 throw new ENotificationException(
                         CMS.getUserMessage("CMS_NOTIFICATION_EMAIL_RESOLVE_FAILED", ": No request id or cert info found"));
             }
-        } else {
-            logger.info("ReqCertSANameEmailResolver: email resolved: " + mEmail);
         }
-
+        logger.info("ReqCertSANameEmailResolver: email resolved: " + mEmail);
         return mEmail;
     }
 

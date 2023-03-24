@@ -409,14 +409,13 @@ public class RenewalServlet extends CAServlet {
         if (checkImportCertToNav(cmsReq.getHttpResp(),
                 httpParams, renewed_cert)) {
             return;
-        } else {
-            try {
-                renderTemplate(cmsReq,
-                        mRenewalSuccessTemplate, mRenewalSuccessFiller);
-            } catch (IOException e) {
-                logger.error(CMS.getLogMessage("CMSGE_ERROR_DISPLAY_TEMPLATE_1", mRenewalSuccessTemplate, e.toString()), e);
-                throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
-            }
+        }
+        try {
+            renderTemplate(cmsReq,
+                    mRenewalSuccessTemplate, mRenewalSuccessFiller);
+        } catch (IOException e) {
+            logger.error(CMS.getLogMessage("CMSGE_ERROR_DISPLAY_TEMPLATE_1", mRenewalSuccessTemplate, e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
         }
         return;
     }

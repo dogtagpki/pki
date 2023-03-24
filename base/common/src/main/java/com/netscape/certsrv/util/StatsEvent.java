@@ -104,28 +104,22 @@ public class StatsEvent {
     public long getPercentage() {
         if (mParent == null || mParent.getTimeTaken() == 0) {
             return 100;
-        } else {
-            return (mTimeTaken * 100 / mParent.getTimeTaken());
         }
+        return (mTimeTaken * 100 / mParent.getTimeTaken());
     }
 
     public long getStdDev() {
         if (getNoOfOperations() == 0) {
             return 0;
-        } else {
-            long a = getTimeTakenSqSum();
-            long b = (-2 * getAvg() * getTimeTaken());
-            long c = getAvg() * getAvg() * getNoOfOperations();
-            return (long) Math.sqrt(((double) (a + b + c)) / getNoOfOperations());
         }
+        long a = getTimeTakenSqSum();
+        long b = (-2 * getAvg() * getTimeTaken());
+        long c = getAvg() * getAvg() * getNoOfOperations();
+        return (long) Math.sqrt(((double) (a + b + c)) / getNoOfOperations());
     }
 
     public long getAvg() {
-        if (mNoOfOperations == 0) {
-            return -1;
-        } else {
-            return mTimeTaken / mNoOfOperations;
-        }
+        return mNoOfOperations == 0 ? -1 : mTimeTaken / mNoOfOperations;
     }
 
     /**

@@ -321,93 +321,87 @@ public class SimpleExpression implements IExpression {
             op = IExpression.LE_STR;
             break;
         }
-        if (mPfx != null && mPfx.length() > 0)
-            return mPfx + "." + mVar + " " + op + " " + mVal;
-        else
+        if (mPfx == null || mPfx.length() <= 0) {
             return mVar + " " + op + " " + mVal;
+        }
+        return mPfx + "." + mVar + " " + op + " " + mVal;
     }
 
     private static ExpressionComps parseForEquality(String expression) {
         int index = expression.indexOf(IExpression.EQUAL_STR);
 
-        if (index < 0)
+        if (index < 0) {
             return null;
-        else {
-            String attr = expression.substring(0, index).trim();
-            int op = OP_EQUAL;
-            String val = expression.substring(index + 2).trim();
-
-            return new ExpressionComps(attr, op, val);
         }
+        String attr = expression.substring(0, index).trim();
+        int op = OP_EQUAL;
+        String val = expression.substring(index + 2).trim();
+
+        return new ExpressionComps(attr, op, val);
     }
 
     private static ExpressionComps parseForInEquality(String expression) {
         int index = expression.indexOf(IExpression.NEQUAL_STR);
 
-        if (index < 0)
+        if (index < 0) {
             return null;
-        else {
-            String attr = expression.substring(0, index).trim();
-            int op = OP_NEQUAL;
-            String val = expression.substring(index + 2).trim();
-
-            return new ExpressionComps(attr, op, val);
         }
+        String attr = expression.substring(0, index).trim();
+        int op = OP_NEQUAL;
+        String val = expression.substring(index + 2).trim();
+
+        return new ExpressionComps(attr, op, val);
     }
 
     private static ExpressionComps parseForGT(String expression) {
         int index = expression.indexOf(IExpression.GT_STR);
 
-        if (index < 0)
+        if (index < 0) {
             return null;
-        else {
-            String attr = expression.substring(0, index).trim();
-            int op = OP_GT;
-            String val = expression.substring(index + 1).trim();
-
-            return new ExpressionComps(attr, op, val);
         }
+        String attr = expression.substring(0, index).trim();
+        int op = OP_GT;
+        String val = expression.substring(index + 1).trim();
+
+        return new ExpressionComps(attr, op, val);
     }
 
     private static ExpressionComps parseForLT(String expression) {
         int index = expression.indexOf(IExpression.LT_STR);
 
-        if (index < 0)
+        if (index < 0) {
             return null;
-        else {
-            String attr = expression.substring(0, index).trim();
-            int op = OP_LT;
-            String val = expression.substring(index + 1).trim();
-
-            return new ExpressionComps(attr, op, val);
         }
+        String attr = expression.substring(0, index).trim();
+        int op = OP_LT;
+        String val = expression.substring(index + 1).trim();
+
+        return new ExpressionComps(attr, op, val);
     }
 
     private static ExpressionComps parseForGE(String expression) {
         int index = expression.indexOf(IExpression.GE_STR);
 
-        if (index < 0)
+        if (index < 0) {
             return null;
-        else {
-            String attr = expression.substring(0, index).trim();
-            int op = OP_GE;
-            String val = expression.substring(index + 2).trim();
-
-            return new ExpressionComps(attr, op, val);
         }
+        String attr = expression.substring(0, index).trim();
+        int op = OP_GE;
+        String val = expression.substring(index + 2).trim();
+
+        return new ExpressionComps(attr, op, val);
     }
 
     private static ExpressionComps parseForLE(String expression) {
         int index = expression.indexOf(IExpression.LE_STR);
 
-        if (index < 0)
+        if (index < 0) {
             return null;
-        else {
-            String attr = expression.substring(0, index).trim();
-            int op = OP_LE;
-            String val = expression.substring(index + 2).trim();
-
-            return new ExpressionComps(attr, op, val);
         }
+        String attr = expression.substring(0, index).trim();
+        int op = OP_LE;
+        String val = expression.substring(index + 2).trim();
+
+        return new ExpressionComps(attr, op, val);
     }
 }

@@ -197,12 +197,8 @@ public abstract class SigningUnit {
             String message = "Invalid signing key encoding: " + e.getMessage();
             throw new EBaseException(message, e);
         }
-
-        if (key.getAlgorithmId().getOID().equals(AlgorithmId.DSA_oid)) {
-            return AlgorithmId.DSA_SIGNING_ALGORITHMS;
-        } else {
-            return AlgorithmId.ALL_SIGNING_ALGORITHMS;
-        }
+        boolean isDSA = key.getAlgorithmId().getOID().equals(AlgorithmId.DSA_oid);
+        return isDSA ? AlgorithmId.DSA_SIGNING_ALGORITHMS : AlgorithmId.ALL_SIGNING_ALGORITHMS;
     }
 
     /**

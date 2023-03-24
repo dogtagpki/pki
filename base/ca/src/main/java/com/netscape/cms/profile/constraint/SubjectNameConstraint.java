@@ -67,9 +67,8 @@ public class SubjectNameConstraint extends EnrollConstraint {
             return new Descriptor(IDescriptor.STRING,
                     null, null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_SUBJECT_NAME_PATTERN"));
-        } else {
-            return null;
         }
+        return null;
     }
 
     public String getDefaultConfig(String name) {
@@ -109,11 +108,10 @@ public class SubjectNameConstraint extends EnrollConstraint {
             throw new ERejectException(
                     CMS.getUserMessage(getLocale(request),
                             "CMS_PROFILE_SUBJECT_NAME_NOT_FOUND"));
-        } else {
-            logger.debug("SubjectNameConstraint: validate() - sn500 " +
-                    CertificateSubjectName.DN_NAME + " = " +
-                    sn500.toString());
         }
+        logger.debug("SubjectNameConstraint: validate() - sn500 " +
+                CertificateSubjectName.DN_NAME + " = " +
+                sn500.toString());
         if (!sn500.toString().matches(getConfig(CONFIG_PATTERN))) {
             logger.error("SubjectNameConstraint: validate() - sn500 not matching pattern " + getConfig(CONFIG_PATTERN));
             throw new ERejectException(

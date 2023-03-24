@@ -186,7 +186,9 @@ public class TPSPinResetProcessor extends TPSProcessor {
             // otherwise stop the operation.
             logger.debug(method + " checking if record registrationtype matches currentTokenOperation.");
             if(erAttrs.getRegistrationType() != null && erAttrs.getRegistrationType().length() > 0) {
-                if(!erAttrs.getRegistrationType().equalsIgnoreCase(currentTokenOperation)) {
+                if(erAttrs.getRegistrationType().equalsIgnoreCase(currentTokenOperation)) {
+                    logger.debug(method + " --> registrationtype matches currentTokenOperation");
+                } else {
                     logger.debug(
                             method + " Error: registrationType " +
                             erAttrs.getRegistrationType() +
@@ -196,8 +198,6 @@ public class TPSPinResetProcessor extends TPSProcessor {
                     tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg,
                             "failure");
                     throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_LOGIN);
-                } else {
-                    logger.debug(method + " --> registrationtype matches currentTokenOperation");
                 }
             } else {
                 logger.debug(method + " --> registrationtype attribute disabled or not found, continuing.");
@@ -214,16 +214,16 @@ public class TPSPinResetProcessor extends TPSProcessor {
                 logger.debug(method + " checking if token cuid matches record cuid");
                 logger.debug(method + " erAttrs.getTokenCUID()=" + erAttrs.getTokenCUID());
                 logger.debug(method + " tokenRecord.getId()=" + tokenRecord.getId());
-                if (!tokenRecord.getId().equalsIgnoreCase(erAttrs.getTokenCUID())) {
+                if (tokenRecord.getId().equalsIgnoreCase(erAttrs.getTokenCUID())) {
+                    logMsg = "isExternalReg: token CUID matches record";
+                    logger.debug(method + logMsg);
+                } else {
                     logMsg = "isExternalReg: token CUID not matching record:" + tokenRecord.getId() + " : " +
                             erAttrs.getTokenCUID();
                     logger.error(method + logMsg);
                     tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg,
                             "failure");
                     throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_NOT_TOKEN_OWNER);
-                } else {
-                    logMsg = "isExternalReg: token CUID matches record";
-                    logger.debug(method + logMsg);
                 }
             } else {
                 logger.debug(method + " no need to check if token cuid matches record");

@@ -201,11 +201,10 @@ public class SubjectKeyIdentifierExt extends APolicyRule
                                     " already has subject key id extension with value " +
                                     subjectKeyIdExt);
                     return PolicyResult.ACCEPTED;
-                } else {
-                    logger.debug("SubjectKeyIdentifierExt: request id from user " + req.getRequestId() +
-                                    " had subject key identifier - deleted to be replaced");
-                    extensions.delete(SubjectKeyIdentifierExtension.NAME);
                 }
+                logger.debug("SubjectKeyIdentifierExt: request id from user " + req.getRequestId() +
+                                " had subject key identifier - deleted to be replaced");
+                extensions.delete(SubjectKeyIdentifierExtension.NAME);
             }
 
             // create subject key id extension.

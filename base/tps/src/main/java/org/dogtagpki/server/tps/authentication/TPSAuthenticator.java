@@ -122,10 +122,7 @@ public class TPSAuthenticator {
     }
 
     public String getCredMap(String authCred, boolean extLogin) {
-        if (extLogin)
-            return credMap_extlogin.get(authCred);
-        else
-            return credMap_login.get(authCred);
+        return extLogin ? credMap_extlogin.get(authCred) : credMap_login.get(authCred);
     }
 
     public int getNumOfRetries() {

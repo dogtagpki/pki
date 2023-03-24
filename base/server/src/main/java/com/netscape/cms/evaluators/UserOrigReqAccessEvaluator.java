@@ -90,8 +90,8 @@ public class UserOrigReqAccessEvaluator extends AccessEvaluator {
             if (userid == null) {
                 logger.warn("UserOrigReqAccessEvaluator: evaluate() userid in authtoken null");
                 return false;
-            } else
-                logger.debug("UserOrigReqAccessEvaluator: evaluate() userid in authtoken =" + userid);
+            }
+            logger.debug("UserOrigReqAccessEvaluator: evaluate() userid in authtoken =" + userid);
 
             // find value of param in request
             SessionContext mSC = SessionContext.getContext();

@@ -299,9 +299,8 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
                     if (mCert == null) {
                         logger.error("Storage Cert could not be initialized. No cert in token matched kra-cert file");
                         throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", "mCert == null"));
-                    } else {
-                        logger.info("Using Storage Cert " + mCert.getSubjectDN());
                     }
+                    logger.info("Using Storage Cert " + mCert.getSubjectDN());
 
                 } catch (CertificateEncodingException e) {
                     logger.error("Error encoding cert: " + e.getMessage(), e);
@@ -806,21 +805,20 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
     @Override
     public PrivateKey getPrivateKey() {
 
-        if (!mKeySplitting) {
-            try {
-                PrivateKey pk[] = getToken().getCryptoStore().getPrivateKeys();
-                for (int i = 0; i < pk.length; i++) {
-                    if (arraysEqual(pk[i].getUniqueID(),
-                            ((TokenCertificate) mCert).getUniqueID())) {
-                        return pk[i];
-                    }
-                }
-            } catch (TokenException e) {
-            }
-            return null;
-        } else {
+        if (mKeySplitting) {
             return mPrivateKey;
         }
+        try {
+            PrivateKey pk[] = getToken().getCryptoStore().getPrivateKeys();
+            for (int i = 0; i < pk.length; i++) {
+                if (arraysEqual(pk[i].getUniqueID(),
+                        ((TokenCertificate) mCert).getUniqueID())) {
+                    return pk[i];
+                }
+            }
+        } catch (TokenException e) {
+        }
+        return null;
     }
 
     @Override
@@ -896,11 +894,7 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
     }
 
     public static boolean verifyShare(byte share[]) {
-        if (share[0] == 0 && share[1] == 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return share[0] == 0 && share[1] == 0;
     }
 
     public static byte[] postVerify(byte share[]) {
@@ -933,9 +927,8 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
                         pwd);
                 if (data == null) {
                     throw new EBaseException(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
-                } else {
-                    jssSubsystem.obscureBytes(data);
                 }
+                jssSubsystem.obscureBytes(data);
                 return;
             }
         }

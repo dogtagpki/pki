@@ -277,10 +277,10 @@ public abstract class Repository {
 
         BigInteger serial = mLastSerialNo.add(BigInteger.ONE);
 
-        if (mMaxSerialNo != null && serial.compareTo(mMaxSerialNo) > 0)
+        if (mMaxSerialNo != null && serial.compareTo(mMaxSerialNo) > 0) {
             return hasNextRange() ? mNextMinSerialNo : null;
-        else
-            return serial;
+        }
+        return serial;
     }
 
     /**
@@ -396,12 +396,11 @@ public abstract class Repository {
             if (dbSubsystem.getEnableSerialMgmt()) {
                 logger.debug("Reached the end of the range.  Attempting to move to next range");
                 if (!hasNextRange()) {
-                    if (rangeLength != null && mCounter.compareTo(rangeLength) < 0) {
-                        return;
-                    } else {
+                    if (rangeLength == null || mCounter.compareTo(rangeLength) >= 0) {
                         throw new EDBException(CMS.getUserMessage("CMS_DBS_LIMIT_REACHED",
                                                                   mLastSerialNo.toString()));
                     }
+                    return;
                 }
                 switchToNextRange();
             } else {

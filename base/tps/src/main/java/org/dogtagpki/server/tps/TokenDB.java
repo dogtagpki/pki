@@ -606,9 +606,8 @@ public class TokenDB {
                 logger.warn(method + "token " + cert.getTokenID() + " contains the cert and has status: "
                         + tokenRecord.getTokenStatus() + "... returning false");
                 return false;
-            } else {
-                logger.debug(method + "token " + cert.getTokenID() + " status: " + tokenRecord.getTokenStatus());
             }
+            logger.debug(method + "token " + cert.getTokenID() + " status: " + tokenRecord.getTokenStatus());
 
         }
 
@@ -771,14 +770,12 @@ public class TokenDB {
                         method + "certificate " + cert.getSerialNumber() +
                                 " already revoked and reason has not changed.");
             }
-            else {
-                logger.debug(method + "Cert " + cert.getSerialNumber() +
-                        " already revoked, but reason has changed, so revoking again.");
-                logger.debug(method + "Previous reason was: " +
-                        ((existingTokenReason == null) ? "(null)" : existingTokenReason));
-                logger.debug(method + "New reason is: " +
-                        ((tokenReason == null) ? "(null)" : tokenReason));
-            }
+            logger.debug(method + "Cert " + cert.getSerialNumber() +
+                    " already revoked, but reason has changed, so revoking again.");
+            logger.debug(method + "Previous reason was: " +
+                    ((existingTokenReason == null) ? "(null)" : existingTokenReason));
+            logger.debug(method + "New reason is: " +
+                    ((tokenReason == null) ? "(null)" : tokenReason));
         }
         logger.debug(method + "begins: ");
 

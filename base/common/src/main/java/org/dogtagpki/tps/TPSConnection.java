@@ -64,14 +64,12 @@ public class TPSConnection {
         // The first char can be anything.
         if((b = in.read()) < 0)
             throw new IOException("Unexpected end of stream");
-        else
-            sb.append((char)b);
+        sb.append((char)b);
 
         // The second char must be '='.
         if((b = in.read()) != '=')
             throw new IOException("Unexpected end of stream");
-        else
-            sb.append((char)b);
+        sb.append((char)b);
 
         // read the first parameter (not including the "s=")
         while ((b = in.read()) >= 0 && maxMessageSizeNumDigits-- > 0) {
