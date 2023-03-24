@@ -40,7 +40,6 @@ import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.logging.event.AccessSessionEstablishEvent;
 import com.netscape.certsrv.logging.event.AccessSessionTerminatedEvent;
 import com.netscape.cms.logging.SignedAuditLogger;
-import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 
 public class PKIServerSocketListener implements SSLSocketListener {
@@ -49,6 +48,9 @@ public class PKIServerSocketListener implements SSLSocketListener {
     private static SignedAuditLogger signedAuditLogger = SignedAuditLogger.getLogger();
 
     private static final String defaultUnknown = "--";
+
+    protected CMSEngine engine;
+
     /**
      * The socketInfos map is a storage for socket information that may not be available
      * after the socket has been closed such as client IP address and subject ID. The
@@ -58,10 +60,18 @@ public class PKIServerSocketListener implements SSLSocketListener {
      */
     Map<SSLSocket,Map<String,Object>> socketInfos = new WeakHashMap<>();
 
+    public CMSEngine getCMSEngine() {
+        return engine;
+    }
+
+    public void setCMSEngine(CMSEngine engine) {
+        this.engine = engine;
+    }
+
     @Override
     public void alertReceived(SSLAlertEvent event) {
-        CMSEngine cms = CMS.getCMSEngine();
-        if(cms == null || cms.isInRunningState() == false) {
+
+        if (engine == null || engine.isInRunningState() == false) {
             return;
         }
 
@@ -128,8 +138,8 @@ public class PKIServerSocketListener implements SSLSocketListener {
 
     @Override
     public void alertSent(SSLAlertEvent event) {
-        CMSEngine cms = CMS.getCMSEngine();
-        if(cms == null || cms.isInRunningState() == false) {
+
+        if (engine == null || engine.isInRunningState() == false) {
             return;
         }
         try {
@@ -224,10 +234,11 @@ public class PKIServerSocketListener implements SSLSocketListener {
 
     @Override
     public void handshakeCompleted(SSLHandshakeCompletedEvent event) {
-        CMSEngine cms = CMS.getCMSEngine();
-        if(cms == null || cms.isInRunningState() == false) {
+
+        if (engine == null || engine.isInRunningState() == false) {
             return;
         }
+
         try {
             SSLSocket socket = event.getSocket();
             JSSEngine engine = event.getEngine();

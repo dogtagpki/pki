@@ -1225,10 +1225,12 @@ public class CMSEngine {
         mStartupTime = System.currentTimeMillis();
 
         logger.info(name + " engine started");
+
         // Register TomcatJSS socket listener
         TomcatJSS tomcatJss = TomcatJSS.getInstance();
-        if(serverSocketListener == null) {
+        if (serverSocketListener == null) {
             serverSocketListener = new PKIServerSocketListener();
+            serverSocketListener.setCMSEngine(this);
         }
         tomcatJss.addSocketListener(serverSocketListener);
 
