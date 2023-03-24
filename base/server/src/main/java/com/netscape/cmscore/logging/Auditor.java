@@ -24,7 +24,6 @@ import java.util.Map;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.SignedAuditEvent;
-import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
@@ -38,6 +37,16 @@ public class Auditor {
     public final static String SIGNED_AUDIT_OPERATION = "Operation";
     public final static String SIGNED_AUDIT_RESOURCE = "Resource";
     public final static String SIGNED_AUDIT_EMPTY_NAME_VALUE_PAIR = "Unknown";
+
+    protected CMSEngine engine;
+
+    public CMSEngine getCMSEngine() {
+        return engine;
+    }
+
+    public void setCMSEngine(CMSEngine engine) {
+        this.engine = engine;
+    }
 
     /**
      * Get signed audit log subject ID
@@ -75,7 +84,6 @@ public class Auditor {
             return null;
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
         Enumeration<Group> groups;
 
         try {
