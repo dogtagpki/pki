@@ -30,13 +30,12 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.logging.Auditor;
 
 public class SubsystemService extends PKIService {
 
     protected static Logger signedAuditLogger = SignedAuditLogger.getLogger();
-
-    protected Auditor auditor = Auditor.getAuditor();
 
     public String getSubsystemName() {
         // get web application path: /<subsystem>
@@ -74,6 +73,8 @@ public class SubsystemService extends PKIService {
 
     public void audit(String message, String scope, String type, String id, Map<String, String> params, String status) {
 
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
         String auditMessage = CMS.getLogMessage(
                 message,
                 auditor.getSubjectID(),
@@ -85,6 +86,8 @@ public class SubsystemService extends PKIService {
 
     public void auditConfigTokenGeneral(String status, String service, Map<String, String> params, String info) {
 
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
         String msg = CMS.getLogMessage(
                 AuditEvent.CONFIG_TOKEN_GENERAL,
                 servletRequest.getUserPrincipal().getName(),

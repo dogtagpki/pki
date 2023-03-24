@@ -56,6 +56,8 @@ import com.netscape.certsrv.user.UserResource;
 import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.usrgrp.User;
 
 import netscape.ldap.LDAPException;
@@ -1055,6 +1057,8 @@ public class TokenService extends SubsystemService implements TokenResource {
     public void auditConfigTokenRecord(String status, String service, String tokenID, Map<String, String> params,
             String info) {
 
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
         String msg = CMS.getLogMessage(
                 AuditEvent.CONFIG_TOKEN_RECORD,
                 servletRequest.getUserPrincipal().getName(),
@@ -1072,6 +1076,8 @@ public class TokenService extends SubsystemService implements TokenResource {
     public void auditTokenStateChange(String status, TokenStatus oldState, TokenStatus newState, String oldReason,
             String newReason, Map<String, String> params, String info) {
 
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
         String msg = CMS.getLogMessage(
                 AuditEvent.TOKEN_STATE_CHANGE,
                 servletRequest.getUserPrincipal().getName(),

@@ -51,6 +51,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.request.CertRequestRepository;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestQueue;
@@ -429,6 +430,7 @@ public class RevocationProcessor extends CertProcessor {
 
     public void auditChangeRequest(String status) {
 
+        Auditor auditor = engine.getAuditor();
         if (auditor == null)
             return;
 
@@ -442,6 +444,7 @@ public class RevocationProcessor extends CertProcessor {
 
     public void auditChangeRequestProcessed(String status) {
 
+        Auditor auditor = engine.getAuditor();
         if (auditor == null)
             return;
 

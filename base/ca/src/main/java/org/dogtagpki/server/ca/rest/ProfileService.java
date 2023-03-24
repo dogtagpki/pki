@@ -68,19 +68,21 @@ import com.netscape.certsrv.profile.ProfileResource;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.cms.profile.common.CAEnrollProfile;
-import com.netscape.cms.profile.common.ProfilePoliciesConfig;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.profile.common.ProfileConfig;
 import com.netscape.cms.profile.common.ProfileInputConfig;
 import com.netscape.cms.profile.common.ProfileInputsConfig;
 import com.netscape.cms.profile.common.ProfileOutputConfig;
 import com.netscape.cms.profile.common.ProfileOutputsConfig;
+import com.netscape.cms.profile.common.ProfilePoliciesConfig;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cms.servlet.profile.PolicyConstraintFactory;
 import com.netscape.cms.servlet.profile.PolicyDefaultFactory;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.registry.PluginInfo;
 import com.netscape.cmscore.registry.PluginRegistry;
@@ -1221,6 +1223,9 @@ public class ProfileService extends SubsystemService implements ProfileResource 
     }
 
     public void auditProfileChangeState(String profileId, String op, String status) {
+
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
         String msg = CMS.getLogMessage(
                 AuditEvent.CERT_PROFILE_APPROVAL,
                 auditor.getSubjectID(),
@@ -1231,6 +1236,9 @@ public class ProfileService extends SubsystemService implements ProfileResource 
     }
 
     public void auditProfileChange(String scope, String type, String id, String status, Map<String, String> params) {
+
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
         String msg = CMS.getLogMessage(
                 AuditEvent.CONFIG_CERT_PROFILE,
                 auditor.getSubjectID(),

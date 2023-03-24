@@ -45,6 +45,8 @@ import com.netscape.certsrv.tps.connector.ConnectorData;
 import com.netscape.certsrv.tps.connector.ConnectorResource;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.logging.Auditor;
 
 /**
  * @author Endi S. Dewata
@@ -473,6 +475,8 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
     public void auditTPSConnectorChange(String status, String service, String connectorID, Map<String, String> params,
             String info) {
 
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
         String msg = CMS.getLogMessage(
                 AuditEvent.CONFIG_TOKEN_CONNECTOR,
                 servletRequest.getUserPrincipal().getName(),

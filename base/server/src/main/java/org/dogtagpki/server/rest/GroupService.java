@@ -45,6 +45,7 @@ import com.netscape.cms.servlet.admin.GroupMemberProcessor;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 
@@ -442,6 +443,8 @@ public class GroupService extends SubsystemService implements GroupResource {
 
     public void audit(String type, String id, Map<String, String> params, String status) {
 
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
         if (auditor == null) return;
 
         signedAuditLogger.log(new ConfigRoleEvent(

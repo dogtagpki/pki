@@ -42,6 +42,7 @@ import com.netscape.certsrv.logging.event.ConfigRoleEvent;
 import com.netscape.cms.servlet.processors.Processor;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 
@@ -376,6 +377,7 @@ public class GroupMemberProcessor extends Processor {
 
     public void audit(String type, String id, Map<String, String> params, String status) {
 
+        Auditor auditor = engine.getAuditor();
         if (auditor == null) return;
 
         signedAuditLogger.log(new ConfigRoleEvent(

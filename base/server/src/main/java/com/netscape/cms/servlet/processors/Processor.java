@@ -13,14 +13,11 @@ import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.logging.Auditor;
 
 public class Processor {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Processor.class);
     protected static Logger signedAuditLogger = SignedAuditLogger.getLogger();
-
-    protected Auditor auditor = Auditor.getAuditor();
 
     protected String id;
     protected Locale locale;

@@ -39,12 +39,6 @@ public class Auditor {
     public final static String SIGNED_AUDIT_RESOURCE = "Resource";
     public final static String SIGNED_AUDIT_EMPTY_NAME_VALUE_PAIR = "Unknown";
 
-    public final static Auditor auditor = new Auditor();
-
-    public static Auditor getAuditor() {
-        return auditor;
-    }
-
     /**
      * Get signed audit log subject ID
      *

@@ -70,6 +70,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.cert.CertPrettyPrint;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmscore.usrgrp.User;
@@ -1142,6 +1143,8 @@ public class UserService extends SubsystemService implements UserResource {
 
     public void auditUser(String type, String id, Map<String, String> params, String status) {
 
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
         if (auditor == null) return;
 
         signedAuditLogger.log(new ConfigRoleEvent(
@@ -1152,6 +1155,8 @@ public class UserService extends SubsystemService implements UserResource {
 
     public void auditUserCert(String type, String id, Map<String, String> params, String status) {
 
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
         if (auditor == null) return;
 
         signedAuditLogger.log(new ConfigRoleEvent(

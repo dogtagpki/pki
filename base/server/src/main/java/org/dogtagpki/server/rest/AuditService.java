@@ -53,6 +53,7 @@ import com.netscape.certsrv.logging.event.ConfigSignedAuditEvent;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.logging.LogSubsystem;
 import com.netscape.cmscore.logging.LoggerConfig;
 import com.netscape.cmscore.logging.LoggersConfig;
@@ -428,6 +429,8 @@ public class AuditService extends SubsystemService implements AuditResource {
      */
     public void auditTPSConfigSignedAudit(String status, Map<String, String> params) {
 
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
         signedAuditLogger.log(new ConfigSignedAuditEvent(
                 servletRequest.getUserPrincipal().getName(),
                 status,

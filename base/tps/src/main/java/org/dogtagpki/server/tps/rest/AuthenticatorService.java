@@ -45,6 +45,8 @@ import com.netscape.certsrv.tps.authenticator.AuthenticatorData;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorResource;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.logging.Auditor;
 
 /**
  * @author Endi S. Dewata
@@ -474,6 +476,8 @@ public class AuthenticatorService extends SubsystemService implements Authentica
     public void auditTPSAuthenticatorChange(String status, String service, String authenticatorID,
             Map<String, String> params, String info) {
 
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
         String msg = CMS.getLogMessage(
                 AuditEvent.CONFIG_TOKEN_AUTHENTICATOR,
                 servletRequest.getUserPrincipal().getName(),

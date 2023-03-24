@@ -62,6 +62,8 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.logging.Auditor;
 
 /**
  * @author ftweedal
@@ -480,6 +482,9 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
     private void audit(
             String status, String op, String id,
             Map<String, String> params) {
+
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
         String msg = CMS.getLogMessage(
                 AuditEvent.AUTHORITY_CONFIG,
                 auditor.getSubjectID(),

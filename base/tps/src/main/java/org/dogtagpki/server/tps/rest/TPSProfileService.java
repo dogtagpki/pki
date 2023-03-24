@@ -51,6 +51,8 @@ import com.netscape.certsrv.user.UserResource;
 import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.usrgrp.User;
 
 /**
@@ -564,6 +566,8 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
     public void auditTPSProfileChange(String status, String service, String profileID, Map<String, String> params,
             String info) {
 
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
         String msg = CMS.getLogMessage(
                 AuditEvent.CONFIG_TOKEN_PROFILE,
                 servletRequest.getUserPrincipal().getName(),

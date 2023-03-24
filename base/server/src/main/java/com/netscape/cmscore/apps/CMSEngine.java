@@ -77,6 +77,7 @@ import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.logging.LogSubsystem;
 import com.netscape.cmscore.logging.LoggerConfig;
 import com.netscape.cmscore.logging.LoggersConfig;
@@ -144,6 +145,7 @@ public class CMSEngine {
     private PluginRegistry pluginRegistry = new PluginRegistry();
     private PKIServerSocketListener serverSocketListener = null;
     protected LogSubsystem logSubsystem = LogSubsystem.getInstance();
+    protected Auditor auditor = new Auditor();
     protected JssSubsystem jssSubsystem = JssSubsystem.getInstance();
     protected DBSubsystem dbSubsystem;
 
@@ -208,6 +210,10 @@ public class CMSEngine {
 
     public LogSubsystem getLogSubsystem() {
         return logSubsystem;
+    }
+
+    public Auditor getAuditor() {
+        return auditor;
     }
 
     public JssSubsystem getJSSSubsystem() {

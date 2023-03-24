@@ -108,7 +108,6 @@ public class AdminServlet extends HttpServlet {
     protected ServletConfig servletConfig;
     protected ServletContext servletContext;
 
-    protected Auditor auditor = Auditor.getAuditor();
     protected EngineConfig mConfig = null;
     protected AuthzSubsystem mAuthz;
 
@@ -925,7 +924,11 @@ public class AdminServlet extends HttpServlet {
      * @return id string containing the signed audit log message SubjectID
      */
     protected String auditSubjectID() {
+
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
         if (auditor == null) return null;
+
         return auditor.getSubjectID();
     }
 
@@ -942,6 +945,9 @@ public class AdminServlet extends HttpServlet {
      * @return a delimited string of one or more delimited name/value pairs
      */
     protected String auditParams(HttpServletRequest req) {
+
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
         if (auditor == null) return null;
 
         // always identify the scope of the request
@@ -989,7 +995,11 @@ public class AdminServlet extends HttpServlet {
      *         with the "auditSubjectID()"
      */
     private String auditGroups(String subjectID) {
+
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
         if (auditor == null) return null;
+
         return auditor.getGroups(subjectID);
     }
 

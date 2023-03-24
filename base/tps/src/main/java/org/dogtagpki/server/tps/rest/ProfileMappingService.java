@@ -44,6 +44,8 @@ import com.netscape.certsrv.tps.profile.ProfileMappingData;
 import com.netscape.certsrv.tps.profile.ProfileMappingResource;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.logging.Auditor;
 
 /**
  * @author Endi S. Dewata
@@ -443,6 +445,9 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
      */
     public void auditMappingResolverChange(String status, String service, String resolverID, Map<String, String> params,
             String info) {
+
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
         String msg = CMS.getLogMessage(
                 AuditEvent.CONFIG_TOKEN_MAPPING_RESOLVER,
                 servletRequest.getUserPrincipal().getName(),
