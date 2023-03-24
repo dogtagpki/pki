@@ -268,23 +268,21 @@ public class LdapDNCompsMap
                 throw new ELdapException(CMS.getUserMessage("CMS_LDAP_MORE_THAN_ONE_ENTRY",
                             x500name.toString()));
             }
-            if (entry != null) {
-                return entry.getDN();
-            } else {
+            if (entry == null) {
                 logger.error(CMS.getLogMessage("PUBLISH_ENTRY_NOT_FOUND", "", x500name.toString()));
                 throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND",
                             "null entry"));
             }
+            return entry.getDN();
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
                 // need to intercept this because message from LDAP is
                 // "DSA is unavailable" which confuses with DSA PKI.
                 logger.error(CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"), e);
                 throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), "" + conn.getPort()), e);
-            } else {
-                logger.error(CMS.getLogMessage("PUBLISH_DN_MAP_EXCEPTION", "LDAPException", e.toString()), e);
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND", e.toString()), e);
             }
+            logger.error(CMS.getLogMessage("PUBLISH_DN_MAP_EXCEPTION", "LDAPException", e.toString()), e);
+            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND", e.toString()), e);
         }
     }
 

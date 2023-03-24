@@ -660,10 +660,7 @@ public abstract class PublisherProcessor {
 
         if (proxy == null)
             return null;
-        if (proxy.isEnable())
-            return proxy.getMapper();
-        else
-            return null;
+        return proxy.isEnable() ? proxy.getMapper() : null;
     }
 
     /**
@@ -707,10 +704,7 @@ public abstract class PublisherProcessor {
         if (proxy == null) {
             return null;
         }
-        if (proxy.isEnable())
-            return proxy.getPublisher();
-        else
-            return null;
+        return proxy.isEnable() ? proxy.getPublisher() : null;
     }
 
     /**
@@ -826,10 +820,7 @@ public abstract class PublisherProcessor {
      */
     public boolean ldapEnabled() {
         try {
-            if (mInited)
-                return mLdapConfig.getBoolean(PROP_ENABLE, false);
-            else
-                return false;
+            return mInited && mLdapConfig.getBoolean(PROP_ENABLE, false);
         } catch (EBaseException e) {
             return false;
         }

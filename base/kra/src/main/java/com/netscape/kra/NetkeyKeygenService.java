@@ -245,8 +245,8 @@ public class NetkeyKeygenService implements IService {
             logger.warn("NetkeyKeygenService: failed getting keygenToken");
             request.setExtData(Request.RESULT, Integer.valueOf(10));
             return false;
-        } else
-            logger.debug("NetkeyKeygenService: got keygenToken");
+        }
+        logger.debug("NetkeyKeygenService: got keygenToken");
 
         if ((wrapped_des_key != null) &&
                 (wrapped_des_key.length > 0)) {
@@ -296,19 +296,18 @@ public class NetkeyKeygenService implements IService {
                     request.setExtData(Request.RESULT, Integer.valueOf(4));
                     logger.warn("NetkeyKeygenService: failed getting publickey encoded");
                     return false;
-                } else {
-                    //logger.debug("NetkeyKeygenService: public key binary length ="+ publicKeyData.length);
-                    if (rKeytype.equals("EC")) {
-                        /* url encode */
-                        PubKey = org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(publicKeyData);
-                        logger.debug("NetkeyKeygenService: EC PubKey special encoded");
-                    } else {
-                        PubKey = base64Encode(publicKeyData);
-                    }
-
-                    //logger.debug("NetkeyKeygenService: public key length =" + PubKey.length());
-                    request.setExtData("public_key", PubKey);
                 }
+                //logger.debug("NetkeyKeygenService: public key binary length ="+ publicKeyData.length);
+                if (rKeytype.equals("EC")) {
+                    /* url encode */
+                    PubKey = org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(publicKeyData);
+                    logger.debug("NetkeyKeygenService: EC PubKey special encoded");
+                } else {
+                    PubKey = base64Encode(publicKeyData);
+                }
+
+                //logger.debug("NetkeyKeygenService: public key length =" + PubKey.length());
+                request.setExtData("public_key", PubKey);
 
                 audit(new ServerSideKeyGenProcessedEvent(
                         agentId,
@@ -324,9 +323,8 @@ public class NetkeyKeygenService implements IService {
                     request.setExtData(Request.RESULT, Integer.valueOf(4));
                     logger.warn("NetkeyKeygenService: failed getting private key");
                     return false;
-                } else {
-                    logger.debug("NetkeyKeygenService: got private key");
                 }
+                logger.debug("NetkeyKeygenService: got private key");
 
                 // unwrap the DES key
                 PK11SymKey sk = null;
@@ -379,17 +377,16 @@ public class NetkeyKeygenService implements IService {
                             PubKey));
 
                     return false;
-                } else {
-                    request.setExtData("wrappedUserPrivate", wrappedPrivKeyString);
-
-                    audit(new SecurityDataExportEvent(
-                            agentId,
-                            ILogger.SUCCESS,
-                            auditSubjectID,
-                            null,
-                            null,
-                            PubKey));
                 }
+                request.setExtData("wrappedUserPrivate", wrappedPrivKeyString);
+
+                audit(new SecurityDataExportEvent(
+                        agentId,
+                        ILogger.SUCCESS,
+                        auditSubjectID,
+                        null,
+                        null,
+                        PubKey));
 
                 iv_s = /*base64Encode(iv);*/org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(iv);
                 request.setExtData("iv_s", iv_s);

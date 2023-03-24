@@ -227,9 +227,8 @@ public class PolicyMappingsExt extends APolicyRule
             if (policyMappingsExt != null) {
                 if (agentApproved(req)) {
                     return PolicyResult.ACCEPTED;
-                } else {
-                    extensions.delete(PolicyMappingsExtension.NAME);
                 }
+                extensions.delete(PolicyMappingsExtension.NAME);
             }
 
             if (extensions == null) {

@@ -285,11 +285,10 @@ public class NameConstraintsExt extends APolicyRule
                     logger.debug("NameConstraintsExt: request id from agent " + req.getRequestId() +
                                     " already has name constraints - accepted");
                     return PolicyResult.ACCEPTED;
-                } else {
-                    logger.debug("NameConstraintsExt: request id " + req.getRequestId() + " from user " +
-                                    " already has name constraints - deleted");
-                    extensions.delete(NameConstraintsExtension.NAME);
                 }
+                logger.debug("NameConstraintsExt: request id " + req.getRequestId() + " from user " +
+                                " already has name constraints - deleted");
+                extensions.delete(NameConstraintsExtension.NAME);
             }
 
             if (extensions == null) {

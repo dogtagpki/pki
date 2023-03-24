@@ -303,11 +303,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     @Override
     public long getReqCount(String id) {
         Long c = mReqCounts.get(id);
-
-        if (c == null)
-            return 0;
-        else
-            return c.longValue();
+        return c == null ? 0 : c.longValue();
     }
 
     @Override

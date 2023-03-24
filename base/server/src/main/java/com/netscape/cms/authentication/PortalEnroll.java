@@ -222,12 +222,11 @@ public class PortalEnroll extends DirBasedAuthentication {
 
                 throw new EAuthUserError(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_ATTRIBUTE_VALUE",
                         "UID already exists."));
-            } else {
-                dn = regist(token, uid);
-                if (dn == null)
-                    throw new EAuthUserError(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_ATTRIBUTE_VALUE",
-                            "Could not add user " + uid + "."));
             }
+            dn = regist(token, uid);
+            if (dn == null)
+                throw new EAuthUserError(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_ATTRIBUTE_VALUE",
+                        "Could not add user " + uid + "."));
 
             // bind as user dn and pwd - authenticates user with pwd.
             conn.authenticate(dn, pwd);

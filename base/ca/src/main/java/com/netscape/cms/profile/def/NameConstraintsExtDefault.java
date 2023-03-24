@@ -464,11 +464,7 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
             if (ext == null) {
                 return null;
             }
-            if (ext.isCritical()) {
-                return "true";
-            } else {
-                return "false";
-            }
+            return ext.isCritical() ? "true" : "false";
         } else if (name.equals(VAL_PERMITTED_SUBTREES)) {
             ext = (NameConstraintsExtension)
                     getExtension(PKIXExtensions.NameConstraints_Id.toString(), info);

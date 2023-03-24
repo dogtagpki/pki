@@ -28,13 +28,12 @@ import java.security.cert.CertificateException;
 import java.util.Locale;
 
 import org.mozilla.jss.netscape.security.util.CertPrettyPrint;
+import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
 import org.mozilla.jss.netscape.security.x509.RDN;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
-
-import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * The PrettyPrintCert class is a utility program designed to "pretty print"
@@ -106,10 +105,9 @@ public class PrettyPrintCert {
                 if (argv[i].equals("-simpleinfo")) {
                     mSimpleInfo = true;
                     continue;
-                } else {
-                    System.out.println("Illegal option: " + argv[i]);
-                    usageAndExit();
                 }
+                System.out.println("Illegal option: " + argv[i]);
+                usageAndExit();
             }
 
             // deal with filename

@@ -327,11 +327,7 @@ class PredicateTokenizer {
         }
 
         String trimmed = toReturn.trim();
-
-        if (trimmed.length() == 0)
-            return nextToken();
-        else
-            return trimmed;
+        return trimmed.length() == 0 ? nextToken() : trimmed;
 
     }
 }

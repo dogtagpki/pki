@@ -212,12 +212,11 @@ public class LdapSimpleMap implements ILdapMapper, IExtendedPluginInfo {
                 throw new ELdapException(CMS.getUserMessage("CMS_LDAP_MORE_THAN_ONE_ENTRY",
                             ((req == null) ? "" : req.getRequestId().toString())));
             }
-            if (entry != null)
-                return entry.getDN();
-            else {
+            if (entry == null) {
                 logger.error(CMS.getLogMessage("PUBLISH_ENTRY_NOT_FOUND", dn, ((req == null) ? "" : req.getRequestId().toString())));
                 throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND", "null entry"));
             }
+            return entry.getDN();
         } catch (ELdapException e) {
             throw e;
         } catch (LDAPException e) {

@@ -234,10 +234,9 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
                 logger.error(CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"), e);
                 throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), ""
                         + conn.getPort()));
-            } else {
-                logger.error(CMS.getLogMessage("PUBLISH_DN_MAP_EXCEPTION", "LDAPException", e.toString()), e);
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND", e.toString()));
             }
+            logger.error(CMS.getLogMessage("PUBLISH_DN_MAP_EXCEPTION", "LDAPException", e.toString()), e);
+            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND", e.toString()));
         }
 
         /*
@@ -299,10 +298,9 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
                 logger.error(CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"), e);
                 throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), ""
                         + conn.getPort()));
-            } else {
-                logger.error(CMS.getLogMessage("PUBLISH_DN_MAP_EXCEPTION", "LDAPException", e.toString()), e);
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND", e.toString()));
             }
+            logger.error(CMS.getLogMessage("PUBLISH_DN_MAP_EXCEPTION", "LDAPException", e.toString()), e);
+            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND", e.toString()));
         }
 
         return v;

@@ -244,11 +244,10 @@ public class NSCertTypeExt extends APolicyRule
                     break;
             if (bits == null || j == bits.length) {
                 if (!mSetDefaultBits) {
-                    logger.debug(
-                            "NSCertTypeExt: no bits requested, not setting default.");
+                    logger.debug("NSCertTypeExt: no bits requested, not setting default.");
                     return PolicyResult.ACCEPTED;
-                } else
-                    bits = DEF_BITS;
+                }
+                bits = DEF_BITS;
             }
 
             nsCertTypeExt = new NSCertTypeExtension(mCritical, bits);
@@ -292,54 +291,53 @@ public class NSCertTypeExt extends APolicyRule
                 nsCertTypeExt.set(i, false);
             }
             return false;
-        } else {
-            // check for min bits, set default if not there.
-            String certType = req.getExtDataInString(Request.HTTP_PARAMS,
-                    Request.CERT_TYPE);
+        }
+        // check for min bits, set default if not there.
+        String certType = req.getExtDataInString(Request.HTTP_PARAMS,
+                Request.CERT_TYPE);
 
-            if ((certType != null) && certType.equals("ocspResponder")) {
-                return false;
-            }
-            if (certType == null || certType.length() == 0) {
-                // if don't know cert type let agent override anything.
-                return true;
-            }
-            if (certType.equals(Request.CA_CERT)) {
-                if (!nsCertTypeExt.isSet(NSCertTypeExtension.SSL_CA_BIT) &&
-                        !nsCertTypeExt.isSet(NSCertTypeExtension.EMAIL_CA_BIT) &&
-                        !nsCertTypeExt.isSet(
-                                NSCertTypeExtension.OBJECT_SIGNING_CA_BIT)) {
-                    // min not set so set all.
-                    logger.debug(
-                            "NSCertTypeExt: is extension good: no ca bits set. set all");
+        if ((certType != null) && certType.equals("ocspResponder")) {
+            return false;
+        }
+        if (certType == null || certType.length() == 0) {
+            // if don't know cert type let agent override anything.
+            return true;
+        }
+        if (certType.equals(Request.CA_CERT)) {
+            if (!nsCertTypeExt.isSet(NSCertTypeExtension.SSL_CA_BIT) &&
+                    !nsCertTypeExt.isSet(NSCertTypeExtension.EMAIL_CA_BIT) &&
+                    !nsCertTypeExt.isSet(
+                            NSCertTypeExtension.OBJECT_SIGNING_CA_BIT)) {
+                // min not set so set all.
+                logger.debug(
+                        "NSCertTypeExt: is extension good: no ca bits set. set all");
 
-                    nsCertTypeExt.set(NSCertTypeExtension.SSL_CA,
-                            Boolean.valueOf(true));
-                    nsCertTypeExt.set(NSCertTypeExtension.EMAIL_CA,
-                            Boolean.valueOf(true));
-                    nsCertTypeExt.set(NSCertTypeExtension.OBJECT_SIGNING_CA,
-                            Boolean.valueOf(true));
-                }
-                return true;
-            } else if (certType.equals(Request.CLIENT_CERT)) {
-                if (!nsCertTypeExt.isSet(NSCertTypeExtension.SSL_CLIENT_BIT) &&
-                        !nsCertTypeExt.isSet(NSCertTypeExtension.EMAIL_BIT) &&
-                        !nsCertTypeExt.isSet(NSCertTypeExtension.SSL_SERVER_BIT) &&
-                        !nsCertTypeExt.isSet(
-                                NSCertTypeExtension.OBJECT_SIGNING_BIT)) {
-                    // min not set so set all.
-                    logger.debug(
-                            "NSCertTypeExt: is extension good: no cl bits set. set all");
-                    nsCertTypeExt.set(NSCertTypeExtension.SSL_CLIENT, Boolean.valueOf(true));
-                    nsCertTypeExt.set(NSCertTypeExtension.EMAIL, Boolean.valueOf(true));
-                    nsCertTypeExt.set(NSCertTypeExtension.OBJECT_SIGNING, Boolean.valueOf(true));
-                }
-                return true;
-            } else if (certType.equals(Request.SERVER_CERT)) {
-                // this bit must be true.
-                nsCertTypeExt.set(NSCertTypeExtension.SSL_SERVER_BIT, true);
-                return true;
+                nsCertTypeExt.set(NSCertTypeExtension.SSL_CA,
+                        Boolean.valueOf(true));
+                nsCertTypeExt.set(NSCertTypeExtension.EMAIL_CA,
+                        Boolean.valueOf(true));
+                nsCertTypeExt.set(NSCertTypeExtension.OBJECT_SIGNING_CA,
+                        Boolean.valueOf(true));
             }
+            return true;
+        } else if (certType.equals(Request.CLIENT_CERT)) {
+            if (!nsCertTypeExt.isSet(NSCertTypeExtension.SSL_CLIENT_BIT) &&
+                    !nsCertTypeExt.isSet(NSCertTypeExtension.EMAIL_BIT) &&
+                    !nsCertTypeExt.isSet(NSCertTypeExtension.SSL_SERVER_BIT) &&
+                    !nsCertTypeExt.isSet(
+                            NSCertTypeExtension.OBJECT_SIGNING_BIT)) {
+                // min not set so set all.
+                logger.debug(
+                        "NSCertTypeExt: is extension good: no cl bits set. set all");
+                nsCertTypeExt.set(NSCertTypeExtension.SSL_CLIENT, Boolean.valueOf(true));
+                nsCertTypeExt.set(NSCertTypeExtension.EMAIL, Boolean.valueOf(true));
+                nsCertTypeExt.set(NSCertTypeExtension.OBJECT_SIGNING, Boolean.valueOf(true));
+            }
+            return true;
+        } else if (certType.equals(Request.SERVER_CERT)) {
+            // this bit must be true.
+            nsCertTypeExt.set(NSCertTypeExtension.SSL_SERVER_BIT, true);
+            return true;
         }
         return false;
     }

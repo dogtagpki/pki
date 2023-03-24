@@ -284,13 +284,12 @@ public class PWsdrCache {
             //                if tag doesn't exist
             Hashtable<String, String> ht = string2Hashtable(dcrypts);
 
-            if (ht.containsKey(tag) == false) {
+            if (!ht.containsKey(tag)) {
                 logger.debug("PWsdrCache: tag: " + tag + " does not exist");
                 return;
-            } else {
-                logger.debug("PWsdrCache: deleting tag: " + tag);
-                ht.remove(tag);
             }
+            logger.debug("PWsdrCache: deleting tag: " + tag);
+            ht.remove(tag);
             bufs = hashtable2String(ht);
         } else {
             logger.debug("PWsdrCache: password cache contains no tags");
@@ -531,13 +530,12 @@ public class PWsdrCache {
             pw = pwTable.get(tag);
         }
 
-        if (pw != null) {
-            logger.debug("PWsdrCache: getEntry gotten password for " + tag);
-            return new Password(pw.toCharArray());
-        } else {
+        if (pw == null) {
             logger.warn(CMS.getLogMessage("CMSCORE_SECURITY_PW_TAG", tag));
             return null;
         }
+        logger.debug("PWsdrCache: getEntry gotten password for " + tag);
+        return new Password(pw.toCharArray());
     }
 
     //copied from IOUtil.java
@@ -573,29 +571,7 @@ public class PWsdrCache {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-
-        if (process != null && process.exitValue() == 0) {
-
-            /**
-             * pOut = new BufferedReader(
-             * new InputStreamReader(process.getInputStream()));
-             * while ((l = pOut.readLine()) != null) {
-             * System.out.println(l);
-             * }
-             **/
-            return true;
-        } else {
-
-            /**
-             * pOut = new BufferedReader(
-             * new InputStreamReader(process.getErrorStream()));
-             * l = null;
-             * while ((l = pOut.readLine()) != null) {
-             * System.out.println(l);
-             * }
-             **/
-            return false;
-        }
+        return process.exitValue() == 0;
     }
 
     /*

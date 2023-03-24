@@ -490,23 +490,22 @@ class PWsdrCache {
 
         String dcrypts = readPWcache();
 
-        if (dcrypts != null) {
-            // converts to Hashtable, replace if tag exists, add
-            //                if tag doesn't exist
-            Hashtable<String, String> ht = string2Hashtable(dcrypts);
-
-            if (ht.containsKey(tag) == false) {
-                debug("tag: " + tag + " does not exist");
-                return;
-            } else {
-                debug("deleting tag: " + tag);
-                ht.remove(tag);
-            }
-            bufs = hashtable2String(ht);
-        } else {
+        if (dcrypts == null) {
             debug("password cache contains no tags");
             return;
         }
+        // converts to Hashtable, replace if tag exists, add
+        //                if tag doesn't exist
+        Hashtable<String, String> ht = string2Hashtable(dcrypts);
+
+        if (ht.containsKey(tag)) {
+            debug("deleting tag: " + tag);
+            ht.remove(tag);
+        } else {
+            debug("tag: " + tag + " does not exist");
+            return;
+        }
+        bufs = hashtable2String(ht);
 
         // write update to cache
         writePWcache(bufs);
@@ -755,13 +754,12 @@ class PWsdrCache {
             pw = pwTable.get(tag);
         }
 
-        if (pw != null) {
-            debug("getEntry gotten password for " + tag);
-            return new Password(pw.toCharArray());
-        } else {
+        if (pw == null) {
             System.out.println("getEntry did not get password for tag " + tag);
             return null;
         }
+        debug("getEntry gotten password for " + tag);
+        return new Password(pw.toCharArray());
     }
 
     //copied from IOUtil.java
@@ -792,29 +790,7 @@ class PWsdrCache {
             Process process = Runtime.getRuntime().exec(cmds);
 
             process.waitFor();
-
-            if (process.exitValue() == 0) {
-
-                /**
-                 * pOut = new BufferedReader(
-                 * new InputStreamReader(process.getInputStream()));
-                 * while ((l = pOut.readLine()) != null) {
-                 * System.out.println(l);
-                 * }
-                 **/
-                return true;
-            } else {
-
-                /**
-                 * pOut = new BufferedReader(
-                 * new InputStreamReader(process.getErrorStream()));
-                 * l = null;
-                 * while ((l = pOut.readLine()) != null) {
-                 * System.out.println(l);
-                 * }
-                 **/
-                return false;
-            }
+            return process.exitValue() == 0;
         } catch (IOException e) {
             throw e;
         } catch (InterruptedException e) {

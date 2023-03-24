@@ -225,9 +225,8 @@ public class LDAPRegistry extends DBRegistry {
         if (f.startsWith("(") && f.endsWith(")")) {
             return "(" + getFilterComp(f.substring(1,
                         f.length() - 1), c) + ")";
-        } else {
-            return getFilterComp(filter, c);
         }
+        return getFilterComp(filter, c);
     }
 
     private String getFilterComp(String f, FilterConverter c)
@@ -346,9 +345,8 @@ public class LDAPRegistry extends DBRegistry {
                             ldapNames[g] + ")");
                 }
                 return "&" + filter.toString();
-            } else {
-                return c.convert(type, "=", value);
             }
+            return c.convert(type, "=", value);
         }
         // XXX - does not support substring!!
         return c.convert(type, "=", value);

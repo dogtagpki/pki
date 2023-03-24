@@ -192,56 +192,55 @@ class ProxyWrapper extends HttpServletRequestWrapper {
         try {
             // If we haven't specified any parameter mapping, just
             // use the regular implementation
-            if (mMap == null)
+            if (mMap == null) {
                 return super.getParameterMap();
-            else {
-                // Make a new Map for us to put stuff in
-                Map<String, String[]> n = new HashMap<>();
-                // get the HTTP parameters the user supplied.
-                Map<String, String[]> m = super.getParameterMap();
-                Set<Map.Entry<String, String[]>> s = m.entrySet();
-                Iterator<Map.Entry<String, String[]>> i = s.iterator();
-                while (i.hasNext()) {
-                    Map.Entry<String, String[]> me = i.next();
-                    String name = me.getKey();
-                    String[] values = me.getValue();
-                    String newname = null;
-                    if (name != null) {
-                        newname = mMap.get(name);
-                    }
-
-                    // No mapping specified, just use existing name/value
-                    if (newname == null || mValueMap == null) {
-                        n.put(name, values);
-                    } else { // new name specified
-                        Object o = mValueMap.get(newname);
-                        // check if new (static) value specified
-                        if (o == null) {
-                            n.put(newname, values);
-                        } else {
-                            String newvalues[] = mValueMap.get(newname);
-                            n.put(newname, newvalues);
-                        }
-                    }
-                }
-                // Now, deal with static values set in the config
-                // which weren't set in the HTTP request
-                Set<Map.Entry<String, String[]>> s2 = mValueMap.entrySet();
-                Iterator<Map.Entry<String, String[]>> i2 = s2.iterator();
-                // Cycle through all the static values
-                while (i2.hasNext()) {
-                    Map.Entry<String, String[]> me2 = i2.next();
-                    String name2 = me2.getKey();
-                    if (n.get(name2) == null) {
-                        String[] values2 = me2.getValue();
-                        // If the parameter is not set in the map
-                        // Set it now
-                        n.put(name2, values2);
-                    }
-                }
-
-                return n;
             }
+            // Make a new Map for us to put stuff in
+            Map<String, String[]> n = new HashMap<>();
+            // get the HTTP parameters the user supplied.
+            Map<String, String[]> m = super.getParameterMap();
+            Set<Map.Entry<String, String[]>> s = m.entrySet();
+            Iterator<Map.Entry<String, String[]>> i = s.iterator();
+            while (i.hasNext()) {
+                Map.Entry<String, String[]> me = i.next();
+                String name = me.getKey();
+                String[] values = me.getValue();
+                String newname = null;
+                if (name != null) {
+                    newname = mMap.get(name);
+                }
+
+                // No mapping specified, just use existing name/value
+                if (newname == null || mValueMap == null) {
+                    n.put(name, values);
+                } else { // new name specified
+                    Object o = mValueMap.get(newname);
+                    // check if new (static) value specified
+                    if (o == null) {
+                        n.put(newname, values);
+                    } else {
+                        String newvalues[] = mValueMap.get(newname);
+                        n.put(newname, newvalues);
+                    }
+                }
+            }
+            // Now, deal with static values set in the config
+            // which weren't set in the HTTP request
+            Set<Map.Entry<String, String[]>> s2 = mValueMap.entrySet();
+            Iterator<Map.Entry<String, String[]>> i2 = s2.iterator();
+            // Cycle through all the static values
+            while (i2.hasNext()) {
+                Map.Entry<String, String[]> me2 = i2.next();
+                String name2 = me2.getKey();
+                if (n.get(name2) == null) {
+                    String[] values2 = me2.getValue();
+                    // If the parameter is not set in the map
+                    // Set it now
+                    n.put(name2, values2);
+                }
+            }
+
+            return n;
         } catch (NullPointerException npe) {
             logger.warn("ProxyWrapper: " + npe.getMessage(), npe);
             return null;

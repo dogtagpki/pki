@@ -201,11 +201,7 @@ public class PolicyConstraintsExtDefault extends EnrollExtDefault {
             if (ext == null) {
                 return null;
             }
-            if (ext.isCritical()) {
-                return "true";
-            } else {
-                return "false";
-            }
+            return ext.isCritical() ? "true" : "false";
         } else if (name.equals(VAL_REQ_EXPLICIT_POLICY)) {
             ext = (PolicyConstraintsExtension)
                     getExtension(PKIXExtensions.PolicyConstraints_Id.toString(),

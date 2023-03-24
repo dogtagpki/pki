@@ -493,9 +493,7 @@ public class LdapEnhancedMap
                                         : req.getRequestId().toString())));
             }
 
-            if (entry != null) {
-                return entry.getDN();
-            } else {
+            if (entry == null) {
                 logger.error(CMS.getLogMessage("PUBLISH_ENTRY_NOT_FOUND",
                                 dn +
                                         ((req == null) ? ""
@@ -504,6 +502,7 @@ public class LdapEnhancedMap
                 throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND",
                             "null entry"));
             }
+            return entry.getDN();
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
                 // need to intercept this because message from LDAP is
