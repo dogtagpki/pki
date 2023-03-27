@@ -1227,7 +1227,7 @@ public class CAEngine extends CMSEngine {
         }
 
         KeyRetrieverRunner runner = new KeyRetrieverRunner(keyRetriever, ca);
-        Thread thread = new Thread(runner, "KeyRetrieverRunner-" + authorityID);
+        Thread thread = new Thread(runner, "KeyRetriever-" + authorityID);
         thread.start();
 
         keyRetrievers.put(authorityID, thread);
