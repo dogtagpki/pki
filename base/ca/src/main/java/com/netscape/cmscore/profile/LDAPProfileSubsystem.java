@@ -117,7 +117,7 @@ public class LDAPProfileSubsystem
         profileContainerDNString = "ou=certificateProfiles,ou=ca," + basedn;
         profileContainerDN = new DN(profileContainerDNString);
 
-        monitor = new Thread(this, "profileChangeMonitor");
+        monitor = new Thread(this, "ProfileChangeMonitor");
         monitor.start();
         try {
             loader.awaitLoadDone();
