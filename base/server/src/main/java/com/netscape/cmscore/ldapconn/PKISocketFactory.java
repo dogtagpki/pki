@@ -21,14 +21,16 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Vector;
 
-import org.dogtagpki.server.PKIClientSocketListener;
 import org.mozilla.jss.ssl.SSLClientCertificateSelectionCallback;
 import org.mozilla.jss.ssl.SSLHandshakeCompletedEvent;
 import org.mozilla.jss.ssl.SSLHandshakeCompletedListener;
 import org.mozilla.jss.ssl.SSLSocket;
+import org.mozilla.jss.ssl.SSLSocketListener;
 
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.logging.event.ClientAccessSessionEstablishEvent;
@@ -54,8 +56,9 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
     private String mClientAuthCertNickname = null;
     private boolean mClientAuth = false;
     private boolean keepAlive;
-    PKIClientSocketListener sockListener = null;
     private String mClientCiphers = null;
+
+    protected List<SSLSocketListener> socketListeners = new ArrayList<>();
 
     /*
      * Per Bugzilla 1585722, the parameter "external" was introduced
@@ -83,6 +86,14 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
         PKISocketFactory.external = external;
         mClientAuthCertNickname = certNickname;
         init();
+    }
+
+    public void addSocketListener(SSLSocketListener socketListener) {
+        socketListeners.add(socketListener);
+    }
+
+    public void removeSocketListener(SSLSocketListener socketListener) {
+        socketListeners.remove(socketListener);
     }
 
     public void init() {
@@ -135,8 +146,6 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
 
             logger.debug("PKISocketFactory: - keep-alive: " + keepAlive);
 
-            sockListener = new PKIClientSocketListener();
-
         } catch (Exception e) {
             String message = "Unable to read TCP configuration: " + e;
             logger.error("PKISocketFactory: " + message, e);
@@ -170,7 +179,9 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
         s.setUseClientMode(true);
         s.enableV2CompatibleHello(false);
 
-        s.addSocketListener(sockListener);
+        for (SSLSocketListener socketListener : socketListeners) {
+            s.addSocketListener(socketListener);
+        }
 
        /** opt for general setting in constructor init() above rather than
         *   socket-specific setting

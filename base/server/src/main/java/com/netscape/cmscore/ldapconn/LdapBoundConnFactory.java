@@ -17,6 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.ldapconn;
 
+import org.dogtagpki.server.PKIClientSocketListener;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
@@ -290,6 +292,8 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
 
         logger.debug("LdapBoundConnFactory: makeNewConnection(" + errorIfDown + ")");
 
+        PKIClientSocketListener socketListener = new PKIClientSocketListener();
+
         LdapBoundConnection conn = null;
         try {
             PKISocketFactory socketFactory;
@@ -298,6 +302,7 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
             } else {
                 socketFactory = new PKISocketFactory(mConnInfo.getSecure());
             }
+            socketFactory.addSocketListener(socketListener);
             socketFactory.init(config);
 
             conn = new LdapBoundConnection(socketFactory, mConnInfo, mAuthInfo);

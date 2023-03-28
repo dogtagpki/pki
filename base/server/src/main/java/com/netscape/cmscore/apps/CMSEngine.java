@@ -39,6 +39,7 @@ import javax.servlet.http.HttpServlet;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.net.jss.TomcatJSS;
+import org.dogtagpki.server.PKIClientSocketListener;
 import org.dogtagpki.server.PKIServerSocketListener;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
 import org.mozilla.jss.CryptoManager;
@@ -600,8 +601,10 @@ public class CMSEngine {
         int port = info.getPort();
 
         PKISocketConfig socketConfig = mConfig.getSocketConfig();
+        PKIClientSocketListener socketListener = new PKIClientSocketListener();
 
         PKISocketFactory socketFactory = new PKISocketFactory(info.getSecure());
+        socketFactory.addSocketListener(socketListener);
         socketFactory.init(socketConfig);
 
         LDAPConnection conn = new LDAPConnection(socketFactory);

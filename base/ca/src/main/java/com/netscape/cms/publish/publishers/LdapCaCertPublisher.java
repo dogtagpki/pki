@@ -21,6 +21,7 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Vector;
 
+import org.dogtagpki.server.PKIClientSocketListener;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
 
@@ -179,6 +180,7 @@ public class LdapCaCertPublisher
         CAEngineConfig cs = engine.getConfig();
 
         PKISocketConfig socketConfig = cs.getSocketConfig();
+        PKIClientSocketListener socketListener = new PKIClientSocketListener();
 
         try {
             mCaCertAttr = mConfig.getString("caCertAttr", LDAP_CACERT_ATTR);
@@ -203,6 +205,7 @@ public class LdapCaCertPublisher
                 } else {
                     sslSocket = new PKISocketFactory(true);
                 }
+                sslSocket.addSocketListener(socketListener);
                 sslSocket.init(socketConfig);
 
                 String mgr_dn = mConfig.getString("bindDN", null);
