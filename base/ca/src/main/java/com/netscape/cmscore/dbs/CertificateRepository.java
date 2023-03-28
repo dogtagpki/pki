@@ -40,8 +40,6 @@ import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.dbs.certdb.RenewableCertificateCollection;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
 
@@ -199,7 +197,6 @@ public class CertificateRepository extends Repository {
     public void setEnableRandomSerialNumbers(boolean random, boolean updateMode, boolean forceModeChange) {
         logger.debug("CertificateRepository:  setEnableRandomSerialNumbers   random="+random+"  updateMode="+updateMode);
 
-        CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
         if (mEnableRandomSerialNumbers ^ random || forceModeChange) {
@@ -407,7 +404,6 @@ public class CertificateRepository extends Repository {
         logger.debug("CertificateRepository: - enable RSNv1: " + mEnableRandomSerialNumbers);
         logger.debug("CertificateRepository: - counter: " + mCounter);
 
-        CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
         try {
@@ -480,7 +476,6 @@ public class CertificateRepository extends Repository {
     private BigInteger getInRangeCounter(BigInteger  minSerialNo, BigInteger maxSerialNo)
     throws EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
         String c = null;
@@ -543,7 +538,6 @@ public class CertificateRepository extends Repository {
 
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
         mEnableRandomSerialNumbers = mDBConfig.getBoolean(PROP_ENABLE_RANDOM_SERIAL_NUMBERS, false);

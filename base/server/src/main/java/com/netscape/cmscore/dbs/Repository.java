@@ -73,6 +73,8 @@ public abstract class Repository {
         }
     }
 
+    protected CMSEngine engine;
+
     // (the next serialNo to be issued) - 1
     private BigInteger mSerialNo = null;
 
@@ -114,6 +116,14 @@ public abstract class Repository {
     public Repository(DBSubsystem dbSubsystem, int radix) {
         this.dbSubsystem = dbSubsystem;
         this.mRadix = radix;
+    }
+
+    public CMSEngine getCMSEngine() {
+        return engine;
+    }
+
+    public void setCMSEngine(CMSEngine engine) {
+        this.engine = engine;
     }
 
     public void init() throws Exception {
@@ -370,8 +380,6 @@ public abstract class Repository {
      */
     protected void checkRange() throws EBaseException
     {
-        CMSEngine engine = CMS.getCMSEngine();
-
         // check if we have reached the end of the range
         // if so, move to next range
 
@@ -417,7 +425,6 @@ public abstract class Repository {
      */
     public void setMinSerialConfig() throws EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
         DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
 
@@ -435,7 +442,6 @@ public abstract class Repository {
      */
     public void setMaxSerialConfig() throws EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
         DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
 
@@ -453,7 +459,6 @@ public abstract class Repository {
      */
     public void setNextMinSerialConfig() throws EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
         DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
 
@@ -476,7 +481,6 @@ public abstract class Repository {
      */
     public void setNextMaxSerialConfig() throws EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
         DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
 
@@ -520,7 +524,6 @@ public abstract class Repository {
      */
     public String getNextRange() throws EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
         LDAPSession session = (LDAPSession) dbSubsystem.createSession();
@@ -598,7 +601,6 @@ public abstract class Repository {
             return false;
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
         LDAPSession session = (LDAPSession) dbSubsystem.createSession();
@@ -655,7 +657,6 @@ public abstract class Repository {
             return;
         }
 
-        CMSEngine engine = CMS.getCMSEngine();
         if (engine.getEESSLPort() == null) {
             logger.warn("Repository: Server not completely started.  Returning ..");
             return;

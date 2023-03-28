@@ -854,6 +854,7 @@ public class CAEngine extends CMSEngine {
         SecureRandom secureRandom = SecureRandomFactory.create(secureRandomConfig);
 
         requestRepository = new CertRequestRepository(secureRandom, dbSubsystem);
+        requestRepository.setCMSEngine(this);
         requestRepository.init();
 
         requestQueue = new RequestQueue(
@@ -1674,6 +1675,7 @@ public class CAEngine extends CMSEngine {
         SecureRandom secureRandom = SecureRandomFactory.create(secureRandomConfig);
 
         certificateRepository = new CertificateRepository(secureRandom, dbSubsystem);
+        certificateRepository.setCMSEngine(this);
         certificateRepository.init();
     }
 
@@ -1682,6 +1684,7 @@ public class CAEngine extends CMSEngine {
         logger.info("CAEngine: Initializing CRL repository");
 
         crlRepository = new CRLRepository(dbSubsystem);
+        crlRepository.setCMSEngine(this);
         crlRepository.init();
     }
 
@@ -1690,6 +1693,7 @@ public class CAEngine extends CMSEngine {
         logger.info("CAEngine: Initializing replica ID repository");
 
         replicaIDRepository = new ReplicaIDRepository(dbSubsystem);
+        replicaIDRepository.setCMSEngine(this);
         replicaIDRepository.init();
     }
 
