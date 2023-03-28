@@ -23,8 +23,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Iterator;
 import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.dogtagpki.server.PKIClientSocketListener;
 import org.mozilla.jss.ssl.SSLClientCertificateSelectionCallback;
@@ -49,7 +47,7 @@ import netscape.ldap.LDAPSSLSocketFactoryExt;
  */
 public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PKISocketFactory.class);
+    public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PKISocketFactory.class);
 
     private static SignedAuditLogger signedAuditLogger = SignedAuditLogger.getLogger();
     private boolean secure;
@@ -91,7 +89,9 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
         init (null);
     }
     public void init(PKISocketConfig config) {
-        String method = "ldapconn/PKISocketFactory.init: ";
+
+        logger.info("PKISocketFactory: Initializing PKISocketFactory");
+
         try {
             if (!external) {
                 if (config == null) {
@@ -115,38 +115,40 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
                  */
                 try {
                     mClientCiphers = config.getClientCiphers();
+
                     if (mClientCiphers != null) {
                         mClientCiphers = mClientCiphers.trim();
+                        logger.debug("PKISocketFactory: - client ciphers: " + mClientCiphers);
+
                         if (!mClientCiphers.isEmpty()) {
                             CryptoUtil.setClientCiphers(mClientCiphers);
-                            log(method +"config tcp.clientCiphers: " + mClientCiphers);
-                        } else
-                            log(method +"config tcp.clientCiphers: not found");
+                        }
                      }
-                } catch (Exception econf) {
-                    // handled as default below
-                    log(method +"config tcp.clientCiphers: Exception treated as ciphers not set: " + econf.toString());
+
+                } catch (Exception e) {
+                    logger.warn("PKISocketFactory: Unable to configure client ciphers: " + e.getMessage(), e);
                 }
+
             } else {
                 keepAlive = true;
             }
-            log("TCP Keep-Alive: " + keepAlive);
+
+            logger.debug("PKISocketFactory: - keep-alive: " + keepAlive);
+
             sockListener = new PKIClientSocketListener();
 
         } catch (Exception e) {
             String message = "Unable to read TCP configuration: " + e;
-            log(message, e);
+            logger.error("PKISocketFactory: " + message, e);
             throw new RuntimeException(message, e);
         }
     }
 
     public SSLSocket makeSSLSocket(String host, int port) throws UnknownHostException, IOException {
-        String method = "ldapconn/PKISocketFactory.makeSSLSocket: ";
-        log(method + "begins");
 
-        /*
-         * let inherit TLS range and cipher settings
-         */
+        logger.info("PKISocketFactory: Creating SSL socket for " + host + ":" + port);
+
+        // let it inherit TLS range and cipher settings
 
         SSLSocket s;
 
@@ -196,9 +198,8 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
         s.addHandshakeCompletedListener(listener);
 
         if (mClientAuthCertNickname != null) {
+            logger.debug("PKISocketFactory: - client cert: " + mClientAuthCertNickname);
             mClientAuth = true;
-            log(method +"LdapJssSSLSocket: set client auth cert nickname " +
-                    mClientAuthCertNickname);
 
             //We have already established the manual cert selection callback
             //Doing it this way will provide some debugging info on the candidate certs
@@ -210,10 +211,12 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
 
     @Override
     public Socket makeSocket(String host, int port) throws LDAPException {
+
         Socket s = null;
 
         try {
             if (!secure) {
+                logger.info("PKISocketFactory: Creating socket for " + host + ":" + port);
                 s = new Socket(host, port);
 
             } else {
@@ -241,15 +244,17 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
                 signedAuditLogger.log(auditEvent);
             }
 
-            String message = "Unable to create socket: " + e;
-            log(message, e);
+            String message = "Unable to create socket: " + e.getMessage();
+            logger.error("PKISocketFactory: " + message, e);
+
             if (s != null) {
                 try {
                     s.close();
                 } catch (IOException e1) {
-                    log("Unable to close socket: " + e1.getMessage(), e1);
+                    logger.error("PKISocketFactory: Unable to close socket: " + e1.getMessage(), e1);
                 }
             }
+
             throw new LDAPException(message, LDAPException.UNAVAILABLE);
         }
 
@@ -266,27 +271,6 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
         return null;
     }
 
-    public void log(int level, String msg) {
-    }
-
-    private static void log(String msg) {
-        log(msg, null);
-    }
-
-    private static void log(String msg, Exception e) {
-        if(!external && e != null){
-            logger.error(msg, e);
-        } else if (!external) {
-            logger.debug(msg);
-        } else {
-            if(e != null){
-                Logger.getLogger("PKISocketFactory").log(Level.SEVERE, e.getMessage());
-            } else {
-                Logger.getLogger("PKISocketFactory").log(Level.INFO, msg);
-            }
-        }
-    }
-
     static class ClientHandshakeCB implements SSLHandshakeCompletedListener {
         Object sc;
 
@@ -296,7 +280,7 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
 
         @Override
         public void handshakeCompleted(SSLHandshakeCompletedEvent event) {
-            log("SSL handshake happened");
+            logger.debug("ClientHandshakeCB: SSL handshake happened");
         }
     }
 
@@ -304,14 +288,14 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
         String desiredCertName = null;
 
         public SSLClientCertificateSelectionCB(String clientAuthCertNickname) {
-            log("SSLClientCertificateSelectionCB: Setting desired cert nickname to: " + clientAuthCertNickname);
+            logger.debug("SSLClientCertificateSelectionCB: Setting desired cert nickname to: " + clientAuthCertNickname);
             desiredCertName = clientAuthCertNickname;
         }
 
         @Override
         public String select(Vector<String> certs) {
 
-            log("SSLClientCertificatSelectionCB: Entering!");
+            logger.debug("SSLClientCertificatSelectionCB: Entering!");
 
             if(desiredCertName == null) {
                 return null;
@@ -322,19 +306,16 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
 
             while(itr.hasNext()){
                 String candidate = itr.next();
-                log("Candidate cert: " + candidate);
+                logger.debug("SSLClientCertificatSelectionCB: Candidate cert: " + candidate);
                 if(desiredCertName.equalsIgnoreCase(candidate)) {
                     selection = candidate;
-                    log("SSLClientCertificateSelectionCB: desired cert found in list: " + desiredCertName);
+                    logger.debug("SSLClientCertificateSelectionCB: desired cert found in list: " + desiredCertName);
                     break;
                 }
             }
 
-            log("SSLClientCertificateSelectionCB: returning: " + selection);
+            logger.debug("SSLClientCertificateSelectionCB: returning: " + selection);
             return selection;
-
         }
-
     }
-
 }
