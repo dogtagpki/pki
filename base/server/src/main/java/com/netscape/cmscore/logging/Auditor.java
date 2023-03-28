@@ -23,7 +23,10 @@ import java.util.Map;
 
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.SignedAuditEvent;
+import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
@@ -39,6 +42,7 @@ public class Auditor {
     public final static String SIGNED_AUDIT_EMPTY_NAME_VALUE_PAIR = "Unknown";
 
     protected CMSEngine engine;
+    protected Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public CMSEngine getCMSEngine() {
         return engine;
@@ -184,5 +188,17 @@ public class Auditor {
         SignedAuditEvent.encodeMap(parameters, params);
 
         return parameters.toString();
+    }
+
+    public LogEvent create(int level, String msg, Object[] params, boolean multiline) {
+        return signedAuditLogger.create(level, msg, params, multiline);
+    }
+
+    public void log(String message) {
+        signedAuditLogger.log(message);
+    }
+
+    public void log(LogEvent event) {
+        signedAuditLogger.log(event);
     }
 }

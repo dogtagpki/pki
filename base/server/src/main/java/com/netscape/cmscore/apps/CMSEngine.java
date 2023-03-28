@@ -57,8 +57,6 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.RequestListener;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.notification.MailNotification;
 import com.netscape.cms.password.PasswordChecker;
 import com.netscape.cms.servlet.common.CMSGateway;
@@ -115,7 +113,6 @@ import netscape.ldap.LDAPException;
 public class CMSEngine {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSEngine.class);
-    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     private static final String SERVER_XML = "server.xml";
 
@@ -1727,7 +1724,7 @@ public class CMSEngine {
                             ILogger.FAILURE,
                             "");
 
-                signedAuditLogger.log(auditMessage);
+                auditor.log(auditMessage);
                 throw new Exception("Missing cs.type in CS.cfg");
             }
 
@@ -1740,7 +1737,7 @@ public class CMSEngine {
                             ILogger.FAILURE,
                             "");
 
-                signedAuditLogger.log(auditMessage);
+                auditor.log(auditMessage);
                 throw new Exception("Invalid cs.type in CS.cfg");
             }
 
@@ -1754,7 +1751,7 @@ public class CMSEngine {
                             ILogger.FAILURE,
                             "");
 
-                signedAuditLogger.log(auditMessage);
+                auditor.log(auditMessage);
                 throw new Exception("Missing " + subsysType + ".cert.list in CS.cfg");
             }
 
@@ -1778,7 +1775,7 @@ public class CMSEngine {
                         ILogger.FAILURE,
                         "");
 
-            signedAuditLogger.log(auditMessage);
+            auditor.log(auditMessage);
             throw e;
         }
     }
@@ -1819,7 +1816,7 @@ public class CMSEngine {
                             ILogger.FAILURE,
                             "");
 
-                signedAuditLogger.log(auditMessage);
+                auditor.log(auditMessage);
                 throw new Exception("Invalid cs.type in CS.cfg");
             }
 
@@ -1848,7 +1845,7 @@ public class CMSEngine {
                     ILogger.SUCCESS,
                         nickname);
 
-            signedAuditLogger.log(auditMessage);
+            auditor.log(auditMessage);
 
         } catch (Exception e) {
             logger.error("CMSEngine: verifySystemCertsByTag() failed: " + e.getMessage(), e);
@@ -1858,7 +1855,7 @@ public class CMSEngine {
                         ILogger.FAILURE,
                         "");
 
-            signedAuditLogger.log(auditMessage);
+            auditor.log(auditMessage);
             throw e;
         }
     }
