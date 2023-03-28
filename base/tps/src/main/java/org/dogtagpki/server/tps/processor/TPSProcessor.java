@@ -101,21 +101,18 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.logging.AuditEvent;
-import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.event.TokenAppletUpgradeEvent;
 import com.netscape.certsrv.logging.event.TokenAuthEvent;
 import com.netscape.certsrv.logging.event.TokenFormatEvent;
 import com.netscape.certsrv.logging.event.TokenKeyChangeoverEvent;
 import com.netscape.certsrv.tps.token.TokenStatus;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class TPSProcessor {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSProcessor.class);
-    protected static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public static final int RESULT_NO_ERROR = 0;
     public static final int RESULT_ERROR = -1;
@@ -4384,6 +4381,9 @@ public class TPSProcessor {
             AppletInfo aInfo,
             String authMgrId) {
 
+        TPSEngine engine = TPSEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
+
         TokenAuthEvent event = TokenAuthEvent.success(
                 session.getIpAddress(),
                 subjectID,
@@ -4394,12 +4394,15 @@ public class TPSProcessor {
                 (aInfo != null) ? aInfo.getFinalAppletVersion() : null,
                 authMgrId);
 
-        signedAuditLogger.log(event);
+        auditor.log(event);
     }
 
     protected void auditAuthFailure(String subjectID, String op,
             AppletInfo aInfo,
             String authMgrId) {
+
+        TPSEngine engine = TPSEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
 
         TokenAuthEvent event = TokenAuthEvent.failure(
                 session.getIpAddress(),
@@ -4411,7 +4414,7 @@ public class TPSProcessor {
                 (aInfo != null) ? aInfo.getFinalAppletVersion() : null,
                 authMgrId);
 
-        signedAuditLogger.log(event);
+        auditor.log(event);
     }
 
     /*
@@ -4420,6 +4423,10 @@ public class TPSProcessor {
     protected void auditOpRequest(String op, AppletInfo aInfo,
             String status,
             String info) {
+
+        TPSEngine engine = TPSEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
+
         String auditType = AuditEvent.TOKEN_OP_REQUEST;
 
         String auditMessage = CMS.getLogMessage(
@@ -4431,12 +4438,15 @@ public class TPSProcessor {
                 op,
                 (aInfo != null) ? aInfo.getFinalAppletVersion() : null,
                 info);
-        audit(auditMessage);
+        auditor.log(auditMessage);
     }
 
     protected void auditFormatSuccess(String subjectID,
             AppletInfo aInfo,
             String keyVersion) {
+
+        TPSEngine engine = TPSEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
 
         TokenFormatEvent event = TokenFormatEvent.success(
                 session.getIpAddress(),
@@ -4447,12 +4457,15 @@ public class TPSProcessor {
                 (aInfo != null) ? aInfo.getFinalAppletVersion() : null,
                 keyVersion);
 
-        signedAuditLogger.log(event);
+        auditor.log(event);
     }
 
     protected void auditFormatFailure(String subjectID,
             AppletInfo aInfo,
             String info) {
+
+        TPSEngine engine = TPSEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
 
         TokenFormatEvent event = TokenFormatEvent.failure(
                 session.getIpAddress(),
@@ -4463,7 +4476,7 @@ public class TPSProcessor {
                 (aInfo != null) ? aInfo.getFinalAppletVersion() : null,
                 info);
 
-        signedAuditLogger.log(event);
+        auditor.log(event);
     }
 
     protected void auditAppletUpgrade(AppletInfo aInfo,
@@ -4471,6 +4484,9 @@ public class TPSProcessor {
             String keyVersion,
             String newVersion,
             String info) {
+
+        TPSEngine engine = TPSEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
 
         String auditType;
 
@@ -4494,13 +4510,16 @@ public class TPSProcessor {
                 newVersion,
                 info);
 
-        signedAuditLogger.log(event);
+        auditor.log(event);
     }
 
     protected void auditKeyChangeoverRequired(AppletInfo aInfo,
             String oldKeyVersion,
             String newKeyVersion,
             String info) {
+
+        TPSEngine engine = TPSEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
 
         String auditType = AuditEvent.TOKEN_KEY_CHANGEOVER_REQUIRED;
 
@@ -4516,7 +4535,7 @@ public class TPSProcessor {
                 oldKeyVersion,
                 newKeyVersion,
                 info);
-        audit(auditMessage);
+        auditor.log(auditMessage);
     }
 
     protected void auditKeyChangeover(AppletInfo aInfo,
@@ -4524,6 +4543,9 @@ public class TPSProcessor {
             String oldKeyVersion,
             String newKeyVersion,
             String info) {
+
+        TPSEngine engine = TPSEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
 
         String auditType;
 
@@ -4548,7 +4570,7 @@ public class TPSProcessor {
                 newKeyVersion,
                 info);
 
-        signedAuditLogger.log(event);
+        auditor.log(event);
     }
 
     protected void auditKeySanityCheck(
@@ -4560,6 +4582,9 @@ public class TPSProcessor {
             String newKeyVersion,
             String tokenDBKeyVersion,
             String info) {
+
+        TPSEngine engine = TPSEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
 
         String auditType;
         switch(status) {
@@ -4582,7 +4607,7 @@ public class TPSProcessor {
                 tokenDBKeyVersion,
                 info);
 
-        audit(auditMessage);
+        auditor.log(auditMessage);
     }
 
     /*
@@ -4595,6 +4620,9 @@ public class TPSProcessor {
             String serial,
             String caConnId,
             String info) {
+
+        TPSEngine engine = TPSEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
 
         String auditType = AuditEvent.TOKEN_CERT_STATUS_CHANGE_REQUEST;
         /*
@@ -4621,23 +4649,7 @@ public class TPSProcessor {
                 String.valueOf(revokeReason),
                 caConnId,
                 info);
-        audit(auditMessage);
-    }
-
-    /**
-     * Signed Audit Log
-     *
-     * This method is called to store messages to the signed audit log.
-     * <P>
-     *
-     * @param msg signed audit log message
-     */
-    protected void audit(String msg) {
-        signedAuditLogger.log(msg);
-    }
-
-    protected void audit(LogEvent event) {
-        signedAuditLogger.log(event);
+        auditor.log(auditMessage);
     }
 
     public static void main(String[] args) {

@@ -38,6 +38,7 @@ import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.logging.event.TokenPinResetEvent;
 import com.netscape.certsrv.tps.token.TokenStatus;
+import com.netscape.cmscore.logging.Auditor;
 
 public class TPSPinResetProcessor extends TPSProcessor {
 
@@ -379,6 +380,9 @@ public class TPSPinResetProcessor extends TPSProcessor {
             AppletInfo aInfo,
             String keyVersion) {
 
+        TPSEngine engine = TPSEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
+
         TokenPinResetEvent event = TokenPinResetEvent.success(
                 ip,
                 subjectID,
@@ -387,12 +391,15 @@ public class TPSPinResetProcessor extends TPSProcessor {
                 (aInfo != null) ? aInfo.getFinalAppletVersion() : null,
                 keyVersion);
 
-        signedAuditLogger.log(event);
+        auditor.log(event);
     }
 
     protected void auditPinResetFailure(String ip, String subjectID,
             AppletInfo aInfo,
             String info) {
+
+        TPSEngine engine = TPSEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
 
         TokenPinResetEvent event = TokenPinResetEvent.failure(
                 ip,
@@ -402,7 +409,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
                 (aInfo != null) ? aInfo.getFinalAppletVersion() : null,
                 info);
 
-        signedAuditLogger.log(event);
+        auditor.log(event);
     }
 
     public static void main(String[] args) {

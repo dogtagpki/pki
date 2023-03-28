@@ -65,6 +65,7 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.security.JssSubsystem;
 
 public class TPSEnrollProcessor extends TPSProcessor {
@@ -3807,6 +3808,9 @@ public class TPSEnrollProcessor extends TPSProcessor {
             String caConnId,
             String info) {
 
+        TPSEngine engine = TPSEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
+
         // when serial is 0, means no serial, as in case of failure
         String serialNum = "";
         if (serial != null && serial.compareTo(BigInteger.ZERO) > 0)
@@ -3835,7 +3839,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 serialNum,
                 caConnId,
                 info);
-        audit(auditMessage);
+        auditor.log(auditMessage);
     }
 
     private void auditRecovery(String subjectID, AppletInfo aInfo,
@@ -3845,6 +3849,9 @@ public class TPSEnrollProcessor extends TPSProcessor {
             String caConnId,
             String kraConnId,
             String info) {
+
+        TPSEngine engine = TPSEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
 
         String serialNum = "";
         if (serial.compareTo(BigInteger.ZERO) > 0)
@@ -3862,7 +3869,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 caConnId,
                 kraConnId,
                 info);
-        audit(auditMessage);
+        auditor.log(auditMessage);
     }
 
     private boolean checkUserAlreadyHasActiveToken(String userid) {
