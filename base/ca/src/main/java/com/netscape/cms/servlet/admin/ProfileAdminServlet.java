@@ -51,6 +51,7 @@ import com.netscape.cms.profile.constraint.PolicyConstraint;
 import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.registry.PluginInfo;
 import com.netscape.cmscore.registry.PluginRegistry;
@@ -430,6 +431,10 @@ public class ProfileAdminServlet extends AdminServlet {
      * @exception Exception an error has occurred
      */
     public void addProfilePolicy(HttpServletRequest req, HttpServletResponse resp) throws Exception {
+
+        CAEngine engine = CAEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -459,7 +464,7 @@ public class ProfileAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, null, null, resp);
                 return;
@@ -508,7 +513,7 @@ public class ProfileAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR,
                         CMS.getUserMessage(getLocale(req), "CMS_PROFILE_CREATE_POLICY_FAILED",
@@ -525,7 +530,7 @@ public class ProfileAdminServlet extends AdminServlet {
                         ILogger.SUCCESS,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             sendResponse(SUCCESS, null, nvp, resp);
         } catch (IOException eAudit1) {
@@ -536,7 +541,7 @@ public class ProfileAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
@@ -548,7 +553,7 @@ public class ProfileAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit2;
@@ -572,6 +577,10 @@ public class ProfileAdminServlet extends AdminServlet {
     public void addProfileInput(HttpServletRequest req,
             HttpServletResponse resp)
             throws ServletException, IOException {
+
+        CAEngine engine = CAEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -599,7 +608,7 @@ public class ProfileAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, null, null, resp);
                 return;
@@ -632,7 +641,7 @@ public class ProfileAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
                 sendResponse(ERROR,
                         CMS.getUserMessage(getLocale(req), "CMS_PROFILE_CREATE_INPUT_FAILED",
                                 e1.toString()),
@@ -650,7 +659,7 @@ public class ProfileAdminServlet extends AdminServlet {
                         ILogger.SUCCESS,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             sendResponse(SUCCESS, null, nvp, resp);
         } catch (IOException eAudit1) {
@@ -661,7 +670,7 @@ public class ProfileAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
@@ -673,7 +682,7 @@ public class ProfileAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit2;
@@ -697,6 +706,10 @@ public class ProfileAdminServlet extends AdminServlet {
     public void addProfileOutput(HttpServletRequest req,
             HttpServletResponse resp)
             throws ServletException, IOException {
+
+        CAEngine engine = CAEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -724,7 +737,7 @@ public class ProfileAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, null, null, resp);
                 return;
@@ -758,7 +771,7 @@ public class ProfileAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
                 sendResponse(ERROR,
                         CMS.getUserMessage(getLocale(req), "CMS_PROFILE_CREATE_OUTPUT_FAILED",
                                 e1.toString()),
@@ -776,7 +789,7 @@ public class ProfileAdminServlet extends AdminServlet {
                         ILogger.SUCCESS,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             sendResponse(SUCCESS, null, nvp, resp);
         } catch (IOException eAudit1) {
@@ -787,7 +800,7 @@ public class ProfileAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
@@ -799,7 +812,7 @@ public class ProfileAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit2;
@@ -823,6 +836,10 @@ public class ProfileAdminServlet extends AdminServlet {
     public void deleteProfilePolicy(HttpServletRequest req,
             HttpServletResponse resp)
             throws ServletException, IOException {
+
+        CAEngine engine = CAEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -859,7 +876,7 @@ public class ProfileAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, null, null, resp);
                 return;
@@ -881,7 +898,7 @@ public class ProfileAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, null, null, resp);
                 return;
@@ -896,7 +913,7 @@ public class ProfileAdminServlet extends AdminServlet {
                         ILogger.SUCCESS,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             sendResponse(SUCCESS, null, nvp, resp);
         } catch (IOException eAudit1) {
@@ -907,7 +924,7 @@ public class ProfileAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
@@ -919,7 +936,7 @@ public class ProfileAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit2;
@@ -943,6 +960,10 @@ public class ProfileAdminServlet extends AdminServlet {
     public void deleteProfileInput(HttpServletRequest req,
             HttpServletResponse resp)
             throws ServletException, IOException {
+
+        CAEngine engine = CAEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -981,7 +1002,7 @@ public class ProfileAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, null, null, resp);
                 return;
@@ -998,7 +1019,7 @@ public class ProfileAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, null, null, resp);
                 return;
@@ -1013,7 +1034,7 @@ public class ProfileAdminServlet extends AdminServlet {
                         ILogger.SUCCESS,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             sendResponse(SUCCESS, null, nvp, resp);
         } catch (IOException eAudit1) {
@@ -1024,7 +1045,7 @@ public class ProfileAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
@@ -1036,7 +1057,7 @@ public class ProfileAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit2;
@@ -1060,6 +1081,10 @@ public class ProfileAdminServlet extends AdminServlet {
     public void deleteProfileOutput(HttpServletRequest req,
             HttpServletResponse resp)
             throws ServletException, IOException {
+
+        CAEngine engine = CAEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -1098,7 +1123,7 @@ public class ProfileAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, null, null, resp);
                 return;
@@ -1115,7 +1140,7 @@ public class ProfileAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, null, null, resp);
                 return;
@@ -1130,7 +1155,7 @@ public class ProfileAdminServlet extends AdminServlet {
                         ILogger.SUCCESS,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             sendResponse(SUCCESS, null, nvp, resp);
         } catch (IOException eAudit1) {
@@ -1141,7 +1166,7 @@ public class ProfileAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
@@ -1153,7 +1178,7 @@ public class ProfileAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit2;
@@ -1177,6 +1202,10 @@ public class ProfileAdminServlet extends AdminServlet {
     public void addPolicyDefaultConfig(HttpServletRequest req,
             HttpServletResponse resp)
             throws ServletException, IOException {
+
+        CAEngine engine = CAEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -1203,7 +1232,7 @@ public class ProfileAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, null, null, resp);
                 return;
@@ -1252,7 +1281,7 @@ public class ProfileAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, null, null, resp);
                 return;
@@ -1266,7 +1295,7 @@ public class ProfileAdminServlet extends AdminServlet {
                         ILogger.SUCCESS,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             sendResponse(SUCCESS, null, nvp, resp);
         } catch (IOException eAudit1) {
@@ -1277,7 +1306,7 @@ public class ProfileAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
@@ -1289,7 +1318,7 @@ public class ProfileAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit2;
@@ -1315,6 +1344,9 @@ public class ProfileAdminServlet extends AdminServlet {
             throws ServletException, IOException {
 
         logger.info("ProfileAdminServlet: Adding policy constraints");
+
+        CAEngine engine = CAEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
 
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
@@ -1342,7 +1374,7 @@ public class ProfileAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, null, null, resp);
                 return;
@@ -1397,7 +1429,7 @@ public class ProfileAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, null, null, resp);
                 return;
@@ -1412,7 +1444,7 @@ public class ProfileAdminServlet extends AdminServlet {
                         ILogger.SUCCESS,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             sendResponse(SUCCESS, null, nvp, resp);
         } catch (IOException eAudit1) {
@@ -1423,7 +1455,7 @@ public class ProfileAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
@@ -1435,7 +1467,7 @@ public class ProfileAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit2;
@@ -1459,6 +1491,10 @@ public class ProfileAdminServlet extends AdminServlet {
     public void modifyPolicyDefaultConfig(HttpServletRequest req,
             HttpServletResponse resp)
             throws ServletException, IOException {
+
+        CAEngine engine = CAEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -1485,7 +1521,7 @@ public class ProfileAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, null, null, resp);
                 return;
@@ -1529,7 +1565,7 @@ public class ProfileAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, null, null, resp);
                 return;
@@ -1543,7 +1579,7 @@ public class ProfileAdminServlet extends AdminServlet {
                         ILogger.SUCCESS,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             sendResponse(SUCCESS, null, nvp, resp);
         } catch (IOException eAudit1) {
@@ -1554,7 +1590,7 @@ public class ProfileAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
@@ -1566,7 +1602,7 @@ public class ProfileAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit2;
@@ -1590,6 +1626,10 @@ public class ProfileAdminServlet extends AdminServlet {
     public void modifyInputConfig(HttpServletRequest req,
             HttpServletResponse resp)
             throws ServletException, IOException {
+
+        CAEngine engine = CAEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -1616,7 +1656,7 @@ public class ProfileAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, null, null, resp);
                 return;
@@ -1648,7 +1688,7 @@ public class ProfileAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, null, null, resp);
                 return;
@@ -1662,7 +1702,7 @@ public class ProfileAdminServlet extends AdminServlet {
                         ILogger.SUCCESS,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             sendResponse(SUCCESS, null, nvp, resp);
         } catch (IOException eAudit1) {
@@ -1673,7 +1713,7 @@ public class ProfileAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
@@ -1685,7 +1725,7 @@ public class ProfileAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit2;
@@ -1709,6 +1749,10 @@ public class ProfileAdminServlet extends AdminServlet {
     public void modifyOutputConfig(HttpServletRequest req,
             HttpServletResponse resp)
             throws ServletException, IOException {
+
+        CAEngine engine = CAEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -1735,7 +1779,7 @@ public class ProfileAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, null, null, resp);
                 return;
@@ -1768,7 +1812,7 @@ public class ProfileAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, null, null, resp);
                 return;
@@ -1782,7 +1826,7 @@ public class ProfileAdminServlet extends AdminServlet {
                         ILogger.SUCCESS,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             sendResponse(SUCCESS, null, nvp, resp);
         } catch (IOException eAudit1) {
@@ -1793,7 +1837,7 @@ public class ProfileAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
@@ -1805,7 +1849,7 @@ public class ProfileAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit2;
@@ -1831,6 +1875,9 @@ public class ProfileAdminServlet extends AdminServlet {
             throws ServletException, IOException {
 
         logger.info("ProfileAdminServlet: Modifying policy constraints");
+
+        CAEngine engine = CAEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
 
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
@@ -1858,7 +1905,7 @@ public class ProfileAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, null, null, resp);
                 return;
@@ -1908,7 +1955,7 @@ public class ProfileAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, null, null, resp);
                 return;
@@ -1923,7 +1970,7 @@ public class ProfileAdminServlet extends AdminServlet {
                         ILogger.SUCCESS,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             sendResponse(SUCCESS, null, nvp, resp);
         } catch (IOException eAudit1) {
@@ -1934,7 +1981,7 @@ public class ProfileAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
@@ -1946,7 +1993,7 @@ public class ProfileAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit2;
@@ -2295,6 +2342,10 @@ public class ProfileAdminServlet extends AdminServlet {
     public void deleteProfileInstance(HttpServletRequest req,
             HttpServletResponse resp)
             throws ServletException, IOException {
+
+        CAEngine engine = CAEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -2312,7 +2363,7 @@ public class ProfileAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, MISSING_POLICY_INST_ID, null, resp);
                 return;
@@ -2328,7 +2379,7 @@ public class ProfileAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, CMS.getUserMessage(getLocale(req), e.toString(), id), null, resp);
                 return;
@@ -2341,7 +2392,7 @@ public class ProfileAdminServlet extends AdminServlet {
                         ILogger.SUCCESS,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             sendResponse(SUCCESS, null, null, resp);
         } catch (IOException eAudit1) {
@@ -2352,7 +2403,7 @@ public class ProfileAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
@@ -2364,7 +2415,7 @@ public class ProfileAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit2;
@@ -2413,6 +2464,7 @@ public class ProfileAdminServlet extends AdminServlet {
         CAEngine engine = CAEngine.getInstance();
         CAEngineConfig cs = engine.getConfig();
 
+        Auditor auditor = engine.getAuditor();
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -2430,7 +2482,7 @@ public class ProfileAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, MISSING_POLICY_INST_ID, null, resp);
                 return;
@@ -2476,7 +2528,7 @@ public class ProfileAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, null, null, resp);
                 return;
@@ -2515,7 +2567,7 @@ public class ProfileAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, null, null, resp);
                 return;
@@ -2528,7 +2580,7 @@ public class ProfileAdminServlet extends AdminServlet {
                         ILogger.SUCCESS,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             sendResponse(SUCCESS, null, null, resp);
         } catch (IOException eAudit1) {
@@ -2539,7 +2591,7 @@ public class ProfileAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
@@ -2551,7 +2603,7 @@ public class ProfileAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit2;
@@ -2575,6 +2627,10 @@ public class ProfileAdminServlet extends AdminServlet {
     public void modifyProfileInstance(HttpServletRequest req,
             HttpServletResponse resp)
             throws ServletException, IOException {
+
+        CAEngine engine = CAEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -2598,7 +2654,7 @@ public class ProfileAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, null, null, resp);
                 return;
@@ -2624,7 +2680,7 @@ public class ProfileAdminServlet extends AdminServlet {
                         ILogger.SUCCESS,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             try {
                 profile.getConfigStore().commit(false);
@@ -2640,7 +2696,7 @@ public class ProfileAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
@@ -2652,7 +2708,7 @@ public class ProfileAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit2;

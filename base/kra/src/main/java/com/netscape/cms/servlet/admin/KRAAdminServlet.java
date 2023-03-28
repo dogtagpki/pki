@@ -35,6 +35,7 @@ import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.kra.KeyRecoveryAuthority;
 
 /**
@@ -195,6 +196,9 @@ public class KRAAdminServlet extends AdminServlet {
         Enumeration<String> enum1 = req.getParameterNames();
         boolean restart = false;
 
+        KRAEngine engine = KRAEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -213,7 +217,7 @@ public class KRAAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                    audit(auditMessage);
+                    auditor.log(auditMessage);
                     throw new EBaseException("Number of agents must be an integer");
                 }
             }
@@ -227,7 +231,7 @@ public class KRAAdminServlet extends AdminServlet {
                 ILogger.SUCCESS,
                 auditParams(req));
 
-        audit(auditMessage);
+        auditor.log(auditMessage);
 
         if (restart)
             sendResponse(RESTART, null, null, resp);

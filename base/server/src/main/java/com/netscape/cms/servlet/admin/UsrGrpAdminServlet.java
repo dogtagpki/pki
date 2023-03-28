@@ -55,6 +55,7 @@ import com.netscape.cms.password.PasswordChecker;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.cert.CertPrettyPrint;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmscore.usrgrp.User;
@@ -653,6 +654,8 @@ public class UsrGrpAdminServlet extends AdminServlet {
             IOException, EBaseException {
 
         CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
+
         String auditSubjectID = auditSubjectID();
 
         // ensure that any low-level exceptions are reported
@@ -663,7 +666,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             if (id == null) {
                 logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
 
-                audit(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req)));
@@ -678,7 +681,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 // backslashes (BS) are not allowed
                 logger.error(CMS.getLogMessage("ADMIN_SRVLT_RS_ID_BS"));
 
-                audit(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req)));
@@ -693,7 +696,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 // backslashes (BS) are not allowed
                 logger.error(CMS.getLogMessage("ADMIN_SRVLT_SPECIAL_ID", id));
 
-                audit(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req)));
@@ -712,7 +715,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 logger.error(msg);
 
-                audit(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req)));
@@ -736,7 +739,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 if (!passwdCheck.isGoodPassword(pword)) {
 
-                    audit(new ConfigRoleEvent(
+                    auditor.log(new ConfigRoleEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditParams(req)));
@@ -785,7 +788,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                     } catch (Exception ex) {
                         ex.printStackTrace();
 
-                        audit(new ConfigRoleEvent(
+                        auditor.log(new ConfigRoleEvent(
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     auditParams(req)));
@@ -804,7 +807,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                         } catch (Exception ex) {
                             logger.error("UsrGrpAdminServlet: " + ex.getMessage(), e);
 
-                            audit(new ConfigRoleEvent(
+                            auditor.log(new ConfigRoleEvent(
                                         auditSubjectID,
                                         ILogger.FAILURE,
                                         auditParams(req)));
@@ -828,7 +831,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 NameValuePairs params = new NameValuePairs();
 
-                audit(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditParams(req)));
@@ -838,7 +841,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             } catch (EUsrGrpException e) {
                 logger.error("UsrGrpAdminServlet: " + e.getMessage(), e);
 
-                audit(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req)));
@@ -855,7 +858,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             } catch (Exception e) {
                 logger.error("UsrGrpAdminServlet: " + e.getMessage(), e);
 
-                audit(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req)));
@@ -866,7 +869,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             }
         } catch (EBaseException eAudit1) {
 
-            audit(new ConfigRoleEvent(
+            auditor.log(new ConfigRoleEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req)));
@@ -875,7 +878,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             throw eAudit1;
         } catch (IOException eAudit2) {
 
-            audit(new ConfigRoleEvent(
+            auditor.log(new ConfigRoleEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req)));
@@ -890,7 +893,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit3;
@@ -920,6 +923,9 @@ public class UsrGrpAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
+
         String auditSubjectID = auditSubjectID();
 
         // ensure that any low-level exceptions are reported
@@ -930,7 +936,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             if (id == null) {
                 logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
 
-                audit(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req)));
@@ -949,7 +955,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             if (certsString == null) {
                 NameValuePairs params = new NameValuePairs();
 
-                audit(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditParams(req)));
@@ -986,7 +992,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                     if (p7certs.length == 0) {
 
-                        audit(new ConfigRoleEvent(
+                        auditor.log(new ConfigRoleEvent(
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     auditParams(req)));
@@ -1017,7 +1023,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                         // not a chain, or in random order
                         logger.error("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_CERT_BAD_CHAIN"));
 
-                        audit(new ConfigRoleEvent(
+                        auditor.log(new ConfigRoleEvent(
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     auditParams(req)));
@@ -1079,7 +1085,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                     //-----
                     logger.error(CMS.getLogMessage("USRGRP_SRVLT_CERT_ERROR", ex.toString()), ex);
 
-                    audit(new ConfigRoleEvent(
+                    auditor.log(new ConfigRoleEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditParams(req)));
@@ -1091,7 +1097,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             } catch (Exception e) {
                 logger.error(CMS.getLogMessage("USRGRP_SRVLT_CERT_O_ERROR", e.toString()), e);
 
-                audit(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req)));
@@ -1109,7 +1115,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 mMgr.addUserCert(id, certs[0]);
                 NameValuePairs params = new NameValuePairs();
 
-                audit(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditParams(req)));
@@ -1121,7 +1127,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 logger.error(CMS.getLogMessage("ADMIN_SRVLT_ADD_CERT_EXPIRED",
                         String.valueOf(certs[0].getSubjectDN())), e);
 
-                audit(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req)));
@@ -1133,7 +1139,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 logger.error(CMS.getLogMessage("USRGRP_SRVLT_CERT_NOT_YET_VALID",
                         String.valueOf(certs[0].getSubjectDN())), e);
 
-                audit(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req)));
@@ -1144,7 +1150,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
             } catch (ConflictingOperationException e) {
 
-                audit(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req)));
@@ -1156,7 +1162,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             } catch (Exception e) {
                 logger.error("UsrGrpAdminServlet: " + e.getMessage(), e);
 
-                audit(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req)));
@@ -1173,13 +1179,13 @@ public class UsrGrpAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit1;
         } catch (IOException eAudit2) {
 
-            audit(new ConfigRoleEvent(
+            auditor.log(new ConfigRoleEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req)));
@@ -1194,7 +1200,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit3;
@@ -1227,6 +1233,9 @@ public class UsrGrpAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
+
         String auditSubjectID = auditSubjectID();
 
         // ensure that any low-level exceptions are reported
@@ -1237,7 +1246,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             if (id == null) {
                 logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
 
-                audit(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req)));
@@ -1255,7 +1264,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             if (certDN == null) {
                 NameValuePairs params = new NameValuePairs();
 
-                audit(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditParams(req)));
@@ -1269,7 +1278,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 mMgr.removeUserCert(user);
                 NameValuePairs params = new NameValuePairs();
 
-                audit(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditParams(req)));
@@ -1279,7 +1288,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             } catch (Exception e) {
                 logger.error("UsrGrpAdminServlet: " + e.getMessage(), e);
 
-                audit(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req)));
@@ -1296,13 +1305,13 @@ public class UsrGrpAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit1;
         } catch (IOException eAudit2) {
 
-            audit(new ConfigRoleEvent(
+            auditor.log(new ConfigRoleEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req)));
@@ -1317,7 +1326,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit3;
@@ -1350,6 +1359,9 @@ public class UsrGrpAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
+
         String auditSubjectID = auditSubjectID();
 
         // ensure that any low-level exceptions are reported
@@ -1368,7 +1380,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             if (id == null) {
                 logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
 
-                audit(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req)));
@@ -1386,7 +1398,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             } catch (Exception ex) {
                 ex.printStackTrace();
 
-                audit(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req)));
@@ -1402,7 +1414,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                     if (mustDelete) {
                         mMgr.removeUserFromGroup(group, id);
                     } else {
-                        audit(new ConfigRoleEvent(
+                        auditor.log(new ConfigRoleEvent(
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     auditParams(req)));
@@ -1420,7 +1432,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 mMgr.removeUser(id);
                 NameValuePairs params = new NameValuePairs();
 
-                audit(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditParams(req)));
@@ -1429,7 +1441,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 return;
             } catch (Exception ex) {
 
-                audit(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req)));
@@ -1440,7 +1452,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             }
         } catch (EBaseException eAudit1) {
 
-            audit(new ConfigRoleEvent(
+            auditor.log(new ConfigRoleEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req)));
@@ -1449,7 +1461,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             throw eAudit1;
         } catch (IOException eAudit2) {
 
-            audit(new ConfigRoleEvent(
+            auditor.log(new ConfigRoleEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req)));
@@ -1464,7 +1476,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit3;
@@ -1494,6 +1506,9 @@ public class UsrGrpAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
+
         String auditSubjectID = auditSubjectID();
 
         // ensure that any low-level exceptions are reported
@@ -1505,7 +1520,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             if (id == null) {
                 logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
 
-                audit(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req)));
@@ -1539,7 +1554,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 mMgr.addGroup(group);
                 NameValuePairs params = new NameValuePairs();
 
-                audit(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditParams(req)));
@@ -1548,7 +1563,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 return;
             } catch (Exception e) {
 
-                audit(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req)));
@@ -1560,7 +1575,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             }
         } catch (EBaseException eAudit1) {
 
-            audit(new ConfigRoleEvent(
+            auditor.log(new ConfigRoleEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req)));
@@ -1569,7 +1584,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             throw eAudit1;
         } catch (IOException eAudit2) {
 
-            audit(new ConfigRoleEvent(
+            auditor.log(new ConfigRoleEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req)));
@@ -1584,7 +1599,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit3;
@@ -1614,6 +1629,9 @@ public class UsrGrpAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
+
         String auditSubjectID = auditSubjectID();
 
         // ensure that any low-level exceptions are reported
@@ -1625,7 +1643,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             if (id == null) {
                 logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
 
-                audit(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req)));
@@ -1640,7 +1658,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             mMgr.removeGroup(id);
             NameValuePairs params = new NameValuePairs();
 
-            audit(new ConfigRoleEvent(
+            auditor.log(new ConfigRoleEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req)));
@@ -1648,7 +1666,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             sendResponse(SUCCESS, null, params, resp);
         } catch (EBaseException eAudit1) {
 
-            audit(new ConfigRoleEvent(
+            auditor.log(new ConfigRoleEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req)));
@@ -1657,7 +1675,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             throw eAudit1;
         } catch (IOException eAudit2) {
 
-            audit(new ConfigRoleEvent(
+            auditor.log(new ConfigRoleEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req)));
@@ -1672,7 +1690,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit3;
@@ -1704,6 +1722,9 @@ public class UsrGrpAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
+
         String auditSubjectID = auditSubjectID();
 
         // ensure that any low-level exceptions are reported
@@ -1715,7 +1736,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             if (id == null) {
                 logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
 
-                audit(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req)));
@@ -1764,7 +1785,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                             if (!isDuplicate(groupName, memberName)) {
                                 group.addMemberName(memberName);
                             } else {
-                                audit(new ConfigRoleEvent(
+                                auditor.log(new ConfigRoleEvent(
                                             auditSubjectID,
                                             ILogger.FAILURE,
                                             auditParams(req)));
@@ -1784,7 +1805,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 mMgr.modifyGroup(group);
                 NameValuePairs params = new NameValuePairs();
 
-                audit(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditParams(req)));
@@ -1793,7 +1814,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             } catch (Exception e) {
                 logger.error("UsrGrpAdminServlet: " + e.getMessage(), e);
 
-                audit(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req)));
@@ -1805,7 +1826,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             }
         } catch (EBaseException eAudit1) {
 
-            audit(new ConfigRoleEvent(
+            auditor.log(new ConfigRoleEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req)));
@@ -1814,7 +1835,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             throw eAudit1;
         } catch (IOException eAudit2) {
 
-            audit(new ConfigRoleEvent(
+            auditor.log(new ConfigRoleEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req)));
@@ -1829,7 +1850,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit3;
@@ -1931,6 +1952,8 @@ public class UsrGrpAdminServlet extends AdminServlet {
             IOException, EBaseException {
 
         CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
+
         String auditSubjectID = auditSubjectID();
 
         // ensure that any low-level exceptions are reported
@@ -1942,7 +1965,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             if (id == null) {
                 logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
 
-                audit(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req)));
@@ -1962,7 +1985,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 logger.error(msg);
 
-                audit(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req)));
@@ -1984,7 +2007,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 if (!passwdCheck.isGoodPassword(pword)) {
 
-                    audit(new ConfigRoleEvent(
+                    auditor.log(new ConfigRoleEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditParams(req)));
@@ -2011,7 +2034,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 mMgr.modifyUser(user);
                 NameValuePairs params = new NameValuePairs();
 
-                audit(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditParams(req)));
@@ -2021,7 +2044,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             } catch (Exception e) {
                 logger.error("UsrGrpAdminServlet: " + e.getMessage(), e);
 
-                audit(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req)));
@@ -2032,7 +2055,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             }
         } catch (EBaseException eAudit1) {
 
-            audit(new ConfigRoleEvent(
+            auditor.log(new ConfigRoleEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req)));
@@ -2041,7 +2064,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             throw eAudit1;
         } catch (IOException eAudit2) {
 
-            audit(new ConfigRoleEvent(
+            auditor.log(new ConfigRoleEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req)));
@@ -2056,7 +2079,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit3;

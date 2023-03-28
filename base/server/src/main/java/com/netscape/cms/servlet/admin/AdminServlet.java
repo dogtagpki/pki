@@ -51,13 +51,10 @@ import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.event.AuthEvent;
 import com.netscape.certsrv.logging.event.AuthzEvent;
 import com.netscape.certsrv.logging.event.RoleAssumeEvent;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -99,7 +96,6 @@ import com.netscape.cmscore.usrgrp.User;
 public class AdminServlet extends HttpServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AdminServlet.class);
-    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     private static final long serialVersionUID = 7740464244137421542L;
     private final static String HDR_AUTHORIZATION = "Authorization";
@@ -276,6 +272,7 @@ public class AdminServlet extends HttpServlet {
         UGSubsystem mUG = engine.getUGSubsystem();
         EngineConfig configStore = engine.getConfig();
 
+        Auditor auditor = engine.getAuditor();
         String auditUID = ILogger.UNIDENTIFIED;
         String authType = "";
 
@@ -296,7 +293,7 @@ public class AdminServlet extends HttpServlet {
 
                 if (allCerts == null || allCerts.length == 0) {
 
-                    audit(AuthEvent.createFailureEvent(
+                    auditor.log(AuthEvent.createFailureEvent(
                                 ILogger.UNIDENTIFIED,
                                 CERTUSERDB,
                                 auditUID));
@@ -382,14 +379,14 @@ public class AdminServlet extends HttpServlet {
 
                 if (authType.equals("sslclientauth")) {
 
-                    audit(AuthEvent.createFailureEvent(
+                    auditor.log(AuthEvent.createFailureEvent(
                                 ILogger.UNIDENTIFIED,
                                 CERTUSERDB,
                                 auditUID));
 
                 } else {
 
-                    audit(AuthEvent.createFailureEvent(
+                    auditor.log(AuthEvent.createFailureEvent(
                                 ILogger.UNIDENTIFIED,
                                 PASSWDUSERDB,
                                 auditUID));
@@ -407,14 +404,14 @@ public class AdminServlet extends HttpServlet {
 
                     if (authType.equals("sslclientauth")) {
 
-                        audit(AuthEvent.createFailureEvent(
+                        auditor.log(AuthEvent.createFailureEvent(
                                     ILogger.UNIDENTIFIED,
                                     CERTUSERDB,
                                     auditUID));
 
                     } else {
 
-                        audit(AuthEvent.createFailureEvent(
+                        auditor.log(AuthEvent.createFailureEvent(
                                     ILogger.UNIDENTIFIED,
                                     PASSWDUSERDB,
                                     auditUID));
@@ -434,14 +431,14 @@ public class AdminServlet extends HttpServlet {
 
                     if (authType.equals("sslclientauth")) {
 
-                        audit(AuthEvent.createFailureEvent(
+                        auditor.log(AuthEvent.createFailureEvent(
                                     ILogger.UNIDENTIFIED,
                                     CERTUSERDB,
                                     auditUID));
 
                     } else {
 
-                        audit(AuthEvent.createFailureEvent(
+                        auditor.log(AuthEvent.createFailureEvent(
                                     ILogger.UNIDENTIFIED,
                                     PASSWDUSERDB,
                                     auditUID));
@@ -462,14 +459,14 @@ public class AdminServlet extends HttpServlet {
 
                 if (authType.equals("sslclientauth")) {
 
-                    audit(AuthEvent.createFailureEvent(
+                    auditor.log(AuthEvent.createFailureEvent(
                                 ILogger.UNIDENTIFIED,
                                 CERTUSERDB,
                                 auditUID));
 
                 } else {
 
-                    audit(AuthEvent.createFailureEvent(
+                    auditor.log(AuthEvent.createFailureEvent(
                                 ILogger.UNIDENTIFIED,
                                 PASSWDUSERDB,
                                 auditUID));
@@ -485,26 +482,26 @@ public class AdminServlet extends HttpServlet {
 
             if (authType.equals("sslclientauth")) {
 
-                audit(AuthEvent.createSuccessEvent(
+                auditor.log(AuthEvent.createSuccessEvent(
                             auditSubjectID(),
                             CERTUSERDB));
 
             } else {
-                audit(AuthEvent.createSuccessEvent(
+                auditor.log(AuthEvent.createSuccessEvent(
                             auditSubjectID(),
                             PASSWDUSERDB));
             }
         } catch (IOException eAudit1) {
             if (authType.equals("sslclientauth")) {
 
-                audit(AuthEvent.createFailureEvent(
+                auditor.log(AuthEvent.createFailureEvent(
                             ILogger.UNIDENTIFIED,
                             CERTUSERDB,
                             auditUID));
 
             } else {
 
-                audit(AuthEvent.createFailureEvent(
+                auditor.log(AuthEvent.createFailureEvent(
                             ILogger.UNIDENTIFIED,
                             PASSWDUSERDB,
                             auditUID));
@@ -550,6 +547,9 @@ public class AdminServlet extends HttpServlet {
      */
     protected AuthzToken authorize(HttpServletRequest req) {
 
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
+
         String auditSubjectID = auditSubjectID();
         String auditACLResource = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
         String auditOperation = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
@@ -588,12 +588,12 @@ public class AdminServlet extends HttpServlet {
         } catch (EAuthzAccessDenied e) {
             logger.error(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
 
-            audit(AuthzEvent.createFailureEvent(
+            auditor.log(AuthzEvent.createFailureEvent(
                         auditSubjectID,
                         auditACLResource,
                         auditOperation));
 
-            audit(RoleAssumeEvent.createFailureEvent(
+            auditor.log(RoleAssumeEvent.createFailureEvent(
                         auditSubjectID,
                         auditGroups(auditSubjectID)));
 
@@ -601,36 +601,36 @@ public class AdminServlet extends HttpServlet {
         } catch (EBaseException e) {
             logger.error(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
 
-            audit(AuthzEvent.createFailureEvent(
+            auditor.log(AuthzEvent.createFailureEvent(
                         auditSubjectID,
                         auditACLResource,
                         auditOperation));
 
-            audit(RoleAssumeEvent.createFailureEvent(
+            auditor.log(RoleAssumeEvent.createFailureEvent(
                         auditSubjectID,
                         auditGroups(auditSubjectID)));
 
             return null;
         } catch (Exception e) {
 
-            audit(AuthzEvent.createFailureEvent(
+            auditor.log(AuthzEvent.createFailureEvent(
                         auditSubjectID,
                         auditACLResource,
                         auditOperation));
 
-            audit(RoleAssumeEvent.createFailureEvent(
+            auditor.log(RoleAssumeEvent.createFailureEvent(
                         auditSubjectID,
                         auditGroups(auditSubjectID)));
 
             return null;
         }
 
-        audit(AuthzEvent.createSuccessEvent(
+        auditor.log(AuthzEvent.createSuccessEvent(
                     auditSubjectID,
                     auditACLResource,
                     auditOperation));
 
-        audit(RoleAssumeEvent.createSuccessEvent(
+        auditor.log(RoleAssumeEvent.createSuccessEvent(
                     auditSubjectID,
                     auditGroups(auditSubjectID)));
 
@@ -894,23 +894,6 @@ public class AdminServlet extends HttpServlet {
      */
     protected void commit(boolean createBackup) throws EBaseException {
         mConfig.commit(createBackup);
-    }
-
-    /**
-     * Signed Audit Log
-     *
-     * This method is inherited by all extended admin servlets
-     * and is called to store messages to the signed audit log.
-     * <P>
-     *
-     * @param msg signed audit log message
-     */
-    protected void audit(String msg) {
-        signedAuditLogger.log(msg);
-    }
-
-    protected void audit(LogEvent event) {
-        signedAuditLogger.log(event);
     }
 
     /**

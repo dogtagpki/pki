@@ -41,6 +41,7 @@ import com.netscape.cms.authorization.ACL;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.logging.Auditor;
 
 /**
  * Manage Access Control List configuration
@@ -325,6 +326,9 @@ public class ACLAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException, IOException,
             EBaseException {
 
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -344,7 +348,7 @@ public class ACLAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR,
                         CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
@@ -369,7 +373,7 @@ public class ACLAdminServlet extends AdminServlet {
                             ILogger.SUCCESS,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(SUCCESS, null, params, resp);
                 return;
@@ -384,7 +388,7 @@ public class ACLAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR,
                         CMS.getUserMessage(getLocale(req), "CMS_ACL_UPDATE_FAIL"),
@@ -399,7 +403,7 @@ public class ACLAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit1;
@@ -411,7 +415,7 @@ public class ACLAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
@@ -423,7 +427,7 @@ public class ACLAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit3;
@@ -492,6 +496,9 @@ public class ACLAdminServlet extends AdminServlet {
             HttpServletResponse resp, String scope)
             throws ServletException, IOException, EBaseException {
 
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -509,7 +516,7 @@ public class ACLAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
                 sendResponse(ERROR,
@@ -548,7 +555,7 @@ public class ACLAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR,
                         CMS.getUserMessage(getLocale(req), "CMS_ACL_CLASS_LOAD_FAIL"),
@@ -571,7 +578,7 @@ public class ACLAdminServlet extends AdminServlet {
                                 ILogger.FAILURE,
                                 auditParams(req));
 
-                    audit(auditMessage);
+                    auditor.log(auditMessage);
 
                     sendResponse(ERROR,
                             CMS.getUserMessage(getLocale(req), "CMS_ACL_ILL_CLASS"),
@@ -590,7 +597,7 @@ public class ACLAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR,
                         CMS.getUserMessage(getLocale(req), "CMS_ACL_ILL_CLASS"),
@@ -615,7 +622,7 @@ public class ACLAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR,
                         CMS.getUserMessage(getLocale(req), "CMS_ACL_COMMIT_FAIL"),
@@ -638,7 +645,7 @@ public class ACLAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR,
                         CMS.getUserMessage(getLocale(req), "CMS_ACL_INST_CLASS_FAIL"),
@@ -648,7 +655,6 @@ public class ACLAdminServlet extends AdminServlet {
 
             // initialize the access evaluator
             if (evaluator != null) {
-                CMSEngine engine = getCMSEngine();
                 evaluator.setCMSEngine(engine);
                 evaluator.init();
                 // add evaluator to list
@@ -665,7 +671,7 @@ public class ACLAdminServlet extends AdminServlet {
                         ILogger.SUCCESS,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             sendResponse(SUCCESS, null, params, resp);
             // } catch( EBaseException eAudit1 ) {
@@ -676,7 +682,7 @@ public class ACLAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit1;
@@ -688,7 +694,7 @@ public class ACLAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
@@ -700,7 +706,7 @@ public class ACLAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit3;
@@ -727,6 +733,9 @@ public class ACLAdminServlet extends AdminServlet {
             HttpServletResponse resp, String scope) throws ServletException,
             IOException, EBaseException {
 
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -746,7 +755,7 @@ public class ACLAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR,
                         CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
@@ -767,7 +776,7 @@ public class ACLAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR,
                         CMS.getUserMessage(getLocale(req), "CMS_ACL_EVAL_NOT_FOUND"),
@@ -800,7 +809,7 @@ public class ACLAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR,
                         CMS.getUserMessage(getLocale(req), "CMS_ACL_COMMIT_FAIL"),
@@ -815,7 +824,7 @@ public class ACLAdminServlet extends AdminServlet {
                         ILogger.SUCCESS,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             sendResponse(SUCCESS, null, params, resp);
             return;
@@ -827,7 +836,7 @@ public class ACLAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit1;
@@ -839,7 +848,7 @@ public class ACLAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
@@ -851,7 +860,7 @@ public class ACLAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit3;

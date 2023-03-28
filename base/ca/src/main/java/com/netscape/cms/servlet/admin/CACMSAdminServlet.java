@@ -57,6 +57,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.cert.CrossCertPairSubsystem;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -188,9 +189,10 @@ public class CACMSAdminServlet extends CMSAdminServlet {
     @Override
     public void modifyCACert(HttpServletRequest request, String value) throws EBaseException {
 
+        CAEngine engine = CAEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
         String auditSubjectID = auditSubjectID();
 
-        CAEngine engine = CAEngine.getInstance();
         CertificateAuthority ca = engine.getCA();
         SigningUnit signingUnit = ca.getSigningUnit();
 
@@ -204,7 +206,7 @@ public class CACMSAdminServlet extends CMSAdminServlet {
                         ILogger.FAILURE,
                         auditParams(request));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             throw new EBaseException(CMS.getLogMessage("BASE_INVALID_UI_INFO"));
         }
@@ -228,7 +230,7 @@ public class CACMSAdminServlet extends CMSAdminServlet {
                         ILogger.FAILURE,
                         auditParams(request));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             throw new EBaseException(CMS.getLogMessage("BASE_NOT_CA_CERT"));
         }
@@ -286,6 +288,8 @@ public class CACMSAdminServlet extends CMSAdminServlet {
             ) throws ServletException, IOException, EBaseException {
 
         CAEngine engine = CAEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
+
         String auditSubjectID = auditSubjectID();
 
         // ensure that any low-level exceptions are reported
@@ -338,7 +342,7 @@ public class CACMSAdminServlet extends CMSAdminServlet {
                 oldtokenname = nickname.substring(0, index);
 
             } else {
-                audit(new ConfigTrustedPublicKeyEvent(
+                auditor.log(new ConfigTrustedPublicKeyEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(request)));
@@ -358,7 +362,7 @@ public class CACMSAdminServlet extends CMSAdminServlet {
                 canicknameWithoutTokenName = canickname.substring(index + 1);
 
             } else {
-                audit(new ConfigTrustedPublicKeyEvent(
+                auditor.log(new ConfigTrustedPublicKeyEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(request)));
@@ -369,7 +373,7 @@ public class CACMSAdminServlet extends CMSAdminServlet {
             properties.setIssuerName(jssSubsystem.getCertSubjectName(oldcatokenname, canicknameWithoutTokenName));
 
             if (nickname.equals("")) {
-                audit(new ConfigTrustedPublicKeyEvent(
+                auditor.log(new ConfigTrustedPublicKeyEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(request)));
@@ -607,7 +611,7 @@ public class CACMSAdminServlet extends CMSAdminServlet {
             properties.clear();
             properties = null;
 
-            audit(new ConfigTrustedPublicKeyEvent(
+            auditor.log(new ConfigTrustedPublicKeyEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(request)));
@@ -618,7 +622,7 @@ public class CACMSAdminServlet extends CMSAdminServlet {
         } catch (EBaseException e) {
             logger.error("CACMSAdminServlet: " + e.getMessage());
 
-            audit(new ConfigTrustedPublicKeyEvent(
+            auditor.log(new ConfigTrustedPublicKeyEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(request)));
@@ -628,7 +632,7 @@ public class CACMSAdminServlet extends CMSAdminServlet {
         } catch (IOException e) {
             logger.error("CACMSAdminServlet: " + e.getMessage());
 
-            audit(new ConfigTrustedPublicKeyEvent(
+            auditor.log(new ConfigTrustedPublicKeyEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(request)));
@@ -643,7 +647,7 @@ public class CACMSAdminServlet extends CMSAdminServlet {
         //                        ILogger.FAILURE,
         //                        auditParams(req));
         //
-        //     audit(auditMessage);
+        //     auditor.log(auditMessage);
         //
         //     throw e;
         }
@@ -730,6 +734,9 @@ public class CACMSAdminServlet extends CMSAdminServlet {
     protected void importXCert(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException, EBaseException {
 
+        CAEngine engine = CAEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
+
         String auditSubjectID = auditSubjectID();
 
         // ensure that any low-level exceptions are reported
@@ -766,7 +773,7 @@ public class CACMSAdminServlet extends CMSAdminServlet {
                 if (b64Cert == null || b64Cert.equals("")) {
                     if (certpath == null || certpath.equals("")) {
 
-                        audit(new ConfigTrustedPublicKeyEvent(
+                        auditor.log(new ConfigTrustedPublicKeyEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditParams(req)));
@@ -793,7 +800,7 @@ public class CACMSAdminServlet extends CMSAdminServlet {
 
             } catch (IOException e) {
 
-                audit(new ConfigTrustedPublicKeyEvent(
+                auditor.log(new ConfigTrustedPublicKeyEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req)));
@@ -817,7 +824,6 @@ public class CACMSAdminServlet extends CMSAdminServlet {
             pathname = serverRoot + File.separator + serverID
                      + File.separator + "config" + File.separator + pathname;
 
-            CAEngine engine = CAEngine.getInstance();
             CrossCertPairSubsystem ccps = (CrossCertPairSubsystem) engine.getSubsystem(CrossCertPairSubsystem.ID);
 
             try {
@@ -826,7 +832,7 @@ public class CACMSAdminServlet extends CMSAdminServlet {
 
             } catch (Exception e) {
 
-                audit(new ConfigTrustedPublicKeyEvent(
+                auditor.log(new ConfigTrustedPublicKeyEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req)));
@@ -842,7 +848,7 @@ public class CACMSAdminServlet extends CMSAdminServlet {
 
             } catch (EBaseException e) {
 
-                audit(new ConfigTrustedPublicKeyEvent(
+                auditor.log(new ConfigTrustedPublicKeyEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req)));
@@ -857,7 +863,7 @@ public class CACMSAdminServlet extends CMSAdminServlet {
             results.put(Constants.PR_NICKNAME, "FBCA cross-signed cert");
             results.put(Constants.PR_CERT_CONTENT, content);
 
-            audit(new ConfigTrustedPublicKeyEvent(
+            auditor.log(new ConfigTrustedPublicKeyEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req)));
@@ -866,7 +872,7 @@ public class CACMSAdminServlet extends CMSAdminServlet {
 
         } catch (EBaseException e) {
 
-            audit(new ConfigTrustedPublicKeyEvent(
+            auditor.log(new ConfigTrustedPublicKeyEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req)));
@@ -876,7 +882,7 @@ public class CACMSAdminServlet extends CMSAdminServlet {
 
         } catch (IOException e) {
 
-            audit(new ConfigTrustedPublicKeyEvent(
+            auditor.log(new ConfigTrustedPublicKeyEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req)));
@@ -893,7 +899,7 @@ public class CACMSAdminServlet extends CMSAdminServlet {
         //                        ILogger.FAILURE,
         //                        auditParams(req) );
         //
-        //     audit(auditMessage);
+        //     auditor.log(auditMessage);
         //
         //     // rethrow the specific exception to be handled later
         //     throw e;

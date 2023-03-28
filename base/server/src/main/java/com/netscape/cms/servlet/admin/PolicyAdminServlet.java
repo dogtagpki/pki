@@ -39,6 +39,7 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.logging.Auditor;
 
 /**
  * This class is an administration servlet for policy management.
@@ -382,6 +383,10 @@ public class PolicyAdminServlet extends AdminServlet {
     public void deletePolicyImpl(HttpServletRequest req,
             HttpServletResponse resp)
             throws ServletException, IOException {
+
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -399,7 +404,7 @@ public class PolicyAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, MISSING_POLICY_IMPL_ID, null, resp);
                 return;
@@ -415,7 +420,7 @@ public class PolicyAdminServlet extends AdminServlet {
                             ILogger.SUCCESS,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(SUCCESS, null, null, resp);
             } catch (Exception e) {
@@ -428,7 +433,7 @@ public class PolicyAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, e.toString(), null, resp);
             }
@@ -440,7 +445,7 @@ public class PolicyAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
@@ -452,7 +457,7 @@ public class PolicyAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit2;
@@ -504,6 +509,10 @@ public class PolicyAdminServlet extends AdminServlet {
     public void addPolicyImpl(HttpServletRequest req,
             HttpServletResponse resp)
             throws ServletException, IOException {
+
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -521,7 +530,7 @@ public class PolicyAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, MISSING_POLICY_IMPL_ID, null, resp);
                 return;
@@ -537,7 +546,7 @@ public class PolicyAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, MISSING_POLICY_IMPL_CLASS, null, resp);
                 return;
@@ -552,7 +561,7 @@ public class PolicyAdminServlet extends AdminServlet {
                             ILogger.SUCCESS,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(SUCCESS, null, null, resp);
             } catch (Exception e) {
@@ -563,7 +572,7 @@ public class PolicyAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, e.toString(), null, resp);
             }
@@ -575,7 +584,7 @@ public class PolicyAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
@@ -587,7 +596,7 @@ public class PolicyAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit2;
@@ -611,6 +620,10 @@ public class PolicyAdminServlet extends AdminServlet {
     public void deletePolicyInstance(HttpServletRequest req,
             HttpServletResponse resp)
             throws ServletException, IOException {
+
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -628,7 +641,7 @@ public class PolicyAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, MISSING_POLICY_INST_ID, null, resp);
                 return;
@@ -644,7 +657,7 @@ public class PolicyAdminServlet extends AdminServlet {
                             ILogger.SUCCESS,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(SUCCESS, null, null, resp);
             } catch (Exception e) {
@@ -657,7 +670,7 @@ public class PolicyAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, e.toString(), null, resp);
             }
@@ -669,7 +682,7 @@ public class PolicyAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
@@ -681,7 +694,7 @@ public class PolicyAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit2;
@@ -752,6 +765,10 @@ public class PolicyAdminServlet extends AdminServlet {
     public void addPolicyInstance(HttpServletRequest req,
             HttpServletResponse resp)
             throws ServletException, IOException {
+
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -769,7 +786,7 @@ public class PolicyAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, MISSING_POLICY_INST_ID, null, resp);
                 return;
@@ -786,7 +803,7 @@ public class PolicyAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, MISSING_POLICY_IMPL_ID, null, resp);
                 return;
@@ -819,7 +836,7 @@ public class PolicyAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, INVALID_POLICY_IMPL_ID, null, resp);
                 return;
@@ -850,7 +867,7 @@ public class PolicyAdminServlet extends AdminServlet {
                             ILogger.SUCCESS,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(SUCCESS, null, null, resp);
             } catch (Exception e) {
@@ -861,7 +878,7 @@ public class PolicyAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, e.toString(), null, resp);
             }
@@ -873,7 +890,7 @@ public class PolicyAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
@@ -885,7 +902,7 @@ public class PolicyAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit2;
@@ -909,6 +926,10 @@ public class PolicyAdminServlet extends AdminServlet {
     public void changePolicyInstanceOrdering(HttpServletRequest req,
             HttpServletResponse resp)
             throws ServletException, IOException {
+
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -926,7 +947,7 @@ public class PolicyAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, MISSING_POLICY_ORDERING, null, resp);
                 return;
@@ -941,7 +962,7 @@ public class PolicyAdminServlet extends AdminServlet {
                             ILogger.SUCCESS,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(SUCCESS, null, null, resp);
             } catch (Exception e) {
@@ -952,7 +973,7 @@ public class PolicyAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, e.toString(), null, resp);
             }
@@ -964,7 +985,7 @@ public class PolicyAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
@@ -976,7 +997,7 @@ public class PolicyAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit2;
@@ -1000,6 +1021,10 @@ public class PolicyAdminServlet extends AdminServlet {
     public void modifyPolicyInstance(HttpServletRequest req,
             HttpServletResponse resp)
             throws ServletException, IOException {
+
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -1017,7 +1042,7 @@ public class PolicyAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, MISSING_POLICY_INST_ID, null, resp);
                 return;
@@ -1034,7 +1059,7 @@ public class PolicyAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, MISSING_POLICY_IMPL_ID, null, resp);
                 return;
@@ -1066,7 +1091,7 @@ public class PolicyAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, INVALID_POLICY_IMPL_ID, null, resp);
                 return;
@@ -1102,7 +1127,7 @@ public class PolicyAdminServlet extends AdminServlet {
                             ILogger.SUCCESS,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(SUCCESS, null, null, resp);
             } catch (Exception e) {
@@ -1113,7 +1138,7 @@ public class PolicyAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, e.toString(), null, resp);
             }
@@ -1125,7 +1150,7 @@ public class PolicyAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
@@ -1137,7 +1162,7 @@ public class PolicyAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit2;

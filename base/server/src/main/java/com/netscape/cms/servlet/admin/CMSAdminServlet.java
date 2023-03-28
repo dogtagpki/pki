@@ -68,6 +68,7 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -439,6 +440,7 @@ public class CMSAdminServlet extends AdminServlet {
             IOException, EBaseException {
 
         CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
 
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
@@ -484,7 +486,7 @@ public class CMSAdminServlet extends AdminServlet {
                         ILogger.SUCCESS,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             sendResponse(RESTART, null, params, resp);
             mConfig.commit(true);
@@ -496,7 +498,7 @@ public class CMSAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
@@ -508,7 +510,7 @@ public class CMSAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
@@ -520,7 +522,7 @@ public class CMSAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit3;
@@ -891,6 +893,10 @@ public class CMSAdminServlet extends AdminServlet {
     private void getCertRequest(HttpServletRequest req,
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
+
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditPublicKey = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
@@ -935,7 +941,6 @@ public class CMSAdminServlet extends AdminServlet {
             pathname = CMS.getInstanceDir() + File.separator + "conf" + File.separator;
             dir = pathname;
 
-            CMSEngine engine = getCMSEngine();
             JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
             KeyPair keypair = null;
@@ -974,7 +979,7 @@ public class CMSAdminServlet extends AdminServlet {
                                 ILogger.FAILURE,
                                 auditPublicKey);
 
-                    audit(auditMessage);
+                    auditor.log(auditMessage);
 
                     throw new EBaseException(
                             CMS.getLogMessage("BASE_CERT_NOT_FOUND"));
@@ -1033,7 +1038,7 @@ public class CMSAdminServlet extends AdminServlet {
                         ILogger.SUCCESS,
                         auditPublicKey);
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             mConfig.commit(true);
             sendResponse(SUCCESS, null, params, resp);
@@ -1045,7 +1050,7 @@ public class CMSAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditPublicKey);
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
@@ -1057,7 +1062,7 @@ public class CMSAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditPublicKey);
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
@@ -1069,7 +1074,7 @@ public class CMSAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditPublicKey );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit3;
@@ -1216,6 +1221,10 @@ public class CMSAdminServlet extends AdminServlet {
     private void installCert(HttpServletRequest req,
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
+
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -1258,7 +1267,7 @@ public class CMSAdminServlet extends AdminServlet {
                 if (pkcs == null || pkcs.equals("")) {
                     if (certpath == null || certpath.equals("")) {
 
-                        audit(new ConfigTrustedPublicKeyEvent(
+                        auditor.log(new ConfigTrustedPublicKeyEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditParams(req)));
@@ -1288,7 +1297,7 @@ public class CMSAdminServlet extends AdminServlet {
                 }
             } catch (IOException ee) {
 
-                audit(new ConfigTrustedPublicKeyEvent(
+                auditor.log(new ConfigTrustedPublicKeyEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req)));
@@ -1301,7 +1310,6 @@ public class CMSAdminServlet extends AdminServlet {
             pathname = serverRoot + File.separator + serverID
                      + File.separator + "config" + File.separator + pathname;
 
-            CMSEngine engine = getCMSEngine();
             JssSubsystem jssSubsystem = engine.getJSSSubsystem();
             //String nickname = getNickname(certType);
             String nicknameWithoutTokenName = "";
@@ -1315,7 +1323,7 @@ public class CMSAdminServlet extends AdminServlet {
                 nicknameWithoutTokenName = nickname.substring(index + 1);
             } else {
 
-                audit(new ConfigTrustedPublicKeyEvent(
+                auditor.log(new ConfigTrustedPublicKeyEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditParams(req)));
@@ -1453,7 +1461,7 @@ public class CMSAdminServlet extends AdminServlet {
                         ILogger.SUCCESS,
                                 nickname);
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
             } catch (Exception e) {
                 logger.error("CMSAdminServlet: Unable to verify system certificate: " + e.getMessage(), e);
@@ -1463,10 +1471,10 @@ public class CMSAdminServlet extends AdminServlet {
                                 ILogger.FAILURE,
                                 nickname);
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
             }
 
-            audit(new ConfigTrustedPublicKeyEvent(
+            auditor.log(new ConfigTrustedPublicKeyEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req)));
@@ -1480,7 +1488,7 @@ public class CMSAdminServlet extends AdminServlet {
             }
         } catch (EBaseException eAudit1) {
 
-            audit(new ConfigTrustedPublicKeyEvent(
+            auditor.log(new ConfigTrustedPublicKeyEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req)));
@@ -1489,7 +1497,7 @@ public class CMSAdminServlet extends AdminServlet {
             throw eAudit1;
         } catch (IOException eAudit2) {
 
-            audit(new ConfigTrustedPublicKeyEvent(
+            auditor.log(new ConfigTrustedPublicKeyEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req)));
@@ -1504,7 +1512,7 @@ public class CMSAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit3;
@@ -1975,6 +1983,9 @@ public class CMSAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
+
         String auditSubjectID = auditSubjectID();
         String nickname = req.getParameter(Constants.PR_NICK_NAME);
         String serialno = req.getParameter(Constants.PR_SERIAL_NUMBER);
@@ -1983,13 +1994,12 @@ public class CMSAdminServlet extends AdminServlet {
 
         logger.debug("CMSAdminServlet: setRootCertTrust()");
 
-        CMSEngine engine = getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         try {
             jssSubsystem.setRootCertTrust(nickname, serialno, issuername, trust);
         } catch (EBaseException e) {
 
-            audit(new ConfigTrustedPublicKeyEvent(
+            auditor.log(new ConfigTrustedPublicKeyEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req)));
@@ -1998,7 +2008,7 @@ public class CMSAdminServlet extends AdminServlet {
             throw e;
         }
 
-        audit(new ConfigTrustedPublicKeyEvent(
+        auditor.log(new ConfigTrustedPublicKeyEvent(
                     auditSubjectID,
                     ILogger.SUCCESS,
                     auditParams(req)));
@@ -2024,6 +2034,8 @@ public class CMSAdminServlet extends AdminServlet {
             IOException, EBaseException {
 
         CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
+
         String auditSubjectID = auditSubjectID();
 
         logger.debug("CMSAdminServlet: trustCACert()");
@@ -2050,7 +2062,7 @@ public class CMSAdminServlet extends AdminServlet {
                 }
             }
 
-            audit(new ConfigTrustedPublicKeyEvent(
+            auditor.log(new ConfigTrustedPublicKeyEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditParams(req)));
@@ -2059,7 +2071,7 @@ public class CMSAdminServlet extends AdminServlet {
             sendResponse(RESTART, null, null, resp);
         } catch (EBaseException eAudit1) {
 
-            audit(new ConfigTrustedPublicKeyEvent(
+            auditor.log(new ConfigTrustedPublicKeyEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req)));
@@ -2068,7 +2080,7 @@ public class CMSAdminServlet extends AdminServlet {
             throw eAudit1;
         } catch (IOException eAudit2) {
 
-            audit(new ConfigTrustedPublicKeyEvent(
+            auditor.log(new ConfigTrustedPublicKeyEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditParams(req)));
@@ -2083,7 +2095,7 @@ public class CMSAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit3;
@@ -2112,6 +2124,8 @@ public class CMSAdminServlet extends AdminServlet {
                     IOException {
 
         CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -2157,7 +2171,7 @@ public class CMSAdminServlet extends AdminServlet {
                             auditSubjectID,
                             ILogger.FAILURE);
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 // notify console of FAILURE
                 content += logMessage
@@ -2210,7 +2224,7 @@ public class CMSAdminServlet extends AdminServlet {
                                     auditSubjectID,
                                     ILogger.FAILURE);
 
-                        audit(auditMessage);
+                        auditor.log(auditMessage);
 
                         // notify console of FAILURE
                         content += logMessage
@@ -2240,7 +2254,7 @@ public class CMSAdminServlet extends AdminServlet {
                                     auditSubjectID,
                                     ILogger.FAILURE);
 
-                        audit(auditMessage);
+                        auditor.log(auditMessage);
 
                         // notify console of FAILURE
                         content += logMessage
@@ -2289,7 +2303,7 @@ public class CMSAdminServlet extends AdminServlet {
                                         auditSubjectID,
                                         ILogger.FAILURE);
 
-                            audit(auditMessage);
+                            auditor.log(auditMessage);
 
                             // notify console of FAILURE
                             content += "FAILED WITH CRITICAL ERROR\n";
@@ -2338,7 +2352,7 @@ public class CMSAdminServlet extends AdminServlet {
                         auditSubjectID,
                         ILogger.SUCCESS);
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // notify console of SUCCESS
             results.put(Constants.PR_RUN_SELFTESTS_ON_DEMAND_CLASS,
@@ -2354,7 +2368,7 @@ public class CMSAdminServlet extends AdminServlet {
                         auditSubjectID,
                         ILogger.FAILURE);
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
@@ -2365,7 +2379,7 @@ public class CMSAdminServlet extends AdminServlet {
                         auditSubjectID,
                         ILogger.FAILURE);
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
@@ -2376,7 +2390,7 @@ public class CMSAdminServlet extends AdminServlet {
                         auditSubjectID,
                         ILogger.FAILURE);
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit3;

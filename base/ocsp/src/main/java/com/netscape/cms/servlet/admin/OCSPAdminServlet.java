@@ -38,6 +38,7 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ocsp.IOCSPStore;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.ocsp.OCSPAuthority;
 
 /**
@@ -243,6 +244,10 @@ public class OCSPAdminServlet extends AdminServlet {
     private void setDefaultStore(HttpServletRequest req,
             HttpServletResponse resp)
             throws ServletException, IOException, EBaseException {
+
+        OCSPEngine engine = OCSPEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -262,7 +267,7 @@ public class OCSPAdminServlet extends AdminServlet {
                         ILogger.SUCCESS,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             sendResponse(SUCCESS, null, null, resp);
         } catch (EBaseException eAudit1) {
@@ -273,7 +278,7 @@ public class OCSPAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
@@ -285,7 +290,7 @@ public class OCSPAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
@@ -297,7 +302,7 @@ public class OCSPAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit3;
@@ -333,6 +338,10 @@ public class OCSPAdminServlet extends AdminServlet {
     private void setOCSPStoresConfig(HttpServletRequest req,
             HttpServletResponse resp)
             throws ServletException, IOException, EBaseException {
+
+        OCSPEngine engine = OCSPEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -374,7 +383,7 @@ public class OCSPAdminServlet extends AdminServlet {
                         ILogger.SUCCESS,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             sendResponse(SUCCESS, null, null, resp);
         } catch (EBaseException eAudit1) {
@@ -385,7 +394,7 @@ public class OCSPAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
@@ -397,7 +406,7 @@ public class OCSPAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
@@ -409,7 +418,7 @@ public class OCSPAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit3;
@@ -483,6 +492,9 @@ public class OCSPAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
+        OCSPEngine engine = OCSPEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -509,7 +521,7 @@ public class OCSPAdminServlet extends AdminServlet {
                         ILogger.SUCCESS,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             sendResponse(SUCCESS, null, null, resp);
         } catch (EBaseException eAudit1) {
@@ -520,7 +532,7 @@ public class OCSPAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
@@ -532,7 +544,7 @@ public class OCSPAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit2;

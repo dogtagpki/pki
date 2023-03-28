@@ -49,6 +49,7 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
+import com.netscape.cmscore.logging.Auditor;
 
 /**
  * A class representing an administration servlet for the
@@ -378,6 +379,9 @@ public class AuthAdminServlet extends AdminServlet {
             HttpServletResponse resp, String scope)
             throws ServletException, IOException, EBaseException {
 
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -394,7 +398,7 @@ public class AuthAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 //System.out.println("SRVLT_NULL_RS_ID");
                 sendResponse(ERROR,
@@ -411,7 +415,7 @@ public class AuthAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(
                         ERROR,
@@ -431,7 +435,7 @@ public class AuthAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR,
                         CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_NULL_AUTHMGR_CLASSNAME"),
@@ -448,7 +452,7 @@ public class AuthAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR,
                         CMS.getUserMessage(getLocale(req), "CMS_BASE_PERMISSION_DENIED"), null, resp);
@@ -474,7 +478,7 @@ public class AuthAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR,
                         CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_AUTHMGR_PLUGIN_NOT_FOUND"),
@@ -488,7 +492,7 @@ public class AuthAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR,
                         CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_AUTHMGR_PLUGIN_NOT_FOUND"),
@@ -506,7 +510,7 @@ public class AuthAdminServlet extends AdminServlet {
                                 ILogger.FAILURE,
                                 auditParams(req));
 
-                    audit(auditMessage);
+                    auditor.log(auditMessage);
 
                     sendResponse(ERROR,
                             CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_ILL_CLASS"),
@@ -521,7 +525,7 @@ public class AuthAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR,
                         CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_ILL_CLASS"),
@@ -544,7 +548,7 @@ public class AuthAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 //System.out.println("SRVLT_FAIL_COMMIT");
                 sendResponse(ERROR,
@@ -569,7 +573,7 @@ public class AuthAdminServlet extends AdminServlet {
                         ILogger.SUCCESS,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             sendResponse(SUCCESS, null, params, resp);
             return;
@@ -581,7 +585,7 @@ public class AuthAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit1;
@@ -593,7 +597,7 @@ public class AuthAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
@@ -605,7 +609,7 @@ public class AuthAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit3;
@@ -630,6 +634,9 @@ public class AuthAdminServlet extends AdminServlet {
             HttpServletResponse resp)
             throws ServletException, IOException, EBaseException {
 
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -646,7 +653,7 @@ public class AuthAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR,
                         CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
@@ -663,7 +670,7 @@ public class AuthAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR,
                         CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_ILL_MGR_INST_ID"),
@@ -684,7 +691,7 @@ public class AuthAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR,
                         CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_MISSING_PARAMS"),
@@ -711,7 +718,7 @@ public class AuthAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(
                         ERROR,
@@ -762,7 +769,7 @@ public class AuthAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 instancesConfig.removeSubStore(id);
                 sendResponse(
@@ -775,7 +782,6 @@ public class AuthAdminServlet extends AdminServlet {
 
             // initialize the authentication manager
             try {
-                CMSEngine engine = getCMSEngine();
                 authMgrInst.setCMSEngine(engine);
                 authMgrInst.init(destStore, id, implname, substore);
             } catch (EBaseException e) {
@@ -786,7 +792,7 @@ public class AuthAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 // don't commit in this case and cleanup the new substore.
                 instancesConfig.removeSubStore(id);
@@ -805,7 +811,7 @@ public class AuthAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 // clean up.
                 instancesConfig.removeSubStore(id);
@@ -831,7 +837,7 @@ public class AuthAdminServlet extends AdminServlet {
                         ILogger.SUCCESS,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             sendResponse(SUCCESS, null, params, resp);
             return;
@@ -843,7 +849,7 @@ public class AuthAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
@@ -855,7 +861,7 @@ public class AuthAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
@@ -867,7 +873,7 @@ public class AuthAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit3;
@@ -941,6 +947,9 @@ public class AuthAdminServlet extends AdminServlet {
             HttpServletResponse resp, String scope) throws ServletException,
             IOException, EBaseException {
 
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -958,7 +967,7 @@ public class AuthAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 //System.out.println("SRVLT_NULL_RS_ID");
                 sendResponse(ERROR,
@@ -983,7 +992,7 @@ public class AuthAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(
                         ERROR,
@@ -1006,7 +1015,7 @@ public class AuthAdminServlet extends AdminServlet {
                                 ILogger.FAILURE,
                                 auditParams(req));
 
-                    audit(auditMessage);
+                    auditor.log(auditMessage);
 
                     sendResponse(ERROR,
                             CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_MGR_IN_USE"),
@@ -1033,7 +1042,7 @@ public class AuthAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR,
                         CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_COMMIT_FAILED"),
@@ -1048,7 +1057,7 @@ public class AuthAdminServlet extends AdminServlet {
                         ILogger.SUCCESS,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             sendResponse(SUCCESS, null, params, resp);
             return;
@@ -1060,7 +1069,7 @@ public class AuthAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit1;
@@ -1072,7 +1081,7 @@ public class AuthAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
@@ -1084,7 +1093,7 @@ public class AuthAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit1;
@@ -1109,6 +1118,9 @@ public class AuthAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -1126,7 +1138,7 @@ public class AuthAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 //System.out.println("SRVLT_NULL_RS_ID");
                 sendResponse(ERROR,
@@ -1151,7 +1163,7 @@ public class AuthAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(
                         ERROR,
@@ -1182,7 +1194,7 @@ public class AuthAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 //System.out.println("SRVLT_FAIL_COMMIT");
                 sendResponse(ERROR,
@@ -1204,7 +1216,7 @@ public class AuthAdminServlet extends AdminServlet {
                         ILogger.SUCCESS,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             sendResponse(SUCCESS, null, params, resp);
             return;
@@ -1216,7 +1228,7 @@ public class AuthAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit1;
@@ -1228,7 +1240,7 @@ public class AuthAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
@@ -1240,7 +1252,7 @@ public class AuthAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit3;
@@ -1355,6 +1367,9 @@ public class AuthAdminServlet extends AdminServlet {
             HttpServletResponse resp)
             throws ServletException, IOException, EBaseException {
 
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
+
         // expensive operation.
 
         String auditMessage = null;
@@ -1373,7 +1388,7 @@ public class AuthAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 //System.out.println("SRVLT_NULL_RS_ID");
                 sendResponse(ERROR,
@@ -1398,7 +1413,7 @@ public class AuthAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR,
                         CMS.getUserMessage("CMS_AUTHENTICATION_MGR_IMPL_NOT_FOUND"),
@@ -1417,7 +1432,7 @@ public class AuthAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR,
                         CMS.getUserMessage("CMS_AUTHENTICATION_MISSING_PARAMS"),
@@ -1436,7 +1451,7 @@ public class AuthAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(
                         ERROR,
@@ -1510,7 +1525,7 @@ public class AuthAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 restore(instancesConfig, id, saveParams);
                 sendResponse(
@@ -1524,7 +1539,6 @@ public class AuthAdminServlet extends AdminServlet {
             // initialize the authentication manager
 
             try {
-                CMSEngine engine = getCMSEngine();
                 newMgrInst.setCMSEngine(engine);
                 newMgrInst.init(destStore, id, implname, substore);
             } catch (EBaseException e) {
@@ -1535,7 +1549,7 @@ public class AuthAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 // don't commit in this case and cleanup the new substore.
                 restore(instancesConfig, id, saveParams);
@@ -1554,7 +1568,7 @@ public class AuthAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 // clean up.
                 restore(instancesConfig, id, saveParams);
@@ -1580,7 +1594,7 @@ public class AuthAdminServlet extends AdminServlet {
                         ILogger.SUCCESS,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             sendResponse(SUCCESS, null, params, resp);
             return;
@@ -1592,7 +1606,7 @@ public class AuthAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
@@ -1604,7 +1618,7 @@ public class AuthAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
@@ -1616,7 +1630,7 @@ public class AuthAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit3;

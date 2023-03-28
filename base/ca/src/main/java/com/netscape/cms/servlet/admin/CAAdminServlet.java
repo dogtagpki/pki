@@ -54,9 +54,11 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.RequestListener;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.DBSubsystem;
+import com.netscape.cmscore.logging.Auditor;
 
 /**
  * A class representings an administration servlet for Certificate
@@ -532,6 +534,10 @@ public class CAAdminServlet extends AdminServlet {
     private void addCRLIPsConfig(HttpServletRequest req,
             HttpServletResponse resp)
             throws ServletException, IOException, EBaseException {
+
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -550,7 +556,7 @@ public class CAAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, "Missing CRL IP name", null, resp);
                 return;
@@ -567,7 +573,7 @@ public class CAAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, "Missing CRL IP description", null, resp);
                 return;
@@ -600,7 +606,7 @@ public class CAAdminServlet extends AdminServlet {
                                 ILogger.FAILURE,
                                 auditParams(req));
 
-                    audit(auditMessage);
+                    auditor.log(auditMessage);
 
                     sendResponse(ERROR, ipId + " CRL IP already exists", null, resp);
                     return;
@@ -614,7 +620,7 @@ public class CAAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, "Cannot add or edit CRL IP", null, resp);
                 return;
@@ -628,7 +634,7 @@ public class CAAdminServlet extends AdminServlet {
                         ILogger.SUCCESS,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             sendResponse(SUCCESS, null, params, resp);
         } catch (EBaseException eAudit1) {
@@ -639,7 +645,7 @@ public class CAAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
@@ -651,7 +657,7 @@ public class CAAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
@@ -663,7 +669,7 @@ public class CAAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit3;
@@ -690,6 +696,7 @@ public class CAAdminServlet extends AdminServlet {
             throws ServletException, IOException, EBaseException {
 
         CAEngine engine = CAEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
 
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
@@ -709,7 +716,7 @@ public class CAAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, "Missing CRL IP name", null, resp);
                 return;
@@ -726,7 +733,7 @@ public class CAAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, "Missing CRL IP description", null, resp);
                 return;
@@ -779,7 +786,7 @@ public class CAAdminServlet extends AdminServlet {
                             ILogger.FAILURE,
                             auditParams(req));
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 sendResponse(ERROR, "Missing CRL IP " + ipId, null, resp);
                 return;
@@ -793,7 +800,7 @@ public class CAAdminServlet extends AdminServlet {
                         ILogger.SUCCESS,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             sendResponse(SUCCESS, null, params, resp);
         } catch (EBaseException eAudit1) {
@@ -804,7 +811,7 @@ public class CAAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
@@ -816,7 +823,7 @@ public class CAAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
@@ -828,7 +835,7 @@ public class CAAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit3;
@@ -853,6 +860,10 @@ public class CAAdminServlet extends AdminServlet {
     private void deleteCRLIPsConfig(HttpServletRequest req,
             HttpServletResponse resp)
             throws ServletException, IOException, EBaseException {
+
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -886,7 +897,7 @@ public class CAAdminServlet extends AdminServlet {
                                 ILogger.FAILURE,
                                 auditParams(req));
 
-                    audit(auditMessage);
+                    auditor.log(auditMessage);
 
                     sendResponse(ERROR, "Missing CRL IP " + id, null, resp);
                     return;
@@ -901,7 +912,7 @@ public class CAAdminServlet extends AdminServlet {
                         ILogger.SUCCESS,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             sendResponse(SUCCESS, null, params, resp);
         } catch (EBaseException eAudit1) {
@@ -912,7 +923,7 @@ public class CAAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
@@ -924,7 +935,7 @@ public class CAAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
@@ -936,7 +947,7 @@ public class CAAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit3;
@@ -998,6 +1009,7 @@ public class CAAdminServlet extends AdminServlet {
             throws ServletException, IOException, EBaseException {
 
         CAEngine engine = CAEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
 
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
@@ -1058,7 +1070,7 @@ public class CAAdminServlet extends AdminServlet {
                         ILogger.SUCCESS,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             sendResponse(SUCCESS, null, null, resp);
         } catch (EBaseException eAudit1) {
@@ -1069,7 +1081,7 @@ public class CAAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
@@ -1081,7 +1093,7 @@ public class CAAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
@@ -1093,7 +1105,7 @@ public class CAAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit3;
@@ -1214,6 +1226,7 @@ public class CAAdminServlet extends AdminServlet {
             throws ServletException, IOException, EBaseException {
 
         CAEngine engine = CAEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
 
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
@@ -1266,7 +1279,7 @@ public class CAAdminServlet extends AdminServlet {
                         ILogger.SUCCESS,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             if (noRestart)
                 sendResponse(SUCCESS, null, null, resp);
@@ -1280,7 +1293,7 @@ public class CAAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
@@ -1292,7 +1305,7 @@ public class CAAdminServlet extends AdminServlet {
                         ILogger.FAILURE,
                         auditParams(req));
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
@@ -1304,7 +1317,7 @@ public class CAAdminServlet extends AdminServlet {
             //                        ILogger.FAILURE,
             //                        auditParams( req ) );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit3;
