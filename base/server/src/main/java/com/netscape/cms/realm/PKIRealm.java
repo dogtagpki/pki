@@ -20,11 +20,10 @@ import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.AuthEvent;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.authentication.CertUserDBAuthentication;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmscore.usrgrp.User;
@@ -40,8 +39,6 @@ import com.netscape.cmscore.usrgrp.User;
 public class PKIRealm extends RealmBase {
 
     private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PKIRealm.class);
-
-    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     protected CMSEngine engine;
 
@@ -61,6 +58,7 @@ public class PKIRealm extends RealmBase {
 
         logger.info("PKIRealm: Authenticating user " + username + " with password");
 
+        Auditor auditor = engine.getAuditor();
         String auditSubjectID = ILogger.UNIDENTIFIED;
         String attemptedAuditUID = username;
 
@@ -78,7 +76,7 @@ public class PKIRealm extends RealmBase {
 
             logger.info("PKIRealm: User " + username + " authenticated");
 
-            signedAuditLogger.log(AuthEvent.createSuccessEvent(
+            auditor.log(AuthEvent.createSuccessEvent(
                         auditSubjectID,
                         AuthSubsystem.PASSWDUSERDB_AUTHMGR_ID));
 
@@ -88,7 +86,7 @@ public class PKIRealm extends RealmBase {
 
             logger.warn("Unable to authenticate user " + username + ": " + e.getMessage());
 
-            signedAuditLogger.log(AuthEvent.createFailureEvent(
+            auditor.log(AuthEvent.createFailureEvent(
                         auditSubjectID,
                         AuthSubsystem.PASSWDUSERDB_AUTHMGR_ID,
                         attemptedAuditUID));
@@ -99,7 +97,7 @@ public class PKIRealm extends RealmBase {
 
             logger.warn("Unable to authenticate user " + username + ": " + e.getMessage(), e);
 
-            signedAuditLogger.log(AuthEvent.createFailureEvent(
+            auditor.log(AuthEvent.createFailureEvent(
                         auditSubjectID,
                         AuthSubsystem.PASSWDUSERDB_AUTHMGR_ID,
                         attemptedAuditUID));
@@ -122,6 +120,7 @@ public class PKIRealm extends RealmBase {
         // in cert based auth, subject id from cert has already passed SSL authentication
         // what remains is to see if the user exists in the internal user db
         // therefore both auditSubjectID and attemptedAuditUID are the same
+        Auditor auditor = engine.getAuditor();
         String auditSubjectID = getAuditUserfromCert(certs[0]);
         String attemptedAuditUID = auditSubjectID;
 
@@ -147,7 +146,7 @@ public class PKIRealm extends RealmBase {
 
             logger.info("PKIRealm: User " + username + " authenticated");
 
-            signedAuditLogger.log(AuthEvent.createSuccessEvent(
+            auditor.log(AuthEvent.createSuccessEvent(
                         auditSubjectID,
                         AuthSubsystem.CERTUSERDB_AUTHMGR_ID));
 
@@ -157,7 +156,7 @@ public class PKIRealm extends RealmBase {
 
             logger.warn("Unable to authenticate user with certificate " + auditSubjectID + ": " + e.getMessage());
 
-            signedAuditLogger.log(AuthEvent.createFailureEvent(
+            auditor.log(AuthEvent.createFailureEvent(
                     auditSubjectID,
                     AuthSubsystem.CERTUSERDB_AUTHMGR_ID,
                     attemptedAuditUID));
@@ -168,7 +167,7 @@ public class PKIRealm extends RealmBase {
 
             logger.warn("Unable to authenticate user with certificate " + auditSubjectID + ": " + e.getMessage(), e);
 
-            signedAuditLogger.log(AuthEvent.createFailureEvent(
+            auditor.log(AuthEvent.createFailureEvent(
                         auditSubjectID,
                         AuthSubsystem.CERTUSERDB_AUTHMGR_ID,
                         attemptedAuditUID));
