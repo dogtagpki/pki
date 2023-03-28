@@ -20,6 +20,7 @@ package com.netscape.cmscore.request;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Set;
 import java.util.Vector;
 
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
@@ -294,6 +295,7 @@ public class RequestRecord implements IDBObj {
 
         CMSEngine engine = CMS.getCMSEngine();
         DBSubsystem dbSubsystem = engine.getDBSubsystem();
+        Set<String> excludedLdapAttrs = dbSubsystem.getExcludedLdapAttr();
 
         Enumeration<String> e = r.getExtDataKeys();
         while (e.hasMoreElements()) {
@@ -322,7 +324,7 @@ public class RequestRecord implements IDBObj {
                 }
                 if (reqType != null &&
                     (reqType.equals("crmf") || reqType.equals("cmc-crmf")) &&
-                    dbSubsystem.isExcludedLdapAttr(key)) {
+                    (excludedLdapAttrs != null && excludedLdapAttrs.contains(key))) {
                     // logger.debug("RequestRecord.loadExtDataFromRequest: found excluded attr; key=" + key);
                     continue;
                 }

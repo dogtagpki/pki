@@ -123,7 +123,6 @@ public class DBSubsystem {
             "req_key"
     );
 
-    protected boolean excludedLdapAttrsEnabled;
     protected Set<String> excludedLdapAttrs;
 
     /**
@@ -187,9 +186,8 @@ public class DBSubsystem {
         mDBConfig.setNextSerialNumber(serial.toString(16));
     }
 
-    public boolean isExcludedLdapAttr(String key) {
-        if (!excludedLdapAttrsEnabled) return false;
-        return excludedLdapAttrs.contains(key);
+    public Set<String> getExcludedLdapAttr() {
+        return excludedLdapAttrs;
     }
 
     /**
@@ -203,15 +201,17 @@ public class DBSubsystem {
 
         String id = engineConfig.getType().toLowerCase();
         if (!id.equals("ca") && !id.equals("kra")) {
+            // excludedLdapAttrs is null
             return;
         }
 
         logger.info("DBSubsystem: Configuring excluded LDAP attributes");
 
-        excludedLdapAttrsEnabled = engineConfig.getBoolean("excludedLdapAttrs.enabled", false);
-        logger.debug("DBSubsystem: excludedLdapAttrs.enabled: " + excludedLdapAttrsEnabled);
+        boolean enabled = engineConfig.getBoolean("excludedLdapAttrs.enabled", false);
+        logger.debug("DBSubsystem: excludedLdapAttrs.enabled: " + enabled);
 
-        if (!excludedLdapAttrsEnabled) {
+        if (!enabled) {
+            // excludedLdapAttrs is null
             return;
         }
 
