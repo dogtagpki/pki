@@ -59,10 +59,7 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkix.crmf.CertReqMsg;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
 
@@ -77,7 +74,6 @@ import com.netscape.cmscore.request.Request;
 public class CertUtils {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertUtils.class);
-    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public static final String CERT_NEW_REQUEST_HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----";
     public static final String CERT_NEW_REQUEST_TRAILER = "-----END NEW CERTIFICATE REQUEST-----";
@@ -1077,20 +1073,6 @@ public class CertUtils {
             sb.append(String.format("%02x", b));
         }
         return sb.toString();
-    }
-
-    /**
-     * Signed Audit Log
-     * This method is called to store messages to the signed audit log.
-     *
-     * @param msg signed audit log message
-     */
-    private static void audit(String msg) {
-        signedAuditLogger.log(msg);
-    }
-
-    protected void audit(LogEvent event) {
-        signedAuditLogger.log(event);
     }
 
     public static boolean certInCertChain(X509Certificate[] certChain, X509Certificate cert) {
