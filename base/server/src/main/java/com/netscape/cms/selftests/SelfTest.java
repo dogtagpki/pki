@@ -32,6 +32,7 @@ import com.netscape.certsrv.selftests.EInvalidSelfTestException;
 import com.netscape.certsrv.selftests.EMissingSelfTestException;
 import com.netscape.certsrv.selftests.ESelfTestException;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
 
@@ -48,23 +49,21 @@ import com.netscape.cmscore.selftests.SelfTestSubsystem;
 public abstract class SelfTest {
 
     public static final String PROP_PLUGIN = "plugin";
-
-    // parameter information
     private static final String SELF_TEST_NAME = "SelfTest";
 
-    // variables associated with this specific object
+    protected CMSEngine engine;
     protected SelfTestSubsystem mSelfTestSubsystem;
     protected String mInstanceName = null;
     protected ConfigStore mConfig;
     protected String mPrefix = null;
 
-    /////////////////////
-    // default methods //
-    /////////////////////
+    public CMSEngine getCMSEngine() {
+        return engine;
+    }
 
-    ///////////////////////
-    // SelfTest methods //
-    ///////////////////////
+    public void setCMSEngine(CMSEngine engine) {
+        this.engine = engine;
+    }
 
     /**
      * Initializes this subsystem with the configuration store

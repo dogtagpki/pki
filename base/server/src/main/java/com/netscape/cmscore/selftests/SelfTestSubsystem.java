@@ -1489,7 +1489,7 @@ public class SelfTestSubsystem extends Subsystem {
                 }
 
                 SelfTest test = (SelfTest) o;
-
+                test.setCMSEngine(engine);
                 test.initSelfTest(this, instanceName, mConfig);
 
                 // store this self test plugin instance
