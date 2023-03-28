@@ -35,8 +35,6 @@ import org.mozilla.jss.ssl.SSLSocketListener;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.logging.event.ClientAccessSessionEstablishEvent;
 import com.netscape.cms.logging.SignedAuditLogger;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 import netscape.ldap.LDAPException;
@@ -55,7 +53,7 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
     private boolean secure;
     private String clientCertNickname;
     private boolean mClientAuth = false;
-    private boolean keepAlive;
+    private boolean keepAlive = true;
     private String mClientCiphers = null;
 
     protected List<SSLSocketListener> socketListeners = new ArrayList<>();
@@ -105,57 +103,48 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
     }
 
     public void init() {
-        init (null);
+        init(null);
     }
+
     public void init(PKISocketConfig config) {
 
         logger.info("PKISocketFactory: Initializing PKISocketFactory");
 
+        if (config == null) {
+            // use defaults
+            return;
+        }
+
         try {
-            if (!external) {
-                if (config == null) {
-                    CMSEngine engine = CMS.getCMSEngine();
-                    config = engine.getConfig().getSocketConfig();
+            keepAlive = config.isKeepAlive();
+            logger.debug("PKISocketFactory: - keep alive: " + keepAlive);
+
+            /*
+             * about ciphers
+             * # for RSA, in CS.cfg
+             * tcp.clientCiphers=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+             *
+             * # for ECC, in CS.cfg
+             * tcp.clientCiphers=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384
+             *
+             * Note: this setting will affect ALL TLS socket creations after
+             *   unless overwritten by further settings such as either:
+             *   CA->KRA: ca.connector.KRA.clientCiphers
+             *   TPS->KRA/CA/TKS: tps.connector.<ca|kra|tks id>.clientCiphers
+             */
+            mClientCiphers = config.getClientCiphers();
+            logger.debug("PKISocketFactory: - client ciphers: " + mClientCiphers);
+
+            if (mClientCiphers != null) {
+                mClientCiphers = mClientCiphers.trim();
+
+                if (!mClientCiphers.isEmpty()) {
+                    CryptoUtil.setClientCiphers(mClientCiphers);
                 }
-                keepAlive = config.isKeepAlive();
-
-                /*
-                 * about ciphers
-                 * # for RSA, in CS.cfg
-                 * tcp.clientCiphers=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-                 *
-                 * # for ECC, in CS.cfg
-                 * tcp.clientCiphers=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384
-                 *
-                 * Note: this setting will affect ALL TLS socket creations after
-                 *   unless overwritten by further settings such as either:
-                 *   CA->KRA: ca.connector.KRA.clientCiphers
-                 *   TPS->KRA/CA/TKS: tps.connector.<ca|kra|tks id>.clientCiphers
-                 */
-                try {
-                    mClientCiphers = config.getClientCiphers();
-
-                    if (mClientCiphers != null) {
-                        mClientCiphers = mClientCiphers.trim();
-                        logger.debug("PKISocketFactory: - client ciphers: " + mClientCiphers);
-
-                        if (!mClientCiphers.isEmpty()) {
-                            CryptoUtil.setClientCiphers(mClientCiphers);
-                        }
-                     }
-
-                } catch (Exception e) {
-                    logger.warn("PKISocketFactory: Unable to configure client ciphers: " + e.getMessage(), e);
-                }
-
-            } else {
-                keepAlive = true;
             }
 
-            logger.debug("PKISocketFactory: - keep-alive: " + keepAlive);
-
         } catch (Exception e) {
-            String message = "Unable to read TCP configuration: " + e;
+            String message = "Unable to initialize socket factory: " + e.getMessage();
             logger.error("PKISocketFactory: " + message, e);
             throw new RuntimeException(message, e);
         }
