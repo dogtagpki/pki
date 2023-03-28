@@ -57,7 +57,6 @@ import org.mozilla.jss.crypto.NoSuchItemOnTokenException;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PQGParamGenException;
 import org.mozilla.jss.crypto.PQGParams;
-import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
@@ -78,7 +77,6 @@ import org.mozilla.jss.netscape.security.x509.AlgIdDSA;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
-import org.mozilla.jss.netscape.security.x509.CertificateAlgorithmId;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.Extensions;
@@ -229,55 +227,6 @@ public class KeyCertUtil {
         X509CertImpl impl = new X509CertImpl(cert.getEncoded());
 
         return impl.getSubjectName().getName();
-    }
-
-    public static X509CertImpl signCert(PrivateKey privateKey, X509CertInfo certInfo,
-            SignatureAlgorithm sigAlg)
-            throws NoSuchTokenException, EBaseException, NotInitializedException {
-        CMSEngine engine = CMS.getCMSEngine();
-        try (DerOutputStream out = new DerOutputStream()) {
-            CertificateAlgorithmId sId = (CertificateAlgorithmId)
-                    certInfo.get(X509CertInfo.ALGORITHM_ID);
-            AlgorithmId sigAlgId =
-                    (AlgorithmId) sId.get(CertificateAlgorithmId.ALGORITHM);
-
-            org.mozilla.jss.crypto.PrivateKey priKey =
-                    (org.mozilla.jss.crypto.PrivateKey) privateKey;
-            CryptoToken token = priKey.getOwningToken();
-
-            DerOutputStream tmp = new DerOutputStream();
-
-            certInfo.encode(tmp);
-
-            Signature signer = token.getSignatureContext(sigAlg);
-
-            signer.initSign(priKey);
-            signer.update(tmp.toByteArray());
-            byte signed[] = signer.sign();
-
-            sigAlgId.encode(tmp);
-            tmp.putBitString(signed);
-
-            out.write(DerValue.tag_Sequence, tmp);
-
-            X509CertImpl signedCert = new X509CertImpl(out.toByteArray());
-
-            return signedCert;
-        } catch (IOException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_SIGNED_FAILED", e.toString()));
-        } catch (NoSuchAlgorithmException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_ALG_NOT_SUPPORTED", e.toString()));
-        } catch (TokenException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_ERROR_1", e.toString()));
-        } catch (SignatureException e) {
-            logger.error("CertKeyUtil.signCert: "+ e.getMessage(), e);
-            engine.checkForAndAutoShutdown();
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_SIGNED_FAILED", e.toString()));
-        } catch (InvalidKeyException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1", e.toString()));
-        } catch (CertificateException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
-        }
     }
 
     public static SignatureAlgorithm getSigningAlgorithm(String keyType) {
