@@ -9,15 +9,12 @@ import javax.ws.rs.FormParam;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 
 public class Processor {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Processor.class);
-    protected static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     protected String id;
     protected Locale locale;

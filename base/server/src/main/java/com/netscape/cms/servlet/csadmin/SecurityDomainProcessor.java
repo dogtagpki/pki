@@ -56,6 +56,7 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.xml.XMLObject;
@@ -96,19 +97,20 @@ public class SecurityDomainProcessor extends Processor {
         subsystem = subsystem.toUpperCase();
         UGSubsystem ugSubsystem = engine.getUGSubsystem();
 
+        Auditor auditor = engine.getAuditor();
         String group = getEnterpriseGroupName(subsystem);
         logger.debug("SecurityDomainProcessor: group: " + group);
 
         if (!ugSubsystem.isMemberOf(user, group)) {
 
-            signedAuditLogger.log(RoleAssumeEvent.createFailureEvent(
+            auditor.log(RoleAssumeEvent.createFailureEvent(
                     user,
                     group));
 
             throw new UnauthorizedException("User " + user + " is not a member of " + group + " group.");
         }
 
-        signedAuditLogger.log(RoleAssumeEvent.createSuccessEvent(
+        auditor.log(RoleAssumeEvent.createSuccessEvent(
                 user,
                 group));
 
@@ -139,7 +141,7 @@ public class SecurityDomainProcessor extends Processor {
                                user,
                                ILogger.SUCCESS,
                                auditParams);
-            signedAuditLogger.log(message);
+            auditor.log(message);
 
         } else {
             message = CMS.getLogMessage(
@@ -147,7 +149,7 @@ public class SecurityDomainProcessor extends Processor {
                                user,
                                ILogger.FAILURE,
                                auditParams);
-            signedAuditLogger.log(message);
+            auditor.log(message);
 
             throw new PKIException("Failed to create session.");
         }
@@ -397,6 +399,7 @@ public class SecurityDomainProcessor extends Processor {
         String hostDN = "cn=" + cn + ",cn=" + listName + ",ou=Security Domain," + baseDN;
         logger.info("SecurityDomainProcessor: Removing host " + hostDN);
 
+        Auditor auditor = engine.getAuditor();
         String auditSubjectID = auditSubjectID();
         String domainAuditParams = "host;;" + hostname + "+name;;" + name + "+sport;;" + securePort +
                 "+type;;" + type + "+operation;;remove";
@@ -405,7 +408,7 @@ public class SecurityDomainProcessor extends Processor {
 
         if (!status.equals(SUCCESS)) {
 
-            signedAuditLogger.log(CMS.getLogMessage(
+            auditor.log(CMS.getLogMessage(
                     AuditEvent.SECURITY_DOMAIN_UPDATE,
                     auditSubjectID,
                     ILogger.FAILURE,
@@ -424,12 +427,12 @@ public class SecurityDomainProcessor extends Processor {
 
         if (!status.equals(SUCCESS)) {
 
-            signedAuditLogger.log(new ConfigRoleEvent(
+            auditor.log(new ConfigRoleEvent(
                     auditSubjectID,
                     ILogger.FAILURE,
                     usersAuditParams));
 
-            signedAuditLogger.log(CMS.getLogMessage(
+            auditor.log(CMS.getLogMessage(
                     AuditEvent.SECURITY_DOMAIN_UPDATE,
                     auditSubjectID,
                     ILogger.FAILURE,
@@ -438,7 +441,7 @@ public class SecurityDomainProcessor extends Processor {
             return status;
         }
 
-        signedAuditLogger.log(new ConfigRoleEvent(
+        auditor.log(new ConfigRoleEvent(
                                auditSubjectID,
                                ILogger.SUCCESS,
                                usersAuditParams));
@@ -457,12 +460,12 @@ public class SecurityDomainProcessor extends Processor {
         status = modifyEntry(groupDN, mod);
 
         if (!status.equals(SUCCESS)) {
-            signedAuditLogger.log(new ConfigRoleEvent(
+            auditor.log(new ConfigRoleEvent(
                                    auditSubjectID,
                                    ILogger.FAILURE,
                                    groupsAuditParams));
 
-            signedAuditLogger.log(CMS.getLogMessage(
+            auditor.log(CMS.getLogMessage(
                     AuditEvent.SECURITY_DOMAIN_UPDATE,
                     auditSubjectID,
                     ILogger.FAILURE,
@@ -471,12 +474,12 @@ public class SecurityDomainProcessor extends Processor {
             return status;
         }
 
-        signedAuditLogger.log(new ConfigRoleEvent(
+        auditor.log(new ConfigRoleEvent(
                 auditSubjectID,
                 ILogger.SUCCESS,
                 groupsAuditParams));
 
-        signedAuditLogger.log(CMS.getLogMessage(
+        auditor.log(CMS.getLogMessage(
                 AuditEvent.SECURITY_DOMAIN_UPDATE,
                 auditSubjectID,
                 ILogger.SUCCESS,
@@ -541,6 +544,7 @@ public class SecurityDomainProcessor extends Processor {
 
         LDAPEntry entry = new LDAPEntry(dn, attrs);
 
+        Auditor auditor = engine.getAuditor();
         String auditSubjectID = auditSubjectID();
         String auditParams = "host;;" + hostname + "+name;;" + name + "+sport;;" + securePort +
                 "+clone;;" + clone + "+type;;" + type + "+operation;;add";
@@ -555,7 +559,7 @@ public class SecurityDomainProcessor extends Processor {
             conn = connFactory.getConn();
             conn.add(entry);
 
-            signedAuditLogger.log(CMS.getLogMessage(
+            auditor.log(CMS.getLogMessage(
                     AuditEvent.SECURITY_DOMAIN_UPDATE,
                     auditSubjectID,
                     ILogger.SUCCESS,
@@ -574,7 +578,7 @@ public class SecurityDomainProcessor extends Processor {
                 conn.delete(entry.getDN());
                 conn.add(entry);
 
-                signedAuditLogger.log(CMS.getLogMessage(
+                auditor.log(CMS.getLogMessage(
                         AuditEvent.SECURITY_DOMAIN_UPDATE,
                         auditSubjectID,
                         ILogger.SUCCESS,
@@ -590,7 +594,7 @@ public class SecurityDomainProcessor extends Processor {
         } catch (Exception e) {
             logger.warn("SecurityDomainProcessor: Unable to add entry: " + e.getMessage(), e);
 
-            signedAuditLogger.log(CMS.getLogMessage(
+            auditor.log(CMS.getLogMessage(
                     AuditEvent.SECURITY_DOMAIN_UPDATE,
                     auditSubjectID,
                     ILogger.SUCCESS,

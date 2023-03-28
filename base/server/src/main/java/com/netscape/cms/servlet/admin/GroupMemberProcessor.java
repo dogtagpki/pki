@@ -377,9 +377,8 @@ public class GroupMemberProcessor extends Processor {
     public void audit(String type, String id, Map<String, String> params, String status) {
 
         Auditor auditor = engine.getAuditor();
-        if (auditor == null) return;
 
-        signedAuditLogger.log(new ConfigRoleEvent(
+        auditor.log(new ConfigRoleEvent(
                 auditor.getSubjectID(),
                 status,
                 auditor.getParamString(ScopeDef.SC_GROUP_MEMBERS, type, id, params)));

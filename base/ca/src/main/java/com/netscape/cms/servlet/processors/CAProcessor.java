@@ -66,6 +66,7 @@ import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestQueue;
@@ -519,6 +520,7 @@ public class CAProcessor extends Processor {
             }
         }
 
+        Auditor auditor = engine.getAuditor();
         String authSubjectID = auditSubjectID();
         String authMgrID = authenticator.getName();
 
@@ -536,7 +538,7 @@ public class CAProcessor extends Processor {
 
             authSubjectID += " : " + uid_cred;
 
-            signedAuditLogger.log(AuthEvent.createFailureEvent(
+            auditor.log(AuthEvent.createFailureEvent(
                     authSubjectID,
                     authMgrID,
                     uid_attempted_cred));
@@ -548,7 +550,7 @@ public class CAProcessor extends Processor {
 
             authSubjectID += " : " + uid_cred;
 
-            signedAuditLogger.log(AuthEvent.createFailureEvent(
+            auditor.log(AuthEvent.createFailureEvent(
                     authSubjectID,
                     authMgrID,
                     uid_attempted_cred));
@@ -566,7 +568,7 @@ public class CAProcessor extends Processor {
 
         authSubjectID = authSubjectID + " : " + uid_cred;
 
-        signedAuditLogger.log(AuthEvent.createSuccessEvent(
+        auditor.log(AuthEvent.createSuccessEvent(
                 authSubjectID,
                 authMgrID));
 
@@ -612,6 +614,7 @@ public class CAProcessor extends Processor {
     public AuthToken authenticate(HttpServletRequest httpReq, String authMgrName)
             throws EBaseException {
 
+        Auditor auditor = engine.getAuditor();
         String auditSubjectID = ILogger.UNIDENTIFIED;
         String auditAuthMgrID = ILogger.UNIDENTIFIED;
         String auditUID = ILogger.UNIDENTIFIED;
@@ -702,14 +705,14 @@ public class CAProcessor extends Processor {
             // reset the "auditSubjectID"
             auditSubjectID = auditSubjectID();
 
-            signedAuditLogger.log(AuthEvent.createSuccessEvent(
+            auditor.log(AuthEvent.createSuccessEvent(
                     auditSubjectID,
                     auditAuthMgrID));
 
             return authToken;
         } catch (EBaseException eAudit1) {
 
-            signedAuditLogger.log(AuthEvent.createFailureEvent(
+            auditor.log(AuthEvent.createFailureEvent(
                     auditSubjectID,
                     auditAuthMgrID,
                     auditUID));
@@ -748,6 +751,7 @@ public class CAProcessor extends Processor {
 
         logger.debug("CAProcessor.authorize(" + authzMgrName + ", " + resource + ")");
 
+        Auditor auditor = engine.getAuditor();
         String auditSubjectID = auditSubjectID();
         String auditGroupID = auditGroupID();
         String auditACLResource = resource;
@@ -757,35 +761,35 @@ public class CAProcessor extends Processor {
             authzToken = authz.authorize(authzMgrName, authToken, exp);
             if (authzToken != null) {
 
-                signedAuditLogger.log(AuthzEvent.createSuccessEvent(
+                auditor.log(AuthzEvent.createSuccessEvent(
                         auditSubjectID,
                         auditACLResource,
                         auditOperation));
 
-                signedAuditLogger.log(RoleAssumeEvent.createSuccessEvent(
+                auditor.log(RoleAssumeEvent.createSuccessEvent(
                         auditSubjectID,
                         auditGroupID));
 
             } else {
 
-                signedAuditLogger.log(AuthzEvent.createFailureEvent(
+                auditor.log(AuthzEvent.createFailureEvent(
                         auditSubjectID,
                         auditACLResource,
                         auditOperation));
 
-                signedAuditLogger.log(RoleAssumeEvent.createFailureEvent(
+                auditor.log(RoleAssumeEvent.createFailureEvent(
                         auditSubjectID,
                         auditGroupID));
             }
             return authzToken;
         } catch (EBaseException e) {
 
-            signedAuditLogger.log(AuthzEvent.createFailureEvent(
+            auditor.log(AuthzEvent.createFailureEvent(
                     auditSubjectID,
                     auditACLResource,
                     auditOperation));
 
-            signedAuditLogger.log(RoleAssumeEvent.createFailureEvent(
+            auditor.log(RoleAssumeEvent.createFailureEvent(
                     auditSubjectID,
                     auditGroupID));
 
@@ -820,6 +824,7 @@ public class CAProcessor extends Processor {
 
         logger.debug("CAProcessor.authorize(" + authzMgrName + ")");
 
+        Auditor auditor = engine.getAuditor();
         String auditSubjectID = auditSubjectID();
         String auditGroupID = auditGroupID();
         String auditID = auditSubjectID;
@@ -873,26 +878,26 @@ public class CAProcessor extends Processor {
 
             if (authzTok != null) {
 
-                signedAuditLogger.log(AuthzEvent.createSuccessEvent(
+                auditor.log(AuthzEvent.createSuccessEvent(
                         auditSubjectID,
                         auditACLResource,
                         auditOperation));
 
                 if (roles != null) {
-                    signedAuditLogger.log(RoleAssumeEvent.createSuccessEvent(
+                    auditor.log(RoleAssumeEvent.createSuccessEvent(
                             auditID,
                             roles));
                 }
 
             } else {
 
-                signedAuditLogger.log(AuthzEvent.createFailureEvent(
+                auditor.log(AuthzEvent.createFailureEvent(
                         auditSubjectID,
                         auditACLResource,
                         auditOperation));
 
                 if (roles != null) {
-                    signedAuditLogger.log(RoleAssumeEvent.createFailureEvent(
+                    auditor.log(RoleAssumeEvent.createFailureEvent(
                             auditID,
                             roles));
                 }
@@ -901,13 +906,13 @@ public class CAProcessor extends Processor {
             return authzTok;
         } catch (Exception eAudit1) {
 
-            signedAuditLogger.log(AuthzEvent.createFailureEvent(
+            auditor.log(AuthzEvent.createFailureEvent(
                     auditSubjectID,
                     auditACLResource,
                     auditOperation));
 
             if (roles != null) {
-                signedAuditLogger.log(RoleAssumeEvent.createFailureEvent(
+                auditor.log(RoleAssumeEvent.createFailureEvent(
                         auditID,
                         roles));
             }

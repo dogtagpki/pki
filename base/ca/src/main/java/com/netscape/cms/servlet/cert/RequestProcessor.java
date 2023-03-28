@@ -57,6 +57,7 @@ import com.netscape.cms.profile.constraint.PolicyConstraint;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.profile.ProfileOutputFactory;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.request.Request;
 
 public class RequestProcessor extends CertProcessor {
@@ -285,11 +286,14 @@ public class RequestProcessor extends CertProcessor {
      *                occurred
      */
     private void cancelRequest(Request req) throws EProfileException {
+
+        Auditor auditor = engine.getAuditor();
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID(req);
+
         req.setRequestStatus(RequestStatus.CANCELED);
 
-        signedAuditLogger.log(CertRequestProcessedEvent.createFailureEvent(
+        auditor.log(CertRequestProcessedEvent.createFailureEvent(
                 auditSubjectID,
                 auditRequesterID,
                 ILogger.SIGNED_AUDIT_CANCELLATION,
@@ -313,12 +317,14 @@ public class RequestProcessor extends CertProcessor {
      *                occurred
      */
     private void rejectRequest(Request req) throws EProfileException {
+
+        Auditor auditor = engine.getAuditor();
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID(req);
 
         req.setRequestStatus(RequestStatus.REJECTED);
 
-        signedAuditLogger.log(CertRequestProcessedEvent.createFailureEvent(
+        auditor.log(CertRequestProcessedEvent.createFailureEvent(
                 auditSubjectID,
                 auditRequesterID,
                 ILogger.SIGNED_AUDIT_REJECTION,
@@ -374,6 +380,8 @@ public class RequestProcessor extends CertProcessor {
      */
     private void approveRequest(Request req, CertReviewResponse data, Profile profile, Locale locale)
             throws EBaseException {
+
+        Auditor auditor = engine.getAuditor();
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID(req);
 
@@ -396,7 +404,7 @@ public class RequestProcessor extends CertProcessor {
             // retrieve the certificate
             X509CertImpl theCert = req.getExtDataInCert(Request.REQUEST_ISSUED_CERT);
 
-            signedAuditLogger.log(CertRequestProcessedEvent.createSuccessEvent(
+            auditor.log(CertRequestProcessedEvent.createSuccessEvent(
                     auditSubjectID,
                     auditRequesterID,
                     ILogger.SIGNED_AUDIT_ACCEPTANCE,
@@ -404,7 +412,7 @@ public class RequestProcessor extends CertProcessor {
 
         } catch (EProfileException eAudit1) {
 
-            signedAuditLogger.log(CertRequestProcessedEvent.createFailureEvent(
+            auditor.log(CertRequestProcessedEvent.createFailureEvent(
                     auditSubjectID,
                     auditRequesterID,
                     ILogger.SIGNED_AUDIT_ACCEPTANCE,

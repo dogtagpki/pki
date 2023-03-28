@@ -49,6 +49,7 @@ import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cms.tomcat.ExternalPrincipal;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestNotifier;
 import com.netscape.cmsutil.ldap.LDAPUtil;
@@ -224,6 +225,7 @@ public class CertProcessor extends CAProcessor {
         String errorReason = null;
 
         CAEngine engine = CAEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
 
         for (Request req : reqs) {
             try {
@@ -256,7 +258,7 @@ public class CertProcessor extends CAProcessor {
 
                 if (x509cert != null) {
 
-                    signedAuditLogger.log(CertRequestProcessedEvent.createSuccessEvent(
+                    auditor.log(CertRequestProcessedEvent.createSuccessEvent(
                             auditSubjectID,
                             auditRequesterID,
                             ILogger.SIGNED_AUDIT_ACCEPTANCE,
@@ -291,7 +293,7 @@ public class CertProcessor extends CAProcessor {
                 req.setExtData(Request.ERROR, e.toString());
                 req.setExtData(Request.ERROR_CODE, errorCode);
 
-                signedAuditLogger.log(CertRequestProcessedEvent.createFailureEvent(
+                auditor.log(CertRequestProcessedEvent.createFailureEvent(
                         auditSubjectID,
                         auditRequesterID,
                         ILogger.SIGNED_AUDIT_REJECTION,
@@ -306,7 +308,7 @@ public class CertProcessor extends CAProcessor {
                 req.setExtData(Request.ERROR, errorReason);
                 req.setExtData(Request.ERROR_CODE, errorCode);
 
-                signedAuditLogger.log(CertRequestProcessedEvent.createFailureEvent(
+                auditor.log(CertRequestProcessedEvent.createFailureEvent(
                         auditSubjectID,
                         auditRequesterID,
                         ILogger.SIGNED_AUDIT_REJECTION,

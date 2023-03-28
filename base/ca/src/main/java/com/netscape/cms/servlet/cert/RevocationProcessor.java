@@ -430,10 +430,8 @@ public class RevocationProcessor extends CertProcessor {
     public void auditChangeRequest(String status) {
 
         Auditor auditor = engine.getAuditor();
-        if (auditor == null)
-            return;
 
-        signedAuditLogger.log(new CertStatusChangeRequestEvent(
+        auditor.log(new CertStatusChangeRequestEvent(
                 auditor.getSubjectID(),
                 status,
                 request,
@@ -444,8 +442,6 @@ public class RevocationProcessor extends CertProcessor {
     public void auditChangeRequestProcessed(String status) {
 
         Auditor auditor = engine.getAuditor();
-        if (auditor == null)
-            return;
 
         // store a message in the signed audit log file
         // if and only if "requestStatus" is
@@ -455,7 +451,7 @@ public class RevocationProcessor extends CertProcessor {
                 || requestStatus == RequestStatus.REJECTED
                 || requestStatus == RequestStatus.CANCELED)) return;
 
-        signedAuditLogger.log(new CertStatusChangeRequestProcessedEvent(
+        auditor.log(new CertStatusChangeRequestProcessedEvent(
                 auditor.getSubjectID(),
                 status,
                 request,
