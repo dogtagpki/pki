@@ -291,7 +291,10 @@ public class RequestRecord implements IDBObj {
             // where CMC puts it
             reqType = r.getExtDataInString("auth_token.cert_request_type");
         }
+
         CMSEngine engine = CMS.getCMSEngine();
+        DBSubsystem dbSubsystem = engine.getDBSubsystem();
+
         Enumeration<String> e = r.getExtDataKeys();
         while (e.hasMoreElements()) {
             String key = e.nextElement();
@@ -319,7 +322,7 @@ public class RequestRecord implements IDBObj {
                 }
                 if (reqType != null &&
                     (reqType.equals("crmf") || reqType.equals("cmc-crmf")) &&
-                        engine.isExcludedLdapAttr(key)) {
+                    dbSubsystem.isExcludedLdapAttr(key)) {
                     // logger.debug("RequestRecord.loadExtDataFromRequest: found excluded attr; key=" + key);
                     continue;
                 }

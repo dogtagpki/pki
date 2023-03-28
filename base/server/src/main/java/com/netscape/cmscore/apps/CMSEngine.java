@@ -26,7 +26,6 @@ import java.security.Security;
 import java.security.SignatureException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -51,7 +50,6 @@ import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.SecurityDomainSessionTable;
 import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.logging.AuditEvent;
@@ -131,7 +129,6 @@ public class CMSEngine {
     protected EngineConfig mConfig;
     protected ServerXml serverXml;
 
-    private boolean mExcludedLdapAttrsEnabled = false;
     // AutoSD : AutoShutdown
     private String mAutoSD_CrumbFile = null;
     private boolean mAutoSD_Restart = false;
@@ -1050,58 +1047,6 @@ public class CMSEngine {
         }
     }
 
-    public void configureExcludedLdapAttrs() throws EBaseException {
-
-        String id = mConfig.getType().toLowerCase();
-
-        if (id.equals("ca") || id.equals("kra")) {
-
-            logger.info("CMSEngine: Configuring excluded LDAP attributes");
-            /*
-              figure out if any ldap attributes need exclusion in enrollment records
-              Default config:
-                excludedLdapAttrs.enabled=false;
-                (excludedLdapAttrs.attrs unspecified to take default)
-             */
-            mExcludedLdapAttrsEnabled = mConfig.getBoolean("excludedLdapAttrs.enabled", false);
-            logger.debug("CMSEngine: excludedLdapAttrs.enabled: " + mExcludedLdapAttrsEnabled);
-
-            if (mExcludedLdapAttrsEnabled) {
-
-                String unparsedExcludedLdapAttrs = "";
-
-                try {
-                    unparsedExcludedLdapAttrs = mConfig.getString("excludedLdapAttrs.attrs");
-                    logger.debug("CMSEngine: excludedLdapAttrs.attrs: " + unparsedExcludedLdapAttrs);
-                } catch (EPropertyNotFound e) {
-                    logger.debug("CMSEngine: excludedLdapAttrs.attrs unspecified, using the default: " + unparsedExcludedLdapAttrs);
-                }
-
-                if (!unparsedExcludedLdapAttrs.equals("")) {
-                    excludedLdapAttrsList = Arrays.asList(unparsedExcludedLdapAttrs.split(","));
-                    // overwrites the default
-                    //excludedLdapAttrSet = new HashSet(excludedLdapAttrsList);
-                }
-            }
-        }
-    }
-
-    public boolean isExcludedLdapAttr(String key) {
-        if (!mExcludedLdapAttrsEnabled) return false;
-        return excludedLdapAttrsList.contains(key);
-    }
-
-    // default for excludedLdapAttrs.enabled == false
-    // can be overwritten with excludedLdapAttrs.attrs
-    public List<String> excludedLdapAttrsList = Arrays.asList(
-            "req_x509info",
-            "publickey",
-            "req_extensions",
-            "cert_request",
-            "req_archive_options",
-            "req_key"
-    );
-
     /**
      * sign some known data to determine if signing key is botched;
      * if so, proceed to graceful shutdown
@@ -1224,7 +1169,6 @@ public class CMSEngine {
 
         configureAutoShutdown();
         configureServerCertNickname();
-        configureExcludedLdapAttrs();
 
         initSecurityDomain();
 

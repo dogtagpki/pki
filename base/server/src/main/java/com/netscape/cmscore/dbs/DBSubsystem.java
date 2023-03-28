@@ -18,6 +18,8 @@
 package com.netscape.cmscore.dbs;
 
 import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.List;
 
 import org.mozilla.jss.netscape.security.x509.CertificateValidity;
 
@@ -113,6 +115,16 @@ public class DBSubsystem {
     public static final String PROP_NEXT_RANGE = "nextRange";
     public static final String PROP_ENABLE_SERIAL_MGMT = "enableSerialManagement";
 
+    protected boolean excludedLdapAttrsEnabled;
+    protected List<String> excludedLdapAttrs = Arrays.asList(
+            "req_x509info",
+            "publickey",
+            "req_extensions",
+            "cert_request",
+            "req_archive_options",
+            "req_key"
+    );
+
     /**
      * Constructs database subsystem.
      */
@@ -172,6 +184,42 @@ public class DBSubsystem {
             throws EBaseException {
         logger.info("DBSubsystem: Setting next serial number: 0x" + serial.toString(16));
         mDBConfig.setNextSerialNumber(serial.toString(16));
+    }
+
+    public boolean isExcludedLdapAttr(String key) {
+        if (!excludedLdapAttrsEnabled) return false;
+        return excludedLdapAttrs.contains(key);
+    }
+
+    /**
+     * Configure LDAP attributes that need to be excluded from enrollment records.
+     *
+     * Default config:
+     *   excludedLdapAttrs.enabled=false;
+     *   (excludedLdapAttrs.attrs unspecified to take default)
+     */
+    public void configureExcludedLdapAttrs() throws EBaseException {
+
+        String id = engineConfig.getType().toLowerCase();
+        if (!id.equals("ca") && !id.equals("kra")) {
+            return;
+        }
+
+        logger.info("DBSubsystem: Configuring excluded LDAP attributes");
+
+        excludedLdapAttrsEnabled = engineConfig.getBoolean("excludedLdapAttrs.enabled", false);
+        logger.debug("DBSubsystem: excludedLdapAttrs.enabled: " + excludedLdapAttrsEnabled);
+
+        if (!excludedLdapAttrsEnabled) {
+            return;
+        }
+
+        String attrs = engineConfig.getString("excludedLdapAttrs.attrs", "");
+        logger.debug("DBSubsystem: excludedLdapAttrs.attrs: " + attrs);
+
+        if (!attrs.equals("")) {
+            excludedLdapAttrs = Arrays.asList(attrs.split(","));
+        }
     }
 
     /**
@@ -365,6 +413,8 @@ public class DBSubsystem {
             logger.error("DBSubsystem: initialization failed: " + e.getMessage(), e);
             throw e;
         }
+
+        configureExcludedLdapAttrs();
     }
 
     public String getEntryAttribute(String dn, String attrName,
