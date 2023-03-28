@@ -576,6 +576,6 @@ public class TPSProfileService extends SubsystemService implements ProfileResour
                 profileID,
                 auditor.getParamString(params),
                 info);
-        signedAuditLogger.log(msg);
+        auditor.log(msg);
     }
 }

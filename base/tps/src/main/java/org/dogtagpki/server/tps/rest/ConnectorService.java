@@ -485,7 +485,7 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
                 connectorID,
                 auditor.getParamString(params),
                 info);
-        signedAuditLogger.log(msg);
+        auditor.log(msg);
 
     }
 }

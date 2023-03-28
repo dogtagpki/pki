@@ -453,9 +453,8 @@ public class GroupService extends SubsystemService implements GroupResource {
 
         CMSEngine engine = getCMSEngine();
         Auditor auditor = engine.getAuditor();
-        if (auditor == null) return;
 
-        signedAuditLogger.log(new ConfigRoleEvent(
+        auditor.log(new ConfigRoleEvent(
                 auditor.getSubjectID(),
                 status,
                 auditor.getParamString(ScopeDef.SC_GROUPS, type, id, params)));

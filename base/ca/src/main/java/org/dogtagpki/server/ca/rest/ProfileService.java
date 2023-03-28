@@ -1233,7 +1233,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
                 status,
                 profileId,
                 op);
-        signedAuditLogger.log(msg);
+        auditor.log(msg);
     }
 
     public void auditProfileChange(String scope, String type, String id, String status, Map<String, String> params) {
@@ -1245,7 +1245,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
                 auditor.getSubjectID(),
                 status,
                 auditor.getParamString(scope, type, id, params));
-        signedAuditLogger.log(msg);
+        auditor.log(msg);
     }
 
 }

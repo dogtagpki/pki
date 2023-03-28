@@ -27,15 +27,11 @@ import java.util.ResourceBundle;
 import javax.ws.rs.core.HttpHeaders;
 
 import com.netscape.certsrv.logging.AuditEvent;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.logging.Auditor;
 
 public class SubsystemService extends PKIService {
-
-    protected static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public String getSubsystemName() {
         // get web application path: /<subsystem>
@@ -81,7 +77,7 @@ public class SubsystemService extends PKIService {
                 status,
                 auditor.getParamString(scope, type, id, params));
 
-        signedAuditLogger.log(auditMessage);
+        auditor.log(auditMessage);
     }
 
     public void auditConfigTokenGeneral(String status, String service, Map<String, String> params, String info) {
@@ -95,6 +91,6 @@ public class SubsystemService extends PKIService {
                 service,
                 auditor.getParamString(params),
                 info);
-        signedAuditLogger.log(msg);
+        auditor.log(msg);
     }
 }

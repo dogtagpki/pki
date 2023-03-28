@@ -69,6 +69,7 @@ import com.netscape.cms.servlet.key.KeyRequestDAO;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.request.RequestRepository;
@@ -676,7 +677,8 @@ public class KeyService extends SubsystemService implements KeyResource {
     }
 
     public void auditRetrieveKey(String status, String reason) {
-        signedAuditLogger.log(new SecurityDataExportEvent(
+        Auditor auditor = getCMSEngine().getAuditor();
+        auditor.log(new SecurityDataExportEvent(
                 servletRequest.getUserPrincipal().getName(),
                 status,
                 requestId,
@@ -696,7 +698,8 @@ public class KeyService extends SubsystemService implements KeyResource {
     }
 
     public void auditKeyInfo(KeyId keyId, String clientKeyId, String status, String reason) {
-        signedAuditLogger.log(new SecurityDataInfoEvent(
+        Auditor auditor = getCMSEngine().getAuditor();
+        auditor.log(new SecurityDataInfoEvent(
                 servletRequest.getUserPrincipal().getName(),
                 status,
                 keyId,
@@ -717,7 +720,8 @@ public class KeyService extends SubsystemService implements KeyResource {
 
     public void auditKeyStatusChange(String status, KeyId keyID, String oldKeyStatus,
             String newKeyStatus, String info) {
-        signedAuditLogger.log(new SecurityDataStatusChangeEvent(
+        Auditor auditor = getCMSEngine().getAuditor();
+        auditor.log(new SecurityDataStatusChangeEvent(
                 servletRequest.getUserPrincipal().getName(),
                 status,
                 keyID,
@@ -727,7 +731,8 @@ public class KeyService extends SubsystemService implements KeyResource {
     }
 
     public void auditRecoveryRequest(String status) {
-        signedAuditLogger.log(new SecurityDataRecoveryEvent(
+        Auditor auditor = getCMSEngine().getAuditor();
+        auditor.log(new SecurityDataRecoveryEvent(
                 servletRequest.getUserPrincipal().getName(),
                 status,
                 requestId,
@@ -737,7 +742,8 @@ public class KeyService extends SubsystemService implements KeyResource {
     }
 
     public void auditRecoveryRequestProcessed(String status, String reason) {
-        signedAuditLogger.log(new SecurityDataRecoveryProcessedEvent(
+        Auditor auditor = getCMSEngine().getAuditor();
+        auditor.log(new SecurityDataRecoveryProcessedEvent(
                 servletRequest.getUserPrincipal().getName(),
                 status,
                 requestId,

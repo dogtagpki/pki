@@ -60,6 +60,7 @@ import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cms.servlet.key.KeyRequestDAO;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**
@@ -149,6 +150,7 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
         }
 
         KRAEngine engine = (KRAEngine) getCMSEngine();
+        Auditor auditor = engine.getAuditor();
 
         KeyRequestDAO dao = new KeyRequestDAO();
         KeyRequestResponse response;
@@ -164,7 +166,7 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
             }
             response = dao.submitRequest(data, uriInfo, getRequestor());
 
-            signedAuditLogger.log(SecurityDataArchivalRequestEvent.createSuccessEvent(
+            auditor.log(SecurityDataArchivalRequestEvent.createSuccessEvent(
                     getRequestor(),
                     null,
                     response.getRequestInfo().getRequestID(),
@@ -176,7 +178,7 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
 
         } catch (EAuthzAccessDenied e) {
 
-            signedAuditLogger.log(SecurityDataArchivalRequestEvent.createFailureEvent(
+            auditor.log(SecurityDataArchivalRequestEvent.createFailureEvent(
                     getRequestor(),
                     null,
                     null,
@@ -187,7 +189,7 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
 
         } catch (EAuthzUnknownRealm e) {
 
-            signedAuditLogger.log(SecurityDataArchivalRequestEvent.createFailureEvent(
+            auditor.log(SecurityDataArchivalRequestEvent.createFailureEvent(
                     getRequestor(),
                     null,
                     null,
@@ -197,7 +199,7 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
 
         } catch (EBaseException | URISyntaxException e) {
 
-            signedAuditLogger.log(SecurityDataArchivalRequestEvent.createFailureEvent(
+            auditor.log(SecurityDataArchivalRequestEvent.createFailureEvent(
                     getRequestor(),
                     null,
                     null,
@@ -391,7 +393,8 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
     }
 
     public void auditRecoveryRequestChange(RequestId requestId, String status, String operation) {
-        signedAuditLogger.log(new SecurityDataRecoveryStateChangeEvent(
+        Auditor auditor = getCMSEngine().getAuditor();
+        auditor.log(new SecurityDataRecoveryStateChangeEvent(
                 getRequestor(),
                 status,
                 requestId,
@@ -399,7 +402,8 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
     }
 
     public void auditRecoveryRequestMade(RequestId requestId, String status, KeyId dataId) {
-        signedAuditLogger.log(new SecurityDataRecoveryEvent(
+        Auditor auditor = getCMSEngine().getAuditor();
+        auditor.log(new SecurityDataRecoveryEvent(
                 getRequestor(),
                 status,
                 requestId,
@@ -408,7 +412,8 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
     }
 
     public void auditSymKeyGenRequestMade(RequestId requestId, String status, String clientKeyID) {
-        signedAuditLogger.log(new SymKeyGenerationEvent(
+        Auditor auditor = getCMSEngine().getAuditor();
+        auditor.log(new SymKeyGenerationEvent(
                 getRequestor(),
                 status,
                 requestId,
@@ -416,7 +421,8 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
     }
 
     public void auditAsymKeyGenRequestMade(RequestId requestId, String status, String clientKeyID) {
-        signedAuditLogger.log(new AsymKeyGenerationEvent(
+        Auditor auditor = getCMSEngine().getAuditor();
+        auditor.log(new AsymKeyGenerationEvent(
                 getRequestor(),
                 status,
                 requestId,

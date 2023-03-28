@@ -490,6 +490,6 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
                 auditor.getSubjectID(),
                 status,
                 auditor.getParamString(ScopeDef.SC_AUTHORITY, op, id, params));
-        signedAuditLogger.log(msg);
+        auditor.log(msg);
     }
 }

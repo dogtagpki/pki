@@ -431,7 +431,8 @@ public class AuditService extends SubsystemService implements AuditResource {
 
         CMSEngine engine = getCMSEngine();
         Auditor auditor = engine.getAuditor();
-        signedAuditLogger.log(new ConfigSignedAuditEvent(
+
+        auditor.log(new ConfigSignedAuditEvent(
                 servletRequest.getUserPrincipal().getName(),
                 status,
                 auditor.getParamString(params)));

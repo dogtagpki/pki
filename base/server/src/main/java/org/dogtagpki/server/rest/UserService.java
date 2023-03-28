@@ -1149,9 +1149,8 @@ public class UserService extends SubsystemService implements UserResource {
 
         CMSEngine engine = getCMSEngine();
         Auditor auditor = engine.getAuditor();
-        if (auditor == null) return;
 
-        signedAuditLogger.log(new ConfigRoleEvent(
+        auditor.log(new ConfigRoleEvent(
                 auditor.getSubjectID(),
                 status,
                 auditor.getParamString(ScopeDef.SC_USERS, type, id, params)));
@@ -1161,9 +1160,8 @@ public class UserService extends SubsystemService implements UserResource {
 
         CMSEngine engine = getCMSEngine();
         Auditor auditor = engine.getAuditor();
-        if (auditor == null) return;
 
-        signedAuditLogger.log(new ConfigRoleEvent(
+        auditor.log(new ConfigRoleEvent(
                 auditor.getSubjectID(),
                 status,
                 auditor.getParamString(ScopeDef.SC_USER_CERTS, type, id, params)));
