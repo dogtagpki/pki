@@ -1119,8 +1119,8 @@ public class EnrollServlet extends CAServlet {
                      * either crmf or keyGenInfo
                      */
                     if (keyGenInfo != null) {
-                        KeyGenProcessor keyGenProc = new KeyGenProcessor(cmsReq,
-                                this);
+                        KeyGenProcessor keyGenProc = new KeyGenProcessor(cmsReq, this);
+                        keyGenProc.setCMSEngine(engine);
 
                         keyGenProc.fillCertInfo(null, certInfo,
                                 authToken, httpParams);
@@ -1129,8 +1129,10 @@ public class EnrollServlet extends CAServlet {
                                 sslClientCert.getIssuerDN().toString());
                         logger.debug("EnrollServlet: sslClientCert issuerDN = " +
                                 sslClientCert.getIssuerDN().toString());
+
                     } else if (crmf != null && crmf != "") {
                         CRMFProcessor crmfProc = new CRMFProcessor(cmsReq, this, enforcePop);
+                        crmfProc.setCMSEngine(engine);
 
                         certInfoArray = crmfProc.fillCertInfoArray(crmf,
                                     authToken,
@@ -1141,6 +1143,7 @@ public class EnrollServlet extends CAServlet {
                                 sslClientCert.getIssuerDN().toString());
                         logger.debug("EnrollServlet: sslClientCert issuerDN = " +
                                 sslClientCert.getIssuerDN().toString());
+
                     } else {
                         logger.error(CMS.getLogMessage("CMSGW_CANT_PROCESS_ENROLL_REQ") +
                                         CMS.getLogMessage("CMSGW_MISSING_KEYGEN_INFO"));
@@ -1174,13 +1177,14 @@ public class EnrollServlet extends CAServlet {
                         keyGenProc.fillCertInfo(null, certInfo,
                                 authToken, httpParams);
                     } else if (pkcs10 != null) {
-                        PKCS10Processor pkcs10Proc = new PKCS10Processor(cmsReq,
-                                this);
+                        PKCS10Processor pkcs10Proc = new PKCS10Processor(cmsReq, this);
+                        pkcs10Proc.setCMSEngine(engine);
 
                         pkcs10Proc.fillCertInfo(pkcs10, certInfo,
                                 authToken, httpParams);
                     } else if (cmc != null && cmc != "") {
                         CMCProcessor cmcProc = new CMCProcessor(cmsReq, this, enforcePop);
+                        cmcProc.setCMSEngine(engine);
 
                         certInfoArray = cmcProc.fillCertInfoArray(cmc,
                                     authToken,

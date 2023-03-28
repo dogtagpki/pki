@@ -40,6 +40,7 @@ import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.request.Request;
 
@@ -60,6 +61,7 @@ public class PKIProcessor {
     public static final String PKCS10_REQUEST = "pkcs10Request";
     public static final String SUBJECT_KEYGEN_INFO = "subjectKeyGenInfo";
 
+    protected CMSEngine engine;
     protected CMSRequest mRequest = null;
 
     protected HttpServletRequest httpReq = null;
@@ -80,6 +82,14 @@ public class PKIProcessor {
 
         mServletId = servlet.getId();
 
+    }
+
+    public CMSEngine getCMSEngine() {
+        return engine;
+    }
+
+    public void setCMSEngine(CMSEngine engine) {
+        this.engine = engine;
     }
 
     public void process(CMSRequest cmsReq)

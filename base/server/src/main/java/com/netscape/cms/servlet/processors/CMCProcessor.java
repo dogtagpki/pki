@@ -167,6 +167,7 @@ public class CMCProcessor extends PKIProcessor {
                     p10.encode(ostream);
 
                     PKCS10Processor pkcs10Processor = new PKCS10Processor(mRequest, mServlet);
+                    pkcs10Processor.setCMSEngine(engine);
 
                     try {
                         PKCS10 pkcs10 = new PKCS10(ostream.toByteArray());
@@ -184,9 +185,11 @@ public class CMCProcessor extends PKIProcessor {
                         throw new ECMSGWException(
                                 CMS.getUserMessage("CMS_GW_PKCS10_ERROR", e.toString()));
                     }
+
                 } else if (type.equals(TaggedRequest.CRMF)) {
 
                     CRMFProcessor crmfProc = new CRMFProcessor(mRequest, mServlet, enforcePop);
+                    crmfProc.setCMSEngine(engine);
 
                     CertReqMsg crm = taggedRequest.getCrm();
                     CertRequest certReq = crm.getCertReq();
