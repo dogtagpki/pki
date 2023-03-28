@@ -199,12 +199,8 @@ public class LdapCaCertPublisher
                 int version = Integer.parseInt(mConfig.getString("version", "2"));
                 String cert_nick = mConfig.getString("clientCertNickname", null);
 
-                PKISocketFactory sslSocket;
-                if (cert_nick != null) {
-                    sslSocket = new PKISocketFactory(cert_nick);
-                } else {
-                    sslSocket = new PKISocketFactory(true);
-                }
+                PKISocketFactory sslSocket = new PKISocketFactory(true);
+                sslSocket.setClientCertNickname(cert_nick);
                 sslSocket.addSocketListener(socketListener);
                 sslSocket.init(socketConfig);
 

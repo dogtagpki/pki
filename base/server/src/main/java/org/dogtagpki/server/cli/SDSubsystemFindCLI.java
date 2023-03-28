@@ -181,11 +181,9 @@ public class SDSubsystemFindCLI extends CommandCLI {
 
         PKISocketConfig socketConfig = cs.getSocketConfig();
 
-        PKISocketFactory socketFactory;
+        PKISocketFactory socketFactory = new PKISocketFactory(connInfo.getSecure());
         if (authInfo.getAuthType() == LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH) {
-            socketFactory = new PKISocketFactory(authInfo.getClientCertNickname());
-        } else {
-            socketFactory = new PKISocketFactory(connInfo.getSecure());
+            socketFactory.setClientCertNickname(authInfo.getClientCertNickname());
         }
         socketFactory.init(socketConfig);
 

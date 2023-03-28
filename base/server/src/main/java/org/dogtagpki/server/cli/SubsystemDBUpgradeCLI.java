@@ -68,20 +68,18 @@ public class SubsystemDBUpgradeCLI extends SubsystemCLI {
 
         PKISocketConfig socketConfig = cs.getSocketConfig();
 
-        PKISocketFactory socketFactory;
+        PKISocketFactory socketFactory = new PKISocketFactory(connInfo.getSecure());
         if (authInfo.getAuthType() == LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH) {
             String nickname = authInfo.getClientCertNickname();
             logger.info("Authenticating with " + nickname + " certificate");
-            socketFactory = new PKISocketFactory(nickname);
+            socketFactory.setClientCertNickname(nickname);
 
         } else if (authInfo.getAuthType() == LdapAuthInfo.LDAP_AUTHTYPE_BASICAUTH) {
             String bindDN = authInfo.getBindDN();
             logger.info("Authenticating as " + bindDN);
-            socketFactory = new PKISocketFactory(connInfo.getSecure());
 
         } else {
             logger.info("No authentication");
-            socketFactory = new PKISocketFactory(connInfo.getSecure());
         }
 
         socketFactory.init(socketConfig);

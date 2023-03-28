@@ -296,11 +296,9 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
 
         LdapBoundConnection conn = null;
         try {
-            PKISocketFactory socketFactory;
+            PKISocketFactory socketFactory = new PKISocketFactory(mConnInfo.getSecure());
             if (mAuthInfo.getAuthType() == LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH) {
-                socketFactory = new PKISocketFactory(mAuthInfo.getClientCertNickname());
-            } else {
-                socketFactory = new PKISocketFactory(mConnInfo.getSecure());
+                socketFactory.setClientCertNickname(mAuthInfo.getClientCertNickname());
             }
             socketFactory.addSocketListener(socketListener);
             socketFactory.init(config);

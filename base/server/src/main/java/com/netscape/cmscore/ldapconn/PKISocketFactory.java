@@ -53,7 +53,7 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
 
     private static SignedAuditLogger signedAuditLogger = SignedAuditLogger.getLogger();
     private boolean secure;
-    private String mClientAuthCertNickname = null;
+    private String clientCertNickname;
     private boolean mClientAuth = false;
     private boolean keepAlive;
     private String mClientCiphers = null;
@@ -76,16 +76,24 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
         this.secure = secure;
     }
 
-    public PKISocketFactory(String certNickname) {
+    public PKISocketFactory(String clientCertNickname) {
         this.secure = true;
-        mClientAuthCertNickname = certNickname;
+        this.clientCertNickname = clientCertNickname;
     }
 
-    public PKISocketFactory(String certNickname, boolean external) {
+    public PKISocketFactory(String clientCertNickname, boolean external) {
         this.secure = true;
+        this.clientCertNickname = clientCertNickname;
         PKISocketFactory.external = external;
-        mClientAuthCertNickname = certNickname;
         init();
+    }
+
+    public String getClientCertNickname() {
+        return clientCertNickname;
+    }
+
+    public void setClientCertNickname(String clientCertNickname) {
+        this.clientCertNickname = clientCertNickname;
     }
 
     public void addSocketListener(SSLSocketListener socketListener) {
@@ -161,7 +169,7 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
 
         SSLSocket s;
 
-        if (mClientAuthCertNickname == null) {
+        if (clientCertNickname == null) {
             s = new SSLSocket(host, port);
 
         } else {
@@ -173,7 +181,7 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
             Socket js = new Socket(InetAddress.getByName(host), port);
             s = new SSLSocket(js, host,
                     null,
-                    new SSLClientCertificateSelectionCB(mClientAuthCertNickname));
+                    new SSLClientCertificateSelectionCB(clientCertNickname));
         }
 
         s.setUseClientMode(true);
@@ -208,8 +216,8 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
         listener = new ClientHandshakeCB(this);
         s.addHandshakeCompletedListener(listener);
 
-        if (mClientAuthCertNickname != null) {
-            logger.debug("PKISocketFactory: - client cert: " + mClientAuthCertNickname);
+        if (clientCertNickname != null) {
+            logger.debug("PKISocketFactory: - client cert: " + clientCertNickname);
             mClientAuth = true;
 
             //We have already established the manual cert selection callback

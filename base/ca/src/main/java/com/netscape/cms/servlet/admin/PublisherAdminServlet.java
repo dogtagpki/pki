@@ -725,7 +725,8 @@ public class PublisherAdminServlet extends AdminServlet {
                     //certNickName = authInfo.getParms()[0];
                     certNickName = authConfig.getClientCertNickname();
 
-                    PKISocketFactory socketFactory = new PKISocketFactory(certNickName);
+                    PKISocketFactory socketFactory = new PKISocketFactory(true);
+                    socketFactory.setClientCertNickname(certNickName);
                     socketFactory.addSocketListener(socketListener);
                     socketFactory.init(socketConfig);
 
