@@ -18,8 +18,7 @@
 package com.netscape.cmscore.dbs;
 
 import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Set;
 
 import org.mozilla.jss.netscape.security.x509.CertificateValidity;
 
@@ -115,8 +114,7 @@ public class DBSubsystem {
     public static final String PROP_NEXT_RANGE = "nextRange";
     public static final String PROP_ENABLE_SERIAL_MGMT = "enableSerialManagement";
 
-    protected boolean excludedLdapAttrsEnabled;
-    protected List<String> excludedLdapAttrs = Arrays.asList(
+    public static final Set<String> DEFAULT_EXCLUDED_LDAP_ATTRS = Set.of(
             "req_x509info",
             "publickey",
             "req_extensions",
@@ -124,6 +122,9 @@ public class DBSubsystem {
             "req_archive_options",
             "req_key"
     );
+
+    protected boolean excludedLdapAttrsEnabled;
+    protected Set<String> excludedLdapAttrs;
 
     /**
      * Constructs database subsystem.
@@ -217,8 +218,10 @@ public class DBSubsystem {
         String attrs = engineConfig.getString("excludedLdapAttrs.attrs", "");
         logger.debug("DBSubsystem: excludedLdapAttrs.attrs: " + attrs);
 
-        if (!attrs.equals("")) {
-            excludedLdapAttrs = Arrays.asList(attrs.split(","));
+        if (attrs.equals("")) {
+            excludedLdapAttrs = DEFAULT_EXCLUDED_LDAP_ATTRS;
+        } else {
+            excludedLdapAttrs = Set.of(attrs.split(","));
         }
     }
 
