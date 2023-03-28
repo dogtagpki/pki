@@ -54,6 +54,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -101,7 +102,10 @@ public class CRMFProcessor extends PKIProcessor {
      */
     private void verifyPOP(CertReqMsg certReqMsg)
             throws EBaseException {
+
         String method = "CRMFProcessor: verifyPOP: ";
+
+        Auditor auditor = engine.getAuditor();
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -125,7 +129,7 @@ public class CRMFProcessor extends PKIProcessor {
                                 ILogger.SUCCESS,
                                 "method=" + method);
 
-                        audit(auditMessage);
+                        auditor.log(auditMessage);
                     } catch (Exception e) {
                         logger.error("CRMFProcessor: Failed POP verify: " + e.getMessage(), e);
 
@@ -138,7 +142,7 @@ public class CRMFProcessor extends PKIProcessor {
                                 ILogger.FAILURE,
                                 method + e.toString());
 
-                        audit(auditMessage);
+                        auditor.log(auditMessage);
 
                         throw new ECMSGWException(
                                 CMS.getLogMessage("CMSGW_ERROR_POP_VERIFY"));
@@ -155,7 +159,7 @@ public class CRMFProcessor extends PKIProcessor {
                             ILogger.FAILURE,
                             method + "required POP missing");
 
-                    audit(auditMessage);
+                    auditor.log(auditMessage);
 
                     throw new ECMSGWException(
                             CMS.getLogMessage("CMSGW_ERROR_NO_POP"));
@@ -169,7 +173,7 @@ public class CRMFProcessor extends PKIProcessor {
                     ILogger.FAILURE,
                     method + eAudit1.toString());
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
         }
     }
 

@@ -33,9 +33,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.LogEvent;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
@@ -52,7 +49,6 @@ import com.netscape.cmscore.request.Request;
 public class PKIProcessor {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PKIProcessor.class);
-    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public final static String ADMIN_ENROLL_SERVLET_ID = "caadminEnroll";
     public static final String SUBJECT_NAME = "subject";
@@ -262,23 +258,6 @@ public class PKIProcessor {
             logger.error(CMS.getLogMessage("CMSGW_ERROR_SET_SUBJECT_NAME_1", e.toString()), e);
             throw new ECMSGWException(CMS.getUserMessage("CMS_GW_SET_SUBJECT_NAME_ERROR"), e);
         }
-    }
-
-    /**
-     * Signed Audit Log
-     *
-     * This method is inherited by all extended "CMSServlet"s,
-     * and is called to store messages to the signed audit log.
-     * <P>
-     *
-     * @param msg signed audit log message
-     */
-    protected void audit(String msg) {
-        signedAuditLogger.log(msg);
-    }
-
-    protected void audit(LogEvent event) {
-        signedAuditLogger.log(event);
     }
 
     /**
