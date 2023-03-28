@@ -669,6 +669,7 @@ public class CMSEngine {
     public void initJssSubsystem() throws Exception {
         JssSubsystemConfig jssConfig = config.getJssSubsystemConfig();
         jssSubsystem = new JssSubsystem();
+        jssSubsystem.setCMSEngine(this);
         jssSubsystem.init(jssConfig);
         jssSubsystem.startup();
     }

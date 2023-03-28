@@ -96,6 +96,7 @@ import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.security.ICryptoSubsystem;
 import com.netscape.certsrv.security.KeyCertData;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.cert.CertUtils;
@@ -116,6 +117,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
     public static final String ID = "jss";
 
+    protected CMSEngine engine;
     protected JssSubsystemConfig config;
     private boolean mInited = false;
     private CryptoManager mCryptoManager = null;
@@ -216,6 +218,14 @@ public final class JssSubsystem implements ICryptoSubsystem {
     public void setId(String id) throws EBaseException {
         throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_OPERATION"));
 
+    }
+
+    public CMSEngine getCMSEngine() {
+        return engine;
+    }
+
+    public void setCMSEngine(CMSEngine engine) {
+        this.engine = engine;
     }
 
     // Add entropy to the 'default' RNG token
