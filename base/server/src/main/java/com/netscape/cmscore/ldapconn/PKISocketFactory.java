@@ -34,7 +34,9 @@ import org.mozilla.jss.ssl.SSLSocketListener;
 
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.logging.event.ClientAccessSessionEstablishEvent;
-import com.netscape.cms.logging.SignedAuditLogger;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 import netscape.ldap.LDAPException;
@@ -49,7 +51,6 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
 
     public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PKISocketFactory.class);
 
-    private static SignedAuditLogger signedAuditLogger = SignedAuditLogger.getLogger();
     private boolean secure;
     private String clientCertNickname;
     private boolean mClientAuth = false;
@@ -242,14 +243,16 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
                 } catch (UnknownHostException e2) {
                     // default to "localhost";
                 }
-                SignedAuditEvent auditEvent;
-                auditEvent = ClientAccessSessionEstablishEvent.createFailureEvent(
+
+                CMSEngine engine = CMS.getCMSEngine();
+                Auditor auditor = engine.getAuditor();
+                SignedAuditEvent auditEvent = ClientAccessSessionEstablishEvent.createFailureEvent(
                         localIP,
                         host,
                         Integer.toString(port),
                         "SYSTEM",
                         "connect:" +e.toString());
-                signedAuditLogger.log(auditEvent);
+                auditor.log(auditEvent);
             }
 
             String message = "Unable to create socket: " + e.getMessage();
