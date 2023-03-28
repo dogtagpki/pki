@@ -33,8 +33,6 @@ import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.DBRegistry;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.DateMapper;
@@ -210,6 +208,10 @@ public class RequestRecord implements IDBObj {
 
     // copy values from r to the local record
     void add(Request r) throws EBaseException {
+        add(r, null);
+    }
+
+    void add(Request r, Set<String> excludedLdapAttrs) throws EBaseException {
         // Collect the values for the record
         mRequestId = r.getRequestId();
         mRequestType = r.getRequestType();
@@ -219,7 +221,7 @@ public class RequestRecord implements IDBObj {
         mCreateTime = r.getCreationTime();
         mModifyTime = r.getModificationTime();
         realm = r.getRealm();
-        mExtData = loadExtDataFromRequest(r);
+        mExtData = loadExtDataFromRequest(r, excludedLdapAttrs);
 
         for (int i = 0; i < mRequestA.length; i++) {
             mRequestA[i].add(r, this);
@@ -241,12 +243,16 @@ public class RequestRecord implements IDBObj {
     }
 
     static void mod(ModificationSet mods, Request r) throws EBaseException {
+        mod(mods, r, null);
+    }
+
+    static void mod(ModificationSet mods, Request r, Set<String> excludedLdapAttrs) throws EBaseException {
         //
         mods.add(ATTR_REQUEST_STATE, Modification.MOD_REPLACE, r.getRequestStatus());
         mods.add(ATTR_SOURCE_ID, Modification.MOD_REPLACE, r.getSourceId());
         mods.add(ATTR_REQUEST_OWNER, Modification.MOD_REPLACE, r.getRequestOwner());
         mods.add(ATTR_MODIFY_TIME, Modification.MOD_REPLACE, r.getModificationTime());
-        mods.add(ATTR_EXT_DATA, Modification.MOD_REPLACE, loadExtDataFromRequest(r));
+        mods.add(ATTR_EXT_DATA, Modification.MOD_REPLACE, loadExtDataFromRequest(r, excludedLdapAttrs));
 
         // TODO(alee) - realm cannot be changed once set.  Can the code be refactored to eliminate
         // the next few lines?
@@ -285,17 +291,16 @@ public class RequestRecord implements IDBObj {
     protected static final String mOC[] =
         { Schema.LDAP_OC_TOP, Schema.LDAP_OC_REQUEST, Schema.LDAP_OC_EXTENSIBLE };
 
-    protected static Hashtable<String, Object> loadExtDataFromRequest(Request r) throws EBaseException {
+    protected static Hashtable<String, Object> loadExtDataFromRequest(
+            Request r,
+            Set<String> excludedLdapAttrs) throws EBaseException {
+
         Hashtable<String, Object> h = new Hashtable<>();
         String reqType = r.getExtDataInString("cert_request_type");
         if (reqType == null || reqType.equals("")) {
             // where CMC puts it
             reqType = r.getExtDataInString("auth_token.cert_request_type");
         }
-
-        CMSEngine engine = CMS.getCMSEngine();
-        DBSubsystem dbSubsystem = engine.getDBSubsystem();
-        Set<String> excludedLdapAttrs = dbSubsystem.getExcludedLdapAttr();
 
         Enumeration<String> e = r.getExtDataKeys();
         while (e.hasMoreElements()) {

@@ -21,6 +21,7 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.Set;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
@@ -200,8 +201,10 @@ public class RequestRepository extends Repository {
 
     public void addRequest(Request request) throws EBaseException {
 
+        Set<String> excludedLdapAttrs = dbSubsystem.getExcludedLdapAttr();
+
         RequestRecord requestRecord = new RequestRecord();
-        requestRecord.add(request);
+        requestRecord.add(request, excludedLdapAttrs);
 
         DBSSession dbs = dbSubsystem.createSession();
 
@@ -284,8 +287,10 @@ public class RequestRepository extends Repository {
 
     public void modifyRequest(Request request) throws EBaseException {
 
+        Set<String> excludedLdapAttrs = dbSubsystem.getExcludedLdapAttr();
+
         ModificationSet mods = new ModificationSet();
-        RequestRecord.mod(mods, request);
+        RequestRecord.mod(mods, request, excludedLdapAttrs);
 
         // mods.add(IRequestRecord.ATTR_REQUEST_STATE,
         // Modification.MOD_REPLACE, r.getRequestStatus());
