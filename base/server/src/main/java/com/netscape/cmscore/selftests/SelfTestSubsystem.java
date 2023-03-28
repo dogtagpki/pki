@@ -38,17 +38,15 @@ import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ELogException;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.LogEventListener;
 import com.netscape.certsrv.selftests.EDuplicateSelfTestException;
 import com.netscape.certsrv.selftests.EInvalidSelfTestException;
 import com.netscape.certsrv.selftests.EMissingSelfTestException;
 import com.netscape.certsrv.selftests.ESelfTestException;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.selftests.SelfTest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.logging.Auditor;
 
 //////////////////////
 // class definition //
@@ -74,7 +72,6 @@ public class SelfTestSubsystem extends Subsystem {
     public static final String PROP_STARTUP = "startup";
 
     private static LogEventListener mLogger;
-    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     ////////////////////////
     // default parameters //
@@ -113,22 +110,6 @@ public class SelfTestSubsystem extends Subsystem {
     ////////////////////
     // helper methods //
     ////////////////////
-
-    /**
-     * Signed Audit Log
-     *
-     * This helper method is called to store messages to the signed audit log.
-     * <P>
-     *
-     * @param msg signed audit log message
-     */
-    private void audit(String msg) {
-        signedAuditLogger.log(msg);
-    }
-
-    protected void audit(LogEvent event) {
-        signedAuditLogger.log(event);
-    }
 
     /**
      * This helper method returns the "full" property name (the corresponding
@@ -1708,6 +1689,8 @@ public class SelfTestSubsystem extends Subsystem {
     @Override
     public void startup() throws EBaseException {
 
+        Auditor auditor = engine.getAuditor();
+
         // loop through all self test plugin instances
         Enumeration<SelfTest> instances = mSelfTestInstances.elements();
 
@@ -1743,7 +1726,7 @@ public class SelfTestSubsystem extends Subsystem {
                         ILogger.SYSTEM_UID,
                         ILogger.SUCCESS);
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
         } catch (EMissingSelfTestException e) {
 
@@ -1753,7 +1736,7 @@ public class SelfTestSubsystem extends Subsystem {
                         ILogger.SYSTEM_UID,
                         ILogger.FAILURE);
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw e;
@@ -1766,7 +1749,7 @@ public class SelfTestSubsystem extends Subsystem {
                         ILogger.SYSTEM_UID,
                         ILogger.FAILURE);
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             logger.error("SelfTestSubsystem: Disabling subsystem due to selftest failure: " + e.getMessage(), e);
 
