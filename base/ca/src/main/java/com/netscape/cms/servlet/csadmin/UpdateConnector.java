@@ -45,6 +45,7 @@ import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmscore.usrgrp.User;
@@ -176,6 +177,7 @@ public class UpdateConnector extends CMSServlet {
         String fullName = "KRA " + info.getHost() + " " + info.getPort();
         logger.info("UpdateConnector: Adding " + uid + " user");
 
+        Auditor auditor = engine.getAuditor();
         String auditSubjectID = auditSubjectID();
         String auditParams = "Scope;;users+Operation;;OP_ADD+source;;UpdateConnector" +
                 "+Resource;;" + uid +
@@ -194,7 +196,7 @@ public class UpdateConnector extends CMSServlet {
 
             ugSubsystem.addUser(user);
 
-            signedAuditLogger.log(new ConfigRoleEvent(
+            auditor.log(new ConfigRoleEvent(
                                auditSubjectID,
                                ILogger.SUCCESS,
                                auditParams));
@@ -206,7 +208,7 @@ public class UpdateConnector extends CMSServlet {
             String message = "Unable to add " + uid + " user: " + e.getMessage();
             logger.error("UpdateConnector: " + message, e);
 
-            signedAuditLogger.log(new ConfigRoleEvent(
+            auditor.log(new ConfigRoleEvent(
                                auditSubjectID,
                                ILogger.FAILURE,
                                auditParams));
@@ -227,7 +229,7 @@ public class UpdateConnector extends CMSServlet {
             X509CertImpl certImpl = new X509CertImpl(binCert);
             ugSubsystem.addUserCert(uid, certImpl);
 
-            signedAuditLogger.log(new ConfigRoleEvent(
+            auditor.log(new ConfigRoleEvent(
                                auditSubjectID,
                                ILogger.SUCCESS,
                                auditParams));
@@ -239,7 +241,7 @@ public class UpdateConnector extends CMSServlet {
             String message = "Unable to add cert for " + uid + " user: " + e.getMessage();
             logger.error("UpdateConnector: " + message, e);
 
-            signedAuditLogger.log(new ConfigRoleEvent(
+            auditor.log(new ConfigRoleEvent(
                                auditSubjectID,
                                ILogger.FAILURE,
                                auditParams));
@@ -272,7 +274,7 @@ public class UpdateConnector extends CMSServlet {
                 group.addMemberName(uid);
                 ugSubsystem.modifyGroup(group);
 
-                signedAuditLogger.log(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                                auditSubjectID,
                                ILogger.SUCCESS,
                                auditParams));
@@ -285,7 +287,7 @@ public class UpdateConnector extends CMSServlet {
             String message = "Unable to add " + uid + " user into " + groupName + ": " + e.getMessage();
             logger.error("UpdateConnector: " + message, e);
 
-            signedAuditLogger.log(new ConfigRoleEvent(
+            auditor.log(new ConfigRoleEvent(
                                auditSubjectID,
                                ILogger.FAILURE,
                                auditParams));

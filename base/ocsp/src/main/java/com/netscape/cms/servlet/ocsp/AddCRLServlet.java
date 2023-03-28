@@ -55,6 +55,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.cmscore.dbs.RepositoryRecord;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.util.StatsSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.ocsp.OCSPAuthority;
@@ -131,6 +132,8 @@ public class AddCRLServlet extends CMSServlet {
 
         boolean CRLFetched = false;
         boolean CRLValidated = false;
+
+        Auditor auditor = engine.getAuditor();
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditCRLNum = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
@@ -165,7 +168,7 @@ public class AddCRLServlet extends CMSServlet {
                         ILogger.FAILURE,
                         auditCRLNum);
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 return;
             }
@@ -192,7 +195,7 @@ public class AddCRLServlet extends CMSServlet {
                         ILogger.FAILURE,
                         auditCRLNum);
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 throw new ECMSGWException(
                         CMS.getUserMessage("CMS_GW_MISSING_CRL"));
@@ -225,7 +228,7 @@ public class AddCRLServlet extends CMSServlet {
                         ILogger.FAILURE,
                         auditCRLNum);
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 throw new ECMSGWException(
                         CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
@@ -245,7 +248,7 @@ public class AddCRLServlet extends CMSServlet {
                         ILogger.FAILURE,
                         auditCRLNum);
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 throw new ECMSGWException(CMS.getUserMessage(getLocale(req),
                                           "CMS_GW_MISSING_CRL_HEADER"));
@@ -260,7 +263,7 @@ public class AddCRLServlet extends CMSServlet {
                         ILogger.FAILURE,
                         auditCRLNum);
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 throw new ECMSGWException(CMS.getUserMessage(getLocale(req),
                                           "CMS_GW_MISSING_CRL_FOOTER"));
@@ -297,7 +300,7 @@ public class AddCRLServlet extends CMSServlet {
                         ILogger.SUCCESS,
                         auditCRLNum);
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 // acknowledge that the CRL has been retrieved
                 CRLFetched = true;
@@ -311,7 +314,7 @@ public class AddCRLServlet extends CMSServlet {
                         ILogger.FAILURE,
                         auditCRLNum);
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 throw new ECMSGWException(
                         CMS.getUserMessage("CMS_GW_DECODING_CRL_ERROR"));
@@ -332,7 +335,7 @@ public class AddCRLServlet extends CMSServlet {
                         auditSubjectID,
                         ILogger.FAILURE);
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 throw new ECMSGWException(
                         CMS.getUserMessage("CMS_GW_DECODING_CRL_ERROR"));
@@ -383,7 +386,7 @@ public class AddCRLServlet extends CMSServlet {
                             auditSubjectID,
                             ILogger.SUCCESS);
 
-                    audit(auditMessage);
+                    auditor.log(auditMessage);
 
                     // acknowledge that the CRL has been validated
                     CRLValidated = true;
@@ -397,7 +400,7 @@ public class AddCRLServlet extends CMSServlet {
                             auditSubjectID,
                             ILogger.FAILURE);
 
-                    audit(auditMessage);
+                    auditor.log(auditMessage);
 
                     throw new ECMSGWException(
                             CMS.getUserMessage("CMS_GW_DECODING_CRL_ERROR"));
@@ -537,7 +540,7 @@ public class AddCRLServlet extends CMSServlet {
                         ILogger.FAILURE,
                         auditCRLNum);
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
             } else {
                 if (!CRLValidated) {
                     // store a message in the signed audit log file
@@ -546,7 +549,7 @@ public class AddCRLServlet extends CMSServlet {
                             auditSubjectID,
                             ILogger.FAILURE);
 
-                    audit(auditMessage);
+                    auditor.log(auditMessage);
                 }
             }
             throw eAudit1;

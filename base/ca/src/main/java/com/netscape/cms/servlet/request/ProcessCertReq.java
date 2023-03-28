@@ -75,6 +75,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.usrgrp.Group;
@@ -396,6 +397,8 @@ public class ProcessCertReq extends CMSServlet {
             throws EBaseException {
 
         CAEngine engine = CAEngine.getInstance();
+
+        Auditor auditor = engine.getAuditor();
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = ILogger.UNIDENTIFIED;
@@ -453,11 +456,11 @@ public class ProcessCertReq extends CMSServlet {
                                     auditServiceID,
                                     auditCertificateSubjectName);
 
-                        audit(auditMessage);
+                        auditor.log(auditMessage);
                     } else if (toDo.equals(SIGNED_AUDIT_ACCEPTANCE)) {
                         // (manual "agent" cert request processed - "accepted")
 
-                        audit(CertRequestProcessedEvent.createFailureEvent(
+                        auditor.log(CertRequestProcessedEvent.createFailureEvent(
                                     auditSubjectID,
                                     auditRequesterID,
                                     auditInfoName,
@@ -465,7 +468,7 @@ public class ProcessCertReq extends CMSServlet {
 
                     } else if (toDo.equals(SIGNED_AUDIT_CANCELLATION)) {
                         // (manual "agent" cert request processed - "cancelled")
-                        audit(CertRequestProcessedEvent.createFailureEvent(
+                        auditor.log(CertRequestProcessedEvent.createFailureEvent(
                                     auditSubjectID,
                                     auditRequesterID,
                                     auditInfoName,
@@ -473,7 +476,7 @@ public class ProcessCertReq extends CMSServlet {
 
                     } else if (toDo.equals(SIGNED_AUDIT_REJECTION)) {
                         // (manual "agent" cert request processed - "rejected")
-                        audit(CertRequestProcessedEvent.createFailureEvent(
+                        auditor.log(CertRequestProcessedEvent.createFailureEvent(
                                     auditSubjectID,
                                     auditRequesterID,
                                     auditInfoName,
@@ -893,7 +896,7 @@ public class ProcessCertReq extends CMSServlet {
                                 // store a message in the signed audit log file
                                 // (one for each manual "agent"
                                 //  cert request processed - "accepted")
-                                audit(CertRequestProcessedEvent.createSuccessEvent(
+                                auditor.log(CertRequestProcessedEvent.createSuccessEvent(
                                             auditSubjectID,
                                             auditRequesterID,
                                             auditInfoName,
@@ -927,7 +930,7 @@ public class ProcessCertReq extends CMSServlet {
                             // store a message in the signed audit log file
                             // (manual "agent" cert request processed
                             //  - "accepted")
-                            audit(CertRequestProcessedEvent.createFailureEvent(
+                            auditor.log(CertRequestProcessedEvent.createFailureEvent(
                                         auditSubjectID,
                                         auditRequesterID,
                                         auditInfoName,
@@ -1039,7 +1042,7 @@ public class ProcessCertReq extends CMSServlet {
 
                     // store a message in the signed audit log file
                     // (manual "agent" cert request processed - "rejected")
-                    audit(CertRequestProcessedEvent.createFailureEvent(
+                    auditor.log(CertRequestProcessedEvent.createFailureEvent(
                                 auditSubjectID,
                                 auditRequesterID,
                                 auditInfoName,
@@ -1088,7 +1091,7 @@ public class ProcessCertReq extends CMSServlet {
 
                     // store a message in the signed audit log file
                     // (manual "agent" cert request processed - "cancelled")
-                    audit(CertRequestProcessedEvent.createFailureEvent(
+                    auditor.log(CertRequestProcessedEvent.createFailureEvent(
                                 auditSubjectID,
                                 auditRequesterID,
                                 auditInfoName,
@@ -1150,7 +1153,7 @@ public class ProcessCertReq extends CMSServlet {
                                 auditServiceID,
                                 auditCertificateSubjectName);
 
-                    audit(auditMessage);
+                    auditor.log(auditMessage);
                 }
             }
 
@@ -1179,10 +1182,10 @@ public class ProcessCertReq extends CMSServlet {
                                 auditServiceID,
                                 auditCertificateSubjectName);
 
-                    audit(auditMessage);
+                    auditor.log(auditMessage);
                 } else if (toDo.equals(SIGNED_AUDIT_ACCEPTANCE)) {
                     // (manual "agent" cert request processed - "accepted")
-                    audit(CertRequestProcessedEvent.createFailureEvent(
+                    auditor.log(CertRequestProcessedEvent.createFailureEvent(
                                 auditSubjectID,
                                 auditRequesterID,
                                 auditInfoName,
@@ -1190,7 +1193,7 @@ public class ProcessCertReq extends CMSServlet {
 
                 } else if (toDo.equals(SIGNED_AUDIT_CANCELLATION)) {
                     // (manual "agent" cert request processed - "cancelled")
-                    audit(CertRequestProcessedEvent.createFailureEvent(
+                    auditor.log(CertRequestProcessedEvent.createFailureEvent(
                                 auditSubjectID,
                                 auditRequesterID,
                                 auditInfoName,
@@ -1198,7 +1201,7 @@ public class ProcessCertReq extends CMSServlet {
 
                 } else if (toDo.equals(SIGNED_AUDIT_REJECTION)) {
                     // (manual "agent" cert request processed - "rejected")
-                    audit(CertRequestProcessedEvent.createFailureEvent(
+                    auditor.log(CertRequestProcessedEvent.createFailureEvent(
                                 auditSubjectID,
                                 auditRequesterID,
                                 auditInfoName,
@@ -1223,10 +1226,10 @@ public class ProcessCertReq extends CMSServlet {
                                 auditServiceID,
                                 auditCertificateSubjectName);
 
-                    audit(auditMessage);
+                    auditor.log(auditMessage);
                 } else if (toDo.equals(SIGNED_AUDIT_ACCEPTANCE)) {
                     // (manual "agent" cert request processed - "accepted")
-                    audit(CertRequestProcessedEvent.createFailureEvent(
+                    auditor.log(CertRequestProcessedEvent.createFailureEvent(
                                 auditSubjectID,
                                 auditRequesterID,
                                 auditInfoName,
@@ -1234,7 +1237,7 @@ public class ProcessCertReq extends CMSServlet {
 
                 } else if (toDo.equals(SIGNED_AUDIT_CANCELLATION)) {
                     // (manual "agent" cert request processed - "cancelled")
-                    audit(CertRequestProcessedEvent.createFailureEvent(
+                    auditor.log(CertRequestProcessedEvent.createFailureEvent(
                                 auditSubjectID,
                                 auditRequesterID,
                                 auditInfoName,
@@ -1242,7 +1245,7 @@ public class ProcessCertReq extends CMSServlet {
 
                 } else if (toDo.equals(SIGNED_AUDIT_REJECTION)) {
                     // (manual "agent" cert request processed - "rejected")
-                    audit(CertRequestProcessedEvent.createFailureEvent(
+                    auditor.log(CertRequestProcessedEvent.createFailureEvent(
                                 auditSubjectID,
                                 auditRequesterID,
                                 auditInfoName,
@@ -1267,10 +1270,10 @@ public class ProcessCertReq extends CMSServlet {
                                 auditServiceID,
                                 auditCertificateSubjectName);
 
-                    audit(auditMessage);
+                    auditor.log(auditMessage);
                 } else if (toDo.equals(SIGNED_AUDIT_ACCEPTANCE)) {
                     // (manual "agent" cert request processed - "accepted")
-                    audit(CertRequestProcessedEvent.createFailureEvent(
+                    auditor.log(CertRequestProcessedEvent.createFailureEvent(
                                 auditSubjectID,
                                 auditRequesterID,
                                 auditInfoName,
@@ -1278,7 +1281,7 @@ public class ProcessCertReq extends CMSServlet {
 
                 } else if (toDo.equals(SIGNED_AUDIT_CANCELLATION)) {
                     // (manual "agent" cert request processed - "cancelled")
-                    audit(CertRequestProcessedEvent.createFailureEvent(
+                    auditor.log(CertRequestProcessedEvent.createFailureEvent(
                                 auditSubjectID,
                                 auditRequesterID,
                                 auditInfoName,
@@ -1286,7 +1289,7 @@ public class ProcessCertReq extends CMSServlet {
 
                 } else if (toDo.equals(SIGNED_AUDIT_REJECTION)) {
                     // (manual "agent" cert request processed - "rejected")
-                    audit(CertRequestProcessedEvent.createFailureEvent(
+                    auditor.log(CertRequestProcessedEvent.createFailureEvent(
                                 auditSubjectID,
                                 auditRequesterID,
                                 auditInfoName,
@@ -1311,10 +1314,10 @@ public class ProcessCertReq extends CMSServlet {
                                 auditServiceID,
                                 auditCertificateSubjectName);
 
-                    audit(auditMessage);
+                    auditor.log(auditMessage);
                 } else if (toDo.equals(SIGNED_AUDIT_ACCEPTANCE)) {
                     // (manual "agent" cert request processed - "accepted")
-                    audit(CertRequestProcessedEvent.createFailureEvent(
+                    auditor.log(CertRequestProcessedEvent.createFailureEvent(
                                 auditSubjectID,
                                 auditRequesterID,
                                 auditInfoName,
@@ -1322,7 +1325,7 @@ public class ProcessCertReq extends CMSServlet {
 
                 } else if (toDo.equals(SIGNED_AUDIT_CANCELLATION)) {
                     // (manual "agent" cert request processed - "cancelled")
-                    audit(CertRequestProcessedEvent.createFailureEvent(
+                    auditor.log(CertRequestProcessedEvent.createFailureEvent(
                                 auditSubjectID,
                                 auditRequesterID,
                                 auditInfoName,
@@ -1330,7 +1333,7 @@ public class ProcessCertReq extends CMSServlet {
 
                 } else if (toDo.equals(SIGNED_AUDIT_REJECTION)) {
                     // (manual "agent" cert request processed - "rejected")
-                    audit(CertRequestProcessedEvent.createFailureEvent(
+                    auditor.log(CertRequestProcessedEvent.createFailureEvent(
                                 auditSubjectID,
                                 auditRequesterID,
                                 auditInfoName,

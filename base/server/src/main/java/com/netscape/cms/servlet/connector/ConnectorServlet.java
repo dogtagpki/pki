@@ -58,7 +58,6 @@ import com.netscape.certsrv.connector.IPKIMessage;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
@@ -70,6 +69,7 @@ import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.connector.HttpPKIMessage;
 import com.netscape.cmscore.connector.HttpRequestEncoder;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestQueue;
 
@@ -448,6 +448,7 @@ public class ConnectorServlet extends CMSServlet {
         }
 
         CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
 
         IPKIMessage replymsg = null;
 
@@ -481,7 +482,7 @@ public class ConnectorServlet extends CMSServlet {
                                 auditRequestType,
                                 auditRequesterID);
 
-                    audit(auditMessage);
+                    auditor.log(auditMessage);
 
                     // NOTE:  The signed audit event
                     //        LOGGING_SIGNED_AUDIT_PROFILE_CERT_REQUEST
@@ -512,7 +513,7 @@ public class ConnectorServlet extends CMSServlet {
                                 auditRequestType,
                                 auditRequesterID);
 
-                    audit(auditMessage);
+                    auditor.log(auditMessage);
 
                     // NOTE:  The signed audit event
                     //        LOGGING_SIGNED_AUDIT_PROFILE_CERT_REQUEST
@@ -596,7 +597,7 @@ public class ConnectorServlet extends CMSServlet {
                             auditProfileID(),
                             auditCertificateSubjectName);
 
-                    audit(auditMessage);
+                    auditor.log(auditMessage);
                 } catch (CertificateException e) {
                     logger.warn("ConnectorServlet: processRequest " + e.getMessage(), e);
 
@@ -609,7 +610,7 @@ public class ConnectorServlet extends CMSServlet {
                             auditProfileID(),
                             auditCertificateSubjectName);
 
-                    audit(auditMessage);
+                    auditor.log(auditMessage);
                 } catch (IOException e) {
                     logger.warn("ConnectorServlet: processRequest " + e.getMessage(), e);
 
@@ -622,7 +623,7 @@ public class ConnectorServlet extends CMSServlet {
                             auditProfileID(),
                             auditCertificateSubjectName);
 
-                    audit(auditMessage);
+                    auditor.log(auditMessage);
                 }
             }
 
@@ -667,7 +668,7 @@ public class ConnectorServlet extends CMSServlet {
 
                     if (x509cert != null) {
 
-                        audit(CertRequestProcessedEvent.createSuccessEvent(
+                        auditor.log(CertRequestProcessedEvent.createSuccessEvent(
                                 auditSubjectID,
                                 auditRequesterID,
                                 ILogger.SIGNED_AUDIT_ACCEPTANCE,
@@ -675,7 +676,7 @@ public class ConnectorServlet extends CMSServlet {
 
                     } else {
 
-                        audit(CertRequestProcessedEvent.createFailureEvent(
+                        auditor.log(CertRequestProcessedEvent.createFailureEvent(
                                 auditSubjectID,
                                 auditRequesterID,
                                 ILogger.SIGNED_AUDIT_REJECTION,
@@ -715,7 +716,7 @@ public class ConnectorServlet extends CMSServlet {
                             auditRequestType,
                             auditRequesterID);
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 // NOTE:  The signed audit event
                 //        LOGGING_SIGNED_AUDIT_PROFILE_CERT_REQUEST
@@ -911,7 +912,7 @@ public class ConnectorServlet extends CMSServlet {
                             auditRequestType,
                             auditRequesterID);
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
             } catch (IOException e) {
                 logger.warn("ConnectorServlet: process " + e.getMessage(), e);
 
@@ -924,7 +925,7 @@ public class ConnectorServlet extends CMSServlet {
                             auditRequestType,
                             auditRequesterID);
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
             } catch (CertificateException e) {
                 logger.warn("ConnectorServlet: process " + e.getMessage(), e);
 
@@ -937,7 +938,7 @@ public class ConnectorServlet extends CMSServlet {
                             auditRequestType,
                             auditRequesterID);
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
             } catch (Exception e) {
                 logger.warn("ConnectorServlet: process " + e.getMessage(), e);
 
@@ -950,7 +951,7 @@ public class ConnectorServlet extends CMSServlet {
                             auditRequestType,
                             auditRequesterID);
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
             } finally {
                 SessionContext.releaseContext();
             }
@@ -970,7 +971,7 @@ public class ConnectorServlet extends CMSServlet {
                         auditRequestType,
                         auditRequesterID);
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // NOTE:  The signed audit event
             //        LOGGING_SIGNED_AUDIT_PROFILE_CERT_REQUEST
@@ -989,25 +990,6 @@ public class ConnectorServlet extends CMSServlet {
     @Override
     public String getServletInfo() {
         return INFO;
-    }
-
-    /**
-     * Signed Audit Log
-     *
-     * This method is inherited by all extended "CMSServlet"s,
-     * and is called to store messages to the signed audit log.
-     * <P>
-     *
-     * @param msg signed audit log message
-     */
-    @Override
-    protected void audit(String msg) {
-        signedAuditLogger.log(msg);
-    }
-
-    @Override
-    protected void audit(LogEvent event) {
-        signedAuditLogger.log(event);
     }
 
     /**

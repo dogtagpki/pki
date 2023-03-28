@@ -61,6 +61,7 @@ import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.request.CertRequestRepository;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestQueue;
@@ -319,6 +320,7 @@ public class DoRevokeTPS extends CAServlet {
 
         CAEngine engine = CAEngine.getInstance();
 
+        Auditor auditor = engine.getAuditor();
         String auditSubjectID = auditSubjectID();
         String auditSerialNumber = auditSerialNumber(null);
         String auditRequestType = auditRequestType(reason);
@@ -455,7 +457,7 @@ public class DoRevokeTPS extends CAServlet {
                 if (alreadyRevokedCertFound == true && badCertsRequested == false) {
                     logger.debug(method + "Only have previously revoked certs in the list.");
 
-                    audit(new CertStatusChangeRequestEvent(
+                    auditor.log(new CertStatusChangeRequestEvent(
                             auditSubjectID,
                             ILogger.SUCCESS,
                             revReq,
@@ -469,7 +471,7 @@ public class DoRevokeTPS extends CAServlet {
                 o_status = "status=2";
                 logger.error(CMS.getLogMessage("CMSGW_REV_CERTS_ZERO"));
 
-                audit(new CertStatusChangeRequestEvent(
+                auditor.log(new CertStatusChangeRequestEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             revReq,
@@ -490,7 +492,7 @@ public class DoRevokeTPS extends CAServlet {
             CertRequestRepository requestRepository = engine.getCertRequestRepository();
             revReq = requestRepository.createRequest(Request.REVOCATION_REQUEST);
 
-            audit(new CertStatusChangeRequestEvent(
+            auditor.log(new CertStatusChangeRequestEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
                         revReq,
@@ -515,7 +517,7 @@ public class DoRevokeTPS extends CAServlet {
 
             logger.error("DoRevokeTPS: " + e.getMessage(), e);
 
-            audit(new CertStatusChangeRequestEvent(
+            auditor.log(new CertStatusChangeRequestEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         revReq,
@@ -527,7 +529,7 @@ public class DoRevokeTPS extends CAServlet {
 
             logger.error(CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED_1", e.toString()), e);
 
-            audit(new CertStatusChangeRequestEvent(
+            auditor.log(new CertStatusChangeRequestEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         revReq,
@@ -594,7 +596,7 @@ public class DoRevokeTPS extends CAServlet {
                             auditApprovalStatus == RequestStatus.REJECTED ||
                             auditApprovalStatus == RequestStatus.CANCELED) {
 
-                        audit(new CertStatusChangeRequestProcessedEvent(
+                        auditor.log(new CertStatusChangeRequestProcessedEvent(
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     revReq,
@@ -769,7 +771,7 @@ public class DoRevokeTPS extends CAServlet {
                     auditApprovalStatus == RequestStatus.REJECTED ||
                     auditApprovalStatus == RequestStatus.CANCELED) {
 
-                audit(new CertStatusChangeRequestProcessedEvent(
+                auditor.log(new CertStatusChangeRequestProcessedEvent(
                             auditSubjectID,
                             ILogger.SUCCESS,
                             revReq,
@@ -791,7 +793,7 @@ public class DoRevokeTPS extends CAServlet {
                     auditApprovalStatus == RequestStatus.REJECTED ||
                     auditApprovalStatus == RequestStatus.CANCELED) {
 
-                audit(new CertStatusChangeRequestProcessedEvent(
+                auditor.log(new CertStatusChangeRequestProcessedEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             revReq,
@@ -815,7 +817,7 @@ public class DoRevokeTPS extends CAServlet {
                     auditApprovalStatus == RequestStatus.REJECTED ||
                     auditApprovalStatus == RequestStatus.CANCELED) {
 
-                audit(new CertStatusChangeRequestProcessedEvent(
+                auditor.log(new CertStatusChangeRequestProcessedEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             revReq,

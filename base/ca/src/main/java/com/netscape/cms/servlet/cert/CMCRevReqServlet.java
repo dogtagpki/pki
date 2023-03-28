@@ -61,6 +61,7 @@ import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.request.CertRequestRepository;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestQueue;
@@ -345,6 +346,7 @@ public class CMCRevReqServlet extends CMSServlet {
             }
         }
 
+        Auditor auditor = engine.getAuditor();
         boolean auditRequest = true;
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID(req);
@@ -435,7 +437,7 @@ public class CMCRevReqServlet extends CMSServlet {
                 revReq = requestRepository.createRequest(Request.REVOCATION_REQUEST);
             }
 
-            audit(new CertStatusChangeRequestEvent(
+            auditor.log(new CertStatusChangeRequestEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditRequesterID,
@@ -687,7 +689,7 @@ public class CMCRevReqServlet extends CMSServlet {
                     auditApprovalStatus == RequestStatus.REJECTED ||
                     auditApprovalStatus == RequestStatus.CANCELED) {
 
-                audit(new CertStatusChangeRequestProcessedEvent(
+                auditor.log(new CertStatusChangeRequestProcessedEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditRequesterID,
@@ -702,7 +704,7 @@ public class CMCRevReqServlet extends CMSServlet {
 
             if (auditRequest) {
 
-                audit(new CertStatusChangeRequestEvent(
+                auditor.log(new CertStatusChangeRequestEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRequesterID,
@@ -718,7 +720,7 @@ public class CMCRevReqServlet extends CMSServlet {
                         auditApprovalStatus == RequestStatus.REJECTED ||
                         auditApprovalStatus == RequestStatus.CANCELED) {
 
-                    audit(new CertStatusChangeRequestProcessedEvent(
+                    auditor.log(new CertStatusChangeRequestProcessedEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditRequesterID,
@@ -736,7 +738,7 @@ public class CMCRevReqServlet extends CMSServlet {
 
             if (auditRequest) {
 
-                audit(new CertStatusChangeRequestEvent(
+                auditor.log(new CertStatusChangeRequestEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRequesterID,
@@ -752,7 +754,7 @@ public class CMCRevReqServlet extends CMSServlet {
                         auditApprovalStatus == RequestStatus.REJECTED ||
                         auditApprovalStatus == RequestStatus.CANCELED) {
 
-                    audit(new CertStatusChangeRequestProcessedEvent(
+                    auditor.log(new CertStatusChangeRequestProcessedEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditRequesterID,
@@ -768,7 +770,7 @@ public class CMCRevReqServlet extends CMSServlet {
         } catch (Exception e) {
             if (auditRequest) {
 
-                audit(new CertStatusChangeRequestEvent(
+                auditor.log(new CertStatusChangeRequestEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRequesterID,
@@ -784,7 +786,7 @@ public class CMCRevReqServlet extends CMSServlet {
                         auditApprovalStatus == RequestStatus.REJECTED ||
                         auditApprovalStatus == RequestStatus.CANCELED) {
 
-                    audit(new CertStatusChangeRequestProcessedEvent(
+                    auditor.log(new CertStatusChangeRequestProcessedEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditRequesterID,

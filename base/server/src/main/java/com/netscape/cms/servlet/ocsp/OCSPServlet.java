@@ -40,6 +40,7 @@ import com.netscape.certsrv.ocsp.IOCSPService;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.util.StatsSubsystem;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
 import com.netscape.cmsutil.ocsp.OCSPRequest;
@@ -104,6 +105,8 @@ public class OCSPServlet extends CMSServlet {
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
         CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
+
         StatsSubsystem statsSub = (StatsSubsystem) engine.getSubsystem(StatsSubsystem.ID);
         if (statsSub != null) {
             statsSub.startTiming("ocsp", true /* main action */);
@@ -223,15 +226,15 @@ public class OCSPServlet extends CMSServlet {
                 response = ((IOCSPService) mAuthority).validate(ocspReq);
 
                 if (response == null) {
-                    audit(OCSPGenerationEvent.createFailureEvent(auditSubjectID(), "Missing OCSP response"));
+                    auditor.log(OCSPGenerationEvent.createFailureEvent(auditSubjectID(), "Missing OCSP response"));
 
                 } else {
-                    audit(OCSPGenerationEvent.createSuccessEvent(auditSubjectID()));
+                    auditor.log(OCSPGenerationEvent.createSuccessEvent(auditSubjectID()));
                 }
 
             } catch (Exception e) {
                 logger.warn("OCSPServlet: " + e.getMessage(), e);
-                audit(OCSPGenerationEvent.createFailureEvent(auditSubjectID(), e.getMessage()));
+                auditor.log(OCSPGenerationEvent.createFailureEvent(auditSubjectID(), e.getMessage()));
             }
 
             if (response != null) {

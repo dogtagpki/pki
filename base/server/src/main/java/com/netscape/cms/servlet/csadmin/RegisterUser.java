@@ -44,6 +44,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.usrgrp.ExactMatchCertUserLocator;
 import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
@@ -149,6 +150,7 @@ public class RegisterUser extends CMSServlet {
         logger.info("RegisterUser: name: " + name);
         logger.info("RegisterUser: cert: " + certsString);
 
+        Auditor auditor = engine.getAuditor();
         String auditSubjectID = auditSubjectID();
         String auditParams = "Scope;;users+Operation;;OP_ADD+source;;RegisterUser" +
                              "+Resource;;" + uid +
@@ -212,7 +214,7 @@ public class RegisterUser extends CMSServlet {
                 ugsys.addUser(user);
                 logger.debug("RegisterUser: created user " + uid);
 
-                audit(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                               auditSubjectID,
                               ILogger.SUCCESS,
                               auditParams));
@@ -231,7 +233,7 @@ public class RegisterUser extends CMSServlet {
                 logger.info("RegisterUser: Adding user certificate");
                 ugsys.addUserCert(user.getUserID(), cert);
 
-                audit(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                               auditSubjectID,
                               ILogger.SUCCESS,
                               auditParams));
@@ -243,7 +245,7 @@ public class RegisterUser extends CMSServlet {
         } catch (Exception e) {
             logger.error("Unable to create user: " + e.getMessage(), e);
 
-            audit(new ConfigRoleEvent(
+            auditor.log(new ConfigRoleEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditParams));
@@ -275,7 +277,7 @@ public class RegisterUser extends CMSServlet {
                 ugsys.modifyGroup(group);
                 logger.debug("RegisterUser modified group");
 
-                audit(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                                auditSubjectID,
                                ILogger.SUCCESS,
                                auditParams));
@@ -283,7 +285,7 @@ public class RegisterUser extends CMSServlet {
 
         } catch (Exception e) {
             logger.warn("Unable to add user to group " + mGroupName + ": " + e.getMessage(), e);
-            audit(new ConfigRoleEvent(
+            auditor.log(new ConfigRoleEvent(
                                auditSubjectID,
                                ILogger.FAILURE,
                                auditParams));

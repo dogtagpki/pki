@@ -59,6 +59,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.ldap.LdapRule;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.util.StatsSubsystem;
 
 /**
@@ -295,6 +296,7 @@ public class UpdateCRL extends CMSServlet {
             throws EBaseException {
 
         CAEngine engine = CAEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
 
         long startTime = new Date().getTime();
         String waitForUpdate =
@@ -395,10 +397,10 @@ public class UpdateCRL extends CMSServlet {
                     crlIssuingPoint.setManualUpdate(signatureAlgorithm);
                     header.addStringValue("crlUpdate", "Scheduled");
 
-                    audit(new ScheduleCRLGenerationEvent(auditSubjectID()));
+                    auditor.log(new ScheduleCRLGenerationEvent(auditSubjectID()));
 
                 } catch (Exception e) {
-                    audit(new ScheduleCRLGenerationEvent(auditSubjectID(), e));
+                    auditor.log(new ScheduleCRLGenerationEvent(auditSubjectID(), e));
                     throw e;
                 }
             }

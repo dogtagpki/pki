@@ -61,12 +61,9 @@ import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.event.AuthEvent;
 import com.netscape.certsrv.logging.event.AuthzEvent;
 import com.netscape.certsrv.logging.event.RoleAssumeEvent;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.common.CMSFileLoader;
 import com.netscape.cms.servlet.common.CMSGateway;
 import com.netscape.cms.servlet.common.CMSLoadTemplate;
@@ -89,6 +86,7 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.request.RequestRepository;
@@ -105,7 +103,6 @@ import com.netscape.cmsutil.xml.XMLObject;
 public abstract class CMSServlet extends HttpServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSServlet.class);
-    protected static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     private static final long serialVersionUID = -3886300199374147160L;
     // servlet init params
@@ -1413,6 +1410,9 @@ public abstract class CMSServlet extends HttpServlet {
     public AuthToken authenticate(HttpServletRequest httpReq, String authMgrName)
             throws EBaseException {
 
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
+
         String auditSubjectID = ILogger.UNIDENTIFIED;
         String auditAuthMgrID = ILogger.UNIDENTIFIED;
         String auditUID = ILogger.UNIDENTIFIED;
@@ -1483,7 +1483,6 @@ public abstract class CMSServlet extends HttpServlet {
             // reset the "auditAuthMgrID"
             auditAuthMgrID = authMgrName;
 
-            CMSEngine engine = getCMSEngine();
             CMSGateway gateway = engine.getCMSGateway();
             AuthToken authToken = gateway.checkAuthManager(httpReq,
                     httpArgs,
@@ -1492,6 +1491,7 @@ public abstract class CMSServlet extends HttpServlet {
             if (authToken == null) {
                 return null;
             }
+
             String userid = authToken.getInString(AuthToken.USER_ID);
 
             logger.debug("CMSServlet: userid=" + userid);
@@ -1503,14 +1503,14 @@ public abstract class CMSServlet extends HttpServlet {
             // reset the "auditSubjectID"
             auditSubjectID = auditSubjectID();
 
-            audit(AuthEvent.createSuccessEvent(
+            auditor.log(AuthEvent.createSuccessEvent(
                         auditSubjectID,
                         auditAuthMgrID));
 
             return authToken;
         } catch (EBaseException eAudit1) {
 
-            audit(AuthEvent.createFailureEvent(
+            auditor.log(AuthEvent.createFailureEvent(
                         auditSubjectID,
                         auditAuthMgrID,
                         auditUID));
@@ -1526,6 +1526,9 @@ public abstract class CMSServlet extends HttpServlet {
 
         logger.debug("CMSServlet.authorize(" + authzMgrName + ", " + resource + ")");
 
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
+
         String auditSubjectID = auditSubjectID();
         String auditGroupID = auditGroupID();
         String auditACLResource = resource;
@@ -1535,35 +1538,35 @@ public abstract class CMSServlet extends HttpServlet {
             authzToken = mAuthz.authorize(authzMgrName, authToken, exp);
             if (authzToken != null) {
 
-                audit(AuthzEvent.createSuccessEvent(
+                auditor.log(AuthzEvent.createSuccessEvent(
                             auditSubjectID,
                             auditACLResource,
                             auditOperation));
 
-                audit(RoleAssumeEvent.createSuccessEvent(
+                auditor.log(RoleAssumeEvent.createSuccessEvent(
                             auditSubjectID,
                             auditGroupID));
 
             } else {
 
-                audit(AuthzEvent.createFailureEvent(
+                auditor.log(AuthzEvent.createFailureEvent(
                             auditSubjectID,
                             auditACLResource,
                             auditOperation));
 
-                audit(RoleAssumeEvent.createFailureEvent(
+                auditor.log(RoleAssumeEvent.createFailureEvent(
                             auditSubjectID,
                             auditGroupID));
             }
             return authzToken;
         } catch (Exception e) {
 
-            audit(AuthzEvent.createFailureEvent(
+            auditor.log(AuthzEvent.createFailureEvent(
                         auditSubjectID,
                         auditACLResource,
                         auditOperation));
 
-            audit(RoleAssumeEvent.createFailureEvent(
+            auditor.log(RoleAssumeEvent.createFailureEvent(
                         auditSubjectID,
                         auditGroupID));
 
@@ -1598,6 +1601,9 @@ public abstract class CMSServlet extends HttpServlet {
             throws EBaseException {
 
         logger.debug("CMSServlet.authorize(" + authzMgrName + ")");
+
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
 
         String auditSubjectID = auditSubjectID();
         String auditGroupID = auditGroupID();
@@ -1652,26 +1658,26 @@ public abstract class CMSServlet extends HttpServlet {
 
             if (authzTok != null) {
 
-                audit(AuthzEvent.createSuccessEvent(
+                auditor.log(AuthzEvent.createSuccessEvent(
                             auditSubjectID,
                             auditACLResource,
                             auditOperation));
 
                 if (roles != null) {
-                    audit(RoleAssumeEvent.createSuccessEvent(
+                    auditor.log(RoleAssumeEvent.createSuccessEvent(
                                 auditID,
                                 roles));
                 }
 
             } else {
 
-                audit(AuthzEvent.createFailureEvent(
+                auditor.log(AuthzEvent.createFailureEvent(
                             auditSubjectID,
                             auditACLResource,
                             auditOperation));
 
                 if (roles != null) {
-                    audit(RoleAssumeEvent.createFailureEvent(
+                    auditor.log(RoleAssumeEvent.createFailureEvent(
                                 auditID,
                                 roles));
                 }
@@ -1680,13 +1686,13 @@ public abstract class CMSServlet extends HttpServlet {
             return authzTok;
         } catch (EBaseException eAudit1) {
 
-            audit(AuthzEvent.createFailureEvent(
+            auditor.log(AuthzEvent.createFailureEvent(
                         auditSubjectID,
                         auditACLResource,
                         auditOperation));
 
             if (roles != null) {
-                audit(RoleAssumeEvent.createFailureEvent(
+                auditor.log(RoleAssumeEvent.createFailureEvent(
                             auditID,
                             roles));
             }
@@ -1694,36 +1700,19 @@ public abstract class CMSServlet extends HttpServlet {
             return null;
         } catch (Exception eAudit1) {
 
-            audit(AuthzEvent.createFailureEvent(
+            auditor.log(AuthzEvent.createFailureEvent(
                         auditSubjectID,
                         auditACLResource,
                         auditOperation));
 
             if (roles != null) {
-                audit(RoleAssumeEvent.createFailureEvent(
+                auditor.log(RoleAssumeEvent.createFailureEvent(
                             auditSubjectID,
                             roles));
             }
 
             return null;
         }
-    }
-
-    /**
-     * Signed Audit Log
-     *
-     * This method is inherited by all extended "CMSServlet"s,
-     * and is called to store messages to the signed audit log.
-     * <P>
-     *
-     * @param msg signed audit log message
-     */
-    protected void audit(String msg) {
-        signedAuditLogger.log(msg);
-    }
-
-    protected void audit(LogEvent event) {
-        signedAuditLogger.log(event);
     }
 
     /**

@@ -41,7 +41,9 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.ocsp.OCSPAuthority;
 
 /**
@@ -99,6 +101,10 @@ public class RemoveCAServlet extends CMSServlet {
             throws EBaseException {
         HttpServletRequest req = cmsReq.getHttpReq();
         HttpServletResponse resp = cmsReq.getHttpResp();
+
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
+
         String auditSubjectID = auditSubjectID();
 
         AuthToken authToken = authenticate(cmsReq);
@@ -144,13 +150,13 @@ public class RemoveCAServlet extends CMSServlet {
 
         if (caID == null) {
 
-            audit(OCSPRemoveCARequestEvent.createFailureEvent(
+            auditor.log(OCSPRemoveCARequestEvent.createFailureEvent(
                     auditSubjectID));
 
             throw new ECMSGWException(CMS.getUserMessage(getLocale(req), "CMS_GW_MISSING_CA_ID"));
         }
 
-        audit(OCSPRemoveCARequestEvent.createSuccessEvent(
+        auditor.log(OCSPRemoveCARequestEvent.createSuccessEvent(
                 auditSubjectID,
                 caID));
 
@@ -161,7 +167,7 @@ public class RemoveCAServlet extends CMSServlet {
 
         } catch (EBaseException e) {
 
-            audit(OCSPRemoveCARequestProcessedEvent.createFailureEvent(
+            auditor.log(OCSPRemoveCARequestProcessedEvent.createFailureEvent(
                     auditSubjectID,
                     caID));
 
@@ -171,7 +177,7 @@ public class RemoveCAServlet extends CMSServlet {
 
         logger.debug("RemoveCAServlet::process: CRL IssuingPoint for CA successfully removed: " + caID);
 
-        audit(OCSPRemoveCARequestProcessedEvent.createSuccessEvent(
+        auditor.log(OCSPRemoveCARequestProcessedEvent.createSuccessEvent(
                 auditSubjectID,
                 caID));
 

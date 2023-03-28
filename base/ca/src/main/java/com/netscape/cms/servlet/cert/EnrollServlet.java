@@ -77,6 +77,7 @@ import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.request.CertRequestRepository;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.usrgrp.Group;
@@ -697,6 +698,7 @@ public class EnrollServlet extends CAServlet {
         CAEngine engine = CAEngine.getInstance();
         CAEngineConfig configStore = engine.getConfig();
 
+        Auditor auditor = engine.getAuditor();
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = ILogger.UNIDENTIFIED;
@@ -752,7 +754,7 @@ public class EnrollServlet extends CAServlet {
                             auditServiceID,
                             auditCertificateSubjectName);
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 return;
             }
@@ -816,7 +818,7 @@ public class EnrollServlet extends CAServlet {
                             auditServiceID,
                             auditCertificateSubjectName);
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 throw new ECMSGWException(e.toString());
             }
@@ -858,7 +860,7 @@ public class EnrollServlet extends CAServlet {
                                 auditServiceID,
                                 auditCertificateSubjectName);
 
-                    audit(auditMessage);
+                    auditor.log(auditMessage);
 
                     throw new ECMSGWException(
                             CMS.getUserMessage("CMS_GW_MISSING_SSL_CLIENT_CERT"));
@@ -898,7 +900,7 @@ public class EnrollServlet extends CAServlet {
                                 auditServiceID,
                                 auditCertificateSubjectName);
 
-                    audit(auditMessage);
+                    auditor.log(auditMessage);
 
                     throw new ECMSGWException(
                             CMS.getUserMessage(getLocale(httpReq), "CMS_GW_MISSING_CERTINFO"));
@@ -951,7 +953,7 @@ public class EnrollServlet extends CAServlet {
                                 auditServiceID,
                                 auditCertificateSubjectName);
 
-                    audit(auditMessage);
+                    auditor.log(auditMessage);
 
                     return;
                 }
@@ -1054,7 +1056,7 @@ public class EnrollServlet extends CAServlet {
                                     auditServiceID,
                                     auditCertificateSubjectName);
 
-                        audit(auditMessage);
+                        auditor.log(auditMessage);
 
                         throw new ECMSGWException(e.toString());
                     }
@@ -1083,7 +1085,7 @@ public class EnrollServlet extends CAServlet {
                                     auditServiceID,
                                     auditCertificateSubjectName);
 
-                        audit(auditMessage);
+                        auditor.log(auditMessage);
 
                         throw new ECMSGWException(
                                 CMS.getUserMessage("CMS_GW_ENCRYPTION_CERT_NOT_FOUND"));
@@ -1110,7 +1112,7 @@ public class EnrollServlet extends CAServlet {
                                     auditServiceID,
                                     auditCertificateSubjectName);
 
-                        audit(auditMessage);
+                        auditor.log(auditMessage);
 
                         throw new ECMSGWException(e.toString());
                     }
@@ -1160,7 +1162,7 @@ public class EnrollServlet extends CAServlet {
                                     auditServiceID,
                                     auditCertificateSubjectName);
 
-                        audit(auditMessage);
+                        auditor.log(auditMessage);
 
                         throw new ECMSGWException(
                                 CMS.getUserMessage(getLocale(httpReq), "CMS_GW_MISSING_KEYGEN_INFO"));
@@ -1213,7 +1215,7 @@ public class EnrollServlet extends CAServlet {
                                     auditServiceID,
                                     auditCertificateSubjectName);
 
-                        audit(auditMessage);
+                        auditor.log(auditMessage);
 
                         throw new ECMSGWException(
                                 CMS.getUserMessage(getLocale(httpReq), "CMS_GW_MISSING_KEYGEN_INFO"));
@@ -1261,7 +1263,7 @@ public class EnrollServlet extends CAServlet {
                             auditServiceID,
                             auditCertificateSubjectName);
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 throw new ECMSGWException(CMS.getUserMessage(getLocale(httpReq), "CMS_GW_MISSING_KEYGEN_INFO"));
             }
@@ -1303,7 +1305,7 @@ public class EnrollServlet extends CAServlet {
                         auditServiceID,
                         auditCertificateSubjectName);
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
@@ -1318,7 +1320,7 @@ public class EnrollServlet extends CAServlet {
                         auditServiceID,
                         auditCertificateSubjectName);
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             throw eAudit1;
         }
@@ -1347,7 +1349,7 @@ public class EnrollServlet extends CAServlet {
                     for (int i = 0; i < issuedCerts.length; i++) {
                         // (automated "agent" cert request processed
                         //  - "accepted")
-                        audit(CertRequestProcessedEvent.createSuccessEvent(
+                        auditor.log(CertRequestProcessedEvent.createSuccessEvent(
                                     auditSubjectID,
                                     auditRequesterID,
                                     ILogger.SIGNED_AUDIT_ACCEPTANCE,
@@ -1357,7 +1359,7 @@ public class EnrollServlet extends CAServlet {
                     cmsReq.setStatus(CMSRequest.ERROR);
 
                     // (automated "agent" cert request processed - "rejected")
-                    audit(CertRequestProcessedEvent.createFailureEvent(
+                    auditor.log(CertRequestProcessedEvent.createFailureEvent(
                                 auditSubjectID,
                                 auditRequesterID,
                                 ILogger.SIGNED_AUDIT_REJECTION,
@@ -1373,7 +1375,7 @@ public class EnrollServlet extends CAServlet {
 
             if (completed == false) {
                 // (automated "agent" cert request processed - "rejected")
-                audit(CertRequestProcessedEvent.createFailureEvent(
+                auditor.log(CertRequestProcessedEvent.createFailureEvent(
                             auditSubjectID,
                             auditRequesterID,
                             ILogger.SIGNED_AUDIT_REJECTION,
@@ -1423,7 +1425,7 @@ public class EnrollServlet extends CAServlet {
 
                 for (int i = 0; i < issuedCerts.length; i++) {
                     // (automated "agent" cert request processed - "accepted")
-                    audit(CertRequestProcessedEvent.createSuccessEvent(
+                    auditor.log(CertRequestProcessedEvent.createSuccessEvent(
                                 auditSubjectID,
                                 auditRequesterID,
                                 ILogger.SIGNED_AUDIT_ACCEPTANCE,
@@ -1442,7 +1444,7 @@ public class EnrollServlet extends CAServlet {
 
                 for (int i = 0; i < issuedCerts.length; i++) {
                     // (automated "agent" cert request processed - "accepted")
-                    audit(CertRequestProcessedEvent.createSuccessEvent(
+                    auditor.log(CertRequestProcessedEvent.createSuccessEvent(
                                 auditSubjectID,
                                 auditRequesterID,
                                 ILogger.SIGNED_AUDIT_ACCEPTANCE,
@@ -1454,7 +1456,7 @@ public class EnrollServlet extends CAServlet {
                                 e.toString()), e);
 
                 // (automated "agent" cert request processed - "rejected")
-                audit(CertRequestProcessedEvent.createFailureEvent(
+                auditor.log(CertRequestProcessedEvent.createFailureEvent(
                             auditSubjectID,
                             auditRequesterID,
                             ILogger.SIGNED_AUDIT_REJECTION,
@@ -1466,7 +1468,7 @@ public class EnrollServlet extends CAServlet {
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             // (automated "agent" cert request processed - "rejected")
-            audit(CertRequestProcessedEvent.createFailureEvent(
+            auditor.log(CertRequestProcessedEvent.createFailureEvent(
                         auditSubjectID,
                         auditRequesterID,
                         ILogger.SIGNED_AUDIT_REJECTION,

@@ -50,6 +50,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.request.CertRequestRepository;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestQueue;
@@ -235,6 +236,7 @@ public class DoUnrevokeTPS extends CMSServlet {
         CAEngine engine = CAEngine.getInstance();
         CertificateRepository certRepository = engine.getCertificateRepository();
 
+        Auditor auditor = engine.getAuditor();
         String auditSubjectID = auditSubjectID();
         String auditSerialNumber = auditSerialNumber(serialNumbers[0].toString());
         String auditRequestType = OFF_HOLD;
@@ -259,7 +261,7 @@ public class DoUnrevokeTPS extends CMSServlet {
             CertRequestRepository requestRepository = engine.getCertRequestRepository();
             unrevReq = requestRepository.createRequest(Request.UNREVOCATION_REQUEST);
 
-            audit(new CertStatusChangeRequestEvent(
+            auditor.log(new CertStatusChangeRequestEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
                         unrevReq,
@@ -272,7 +274,7 @@ public class DoUnrevokeTPS extends CMSServlet {
 
         } catch (EBaseException e) {
 
-            audit(new CertStatusChangeRequestEvent(
+            auditor.log(new CertStatusChangeRequestEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         unrevReq,
@@ -451,7 +453,7 @@ public class DoUnrevokeTPS extends CMSServlet {
                     auditApprovalStatus == RequestStatus.REJECTED ||
                     auditApprovalStatus == RequestStatus.CANCELED) {
 
-                audit(new CertStatusChangeRequestProcessedEvent(
+                auditor.log(new CertStatusChangeRequestProcessedEvent(
                             auditSubjectID,
                             ILogger.SUCCESS,
                             unrevReq,
@@ -471,7 +473,7 @@ public class DoUnrevokeTPS extends CMSServlet {
                     auditApprovalStatus == RequestStatus.REJECTED ||
                     auditApprovalStatus == RequestStatus.CANCELED) {
 
-                audit(new CertStatusChangeRequestProcessedEvent(
+                auditor.log(new CertStatusChangeRequestProcessedEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             unrevReq,

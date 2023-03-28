@@ -43,6 +43,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.Repository;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmsutil.json.JSONObject;
 
 public abstract class UpdateNumberRange extends CMSServlet {
@@ -98,6 +99,7 @@ public abstract class UpdateNumberRange extends CMSServlet {
             return;
         }
 
+        Auditor auditor = engine.getAuditor();
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditParams = "source;;updateNumberRange";
@@ -256,7 +258,7 @@ public abstract class UpdateNumberRange extends CMSServlet {
                                    auditSubjectID,
                                    ILogger.FAILURE,
                                    auditParams);
-                audit(auditMessage);
+                auditor.log(auditMessage);
                 return;
             }
 
@@ -286,7 +288,7 @@ public abstract class UpdateNumberRange extends CMSServlet {
                                auditSubjectID,
                                ILogger.SUCCESS,
                                auditParams);
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
         } catch (Exception e) {
             logger.error("UpdateNumberRange: Unable to update number range: " + e.getMessage(), e);
@@ -296,7 +298,7 @@ public abstract class UpdateNumberRange extends CMSServlet {
                                auditSubjectID,
                                ILogger.FAILURE,
                                auditParams);
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             outputError(httpResp, "Error: Unable to update number range: " + e.getMessage());
         }

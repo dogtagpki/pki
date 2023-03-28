@@ -43,7 +43,9 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.kra.KeyRecoveryAuthority;
 
 /**
@@ -112,6 +114,10 @@ public class GetPk12 extends CMSServlet {
 
         HttpServletRequest req = cmsReq.getHttpReq();
         HttpServletResponse resp = cmsReq.getHttpResp();
+
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
+
         String auditMessage = null;
         String recoveryID = null;
         String agent = null;
@@ -194,7 +200,7 @@ public class GetPk12 extends CMSServlet {
                     resp.getOutputStream().write(pkcs12);
                     mRenderResult = false;
 
-                    audit(new SecurityDataExportEvent(
+                    auditor.log(new SecurityDataExportEvent(
                             agent,
                             ILogger.SUCCESS,
                             new RequestId(recoveryID),
@@ -218,7 +224,7 @@ public class GetPk12 extends CMSServlet {
         }
 
         if ((agent != null) && (recoveryID != null)) {
-            audit(new SecurityDataExportEvent(
+            auditor.log(new SecurityDataExportEvent(
                     agent,
                     ILogger.FAILURE,
                     new RequestId(recoveryID),

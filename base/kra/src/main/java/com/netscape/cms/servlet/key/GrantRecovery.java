@@ -43,7 +43,9 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.kra.KeyRecoveryAuthority;
 
 /**
@@ -203,6 +205,10 @@ public class GrantRecovery extends CMSServlet {
             String agentID, String agentPWD,
             HttpServletRequest req, HttpServletResponse resp,
             Locale locale) {
+
+        CMSEngine engine = getCMSEngine();
+
+        Auditor auditor = engine.getAuditor();
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditRecoveryID = recoveryID;
@@ -250,7 +256,7 @@ public class GrantRecovery extends CMSServlet {
                             auditRecoveryID,
                             auditAgentID);
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 return;
             }
@@ -273,7 +279,7 @@ public class GrantRecovery extends CMSServlet {
                         auditRecoveryID,
                         auditAgentID);
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
         } catch (EBaseException e) {
             header.addStringValue(OUT_ERROR, e.toString(locale));
@@ -286,7 +292,7 @@ public class GrantRecovery extends CMSServlet {
                         auditRecoveryID,
                         auditAgentID);
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
         } catch (Exception e) {
             header.addStringValue(OUT_ERROR, e.toString());
 
@@ -298,7 +304,7 @@ public class GrantRecovery extends CMSServlet {
                         auditRecoveryID,
                         auditAgentID);
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
         }
     }
 }

@@ -45,6 +45,7 @@ import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.request.RequestQueue;
 
@@ -99,6 +100,8 @@ public class ProfileApproveServlet extends ProfileServlet {
         HttpServletResponse response = cmsReq.getHttpResp();
 
         CAEngine engine = CAEngine.getInstance();
+
+        Auditor auditor = engine.getAuditor();
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditProfileID = auditProfileID(request);
@@ -141,7 +144,7 @@ public class ProfileApproveServlet extends ProfileServlet {
                             auditProfileID,
                             auditProfileOp);
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 return;
             }
@@ -171,7 +174,7 @@ public class ProfileApproveServlet extends ProfileServlet {
                             auditProfileID,
                             auditProfileOp);
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 return;
             }
@@ -201,7 +204,7 @@ public class ProfileApproveServlet extends ProfileServlet {
                             auditProfileID,
                             auditProfileOp);
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 return;
             }
@@ -224,7 +227,7 @@ public class ProfileApproveServlet extends ProfileServlet {
                             auditProfileID,
                             auditProfileOp);
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 return;
             }
@@ -245,7 +248,7 @@ public class ProfileApproveServlet extends ProfileServlet {
                             auditProfileID,
                             auditProfileOp);
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 return;
             }
@@ -278,7 +281,7 @@ public class ProfileApproveServlet extends ProfileServlet {
                                     auditProfileID,
                                     auditProfileOp);
 
-                            audit(auditMessage);
+                            auditor.log(auditMessage);
 
                             return;
                         }
@@ -299,7 +302,7 @@ public class ProfileApproveServlet extends ProfileServlet {
                             auditProfileID,
                             auditProfileOp);
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
             } catch (EProfileException e) {
                 logger.error("ProfileApproveServlet: profile not enabled: " + e.getMessage(), e);
                 args.set(ARG_ERROR_CODE, "1");
@@ -315,7 +318,7 @@ public class ProfileApproveServlet extends ProfileServlet {
                             auditProfileID,
                             auditProfileOp);
 
-                audit(auditMessage);
+                auditor.log(auditMessage);
 
                 return;
             }
@@ -328,7 +331,7 @@ public class ProfileApproveServlet extends ProfileServlet {
                         auditProfileID,
                         auditProfileOp);
 
-            audit(auditMessage);
+            auditor.log(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit1;
@@ -341,7 +344,7 @@ public class ProfileApproveServlet extends ProfileServlet {
             //                        auditProfileID,
             //                        auditProfileOp );
             //
-            //     audit( auditMessage );
+            //     auditor.log( auditMessage );
             //
             //     // rethrow the specific exception to be handled later
             //     throw eAudit2;

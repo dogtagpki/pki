@@ -63,6 +63,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.cert.PrettyPrintFormat;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -335,6 +336,7 @@ public class TokenServlet extends CMSServlet {
 
         TKSEngine engine = TKSEngine.getInstance();
         TKSEngineConfig config = engine.getConfig();
+        Auditor auditor = engine.getAuditor();
 
         boolean isCryptoValidate = false;
         byte[] keyInfo, xCUID = null, session_key = null;
@@ -394,7 +396,7 @@ public class TokenServlet extends CMSServlet {
                 ILogger.SUCCESS,
                 agentId);
 
-        audit(auditMessage);
+        auditor.log(auditMessage);
 
         if (!missingParam) {
             xCUID = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rCUID);
@@ -822,7 +824,7 @@ public class TokenServlet extends CMSServlet {
                     Boolean.toString(nistSP800_108KdfUseCuidAsKdd) // NistSP800_108KdfUseCuidAsKdd
             );
 
-            signedAuditLogger.log(event);;
+            auditor.log(event);
 
         } else {
 
@@ -842,7 +844,7 @@ public class TokenServlet extends CMSServlet {
                     errorMsg // Error
             );
 
-            signedAuditLogger.log(event);
+            auditor.log(event);
         }
     }
 
@@ -885,6 +887,7 @@ public class TokenServlet extends CMSServlet {
 
         TKSEngine engine = TKSEngine.getInstance();
         TKSEngineConfig config = engine.getConfig();
+        Auditor auditor = engine.getAuditor();
         boolean isCryptoValidate = true;
         boolean missingParam = false;
 
@@ -913,7 +916,7 @@ public class TokenServlet extends CMSServlet {
                 ILogger.SUCCESS,
                 agentId);
 
-        audit(auditMessage);
+        auditor.log(auditMessage);
 
         String kek_wrapped_desKeyString = null;
         String keycheck_s = null;
@@ -1485,7 +1488,7 @@ public class TokenServlet extends CMSServlet {
                     Boolean.toString(nistSP800_108KdfUseCuidAsKdd) // NistSP800_108KdfUseCuidAsKdd
             );
 
-            signedAuditLogger.log(event);
+            auditor.log(event);
 
         } else {
             // AC: KDF SPEC CHANGE - Log both CUID and KDD
@@ -1507,7 +1510,7 @@ public class TokenServlet extends CMSServlet {
                     errorMsg // Error
             );
 
-            signedAuditLogger.log(event);
+            auditor.log(event);
         }
     }
 
@@ -1589,6 +1592,8 @@ public class TokenServlet extends CMSServlet {
 
         TKSEngine engine = TKSEngine.getInstance();
         TKSEngineConfig config = engine.getConfig();
+        Auditor auditor = engine.getAuditor();
+
         String rnewKeyInfo = req.getParameter(IRemoteRequest.TOKEN_NEW_KEYINFO);
         String newMasterKeyName = req.getParameter(IRemoteRequest.TOKEN_NEW_KEYINFO);
         String oldMasterKeyName = req.getParameter(IRemoteRequest.TOKEN_KEYINFO);
@@ -1634,7 +1639,7 @@ public class TokenServlet extends CMSServlet {
                 oldMasterKeyName,
                 newMasterKeyName);
 
-        audit(auditMessage);
+        auditor.log(auditMessage);
 
         if ((rCUID == null) || (rCUID.equals(""))) {
             badParams += " CUID,";
@@ -1910,7 +1915,7 @@ public class TokenServlet extends CMSServlet {
                     Boolean.toString(nistSP800_108KdfUseCuidAsKdd) // NistSP800_108KdfUseCuidAsKdd
             );
 
-            signedAuditLogger.log(event);
+            auditor.log(event);
 
         } else {
             // AC: KDF SPEC CHANGE - Log both CUID and KDD
@@ -1934,7 +1939,7 @@ public class TokenServlet extends CMSServlet {
                     errorMsg // Error
             );
 
-            signedAuditLogger.log(event);
+            auditor.log(event);
         }
     }
 
@@ -1958,6 +1963,7 @@ public class TokenServlet extends CMSServlet {
 
         TKSEngine engine = TKSEngine.getInstance();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
+        Auditor auditor = engine.getAuditor();
 
         TKSEngineConfig config = engine.getConfig();
         encryptedData = null;
@@ -2007,7 +2013,7 @@ public class TokenServlet extends CMSServlet {
                 ILogger.SUCCESS,
                 agentId,
                 s_isRandom);
-        audit(auditMessage);
+        auditor.log(auditMessage);
 
         GPParams gp3Params = readGPSettings(keySet);
 
@@ -2250,7 +2256,7 @@ public class TokenServlet extends CMSServlet {
                     Boolean.toString(nistSP800_108KdfUseCuidAsKdd) // NistSP800_108KdfUseCuidAsKdd
             );
 
-            signedAuditLogger.log(event);
+            auditor.log(event);
 
         } else {
             // AC: KDF SPEC CHANGE - Log both CUID and KDD
@@ -2271,7 +2277,7 @@ public class TokenServlet extends CMSServlet {
                     errorMsg // Error
             );
 
-            signedAuditLogger.log(event);
+            auditor.log(event);
         }
     }
 
@@ -2306,6 +2312,7 @@ public class TokenServlet extends CMSServlet {
 
         TKSEngine engine = TKSEngine.getInstance();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
+        Auditor auditor = engine.getAuditor();
 
         String agentId = "";
         if (sContext != null) {
@@ -2339,7 +2346,7 @@ public class TokenServlet extends CMSServlet {
                 ILogger.SUCCESS,
                 agentId);
 
-        audit(auditMessage);
+        auditor.log(auditMessage);
 
         if (!missingParam) {
             try {
@@ -2397,7 +2404,7 @@ public class TokenServlet extends CMSServlet {
                     status,
                     agentId);
 
-            signedAuditLogger.log(event);
+            auditor.log(event);
 
         } else {
             ComputeRandomDataRequestProcessedEvent event = ComputeRandomDataRequestProcessedEvent.failure(
@@ -2405,7 +2412,7 @@ public class TokenServlet extends CMSServlet {
                     agentId,
                     errorMsg);
 
-            signedAuditLogger.log(event);
+            auditor.log(event);
         }
     }
 
@@ -2505,6 +2512,8 @@ public class TokenServlet extends CMSServlet {
 
         TKSEngine engine = TKSEngine.getInstance();
         TKSEngineConfig config = engine.getConfig();
+        Auditor auditor = engine.getAuditor();
+
         boolean isCryptoValidate = true;
         boolean missingParam = false;
 
@@ -2531,7 +2540,7 @@ public class TokenServlet extends CMSServlet {
                 ILogger.SUCCESS,
                 agentId);
 
-        audit(auditMessage);
+        auditor.log(auditMessage);
 
         String kek_wrapped_desKeyString = null;
         String keycheck_s = null;
@@ -2947,7 +2956,7 @@ public class TokenServlet extends CMSServlet {
                     null
             );
 
-            signedAuditLogger.log(event);
+            auditor.log(event);
 
         } else {
             ComputeSessionKeyRequestProcessedEvent event = ComputeSessionKeyRequestProcessedEvent.failure(
@@ -2966,7 +2975,7 @@ public class TokenServlet extends CMSServlet {
                     errorMsg // Error
             );
 
-            signedAuditLogger.log(event);
+            auditor.log(event);
 
         }
     }

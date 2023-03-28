@@ -77,6 +77,8 @@ import com.netscape.cms.servlet.common.CMCOutputTemplate;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestNotifier;
@@ -159,6 +161,10 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
     public AuthToken authenticate(AuthManager authenticator,
             HttpServletRequest request) throws EBaseException {
         String method = "ProfileSubmitCMCServlet: authenticate: ";
+
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
+
         AuthCredentials credentials = new AuthCredentials();
 
         // build credential
@@ -202,7 +208,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
 
             if (!auditSubjectID.equals(ILogger.UNIDENTIFIED) &&
                     !auditSubjectID.equals(ILogger.NONROLEUSER)) {
-                audit(AuthEvent.createSuccessEvent(
+                auditor.log(AuthEvent.createSuccessEvent(
                         auditSubjectID,
                         authMgrID));
             }
@@ -214,7 +220,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                 attempted_auditSubjectID =
                         (String) sc.get(SessionContext.USER_ID);
             }
-            audit(AuthEvent.createFailureEvent(
+            auditor.log(AuthEvent.createFailureEvent(
                     auditSubjectID,
                     authMgrID,
                     attempted_auditSubjectID));
@@ -330,6 +336,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
 
         CAEngine engine = CAEngine.getInstance();
         ProfileSubsystem ps = engine.getProfileSubsystem();
+        Auditor auditor = engine.getAuditor();
 
         if (ps == null) {
             logger.warn("ProfileSubmitCMCServlet: ProfileSubsystem not found");
@@ -621,7 +628,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         }
 
         if (errorReason != null) {
-            audit(CertRequestProcessedEvent.createFailureEvent(
+            auditor.log(CertRequestProcessedEvent.createFailureEvent(
                         auditSubjectID,
                         auditRequesterID,
                         ILogger.SIGNED_AUDIT_REJECTION,
@@ -839,7 +846,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
             }
 
             if (errorReason != null) {
-                audit(CertRequestProcessedEvent.createFailureEvent(
+                auditor.log(CertRequestProcessedEvent.createFailureEvent(
                         auditSubjectID,
                         auditRequesterID,
                         ILogger.SIGNED_AUDIT_REJECTION,
@@ -880,7 +887,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
 
                     if (x509cert != null) {
 
-                        audit(CertRequestProcessedEvent.createSuccessEvent(
+                        auditor.log(CertRequestProcessedEvent.createSuccessEvent(
                                     auditSubjectID,
                                     auditRequesterID,
                                     ILogger.SIGNED_AUDIT_ACCEPTANCE,
@@ -947,7 +954,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                 if (errorCode != null) {
                     if (errorCode.equals("1")) {
 
-                        audit(CertRequestProcessedEvent.createFailureEvent(
+                        auditor.log(CertRequestProcessedEvent.createFailureEvent(
                                     auditSubjectID,
                                     auditRequesterID,
                                     ILogger.SIGNED_AUDIT_REJECTION,
@@ -959,7 +966,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                         // deferred for manual acceptance/cancellation/rejection
                     } else if (errorCode.equals("3")) {
 
-                        audit(CertRequestProcessedEvent.createFailureEvent(
+                        auditor.log(CertRequestProcessedEvent.createFailureEvent(
                                     auditSubjectID,
                                     auditRequesterID,
                                     ILogger.SIGNED_AUDIT_REJECTION,
@@ -988,7 +995,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
 
                     if (x509cert != null) {
 
-                        audit(CertRequestProcessedEvent.createSuccessEvent(
+                        auditor.log(CertRequestProcessedEvent.createSuccessEvent(
                                 auditSubjectID,
                                 auditRequesterID,
                                 ILogger.SIGNED_AUDIT_ACCEPTANCE,
@@ -1019,7 +1026,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                     error_codes[0] = Integer.parseInt(errorCode);
                     engine.getRequestRepository().updateRequest(provedReq);
                     logger.warn("ProfileSubmitCMCServlet: provedReq updateRequest");
-                    audit(CertRequestProcessedEvent.createFailureEvent(
+                    auditor.log(CertRequestProcessedEvent.createFailureEvent(
                                 auditSubjectID,
                                 auditRequesterID,
                                 ILogger.SIGNED_AUDIT_REJECTION,

@@ -44,8 +44,10 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.ocsp.OCSPAuthority;
 
 /**
@@ -108,6 +110,10 @@ public class AddCAServlet extends CMSServlet {
             throws EBaseException {
         HttpServletRequest req = cmsReq.getHttpReq();
         HttpServletResponse resp = cmsReq.getHttpResp();
+
+        CMSEngine engine = getCMSEngine();
+        Auditor auditor = engine.getAuditor();
+
         String auditSubjectID = auditSubjectID();
         String auditCA = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
         String auditCASubjectDN = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
@@ -155,7 +161,7 @@ public class AddCAServlet extends CMSServlet {
 
         if (b64 == null) {
 
-            audit(OCSPAddCARequestEvent.createFailureEvent(
+            auditor.log(OCSPAddCARequestEvent.createFailureEvent(
                     auditSubjectID));
 
             throw new ECMSGWException(CMS.getUserMessage(getLocale(req), "CMS_GW_MISSING_CA_CERT"));
@@ -163,13 +169,13 @@ public class AddCAServlet extends CMSServlet {
 
         auditCA = Cert.normalizeCertStr(Cert.stripCertBrackets(b64.trim()));
 
-        audit(OCSPAddCARequestEvent.createSuccessEvent(
+        auditor.log(OCSPAddCARequestEvent.createSuccessEvent(
                 auditSubjectID,
                 auditCA));
 
         if (b64.indexOf(Cert.HEADER) == -1) {
 
-            audit(OCSPAddCARequestProcessedEvent.createFailureEvent(
+            auditor.log(OCSPAddCARequestProcessedEvent.createFailureEvent(
                     auditSubjectID,
                     auditCASubjectDN));
 
@@ -177,7 +183,7 @@ public class AddCAServlet extends CMSServlet {
         }
         if (b64.indexOf(Cert.FOOTER) == -1) {
 
-            audit(OCSPAddCARequestProcessedEvent.createFailureEvent(
+            auditor.log(OCSPAddCARequestProcessedEvent.createFailureEvent(
                     auditSubjectID,
                     auditCASubjectDN));
 
@@ -195,7 +201,7 @@ public class AddCAServlet extends CMSServlet {
             if (cert == null) {
                 logger.warn("AddCAServlet::process() - cert is null!");
 
-                audit(OCSPAddCARequestProcessedEvent.createFailureEvent(
+                auditor.log(OCSPAddCARequestProcessedEvent.createFailureEvent(
                         auditSubjectID,
                         auditCASubjectDN));
 
@@ -220,7 +226,7 @@ public class AddCAServlet extends CMSServlet {
                 auditCASubjectDN = leafCert.getSubjectDN().getName();
             } catch (Exception e) {
 
-                audit(OCSPAddCARequestProcessedEvent.createFailureEvent(
+                auditor.log(OCSPAddCARequestProcessedEvent.createFailureEvent(
                         auditSubjectID,
                         auditCASubjectDN));
 
@@ -242,7 +248,7 @@ public class AddCAServlet extends CMSServlet {
                 rec.set(CRLIssuingPointRecord.ATTR_CA_CERT, leafCert.getEncoded());
             } catch (Exception e) {
 
-                audit(OCSPAddCARequestProcessedEvent.createFailureEvent(
+                auditor.log(OCSPAddCARequestProcessedEvent.createFailureEvent(
                         auditSubjectID,
                         auditCASubjectDN));
 
@@ -251,7 +257,7 @@ public class AddCAServlet extends CMSServlet {
             defStore.addCRLIssuingPoint(leafCert.getSubjectDN().getName(), rec);
             logger.info("Added CA certificate " + leafCert.getSubjectDN().getName());
 
-            audit(OCSPAddCARequestProcessedEvent.createSuccessEvent(
+            auditor.log(OCSPAddCARequestProcessedEvent.createSuccessEvent(
                     auditSubjectID,
                     auditCASubjectDN));
         }
