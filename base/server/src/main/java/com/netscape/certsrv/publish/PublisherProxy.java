@@ -19,23 +19,23 @@ package com.netscape.certsrv.publish;
 
 /**
  *
- * Class representing a proxy for a ILdapPublisher.
+ * Class representing a proxy for a Publisher.
  *
  * @version $Revision$ $Date$
  */
 
 public class PublisherProxy {
     private boolean mEnable;
-    private ILdapPublisher mPublisher;
+    private Publisher mPublisher;
 
     /**
      *
-     * Constructs a PublisherProxy based on a ILdapPublisher object and enabled boolean.
+     * Constructs a PublisherProxy based on a Publisher object and enabled boolean.
      *
      * @param enable Proxy is enabled or not.
-     * @param publisher Corresponding ILdapPublisher object.
+     * @param publisher Corresponding Publisher object.
      */
-    public PublisherProxy(boolean enable, ILdapPublisher publisher) {
+    public PublisherProxy(boolean enable, Publisher publisher) {
         mEnable = enable;
         mPublisher = publisher;
     }
@@ -50,11 +50,11 @@ public class PublisherProxy {
     }
 
     /**
-     * Return ILdapPublisher object.
+     * Return Publisher object.
      *
-     * @return Instance of ILdapPublisher.
+     * @return Instance of Publisher.
      */
-    public ILdapPublisher getPublisher() {
+    public Publisher getPublisher() {
         return mPublisher;
     }
 }

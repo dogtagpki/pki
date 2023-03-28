@@ -51,9 +51,9 @@ import com.netscape.certsrv.publish.EPublisherPluginNotFound;
 import com.netscape.certsrv.publish.ERuleNotFound;
 import com.netscape.certsrv.publish.ERulePluginNotFound;
 import com.netscape.certsrv.publish.ILdapMapper;
-import com.netscape.certsrv.publish.ILdapPublisher;
 import com.netscape.certsrv.publish.MapperPlugin;
 import com.netscape.certsrv.publish.MapperProxy;
+import com.netscape.certsrv.publish.Publisher;
 import com.netscape.certsrv.publish.PublisherPlugin;
 import com.netscape.certsrv.publish.PublisherProxy;
 import com.netscape.certsrv.publish.RulePlugin;
@@ -2220,9 +2220,9 @@ public class PublisherAdminServlet extends AdminServlet {
             return;
         }
 
-        // is the class an ILdapPublisher?
+        // is the class a Publisher?
         try {
-            if (!ILdapPublisher.class.isAssignableFrom(newImpl)) {
+            if (!Publisher.class.isAssignableFrom(newImpl)) {
                 sendResponse(ERROR, CMS.getUserMessage(getLocale(req), "CMS_LDAP_SRVLT_ILL_CLASS", classPath), null,
                         resp);
                 return;
@@ -2343,10 +2343,10 @@ public class PublisherAdminServlet extends AdminServlet {
 
         // Instantiate an object for this implementation
         String className = plugin.getClassPath();
-        ILdapPublisher publisherInst = null;
+        Publisher publisherInst = null;
 
         try {
-            publisherInst = (ILdapPublisher) Class.forName(className).getDeclaredConstructor().newInstance();
+            publisherInst = (Publisher) Class.forName(className).getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             instancesConfig.removeSubStore(id);
             sendResponse(ERROR,
@@ -2408,7 +2408,7 @@ public class PublisherAdminServlet extends AdminServlet {
             String desc = "unknown";
 
             try {
-                ILdapPublisher lp = (ILdapPublisher) Class.forName(c).getDeclaredConstructor().newInstance();
+                Publisher lp = (Publisher) Class.forName(c).getDeclaredConstructor().newInstance();
 
                 desc = lp.getDescription();
             } catch (Exception exp) {
@@ -2418,7 +2418,7 @@ public class PublisherAdminServlet extends AdminServlet {
         sendResponse(SUCCESS, null, params, resp);
     }
 
-    public String getPublisherPluginName(ILdapPublisher pub) {
+    public String getPublisherPluginName(Publisher pub) {
         ConfigStore cs = pub.getConfigStore();
 
         try {
@@ -2437,7 +2437,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         for (; e.hasMoreElements();) {
             String name = e.nextElement();
-            ILdapPublisher value = mProcessor.getPublisherInstance(name);
+            Publisher value = mProcessor.getPublisherInstance(name);
 
             if (value == null)
                 continue;
@@ -2475,8 +2475,7 @@ public class PublisherAdminServlet extends AdminServlet {
         // DON'T remove publisher if any instance
         for (Enumeration<String> e = mProcessor.getPublisherInsts().keys(); e.hasMoreElements();) {
             String name = e.nextElement();
-            ILdapPublisher publisher =
-                    mProcessor.getPublisherInstance(name);
+            Publisher publisher = mProcessor.getPublisherInstance(name);
 
             if (id.equals(getPublisherPluginName(publisher))) {
                 sendResponse(ERROR, CMS.getUserMessage(getLocale(req), "CMS_LDAP_SRVLT_IN_USE"), null, resp);
@@ -2620,7 +2619,7 @@ public class PublisherAdminServlet extends AdminServlet {
             return;
         }
 
-        ILdapPublisher publisherInst = mProcessor.getPublisherInstance(id);
+        Publisher publisherInst = mProcessor.getPublisherInstance(id);
         Vector<String> configParams = publisherInst.getInstanceParams();
         NameValuePairs params = new NameValuePairs();
 
@@ -2694,7 +2693,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         // save old instance substore params in case new one fails.
 
-        ILdapPublisher oldinst = mProcessor.getPublisherInstance(id);
+        Publisher oldinst = mProcessor.getPublisherInstance(id);
         Vector<String> oldConfigParms = oldinst.getInstanceParams();
         NameValuePairs saveParams = new NameValuePairs();
         String pubType = "";
@@ -2770,10 +2769,10 @@ public class PublisherAdminServlet extends AdminServlet {
         // Instantiate an object for new implementation
 
         String className = plugin.getClassPath();
-        ILdapPublisher newMgrInst = null;
+        Publisher newMgrInst = null;
 
         try {
-            newMgrInst = (ILdapPublisher) Class.forName(className).getDeclaredConstructor().newInstance();
+            newMgrInst = (Publisher) Class.forName(className).getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             restore(instancesConfig, id, saveParams);
             sendResponse(ERROR,

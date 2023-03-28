@@ -37,7 +37,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
-import com.netscape.certsrv.publish.ILdapPublisher;
+import com.netscape.certsrv.publish.Publisher;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.cert.CertUtils;
@@ -51,11 +51,11 @@ import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPv3;
 
 /**
- * Interface for mapping a X509 certificate to a LDAP entry
- *
- * @version $Revision$, $Date$
+ * Class for mapping a X509 certificate to a LDAP entry
  */
-public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPluginInfo {
+public class LdapEncryptCertPublisher
+        extends Publisher
+        implements IExtendedPluginInfo {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapEncryptCertPublisher.class);
 

@@ -35,7 +35,7 @@ import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.publish.ILdapMapper;
-import com.netscape.certsrv.publish.ILdapPublisher;
+import com.netscape.certsrv.publish.Publisher;
 import com.netscape.cms.publish.mappers.LdapCertSubjMap;
 import com.netscape.cms.publish.publishers.FileBasedPublisher;
 import com.netscape.cmscore.apps.CMS;
@@ -413,7 +413,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
             try {
                 String publisherName = rule.getPublisher();
                 logger.info("CAPublisherProcessor: - publisher: " + publisherName);
-                ILdapPublisher p = getActivePublisherInstance(publisherName);
+                Publisher p = getActivePublisherInstance(publisherName);
 
                 String mapperName = rule.getMapper();
                 logger.info("CAPublisherProcessor: - mapper: " + mapperName);
@@ -583,7 +583,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
                     String publisherName = rule.getPublisher();
                     logger.info("CAPublisherProcessor: - publisher: " + publisherName);
 
-                    ILdapPublisher publisher = getActivePublisherInstance(publisherName);
+                    Publisher publisher = getActivePublisherInstance(publisherName);
 
                     if (publisher != null) {
 
@@ -647,7 +647,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
         }
 
         LDAPConnection conn = null;
-        ILdapPublisher publisher = null;
+        Publisher publisher = null;
 
         try {
             if (mLdapConnModule != null) {
@@ -689,7 +689,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
         }
     }
 
-    private void publishNow(ILdapMapper mapper, ILdapPublisher publisher, Request r, Object obj) throws ELdapException {
+    private void publishNow(ILdapMapper mapper, Publisher publisher, Request r, Object obj) throws ELdapException {
 
         if (!isCertPublishingEnabled()) {
             return;
@@ -766,7 +766,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
     }
 
     // for crosscerts
-    private void publishNow(ILdapMapper mapper, ILdapPublisher publisher, Request r, byte[] bytes) throws EBaseException {
+    private void publishNow(ILdapMapper mapper, Publisher publisher, Request r, byte[] bytes) throws EBaseException {
 
         if (!isCertPublishingEnabled()) {
             return;
@@ -820,7 +820,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
         }
     }
 
-    private void unpublishNow(ILdapMapper mapper, ILdapPublisher publisher, Request r, Object obj) throws ELdapException {
+    private void unpublishNow(ILdapMapper mapper, Publisher publisher, Request r, Object obj) throws ELdapException {
 
         if (!isCertPublishingEnabled()) {
             return;

@@ -30,7 +30,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
-import com.netscape.certsrv.publish.ILdapPublisher;
+import com.netscape.certsrv.publish.Publisher;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 
@@ -44,13 +44,11 @@ import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPv3;
 
 /**
- * Interface for mapping a X509 certificate to a LDAP entry
+ * Class for mapping a X509 certificate to a LDAP entry
  * Publishes a certificate as binary and its subject name.
  * there is one subject name value for each certificate.
- *
- * @version $Revision$, $Date$
  */
-public class LdapCertSubjPublisher implements ILdapPublisher {
+public class LdapCertSubjPublisher extends Publisher {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapCertSubjPublisher.class);
 

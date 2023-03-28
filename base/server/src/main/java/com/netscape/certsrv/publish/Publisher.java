@@ -19,16 +19,15 @@ package com.netscape.certsrv.publish;
 
 import java.util.Vector;
 
-import netscape.ldap.LDAPConnection;
-
 import com.netscape.certsrv.ldap.ELdapException;
 
+import netscape.ldap.LDAPConnection;
+
 /**
- * Interface for publishing certificate or crl to database store.
- *
- * @version $Revision$ $Date$
+ * Class for publishing certificate or crl to database store.
  */
-public interface ILdapPublisher extends ILdapPlugin {
+public abstract class Publisher implements ILdapPlugin {
+
     public static final String PROP_PREDICATE = "predicate";
     public static final String PROP_ENABLE = "enable";
     public static final String PROP_IMPLNAME = "implName";
@@ -36,22 +35,22 @@ public interface ILdapPublisher extends ILdapPlugin {
     /**
      * Returns the implementation name.
      */
-    public String getImplName();
+    public abstract String getImplName();
 
     /**
      * Returns the description of the publisher.
      */
-    public String getDescription();
+    public abstract String getDescription();
 
     /**
      * Returns the current instance parameters.
      */
-    public Vector<String> getInstanceParams();
+    public abstract Vector<String> getInstanceParams();
 
     /**
      * Returns the initial default parameters.
      */
-    public Vector<String> getDefaultParams();
+    public abstract Vector<String> getDefaultParams();
 
     /**
      * Publish an object.
@@ -65,7 +64,7 @@ public interface ILdapPublisher extends ILdapPlugin {
      *            java.security.cert.X509CRL)
      * @exception ELdapException publish failed.
      */
-    public void publish(LDAPConnection conn, String dn, Object object)
+    public abstract void publish(LDAPConnection conn, String dn, Object object)
             throws ELdapException;
 
     /**
@@ -79,6 +78,6 @@ public interface ILdapPublisher extends ILdapPlugin {
      *            (java.security.cert.X509Certificate)
      * @exception ELdapException unpublish failed.
      */
-    public void unpublish(LDAPConnection conn, String dn, Object object)
+    public abstract void unpublish(LDAPConnection conn, String dn, Object object)
             throws ELdapException;
 }

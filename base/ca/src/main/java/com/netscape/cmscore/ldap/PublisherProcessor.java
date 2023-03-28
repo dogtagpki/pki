@@ -26,9 +26,9 @@ import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnModule;
 import com.netscape.certsrv.publish.ILdapMapper;
-import com.netscape.certsrv.publish.ILdapPublisher;
 import com.netscape.certsrv.publish.MapperPlugin;
 import com.netscape.certsrv.publish.MapperProxy;
+import com.netscape.certsrv.publish.Publisher;
 import com.netscape.certsrv.publish.PublisherPlugin;
 import com.netscape.certsrv.publish.PublisherProxy;
 import com.netscape.certsrv.publish.RulePlugin;
@@ -135,10 +135,10 @@ public abstract class PublisherProcessor {
 
             // Instantiate and init the publisher.
             boolean isEnable = false;
-            ILdapPublisher publisherInst = null;
+            Publisher publisherInst = null;
 
             try {
-                publisherInst = (ILdapPublisher) Class.forName(className).getDeclaredConstructor().newInstance();
+                publisherInst = (Publisher) Class.forName(className).getDeclaredConstructor().newInstance();
                 ConfigStore pConfig = c.getSubStore(insName, ConfigStore.class);
 
                 publisherInst.init(pConfig);
@@ -619,11 +619,11 @@ public abstract class PublisherProcessor {
         // publisher instantces to avoid instantiation just for this.
 
         // a temporary instance
-        ILdapPublisher publisherInst = null;
+        Publisher publisherInst = null;
         String className = plugin.getClassPath();
 
         try {
-            publisherInst = (ILdapPublisher) Class.forName(className).getDeclaredConstructor().newInstance();
+            publisherInst = (Publisher) Class.forName(className).getDeclaredConstructor().newInstance();
             Vector<String> v = publisherInst.getDefaultParams();
 
             return v;
@@ -693,12 +693,12 @@ public abstract class PublisherProcessor {
     }
 
     /**
-     * Returns ILdapPublisher instance that is currently active.
+     * Returns Publisher instance that is currently active.
      *
      * @param insName name of PublisherProxy.
-     * @return instance of ILdapPublisher.
+     * @return instance of Publisher.
      */
-    public ILdapPublisher getActivePublisherInstance(String insName) {
+    public Publisher getActivePublisherInstance(String insName) {
         PublisherProxy proxy = mPublisherInsts.get(insName);
 
         if (proxy == null) {
@@ -708,12 +708,12 @@ public abstract class PublisherProcessor {
     }
 
     /**
-     * Returns ILdapPublisher instance.
+     * Returns Publisher instance.
      *
      * @param insName name of PublisherProxy.
-     * @return instance of ILdapPublisher.
+     * @return instance of Publisher.
      */
-    public ILdapPublisher getPublisherInstance(String insName) {
+    public Publisher getPublisherInstance(String insName) {
         PublisherProxy proxy = mPublisherInsts.get(insName);
 
         if (proxy == null) {
@@ -730,7 +730,7 @@ public abstract class PublisherProcessor {
      */
     public Vector<String> getPublisherInstanceParams(String insName) throws
             ELdapException {
-        ILdapPublisher publisherInst = getPublisherInstance(insName);
+        Publisher publisherInst = getPublisherInstance(insName);
 
         if (publisherInst == null) {
             return null;

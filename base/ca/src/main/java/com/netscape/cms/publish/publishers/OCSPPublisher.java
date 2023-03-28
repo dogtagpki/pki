@@ -38,7 +38,7 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.publish.ILdapPublisher;
+import com.netscape.certsrv.publish.Publisher;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -50,10 +50,10 @@ import netscape.ldap.LDAPConnection;
 /**
  * This publisher writes certificate and CRL into
  * a directory.
- *
- * @version $Revision$, $Date$
  */
-public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
+public class OCSPPublisher
+        extends Publisher
+        implements IExtendedPluginInfo {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OCSPPublisher.class);
 
