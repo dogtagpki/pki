@@ -26,8 +26,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.common.Constants;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 
 
@@ -38,13 +36,20 @@ import com.netscape.cmscore.apps.EngineConfig;
  */
 public class CSCfgDatabase<E extends CSCfgRecord> extends Database<E> {
 
-    CMSEngine engine = CMS.getCMSEngine();
-    public EngineConfig configStore = engine.getConfig();
+    public EngineConfig configStore;
     public String substoreName;
 
     public CSCfgDatabase(String name, String substoreName) {
         super(name);
         this.substoreName = substoreName;
+    }
+
+    public EngineConfig getEngineConfig() {
+        return configStore;
+    }
+
+    public void setEngineConfig(EngineConfig engineConfig) {
+        this.configStore = engineConfig;
     }
 
     public boolean requiresApproval() throws EBaseException {

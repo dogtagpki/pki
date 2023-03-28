@@ -118,10 +118,18 @@ public class TPSSubsystem extends Subsystem implements IAuthority {
         tokenDatabase = new TokenDatabase(dbSubsystem, tokenDatabaseDN);
 
         configDatabase = new ConfigDatabase();
+
         authenticatorDatabase = new AuthenticatorDatabase();
+        authenticatorDatabase.setEngineConfig(cs);
+
         connectorDatabase = new ConnectorDatabase();
+        connectorDatabase.setEngineConfig(cs);
+
         profileDatabase = new ProfileDatabase();
+        profileDatabase.setEngineConfig(cs);
+
         profileMappingDatabase = new ProfileMappingDatabase();
+        profileMappingDatabase.setEngineConfig(cs);
 
         ConfigStore defaultConfig;
         try {

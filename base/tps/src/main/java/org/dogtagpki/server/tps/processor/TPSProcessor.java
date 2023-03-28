@@ -154,10 +154,16 @@ public class TPSProcessor {
     protected BeginOpMsg beginMsg;
     private PlatformAndSecChannelProtoInfo platProtInfo;
 
-    ProfileDatabase profileDatabase = new ProfileDatabase();
+    ProfileDatabase profileDatabase;
 
     public TPSProcessor(TPSSession session) {
         setSession(session);
+
+        TPSEngine engine = TPSEngine.getInstance();
+        TPSEngineConfig engineConfig = engine.getConfig();
+
+        profileDatabase = new ProfileDatabase();
+        profileDatabase.setEngineConfig(engineConfig);
     }
 
     protected void setCurrentTokenOperation(String op) {
