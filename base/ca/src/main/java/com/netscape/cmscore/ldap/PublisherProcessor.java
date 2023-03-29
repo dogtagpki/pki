@@ -462,7 +462,7 @@ public abstract class PublisherProcessor {
             }
 
             // check if the predicate match
-            ILdapExpression exp = rule.getPredicate();
+            LdapExpression exp = rule.getPredicate();
             logger.info("PublisherProcessor:   predicate: " + exp);
 
             try {
@@ -518,7 +518,7 @@ public abstract class PublisherProcessor {
             }
 
             // check if the predicate match
-            ILdapExpression exp = rule.getPredicate();
+            LdapExpression exp = rule.getPredicate();
             logger.debug("PublisherProcessor:   predicate: " + exp);
 
             try {

@@ -22,11 +22,9 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.cmscore.request.Request;
 
 /**
- * Interface for a Ldap predicate expression.
- *
- * @version $Revision$, $Date$
+ * Class for a Ldap predicate expression.
  */
-public interface ILdapExpression {
+public abstract class LdapExpression {
     public static final int OP_EQUAL = 1;
     public static final int OP_NEQUAL = 2;
     public static final int OP_GT = 3;
@@ -47,8 +45,7 @@ public interface ILdapExpression {
      * @return The return value.
      * @exception ELdapExeption Failed to evaluate expression.
      */
-    boolean evaluate(SessionContext sc)
-            throws ELdapException;
+    abstract boolean evaluate(SessionContext sc) throws ELdapException;
 
     /**
      * Evaluate the Expression.
@@ -57,8 +54,7 @@ public interface ILdapExpression {
      * @return The return value.
      * @exception ELdapExeption Failed to evaluate expression.
      */
-    boolean evaluate(Request req)
-            throws ELdapException;
+    abstract boolean evaluate(Request req) throws ELdapException;
 
     /**
      * Convert to a string.
@@ -66,5 +62,5 @@ public interface ILdapExpression {
      * @return String representation of expression.
      */
     @Override
-    public String toString();
+    public abstract String toString();
 }

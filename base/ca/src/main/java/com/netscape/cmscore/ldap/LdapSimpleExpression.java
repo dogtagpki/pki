@@ -33,9 +33,8 @@ import com.netscape.cmscore.util.AssertionException;
  * Expressions are used as predicates for publishing rule selection.
  *
  * @author mzhao
- * @version $Revision$, $Date$
  */
-public class LdapSimpleExpression implements ILdapExpression {
+public class LdapSimpleExpression extends LdapExpression {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapSimpleExpression.class);
 
@@ -50,7 +49,7 @@ public class LdapSimpleExpression implements ILdapExpression {
     // This is just for indicating a null expression.
     public static LdapSimpleExpression NULL_EXPRESSION = new LdapSimpleExpression("null", OP_EQUAL, "null");
 
-    public static ILdapExpression parse(String input)
+    public static LdapExpression parse(String input)
             throws ELdapException {
         // Get the index of operator
         // Debug.trace("LdapSimpleExpression::input: " + input);
@@ -94,8 +93,8 @@ public class LdapSimpleExpression implements ILdapExpression {
     }
 
     public LdapSimpleExpression(String prefix, String var, int op, String val) {
-        // Assert that op has to be either ILdapExpression.OP_EQUAL or
-        // ILdapExpression.OP_NEQUAL.
+        // Assert that op has to be either LdapExpression.OP_EQUAL or
+        // LdapExpression.OP_NEQUAL.
         // If val or var is null throw an exception!
         mPfx = prefix;
         mVar = var;
@@ -341,28 +340,28 @@ public class LdapSimpleExpression implements ILdapExpression {
         String op = null;
 
         switch (mOp) {
-        case ILdapExpression.OP_EQUAL:
-            op = ILdapExpression.EQUAL_STR;
+        case LdapExpression.OP_EQUAL:
+            op = LdapExpression.EQUAL_STR;
             break;
 
-        case ILdapExpression.OP_NEQUAL:
-            op = ILdapExpression.NEQUAL_STR;
+        case LdapExpression.OP_NEQUAL:
+            op = LdapExpression.NEQUAL_STR;
             break;
 
-        case ILdapExpression.OP_GT:
-            op = ILdapExpression.GT_STR;
+        case LdapExpression.OP_GT:
+            op = LdapExpression.GT_STR;
             break;
 
-        case ILdapExpression.OP_LT:
-            op = ILdapExpression.LT_STR;
+        case LdapExpression.OP_LT:
+            op = LdapExpression.LT_STR;
             break;
 
-        case ILdapExpression.OP_GE:
-            op = ILdapExpression.GE_STR;
+        case LdapExpression.OP_GE:
+            op = LdapExpression.GE_STR;
             break;
 
-        case ILdapExpression.OP_LE:
-            op = ILdapExpression.LE_STR;
+        case LdapExpression.OP_LE:
+            op = LdapExpression.LE_STR;
             break;
         }
         if (mPfx == null || mPfx.length() <= 0) {
@@ -372,7 +371,7 @@ public class LdapSimpleExpression implements ILdapExpression {
     }
 
     private static ExpressionComps parseForEquality(String expression) {
-        int index = expression.indexOf(ILdapExpression.EQUAL_STR);
+        int index = expression.indexOf(LdapExpression.EQUAL_STR);
 
         if (index < 0) {
             return null;
@@ -385,7 +384,7 @@ public class LdapSimpleExpression implements ILdapExpression {
     }
 
     private static ExpressionComps parseForInEquality(String expression) {
-        int index = expression.indexOf(ILdapExpression.NEQUAL_STR);
+        int index = expression.indexOf(LdapExpression.NEQUAL_STR);
 
         if (index < 0) {
             return null;
@@ -398,7 +397,7 @@ public class LdapSimpleExpression implements ILdapExpression {
     }
 
     private static ExpressionComps parseForGT(String expression) {
-        int index = expression.indexOf(ILdapExpression.GT_STR);
+        int index = expression.indexOf(LdapExpression.GT_STR);
 
         if (index < 0) {
             return null;
@@ -411,7 +410,7 @@ public class LdapSimpleExpression implements ILdapExpression {
     }
 
     private static ExpressionComps parseForLT(String expression) {
-        int index = expression.indexOf(ILdapExpression.LT_STR);
+        int index = expression.indexOf(LdapExpression.LT_STR);
 
         if (index < 0) {
             return null;
@@ -424,7 +423,7 @@ public class LdapSimpleExpression implements ILdapExpression {
     }
 
     private static ExpressionComps parseForGE(String expression) {
-        int index = expression.indexOf(ILdapExpression.GE_STR);
+        int index = expression.indexOf(LdapExpression.GE_STR);
 
         if (index < 0) {
             return null;
@@ -437,7 +436,7 @@ public class LdapSimpleExpression implements ILdapExpression {
     }
 
     private static ExpressionComps parseForLE(String expression) {
-        int index = expression.indexOf(ILdapExpression.LE_STR);
+        int index = expression.indexOf(LdapExpression.LE_STR);
 
         if (index < 0) {
             return null;

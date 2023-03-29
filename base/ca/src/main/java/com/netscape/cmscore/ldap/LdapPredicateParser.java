@@ -56,7 +56,7 @@ public class LdapPredicateParser {
      * @param predicateExpression The predicate expression as read from the config file.
      * @return expVector The vector of expressions.
      */
-    public static ILdapExpression parse(String predicateExpression)
+    public static LdapExpression parse(String predicateExpression)
             throws ELdapException {
         if (predicateExpression == null ||
                 predicateExpression.length() == 0)
@@ -74,9 +74,9 @@ public class LdapPredicateParser {
             logger.error("Malformed expression: " + predicateExpression);
             throw new ELdapException(CMS.getUserMessage("CMS_LDAP_BAD_LDAP_EXPRESSION", predicateExpression));
         }
-        ILdapExpression current = parseExpression(token);
+        LdapExpression current = parseExpression(token);
         boolean malformed = false;
-        Vector<ILdapExpression> expSet = new Vector<>();
+        Vector<LdapExpression> expSet = new Vector<>();
         int prevType = EXPRESSION;
 
         while (pt.hasMoreTokens()) {
@@ -142,7 +142,7 @@ public class LdapPredicateParser {
             return EXPRESSION;
     }
 
-    private static ILdapExpression parseExpression(String input)
+    private static LdapExpression parseExpression(String input)
             throws ELdapException {
         // If the expression has multiple parts separated by commas
         // we need to construct an AND expression. Else we will return a
@@ -212,7 +212,7 @@ public class LdapPredicateParser {
          * {
          * System.out.println();
          * System.out.println("String: " + array[i]);
-         * ILdapExpression exp = null;
+         * LdapExpression exp = null;
          * try
          * {
          * exp = parse(array[i]);
@@ -236,7 +236,7 @@ public class LdapPredicateParser {
          * {
          * System.out.println();
          * System.out.println("Line Read: " + line);
-         * ILdapExpression exp = null;
+         * LdapExpression exp = null;
          * try
          * {
          * exp = parse(line);

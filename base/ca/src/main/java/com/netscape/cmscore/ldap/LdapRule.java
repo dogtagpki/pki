@@ -44,7 +44,7 @@ public class LdapRule implements IExtendedPluginInfo {
     public final static String NOMAPPER = "<NONE>";
 
     private ConfigStore mConfig;
-    protected ILdapExpression mFilterExp = null;
+    protected LdapExpression mFilterExp = null;
     private String mInstanceName = null;
 
     private static String[] epi_params = null; // extendedpluginInfo
@@ -108,7 +108,7 @@ public class LdapRule implements IExtendedPluginInfo {
         }
 
         if (exp != null && exp.length() > 0) {
-            ILdapExpression filterExp = LdapPredicateParser.parse(exp);
+            LdapExpression filterExp = LdapPredicateParser.parse(exp);
             setPredicate(filterExp);
         }
 
@@ -141,7 +141,7 @@ public class LdapRule implements IExtendedPluginInfo {
         }
 
         if (exp != null && exp.length() > 0) {
-            ILdapExpression filterExp = LdapPredicateParser.parse(exp);
+            LdapExpression filterExp = LdapPredicateParser.parse(exp);
             setPredicate(filterExp);
         }
     }
@@ -229,7 +229,7 @@ public class LdapRule implements IExtendedPluginInfo {
      *
      * @param exp The predicate expression for the rule.
      */
-    public void setPredicate(ILdapExpression exp) {
+    public void setPredicate(LdapExpression exp) {
         mFilterExp = exp;
     }
 
@@ -239,7 +239,7 @@ public class LdapRule implements IExtendedPluginInfo {
      *
      * @return The predicate expression for the rule.
      */
-    public ILdapExpression getPredicate() {
+    public LdapExpression getPredicate() {
         return mFilterExp;
     }
 

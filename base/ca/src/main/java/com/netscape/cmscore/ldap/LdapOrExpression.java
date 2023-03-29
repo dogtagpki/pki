@@ -28,13 +28,12 @@ import com.netscape.cmscore.request.Request;
  * Expressions are used as predicates for publishing rule selection.
  *
  * @author mzhao
- * @version $Revision$, $Date$
  */
-public class LdapOrExpression implements ILdapExpression {
-    private ILdapExpression mExp1;
-    private ILdapExpression mExp2;
+public class LdapOrExpression extends LdapExpression {
+    private LdapExpression mExp1;
+    private LdapExpression mExp2;
 
-    public LdapOrExpression(ILdapExpression exp1, ILdapExpression exp2) {
+    public LdapOrExpression(LdapExpression exp1, LdapExpression exp2) {
         mExp1 = exp1;
         mExp2 = exp2;
     }
