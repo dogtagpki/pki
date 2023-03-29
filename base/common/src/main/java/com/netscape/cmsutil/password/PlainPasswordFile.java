@@ -31,7 +31,6 @@ import java.util.Vector;
 public class PlainPasswordFile extends PasswordStore {
     private String mPwdPath = "";
     private Properties mPwdStore;
-    private String id;
 
     private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PlainPasswordFile.class);
 
@@ -154,15 +153,6 @@ public class PlainPasswordFile extends PasswordStore {
             }
         }
 
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    @Override
-    public void setId(String id) {
-        this.id = id;
     }
 
     public int getSize() {

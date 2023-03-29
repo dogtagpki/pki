@@ -23,8 +23,6 @@ public class NuxwdogPasswordStore extends PasswordStore {
     private Hashtable<String, String> pwCache = null;
     private ArrayList<String> tags = null;
 
-    private String id;
-
     @Override
     public void init(String confFile) throws IOException {
         if (!NuxwdogUtil.startedByNuxwdog()) {
@@ -108,10 +106,4 @@ public class NuxwdogPasswordStore extends PasswordStore {
     public void commit() throws IOException, ClassCastException, NullPointerException {
         // Nothing required here
     }
-
-    @Override
-    public void setId(String id) {
-        this.id = id;
-    }
-
 }

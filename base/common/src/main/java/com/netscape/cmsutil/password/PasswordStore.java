@@ -29,6 +29,8 @@ public abstract class PasswordStore {
 
     public static Logger logger = LoggerFactory.getLogger(PasswordStore.class);
 
+    protected String id;
+
     /**
      * Construct a password store.
      *
@@ -62,6 +64,14 @@ public abstract class PasswordStore {
         return ps;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public abstract void init(String pwdPath) throws IOException;
 
     public abstract String getPassword(String tag, int iteration);
@@ -71,6 +81,4 @@ public abstract class PasswordStore {
     public abstract Object putPassword(String tag, String password);
 
     public abstract void commit() throws IOException, ClassCastException, NullPointerException;
-
-    public abstract void setId(String id);
 }
