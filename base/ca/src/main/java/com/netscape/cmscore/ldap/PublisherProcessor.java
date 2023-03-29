@@ -24,7 +24,6 @@ import java.util.Vector;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.ldap.ILdapConnModule;
 import com.netscape.certsrv.publish.Mapper;
 import com.netscape.certsrv.publish.MapperPlugin;
 import com.netscape.certsrv.publish.MapperProxy;
@@ -322,17 +321,17 @@ public abstract class PublisherProcessor {
      *
      * @return LdapConnModule.
      */
-    public ILdapConnModule getLdapConnModule() {
+    public LdapConnModule getLdapConnModule() {
         return mLdapConnModule;
     }
 
     /**
      * Sets the LdapConnModule belonging to this Processor.
      *
-     * @param m ILdapConnModule.
+     * @param m LdapConnModule.
      */
-    public void setLdapConnModule(ILdapConnModule m) {
-        mLdapConnModule = (LdapConnModule) m;
+    public void setLdapConnModule(LdapConnModule m) {
+        mLdapConnModule = m;
     }
 
     /**

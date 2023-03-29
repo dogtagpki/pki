@@ -8,8 +8,8 @@ package com.netscape.ca;
 import org.dogtagpki.server.ca.CAEngine;
 
 import com.netscape.certsrv.ldap.LdapConnFactory;
-import com.netscape.certsrv.ldap.ILdapConnModule;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
+import com.netscape.cmscore.ldap.LdapConnModule;
 import com.netscape.cmscore.request.RequestNotifier;
 
 public class CANotify extends RequestNotifier {
@@ -33,7 +33,7 @@ public class CANotify extends RequestNotifier {
             return false;
         }
 
-        ILdapConnModule ldapConnModule = pp.getLdapConnModule();
+        LdapConnModule ldapConnModule = pp.getLdapConnModule();
         if (ldapConnModule == null) {
             logger.warn("CANotify: LDAP connection module is not accessible");
             return false;

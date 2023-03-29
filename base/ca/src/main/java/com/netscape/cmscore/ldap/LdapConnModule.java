@@ -22,7 +22,6 @@ import org.dogtagpki.server.ca.CAEngineConfig;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.ldap.ILdapConnModule;
 import com.netscape.certsrv.ldap.LdapConnFactory;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
@@ -36,7 +35,12 @@ import com.netscape.cmsutil.password.IPasswordStore;
 
 import netscape.ldap.LDAPConnection;
 
-public class LdapConnModule implements ILdapConnModule {
+/**
+ * Class on behalf of the Publishing system that controls an instance of an LdapConnFactory.
+ * Allows a factory to be intialized and grants access
+ * to the factory to other interested parties.
+ */
+public class LdapConnModule {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapConnModule.class);
 
@@ -56,7 +60,13 @@ public class LdapConnModule implements ILdapConnModule {
         mInited = true;
     }
 
-    @Override
+    /**
+     * Initialize ldap publishing module with config store.
+     *
+     * @param config Config store containing the info needed to set up Publishing.
+     * @exception ELdapException Due to Ldap error.
+     * @exception EBaseException Due to config value errors and all other errors.
+     */
     public void init(ConfigStore config) throws EBaseException {
 
         logger.debug("LdapConnModule: init called");
@@ -118,10 +128,11 @@ public class LdapConnModule implements ILdapConnModule {
      * publishing directory.
      * Use LdapConnFactory.returnConn() to return the connection.
      *
+     * @return Instance of LdapConnFactory.
+     *
      * @see com.netscape.cmscore.ldapconn.LdapBoundConnFactory
      * @see com.netscape.certsrv.ldap.LdapConnFactory
      */
-    @Override
     public LdapConnFactory getLdapConnFactory() {
         return mLdapConnFactory;
     }

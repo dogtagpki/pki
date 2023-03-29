@@ -592,7 +592,7 @@ public class PublisherAdminServlet extends AdminServlet {
         /* we'll shut down and restart the PublisherProcessor instead
                 // what a hack to  do this without require restart server
         //        ILdapAuthInfo authInfo = CMS.getLdapAuthInfo();
-                ILdapConnModule connModule = mProcessor.getLdapConnModule();
+                LdapConnModule connModule = mProcessor.getLdapConnModule();
                 ILdapAuthInfo authInfo = null;
                 if (connModule != null) {
                     authInfo = connModule.getLdapAuthInfo();
@@ -915,7 +915,7 @@ public class PublisherAdminServlet extends AdminServlet {
             /* we'll shut down and restart the PublisherProcessor instead
                          // what a hack to  do this without require restart server
             //        ILdapAuthInfo authInfo = CMS.getLdapAuthInfo();
-                        ILdapConnModule connModule = mProcessor.getLdapConnModule();
+                        LdapConnModule connModule = mProcessor.getLdapConnModule();
                         ILdapAuthInfo authInfo = null;
                         if (connModule != null) {
                             authInfo = connModule.getLdapAuthInfo();
