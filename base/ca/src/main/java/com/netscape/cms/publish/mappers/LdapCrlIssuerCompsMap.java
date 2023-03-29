@@ -115,7 +115,7 @@ public class LdapCrlIssuerCompsMap extends LdapDNCompsMap {
      *
      * @param conn - the LDAP connection.
      * @param obj - the X509Certificate.
-     * @return the result. LdapCertMapResult is also used for CRL.
+     * @return the result.
      */
     @Override
     public String
