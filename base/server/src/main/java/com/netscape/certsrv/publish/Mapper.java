@@ -19,7 +19,9 @@ package com.netscape.certsrv.publish;
 
 import java.util.Vector;
 
+import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 import netscape.ldap.LDAPConnection;
@@ -27,7 +29,21 @@ import netscape.ldap.LDAPConnection;
 /**
  * Class for mapping a X509 certificate to a LDAP entry.
  */
-public abstract class Mapper implements ILdapPlugin {
+public abstract class Mapper {
+
+    /**
+     * Initialize from config store.
+     *
+     * @param config the configuration store to initialize from.
+     * @exception ELdapException initialization failed due to Ldap error.
+     * @exception EBaseException initialization failed.
+     */
+    public abstract void init(ConfigStore config) throws EBaseException, ELdapException;
+
+    /**
+     * Return config store.
+     */
+    public abstract ConfigStore getConfigStore();
 
     /**
      * Returns implementation name.

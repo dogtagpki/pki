@@ -19,18 +19,34 @@ package com.netscape.certsrv.publish;
 
 import java.util.Vector;
 
+import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.cmscore.base.ConfigStore;
 
 import netscape.ldap.LDAPConnection;
 
 /**
  * Class for publishing certificate or crl to database store.
  */
-public abstract class Publisher implements ILdapPlugin {
+public abstract class Publisher {
 
     public static final String PROP_PREDICATE = "predicate";
     public static final String PROP_ENABLE = "enable";
     public static final String PROP_IMPLNAME = "implName";
+
+    /**
+     * Initialize from config store.
+     *
+     * @param config the configuration store to initialize from.
+     * @exception ELdapException initialization failed due to Ldap error.
+     * @exception EBaseException initialization failed.
+     */
+    public abstract void init(ConfigStore config) throws EBaseException, ELdapException;
+
+    /**
+     * Return config store.
+     */
+    public abstract ConfigStore getConfigStore();
 
     /**
      * Returns the implementation name.
