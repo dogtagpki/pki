@@ -37,7 +37,7 @@ import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.ldap.ILdapConnFactory;
+import com.netscape.certsrv.ldap.LdapConnFactory;
 import com.netscape.certsrv.publish.Mapper;
 import com.netscape.certsrv.publish.Publisher;
 import com.netscape.certsrv.request.RequestListener;
@@ -168,14 +168,14 @@ public class LdapPublishModule extends RequestListener {
      * ldap publishing directory without having to get it again from the
      * config file. Note that this means sharing a ldap connection pool
      * with the ldap publishing module so be sure to return connections to pool.
-     * Use ILdapConnFactory.getConn() to get a Ldap connection to the ldap
+     * Use LdapConnFactory.getConn() to get a Ldap connection to the ldap
      * publishing directory.
-     * Use ILdapConnFactory.returnConn() to return the connection.
+     * Use LdapConnFactory.returnConn() to return the connection.
      *
      * @see com.netscape.certsrv.ldap.LdapBoundConnFactory
-     * @see com.netscape.certsrv.ldap.ILdapConnFactory
+     * @see com.netscape.certsrv.ldap.LdapConnFactory
      */
-    public ILdapConnFactory getLdapConnFactory() {
+    public LdapConnFactory getLdapConnFactory() {
         return mLdapConnFactory;
     }
 

@@ -46,7 +46,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.ldap.ILdapConnFactory;
+import com.netscape.certsrv.ldap.LdapConnFactory;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cmscore.apps.CMS;
@@ -112,7 +112,7 @@ public abstract class DirBasedAuthentication extends AuthManager implements IExt
 
     protected boolean mBoundConnEnable = false;
     /* factory of anonymous ldap connections */
-    protected ILdapConnFactory mConnFactory = null;
+    protected LdapConnFactory mConnFactory = null;
 
     /* the subject DN pattern */
     protected DNPattern mPattern = null;

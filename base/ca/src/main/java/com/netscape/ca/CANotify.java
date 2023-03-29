@@ -7,7 +7,7 @@ package com.netscape.ca;
 
 import org.dogtagpki.server.ca.CAEngine;
 
-import com.netscape.certsrv.ldap.ILdapConnFactory;
+import com.netscape.certsrv.ldap.LdapConnFactory;
 import com.netscape.certsrv.ldap.ILdapConnModule;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.request.RequestNotifier;
@@ -39,7 +39,7 @@ public class CANotify extends RequestNotifier {
             return false;
         }
 
-        ILdapConnFactory ldapConnFactory = ldapConnModule.getLdapConnFactory();
+        LdapConnFactory ldapConnFactory = ldapConnModule.getLdapConnFactory();
         if (ldapConnFactory == null) {
             logger.warn("CANotify: LDAP connection factory is not accessible");
             return false;

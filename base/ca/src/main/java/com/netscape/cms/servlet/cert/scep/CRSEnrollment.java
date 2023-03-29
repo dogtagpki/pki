@@ -109,7 +109,7 @@ import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.base.Subsystem;
-import com.netscape.certsrv.ldap.ILdapConnFactory;
+import com.netscape.certsrv.ldap.LdapConnFactory;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
@@ -1208,7 +1208,7 @@ public class CRSEnrollment extends HttpServlet {
             return result;
         }
 
-        ILdapConnFactory connFactory = ldapPub.getLdapConnModule().getLdapConnFactory();
+        LdapConnFactory connFactory = ldapPub.getLdapConnModule().getLdapConnFactory();
         if (connFactory == null) {
             return result;
         }

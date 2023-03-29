@@ -22,7 +22,7 @@ import org.dogtagpki.server.PKIClientSocketListener;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
-import com.netscape.certsrv.ldap.ILdapConnFactory;
+import com.netscape.certsrv.ldap.LdapConnFactory;
 import com.netscape.cmsutil.password.IPasswordStore;
 
 import netscape.ldap.LDAPConnection;
@@ -44,7 +44,7 @@ import netscape.ldap.LDAPv3;
  * XXX not sure how useful this is given that LDAPConnection itself can
  * be shared by multiple threads and cloned.
  */
-public class LdapBoundConnFactory implements ILdapConnFactory {
+public class LdapBoundConnFactory extends LdapConnFactory {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapBoundConnFactory.class);
 

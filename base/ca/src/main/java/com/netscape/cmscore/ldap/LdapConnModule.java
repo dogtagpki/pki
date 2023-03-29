@@ -22,8 +22,8 @@ import org.dogtagpki.server.ca.CAEngineConfig;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.ldap.ILdapConnModule;
+import com.netscape.certsrv.ldap.LdapConnFactory;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
@@ -114,15 +114,15 @@ public class LdapConnModule implements ILdapConnModule {
      * ldap publishing directory without having to get it again from the
      * config file. Note that this means sharing a ldap connection pool
      * with the ldap publishing module so be sure to return connections to pool.
-     * Use ILdapConnFactory.getConn() to get a Ldap connection to the ldap
+     * Use LdapConnFactory.getConn() to get a Ldap connection to the ldap
      * publishing directory.
-     * Use ILdapConnFactory.returnConn() to return the connection.
+     * Use LdapConnFactory.returnConn() to return the connection.
      *
      * @see com.netscape.cmscore.ldapconn.LdapBoundConnFactory
-     * @see com.netscape.certsrv.ldap.ILdapConnFactory
+     * @see com.netscape.certsrv.ldap.LdapConnFactory
      */
     @Override
-    public ILdapConnFactory getLdapConnFactory() {
+    public LdapConnFactory getLdapConnFactory() {
         return mLdapConnFactory;
     }
 

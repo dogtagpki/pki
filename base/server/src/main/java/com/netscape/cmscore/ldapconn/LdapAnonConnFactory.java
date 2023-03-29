@@ -22,7 +22,7 @@ import org.dogtagpki.server.PKIClientSocketListener;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
-import com.netscape.certsrv.ldap.ILdapConnFactory;
+import com.netscape.certsrv.ldap.LdapConnFactory;
 
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
@@ -34,7 +34,7 @@ import netscape.ldap.LDAPv3;
  * each connection is a seperate thread that can be bound to a different
  * authentication dn and password.
  */
-public class LdapAnonConnFactory implements ILdapConnFactory {
+public class LdapAnonConnFactory extends LdapConnFactory {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapAnonConnFactory.class);
 

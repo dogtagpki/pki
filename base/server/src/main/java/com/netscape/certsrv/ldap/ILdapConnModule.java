@@ -21,7 +21,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.base.ConfigStore;
 
 /**
- * Class on behalf of the Publishing system that controls an instance of an ILdapConnFactory.
+ * Class on behalf of the Publishing system that controls an instance of an LdapConnFactory.
  * Allows a factory to be intialized and grants access
  * to the factory to other interested parties.
  *
@@ -45,12 +45,12 @@ public interface ILdapConnModule {
      * ldap publishing directory without having to get it again from the
      * config file. Note that this means sharing a ldap connection pool
      * with the ldap publishing module so be sure to return connections to pool.
-     * Use ILdapConnFactory.getConn() to get a Ldap connection to the ldap
+     * Use LdapConnFactory.getConn() to get a Ldap connection to the ldap
      * publishing directory.
-     * Use ILdapConnFactory.returnConn() to return the connection.
+     * Use LdapConnFactory.returnConn() to return the connection.
      *
-     * @return Instance of ILdapConnFactory.
+     * @return Instance of LdapConnFactory.
      */
 
-    public ILdapConnFactory getLdapConnFactory();
+    public LdapConnFactory getLdapConnFactory();
 }

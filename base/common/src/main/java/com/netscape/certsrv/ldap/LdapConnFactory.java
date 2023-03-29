@@ -23,10 +23,8 @@ import netscape.ldap.LDAPConnection;
  * Maintains a pool of connections to the LDAP server.
  * Multiple threads use this interface to utilize and release
  * the Ldap connection resources.
- *
- * @version $Revision$, $Date$
  */
-public interface ILdapConnFactory {
+public abstract class LdapConnFactory {
 
     /**
      *
@@ -36,8 +34,7 @@ public interface ILdapConnFactory {
      *
      * @exception EldapException on Ldap failure when closing connections.
      */
-    public void reset()
-            throws ELdapException;
+    public abstract void reset() throws ELdapException;
 
     /**
      * Returns the number of free connections available from this pool.
@@ -45,7 +42,7 @@ public interface ILdapConnFactory {
      * @return Integer number of free connections.
      */
 
-    public int freeConn();
+    public abstract int freeConn();
 
     /**
      * Returns the number of total connections available from this pool.
@@ -53,14 +50,14 @@ public interface ILdapConnFactory {
      *
      * @return Integer number of total connections.
      */
-    public int totalConn();
+    public abstract int totalConn();
 
     /**
      * Returns the maximum number of connections available from this pool.
      *
      * @return Integer maximum number of connections.
      */
-    public int maxConn();
+    public abstract int maxConn();
 
     /**
      * Request access to a Ldap connection from the pool.
@@ -69,8 +66,7 @@ public interface ILdapConnFactory {
      * @return Ldap connection object.
      *         connection is not available
      */
-    public LDAPConnection getConn()
-            throws ELdapException;
+    public abstract LDAPConnection getConn() throws ELdapException;
 
     /**
      * Return connection to the factory. mandatory after a getConn().
@@ -78,7 +74,5 @@ public interface ILdapConnFactory {
      * @param conn Ldap connection object to be returned to the free list of the pool.
      * @exception ELdapException On any failure to return the connection.
      */
-    public void returnConn(LDAPConnection conn)
-            throws ELdapException;
-
+    public abstract void returnConn(LDAPConnection conn) throws ELdapException;
 }
