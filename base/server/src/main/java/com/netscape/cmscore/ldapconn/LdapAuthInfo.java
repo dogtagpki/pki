@@ -20,7 +20,7 @@ package com.netscape.cmscore.ldapconn;
 import java.util.Hashtable;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.cmsutil.password.IPasswordStore;
+import com.netscape.cmsutil.password.PasswordStore;
 
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
@@ -57,7 +57,7 @@ public class LdapAuthInfo {
 
     private boolean mInited = false;
 
-    IPasswordStore passwordStore;
+    PasswordStore passwordStore;
     private static Hashtable<String, String> passwords = new Hashtable<>();
 
     /**
@@ -207,7 +207,7 @@ public class LdapAuthInfo {
                 logger.debug("LdapAuthInfo: password not found");
             } else {
                 logger.debug("LdapAuthInfo: password does not work");
-                /* what do you know?  Our IPasswordStore does not have a remove function.
+                /* what do you know?  Our PasswordStore does not have a remove function.
                                 pstore.remove("internaldb");
                 */
                 if (inMem) {
@@ -297,11 +297,11 @@ public class LdapAuthInfo {
         return mType;
     }
 
-    public IPasswordStore getPasswordStore() {
+    public PasswordStore getPasswordStore() {
         return passwordStore;
     }
 
-    public void setPasswordStore(IPasswordStore passwordStore) {
+    public void setPasswordStore(PasswordStore passwordStore) {
         this.passwordStore = passwordStore;
     }
 

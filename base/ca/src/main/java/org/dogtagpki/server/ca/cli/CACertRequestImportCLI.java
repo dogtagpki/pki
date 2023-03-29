@@ -39,7 +39,7 @@ import com.netscape.cmscore.request.CertRequestRepository;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.security.SecureRandomConfig;
 import com.netscape.cmscore.security.SecureRandomFactory;
-import com.netscape.cmsutil.password.IPasswordStore;
+import com.netscape.cmsutil.password.PasswordStore;
 import com.netscape.cmsutil.password.PasswordStoreConfig;
 
 /**
@@ -165,7 +165,7 @@ public class CACertRequestImportCLI extends CommandCLI {
         PKISocketConfig socketConfig = cs.getSocketConfig();
 
         PasswordStoreConfig psc = cs.getPasswordStoreConfig();
-        IPasswordStore passwordStore = IPasswordStore.create(psc);
+        PasswordStore passwordStore = PasswordStore.create(psc);
 
         String requestType = cmd.getOptionValue("type", "pkcs10");
 

@@ -23,7 +23,7 @@ import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
-import com.netscape.cmsutil.password.IPasswordStore;
+import com.netscape.cmsutil.password.PasswordStore;
 import com.netscape.cmsutil.password.PasswordStoreConfig;
 
 import netscape.ldap.LDAPConnection;
@@ -83,7 +83,7 @@ public class SubsystemDBReplicationSetupCLI extends SubsystemCLI {
         masterConfig.load();
 
         PasswordStoreConfig psc = cs.getPasswordStoreConfig();
-        IPasswordStore passwordStore = IPasswordStore.create(psc);
+        PasswordStore passwordStore = PasswordStore.create(psc);
 
         setupReplication(
                 cs,
@@ -98,7 +98,7 @@ public class SubsystemDBReplicationSetupCLI extends SubsystemCLI {
 
     public void setupReplication(
             EngineConfig cs,
-            IPasswordStore passwordStore,
+            PasswordStore passwordStore,
             ConfigStore masterConfig,
             String masterReplicationPort,
             String replicaReplicationPort,

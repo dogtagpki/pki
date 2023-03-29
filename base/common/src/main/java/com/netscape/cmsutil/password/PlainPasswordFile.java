@@ -28,7 +28,7 @@ import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Vector;
 
-public class PlainPasswordFile implements IPasswordStore {
+public class PlainPasswordFile extends PasswordStore {
     private String mPwdPath = "";
     private Properties mPwdStore;
     private String id;

@@ -29,7 +29,7 @@ import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
-import com.netscape.cmsutil.password.IPasswordStore;
+import com.netscape.cmsutil.password.PasswordStore;
 import com.netscape.cmsutil.password.PasswordStoreConfig;
 import com.netscape.ocsp.OCSPAuthority;
 
@@ -79,7 +79,7 @@ public class OCSPCRLIssuingPointFindCLI extends CommandCLI {
         PKISocketConfig socketConfig = cs.getSocketConfig();
 
         PasswordStoreConfig psc = cs.getPasswordStoreConfig();
-        IPasswordStore passwordStore = IPasswordStore.create(psc);
+        PasswordStore passwordStore = PasswordStore.create(psc);
 
         DBSubsystem dbSubsystem = new DBSubsystem();
         dbSubsystem.setEngineConfig(cs);

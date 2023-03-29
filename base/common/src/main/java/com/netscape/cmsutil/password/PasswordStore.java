@@ -25,9 +25,9 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.cmsutil.util.NuxwdogUtil;
 
-public interface IPasswordStore {
+public abstract class PasswordStore {
 
-    public static Logger logger = LoggerFactory.getLogger(IPasswordStore.class);
+    public static Logger logger = LoggerFactory.getLogger(PasswordStore.class);
 
     /**
      * Construct a password store.
@@ -38,7 +38,7 @@ public interface IPasswordStore {
      * value of the "passwordFile" key in the map, and the instance is
      * returned.
      */
-    public static IPasswordStore create(PasswordStoreConfig psc) throws Exception {
+    public static PasswordStore create(PasswordStoreConfig psc) throws Exception {
 
         String className;
         String fileName;
@@ -52,26 +52,25 @@ public interface IPasswordStore {
             fileName = psc.getFileName();
         }
 
-        Class<? extends IPasswordStore> clazz = Class.forName(className)
-                .asSubclass(IPasswordStore.class);
+        Class<? extends PasswordStore> clazz = Class.forName(className)
+                .asSubclass(PasswordStore.class);
 
-        IPasswordStore ps = clazz.getDeclaredConstructor().newInstance();
+        PasswordStore ps = clazz.getDeclaredConstructor().newInstance();
         ps.setId(psc.getID());
         ps.init(fileName);
 
         return ps;
     }
 
-    public void init(String pwdPath) throws IOException;
+    public abstract void init(String pwdPath) throws IOException;
 
-    public String getPassword(String tag, int iteration);
+    public abstract String getPassword(String tag, int iteration);
 
-    public Enumeration<String> getTags();
+    public abstract Enumeration<String> getTags();
 
-    public Object putPassword(String tag, String password);
+    public abstract Object putPassword(String tag, String password);
 
-    public void commit()
-            throws IOException, ClassCastException, NullPointerException;
+    public abstract void commit() throws IOException, ClassCastException, NullPointerException;
 
-    public void setId(String id);
+    public abstract void setId(String id);
 }

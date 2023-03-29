@@ -23,7 +23,7 @@ import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmscore.usrgrp.UGSubsystemConfig;
 import com.netscape.cmscore.usrgrp.User;
 import com.netscape.cmsutil.ldap.LDAPUtil;
-import com.netscape.cmsutil.password.IPasswordStore;
+import com.netscape.cmsutil.password.PasswordStore;
 import com.netscape.cmsutil.password.PasswordStoreConfig;
 
 /**
@@ -64,7 +64,7 @@ public class SubsystemUserFindCLI extends SubsystemCLI {
         PKISocketConfig socketConfig = cs.getSocketConfig();
 
         PasswordStoreConfig psc = cs.getPasswordStoreConfig();
-        IPasswordStore passwordStore = IPasswordStore.create(psc);
+        PasswordStore passwordStore = PasswordStore.create(psc);
 
         UGSubsystem ugSubsystem = new UGSubsystem();
 

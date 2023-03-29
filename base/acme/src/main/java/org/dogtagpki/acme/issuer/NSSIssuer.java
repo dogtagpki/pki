@@ -27,7 +27,7 @@ import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmsutil.password.IPasswordStore;
+import com.netscape.cmsutil.password.PasswordStore;
 import com.netscape.cmsutil.password.PlainPasswordFile;
 
 /**
@@ -38,7 +38,7 @@ public class NSSIssuer extends ACMEIssuer {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NSSIssuer.class);
 
     NSSDatabase nssDatabase;
-    IPasswordStore passwordStore;
+    PasswordStore passwordStore;
 
     org.mozilla.jss.crypto.X509Certificate issuer;
 

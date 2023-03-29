@@ -105,7 +105,7 @@ import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmscore.usrgrp.UGSubsystemConfig;
 import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.password.IPasswordStore;
+import com.netscape.cmsutil.password.PasswordStore;
 import com.netscape.cmsutil.password.PasswordStoreConfig;
 import com.netscape.cmsutil.util.NuxwdogUtil;
 
@@ -139,7 +139,7 @@ public class CMSEngine {
     private byte[] mSigningData = null;
     private long mStartupTime = 0;
     private boolean isStarted = false;
-    private IPasswordStore mPasswordStore = null;
+    private PasswordStore mPasswordStore = null;
     private SecurityDomainSessionTable mSecurityDomainSessionTable = null;
     private Timer mSDTimer = null;
     private String mServerCertNickname = null;
@@ -383,11 +383,11 @@ public class CMSEngine {
         return new EngineConfig(storage);
     }
 
-    public synchronized IPasswordStore getPasswordStore() throws EBaseException {
+    public synchronized PasswordStore getPasswordStore() throws EBaseException {
         if (mPasswordStore == null) {
             try {
                 PasswordStoreConfig psc = mConfig.getPasswordStoreConfig();
-                mPasswordStore = IPasswordStore.create(psc);
+                mPasswordStore = PasswordStore.create(psc);
             } catch (Exception e) {
                 throw new EBaseException(
                     "Failed to initialise password store: " + e.getMessage(), e);
@@ -686,7 +686,7 @@ public class CMSEngine {
         DatabaseConfig dbConfig = config.getDatabaseConfig();
         LDAPConfig ldapConfig = dbConfig.getLDAPConfig();
         PKISocketConfig socketConfig = config.getSocketConfig();
-        IPasswordStore passwordStore = getPasswordStore();
+        PasswordStore passwordStore = getPasswordStore();
 
         dbSubsystem = new DBSubsystem();
         dbSubsystem.setEngineConfig(config);
@@ -698,7 +698,7 @@ public class CMSEngine {
         UGSubsystemConfig ugConfig = config.getUGSubsystemConfig();
         LDAPConfig ldapConfig = ugConfig.getLDAPConfig();
         PKISocketConfig socketConfig = config.getSocketConfig();
-        IPasswordStore passwordStore = getPasswordStore();
+        PasswordStore passwordStore = getPasswordStore();
 
         ugSubsystem.init(ldapConfig, socketConfig, passwordStore);
     }

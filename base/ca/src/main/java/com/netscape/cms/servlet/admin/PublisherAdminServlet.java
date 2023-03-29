@@ -74,7 +74,7 @@ import com.netscape.cmscore.ldapconn.LdapConnInfo;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmscore.security.JssSubsystem;
-import com.netscape.cmsutil.password.IPasswordStore;
+import com.netscape.cmsutil.password.PasswordStore;
 
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
@@ -583,7 +583,7 @@ public class PublisherAdminServlet extends AdminServlet {
         // support publishing dirsrv with different pwd than internaldb
         // update passwordFile
         String prompt = ldap.getString(Constants.PR_BINDPWD_PROMPT);
-        IPasswordStore pwdStore = engine.getPasswordStore();
+        PasswordStore pwdStore = engine.getPasswordStore();
         logger.debug("PublisherAdminServlet: setLDAPDest(): saving password for " + prompt + " to password file");
         pwdStore.putPassword(prompt, pwd);
         pwdStore.commit();
@@ -906,7 +906,7 @@ public class PublisherAdminServlet extends AdminServlet {
             // support publishing dirsrv with different pwd than internaldb
             // update passwordFile
             String prompt = ldap.getString(Constants.PR_BINDPWD_PROMPT);
-            IPasswordStore pwdStore = engine.getPasswordStore();
+            PasswordStore pwdStore = engine.getPasswordStore();
             logger.debug("PublisherAdminServlet: testSetLDAPDest(): saving password for " +
                     prompt + " to password file");
             pwdStore.putPassword(prompt, pwd);

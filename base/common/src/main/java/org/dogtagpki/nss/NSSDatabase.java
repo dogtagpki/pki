@@ -97,7 +97,7 @@ import org.mozilla.jss.pkcs11.PK11PubKey;
 import org.mozilla.jss.pkcs11.PK11RSAPrivateKey;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.password.IPasswordStore;
+import com.netscape.cmsutil.password.PasswordStore;
 
 /**
  * @author Endi S. Dewata
@@ -113,7 +113,7 @@ public class NSSDatabase {
             PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------"));
 
     Path path;
-    IPasswordStore passwordStore;
+    PasswordStore passwordStore;
 
     public NSSDatabase() {
     }
@@ -146,11 +146,11 @@ public class NSSDatabase {
         path = directory.toPath();
     }
 
-    public IPasswordStore getPasswordStore() {
+    public PasswordStore getPasswordStore() {
         return passwordStore;
     }
 
-    public void setPasswordStore(IPasswordStore passwordStore) {
+    public void setPasswordStore(PasswordStore passwordStore) {
         this.passwordStore = passwordStore;
     }
 

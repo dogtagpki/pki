@@ -36,7 +36,7 @@ import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
-import com.netscape.cmsutil.password.IPasswordStore;
+import com.netscape.cmsutil.password.PasswordStore;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSchema;
@@ -235,7 +235,7 @@ public class DBSubsystem {
             DatabaseConfig dbConfig,
             LDAPConfig ldapConfig,
             PKISocketConfig socketConfig,
-            IPasswordStore passwordStore)
+            PasswordStore passwordStore)
             throws EBaseException {
 
         this.mDBConfig = dbConfig;

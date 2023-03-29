@@ -38,7 +38,7 @@ import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmscore.profile.LDAPProfileSubsystem;
 import com.netscape.cmscore.registry.PluginInfo;
 import com.netscape.cmscore.registry.PluginRegistry;
-import com.netscape.cmsutil.password.IPasswordStore;
+import com.netscape.cmsutil.password.PasswordStore;
 import com.netscape.cmsutil.password.PasswordStoreConfig;
 
 import netscape.ldap.LDAPAttribute;
@@ -94,7 +94,7 @@ public class CAProfileImportCLI extends CommandCLI {
         pluginRegistry.startup();
 
         PasswordStoreConfig psc = cs.getPasswordStoreConfig();
-        IPasswordStore passwordStore = IPasswordStore.create(psc);
+        PasswordStore passwordStore = PasswordStore.create(psc);
 
         LDAPConfig ldapConfig = cs.getInternalDBConfig();
         String baseDN = ldapConfig.getBaseDN();

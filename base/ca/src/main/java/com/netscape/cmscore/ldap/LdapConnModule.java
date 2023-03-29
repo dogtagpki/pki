@@ -31,7 +31,7 @@ import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
-import com.netscape.cmsutil.password.IPasswordStore;
+import com.netscape.cmsutil.password.PasswordStore;
 
 import netscape.ldap.LDAPConnection;
 
@@ -81,7 +81,7 @@ public class LdapConnModule {
         CAEngineConfig cs = engine.getConfig();
 
         PKISocketConfig socketConfig = cs.getSocketConfig();
-        IPasswordStore passwordStore = engine.getPasswordStore();
+        PasswordStore passwordStore = engine.getPasswordStore();
 
         mConfig = config;
         /*

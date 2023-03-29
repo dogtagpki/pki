@@ -22,7 +22,7 @@ import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
-import com.netscape.cmsutil.password.IPasswordStore;
+import com.netscape.cmsutil.password.PasswordStore;
 
 /**
  * @author Chris S. Kelley
@@ -52,7 +52,7 @@ public abstract class SubsystemCLI extends CommandCLI {
         return new EngineConfig(storage);
     }
 
-    protected LdapAuthInfo getAuthInfo(IPasswordStore passwordStore, LdapConnInfo connInfo, LDAPConfig ldapConfig)
+    protected LdapAuthInfo getAuthInfo(PasswordStore passwordStore, LdapConnInfo connInfo, LDAPConfig ldapConfig)
             throws EBaseException {
         LDAPAuthenticationConfig authConfig = ldapConfig.getAuthenticationConfig();
         LdapAuthInfo authInfo = new LdapAuthInfo();

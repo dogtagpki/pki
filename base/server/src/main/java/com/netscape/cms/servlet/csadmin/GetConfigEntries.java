@@ -39,7 +39,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.base.ConfigStore;
-import com.netscape.cmsutil.password.IPasswordStore;
+import com.netscape.cmsutil.password.PasswordStore;
 import com.netscape.cmsutil.xml.XMLObject;
 
 public class GetConfigEntries extends CMSServlet {
@@ -208,13 +208,13 @@ public class GetConfigEntries extends CMSServlet {
 
     private String getLDAPPassword() throws EBaseException {
         CMSEngine engine = getCMSEngine();
-        IPasswordStore pwdStore = engine.getPasswordStore();
+        PasswordStore pwdStore = engine.getPasswordStore();
         return pwdStore.getPassword("internaldb", 0);
     }
 
     private String getReplicationPassword() throws EBaseException {
         CMSEngine engine = getCMSEngine();
-        IPasswordStore pwdStore = engine.getPasswordStore();
+        PasswordStore pwdStore = engine.getPasswordStore();
         return pwdStore.getPassword("replicationdb", 0);
     }
 

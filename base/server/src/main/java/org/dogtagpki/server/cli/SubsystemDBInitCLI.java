@@ -21,7 +21,7 @@ import com.netscape.cmscore.ldapconn.LdapConnInfo;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmsutil.ldap.LDAPUtil;
-import com.netscape.cmsutil.password.IPasswordStore;
+import com.netscape.cmsutil.password.PasswordStore;
 import com.netscape.cmsutil.password.PasswordStoreConfig;
 
 /**
@@ -72,7 +72,7 @@ public class SubsystemDBInitCLI extends SubsystemCLI {
         logger.info("Initializing database " + database + " for " + baseDN);
 
         PasswordStoreConfig psc = cs.getPasswordStoreConfig();
-        IPasswordStore passwordStore = IPasswordStore.create(psc);
+        PasswordStore passwordStore = PasswordStore.create(psc);
 
         LDAPConnectionConfig connConfig = ldapConfig.getConnectionConfig();
 

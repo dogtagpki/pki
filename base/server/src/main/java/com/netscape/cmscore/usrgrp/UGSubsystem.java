@@ -40,7 +40,7 @@ import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmsutil.ldap.LDAPUtil;
-import com.netscape.cmsutil.password.IPasswordStore;
+import com.netscape.cmsutil.password.PasswordStore;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
@@ -90,7 +90,7 @@ public class UGSubsystem {
     public void init(
             LDAPConfig ldapConfig,
             PKISocketConfig socketConfig,
-            IPasswordStore passwordStore) throws Exception {
+            PasswordStore passwordStore) throws Exception {
 
         mBaseDN = ldapConfig.getBaseDN();
 

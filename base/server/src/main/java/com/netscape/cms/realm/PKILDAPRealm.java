@@ -26,7 +26,7 @@ import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmscore.usrgrp.User;
-import com.netscape.cmsutil.password.IPasswordStore;
+import com.netscape.cmsutil.password.PasswordStore;
 import com.netscape.cmsutil.password.PlainPasswordFile;
 
 import netscape.ldap.LDAPAttribute;
@@ -56,7 +56,7 @@ public class PKILDAPRealm extends RealmCommon {
         logger.info("Initializing LDAP realm");
 
         EngineConfig cs;
-        IPasswordStore ps;
+        PasswordStore ps;
         LDAPConfig ldapConfig;
 
         String configFile = config.getParameter("configFile");
@@ -137,7 +137,7 @@ public class PKILDAPRealm extends RealmCommon {
                 cs = new EngineConfig(new FileConfigStorage(configFile));
                 cs.load();
 
-                ps = IPasswordStore.create(cs.getPasswordStoreConfig());
+                ps = PasswordStore.create(cs.getPasswordStoreConfig());
             } catch (Exception e) {
                 throw new LifecycleException("Cannot load config file " + configFile, e);
             }

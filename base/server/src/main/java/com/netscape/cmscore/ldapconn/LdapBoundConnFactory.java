@@ -23,7 +23,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.ldap.LdapConnFactory;
-import com.netscape.cmsutil.password.IPasswordStore;
+import com.netscape.cmsutil.password.PasswordStore;
 
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
@@ -58,7 +58,7 @@ public class LdapBoundConnFactory extends LdapConnFactory {
 
     protected LdapConnInfo mConnInfo = null;
     protected LdapAuthInfo mAuthInfo = null;
-    IPasswordStore passwordStore;
+    PasswordStore passwordStore;
 
     public static final String PROP_MINCONNS = "minConns";
     public static final String PROP_MAXCONNS = "maxConns";
@@ -173,7 +173,7 @@ public class LdapBoundConnFactory extends LdapConnFactory {
 
     public void init(
             PKISocketConfig config,
-            IPasswordStore passwordStore
+            PasswordStore passwordStore
             ) throws ELdapException {
 
         logger.debug("LdapBoundConnFactory: initialization");
@@ -187,7 +187,7 @@ public class LdapBoundConnFactory extends LdapConnFactory {
     public void init(
             PKISocketConfig config,
             LDAPConfig dbConfig,
-            IPasswordStore passwordStore
+            PasswordStore passwordStore
             ) throws EBaseException, ELdapException {
 
         this.passwordStore = passwordStore;
@@ -649,11 +649,11 @@ public class LdapBoundConnFactory extends LdapConnFactory {
         return mAuthInfo;
     }
 
-    public IPasswordStore getPasswordStore() {
+    public PasswordStore getPasswordStore() {
         return passwordStore;
     }
 
-    public void setPasswordStore(IPasswordStore passwordStore) {
+    public void setPasswordStore(PasswordStore passwordStore) {
         this.passwordStore = passwordStore;
     }
 }

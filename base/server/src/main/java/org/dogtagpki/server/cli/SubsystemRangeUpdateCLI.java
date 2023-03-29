@@ -24,7 +24,7 @@ import com.netscape.cmscore.ldapconn.LdapConnInfo;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmscore.request.RequestRepository;
-import com.netscape.cmsutil.password.IPasswordStore;
+import com.netscape.cmsutil.password.PasswordStore;
 import com.netscape.cmsutil.password.PasswordStoreConfig;
 
 import netscape.ldap.LDAPAttribute;
@@ -65,7 +65,7 @@ public class SubsystemRangeUpdateCLI extends SubsystemCLI {
         String baseDN = ldapConfig.getBaseDN();
 
         PasswordStoreConfig psc = cs.getPasswordStoreConfig();
-        IPasswordStore passwordStore = IPasswordStore.create(psc);
+        PasswordStore passwordStore = PasswordStore.create(psc);
 
         LDAPConnectionConfig connConfig = ldapConfig.getConnectionConfig();
 
