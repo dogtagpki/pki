@@ -25,31 +25,29 @@ import com.netscape.cmscore.request.Request;
 import netscape.ldap.LDAPConnection;
 
 /**
- * Interface for mapping a X509 certificate to a LDAP entry.
- *
- * @version $Revision$ $Date$
+ * Class for mapping a X509 certificate to a LDAP entry.
  */
-public interface ILdapMapper extends ILdapPlugin {
+public abstract class Mapper implements ILdapPlugin {
 
     /**
      * Returns implementation name.
      */
-    public String getImplName();
+    public abstract String getImplName();
 
     /**
      * Returns the description of this mapper.
      */
-    public String getDescription();
+    public abstract String getDescription();
 
     /**
      * Returns the initial default parameters.
      */
-    public Vector<String> getDefaultParams();
+    public abstract Vector<String> getDefaultParams();
 
     /**
      * Returns the current instance parameters.
      */
-    public Vector<String> getInstanceParams();
+    public abstract Vector<String> getInstanceParams();
 
     /**
      * maps a certificate to a LDAP entry.
@@ -60,9 +58,7 @@ public interface ILdapMapper extends ILdapPlugin {
      * @return dn indicates whether a mapping was successful
      * @exception ELdapException Map operation failed.
      */
-    public String
-            map(LDAPConnection conn, Object obj)
-                    throws ELdapException;
+    public abstract String map(LDAPConnection conn, Object obj) throws ELdapException;
 
     /**
      * maps a certificate to a LDAP entry.
@@ -74,7 +70,5 @@ public interface ILdapMapper extends ILdapPlugin {
      * @return dn indicates whether a mapping was successful
      * @exception ELdapException Map operation failed.
      */
-    public String
-            map(LDAPConnection conn, Request r, Object obj)
-                    throws ELdapException;
+    public abstract String map(LDAPConnection conn, Request r, Object obj) throws ELdapException;
 }

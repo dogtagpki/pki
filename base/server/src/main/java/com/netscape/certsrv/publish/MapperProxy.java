@@ -26,16 +26,16 @@ package com.netscape.certsrv.publish;
 
 public class MapperProxy {
     private boolean mEnable;
-    private ILdapMapper mMapper;
+    private Mapper mMapper;
 
     /**
      *
      * Contructs MapperProxy .
      *
      * @param enable Enabled or not.
-     * @param mapper Corresponding ILdapMapper object.
+     * @param mapper Corresponding Mapper object.
      */
-    public MapperProxy(boolean enable, ILdapMapper mapper) {
+    public MapperProxy(boolean enable, Mapper mapper) {
         mEnable = enable;
         mMapper = mapper;
     }
@@ -52,11 +52,11 @@ public class MapperProxy {
 
     /**
      *
-     * Returns ILdapMapper object.
+     * Returns Mapper object.
      *
-     * @return Intance of ILdapMapper object.
+     * @return Intance of Mapper object.
      */
-    public ILdapMapper getMapper() {
+    public Mapper getMapper() {
         return mMapper;
     }
 }

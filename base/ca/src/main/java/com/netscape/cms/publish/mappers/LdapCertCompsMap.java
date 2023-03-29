@@ -27,7 +27,6 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.publish.ILdapMapper;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
 
@@ -43,11 +42,8 @@ import netscape.ldap.LDAPConnection;
  * If the baseDN is null and none of the DN comps matched, it is an error.
  * If none of the DN comps and filter comps matched, it is an error.
  * If just the filter comps is null, a base search is performed.
- *
- * @version $Revision$, $Date$
  */
-public class LdapCertCompsMap
-        extends LdapDNCompsMap implements ILdapMapper {
+public class LdapCertCompsMap extends LdapDNCompsMap {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapCertCompsMap.class);
 

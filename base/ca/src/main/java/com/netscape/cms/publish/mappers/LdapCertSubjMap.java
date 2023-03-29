@@ -27,7 +27,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
-import com.netscape.certsrv.publish.ILdapMapper;
+import com.netscape.certsrv.publish.Mapper;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
@@ -41,10 +41,8 @@ import netscape.ldap.LDAPv3;
 /**
  * Maps a X509 certificate to a LDAP entry by finding an LDAP entry
  * which has an attribute whose contents are equal to the cert subject name.
- *
- * @version $Revision$, $Date$
  */
-public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
+public class LdapCertSubjMap extends Mapper implements IExtendedPluginInfo {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapCertSubjMap.class);
 

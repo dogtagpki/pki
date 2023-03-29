@@ -38,8 +38,7 @@ import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
-import com.netscape.certsrv.publish.ILdapMapper;
-import com.netscape.certsrv.publish.ILdapPlugin;
+import com.netscape.certsrv.publish.Mapper;
 import com.netscape.certsrv.publish.Publisher;
 import com.netscape.certsrv.request.RequestListener;
 import com.netscape.cmscore.apps.CMS;
@@ -214,7 +213,7 @@ public class LdapPublishModule extends RequestListener {
                 logger.debug("No ldap publish configuration for " + certType + " found.");
                 continue;
             }
-            ILdapPlugin mapper = null;
+            Mapper mapper = null;
             Publisher publisher = null;
             ConfigStore mapperConf = null, publisherConf = null;
             String mapperClassName = null, publisherClassName = null;
@@ -224,7 +223,7 @@ public class LdapPublishModule extends RequestListener {
                 mapperClassName = mapperConf.getString(PROP_CLASS, null);
                 if (mapperClassName != null && mapperClassName.length() > 0) {
                     logger.debug("mapper " + mapperClassName + " for " + certType);
-                    mapper = (ILdapPlugin) Class.forName(mapperClassName).getDeclaredConstructor().newInstance();
+                    mapper = (Mapper) Class.forName(mapperClassName).getDeclaredConstructor().newInstance();
                     mapper.init(mapperConf);
                 }
                 publisherConf = current.getSubStore(PROP_PUBLISHER, ConfigStore.class);
@@ -288,7 +287,7 @@ public class LdapPublishModule extends RequestListener {
             logger.debug("publisher for " + certType + " is null");
             return;
         }
-        publish((ILdapMapper) mappers.mapper, mappers.publisher, cert);
+        publish(mappers.mapper, mappers.publisher, cert);
 
         // set the ldap published flag.
         setPublishedFlag(cert.getSerialNumber(), true);
@@ -303,7 +302,7 @@ public class LdapPublishModule extends RequestListener {
             logger.debug("publisher for " + certType + " is null");
             return;
         }
-        unpublish((ILdapMapper) mappers.mapper, mappers.publisher, cert);
+        unpublish(mappers.mapper, mappers.publisher, cert);
 
         // set the ldap published flag.
         setPublishedFlag(cert.getSerialNumber(), false);
@@ -347,7 +346,7 @@ public class LdapPublishModule extends RequestListener {
         mLdapConnFactory.returnConn(conn);
     }
 
-    public void publish(ILdapMapper mapper, Publisher publisher,
+    public void publish(Mapper mapper, Publisher publisher,
             X509Certificate cert)
             throws ELdapException {
         LDAPConnection conn = null;
@@ -379,7 +378,7 @@ public class LdapPublishModule extends RequestListener {
         }
     }
 
-    public void unpublish(ILdapMapper mapper, Publisher publisher,
+    public void unpublish(Mapper mapper, Publisher publisher,
             X509Certificate cert)
             throws ELdapException {
         LDAPConnection conn = null;
@@ -434,7 +433,7 @@ public class LdapPublishModule extends RequestListener {
             if (mappers.mapper == null) {
                 dn = ((X500Name) crl.getIssuerDN()).toLdapDNString();
             } else {
-                result = ((ILdapMapper) mappers.mapper).map(conn, crl);
+                result = mappers.mapper.map(conn, crl);
                 dn = result;
                 if (dn == null) {
                     logger.error(CMS.getLogMessage("CMSCORE_LDAP_CRL_NOT_MATCH"));
@@ -491,12 +490,12 @@ public class LdapPublishModule extends RequestListener {
 }
 
 class LdapMappers {
-    public LdapMappers(ILdapPlugin aMapper, Publisher aPublisher) {
+    public LdapMappers(Mapper aMapper, Publisher aPublisher) {
         mapper = aMapper;
         publisher = aPublisher;
     }
 
-    public ILdapPlugin mapper = null;
+    public Mapper mapper = null;
     public Publisher publisher = null;
 }
 
@@ -560,7 +559,7 @@ class HandleEnrollment extends RequestListener {
             try {
                 if (certs[i] == null)
                     continue;
-                mModule.publish((ILdapMapper) mappers.mapper, mappers.publisher, certs[i]);
+                mModule.publish(mappers.mapper, mappers.publisher, certs[i]);
                 results[i] = Request.RES_SUCCESS;
                 logger.debug("Published cert serial no 0x" + certs[i].getSerialNumber().toString(16));
                 mModule.setPublishedFlag(certs[i].getSerialNumber(), true);
@@ -622,7 +621,7 @@ class HandleRenewal extends RequestListener {
             if (cert == null)
                 continue; // there was an error issuing this cert.
             try {
-                mModule.publish((ILdapMapper) mappers.mapper, mappers.publisher, cert);
+                mModule.publish(mappers.mapper, mappers.publisher, cert);
                 results[i] = Request.RES_SUCCESS;
                 logger.info("Published cert serial no 0x" + cert.getSerialNumber().toString(16));
 
@@ -689,7 +688,7 @@ class HandleRevocation extends RequestListener {
 
             results[i] = Request.RES_ERROR;
             try {
-                mModule.unpublish((ILdapMapper) mappers.mapper, mappers.publisher, cert);
+                mModule.unpublish(mappers.mapper, mappers.publisher, cert);
                 results[i] = Request.RES_SUCCESS;
                 logger.debug("Unpublished cert serial no 0x" + cert.getSerialNumber().toString(16));
 
@@ -752,7 +751,7 @@ class HandleUnrevocation extends RequestListener {
         for (int i = 0; i < certs.length; i++) {
             results[i] = Request.RES_ERROR;
             try {
-                mModule.publish((ILdapMapper) mappers.mapper, mappers.publisher, certs[i]);
+                mModule.publish(mappers.mapper, mappers.publisher, certs[i]);
                 results[i] = Request.RES_SUCCESS;
                 logger.debug("Unpublished cert serial no 0x" + certs[i].getSerialNumber().toString(16));
 

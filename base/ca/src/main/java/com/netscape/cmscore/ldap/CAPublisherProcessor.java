@@ -34,7 +34,7 @@ import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.publish.ILdapMapper;
+import com.netscape.certsrv.publish.Mapper;
 import com.netscape.certsrv.publish.Publisher;
 import com.netscape.cms.publish.mappers.LdapCertSubjMap;
 import com.netscape.cms.publish.publishers.FileBasedPublisher;
@@ -217,7 +217,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
                     rule.getPublisher());
 
             try {
-                ILdapMapper mapper = null;
+                Mapper mapper = null;
 
                 String mapperName = rule.getMapper();
 
@@ -283,7 +283,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
                         PROP_LOCAL_CA + " rule=" + rule.getInstanceName() +
                         " publisher=" + rule.getPublisher());
 
-                ILdapMapper mapper = null;
+                Mapper mapper = null;
 
                 String mapperName = rule.getMapper();
 
@@ -351,7 +351,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
                     " rule=" + rule.getInstanceName() + " publisher=" +
                     rule.getPublisher());
             try {
-                ILdapMapper mapper = null;
+                Mapper mapper = null;
 
                 String mapperName = rule.getMapper();
 
@@ -418,7 +418,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
                 String mapperName = rule.getMapper();
                 logger.info("CAPublisherProcessor: - mapper: " + mapperName);
 
-                ILdapMapper m = null;
+                Mapper m = null;
                 if (mapperName != null) {
                     m = getActiveMapperInstance(mapperName);
                 }
@@ -484,7 +484,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
             try {
                 logger.info("CAPublisherProcessor: Unpublishing cert (with request) type=certs rule=" + rule.getInstanceName() + " publisher=" + rule.getPublisher());
 
-                ILdapMapper mapper = null;
+                Mapper mapper = null;
                 String mapperName = rule.getMapper();
 
                 if (mapperName != null && !mapperName.trim().equals("")) {
@@ -554,7 +554,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
                 LdapRule rule = rules.nextElement();
                 logger.info("CAPublisherProcessor: - rule: " + rule.getInstanceName());
 
-                ILdapMapper mapper = null;
+                Mapper mapper = null;
                 dn = null;
 
                 try {
@@ -689,7 +689,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
         }
     }
 
-    private void publishNow(ILdapMapper mapper, Publisher publisher, Request r, Object obj) throws ELdapException {
+    private void publishNow(Mapper mapper, Publisher publisher, Request r, Object obj) throws ELdapException {
 
         if (!isCertPublishingEnabled()) {
             return;
@@ -766,7 +766,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
     }
 
     // for crosscerts
-    private void publishNow(ILdapMapper mapper, Publisher publisher, Request r, byte[] bytes) throws EBaseException {
+    private void publishNow(Mapper mapper, Publisher publisher, Request r, byte[] bytes) throws EBaseException {
 
         if (!isCertPublishingEnabled()) {
             return;
@@ -820,7 +820,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
         }
     }
 
-    private void unpublishNow(ILdapMapper mapper, Publisher publisher, Request r, Object obj) throws ELdapException {
+    private void unpublishNow(Mapper mapper, Publisher publisher, Request r, Object obj) throws ELdapException {
 
         if (!isCertPublishingEnabled()) {
             return;

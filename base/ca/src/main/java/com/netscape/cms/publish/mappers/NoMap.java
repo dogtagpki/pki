@@ -22,7 +22,7 @@ import java.util.Vector;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.publish.ILdapMapper;
+import com.netscape.certsrv.publish.Mapper;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
@@ -30,10 +30,8 @@ import netscape.ldap.LDAPConnection;
 
 /**
  * No Map
- *
- * @version $Revision$, $Date$
  */
-public class NoMap implements ILdapMapper, IExtendedPluginInfo {
+public class NoMap extends Mapper implements IExtendedPluginInfo {
 
     public ConfigStore mConfig;
 

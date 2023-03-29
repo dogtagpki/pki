@@ -25,7 +25,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnModule;
-import com.netscape.certsrv.publish.ILdapMapper;
+import com.netscape.certsrv.publish.Mapper;
 import com.netscape.certsrv.publish.MapperPlugin;
 import com.netscape.certsrv.publish.MapperProxy;
 import com.netscape.certsrv.publish.Publisher;
@@ -207,10 +207,10 @@ public abstract class PublisherProcessor {
 
             // Instantiate and init the mapper
             boolean isEnable = false;
-            ILdapMapper mapperInst = null;
+            Mapper mapperInst = null;
 
             try {
-                mapperInst = (ILdapMapper) Class.forName(className).getDeclaredConstructor().newInstance();
+                mapperInst = (Mapper) Class.forName(className).getDeclaredConstructor().newInstance();
                 ConfigStore mConfig = c.getSubStore(insName, ConfigStore.class);
 
                 mapperInst.init(mConfig);
@@ -561,11 +561,11 @@ public abstract class PublisherProcessor {
         // mapper instances to avoid instantiation just for this.
 
         // a temporary instance
-        ILdapMapper mapperInst = null;
+        Mapper mapperInst = null;
         String className = plugin.getClassPath();
 
         try {
-            mapperInst = (ILdapMapper) Class.forName(className).getDeclaredConstructor().newInstance();
+            mapperInst = (Mapper) Class.forName(className).getDeclaredConstructor().newInstance();
             Vector<String> v = mapperInst.getDefaultParams();
 
             return v;
@@ -584,7 +584,7 @@ public abstract class PublisherProcessor {
      */
     public Vector<String> getMapperInstanceParams(String insName) throws
             ELdapException {
-        ILdapMapper mapperInst = null;
+        Mapper mapperInst = null;
         MapperProxy proxy = mMapperInsts.get(insName);
 
         if (proxy == null) {
@@ -650,12 +650,12 @@ public abstract class PublisherProcessor {
     }
 
     /**
-     * Returns ILdapMapper instance that is currently active.
+     * Returns Mapper instance that is currently active.
      *
      * @param insName name of MapperProxy.
-     * @return instance of ILdapMapper.
+     * @return instance of Mapper.
      */
-    public ILdapMapper getActiveMapperInstance(String insName) {
+    public Mapper getActiveMapperInstance(String insName) {
         MapperProxy proxy = mMapperInsts.get(insName);
 
         if (proxy == null)
@@ -664,12 +664,12 @@ public abstract class PublisherProcessor {
     }
 
     /**
-     * Returns ILdapMapper instance based on name of MapperProxy.
+     * Returns Mapper instance based on name of MapperProxy.
      *
      * @param insName name of MapperProxy.
-     * @return instance of ILdapMapper.
+     * @return instance of Mapper.
      */
-    public ILdapMapper getMapperInstance(String insName) {
+    public Mapper getMapperInstance(String insName) {
         MapperProxy proxy = mMapperInsts.get(insName);
 
         if (proxy == null)

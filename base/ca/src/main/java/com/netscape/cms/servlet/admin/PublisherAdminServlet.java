@@ -50,7 +50,7 @@ import com.netscape.certsrv.publish.EPublisherNotFound;
 import com.netscape.certsrv.publish.EPublisherPluginNotFound;
 import com.netscape.certsrv.publish.ERuleNotFound;
 import com.netscape.certsrv.publish.ERulePluginNotFound;
-import com.netscape.certsrv.publish.ILdapMapper;
+import com.netscape.certsrv.publish.Mapper;
 import com.netscape.certsrv.publish.MapperPlugin;
 import com.netscape.certsrv.publish.MapperProxy;
 import com.netscape.certsrv.publish.Publisher;
@@ -1055,9 +1055,9 @@ public class PublisherAdminServlet extends AdminServlet {
             return;
         }
 
-        // is the class an ILdapMapper?
+        // is the class an Mapper?
         try {
-            if (!ILdapMapper.class.isAssignableFrom(newImpl)) {
+            if (!Mapper.class.isAssignableFrom(newImpl)) {
                 sendResponse(ERROR, CMS.getUserMessage(getLocale(req), "CMS_LDAP_SRVLT_ILL_CLASS", classPath), null,
                         resp);
                 return;
@@ -1175,10 +1175,10 @@ public class PublisherAdminServlet extends AdminServlet {
 
         // Instantiate an object for this implementation
         String className = plugin.getClassPath();
-        ILdapMapper mapperInst = null;
+        Mapper mapperInst = null;
 
         try {
-            mapperInst = (ILdapMapper) Class.forName(className).getDeclaredConstructor().newInstance();
+            mapperInst = (Mapper) Class.forName(className).getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             instancesConfig.removeSubStore(id);
             sendResponse(ERROR,
@@ -1239,7 +1239,7 @@ public class PublisherAdminServlet extends AdminServlet {
             String desc = "unknown";
 
             try {
-                ILdapMapper lp = (ILdapMapper) Class.forName(c).getDeclaredConstructor().newInstance();
+                Mapper lp = (Mapper) Class.forName(c).getDeclaredConstructor().newInstance();
 
                 desc = lp.getDescription();
             } catch (Exception exp) {
@@ -1252,7 +1252,7 @@ public class PublisherAdminServlet extends AdminServlet {
         sendResponse(SUCCESS, null, params, resp);
     }
 
-    public String getMapperPluginName(ILdapMapper mapper) {
+    public String getMapperPluginName(Mapper mapper) {
         ConfigStore cs = mapper.getConfigStore();
 
         try {
@@ -1271,7 +1271,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         for (; e.hasMoreElements();) {
             String name = e.nextElement();
-            ILdapMapper value = mProcessor.getMapperInstance(name);
+            Mapper value = mProcessor.getMapperInstance(name);
 
             params.put(name, getMapperPluginName(value) + ";visible");
         }
@@ -1351,7 +1351,7 @@ public class PublisherAdminServlet extends AdminServlet {
         // DON'T remove mapper if any instance
         for (Enumeration<String> e = mProcessor.getMapperInsts().keys(); e.hasMoreElements();) {
             String name = e.nextElement();
-            ILdapMapper mapper = mProcessor.getMapperInstance(name);
+            Mapper mapper = mProcessor.getMapperInstance(name);
 
             if (id.equals(getMapperPluginName(mapper))) {
                 sendResponse(ERROR, CMS.getUserMessage(getLocale(req), "CMS_LDAP_SRVLT_IN_USE"), null, resp);
@@ -1432,7 +1432,7 @@ public class PublisherAdminServlet extends AdminServlet {
             return;
         }
 
-        ILdapMapper mapperInst = mProcessor.getMapperInstance(id);
+        Mapper mapperInst = mProcessor.getMapperInstance(id);
         Vector<String> configParams = mapperInst.getInstanceParams();
         NameValuePairs params = new NameValuePairs();
 
@@ -1495,7 +1495,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         // save old instance substore params in case new one fails.
 
-        ILdapMapper oldinst =
+        Mapper oldinst =
                 mProcessor.getMapperInstance(id);
         Vector<String> oldConfigParms = oldinst.getInstanceParams();
         NameValuePairs saveParams = new NameValuePairs();
@@ -1544,10 +1544,10 @@ public class PublisherAdminServlet extends AdminServlet {
         // Instantiate an object for new implementation
 
         String className = plugin.getClassPath();
-        ILdapMapper newMgrInst = null;
+        Mapper newMgrInst = null;
 
         try {
-            newMgrInst = (ILdapMapper) Class.forName(className).getDeclaredConstructor().newInstance();
+            newMgrInst = (Mapper) Class.forName(className).getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             restore(instancesConfig, id, saveParams);
             sendResponse(ERROR,

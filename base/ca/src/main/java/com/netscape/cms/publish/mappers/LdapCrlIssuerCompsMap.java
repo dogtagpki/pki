@@ -25,7 +25,6 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.publish.ILdapMapper;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
 
@@ -35,11 +34,8 @@ import netscape.ldap.LDAPConnection;
  * Default crl mapper.
  * maps the crl to a ldap entry by using components in the issuer name
  * to find the CA's entry.
- *
- * @version $Revision$, $Date$
  */
-public class LdapCrlIssuerCompsMap
-        extends LdapDNCompsMap implements ILdapMapper {
+public class LdapCrlIssuerCompsMap extends LdapDNCompsMap {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapCrlIssuerCompsMap.class);
 

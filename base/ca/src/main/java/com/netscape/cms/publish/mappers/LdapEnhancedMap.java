@@ -39,7 +39,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
-import com.netscape.certsrv.publish.ILdapMapper;
+import com.netscape.certsrv.publish.Mapper;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
@@ -70,11 +70,8 @@ import netscape.ldap.util.DN;
  * entry is not found, it has the option to create
  * the ldap entry given the dn and attributes
  * formulated.
- *
- * @version $Revision$, $Date$
  */
-public class LdapEnhancedMap
-        implements ILdapMapper, IExtendedPluginInfo {
+public class LdapEnhancedMap extends Mapper implements IExtendedPluginInfo {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapEnhancedMap.class);
 
@@ -99,9 +96,9 @@ public class LdapEnhancedMap
 
     protected String[] mLdapValues = null;
 
-    ////////////////////////////
-    // ILdapMapper parameters //
-    ////////////////////////////
+    ///////////////////////
+    // Mapper parameters //
+    ///////////////////////
 
     /* mapper plug-in fields */
     protected static final String PROP_DNPATTERN = "dnPattern";
@@ -303,9 +300,9 @@ public class LdapEnhancedMap
         conn.add(entry);
     }
 
-    /////////////////////////
-    // ILdapMapper methods //
-    /////////////////////////
+    ////////////////////
+    // Mapper methods //
+    ////////////////////
 
     /**
      * for initializing from config store.

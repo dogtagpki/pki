@@ -33,7 +33,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
-import com.netscape.certsrv.publish.ILdapPlugin;
+import com.netscape.certsrv.publish.Mapper;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 
@@ -53,11 +53,8 @@ import netscape.ldap.LDAPv3;
  * If the baseDN is null and none of the DN comps matched, it is an error.
  * If none of the DN comps and filter comps matched, it is an error.
  * If just the filter comps is null, a base search is performed.
- *
- * @version $Revision$, $Date$
  */
-public class LdapDNCompsMap
-        implements ILdapPlugin, IExtendedPluginInfo {
+public abstract class LdapDNCompsMap extends Mapper implements IExtendedPluginInfo {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapDNCompsMap.class);
 
