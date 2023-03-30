@@ -44,21 +44,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  caGetAdminCertBySerial  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.cert.GetAdminCertBySerial  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caGetAdminCertBySerial </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.admin.certificate </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  caUpdateConnector  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.csadmin.UpdateConnector  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -1949,11 +1934,6 @@
    <servlet-mapping>
       <servlet-name>  calog  </servlet-name>
       <url-pattern>   /log  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  caGetAdminCertBySerial  </servlet-name>
-      <url-pattern>   /getAdminCertBySerial  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
