@@ -2,6 +2,7 @@ project(tests)
 
 install(
     FILES
+        pki-rpminspect.yaml
         pylintrc
         tests.yml
         tox.ini

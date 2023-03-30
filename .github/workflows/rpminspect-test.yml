@@ -26,32 +26,32 @@ jobs:
       - name: Load PKI images
         run: docker load --input pki-images.tar
 
-      - name: Set up builder container
+      - name: Set up PKI container
         run: |
-          docker run \
-              --name=builder \
-              --privileged \
-              --detach \
-              pki-builder
-
-          while :
-          do
-              docker exec builder echo "Container is ready" && break
-              echo "Waiting for container..."
-              sleep 1
-              [ $((++i)) -ge 30 ] && exit 1
-          done
-
-      - name: Check builder container logs
-        if: always()
-        run: |
-          docker logs builder
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
 
       - name: Install rpminspect
         run: |
-          docker exec builder dnf install -y rpminspect-data-fedora
+          docker exec pki dnf install -y rpminspect-data-fedora
+
+      - name: Copy SRPM and RPM packages
+        run: |
+          docker create --name=pki-dist pki-dist
+
+          mkdir /tmp/build
+          docker cp pki-dist:/root/SRPMS/. /tmp/build/SRPMS
+          docker cp pki-dist:/root/RPMS/. /tmp/build/RPMS
+          ls -lR /tmp/build
+
+          docker exec pki mkdir -p build
+          docker cp /tmp/build/. pki:build/
+          docker exec pki ls -lR build
+
+          docker rm -f pki-dist
 
       - name: Run rpminspect on SRPM and RPMs
         run: |
-          docker exec builder cp tests/pki-rpminspect.yaml /usr/share/rpminspect/profiles/fedora/pki-rpminspect.yaml
-          docker exec builder tests/bin/rpminspect.sh
+          docker exec pki cp /usr/share/pki/tests/pki-rpminspect.yaml /usr/share/rpminspect/profiles/fedora/pki-rpminspect.yaml
+          docker exec pki /usr/share/pki/tests/bin/rpminspect.sh

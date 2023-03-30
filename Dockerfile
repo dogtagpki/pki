@@ -78,6 +78,7 @@ RUN ./build.sh --work-dir=build rpm
 FROM alpine:latest AS pki-dist
 
 # Import PKI packages
+COPY --from=pki-builder /root/pki/build/SRPMS /root/SRPMS/
 COPY --from=pki-builder /root/pki/build/RPMS /root/RPMS/
 
 ################################################################################

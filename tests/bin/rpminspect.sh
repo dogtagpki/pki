@@ -1,7 +1,8 @@
 #!/bin/bash -e
 
-echo "Running RPMInspect on SRPM"
+echo "::group::Running RPMInspect on SRPM"
 rpminspect-fedora -p pki-rpminspect build/SRPMS/*.rpm
+echo "::endgroup::"
 
 # Run RPMInspect on RPMs
 for f in build/RPMS/*rpm; do
