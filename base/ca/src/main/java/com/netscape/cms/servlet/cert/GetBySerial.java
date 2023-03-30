@@ -25,6 +25,8 @@ import java.util.Locale;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -61,6 +63,20 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 /**
  * Retrieve certificate by serial number.
  */
+@WebServlet(
+        name = "caGetBySerial",
+        urlPatterns = "/ee/ca/getBySerial",
+        initParams = {
+                @WebInitParam(name="GetClientCert",      value="false"),
+                @WebInitParam(name="successTemplate",    value="/ee/ca/ImportCert.template"),
+                @WebInitParam(name="importCertTemplate", value="/ee/ca/ImportAdminCert.template"),
+                @WebInitParam(name="AuthzMgr",           value="BasicAclAuthz"),
+                @WebInitParam(name="authority",          value="ca"),
+                @WebInitParam(name="interface",          value="ee"),
+                @WebInitParam(name="ID",                 value="caGetBySerial"),
+                @WebInitParam(name="resourceID",         value="certServer.ee.certificate")
+        }
+)
 public class GetBySerial extends CAServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GetBySerial.class);
