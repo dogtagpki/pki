@@ -29,6 +29,8 @@ import java.util.Enumeration;
 import java.util.StringTokenizer;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -64,6 +66,14 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  * level administrative operations such as configuration
  * parameter updates.
  */
+@WebServlet(
+        name = "caserver",
+        urlPatterns = "/server",
+        initParams = {
+                @WebInitParam(name="ID",       value="caserver"),
+                @WebInitParam(name="AuthzMgr", value="BasicAclAuthz")
+        }
+)
 public class CACMSAdminServlet extends CMSAdminServlet {
 
     @Override
