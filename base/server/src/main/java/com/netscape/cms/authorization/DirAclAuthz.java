@@ -73,9 +73,7 @@ public class DirAclAuthz extends AAclAuthz
                 "Use SSL to connect to directory?");
         mExtendedPluginInfo.add("ldap.ldapconn.version;choice(3,2);" +
                 "LDAP protocol version");
-        mExtendedPluginInfo.add("ldap.basedn;string,required;Base DN to start sarching " +
-                "under. If the ACL's DN is 'cn=resourceACL, o=NetscapeCertificateServer' you " +
-                "might want to use 'o=NetscapeCertificateServer' here");
+        mExtendedPluginInfo.add("ldap.basedn;string,required;Base DN to start sarching under.");
         mExtendedPluginInfo.add("ldap.minConns;number;number of connections " +
                 "to keep open to directory server. Default 5.");
         mExtendedPluginInfo.add("ldap.maxConns;number;when needed, connection "

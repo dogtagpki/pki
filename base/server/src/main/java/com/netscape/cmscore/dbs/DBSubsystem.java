@@ -201,7 +201,7 @@ public class DBSubsystem {
         this.ldapConfig = ldapConfig;
 
         try {
-            mBaseDN = ldapConfig.getBaseDN("o=NetscapeCertificateServer");
+            mBaseDN = ldapConfig.getBaseDN();
 
             mEnableSerialMgmt = mDBConfig.getEnableSerialManagement();
             logger.debug("DBSubsystem: init()  mEnableSerialMgmt="+mEnableSerialMgmt);
