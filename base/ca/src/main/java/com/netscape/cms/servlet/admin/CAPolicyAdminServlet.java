@@ -19,6 +19,8 @@ package com.netscape.cms.servlet.admin;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.server.ca.CAEngine;
@@ -32,6 +34,15 @@ import com.netscape.certsrv.base.EBaseException;
  * CA is responsible for registering an instance of this with the remote
  * administration subsystem.
  */
+@WebServlet(
+        name = "capolicy",
+        urlPatterns = "/capolicy",
+        initParams = {
+                @WebInitParam(name="ID",        value="capolicy"),
+                @WebInitParam(name="AuthzMgr",  value="BasicAclAuthz"),
+                @WebInitParam(name="authority", value="ca")
+        }
+)
 public class CAPolicyAdminServlet extends PolicyAdminServlet {
 
     public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CAPolicyAdminServlet.class);
