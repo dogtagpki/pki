@@ -149,6 +149,8 @@ public class HttpConnFactory {
                 retConn = new HttpConnection(mDest, tFactory, mTimeout);
             }
 
+            retConn.init();
+
         } catch (Exception e) {
             String message = "Unable to create HTTP connection: " + e.getMessage();
             logger.error(message, e);

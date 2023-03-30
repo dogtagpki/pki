@@ -50,7 +50,8 @@ public class HttpConnection {
     private static Logger logger = LoggerFactory.getLogger(HttpConnection.class);
     private static SignedAuditLogger signedAuditLogger = SignedAuditLogger.getLogger();
 
-    protected RemoteAuthority mDest;
+    protected RemoteAuthority dest;
+    protected ISocketFactory factory;
     protected HttpRequest mHttpreq = new HttpRequest();
     protected HttpRequestEncoder mReqEncoder;
     protected HttpClient mHttpClient = null;
@@ -59,22 +60,31 @@ public class HttpConnection {
     List<InetSocketAddress> targets;
     String localIP = "localhost";
 
+    public HttpConnection(RemoteAuthority dest, ISocketFactory factory) {
+        this(dest, factory, 0);
+    }
+
     public HttpConnection(RemoteAuthority dest, ISocketFactory factory,
             int timeout // seconds
             ) {
 
+        this.dest = dest;
+        this.factory = factory;
+        this.timeout = timeout;
+    }
+
+    public void init() {
+
         logger.debug("HttpConnection: Creating HttpConnection with timeout=" + timeout);
+
         try {
             localIP = InetAddress.getLocalHost().getHostAddress();
         } catch (UnknownHostException e) {
             // default to "localhost";
         }
 
-        mDest = dest;
         mReqEncoder = new HttpRequestEncoder();
         mHttpClient = new HttpClient(factory);
-
-        this.timeout = timeout;
 
         targets = parseTarget(dest.getHost(), dest.getPort());
 
@@ -83,8 +93,8 @@ public class HttpConnection {
 
             // in case of multi-uri, uri will be set right before send
             //   by calling setRequestURI(uri)
-            if (mDest.getURI() != null)
-                mHttpreq.setURI(mDest.getURI());
+            if (dest.getURI() != null)
+                mHttpreq.setURI(dest.getURI());
 
             String contentType = dest.getContentType();
             if (contentType != null) {
@@ -102,10 +112,6 @@ public class HttpConnection {
             // server's probably down. that's fine. try later.
             logger.warn("HttpConnection: Unable to create connection: " + e.getMessage(), e);
         }
-    }
-
-    public HttpConnection(RemoteAuthority dest, ISocketFactory factory) {
-        this(dest, factory, 0);
     }
 
     List<InetSocketAddress> parseTarget(String target, int port) {
@@ -200,7 +206,7 @@ public class HttpConnection {
      */
     public IPKIMessage send(IPKIMessage tomsg) throws EBaseException {
 
-        String url = "https://" + mDest.getHost() + ":" + mDest.getPort() + mHttpreq.getURI();
+        String url = "https://" + dest.getHost() + ":" + dest.getPort() + mHttpreq.getURI();
         logger.info("HttpConnection: Sending request to " + url);
 
         IPKIMessage replymsg = null;
@@ -254,7 +260,7 @@ public class HttpConnection {
      */
     public HttpResponse send(String content) throws EBaseException {
 
-        String url = "https://" + mDest.getHost() + ":" + mDest.getPort() + mHttpreq.getURI();
+        String url = "https://" + dest.getHost() + ":" + dest.getPort() + mHttpreq.getURI();
         logger.info("HttpConnection: Sending request to " + url);
 
         // cfu: multi-uri support
