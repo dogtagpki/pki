@@ -17,6 +17,23 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "caGetBySerial-agent",
+        urlPatterns = "/agent/ca/getBySerial",
+        initParams = {
+                @WebInitParam(name="GetClientCert",   value="true"),
+                @WebInitParam(name="successTemplate", value="/agent/ca/ImportCert.template"),
+                @WebInitParam(name="AuthzMgr",        value="BasicAclAuthz"),
+                @WebInitParam(name="authority",       value="ca"),
+                @WebInitParam(name="interface",       value="agent"),
+                @WebInitParam(name="ID",              value="caGetBySerial"),
+                @WebInitParam(name="AuthMgr",         value="certUserDBAuthMgr"),
+                @WebInitParam(name="resourceID",      value="certServer.ca.certificate")
+        }
+)
 public class GetAgentBySerial extends GetBySerial {
     private static final long serialVersionUID = 1L;
 }
