@@ -201,17 +201,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  caGetCertChain  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.csadmin.GetCertChain  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caGetCertChain </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  caGetStatus  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.csadmin.GetStatus  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -2022,11 +2011,6 @@
    <servlet-mapping>
       <servlet-name>  caDownloadPKCS12 </servlet-name>
       <url-pattern>   /admin/console/config/savepkcs12 </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  caGetCertChain  </servlet-name>
-      <url-pattern>   /ee/ca/getCertChain  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
