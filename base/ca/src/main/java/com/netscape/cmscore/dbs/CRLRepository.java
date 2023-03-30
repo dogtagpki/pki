@@ -67,21 +67,21 @@ public class CRLRepository extends Repository {
         rangeDN = dbConfig.getRequestRangeDN() + "," + dbSubsystem.getBaseDN();
         logger.info("CRLRepository: - range DN: " + rangeDN);
 
-        minSerialName = DBSubsystem.PROP_MIN_REQUEST_NUMBER;
+        minSerialName = DatabaseConfig.MIN_REQUEST_NUMBER;
         String minSerial = dbConfig.getBeginRequestNumber();
         if (minSerial != null) {
             mMinSerialNo = new BigInteger(minSerial, mRadix);
         }
         logger.info("CRLRepository: - min serial: " + mMinSerialNo);
 
-        maxSerialName = DBSubsystem.PROP_MAX_REQUEST_NUMBER;
+        maxSerialName = DatabaseConfig.MAX_REQUEST_NUMBER;
         String maxSerial = dbConfig.getEndRequestNumber();
         if (maxSerial != null) {
             mMaxSerialNo = new BigInteger(maxSerial, mRadix);
         }
         logger.info("CRLRepository: - max serial: " + mMaxSerialNo);
 
-        nextMinSerialName = DBSubsystem.PROP_NEXT_MIN_REQUEST_NUMBER;
+        nextMinSerialName = DatabaseConfig.NEXT_MIN_REQUEST_NUMBER;
         String nextMinSerial = dbConfig.getNextBeginRequestNumber();
         if (nextMinSerial == null || nextMinSerial.equals("-1")) {
             mNextMinSerialNo = null;
@@ -90,7 +90,7 @@ public class CRLRepository extends Repository {
         }
         logger.info("CRLRepository: - next min serial: " + mNextMinSerialNo);
 
-        nextMaxSerialName = DBSubsystem.PROP_NEXT_MAX_REQUEST_NUMBER;
+        nextMaxSerialName = DatabaseConfig.NEXT_MAX_REQUEST_NUMBER;
         String nextMaxSerial = dbConfig.getNextEndRequestNumber();
         if (nextMaxSerial == null || nextMaxSerial.equals("-1")) {
             mNextMaxSerialNo = null;

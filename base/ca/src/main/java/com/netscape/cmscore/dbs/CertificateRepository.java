@@ -133,21 +133,21 @@ public class CertificateRepository extends Repository {
         rangeDN = mDBConfig.getSerialRangeDN() + "," + dbSubsystem.getBaseDN();
         logger.debug("CertificateRepository: - range DN: " + rangeDN);
 
-        minSerialName = DBSubsystem.PROP_MIN_SERIAL_NUMBER;
+        minSerialName = DatabaseConfig.MIN_SERIAL_NUMBER;
         String minSerial = mDBConfig.getBeginSerialNumber();
         if (minSerial != null) {
             mMinSerialNo = new BigInteger(minSerial, mRadix);
         }
         logger.debug("CertificateRepository: - min serial: " + mMinSerialNo);
 
-        maxSerialName = DBSubsystem.PROP_MAX_SERIAL_NUMBER;
+        maxSerialName = DatabaseConfig.MAX_SERIAL_NUMBER;
         String maxSerial = mDBConfig.getEndSerialNumber();
         if (maxSerial != null) {
             mMaxSerialNo = new BigInteger(maxSerial, mRadix);
         }
         logger.debug("CertificateRepository: - max serial: " + mMaxSerialNo);
 
-        nextMinSerialName = DBSubsystem.PROP_NEXT_MIN_SERIAL_NUMBER;
+        nextMinSerialName = DatabaseConfig.NEXT_MIN_SERIAL_NUMBER;
         String nextMinSerial = mDBConfig.getNextBeginSerialNumber();
         if (nextMinSerial == null || nextMinSerial.equals("-1")) {
             mNextMinSerialNo = null;
@@ -156,7 +156,7 @@ public class CertificateRepository extends Repository {
         }
         logger.debug("CertificateRepository: - next min serial: " + mNextMinSerialNo);
 
-        nextMaxSerialName = DBSubsystem.PROP_NEXT_MAX_SERIAL_NUMBER;
+        nextMaxSerialName = DatabaseConfig.NEXT_MAX_SERIAL_NUMBER;
         String nextMaxSerial = mDBConfig.getNextEndSerialNumber();
         if (nextMaxSerial == null || nextMaxSerial.equals("-1")) {
             mNextMaxSerialNo = null;

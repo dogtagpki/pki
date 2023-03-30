@@ -59,61 +59,11 @@ import netscape.ldap.LDAPSchema;
  */
 public class DBSubsystem {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DBSubsystem.class);
+    public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DBSubsystem.class);
 
-    public final static String ID = "dbs";
+    public static final String ID = "dbs";
 
-    protected EngineConfig engineConfig;
-    private DatabaseConfig mDBConfig;
-    private LDAPConfig ldapConfig;
-    private LdapBoundConnFactory mLdapConnFactory = null;
-    private DBRegistry mRegistry = null;
-    private String mBaseDN = null;
-
-    private boolean mEnableSerialMgmt = false;
-
-    public static final String PROP_ENABLE_SERIAL_NUMBER_RECOVERY =
-            "enableSerialNumberRecovery";
-    // This value is only equal to the next Serial number that the CA's
-    // going to issue when cms just start up or it's just set from console.
-    // It doesn't record the next serial number at other time when cms's
-    // runing not to increase overhead when issuing certs.
-    public static final String PROP_NEXT_SERIAL_NUMBER =
-            "nextSerialNumber";
-    public static final String PROP_MIN_SERIAL_NUMBER = "beginSerialNumber";
-    public static final String PROP_MAX_SERIAL_NUMBER = "endSerialNumber";
-    public static final String PROP_NEXT_MIN_SERIAL_NUMBER = "nextBeginSerialNumber";
-    public static final String PROP_NEXT_MAX_SERIAL_NUMBER = "nextEndSerialNumber";
-    public static final String PROP_SERIAL_LOW_WATER_MARK = "serialLowWaterMark";
-    public static final String PROP_SERIAL_INCREMENT = "serialIncrement";
-    public static final String PROP_SERIAL_BASEDN = "serialDN";
-    public static final String PROP_SERIAL_RANGE_DN = "serialRangeDN";
-
-    public static final String PROP_MIN_REQUEST_NUMBER = "beginRequestNumber";
-    public static final String PROP_MAX_REQUEST_NUMBER = "endRequestNumber";
-    public static final String PROP_NEXT_MIN_REQUEST_NUMBER = "nextBeginRequestNumber";
-    public static final String PROP_NEXT_MAX_REQUEST_NUMBER = "nextEndRequestNumber";
-    public static final String PROP_REQUEST_LOW_WATER_MARK = "requestLowWaterMark";
-    public static final String PROP_REQUEST_INCREMENT = "requestIncrement";
-    public static final String PROP_REQUEST_BASEDN = "requestDN";
-    public static final String PROP_REQUEST_RANGE_DN = "requestRangeDN";
-
-    public static final String PROP_MIN_REPLICA_NUMBER = "beginReplicaNumber";
-    public static final String PROP_MAX_REPLICA_NUMBER = "endReplicaNumber";
-    public static final String PROP_NEXT_MIN_REPLICA_NUMBER = "nextBeginReplicaNumber";
-    public static final String PROP_NEXT_MAX_REPLICA_NUMBER = "nextEndReplicaNumber";
-    public static final String PROP_REPLICA_LOW_WATER_MARK = "replicaLowWaterMark";
-    public static final String PROP_REPLICA_INCREMENT = "replicaIncrement";
-    public static final String PROP_REPLICA_BASEDN = "replicaDN";
-    public static final String PROP_REPLICA_RANGE_DN = "replicaRangeDN";
-
-    public static final String PROP_INFINITE_SERIAL_NUMBER = "1000000000";
-    public static final String PROP_INFINITE_REQUEST_NUMBER = "1000000000";
-    public static final String PROP_INFINITE_REPLICA_NUMBER = "1000";
-    private static final String PROP_LDAP = "ldap";
     public static final String PROP_NEXT_RANGE = "nextRange";
-    public static final String PROP_ENABLE_SERIAL_MGMT = "enableSerialManagement";
-
     public static final Set<String> DEFAULT_EXCLUDED_LDAP_ATTRS = Set.of(
             "req_x509info",
             "publickey",
@@ -122,6 +72,15 @@ public class DBSubsystem {
             "req_archive_options",
             "req_key"
     );
+
+    protected EngineConfig engineConfig;
+    private DatabaseConfig mDBConfig;
+    private LDAPConfig ldapConfig;
+    private LdapBoundConnFactory mLdapConnFactory;
+    private DBRegistry mRegistry;
+    private String mBaseDN;
+
+    private boolean mEnableSerialMgmt;
 
     protected Set<String> excludedLdapAttrs;
 

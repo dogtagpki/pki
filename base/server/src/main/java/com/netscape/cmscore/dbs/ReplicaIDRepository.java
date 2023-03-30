@@ -54,21 +54,21 @@ public class ReplicaIDRepository extends Repository {
         rangeDN = dbConfig.getReplicaRangeDN() + "," + dbSubsystem.getBaseDN();
         logger.info("ReplicaIDRepository: - range DN: " + rangeDN);
 
-        minSerialName = DBSubsystem.PROP_MIN_REPLICA_NUMBER;
+        minSerialName = DatabaseConfig.MIN_REPLICA_NUMBER;
         String minSerial = dbConfig.getBeginReplicaNumber();
         if (minSerial != null) {
             mMinSerialNo = new BigInteger(minSerial, mRadix);
         }
         logger.info("ReplicaIDRepository: - min serial: " + mMinSerialNo);
 
-        maxSerialName = DBSubsystem.PROP_MAX_REPLICA_NUMBER;
+        maxSerialName = DatabaseConfig.MAX_REPLICA_NUMBER;
         String maxSerial = dbConfig.getEndReplicaNumber();
         if (maxSerial != null) {
             mMaxSerialNo = new BigInteger(maxSerial, mRadix);
         }
         logger.info("ReplicaIDRepository: - max serial: " + mMaxSerialNo);
 
-        nextMinSerialName = DBSubsystem.PROP_NEXT_MIN_REPLICA_NUMBER;
+        nextMinSerialName = DatabaseConfig.NEXT_MIN_REPLICA_NUMBER;
         String nextMinSerial = dbConfig.getNextBeginReplicaNumber();
         if (nextMinSerial == null || nextMinSerial.equals("-1")) {
             mNextMinSerialNo = null;
@@ -77,7 +77,7 @@ public class ReplicaIDRepository extends Repository {
         }
         logger.info("ReplicaIDRepository: - next min serial: " + mNextMinSerialNo);
 
-        nextMaxSerialName = DBSubsystem.PROP_NEXT_MAX_REPLICA_NUMBER;
+        nextMaxSerialName = DatabaseConfig.NEXT_MAX_REPLICA_NUMBER;
         String nextMaxSerial = dbConfig.getNextEndReplicaNumber();
         if (nextMaxSerial == null || nextMaxSerial.equals("-1")) {
             mNextMaxSerialNo = null;
