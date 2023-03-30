@@ -17,6 +17,23 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "caGetAdminBySerial",
+        urlPatterns = "/admin/ca/getBySerial",
+        initParams = {
+                @WebInitParam(name="GetClientCert",      value="false"),
+                @WebInitParam(name="successTemplate",    value="/admin/ca/ImportCert.template"),
+                @WebInitParam(name="importCertTemplate", value="/admin/ca/ImportAdminCert.template"),
+                @WebInitParam(name="AuthzMgr",           value="BasicAclAuthz"),
+                @WebInitParam(name="authority",          value="ca"),
+                @WebInitParam(name="interface",          value="admin"),
+                @WebInitParam(name="ID",                 value="caGetAdminBySerial"),
+                @WebInitParam(name="resourceID",         value="certServer.admin.certificate")
+        }
+)
 public class GetAdminBySerial extends GetBySerial {
     private static final long serialVersionUID = 1L;
 }
