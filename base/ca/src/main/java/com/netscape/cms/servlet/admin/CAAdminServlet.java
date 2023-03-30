@@ -25,6 +25,8 @@ import java.util.Enumeration;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -61,9 +63,15 @@ import com.netscape.cmscore.dbs.DBSubsystem;
  * Authority. This servlet is responsible to serve CA
  * administrative operations such as configuration parameter
  * updates.
- *
- * @version $Revision$, $Date$
  */
+@WebServlet(
+        name = "caca",
+        urlPatterns = "/caadmin",
+        initParams = {
+                @WebInitParam(name="ID",       value="caca"),
+                @WebInitParam(name="AuthzMgr", value="BasicAclAuthz")
+        }
+)
 public class CAAdminServlet extends AdminServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CAAdminServlet.class);
