@@ -65,7 +65,7 @@
 
    <servlet>
       <servlet-name>  caGetAdminCertBySerial  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.cert.GetBySerial  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.cert.GetAdminCertBySerial  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> false       </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
