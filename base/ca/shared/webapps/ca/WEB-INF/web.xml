@@ -1306,25 +1306,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  caProfileSubmitSSLClient  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.profile.ProfileSubmitSSLClientServlet  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authorityId  </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caProfileSubmitSSLClient </param-value> </init-param>
-             <init-param><param-name>  templatePath  </param-name>
-                         <param-value> /ee/ca/ProfileSubmit.template </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.ee.profile </param-value> </init-param>
-             <init-param><param-name>  interface   </param-name>
-                         <param-value> ee          </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  caGetCAChain  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.cert.GetCAChain  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -2180,19 +2161,9 @@
       <url-pattern>   /ee/ca/listCerts  </url-pattern>
    </servlet-mapping>
 
-   <servlet-mapping>  
-      <servlet-name>  caProfileSubmitSSLClient  </servlet-name>
-      <url-pattern>   /eeca/ca/profileSubmitSSLClient  </url-pattern>
-   </servlet-mapping>
-
    <servlet-mapping>
       <servlet-name>  caGetCertFromRequest  </servlet-name>
       <url-pattern>   /eeca/ca/getCertFromRequest  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>  
-      <servlet-name>  caProfileSubmitSSLClient  </servlet-name>
-      <url-pattern>   /ee/ca/profileSubmitSSLClient  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>  
