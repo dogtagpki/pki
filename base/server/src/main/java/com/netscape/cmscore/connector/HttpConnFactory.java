@@ -149,6 +149,7 @@ public class HttpConnFactory {
                 retConn = new HttpConnection(mDest, tFactory, mTimeout);
             }
 
+            retConn.setCMSEngine(engine);
             retConn.init();
 
         } catch (Exception e) {

@@ -33,6 +33,7 @@ import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.logging.event.ClientAccessSessionEstablishEvent;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.http.HttpClient;
 import com.netscape.cmsutil.http.HttpRequest;
 import com.netscape.cmsutil.http.HttpResponse;
@@ -50,6 +51,7 @@ public class HttpConnection {
     private static Logger logger = LoggerFactory.getLogger(HttpConnection.class);
     private static SignedAuditLogger signedAuditLogger = SignedAuditLogger.getLogger();
 
+    protected CMSEngine engine;
     protected RemoteAuthority dest;
     protected ISocketFactory factory;
     protected HttpRequest mHttpreq = new HttpRequest();
@@ -71,6 +73,14 @@ public class HttpConnection {
         this.dest = dest;
         this.factory = factory;
         this.timeout = timeout;
+    }
+
+    public CMSEngine getCMSEngine() {
+        return engine;
+    }
+
+    public void setCMSEngine(CMSEngine engine) {
+        this.engine = engine;
     }
 
     public void init() {

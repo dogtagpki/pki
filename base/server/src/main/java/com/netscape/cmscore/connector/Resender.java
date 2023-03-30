@@ -157,6 +157,7 @@ public class Resender implements Runnable {
             factory.addSocketListener(sockListener);
 
             mConn = new HttpConnection(mDest, factory);
+            mConn.setCMSEngine(engine);
             mConn.init();
 
             initRequests();
