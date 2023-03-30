@@ -35,15 +35,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  caserver  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.admin.CACMSAdminServlet  </servlet-class>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caserver    </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  capolicy  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.admin.CAPolicyAdminServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
@@ -2026,11 +2017,6 @@
    <servlet-mapping>
       <servlet-name>  caug  </servlet-name>
       <url-pattern>   /ug  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  caserver  </servlet-name>
-      <url-pattern>   /server  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
