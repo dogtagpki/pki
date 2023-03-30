@@ -241,7 +241,7 @@
 
    <servlet>
       <servlet-name>  caGetCertChainAdmin  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.csadmin.GetCertChain  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.csadmin.GetCertChainAdmin  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> false       </param-value> </init-param>
              <init-param><param-name>  authority   </param-name>
