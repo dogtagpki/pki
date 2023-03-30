@@ -52,8 +52,8 @@ public class HttpConnFactory {
     /**
      * Constructor for HttpConnFactory
      *
-     * @param minConns minimum number of connections to have available
-     * @param maxConns max number of connections to have available. This is
+     * @param minConns minimum number of connection handles to have available.
+     * @param maxConns maximum total number of connections to ever have.
      */
     public HttpConnFactory(
             int minConns,
@@ -61,43 +61,46 @@ public class HttpConnFactory {
             RemoteAuthority dest,
             String nickname,
             String clientCiphers,
-            int timeout) throws EBaseException {
+            int timeout) {
 
         logger.debug("In HttpConnFactory constructor mTimeout " + timeout);
+
+        mMinConns = minConns;
+        mMaxConns = maxConns;
+
         mClientCiphers = clientCiphers;
         if (mClientCiphers != null)
             logger.debug("In HttpConnFactory constructor mClientCiphers: " + mClientCiphers);
         else
             logger.debug("In HttpConnFactory constructor mClientCiphers not specified, will take default ");
+
         mDest = dest;
         mNickname = nickname;
         mTimeout = timeout;
-
-        init(minConns, maxConns);
     }
 
     /**
      * initialize parameters obtained from either constructor or
      * config store
      *
-     * @param minConns minimum number of connection handles to have available.
-     * @param maxConns maximum total number of connections to ever have.
      * @param connInfo ldap connection info.
      * @param authInfo ldap authentication info.
      * @exception ELdapException if any error occurs.
      */
-    private void init(int minConns, int maxConns
-            )
-                    throws EBaseException {
+    public void init() throws EBaseException {
 
-        logger.debug("min conns " + minConns + " maxConns " + maxConns);
-        if (minConns <= 0 || maxConns <= 0 || minConns > maxConns) {
-            logger.warn("bad values from CMS.cfg");
+        logger.debug("HttpConnFactory: min conns: " + mMinConns);
+        if (mMinConns <= 0) {
+            throw new EBaseException("HttpConnFactory: Invalid minimum connection: " + mMinConns);
+        }
 
-        } else {
+        logger.debug("HttpConnFactory: max conns: " + mMaxConns);
+        if (mMaxConns <= 0) {
+            throw new EBaseException("HttpConnFactory: Invalid maximum connection: " + mMaxConns);
+        }
 
-            mMinConns = minConns;
-            mMaxConns = maxConns;
+        if (mMinConns > mMaxConns) {
+            throw new EBaseException("HttpConnFactory: Invalid minimum and maximum connections");
         }
 
         logger.debug("before creating httpconn array");

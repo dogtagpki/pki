@@ -71,6 +71,8 @@ public class HttpConnector extends Connector {
 
         try {
             mConnFactory = new HttpConnFactory(minConns, maxConns, dest, nickName, clientCiphers, 0);
+            mConnFactory.init();
+
         } catch (EBaseException e) {
             logger.warn("HttpConn: can't create new HttpConnFactory: " + e.getMessage(), e);
         }
@@ -108,6 +110,8 @@ public class HttpConnector extends Connector {
 
         try {
             mConnFactory = new HttpConnFactory(minConns, maxConns, dest, nickName, clientCiphers, timeout);
+            mConnFactory.init();
+
         } catch (EBaseException e) {
             logger.warn("HttpConn: can't create new HttpConnFactory: " + e.getMessage(), e);
         }
