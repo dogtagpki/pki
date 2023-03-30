@@ -373,7 +373,7 @@ public class ProfileReviewServlet extends ProfileServlet {
                             outputValue = profileOutput.getValue(outputName,
                                         locale, req);
                         } catch (EProfileException e) {
-                            logger.warn("ProfileSubmitServlet: " + e.getMessage(), e);
+                            logger.warn("ProfileReviewServlet: " + e.getMessage(), e);
                         }
 
                         outputset.set(ARG_OUTPUT_ID, outputName);

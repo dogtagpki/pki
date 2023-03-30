@@ -65,7 +65,6 @@ import com.netscape.cmsutil.xml.XMLObject;
  * This servlet submits end-user request into the profile framework.
  *
  * @author Christina Fu (renewal support; Server-Side Keygen enrollment support)
- * @version $Revision$, $Date$
  */
 public class ProfileSubmitServlet extends ProfileServlet {
 
