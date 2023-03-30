@@ -23,6 +23,8 @@ import java.util.StringTokenizer;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -62,6 +64,15 @@ import com.netscape.cmscore.registry.PluginRegistry;
  *
  * @version $Revision$, $Date$
  */
+@WebServlet(
+        name = "caprofile",
+        urlPatterns = "/caprofile",
+        initParams = {
+                @WebInitParam(name="ID",        value="caprofile"),
+                @WebInitParam(name="AuthzMgr",  value="BasicAclAuthz"),
+                @WebInitParam(name="authority", value="ca")
+        }
+)
 public class ProfileAdminServlet extends AdminServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileAdminServlet.class);
