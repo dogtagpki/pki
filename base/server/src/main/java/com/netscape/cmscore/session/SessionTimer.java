@@ -27,17 +27,27 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 public class SessionTimer extends TimerTask {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SessionTimer.class);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
+    protected CMSEngine engine;
     private SecurityDomainSessionTable m_sessiontable = null;
 
     public SessionTimer(SecurityDomainSessionTable table) {
         super();
         m_sessiontable = table;
+    }
+
+    public CMSEngine getCMSEngine() {
+        return engine;
+    }
+
+    public void setCMSEngine(CMSEngine engine) {
+        this.engine = engine;
     }
 
     @Override

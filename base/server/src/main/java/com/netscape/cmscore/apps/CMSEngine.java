@@ -800,6 +800,7 @@ public class CMSEngine {
         }
 
         SessionTimer task = new SessionTimer(mSecurityDomainSessionTable);
+        task.setCMSEngine(this);
 
         mSDTimer = new Timer();
         mSDTimer.schedule(task, 5, Long.parseLong(checkInterval));
