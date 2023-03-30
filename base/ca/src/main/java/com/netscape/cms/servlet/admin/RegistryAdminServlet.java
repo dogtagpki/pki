@@ -22,6 +22,8 @@ import java.util.Enumeration;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -41,9 +43,16 @@ import com.netscape.cmscore.registry.PluginRegistry;
 
 /**
  * This implements the administration servlet for registry subsystem.
- *
- * @version $Revision$, $Date$
  */
+@WebServlet(
+        name = "caregistry",
+        urlPatterns = "/registry",
+        initParams = {
+                @WebInitParam(name="ID",        value="caregistry"),
+                @WebInitParam(name="AuthzMgr",  value="BasicAclAuthz"),
+                @WebInitParam(name="authority", value="ca")
+        }
+)
 public class RegistryAdminServlet extends AdminServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RegistryAdminServlet.class);
