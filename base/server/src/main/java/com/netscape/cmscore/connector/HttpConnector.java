@@ -71,6 +71,7 @@ public class HttpConnector extends Connector {
 
         try {
             mConnFactory = new HttpConnFactory(minConns, maxConns, dest, nickName, clientCiphers, 0);
+            mConnFactory.setCMSEngine(engine);
             mConnFactory.init();
 
         } catch (EBaseException e) {
@@ -110,6 +111,7 @@ public class HttpConnector extends Connector {
 
         try {
             mConnFactory = new HttpConnFactory(minConns, maxConns, dest, nickName, clientCiphers, timeout);
+            mConnFactory.setCMSEngine(engine);
             mConnFactory.init();
 
         } catch (EBaseException e) {

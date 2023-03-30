@@ -21,6 +21,7 @@ import org.dogtagpki.server.PKIClientSocketListener;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
 import com.netscape.cmsutil.net.ISocketFactory;
 
@@ -31,6 +32,7 @@ public class HttpConnFactory {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HttpConnFactory.class);
 
+    protected CMSEngine engine;
     protected int mMinConns = 1;
     protected int mMaxConns = 30;
 
@@ -77,6 +79,14 @@ public class HttpConnFactory {
         mDest = dest;
         mNickname = nickname;
         mTimeout = timeout;
+    }
+
+    public CMSEngine getCMSEngine() {
+        return engine;
+    }
+
+    public void setCMSEngine(CMSEngine engine) {
+        this.engine = engine;
     }
 
     /**
