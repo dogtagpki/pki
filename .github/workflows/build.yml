@@ -138,7 +138,7 @@ jobs:
       - name: Save PKI images
         run: |
           docker images
-          docker save -o pki-images.tar pki-builder pki-dist pki-runner pki-server pki-ca pki-acme ipa-runner
+          docker save -o pki-images.tar pki-dist pki-runner pki-server pki-ca pki-acme ipa-runner
 
       - name: Store PKI images
         uses: actions/cache@v3
