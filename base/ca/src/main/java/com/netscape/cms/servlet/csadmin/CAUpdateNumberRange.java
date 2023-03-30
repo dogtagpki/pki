@@ -17,11 +17,27 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
 import org.dogtagpki.server.ca.CAEngine;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.dbs.Repository;
 
+@WebServlet(
+        name = "caUpdateNumberRange",
+        urlPatterns = "/admin/ca/updateNumberRange",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="false"),
+                @WebInitParam(name="authority",     value="ca"),
+                @WebInitParam(name="ID",            value="caUpdateNumberRange"),
+                @WebInitParam(name="interface",     value="admin"),
+                @WebInitParam(name="AuthMgr",       value="TokenAuth"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="resourceID",    value="certServer.clone.configuration.UpdateNumberRange"),
+        }
+)
 public class CAUpdateNumberRange extends UpdateNumberRange {
 
     @Override

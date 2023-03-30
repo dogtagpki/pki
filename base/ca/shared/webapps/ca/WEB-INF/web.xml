@@ -163,25 +163,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  caUpdateNumberRange  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.csadmin.CAUpdateNumberRange  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caUpdateNumberRange </param-value> </init-param>
-             <init-param><param-name>  interface   </param-name>
-                         <param-value> admin          </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> TokenAuth </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.clone.configuration.UpdateNumberRange </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  caUpdateOCSPConfig  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.csadmin.UpdateOCSPConfig  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -2047,11 +2028,6 @@
    <servlet-mapping>
       <servlet-name>  caUpdateDomainXML-admin </servlet-name>
       <url-pattern>   /admin/ca/updateDomainXML  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>     
-      <servlet-name>  caUpdateNumberRange </servlet-name>
-      <url-pattern>   /admin/ca/updateNumberRange  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
