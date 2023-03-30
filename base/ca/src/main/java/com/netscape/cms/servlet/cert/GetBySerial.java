@@ -60,8 +60,6 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * Retrieve certificate by serial number.
- *
- * @version $Revision$, $Date$
  */
 public class GetBySerial extends CAServlet {
 

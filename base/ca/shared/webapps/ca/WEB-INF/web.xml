@@ -1200,7 +1200,7 @@
 
    <servlet>
       <servlet-name>  caGetAdminBySerial  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.cert.GetBySerial  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.cert.GetAdminBySerial  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> false       </param-value> </init-param>
              <init-param><param-name>  successTemplate  </param-name>
