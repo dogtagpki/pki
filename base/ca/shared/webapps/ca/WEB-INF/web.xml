@@ -212,17 +212,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  caprofile  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.admin.ProfileAdminServlet  </servlet-class>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caprofile   </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ca          </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  cajobsScheduler  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.admin.JobsAdminServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
@@ -1860,11 +1849,6 @@
    <servlet-mapping>
       <servlet-name>  caauths  </servlet-name>
       <url-pattern>   /auths  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  caprofile  </servlet-name>
-      <url-pattern>   /caprofile  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
