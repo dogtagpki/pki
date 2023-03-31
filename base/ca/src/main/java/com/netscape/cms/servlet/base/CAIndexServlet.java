@@ -20,6 +20,9 @@ package com.netscape.cms.servlet.base;
 
 import java.io.IOException;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cms.servlet.common.CMSGateway;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -31,6 +34,17 @@ import com.netscape.cmscore.apps.CMSEngine;
  * This is the servlet that builds the index page in
  * various ports.
  */
+@WebServlet(
+        name = "caindex",
+        urlPatterns = "/index",
+        initParams = {
+                @WebInitParam(name="ID",            value="caindex"),
+                @WebInitParam(name="template",      value="index.template"),
+                @WebInitParam(name="GetClientCert", value="true"),
+                @WebInitParam(name="AuthMgr",       value="certUserDBAuthMgr"),
+                @WebInitParam(name="interface",     value="agent")
+        }
+)
 public class CAIndexServlet extends IndexServlet {
 
     @Override
