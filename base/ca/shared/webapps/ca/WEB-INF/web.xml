@@ -571,7 +571,7 @@
 
    <servlet>
       <servlet-name>  caheader  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.CAIndexServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.base.CAHeaderServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
                          <param-value> caheader    </param-value> </init-param>
              <init-param><param-name>  GetClientCert  </param-name>
