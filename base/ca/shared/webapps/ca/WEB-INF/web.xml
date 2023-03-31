@@ -1349,25 +1349,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  caDoUnrevoke1  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.cert.DoUnrevokeTPS  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> true        </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caDoUnrevoke1 </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> certUserDBAuthMgr </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.ca.certificate </param-value> </init-param>
-             <init-param><param-name>  interface   </param-name>
-                         <param-value> ee          </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  caDisplayBySerial  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.cert.DisplayBySerial  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -1918,11 +1899,6 @@
    <servlet-mapping>  
       <servlet-name>  caProfileList  </servlet-name>
       <url-pattern>   /ee/ca/profileList  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>  
-      <servlet-name>  caDoUnrevoke1  </servlet-name>
-      <url-pattern>   /ee/subsystem/ca/doUnrevoke  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>  
