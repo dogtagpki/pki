@@ -859,44 +859,55 @@ public abstract class EnrollDefault extends PolicyDefault {
 
         CAEngine engine = CAEngine.getInstance();
 
-        if (engine != null) {
+        if (engine == null) { // running outside of server
+            logger.info("Getting signing cert from CA config");
 
-            // if running inside server, get signing cert from signing unit object
+            CAConfig caConfig = engineConfig.getCAConfig();
+            SigningUnitConfig signingUnitConfig = caConfig.getSigningUnitConfig();
+            String fullName = signingUnitConfig.getFullName();
 
-            CertificateAuthority ca;
+            try {
+                CryptoManager cm = CryptoManager.getInstance();
+                X509Certificate cert = cm.findCertByNickname(fullName);
+                return new X509CertImpl(cert.getEncoded());
 
-            if (authorityID == null) {
-                ca = engine.getCA();
-            } else {
-                ca = engine.getCA(new AuthorityID(authorityID));
+            } catch (ObjectNotFoundException e) {
+                logger.info("Signing cert does not exist: " + fullName);
+                return null;
             }
+        }
 
+        // running inside server
+
+        if (authorityID == null) {
+            logger.info("Getting signing cert from host CA");
+
+            CertificateAuthority ca = engine.getCA();
             if (ca == null) {
-                throw new EProfileException("Could not reach requested CA");
+                throw new EProfileException("Unable to find host CA");
             }
 
             CASigningUnit signingUnit = ca.getSigningUnit();
-
             if (signingUnit == null) {
+                logger.warn("Unable to find signing unit of host CA");
                 return null;
             }
 
             return signingUnit.getCertImpl();
         }
 
-        // if running outside of server, get signing cert from signing unit config
+        logger.info("Getting signing cert from CA " + authorityID);
+        CertificateAuthority ca = engine.getCA(new AuthorityID(authorityID));
+        if (ca == null) {
+            throw new EProfileException("Unable to find CA " + authorityID);
+        }
 
-        CAConfig caConfig = engineConfig.getCAConfig();
-        SigningUnitConfig signingUnitConfig = caConfig.getSigningUnitConfig();
-        String fullName = signingUnitConfig.getFullName();
-
-        try {
-            CryptoManager cm = CryptoManager.getInstance();
-            X509Certificate cert = cm.findCertByNickname(fullName);
-            return new X509CertImpl(cert.getEncoded());
-
-        } catch (ObjectNotFoundException e) {
+        CASigningUnit signingUnit = ca.getSigningUnit();
+        if (signingUnit == null) {
+            logger.warn("Unable to find signing unit of CA " + authorityID);
             return null;
         }
+
+        return signingUnit.getCertImpl();
     }
 }
