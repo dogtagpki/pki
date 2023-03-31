@@ -1385,23 +1385,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  caGetSubsystemCert  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.csadmin.GetSubsystemCert  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caGetSubsystemCert   </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.ee.certificate </param-value> </init-param>
-             <init-param><param-name>  interface   </param-name>
-                         <param-value> ee          </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  caDoRevoke  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.cert.DoRevoke  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -1913,11 +1896,6 @@
    <servlet-mapping>
       <servlet-name>  services </servlet-name>
       <url-pattern>   /services  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  caGetSubsystemCert </servlet-name>
-      <url-pattern>   /admin/ca/getSubsystemCert  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
