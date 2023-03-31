@@ -236,6 +236,7 @@ public class CAService implements IService {
         if (extConnector != null) {
             try {
                 connector = (Connector) Class.forName(extConnector).getDeclaredConstructor().newInstance();
+                connector.setCMSEngine(engine);
                 // connector.start() will be called later on
                 return connector;
             } catch (Exception e) {
