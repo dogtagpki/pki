@@ -31,9 +31,9 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.connector.IPKIMessage;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.logging.event.ClientAccessSessionEstablishEvent;
-import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmsutil.http.HttpClient;
 import com.netscape.cmsutil.http.HttpRequest;
 import com.netscape.cmsutil.http.HttpResponse;
@@ -49,7 +49,6 @@ import com.netscape.cmsutil.net.ISocketFactory;
 public class HttpConnection {
 
     private static Logger logger = LoggerFactory.getLogger(HttpConnection.class);
-    private static SignedAuditLogger signedAuditLogger = SignedAuditLogger.getLogger();
 
     protected CMSEngine engine;
     protected RemoteAuthority dest;
@@ -156,6 +155,7 @@ public class HttpConnection {
     void connect() throws IOException {
 
         IOException exception = null;
+        Auditor auditor = engine.getAuditor();
         SignedAuditEvent auditEvent;
 
         // try all targets
@@ -181,7 +181,7 @@ public class HttpConnection {
                         Integer.toString(port),
                         "SYSTEM",
                         "connect:" +e.toString());
-                signedAuditLogger.log(auditEvent);
+                auditor.log(auditEvent);
 
                 // try the next target immediately
             }
@@ -290,6 +290,7 @@ public class HttpConnection {
 
         HttpResponse resp = null;
         boolean reconnected = false;
+        Auditor auditor = engine.getAuditor();
         SignedAuditEvent auditEvent;
         String localIP = "localhost";
         try {
@@ -342,7 +343,7 @@ public class HttpConnection {
                         mHttpClient.getPort(),
                         "SYSTEM",
                         "send:" +e.toString());
-                signedAuditLogger.log(auditEvent);
+                auditor.log(auditEvent);
 
                 if (reconnected) {
                     logger.error("HttpConnection.doSend: resend failed again.");
