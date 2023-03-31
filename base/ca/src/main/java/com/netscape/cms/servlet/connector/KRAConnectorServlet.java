@@ -17,6 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.connector;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
 import org.dogtagpki.server.ca.CAEngine;
 
 import com.netscape.certsrv.profile.EProfileException;
@@ -29,6 +32,20 @@ import com.netscape.cmscore.request.Request;
  * process requests from remote authority -
  * service request or return status.
  */
+@WebServlet(
+        name = "caConnector",
+        urlPatterns = "/ca/connector",
+        initParams = {
+                @WebInitParam(name="GetClientCert",  value="true"),
+                @WebInitParam(name="AuthzMgr",       value="BasicAclAuthz"),
+                @WebInitParam(name="authority",      value="ca"),
+                @WebInitParam(name="ID",             value="caConnector"),
+                @WebInitParam(name="RequestEncoder", value="com.netscape.cmscore.connector.HttpRequestEncoder"),
+                @WebInitParam(name="resourceID",     value="certServer.ca.connector"),
+                @WebInitParam(name="interface",      value="agent"),
+                @WebInitParam(name="AuthMgr",        value="certUserDBAuthMgr")
+        }
+)
 public class KRAConnectorServlet extends ConnectorServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRAConnectorServlet.class);
