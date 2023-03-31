@@ -32,6 +32,8 @@ import java.util.Vector;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -86,9 +88,20 @@ import com.netscape.cmscore.usrgrp.User;
  * Agent operations on Certificate requests. This servlet is used
  * by an Agent to approve, reject, reassign, or change a certificate
  * request.
- *
- * @version $Revision$, $Date$
  */
+@WebServlet(
+        name = "caProcessCertReq",
+        urlPatterns = "/agent/ca/processCertReq",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="true"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="authority",     value="ca"),
+                @WebInitParam(name="interface",     value="agent"),
+                @WebInitParam(name="ID",            value="caProcessCertReq"),
+                @WebInitParam(name="resourceID",    value="param-name"),
+                @WebInitParam(name="AuthMgr",       value="certUserDBAuthMgr")
+        }
+)
 public class ProcessCertReq extends CMSServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProcessCertReq.class);

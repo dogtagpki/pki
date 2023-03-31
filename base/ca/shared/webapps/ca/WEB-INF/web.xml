@@ -658,25 +658,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  caProcessCertReq  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.request.ProcessCertReq  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> true        </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  interface  </param-name>
-                         <param-value> agent      </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caProcessCertReq </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.ca.request.enrollment </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> certUserDBAuthMgr </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  cabulkissuance  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.cert.EnrollServlet  </servlet-class>
              <init-param><param-name>  unauthorizedTemplate  </param-name>
@@ -1673,11 +1654,6 @@
    <servlet-mapping>  
       <servlet-name>  caDoRevoke-agent  </servlet-name>
       <url-pattern>   /agent/ca/doRevoke  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>  
-      <servlet-name>  caProcessCertReq  </servlet-name>
-      <url-pattern>   /agent/ca/processCertReq  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>  
