@@ -22,6 +22,8 @@ import java.util.Locale;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -38,6 +40,18 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.json.JSONObject;
 
+@WebServlet(
+        name = "caGetSubsystemCert",
+        urlPatterns = "/admin/ca/getSubsystemCert",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="false"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="authority",     value="ca"),
+                @WebInitParam(name="ID",            value="caGetSubsystemCert"),
+                @WebInitParam(name="resourceID",    value="certServer.ee.certificate"),
+                @WebInitParam(name="interface",     value="ee")
+        }
+)
 public class GetSubsystemCert extends CMSServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GetSubsystemCert.class);
