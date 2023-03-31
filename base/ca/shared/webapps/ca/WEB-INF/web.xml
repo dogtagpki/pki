@@ -242,17 +242,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  capublisher  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.admin.PublisherAdminServlet  </servlet-class>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> capublisher </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ca          </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  caGetOCSPInfo  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.ocsp.GetOCSPInfo  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -1874,11 +1863,6 @@
    <servlet-mapping>
       <servlet-name>  caadminEnroll  </servlet-name>
       <url-pattern>   /admin/ca/adminEnroll  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  capublisher  </servlet-name>
-      <url-pattern>   /capublisher  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>

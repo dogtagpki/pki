@@ -24,6 +24,8 @@ import java.util.Vector;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -82,9 +84,16 @@ import netscape.ldap.LDAPException;
  * A class representing an publishing servlet for the
  * Publishing subsystem. This servlet is responsible
  * to serve configuration requests for the Publishing subsystem.
- *
- * @version $Revision$, $Date$
  */
+@WebServlet(
+        name = "capublisher",
+        urlPatterns = "/capublisher",
+        initParams = {
+                @WebInitParam(name="ID",        value="capublisher"),
+                @WebInitParam(name="AuthzMgr",  value="BasicAclAuthz"),
+                @WebInitParam(name="authority", value="ca")
+        }
+)
 public class PublisherAdminServlet extends AdminServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PublisherAdminServlet.class);
