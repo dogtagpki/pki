@@ -23,6 +23,8 @@ import java.util.Locale;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -54,6 +56,21 @@ import com.netscape.cmscore.request.Request;
 /**
  * This servlet approves profile-based request.
  */
+@WebServlet(
+        name = "caProfileProcess",
+        urlPatterns = "/agent/ca/profileProcess",
+        initParams = {
+                @WebInitParam(name="GetClientCert",        value="true"),
+                @WebInitParam(name="AuthzMgr",             value="BasicAclAuthz"),
+                @WebInitParam(name="authorityId",          value="ca"),
+                @WebInitParam(name="interface",            value="agent"),
+                @WebInitParam(name="ID",                   value="caProfileProcess"),
+                @WebInitParam(name="unauthorizedTemplate", value="/GenUnauthorized.template"),
+                @WebInitParam(name="templatePath",         value="/agent/ca/ProfileProcess.template"),
+                @WebInitParam(name="AuthMgr",              value="certUserDBAuthMgr"),
+                @WebInitParam(name="resourceID",           value="certServer.ca.request.profile")
+        }
+)
 public class ProfileProcessServlet extends ProfileServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileProcessServlet.class);
