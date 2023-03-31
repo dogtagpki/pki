@@ -24,15 +24,13 @@ import java.util.TimerTask;
 import com.netscape.certsrv.base.SecurityDomainSessionTable;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.logging.Auditor;
 
 public class SessionTimer extends TimerTask {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SessionTimer.class);
-    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     protected CMSEngine engine;
     private SecurityDomainSessionTable m_sessiontable = null;
@@ -62,6 +60,8 @@ public class SessionTimer extends TimerTask {
     public void runImpl() throws Exception {
 
         logger.info("SessionTimer: checking security domain sessions");
+
+        Auditor auditor = engine.getAuditor();
         Enumeration<String> keys = m_sessiontable.getSessionIDs();
 
         while (keys.hasMoreElements()) {
@@ -83,7 +83,7 @@ public class SessionTimer extends TimerTask {
                                          ILogger.SUCCESS,
                                          auditParams);
 
-                signedAuditLogger.log(auditMessage);
+                auditor.log(auditMessage);
             }
         }
     }
