@@ -431,22 +431,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  caheader  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.CAHeaderServlet  </servlet-class>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caheader    </param-value> </init-param>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> true        </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> certUserDBAuthMgr </param-value> </init-param>
-             <init-param><param-name>  template    </param-name>
-                         <param-value> /agent/header.template </param-value> </init-param>
-             <init-param><param-name>  interface  </param-name>
-                         <param-value> agent      </param-value> </init-param>
-   </servlet>
-
-
-   <servlet>
       <servlet-name>  caDisplayCertFromRequest-agent  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.cert.GetCertFromRequest  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -1775,11 +1759,6 @@
    <servlet-mapping>
       <servlet-name>  caSrchCerts-agent  </servlet-name>
       <url-pattern>   /agent/ca/srchCerts  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  caheader  </servlet-name>
-      <url-pattern>   /agent/header  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>

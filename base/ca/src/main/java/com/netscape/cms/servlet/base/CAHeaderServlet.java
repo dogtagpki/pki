@@ -17,6 +17,20 @@ package com.netscape.cms.servlet.base;
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "caheader",
+        urlPatterns = "/agent/header",
+        initParams = {
+                @WebInitParam(name="ID",            value="caheader"),
+                @WebInitParam(name="GetClientCert", value="true"),
+                @WebInitParam(name="AuthMgr",       value="certUserDBAuthMgr"),
+                @WebInitParam(name="template",      value="/agent/header.template"),
+                @WebInitParam(name="interface",     value="agent")
+        }
+)
 public class CAHeaderServlet extends CAIndexServlet {
     private static final long serialVersionUID = 1L;
 }
