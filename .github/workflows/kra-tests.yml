@@ -80,10 +80,10 @@ jobs:
     with:
       db-image: ${{ needs.init.outputs.db-image }}
 
-  kra-rsnv1-test:
-    name: KRA with RSNv1
+  kra-sequential-test:
+    name: KRA with sequential serial numbers
     needs: [init, build]
-    uses: ./.github/workflows/kra-rsnv1-test.yml
+    uses: ./.github/workflows/kra-sequential-test.yml
     with:
       db-image: ${{ needs.init.outputs.db-image }}
 
