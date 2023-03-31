@@ -408,29 +408,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  caProfileReview  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.profile.ProfileReviewServlet  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> true        </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authorityId  </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  interface  </param-name>
-                         <param-value> agent      </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caProfileReview </param-value> </init-param>
-             <init-param><param-name>  unauthorizedTemplate  </param-name>
-                         <param-value> /agent/GenUnauthorized.template </param-value> </init-param>
-             <init-param><param-name>  templatePath  </param-name>
-                         <param-value> /agent/ca/ProfileReview.template </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> certUserDBAuthMgr </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.ca.request.profile </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  caConnector  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.connector.KRAConnectorServlet  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -1814,11 +1791,6 @@
    <servlet-mapping>
       <servlet-name>  caUpdateDirectory  </servlet-name>
       <url-pattern>   /agent/ca/updateDir.html  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  caProfileReview  </servlet-name>
-      <url-pattern>   /agent/ca/profileReview  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
