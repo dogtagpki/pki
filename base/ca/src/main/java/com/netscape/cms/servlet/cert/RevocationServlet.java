@@ -28,6 +28,8 @@ import java.util.Map;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -52,9 +54,21 @@ import com.netscape.cmscore.security.JssSubsystem;
 
 /**
  * Perform the first step in revoking a certificate
- *
- * @version $Revision$, $Date$
  */
+@WebServlet(
+        name = "caRevocation",
+        urlPatterns = "/ee/ca/revocation",
+        initParams = {
+                @WebInitParam(name="GetClientCert",   value="true"),
+                @WebInitParam(name="successTemplate", value="/ee/ca/reasonToRevoke.template"),
+                @WebInitParam(name="AuthzMgr",        value="BasicAclAuthz"),
+                @WebInitParam(name="authority",       value="ca"),
+                @WebInitParam(name="ID",              value="caRevocation"),
+                @WebInitParam(name="resourceID",      value="certServer.ee.request.revocation"),
+                @WebInitParam(name="AuthMgr",         value="sslClientCertAuthMgr"),
+                @WebInitParam(name="interface",       value="ee")
+        }
+)
 public class RevocationServlet extends CMSServlet {
     /**
      *
