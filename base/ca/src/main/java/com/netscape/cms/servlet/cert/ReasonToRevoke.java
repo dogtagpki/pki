@@ -27,6 +27,8 @@ import java.util.Map;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -52,9 +54,21 @@ import com.netscape.cmscore.security.JssSubsystem;
 
 /**
  * Specify the RevocationReason when revoking a certificate
- *
- * @version $Revision$, $Date$
  */
+@WebServlet(
+        name = "caReasonToRevoke",
+        urlPatterns = "/agent/ca/reasonToRevoke",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="true"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="authority",     value="ca"),
+                @WebInitParam(name="templatePath",  value="/agent/ca/reasonToRevoke.template"),
+                @WebInitParam(name="interface",     value="agent"),
+                @WebInitParam(name="ID",            value="caReasonToRevoke"),
+                @WebInitParam(name="AuthMgr",       value="certUserDBAuthMgr"),
+                @WebInitParam(name="resourceID",    value="certServer.ca.certificates")
+        }
+)
 public class ReasonToRevoke extends CMSServlet {
 
     /**
