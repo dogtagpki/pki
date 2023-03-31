@@ -32,8 +32,6 @@ import com.netscape.certsrv.base.SessionContext;
  * This represents the CMS server. Plugins can access other
  * public objects such as subsystems via this inteface.
  * This object also include a set of utility functions.
- *
- * @version $Revision$, $Date$
  */
 public final class CMS {
 
@@ -50,16 +48,6 @@ public final class CMS {
 
     public static final int PRE_OP_MODE = 0;
     public static final int RUNNING_MODE = 1;
-
-    private static CMSEngine engine;
-
-    public static CMSEngine getCMSEngine() {
-        return engine;
-    }
-
-    public static void setCMSEngine(CMSEngine engine) {
-        CMS.engine = engine;
-    }
 
     /**
      * Return the product name from /usr/share/pki/CS_SERVER_VERSION

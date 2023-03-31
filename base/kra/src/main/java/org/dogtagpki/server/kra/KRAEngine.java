@@ -19,7 +19,6 @@
 package org.dogtagpki.server.kra;
 
 import com.netscape.certsrv.base.Subsystem;
-import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
@@ -28,12 +27,15 @@ import com.netscape.kra.KeyRecoveryAuthority;
 
 public class KRAEngine extends CMSEngine {
 
+    static KRAEngine instance;
+
     public KRAEngine() {
         super("KRA");
+        instance = this;
     }
 
     public static KRAEngine getInstance() {
-        return (KRAEngine) CMS.getCMSEngine();
+        return instance;
     }
 
     @Override

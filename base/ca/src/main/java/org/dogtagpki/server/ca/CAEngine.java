@@ -123,6 +123,8 @@ import netscape.ldap.LDAPSearchResults;
 
 public class CAEngine extends CMSEngine {
 
+    static CAEngine instance;
+
     protected CertificateRepository certificateRepository;
     protected CRLRepository crlRepository;
     protected ReplicaIDRepository replicaIDRepository;
@@ -186,10 +188,11 @@ public class CAEngine extends CMSEngine {
 
     public CAEngine() {
         super("CA");
+        instance = this;
     }
 
     public static CAEngine getInstance() {
-        return (CAEngine) CMS.getCMSEngine();
+        return instance;
     }
 
     @Override
