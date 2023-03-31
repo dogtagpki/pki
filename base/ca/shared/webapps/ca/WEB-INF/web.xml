@@ -1349,27 +1349,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  caCMCRevReq  </servlet-name> 
-      <servlet-class> com.netscape.cms.servlet.cert.CMCRevReqServlet  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  templatePath   </param-name>
-                         <param-value> /ee/ca/revocationResult.template </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caCMCRevReq </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> CMCAuth     </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.ca.certificates </param-value> </init-param>
-             <init-param><param-name>  interface   </param-name>
-                         <param-value> ee          </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  caDoUnrevoke1  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.cert.DoUnrevokeTPS  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -1939,11 +1918,6 @@
    <servlet-mapping>  
       <servlet-name>  caProfileList  </servlet-name>
       <url-pattern>   /ee/ca/profileList  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>  
-      <servlet-name>  caCMCRevReq  </servlet-name>
-      <url-pattern>   /ee/ca/CMCRevReq  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>  
