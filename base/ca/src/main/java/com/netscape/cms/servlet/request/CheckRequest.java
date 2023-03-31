@@ -31,6 +31,8 @@ import java.util.StringTokenizer;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -80,9 +82,20 @@ import com.netscape.cmscore.security.JssSubsystem;
 
 /**
  * Check the status of a certificate request
- *
- * @version $Revision$, $Date$
  */
+@WebServlet(
+        name = "caCheckRequest",
+        urlPatterns = "/ee/ca/checkRequest",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="false"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="authority",     value="ca"),
+                @WebInitParam(name="interface",     value="ee"),
+                @WebInitParam(name="templatePath",  value="/ee/ca/requestStatus.template"),
+                @WebInitParam(name="ID",            value="caCheckRequest"),
+                @WebInitParam(name="resourceID",    value="certServer.ee.requestStatus")
+        }
+)
 public class CheckRequest extends CMSServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CheckRequest.class);
