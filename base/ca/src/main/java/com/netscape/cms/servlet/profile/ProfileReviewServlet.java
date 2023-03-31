@@ -25,6 +25,8 @@ import java.util.Map;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletResponse;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -56,9 +58,22 @@ import com.netscape.cmscore.security.JssSubsystem;
 
 /**
  * This servlet allows reviewing of profile-based request.
- *
- * @version $Revision$, $Date$
  */
+@WebServlet(
+        name = "caProfileReview",
+        urlPatterns = "/agent/ca/profileReview",
+        initParams = {
+                @WebInitParam(name="GetClientCert",        value="true"),
+                @WebInitParam(name="AuthzMgr",             value="BasicAclAuthz"),
+                @WebInitParam(name="authorityId",          value="ca"),
+                @WebInitParam(name="interface",            value="agent"),
+                @WebInitParam(name="ID",                   value="caProfileReview"),
+                @WebInitParam(name="unauthorizedTemplate", value="/agent/GenUnauthorized.template"),
+                @WebInitParam(name="templatePath",         value="/agent/ca/ProfileReview.template"),
+                @WebInitParam(name="AuthMgr",              value="certUserDBAuthMgr"),
+                @WebInitParam(name="resourceID",           value="certServer.ca.request.profile")
+        }
+)
 public class ProfileReviewServlet extends ProfileServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileReviewServlet.class);
