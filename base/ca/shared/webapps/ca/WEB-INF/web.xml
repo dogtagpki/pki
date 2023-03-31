@@ -948,27 +948,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  caDoRevoke1  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.cert.DoRevokeTPS  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> true        </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  interface   </param-name>
-                         <param-value> ee          </param-value> </init-param>
-             <init-param><param-name>  templatePath   </param-name>
-                         <param-value> /ee/ca/revocationResult.template</param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caDoRevoke1 </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> certUserDBAuthMgr </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.ca.certificates </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  caSrchCerts  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.cert.SrchCerts  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -1870,11 +1849,6 @@
    <servlet-mapping>  
       <servlet-name>  caOCSP  </servlet-name>
       <url-pattern>   /ocsp/*  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>  
-      <servlet-name>  caDoRevoke1  </servlet-name>
-      <url-pattern>   /ee/subsystem/ca/doRevoke  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
