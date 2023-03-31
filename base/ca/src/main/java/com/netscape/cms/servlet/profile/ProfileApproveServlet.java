@@ -22,6 +22,8 @@ import java.util.Locale;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -51,9 +53,22 @@ import com.netscape.cmscore.request.RequestQueue;
 
 /**
  * Toggle the approval state of a profile
- *
- * @version $Revision$, $Date$
  */
+@WebServlet(
+        name = "caProfileApprove",
+        urlPatterns = "/agent/ca/profileApprove",
+        initParams = {
+                @WebInitParam(name="GetClientCert",        value="true"),
+                @WebInitParam(name="AuthzMgr",             value="BasicAclAuthz"),
+                @WebInitParam(name="authorityId",          value="ca"),
+                @WebInitParam(name="interface",            value="agent"),
+                @WebInitParam(name="ID",                   value="caProfileApprove"),
+                @WebInitParam(name="unauthorizedTemplate", value="/agent/GenUnauthorized.template"),
+                @WebInitParam(name="templatePath",         value="/agent/ca/ProfileApprove.template"),
+                @WebInitParam(name="AuthMgr",              value="certUserDBAuthMgr"),
+                @WebInitParam(name="resourceID",           value="certServer.ca.profile")
+        }
+)
 public class ProfileApproveServlet extends ProfileServlet {
 
     public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileApproveServlet.class);
