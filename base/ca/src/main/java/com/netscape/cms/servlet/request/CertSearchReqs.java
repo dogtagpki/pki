@@ -19,10 +19,28 @@ package com.netscape.cms.servlet.request;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 
 /**
  * Search for certificate requests matching complex query filter.
  */
+@WebServlet(
+        name = "casearchReqs",
+        urlPatterns = "/agent/ca/searchReqs",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="true"),
+                @WebInitParam(name="parser",        value="CertReqParser.NODETAIL_PARSER"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="authority",     value="ca"),
+                @WebInitParam(name="templatePath",  value="/agent/ca/queryReq.template"),
+                @WebInitParam(name="interface",     value="agent"),
+                @WebInitParam(name="ID",            value="casearchReqs"),
+                @WebInitParam(name="resourceID",    value="certServer.ca.requests"),
+                @WebInitParam(name="AuthMgr",       value="certUserDBAuthMgr"),
+                @WebInitParam(name="timeLimits",    value="10")
+        }
+)
 public class CertSearchReqs extends SearchReqs {
 
     public CertSearchReqs() {
