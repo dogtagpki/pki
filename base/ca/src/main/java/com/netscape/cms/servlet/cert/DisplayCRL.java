@@ -28,6 +28,8 @@ import java.util.Vector;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -55,9 +57,21 @@ import com.netscape.cmscore.dbs.CRLRepository;
 
 /**
  * Decode the CRL and display it to the requester.
- *
- * @version $Revision$, $Date$
  */
+@WebServlet(
+        name = "camasterCADisplayCRL",
+        urlPatterns = "/agent/ca/displayCRL",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="true"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="authority",     value="ca"),
+                @WebInitParam(name="templatePath",  value="/agent/ca/displayCRL.template"),
+                @WebInitParam(name="interface",     value="agent"),
+                @WebInitParam(name="ID",            value="camasterCADisplayCRL"),
+                @WebInitParam(name="resourceID",    value="certServer.ca.crl"),
+                @WebInitParam(name="AuthMgr",       value="certUserDBAuthMgr")
+        }
+)
 public class DisplayCRL extends CMSServlet {
 
     /**

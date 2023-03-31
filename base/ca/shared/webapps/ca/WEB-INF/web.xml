@@ -710,27 +710,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  camasterCADisplayCRL  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.cert.DisplayCRL  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> true        </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  templatePath   </param-name>
-                         <param-value> /agent/ca/displayCRL.template  </param-value> </init-param>
-             <init-param><param-name>  interface  </param-name>
-                         <param-value> agent      </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> camasterCADisplayCRL </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.ca.crl </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> certUserDBAuthMgr </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  camasterCAGetInfo  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.cert.GetInfo  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -1643,11 +1622,6 @@
    <servlet-mapping>  
       <servlet-name>  caQueryBySerial  </servlet-name>
       <url-pattern>   /agent/ca/queryBySerial.html  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>  
-      <servlet-name>  camasterCADisplayCRL  </servlet-name>
-      <url-pattern>   /agent/ca/displayCRL  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
