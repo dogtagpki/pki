@@ -186,8 +186,6 @@ public class CMSEngine {
         this.name = name;
 
         logger.info("Creating " + name + " engine");
-
-        CMS.setCMSEngine(this);
     }
 
     public String getID() {

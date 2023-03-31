@@ -19,7 +19,6 @@
 package org.dogtagpki.server.tks;
 
 import com.netscape.certsrv.base.Subsystem;
-import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
@@ -27,12 +26,15 @@ import com.netscape.tks.TKSAuthority;
 
 public class TKSEngine extends CMSEngine {
 
+    static TKSEngine instance;
+
     public TKSEngine() {
         super("TKS");
+        instance = this;
     }
 
     public static TKSEngine getInstance() {
-        return (TKSEngine) CMS.getCMSEngine();
+        return instance;
     }
 
     @Override

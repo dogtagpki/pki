@@ -37,13 +37,14 @@ import org.dogtagpki.tps.main.Util;
 import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStorage;
 
 public class TPSEngine extends CMSEngine {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSEngine.class);
+
+    static TPSEngine instance;
 
     public enum RA_Algs {
         ALG_RSA,
@@ -209,10 +210,11 @@ public class TPSEngine extends CMSEngine {
 
     public TPSEngine() {
         super("TPS");
+        instance = this;
     }
 
     public static TPSEngine getInstance() {
-        return (TPSEngine) CMS.getCMSEngine();
+        return instance;
     }
 
     @Override
