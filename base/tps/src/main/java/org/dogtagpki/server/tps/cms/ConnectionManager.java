@@ -207,6 +207,8 @@ public class ConnectionManager
         }
 
         connector.setCMSEngine(TPSEngine.getInstance());
+        connector.init();
+
         logger.debug("ConnectionManager: createConnector(): ends.");
         return connector;
     }

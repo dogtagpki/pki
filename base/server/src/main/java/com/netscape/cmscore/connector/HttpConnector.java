@@ -36,7 +36,11 @@ public class HttpConnector extends Connector {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HttpConnector.class);
 
+    protected String nickname;
+    protected String clientCiphers;
     protected RemoteAuthority mDest;
+    protected int resendInterval;
+    protected ConnectorConfig config;
     protected ISocketFactory mFactory = null;
 
     // XXX todo make this a pool.
@@ -55,36 +59,7 @@ public class HttpConnector extends Connector {
             int resendInterval,
             ConnectorConfig config) throws EBaseException {
 
-        mTimeout = 0;
-        mDest = dest;
-        PKIClientSocketListener sockListener = new PKIClientSocketListener();
-        mFactory = new JssSSLSocketFactory(nickName, clientCiphers);
-
-        JssSSLSocketFactory factory = (JssSSLSocketFactory)mFactory;
-        factory.addSocketListener(sockListener);
-
-        int minConns = config.getMinHttpConns();
-        int maxConns = config.getMaxHttpConns();
-
-        logger.debug("HttpConn: min " + minConns);
-        logger.debug("HttpConn: max " + maxConns);
-
-        try {
-            mConnFactory = new HttpConnFactory(minConns, maxConns, dest, nickName, clientCiphers, 0);
-            mConnFactory.setCMSEngine(engine);
-            mConnFactory.init();
-
-        } catch (EBaseException e) {
-            logger.warn("HttpConn: can't create new HttpConnFactory: " + e.getMessage(), e);
-        }
-
-        //        mConn = CMS.getHttpConnection(dest, mFactory);
-        // this will start resending past requests in parallel.
-        if (resendInterval >= 0) {
-            mResender = new Resender(nickName, clientCiphers, dest, resendInterval);
-            mResender.setCMSEngine(engine);
-            mResender.init();
-        }
+        this(nickName, clientCiphers, dest, resendInterval, config, 0);
     }
 
     // Inserted by beomsuk
@@ -95,32 +70,43 @@ public class HttpConnector extends Connector {
             int resendInterval,
             ConnectorConfig config,
             int timeout) throws EBaseException {
-        mDest = dest;
-        mTimeout = timeout;
+
+        this.nickname = nickName;
+        this.clientCiphers = clientCiphers;
+        this.mDest = dest;
+        this.resendInterval = resendInterval;
+        this.config = config;
+        this.mTimeout = timeout;
+    }
+
+    public void init() throws EBaseException {
+
+        logger.info("HttpConnector: Initializing HttpConnector");
+
         PKIClientSocketListener sockListener = new PKIClientSocketListener();
-        mFactory = new JssSSLSocketFactory(nickName, clientCiphers);
+        mFactory = new JssSSLSocketFactory(nickname, clientCiphers);
 
         JssSSLSocketFactory factory = (JssSSLSocketFactory) mFactory;
         factory.addSocketListener(sockListener);
 
         int minConns = config.getMinHttpConns();
-        int maxConns = config.getMaxHttpConns();
+        logger.debug("HttpConnector: minHttpConns: " + minConns);
 
-        logger.debug("HttpConn: min " + minConns);
-        logger.debug("HttpConn: max " + maxConns);
+        int maxConns = config.getMaxHttpConns();
+        logger.debug("HttpConnector: maxHttpConns: " + maxConns);
 
         try {
-            mConnFactory = new HttpConnFactory(minConns, maxConns, dest, nickName, clientCiphers, timeout);
+            mConnFactory = new HttpConnFactory(minConns, maxConns, mDest, nickname, clientCiphers, mTimeout);
             mConnFactory.setCMSEngine(engine);
             mConnFactory.init();
 
         } catch (EBaseException e) {
-            logger.warn("HttpConn: can't create new HttpConnFactory: " + e.getMessage(), e);
+            logger.warn("HttpConnector: Unble to create new HttpConnFactory: " + e.getMessage(), e);
         }
 
         // this will start resending past requests in parallel.
         if (resendInterval >= 0) {
-            mResender = new Resender(nickName, clientCiphers, dest, resendInterval);
+            mResender = new Resender(nickname, clientCiphers, mDest, resendInterval);
             mResender.setCMSEngine(engine);
             mResender.init();
         }

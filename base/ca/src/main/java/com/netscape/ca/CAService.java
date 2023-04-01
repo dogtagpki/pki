@@ -236,8 +236,10 @@ public class CAService implements IService {
             try {
                 connector = (Connector) Class.forName(extConnector).getDeclaredConstructor().newInstance();
                 connector.setCMSEngine(engine);
+                connector.init();
                 // connector.start() will be called later on
                 return connector;
+
             } catch (Exception e) {
                 // ignore external class if error
                 logger.warn(CMS.getLogMessage("CMSCORE_CA_LOAD_CONNECTOR", extConnector, e.toString()), e);
@@ -261,7 +263,9 @@ public class CAService implements IService {
             }
             connector = new LocalConnector(mCA, authority);
             connector.setCMSEngine(engine);
+            connector.init();
             // logger.info("local Connector to "+id+" inited");
+
         } else {
             String host = config.getHost();
             int port = config.getPort();
@@ -302,6 +306,7 @@ public class CAService implements IService {
             }
 
             connector.setCMSEngine(engine);
+            connector.init();
             // Change end
 
             // logger.info("remote authority " + host+":"+port+" "+uri+" inited");

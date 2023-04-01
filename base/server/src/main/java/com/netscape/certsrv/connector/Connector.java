@@ -54,6 +54,9 @@ public class Connector {
         this.engine = engine;
     }
 
+    public void init() throws EBaseException {
+    }
+
     /**
      * Sends the request to a remote authority.
      *
