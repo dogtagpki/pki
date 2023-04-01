@@ -73,7 +73,6 @@ import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.connector.HttpConnector;
 import com.netscape.cmscore.connector.LocalConnector;
 import com.netscape.cmscore.connector.RemoteAuthority;
@@ -219,7 +218,7 @@ public class CAService implements IService {
         mKRAConnector = c;
     }
 
-    public Connector getConnector(ConfigStore config) throws EBaseException {
+    public Connector getConnector(ConnectorConfig config) throws EBaseException {
 
         CAEngine engine = CAEngine.getInstance();
         CAEngineConfig cs = engine.getConfig();
@@ -229,9 +228,9 @@ public class CAService implements IService {
         if (config == null || config.size() <= 0) {
             return null;
         }
-        boolean enable = config.getBoolean("enable", true);
+        boolean enable = config.getEnable();
         // provide a way to register a 3rd connector into RA
-        String extConnector = config.getString("class", null);
+        String extConnector = config.getClassName();
 
         if (extConnector != null) {
             try {
@@ -247,11 +246,11 @@ public class CAService implements IService {
 
         if (!enable)
             return null;
-        boolean local = config.getBoolean("local");
+        boolean local = config.getLocal();
         IAuthority authority = null;
 
         if (local) {
-            String id = config.getString("id");
+            String id = config.getID();
 
             authority = (IAuthority) engine.getSubsystem(id);
             if (authority == null) {
@@ -264,12 +263,12 @@ public class CAService implements IService {
             connector.setCMSEngine(engine);
             // logger.info("local Connector to "+id+" inited");
         } else {
-            String host = config.getString("host");
-            int port = config.getInteger("port");
-            String uri = config.getString("uri");
+            String host = config.getHost();
+            int port = config.getPort();
+            String uri = config.getURI();
 
             // Use client cert specified in KRA connector
-            String nickname = config.getString("nickName", null);
+            String nickname = config.getNickname();
             if (nickname == null) {
                 // Use subsystem cert as client cert
                 nickname = cs.getString("ca.subsystem.nickname");
@@ -278,7 +277,7 @@ public class CAService implements IService {
                 if (!CryptoUtil.isInternalToken(tokenname)) nickname = tokenname + ":" + nickname;
             }
 
-            int resendInterval = config.getInteger("resendInterval", -1);
+            int resendInterval = config.getResendInterval();
             // Inserted by beomsuk
             int timeout = config.getInteger("timeout", 0);
             // Insert end
@@ -292,7 +291,7 @@ public class CAService implements IService {
             //connector =
             //	new HttpConnector(mCA, nickname, remauthority, resendInterval);
 
-            String clientCiphers = config.getString("clientCiphers", null);
+            String clientCiphers = config.getClientCiphers();
             if (timeout == 0) {
                 connector = new HttpConnector(nickname, clientCiphers, remauthority, resendInterval,
                         config);

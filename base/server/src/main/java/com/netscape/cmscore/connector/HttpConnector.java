@@ -23,10 +23,10 @@ import org.dogtagpki.server.PKIClientSocketListener;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.connector.Connector;
+import com.netscape.certsrv.connector.ConnectorConfig;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.http.HttpResponse;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
@@ -53,7 +53,7 @@ public class HttpConnector extends Connector {
             String clientCiphers,
             RemoteAuthority dest,
             int resendInterval,
-            ConfigStore config) throws EBaseException {
+            ConnectorConfig config) throws EBaseException {
 
         mTimeout = 0;
         mDest = dest;
@@ -63,8 +63,8 @@ public class HttpConnector extends Connector {
         JssSSLSocketFactory factory = (JssSSLSocketFactory)mFactory;
         factory.addSocketListener(sockListener);
 
-        int minConns = config.getInteger("minHttpConns", 1);
-        int maxConns = config.getInteger("maxHttpConns", 15);
+        int minConns = config.getMinHttpConns();
+        int maxConns = config.getMaxHttpConns();
 
         logger.debug("HttpConn: min " + minConns);
         logger.debug("HttpConn: max " + maxConns);
@@ -93,7 +93,7 @@ public class HttpConnector extends Connector {
             String clientCiphers,
             RemoteAuthority dest,
             int resendInterval,
-            ConfigStore config,
+            ConnectorConfig config,
             int timeout) throws EBaseException {
         mDest = dest;
         mTimeout = timeout;
@@ -103,8 +103,8 @@ public class HttpConnector extends Connector {
         JssSSLSocketFactory factory = (JssSSLSocketFactory) mFactory;
         factory.addSocketListener(sockListener);
 
-        int minConns = config.getInteger("minHttpConns", 1);
-        int maxConns = config.getInteger("maxHttpConns", 15);
+        int minConns = config.getMinHttpConns();
+        int maxConns = config.getMaxHttpConns();
 
         logger.debug("HttpConn: min " + minConns);
         logger.debug("HttpConn: max " + maxConns);

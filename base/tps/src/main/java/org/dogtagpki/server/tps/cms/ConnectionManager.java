@@ -135,7 +135,7 @@ public class ConnectionManager
      * @param conf config store of the connector
      * @return Connector the connector if created successfully; null if not
      */
-    private Connector createConnector(ConfigStore conf) throws EBaseException {
+    private Connector createConnector(ConnectorConfig conf) throws EBaseException {
         Connector connector = null;
 
         logger.debug("ConnectionManager: createConnector(): begins.");
@@ -144,16 +144,16 @@ public class ConnectionManager
             throw new EBaseException("called with null config store");
         }
 
-        String host = conf.getString("host");
+        String host = conf.getHost();
         if (host == null) {
             logger.error("ConnectionManager: createConnector(): host not found in config.");
             throw new EBaseException("host not found in config");
         }
         // port doesn't have to contain anything if failover supplied in host
-        int port = conf.getInteger("port");
+        int port = conf.getPort();
 
         Hashtable<String, String> uris = new Hashtable<>();
-        ConfigStore uriSubstore = conf.getSubStore("uri", ConfigStore.class);
+        ConfigStore uriSubstore = conf.getURIs();
         if (uriSubstore == null) {
             logger.error("ConnectionManager: createConnector(): uri(s) not found in config.");
             throw new EBaseException("uri(s) not found in config");
@@ -177,7 +177,7 @@ public class ConnectionManager
             uris.put(op, uriValue);
         }
 
-        String nickname = conf.getString("nickName", null);
+        String nickname = conf.getNickname();
         if (nickname != null)
             logger.debug("ConnectionManager: createConnector(): nickName=" + nickname);
         else {
@@ -189,11 +189,11 @@ public class ConnectionManager
          * override the default;  If it is not specified, default will
          * be used.
          */
-        String clientCiphers = conf.getString("clientCiphers", null);
+        String clientCiphers = conf.getClientCiphers();
 
         // "resendInterval" is for Request Queue, and not supported in TPS
         int resendInterval = -1;
-        int timeout = conf.getInteger("timeout", 0);
+        int timeout = conf.getTimeout();
         RemoteAuthority remauthority =
                 new RemoteAuthority(host, port, uris, timeout, MediaType.APPLICATION_FORM_URLENCODED);
 
