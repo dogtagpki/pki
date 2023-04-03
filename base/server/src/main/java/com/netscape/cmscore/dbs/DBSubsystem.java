@@ -29,6 +29,7 @@ import com.netscape.certsrv.dbs.EDBNotAvailException;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
@@ -73,6 +74,7 @@ public class DBSubsystem {
             "req_key"
     );
 
+    protected CMSEngine engine;
     protected EngineConfig engineConfig;
     private DatabaseConfig mDBConfig;
     private LDAPConfig ldapConfig;
@@ -88,6 +90,14 @@ public class DBSubsystem {
      * Constructs database subsystem.
      */
     public DBSubsystem() {
+    }
+
+    public CMSEngine getCMSEngine() {
+        return engine;
+    }
+
+    public void setCMSEngine(CMSEngine engine) {
+        this.engine = engine;
     }
 
     public EngineConfig getEngineConfig() {

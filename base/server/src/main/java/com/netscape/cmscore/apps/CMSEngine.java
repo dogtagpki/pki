@@ -684,6 +684,7 @@ public class CMSEngine {
         PasswordStore passwordStore = getPasswordStore();
 
         dbSubsystem = new DBSubsystem();
+        dbSubsystem.setCMSEngine(this);
         dbSubsystem.setEngineConfig(config);
         dbSubsystem.init(dbConfig, ldapConfig, socketConfig, passwordStore);
     }
