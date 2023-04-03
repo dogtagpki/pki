@@ -221,8 +221,9 @@ public class LdapAnonConnFactory extends LdapConnFactory {
 
                 PKIClientSocketListener socketListener = new PKIClientSocketListener();
 
-                PKISocketFactory socketFactory = new PKISocketFactory(mConnInfo.getSecure());
+                PKISocketFactory socketFactory = new PKISocketFactory();
                 socketFactory.setCMSEngine(engine);
+                socketFactory.setSecure(mConnInfo.getSecure());
                 socketFactory.addSocketListener(socketListener);
                 socketFactory.init(config);
 
@@ -350,8 +351,9 @@ public class LdapAnonConnFactory extends LdapConnFactory {
             try {
                 PKIClientSocketListener socketListener = new PKIClientSocketListener();
 
-                PKISocketFactory socketFactory = new PKISocketFactory(mConnInfo.getSecure());
+                PKISocketFactory socketFactory = new PKISocketFactory();
                 socketFactory.setCMSEngine(engine);
+                socketFactory.setSecure(mConnInfo.getSecure());
                 socketFactory.addSocketListener(socketListener);
                 socketFactory.init(config);
 

@@ -296,8 +296,9 @@ public class LdapBoundConnFactory extends LdapConnFactory {
 
         LdapBoundConnection conn = null;
         try {
-            PKISocketFactory socketFactory = new PKISocketFactory(mConnInfo.getSecure());
+            PKISocketFactory socketFactory = new PKISocketFactory();
             socketFactory.setCMSEngine(engine);
+            socketFactory.setSecure(mConnInfo.getSecure());
             if (mAuthInfo.getAuthType() == LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH) {
                 socketFactory.setClientCertNickname(mAuthInfo.getClientCertNickname());
             }

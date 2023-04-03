@@ -81,7 +81,8 @@ public class SubsystemDBInitCLI extends SubsystemCLI {
 
         PKISocketConfig socketConfig = cs.getSocketConfig();
 
-        PKISocketFactory socketFactory = new PKISocketFactory(connInfo.getSecure());
+        PKISocketFactory socketFactory = new PKISocketFactory();
+        socketFactory.setSecure(connInfo.getSecure());
         if (authInfo.getAuthType() == LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH) {
             socketFactory.setClientCertNickname(authInfo.getClientCertNickname());
         }

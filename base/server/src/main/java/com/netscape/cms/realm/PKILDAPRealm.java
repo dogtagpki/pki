@@ -308,7 +308,8 @@ public class PKILDAPRealm extends RealmCommon {
 
             logger.info("Authenticating user " + user.getUserDN() + " with password");
 
-            PKISocketFactory socketFactory = new PKISocketFactory(connConfig.isSecure());
+            PKISocketFactory socketFactory = new PKISocketFactory();
+            socketFactory.setSecure(connConfig.isSecure());
             socketFactory.init(socketConfig);
 
             authConn = new LDAPConnection(socketFactory);

@@ -725,8 +725,9 @@ public class PublisherAdminServlet extends AdminServlet {
                     //certNickName = authInfo.getParms()[0];
                     certNickName = authConfig.getClientCertNickname();
 
-                    PKISocketFactory socketFactory = new PKISocketFactory(true);
+                    PKISocketFactory socketFactory = new PKISocketFactory();
                     socketFactory.setCMSEngine(engine);
+                    socketFactory.setSecure(true);
                     socketFactory.setClientCertNickname(certNickName);
                     socketFactory.addSocketListener(socketListener);
                     socketFactory.init(socketConfig);
@@ -787,7 +788,8 @@ public class PublisherAdminServlet extends AdminServlet {
                 }
             } else {
                 try {
-                    PKISocketFactory socketFactory = new PKISocketFactory(secure);
+                    PKISocketFactory socketFactory = new PKISocketFactory();
+                    socketFactory.setSecure(secure);
                     socketFactory.addSocketListener(socketListener);
                     socketFactory.init(socketConfig);
 

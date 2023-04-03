@@ -95,6 +95,14 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
         this.engine = engine;
     }
 
+    public boolean getSecure() {
+        return secure;
+    }
+
+    public void setSecure(boolean secure) {
+        this.secure = secure;
+    }
+
     public String getClientCertNickname() {
         return clientCertNickname;
     }
