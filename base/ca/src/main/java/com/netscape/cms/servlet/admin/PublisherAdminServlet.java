@@ -726,6 +726,7 @@ public class PublisherAdminServlet extends AdminServlet {
                     certNickName = authConfig.getClientCertNickname();
 
                     PKISocketFactory socketFactory = new PKISocketFactory(true);
+                    socketFactory.setCMSEngine(engine);
                     socketFactory.setClientCertNickname(certNickName);
                     socketFactory.addSocketListener(socketListener);
                     socketFactory.init(socketConfig);

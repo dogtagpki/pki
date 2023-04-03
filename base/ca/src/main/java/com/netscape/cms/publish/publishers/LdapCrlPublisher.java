@@ -191,6 +191,7 @@ public class LdapCrlPublisher
                 String cert_nick = mConfig.getString("clientCertNickname", null);
 
                 PKISocketFactory sslSocket = new PKISocketFactory(true);
+                sslSocket.setCMSEngine(engine);
                 sslSocket.setClientCertNickname(cert_nick);
                 sslSocket.addSocketListener(socketListener);
                 sslSocket.init(socketConfig);
