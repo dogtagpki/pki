@@ -34,7 +34,6 @@ import org.mozilla.jss.ssl.SSLSocketListener;
 
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.logging.event.ClientAccessSessionEstablishEvent;
-import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -51,6 +50,7 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
 
     public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PKISocketFactory.class);
 
+    private CMSEngine engine;
     private boolean secure;
     private String clientCertNickname;
     private boolean mClientAuth = false;
@@ -85,6 +85,14 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
         this.clientCertNickname = clientCertNickname;
         PKISocketFactory.external = external;
         init();
+    }
+
+    public CMSEngine getCMSEngine() {
+        return engine;
+    }
+
+    public void setCMSEngine(CMSEngine engine) {
+        this.engine = engine;
     }
 
     public String getClientCertNickname() {
@@ -235,7 +243,7 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
             s.setKeepAlive(keepAlive);
 
         } catch (Exception e) {
-            if (!external) {
+            if (engine != null) {
                 // for auditing
                 String localIP = "localhost";
                 try {
@@ -244,7 +252,6 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
                     // default to "localhost";
                 }
 
-                CMSEngine engine = CMS.getCMSEngine();
                 Auditor auditor = engine.getAuditor();
                 SignedAuditEvent auditEvent = ClientAccessSessionEstablishEvent.createFailureEvent(
                         localIP,
