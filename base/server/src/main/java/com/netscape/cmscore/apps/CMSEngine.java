@@ -155,7 +155,7 @@ public class CMSEngine {
     protected RequestRepository requestRepository;
     protected RequestQueue requestQueue;
 
-    protected UGSubsystem ugSubsystem = new UGSubsystem();
+    protected UGSubsystem ugSubsystem;
     protected OidLoaderSubsystem oidLoaderSubsystem = OidLoaderSubsystem.getInstance();
     protected X500NameSubsystem x500NameSubsystem = X500NameSubsystem.getInstance();
     protected RequestSubsystem requestSubsystem = new RequestSubsystem();
@@ -689,6 +689,9 @@ public class CMSEngine {
     }
 
     public void initUGSubsystem() throws Exception {
+
+        ugSubsystem = new UGSubsystem();
+        ugSubsystem.setCMSEngine(this);
 
         UGSubsystemConfig ugConfig = config.getUGSubsystemConfig();
         LDAPConfig ldapConfig = ugConfig.getLDAPConfig();
@@ -1330,6 +1333,7 @@ public class CMSEngine {
     }
 
     public void shutdownUGSubsystem() {
+        if (ugSubsystem == null) return;
         ugSubsystem.shutdown();
     }
 

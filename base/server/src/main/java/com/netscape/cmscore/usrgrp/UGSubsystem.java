@@ -36,6 +36,7 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.LDAPExceptionConverter;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
@@ -78,6 +79,7 @@ public class UGSubsystem {
     protected static final String LDAP_ATTR_USER_CERT = "userCertificate";
     protected static final String LDAP_ATTR_PROFILE_ID = "profileID";
 
+    protected CMSEngine engine;
     protected transient LdapBoundConnFactory mLdapConnFactory = null;
     protected String mBaseDN = null;
 
@@ -85,6 +87,14 @@ public class UGSubsystem {
      * Constructs LDAP based usr/grp management
      */
     public UGSubsystem() {
+    }
+
+    public CMSEngine getCMSEngine() {
+        return engine;
+    }
+
+    public void setCMSEngine(CMSEngine engine) {
+        this.engine = engine;
     }
 
     public void init(
