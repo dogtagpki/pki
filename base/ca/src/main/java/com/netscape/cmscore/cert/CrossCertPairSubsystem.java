@@ -123,6 +123,8 @@ public class CrossCertPairSubsystem extends Subsystem {
             mBaseDN = ldapConfig.getBaseDN();
 
             mLdapConnFactory = new LdapBoundConnFactory("CrossCertPairSubsystem");
+            mLdapConnFactory.setCMSEngine(engine);
+
             PKISocketConfig socketConfig = cs.getSocketConfig();
             mLdapConnFactory.init(socketConfig, ldapConfig, engine.getPasswordStore());
 

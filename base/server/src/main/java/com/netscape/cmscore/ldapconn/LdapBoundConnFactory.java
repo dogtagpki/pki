@@ -100,21 +100,6 @@ public class LdapBoundConnFactory extends LdapConnFactory {
         mDefErrorIfDown = defErrorIfDown;
     }
 
-    @Override
-    public int totalConn() {
-        return mTotal;
-    }
-
-    @Override
-    public synchronized int freeConn() {
-        return mNumConns;
-    }
-
-    @Override
-    public int maxConn() {
-        return mMaxConns;
-    }
-
     /**
      * Constructor for LdapBoundConnFactory
      *
@@ -169,6 +154,21 @@ public class LdapBoundConnFactory extends LdapConnFactory {
 
         this.mConnInfo = connInfo;
         this.mAuthInfo = authInfo;
+    }
+
+    @Override
+    public int totalConn() {
+        return mTotal;
+    }
+
+    @Override
+    public synchronized int freeConn() {
+        return mNumConns;
+    }
+
+    @Override
+    public int maxConn() {
+        return mMaxConns;
     }
 
     public void init(

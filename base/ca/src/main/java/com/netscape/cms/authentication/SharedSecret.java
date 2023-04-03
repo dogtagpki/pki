@@ -253,6 +253,7 @@ public class SharedSecret extends DirBasedAuthentication
         PKISocketConfig socketConfig = cs.getSocketConfig();
 
         LdapBoundConnFactory connFactory = new LdapBoundConnFactory("SharedSecret");
+        connFactory.setCMSEngine(engine);
         connFactory.init(socketConfig, shrTokLdapConfigStore, engine.getPasswordStore());
 
         shrTokLdapFactory = connFactory;

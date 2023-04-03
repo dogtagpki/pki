@@ -310,11 +310,13 @@ public abstract class DirBasedAuthentication extends AuthManager implements IExt
             logger.info("DirBasedAuthentication: Bind password prompt: " + mTag);
 
             LdapBoundConnFactory connFactory = new LdapBoundConnFactory(mTag);
+            connFactory.setCMSEngine(engine);
             connFactory.init(socketConfig, mLdapConfig, engine.getPasswordStore());
             mConnFactory = connFactory;
 
         } else {
             LdapAnonConnFactory connFactory = new LdapAnonConnFactory("DirBasedAuthentication");
+            connFactory.setCMSEngine(engine);
             connFactory.init(socketConfig, mLdapConfig);
             mConnFactory = connFactory;
         }
@@ -450,11 +452,13 @@ public abstract class DirBasedAuthentication extends AuthManager implements IExt
                     logger.debug(method + " getting ldap bound conn factory using id= " + mTag);
 
                     LdapBoundConnFactory connFactory = new LdapBoundConnFactory(mTag);
+                    connFactory.setCMSEngine(engine);
                     connFactory.init(socketConfig, mLdapConfig, engine.getPasswordStore());
                     mConnFactory = connFactory;
 
                 } else {
                     LdapAnonConnFactory connFactory = new LdapAnonConnFactory("DirBasedAuthentication");
+                    connFactory.setCMSEngine(engine);
                     connFactory.init(socketConfig, mLdapConfig);
                     mConnFactory = connFactory;
                 }

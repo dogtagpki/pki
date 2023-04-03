@@ -111,6 +111,7 @@ public class LdapConnModule {
 
         logger.debug("Creating LdapBoundConnFactory for LdapConnModule.");
         mLdapConnFactory = new LdapBoundConnFactory("LDAPConnModule", minConns, maxConns, connInfo, authInfo);
+        mLdapConnFactory.setCMSEngine(engine);
         mLdapConnFactory.init(socketConfig, passwordStore);
 
         mInited = true;

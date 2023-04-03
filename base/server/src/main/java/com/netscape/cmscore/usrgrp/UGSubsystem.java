@@ -105,6 +105,7 @@ public class UGSubsystem {
         mBaseDN = ldapConfig.getBaseDN();
 
         mLdapConnFactory = new LdapBoundConnFactory("UGSubsystem");
+        mLdapConnFactory.setCMSEngine(engine);
         mLdapConnFactory.init(socketConfig, ldapConfig, passwordStore);
     }
 

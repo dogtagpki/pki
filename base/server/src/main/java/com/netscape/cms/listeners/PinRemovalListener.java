@@ -103,6 +103,7 @@ public class PinRemovalListener extends RequestListener {
         mLdapConfig = mConfig.getSubStore(PROP_LDAP, LDAPConfig.class);
 
         mConnFactory = new LdapBoundConnFactory("PinRemovalListener");
+        mConnFactory.setCMSEngine(engine);
         mConnFactory.init(socketConfig, mLdapConfig, engine.getPasswordStore());
 
         mRemovePinLdapConnection = mConnFactory.getConn();

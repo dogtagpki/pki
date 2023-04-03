@@ -71,6 +71,7 @@ public class LDAPSecurityDomainSessionTable
         LDAPConfig internaldb = cs.getInternalDBConfig();
 
         mLdapConnFactory = new LdapBoundConnFactory("LDAPSecurityDomainSessionTable");
+        mLdapConnFactory.setCMSEngine(engine);
         mLdapConnFactory.init(socketConfig, internaldb, engine.getPasswordStore());
     }
 

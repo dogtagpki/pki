@@ -176,6 +176,7 @@ public class SecurityDomainProcessor extends Processor {
             String filter = "objectclass=pkiSecurityGroup";
 
             connFactory = new LdapBoundConnFactory("SecurityDomainProcessor");
+            connFactory.setCMSEngine(engine);
             connFactory.init(socketConfig, ldapConfig, engine.getPasswordStore());
 
             conn = connFactory.getConn();
@@ -554,6 +555,7 @@ public class SecurityDomainProcessor extends Processor {
 
         try {
             connFactory = new LdapBoundConnFactory("UpdateDomainXML");
+            connFactory.setCMSEngine(engine);
             connFactory.init(socketConfig, ldapConfig, engine.getPasswordStore());
 
             conn = connFactory.getConn();
@@ -629,6 +631,7 @@ public class SecurityDomainProcessor extends Processor {
         try {
             LDAPConfig ldapConfig = cs.getInternalDBConfig();
             connFactory = new LdapBoundConnFactory("UpdateDomainXML");
+            connFactory.setCMSEngine(engine);
             connFactory.init(socketConfig, ldapConfig, engine.getPasswordStore());
 
             conn = connFactory.getConn();
@@ -673,6 +676,7 @@ public class SecurityDomainProcessor extends Processor {
         try {
             LDAPConfig ldapConfig = cs.getInternalDBConfig();
             connFactory = new LdapBoundConnFactory("UpdateDomainXML");
+            connFactory.setCMSEngine(engine);
             connFactory.init(socketConfig, ldapConfig, engine.getPasswordStore());
 
             conn = connFactory.getConn();

@@ -136,6 +136,7 @@ public class DirAclAuthz extends AAclAuthz
         PKISocketConfig socketConfig = cs.getSocketConfig();
 
         mLdapConnFactory = new LdapBoundConnFactory("DirAclAuthz");
+        mLdapConnFactory.setCMSEngine(engine);
         mLdapConnFactory.init(socketConfig, ldapConfig, engine.getPasswordStore());
 
         // retrieve aclResources from the LDAP server and load

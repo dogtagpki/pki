@@ -132,7 +132,9 @@ public class LdapPublishModule extends RequestListener {
 
         PKISocketConfig socketConfig = cs.getSocketConfig();
         LDAPConfig ldapCfg = mConfig.getSubStore("ldap", LDAPConfig.class);
+
         mLdapConnFactory = new LdapBoundConnFactory("LdapPublishModule");
+        mLdapConnFactory.setCMSEngine(engine);
         mLdapConnFactory.init(socketConfig, ldapCfg, engine.getPasswordStore());
 
         // initMappers(config);
@@ -153,7 +155,9 @@ public class LdapPublishModule extends RequestListener {
 
         PKISocketConfig socketConfig = cs.getSocketConfig();
         LDAPConfig ldapCfg = mConfig.getSubStore("ldap", LDAPConfig.class);
+
         mLdapConnFactory = new LdapBoundConnFactory("LdapPublishModule");
+        mLdapConnFactory.setCMSEngine(engine);
         mLdapConnFactory.init(socketConfig, ldapCfg, engine.getPasswordStore());
 
         initMappers(config);

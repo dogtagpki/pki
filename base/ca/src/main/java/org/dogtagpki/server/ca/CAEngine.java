@@ -165,8 +165,7 @@ public class CAEngine extends CMSEngine {
     public CertStatusUpdateTask certStatusUpdateTask;
     public SerialNumberUpdateTask serialNumberUpdateTask;
 
-    protected LdapBoundConnFactory connectionFactory =
-            new LdapBoundConnFactory("CertificateAuthority");
+    protected LdapBoundConnFactory connectionFactory;
 
     public static Map<AuthorityID, CertificateAuthority> authorities =
             Collections.synchronizedSortedMap(new TreeMap<AuthorityID, CertificateAuthority>());
@@ -207,9 +206,14 @@ public class CAEngine extends CMSEngine {
 
     @Override
     public void initDatabase() throws Exception {
+
+        connectionFactory = new LdapBoundConnFactory("CertificateAuthority");
+        connectionFactory.setCMSEngine(this);
+
         CAEngineConfig config = getConfig();
         PKISocketConfig socketConfig = config.getSocketConfig();
         LDAPConfig ldapConfig = config.getInternalDBConfig();
+
         connectionFactory.init(socketConfig, ldapConfig, getPasswordStore());
     }
 
@@ -1911,6 +1915,9 @@ public class CAEngine extends CMSEngine {
 
     @Override
     public void shutdownDatabase() {
+
+        if (connectionFactory == null) return;
+
         try {
             connectionFactory.shutdown();
         } catch (Exception e) {

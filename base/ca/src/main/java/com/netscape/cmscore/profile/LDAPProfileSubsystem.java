@@ -103,6 +103,7 @@ public class LDAPProfileSubsystem
         LDAPConfig dbCfg = cs.getInternalDBConfig();
 
         dbFactory = new LdapBoundConnFactory("LDAPProfileSubsystem");
+        dbFactory.setCMSEngine(engine);
         dbFactory.init(socketConfig, dbCfg, engine.getPasswordStore());
 
         mConfig = config;

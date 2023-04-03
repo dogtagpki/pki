@@ -17,6 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.ldap;
 
+import com.netscape.cmscore.apps.CMSEngine;
+
 import netscape.ldap.LDAPConnection;
 
 /**
@@ -25,6 +27,16 @@ import netscape.ldap.LDAPConnection;
  * the Ldap connection resources.
  */
 public abstract class LdapConnFactory {
+
+    protected CMSEngine engine;
+
+    public CMSEngine getCMSEngine() {
+        return engine;
+    }
+
+    public void setCMSEngine(CMSEngine engine) {
+        this.engine = engine;
+    }
 
     /**
      *
