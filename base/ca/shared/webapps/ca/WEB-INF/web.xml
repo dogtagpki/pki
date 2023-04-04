@@ -36,7 +36,7 @@
 
    <servlet>
       <servlet-name>  calog  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.admin.LogAdminServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.admin.CALogAdminServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
                          <param-value> calog       </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
