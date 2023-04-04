@@ -1398,7 +1398,7 @@
 
    <servlet>
       <servlet-name>  caRASCEP  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.cert.scep.CRSEnrollment  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.cert.scep.RASCEPServlet  </servlet-class>
              <init-param><param-name>  authority  </param-name>
                          <param-value> ca       </param-value> </init-param>
              <init-param><param-name>  profileId  </param-name>
