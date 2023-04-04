@@ -705,6 +705,7 @@ public class CMSEngine {
 
     public void initClientSocketListener() {
         clientSocketListener = new PKIClientSocketListener();
+        clientSocketListener.setCMSEngine(this);
     }
 
     public void initServerSocketListener() {

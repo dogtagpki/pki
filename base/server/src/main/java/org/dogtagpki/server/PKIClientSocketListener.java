@@ -35,11 +35,14 @@ import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.logging.event.ClientAccessSessionEstablishEvent;
 import com.netscape.certsrv.logging.event.ClientAccessSessionTerminatedEvent;
 import com.netscape.cms.logging.SignedAuditLogger;
+import com.netscape.cmscore.apps.CMSEngine;
 
 public class PKIClientSocketListener implements SSLSocketListener {
 
     private static Logger logger = LoggerFactory.getLogger(PKIClientSocketListener.class);
     private static SignedAuditLogger signedAuditLogger = SignedAuditLogger.getLogger();
+
+    protected CMSEngine engine;
 
     /**
      * The socketInfos map is a storage for socket information that may not be available
@@ -51,6 +54,14 @@ public class PKIClientSocketListener implements SSLSocketListener {
     Map<SSLSocket,Map<String,Object>> socketInfos = new WeakHashMap<>();
 
     public PKIClientSocketListener() {
+    }
+
+    public CMSEngine getCMSEngine() {
+        return engine;
+    }
+
+    public void setCMSEngine(CMSEngine engine) {
+        this.engine = engine;
     }
 
     @Override
