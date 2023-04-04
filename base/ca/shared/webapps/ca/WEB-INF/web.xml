@@ -137,25 +137,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  caUpdateOCSPConfig  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.csadmin.UpdateOCSPConfig  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caUpdateOCSPConfig </param-value> </init-param>
-             <init-param><param-name>  interface   </param-name>
-                         <param-value> ee          </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> TokenAuth </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.admin.ocsp </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  caDownloadPKCS12  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.csadmin.DownloadPKCS12  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -1649,11 +1630,6 @@
    <servlet-mapping>
       <servlet-name>  caTokenAuthenticate-admin </servlet-name>
       <url-pattern>   /admin/ca/tokenAuthenticate  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  caUpdateOCSPConfig </servlet-name>
-      <url-pattern>   /ee/ca/updateOCSPConfig </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
