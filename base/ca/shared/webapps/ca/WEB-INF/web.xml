@@ -1391,7 +1391,7 @@
 
    <servlet>
       <servlet-name>  caDynamicProfileSCEP  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.cert.scep.CRSEnrollment  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.cert.scep.DynamicProfileSCEPServlet  </servlet-class>
              <init-param><param-name>  authority  </param-name>
                          <param-value> ca       </param-value> </init-param>
    </servlet>
