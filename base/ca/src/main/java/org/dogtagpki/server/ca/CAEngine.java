@@ -104,8 +104,6 @@ import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.request.CertRequestRepository;
 import com.netscape.cmscore.request.RequestNotifier;
 import com.netscape.cmscore.request.RequestQueue;
-import com.netscape.cmscore.security.SecureRandomConfig;
-import com.netscape.cmscore.security.SecureRandomFactory;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ldap.LDAPPostReadControl;
 import com.netscape.cmsutil.ldap.LDAPUtil;
@@ -857,8 +855,7 @@ public class CAEngine extends CMSEngine {
         enableAuthorityMonitor = caConfig.getBoolean("authorityMonitor.enable", enableAuthorityMonitor);
         logger.info("CAEngine: - enable AuthorityMonitor: " + enableAuthorityMonitor);
 
-        SecureRandomConfig secureRandomConfig = config.getJssSubsystemConfig().getSecureRandomConfig();
-        SecureRandom secureRandom = SecureRandomFactory.create(secureRandomConfig);
+        SecureRandom secureRandom = getJSSSubsystem().getRandomNumberGenerator();
 
         requestRepository = new CertRequestRepository(secureRandom, dbSubsystem);
         requestRepository.setCMSEngine(this);
@@ -1678,8 +1675,7 @@ public class CAEngine extends CMSEngine {
         int increment = caConfig.getInteger(CertificateRepository.PROP_INCREMENT, 5);
         logger.info("CAEngine: - increment: " + increment);
 
-        SecureRandomConfig secureRandomConfig = config.getJssSubsystemConfig().getSecureRandomConfig();
-        SecureRandom secureRandom = SecureRandomFactory.create(secureRandomConfig);
+        SecureRandom secureRandom = jssSubsystem.getRandomNumberGenerator();
 
         certificateRepository = new CertificateRepository(secureRandom, dbSubsystem);
         certificateRepository.setCMSEngine(this);

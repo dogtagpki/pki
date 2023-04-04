@@ -89,8 +89,6 @@ import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmscore.request.RequestSubsystem;
 import com.netscape.cmscore.security.JssSubsystem;
-import com.netscape.cmscore.security.SecureRandomConfig;
-import com.netscape.cmscore.security.SecureRandomFactory;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -326,8 +324,8 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
         // create key repository
         int keydb_inc = mConfig.getInteger(PROP_KEYDB_INC, 5);
 
-        SecureRandomConfig secureRandomConfig = engineConfig.getJssSubsystemConfig().getSecureRandomConfig();
-        SecureRandom secureRandom = SecureRandomFactory.create(secureRandomConfig);
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
+        SecureRandom secureRandom = jssSubsystem.getRandomNumberGenerator();
 
         mKeyDB = new KeyRepository(secureRandom, dbSubsystem);
         mKeyDB.setCMSEngine(engine);
