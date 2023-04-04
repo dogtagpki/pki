@@ -1194,15 +1194,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  caSCEP  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.cert.scep.CRSEnrollment  </servlet-class>
-             <init-param><param-name>  authority  </param-name>
-                         <param-value> ca       </param-value> </init-param>
-             <init-param><param-name>  profileId  </param-name>
-                         <param-value> caRouterCert </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  caProxyDoRevoke  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.base.ProxyServlet  </servlet-class>
              <init-param><param-name>  destServlet  </param-name>
@@ -1569,11 +1560,6 @@
    <servlet-mapping>
       <servlet-name>  caProxyDoRevoke </servlet-name>
       <url-pattern>   /doRevoke </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  caSCEP </servlet-name>
-      <url-pattern>   /cgi-bin/pkiclient.exe </url-pattern>
    </servlet-mapping>
 
     <security-constraint>

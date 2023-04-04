@@ -38,6 +38,8 @@ import javax.crypto.spec.OAEPParameterSpec;
 import javax.crypto.spec.PSource;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -153,6 +155,14 @@ import netscape.ldap.LDAPEntry;
  * The HTTP parameters are 'operation' and 'message'
  * operation can be either 'GetCACert', 'PKIOperation' or 'GetCACaps'.
  */
+@WebServlet(
+        name = "caSCEP",
+        urlPatterns = "/cgi-bin/pkiclient.exe",
+        initParams = {
+                @WebInitParam(name="authority", value="ca"),
+                @WebInitParam(name="profileId", value="caRouterCert")
+        }
+)
 public class CRSEnrollment extends HttpServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CRSEnrollment.class);
