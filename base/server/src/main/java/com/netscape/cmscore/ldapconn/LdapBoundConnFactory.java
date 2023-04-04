@@ -17,8 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.ldapconn;
 
-import org.dogtagpki.server.PKIClientSocketListener;
-
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
@@ -292,17 +290,17 @@ public class LdapBoundConnFactory extends LdapConnFactory {
 
         logger.debug("LdapBoundConnFactory: makeNewConnection(" + errorIfDown + ")");
 
-        PKIClientSocketListener socketListener = new PKIClientSocketListener();
-
         LdapBoundConnection conn = null;
         try {
             PKISocketFactory socketFactory = new PKISocketFactory();
-            socketFactory.setCMSEngine(engine);
+            if (engine != null) {
+                socketFactory.setCMSEngine(engine);
+                socketFactory.addSocketListener(engine.getClientSocketListener());
+            }
             socketFactory.setSecure(mConnInfo.getSecure());
             if (mAuthInfo.getAuthType() == LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH) {
                 socketFactory.setClientCertNickname(mAuthInfo.getClientCertNickname());
             }
-            socketFactory.addSocketListener(socketListener);
             socketFactory.init(config);
 
             conn = new LdapBoundConnection(socketFactory, mConnInfo, mAuthInfo);

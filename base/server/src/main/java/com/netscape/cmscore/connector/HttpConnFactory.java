@@ -17,8 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.connector;
 
-import org.dogtagpki.server.PKIClientSocketListener;
-
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -139,9 +137,8 @@ public class HttpConnFactory {
 
         try {
             ISocketFactory tFactory = new JssSSLSocketFactory(mNickname, mClientCiphers);
-            PKIClientSocketListener sockListener = new PKIClientSocketListener();
             JssSSLSocketFactory factory = (JssSSLSocketFactory) tFactory;
-            factory.addSocketListener(sockListener);
+            factory.addSocketListener(engine.getClientSocketListener());
 
             if (mTimeout == 0) {
                 retConn = new HttpConnection(mDest, tFactory);

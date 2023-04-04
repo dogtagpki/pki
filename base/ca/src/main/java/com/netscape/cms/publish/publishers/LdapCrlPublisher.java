@@ -21,7 +21,6 @@ import java.security.cert.CRLException;
 import java.security.cert.X509CRL;
 import java.util.Vector;
 
-import org.dogtagpki.server.PKIClientSocketListener;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
 
@@ -171,7 +170,6 @@ public class LdapCrlPublisher
         CAEngineConfig cs = engine.getConfig();
 
         PKISocketConfig socketConfig = cs.getSocketConfig();
-        PKIClientSocketListener socketListener = new PKIClientSocketListener();
 
         try {
             mCrlAttr = mConfig.getString("crlAttr", LDAP_CRL_ATTR);
@@ -192,9 +190,9 @@ public class LdapCrlPublisher
 
                 PKISocketFactory sslSocket = new PKISocketFactory();
                 sslSocket.setCMSEngine(engine);
+                sslSocket.addSocketListener(engine.getClientSocketListener());
                 sslSocket.setSecure(true);
                 sslSocket.setClientCertNickname(cert_nick);
-                sslSocket.addSocketListener(socketListener);
                 sslSocket.init(socketConfig);
 
                 String mgr_dn = mConfig.getString("bindDN", null);

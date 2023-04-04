@@ -19,8 +19,6 @@ package com.netscape.cmscore.connector;
 
 import java.util.Vector;
 
-import org.dogtagpki.server.PKIClientSocketListener;
-
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.connector.Connector;
 import com.netscape.certsrv.connector.ConnectorConfig;
@@ -83,11 +81,10 @@ public class HttpConnector extends Connector {
 
         logger.info("HttpConnector: Initializing HttpConnector");
 
-        PKIClientSocketListener sockListener = new PKIClientSocketListener();
         mFactory = new JssSSLSocketFactory(nickname, clientCiphers);
 
         JssSSLSocketFactory factory = (JssSSLSocketFactory) mFactory;
-        factory.addSocketListener(sockListener);
+        factory.addSocketListener(engine.getClientSocketListener());
 
         int minConns = config.getMinHttpConns();
         logger.debug("HttpConnector: minHttpConns: " + minConns);

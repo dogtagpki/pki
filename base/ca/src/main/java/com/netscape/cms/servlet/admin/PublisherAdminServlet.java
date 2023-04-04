@@ -27,7 +27,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.dogtagpki.server.PKIClientSocketListener;
 import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
@@ -632,7 +631,6 @@ public class PublisherAdminServlet extends AdminServlet {
         CAConfig config = engineConfig.getCAConfig();
 
         PKISocketConfig socketConfig = engineConfig.getSocketConfig();
-        PKIClientSocketListener socketListener = new PKIClientSocketListener();
 
         //Save New Settings to the config file
         PublishingConfig publishcfg = config.getPublishingConfig();
@@ -727,9 +725,9 @@ public class PublisherAdminServlet extends AdminServlet {
 
                     PKISocketFactory socketFactory = new PKISocketFactory();
                     socketFactory.setCMSEngine(engine);
+                    socketFactory.addSocketListener(engine.getClientSocketListener());
                     socketFactory.setSecure(true);
                     socketFactory.setClientCertNickname(certNickName);
-                    socketFactory.addSocketListener(socketListener);
                     socketFactory.init(socketConfig);
 
                     conn = new LDAPConnection(socketFactory);
@@ -789,8 +787,9 @@ public class PublisherAdminServlet extends AdminServlet {
             } else {
                 try {
                     PKISocketFactory socketFactory = new PKISocketFactory();
+                    socketFactory.setCMSEngine(engine);
+                    socketFactory.addSocketListener(engine.getClientSocketListener());
                     socketFactory.setSecure(secure);
-                    socketFactory.addSocketListener(socketListener);
                     socketFactory.init(socketConfig);
 
                     conn = new LDAPConnection(socketFactory);

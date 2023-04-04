@@ -50,6 +50,9 @@ public class PKIClientSocketListener implements SSLSocketListener {
      */
     Map<SSLSocket,Map<String,Object>> socketInfos = new WeakHashMap<>();
 
+    public PKIClientSocketListener() {
+    }
+
     @Override
     public void alertReceived(SSLAlertEvent event) {
         String method = "PKIClientSocketListener.alertReceived: ";

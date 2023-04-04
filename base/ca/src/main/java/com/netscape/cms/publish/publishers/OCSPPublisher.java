@@ -30,7 +30,6 @@ import java.util.Date;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import org.dogtagpki.server.PKIClientSocketListener;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
 import org.mozilla.jss.netscape.security.util.Utils;
@@ -257,14 +256,14 @@ public class OCSPPublisher
 
             Socket socket = null;
             JssSSLSocketFactory factory;
-            PKIClientSocketListener sockListener = new PKIClientSocketListener();
+            CAEngine engine = CAEngine.getInstance();
 
             if (mClientAuthEnabled) {
                 factory = new JssSSLSocketFactory(mNickname);
             } else {
                 factory = new JssSSLSocketFactory();
             }
-            factory.addSocketListener(sockListener);
+            factory.addSocketListener(engine.getClientSocketListener());
 
             if (mHost != null && mHost.indexOf(' ') != -1) {
                 // support failover hosts configuration

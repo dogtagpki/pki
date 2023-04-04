@@ -148,6 +148,7 @@ public class CMSEngine {
     protected LogSubsystem logSubsystem = LogSubsystem.getInstance();
     protected Auditor auditor;
 
+    protected PKIClientSocketListener clientSocketListener;
     protected PKIServerSocketListener serverSocketListener;
 
     protected JssSubsystem jssSubsystem;
@@ -215,6 +216,10 @@ public class CMSEngine {
 
     public Auditor getAuditor() {
         return auditor;
+    }
+
+    public PKIClientSocketListener getClientSocketListener() {
+        return clientSocketListener;
     }
 
     public PKIServerSocketListener getServerSocketListener() {
@@ -625,12 +630,11 @@ public class CMSEngine {
         int port = info.getPort();
 
         PKISocketConfig socketConfig = mConfig.getSocketConfig();
-        PKIClientSocketListener socketListener = new PKIClientSocketListener();
 
         PKISocketFactory socketFactory = new PKISocketFactory();
         socketFactory.setCMSEngine(this);
+        socketFactory.addSocketListener(clientSocketListener);
         socketFactory.setSecure(info.getSecure());
-        socketFactory.addSocketListener(socketListener);
         socketFactory.init(socketConfig);
 
         LDAPConnection conn = new LDAPConnection(socketFactory);
@@ -697,6 +701,10 @@ public class CMSEngine {
     public void initAuditor() throws Exception {
         auditor = new Auditor();
         auditor.setCMSEngine(this);
+    }
+
+    public void initClientSocketListener() {
+        clientSocketListener = new PKIClientSocketListener();
     }
 
     public void initServerSocketListener() {
@@ -1188,6 +1196,7 @@ public class CMSEngine {
         initLogSubsystem();
         initAuditor();
 
+        initClientSocketListener();
         initServerSocketListener();
 
         testLDAPConnections();

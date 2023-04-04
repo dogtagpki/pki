@@ -17,8 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.ldapconn;
 
-import org.dogtagpki.server.PKIClientSocketListener;
-
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
@@ -219,12 +217,12 @@ public class LdapAnonConnFactory extends LdapConnFactory {
                 int increment = Math.min(realMin - mNumConns, mMaxConns - mTotal);
                 logger.debug("LdapAnonConnFactory: increasing minimum connections by " + increment);
 
-                PKIClientSocketListener socketListener = new PKIClientSocketListener();
-
                 PKISocketFactory socketFactory = new PKISocketFactory();
-                socketFactory.setCMSEngine(engine);
+                if (engine != null) {
+                    socketFactory.setCMSEngine(engine);
+                    socketFactory.addSocketListener(engine.getClientSocketListener());
+                }
                 socketFactory.setSecure(mConnInfo.getSecure());
-                socketFactory.addSocketListener(socketListener);
                 socketFactory.init(config);
 
                 for (int i = increment - 1; i >= 0; i--) {
@@ -349,12 +347,12 @@ public class LdapAnonConnFactory extends LdapConnFactory {
 
             conn = null;
             try {
-                PKIClientSocketListener socketListener = new PKIClientSocketListener();
-
                 PKISocketFactory socketFactory = new PKISocketFactory();
-                socketFactory.setCMSEngine(engine);
+                if (engine != null) {
+                    socketFactory.setCMSEngine(engine);
+                    socketFactory.addSocketListener(engine.getClientSocketListener());
+                }
                 socketFactory.setSecure(mConnInfo.getSecure());
-                socketFactory.addSocketListener(socketListener);
                 socketFactory.init(config);
 
                 conn = new AnonConnection(socketFactory, mConnInfo);

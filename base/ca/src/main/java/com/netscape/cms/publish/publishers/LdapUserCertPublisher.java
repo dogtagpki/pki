@@ -22,7 +22,6 @@ import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import org.dogtagpki.server.PKIClientSocketListener;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
 
@@ -158,7 +157,6 @@ public class LdapUserCertPublisher
         CAEngineConfig cs = engine.getConfig();
 
         PKISocketConfig socketConfig = cs.getSocketConfig();
-        PKIClientSocketListener socketListener = new PKIClientSocketListener();
 
         // Bugscape #56124 - support multiple publishing directory
         // see if we should create local connection
@@ -173,9 +171,9 @@ public class LdapUserCertPublisher
 
                 PKISocketFactory sslSocket = new PKISocketFactory();
                 sslSocket.setCMSEngine(engine);
+                sslSocket.addSocketListener(engine.getClientSocketListener());
                 sslSocket.setSecure(true);
                 sslSocket.setClientCertNickname(cert_nick);
-                sslSocket.addSocketListener(socketListener);
                 sslSocket.init(socketConfig);
 
                 String mgr_dn = mConfig.getString("bindDN", null);

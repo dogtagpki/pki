@@ -25,8 +25,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-import org.dogtagpki.server.PKIClientSocketListener;
-
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
@@ -152,9 +150,8 @@ public class Resender implements Runnable {
 
         if (! connected) {
             logger.debug("Connecting ...");
-            PKIClientSocketListener sockListener = new PKIClientSocketListener();
             JssSSLSocketFactory factory = new JssSSLSocketFactory(mNickName, mClientCiphers);
-            factory.addSocketListener(sockListener);
+            factory.addSocketListener(engine.getClientSocketListener());
 
             mConn = new HttpConnection(mDest, factory);
             mConn.setCMSEngine(engine);
