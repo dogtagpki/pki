@@ -39,13 +39,12 @@ import org.slf4j.LoggerFactory;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.logging.event.AccessSessionEstablishEvent;
 import com.netscape.certsrv.logging.event.AccessSessionTerminatedEvent;
-import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.logging.Auditor;
 
 public class PKIServerSocketListener implements SSLSocketListener {
 
     private static Logger logger = LoggerFactory.getLogger(PKIServerSocketListener.class);
-    private static SignedAuditLogger signedAuditLogger = SignedAuditLogger.getLogger();
 
     private static final String defaultUnknown = "--";
 
@@ -77,6 +76,8 @@ public class PKIServerSocketListener implements SSLSocketListener {
         if (engine == null || engine.isInRunningState() == false) {
             return;
         }
+
+        Auditor auditor = engine.getAuditor();
 
         try {
             SSLSocket socket = event.getSocket();
@@ -128,7 +129,7 @@ public class PKIServerSocketListener implements SSLSocketListener {
             logger.debug("- server: " + serverIP);
             logger.debug("- subject: " + subjectID);
 
-            signedAuditLogger.log(AccessSessionTerminatedEvent.createEvent(
+            auditor.log(AccessSessionTerminatedEvent.createEvent(
                     clientIP,
                     serverIP,
                     subjectID,
@@ -145,6 +146,9 @@ public class PKIServerSocketListener implements SSLSocketListener {
         if (engine == null || engine.isInRunningState() == false) {
             return;
         }
+
+        Auditor auditor = engine.getAuditor();
+
         try {
             SSLSocket socket = event.getSocket();
             JSSEngine engine = event.getEngine();
@@ -228,7 +232,7 @@ public class PKIServerSocketListener implements SSLSocketListener {
             logger.debug("- server: " + serverIP);
             logger.debug("- subject: " + subjectID);
 
-            signedAuditLogger.log(auditEvent);
+            auditor.log(auditEvent);
 
         } catch (Exception e) {
             logger.error("PKIServerSocketListener: " + e.getMessage(), e);
@@ -241,6 +245,8 @@ public class PKIServerSocketListener implements SSLSocketListener {
         if (engine == null || engine.isInRunningState() == false) {
             return;
         }
+
+        Auditor auditor = engine.getAuditor();
 
         try {
             SSLSocket socket = event.getSocket();
@@ -290,7 +296,7 @@ public class PKIServerSocketListener implements SSLSocketListener {
             logger.debug("- server: " + serverIP);
             logger.debug("- subject: " + subjectID);
 
-            signedAuditLogger.log(AccessSessionEstablishEvent.createSuccessEvent(
+            auditor.log(AccessSessionEstablishEvent.createSuccessEvent(
                     clientIP,
                     serverIP,
                     subjectID));
