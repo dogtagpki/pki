@@ -226,12 +226,13 @@ to manage enterprise Public Key Infrastructure deployments.
 
 %{product_name} consists of the following components:
 
-  * Automatic Certificate Management Environment (ACME) Responder
   * Certificate Authority (CA)
   * Key Recovery Authority (KRA)
   * Online Certificate Status Protocol (OCSP) Manager
   * Token Key Service (TKS)
   * Token Processing Service (TPS)
+  * Automatic Certificate Management Environment (ACME) Responder
+  * Enrollment over Secure Transport (EST) Responder
 
 %endif
 
@@ -243,6 +244,7 @@ to manage enterprise Public Key Infrastructure deployments.
 
 Summary:          %{product_name} Package
 %endif
+BuildArch:        noarch
 
 Obsoletes:        pki-symkey < %{version}
 Obsoletes:        %{product_id}-symkey < %{version}
@@ -284,12 +286,13 @@ to manage enterprise Public Key Infrastructure deployments.
 
 %{product_name} consists of the following components:
 
-  * Automatic Certificate Management Environment (ACME) Responder
   * Certificate Authority (CA)
   * Key Recovery Authority (KRA)
   * Online Certificate Status Protocol (OCSP) Manager
   * Token Key Service (TKS)
   * Token Processing Service (TPS)
+  * Automatic Certificate Management Environment (ACME) Responder
+  * Enrollment over Secure Transport (EST) Responder
 
 # with meta
 %endif
