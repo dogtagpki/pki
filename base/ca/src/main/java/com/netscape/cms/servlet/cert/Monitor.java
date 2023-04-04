@@ -26,6 +26,8 @@ import java.util.Locale;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -52,9 +54,21 @@ import com.netscape.cmscore.request.RequestRepository;
 
 /**
  * Provide statistical queries of request and certificate records.
- *
- * @version $Revision$, $Date$
  */
+@WebServlet(
+        name = "caMonitor",
+        urlPatterns = "/agent/ca/monitor",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="true"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="authority",     value="ca"),
+                @WebInitParam(name="interface",     value="agent"),
+                @WebInitParam(name="templatePath",  value="/agent/ca/monitor.template"),
+                @WebInitParam(name="ID",            value="caMonitor"),
+                @WebInitParam(name="resourceID",    value="certServer.ca.systemstatus"),
+                @WebInitParam(name="AuthMgr",       value="certUserDBAuthMgr")
+        }
+)
 public class Monitor extends CMSServlet {
 
     /**
