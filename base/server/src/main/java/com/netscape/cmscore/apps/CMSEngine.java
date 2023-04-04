@@ -145,12 +145,13 @@ public class CMSEngine {
     private Debug debug = new Debug();
 
     private PluginRegistry pluginRegistry = new PluginRegistry();
-    private PKIServerSocketListener serverSocketListener = null;
     protected LogSubsystem logSubsystem = LogSubsystem.getInstance();
     protected Auditor auditor;
+
+    protected PKIServerSocketListener serverSocketListener;
+
     protected JssSubsystem jssSubsystem;
     protected DBSubsystem dbSubsystem;
-
 
     protected RequestRepository requestRepository;
     protected RequestQueue requestQueue;
@@ -214,6 +215,10 @@ public class CMSEngine {
 
     public Auditor getAuditor() {
         return auditor;
+    }
+
+    public PKIServerSocketListener getServerSocketListener() {
+        return serverSocketListener;
     }
 
     public JssSubsystem getJSSSubsystem() {
@@ -692,6 +697,11 @@ public class CMSEngine {
     public void initAuditor() throws Exception {
         auditor = new Auditor();
         auditor.setCMSEngine(this);
+    }
+
+    public void initServerSocketListener() {
+        serverSocketListener = new PKIServerSocketListener();
+        serverSocketListener.setCMSEngine(this);
     }
 
     public void initJssSubsystem() throws Exception {
@@ -1178,6 +1188,8 @@ public class CMSEngine {
         initLogSubsystem();
         initAuditor();
 
+        initServerSocketListener();
+
         testLDAPConnections();
         initDatabase();
 
@@ -1213,10 +1225,6 @@ public class CMSEngine {
 
         // Register TomcatJSS socket listener
         TomcatJSS tomcatJss = TomcatJSS.getInstance();
-        if (serverSocketListener == null) {
-            serverSocketListener = new PKIServerSocketListener();
-            serverSocketListener.setCMSEngine(this);
-        }
         tomcatJss.addSocketListener(serverSocketListener);
 
         notifySubsystemStarted();
@@ -1394,7 +1402,7 @@ public class CMSEngine {
     public void shutdown() {
 
         isStarted = false;
-        if(serverSocketListener != null) {
+        if (serverSocketListener != null) {
             // De-Register TomcatJSS socket listener
             TomcatJSS tomcatJss = TomcatJSS.getInstance();
             tomcatJss.removeSocketListener(serverSocketListener);

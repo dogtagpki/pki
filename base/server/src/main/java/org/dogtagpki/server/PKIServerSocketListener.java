@@ -60,6 +60,9 @@ public class PKIServerSocketListener implements SSLSocketListener {
      */
     Map<SSLSocket,Map<String,Object>> socketInfos = new WeakHashMap<>();
 
+    public PKIServerSocketListener() {
+    }
+
     public CMSEngine getCMSEngine() {
         return engine;
     }
