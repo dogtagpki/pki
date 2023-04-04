@@ -17,6 +17,17 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.admin;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "caacl",
+        urlPatterns = "/acl",
+        initParams = {
+                @WebInitParam(name="ID",       value="caacl"),
+                @WebInitParam(name="AuthzMgr", value="BasicAclAuthz")
+        }
+)
 public class CAACLAdminServlet extends ACLAdminServlet {
     private static final long serialVersionUID = 1L;
 }
