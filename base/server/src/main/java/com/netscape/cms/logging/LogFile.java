@@ -79,6 +79,7 @@ import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.logging.Auditor;
 
 import netscape.ldap.client.JDAPAVA;
 import netscape.ldap.client.JDAPFilter;
@@ -97,7 +98,6 @@ import netscape.ldap.client.JDAPFilterSubString;
 public class LogFile extends LogEventListener implements IExtendedPluginInfo {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LogFile.class);
-    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public static final String PROP_TYPE = "type";
     public static final String PROP_REGISTER = "register";
@@ -328,18 +328,19 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
         // subsequent component initialization are signed properly
         if (mOn && mLogSigning) {
 
+            Auditor auditor = engine.getAuditor();
             try {
                 logger.debug("LogFile: setting up log signing");
                 setupSigning();
 
-                signedAuditLogger.log(CMS.getLogMessage(
+                auditor.log(CMS.getLogMessage(
                         AuditEvent.AUDIT_LOG_STARTUP,
                         ILogger.SYSTEM_UID,
                         ILogger.SUCCESS));
 
             } catch (EBaseException e) {
                 logger.error("Unable to set up log signing: " + e.getMessage(), e);
-                signedAuditLogger.log(CMS.getLogMessage(
+                auditor.log(CMS.getLogMessage(
                         AuditEvent.AUDIT_LOG_STARTUP,
                         ILogger.SYSTEM_UID,
                         ILogger.FAILURE));
@@ -675,6 +676,7 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
             return;
         }
 
+        Auditor auditor = engine.getAuditor();
         sigBytes = mSignature.sign();
         mSignature.initSign(mSigningKey);
 
@@ -690,7 +692,7 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
                 ILogger.SUCCESS,
                 base64Encode(sigBytes));
 
-        LogEvent ev = signedAuditLogger.create(
+        LogEvent ev = auditor.create(
                 ILogger.LL_SECURITY,
                 auditMessage,
                 o,
@@ -822,6 +824,7 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
 
         logger.info("Destroying LogFile(" + mFileName + ")");
 
+        Auditor auditor = engine.getAuditor();
         String auditMessage = null;
 
         setFlushInterval(0);
@@ -832,7 +835,7 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
                            ILogger.SYSTEM_UID,
                            ILogger.SUCCESS);
 
-        signedAuditLogger.log(auditMessage);
+        auditor.log(auditMessage);
 
         close();
     }
