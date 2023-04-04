@@ -28,6 +28,8 @@ import java.util.Vector;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 
 import org.dogtagpki.server.authentication.AuthToken;
@@ -58,9 +60,21 @@ import com.netscape.cmscore.request.Request;
 
 /**
  * Certificate Renewal
- *
- * @version $Revision$, $Date$
  */
+@WebServlet(
+        name = "caRenewal",
+        urlPatterns = "/renewal",
+        initParams = {
+                @WebInitParam(name="GetClientCert",   value="true"),
+                @WebInitParam(name="successTemplate", value="/ca/RenewalSuccess.template"),
+                @WebInitParam(name="AuthzMgr",        value="BasicAclAuthz"),
+                @WebInitParam(name="authority",       value="ca"),
+                @WebInitParam(name="interface",       value="ee"),
+                @WebInitParam(name="ID",              value="caRenewal"),
+                @WebInitParam(name="resourceID",      value="certServer.ee.certificate"),
+                @WebInitParam(name="AuthMgr",         value="sslClientCertAuthMgr")
+        }
+)
 public class RenewalServlet extends CAServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RenewalServlet.class);
