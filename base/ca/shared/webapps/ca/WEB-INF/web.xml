@@ -27,7 +27,7 @@
 
    <servlet>
       <servlet-name>  caug  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.admin.UsrGrpAdminServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.admin.CAUsrGrpAdminServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
                          <param-value> caug        </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
