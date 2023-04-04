@@ -681,25 +681,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  caGetCRL  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.cert.GetCRL  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  interface   </param-name>
-                         <param-value> ee          </param-value> </init-param>
-             <init-param><param-name>  templatePath   </param-name>
-                         <param-value> /ee/ca/displayCRL.template  </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caGetCRL    </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.ee.crl </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  cacertbasedenrollment  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.cert.EnrollServlet  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -1527,11 +1508,6 @@
    <servlet-mapping>
       <servlet-name>  caGetCertFromRequest  </servlet-name>
       <url-pattern>   /ee/ca/getCertFromRequest  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  caGetCRL  </servlet-name>
-      <url-pattern>   /ee/ca/getCRL  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
