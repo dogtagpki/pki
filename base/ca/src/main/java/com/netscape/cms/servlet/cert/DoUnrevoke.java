@@ -26,6 +26,8 @@ import java.util.Vector;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -56,9 +58,21 @@ import com.netscape.cmscore.request.Request;
 /**
  * 'Unrevoke' a certificate. (For certificates that are on-hold only,
  * take them off-hold)
- *
- * @version $Revision$, $Date$
  */
+@WebServlet(
+        name = "caDoUnrevoke",
+        urlPatterns = "/agent/ca/doUnrevoke",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="true"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="authority",     value="ca"),
+                @WebInitParam(name="templatePath",  value="/agent/ca/unrevocationResult.template"),
+                @WebInitParam(name="interface",     value="agent"),
+                @WebInitParam(name="ID",            value="caDoUnrevoke"),
+                @WebInitParam(name="AuthMgr",       value="certUserDBAuthMgr"),
+                @WebInitParam(name="resourceID",    value="certServer.ca.certificate")
+        }
+)
 public class DoUnrevoke extends CMSServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DoUnrevoke.class);
