@@ -39,6 +39,7 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.logging.Auditor;
 
 /**
  * A rotating log file for Certificate log events. This class loosely follows
@@ -50,7 +51,6 @@ import com.netscape.cmscore.base.ConfigStore;
 public class RollingLogFile extends LogFile {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RollingLogFile.class);
-    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     /**
      * The default max file size in bytes
@@ -326,6 +326,8 @@ public class RollingLogFile extends LogFile {
                     dirName, ff.toString()));
         }
 
+        Auditor auditor = engine.getAuditor();
+
         // Walk through the list of files which match this log file name
         // and delete the old ones.
         for (int i = 0; i < filelist.length; i++) {
@@ -360,7 +362,7 @@ public class RollingLogFile extends LogFile {
                                 fullname);
                 }
 
-                signedAuditLogger.log(auditMessage);
+                auditor.log(auditMessage);
             } else if (fileTime < oldestFile) {
                 oldestFile = fileTime;
             }
