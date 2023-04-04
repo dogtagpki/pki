@@ -444,10 +444,27 @@ public class CMSEngine {
 
         // create and initialize mPasswordStore
         getPasswordStore();
+    }
+
+    public void testLDAPConnections() throws Exception {
+
+        int state = config.getState();
+        if (state == 0) {
+            return;
+        }
+
+        boolean skipLdapConnectionTest = config.getBoolean("cms.password.skipLdapConnTest", false);
+        logger.debug("CMSEngine: skip LDAP connection test: " + skipLdapConnectionTest);
+
+        if (skipLdapConnectionTest) {
+            logger.debug("CMSEngine: Skipping LDAP connection test");
+            return;
+        }
+
+        logger.info("CMSEngine: Checking LDAP connections");
 
         boolean skipPublishingCheck = config.getBoolean("cms.password.ignore.publishing.failure", true);
         String pwList = config.getString("cms.passwordlist", "internaldb,replicationdb");
-        boolean skipLdapConnTest = config.getBoolean("cms.password.skipLdapConnTest",false);
         String tags[] = StringUtils.split(pwList, ",");
         LDAPConfig ldapConfig = config.getInternalDBConfig();
         LDAPConnectionConfig connConfig = ldapConfig.getConnectionConfig();
@@ -455,7 +472,7 @@ public class CMSEngine {
 
         for (String tag : tags) {
 
-            logger.info("CMSEngine: initializing password store for " + tag);
+            logger.info("CMSEngine: Checking LDAP connections for " + tag);
 
             String binddn;
             String authType;
@@ -464,8 +481,11 @@ public class CMSEngine {
             if (tag.equals("internaldb")) {
 
                 authType = authConfig.getString("authtype", "BasicAuth");
-                if (!authType.equals("BasicAuth"))
+                logger.debug("CMSEngine: auth type: " + authType);
+
+                if (!authType.equals("BasicAuth")) {
                     continue;
+                }
 
                 connInfo = new LdapConnInfo(
                         connConfig.getString("host"),
@@ -477,8 +497,11 @@ public class CMSEngine {
             } else if (tag.equals("replicationdb")) {
 
                 authType = authConfig.getString("authtype", "BasicAuth");
-                if (!authType.equals("BasicAuth"))
+                logger.debug("CMSEngine: auth type: " + authType);
+
+                if (!authType.equals("BasicAuth")) {
                     continue;
+                }
 
                 connInfo = new LdapConnInfo(
                         connConfig.getString("host"),
@@ -494,8 +517,11 @@ public class CMSEngine {
                 LDAPAuthenticationConfig publishAuthConfig = publishConfig.getAuthenticationConfig();
 
                 authType = publishAuthConfig.getString("authtype", "BasicAuth");
-                if (!authType.equals("BasicAuth"))
+                logger.debug("CMSEngine: auth type: " + authType);
+
+                if (!authType.equals("BasicAuth")) {
                     continue;
+                }
 
                 LDAPConnectionConfig publishConnConfig = publishConfig.getConnectionConfig();
 
@@ -524,19 +550,21 @@ public class CMSEngine {
                  *   auths.instance.UserDirEnrollment.ldap.ldapconn.secureConn=false
                  */
                 String authPrefix = config.getString(tag + ".authPrefix", null);
-                if (authPrefix ==  null) {
-                    logger.debug("CMSEngine.initializePasswordStore(): authPrefix not found...skipping");
+                logger.debug("CMSEngine: auth prefix: " + authPrefix);
+
+                if (authPrefix == null) {
                     continue;
                 }
-                logger.debug("CMSEngine.initializePasswordStore(): authPrefix=" + authPrefix);
 
                 LDAPConfig prefixConfig = config.getSubStore(authPrefix + ".ldap", LDAPConfig.class);
                 LDAPAuthenticationConfig prefixAuthConfig = prefixConfig.getAuthenticationConfig();
 
                 authType = prefixAuthConfig.getString("authtype", "BasicAuth");
-                logger.debug("CMSEngine.initializePasswordStore(): authType " + authType);
-                if (!authType.equals("BasicAuth"))
+                logger.debug("CMSEngine: auth type: " + authType);
+
+                if (!authType.equals("BasicAuth")) {
                     continue;
+                }
 
                 LDAPConnectionConfig prefixConnConfig = prefixConfig.getConnectionConfig();
 
@@ -552,10 +580,6 @@ public class CMSEngine {
                 }
             }
 
-            if(skipLdapConnTest == true) {
-                logger.debug("CMSEngine.initializePasswordStore(): skipping ldap conn test per configuration.");
-                return;
-            }
             int iteration = 0;
             int result = PW_INVALID_CREDENTIALS;
 
@@ -568,7 +592,7 @@ public class CMSEngine {
             if (result != PW_OK) {
                 if ((result == PW_INVALID_CREDENTIALS) && (tag.equals("replicationdb"))) {
                     logger.warn(
-                        "CMSEngine: password test execution failed for replicationdb " +
+                        "CMSEngine: LDAP connection test failed for replicationdb " +
                         "with NO_SUCH_USER. This may not be a latest instance. Ignoring ..");
 
                 } else if (skipPublishingCheck && (result == PW_CANNOT_CONNECT) && (tag.equals("CA LDAP Publishing"))) {
@@ -577,8 +601,8 @@ public class CMSEngine {
                         "but continuing to start up. Please check if publishing is operational.");
                 } else {
                     // password test failed
-                    logger.error("CMSEngine: password test execution failed: " + result);
-                    throw new EBaseException("Password test execution failed. Is the database up?");
+                    logger.error("CMSEngine: LDAP connection test failed: " + result);
+                    throw new EBaseException("LDAP connection test failed. Is the database up?");
                 }
             }
         }
@@ -1153,7 +1177,10 @@ public class CMSEngine {
         initPluginRegistry();
         initLogSubsystem();
         initAuditor();
+
+        testLDAPConnections();
         initDatabase();
+
         initJssSubsystem();
         initDBSubsystem();
         initUGSubsystem();
