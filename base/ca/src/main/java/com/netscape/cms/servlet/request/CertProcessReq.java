@@ -19,6 +19,8 @@ package com.netscape.cms.servlet.request;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 
 import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
@@ -31,6 +33,21 @@ import com.netscape.cmscore.base.ArgBlock;
 /**
  * Display certificate request detail to the user.
  */
+@WebServlet(
+        name = "caProcessReq",
+        urlPatterns = "/agent/ca/processReq",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="true"),
+                @WebInitParam(name="parser",        value="CertReqParser.DETAIL_PARSER"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="authority",     value="ca"),
+                @WebInitParam(name="interface",     value="agent"),
+                @WebInitParam(name="ID",            value="caProcessReq"),
+                @WebInitParam(name="templatePath",  value="/agent/ca/processReq.template"),
+                @WebInitParam(name="resourceID",    value="certServer.ca.request.enrollment"),
+                @WebInitParam(name="AuthMgr",       value="certUserDBAuthMgr")
+        }
+)
 public class CertProcessReq extends ProcessReq {
 
     public CertProcessReq() {

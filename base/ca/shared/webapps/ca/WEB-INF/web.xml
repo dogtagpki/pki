@@ -500,29 +500,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  caProcessReq  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.request.CertProcessReq  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> true        </param-value> </init-param>
-             <init-param><param-name>  parser      </param-name>
-                         <param-value> CertReqParser.DETAIL_PARSER </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  interface  </param-name>
-                         <param-value> agent      </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caProcessReq </param-value> </init-param>
-             <init-param><param-name>  templatePath   </param-name>
-                         <param-value> /agent/ca/processReq.template  </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.ca.request.enrollment </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> certUserDBAuthMgr </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  caports  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.base.PortsServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
@@ -1551,11 +1528,6 @@
    <servlet-mapping>  
       <servlet-name>  caqueryReq  </servlet-name>
       <url-pattern>   /agent/ca/queryReq  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>  
-      <servlet-name>  caProcessReq  </servlet-name>
-      <url-pattern>   /agent/ca/processReq  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>  
