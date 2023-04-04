@@ -4,23 +4,6 @@
     <display-name>Certificate Authority</display-name>
 
    <servlet>
-      <servlet-name>  caUpdateConnector  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.csadmin.UpdateConnector  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caUpdateConnector </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> TokenAuth </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.ca.connectorInfo </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  caRegisterUser  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.csadmin.RegisterUser  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -1515,11 +1498,6 @@
    <servlet-mapping>
       <servlet-name>  caDoRevoke  </servlet-name>
       <url-pattern>   /ee/ca/doRevoke  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  caUpdateConnector </servlet-name>
-      <url-pattern>   /admin/ca/updateConnector  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
