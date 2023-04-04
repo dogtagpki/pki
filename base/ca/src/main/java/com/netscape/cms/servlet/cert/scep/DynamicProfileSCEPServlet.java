@@ -17,6 +17,16 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert.scep;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "caDynamicProfileSCEP",
+        urlPatterns = "/scep/*",
+        initParams = {
+                @WebInitParam(name="authority", value="ca")
+        }
+)
 public class DynamicProfileSCEPServlet extends CRSEnrollment {
     private static final long serialVersionUID = 1L;
 }
