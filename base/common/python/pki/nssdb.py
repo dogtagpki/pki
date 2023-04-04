@@ -1338,8 +1338,9 @@ class NSSDatabase(object):
             values.append('hash')
         else:
             # convert <hex><hex>...<hex> into <hex>:<hex>:...:<hex>
-            value = binascii.unhexlify(sk_id).hex(':')
-            values.append(value)
+            value = binascii.unhexlify(sk_id).hex()
+            value_iter = iter(value)
+            values.append(':'.join(a + b for a, b in zip(value_iter, value_iter)))
 
         exts['subjectKeyIdentifier'] = ', '.join(values)
 
@@ -1433,8 +1434,10 @@ class NSSDatabase(object):
                 if generic_ext.get('critical'):
                     values.append('critical')
 
-                data = generic_ext['data']
-                values.append('DER:' + data.hex(':'))
+                data = generic_ext['data'].hex()
+
+                data_iter = iter(data)
+                values.append('DER:' + ':'.join(a + b for a, b in zip(data_iter, data_iter)))
 
                 oid = generic_ext['oid']
                 exts[oid] = ', '.join(values)
