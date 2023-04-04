@@ -25,13 +25,10 @@ import java.util.Map;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.RandomGenerationEvent;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.logging.Auditor;
 
 public class PKISecureRandomSpi extends SecureRandomSpi {
-
-    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     private static final long serialVersionUID = 1L;
 
@@ -58,6 +55,7 @@ public class PKISecureRandomSpi extends SecureRandomSpi {
 
         // find PKI code that calls the random generator
 
+        Auditor auditor = engine.getAuditor();
         String caller = null;
 
         for (StackTraceElement e : Thread.currentThread().getStackTrace()) {
@@ -98,10 +96,10 @@ public class PKISecureRandomSpi extends SecureRandomSpi {
 
         try {
             random.nextBytes(bytes);
-            signedAuditLogger.log(RandomGenerationEvent.createSuccessEvent(getSubjectID(), info));
+            auditor.log(RandomGenerationEvent.createSuccessEvent(getSubjectID(), info));
 
         } catch (RuntimeException e) {
-            signedAuditLogger.log(RandomGenerationEvent.createFailureEvent(getSubjectID(), info, e.getMessage()));
+            auditor.log(RandomGenerationEvent.createFailureEvent(getSubjectID(), info, e.getMessage()));
             throw e;
         }
     }
