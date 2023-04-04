@@ -19,12 +19,28 @@ package com.netscape.cms.servlet.request;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 
 /**
  * Show paged list of certificate requests matching search criteria.
- *
- * @version $Revision$, $Date$
  */
+@WebServlet(
+        name = "caqueryReq",
+        urlPatterns = "/agent/ca/queryReq",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="true"),
+                @WebInitParam(name="parser",        value="CertReqParser.NODETAIL_PARSER"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="authority",     value="ca"),
+                @WebInitParam(name="templatePath",  value="/agent/ca/queryReq.template"),
+                @WebInitParam(name="interface",     value="agent"),
+                @WebInitParam(name="ID",            value="caqueryReq"),
+                @WebInitParam(name="resourceID",    value="certServer.ca.requests"),
+                @WebInitParam(name="AuthMgr",       value="certUserDBAuthMgr"),
+                @WebInitParam(name="maxResults",    value="1000")
+        }
+)
 public class CertQueryReq extends QueryReq {
 
     public CertQueryReq() {
