@@ -17,6 +17,17 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert.scep;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "caRASCEP",
+        urlPatterns = "/ee/ca/pkiclient",
+        initParams = {
+                @WebInitParam(name="authority", value="ca"),
+                @WebInitParam(name="profileId", value="caRARouterCert")
+        }
+)
 public class RASCEPServlet extends CRSEnrollment {
     private static final long serialVersionUID = 1L;
 }
