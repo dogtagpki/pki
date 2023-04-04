@@ -338,7 +338,7 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
                         ILogger.SUCCESS));
 
             } catch (EBaseException e) {
-
+                logger.error("Unable to set up log signing: " + e.getMessage(), e);
                 signedAuditLogger.log(CMS.getLogMessage(
                         AuditEvent.AUDIT_LOG_STARTUP,
                         ILogger.SYSTEM_UID,

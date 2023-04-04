@@ -145,8 +145,8 @@ public class CMSEngine {
     private Debug debug = new Debug();
 
     private PluginRegistry pluginRegistry = new PluginRegistry();
-    protected LogSubsystem logSubsystem = LogSubsystem.getInstance();
     protected Auditor auditor;
+    protected LogSubsystem logSubsystem = LogSubsystem.getInstance();
 
     protected PKIClientSocketListener clientSocketListener;
     protected PKIServerSocketListener serverSocketListener;
@@ -691,16 +691,16 @@ public class CMSEngine {
         pluginRegistry.startup();
     }
 
+    public void initAuditor() throws Exception {
+        auditor = new Auditor();
+        auditor.setCMSEngine(this);
+    }
+
     public void initLogSubsystem() throws Exception {
         LoggingConfig logConfig = config.getLoggingConfig();
         logSubsystem.setCMSEngine(this);
         logSubsystem.init(logConfig);
         logSubsystem.startup();
-    }
-
-    public void initAuditor() throws Exception {
-        auditor = new Auditor();
-        auditor.setCMSEngine(this);
     }
 
     public void initClientSocketListener() {
@@ -1194,8 +1194,8 @@ public class CMSEngine {
         initSubsystemListeners();
         initSecurityProvider();
         initPluginRegistry();
-        initLogSubsystem();
         initAuditor();
+        initLogSubsystem();
 
         initClientSocketListener();
         initServerSocketListener();
