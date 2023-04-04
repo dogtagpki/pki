@@ -5,7 +5,7 @@
 
    <servlet>
       <servlet-name>  services </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.csadmin.MainPageServlet </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.csadmin.CAMainPageServlet </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> false       </param-value> </init-param>
              <init-param><param-name>  authorityId  </param-name>
