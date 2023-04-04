@@ -333,7 +333,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
         try {
             // wrap random number generator with PKISecureRandom for audit
             SecureRandom random = SecureRandomFactory.create(secureRandomConfig);
-            this.random = new PKISecureRandom(random);
+            this.random = new PKISecureRandom(engine, random);
 
         } catch (GeneralSecurityException e) {
             throw new EBaseException(e);

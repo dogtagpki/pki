@@ -19,11 +19,13 @@ package com.netscape.cmscore.security;
 
 import java.security.SecureRandom;
 
+import com.netscape.cmscore.apps.CMSEngine;
+
 public class PKISecureRandom extends SecureRandom {
 
     private static final long serialVersionUID = 1L;
 
-    public PKISecureRandom(SecureRandom random) {
-        super(new PKISecureRandomSpi(random), random.getProvider());
+    public PKISecureRandom(CMSEngine engine, SecureRandom random) {
+        super(new PKISecureRandomSpi(engine, random), random.getProvider());
     }
 }

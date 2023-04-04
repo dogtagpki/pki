@@ -27,6 +27,7 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.RandomGenerationEvent;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
+import com.netscape.cmscore.apps.CMSEngine;
 
 public class PKISecureRandomSpi extends SecureRandomSpi {
 
@@ -34,9 +35,11 @@ public class PKISecureRandomSpi extends SecureRandomSpi {
 
     private static final long serialVersionUID = 1L;
 
+    CMSEngine engine;
     SecureRandom random;
 
-    public PKISecureRandomSpi(SecureRandom random) {
+    public PKISecureRandomSpi(CMSEngine engine, SecureRandom random) {
+        this.engine = engine;
         this.random = random;
     }
 
