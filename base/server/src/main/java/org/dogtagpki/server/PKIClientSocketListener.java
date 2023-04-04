@@ -34,13 +34,12 @@ import org.slf4j.LoggerFactory;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.logging.event.ClientAccessSessionEstablishEvent;
 import com.netscape.certsrv.logging.event.ClientAccessSessionTerminatedEvent;
-import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.logging.Auditor;
 
 public class PKIClientSocketListener implements SSLSocketListener {
 
     private static Logger logger = LoggerFactory.getLogger(PKIClientSocketListener.class);
-    private static SignedAuditLogger signedAuditLogger = SignedAuditLogger.getLogger();
 
     protected CMSEngine engine;
 
@@ -68,6 +67,9 @@ public class PKIClientSocketListener implements SSLSocketListener {
     public void alertReceived(SSLAlertEvent event) {
         String method = "PKIClientSocketListener.alertReceived: ";
         logger.debug(method + "begins");
+
+        Auditor auditor = engine.getAuditor();
+
         try {
             SSLSocket socket = event.getSocket();
 
@@ -88,7 +90,7 @@ public class PKIClientSocketListener implements SSLSocketListener {
             int description = event.getDescription();
             String reason = "clientAlertReceived: " + SSLAlertDescription.valueOf(description).toString();
 
-            signedAuditLogger.log(ClientAccessSessionTerminatedEvent.createEvent(
+            auditor.log(ClientAccessSessionTerminatedEvent.createEvent(
                     clientIP,
                     serverIP,
                     serverPort,
@@ -113,6 +115,9 @@ public class PKIClientSocketListener implements SSLSocketListener {
     public void alertSent(SSLAlertEvent event) {
         String method = "PKIClientSocketListener.alertSent: ";
         logger.debug(method + "begins");
+
+        Auditor auditor = engine.getAuditor();
+
         try {
             SSLSocket socket = event.getSocket();
 
@@ -170,7 +175,7 @@ public class PKIClientSocketListener implements SSLSocketListener {
 
             }
 
-            signedAuditLogger.log(auditEvent);
+            auditor.log(auditEvent);
 
             logger.debug("PKIClientSocketListener: SSL alert sent:");
             logger.debug("- reason: " + reason);
@@ -188,6 +193,9 @@ public class PKIClientSocketListener implements SSLSocketListener {
     public void handshakeCompleted(SSLHandshakeCompletedEvent event) {
         String method = "PKIClientSocketListener.handshakeCompleted: ";
         logger.debug(method + "begins");
+
+        Auditor auditor = engine.getAuditor();
+
         try {
             SSLSocket socket = event.getSocket();
 
@@ -219,7 +227,7 @@ public class PKIClientSocketListener implements SSLSocketListener {
             info.put("subjectID", subjectID);
             socketInfos.put(socket, info);
 
-            signedAuditLogger.log(ClientAccessSessionEstablishEvent.createSuccessEvent(
+            auditor.log(ClientAccessSessionEstablishEvent.createSuccessEvent(
                     clientIP,
                     serverIP,
                     serverPort,
