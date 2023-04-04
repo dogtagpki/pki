@@ -4,15 +4,6 @@
     <display-name>Certificate Authority</display-name>
 
    <servlet>
-      <servlet-name>  caug  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.admin.CAUsrGrpAdminServlet  </servlet-class>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caug        </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  calog  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.admin.CALogAdminServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
@@ -1278,11 +1269,6 @@
    <servlet-mapping>
       <servlet-name>Resteasy</servlet-name>
       <url-pattern>/rest/*</url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  caug  </servlet-name>
-      <url-pattern>   /ug  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
