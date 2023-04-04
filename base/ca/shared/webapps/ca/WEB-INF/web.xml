@@ -616,27 +616,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  caDoUnrevoke  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.cert.DoUnrevoke  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> true        </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  templatePath   </param-name>
-                         <param-value> /agent/ca/unrevocationResult.template  </param-value> </init-param>
-             <init-param><param-name>  interface  </param-name>
-                         <param-value> agent      </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caDoUnrevoke </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> certUserDBAuthMgr </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.ca.certificate </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  caDoRevoke-agent  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.cert.DoRevoke  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -1602,11 +1581,6 @@
    <servlet-mapping>  
       <servlet-name>  caSrchRevokeCert  </servlet-name>
       <url-pattern>   /agent/ca/srchRevokeCert.html  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>  
-      <servlet-name>  caDoUnrevoke  </servlet-name>
-      <url-pattern>   /agent/ca/doUnrevoke  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>  
