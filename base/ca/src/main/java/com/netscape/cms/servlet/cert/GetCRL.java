@@ -25,6 +25,8 @@ import java.util.Locale;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -52,9 +54,20 @@ import com.netscape.cmscore.dbs.CRLRepository;
 
 /**
  * Retrieve CRL for a Certificate Authority
- *
- * @version $Revision$, $Date$
  */
+@WebServlet(
+        name = "caGetCRL",
+        urlPatterns = "/ee/ca/getCRL",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="false"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="authority",     value="ca"),
+                @WebInitParam(name="interface",     value="ee"),
+                @WebInitParam(name="templatePath",  value="/ee/ca/displayCRL.template"),
+                @WebInitParam(name="ID",            value="caGetCRL"),
+                @WebInitParam(name="resourceID",    value="certServer.ee.crl")
+        }
+)
 public class GetCRL extends CMSServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GetCRL.class);
