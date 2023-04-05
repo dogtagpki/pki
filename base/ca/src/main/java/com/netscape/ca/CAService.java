@@ -69,8 +69,6 @@ import com.netscape.certsrv.logging.event.SecurityDataArchivalRequestEvent;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.connector.HttpConnector;
@@ -81,6 +79,7 @@ import com.netscape.cmscore.crmf.PKIArchiveOptionsContainer;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.RevocationInfo;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -91,7 +90,6 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 public class CAService implements IService {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CAService.class);
-    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public static final String CRMF_REQUEST = "CRMFRequest";
     public static final String CHALLENGE_PHRASE = "challengePhrase";
@@ -375,6 +373,10 @@ public class CAService implements IService {
      */
     @Override
     public boolean serviceRequest(Request request) {
+
+        CAEngine engine = CAEngine.getInstance();
+
+        Auditor auditor = engine.getAuditor();
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID();
         RequestId requestId = request.getRequestId();
@@ -425,7 +427,7 @@ public class CAService implements IService {
 
                 logger.debug("CAService: Sending enrollment request to KRA");
 
-                signedAuditLogger.log(SecurityDataArchivalRequestEvent.createSuccessEvent(
+                auditor.log(SecurityDataArchivalRequestEvent.createSuccessEvent(
                         auditSubjectID,
                         auditRequesterID,
                         requestId,
@@ -440,7 +442,7 @@ public class CAService implements IService {
                                 Request.RES_ERROR);
                         request.setExtData(Request.ERROR, new ECAException(message));
 
-                        signedAuditLogger.log(SecurityDataArchivalRequestEvent.createFailureEvent(
+                        auditor.log(SecurityDataArchivalRequestEvent.createFailureEvent(
                                 auditSubjectID,
                                 auditRequesterID,
                                 requestId,
@@ -457,7 +459,7 @@ public class CAService implements IService {
                     String message = request.getExtDataInString(Request.ERROR);
                     if (message != null) {
 
-                        signedAuditLogger.log(SecurityDataArchivalRequestEvent.createFailureEvent(
+                        auditor.log(SecurityDataArchivalRequestEvent.createFailureEvent(
                                 auditSubjectID,
                                 auditRequesterID,
                                 requestId,
@@ -480,7 +482,7 @@ public class CAService implements IService {
             if (!(type.equals(Request.REVOCATION_REQUEST) ||
                     type.equals(Request.UNREVOCATION_REQUEST) || type.equals(Request.CMCREVOKE_REQUEST))) {
 
-                signedAuditLogger.log(SecurityDataArchivalRequestEvent.createFailureEvent(
+                auditor.log(SecurityDataArchivalRequestEvent.createFailureEvent(
                         auditSubjectID,
                         auditRequesterID,
                         requestId,
@@ -497,7 +499,7 @@ public class CAService implements IService {
         if (!(type.equals(Request.REVOCATION_REQUEST) ||
                 type.equals(Request.UNREVOCATION_REQUEST) || type.equals(Request.CMCREVOKE_REQUEST))) {
 
-            signedAuditLogger.log(SecurityDataArchivalRequestEvent.createSuccessEvent(
+            auditor.log(SecurityDataArchivalRequestEvent.createSuccessEvent(
                     auditSubjectID,
                     auditRequesterID,
                     requestId,
