@@ -62,14 +62,13 @@ import com.netscape.certsrv.logging.event.SecurityDataArchivalProcessedEvent;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.key.KeyRecordParser;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.crmf.CRMFParser;
 import com.netscape.cmscore.crmf.PKIArchiveOptionsContainer;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.util.StatsSubsystem;
@@ -92,7 +91,6 @@ import com.netscape.cmscore.util.StatsSubsystem;
 public class EnrollmentService implements IService {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EnrollmentService.class);
-    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     // constants
     public static final String CRMF_REQUEST = "CRMFRequest";
@@ -160,6 +158,7 @@ public class EnrollmentService implements IService {
             statsSub.startTiming("archival", true /* main action */);
         }
 
+        Auditor auditor = engine.getAuditor();
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID();
         String auditPublicKey = ILogger.UNIDENTIFIED;
@@ -203,7 +202,7 @@ public class EnrollmentService implements IService {
 
             } catch (IOException e) {
 
-                signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
+                auditor.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
                         auditSubjectID,
                         auditRequesterID,
                         requestId,
@@ -253,7 +252,7 @@ public class EnrollmentService implements IService {
                 } catch (Exception e) {
                     logger.error(CMS.getLogMessage("CMSCORE_KRA_UNWRAP_USER_KEY"), e);
 
-                    signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
+                    auditor.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
                             auditSubjectID,
                             auditRequesterID,
                             requestId,
@@ -292,7 +291,7 @@ public class EnrollmentService implements IService {
                 String message = CMS.getLogMessage("CMSCORE_KRA_PUBLIC_NOT_FOUND");
                 logger.error(message);
 
-                signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
+                auditor.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
                         auditSubjectID,
                         auditRequesterID,
                         requestId,
@@ -334,7 +333,7 @@ public class EnrollmentService implements IService {
                 } catch (Exception e) {
                     logger.error(CMS.getLogMessage("CMSCORE_KRA_WRAP_USER_KEY"), e);
 
-                    signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
+                    auditor.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
                             auditSubjectID,
                             auditRequesterID,
                             requestId,
@@ -363,7 +362,7 @@ public class EnrollmentService implements IService {
 
                     jssSubsystem.obscureBytes(unwrapped);
 
-                    signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
+                    auditor.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
                         auditSubjectID,
                         auditRequesterID,
                         requestId,
@@ -391,7 +390,7 @@ public class EnrollmentService implements IService {
                 String message = CMS.getLogMessage("CMSCORE_KRA_OWNER_NAME_NOT_FOUND");
                 logger.error(message);
 
-                signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
+                auditor.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
                         auditSubjectID,
                         auditRequesterID,
                         requestId,
@@ -428,7 +427,7 @@ public class EnrollmentService implements IService {
             } catch (Exception e) {
                 logger.error(CMS.getLogMessage("CMSCORE_KRA_WRAP_USER_KEY"), e);
 
-                signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
+                auditor.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
                         auditSubjectID,
                         auditRequesterID,
                         requestId,
@@ -461,7 +460,7 @@ public class EnrollmentService implements IService {
                     rec.setKeySize(Integer.valueOf(rsaPublicKey.getKeySize()));
                 } catch (InvalidKeyException e) {
 
-                    signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
+                    auditor.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
                         auditSubjectID,
                         auditRequesterID,
                         requestId,
@@ -512,7 +511,7 @@ public class EnrollmentService implements IService {
                 String message = CMS.getLogMessage("CMSCORE_KRA_INVALID_SERIAL_NUMBER", rec.getSerialNumber().toString());
                 logger.error(message);
 
-                signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
+                auditor.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
                         auditSubjectID,
                         auditRequesterID,
                         requestId,
@@ -536,7 +535,7 @@ public class EnrollmentService implements IService {
             } catch (Exception e) {
                 logger.error("Failed to store wrapping parameters", e);
                 // TODO(alee) Set correct audit message here
-                signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
+                auditor.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
                         auditSubjectID,
                         auditRequesterID,
                         requestId,
@@ -556,7 +555,7 @@ public class EnrollmentService implements IService {
                 String message = CMS.getLogMessage("CMSCORE_KRA_GET_NEXT_SERIAL");
                 logger.error(message);
 
-                signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
+                auditor.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
                         auditSubjectID,
                         auditRequesterID,
                         requestId,
@@ -612,7 +611,7 @@ public class EnrollmentService implements IService {
             );
 
             auditPublicKey = auditPublicKey(rec);
-            signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createSuccessEvent(
+            auditor.log(SecurityDataArchivalProcessedEvent.createSuccessEvent(
                         auditSubjectID,
                         auditRequesterID,
                         requestId,
