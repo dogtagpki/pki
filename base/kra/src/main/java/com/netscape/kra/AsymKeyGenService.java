@@ -36,10 +36,9 @@ import com.netscape.certsrv.logging.event.ServerSideKeygenEnrollKeygenProcessedE
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -57,7 +56,6 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 public class AsymKeyGenService implements IService {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AsymKeyGenService.class);
-    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     private static final String ATTR_KEY_RECORD = "keyRecord";
     private static final String STATUS_ACTIVE = "active";
@@ -77,6 +75,8 @@ public class AsymKeyGenService implements IService {
         KRAEngineConfig configStore = engine.getConfig();
 
         String owner = request.getExtDataInString(Request.ATTR_REQUEST_OWNER);
+
+        Auditor auditor = engine.getAuditor();
         String auditSubjectID = owner;
         boolean isSSKeygen = false;
         String isSSKeygenStr = request.getExtDataInString("isServerSideKeygen");
@@ -115,7 +115,7 @@ public class AsymKeyGenService implements IService {
                 default:
                     logger.debug(method + "unknown EC key curve name: " + keySizeStr);
                     errmsg = "unknown EC key curve name: " + keySizeStr;
-                    signedAuditLogger.log(new ServerSideKeygenEnrollKeygenProcessedEvent(
+                    auditor.log(new ServerSideKeygenEnrollKeygenProcessedEvent(
                         auditSubjectID,
                         "Failure",
                         request.getRequestId(),
@@ -196,7 +196,7 @@ public class AsymKeyGenService implements IService {
             errmsg = "Unable to generate asymmetric key: " + e.getMessage();
             logger.error("AsymKeyGenService: " + errmsg, e);
             if (isSSKeygen) {
-                signedAuditLogger.log(new ServerSideKeygenEnrollKeygenProcessedEvent(
+                auditor.log(new ServerSideKeygenEnrollKeygenProcessedEvent(
                         auditSubjectID,
                         "Failure",
                         request.getRequestId(),
@@ -213,7 +213,7 @@ public class AsymKeyGenService implements IService {
             errmsg = "Unable to generate asymmetric key";
             logger.error("AsymKeyGenService: " + errmsg);
             if (isSSKeygen) {
-                signedAuditLogger.log(new ServerSideKeygenEnrollKeygenProcessedEvent(
+                auditor.log(new ServerSideKeygenEnrollKeygenProcessedEvent(
                         auditSubjectID,
                         "Failure",
                         request.getRequestId(),
@@ -235,7 +235,7 @@ public class AsymKeyGenService implements IService {
                     request.setExtData(Request.RESULT, Integer.valueOf(4));
                     errmsg = " failed getting publickey encoded";
                     logger.debug(method + errmsg);
-                    signedAuditLogger.log(new ServerSideKeygenEnrollKeygenProcessedEvent(
+                    auditor.log(new ServerSideKeygenEnrollKeygenProcessedEvent(
                         auditSubjectID,
                         "Failure",
                         request.getRequestId(),
@@ -248,7 +248,7 @@ public class AsymKeyGenService implements IService {
             } catch (Exception e) {
                 logger.debug(method + e);
                 request.setExtData(Request.RESULT, Integer.valueOf(4));
-                signedAuditLogger.log(new ServerSideKeygenEnrollKeygenProcessedEvent(
+                auditor.log(new ServerSideKeygenEnrollKeygenProcessedEvent(
                         auditSubjectID,
                         "Failure",
                         request.getRequestId(),
@@ -268,7 +268,7 @@ public class AsymKeyGenService implements IService {
             errmsg = "Unable to wrap asymmetric key: " + e.getMessage();
             logger.error("AsymKeyGenService: " + errmsg, e);
             if (isSSKeygen) {
-                signedAuditLogger.log(new ServerSideKeygenEnrollKeygenProcessedEvent(
+                auditor.log(new ServerSideKeygenEnrollKeygenProcessedEvent(
                         auditSubjectID,
                         "Failure",
                         request.getRequestId(),
@@ -295,7 +295,7 @@ public class AsymKeyGenService implements IService {
             logger.error("AsymKeyGenService: " + errmsg);
             if (isSSKeygen) {
                 errmsg = "Failed to get next Key ID";
-                signedAuditLogger.log(new ServerSideKeygenEnrollKeygenProcessedEvent(
+                auditor.log(new ServerSideKeygenEnrollKeygenProcessedEvent(
                         auditSubjectID,
                         "Failure",
                         request.getRequestId(),
@@ -330,7 +330,7 @@ public class AsymKeyGenService implements IService {
             errmsg = "Unable to store wrapping parameters: " + e.getMessage();
             logger.error("AsymKeyGenService: " + errmsg);
             if (isSSKeygen) {
-                signedAuditLogger.log(new ServerSideKeygenEnrollKeygenProcessedEvent(
+                auditor.log(new ServerSideKeygenEnrollKeygenProcessedEvent(
                         auditSubjectID,
                         "Failure",
                         request.getRequestId(),
@@ -346,7 +346,7 @@ public class AsymKeyGenService implements IService {
         storage.addKeyRecord(record);
 
         if (isSSKeygen) {
-            signedAuditLogger.log(new ServerSideKeygenEnrollKeygenProcessedEvent(
+            auditor.log(new ServerSideKeygenEnrollKeygenProcessedEvent(
                         auditSubjectID,
                         "Success",
                         request.getRequestId(),
@@ -364,7 +364,11 @@ public class AsymKeyGenService implements IService {
     private void auditAsymKeyGenRequestProcessed(String subjectID, String status, RequestId requestID,
             String clientKeyID,
             KeyId keyID, String reason) {
-        signedAuditLogger.log(new AsymKeyGenerationProcessedEvent(
+
+        KRAEngine engine = KRAEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
+
+        auditor.log(new AsymKeyGenerationProcessedEvent(
                 subjectID,
                 status,
                 requestID,
