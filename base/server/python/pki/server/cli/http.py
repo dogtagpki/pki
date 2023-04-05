@@ -75,6 +75,8 @@ class HTTPConnectorCLI(pki.cli.CLI):
         HTTPConnectorCLI.print_param(connector, 'name', 'Connector ID')
         HTTPConnectorCLI.print_param(connector, 'port', 'Port')
         HTTPConnectorCLI.print_param(connector, 'protocol', 'Protocol')
+        HTTPConnectorCLI.print_param(connector, 'redirectPort', 'Redirect Port')
+        HTTPConnectorCLI.print_param(connector, 'address', 'Address')
         HTTPConnectorCLI.print_param(connector, 'scheme', 'Scheme')
         HTTPConnectorCLI.print_param(connector, 'secure', 'Secure')
         HTTPConnectorCLI.print_param(connector, 'SSLEnabled', 'SSL Enabled')
