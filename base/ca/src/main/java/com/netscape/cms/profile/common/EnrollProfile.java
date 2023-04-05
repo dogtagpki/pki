@@ -132,6 +132,7 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.cert.CertUtils;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmscore.security.JssSubsystem;
@@ -821,6 +822,7 @@ public abstract class EnrollProfile extends Profile {
         CAEngine engine = CAEngine.getInstance();
         CAEngineConfig cs = engine.getConfig();
 
+        Auditor auditor = engine.getAuditor();
         String auditMessage = "";
         String auditSubjectID = auditSubjectID();
 
@@ -986,7 +988,7 @@ public abstract class EnrollProfile extends Profile {
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     method + msg);
-                            signedAuditLogger.log(auditMessage);
+                            auditor.log(auditMessage);
 
                             throw new ECMCBadIdentityException(
                                     CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST") + ":" +
@@ -1029,7 +1031,7 @@ public abstract class EnrollProfile extends Profile {
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 method + msg);
-                        signedAuditLogger.log(auditMessage);
+                        auditor.log(auditMessage);
                         throw new ECMCBadRequestException(CMS.getUserMessage(locale,
                                 "CMS_POI_VERIFICATION_ERROR") + ":" + msg);
                     }
@@ -1043,7 +1045,7 @@ public abstract class EnrollProfile extends Profile {
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     method + msg);
-                            signedAuditLogger.log(auditMessage);
+                            auditor.log(auditMessage);
 
                             SEQUENCE bpids = getRequestBpids(reqSeq);
                             context.put("decryptedPOP", bpids);
@@ -1058,7 +1060,7 @@ public abstract class EnrollProfile extends Profile {
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     method + msg);
-                            signedAuditLogger.log(auditMessage);
+                            auditor.log(auditMessage);
 
                             SEQUENCE bpids = getRequestBpids(reqSeq);
                             context.put("decryptedPOP", bpids);
@@ -1083,7 +1085,7 @@ public abstract class EnrollProfile extends Profile {
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     method + msg);
-                            signedAuditLogger.log(auditMessage);
+                            auditor.log(auditMessage);
 
                             SEQUENCE bpids = getRequestBpids(reqSeq);
                             context.put("decryptedPOP", bpids);
@@ -1172,7 +1174,7 @@ public abstract class EnrollProfile extends Profile {
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     method + msg);
-                            signedAuditLogger.log(auditMessage);
+                            auditor.log(auditMessage);
 
                             context.put("POPLinkWitnessV2", bpids);
                             throw new ECMCBadRequestException(CMS.getUserMessage(locale,
@@ -1190,7 +1192,7 @@ public abstract class EnrollProfile extends Profile {
                                     auditSubjectID,
                                     ILogger.SUCCESS,
                                     method + msg);
-                            signedAuditLogger.log(auditMessage);
+                            auditor.log(auditMessage);
                         } else {
                             if (context.containsKey("POPLinkWitnessV2"))
                                 msg = " in POPLinkWitnessV2";
@@ -1206,7 +1208,7 @@ public abstract class EnrollProfile extends Profile {
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     method + msg);
-                            signedAuditLogger.log(auditMessage);
+                            auditor.log(auditMessage);
                             throw new ECMCBadRequestException(CMS.getUserMessage(locale,
                                     "CMS_POP_LINK_WITNESS_VERIFICATION_ERROR") + ":" + msg);
                         }
@@ -1788,7 +1790,6 @@ public abstract class EnrollProfile extends Profile {
         String msg = "";
         logger.debug(method + " begins");
         boolean verified = false;
-        String auditMessage = method;
 
         if (attr == null || ident == null || reqSeq == null) {
             logger.warn(method + "method parameters cannot be null");
@@ -1797,6 +1798,9 @@ public abstract class EnrollProfile extends Profile {
         }
 
         CAEngine engine = CAEngine.getInstance();
+
+        Auditor auditor = engine.getAuditor();
+        String auditMessage = method;
         String ident_string = ident.toString();
         String auditAttemptedCred = null;
 
@@ -1809,7 +1813,7 @@ public abstract class EnrollProfile extends Profile {
                     auditAttemptedCred,
                     ILogger.FAILURE,
                     method + msg);
-            signedAuditLogger.log(auditMessage);
+            auditor.log(auditMessage);
             return false;
         }
 
@@ -1826,7 +1830,7 @@ public abstract class EnrollProfile extends Profile {
                         auditAttemptedCred,
                         ILogger.FAILURE,
                         method + msg);
-                signedAuditLogger.log(auditMessage);
+                auditor.log(auditMessage);
                 return false;
             }
 
@@ -1850,7 +1854,7 @@ public abstract class EnrollProfile extends Profile {
                         auditAttemptedCred,
                         ILogger.FAILURE,
                         method + msg);
-                signedAuditLogger.log(auditMessage);
+                auditor.log(auditMessage);
                 return false;
             }
 
@@ -1926,7 +1930,7 @@ public abstract class EnrollProfile extends Profile {
                         auditSubjectID,
                         ILogger.SUCCESS,
                         "method=" + method);
-                signedAuditLogger.log(auditMessage);
+                auditor.log(auditMessage);
             } else {
                 msg = "IdentityProofV2 failed to verify";
                 logger.error(method + msg);
@@ -1940,7 +1944,7 @@ public abstract class EnrollProfile extends Profile {
                     auditAttemptedCred,
                     ILogger.FAILURE,
                     method + e.toString());
-            signedAuditLogger.log(auditMessage);
+            auditor.log(auditMessage);
             return false;
         }
 
@@ -1998,6 +2002,7 @@ public abstract class EnrollProfile extends Profile {
         CAEngine engine = CAEngine.getInstance();
         CAEngineConfig cs = engine.getConfig();
 
+        Auditor auditor = engine.getAuditor();
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -2052,7 +2057,7 @@ public abstract class EnrollProfile extends Profile {
                             auditSubjectID,
                             ILogger.SUCCESS,
                             "method="+method);
-                    signedAuditLogger.log(auditMessage);
+                    auditor.log(auditMessage);
                 }
 
                 req.setExtData("bodyPartId", tcr.getBodyPartID());
@@ -2632,6 +2637,10 @@ public abstract class EnrollProfile extends Profile {
     @Override
     public void validate(Request request)
             throws ERejectException {
+
+        CAEngine engine = CAEngine.getInstance();
+
+        Auditor auditor = engine.getAuditor();
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID(request);
@@ -2670,7 +2679,7 @@ public abstract class EnrollProfile extends Profile {
                         auditProfileID,
                         auditCertificateSubjectName);
 
-            signedAuditLogger.log(auditMessage);
+            auditor.log(auditMessage);
         } catch (CertificateException e) {
             logger.warn("EnrollProfile: populate " + e.getMessage(), e);
 
@@ -2683,7 +2692,7 @@ public abstract class EnrollProfile extends Profile {
                         auditProfileID,
                         auditCertificateSubjectName);
 
-            signedAuditLogger.log(auditMessage);
+            auditor.log(auditMessage);
         } catch (IOException e) {
             logger.warn("EnrollProfile: populate " + e.getMessage(), e);
 
@@ -2696,7 +2705,7 @@ public abstract class EnrollProfile extends Profile {
                         auditProfileID,
                         auditCertificateSubjectName);
 
-            signedAuditLogger.log(auditMessage);
+            auditor.log(auditMessage);
         }
 
         super.validate(request);
@@ -2776,6 +2785,10 @@ public abstract class EnrollProfile extends Profile {
         String method = "EnrollProfile: verifyPOP: ";
         logger.debug(method + "for signing keys begins.");
 
+        CAEngine engine = CAEngine.getInstance();
+        CAEngineConfig cs = engine.getConfig();
+
+        Auditor auditor = engine.getAuditor();
         String auditMessage = method;
         String auditSubjectID = auditSubjectID();
 
@@ -2790,9 +2803,6 @@ public abstract class EnrollProfile extends Profile {
             logger.debug(method + "pop type is not ProofOfPossession.SIGNATURE.");
             popFailed(locale, auditSubjectID, auditMessage);
         }
-
-        CAEngine engine = CAEngine.getInstance();
-        CAEngineConfig cs = engine.getConfig();
 
         try {
             CryptoToken verifyToken = null;
@@ -2812,7 +2822,7 @@ public abstract class EnrollProfile extends Profile {
                     auditSubjectID,
                     ILogger.SUCCESS,
                     "method="+method);
-            signedAuditLogger.log(auditMessage);
+            auditor.log(auditMessage);
         } catch (Exception e) {
             logger.debug(method + "Unable to verify POP: " + e);
             popFailed(locale, auditSubjectID, auditMessage, e);
@@ -2829,13 +2839,17 @@ public abstract class EnrollProfile extends Profile {
 
             if (e != null)
                 msg = msg + e.toString();
+
+            CAEngine engine = CAEngine.getInstance();
+            Auditor auditor = engine.getAuditor();
+
             // store a message in the signed audit log file
             String auditMessage = CMS.getLogMessage(
                     AuditEvent.PROOF_OF_POSSESSION,
                     auditSubjectID,
                     ILogger.FAILURE,
                     msg);
-            signedAuditLogger.log(auditMessage);
+            auditor.log(auditMessage);
 
             if (e == null) {
                 throw new ECMCPopFailedException(CMS.getUserMessage(locale,
