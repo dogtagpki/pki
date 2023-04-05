@@ -92,12 +92,11 @@ import com.netscape.certsrv.logging.event.CMCSignedRequestSigVerifyEvent;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -115,7 +114,6 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 public class CMCAuth extends AuthManager implements IExtendedPluginInfo {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMCAuth.class);
-    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     ////////////////////////
     // default parameters //
@@ -236,6 +234,7 @@ public class CMCAuth extends AuthManager implements IExtendedPluginInfo {
         String method = "CMCAuth: authenticate: ";
         String msg = "";
 
+        Auditor auditor = engine.getAuditor();
         String auditSubjectID = getAuditSubjectID();
         String auditReqType = ILogger.UNIDENTIFIED;
         String auditCertSubject = ILogger.UNIDENTIFIED;
@@ -315,7 +314,7 @@ public class CMCAuth extends AuthManager implements IExtendedPluginInfo {
                         !cmcReq.hasContent()) {
                     logger.error(method + "malformed cmc: either not ContentInfo.SIGNED_DATA or cmcReq has no content");
 
-                    signedAuditLogger.log(new CMCSignedRequestSigVerifyEvent(
+                    auditor.log(new CMCSignedRequestSigVerifyEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditReqType,
@@ -365,7 +364,7 @@ public class CMCAuth extends AuthManager implements IExtendedPluginInfo {
                     msg = "request EncapsulatedContentInfo content type not OBJECT_IDENTIFIER.id_cct_PKIData";
                     logger.error( method + msg);
 
-                    signedAuditLogger.log(new CMCSignedRequestSigVerifyEvent(
+                    auditor.log(new CMCSignedRequestSigVerifyEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditReqType,
@@ -544,7 +543,7 @@ public class CMCAuth extends AuthManager implements IExtendedPluginInfo {
                                 certInfoArray[i] = certInfo;
                             } catch (Exception e) {
 
-                                signedAuditLogger.log(new CMCSignedRequestSigVerifyEvent(
+                                auditor.log(new CMCSignedRequestSigVerifyEvent(
                                         auditSubjectID,
                                         ILogger.FAILURE,
                                         auditReqType,
@@ -594,7 +593,7 @@ public class CMCAuth extends AuthManager implements IExtendedPluginInfo {
                                 certInfoArray[i] = certInfo;
                             } catch (Exception e) {
 
-                                signedAuditLogger.log(new CMCSignedRequestSigVerifyEvent(
+                                auditor.log(new CMCSignedRequestSigVerifyEvent(
                                         auditSubjectID,
                                         ILogger.FAILURE,
                                         auditReqType,
@@ -615,7 +614,7 @@ public class CMCAuth extends AuthManager implements IExtendedPluginInfo {
                 }
             } catch (Exception e) {
 
-                signedAuditLogger.log(new CMCSignedRequestSigVerifyEvent(
+                auditor.log(new CMCSignedRequestSigVerifyEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditReqType,
@@ -626,7 +625,7 @@ public class CMCAuth extends AuthManager implements IExtendedPluginInfo {
                         "CMS_AUTHENTICATION_INVALID_CREDENTIAL"), e);
             }
 
-            signedAuditLogger.log(new CMCSignedRequestSigVerifyEvent(
+            auditor.log(new CMCSignedRequestSigVerifyEvent(
                     auditSubjectID,
                     ILogger.SUCCESS,
                     auditReqType,
@@ -636,7 +635,7 @@ public class CMCAuth extends AuthManager implements IExtendedPluginInfo {
             return authToken;
         } catch (EMissingCredential eAudit1) {
 
-            signedAuditLogger.log(new CMCSignedRequestSigVerifyEvent(
+            auditor.log(new CMCSignedRequestSigVerifyEvent(
                     auditSubjectID,
                     ILogger.FAILURE,
                     auditReqType,
@@ -647,7 +646,7 @@ public class CMCAuth extends AuthManager implements IExtendedPluginInfo {
             throw eAudit1;
         } catch (EInvalidCredentials eAudit2) {
 
-            signedAuditLogger.log(new CMCSignedRequestSigVerifyEvent(
+            auditor.log(new CMCSignedRequestSigVerifyEvent(
                     auditSubjectID,
                     ILogger.FAILURE,
                     auditReqType,
@@ -658,7 +657,7 @@ public class CMCAuth extends AuthManager implements IExtendedPluginInfo {
             throw eAudit2;
         } catch (EBaseException eAudit3) {
 
-            signedAuditLogger.log(new CMCSignedRequestSigVerifyEvent(
+            auditor.log(new CMCSignedRequestSigVerifyEvent(
                     auditSubjectID,
                     ILogger.FAILURE,
                     auditReqType,
