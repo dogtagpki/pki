@@ -4,25 +4,6 @@
     <display-name>Certificate Authority</display-name>
 
    <servlet>
-      <servlet-name>  caRegisterRaUser  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.csadmin.RARegisterUser  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caRegisterRaUser </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> TokenAuth </param-value> </init-param>
-             <init-param><param-name>  GroupName    </param-name>
-                         <param-value> Registration Manager Agents </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.ca.registerUser </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  caUpdateDomainXML  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.csadmin.CAUpdateDomainXML  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -1453,11 +1434,6 @@
    <servlet-mapping>
       <servlet-name>  caDoRevoke  </servlet-name>
       <url-pattern>   /ee/ca/doRevoke  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  caRegisterRaUser </servlet-name>
-      <url-pattern>   /admin/ca/registerRaUser  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
