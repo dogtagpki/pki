@@ -24,24 +24,18 @@ import org.dogtagpki.server.kra.KRAEngine;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.event.SecurityDataRecoveryProcessedEvent;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.request.Request;
 
 /**
  * This implementation services SecurityData Recovery requests.
- * <p>
- *
- * @version $Revision$, $Date$
  */
 public class SecurityDataRecoveryService implements IService {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SecurityDataRecoveryService.class);
-    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     private SecurityDataProcessor processor = null;
 
@@ -77,42 +71,28 @@ public class SecurityDataRecoveryService implements IService {
         String approvers = request.getExtDataInString(Request.ATTR_APPROVE_AGENTS);
 
         KRAEngine engine = KRAEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
 
         try {
             processor.recover(request);
             engine.getRequestRepository().updateRequest(request);
-            auditRecoveryRequestProcessed(
+            auditor.log(new SecurityDataRecoveryProcessedEvent(
                     auditSubjectID,
                     ILogger.SUCCESS,
                     requestID,
                     keyId,
                     null,
-                    approvers);
+                    approvers));
         } catch (EBaseException e) {
-            auditRecoveryRequestProcessed(
+            auditor.log(new SecurityDataRecoveryProcessedEvent(
                     auditSubjectID,
                     ILogger.FAILURE,
                     requestID,
                     keyId,
                     e.getMessage(),
-                    approvers);
+                    approvers));
             throw e;
         }
         return false;  //TODO: return true?
-    }
-
-    protected void audit(LogEvent event) {
-        signedAuditLogger.log(event);
-    }
-
-    private void auditRecoveryRequestProcessed(String subjectID, String status, RequestId requestID,
-            KeyId keyID, String reason, String recoveryAgents) {
-        audit(new SecurityDataRecoveryProcessedEvent(
-                subjectID,
-                status,
-                requestID,
-                keyID,
-                reason,
-                recoveryAgents));
     }
 }
