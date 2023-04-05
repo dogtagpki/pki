@@ -34,10 +34,9 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
@@ -55,7 +54,6 @@ import com.netscape.cmscore.usrgrp.User;
 public class SubsystemGroupUpdater extends ProfileUpdater {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SubsystemGroupUpdater.class);
-    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     private ConfigStore mConfig;
 
@@ -113,6 +111,8 @@ public class SubsystemGroupUpdater extends ProfileUpdater {
             throws EProfileException {
 
         CAEngine engine = CAEngine.getInstance();
+
+        Auditor auditor = engine.getAuditor();
         String auditSubjectID = auditSubjectID();
 
         logger.info("SubsystemGroupUpdater: Updating Subsystem Group");
@@ -155,7 +155,7 @@ public class SubsystemGroupUpdater extends ProfileUpdater {
 
             system.addUser(user);
 
-            signedAuditLogger.log(new ConfigRoleEvent(
+            auditor.log(new ConfigRoleEvent(
                                auditSubjectID,
                                ILogger.SUCCESS,
                                auditParams));
@@ -166,7 +166,7 @@ public class SubsystemGroupUpdater extends ProfileUpdater {
         } catch (Exception e) {
             logger.error("UpdateSubsystemGroup: Unable to add user: " + e.getMessage(), e);
 
-            signedAuditLogger.log(new ConfigRoleEvent(
+            auditor.log(new ConfigRoleEvent(
                                auditSubjectID,
                                ILogger.FAILURE,
                                auditParams));
@@ -195,7 +195,7 @@ public class SubsystemGroupUpdater extends ProfileUpdater {
 
             system.addUserCert(id, cert);
 
-            signedAuditLogger.log(new ConfigRoleEvent(
+            auditor.log(new ConfigRoleEvent(
                                auditSubjectID,
                                ILogger.SUCCESS,
                                auditParams));
@@ -206,7 +206,7 @@ public class SubsystemGroupUpdater extends ProfileUpdater {
         } catch (Exception e) {
             logger.error("UpdateSubsystemGroup: Unable to add certificate for user " + id + ": " + e.getMessage(), e);
 
-            signedAuditLogger.log(new ConfigRoleEvent(
+            auditor.log(new ConfigRoleEvent(
                                auditSubjectID,
                                ILogger.FAILURE,
                                auditParams));
@@ -238,7 +238,7 @@ public class SubsystemGroupUpdater extends ProfileUpdater {
                 group.addMemberName(id);
                 system.modifyGroup(group);
 
-                signedAuditLogger.log(new ConfigRoleEvent(
+                auditor.log(new ConfigRoleEvent(
                                auditSubjectID,
                                ILogger.SUCCESS,
                                auditParams));
@@ -250,7 +250,7 @@ public class SubsystemGroupUpdater extends ProfileUpdater {
         } catch (Exception e) {
             logger.warn("SubsystemGroupUpdater: Unable to add user " + id + " into group " + groupName + ": " + e.getMessage(), e);
 
-            signedAuditLogger.log(new ConfigRoleEvent(
+            auditor.log(new ConfigRoleEvent(
                                auditSubjectID,
                                ILogger.FAILURE,
                                auditParams));
