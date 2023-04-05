@@ -43,11 +43,10 @@ import com.netscape.certsrv.kra.EKRAException;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalProcessedEvent;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -55,7 +54,6 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 public class SecurityDataProcessor {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SecurityDataProcessor.class);
-    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public final static String ATTR_KEY_RECORD = "keyRecord";
     public static final String ATTR_SERIALNO = "serialNumber";
@@ -118,12 +116,14 @@ public class SecurityDataProcessor {
 
 
         String owner = request.getExtDataInString(Request.ATTR_REQUEST_OWNER);
+
+        Auditor auditor = engine.getAuditor();
         String auditSubjectID = owner;
 
         //Check here even though restful layer checks for this.
         if (clientKeyId == null || dataType == null) {
 
-            signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
+            auditor.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
                     auditSubjectID,
                     null,
                     requestId,
@@ -246,7 +246,7 @@ public class SecurityDataProcessor {
                 doEncrypt = true;
             } else { // We have no data.
 
-                signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
+                auditor.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
                         auditSubjectID,
                         null,
                         requestId,
@@ -260,7 +260,7 @@ public class SecurityDataProcessor {
         } catch (Exception e) {
             logger.error("Failed to create security data to archive: " + e.getMessage(), e);
 
-            signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
+            auditor.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
                     auditSubjectID,
                     null,
                     requestId,
@@ -291,7 +291,7 @@ public class SecurityDataProcessor {
 
         if (rec.getSerialNumber() != null) {
 
-            signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
+            auditor.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
                     auditSubjectID,
                     null,
                     requestId,
@@ -308,7 +308,7 @@ public class SecurityDataProcessor {
         if (serialNo == null) {
             logger.error(CMS.getLogMessage("CMSCORE_KRA_GET_NEXT_SERIAL"));
 
-            signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
+            auditor.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
                     auditSubjectID,
                     null,
                     requestId,
@@ -338,7 +338,7 @@ public class SecurityDataProcessor {
         } catch (Exception e) {
             logger.error("Unable to store wrapping parameters: " + e.getMessage(), e);
 
-            signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
+            auditor.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
                     auditSubjectID,
                     null,
                     requestId,
@@ -354,7 +354,7 @@ public class SecurityDataProcessor {
 
         keyRepository.addKeyRecord(rec);
 
-        signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createSuccessEvent(
+        auditor.log(SecurityDataArchivalProcessedEvent.createSuccessEvent(
                 auditSubjectID,
                 null,
                 requestId,
