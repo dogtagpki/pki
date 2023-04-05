@@ -17,6 +17,22 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "caDownloadPKCS12",
+        urlPatterns = "/admin/console/config/savepkcs12",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="false"),
+                @WebInitParam(name="authority",     value="ca"),
+                @WebInitParam(name="ID",            value="caDownloadPKCS12"),
+                @WebInitParam(name="interface",     value="ee"),
+                @WebInitParam(name="AuthMgr",       value="TokenAuth"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="resourceID",    value="certServer.clone.configuration")
+        }
+)
 public class CADownloadPKCS12 extends DownloadPKCS12 {
     private static final long serialVersionUID = 1L;
 }
