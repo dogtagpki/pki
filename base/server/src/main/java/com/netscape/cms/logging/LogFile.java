@@ -701,17 +701,22 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
         doLog(ev, true);
     }
 
-    private static String getLastSignature(File f) throws IOException {
-        BufferedReader r = new BufferedReader(new FileReader(f));
-        String lastSig = null;
-        String curLine = null;
-        while ((curLine = r.readLine()) != null) {
-            if (curLine.indexOf("AUDIT_LOG_SIGNING") != -1) {
-                lastSig = curLine;
+    private String getLastSignature(File f) throws IOException {
+
+        try (FileReader fr = new FileReader(f);
+                BufferedReader r = new BufferedReader(fr)) {
+
+            String lastSig = null;
+            String curLine = null;
+
+            while ((curLine = r.readLine()) != null) {
+                if (curLine.indexOf("AUDIT_LOG_SIGNING") != -1) {
+                    lastSig = curLine;
+                }
             }
+
+            return lastSig;
         }
-        r.close();
-        return lastSig;
     }
 
     /**
