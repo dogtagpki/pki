@@ -17,6 +17,18 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "caGetStatus",
+        urlPatterns = "/admin/ca/getStatus",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="false"),
+                @WebInitParam(name="authority",     value="ca"),
+                @WebInitParam(name="ID",            value="caGetStatus")
+        }
+)
 public class CAGetStatus extends GetStatus {
     private static final long serialVersionUID = 1L;
 }

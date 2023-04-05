@@ -4,17 +4,6 @@
     <display-name>Certificate Authority</display-name>
 
    <servlet>
-      <servlet-name>  caGetStatus  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.csadmin.CAGetStatus  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caGetStatus </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  caGetConfigEntries  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.csadmin.CAGetConfigEntries </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -1107,11 +1096,6 @@
    <servlet-mapping>
       <servlet-name>  caGetConfigEntries  </servlet-name>
       <url-pattern>   /admin/ca/getConfigEntries  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  caGetStatus  </servlet-name>
-      <url-pattern>   /admin/ca/getStatus  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
