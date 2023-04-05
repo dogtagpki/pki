@@ -128,7 +128,7 @@
 
    <servlet>
       <servlet-name>  caauths  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.admin.AuthAdminServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.admin.CAAuthAdminServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
                          <param-value> caauths     </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
