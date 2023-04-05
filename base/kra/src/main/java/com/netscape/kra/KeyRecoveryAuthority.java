@@ -60,7 +60,6 @@ import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.listeners.EListenersException;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalProcessedEvent;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalRequestEvent;
 import com.netscape.certsrv.logging.event.SecurityDataRecoveryEvent;
@@ -72,8 +71,6 @@ import com.netscape.certsrv.request.RequestListener;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.security.Credential;
 import com.netscape.certsrv.security.IStorageKeyUnit;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.request.RequestScheduler;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
@@ -82,6 +79,7 @@ import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmscore.dbs.KeyStatusUpdateTask;
 import com.netscape.cmscore.dbs.ReplicaIDRepository;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.request.KeyRequestRepository;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestNotifier;
@@ -104,7 +102,6 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyRecoveryAuthority.class);
-    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public static final String ID = "kra";
 
@@ -889,12 +886,14 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
      */
     public Request archiveKey(KeyRecord rec)
             throws EBaseException {
+
+        Auditor auditor = engine.getAuditor();
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID();
         String auditPublicKey = auditPublicKey(rec);
 
-        KRAEngine engine = KRAEngine.getInstance();
-        KeyRequestRepository requestRepository = engine.getKeyRequestRepository();
+        KRAEngine kraEngine = KRAEngine.getInstance();
+        KeyRequestRepository requestRepository = kraEngine.getKeyRequestRepository();
         Request r = null;
 
         // ensure that any low-level exceptions are reported
@@ -902,14 +901,14 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
         try {
             r = requestRepository.createRequest(KRAService.ENROLLMENT);
 
-            audit(SecurityDataArchivalRequestEvent.createSuccessEvent(
+            auditor.log(SecurityDataArchivalRequestEvent.createSuccessEvent(
                         auditSubjectID,
                         auditRequesterID,
                         r.getRequestId(),
                         null));
 
         } catch (EBaseException eAudit1) {
-            audit(SecurityDataArchivalRequestEvent.createFailureEvent(
+            auditor.log(SecurityDataArchivalRequestEvent.createFailureEvent(
                         auditSubjectID,
                         auditRequesterID,
                         null /* requestId */,
@@ -927,7 +926,7 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
                 queue.processRequest(r);
             }
 
-            audit(SecurityDataArchivalProcessedEvent.createSuccessEvent(
+            auditor.log(SecurityDataArchivalProcessedEvent.createSuccessEvent(
                     auditSubjectID,
                     auditRequesterID,
                     r.getRequestId(),
@@ -937,7 +936,7 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
 
         } catch (EBaseException eAudit1) {
 
-            audit(SecurityDataArchivalProcessedEvent.createFailureEvent(
+            auditor.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
                     auditSubjectID,
                     auditRequesterID,
                     r.getRequestId(),
@@ -965,12 +964,13 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
     public String initAsyncKeyRecovery(BigInteger kid, X509CertImpl cert, String agent, String realm)
             throws EBaseException {
 
+        Auditor auditor = engine.getAuditor();
         String auditPublicKey = auditPublicKey(cert);
         RequestId auditRecoveryID = null;
         String auditSubjectID = auditSubjectID();
 
-        KRAEngine engine = KRAEngine.getInstance();
-        KeyRequestRepository requestRepository = engine.getKeyRequestRepository();
+        KRAEngine kraEngine = KRAEngine.getInstance();
+        KeyRequestRepository requestRepository = kraEngine.getKeyRequestRepository();
         Request r = null;
 
         try {
@@ -982,12 +982,12 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
             r.setExtData(Request.ATTR_APPROVE_AGENTS, agent);
             r.setRequestStatus(RequestStatus.PENDING);
             r.setRealm(realm);
-            RequestQueue queue = engine.getRequestQueue();
+
             requestRepository.updateRequest(r);
             auditRecoveryID = r.getRequestId();
 
             // store a message in the signed audit log file
-            audit(new SecurityDataRecoveryEvent(
+            auditor.log(new SecurityDataRecoveryEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditRecoveryID,
@@ -995,7 +995,7 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
                         auditPublicKey));
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
-            audit(new SecurityDataRecoveryEvent(
+            auditor.log(new SecurityDataRecoveryEvent(
                     auditSubjectID,
                     ILogger.FAILURE,
                     auditRecoveryID,
@@ -1067,8 +1067,6 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
     public void addAgentAsyncKeyRecovery(String reqID, String agentID)
             throws EBaseException {
 
-        KRAEngine engine = KRAEngine.getInstance();
-
         // check if the uid is in the specified group
         UGSubsystem ug = engine.getUGSubsystem();
         if (!ug.isMemberOf(agentID, mConfig.getString("recoveryAgentGroup"))) {
@@ -1077,7 +1075,6 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
         }
 
         RequestRepository requestRepository = engine.getRequestRepository();
-        RequestQueue queue = engine.getRequestQueue();
         Request r = requestRepository.readRequest(new RequestId(reqID));
 
         String agents = r.getExtDataInString(Request.ATTR_APPROVE_AGENTS);
@@ -1142,13 +1139,15 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
             String delivery, String nickname,
             String agent)
             throws EBaseException {
+
+        Auditor auditor = engine.getAuditor();
         String auditSubjectID = auditSubjectID();
         RequestId auditRecoveryID = auditRecoveryID();
         String auditPublicKey = auditPublicKey(cert);
         String auditAgents = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
 
-        KRAEngine engine = KRAEngine.getInstance();
-        KeyRequestRepository requestRepository = engine.getKeyRequestRepository();
+        KRAEngine kraEngine = KRAEngine.getInstance();
+        KeyRequestRepository requestRepository = kraEngine.getKeyRequestRepository();
 
         Request r = null;
         Hashtable<String, Object> params = null;
@@ -1179,7 +1178,7 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
             r.setExtData(Request.ATTR_APPROVE_AGENTS, agent);
 
             // store a message in the signed audit log file
-            audit(new SecurityDataRecoveryEvent(
+            auditor.log(new SecurityDataRecoveryEvent(
                         auditSubjectID,
                         ILogger.SUCCESS,
                         auditRecoveryID,
@@ -1187,7 +1186,7 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
                         auditPublicKey));
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
-            audit(new SecurityDataRecoveryEvent(
+            auditor.log(new SecurityDataRecoveryEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRecoveryID,
@@ -1209,7 +1208,7 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
 
                 auditAgents = auditAgents(creds);
 
-                audit(new SecurityDataRecoveryProcessedEvent(
+                auditor.log(new SecurityDataRecoveryProcessedEvent(
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditRecoveryID,
@@ -1221,7 +1220,7 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
 
                 return pkcs12;
             }
-            audit(new SecurityDataRecoveryProcessedEvent(
+            auditor.log(new SecurityDataRecoveryProcessedEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRecoveryID,
@@ -1231,7 +1230,7 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
 
             throw new EBaseException(r.getExtDataInString(Request.ERROR));
         } catch (EBaseException eAudit1) {
-            audit(new SecurityDataRecoveryProcessedEvent(
+            auditor.log(new SecurityDataRecoveryProcessedEvent(
                     auditSubjectID,
                     ILogger.FAILURE,
                     auditRecoveryID,
@@ -1265,12 +1264,13 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
             String reqID,
             String password)
             throws EBaseException {
+
+        Auditor auditor = engine.getAuditor();
         String auditSubjectID = auditSubjectID();
         RequestId auditRecoveryID = new RequestId(reqID);
         String auditAgents = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
         KeyId keyID = null;
 
-        KRAEngine engine = KRAEngine.getInstance();
         RequestRepository requestRepository = engine.getRequestRepository();
         RequestQueue queue = engine.getRequestQueue();
 
@@ -1300,7 +1300,7 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
                 byte pkcs12[] = (byte[]) params.get(
                         RecoveryService.ATTR_PKCS12);
 
-                audit(new SecurityDataRecoveryProcessedEvent(
+                auditor.log(new SecurityDataRecoveryProcessedEvent(
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditRecoveryID,
@@ -1312,7 +1312,7 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
 
                 return pkcs12;
             }
-            audit(new SecurityDataRecoveryProcessedEvent(
+            auditor.log(new SecurityDataRecoveryProcessedEvent(
                     auditSubjectID,
                     ILogger.FAILURE,
                     auditRecoveryID,
@@ -1322,7 +1322,7 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
 
             throw new EBaseException(r.getExtDataInString(Request.ERROR));
         } catch (EBaseException eAudit1) {
-            audit(new SecurityDataRecoveryProcessedEvent(
+            auditor.log(new SecurityDataRecoveryProcessedEvent(
                     auditSubjectID,
                     ILogger.FAILURE,
                     auditRecoveryID,
@@ -1674,10 +1674,6 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
     @Override
     public String getOfficialName() {
         return OFFICIAL_NAME;
-    }
-
-    protected void audit(LogEvent event) {
-        signedAuditLogger.log(event);
     }
 
     /**
