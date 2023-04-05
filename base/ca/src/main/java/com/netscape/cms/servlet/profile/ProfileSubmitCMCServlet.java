@@ -69,8 +69,6 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.profile.common.ProfileInput;
 import com.netscape.cms.servlet.common.CMCOutputTemplate;
@@ -91,7 +89,7 @@ import com.netscape.cmscore.request.RequestNotifier;
 public class ProfileSubmitCMCServlet extends ProfileServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileSubmitCMCServlet.class);
-    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
+
     private static final long serialVersionUID = -8017841111435988197L;
     private static final String PROP_PROFILE_ID = "profileId";
 
@@ -509,7 +507,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                 auditSubjectID,
                 ILogger.SUCCESS,
                 Utils.normalizeString(requestB64));
-        signedAuditLogger.log(auditMessage);
+        auditor.log(auditMessage);
 
         Request[] reqs = null;
 
