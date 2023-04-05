@@ -99,10 +99,9 @@ import com.netscape.certsrv.logging.event.CMCUserSignedRequestSigVerifyEvent;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -129,7 +128,6 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 public class CMCUserSignedAuth extends AuthManager implements IExtendedPluginInfo {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMCUserSignedAuth.class);
-    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     ////////////////////////
     // default parameters //
@@ -253,6 +251,7 @@ public class CMCUserSignedAuth extends AuthManager implements IExtendedPluginInf
         CAEngine caEngine = (CAEngine) engine;
         CAEngineConfig cs = caEngine.getConfig();
 
+        Auditor auditor = engine.getAuditor();
         String auditSubjectID = getAuditSubjectID();
         String auditReqType = ILogger.UNIDENTIFIED;
         String requestCertSubject = ILogger.UNIDENTIFIED;
@@ -751,7 +750,7 @@ public class CMCUserSignedAuth extends AuthManager implements IExtendedPluginInf
             if (authToken.get(AuthManager.CRED_CMC_SIGNING_CERT) != null ||
                     authToken.get(AuthManager.CRED_CMC_SELF_SIGNED) != null) {
 
-                signedAuditLogger.log(
+                auditor.log(
                         CMCUserSignedRequestSigVerifyEvent.createSuccessEvent(
                         getAuditSubjectID(),
                         auditReqType,
@@ -773,7 +772,7 @@ public class CMCUserSignedAuth extends AuthManager implements IExtendedPluginInf
         } catch (EInvalidCredentials eAudit2) {
             logger.error(method + eAudit2.getMessage(), eAudit2);
 
-            signedAuditLogger.log(
+            auditor.log(
                     CMCUserSignedRequestSigVerifyEvent.createFailureEvent(
                     getAuditSubjectID(),
                     auditReqType,
@@ -786,7 +785,7 @@ public class CMCUserSignedAuth extends AuthManager implements IExtendedPluginInf
         } catch (EBaseException eAudit3) {
             logger.error(method + eAudit3.getMessage(), eAudit3);
 
-            signedAuditLogger.log(
+            auditor.log(
                     CMCUserSignedRequestSigVerifyEvent.createFailureEvent(
                     getAuditSubjectID(),
                     auditReqType,
@@ -799,7 +798,7 @@ public class CMCUserSignedAuth extends AuthManager implements IExtendedPluginInf
         } catch (Exception eAudit4) {
             logger.error(method + eAudit4.getMessage(), eAudit4);
 
-            signedAuditLogger.log(
+            auditor.log(
                     CMCUserSignedRequestSigVerifyEvent.createFailureEvent(
                     getAuditSubjectID(),
                     auditReqType,
