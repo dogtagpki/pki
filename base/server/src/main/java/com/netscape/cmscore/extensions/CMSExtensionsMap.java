@@ -35,15 +35,6 @@ import com.netscape.cmscore.base.ConfigStore;
 public class CMSExtensionsMap {
     public static String ID = "extensions";
 
-    private static CMSExtensionsMap mInstance = new CMSExtensionsMap();
-
-    public static final CMSExtensionsMap getInstance() {
-        return mInstance;
-    }
-
-    private CMSExtensionsMap() {
-    }
-
     private static final String PROP_CLASS = "class";
 
     private Hashtable<String, CMSExtension> mName2Ext = new Hashtable<>();
