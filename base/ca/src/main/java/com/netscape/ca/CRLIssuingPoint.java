@@ -63,14 +63,13 @@ import com.netscape.certsrv.logging.event.FullCRLGenerationEvent;
 import com.netscape.certsrv.logging.event.FullCRLPublishingEvent;
 import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.cmscore.dbs.CRLRepository;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.ldap.LdapRule;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.request.CertRequestRepository;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.util.StatsSubsystem;
@@ -120,8 +119,6 @@ public class CRLIssuingPoint implements Runnable {
         Initialized,
         InitializationFailed
     }
-
-    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     /* Foreign config param for IssuingDistributionPointExtension. */
     public static final String PROP_CACERTS = "onlyContainsCACerts";
@@ -3044,6 +3041,9 @@ public class CRLIssuingPoint implements Runnable {
 
         mSplits[1] -= System.currentTimeMillis();
 
+        CAEngine engine = CAEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
+
         @SuppressWarnings("unchecked")
         Hashtable<BigInteger, RevokedCertificate> deltaCRLCerts =
                 (Hashtable<BigInteger, RevokedCertificate>) clonedRevokedCerts.clone();
@@ -3080,7 +3080,7 @@ public class CRLIssuingPoint implements Runnable {
                 if (deltaCRLCerts.size() == 0) {
                     logger.debug("CRLIssuingPoint: No Revoked Certificates Found And noCRLIfNoRevokedCert is set to true - No Delta CRL Generated");
                     mDeltaCRLSize = -1;
-                    signedAuditLogger.log(DeltaCRLGenerationEvent.createSuccessEvent(
+                    auditor.log(DeltaCRLGenerationEvent.createSuccessEvent(
                             getAuditSubjectID(),
                             "No Revoked Certificates"));
                     return;
@@ -3121,7 +3121,7 @@ public class CRLIssuingPoint implements Runnable {
             logger.debug("CRLIssuingPoint: - delta CRL size: " + mDeltaCRLSize);
             logger.debug("CRLIssuingPoint: - total time: " + totalTime + splitTimes);
 
-            signedAuditLogger.log(DeltaCRLGenerationEvent.createSuccessEvent(
+            auditor.log(DeltaCRLGenerationEvent.createSuccessEvent(
                     getAuditSubjectID(),
                     mCRLNumber));
 
@@ -3129,7 +3129,7 @@ public class CRLIssuingPoint implements Runnable {
             String message = CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_OR_STORE_DELTA", e.toString());
             logger.error(message, e);
             mDeltaCRLSize = -1;
-            signedAuditLogger.log(DeltaCRLGenerationEvent.createFailureEvent(
+            auditor.log(DeltaCRLGenerationEvent.createFailureEvent(
                     getAuditSubjectID(),
                     e.getMessage()));
             return;
@@ -3138,7 +3138,7 @@ public class CRLIssuingPoint implements Runnable {
             String message = CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_DELTA", e.toString());
             logger.error(message, e);
             mDeltaCRLSize = -1;
-            signedAuditLogger.log(DeltaCRLGenerationEvent.createFailureEvent(
+            auditor.log(DeltaCRLGenerationEvent.createFailureEvent(
                     getAuditSubjectID(),
                     e.getMessage()));
             return;
@@ -3149,12 +3149,12 @@ public class CRLIssuingPoint implements Runnable {
             publishCRL(newX509DeltaCRL, true);
             mSplits[4] += System.currentTimeMillis();
 
-            signedAuditLogger.log(new DeltaCRLPublishingEvent(getAuditSubjectID(), mCRLNumber));
+            auditor.log(new DeltaCRLPublishingEvent(getAuditSubjectID(), mCRLNumber));
 
         } catch (Exception e) {
             String message = CMS.getLogMessage("CMSCORE_CA_ISSUING_PUBLISH_DELTA", mCRLNumber.toString(), e.toString());
             logger.error(message, e);
-            signedAuditLogger.log(new DeltaCRLPublishingEvent(getAuditSubjectID(), mCRLNumber, e.getMessage()));
+            auditor.log(new DeltaCRLPublishingEvent(getAuditSubjectID(), mCRLNumber, e.getMessage()));
         }
     }
 
@@ -3168,6 +3168,10 @@ public class CRLIssuingPoint implements Runnable {
         logger.debug("generateFullCRL: thisUpdate: " + thisUpdate + " nextUpdate: " + nextUpdate);
 
         mSplits[6] -= System.currentTimeMillis();
+
+        CAEngine engine = CAEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
+
         if (mNextDeltaCRLNumber.compareTo(mNextCRLNumber) > 0) {
             mNextCRLNumber = mNextDeltaCRLNumber;
         }
@@ -3195,7 +3199,7 @@ public class CRLIssuingPoint implements Runnable {
 
                 if (mCRLCerts.size() == 0) {
                     logger.debug("CRLIssuingPoint: No Revoked Certificates Found And noCRLIfNoRevokedCert is set to true - No CRL Generated");
-                    signedAuditLogger.log(FullCRLGenerationEvent.createSuccessEvent(
+                    auditor.log(FullCRLGenerationEvent.createSuccessEvent(
                             getAuditSubjectID(),
                             "No Revoked Certificates"));
                     return;
@@ -3274,7 +3278,7 @@ public class CRLIssuingPoint implements Runnable {
 
             logger.debug("CRLIssuingPoint: Finished Logging CRL Update to transaction log");
 
-            signedAuditLogger.log(FullCRLGenerationEvent.createSuccessEvent(
+            auditor.log(FullCRLGenerationEvent.createSuccessEvent(
                     getAuditSubjectID(),
                     mCRLNumber));
 
@@ -3282,7 +3286,7 @@ public class CRLIssuingPoint implements Runnable {
             mUpdatingCRL = CRL_UPDATE_DONE;
             String message = CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_OR_STORE_CRL", e.toString());
             logger.error(message, e);
-            signedAuditLogger.log(FullCRLGenerationEvent.createFailureEvent(
+            auditor.log(FullCRLGenerationEvent.createFailureEvent(
                     getAuditSubjectID(),
                     e.getMessage()));
             throw new ECAException(CMS.getUserMessage("CMS_CA_FAILED_CONSTRUCTING_CRL", e.toString()), e);
@@ -3291,7 +3295,7 @@ public class CRLIssuingPoint implements Runnable {
             mUpdatingCRL = CRL_UPDATE_DONE;
             String message = CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_CRL", e.toString());
             logger.error(message, e);
-            signedAuditLogger.log(FullCRLGenerationEvent.createFailureEvent(
+            auditor.log(FullCRLGenerationEvent.createFailureEvent(
                     getAuditSubjectID(),
                     e.getMessage()));
             throw new ECAException(CMS.getUserMessage("CMS_CA_FAILED_CONSTRUCTING_CRL", e.toString()), e);
@@ -3303,13 +3307,13 @@ public class CRLIssuingPoint implements Runnable {
             publishCRL(newX509CRL);
             mSplits[9] += System.currentTimeMillis();
 
-            signedAuditLogger.log(new FullCRLPublishingEvent(getAuditSubjectID(), mCRLNumber));
+            auditor.log(new FullCRLPublishingEvent(getAuditSubjectID(), mCRLNumber));
 
         } catch (Exception e) {
             mUpdatingCRL = CRL_UPDATE_DONE;
             String message = CMS.getLogMessage("CMSCORE_CA_ISSUING_PUBLISH_CRL", mCRLNumber.toString(), e.toString());
             logger.error(message, e);
-            signedAuditLogger.log(new FullCRLPublishingEvent(getAuditSubjectID(), mCRLNumber, e.getMessage()));
+            auditor.log(new FullCRLPublishingEvent(getAuditSubjectID(), mCRLNumber, e.getMessage()));
             throw new ECAException(message, e);
         }
     }
