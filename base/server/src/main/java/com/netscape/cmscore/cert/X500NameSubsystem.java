@@ -57,9 +57,6 @@ public class X500NameSubsystem extends Subsystem {
     private static final String PROP_OID = "oid";
     private static final String PROP_CLASS = "class";
 
-    private X500NameSubsystem() {
-    }
-
     /**
      * Retrieves subsystem identifier.
      */
@@ -71,14 +68,6 @@ public class X500NameSubsystem extends Subsystem {
     @Override
     public void setId(String id) throws EBaseException {
         mId = id;
-    }
-
-    // singleton enforcement
-
-    private static X500NameSubsystem mInstance = new X500NameSubsystem();
-
-    public static X500NameSubsystem getInstance() {
-        return mInstance;
     }
 
     /**

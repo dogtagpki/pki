@@ -159,7 +159,7 @@ public class CMSEngine {
 
     protected UGSubsystem ugSubsystem;
     protected OidLoaderSubsystem oidLoaderSubsystem = OidLoaderSubsystem.getInstance();
-    protected X500NameSubsystem x500NameSubsystem = X500NameSubsystem.getInstance();
+    protected X500NameSubsystem x500NameSubsystem;
     protected RequestSubsystem requestSubsystem = new RequestSubsystem();
     protected AuthSubsystem authSubsystem;
     protected AuthzSubsystem authzSubsystem;
@@ -757,6 +757,7 @@ public class CMSEngine {
 
     public void initX500NameSubsystem() throws Exception {
         ConfigStore x500NameConfig = config.getSubStore(X500NameSubsystem.ID, ConfigStore.class);
+        x500NameSubsystem = new X500NameSubsystem();
         x500NameSubsystem.setCMSEngine(this);
         x500NameSubsystem.init(x500NameConfig);
         x500NameSubsystem.startup();
