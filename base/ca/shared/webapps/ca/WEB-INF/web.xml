@@ -4,25 +4,6 @@
     <display-name>Certificate Authority</display-name>
 
    <servlet>
-      <servlet-name>  caUpdateDomainXML  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.csadmin.CAUpdateDomainXML  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> true       </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caUpdateDomainXML </param-value> </init-param>
-             <init-param><param-name>  interface   </param-name>
-                         <param-value> agent          </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> certUserDBAuthMgr </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.securitydomain.domainxml </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  caUpdateDomainXML-admin  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.csadmin.CAAdminUpdateDomainXML  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -1164,11 +1145,6 @@
    <servlet-mapping>
       <servlet-name>  caGetConfigEntries  </servlet-name>
       <url-pattern>   /admin/ca/getConfigEntries  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  caUpdateDomainXML </servlet-name>
-      <url-pattern>   /agent/ca/updateDomainXML  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>

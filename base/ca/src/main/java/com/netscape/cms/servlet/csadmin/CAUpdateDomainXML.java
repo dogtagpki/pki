@@ -17,6 +17,22 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "caUpdateDomainXML",
+        urlPatterns = "/agent/ca/updateDomainXML",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="true"),
+                @WebInitParam(name="authority",     value="ca"),
+                @WebInitParam(name="ID",            value="caUpdateDomainXML"),
+                @WebInitParam(name="interface",     value="agent"),
+                @WebInitParam(name="AuthMgr",       value="certUserDBAuthMgr"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="resourceID",    value="certServer.securitydomain.domainxml")
+        }
+)
 public class CAUpdateDomainXML extends UpdateDomainXML {
     private static final long serialVersionUID = 1L;
 }
