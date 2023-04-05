@@ -90,16 +90,14 @@ import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.event.CertStatusChangeRequestProcessedEvent;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.request.CertRequestRepository;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestQueue;
@@ -110,12 +108,10 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  * Utility CMCOutputTemplate
  *
  * @author cfu
- * @version $ $, $Date$
  */
 public class CMCOutputTemplate {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMCOutputTemplate.class);
-    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public CMCOutputTemplate() {
     }
@@ -992,6 +988,7 @@ public class CMCOutputTemplate {
         }
 
         // for auditing
+        Auditor auditor = engine.getAuditor();
         String auditRequesterID = null;
         auditRequesterID = (String) context.get(SessionContext.USER_ID);
 
@@ -1135,7 +1132,7 @@ public class CMCOutputTemplate {
                         if (msg.equals("")) // don't overwrite the msg
                             msg = " shared secret not found";
                         logger.warn(msg);
-                        audit(new CertStatusChangeRequestProcessedEvent(
+                        auditor.log(new CertStatusChangeRequestProcessedEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditReqID,
@@ -1186,7 +1183,7 @@ public class CMCOutputTemplate {
                                 OBJECT_IDENTIFIER.id_cmc_statusInfoV2, cmcStatusInfoV2);
                         controlSeq.addElement(tagattr);
 
-                        audit(new CertStatusChangeRequestProcessedEvent(
+                        auditor.log(new CertStatusChangeRequestProcessedEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditReqID,
@@ -1214,7 +1211,7 @@ public class CMCOutputTemplate {
                     if (record == null) {
                         msg = " The certificate is not found";
                         logger.warn(method + msg);
-                        audit(new CertStatusChangeRequestProcessedEvent(
+                        auditor.log(new CertStatusChangeRequestProcessedEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditReqID,
@@ -1238,7 +1235,7 @@ public class CMCOutputTemplate {
                     if (record.getStatus().equals(CertRecord.STATUS_REVOKED)) {
                         msg = " The certificate is already revoked:" + auditSerialNumber;
                         logger.warn( method + msg);
-                        audit(new CertStatusChangeRequestProcessedEvent(
+                        auditor.log(new CertStatusChangeRequestProcessedEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditReqID,
@@ -1282,7 +1279,7 @@ public class CMCOutputTemplate {
                                     OBJECT_IDENTIFIER.id_cmc_statusInfoV2, cmcStatusInfoV2);
                             controlSeq.addElement(tagattr);
 
-                            audit(new CertStatusChangeRequestProcessedEvent(
+                            auditor.log(new CertStatusChangeRequestProcessedEvent(
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     auditReqID,
@@ -1316,7 +1313,7 @@ public class CMCOutputTemplate {
                                     OBJECT_IDENTIFIER.id_cmc_statusInfoV2, cmcStatusInfoV2);
                             controlSeq.addElement(tagattr);
 
-                            audit(new CertStatusChangeRequestProcessedEvent(
+                            auditor.log(new CertStatusChangeRequestProcessedEvent(
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     auditReqID,
@@ -1379,7 +1376,7 @@ public class CMCOutputTemplate {
                                     OBJECT_IDENTIFIER.id_cmc_statusInfoV2, cmcStatusInfoV2);
                             controlSeq.addElement(tagattr);
 
-                            audit(new CertStatusChangeRequestProcessedEvent(
+                            auditor.log(new CertStatusChangeRequestProcessedEvent(
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     auditReqID,
@@ -1415,7 +1412,7 @@ public class CMCOutputTemplate {
                     controlSeq.addElement(tagattr);
 
                     auditApprovalStatus = RequestStatus.COMPLETE;
-                    audit(new CertStatusChangeRequestProcessedEvent(
+                    auditor.log(new CertStatusChangeRequestProcessedEvent(
                             auditSubjectID,
                             ILogger.SUCCESS,
                             auditReqID,
@@ -1434,7 +1431,7 @@ public class CMCOutputTemplate {
                         OBJECT_IDENTIFIER.id_cmc_statusInfoV2, cmcStatusInfoV2);
                 controlSeq.addElement(tagattr);
 
-                audit(new CertStatusChangeRequestProcessedEvent(
+                auditor.log(new CertStatusChangeRequestProcessedEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditReqID,
@@ -1450,15 +1447,11 @@ public class CMCOutputTemplate {
         return bpid;
     }
 
-    protected void audit(LogEvent event) {
-        signedAuditLogger.log(event);
-    }
-
-    protected void audit(String msg) {
-        signedAuditLogger.log(msg);
-    }
-
     protected void auditCMCResponseSent(String response) {
+
+        CAEngine engine = CAEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
+
         SessionContext context = SessionContext.getContext();
 
         String auditMessage = CMS.getLogMessage(
@@ -1466,7 +1459,8 @@ public class CMCOutputTemplate {
             context.get(SessionContext.USER_ID),
             ILogger.SUCCESS,
             Utils.normalizeString(response));
-        audit(auditMessage);
+
+        auditor.log(auditMessage);
     }
 
     private RevocationReason toRevocationReason(ENUMERATED n) {
