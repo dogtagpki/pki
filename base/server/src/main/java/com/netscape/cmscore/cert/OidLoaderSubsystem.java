@@ -53,12 +53,6 @@ public class OidLoaderSubsystem extends Subsystem {
     private static final String PROP_CLASS = "class";
 
     /**
-     *
-     */
-    private OidLoaderSubsystem() {
-    }
-
-    /**
      * Retrieves subsystem identifier.
      */
     @Override
@@ -69,14 +63,6 @@ public class OidLoaderSubsystem extends Subsystem {
     @Override
     public void setId(String id) throws EBaseException {
         mId = id;
-    }
-
-    // singleton enforcement
-
-    private static OidLoaderSubsystem mInstance = new OidLoaderSubsystem();
-
-    public static OidLoaderSubsystem getInstance() {
-        return mInstance;
     }
 
     private static final int CertType_data[] = { 2, 16, 840, 1, 113730, 1, 1 };
