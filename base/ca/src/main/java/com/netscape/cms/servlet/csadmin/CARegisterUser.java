@@ -17,6 +17,22 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "caRegisterUser",
+        urlPatterns = "/admin/ca/registerUser",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="false"),
+                @WebInitParam(name="authority",     value="ca"),
+                @WebInitParam(name="ID",            value="caRegisterUser"),
+                @WebInitParam(name="AuthMgr",       value="TokenAuth"),
+                @WebInitParam(name="GroupName",     value="Certificate Manager Agents"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="resourceID",    value="certServer.ca.registerUser")
+        }
+)
 public class CARegisterUser extends RegisterUser {
     private static final long serialVersionUID = 1L;
 }
