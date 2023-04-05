@@ -117,8 +117,6 @@ import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
@@ -127,6 +125,7 @@ import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.request.CertRequestRepository;
 import com.netscape.cmscore.request.Request;
@@ -153,14 +152,10 @@ import netscape.ldap.LDAPEntry;
  *
  * The HTTP parameters are 'operation' and 'message'
  * operation can be either 'GetCACert', 'PKIOperation' or 'GetCACaps'.
- *
- * @version $Revision$, $Date$
  */
 public class CRSEnrollment extends HttpServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CRSEnrollment.class);
-
-    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     private static final long serialVersionUID = 8483002540957382369L;
 
@@ -1649,6 +1644,9 @@ public class CRSEnrollment extends HttpServlet {
                                     CRSPKIMessage crsResp, CryptoContext cx)
             throws Exception {
 
+        CAEngine engine = CAEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
+
         try {
             unwrapPKCS10(req, cx);
             Hashtable<String, byte[]> fingerprints = makeFingerPrints(req);
@@ -1680,7 +1678,7 @@ public class CRSEnrollment extends HttpServlet {
                             req.getTransactionID(),
                             "CRSEnrollment",
                             ILogger.SIGNED_AUDIT_EMPTY_VALUE);
-                signedAuditLogger.log(auditMessage);
+                auditor.log(auditMessage);
 
                 return null;
             }
