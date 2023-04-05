@@ -107,8 +107,6 @@ import com.netscape.certsrv.logging.event.OCSPSigningInfoEvent;
 import com.netscape.certsrv.ocsp.IOCSPService;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.security.SigningUnitConfig;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.cert.CertEnrollmentRequestFactory;
 import com.netscape.cms.servlet.cert.EnrollmentProcessor;
@@ -120,6 +118,7 @@ import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.util.StatsSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -153,8 +152,6 @@ import com.netscape.cmsutil.ocsp.UnknownInfo;
 public class CertificateAuthority extends Subsystem implements IAuthority, IOCSPService {
 
     public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertificateAuthority.class);
-
-    private static final Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public static final String ID = "ca";
 
@@ -1144,13 +1141,15 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
 
         String certSigningSKI = CryptoUtil.getSKIString(caCertImpl);
 
+        Auditor auditor = engine.getAuditor();
+
         if (hostCA) {
             // generate cert info without authority ID
-            signedAuditLogger.log(CertSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, certSigningSKI));
+            auditor.log(CertSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, certSigningSKI));
 
         } else {
             // generate cert signing info with authority ID
-            signedAuditLogger.log(CertSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, certSigningSKI, authorityID));
+            auditor.log(CertSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, certSigningSKI, authorityID));
         }
     }
 
@@ -1174,9 +1173,11 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
         X509CertImpl crlCertImpl = mCRLSigningUnit.getCertImpl();
         String crlSigningSKI = CryptoUtil.getSKIString(crlCertImpl);
 
+        Auditor auditor = engine.getAuditor();
+
         if (hostCA) {
             // generate CRL signing info without authority ID
-            signedAuditLogger.log(CRLSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, crlSigningSKI));
+            auditor.log(CRLSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, crlSigningSKI));
 
         } else {
             // don't generate CRL signing info since LWCA doesn't support CRL
@@ -1202,12 +1203,14 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
         X509CertImpl ocspCertImpl = mOCSPSigningUnit.getCertImpl();
         String ocspSigningSKI = CryptoUtil.getSKIString(ocspCertImpl);
 
+        Auditor auditor = engine.getAuditor();
+
         if (hostCA) {
             // generate OCSP signing info without authority ID
-            signedAuditLogger.log(OCSPSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, ocspSigningSKI));
+            auditor.log(OCSPSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, ocspSigningSKI));
         } else {
             // generate OCSP signing info with authority ID
-            signedAuditLogger.log(OCSPSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, ocspSigningSKI, authorityID));
+            auditor.log(OCSPSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, ocspSigningSKI, authorityID));
         }
     }
 
