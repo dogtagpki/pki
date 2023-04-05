@@ -58,11 +58,10 @@ import com.netscape.certsrv.ocsp.IOCSPService;
 import com.netscape.certsrv.ocsp.IOCSPStore;
 import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.certsrv.security.SigningUnitConfig;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.DBSubsystem;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.util.StatsSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
@@ -81,15 +80,12 @@ import com.netscape.cmsutil.ocsp.TBSRequest;
 /**
  * A class represents a Certificate Authority that is
  * responsible for certificate specific operations.
- * <P>
  *
  * @author lhsiao
- * @version $Revision$, $Date$
  */
 public class OCSPAuthority extends Subsystem implements IAuthority, IOCSPService {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OCSPAuthority.class);
-    private static final Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public static final String ID = "ocsp";
 
@@ -145,6 +141,7 @@ public class OCSPAuthority extends Subsystem implements IAuthority, IOCSPService
         OCSPEngine ocspEngine = (OCSPEngine) engine;
         OCSPEngineConfig engineConfig = ocspEngine.getConfig();
         DBSubsystem dbSubsystem = engine.getDBSubsystem();
+        Auditor auditor = engine.getAuditor();
 
         try {
             mConfig = engineConfig.getOCSPConfig();
@@ -187,7 +184,7 @@ public class OCSPAuthority extends Subsystem implements IAuthority, IOCSPService
 
         try {
             String ocspSigningSKI = CryptoUtil.getSKIString(mSigningUnit.getCertImpl());
-            signedAuditLogger.log(OCSPSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, ocspSigningSKI));
+            auditor.log(OCSPSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, ocspSigningSKI));
 
         } catch (IOException e) {
             throw new EBaseException(e);
