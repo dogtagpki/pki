@@ -35,17 +35,14 @@ import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.key.SymKeyGenerationRequest;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.event.SymKeyGenerationProcessedEvent;
 import com.netscape.certsrv.request.IService;
-import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.key.KeyRequestDAO;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -58,7 +55,6 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 public class SymKeyGenService implements IService {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SymKeyGenService.class);
-    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public final static String ATTR_KEY_RECORD = "keyRecord";
     private final static String STATUS_ACTIVE = "active";
@@ -104,16 +100,23 @@ public class SymKeyGenService implements IService {
         logger.debug("SymKeyGenService: algorithm: " + algorithm);
 
         String owner = request.getExtDataInString(Request.ATTR_REQUEST_OWNER);
+
+        KRAEngine engine = KRAEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
         String auditSubjectID = owner;
 
         //Check here even though restful layer checks for this.
         if (algorithm == null || clientKeyId == null || keySize <= 0) {
-            auditSymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
-                    clientKeyId, null, "Bad data in request");
+            auditor.log(new SymKeyGenerationProcessedEvent(
+                    auditSubjectID,
+                    ILogger.FAILURE,
+                    request.getRequestId(),
+                    clientKeyId,
+                    null,
+                    "Bad data in request"));
             throw new EBaseException("Bad data in SymKeyGenService.serviceRequest");
         }
 
-        KRAEngine engine = KRAEngine.getInstance();
         KRAEngineConfig configStore = engine.getConfig();
         boolean allowEncDecrypt_archival = configStore.getBoolean("kra.allowEncDecrypt.archival", false);
 
@@ -165,8 +168,13 @@ public class SymKeyGenService implements IService {
         } catch (Exception e) {
             String message = "Unable to generate symmetric key: " + e.getMessage();
             logger.error("SymKeyGenService: " + message, e);
-            auditSymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
-                    clientKeyId, null, message);
+            auditor.log(new SymKeyGenerationProcessedEvent(
+                    auditSubjectID,
+                    ILogger.FAILURE,
+                    request.getRequestId(),
+                    clientKeyId,
+                    null,
+                    message));
             throw new EBaseException(message, e);
         }
 
@@ -177,8 +185,13 @@ public class SymKeyGenService implements IService {
         if (sk == null) {
             String message = "Unable to generate security data";
             logger.error("SymKeyGenService: " + message);
-            auditSymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
-                    clientKeyId, null, message);
+            auditor.log(new SymKeyGenerationProcessedEvent(
+                    auditSubjectID,
+                    ILogger.FAILURE,
+                    request.getRequestId(),
+                    clientKeyId,
+                    null,
+                    message));
             throw new EBaseException(message);
         }
 
@@ -188,8 +201,13 @@ public class SymKeyGenService implements IService {
         } catch (Exception e) {
             String message = "Unable to wrap security data: " + e.getMessage();
             logger.error("SymKeyGenService: " + message);
-            auditSymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
-                    clientKeyId, null, message);
+            auditor.log(new SymKeyGenerationProcessedEvent(
+                    auditSubjectID,
+                    ILogger.FAILURE,
+                    request.getRequestId(),
+                    clientKeyId,
+                    null,
+                    message));
             throw new EBaseException(message, e);
         }
 
@@ -204,8 +222,13 @@ public class SymKeyGenService implements IService {
         if (rec.getSerialNumber() != null) {
             String message = CMS.getUserMessage("CMS_KRA_INVALID_STATE");
             logger.error("SymKeyGenService: " + message);
-            auditSymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
-                    clientKeyId, null, message);
+            auditor.log(new SymKeyGenerationProcessedEvent(
+                    auditSubjectID,
+                    ILogger.FAILURE,
+                    request.getRequestId(),
+                    clientKeyId,
+                    null,
+                    message));
             throw new EBaseException(message);
         }
 
@@ -215,8 +238,13 @@ public class SymKeyGenService implements IService {
         if (serialNo == null) {
             String message = CMS.getLogMessage("CMSCORE_KRA_GET_NEXT_SERIAL");
             logger.error("SymKeyGenService: " + message);
-            auditSymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
-                    clientKeyId, null, message);
+            auditor.log(new SymKeyGenerationProcessedEvent(
+                    auditSubjectID,
+                    ILogger.FAILURE,
+                    request.getRequestId(),
+                    clientKeyId,
+                    null,
+                    message));
             throw new EBaseException(message);
         }
 
@@ -235,35 +263,30 @@ public class SymKeyGenService implements IService {
         } catch (Exception e) {
             String message = "Unable to store wrapping parameters: " + e.getMessage();
             logger.error("SymKeyGenService: " + message, e);
-            auditSymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
-                    clientKeyId, null, message);
+            auditor.log(new SymKeyGenerationProcessedEvent(
+                    auditSubjectID,
+                    ILogger.FAILURE,
+                    request.getRequestId(),
+                    clientKeyId,
+                    null,
+                    message));
             throw new EBaseException(message, e);
         }
 
         logger.debug("SymKeyGenService: adding security data key record " + serialNo);
         storage.addKeyRecord(rec);
 
-        auditSymKeyGenRequestProcessed(auditSubjectID, ILogger.SUCCESS, request.getRequestId(),
-                clientKeyId, new KeyId(serialNo), "None");
+        auditor.log(new SymKeyGenerationProcessedEvent(
+                auditSubjectID,
+                ILogger.SUCCESS,
+                request.getRequestId(),
+                clientKeyId,
+                new KeyId(serialNo),
+                "None"));
 
         request.setExtData(Request.RESULT, Request.RES_SUCCESS);
         engine.getRequestRepository().updateRequest(request);
 
         return true;
-    }
-
-    protected void audit(LogEvent event) {
-        signedAuditLogger.log(event);
-    }
-
-    private void auditSymKeyGenRequestProcessed(String subjectID, String status, RequestId requestID, String clientKeyID,
-            KeyId keyID, String reason) {
-        audit(new SymKeyGenerationProcessedEvent(
-                subjectID,
-                status,
-                requestID,
-                clientKeyID,
-                keyID,
-                reason));
     }
 }
