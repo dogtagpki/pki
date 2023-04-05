@@ -49,7 +49,6 @@ import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalProcessedEvent;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalRequestEvent;
 import com.netscape.certsrv.logging.event.SecurityDataExportEvent;
@@ -58,11 +57,10 @@ import com.netscape.certsrv.logging.event.ServerSideKeyGenProcessedEvent;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.key.KeyRecordParser;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -88,7 +86,6 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 public class NetkeyKeygenService implements IService {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NetkeyKeygenService.class);
-    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public final static String ATTR_KEY_RECORD = "keyRecord";
     public final static String ATTR_PROOF_OF_ARCHIVAL =
@@ -154,7 +151,6 @@ public class NetkeyKeygenService implements IService {
         KRAEngine engine = KRAEngine.getInstance();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
-        String auditSubjectID = null;
         byte[] wrapped_des_key;
 
         byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
@@ -193,7 +189,8 @@ public class NetkeyKeygenService implements IService {
         String rKeytype = request.getExtDataInString(Request.NETKEY_ATTR_KEY_TYPE);
         RequestId requestId = request.getRequestId();
 
-        auditSubjectID = rCUID + ":" + rUserid;
+        Auditor auditor = engine.getAuditor();
+        String auditSubjectID = rCUID + ":" + rUserid;
 
         SessionContext sContext = SessionContext.getContext();
         String agentId = "";
@@ -201,7 +198,7 @@ public class NetkeyKeygenService implements IService {
             agentId = (String) sContext.get(SessionContext.USER_ID);
         }
 
-        audit(new ServerSideKeyGenEvent(
+        auditor.log(new ServerSideKeyGenEvent(
                 agentId,
                 ILogger.SUCCESS,
                 auditSubjectID,
@@ -277,7 +274,7 @@ public class NetkeyKeygenService implements IService {
                 logger.warn("NetkeyKeygenService: failed generating key pair for " + rCUID + ":" + rUserid);
                 request.setExtData(Request.RESULT, Integer.valueOf(4));
 
-                audit(new ServerSideKeyGenProcessedEvent(
+                auditor.log(new ServerSideKeyGenProcessedEvent(
                         agentId,
                         ILogger.FAILURE,
                         auditSubjectID,
@@ -309,7 +306,7 @@ public class NetkeyKeygenService implements IService {
                 //logger.debug("NetkeyKeygenService: public key length =" + PubKey.length());
                 request.setExtData("public_key", PubKey);
 
-                audit(new ServerSideKeyGenProcessedEvent(
+                auditor.log(new ServerSideKeyGenProcessedEvent(
                         agentId,
                         ILogger.SUCCESS,
                         auditSubjectID,
@@ -368,7 +365,7 @@ public class NetkeyKeygenService implements IService {
                 if (wrappedPrivKeyString == null) {
                     request.setExtData(Request.RESULT, Integer.valueOf(4));
                     logger.warn("NetkeyKeygenService: failed generating wrapped private key");
-                    audit(new SecurityDataExportEvent(
+                    auditor.log(new SecurityDataExportEvent(
                             agentId,
                             ILogger.FAILURE,
                             auditSubjectID,
@@ -380,7 +377,7 @@ public class NetkeyKeygenService implements IService {
                 }
                 request.setExtData("wrappedUserPrivate", wrappedPrivKeyString);
 
-                audit(new SecurityDataExportEvent(
+                auditor.log(new SecurityDataExportEvent(
                         agentId,
                         ILogger.SUCCESS,
                         auditSubjectID,
@@ -410,7 +407,7 @@ public class NetkeyKeygenService implements IService {
                     //
                     //            logger.info("KRA encrypts internal private");
 
-                    audit(SecurityDataArchivalRequestEvent.createSuccessEvent(
+                    auditor.log(SecurityDataArchivalRequestEvent.createSuccessEvent(
                             agentId,
                             auditSubjectID,
                             request.getRequestId(),
@@ -507,7 +504,7 @@ public class NetkeyKeygenService implements IService {
                     storage.addKeyRecord(rec);
                     logger.debug("NetkeyKeygenService: key archived for " + rCUID + ":" + rUserid);
 
-                    audit(SecurityDataArchivalProcessedEvent.createSuccessEvent(
+                    auditor.log(SecurityDataArchivalProcessedEvent.createSuccessEvent(
                             agentId,
                             auditSubjectID,
                             request.getRequestId(),
@@ -521,7 +518,7 @@ public class NetkeyKeygenService implements IService {
             } catch (Exception e) {
                 logger.warn("NetkeyKeygenService: " + e.getMessage(), e);
 
-                audit(SecurityDataArchivalProcessedEvent.createFailureEvent(
+                auditor.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
                         agentId,
                         auditSubjectID,
                         request.getRequestId(),
@@ -544,8 +541,4 @@ public class NetkeyKeygenService implements IService {
 
         return true;
     } //serviceRequest
-
-    protected void audit(LogEvent event) {
-        signedAuditLogger.log(event);
-    }
 }
