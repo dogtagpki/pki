@@ -52,7 +52,6 @@ public class LogSubsystem extends Subsystem {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LogSubsystem.class);
 
-    private static LogSubsystem mInstance = new LogSubsystem();
     private LoggingConfig mConfig;
 
     /**
@@ -66,12 +65,6 @@ public class LogSubsystem extends Subsystem {
     public Hashtable<String, LogPlugin> mLogPlugins = new Hashtable<>();
     public Hashtable<String, LogEventListener> mLogInsts = new Hashtable<>();
     public Set<String> auditEvents = new TreeSet<>();
-
-    /**
-     * Constructs a log subsystem.
-     */
-    private LogSubsystem() {
-    }
 
     @Override
     public String getId() {
@@ -201,13 +194,6 @@ public class LogSubsystem extends Subsystem {
     @Override
     public LoggingConfig getConfigStore() {
         return mConfig;
-    }
-
-    /**
-     * Retrieves singleton: the LogSubsystem.
-     */
-    public static LogSubsystem getInstance() {
-        return mInstance;
     }
 
     /**
