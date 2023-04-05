@@ -43,7 +43,7 @@
 
    <servlet>
       <servlet-name>  caUpdateDomainXML  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.csadmin.UpdateDomainXML  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.csadmin.CAUpdateDomainXML  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> true       </param-value> </init-param>
              <init-param><param-name>  authority   </param-name>
