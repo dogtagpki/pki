@@ -51,17 +51,15 @@ import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.kra.EKRAException;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.event.SecurityDataRecoveryEvent;
 import com.netscape.certsrv.logging.event.SecurityDataRecoveryProcessedEvent;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -70,12 +68,10 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  * A class represents recovery request processor.
  *
  * @author Christina Fu (cfu)
- * @version $Revision$, $Date$
  */
 public class TokenKeyRecoveryService implements IService {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TokenKeyRecoveryService.class);
-    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public static final String ATTR_NICKNAME = "nickname";
     public static final String ATTR_OWNER_NAME = "ownerName";
@@ -188,7 +184,7 @@ public class TokenKeyRecoveryService implements IService {
      */
     @Override
     public synchronized boolean serviceRequest(Request request) throws EBaseException {
-        String auditSubjectID = null;
+
         String iv_s = "";
 
         logger.debug("KRA services token key recovery request");
@@ -249,7 +245,8 @@ public class TokenKeyRecoveryService implements IService {
         // wrappedDesKey no longer needed. removing.
         request.setExtData(Request.NETKEY_ATTR_DRMTRANS_DES_KEY, "");
 
-        auditSubjectID = rCUID + ":" + rUserid;
+        Auditor auditor = engine.getAuditor();
+        String auditSubjectID = rCUID + ":" + rUserid;
 
         //logger.debug("TokenKeyRecoveryService: received DRM-trans-wrapped des key =" + rWrappedDesKeyString);
         logger.debug("TokenKeyRecoveryService: received DRM-trans-wrapped des key");
@@ -279,7 +276,7 @@ public class TokenKeyRecoveryService implements IService {
         } else {
             logger.warn("TokenKeyRecoveryService: not receive des key");
             request.setExtData(Request.RESULT, Integer.valueOf(4));
-            audit(new SecurityDataRecoveryProcessedEvent(
+            auditor.log(new SecurityDataRecoveryProcessedEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRequestID,
@@ -298,7 +295,7 @@ public class TokenKeyRecoveryService implements IService {
         if ((cert_s == null) && (keyid_s == null)) {
             logger.warn("TokenKeyRecoveryService: not receive cert or keyid");
             request.setExtData(Request.RESULT, Integer.valueOf(3));
-            audit(new SecurityDataRecoveryProcessedEvent(
+            auditor.log(new SecurityDataRecoveryProcessedEvent(
                     auditSubjectID,
                     ILogger.FAILURE,
                     auditRequestID,
@@ -318,7 +315,7 @@ public class TokenKeyRecoveryService implements IService {
                 if (x509cert == null) {
                     logger.warn("cert mapping failed");
                     request.setExtData(Request.RESULT, Integer.valueOf(5));
-                    audit(new SecurityDataRecoveryProcessedEvent(
+                    auditor.log(new SecurityDataRecoveryProcessedEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditRequestID,
@@ -330,7 +327,7 @@ public class TokenKeyRecoveryService implements IService {
             } catch (IOException e) {
                 logger.warn("TokenKeyRecoveryService: mapCert failed");
                 request.setExtData(Request.RESULT, Integer.valueOf(6));
-                audit(new SecurityDataRecoveryProcessedEvent(
+                auditor.log(new SecurityDataRecoveryProcessedEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRequestID,
@@ -368,7 +365,7 @@ public class TokenKeyRecoveryService implements IService {
                 else {
                     logger.warn("key record not found");
                     request.setExtData(Request.RESULT, Integer.valueOf(8));
-                    audit(new SecurityDataRecoveryProcessedEvent(
+                    auditor.log(new SecurityDataRecoveryProcessedEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditRequestID,
@@ -380,7 +377,7 @@ public class TokenKeyRecoveryService implements IService {
             } catch (Exception e) {
                 logger.warn("TokenKeyRecoveryService: " + e.getMessage(), e);
                 request.setExtData(Request.RESULT, Integer.valueOf(9));
-                audit(new SecurityDataRecoveryProcessedEvent(
+                auditor.log(new SecurityDataRecoveryProcessedEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRequestID,
@@ -413,7 +410,7 @@ public class TokenKeyRecoveryService implements IService {
 
                 if (inputPubData.length != pubData.length) {
                     logger.error(CMS.getLogMessage("CMSCORE_KRA_PUBLIC_KEY_LEN"));
-                    audit(new SecurityDataRecoveryProcessedEvent(
+                    auditor.log(new SecurityDataRecoveryProcessedEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditRequestID,
@@ -427,7 +424,7 @@ public class TokenKeyRecoveryService implements IService {
                 for (int i = 0; i < pubData.length; i++) {
                     if (pubData[i] != inputPubData[i]) {
                         logger.error(CMS.getLogMessage("CMSCORE_KRA_PUBLIC_KEY_LEN"));
-                        audit(new SecurityDataRecoveryProcessedEvent(
+                        auditor.log(new SecurityDataRecoveryProcessedEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
                                 auditRequestID,
@@ -455,7 +452,7 @@ public class TokenKeyRecoveryService implements IService {
                 if (privateKeyData == null) {
                     request.setExtData(Request.RESULT, Integer.valueOf(4));
                     logger.warn("TokenKeyRecoveryService: failed getting private key");
-                    audit(new SecurityDataRecoveryProcessedEvent(
+                    auditor.log(new SecurityDataRecoveryProcessedEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditRequestID,
@@ -484,7 +481,7 @@ public class TokenKeyRecoveryService implements IService {
 
                 if (verifyKeyPair(pubData, privateKeyData) == false) {
                     logger.error(CMS.getLogMessage("CMSCORE_KRA_PUBLIC_NOT_FOUND"));
-                    audit(new SecurityDataRecoveryProcessedEvent(
+                    auditor.log(new SecurityDataRecoveryProcessedEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditRequestID,
@@ -515,7 +512,7 @@ public class TokenKeyRecoveryService implements IService {
                 if (privKey == null) {
                     request.setExtData(Request.RESULT, Integer.valueOf(4));
                     logger.warn("TokenKeyRecoveryService: failed getting private key");
-                    audit(new SecurityDataRecoveryProcessedEvent(
+                    auditor.log(new SecurityDataRecoveryProcessedEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
                             auditRequestID,
@@ -544,7 +541,7 @@ public class TokenKeyRecoveryService implements IService {
             if (wrappedPrivKeyString == null) {
                 request.setExtData(Request.RESULT, Integer.valueOf(4));
                 logger.warn("TokenKeyRecoveryService: failed generating wrapped private key");
-                audit(new SecurityDataRecoveryProcessedEvent(
+                auditor.log(new SecurityDataRecoveryProcessedEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRequestID,
@@ -571,7 +568,7 @@ public class TokenKeyRecoveryService implements IService {
                 logger.debug("TokenKeyRecoveryService: RSA PubKey base64 encoded");
             }
 
-            audit(new SecurityDataRecoveryEvent(
+            auditor.log(new SecurityDataRecoveryEvent(
                     auditSubjectID,
                     ILogger.SUCCESS,
                     auditRequestID,
@@ -581,7 +578,7 @@ public class TokenKeyRecoveryService implements IService {
             if (PubKey == null) {
                 request.setExtData(Request.RESULT, Integer.valueOf(4));
                 logger.warn("TokenKeyRecoveryService: failed getting publickey encoded");
-                audit(new SecurityDataRecoveryProcessedEvent(
+                auditor.log(new SecurityDataRecoveryProcessedEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditRequestID,
@@ -596,7 +593,7 @@ public class TokenKeyRecoveryService implements IService {
             }
             request.setExtData("public_key", PubKey);
 
-            audit(new SecurityDataRecoveryProcessedEvent(
+            auditor.log(new SecurityDataRecoveryProcessedEvent(
                     auditSubjectID,
                     ILogger.SUCCESS,
                     auditRequestID,
@@ -719,9 +716,5 @@ public class TokenKeyRecoveryService implements IService {
             logger.error(CMS.getLogMessage("CMSCORE_KRA_PRIVATE_KEY_NOT_FOUND"), e);
             throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1", "no private key"), e);
         }
-    }
-
-    protected void audit(LogEvent event) {
-        signedAuditLogger.log(event);
     }
 }
