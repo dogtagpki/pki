@@ -118,19 +118,6 @@ public class JobsScheduler extends Subsystem implements Runnable {
     // in milliseconds. daemon wakeup interval, default 1 minute.
     private long mInterval = 0;
 
-    // singleton enforcement
-
-    private static JobsScheduler mInstance = new JobsScheduler();
-
-    public static JobsScheduler getInstance() {
-        return mInstance;
-    }
-
-    // end singleton enforcement.
-
-    private JobsScheduler() {
-    }
-
     /**
      * read from the config file all implementations of Jobs,
      * register and initialize them
