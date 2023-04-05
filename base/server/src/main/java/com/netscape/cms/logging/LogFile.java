@@ -724,10 +724,9 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
      *
      */
     protected synchronized void open() throws IOException {
-        RandomAccessFile out;
 
-        try {
-            out = new RandomAccessFile(mFile, "rw");
+        try (RandomAccessFile out = new RandomAccessFile(mFile, "rw")) {
+
             out.seek(out.length());
             //XXX int or long?
             mBytesWritten = (int) out.length();
@@ -767,9 +766,10 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
             System.err.println(message);
             gse.printStackTrace();
             shutdownCMS();
-        }
 
-        mBytesUnflushed = 0;
+        } finally {
+            mBytesUnflushed = 0;
+        }
     }
 
     /**
