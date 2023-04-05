@@ -36,13 +36,12 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.profile.common.ProfileInput;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -54,7 +53,6 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 public abstract class EnrollInput extends ProfileInput {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EnrollInput.class);
-    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     protected ConfigStore mConfig;
     protected Vector<String> mValueNames = new Vector<>();
@@ -198,6 +196,9 @@ public abstract class EnrollInput extends ProfileInput {
         String method = "EnrollInput: verifyPOP: ";
         logger.debug("EnrollInput ::in verifyPOP");
 
+        CAEngine engine = CAEngine.getInstance();
+
+        Auditor auditor = engine.getAuditor();
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -213,7 +214,6 @@ public abstract class EnrollInput extends ProfileInput {
             return;
         }
 
-        CAEngine engine = CAEngine.getInstance();
         CAEngineConfig cs = engine.getConfig();
 
         try {
@@ -241,7 +241,7 @@ public abstract class EnrollInput extends ProfileInput {
                     auditSubjectID,
                     ILogger.SUCCESS,
                     "method="+method);
-            signedAuditLogger.log(auditMessage);
+            auditor.log(auditMessage);
         } catch (Exception e) {
 
             logger.error(method + "Failed POP verify! " + e.getMessage(), e);
@@ -253,7 +253,7 @@ public abstract class EnrollInput extends ProfileInput {
                     ILogger.FAILURE,
                     method + e.toString());
 
-            signedAuditLogger.log(auditMessage);
+            auditor.log(auditMessage);
 
             throw new EProfileException(CMS.getUserMessage(locale,
                         "CMS_POP_VERIFICATION_ERROR"));
