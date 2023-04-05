@@ -42,7 +42,10 @@ public class Auditor {
     public final static String SIGNED_AUDIT_EMPTY_NAME_VALUE_PAIR = "Unknown";
 
     protected CMSEngine engine;
-    protected Logger signedAuditLogger = SignedAuditLogger.getLogger();
+    protected Logger signedAuditLogger;
+
+    public Auditor() {
+    }
 
     public CMSEngine getCMSEngine() {
         return engine;
@@ -50,6 +53,10 @@ public class Auditor {
 
     public void setCMSEngine(CMSEngine engine) {
         this.engine = engine;
+    }
+
+    public void init() {
+        signedAuditLogger = new SignedAuditLogger();
     }
 
     /**

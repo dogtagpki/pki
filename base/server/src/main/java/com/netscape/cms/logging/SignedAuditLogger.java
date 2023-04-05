@@ -27,28 +27,19 @@ import com.netscape.cmscore.apps.CMS;
 /**
  * A class represents certificate server logger
  * implementation.
- * <P>
  *
  * @author thomask
  * @author mzhao
- * @version $Revision$, $Date$
  */
 public class SignedAuditLogger extends Logger {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SignedAuditLogger.class);
-
-    private final static SignedAuditLogger INSTANCE =
-            new SignedAuditLogger();
 
     public SignedAuditLogger() {
         super(new SignedAuditEventFactory(),
                 ILogger.EV_SIGNED_AUDIT,
                 ILogger.S_SIGNED_AUDIT,
                 ILogger.LL_SECURITY);
-    }
-
-    public static SignedAuditLogger getLogger() {
-        return INSTANCE;
     }
 
     @Override
