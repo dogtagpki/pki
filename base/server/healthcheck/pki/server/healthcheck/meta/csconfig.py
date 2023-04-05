@@ -56,6 +56,15 @@ def compare_nssdb_with_cs(class_instance, subsystem, cert_tag):
                           nssdbDir=subsystem.instance.nssdb_dir,
                           msg='Unable to load cert from NSSDB: %s' % str(e))
 
+    if cert_nssdb is None:
+        nick = '%s:%s' % (cert['token'], cert['nickname']) \
+            if cert['token'] else '%s' % cert['nickname']
+        logger.debug('No cert in NSSDB with nickname: %s', nick)
+        return Result(class_instance, constants.ERROR,
+                      key=cert_id,
+                      nssdbDir=subsystem.instance.nssdb_dir,
+                      msg='No cert in NSSDB with nickname: %s' % nick)
+
     # base64 blob may contain multiple certs so, compare each in turn
     cert_split = re.findall(b'^[^-]+$', cert_nssdb, re.M)
     for c in cert_split:
