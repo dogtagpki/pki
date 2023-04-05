@@ -164,7 +164,7 @@ public class CMSEngine {
     protected AuthSubsystem authSubsystem;
     protected AuthzSubsystem authzSubsystem = AuthzSubsystem.getInstance();
     protected CMSGateway gateway;
-    protected JobsScheduler jobsScheduler = JobsScheduler.getInstance();
+    protected JobsScheduler jobsScheduler;
 
     public final Map<String, SubsystemInfo> subsystemInfos = new LinkedHashMap<>();
     public final Map<String, Subsystem> subsystems = new LinkedHashMap<>();
@@ -791,6 +791,7 @@ public class CMSEngine {
 
     public void initJobsScheduler() throws Exception {
         JobsSchedulerConfig jobsSchedulerConfig = config.getJobsSchedulerConfig();
+        jobsScheduler = new JobsScheduler();
         jobsScheduler.setCMSEngine(this);
         jobsScheduler.init(jobsSchedulerConfig);
         jobsScheduler.startup();
