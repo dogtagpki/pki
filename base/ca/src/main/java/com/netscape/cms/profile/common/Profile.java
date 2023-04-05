@@ -36,8 +36,6 @@ import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.constraint.PolicyConstraint;
 import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cms.profile.updater.ProfileUpdater;
@@ -71,7 +69,6 @@ import com.netscape.cmscore.request.Request;
 public abstract class Profile {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Profile.class);
-    protected static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public static final String PROP_ENABLE = "enable";
     public static final String PROP_ENABLE_BY = "enableBy";

@@ -47,6 +47,7 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.profile.updater.ProfileUpdater;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.cert.CertUtils;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -82,13 +83,15 @@ public class CAEnrollProfile extends EnrollProfile {
             throw new EProfileException("Profile Not Enabled");
         }
 
+        CAEngine engine = CAEngine.getInstance();
+
+        Auditor auditor = engine.getAuditor();
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID(request);
 
         RequestId requestId = request.getRequestId();
         logger.info("CAEnrollProfile: Processing enrollment request " + requestId.toHexString());
 
-        CAEngine engine = CAEngine.getInstance();
         CAService caService = engine.getCAService();
         if (caService == null) {
             throw new EProfileException("No CA Service");
@@ -174,7 +177,7 @@ public class CAEnrollProfile extends EnrollProfile {
 
                 // TODO: perhaps have Server-Side Keygen enrollment audit
                 // event, or expand AsymKeyGenerationEvent
-                signedAuditLogger.log(new ServerSideKeygenEnrollKeygenEvent(
+                auditor.log(new ServerSideKeygenEnrollKeygenEvent(
                         auditSubjectID,
                         "Success",
                         requestId,
@@ -184,7 +187,7 @@ public class CAEnrollProfile extends EnrollProfile {
 
                 logger.debug(method + e);
 
-                signedAuditLogger.log(new ServerSideKeygenEnrollKeygenEvent(
+                auditor.log(new ServerSideKeygenEnrollKeygenEvent(
                             auditSubjectID,
                             "Failure",
                             requestId,
@@ -212,7 +215,7 @@ public class CAEnrollProfile extends EnrollProfile {
                         String message = "KRA connector not configured";
                         logger.error("CAEnrollProfile: " + message);
 
-                        signedAuditLogger.log(SecurityDataArchivalRequestEvent.createFailureEvent(
+                        auditor.log(SecurityDataArchivalRequestEvent.createFailureEvent(
                                 auditSubjectID,
                                 auditRequesterID,
                                 requestId,
@@ -231,7 +234,7 @@ public class CAEnrollProfile extends EnrollProfile {
                         String message = "archival request failed";
                         logger.error("CAEnrollProfile: " + message);
 
-                        signedAuditLogger.log(SecurityDataArchivalRequestEvent.createFailureEvent(
+                        auditor.log(SecurityDataArchivalRequestEvent.createFailureEvent(
                                 auditSubjectID,
                                 auditRequesterID,
                                 requestId,
@@ -251,7 +254,7 @@ public class CAEnrollProfile extends EnrollProfile {
                         throw new ERejectException(request.getError(getLocale(request)));
                     }
 
-                    signedAuditLogger.log(SecurityDataArchivalRequestEvent.createSuccessEvent(
+                    auditor.log(SecurityDataArchivalRequestEvent.createSuccessEvent(
                             auditSubjectID,
                             auditRequesterID,
                             requestId,
@@ -261,7 +264,7 @@ public class CAEnrollProfile extends EnrollProfile {
 
                     logger.error("CAEnrollProfile: " + e.getMessage(), e);
 
-                    signedAuditLogger.log(SecurityDataArchivalRequestEvent.createFailureEvent(
+                    auditor.log(SecurityDataArchivalRequestEvent.createFailureEvent(
                             auditSubjectID,
                             auditRequesterID,
                             requestId,
@@ -381,7 +384,7 @@ public class CAEnrollProfile extends EnrollProfile {
                         throw new ERejectException(request.getError(getLocale(request)));
                     }
 
-                    signedAuditLogger.log(new ServerSideKeygenEnrollKeyRetrievalEvent(
+                    auditor.log(new ServerSideKeygenEnrollKeyRetrievalEvent(
                                 auditSubjectID,
                                 "Success",
                                 requestId,
@@ -392,7 +395,7 @@ public class CAEnrollProfile extends EnrollProfile {
 
                 logger.debug(method + e);
 
-                signedAuditLogger.log(new ServerSideKeygenEnrollKeyRetrievalEvent(
+                auditor.log(new ServerSideKeygenEnrollKeyRetrievalEvent(
                             auditSubjectID,
                             "Failure",
                             requestId,
