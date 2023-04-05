@@ -26,6 +26,9 @@ class DogtagCACertsConnectivityCheck(MetaPlugin):
 
         self.instance.load()
 
+        server_config = self.instance.get_server_config()
+        secure_port = server_config.get_secure_port()
+
         ca = self.instance.get_subsystem('ca')
 
         if not ca:
@@ -42,7 +45,7 @@ class DogtagCACertsConnectivityCheck(MetaPlugin):
                 # the server is up AND is able to respond back
                 connection = PKIConnection(protocol='https',
                                            hostname='localhost',
-                                           port='8443',
+                                           port=secure_port,
                                            verify=False)
 
                 cert_client = CertClient(connection)
@@ -98,6 +101,9 @@ class DogtagKRAConnectivityCheck(MetaPlugin):
 
         self.instance.load()
 
+        server_config = self.instance.get_server_config()
+        secure_port = server_config.get_secure_port()
+
         kra = self.instance.get_subsystem('kra')
 
         if not kra:
@@ -114,7 +120,7 @@ class DogtagKRAConnectivityCheck(MetaPlugin):
                 # the server is up AND is able to respond back
                 connection = PKIConnection(protocol='https',
                                            hostname='localhost',
-                                           port='8443',
+                                           port=secure_port,
                                            verify=False)
 
                 system_cert_client = SystemCertClient(connection)
