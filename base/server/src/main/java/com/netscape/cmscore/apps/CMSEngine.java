@@ -158,7 +158,7 @@ public class CMSEngine {
     protected RequestQueue requestQueue;
 
     protected UGSubsystem ugSubsystem;
-    protected OidLoaderSubsystem oidLoaderSubsystem = OidLoaderSubsystem.getInstance();
+    protected OidLoaderSubsystem oidLoaderSubsystem;
     protected X500NameSubsystem x500NameSubsystem;
     protected RequestSubsystem requestSubsystem = new RequestSubsystem();
     protected AuthSubsystem authSubsystem;
@@ -750,6 +750,7 @@ public class CMSEngine {
 
     public void initOIDLoaderSubsystem() throws Exception {
         ConfigStore oidLoaderConfig = config.getSubStore(OidLoaderSubsystem.ID, ConfigStore.class);
+        oidLoaderSubsystem = new OidLoaderSubsystem();
         oidLoaderSubsystem.setCMSEngine(this);
         oidLoaderSubsystem.init(oidLoaderConfig);
         oidLoaderSubsystem.startup();
