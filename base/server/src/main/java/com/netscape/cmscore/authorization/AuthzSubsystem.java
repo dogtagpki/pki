@@ -64,19 +64,6 @@ public class AuthzSubsystem extends Subsystem {
     private String mId = "authz";
     private AuthorizationConfig mConfig;
 
-    // singleton enforcement
-
-    private static AuthzSubsystem mInstance = new AuthzSubsystem();
-
-    public static synchronized AuthzSubsystem getInstance() {
-        return mInstance;
-    }
-
-    // end singleton enforcement.
-
-    private AuthzSubsystem() {
-    }
-
     /**
      * Initializes the authorization subsystem from the config store.
      * Load Authorization manager plugins, create and initialize

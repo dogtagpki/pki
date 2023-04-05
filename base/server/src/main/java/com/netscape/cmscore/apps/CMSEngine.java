@@ -162,7 +162,7 @@ public class CMSEngine {
     protected X500NameSubsystem x500NameSubsystem = X500NameSubsystem.getInstance();
     protected RequestSubsystem requestSubsystem = new RequestSubsystem();
     protected AuthSubsystem authSubsystem;
-    protected AuthzSubsystem authzSubsystem = AuthzSubsystem.getInstance();
+    protected AuthzSubsystem authzSubsystem;
     protected CMSGateway gateway;
     protected JobsScheduler jobsScheduler;
 
@@ -778,6 +778,7 @@ public class CMSEngine {
 
     public void initAuthzSubsystem() throws Exception {
         ConfigStore authzConfig = config.getSubStore(AuthzSubsystem.ID, ConfigStore.class);
+        authzSubsystem = new AuthzSubsystem();
         authzSubsystem.setCMSEngine(this);
         authzSubsystem.init(authzConfig);
         authzSubsystem.startup();
