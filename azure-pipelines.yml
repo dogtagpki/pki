@@ -129,7 +129,7 @@ jobs:
       docker exec runner \
           jar tvf /root/build/dist/pki-common.jar | awk '{print $8;}' | grep -v '/$' | sort | tee cmake.out
       docker exec runner \
-          jar tvf /root/src/base/common/target/pki-common-11.3.0-SNAPSHOT.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort > maven.out
+          jar tvf /root/src/base/common/target/pki-common-11.4.0-SNAPSHOT.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort > maven.out
       diff cmake.out maven.out
     displayName: Compare pki-common.jar
 
@@ -137,7 +137,7 @@ jobs:
       docker exec runner \
           jar tvf /root/build/dist/pki-tools.jar | awk '{print $8;}' | grep -v '/$' | sort | tee cmake.out
       docker exec runner \
-          jar tvf /root/src/base/tools/target/pki-tools-11.3.0-SNAPSHOT.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort > maven.out
+          jar tvf /root/src/base/tools/target/pki-tools-11.4.0-SNAPSHOT.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort > maven.out
       diff cmake.out maven.out
     displayName: Compare pki-tools.jar
 
@@ -145,7 +145,7 @@ jobs:
       docker exec runner \
           jar tvf /root/build/dist/pki-ca.jar | awk '{print $8;}' | grep -v '/$' | sort | tee cmake.out
       docker exec runner \
-          jar tvf /root/src/base/ca/target/pki-ca-11.3.0-SNAPSHOT.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort > maven.out
+          jar tvf /root/src/base/ca/target/pki-ca-11.4.0-SNAPSHOT.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort > maven.out
       diff cmake.out maven.out
     displayName: Compare pki-ca.jar
 
@@ -153,7 +153,7 @@ jobs:
       docker exec runner \
           jar tvf /root/build/dist/pki-kra.jar | awk '{print $8;}' | grep -v '/$' | sort | tee cmake.out
       docker exec runner \
-          jar tvf /root/src/base/kra/target/pki-kra-11.3.0-SNAPSHOT.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort > maven.out
+          jar tvf /root/src/base/kra/target/pki-kra-11.4.0-SNAPSHOT.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort > maven.out
       diff cmake.out maven.out
     displayName: Compare pki-kra.jar
 
@@ -161,7 +161,7 @@ jobs:
       docker exec runner \
           jar tvf /root/build/dist/pki-ocsp.jar | awk '{print $8;}' | grep -v '/$' | sort | tee cmake.out
       docker exec runner \
-          jar tvf /root/src/base/ocsp/target/pki-ocsp-11.3.0-SNAPSHOT.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort > maven.out
+          jar tvf /root/src/base/ocsp/target/pki-ocsp-11.4.0-SNAPSHOT.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort > maven.out
       diff cmake.out maven.out
     displayName: Compare pki-ocsp.jar
 
@@ -169,7 +169,7 @@ jobs:
       docker exec runner \
           jar tvf /root/build/dist/pki-tks.jar | awk '{print $8;}' | grep -v '/$' | sort | tee cmake.out
       docker exec runner \
-          jar tvf /root/src/base/tks/target/pki-tks-11.3.0-SNAPSHOT.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort > maven.out
+          jar tvf /root/src/base/tks/target/pki-tks-11.4.0-SNAPSHOT.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort > maven.out
       diff cmake.out maven.out
     displayName: Compare pki-tks.jar
 
@@ -177,7 +177,7 @@ jobs:
       docker exec runner \
           jar tvf /root/build/dist/pki-tps.jar | awk '{print $8;}' | grep -v '/$' | sort | tee cmake.out
       docker exec runner \
-          jar tvf /root/src/base/tps/target/pki-tps-11.3.0-SNAPSHOT.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort > maven.out
+          jar tvf /root/src/base/tps/target/pki-tps-11.4.0-SNAPSHOT.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort > maven.out
       diff cmake.out maven.out
     displayName: Compare pki-tps.jar
 
@@ -185,7 +185,7 @@ jobs:
       docker exec runner \
           jar tvf /root/build/dist/pki-acme.jar | awk '{print $8;}' | grep -v '/$' | sort | tee cmake.out
       docker exec runner \
-          jar tvf /root/src/base/acme/target/pki-acme-11.3.0-SNAPSHOT.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort > maven.out
+          jar tvf /root/src/base/acme/target/pki-acme-11.4.0-SNAPSHOT.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort > maven.out
       diff cmake.out maven.out
     displayName: Compare pki-acme.jar
 

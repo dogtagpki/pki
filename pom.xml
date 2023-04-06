@@ -10,7 +10,7 @@
     <packaging>pom</packaging>
 
     <properties>
-        <revision>11.3.0-SNAPSHOT</revision>
+        <revision>11.4.0-SNAPSHOT</revision>
     </properties>
 
     <modules>
