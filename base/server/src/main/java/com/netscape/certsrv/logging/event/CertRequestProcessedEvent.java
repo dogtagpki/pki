@@ -65,7 +65,7 @@ public class CertRequestProcessedEvent extends SignedAuditEvent {
         event.setAttribute("SubjectID", subjectID);
         event.setAttribute("Outcome", ILogger.SUCCESS);
         event.setAttribute("ReqID", requesterID);
-        event.setAttribute("CertSerialNum", x509cert.getSerialNumber());
+        event.setAttribute("CertSerialNum", "0x" + x509cert.getSerialNumber().toString(16));
 
         return event;
     }
