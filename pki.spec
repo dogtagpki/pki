@@ -145,18 +145,7 @@ BuildRequires:    make
 BuildRequires:    cmake >= 3.0.2
 BuildRequires:    gcc-c++
 BuildRequires:    zip
-BuildRequires:    %{java_devel}
-BuildRequires:    maven-local
-BuildRequires:    javapackages-tools
 
-BuildRequires:    apache-commons-cli
-BuildRequires:    apache-commons-codec
-BuildRequires:    apache-commons-io
-BuildRequires:    apache-commons-lang3 >= 3.2
-BuildRequires:    apache-commons-logging
-BuildRequires:    apache-commons-net
-BuildRequires:    slf4j
-BuildRequires:    slf4j-jdk14
 BuildRequires:    nspr-devel
 BuildRequires:    nss-devel >= 3.36.1
 
@@ -164,11 +153,31 @@ BuildRequires:    openldap-devel
 BuildRequires:    pkgconfig
 BuildRequires:    policycoreutils
 
-BuildRequires:    python3-lxml
-BuildRequires:    python3-sphinx
-
+# Java build dependencies
+BuildRequires:    %{java_devel}
+BuildRequires:    maven-local
+BuildRequires:    javapackages-tools
+BuildRequires:    mvn(commons-cli:commons-cli)
+BuildRequires:    mvn(commons-codec:commons-codec)
+BuildRequires:    mvn(commons-io:commons-io)
+BuildRequires:    mvn(org.apache.commons:commons-lang3)
+BuildRequires:    mvn(commons-logging:commons-logging)
+BuildRequires:    mvn(commons-net:commons-net)
+BuildRequires:    mvn(org.slf4j:slf4j-api)
+BuildRequires:    mvn(org.slf4j:slf4j-jdk14)
+BuildRequires:    mvn(junit:junit)
 BuildRequires:    pki-resteasy >= 3.0.26
+BuildRequires:    jss = 5.4
+BuildRequires:    tomcatjss = 8.4
+BuildRequires:    ldapjdk = 5.4
 
+%if 0%{?rhel} && ! 0%{?eln}
+BuildRequires:    pki-servlet-engine >= 9.0.31
+%else
+BuildRequires:    tomcat >= 1:9.0.31
+%endif
+
+# Python build dependencies
 BuildRequires:    python3 >= 3.6
 BuildRequires:    python3-devel
 BuildRequires:    python3-setuptools
@@ -178,20 +187,9 @@ BuildRequires:    python3-ldap
 BuildRequires:    python3-libselinux
 BuildRequires:    python3-requests >= 2.6.0
 BuildRequires:    python3-six
-
-BuildRequires:    junit
-BuildRequires:    jpackage-utils >= 0:1.7.5-10
-BuildRequires:    jss = 5.4
-BuildRequires:    tomcatjss = 8.4
-BuildRequires:    ldapjdk = 5.4
+BuildRequires:    python3-sphinx
 
 BuildRequires:    systemd-units
-
-%if 0%{?rhel} && ! 0%{?eln}
-BuildRequires:    pki-servlet-engine >= 9.0.31
-%else
-BuildRequires:    tomcat >= 1:9.0.31
-%endif
 
 # additional build requirements needed to build native 'tpsclient'
 # REMINDER:  Revisit these once 'tpsclient' is rewritten as a Java app
@@ -361,15 +359,14 @@ Obsoletes:        %{product_id}-base-java < %{version}-%{release}
 Provides:         %{product_id}-base-java = %{version}-%{release}
 
 Requires:         %{java_headless}
-Requires:         apache-commons-cli
-Requires:         apache-commons-codec
-Requires:         apache-commons-io
-Requires:         apache-commons-lang3 >= 3.2
-Requires:         apache-commons-logging
-Requires:         apache-commons-net
-Requires:         slf4j
-Requires:         slf4j-jdk14
-Requires:         jpackage-utils >= 0:1.7.5-10
+Requires:         mvn(commons-cli:commons-cli)
+Requires:         mvn(commons-codec:commons-codec)
+Requires:         mvn(commons-io:commons-io)
+Requires:         mvn(org.apache.commons:commons-lang3)
+Requires:         mvn(commons-logging:commons-logging)
+Requires:         mvn(commons-net:commons-net)
+Requires:         mvn(org.slf4j:slf4j-api)
+Requires:         mvn(org.slf4j:slf4j-jdk14)
 Requires:         jss = 5.4
 Requires:         ldapjdk = 5.4
 Requires:         %{product_id}-base = %{version}-%{release}
