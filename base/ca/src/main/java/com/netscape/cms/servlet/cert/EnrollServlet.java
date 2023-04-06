@@ -766,7 +766,7 @@ public class EnrollServlet extends CAServlet {
             // retrieve the actual "auditRequesterID"
             if (req != null) {
                 // overwrite "auditRequesterID" if and only if "id" != null
-                id = req.getRequestId().toString();
+                id = req.getRequestId().toHexString();
                 if (id != null) {
                     auditRequesterID = id.trim();
                 }

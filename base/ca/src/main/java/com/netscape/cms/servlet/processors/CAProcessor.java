@@ -950,7 +950,7 @@ public class CAProcessor extends Processor {
 
         if (request != null) {
             // overwrite "requesterID" if and only if "id" != null
-            String id = request.getRequestId().toString();
+            String id = request.getRequestId().toHexString();
 
             if (id != null) {
                 requesterID = id.trim();

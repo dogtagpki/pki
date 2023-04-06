@@ -2750,7 +2750,7 @@ public abstract class EnrollProfile extends Profile {
 
         if (request != null) {
             // overwrite "requesterID" if and only if "id" != null
-            String id = request.getRequestId().toString();
+            String id = request.getRequestId().toHexString();
 
             if (id != null) {
                 requesterID = id.trim();
