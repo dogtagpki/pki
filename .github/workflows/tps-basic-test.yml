@@ -96,6 +96,7 @@ jobs:
               -D pki_ds_ldap_port=3389 \
               -D pki_authdb_hostname=ds.example.com \
               -D pki_authdb_port=3389 \
+              -D pki_enable_server_side_keygen=True \
               -v
 
       - name: Check TPS audit signing cert

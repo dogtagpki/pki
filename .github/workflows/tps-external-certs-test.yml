@@ -178,6 +178,7 @@ jobs:
               -D pki_ds_ldap_port=3389 \
               -D pki_authdb_hostname=tpsds.example.com \
               -D pki_authdb_port=3389 \
+              -D pki_enable_server_side_keygen=True \
               -D pki_external=True \
               -D pki_external_step_two=False \
               -D pki_subsystem_csr_path=${SHARED}/subsystem.csr \
@@ -233,6 +234,7 @@ jobs:
               -D pki_ds_ldap_port=3389 \
               -D pki_authdb_hostname=tpsds.example.com \
               -D pki_authdb_port=3389 \
+              -D pki_enable_server_side_keygen=True \
               -D pki_external=True \
               -D pki_external_step_two=True \
               -D pki_subsystem_csr_path=${SHARED}/subsystem.csr \

@@ -208,6 +208,7 @@ jobs:
               -D pki_sslserver_token=internal \
               -D pki_authdb_hostname=ds.example.com \
               -D pki_authdb_port=3389 \
+              -D pki_enable_server_side_keygen=True \
               -v
 
       - name: Check system certs in internal token
