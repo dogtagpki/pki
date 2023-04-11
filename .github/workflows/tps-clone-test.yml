@@ -98,6 +98,7 @@ jobs:
               -D pki_ds_ldap_port=3389 \
               -D pki_authdb_hostname=primaryds.example.com \
               -D pki_authdb_port=3389 \
+              -D pki_enable_server_side_keygen=True \
               -v
 
           docker exec primary pki-server cert-find
@@ -185,6 +186,7 @@ jobs:
               -D pki_ds_ldap_port=3389 \
               -D pki_authdb_hostname=secondaryds.example.com \
               -D pki_authdb_port=3389 \
+              -D pki_enable_server_side_keygen=True \
               -v
 
           docker exec secondary pki-server cert-find

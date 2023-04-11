@@ -181,6 +181,7 @@ jobs:
               -D pki_ds_ldap_port=3389 \
               -D pki_authdb_hostname=tpsds.example.com \
               -D pki_authdb_port=3389 \
+              -D pki_enable_server_side_keygen=True \
               -v
 
           docker exec tps pki-server cert-find
