@@ -17,6 +17,23 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.ocsp;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "caGetOCSPInfo",
+        urlPatterns = "/agent/ca/getOCSPInfo",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="true"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="interface",     value="agent"),
+                @WebInitParam(name="authority",     value="ca"),
+                @WebInitParam(name="templatePath",  value="/agent/ca/getOCSPInfo.template"),
+                @WebInitParam(name="ID",            value="caGetOCSPInfo"),
+                @WebInitParam(name="resourceID",    value="certServer.ca.ocsp"),
+                @WebInitParam(name="AuthMgr",       value="certUserDBAuthMgr")
+        }
+)
 public class CAGetOCSPInfo extends GetOCSPInfo {
     private static final long serialVersionUID = 1L;
 }
