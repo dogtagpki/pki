@@ -42,29 +42,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  caListCerts-agent  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.cert.ListCertsAgent  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> true        </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  templatePath   </param-name>
-                         <param-value> /agent/ca/queryCert.template  </param-value> </init-param>
-             <init-param><param-name>  interface  </param-name>
-                         <param-value> agent      </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caListCerts </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> certUserDBAuthMgr </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.ca.certificates </param-value> </init-param>
-             <init-param><param-name>  maxResults  </param-name>
-                         <param-value> 1000 </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  caports  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.base.PortsServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
@@ -756,11 +733,6 @@
    <servlet-mapping>
       <servlet-name>  caUpdateDirectory  </servlet-name>
       <url-pattern>   /agent/ca/updateDir.html  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>  
-      <servlet-name>  caListCerts-agent  </servlet-name>
-      <url-pattern>   /agent/ca/listCerts  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>  
