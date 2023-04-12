@@ -17,6 +17,24 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "caSrchCerts-agent",
+        urlPatterns = "/agent/ca/srchCerts",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="true"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="authority",     value="ca"),
+                @WebInitParam(name="templatePath",  value="/agent/ca/srchCert.template"),
+                @WebInitParam(name="interface",     value="agent"),
+                @WebInitParam(name="ID",            value="caSrchCerts"),
+                @WebInitParam(name="AuthMgr",       value="certUserDBAuthMgr"),
+                @WebInitParam(name="resourceID",    value="certServer.ca.certificates"),
+                @WebInitParam(name="timeLimits",    value="15")
+        }
+)
 public class SrchCertsAgent extends SrchCerts {
     private static final long serialVersionUID = 1L;
 }
