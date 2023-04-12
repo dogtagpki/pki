@@ -453,27 +453,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  caDisplayCertFromRequest  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.cert.DisplayCertFromRequest  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  successTemplate  </param-name>
-                         <param-value> /ee/ca/displayCertFromRequest.template </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caDisplayCertFromRequest </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.ee.certificate </param-value> </init-param>
-             <init-param><param-name>  importCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  interface   </param-name>
-                         <param-value> ee          </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  caListCerts  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.cert.ListCerts  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -1021,11 +1000,6 @@
    <servlet-mapping>  
       <servlet-name>  caProfileSubmitCMCSimple  </servlet-name>
       <url-pattern>   /ee/ca/profileSubmitCMCSimple  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>  
-      <servlet-name>  caDisplayCertFromRequest  </servlet-name>
-      <url-pattern>   /ee/ca/displayCertFromRequest  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>  
