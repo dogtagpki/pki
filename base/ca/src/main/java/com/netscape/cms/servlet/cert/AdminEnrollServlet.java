@@ -17,6 +17,23 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "caadminEnroll",
+        urlPatterns = "/admin/ca/adminEnroll",
+        initParams = {
+                @WebInitParam(name="GetClientCert",   value="false"),
+                @WebInitParam(name="successTemplate", value="/admin/ca/EnrollSuccess.template"),
+                @WebInitParam(name="AuthzMgr",        value="BasicAclAuthz"),
+                @WebInitParam(name="authority",       value="ca"),
+                @WebInitParam(name="interface",       value="admin"),
+                @WebInitParam(name="ID",              value="caadminEnroll"),
+                @WebInitParam(name="resourceID",      value="certServer.admin.request.enrollment"),
+                @WebInitParam(name="AuthMgr",         value="passwdUserDBAuthMgr")
+        }
+)
 public class AdminEnrollServlet extends EnrollServlet {
     private static final long serialVersionUID = 1L;
 }
