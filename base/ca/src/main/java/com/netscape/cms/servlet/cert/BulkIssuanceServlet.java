@@ -17,6 +17,29 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "cabulkissuance",
+        urlPatterns = "/agent/ca/bulkissuance",
+        initParams = {
+                @WebInitParam(name="unauthorizedTemplate",    value="/agent/ca/bulkissuance.template"),
+                @WebInitParam(name="rejectedTemplate",        value="/agent/ca/bulkissuance.template"),
+                @WebInitParam(name="svcpendingTemplate",      value="/agent/ca/bulkissuance.template"),
+                @WebInitParam(name="resourceID",              value="certServer.ca.request.enrollment"),
+                @WebInitParam(name="GetClientCert",           value="true"),
+                @WebInitParam(name="authority",               value="ca"),
+                @WebInitParam(name="interface",               value="agent"),
+                @WebInitParam(name="ID",                      value="cabulkissuance"),
+                @WebInitParam(name="errorTemplate",           value="/agent/ca/bulkissuance.template"),
+                @WebInitParam(name="unexpectedErrorTemplate", value="/agent/ca/bulkissuance.template"),
+                @WebInitParam(name="pendingTemplate",         value="/agent/ca/bulkissuance.template"),
+                @WebInitParam(name="AuthzMgr",                value="BasicAclAuthz"),
+                @WebInitParam(name="successTemplate",         value="/agent/ca/bulkissuance.template"),
+                @WebInitParam(name="AuthMgr",                 value="certUserDBAuthMgr")
+        }
+)
 public class BulkIssuanceServlet extends EnrollServlet {
     private static final long serialVersionUID = 1L;
 }

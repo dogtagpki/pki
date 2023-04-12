@@ -330,39 +330,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  cabulkissuance  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.cert.BulkIssuanceServlet  </servlet-class>
-             <init-param><param-name>  unauthorizedTemplate  </param-name>
-                         <param-value> /agent/ca/bulkissuance.template </param-value> </init-param>
-             <init-param><param-name>  rejectedTemplate  </param-name>
-                         <param-value> /agent/ca/bulkissuance.template </param-value> </init-param>
-             <init-param><param-name>  svcpendingTemplate  </param-name>
-                         <param-value> /agent/ca/bulkissuance.template </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.ca.request.enrollment </param-value> </init-param>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> true        </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  interface  </param-name>
-                         <param-value> agent      </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> cabulkissuance </param-value> </init-param>
-             <init-param><param-name>  errorTemplate  </param-name>
-                         <param-value> /agent/ca/bulkissuance.template </param-value> </init-param>
-             <init-param><param-name>  unexpectedErrorTemplate  </param-name>
-                         <param-value> /agent/ca/bulkissuance.template </param-value> </init-param>
-             <init-param><param-name>  pendingTemplate  </param-name>
-                         <param-value> /agent/ca/bulkissuance.template </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  successTemplate  </param-name>
-                         <param-value> /agent/ca/bulkissuance.template </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> certUserDBAuthMgr </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  caQueryBySerial  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.base.DisplayHtmlServlet  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -1125,11 +1092,6 @@
    <servlet-mapping>  
       <servlet-name>  caDoRevoke-agent  </servlet-name>
       <url-pattern>   /agent/ca/doRevoke  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>  
-      <servlet-name>  cabulkissuance  </servlet-name>
-      <url-pattern>   /agent/ca/bulkissuance  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>  
