@@ -42,29 +42,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  caSrchCerts-agent  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.cert.SrchCertsAgent  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> true        </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  templatePath   </param-name>
-                         <param-value> /agent/ca/srchCert.template  </param-value> </init-param>
-             <init-param><param-name>  interface  </param-name>
-                         <param-value> agent      </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caSrchCerts </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> certUserDBAuthMgr </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.ca.certificates </param-value> </init-param>
-             <init-param><param-name>  timeLimits  </param-name>
-                         <param-value> 15 </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  caListCerts-agent  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.cert.ListCertsAgent  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -800,11 +777,6 @@
    <servlet-mapping>
       <servlet-name>  caUpdateDirectory  </servlet-name>
       <url-pattern>   /agent/ca/updateDir.html  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  caSrchCerts-agent  </servlet-name>
-      <url-pattern>   /agent/ca/srchCerts  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>  
