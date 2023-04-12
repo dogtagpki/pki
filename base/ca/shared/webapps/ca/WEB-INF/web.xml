@@ -284,27 +284,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  caGetCertFromRequest  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.cert.GetCertFromRequest  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  successTemplate  </param-name>
-                         <param-value> /ee/ca/ImportCert.template </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  interface   </param-name>
-                         <param-value> ee          </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caGetCertFromRequest </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.ee.certificate </param-value> </init-param>
-             <init-param><param-name>  importCert  </param-name>
-                         <param-value> true        </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  caProfileSelect  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.profile.ProfileSelectServlet  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -942,11 +921,6 @@
    </servlet-mapping>
 
    <servlet-mapping>
-      <servlet-name>  caGetCertFromRequest  </servlet-name>
-      <url-pattern>   /ee/ca/getCertFromRequest  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
       <servlet-name>  caProfileSelect  </servlet-name>
       <url-pattern>   /ee/ca/profileSelect  </url-pattern>
    </servlet-mapping>
@@ -979,11 +953,6 @@
    <servlet-mapping>  
       <servlet-name>  caListCerts  </servlet-name>
       <url-pattern>   /ee/ca/listCerts  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  caGetCertFromRequest  </servlet-name>
-      <url-pattern>   /eeca/ca/getCertFromRequest  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>  

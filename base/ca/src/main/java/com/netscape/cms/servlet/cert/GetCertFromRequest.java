@@ -23,6 +23,8 @@ import java.util.Locale;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 
 import org.dogtagpki.server.authentication.AuthToken;
@@ -53,9 +55,24 @@ import com.netscape.cmscore.request.RequestQueue;
 
 /**
  * Gets a issued certificate from a request id.
- *
- * @version $Revision$, $Date$
  */
+@WebServlet(
+        name = "caGetCertFromRequest",
+        urlPatterns = {
+                "/ee/ca/getCertFromRequest",
+                "/eeca/ca/getCertFromRequest"
+        },
+        initParams = {
+                @WebInitParam(name="GetClientCert",   value="false"),
+                @WebInitParam(name="successTemplate", value="/ee/ca/ImportCert.template"),
+                @WebInitParam(name="AuthzMgr",        value="BasicAclAuthz"),
+                @WebInitParam(name="authority",       value="ca"),
+                @WebInitParam(name="interface",       value="ee"),
+                @WebInitParam(name="ID",              value="caGetCertFromRequest"),
+                @WebInitParam(name="resourceID",      value="certServer.ee.certificate"),
+                @WebInitParam(name="importCert",      value="true")
+        }
+)
 public class GetCertFromRequest extends CAServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GetCertFromRequest.class);
