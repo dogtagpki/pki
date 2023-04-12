@@ -234,27 +234,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  caSrchCerts  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.cert.SrchCerts  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  interface   </param-name>
-                         <param-value> ee          </param-value> </init-param>
-             <init-param><param-name>  templatePath   </param-name>
-                         <param-value> /ee/ca/srchCert.template  </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caSrchCerts </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.ee.certificates </param-value> </init-param>
-             <init-param><param-name>  timeLimits  </param-name>
-                         <param-value> 10 </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  caDynamicVariables  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.base.DynamicVariablesServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
@@ -832,11 +811,6 @@
    <servlet-mapping>  
       <servlet-name>  caOCSP  </servlet-name>
       <url-pattern>   /ocsp/*  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>  
-      <servlet-name>  caSrchCerts  </servlet-name>
-      <url-pattern>   /ee/ca/srchCerts  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>  
