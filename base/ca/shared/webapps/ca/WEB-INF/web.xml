@@ -261,25 +261,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  caProfileSelect  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.profile.ProfileSelectServlet  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authorityId  </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  interface   </param-name>
-                         <param-value> ee          </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caProfileSelect </param-value> </init-param>
-             <init-param><param-name>  templatePath  </param-name>
-                         <param-value> /ee/ca/ProfileSelect.template </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.ee.profile </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  caOCSP  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.ocsp.OCSPServlet  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -890,11 +871,6 @@
    <servlet-mapping>
       <servlet-name>  camasterCAGetInfo  </servlet-name>
       <url-pattern>   /agent/ca/getInfo  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  caProfileSelect  </servlet-name>
-      <url-pattern>   /ee/ca/profileSelect  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>  
