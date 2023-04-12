@@ -17,6 +17,23 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "caDisplayCertFromRequest",
+        urlPatterns = "/ee/ca/displayCertFromRequest",
+        initParams = {
+                @WebInitParam(name="GetClientCert",   value="false"),
+                @WebInitParam(name="successTemplate", value="/ee/ca/displayCertFromRequest.template"),
+                @WebInitParam(name="AuthzMgr",        value="BasicAclAuthz"),
+                @WebInitParam(name="authority",       value="ca"),
+                @WebInitParam(name="ID",              value="caDisplayCertFromRequest"),
+                @WebInitParam(name="resourceID",      value="certServer.ee.certificate"),
+                @WebInitParam(name="importCert",      value="false"),
+                @WebInitParam(name="interface",       value="agent")
+        }
+)
 public class DisplayCertFromRequest extends GetCertFromRequest {
     private static final long serialVersionUID = 1L;
 }
