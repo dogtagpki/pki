@@ -6,7 +6,6 @@
 package com.netscape.cmscore.logging;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.cms.logging.LogFile;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
@@ -15,6 +14,31 @@ import com.netscape.cmscore.base.SimpleProperties;
  * Provides log.instance.<id>.* parameters.
  */
 public class LoggerConfig extends ConfigStore {
+
+    public static final String TYPE = "type";
+    public static final String REGISTER = "register";
+    public static final String ENABLE = "enable";
+    public static final String TRACE = "trace";
+    public static final String LOG_SIGNING = "logSigning";
+    public static final String CERT_NICKNAME = "signedAuditCertNickname";
+    public static final String SELECTED_EVENTS = "events";
+    public static final String MANDATORY_EVENTS = "mandatory.events";
+    public static final String FILTERS = "filters";
+    public static final String LEVEL = "level";
+    public static final String FILE_NAME = "fileName";
+    public static final String LAST_HASH_FILE_NAME = "lastHashFileName";
+    public static final String BUFFER_SIZE = "bufferSize";
+    public static final String FLUSH_INTERVAL = "flushInterval";
+
+    /**
+     * The default output stream buffer size in bytes
+     */
+    public static final int DEFAULT_BUFFER_SIZE = 512;
+
+    /**
+     * The default output flush interval in seconds
+     */
+    public static final int DEFAULT_FLUSH_INTERVAL = 5;
 
     public LoggerConfig() {
     }
@@ -28,54 +52,54 @@ public class LoggerConfig extends ConfigStore {
     }
 
     public boolean getEnable() throws EBaseException {
-        return getBoolean(LogFile.PROP_ON, true);
+        return getBoolean(ENABLE, true);
     }
 
     public boolean getLogSigning() throws EBaseException {
-        return getBoolean(LogFile.PROP_SIGNED_AUDIT_LOG_SIGNING, false);
+        return getBoolean(LOG_SIGNING, false);
     }
 
     public String getSignedAuditCertNickname() throws EBaseException {
-        return getString(LogFile.PROP_SIGNED_AUDIT_CERT_NICKNAME);
+        return getString(CERT_NICKNAME);
     }
 
     public String getMandatoryEvents() throws EBaseException {
-        return getString(LogFile.PROP_SIGNED_AUDIT_MANDATORY_EVENTS, "");
+        return getString(MANDATORY_EVENTS, "");
     }
 
     public String getSelectedEvents() throws EBaseException {
-        return getString(LogFile.PROP_SIGNED_AUDIT_SELECTED_EVENTS, "");
+        return getString(SELECTED_EVENTS, "");
     }
 
     public ConfigStore getFilters() throws EBaseException {
-        return getSubStore(LogFile.PROP_SIGNED_AUDIT_FILTERS);
+        return getSubStore(FILTERS);
     }
 
     public boolean getTrace() throws EBaseException {
-        return getBoolean(LogFile.PROP_TRACE, false);
+        return getBoolean(TRACE, false);
     }
 
     public String getType() throws EBaseException {
-        return getString(LogFile.PROP_TYPE, "system");
+        return getString(TYPE, "system");
     }
 
     public boolean getRegister() throws EBaseException {
-        return getBoolean(LogFile.PROP_REGISTER, true);
+        return getBoolean(REGISTER, true);
     }
 
     public int getLevel() throws EBaseException {
-        return getInteger(LogFile.PROP_LEVEL, 3);
+        return getInteger(LEVEL, 3);
     }
 
     public String getFilename(String defaultFilename) throws EBaseException {
-        return getString(LogFile.PROP_FILE_NAME, defaultFilename);
+        return getString(FILE_NAME, defaultFilename);
     }
 
     public int getBufferSize() throws EBaseException {
-        return getInteger(LogFile.PROP_BUFFER_SIZE, LogFile.BUFFER_SIZE);
+        return getInteger(BUFFER_SIZE, DEFAULT_BUFFER_SIZE);
     }
 
     public int getFlushInterval() throws EBaseException {
-        return getInteger(LogFile.PROP_FLUSH_INTERVAL, LogFile.FLUSH_INTERVAL);
+        return getInteger(FLUSH_INTERVAL, DEFAULT_FLUSH_INTERVAL);
     }
 }

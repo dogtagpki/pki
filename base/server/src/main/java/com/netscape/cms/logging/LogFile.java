@@ -100,23 +100,6 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LogFile.class);
 
-    public static final String PROP_TYPE = "type";
-    public static final String PROP_REGISTER = "register";
-    public static final String PROP_ON = "enable";
-    public static final String PROP_TRACE = "trace";
-    public static final String PROP_SIGNED_AUDIT_LOG_SIGNING = "logSigning";
-    public static final String PROP_SIGNED_AUDIT_CERT_NICKNAME =
-                              "signedAuditCertNickname";
-    public static final String PROP_SIGNED_AUDIT_SELECTED_EVENTS = "events";
-    public static final String PROP_SIGNED_AUDIT_MANDATORY_EVENTS = "mandatory.events";
-    public static final String PROP_SIGNED_AUDIT_FILTERS = "filters";
-
-    public static final String PROP_LEVEL = "level";
-    public static final String PROP_FILE_NAME = "fileName";
-    static final String PROP_LAST_HASH_FILE_NAME = "lastHashFileName";
-    public static final String PROP_BUFFER_SIZE = "bufferSize";
-    public static final String PROP_FLUSH_INTERVAL = "flushInterval";
-
     private final static String LOG_SIGNED_AUDIT_EXCEPTION =
                                "LOG_SIGNED_AUDIT_EXCEPTION_1";
 
@@ -129,16 +112,6 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
 
     //It may be interesting to make this flexable someday....
     protected SimpleDateFormat mLogFileDateFormat = new SimpleDateFormat(DATE_PATTERN);
-
-    /**
-     * The default output stream buffer size in bytes
-     */
-    public static final int BUFFER_SIZE = 512;
-
-    /**
-     * The default output flush interval in seconds
-     */
-    public static final int FLUSH_INTERVAL = 5;
 
     /**
      * The log file
@@ -178,12 +151,12 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
     /**
      * The output buffer size in bytes
      */
-    protected int mBufferSize = BUFFER_SIZE;
+    protected int mBufferSize = LoggerConfig.DEFAULT_BUFFER_SIZE;
 
     /**
      * The output buffer flush interval
      */
-    protected int mFlushInterval = FLUSH_INTERVAL;
+    protected int mFlushInterval = LoggerConfig.DEFAULT_FLUSH_INTERVAL;
 
     /**
      * The number of unflushed bytes
@@ -263,14 +236,14 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
             mOn = config.getEnable();
         } catch (EBaseException e) {
             throw new ELogException(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED",
-                    config.getName() + "." + PROP_ON));
+                    config.getName() + "." + LoggerConfig.ENABLE));
         }
 
         try {
             mLogSigning = config.getLogSigning();
         } catch (EBaseException e) {
             throw new ELogException(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED",
-                    config.getName() + "." + PROP_SIGNED_AUDIT_LOG_SIGNING));
+                    config.getName() + "." + LoggerConfig.LOG_SIGNING));
         }
 
         if (mOn && mLogSigning) {
@@ -280,14 +253,14 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
             } catch (EBaseException e) {
                 throw new ELogException(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED",
                         config.getName() + "."
-                                         + PROP_SIGNED_AUDIT_CERT_NICKNAME));
+                                         + LoggerConfig.CERT_NICKNAME));
             }
             if (mSAuditCertNickName == null ||
                     mSAuditCertNickName.trim().equals("")) {
                 throw new ELogException(CMS.getUserMessage(
                         "CMS_BASE_GET_PROPERTY_FAILED",
                         config.getName() + "."
-                                + PROP_SIGNED_AUDIT_CERT_NICKNAME));
+                                + LoggerConfig.CERT_NICKNAME));
             }
         }
 
@@ -455,7 +428,7 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
 
         } catch (Exception e2) {
             String message = CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED",
-                    config.getName() + "." + PROP_FILE_NAME);
+                    config.getName() + "." + LoggerConfig.FILE_NAME);
             logger.error("LogFile: " + message + ": " + e2.getMessage(), e2);
             throw new ELogException(message, e2);
         }
@@ -478,7 +451,7 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
             fileName = config.getFilename(defaultFileName);
         } catch (EBaseException e) {
             String message = CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED",
-                    config.getName() + "." + PROP_FILE_NAME);
+                    config.getName() + "." + LoggerConfig.FILE_NAME);
             logger.error("LogFile: " + message + ": " + e.getMessage(), e);
             throw new ELogException(message, e);
         }
@@ -1499,21 +1472,21 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
     public Vector<String> getDefaultParams() {
         Vector<String> v = new Vector<>();
 
-        v.addElement(PROP_TYPE + "=");
-        v.addElement(PROP_ON + "=");
-        v.addElement(PROP_LEVEL + "=");
-        v.addElement(PROP_FILE_NAME + "=");
-        v.addElement(PROP_BUFFER_SIZE + "=");
-        v.addElement(PROP_FLUSH_INTERVAL + "=");
+        v.addElement(LoggerConfig.TYPE + "=");
+        v.addElement(LoggerConfig.ENABLE + "=");
+        v.addElement(LoggerConfig.LEVEL + "=");
+        v.addElement(LoggerConfig.FILE_NAME + "=");
+        v.addElement(LoggerConfig.BUFFER_SIZE + "=");
+        v.addElement(LoggerConfig.FLUSH_INTERVAL + "=");
 
         // needs to find a way to determine what type you want. if this
         // is not for the signed audit type, then we should not show the
         // following parameters.
         //if( mType.equals( ILogger.PROP_SIGNED_AUDIT ) ) {
-        v.addElement(PROP_SIGNED_AUDIT_LOG_SIGNING + "=");
-        v.addElement(PROP_SIGNED_AUDIT_CERT_NICKNAME + "=");
-        v.addElement(PROP_SIGNED_AUDIT_MANDATORY_EVENTS + "=");
-        v.addElement(PROP_SIGNED_AUDIT_SELECTED_EVENTS + "=");
+        v.addElement(LoggerConfig.LOG_SIGNING + "=");
+        v.addElement(LoggerConfig.CERT_NICKNAME + "=");
+        v.addElement(LoggerConfig.MANDATORY_EVENTS + "=");
+        v.addElement(LoggerConfig.SELECTED_EVENTS + "=");
         //}
 
         return v;
@@ -1526,49 +1499,49 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
         try {
 
             if (mType == null) {
-                v.addElement(PROP_TYPE + "=");
+                v.addElement(LoggerConfig.TYPE + "=");
             } else {
-                v.addElement(PROP_TYPE + "=" +
-                        mConfig.getString(PROP_TYPE));
+                v.addElement(LoggerConfig.TYPE + "=" +
+                        mConfig.getString(LoggerConfig.TYPE));
             }
-            v.addElement(PROP_ON + "=" + String.valueOf(mOn));
+            v.addElement(LoggerConfig.ENABLE + "=" + String.valueOf(mOn));
             if (mLevel == 0)
-                v.addElement(PROP_LEVEL + "=" + ILogger.LL_DEBUG_STRING);
+                v.addElement(LoggerConfig.LEVEL + "=" + ILogger.LL_DEBUG_STRING);
             else if (mLevel == 1)
-                v.addElement(PROP_LEVEL + "=" + ILogger.LL_INFO_STRING);
+                v.addElement(LoggerConfig.LEVEL + "=" + ILogger.LL_INFO_STRING);
             else if (mLevel == 2)
-                v.addElement(PROP_LEVEL + "=" + ILogger.LL_WARN_STRING);
+                v.addElement(LoggerConfig.LEVEL + "=" + ILogger.LL_WARN_STRING);
             else if (mLevel == 3)
-                v.addElement(PROP_LEVEL + "=" + ILogger.LL_FAILURE_STRING);
+                v.addElement(LoggerConfig.LEVEL + "=" + ILogger.LL_FAILURE_STRING);
             else if (mLevel == 4)
-                v.addElement(PROP_LEVEL + "=" + ILogger.LL_MISCONF_STRING);
+                v.addElement(LoggerConfig.LEVEL + "=" + ILogger.LL_MISCONF_STRING);
             else if (mLevel == 5)
-                v.addElement(PROP_LEVEL + "=" + ILogger.LL_CATASTRPHE_STRING);
+                v.addElement(LoggerConfig.LEVEL + "=" + ILogger.LL_CATASTRPHE_STRING);
             else if (mLevel == 6)
-                v.addElement(PROP_LEVEL + "=" + ILogger.LL_SECURITY_STRING);
+                v.addElement(LoggerConfig.LEVEL + "=" + ILogger.LL_SECURITY_STRING);
 
             if (mFileName == null) {
-                v.addElement(PROP_FILE_NAME + "=");
+                v.addElement(LoggerConfig.FILE_NAME + "=");
             } else {
-                v.addElement(PROP_FILE_NAME + "=" +
+                v.addElement(LoggerConfig.FILE_NAME + "=" +
                         mFileName);
             }
-            v.addElement(PROP_BUFFER_SIZE + "=" + mBufferSize);
-            v.addElement(PROP_FLUSH_INTERVAL + "=" + mFlushInterval / 1000);
+            v.addElement(LoggerConfig.BUFFER_SIZE + "=" + mBufferSize);
+            v.addElement(LoggerConfig.FLUSH_INTERVAL + "=" + mFlushInterval / 1000);
 
             if ((mType != null) && mType.equals(ILogger.PROP_SIGNED_AUDIT)) {
-                v.addElement(PROP_SIGNED_AUDIT_LOG_SIGNING + "="
+                v.addElement(LoggerConfig.LOG_SIGNING + "="
                             + String.valueOf(mLogSigning));
 
                 if (mSAuditCertNickName == null) {
-                    v.addElement(PROP_SIGNED_AUDIT_CERT_NICKNAME + "=");
+                    v.addElement(LoggerConfig.CERT_NICKNAME + "=");
                 } else {
-                    v.addElement(PROP_SIGNED_AUDIT_CERT_NICKNAME + "="
+                    v.addElement(LoggerConfig.CERT_NICKNAME + "="
                                 + mSAuditCertNickName);
                 }
 
-                v.addElement(PROP_SIGNED_AUDIT_MANDATORY_EVENTS + "=" + StringUtils.join(mandatoryEvents, ","));
-                v.addElement(PROP_SIGNED_AUDIT_SELECTED_EVENTS + "=" + StringUtils.join(selectedEvents, ","));
+                v.addElement(LoggerConfig.MANDATORY_EVENTS + "=" + StringUtils.join(mandatoryEvents, ","));
+                v.addElement(LoggerConfig.SELECTED_EVENTS + "=" + StringUtils.join(selectedEvents, ","));
             }
         } catch (Exception e) {
         }
@@ -1579,10 +1552,10 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
     public String[] getExtendedPluginInfo() {
         if (mType.equals(ILogger.PROP_SIGNED_AUDIT)) {
             String[] params = {
-                    PROP_TYPE
+                    LoggerConfig.TYPE
                             + ";choice(transaction,signedAudit,system);The log event type this instance is listening to",
-                    PROP_ON + ";boolean;Turn on the listener",
-                    PROP_LEVEL + ";choice(" + ILogger.LL_DEBUG_STRING + "," +
+                    LoggerConfig.ENABLE + ";boolean;Turn on the listener",
+                    LoggerConfig.LEVEL + ";choice(" + ILogger.LL_DEBUG_STRING + "," +
                             ILogger.LL_INFO_STRING + "," +
                             ILogger.LL_WARN_STRING + "," +
                             ILogger.LL_FAILURE_STRING + "," +
@@ -1590,21 +1563,21 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
                             ILogger.LL_CATASTRPHE_STRING + "," +
                             ILogger.LL_SECURITY_STRING
                             + ");Only log message with level higher than this filter will be written by this listener",
-                    PROP_FILE_NAME + ";string;The name of the file the log is written to",
-                    PROP_BUFFER_SIZE + ";integer;The size of the buffer to receive log messages in kilobytes(KB)",
-                    PROP_FLUSH_INTERVAL
+                    LoggerConfig.FILE_NAME + ";string;The name of the file the log is written to",
+                    LoggerConfig.BUFFER_SIZE + ";integer;The size of the buffer to receive log messages in kilobytes(KB)",
+                    LoggerConfig.FLUSH_INTERVAL
                             + ";integer;The maximum time in seconds before the buffer is flushed to the file",
                     IExtendedPluginInfo.HELP_TOKEN +
                             ";configuration-logrules-logfile",
                     IExtendedPluginInfo.HELP_TEXT +
                             ";Write the log messages to a file",
-                    PROP_SIGNED_AUDIT_LOG_SIGNING +
+                    LoggerConfig.LOG_SIGNING +
                             ";boolean;Enable audit logs to be signed",
-                    PROP_SIGNED_AUDIT_CERT_NICKNAME +
+                    LoggerConfig.CERT_NICKNAME +
                             ";string;The nickname of the certificate to be used to sign audit logs",
-                    PROP_SIGNED_AUDIT_MANDATORY_EVENTS +
+                    LoggerConfig.MANDATORY_EVENTS +
                             ";string;A comma-separated list of strings used to specify mandatory signed audit log events",
-                    PROP_SIGNED_AUDIT_SELECTED_EVENTS +
+                    LoggerConfig.SELECTED_EVENTS +
                             ";string;A comma-separated list of strings used to specify selected signed audit log events"
             };
 
@@ -1613,10 +1586,10 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
         // mType.equals( ILogger.PROP_AUDIT )  ||
         // mType.equals( ILogger.PROP_SYSTEM )
         String[] params = {
-                PROP_TYPE
+                LoggerConfig.TYPE
                         + ";choice(transaction,signedAudit,system);The log event type this instance is listening to",
-                PROP_ON + ";boolean;Turn on the listener",
-                PROP_LEVEL + ";choice(" + ILogger.LL_DEBUG_STRING + "," +
+                LoggerConfig.ENABLE + ";boolean;Turn on the listener",
+                LoggerConfig.LEVEL + ";choice(" + ILogger.LL_DEBUG_STRING + "," +
                         ILogger.LL_INFO_STRING + "," +
                         ILogger.LL_WARN_STRING + "," +
                         ILogger.LL_FAILURE_STRING + "," +
@@ -1624,9 +1597,9 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
                         ILogger.LL_CATASTRPHE_STRING + "," +
                         ILogger.LL_SECURITY_STRING
                         + ");Only log message with level higher than this filter will be written by this listener",
-                PROP_FILE_NAME + ";string;The name of the file the log is written to",
-                PROP_BUFFER_SIZE + ";integer;The size of the buffer to receive log messages in kilobytes(KB)",
-                PROP_FLUSH_INTERVAL
+                LoggerConfig.FILE_NAME + ";string;The name of the file the log is written to",
+                LoggerConfig.BUFFER_SIZE + ";integer;The size of the buffer to receive log messages in kilobytes(KB)",
+                LoggerConfig.FLUSH_INTERVAL
                         + ";integer;The maximum time in seconds before the buffer is flushed to the file",
                 IExtendedPluginInfo.HELP_TOKEN +
                         ";configuration-logrules-logfile",
