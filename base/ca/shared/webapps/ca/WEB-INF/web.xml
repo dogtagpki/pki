@@ -5,7 +5,7 @@
 
    <servlet>
       <servlet-name>  cajobsScheduler  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.admin.JobsAdminServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.admin.CAJobsAdminServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
                          <param-value> cajobsScheduler </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
@@ -14,7 +14,7 @@
 
    <servlet>
       <servlet-name>  caadminEnroll  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.cert.EnrollServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.cert.AdminEnrollServlet  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> false       </param-value> </init-param>
              <init-param><param-name>  successTemplate  </param-name>
@@ -35,7 +35,7 @@
 
    <servlet>
       <servlet-name>  caGetOCSPInfo  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.ocsp.GetOCSPInfo  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.ocsp.CAGetOCSPInfo  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> true        </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
@@ -77,7 +77,7 @@
 
    <servlet>
       <servlet-name>  caGetCertFromRequest-agent  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.cert.GetCertFromRequest  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.cert.GetCertFromRequestAgent  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> true        </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
@@ -98,7 +98,7 @@
 
    <servlet>
       <servlet-name>  caProfileSelect-agent  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.profile.ProfileSelectServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.profile.ProfileSelectAgentServlet  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> true        </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
@@ -121,7 +121,7 @@
 
    <servlet>
       <servlet-name>  caStats </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.GetStats </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.base.CAGetStats </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> true        </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
@@ -180,7 +180,7 @@
 
    <servlet>
       <servlet-name>  caSrchCerts-agent  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.cert.SrchCerts  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.cert.SrchCertsAgent  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> true        </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
@@ -203,7 +203,7 @@
 
    <servlet>
       <servlet-name>  caDisplayCertFromRequest-agent  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.cert.GetCertFromRequest  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.cert.DisplayCertFromRequestAgent  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> true        </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
@@ -224,7 +224,7 @@
 
    <servlet>
       <servlet-name>  caListCerts-agent  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.cert.ListCerts  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.cert.ListCertsAgent  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> true        </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
@@ -361,7 +361,7 @@
 
    <servlet>
       <servlet-name>  cabulkissuance  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.cert.EnrollServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.cert.BulkIssuanceServlet  </servlet-class>
              <init-param><param-name>  unauthorizedTemplate  </param-name>
                          <param-value> /agent/ca/bulkissuance.template </param-value> </init-param>
              <init-param><param-name>  rejectedTemplate  </param-name>
@@ -453,7 +453,7 @@
 
    <servlet>
       <servlet-name>  cacertbasedenrollment  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.cert.EnrollServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.cert.CertBasedEnrollServlet  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> true        </param-value> </init-param>
              <init-param><param-name>  successTemplate  </param-name>
@@ -618,7 +618,7 @@
 
    <servlet>
       <servlet-name>  caDisplayCertFromRequest  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.cert.GetCertFromRequest  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.cert.DisplayCertFromRequest  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> false       </param-value> </init-param>
              <init-param><param-name>  successTemplate  </param-name>
