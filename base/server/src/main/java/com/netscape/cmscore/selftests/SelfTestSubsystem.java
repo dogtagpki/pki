@@ -47,6 +47,7 @@ import com.netscape.cms.selftests.SelfTest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.logging.Auditor;
+import com.netscape.cmscore.logging.LoggerConfig;
 
 //////////////////////
 // class definition //
@@ -1191,7 +1192,7 @@ public class SelfTestSubsystem extends Subsystem {
 
         // compose self test plugins logger property prefix
         String loggerPath = PROP_CONTAINER + "." + PROP_LOGGER;
-        ConfigStore loggerConfig = mConfig.getSubStore(loggerPath, ConfigStore.class);
+        LoggerConfig loggerConfig = mConfig.getSubStore(loggerPath, LoggerConfig.class);
 
         if ((loggerConfig != null) &&
                 (loggerConfig.getName() != null) &&

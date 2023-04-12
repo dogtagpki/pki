@@ -29,6 +29,7 @@ import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.logging.LoggerConfig;
 
 /**
  * A class representing a log event listener.
@@ -85,7 +86,7 @@ public abstract class LogEventListener implements EventListener {
      * @param config Configuration store for this log listener.
      * @exception initialization error.
      */
-    public abstract void init(Subsystem owner, ConfigStore config) throws EBaseException;
+    public abstract void init(Subsystem owner, LoggerConfig config) throws EBaseException;
 
     /**
      * Startup the instance.

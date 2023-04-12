@@ -80,6 +80,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.logging.Auditor;
+import com.netscape.cmscore.logging.LoggerConfig;
 
 import netscape.ldap.client.JDAPAVA;
 import netscape.ldap.client.JDAPFilter;
@@ -255,7 +256,7 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
     }
 
     @Override
-    public void init(Subsystem owner, ConfigStore config) throws EBaseException {
+    public void init(Subsystem owner, LoggerConfig config) throws EBaseException {
         mConfig = config;
 
         try {
@@ -419,7 +420,7 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
      *
      * @param config The property config store to find values in
      */
-    public void init(ConfigStore config) throws IOException, EBaseException {
+    public void init(LoggerConfig config) throws IOException, EBaseException {
 
         EngineConfig cs = engine.getConfig();
 

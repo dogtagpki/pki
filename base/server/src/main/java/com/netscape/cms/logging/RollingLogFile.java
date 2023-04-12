@@ -38,8 +38,8 @@ import com.netscape.certsrv.logging.ELogException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.logging.Auditor;
+import com.netscape.cmscore.logging.LoggerConfig;
 
 /**
  * A rotating log file for Certificate log events. This class loosely follows
@@ -109,7 +109,7 @@ public class RollingLogFile extends LogFile {
      * @param config The property config store to find values in
      */
     @Override
-    public void init(ConfigStore config) throws IOException, EBaseException {
+    public void init(LoggerConfig config) throws IOException, EBaseException {
         super.init(config);
 
         rl_init(config.getInteger(Constants.PR_LOG_MAXFILESIZE, MAX_FILE_SIZE),
