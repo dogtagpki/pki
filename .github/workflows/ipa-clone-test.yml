@@ -17,14 +17,14 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v3
 
-      - name: Retrieve PKI images
+      - name: Retrieve IPA images
         uses: actions/cache@v3
         with:
-          key: pki-images-${{ github.sha }}
-          path: pki-images.tar
+          key: ipa-images-${{ github.sha }}
+          path: ipa-images.tar
 
-      - name: Load PKI images
-        run: docker load --input pki-images.tar
+      - name: Load IPA images
+        run: docker load --input ipa-images.tar
 
       - name: Create network
         run: docker network create example
