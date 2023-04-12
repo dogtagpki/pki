@@ -28,6 +28,8 @@ import java.util.StringTokenizer;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -61,9 +63,21 @@ import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**
  * Search for certificates matching complex query filter
- *
- * @version $Revision$, $Date$
  */
+@WebServlet(
+        name = "caSrchCerts",
+        urlPatterns = "/ee/ca/srchCerts",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="false"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="authority",     value="ca"),
+                @WebInitParam(name="interface",     value="ee"),
+                @WebInitParam(name="templatePath",  value="/ee/ca/srchCert.template"),
+                @WebInitParam(name="ID",            value="caSrchCerts"),
+                @WebInitParam(name="resourceID",    value="certServer.ee.certificates"),
+                @WebInitParam(name="timeLimits",    value="10")
+        }
+)
 public class SrchCerts extends CMSServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SrchCerts.class);
