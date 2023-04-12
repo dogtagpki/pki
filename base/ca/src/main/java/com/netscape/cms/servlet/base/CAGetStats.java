@@ -17,6 +17,23 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.base;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "caStats",
+        urlPatterns = "/agent/ca/getStats",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="true"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="authority",     value="ca"),
+                @WebInitParam(name="templatePath",  value="/agent/ca/getStats.template"),
+                @WebInitParam(name="ID",            value="stats"),
+                @WebInitParam(name="interface",     value="agent"),
+                @WebInitParam(name="resourceID",    value="certServer.ca.systemstatus"),
+                @WebInitParam(name="AuthMgr",       value="certUserDBAuthMgr")
+        }
+)
 public class CAGetStats extends GetStats {
     private static final long serialVersionUID = 1L;
 }
