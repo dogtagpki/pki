@@ -29,6 +29,8 @@ import java.util.Vector;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -86,9 +88,20 @@ import com.netscape.cmscore.usrgrp.User;
 
 /**
  * Submit a Certificate Enrollment request
- *
- * @version $Revision$, $Date$
  */
+@WebServlet(
+        name = "caenrollment",
+        urlPatterns = "/enrollment",
+        initParams = {
+                @WebInitParam(name="GetClientCert",   value="false"),
+                @WebInitParam(name="successTemplate", value="/ca/EnrollSuccess.template"),
+                @WebInitParam(name="AuthzMgr",        value="BasicAclAuthz"),
+                @WebInitParam(name="authority",       value="ca"),
+                @WebInitParam(name="interface",       value="ee"),
+                @WebInitParam(name="ID",              value="caenrollment"),
+                @WebInitParam(name="resourceID",      value="certServer.ee.request.enrollment")
+        }
+)
 public class EnrollServlet extends CAServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EnrollServlet.class);

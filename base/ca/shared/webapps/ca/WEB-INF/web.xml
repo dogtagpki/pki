@@ -408,25 +408,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  caenrollment  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.cert.EnrollServlet  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  successTemplate  </param-name>
-                         <param-value> /ca/EnrollSuccess.template </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  interface   </param-name>
-                         <param-value> ee          </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caenrollment </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.ee.request.enrollment </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  caOCSP  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.ocsp.OCSPServlet  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -1093,11 +1074,6 @@
    <servlet-mapping>
       <servlet-name>  caProfileSelect  </servlet-name>
       <url-pattern>   /ee/ca/profileSelect  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  caenrollment  </servlet-name>
-      <url-pattern>   /enrollment  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>  
