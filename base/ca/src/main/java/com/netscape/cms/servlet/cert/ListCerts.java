@@ -28,6 +28,8 @@ import java.util.Vector;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -59,9 +61,21 @@ import com.netscape.cmscore.dbs.RevocationInfo;
 
 /**
  * Retrieve a paged list of certs matching the specified query
- *
- * @version $Revision$, $Date$
  */
+@WebServlet(
+        name = "caListCerts",
+        urlPatterns = "/ee/ca/listCerts",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="false"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="authority",     value="ca"),
+                @WebInitParam(name="templatePath",  value="/ee/ca/queryCert.template"),
+                @WebInitParam(name="ID",            value="caListCerts"),
+                @WebInitParam(name="resourceID",    value="certServer.ee.certificates"),
+                @WebInitParam(name="interface",     value="ee"),
+                @WebInitParam(name="maxResults",    value="1000")
+        }
+)
 public class ListCerts extends CMSServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ListCerts.class);
