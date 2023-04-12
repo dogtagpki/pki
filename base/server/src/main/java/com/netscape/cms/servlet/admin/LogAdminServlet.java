@@ -787,30 +787,27 @@ public class LogAdminServlet extends AdminServlet {
 
             LoggingConfig destStore = mConfig.getLoggingConfig();
             LoggersConfig instancesConfig = destStore.getLoggersConfig();
-            LoggerConfig substore = instancesConfig.createLoggerConfig(id);
+            LoggerConfig loggerConfig = instancesConfig.createLoggerConfig(id);
 
             if (configParams != null) {
                 for (int i = 0; i < configParams.size(); i++) {
                     String kv = configParams.elementAt(i);
                     int index = kv.indexOf('=');
-                    String val = req.getParameter(kv.substring(0, index));
-
+                    String key = kv.substring(0, index);
+                    String val = req.getParameter(key);
                     if (val == null) {
-                        substore.put(kv.substring(0, index),
-                                kv.substring(index + 1));
-                    } else {
-                        substore.put(kv.substring(0, index),
-                                val);
+                        val = kv.substring(index + 1);
                     }
+                    loggerConfig.put(key, val);
                 }
             }
-            substore.put("pluginName", implname);
+            loggerConfig.put("pluginName", implname);
 
             // Fix Blackflag Bug #615603:  Currently, although expiring log
             // files is no longer supported, it is still a required parameter
             // that must be present during the creation and modification of
             // custom log plugins.
-            substore.put(Constants.PR_LOG_EXPIRED_TIME, "0");
+            loggerConfig.put(Constants.PR_LOG_EXPIRED_TIME, "0");
 
             // Instantiate an object for this implementation
             String className = plugin.getClassPath();
@@ -840,7 +837,7 @@ public class LogAdminServlet extends AdminServlet {
             // initialize the log
             try {
                 logInst.setCMSEngine(engine);
-                logInst.init(logSubsystem, substore);
+                logInst.init(logSubsystem, loggerConfig);
             } catch (EBaseException e) {
                 // don't commit in this case and cleanup the new substore.
                 instancesConfig.removeSubStore(id);

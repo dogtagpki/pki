@@ -112,10 +112,10 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
     public static final String PROP_SIGNED_AUDIT_FILTERS = "filters";
 
     public static final String PROP_LEVEL = "level";
-    static final String PROP_FILE_NAME = "fileName";
+    public static final String PROP_FILE_NAME = "fileName";
     static final String PROP_LAST_HASH_FILE_NAME = "lastHashFileName";
-    static final String PROP_BUFFER_SIZE = "bufferSize";
-    static final String PROP_FLUSH_INTERVAL = "flushInterval";
+    public static final String PROP_BUFFER_SIZE = "bufferSize";
+    public static final String PROP_FLUSH_INTERVAL = "flushInterval";
 
     private final static String LOG_SIGNED_AUDIT_EXCEPTION =
                                "LOG_SIGNED_AUDIT_EXCEPTION_1";
@@ -133,12 +133,12 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
     /**
      * The default output stream buffer size in bytes
      */
-    static final int BUFFER_SIZE = 512;
+    public static final int BUFFER_SIZE = 512;
 
     /**
      * The default output flush interval in seconds
      */
-    static final int FLUSH_INTERVAL = 5;
+    public static final int FLUSH_INTERVAL = 5;
 
     /**
      * The log file
@@ -260,15 +260,14 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
         mConfig = config;
 
         try {
-            mOn = config.getBoolean(PROP_ON, true);
+            mOn = config.getEnable();
         } catch (EBaseException e) {
             throw new ELogException(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED",
                     config.getName() + "." + PROP_ON));
         }
 
         try {
-            mLogSigning = config.getBoolean(PROP_SIGNED_AUDIT_LOG_SIGNING,
-                                            false);
+            mLogSigning = config.getLogSigning();
         } catch (EBaseException e) {
             throw new ELogException(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED",
                     config.getName() + "." + PROP_SIGNED_AUDIT_LOG_SIGNING));
@@ -276,8 +275,7 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
 
         if (mOn && mLogSigning) {
             try {
-                mSAuditCertNickName = config.getString(
-                                          PROP_SIGNED_AUDIT_CERT_NICKNAME);
+                mSAuditCertNickName = config.getSignedAuditCertNickname();
                 logger.debug("LogFile: audit log signing enabled. signedAuditCertNickname: " + mSAuditCertNickName);
             } catch (EBaseException e) {
                 throw new ELogException(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED",
@@ -294,19 +292,19 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
         }
 
         // mandatory events
-        String mandatoryEventsList = config.getString(PROP_SIGNED_AUDIT_MANDATORY_EVENTS, "");
+        String mandatoryEventsList = config.getMandatoryEvents();
         for (String event : StringUtils.split(mandatoryEventsList, ", ")) {
             mandatoryEvents.add(event);
         }
 
         // selected events
-        String selectedEventsList = config.getString(PROP_SIGNED_AUDIT_SELECTED_EVENTS, "");
+        String selectedEventsList = config.getSelectedEvents();
         for (String event : StringUtils.split(selectedEventsList, ", ")) {
             selectedEvents.add(event);
         }
 
         logger.debug("Event filters:");
-        ConfigStore filterStore = config.getSubStore(PROP_SIGNED_AUDIT_FILTERS, ConfigStore.class);
+        ConfigStore filterStore = config.getFilters();
         for (Enumeration<String> e = filterStore.getPropertyNames(); e.hasMoreElements(); ) {
             String eventType = e.nextElement();
 
@@ -430,9 +428,9 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
 
         mConfig = config;
 
-        mTrace = config.getBoolean(PROP_TRACE, false);
-        mType = config.getString(PROP_TYPE, "system");
-        mRegister = config.getBoolean(PROP_REGISTER, true);
+        mTrace = config.getTrace();
+        mType = config.getType();
+        mRegister = config.getRegister();
 
         if (mOn) {
             if (mRegister) {
@@ -446,7 +444,7 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
             }
         }
 
-        mLevel = config.getInteger(PROP_LEVEL, 3);
+        mLevel = config.getLevel();
 
         try {
             String subsystem = cs.getType().toLowerCase();
@@ -477,7 +475,7 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
         }
 
         try {
-            fileName = config.getString(PROP_FILE_NAME, defaultFileName);
+            fileName = config.getFilename(defaultFileName);
         } catch (EBaseException e) {
             String message = CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED",
                     config.getName() + "." + PROP_FILE_NAME);
@@ -486,8 +484,7 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
         }
 
         if (mOn) {
-            init(fileName, config.getInteger(PROP_BUFFER_SIZE, BUFFER_SIZE),
-                    config.getInteger(PROP_FLUSH_INTERVAL, FLUSH_INTERVAL));
+            init(fileName, config.getBufferSize(), config.getFlushInterval());
         }
     }
 
