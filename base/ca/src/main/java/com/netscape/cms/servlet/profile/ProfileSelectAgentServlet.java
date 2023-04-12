@@ -17,6 +17,24 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.profile;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "caProfileSelect-agent",
+        urlPatterns = "/agent/ca/profileSelect",
+        initParams = {
+                @WebInitParam(name="GetClientCert",        value="true"),
+                @WebInitParam(name="AuthzMgr",             value="BasicAclAuthz"),
+                @WebInitParam(name="authorityId",          value="ca"),
+                @WebInitParam(name="interface",            value="agent"),
+                @WebInitParam(name="ID",                   value="caProfileSelect"),
+                @WebInitParam(name="unauthorizedTemplate", value="/GenUnauthorized.template"),
+                @WebInitParam(name="templatePath",         value="/agent/ca/ProfileSelect.template"),
+                @WebInitParam(name="AuthMgr",              value="certUserDBAuthMgr"),
+                @WebInitParam(name="resourceID",           value="certServer.ca.profile")
+        }
+)
 public class ProfileSelectAgentServlet extends ProfileSelectServlet {
     private static final long serialVersionUID = 1L;
 }
