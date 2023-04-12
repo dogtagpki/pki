@@ -4,15 +4,6 @@
     <display-name>Certificate Authority</display-name>
 
    <servlet>
-      <servlet-name>  cajobsScheduler  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.admin.CAJobsAdminServlet  </servlet-class>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> cajobsScheduler </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  caadminEnroll  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.cert.AdminEnrollServlet  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -1080,11 +1071,6 @@
    <servlet-mapping>
       <servlet-name>  caDynamicVariables-admin  </servlet-name>
       <url-pattern>   /admin/dynamicVars.js  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  cajobsScheduler  </servlet-name>
-      <url-pattern>   /jobsScheduler  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>

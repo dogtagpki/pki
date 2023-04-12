@@ -17,6 +17,17 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.admin;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "cajobsScheduler",
+        urlPatterns = "/jobsScheduler",
+        initParams = {
+                @WebInitParam(name="ID",       value="cajobsScheduler"),
+                @WebInitParam(name="AuthzMgr", value="BasicAclAuthz")
+        }
+)
 public class CAJobsAdminServlet extends JobsAdminServlet {
     private static final long serialVersionUID = 1L;
 }
