@@ -470,9 +470,7 @@ public class OCSPAdminServlet extends AdminServlet {
         for (int i = 0; i < algorithms.length; i++) {
             logger.info("OCSPAdminServlet: - " + algorithms[i]);
 
-            if (i == 0) {
-                algorStr.append(algorithms[i]);
-            } else {
+            if (i > 0) {
                 algorStr.append(":");
             }
             algorStr.append(algorithms[i]);
