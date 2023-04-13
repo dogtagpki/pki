@@ -71,7 +71,7 @@ run_bug_790924(){
 
         rlLog "https://bugzilla.redhat.com/show_bug.cgi?id=790924"
 	COMMON_SERVER_PACKAGES="bind expect xmlstarlet dos2unix"
-        RHELRHCS_PACKAGES="pki-base pki-server pki-tools pki-symkey pki-javadoc pki-ca"
+        RHELRHCS_PACKAGES="pki-base pki-server pki-tools pki-javadoc pki-ca"
         cat /etc/redhat-release | grep "Fedora"
         if [ $? -eq 0 ] ; then
                FLAVOR="Fedora"
