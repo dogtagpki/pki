@@ -102,6 +102,8 @@ public class TPSCertService extends PKIService implements TPSCertResource {
     public Response findCerts(String filter, String tokenID, Integer start, Integer size) {
         String method = "TPSCertService:findCerts: ";
         String msg = "";
+        start = start == null ? 0 : start;
+        size = size == null ? DEFAULT_SIZE : size;
 
         logger.debug("TPSCertService.findCerts(" + filter + ", " + tokenID + ", " + start + ", " + size + ")");
 
@@ -109,15 +111,13 @@ public class TPSCertService extends PKIService implements TPSCertResource {
             if (filter == null || filter.length() < MIN_FILTER_LENGTH) {
                 throw new BadRequestException("Filter is too short. Must be at least " + MIN_FILTER_LENGTH + " characters.");
             }
+            return findAllCerts(filter, start, size);
         }
 
         Map<String, String> attributes = new HashMap<>();
         if (tokenID != null) {
             attributes.put("tokenID", tokenID);
         }
-
-        start = start == null ? 0 : start;
-        size = size == null ? DEFAULT_SIZE : size;
 
         TPSEngine engine = TPSEngine.getInstance();
         try {
@@ -144,7 +144,6 @@ public class TPSCertService extends PKIService implements TPSCertResource {
             TPSCertDatabase database = subsystem.getCertDatabase();
 
             Iterator<TPSCertRecord> certRecs = database.findRecords(filter, attributes).iterator();
-
             TPSCertCollection response = new TPSCertCollection();
             int i = 0;
 
@@ -162,6 +161,54 @@ public class TPSCertService extends PKIService implements TPSCertResource {
 
             return createOKResponse(response);
 
+        } catch (Exception e) {
+            throw new PKIException(e.getMessage());
+        }
+    }
+
+    private Response findAllCerts(String filter, Integer start, Integer size) {
+        String method = "TPSCertService:findAllCerts: ";
+        String msg = "";
+        TPSCertCollection response = new TPSCertCollection();
+
+        logger.debug("TPSCertService.findAllCerts({}, {}, {})", filter, start, size);
+
+        TPSEngine engine = TPSEngine.getInstance();
+        try {
+            TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
+            TPSCertDatabase certDatabase = subsystem.getCertDatabase();
+            Iterator<TPSCertRecord> certRecs = certDatabase.findRecords(filter).iterator();
+            TokenDatabase tokenDatabase = subsystem.getTokenDatabase();
+            List<String> authorizedProfiles = getAuthorizedProfiles();
+            if (authorizedProfiles == null) {
+                msg = "authorizedProfiles null";
+                logger.debug("{}{}", method, msg);
+                throw new PKIException(method + msg);
+            }
+            int total = 0;
+            while (certRecs.hasNext()) {
+                TPSCertRecord certRecord = certRecs.next();
+                String tokenID = certRecord.getTokenID();
+                TokenRecord tokenRecord = null;
+                try {
+                    tokenRecord = tokenDatabase.getRecord(tokenID);
+                } catch (Exception e) {
+                    // Proceed to next token if this one doesn't exist.
+                }
+                if (tokenRecord != null) {
+                    String type = tokenRecord.getType();
+                    if (type == null || type.isEmpty() || authorizedProfiles.contains(type) || authorizedProfiles.contains(UserResource.ALL_PROFILES)) {
+                        // Return entries from the start of the page up to the page size
+                        if (total >= start && total < start + size) {
+                            response.addEntry(createCertData(certRecord));
+                        }
+                        // Count all accessible records, on this page or otherwise.
+                        total++;
+                    }
+                }
+            }
+            response.setTotal(total);
+            return createOKResponse(response);
         } catch (Exception e) {
             e.printStackTrace();
             throw new PKIException(e.getMessage());
