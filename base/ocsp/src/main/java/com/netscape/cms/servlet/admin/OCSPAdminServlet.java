@@ -459,9 +459,7 @@ public class OCSPAdminServlet extends AdminServlet {
         StringBuffer algorStr = new StringBuffer();
 
         for (int i = 0; i < algorithms.length; i++) {
-            if (i == 0)
-                algorStr.append(algorithms[i]);
-            else
+            if (i > 0)
                 algorStr.append(":");
             algorStr.append(algorithms[i]);
         }
