@@ -15,7 +15,7 @@ javac(pki-server-classes
         ${HTTPCORE_JAR} ${HTTPCLIENT_JAR}
         ${JACKSON2_ANNOTATIONS_JAR} ${JACKSON2_JAXB_ANNOTATIONS_JAR}
         ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
-        ${JSS_JAR} ${JSS_SYMKEY_JAR}
+        ${JSS_JAR}
         ${LDAPJDK_JAR}
         ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR}
         ${TOMCATJSS_JAR}
@@ -63,7 +63,7 @@ if(RUN_TESTS)
         CLASSPATH
             ${PKI_COMMON_JAR} ${PKI_SERVER_JAR}
             ${LDAPJDK_JAR} ${SERVLET_JAR}
-            ${JSS_JAR} ${JSS_SYMKEY_JAR}
+            ${JSS_JAR}
             ${HAMCREST_JAR} ${JUNIT_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_IO_JAR}
             ${JACKSON2_ANNOTATIONS_JAR} ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
             ${CMAKE_BINARY_DIR}/test/classes
@@ -91,7 +91,7 @@ if(RUN_TESTS)
             ${PKI_COMMON_JAR} ${PKI_SERVER_JAR}
             ${LDAPJDK_JAR} ${SERVLET_JAR}
             ${COMMONS_CODEC_JAR} ${COMMONS_LANG3_JAR}
-            ${JSS_JAR} ${JSS_SYMKEY_JAR}
+            ${JSS_JAR}
             ${JACKSON2_ANNOTATIONS_JAR} ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
             ${HAMCREST_JAR} ${JUNIT_JAR} ${COMMONS_IO_JAR}
             ${CMAKE_BINARY_DIR}/test/classes
@@ -141,7 +141,6 @@ add_custom_command(
     COMMAND ln -sf ../../../../../..${JAXRS_API_JAR} common/lib/jaxrs-api.jar
     COMMAND ln -sf ../../../../../..${JBOSS_LOGGING_JAR} common/lib/jboss-logging.jar
     COMMAND ln -sf ../../../../../..${JSS_JAR} common/lib/jss.jar
-    COMMAND ln -sf ../../../../../..${JSS_SYMKEY_JAR} common/lib/jss-symkey.jar
     COMMAND ln -sf ../../../../../..${LDAPJDK_JAR} common/lib/ldapjdk.jar
     COMMAND ln -sf ../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-common.jar ${CMAKE_CURRENT_BINARY_DIR}/common/lib/pki-common.jar
     COMMAND ln -sf ../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-tomcat.jar ${CMAKE_CURRENT_BINARY_DIR}/common/lib/pki-tomcat.jar

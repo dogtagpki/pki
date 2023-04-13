@@ -19,7 +19,7 @@ javac(pki-tks-classes
         ${JACKSON2_CORE_JAR}
         ${JACKSON2_DATABIND_JAR}
         ${LDAPJDK_JAR}
-        ${JSS_JAR} ${JSS_SYMKEY_JAR}
+        ${JSS_JAR}
         ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR}
         ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR}
         ${PKI_COMMON_JAR} ${PKI_SERVER_JAR}
