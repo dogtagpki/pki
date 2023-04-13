@@ -7,7 +7,7 @@ javac(pki-common-classes
     CLASSPATH
         ${SLF4J_API_JAR}
         ${LDAPJDK_JAR} ${SERVLET_JAR}
-        ${JSS_JAR} ${JSS_SYMKEY_JAR}
+        ${JSS_JAR}
         ${COMMONS_CODEC_JAR} ${COMMONS_IO_JAR}
         ${COMMONS_LANG3_JAR} ${COMMONS_CLI_JAR}
         ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR}
@@ -126,7 +126,6 @@ add_custom_command(
     COMMAND ln -sf ../../../..${JAXRS_API_JAR} lib/jaxrs-api.jar
     COMMAND ln -sf ../../../..${JBOSS_LOGGING_JAR} lib/jboss-logging.jar
     COMMAND ln -sf ../../../..${JSS_JAR} lib/jss.jar
-    COMMAND ln -sf ../../../..${JSS_SYMKEY_JAR} lib/jss-symkey.jar
     COMMAND ln -sf ../../../..${LDAPJDK_JAR} lib/ldapjdk.jar
     COMMAND ln -sf ../../../..${P11_KIT_TRUST} lib/p11-kit-trust.so
     COMMAND ln -sf ../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-common.jar ${CMAKE_CURRENT_BINARY_DIR}/lib/pki-common.jar

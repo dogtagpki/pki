@@ -20,7 +20,8 @@ javac(pki-tools-classes
         ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR}
         ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
         ${SLF4J_API_JAR} ${JAXB_API_JAR}
-        ${JSS_JAR} ${JSS_SYMKEY_JAR} ${LDAPJDK_JAR}
+        ${JSS_JAR}
+        ${LDAPJDK_JAR}
         ${PKI_COMMON_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes

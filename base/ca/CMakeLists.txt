@@ -19,7 +19,7 @@ javac(pki-ca-classes
         ${COMMONS_NET_JAR}
         ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
         ${JACKSON2_ANNOTATIONS_JAR}
-        ${JSS_JAR} ${JSS_SYMKEY_JAR}
+        ${JSS_JAR}
         ${LDAPJDK_JAR}
         ${SERVLET_JAR}
         ${TOMCAT_CATALINA_JAR}
