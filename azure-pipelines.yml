@@ -79,7 +79,7 @@ jobs:
           -Dfile=/usr/lib/java/jss.jar \
           -DgroupId=org.dogtagpki \
           -DartifactId=jss \
-          -Dversion=5.3.0-SNAPSHOT \
+          -Dversion=5.4.0-SNAPSHOT \
           -Dpackaging=jar \
           -DgeneratePom=true
     displayName: Install JSS into Maven repo
@@ -90,7 +90,7 @@ jobs:
           -f /root/src \
           -Dfile=/usr/share/java/tomcatjss.jar \
           -DgroupId=org.dogtagpki \
-          -DartifactId=tomcatjss \
+          -DartifactId=tomcatjss-tomcat-9.0 \
           -Dversion=8.3.0-SNAPSHOT \
           -Dpackaging=jar \
           -DgeneratePom=true
