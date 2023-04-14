@@ -39,9 +39,6 @@ var KeyCollection = Collection.extend({
     getEntries: function(response) {
         return response.entries;
     },
-    getLinks: function(response) {
-        return response.Link;
-    },
     parseEntry: function(entry) {
         var i = entry.keyURL.lastIndexOf('/');
         var id = entry.keyURL.substring(i + 1);

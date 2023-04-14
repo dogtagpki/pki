@@ -84,9 +84,6 @@ var UserCollection = Collection.extend({
     getEntries: function(response) {
         return response.entries;
     },
-    getLinks: function(response) {
-        return response.Link;
-    },
     parseEntry: function(entry) {
         var self = this;
         return new UserModel({
@@ -145,9 +142,6 @@ var UserRoleCollection = Collection.extend({
     },
     getEntries: function(response) {
         return response.Membership;
-    },
-    getLinks: function(response) {
-        return response.Link;
     },
     model: function(attrs, options) {
         var self = this;
@@ -219,9 +213,6 @@ var UserCertCollection = Collection.extend({
     },
     getEntries: function(response) {
         return response.Cert;
-    },
-    getLinks: function(response) {
-        return response.Link;
     },
     model: function(attrs, options) {
         var self = this;

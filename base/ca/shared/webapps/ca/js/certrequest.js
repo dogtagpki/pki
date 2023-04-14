@@ -40,9 +40,6 @@ var CertRequestCollection = Collection.extend({
     getEntries: function(response) {
         return response.entries;
     },
-    getLinks: function(response) {
-        return response.Link;
-    },
     parseEntry: function(entry) {
         var url = entry.requestURL;
         var i = url.lastIndexOf('/');
