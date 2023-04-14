@@ -40,9 +40,6 @@ var KeyRequestCollection = Collection.extend({
     getEntries: function(response) {
         return response.entries;
     },
-    getLinks: function(response) {
-        return response.Link;
-    },
     parseEntry: function(entry) {
         var requestURL = entry.requestURL;
         var i = requestURL.lastIndexOf('/');

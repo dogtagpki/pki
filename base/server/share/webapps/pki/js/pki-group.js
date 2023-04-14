@@ -57,9 +57,6 @@ var GroupCollection = Collection.extend({
     getEntries: function(response) {
         return response.entries;
     },
-    getLinks: function(response) {
-        return response.Link;
-    },
     parseEntry: function(entry) {
         var self = this;
         return new GroupModel({
@@ -104,9 +101,6 @@ var GroupMemberCollection = Collection.extend({
     },
     getEntries: function(response) {
         return response.Member;
-    },
-    getLinks: function(response) {
-        return response.Link;
     },
     model: function(attrs, options) {
         var self = this;

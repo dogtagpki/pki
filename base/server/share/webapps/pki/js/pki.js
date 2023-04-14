@@ -132,7 +132,6 @@ var Collection = Backbone.Collection.extend({
         self.urlRoot = options.urlRoot || self.urlRoot;
 
         self.options = options;
-        self.links = {};
         self.query({});
     },
     url: function() {
@@ -143,11 +142,6 @@ var Collection = Backbone.Collection.extend({
 
         // get total entries
         self.total = self.getTotal(response);
-
-        // parse links
-        var links = self.getLinks(response);
-        links = links == undefined ? [] : [].concat(links);
-        self.parseLinks(links);
 
         // convert entries into models
         var models = [];
@@ -167,28 +161,8 @@ var Collection = Backbone.Collection.extend({
     getEntries: function(response) {
         return null;
     },
-    getLinks: function(response) {
-        return null;
-    },
     parseEntry: function(entry) {
         return null;
-    },
-    parseLinks: function(links) {
-        var self = this;
-        self.links = {};
-        _(links).each(function(link) {
-            var name = link.rel;
-            var href = link.href;
-            self.links[name] = href;
-        });
-    },
-    link: function(name) {
-        return this.links[name];
-    },
-    go: function(name) {
-        var self = this;
-        if (self.links[name] == undefined) return;
-        self.currentURL = self.links[name];
     },
     query: function(params) {
         var self = this;

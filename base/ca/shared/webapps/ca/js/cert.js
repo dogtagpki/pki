@@ -40,9 +40,6 @@ var CertificateCollection = Collection.extend({
     getEntries: function(response) {
         return response.entries;
     },
-    getLinks: function(response) {
-        return response.Link;
-    },
     parseEntry: function(entry) {
         return new CertificateModel({
             id: entry.id,
