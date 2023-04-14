@@ -47,8 +47,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -173,16 +173,18 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("serial")
 public class CryptoUtil {
 
+    private CryptoUtil () {/* Prevent instantiation */}
+
     private static Logger logger = LoggerFactory.getLogger(CryptoUtil.class);
 
-    public final static int KEY_ID_LENGTH = 20;
+    public static final int KEY_ID_LENGTH = 20;
 
-    public final static String INTERNAL_TOKEN_NAME = "internal";
-    public final static String INTERNAL_TOKEN_FULL_NAME = "Internal Key Storage Token";
+    public static final String INTERNAL_TOKEN_NAME = "internal";
+    public static final String INTERNAL_TOKEN_FULL_NAME = "Internal Key Storage Token";
 
     public static final int LINE_COUNT = 76;
 
-    private static SymmetricKey.Usage sess_key_usages[] = {
+    private static SymmetricKey.Usage[] sess_key_usages = {
             SymmetricKey.Usage.WRAP,
             SymmetricKey.Usage.UNWRAP,
             SymmetricKey.Usage.ENCRYPT,
@@ -190,18 +192,18 @@ public class CryptoUtil {
     };
 
     // ECDHE needs SIGN but no DERIVE
-    public final static KeyPairGeneratorSpi.Usage[] ECDHE_USAGES_MASK = {
+    public static final KeyPairGeneratorSpi.Usage[] ECDHE_USAGES_MASK = {
             KeyPairGeneratorSpi.Usage.DERIVE
     };
 
     // ECDH needs DERIVE but no any kind of SIGN
-    public final static KeyPairGeneratorSpi.Usage[] ECDH_USAGES_MASK = {
+    public static final KeyPairGeneratorSpi.Usage[] ECDH_USAGES_MASK = {
             KeyPairGeneratorSpi.Usage.SIGN,
             KeyPairGeneratorSpi.Usage.SIGN_RECOVER,
     };
 
     // nCipher (v. 12.60+) wrapping/unwrapping keys requirements
-    public final static org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage RSA_KEYPAIR_USAGES[] = {
+    public static final org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] RSA_KEYPAIR_USAGES = {
             org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.ENCRYPT,
             org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.DECRYPT,
             org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.WRAP,
@@ -210,7 +212,7 @@ public class CryptoUtil {
             org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.SIGN_RECOVER
         };
 
-    public final static org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage RSA_KEYPAIR_USAGES_MASK[] = {
+    public static final org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] RSA_KEYPAIR_USAGES_MASK = {
             org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.ENCRYPT,
             org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.DECRYPT,
             org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.WRAP,
@@ -219,7 +221,7 @@ public class CryptoUtil {
             org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.SIGN_RECOVER
         };
 
-    static public final Integer[] clientECCiphers = {
+    public static final Integer[] clientECCiphers = {
             // SSLSocket.TLS_ECDH_RSA_WITH_AES_128_CBC_SHA,
             // SSLSocket.TLS_ECDH_RSA_WITH_AES_256_CBC_SHA,
             SSLSocket.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,
@@ -235,7 +237,7 @@ public class CryptoUtil {
             // SSLSocket.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
             // SSLSocket.TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256
     };
-    static public List<Integer> clientECCipherList = new ArrayList<>(Arrays.asList(clientECCiphers));
+    public static List<Integer> clientECCipherList = new ArrayList<>(Arrays.asList(clientECCiphers));
 
     private static final String[] ecCurves = {
             "nistp256", "nistp384", "nistp521", "sect163k1", "nistk163", "sect163r1", "sect163r2",
@@ -254,290 +256,61 @@ public class CryptoUtil {
             "sect131r1", "sect131r2"
     };
 
-    private final static HashMap<String, Vector<String>> ecOIDs = new HashMap<>();
-    static {
-        ecOIDs.put("1.2.840.10045.3.1.7", new Vector<String>() {
-            {
-                add("nistp256");
-                add("secp256r1");
-            }
-        });
-        ecOIDs.put("1.3.132.0.34", new Vector<String>() {
-            {
-                add("nistp384");
-                add("secp384r1");
-            }
-        });
-        ecOIDs.put("1.3.132.0.35", new Vector<String>() {
-            {
-                add("nistp521");
-                add("secp521r1");
-            }
-        });
-        ecOIDs.put("1.3.132.0.1", new Vector<String>() {
-            {
-                add("sect163k1");
-                add("nistk163");
-            }
-        });
-        ecOIDs.put("1.3.132.0.2", new Vector<String>() {
-            {
-                add("sect163r1");
-            }
-        });
-        ecOIDs.put("1.3.132.0.15", new Vector<String>() {
-            {
-                add("sect163r2");
-                add("nistb163");
-            }
-        });
-        ecOIDs.put("1.3.132.0.24", new Vector<String>() {
-            {
-                add("sect193r1");
-            }
-        });
-        ecOIDs.put("1.3.132.0.25", new Vector<String>() {
-            {
-                add("sect193r2");
-            }
-        });
-        ecOIDs.put("1.3.132.0.26", new Vector<String>() {
-            {
-                add("sect233k1");
-                add("nistk233");
-            }
-        });
-        ecOIDs.put("1.3.132.0.27", new Vector<String>() {
-            {
-                add("sect233r1");
-                add("nistb233");
-            }
-        });
-        ecOIDs.put("1.3.132.0.3", new Vector<String>() {
-            {
-                add("sect239k1");
-            }
-        });
-        ecOIDs.put("1.3.132.0.16", new Vector<String>() {
-            {
-                add("sect283k1");
-                add("nistk283");
-            }
-        });
-        ecOIDs.put("1.3.132.0.17", new Vector<String>() {
-            {
-                add("sect283r1");
-                add("nistb283");
-            }
-        });
-        ecOIDs.put("1.3.132.0.36", new Vector<String>() {
-            {
-                add("sect409k1");
-                add("nistk409");
-            }
-        });
-        ecOIDs.put("1.3.132.0.37", new Vector<String>() {
-            {
-                add("sect409r1");
-                add("nistb409");
-            }
-        });
-        ecOIDs.put("1.3.132.0.38", new Vector<String>() {
-            {
-                add("sect571k1");
-                add("nistk571");
-            }
-        });
-        ecOIDs.put("1.3.132.0.39", new Vector<String>() {
-            {
-                add("sect571r1");
-                add("nistb571");
-            }
-        });
-        ecOIDs.put("1.3.132.0.9", new Vector<String>() {
-            {
-                add("secp160k1");
-            }
-        });
-        ecOIDs.put("1.3.132.0.8", new Vector<String>() {
-            {
-                add("secp160r1");
-            }
-        });
-        ecOIDs.put("1.3.132.0.30", new Vector<String>() {
-            {
-                add("secp160r2");
-            }
-        });
-        ecOIDs.put("1.3.132.0.31", new Vector<String>() {
-            {
-                add("secp192k1");
-            }
-        });
-        ecOIDs.put("1.2.840.10045.3.1.1", new Vector<String>() {
-            {
-                add("secp192r1");
-                add("nistp192");
-                add("prime192v1");
-            }
-        });
-        ecOIDs.put("1.3.132.0.32", new Vector<String>() {
-            {
-                add("secp224k1");
-            }
-        });
-        ecOIDs.put("1.3.132.0.33", new Vector<String>() {
-            {
-                add("secp224r1");
-                add("nistp224");
-            }
-        });
-        ecOIDs.put("1.3.132.0.10", new Vector<String>() {
-            {
-                add("secp256k1");
-            }
-        });
-        ecOIDs.put("1.2.840.10045.3.1.2", new Vector<String>() {
-            {
-                add("prime192v2");
-            }
-        });
-        ecOIDs.put("1.2.840.10045.3.1.3", new Vector<String>() {
-            {
-                add("prime192v3");
-            }
-        });
-        ecOIDs.put("1.2.840.10045.3.1.4", new Vector<String>() {
-            {
-                add("prime239v1");
-            }
-        });
-        ecOIDs.put("1.2.840.10045.3.1.5", new Vector<String>() {
-            {
-                add("prime239v2");
-            }
-        });
-        ecOIDs.put("1.2.840.10045.3.1.6", new Vector<String>() {
-            {
-                add("prime239v3");
-            }
-        });
-        ecOIDs.put("1.2.840.10045.3.0.1", new Vector<String>() {
-            {
-                add("c2pnb163v1");
-            }
-        });
-        ecOIDs.put("1.2.840.10045.3.0.2", new Vector<String>() {
-            {
-                add("c2pnb163v2");
-            }
-        });
-        ecOIDs.put("1.2.840.10045.3.0.3", new Vector<String>() {
-            {
-                add("c2pnb163v3");
-            }
-        });
-        ecOIDs.put("1.2.840.10045.3.0.4", new Vector<String>() {
-            {
-                add("c2pnb176v1");
-            }
-        });
-        ecOIDs.put("1.2.840.10045.3.0.5", new Vector<String>() {
-            {
-                add("c2tnb191v1");
-            }
-        });
-        ecOIDs.put("1.2.840.10045.3.0.6", new Vector<String>() {
-            {
-                add("c2tnb191v2");
-            }
-        });
-        ecOIDs.put("1.2.840.10045.3.0.7", new Vector<String>() {
-            {
-                add("c2tnb191v3");
-            }
-        });
-        ecOIDs.put("1.2.840.10045.3.0.10", new Vector<String>() {
-            {
-                add("c2pnb208w1");
-            }
-        });
-        ecOIDs.put("1.2.840.10045.3.0.11", new Vector<String>() {
-            {
-                add("c2tnb239v1");
-            }
-        });
-        ecOIDs.put("1.2.840.10045.3.0.12", new Vector<String>() {
-            {
-                add("c2tnb239v2");
-            }
-        });
-        ecOIDs.put("1.2.840.10045.3.0.13", new Vector<String>() {
-            {
-                add("c2tnb239v3");
-            }
-        });
-        ecOIDs.put("1.2.840.10045.3.0.16", new Vector<String>() {
-            {
-                add("c2pnb272w1");
-            }
-        });
-        ecOIDs.put("1.2.840.10045.3.0.17", new Vector<String>() {
-            {
-                add("c2pnb304w1");
-            }
-        });
-        ecOIDs.put("1.2.840.10045.3.0.19", new Vector<String>() {
-            {
-                add("c2pnb368w1");
-            }
-        });
-        ecOIDs.put("1.2.840.10045.3.0.20", new Vector<String>() {
-            {
-                add("c2tnb431r1");
-            }
-        });
-        ecOIDs.put("1.3.132.0.6", new Vector<String>() {
-            {
-                add("secp112r1");
-            }
-        });
-        ecOIDs.put("1.3.132.0.7", new Vector<String>() {
-            {
-                add("secp112r2");
-            }
-        });
-        ecOIDs.put("1.3.132.0.28", new Vector<String>() {
-            {
-                add("secp128r1");
-            }
-        });
-        ecOIDs.put("1.3.132.0.29", new Vector<String>() {
-            {
-                add("secp128r2");
-            }
-        });
-        ecOIDs.put("1.3.132.0.4", new Vector<String>() {
-            {
-                add("sect113r1");
-            }
-        });
-        ecOIDs.put("1.3.132.0.5", new Vector<String>() {
-            {
-                add("sect113r2");
-            }
-        });
-        ecOIDs.put("1.3.132.0.22", new Vector<String>() {
-            {
-                add("sect131r1");
-            }
-        });
-        ecOIDs.put("1.3.132.0.23", new Vector<String>() {
-            {
-                add("sect131r2");
-            }
-        });
-    }
+    public static final Map<String, Vector<String>> ecOIDs = Map.ofEntries(
+            Map.entry("1.2.840.10045.3.1.7", new Vector<>(List.of("nistp256", "secp256r1"))),
+            Map.entry("1.3.132.0.34", new Vector<>(List.of("nistp384", "secp384r1"))),
+            Map.entry("1.3.132.0.35", new Vector<>(List.of("nistp521", "secp521r1"))),
+            Map.entry("1.3.132.0.1", new Vector<>(List.of("sect163k1", "nistk163"))),
+            Map.entry("1.3.132.0.2", new Vector<>(List.of("sect163r1"))),
+            Map.entry("1.3.132.0.15", new Vector<>(List.of("sect163r2", "nistb163"))),
+            Map.entry("1.3.132.0.24", new Vector<>(List.of("sect193r1"))),
+            Map.entry("1.3.132.0.25", new Vector<>(List.of("sect193r2"))),
+            Map.entry("1.3.132.0.26", new Vector<>(List.of("sect233k1", "nistk233"))),
+            Map.entry("1.3.132.0.27", new Vector<>(List.of("sect233r1", "nistb233"))),
+            Map.entry("1.3.132.0.3", new Vector<>(List.of("sect239k1"))),
+            Map.entry("1.3.132.0.16", new Vector<>(List.of("sect283k1", "nistk283"))),
+            Map.entry("1.3.132.0.17", new Vector<>(List.of("sect283r1", "nistb283"))),
+            Map.entry("1.3.132.0.36", new Vector<>(List.of("sect409k1", "nistk409"))),
+            Map.entry("1.3.132.0.37", new Vector<>(List.of("sect409r1", "nistb409"))),
+            Map.entry("1.3.132.0.38", new Vector<>(List.of("sect571k1", "nistk571"))),
+            Map.entry("1.3.132.0.39", new Vector<>(List.of("sect571r1", "nistb571"))),
+            Map.entry("1.3.132.0.9", new Vector<>(List.of("secp160k1"))),
+            Map.entry("1.3.132.0.8", new Vector<>(List.of("secp160r1"))),
+            Map.entry("1.3.132.0.30", new Vector<>(List.of("secp160r2"))),
+            Map.entry("1.3.132.0.31", new Vector<>(List.of("secp192k1"))),
+            Map.entry("1.2.840.10045.3.1.1", new Vector<>(List.of("secp192r1", "nistp192", "prime192v1"))),
+            Map.entry("1.3.132.0.32", new Vector<>(List.of("secp224k1"))),
+            Map.entry("1.3.132.0.33", new Vector<>(List.of("secp224r1", "nistp224"))),
+            Map.entry("1.3.132.0.10", new Vector<>(List.of("secp256k1"))),
+            Map.entry("1.2.840.10045.3.1.2", new Vector<>(List.of("prime192v2"))),
+            Map.entry("1.2.840.10045.3.1.3", new Vector<>(List.of("prime192v3"))),
+            Map.entry("1.2.840.10045.3.1.4", new Vector<>(List.of("prime239v1"))),
+            Map.entry("1.2.840.10045.3.1.5", new Vector<>(List.of("prime239v2"))),
+            Map.entry("1.2.840.10045.3.1.6", new Vector<>(List.of("prime239v3"))),
+            Map.entry("1.2.840.10045.3.0.1", new Vector<>(List.of("c2pnb163v1"))),
+            Map.entry("1.2.840.10045.3.0.2", new Vector<>(List.of("c2pnb163v2"))),
+            Map.entry("1.2.840.10045.3.0.3", new Vector<>(List.of("c2pnb163v3"))),
+            Map.entry("1.2.840.10045.3.0.4", new Vector<>(List.of("c2pnb176v1"))),
+            Map.entry("1.2.840.10045.3.0.5", new Vector<>(List.of("c2tnb191v1"))),
+            Map.entry("1.2.840.10045.3.0.6", new Vector<>(List.of("c2tnb191v2"))),
+            Map.entry("1.2.840.10045.3.0.7", new Vector<>(List.of("c2tnb191v3"))),
+            Map.entry("1.2.840.10045.3.0.10", new Vector<>(List.of("c2pnb208w1"))),
+            Map.entry("1.2.840.10045.3.0.11", new Vector<>(List.of("c2tnb239v1"))),
+            Map.entry("1.2.840.10045.3.0.12", new Vector<>(List.of("c2tnb239v2"))),
+            Map.entry("1.2.840.10045.3.0.13", new Vector<>(List.of("c2tnb239v3"))),
+            Map.entry("1.2.840.10045.3.0.16", new Vector<>(List.of("c2pnb272w1"))),
+            Map.entry("1.2.840.10045.3.0.17", new Vector<>(List.of("c2pnb304w1"))),
+            Map.entry("1.2.840.10045.3.0.19", new Vector<>(List.of("c2pnb368w1"))),
+            Map.entry("1.2.840.10045.3.0.20", new Vector<>(List.of("c2tnb431r1"))),
+            Map.entry("1.3.132.0.6", new Vector<>(List.of("secp112r1"))),
+            Map.entry("1.3.132.0.7", new Vector<>(List.of("secp112r2"))),
+            Map.entry("1.3.132.0.28", new Vector<>(List.of("secp128r1"))),
+            Map.entry("1.3.132.0.29", new Vector<>(List.of("secp128r2"))),
+            Map.entry("1.3.132.0.4", new Vector<>(List.of("sect113r1"))),
+            Map.entry("1.3.132.0.5", new Vector<>(List.of("sect113r2"))),
+            Map.entry("1.3.132.0.22", new Vector<>(List.of("sect131r1"))),
+            Map.entry("1.3.132.0.23", new Vector<>(List.of("sect131r2")))
+        );
 
     public static boolean arraysEqual(byte[] bytes, byte[] ints) {
         if (bytes == null || ints == null) {
@@ -766,7 +539,7 @@ public class CryptoUtil {
         }
 
         logger.debug(method + "cipher list in call; processing...");
-        String ciphers[] = list.split(",");
+        String[] ciphers = list.split(",");
         if (ciphers.length == 0)
             return;
 
@@ -839,7 +612,7 @@ public class CryptoUtil {
 
     public static void setDefaultSSLCiphers() throws SocketException {
         logger.debug("CryptoUtil.setDefaultSSLCiphers");
-        int ciphers[] = SSLSocket.getImplementedCipherSuites();
+        int[] ciphers = SSLSocket.getImplementedCipherSuites();
         if (ciphers == null)
             return;
 
@@ -876,7 +649,7 @@ public class CryptoUtil {
      */
     public static void unsetSSLCiphers() throws SocketException {
         logger.debug("CryptoUtil.unsetSSLCiphers");
-        int cipherIDs[] = SSLSocket.getImplementedCipherSuites();
+        int[] cipherIDs = SSLSocket.getImplementedCipherSuites();
         if (cipherIDs == null)
             return;
 
@@ -887,7 +660,7 @@ public class CryptoUtil {
     }
     public static void unsetSSLCiphers(SSLSocket soc) throws SocketException {
         logger.debug("CryptoUtil.unsetSSLCiphers on soc");
-        int cipherIDs[] = soc.getImplementedCipherSuites();
+        int[] cipherIDs = SSLSocket.getImplementedCipherSuites();
         if (cipherIDs == null) return;
 
         for (int cipherID : cipherIDs) {
@@ -925,11 +698,7 @@ public class CryptoUtil {
     }
 
     public static byte[] base64Decode(String s) {
-        // BASE64Decoder base64 = new BASE64Decoder();
-        // byte[] d = base64.decodeBuffer(s);
-        byte[] d = Utils.base64decode(s);
-
-        return d;
+        return Utils.base64decode(s);
     }
 
     /*
@@ -1096,15 +865,13 @@ public class CryptoUtil {
         }
     }
 
-    public static SEQUENCE parseCRMFMsgs(byte cert_request[])
+    public static SEQUENCE parseCRMFMsgs(byte[] cert_request)
             throws IOException, InvalidBERException {
         if (cert_request == null) {
             throw new IOException("invalid certificate requests: cert_request null");
         }
         ByteArrayInputStream crmfBlobIn = new ByteArrayInputStream(cert_request);
-        SEQUENCE crmfMsgs = (SEQUENCE) new SEQUENCE.OF_Template(new CertReqMsg.Template()).decode(
-                crmfBlobIn);
-        return crmfMsgs;
+        return (SEQUENCE) new SEQUENCE.OF_Template(new CertReqMsg.Template()).decode(crmfBlobIn);
     }
 
     public static X509Key getX509KeyFromCRMFMsgs(SEQUENCE crmfMsgs)
@@ -1127,8 +894,7 @@ public class CryptoUtil {
         CertTemplate certTemplate = certreq.getCertTemplate();
         SubjectPublicKeyInfo spkinfo = certTemplate.getPublicKey();
         PublicKey pkey = spkinfo.toPublicKey();
-        X509Key x509key = createX509Key(pkey);
-        return x509key;
+        return createX509Key(pkey);
     }
 
     public static X509Key createX509Key(PublicKey publicKey) throws InvalidKeyException {
@@ -1516,11 +1282,9 @@ public class CryptoUtil {
                         ret.addOrganizationalUnitName(split[1]);
                     }
                     //              System.out.println("OU found : " + split[1]);
-                    continue;
                 }
             } catch (Exception e) {
                 System.out.println("CryptoUtil: Error constructing RDN: " + rdnStr + " Error: " + e.toString());
-                continue;
             }
         }
 
@@ -1556,12 +1320,7 @@ public class CryptoUtil {
             MessageDigest md = MessageDigest.getInstance(alg);
 
             md.update(rawKey);
-            byte[] hash = md.digest();
-
-            return hash;
-        } catch (NoSuchAlgorithmException e) {
-            msg = method + e;
-            logger.warn(msg, e);
+            return md.digest();
         } catch (Exception e) {
             msg = method + e;
             logger.warn(msg, e);
@@ -1698,7 +1457,7 @@ public class CryptoUtil {
             throws NotInitializedException,
             TokenException {
         CryptoManager cm = CryptoManager.getInstance();
-        X509Certificate certs[] = cm.findCertsByNickname(nickname);
+        X509Certificate[] certs = cm.findCertsByNickname(nickname);
 
         if (certs == null) {
             return;
@@ -1812,7 +1571,7 @@ public class CryptoUtil {
     /**
      * Compares 2 byte arrays to see if they are the same.
      */
-    public static boolean compare(byte src[], byte dest[]) {
+    public static boolean compare(byte[] src, byte[] dest) {
         if (src != null && dest != null) {
             if (src.length == dest.length) {
                 boolean matched = true;
@@ -1834,7 +1593,7 @@ public class CryptoUtil {
      * Converts any length byte array into a signed, variable-length
      * hexadecimal number.
      */
-    public static String byte2string(byte id[]) {
+    public static String byte2string(byte[] id) {
         return new BigInteger(id).toString(16);
     }
 
@@ -2038,7 +1797,7 @@ public class CryptoUtil {
             CryptoToken token = enums.nextElement();
 
             CryptoStore store = token.getCryptoStore();
-            org.mozilla.jss.crypto.X509Certificate list[] = store.getCertificates();
+            org.mozilla.jss.crypto.X509Certificate[] list = store.getCertificates();
 
             for (int i = 0; i < list.length; i++) {
                 try {
@@ -2060,7 +1819,7 @@ public class CryptoUtil {
         if (certs.isEmpty()) {
             return null;
         }
-        X509CertImpl c[] = new X509CertImpl[certs.size()];
+        X509CertImpl[] c = new X509CertImpl[certs.size()];
         certs.copyInto(c);
         return c;
     }
@@ -2116,7 +1875,7 @@ public class CryptoUtil {
             throws NotInitializedException, TokenException {
 
         CryptoManager cm = CryptoManager.getInstance();
-        X509Certificate certs[] = cm.findCertsByNickname(nickname);
+        X509Certificate[] certs = cm.findCertsByNickname(nickname);
 
         if (certs == null) {
             return;
@@ -2130,8 +1889,7 @@ public class CryptoUtil {
                 CryptoStore store = token.getCryptoStore();
 
                 store.deleteCert(cert);
-            } catch (NoSuchItemOnTokenException e) {
-            } catch (ObjectNotFoundException e) {
+            } catch (NoSuchItemOnTokenException | ObjectNotFoundException e) {
             }
         }
     }
@@ -2175,9 +1933,7 @@ public class CryptoUtil {
         CertificateChain certchain = new CertificateChain();
 
         certchain.decode(bis);
-        java.security.cert.X509Certificate[] certs = certchain.getChain();
-
-        return certs;
+        return certchain.getChain();
     }
 
     /**
@@ -2195,10 +1951,7 @@ public class CryptoUtil {
     }
 
     public static SecureRandom getRandomNumberGenerator() throws GeneralSecurityException {
-        SecureRandom rnd = SecureRandom.getInstance("pkcs11prng", "Mozilla-JSS");
-
-        return rnd;
-
+        return SecureRandom.getInstance("pkcs11prng", "Mozilla-JSS");
     }
 
     public static void obscureChars(char[] memory) {
@@ -2242,10 +1995,9 @@ public class CryptoUtil {
         PBEAlgorithm pbeAlg = PBEAlgorithm.PBE_SHA1_DES3_CBC;
 
         Password pass = new Password(recoveryPassphrase.toCharArray());
-        try {
+        try (ByteArrayInputStream inStream = new ByteArrayInputStream(wrappedRecoveredKey);){
             PasswordConverter passConverter = new PasswordConverter();
 
-            ByteArrayInputStream inStream = new ByteArrayInputStream(wrappedRecoveredKey);
             cInfo = (EncryptedContentInfo) new EncryptedContentInfo.Template().decode(inStream);
 
             return cInfo.decrypt(pass, passConverter);
@@ -2438,12 +2190,12 @@ public class CryptoUtil {
 
         ASN1Value v = algId.getParameters();
         v = ((ANY) v).decodeWith(new OCTET_STRING.Template());
-        byte iv[] = ((OCTET_STRING) v).toByteArray();
+        byte[] iv = ((OCTET_STRING) v).toByteArray();
         IVParameterSpec ivps = new IVParameterSpec(iv);
 
         KeyWrapAlgorithm wrapAlg = KeyWrapAlgorithm.RSA;
 
-        if (useOAEPKeyWrap == true) {
+        if (useOAEPKeyWrap) {
             wrapAlg = KeyWrapAlgorithm.RSA_OAEP;
         }
         // des-ede3-cbc
@@ -2641,9 +2393,7 @@ public class CryptoUtil {
         }
 
         //logger.debug("CryptoUtil: getECKeyCurve: EC key OID ="+ params);
-        Vector<String> vect = ecOIDs.get(params);
-
-        return vect;
+        return ecOIDs.get(params);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////
@@ -2786,12 +2536,10 @@ public class CryptoUtil {
         SET recipients = new SET();
         recipients.addElement(recipient);
 
-        EnvelopedData envData = new EnvelopedData(
+        return new EnvelopedData(
                 new INTEGER(0),
                 recipients,
                 encCInfo);
-
-        return envData;
     }
 
     /* PKCS 1 - rsaEncryption */
