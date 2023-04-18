@@ -732,15 +732,6 @@ public abstract class AAclAuthz extends AuthzManager {
     }
 
     /**
-     * gets an enumeration of resources
-     *
-     * @return an enumeration of resources contained in the ACL table
-     */
-    public Enumeration<ACL> aclResElements() {
-        return mACLs.elements();
-    }
-
-    /**
      * gets an enumeration of access evaluators
      *
      * @return an enumeraton of access evaluators

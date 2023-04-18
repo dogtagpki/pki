@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.authorization;
 
+import java.util.Collection;
 import java.util.Enumeration;
 
 import org.dogtagpki.server.authorization.AuthzManagerConfig;
@@ -227,11 +228,10 @@ public class DirAclAuthz extends AAclAuthz
             LDAPAttribute attrs = new LDAPAttribute("resourceACLS");
             LDAPModificationSet mod = new LDAPModificationSet();
 
-            Enumeration<ACL> en = aclResElements();
+            Collection<ACL> acls = getACLs();
 
-            if (en.hasMoreElements() == true) {
-                while (en.hasMoreElements()) {
-                    ACL a = en.nextElement();
+            if (!acls.isEmpty()) {
+                for (ACL a : acls) {
                     for (String s : a.getResourceACLs()) {
                         attrs.addValue(s);
                     }
