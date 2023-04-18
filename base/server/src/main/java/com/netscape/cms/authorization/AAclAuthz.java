@@ -20,6 +20,7 @@ package com.netscape.cms.authorization;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -188,8 +189,8 @@ public abstract class AAclAuthz extends AuthzManager {
         return mACLs.get(target);
     }
 
-    protected Enumeration<String> getTargetNames() {
-        return mACLs.keys();
+    protected Set<String> getTargetNames() {
+        return mACLs.keySet();
     }
 
     @Override
