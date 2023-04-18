@@ -18,6 +18,7 @@
 package com.netscape.cms.servlet.admin;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -226,10 +227,9 @@ public class ACLAdminServlet extends AdminServlet {
 
         NameValuePairs params = new NameValuePairs();
 
-        Enumeration<ACL> res = mAuthzMgr.getACLs();
+        Collection<ACL> res = mAuthzMgr.getACLs();
 
-        while (res.hasMoreElements()) {
-            ACL acl = res.nextElement();
+        for (ACL acl : res) {
             String desc = acl.getDescription();
 
             if (desc == null)

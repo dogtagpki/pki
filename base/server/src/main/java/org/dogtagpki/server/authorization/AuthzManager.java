@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.authorization;
 
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -154,9 +155,9 @@ public abstract class AuthzManager {
     /**
      * Get ACL entries
      *
-     * @return enumeration of ACL entries.
+     * @return collection of ACL entries.
      */
-    public abstract Enumeration<ACL> getACLs();
+    public abstract Collection<ACL> getACLs();
 
     /**
      * Get individual ACL entry for the given name of entry.

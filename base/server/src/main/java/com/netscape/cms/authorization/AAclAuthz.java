@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.authorization;
 
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
@@ -192,8 +193,8 @@ public abstract class AAclAuthz extends AuthzManager {
     }
 
     @Override
-    public Enumeration<ACL> getACLs() {
-        return mACLs.elements();
+    public Collection<ACL> getACLs() {
+        return mACLs.values();
     }
 
     public String[] getExtendedPluginInfo() {

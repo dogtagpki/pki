@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.authorization;
 
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -123,7 +124,7 @@ public class BasicGroupAuthz extends AuthzManager implements IExtendedPluginInfo
     }
 
     @Override
-    public Enumeration<ACL> getACLs() {
+    public Collection<ACL> getACLs() {
         // TODO Auto-generated method stub
         return null;
     }
