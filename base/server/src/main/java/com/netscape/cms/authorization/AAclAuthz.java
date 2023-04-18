@@ -19,7 +19,9 @@ package com.netscape.cms.authorization;
 
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.Vector;
@@ -77,7 +79,7 @@ public abstract class AAclAuthz extends AuthzManager {
 
     protected static final String ACLS_ATTR = "aclResources";
 
-    private Hashtable<String, ACL> mACLs = new Hashtable<>();
+    private Map<String, ACL> mACLs = new HashMap<>();
     private Hashtable<String, AccessEvaluator> mEvaluators = new Hashtable<>();
 
     /* Vector of extendedPluginInfo strings */
