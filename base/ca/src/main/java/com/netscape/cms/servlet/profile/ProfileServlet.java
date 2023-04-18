@@ -135,10 +135,7 @@ public class ProfileServlet extends CMSServlet {
     private static final String PROP_PROFILE_SUB_ID = "profileSubId";
     private static final String PROP_ID = "ID";
     public final static String PROP_RESOURCEID = "resourceID";
-    public final static String AUTHZ_SRC_LDAP = "ldap";
-    public final static String AUTHZ_SRC_TYPE = "sourceType";
 
-    public final static String AUTHZ_SRC_XML = "web.xml";
     public final static String PROP_AUTHZ_MGR = "AuthzMgr";
     public final static String PROP_ACL = "ACLinfo";
     public final static String AUTHZ_MGR_BASIC = "BasicAclAuthz";

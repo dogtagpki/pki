@@ -26,10 +26,6 @@ public class ServletUtils {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ServletUtils.class);
 
-    public final static String AUTHZ_SRC_LDAP = "ldap";
-    public final static String AUTHZ_SRC_TYPE = "sourceType";
-
-    public final static String AUTHZ_SRC_XML = "web.xml";
     public final static String PROP_AUTHZ_MGR = "AuthzMgr";
     public final static String PROP_ACL = "ACLinfo";
     public final static String AUTHZ_MGR_BASIC = "BasicAclAuthz";

@@ -151,19 +151,19 @@ public class CAProcessor extends Processor {
 
         EngineConfig cs = engine.getConfig();
 
-        String srcType = ServletUtils.AUTHZ_SRC_LDAP;
+        String srcType = AuthorizationConfig.SOURCE_TYPE_LDAP;
         AuthzSubsystem authz = engine.getAuthzSubsystem();
 
         try {
             AuthorizationConfig authzConfig = cs.getAuthorizationConfig();
-            srcType = authzConfig.getString(ServletUtils.AUTHZ_SRC_TYPE, ServletUtils.AUTHZ_SRC_LDAP);
+            srcType = authzConfig.getSourceType();
         } catch (EBaseException e) {
             logger.warn("CAProcessor: " + CMS.getLogMessage("ADMIN_SRVLT_FAIL_SRC_TYPE"));
         }
 
         String aclMethod = null;
 
-        if (!srcType.equalsIgnoreCase(ServletUtils.AUTHZ_SRC_XML)) {
+        if (!srcType.equalsIgnoreCase(AuthorizationConfig.SOURCE_TYPE_XML)) {
             aclMethod = ServletUtils.AUTHZ_MGR_LDAP;
             logger.debug("CAProcessor: " + CMS.getLogMessage("ADMIN_SRVLT_AUTH_LDAP_NOT_XML", id));
             return aclMethod;

@@ -120,9 +120,6 @@ public class AdminServlet extends HttpServlet {
     public final static String AUTHZ_MGR_LDAP = "DirAclAuthz";
     public final static String PROP_ID = "ID";
 
-    public final static String AUTHZ_SRC_TYPE = "sourceType";
-    public final static String AUTHZ_SRC_LDAP = "ldap";
-    public final static String AUTHZ_SRC_XML = "web.xml";
     public static final String CERT_ATTR =
             "javax.servlet.request.X509Certificate";
 
@@ -152,11 +149,11 @@ public class AdminServlet extends HttpServlet {
         CMSEngine engine = getCMSEngine();
         mConfig = engine.getConfig();
 
-        String srcType = AUTHZ_SRC_LDAP;
+        String srcType = AuthorizationConfig.SOURCE_TYPE_LDAP;
 
         try {
             AuthorizationConfig authzConfig = mConfig.getAuthorizationConfig();
-            srcType = authzConfig.getString(AUTHZ_SRC_TYPE, AUTHZ_SRC_LDAP);
+            srcType = authzConfig.getSourceType();
         } catch (EBaseException e) {
             logger.warn("AdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_FAIL_SRC_TYPE") + ": " + e.getMessage(), e);
         }
@@ -165,7 +162,7 @@ public class AdminServlet extends HttpServlet {
         mServletID = getSCparam(sc, PROP_ID, "servlet id unknown");
         logger.debug("AdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_INITED", mServletID));
 
-        if (srcType.equalsIgnoreCase(AUTHZ_SRC_XML)) {
+        if (srcType.equalsIgnoreCase(AuthorizationConfig.SOURCE_TYPE_XML)) {
             logger.debug("AdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_INITED", ""));
             // get authz mgr from xml file;  if not specified, use
             //			ldap by default

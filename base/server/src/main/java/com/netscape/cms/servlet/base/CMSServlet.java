@@ -117,10 +117,6 @@ public abstract class CMSServlet extends HttpServlet {
     public final static String PROP_CLIENTAUTH = "GetClientCert";
     public final static String PROP_RESOURCEID = "resourceID";
 
-    public final static String AUTHZ_SRC_LDAP = "ldap";
-    public final static String AUTHZ_SRC_TYPE = "sourceType";
-
-    public final static String AUTHZ_SRC_XML = "web.xml";
     public final static String PROP_AUTHZ_MGR = "AuthzMgr";
     public final static String PROP_ACL = "ACLinfo";
     public final static String AUTHZ_MGR_BASIC = "BasicAclAuthz";
@@ -259,11 +255,11 @@ public abstract class CMSServlet extends HttpServlet {
         CMSEngine engine = getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
-        String srcType = AUTHZ_SRC_LDAP;
+        String srcType = AuthorizationConfig.SOURCE_TYPE_LDAP;
 
         try {
             AuthorizationConfig authzConfig = cs.getAuthorizationConfig();
-            srcType = authzConfig.getString(AUTHZ_SRC_TYPE, AUTHZ_SRC_LDAP);
+            srcType = authzConfig.getSourceType();
 
         } catch (EBaseException e) {
             logger.warn("CMSServlet: " + CMS.getLogMessage("ADMIN_SRVLT_FAIL_SRC_TYPE"));
@@ -271,7 +267,7 @@ public abstract class CMSServlet extends HttpServlet {
 
         String aclMethod = null;
 
-        if (!srcType.equalsIgnoreCase(AUTHZ_SRC_XML)) {
+        if (!srcType.equalsIgnoreCase(AuthorizationConfig.SOURCE_TYPE_XML)) {
             aclMethod = AUTHZ_MGR_LDAP;
             logger.debug("CMSServlet: " + CMS.getLogMessage("ADMIN_SRVLT_AUTH_LDAP_NOT_XML", id));
             return aclMethod;
