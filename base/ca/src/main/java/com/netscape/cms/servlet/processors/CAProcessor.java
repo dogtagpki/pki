@@ -58,7 +58,6 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.usrgrp.CertUserLocator;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.common.CMSGateway;
-import com.netscape.cms.servlet.common.ServletUtils;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
@@ -113,6 +112,11 @@ public class CAProcessor extends Processor {
     public final static String ARG_ERROR_REASON = "errorReason";
     public final static String CERT_ATTR = "javax.servlet.request.X509Certificate";
 
+    public static final String PROP_AUTHZ_MGR = "AuthzMgr";
+    public static final String PROP_ACL = "ACLinfo";
+    public static final String AUTHZ_MGR_BASIC = "BasicAclAuthz";
+    public static final String AUTHZ_MGR_LDAP = "DirAclAuthz";
+
     // servlet config constants
     public static final String PROFILE_ID = "profileId";
     public static final String AUTH_ID = "authId";
@@ -164,7 +168,7 @@ public class CAProcessor extends Processor {
         String aclMethod = null;
 
         if (!srcType.equalsIgnoreCase(AuthorizationConfig.SOURCE_TYPE_XML)) {
-            aclMethod = ServletUtils.AUTHZ_MGR_LDAP;
+            aclMethod = AUTHZ_MGR_LDAP;
             logger.debug("CAProcessor: " + CMS.getLogMessage("ADMIN_SRVLT_AUTH_LDAP_NOT_XML", id));
             return aclMethod;
         }
@@ -172,15 +176,15 @@ public class CAProcessor extends Processor {
         logger.debug("CAProcessor: " + CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_INITED", ""));
         aclMethod = authzMgr;
 
-        if (aclMethod == null || !aclMethod.equalsIgnoreCase(ServletUtils.AUTHZ_MGR_BASIC)) {
+        if (aclMethod == null || !aclMethod.equalsIgnoreCase(AUTHZ_MGR_BASIC)) {
             logger.warn("CAProcessor: " + CMS.getLogMessage("ADMIN_SRVLT_PROP_ACL_NOT_SPEC",
-                    ServletUtils.PROP_AUTHZ_MGR, id, ServletUtils.AUTHZ_MGR_LDAP));
+                    PROP_AUTHZ_MGR, id, AUTHZ_MGR_LDAP));
             return aclMethod;
         }
 
         if (aclInfo == null) {
             logger.warn("CAProcessor: " + CMS.getLogMessage("ADMIN_SRVLT_PROP_ACL_NOT_SPEC",
-                    ServletUtils.PROP_ACL, id, ServletUtils.AUTHZ_MGR_LDAP));
+                    PROP_ACL, id, AUTHZ_MGR_LDAP));
             return aclMethod;
         }
 
