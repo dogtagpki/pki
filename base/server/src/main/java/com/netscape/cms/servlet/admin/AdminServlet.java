@@ -27,7 +27,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.StringTokenizer;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -177,7 +176,7 @@ public class AdminServlet extends HttpServlet {
 
                 if (aclInfo != null) {
                     try {
-                        addACLInfo(aclInfo);
+                        mAuthz.addACLInfo(mAclMethod, aclInfo);
                         //mAuthz.authzMgrAccessInit(mAclMethod, aclInfo);
                     } catch (EBaseException e) {
                         logger.error(CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_MGR_INIT_FAIL"), e);
@@ -234,16 +233,6 @@ public class AdminServlet extends HttpServlet {
 
         if (logger.isErrorEnabled()) {
             outputHttpParameters(req);
-        }
-    }
-
-    private void addACLInfo(String info) throws EBaseException {
-        StringTokenizer tokenizer = new StringTokenizer(info, "#");
-
-        while (tokenizer.hasMoreTokens()) {
-            String acl = tokenizer.nextToken();
-
-            mAuthz.authzMgrAccessInit(mAclMethod, acl);
         }
     }
 

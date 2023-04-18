@@ -184,7 +184,7 @@ public class CAProcessor extends Processor {
             return aclMethod;
         }
 
-        ServletUtils.addACLInfo(authz, aclMethod, aclInfo);
+        authz.addACLInfo(aclMethod, aclInfo);
         logger.debug("CAProcessor: " + CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_MGR_INIT_DONE", id));
 
         return aclMethod;

@@ -78,7 +78,6 @@ import com.netscape.cms.servlet.common.GenSuccessTemplateFiller;
 import com.netscape.cms.servlet.common.GenSvcPendingTemplateFiller;
 import com.netscape.cms.servlet.common.GenUnexpectedErrorTemplateFiller;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
-import com.netscape.cms.servlet.common.ServletUtils;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.CommandQueue;
@@ -295,7 +294,7 @@ public abstract class CMSServlet extends HttpServlet {
             return aclMethod;
         }
 
-        ServletUtils.addACLInfo(authz, aclMethod, aclInfo);
+        authz.addACLInfo(aclMethod, aclInfo);
         logger.debug("CMSServlet: " + CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_MGR_INIT_DONE", id));
 
         return aclMethod;

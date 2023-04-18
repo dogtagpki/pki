@@ -17,16 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.common;
 
-import java.util.StringTokenizer;
-
-import org.dogtagpki.server.authorization.AuthorizationConfig;
-
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.EngineConfig;
-import com.netscape.cmscore.authorization.AuthzSubsystem;
-
 /**
  * Utility class
  *
@@ -44,16 +34,4 @@ public class ServletUtils {
     public final static String PROP_ACL = "ACLinfo";
     public final static String AUTHZ_MGR_BASIC = "BasicAclAuthz";
     public final static String AUTHZ_MGR_LDAP = "DirAclAuthz";
-
-    public static void addACLInfo(AuthzSubsystem authz, String aclMethod,
-            String aclInfo) throws EBaseException {
-
-        StringTokenizer tokenizer = new StringTokenizer(aclInfo, "#");
-
-        while (tokenizer.hasMoreTokens()) {
-            String acl = tokenizer.nextToken();
-
-            authz.authzMgrAccessInit(aclMethod, acl);
-        }
-    }
 }

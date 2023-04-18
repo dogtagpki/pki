@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.StringTokenizer;
 import java.util.Vector;
 
 import org.dogtagpki.server.authentication.AuthToken;
@@ -195,6 +196,16 @@ public class AuthzSubsystem extends Subsystem {
         }
 
         authzMgrInst.accessInit(accessInfo);
+    }
+
+    public void addACLInfo(String aclMethod, String aclInfo) throws EBaseException {
+
+        StringTokenizer tokenizer = new StringTokenizer(aclInfo, "#");
+
+        while (tokenizer.hasMoreTokens()) {
+            String acl = tokenizer.nextToken();
+            authzMgrAccessInit(aclMethod, acl);
+        }
     }
 
     /**
