@@ -140,50 +140,53 @@ public class DirAclAuthz extends AAclAuthz
         mLdapConnFactory.setCMSEngine(engine);
         mLdapConnFactory.init(socketConfig, ldapConfig, engine.getPasswordStore());
 
-        // retrieve aclResources from the LDAP server and load
-        // into memory
-        LDAPConnection conn = null;
+        loadACLs();
 
-        String basedn = mBaseDN;
+        logger.info("DirAclAuthz: initialization done");
+    }
+
+    public void loadACLs() throws EBaseException {
+
+        logger.info("DirAclAuthz: Loading ACL resources");
+
+        String baseDN = mBaseDN;
         String filter = "cn=aclResources";
+
         if (searchBase != null) {
-            basedn = String.join(",", searchBase, basedn);
+            baseDN = String.join(",", searchBase, baseDN);
             filter = "objectclass=CertACLs";
         }
 
-        logger.debug("DirAclAuthz: searching for " + basedn + " (" + filter + ")");
+        logger.debug("DirAclAuthz: Searching " + baseDN + " for " + filter);
+
+        LDAPConnection conn = null;
 
         try {
             conn = getConn();
-            LDAPSearchResults res = conn.search(basedn, LDAPv3.SCOPE_SUB, filter, null, false);
-            returnConn(conn);
+            LDAPSearchResults res = conn.search(baseDN, LDAPv3.SCOPE_SUB, filter, null, false);
 
-            if (res.hasMoreElements()) {
-
-                LDAPEntry entry = (LDAPEntry) res.nextElement();
-                logger.info("DirAclAuthz: found " + entry.getDN());
-
-                LDAPAttribute aclRes = entry.getAttribute("resourceACLS");
-
-                Enumeration<String> en = aclRes.getStringValues();
-
-                while (en != null && en.hasMoreElements()) {
-                    addACLs(en.nextElement());
-                }
-
-            } else {
-                logger.info("DirAclAuthz: no results");
+            if (!res.hasMoreElements()) {
+                logger.info("DirAclAuthz: ACL resources not found");
+                return;
             }
 
-            logger.info("DirAclAuthz: initialization done");
+            LDAPEntry entry = (LDAPEntry) res.nextElement();
+            logger.info("DirAclAuthz: ACL resources found: " + entry.getDN());
+
+            LDAPAttribute aclRes = entry.getAttribute("resourceACLS");
+            Enumeration<String> en = aclRes.getStringValues();
+
+            while (en.hasMoreElements()) {
+                String acl = en.nextElement();
+                logger.info("DirAclAuthz: - " + acl);
+                addACLs(acl);
+            }
 
         } catch (LDAPException e) {
-            if (engine.isPreOpMode() && e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
-                logger.warn("DirAclAuthz: Unable to find base DN: " + basedn);
-                logger.warn("DirAclAuthz: Ignore missing base DN in pre-op mode");
-            } else {
-                throw new EACLsException(CMS.getUserMessage("CMS_ACL_CONNECT_LDAP_FAIL", e.getMessage()), e);
-            }
+            throw new EACLsException(CMS.getUserMessage("CMS_ACL_CONNECT_LDAP_FAIL", e.getMessage()), e);
+
+        } finally {
+            returnConn(conn);
         }
     }
 
