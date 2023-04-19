@@ -15,12 +15,49 @@ jobs:
     secrets: inherit
     if: vars.REGISTRY != ''
 
-  build:
-    name: Waiting for build
+  publish-maven:
+    name: Publishing Maven artifacts
     needs: init
     runs-on: ubuntu-latest
     steps:
-      - name: Wait for build
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'adopt'
+
+      - name: Check settings.xml
+        run: |
+          cat ~/.m2/settings.xml
+
+      - name: Update pom.xml
+        run: |
+          sed -i \
+              -e "s/OWNER/$NAMESPACE/g" \
+              -e "s/REPOSITORY/pki/g" \
+              pom.xml
+          cat pom.xml
+
+      - name: Publish Maven artifacts
+        run: |
+          # TODO: Fix test issue due to missing JSS shared libraries.
+          mvn \
+              --batch-mode \
+              --update-snapshots \
+              -DskipTests \
+              deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  wait-for-images:
+    name: Waiting for container images
+    needs: init
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for container images
         uses: lewagon/wait-on-check-action@v1.2.0
         with:
           ref: ${{ github.ref }}
@@ -28,9 +65,9 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 30
 
-  publish:
-    name: Publishing PKI
-    needs: [init, build]
+  publish-images:
+    name: Publishing container images
+    needs: [init, wait-for-images]
     runs-on: ubuntu-latest
     steps:
       - name: Log in to GitHub Container Registry

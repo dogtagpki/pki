@@ -77,8 +77,8 @@ jobs:
           mvn install:install-file \
           -f /root/src \
           -Dfile=/usr/lib/java/jss.jar \
-          -DgroupId=org.dogtagpki \
-          -DartifactId=jss \
+          -DgroupId=org.dogtagpki.jss \
+          -DartifactId=jss-base \
           -Dversion=5.4.0-SNAPSHOT \
           -Dpackaging=jar \
           -DgeneratePom=true
@@ -89,9 +89,9 @@ jobs:
           mvn install:install-file \
           -f /root/src \
           -Dfile=/usr/share/java/tomcatjss.jar \
-          -DgroupId=org.dogtagpki \
+          -DgroupId=org.dogtagpki.tomcatjss \
           -DartifactId=tomcatjss-tomcat-9.0 \
-          -Dversion=8.3.0-SNAPSHOT \
+          -Dversion=8.4.0-SNAPSHOT \
           -Dpackaging=jar \
           -DgeneratePom=true
     displayName: Install Tomcat JSS into Maven repo
@@ -101,9 +101,9 @@ jobs:
           mvn install:install-file \
           -f /root/src \
           -Dfile=/usr/share/java/ldapjdk.jar \
-          -DgroupId=org.dogtagpki \
+          -DgroupId=org.dogtagpki.ldap-sdk \
           -DartifactId=ldapjdk \
-          -Dversion=5.3.0-SNAPSHOT \
+          -Dversion=5.4.0-SNAPSHOT \
           -Dpackaging=jar \
           -DgeneratePom=true
     displayName: Install LDAP JDK into Maven repo
