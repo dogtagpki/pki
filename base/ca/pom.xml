@@ -6,8 +6,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.dogtagpki</groupId>
-        <artifactId>pki-base</artifactId>
+        <groupId>org.dogtagpki.pki</groupId>
+        <artifactId>pki-base-parent</artifactId>
         <version>${revision}</version>
     </parent>
 
