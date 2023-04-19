@@ -141,7 +141,7 @@ var UserRoleCollection = Collection.extend({
         self.urlRoot = options.urlRoot;
     },
     getEntries: function(response) {
-        return response.Membership;
+        return response.entries;
     },
     model: function(attrs, options) {
         var self = this;
@@ -212,7 +212,7 @@ var UserCertCollection = Collection.extend({
         self.urlRoot = options.urlRoot;
     },
     getEntries: function(response) {
-        return response.Cert;
+        return response.entries;
     },
     model: function(attrs, options) {
         var self = this;

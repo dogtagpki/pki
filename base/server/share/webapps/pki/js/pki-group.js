@@ -100,7 +100,7 @@ var GroupMemberCollection = Collection.extend({
         self.urlRoot = options.urlRoot;
     },
     getEntries: function(response) {
-        return response.Member;
+        return response.entries;
     },
     model: function(attrs, options) {
         var self = this;
