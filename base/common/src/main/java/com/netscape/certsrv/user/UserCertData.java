@@ -25,6 +25,7 @@ import javax.ws.rs.FormParam;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.util.JSONSerializer;
@@ -43,6 +44,7 @@ public class UserCertData implements JSONSerializer {
     String prettyPrint;
     String encoded;
 
+    @JsonProperty("id")
     public String getID() {
         if (version == null && serialNumber == null && issuerDN == null && subjectDN == null) {
             return null;
@@ -58,6 +60,7 @@ public class UserCertData implements JSONSerializer {
         subjectDN = st.nextToken();
     }
 
+    @JsonProperty("Version")
     public Integer getVersion() {
         return version;
     }
@@ -66,6 +69,7 @@ public class UserCertData implements JSONSerializer {
         this.version = version;
     }
 
+    @JsonProperty("SerialNumber")
     public CertId getSerialNumber() {
         return serialNumber;
     }
@@ -74,6 +78,7 @@ public class UserCertData implements JSONSerializer {
         this.serialNumber = serialNumber;
     }
 
+    @JsonProperty("IssuerDN")
     public String getIssuerDN() {
         return issuerDN;
     }
@@ -82,6 +87,7 @@ public class UserCertData implements JSONSerializer {
         this.issuerDN = issuerDN;
     }
 
+    @JsonProperty("SubjectDN")
     public String getSubjectDN() {
         return subjectDN;
     }
@@ -90,6 +96,7 @@ public class UserCertData implements JSONSerializer {
         this.subjectDN = subjectDN;
     }
 
+    @JsonProperty("PrettyPrint")
     public String getPrettyPrint() {
         return prettyPrint;
     }
@@ -99,6 +106,7 @@ public class UserCertData implements JSONSerializer {
     }
 
     @FormParam(Constants.PR_USER_CERT)
+    @JsonProperty("Encoded")
     public String getEncoded() {
         return encoded;
     }

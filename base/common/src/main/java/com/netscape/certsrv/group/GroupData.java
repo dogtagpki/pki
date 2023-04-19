@@ -23,6 +23,7 @@ import javax.ws.rs.FormParam;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.util.JSONSerializer;
 
@@ -38,6 +39,7 @@ public class GroupData implements JSONSerializer {
 
     String description;
 
+    @JsonProperty("id")
     public String getID() {
         return id;
     }
@@ -46,6 +48,7 @@ public class GroupData implements JSONSerializer {
         this.id = id;
     }
 
+    @JsonProperty("GroupID")
     public String getGroupID() {
         return groupID;
     }
@@ -55,6 +58,7 @@ public class GroupData implements JSONSerializer {
     }
 
     @FormParam(Constants.PR_GROUP_DESC)
+    @JsonProperty("Description")
     public String getDescription() {
         return description;
     }

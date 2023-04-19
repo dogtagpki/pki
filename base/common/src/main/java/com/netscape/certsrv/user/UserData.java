@@ -28,6 +28,7 @@ import javax.ws.rs.FormParam;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.util.JSONSerializer;
 
@@ -65,6 +66,7 @@ public class UserData implements JSONSerializer {
         this.id = id;
     }
 
+    @JsonProperty("UserID")
     public String getUserID() {
         return userID;
     }
@@ -74,6 +76,7 @@ public class UserData implements JSONSerializer {
     }
 
     @FormParam(Constants.PR_USER_FULLNAME)
+    @JsonProperty("FullName")
     public String getFullName() {
         return fullName;
     }
@@ -83,6 +86,7 @@ public class UserData implements JSONSerializer {
     }
 
     @FormParam(Constants.PR_USER_EMAIL)
+    @JsonProperty("Email")
     public String getEmail() {
         return email;
     }
