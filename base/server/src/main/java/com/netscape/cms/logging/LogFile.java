@@ -673,16 +673,16 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
     }
 
     private static String getLastSignature(File f) throws IOException {
-        BufferedReader r = new BufferedReader(new FileReader(f));
-        String lastSig = null;
-        String curLine = null;
-        while ((curLine = r.readLine()) != null) {
-            if (curLine.indexOf("AUDIT_LOG_SIGNING") != -1) {
-                lastSig = curLine;
+        try (BufferedReader r = new BufferedReader(new FileReader(f))) {
+            String lastSig = null;
+            String curLine = null;
+            while ((curLine = r.readLine()) != null) {
+                if (curLine.indexOf("AUDIT_LOG_SIGNING") != -1) {
+                    lastSig = curLine;
+                }
             }
+            return lastSig;
         }
-        r.close();
-        return lastSig;
     }
 
     /**
