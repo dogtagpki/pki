@@ -70,7 +70,7 @@ public class HTTPClient
 		boolean st = true;
 		HTTPResponse hr = null;
 
-		try
+		try (DataOutputStream dos = new DataOutputStream(new Socket(hostname, port)))
 		{
 
 			System.out.println("#############################################");
@@ -80,8 +80,6 @@ public class HTTPClient
 			Integer x = Integer.valueOf(portnumber);
 			int port = x.intValue();
 
-			Socket socket = new Socket(hostname, port);
-
 			System.out.println("Posting Query = " +
 								"http://" + hostname +
 								":" + portnumber +
@@ -89,8 +87,6 @@ public class HTTPClient
 
 			System.out.println("Connected.");
 
-			DataOutputStream dos = 
-					new DataOutputStream(socket.getOutputStream()); 
 			dos.writeBytes("POST " + url +  " HTTP/1.0\r\n");
 			dos.writeBytes("Content-length: " + data.length + "\r\n");
 			dos.writeBytes("\r\n");
@@ -109,10 +105,6 @@ public class HTTPClient
 				e.printStackTrace();
 				st = false;
 			}
-
-			socket.close();
-			dos.close();
-
 		}
 
 		catch(Exception e)
