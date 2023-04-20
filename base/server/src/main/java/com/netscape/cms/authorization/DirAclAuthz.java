@@ -252,11 +252,7 @@ public class DirAclAuthz extends AAclAuthz
             System.out.println(ex.toString());
             throw new EACLsException(CMS.getUserMessage("CMS_ACL_UPDATE_FAIL"));
         } finally {
-            try {
-                returnConn(conn);
-            } catch (ELdapException e) {
-                logger.warn("DirAclAuthz: couldn't return connection: " + e.getMessage(), e);
-            }
+            returnConn(conn);
         }
     }
 
@@ -264,7 +260,7 @@ public class DirAclAuthz extends AAclAuthz
         return mLdapConnFactory.getConn();
     }
 
-    protected void returnConn(LDAPConnection conn) throws ELdapException {
+    protected void returnConn(LDAPConnection conn) {
         mLdapConnFactory.returnConn(conn);
     }
 

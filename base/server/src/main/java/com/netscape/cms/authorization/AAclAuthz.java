@@ -164,20 +164,22 @@ public abstract class AAclAuthz extends AuthzManager {
      * Example: resTurnKnob:left,right:allow(left) group="lefties":door knobs for lefties
      *
      * @param resACLs same format as the resourceACLs attribute
-     * @throws EBaseException parsing error from <code>parseACL</code>
+     * @throws EACLsException parsing error from <code>parseACL</code>
      */
-    public void addACLs(String resACLs) throws EBaseException {
+    public void addACLs(String resACLs) throws EACLsException {
         ACL acl = ACL.parseACL(resACLs);
 
-        if (acl != null) {
-            ACL curACL = mACLs.get(acl.getName());
-            if (curACL == null) {
-                mACLs.put(acl.getName(), acl);
-            } else {
-                curACL.merge(acl);
-            }
-        } else {
+        if (acl == null) {
             logger.warn("AAclAuthz: parseACL failed");
+            return;
+        }
+
+        ACL curACL = mACLs.get(acl.getName());
+
+        if (curACL == null) {
+            mACLs.put(acl.getName(), acl);
+        } else {
+            curACL.merge(acl);
         }
     }
 
@@ -187,16 +189,16 @@ public abstract class AAclAuthz extends AuthzManager {
     }
 
     @Override
-    public ACL getACL(String target) {
+    public ACL getACL(String target) throws EACLsException {
         return mACLs.get(target);
     }
 
-    protected Set<String> getTargetNames() {
+    protected Set<String> getTargetNames() throws EACLsException {
         return mACLs.keySet();
     }
 
     @Override
-    public Collection<ACL> getACLs() {
+    public Collection<ACL> getACLs() throws EACLsException {
         return mACLs.values();
     }
 
@@ -309,8 +311,8 @@ public abstract class AAclAuthz extends AuthzManager {
      *         false if should be passed down to the next node
      * @exception EACLsException if access disallowed
      */
-    private boolean checkACLs(String name, String perm)
-            throws EACLsException {
+    protected boolean checkACLs(String name, String perm) throws EACLsException {
+
         ACL acl = mACLs.get(name);
 
         // no such resource, pass it down
@@ -504,7 +506,7 @@ public abstract class AAclAuthz extends AuthzManager {
     protected boolean checkAllowEntries(
             AuthToken authToken,
             Iterable<String> nodes,
-            String perm) {
+            String perm) throws EACLsException {
         for (ACLEntry entry : getEntries(ACLEntry.Type.ALLOW, nodes, perm)) {
             logger.debug("checkAllowEntries(): expressions: " + entry.getAttributeExpressions());
             if (evaluateExpressions(authToken, entry.getAttributeExpressions())) {
@@ -533,7 +535,8 @@ public abstract class AAclAuthz extends AuthzManager {
             ACLEntry.Type entryType,
             Iterable<String> nodes,
             String operation
-    ) {
+    ) throws EACLsException {
+
         Vector<ACLEntry> v = new Vector<>();
 
         for (String name : nodes) {
@@ -758,7 +761,7 @@ public abstract class AAclAuthz extends AuthzManager {
      *
      * @return true if unique; false otherwise
      */
-    public boolean isTypeUnique(String type) {
+    public boolean isTypeUnique(String type) throws EACLsException {
         return !mACLs.containsKey(type);
     }
 

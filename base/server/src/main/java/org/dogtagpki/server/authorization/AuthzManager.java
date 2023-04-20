@@ -157,7 +157,7 @@ public abstract class AuthzManager {
      *
      * @return collection of ACL entries.
      */
-    public abstract Collection<ACL> getACLs();
+    public abstract Collection<ACL> getACLs() throws EACLsException;
 
     /**
      * Get individual ACL entry for the given name of entry.
@@ -165,7 +165,7 @@ public abstract class AuthzManager {
      * @param target The name of the ACL entry
      * @return The ACL entry.
      */
-    public abstract ACL getACL(String target);
+    public abstract ACL getACL(String target) throws EACLsException;
 
     /**
      * Update ACLs in the database
