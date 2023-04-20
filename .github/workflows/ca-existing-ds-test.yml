@@ -40,6 +40,7 @@ jobs:
       - name: Connect DS container to network
         run: docker network connect example ds --alias ds.example.com
 
+      # https://github.com/dogtagpki/pki/wiki/Setting-up-CA-Database
       - name: Configure DS database
         run: |
           docker exec ds ldapadd \
@@ -78,6 +79,18 @@ jobs:
               -D "cn=Directory Manager" \
               -w Secret.123 \
               -f $SHARED/create.ldif
+
+      - name: Add CA ACL resources
+        run: |
+          sed \
+              -e 's/{rootSuffix}/dc=ca,dc=pki,dc=example,dc=com/g' \
+              base/ca/database/ds/acl.ldif \
+              | tee acl.ldif
+          docker exec ds ldapadd \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -f $SHARED/acl.ldif
 
       - name: Add CA search indexes
         run: |
@@ -127,18 +140,6 @@ jobs:
 
           echo "0" > expected
           diff expected nsTaskExitCode
-
-      - name: Add CA ACL resources
-        run: |
-          sed \
-              -e 's/{rootSuffix}/dc=ca,dc=pki,dc=example,dc=com/g' \
-              base/ca/database/ds/acl.ldif \
-              | tee acl.ldif
-          docker exec ds ldapadd \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -f $SHARED/acl.ldif
 
       - name: Grant access to PKI database user
         run: |
