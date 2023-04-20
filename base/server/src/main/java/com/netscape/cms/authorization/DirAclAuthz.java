@@ -19,9 +19,11 @@ package com.netscape.cms.authorization;
 
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.Set;
 
 import org.dogtagpki.server.authorization.AuthzManagerConfig;
 
+import com.netscape.certsrv.acls.ACLEntry;
 import com.netscape.certsrv.acls.EACLsException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -55,6 +57,7 @@ public class DirAclAuthz extends AAclAuthz
 
     private LdapBoundConnFactory mLdapConnFactory;
     private String mBaseDN = null;
+    private boolean loaded;
     private static boolean needsFlush = false;
 
     /**
@@ -140,12 +143,19 @@ public class DirAclAuthz extends AAclAuthz
         mLdapConnFactory.setCMSEngine(engine);
         mLdapConnFactory.init(socketConfig, ldapConfig, engine.getPasswordStore());
 
-        loadACLs();
-
         logger.info("DirAclAuthz: initialization done");
     }
 
-    public void loadACLs() throws EBaseException {
+    /**
+     * Load ACLs from LDAP.
+     *
+     * The method is synchronized to prevent race conditions.
+     *
+     * @throws EACLsException
+     */
+    public synchronized void loadACLs() throws EACLsException {
+
+        if (loaded) return;
 
         logger.info("DirAclAuthz: Loading ACL resources");
 
@@ -179,15 +189,74 @@ public class DirAclAuthz extends AAclAuthz
             while (en.hasMoreElements()) {
                 String acl = en.nextElement();
                 logger.info("DirAclAuthz: - " + acl);
-                addACLs(acl);
+
+                // call super.addACLs() directly to avoid re-entering loadACLs()
+                super.addACLs(acl);
             }
 
         } catch (LDAPException e) {
             throw new EACLsException(CMS.getUserMessage("CMS_ACL_CONNECT_LDAP_FAIL", e.getMessage()), e);
 
+        } catch (ELdapException e) {
+            throw new EACLsException(CMS.getUserMessage("CMS_ACL_CONNECT_LDAP_FAIL", e.getMessage()), e);
+
         } finally {
             returnConn(conn);
         }
+
+        loaded = true;
+    }
+
+    @Override
+    public void addACLs(String resACLs) throws EACLsException {
+        if (!loaded) loadACLs();
+        super.addACLs(resACLs);
+    }
+
+    @Override
+    public void accessInit(String accessInfo) throws EBaseException {
+        if (!loaded) loadACLs();
+        super.accessInit(accessInfo);
+    }
+
+    @Override
+    public ACL getACL(String target) throws EACLsException {
+        if (!loaded) loadACLs();
+        return super.getACL(target);
+    }
+
+    @Override
+    protected Set<String> getTargetNames() throws EACLsException {
+        if (!loaded) loadACLs();
+        return super.getTargetNames();
+    }
+
+    @Override
+    public Collection<ACL> getACLs() throws EACLsException {
+        if (!loaded) loadACLs();
+        return super.getACLs();
+    }
+
+    @Override
+    protected boolean checkACLs(String name, String perm) throws EACLsException {
+        if (!loaded) loadACLs();
+        return super.checkACLs(name, perm);
+    }
+
+    @Override
+    protected Iterable<ACLEntry> getEntries(
+            ACLEntry.Type entryType,
+            Iterable<String> nodes,
+            String operation
+    ) throws EACLsException {
+        if (!loaded) loadACLs();
+        return super.getEntries(entryType, nodes, operation);
+    }
+
+    @Override
+    public boolean isTypeUnique(String type) throws EACLsException {
+        if (!loaded) loadACLs();
+        return super.isTypeUnique(type);
     }
 
     /**
@@ -206,6 +275,7 @@ public class DirAclAuthz extends AAclAuthz
     @Override
     public void updateACLs(String id, String rights, String strACLs,
             String desc) throws EACLsException {
+        if (!loaded) loadACLs();
         try {
             super.updateACLs(id, rights, strACLs, desc);
             flushResourceACLs();
