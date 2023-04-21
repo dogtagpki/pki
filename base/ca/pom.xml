@@ -24,4 +24,8 @@
 
     </dependencies>
 
+    <build>
+        <finalName>pki-ca</finalName>
+    </build>
+
 </project>

@@ -34,6 +34,7 @@
                 <filtering>false</filtering>
             </resource>
         </resources>
+        <finalName>pki-tools</finalName>
     </build>
 
 </project>

@@ -24,4 +24,8 @@
 
     </dependencies>
 
+    <build>
+        <finalName>pki-tps</finalName>
+    </build>
+
 </project>

@@ -14,4 +14,8 @@
     <artifactId>pki-common</artifactId>
     <packaging>jar</packaging>
 
+    <build>
+        <finalName>pki-common</finalName>
+    </build>
+
 </project>

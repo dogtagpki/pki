@@ -24,4 +24,8 @@
 
     </dependencies>
 
+    <build>
+        <finalName>pki-tomcat-9.0</finalName>
+    </build>
+
 </project>

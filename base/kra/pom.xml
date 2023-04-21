@@ -24,4 +24,8 @@
 
     </dependencies>
 
+    <build>
+        <finalName>pki-kra</finalName>
+    </build>
+
 </project>

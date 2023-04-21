@@ -24,4 +24,8 @@
 
     </dependencies>
 
+    <build>
+        <finalName>pki-ocsp</finalName>
+    </build>
+
 </project>
