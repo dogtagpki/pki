@@ -47,7 +47,7 @@ extension-pkg-whitelist=ldap,lxml,nss
 #
 # C and R messages are disabled by default. To clean up the code, enable C and
 # R messages temporarily.
-disable=W0511,W0105,W0142,C,R,W0232,W0707
+disable=W0511,W0105,W0142,C,R,W0232,W0707,W0719
 
 
 [REPORTS]
@@ -243,4 +243,4 @@ int-import-graph=
 
 # Exceptions that will emit a warning when being caught. Defaults to
 # "Exception"
-overgeneral-exceptions=Exception
+overgeneral-exceptions=builtins.Exception
