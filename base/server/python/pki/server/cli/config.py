@@ -52,6 +52,8 @@ class SubsystemConfigFindCLI(pki.cli.CLI):
         print('Usage: pki-server %s-config-find [OPTIONS]' % self.parent.parent.name)
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
         print()
 
@@ -60,7 +62,7 @@ class SubsystemConfigFindCLI(pki.cli.CLI):
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
-                'verbose', 'help'])
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
             logger.error(e)
@@ -72,6 +74,12 @@ class SubsystemConfigFindCLI(pki.cli.CLI):
         for o, a in opts:
             if o in ('-i', '--instance'):
                 instance_name = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
 
             elif o == '--help':
                 self.print_help()
@@ -112,6 +120,8 @@ class SubsystemConfigShowCLI(pki.cli.CLI):
         print('Usage: pki-server %s-config-show [OPTIONS] <name>' % self.parent.parent.name)
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
         print()
 
@@ -120,7 +130,7 @@ class SubsystemConfigShowCLI(pki.cli.CLI):
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
-                'verbose', 'help'])
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
             logger.error(e)
@@ -132,6 +142,12 @@ class SubsystemConfigShowCLI(pki.cli.CLI):
         for o, a in opts:
             if o in ('-i', '--instance'):
                 instance_name = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
 
             elif o == '--help':
                 self.print_help()
@@ -185,6 +201,8 @@ class SubsystemConfigSetCLI(pki.cli.CLI):
               % self.parent.parent.name)
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
         print()
 
@@ -193,7 +211,7 @@ class SubsystemConfigSetCLI(pki.cli.CLI):
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
-                'verbose', 'help'])
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
             logger.error(e)
@@ -205,6 +223,12 @@ class SubsystemConfigSetCLI(pki.cli.CLI):
         for o, a in opts:
             if o in ('-i', '--instance'):
                 instance_name = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
 
             elif o == '--help':
                 self.print_help()
@@ -259,6 +283,8 @@ class SubsystemConfigUnsetCLI(pki.cli.CLI):
               % self.parent.parent.name)
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
         print()
 
@@ -267,7 +293,7 @@ class SubsystemConfigUnsetCLI(pki.cli.CLI):
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
-                'verbose', 'help'])
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
             logger.error(e)
@@ -279,6 +305,12 @@ class SubsystemConfigUnsetCLI(pki.cli.CLI):
         for o, a in opts:
             if o in ('-i', '--instance'):
                 instance_name = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
 
             elif o == '--help':
                 self.print_help()
