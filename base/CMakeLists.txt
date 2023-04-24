@@ -157,7 +157,9 @@ execute_process(
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
-if(DISTRO STREQUAL "centos" OR DISTRO STREQUAL "fedora" OR DISTRO STREQUAL "rhel")
+find_program(XMVN_RESOLVE /bin/xmvn-resolve)
+
+if(XMVN_RESOLVE)
     execute_process(
         COMMAND xmvn-resolve jakarta.xml.bind:jakarta.xml.bind-api:4
         OUTPUT_VARIABLE JAXB_API_JAR
@@ -170,9 +172,9 @@ else()
         PATHS
             /usr/share/java
     )
-endif(DISTRO STREQUAL "centos" OR DISTRO STREQUAL "fedora" OR DISTRO STREQUAL "rhel")
+endif(XMVN_RESOLVE)
 
-if(DISTRO STREQUAL "centos" OR DISTRO STREQUAL "fedora" OR DISTRO STREQUAL "rhel")
+if(XMVN_RESOLVE)
     execute_process(
         COMMAND xmvn-resolve jakarta.activation:jakarta.activation-api:2
         OUTPUT_VARIABLE JAVAX_ACTIVATION_JAR
@@ -192,7 +194,7 @@ else()
             /usr/share/java/javax
             /usr/share/java
     )
-endif(DISTRO STREQUAL "centos" OR DISTRO STREQUAL "fedora" OR DISTRO STREQUAL "rhel")
+endif(XMVN_RESOLVE)
 
 find_file(JAVAX_ANNOTATIONS_API_JAR
     NAMES

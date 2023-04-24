@@ -156,6 +156,7 @@ BuildRequires:    policycoreutils
 # Java build dependencies
 BuildRequires:    %{java_devel}
 BuildRequires:    maven-local
+BuildRequires:    xmvn-tools
 BuildRequires:    javapackages-tools
 BuildRequires:    mvn(commons-cli:commons-cli)
 BuildRequires:    mvn(commons-codec:commons-codec)
