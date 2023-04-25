@@ -22,8 +22,9 @@ then
     for filename in /var/lib/tomcats/pki/conf/acme/metadata/*
     do
         [ -e "$filename" ] || break
-        value=$(cat /var/lib/tomcats/pki/conf/acme/metadata/$filename)
-        echo "$filename=$value" >> /var/lib/tomcats/pki/conf/acme/metadata.conf
+        name=$(basename $filename)
+        value=$(cat $filename)
+        echo "$name=$value" >> /var/lib/tomcats/pki/conf/acme/metadata.conf
     done
 else
     echo "INFO: Using default metadata configuration"
@@ -44,8 +45,9 @@ then
     for filename in /var/lib/tomcats/pki/conf/acme/database/*
     do
         [ -e "$filename" ] || break
-        value=$(cat /var/lib/tomcats/pki/conf/acme/database/$filename)
-        echo "$filename=$value" >> /var/lib/tomcats/pki/conf/acme/database.conf
+        name=$(basename $filename)
+        value=$(cat $filename)
+        echo "$name=$value" >> /var/lib/tomcats/pki/conf/acme/database.conf
     done
 else
     echo "INFO: Using default database configuration"
@@ -66,8 +68,9 @@ then
     for filename in /var/lib/tomcats/pki/conf/acme/issuer/*
     do
         [ -e "$filename" ] || break
-        value=$(cat /var/lib/tomcats/pki/conf/acme/issuer/$filename)
-        echo "$filename=$value" >> /var/lib/tomcats/pki/conf/acme/issuer.conf
+        name=$(basename $filename)
+        value=$(cat $filename)
+        echo "$name=$value" >> /var/lib/tomcats/pki/conf/acme/issuer.conf
     done
 else
     echo "INFO: Using default issuer configuration"
@@ -88,8 +91,9 @@ then
     for filename in /var/lib/tomcats/pki/conf/acme/realm/*
     do
         [ -e "$filename" ] || break
-        value=$(cat /var/lib/tomcats/pki/conf/acme/realm/$filename)
-        echo "$filename=$value" >> /var/lib/tomcats/pki/conf/acme/realm.conf
+        name=$(basename $filename)
+        value=$(cat $filename)
+        echo "$name=$value" >> /var/lib/tomcats/pki/conf/acme/realm.conf
     done
 else
     echo "INFO: Using default realm configuration"
