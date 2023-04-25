@@ -67,7 +67,6 @@ public class HttpClient {
 
     public static byte[] getBytesFromFile(String filename) throws IOException {
         File file = new File(filename);
-        FileInputStream is = null;
 
         long length = file.length();
 
@@ -80,15 +79,10 @@ public class HttpClient {
 
         int offset = 0;
         int numRead = 0;
-        try {
-            is = new FileInputStream(file);
+        try (FileInputStream is = new FileInputStream(file);) {
             while (offset < bytes.length
                     && (numRead = is.read(bytes, offset, bytes.length - offset)) >= 0) {
                 offset += numRead;
-            }
-        } finally {
-            if (is != null) {
-                is.close();
             }
         }
         if (offset < bytes.length) {
@@ -179,12 +173,11 @@ public class HttpClient {
             dos.write(b);
             dos.flush();
 
-            FileOutputStream fof = new FileOutputStream(ofilename);
             boolean startSaving = false;
             int sum = 0;
             boolean hack = false;
             String catchHeaders = "";
-            try {
+            try (FileOutputStream fof = new FileOutputStream(ofilename)) {
                 while (true) {
                     int r = is.read();
                     if (r == -1)
@@ -212,7 +205,6 @@ public class HttpClient {
                 }
             } catch (IOException e) {
             }
-            fof.close();
             // debug
             System.out.println("\n##Response Headers begin##\n" + catchHeaders + "\n##end##\n");
 
@@ -317,11 +309,12 @@ public class HttpClient {
         }
 
         String configFile = args[0];
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new InputStreamReader(
-                            new BufferedInputStream(
-                                    new FileInputStream(configFile))));
+        Properties config = new Properties();
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                new BufferedInputStream(
+                        new FileInputStream(configFile))))) {
+            config.load(reader);
         } catch (FileNotFoundException e) {
             System.out.println("HttpClient:  can't find configuration file: " + configFile);
             printUsage();
@@ -330,15 +323,6 @@ public class HttpClient {
             e.printStackTrace();
             printUsage();
             return;
-        }
-
-        Properties config = new Properties();
-        try {
-            config.load(reader);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            printUsage();
         }
 
         String host = config.getProperty("host");
