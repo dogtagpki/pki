@@ -57,7 +57,7 @@ public class SecurityDomainJoinCLI extends CommandCLI {
         option.setArgName("hostname");
         options.addOption(option);
 
-        option = new Option(null, "unsecure-port", true, "Unsecure port (default: 8080)");
+        option = new Option(null, "unsecure-port", true, "Unsecure port");
         option.setArgName("port");
         options.addOption(option);
 
@@ -103,7 +103,7 @@ public class SecurityDomainJoinCLI extends CommandCLI {
             throw new Exception("Missing hostname");
         }
 
-        String unsecurePort = cmd.getOptionValue("unsecure-port", "8080");
+        String unsecurePort = cmd.getOptionValue("unsecure-port");
         String securePort = cmd.getOptionValue("secure-port", "8443");
         boolean domainManager = cmd.hasOption("domain-manager");
         boolean clone = cmd.hasOption("clone");
@@ -114,7 +114,11 @@ public class SecurityDomainJoinCLI extends CommandCLI {
         content.putSingle("type", type);
         content.putSingle("name", hostID);
         content.putSingle("host", hostname);
-        content.putSingle("httpport", unsecurePort);
+
+        if (unsecurePort != null) {
+            content.putSingle("httpport", unsecurePort);
+        }
+
         content.putSingle("sport", securePort);
         content.putSingle("agentsport", securePort);
         content.putSingle("adminsport", securePort);

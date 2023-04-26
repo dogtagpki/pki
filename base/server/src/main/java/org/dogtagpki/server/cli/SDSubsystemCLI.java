@@ -26,7 +26,12 @@ public class SDSubsystemCLI extends CLI {
 
         System.out.println("  Subsystem ID: " + host.getId());
         System.out.println("  Hostname: " + host.getHostname());
-        System.out.println("  Port: " + host.getPort());
+
+        String port = host.getPort();
+        if (port != null) {
+            System.out.println("  Port: " + port);
+        }
+
         System.out.println("  Secure Port: " + host.getSecurePort());
 
         if (host.getDomainManager() != null) {

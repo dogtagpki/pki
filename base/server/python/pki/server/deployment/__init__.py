@@ -274,21 +274,36 @@ class PKIDeployer:
         logger.info('Removing UserDatabase')
         server_config.remove_global_naming_resource('UserDatabase')
 
-        logger.info('Configuring Unsecure connector')
+        # find default HTTP connector
         connector = server_config.get_connector(port='8080')
-        connector.set('name', 'Unsecure')
-        connector.set('port', self.mdict['pki_http_port'])
-        connector.set('redirectPort', self.mdict['pki_https_port'])
-        connector.set('maxHttpHeaderSize', '8192')
-        connector.set('acceptCount', '100')
-        connector.set('maxThreads', '150')
-        connector.set('minSpareThreads', '25')
-        connector.set('enableLookups', 'false')
-        connector.set('connectionTimeout', '80000')
-        connector.set('disableUploadTimeout', 'true')
+        service = connector.getparent()
 
-        logger.info('Adding Secure connector')
-        connector = server_config.create_connector(name='Secure')
+        # get HTTP connector position
+        index = service.index(connector)
+
+        if config.str2bool(self.mdict['pki_http_enable']):
+
+            logger.info('Configuring HTTP connector')
+            connector.set('name', 'Unsecure')
+            connector.set('port', self.mdict['pki_http_port'])
+            connector.set('redirectPort', self.mdict['pki_https_port'])
+            connector.set('maxHttpHeaderSize', '8192')
+            connector.set('acceptCount', '100')
+            connector.set('maxThreads', '150')
+            connector.set('minSpareThreads', '25')
+            connector.set('enableLookups', 'false')
+            connector.set('connectionTimeout', '80000')
+            connector.set('disableUploadTimeout', 'true')
+
+            # add the HTTPS connector after this connector
+            index = index + 1
+
+        else:
+            logger.info('Removing HTTP connector')
+            service.remove(connector)
+
+        logger.info('Adding HTTPS connector')
+        connector = server_config.create_connector(name='Secure', index=index)
         connector.set('port', self.mdict['pki_https_port'])
         connector.set('protocol', 'org.dogtagpki.tomcat.Http11NioProtocol')
         connector.set('SSLEnabled', 'true')

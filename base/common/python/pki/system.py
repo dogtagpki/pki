@@ -81,7 +81,7 @@ class SecurityDomainHost(object):
         host.Hostname = json_value['Hostname']
         host.SecurePort = json_value['SecurePort']
         host.SubsystemName = json_value['SubsystemName']
-        host.Port = json_value['Port']
+        host.Port = json_value.get('Port')
 
         return host
 

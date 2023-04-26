@@ -8,3 +8,9 @@ A new `pki_ds_url` parameter has been added for `pkispawn` to replace the follow
 * `pki_ds_ldap_port`
 * `pki_ds_ldaps_port`
 * `pki_ds_secure_connection`
+
+== Add pki_http_enable parameter ==
+
+A new `pki_http_enable` parameter has been added for `pkispawn`
+to enable/disable the plain HTTP connector in `server.xml`.
+The default value is `True`.

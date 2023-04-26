@@ -32,7 +32,7 @@ public class SecurityDomainHostAddCLI extends CommandCLI {
 
     @Override
     public void createOptions() {
-        Option option = new Option(null, "port", true, "Port (default: 8080)");
+        Option option = new Option(null, "port", true, "Port");
         option.setArgName("port");
         options.addOption(option);
 
@@ -63,7 +63,7 @@ public class SecurityDomainHostAddCLI extends CommandCLI {
         SecurityDomainHost host = new SecurityDomainHost();
         host.setId(hostID);
 
-        String port = cmd.getOptionValue("port", "8080");
+        String port = cmd.getOptionValue("port");
         host.setPort(port);
 
         String securePort = cmd.getOptionValue("securePort", "8443");
