@@ -1494,7 +1494,7 @@ class PKISubsystem(object):
             subsystem_id,
             subsystem_type,
             hostname,
-            unsecure_port='8080',
+            unsecure_port=None,
             secure_port='8443',
             domain_manager=False,
             clone=False,
@@ -1552,7 +1552,7 @@ class PKISubsystem(object):
             sd_url,
             host_id,
             hostname,
-            unsecure_port='8080',
+            unsecure_port=None,
             secure_port='8443',
             domain_manager=False,
             clone=False,
@@ -1576,9 +1576,11 @@ class PKISubsystem(object):
                 '--install-token', install_token,
                 '--type', self.type,
                 '--hostname', hostname,
-                '--unsecure-port', unsecure_port,
-                '--secure-port', secure_port
+                '--secure-port', secure_port,
             ]
+
+            if unsecure_port is not None:
+                cmd.extend(['--unsecure-port', unsecure_port])
 
             if domain_manager:
                 cmd.append('--domain-manager')

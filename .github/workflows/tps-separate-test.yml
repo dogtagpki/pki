@@ -57,9 +57,18 @@ jobs:
               -D pki_ds_url=ldap://cads.example.com:3389 \
               -D pki_cert_id_generator=random \
               -D pki_request_id_generator=random \
+              -D pki_http_enable=False \
               -v
 
           docker exec ca pki-server cert-find
+
+      - name: Verify there is no plain HTTP connectors in CA
+        run: |
+          docker exec ca pki-server http-connector-find | tee output
+
+          echo "Secure" > expected
+          sed -n -e "s/^ *Connector ID: *\(.*\)$/\1/p" output > actual
+          diff expected actual
 
       - name: Install banner in CA container
         run: docker exec ca cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
@@ -98,9 +107,18 @@ jobs:
               -D pki_ds_url=ldap://krads.example.com:3389 \
               -D pki_key_id_generator=random \
               -D pki_request_id_generator=random \
+              -D pki_http_enable=False \
               -v
 
           docker exec kra pki-server cert-find
+
+      - name: Verify there is no plain HTTP connectors in KRA
+        run: |
+          docker exec kra pki-server http-connector-find | tee output
+
+          echo "Secure" > expected
+          sed -n -e "s/^ *Connector ID: *\(.*\)$/\1/p" output > actual
+          diff expected actual
 
       - name: Install banner in KRA container
         run: docker exec kra cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
@@ -135,9 +153,18 @@ jobs:
               -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
               -D pki_admin_cert_file=${SHARED}/ca_admin.cert \
               -D pki_ds_url=ldap://tksds.example.com:3389 \
+              -D pki_http_enable=False \
               -v
 
           docker exec tks pki-server cert-find
+
+      - name: Verify there is no plain HTTP connectors in TKS
+        run: |
+          docker exec tks pki-server http-connector-find | tee output
+
+          echo "Secure" > expected
+          sed -n -e "s/^ *Connector ID: *\(.*\)$/\1/p" output > actual
+          diff expected actual
 
       - name: Install banner in TKS container
         run: docker exec tks cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
@@ -178,9 +205,26 @@ jobs:
               -D pki_authdb_hostname=tpsds.example.com \
               -D pki_authdb_port=3389 \
               -D pki_enable_server_side_keygen=True \
+              -D pki_http_enable=False \
               -v
 
           docker exec tps pki-server cert-find
+
+      - name: Verify there is no plain HTTP connectors in TPS
+        run: |
+          docker exec tps pki-server http-connector-find | tee output
+
+          echo "Secure" > expected
+          sed -n -e "s/^ *Connector ID: *\(.*\)$/\1/p" output > actual
+          diff expected actual
+
+      - name: Verify there is no plain HTTP ports in security domain
+        run: |
+          docker exec ca pki-server sd-subsystem-find | tee output
+
+          echo -n "" > expected
+          sed -ne "/^ *Port:/p" output > actual
+          diff expected actual
 
       - name: Install banner in TPS container
         run: docker exec tps cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat

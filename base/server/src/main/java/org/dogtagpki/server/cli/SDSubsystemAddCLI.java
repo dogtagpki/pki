@@ -54,7 +54,7 @@ public class SDSubsystemAddCLI extends CommandCLI {
         option.setArgName("hostname");
         options.addOption(option);
 
-        option = new Option(null, "unsecure-port", true, "Unsecure port (default: 8080)");
+        option = new Option(null, "unsecure-port", true, "Unsecure port");
         option.setArgName("port");
         options.addOption(option);
 
@@ -89,7 +89,7 @@ public class SDSubsystemAddCLI extends CommandCLI {
             throw new CLIException("Missing hostname");
         }
 
-        String unsecurePort = cmd.getOptionValue("unsecure-port", "8080");
+        String unsecurePort = cmd.getOptionValue("unsecure-port");
         String securePort = cmd.getOptionValue("secure-port", "8443");
         boolean domainManager = cmd.hasOption("domain-manager");
         boolean clone = cmd.hasOption("clone");
@@ -150,7 +150,11 @@ public class SDSubsystemAddCLI extends CommandCLI {
             attrs.add(new LDAPAttribute("cn", cn));
             attrs.add(new LDAPAttribute("SubsystemName", subsystemID));
             attrs.add(new LDAPAttribute("Host", hostname));
-            attrs.add(new LDAPAttribute("UnSecurePort", unsecurePort));
+
+            if (unsecurePort != null) {
+                attrs.add(new LDAPAttribute("UnSecurePort", unsecurePort));
+            }
+
             attrs.add(new LDAPAttribute("SecurePort", securePort));
             attrs.add(new LDAPAttribute("SecureAgentPort", securePort));
             attrs.add(new LDAPAttribute("SecureAdminPort", securePort));

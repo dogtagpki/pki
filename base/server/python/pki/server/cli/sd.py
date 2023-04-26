@@ -176,7 +176,7 @@ class SDSubsystemAddCLI(pki.cli.CLI):
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
         print('      --subsystem <type>             Subsystem type')
         print('      --hostname <hostname>          Hostname')
-        print('      --unsecure-port <port>         Unsecure port (default: 8080)')
+        print('      --unsecure-port <port>         Unsecure port')
         print('      --secure-port <port>           Secure port (default: 8443)')
         print('      --domain-manager               Domain manager')
         print('      --clone                        Clone')
@@ -201,7 +201,7 @@ class SDSubsystemAddCLI(pki.cli.CLI):
         instance_name = 'pki-tomcat'
         subsystem_type = None
         hostname = None
-        unsecure_port = '8080'
+        unsecure_port = None
         secure_port = '8443'
         domain_manager = False
         clone = False
