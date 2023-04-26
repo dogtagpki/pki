@@ -39,10 +39,16 @@ import org.slf4j.LoggerFactory;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.logging.event.AccessSessionEstablishEvent;
 import com.netscape.certsrv.logging.event.AccessSessionTerminatedEvent;
+import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.security.JssSubsystemConfig;
 import org.mozilla.jss.ssl.javax.*;
+import org.mozilla.jss.nss.SSL;
+import org.mozilla.jss.nss.SSLFDProxy;
+
 
 public class PKIServerSocketListener implements SSLSocketListener {
 
@@ -229,6 +235,25 @@ public class PKIServerSocketListener implements SSLSocketListener {
         if(cms == null || cms.isInRunningState() == false) {
             return;
         }
+
+        //Note: This is an expensive brute force setting for testing only.
+        //This config setting should only be set if this kind of testing is explicitly needed.
+	boolean invalidateAfterHandshake = false;
+	EngineConfig cfg =  null ;
+        JssSubsystemConfig jcfg = null;	
+
+	cfg = cms.getConfig();
+	if(cfg != null) {
+            jcfg = cfg.getJssSubsystemConfig();
+	    if(jcfg != null) {
+                try {
+                    invalidateAfterHandshake = jcfg.getBoolean("ssl.server.invalidateSessionAfterHandshake",false);
+                } catch(EBaseException e) {
+                    invalidateAfterHandshake = false;
+                }
+            }
+	 }
+
         try {
             SSLSocket socket = event.getSocket();
             JSSEngine engine = event.getEngine();
@@ -243,6 +268,11 @@ public class PKIServerSocketListener implements SSLSocketListener {
             String subjectID = defaultUnknown;
 
             if(socket != null) {
+		if(invalidateAfterHandshake) {
+                    logger.debug("PKIServerSocketListener: Handshake completed: about to invalidate SSLSocket socket as per configuration.");
+                    socket.invalidateSession();
+                }
+
                 clientAddress = socket.getInetAddress();
                 serverAddress = socket.getLocalAddress();
                 clientIP = clientAddress == null ? "" : clientAddress.getHostAddress();
@@ -260,6 +290,13 @@ public class PKIServerSocketListener implements SSLSocketListener {
                 socketInfos.put(socket, info);
             } else {
                 if(engine != null) {
+                    SSLFDProxy ssl_fd =  engine.getSSLFDProxy();
+                    if(ssl_fd != null) {
+                        if(invalidateAfterHandshake) {
+                            logger.debug("PKIServerSocketListener: Handshake completed: about to invalidate JSSEngine socket as per configuration.");
+                            SSL.InvalidateSession(ssl_fd);
+                        }
+                    }
                     JSSSession session = engine.getSession();
                     if(session != null) {
                         Certificate[] certs = session.getPeerCertificates();
