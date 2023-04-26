@@ -95,41 +95,56 @@ public class HttpClient {
             String nickname, String password, String servlet, String clientmode,
             int numHeaderLines)
             throws Exception {
-        DataOutputStream dos = null;
-        InputStream is = null;
-        PrintStream ps = null;
-        ByteArrayOutputStream bs = null;
-        SSLSocket sslSocket = null;
-        Socket socket = null;
+        if (_secure) {
+            secureSend(ifilename, ofilename, tokenName, dbdir, nickname, password, servlet, clientmode, numHeaderLines);
+        } else {
+            send(ifilename, ofilename, servlet, numHeaderLines);
+        }
+    }
+
+    private void send(String ifilename, String ofilename, String servlet, int numHeaderLines) throws Exception {
+
+        try (Socket socket = new Socket(_host, _port);
+                DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+                InputStream is = socket.getInputStream()) {
+
+            sendRequest(servlet, dos, ifilename);
+            handleResponse(ofilename, is, numHeaderLines);
+        } catch (Exception e) {
+            System.out.println("Error sending over Socket: " + e);
+            throw e;
+        }
+    }
+
+    private void secureSend(String ifilename, String ofilename, String tokenName, String dbdir,
+            String nickname, String password, String servlet, String clientmode,
+            int numHeaderLines)
+            throws Exception {
+
         try {
-            byte[] b = getBytesFromFile(ifilename);
+            InitializationValues vals = new InitializationValues(dbdir, "", "", "secmod.db");
+            CryptoManager.initialize(vals);
+            CryptoManager cm = CryptoManager.getInstance();
+            CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
+            if (CryptoUtil.isInternalToken(tokenName)) {
+                tokenName = CryptoUtil.INTERNAL_TOKEN_NAME;
+            }
+            cm.setThreadToken(token);
+            Password pass = new Password(password.toCharArray());
+            try {
+                token.login(pass);
+            } finally {
+                pass.clear();
+            }
 
-            System.out.println("Total number of bytes read = " + b.length);
-            if (_secure) {
-                InitializationValues vals =
-                        new InitializationValues(dbdir, "", "", "secmod.db");
-                CryptoManager.initialize(vals);
-                CryptoManager cm = CryptoManager.getInstance();
-                CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
-                if (CryptoUtil.isInternalToken(tokenName)) {
-                    tokenName = CryptoUtil.INTERNAL_TOKEN_NAME;
-                }
-                cm.setThreadToken(token);
-                Password pass = new Password(password.toCharArray());
-                try {
-                    token.login(pass);
-                } finally {
-                    pass.clear();
-                }
+            SSLHandshakeCompletedListener listener = new ClientHandshakeCB(this);
 
-                SSLHandshakeCompletedListener listener = new ClientHandshakeCB(this);
-
-                sslSocket = new SSLSocket(_host, _port);
+            try (SSLSocket sslSocket = new SSLSocket(_host, _port)) {
                 sslSocket.addHandshakeCompletedListener(listener);
                 sslSocket.enablePostHandshakeAuth(true);
 
                 CryptoToken tt = cm.getThreadToken();
-                System.out.println("after SSLSocket created, thread token is "+ tt.getName());
+                System.out.println("after SSLSocket created, thread token is " + tt.getName());
 
                 if (clientmode != null && clientmode.equals("true")) {
                     StringBuffer certname = new StringBuffer();
@@ -139,8 +154,7 @@ public class HttpClient {
                     }
                     certname.append(nickname);
 
-                    X509Certificate cert =
-                        cm.findCertByNickname(certname.toString());
+                    X509Certificate cert = cm.findCertByNickname(certname.toString());
 
                     if (cert == null)
                         System.out.println("client cert is null");
@@ -151,59 +165,70 @@ public class HttpClient {
                 }
 
                 sslSocket.forceHandshake();
-                dos = new DataOutputStream(sslSocket.getOutputStream());
-                is = sslSocket.getInputStream();
-            } else {
-                socket = new Socket(_host, _port);
-                dos = new DataOutputStream(socket.getOutputStream());
-                is = socket.getInputStream();
+                try (DataOutputStream dos = new DataOutputStream(sslSocket.getOutputStream());
+                        InputStream is = sslSocket.getInputStream()) {
+
+                    sendRequest(servlet, dos, ifilename);
+                    handleResponse(ofilename, is, numHeaderLines);
+                }
             }
+        } catch (Exception e) {
+            System.out.println("Error sending over SSLSocket: " + e);
+            throw e;
+        }
+    }
 
-            // send request
-            if (servlet == null) {
-                System.out.println("Missing servlet name.");
-                printUsage();
-            } else {
-                System.out.println("writing to socket");
-                String s = "POST " + servlet + " HTTP/1.0\r\n";
-                dos.writeBytes(s);
-            }
-            dos.writeBytes("Content-length: " + b.length + "\r\n");
-            dos.writeBytes("\r\n");
-            dos.write(b);
-            dos.flush();
+    private void sendRequest(String servlet, DataOutputStream dos, String ifilename) throws IOException {
+        byte[] b = getBytesFromFile(ifilename);
+        System.out.println("Total number of bytes read = " + b.length);
+        // send request
+        if (servlet == null) {
+            System.out.println("Missing servlet name.");
+            printUsage();
+        } else {
+            System.out.println("writing to socket");
+            String s = "POST " + servlet + " HTTP/1.0\r\n";
+            dos.writeBytes(s);
+        }
+        dos.writeBytes("Content-length: " + b.length + "\r\n");
+        dos.writeBytes("\r\n");
+        dos.write(b);
+        dos.flush();
+    }
 
-            boolean startSaving = false;
-            int sum = 0;
-            boolean hack = false;
-            String catchHeaders = "";
-            try (FileOutputStream fof = new FileOutputStream(ofilename)) {
-                while (true) {
-                    int r = is.read();
-                    if (r == -1)
-                        break;
-                    if (r == 10) { // line break
-                        sum++;
-                    }
+    private void handleResponse(String ofilename, InputStream is, int numHeaderLines) throws IOException {
 
-                    // catch the header lines for debugging purposes
-                    if (sum < numHeaderLines) {
-                        catchHeaders = catchHeaders + (char) r;
+        boolean startSaving = false;
+        int sum = 0;
+        boolean hack = false;
+        String catchHeaders = "";
+        try (FileOutputStream fof = new FileOutputStream(ofilename);
+                ByteArrayOutputStream bs = new ByteArrayOutputStream();
+                PrintStream ps = new PrintStream(bs)) {
+            while (true) {
+                int r = is.read();
+                if (r == -1)
+                    break;
+                if (r == 10) { // line break
+                    sum++;
+                }
+
+                // catch the header lines for debugging purposes
+                if (sum < numHeaderLines) {
+                    catchHeaders = catchHeaders + (char) r;
+                }
+                if (sum == 5) {
+                    startSaving = true;
+                    continue;
+                }
+                if (startSaving) {
+                    if (hack) {
+                        fof.write(r);
                     }
-                    if (sum == 5) {
-                        startSaving = true;
-                        continue;
-                    }
-                    if (startSaving) {
-                        if (hack) {
-                            fof.write(r);
-                        }
-                        if (hack == false) {
-                            hack = true;
-                        }
+                    if (hack == false) {
+                        hack = true;
                     }
                 }
-            } catch (IOException e) {
             }
             // debug
             System.out.println("\n##Response Headers begin##\n" + catchHeaders + "\n##end##\n");
@@ -211,36 +236,13 @@ public class HttpClient {
             byte[] bout = getBytesFromFile(ofilename);
             System.out.println("Total number of bytes read = " + bout.length);
 
-            bs = new ByteArrayOutputStream();
-            ps = new PrintStream(bs);
             ps.print(Utils.base64encode(bout, true));
+
             System.out.println(bs.toString());
 
             System.out.println("");
             System.out.println("The response in binary format is stored in " + ofilename);
             System.out.println("");
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        } finally {
-            if (is != null) {
-                is.close();
-            }
-            if (dos != null) {
-                dos.close();
-            }
-            if (bs != null) {
-                bs.close();
-            }
-            if (ps != null) {
-                ps.close();
-            }
-            if (sslSocket != null) {
-                sslSocket.close();
-            }
-            if (socket != null) {
-                socket.close();
-            }
         }
     }
 
@@ -275,7 +277,8 @@ public class HttpClient {
         System.out.println("#This parameter will be ignored if secure=false and clientmode=false");
         System.out.println("password=");
         System.out.println("");
-        System.out.println("#tokenname: name of token where SSL client authentication cert for nickname can be found (default is internal)");
+        System.out.println(
+                "#tokenname: name of token where SSL client authentication cert for nickname can be found (default is internal)");
         System.out.println("#This parameter will be ignored if secure=false");
         System.out.println("tokenname=internal");
         System.out.println("");
@@ -320,7 +323,7 @@ public class HttpClient {
             printUsage();
             System.exit(1);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Error loading config from file: " + e);
             printUsage();
             return;
         }
@@ -402,9 +405,9 @@ public class HttpClient {
         }
 
         try {
-            HttpClient client =
-                    new HttpClient(host, port, secure);
-            client.send(ifilename, ofilename, tokenName,  dbdir, nickname, password, servlet, clientmode, numHeaderLines);
+            HttpClient client = new HttpClient(host, port, secure);
+            client.send(ifilename, ofilename, tokenName, dbdir, nickname, password, servlet, clientmode,
+                    numHeaderLines);
         } catch (Exception e) {
             System.out.println("Error: " + e.toString());
         }
