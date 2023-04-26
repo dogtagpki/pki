@@ -516,31 +516,47 @@ public class SecurityDomainProcessor extends Processor {
         LDAPAttributeSet attrs = new LDAPAttributeSet();
         attrs.add(new LDAPAttribute("objectclass", "top"));
         attrs.add(new LDAPAttribute("objectclass", "pkiSubsystem"));
+
+        logger.info("SecurityDomainProcessor: - cn: " + hostID);
         attrs.add(new LDAPAttribute("cn", hostID));
+
+        logger.info("SecurityDomainProcessor: - Host: " + hostname);
         attrs.add(new LDAPAttribute("Host", hostname));
+
+        logger.info("SecurityDomainProcessor: - SecurePort: " + securePort);
         attrs.add(new LDAPAttribute("SecurePort", securePort));
 
         if (StringUtils.isNotEmpty(agentSecurePort)) {
+            logger.info("SecurityDomainProcessor: - SecureAgentPort: " + agentSecurePort);
             attrs.add(new LDAPAttribute("SecureAgentPort", agentSecurePort));
         }
 
         if (StringUtils.isNotEmpty(adminSecurePort)) {
+            logger.info("SecurityDomainProcessor: - SecureAdminPort: " + adminSecurePort);
             attrs.add(new LDAPAttribute("SecureAdminPort", adminSecurePort));
         }
 
         if (StringUtils.isNotEmpty(unsecurePort)) {
+            logger.info("SecurityDomainProcessor: - UnSecurePort: " + unsecurePort);
             attrs.add(new LDAPAttribute("UnSecurePort", unsecurePort));
         }
 
         if (StringUtils.isNotEmpty(eeCAPort)) {
+            logger.info("SecurityDomainProcessor: - SecureEEClientAuthPort: " + eeCAPort);
             attrs.add(new LDAPAttribute("SecureEEClientAuthPort", eeCAPort));
         }
 
         if (StringUtils.isNotEmpty(domainManager)) {
-            attrs.add(new LDAPAttribute("DomainManager", domainManager.toUpperCase()));
+            domainManager = domainManager.toUpperCase();
+            logger.info("SecurityDomainProcessor: - DomainManager: " + domainManager);
+            attrs.add(new LDAPAttribute("DomainManager", domainManager));
         }
 
-        attrs.add(new LDAPAttribute("clone", clone.toUpperCase()));
+        clone = clone.toUpperCase();
+        logger.info("SecurityDomainProcessor: - clone: " + clone);
+        attrs.add(new LDAPAttribute("clone", clone));
+
+        logger.info("SecurityDomainProcessor: - SubsystemName: " + name);
         attrs.add(new LDAPAttribute("SubsystemName", name));
 
         LDAPEntry entry = new LDAPEntry(dn, attrs);
