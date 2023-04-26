@@ -24,6 +24,7 @@ from __future__ import print_function
 
 import functools
 import inspect
+import json
 import logging
 import os
 import ssl
@@ -369,7 +370,12 @@ def main():
     headers = {'Content-type': 'application/json',
                'Accept': 'application/json'}
     conn.set_authentication_cert('/root/temp4.pem')
-    print(conn.get("", headers).json())
+    response = conn.get("", headers)
+
+    json_response = response.json()
+    logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
+
+    print(json_response)
 
 
 if __name__ == "__main__":

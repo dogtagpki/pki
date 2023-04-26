@@ -21,11 +21,16 @@
 from __future__ import absolute_import
 from __future__ import print_function
 
+import json
+import logging
+
 from six import iteritems
 
 import pki
 import pki.client as client
 import pki.encoder as encoder
+
+logger = logging.getLogger(__name__)
 
 
 class Feature(object):
@@ -127,8 +132,12 @@ class FeatureClient(object):
             raise ValueError("Feature ID must be specified")
 
         url = self.feature_url + '/' + str(feature_id)
-        r = self.connection.get(url, self.headers)
-        return Feature.from_json(r.json())
+        response = self.connection.get(url, self.headers)
+
+        json_response = response.json()
+        logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
+
+        return Feature.from_json(json_response)
 
     @pki.handle_exceptions()
     def list_features(self):
@@ -137,7 +146,11 @@ class FeatureClient(object):
         response = self.connection.get(
             path=self.feature_url,
             headers=self.headers)
-        return FeatureCollection.from_json(response.json())
+
+        json_response = response.json()
+        logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
+
+        return FeatureCollection.from_json(json_response)
 
 
 encoder.NOTYPES['Feature'] = Feature

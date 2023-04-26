@@ -26,6 +26,7 @@ from __future__ import print_function
 
 from functools import wraps
 import cryptography.x509
+import json
 import ldap.dn
 import logging
 import os
@@ -434,7 +435,10 @@ def handle_exceptions():
                 # exception. We want to re-raise the HTTPError.
                 exc_type, exc_val, exc_tb = sys.exc_info()
                 try:
-                    json = exc_val.response.json()
+                    response = exc_val.response
+                    json_response = response.json()
+                    logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
+
                 except ValueError:
                     # json raises ValueError. simplejson raises
                     # JSONDecodeError, which is a subclass of ValueError.
@@ -443,10 +447,10 @@ def handle_exceptions():
                 else:
                     # clear reference cycle
                     exc_type = exc_val = exc_tb = None
-                    clazz = json.get('ClassName')
+                    clazz = json_response.get('ClassName')
                     if clazz and clazz in EXCEPTION_MAPPINGS:
                         exception_class = EXCEPTION_MAPPINGS[clazz]
-                        pki_exception = exception_class.from_json(json)
+                        pki_exception = exception_class.from_json(json_response)
                         raise pki_exception
 
         return handler

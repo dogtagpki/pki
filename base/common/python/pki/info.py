@@ -23,9 +23,15 @@ Module containing the Python client classes for the InfoClient
 """
 from __future__ import absolute_import
 from __future__ import print_function
+
+import json
+import logging
+
 from six import iteritems
 
 import pki
+
+logger = logging.getLogger(__name__)
 
 
 class Info(object):
@@ -110,8 +116,12 @@ class InfoClient(object):
 
         headers = {'Content-type': 'application/json',
                    'Accept': 'application/json'}
-        r = self.connection.get(self.info_url, headers)
-        return Info.from_json(r.json())
+        response = self.connection.get(self.info_url, headers)
+
+        json_response = response.json()
+        logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
+
+        return Info.from_json(json_response)
 
     @pki.handle_exceptions()
     def get_version(self):

@@ -273,7 +273,11 @@ class SecurityDomainClient(object):
             'Accept': 'application/json'
         }
         response = self.connection.get(self.domain_info_url, headers=headers)
-        info = DomainInfo.from_json(response.json())
+
+        json_response = response.json()
+        logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
+
+        info = DomainInfo.from_json(json_response)
         return info
 
     def get_old_domain_info(self):
@@ -301,7 +305,11 @@ class SecurityDomainClient(object):
             'subsystem': subsystem
         }
         response = self.connection.get(self.install_token_url, params=params)
-        return InstallToken.from_json(response.json())
+
+        json_response = response.json()
+        logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
+
+        return InstallToken.from_json(json_response)
 
 
 class CertificateSetupRequest(object):
@@ -387,7 +395,10 @@ class SystemConfigClient(object):
             data,
             headers)
 
-        return response.json()
+        json_response = response.json()
+        logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
+
+        return json_response
 
     def createCertID(self, request):
         """
@@ -406,7 +417,10 @@ class SystemConfigClient(object):
             data,
             headers)
 
-        return response.json()
+        json_response = response.json()
+        logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
+
+        return json_response
 
 
 class SystemStatusClient(object):

@@ -22,6 +22,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 import json
+import logging
 from six import iteritems
 import uuid
 
@@ -29,6 +30,8 @@ import pki
 import pki.client as client
 import pki.encoder as encoder
 import pki.cert as cert
+
+logger = logging.getLogger(__name__)
 
 
 class AuthorityData(object):
@@ -141,8 +144,12 @@ class AuthorityClient(object):
         url = self.ca_url + '/' + str(aid)
         headers = {'Content-type': 'application/json',
                    'Accept': 'application/json'}
-        r = self.connection.get(url, headers=headers)
-        return AuthorityData.from_json(r.json())
+        response = self.connection.get(url, headers=headers)
+
+        json_response = response.json()
+        logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
+
+        return AuthorityData.from_json(json_response)
 
     @pki.handle_exceptions()
     def get_cert(self, aid, output_format="PEM"):
@@ -208,7 +215,11 @@ class AuthorityClient(object):
             path=self.ca_url,
             headers=headers,
             params=query_params)
-        return AuthorityDataCollection.from_json(response.json())
+
+        json_response = response.json()
+        logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
+
+        return AuthorityDataCollection.from_json(json_response)
 
     @pki.handle_exceptions()
     def create_ca(self, ca_data):
@@ -241,7 +252,10 @@ class AuthorityClient(object):
             create_request,
             headers=headers)
 
-        new_ca = AuthorityData.from_json(response.json())
+        json_response = response.json()
+        logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
+
+        new_ca = AuthorityData.from_json(json_response)
         return new_ca
 
     @pki.handle_exceptions()

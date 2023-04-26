@@ -27,6 +27,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 import base64
 import json
+import logging
 import os
 import warnings
 
@@ -38,6 +39,8 @@ import pki.crypto
 import pki.encoder as encoder
 from pki.info import Version
 import pki.util
+
+logger = logging.getLogger(__name__)
 
 
 # should be moved to request.py
@@ -574,7 +577,11 @@ class KeyClient(object):
                         'start': start, 'size': size, 'realm': realm}
         response = self.connection.get(self.key_url, self.headers,
                                        params=query_params)
-        return KeyInfoCollection.from_json(response.json())
+
+        json_response = response.json()
+        logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
+
+        return KeyInfoCollection.from_json(json_response)
 
     @pki.handle_exceptions()
     def list_requests(self, request_state=None, request_type=None,
@@ -594,7 +601,11 @@ class KeyClient(object):
                         'realm': realm}
         response = self.connection.get(self.key_requests_url, self.headers,
                                        params=query_params)
-        return KeyRequestInfoCollection.from_json(response.json())
+
+        json_response = response.json()
+        logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
+
+        return KeyRequestInfoCollection.from_json(json_response)
 
     @pki.handle_exceptions()
     def get_request_info(self, request_id):
@@ -604,7 +615,11 @@ class KeyClient(object):
 
         url = self.key_requests_url + '/' + request_id
         response = self.connection.get(url, self.headers)
-        return KeyRequestInfo.from_json(response.json())
+
+        json_response = response.json()
+        logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
+
+        return KeyRequestInfo.from_json(json_response)
 
     @pki.handle_exceptions()
     def get_key_info(self, key_id):
@@ -614,7 +629,11 @@ class KeyClient(object):
 
         url = self.key_url + '/' + key_id
         response = self.connection.get(url, headers=self.headers)
-        return KeyInfo.from_json(response.json())
+
+        json_response = response.json()
+        logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
+
+        return KeyInfo.from_json(json_response)
 
     @pki.handle_exceptions()
     def get_active_key_info(self, client_key_id):
@@ -624,7 +643,11 @@ class KeyClient(object):
 
         url = self.key_url + '/active/' + quote(client_key_id)
         response = self.connection.get(url, headers=self.headers)
-        return KeyInfo.from_json(response.json())
+
+        json_response = response.json()
+        logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
+
+        return KeyInfo.from_json(json_response)
 
     @pki.handle_exceptions()
     def modify_key_status(self, key_id, status):
@@ -681,7 +704,11 @@ class KeyClient(object):
         key_request = json.dumps(request, cls=encoder.CustomTypeEncoder,
                                  sort_keys=True)
         response = self.connection.post(url, key_request, self.headers)
-        return KeyRequestResponse.from_json(response.json())
+
+        json_response = response.json()
+        logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
+
+        return KeyRequestResponse.from_json(json_response)
 
     @pki.handle_exceptions()
     def generate_symmetric_key(self, client_key_id, algorithm=None, size=None,
@@ -988,7 +1015,11 @@ class KeyClient(object):
         key_request = json.dumps(data, cls=encoder.CustomTypeEncoder,
                                  sort_keys=True)
         response = self.connection.post(url, key_request, self.headers)
-        key_data = KeyData.from_json(response.json())
+
+        json_response = response.json()
+        logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
+
+        key_data = KeyData.from_json(json_response)
         return Key(key_data)
 
     @pki.handle_exceptions()

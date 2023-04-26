@@ -628,9 +628,12 @@ class CertClient(object):
             raise ValueError("Certificate ID must be specified")
 
         url = self.cert_url + '/' + str(cert_serial_number)
-        r = self.connection.get(url, self.headers)
-        # print r.json()
-        return CertData.from_json(r.json())
+        response = self.connection.get(url, self.headers)
+
+        json_response = response.json()
+        logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
+
+        return CertData.from_json(json_response)
 
     @pki.handle_exceptions()
     def list_certs(self, max_results=None, max_time=None, start=None, size=None,
@@ -648,7 +651,11 @@ class CertClient(object):
                                     sort_keys=True)
         response = self.connection.post(url, search_request, self.headers,
                                         query_params)
-        return CertDataInfoCollection.from_json(response.json())
+
+        json_response = response.json()
+        logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
+
+        return CertDataInfoCollection.from_json(json_response)
 
     @pki.handle_exceptions()
     def review_cert(self, cert_serial_number):
@@ -660,8 +667,12 @@ class CertClient(object):
             raise ValueError("Certificate ID must be specified")
 
         url = self.agent_cert_url + '/' + str(cert_serial_number)
-        r = self.connection.get(url, self.headers)
-        return CertData.from_json(r.json())
+        response = self.connection.get(url, self.headers)
+
+        json_response = response.json()
+        logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
+
+        return CertData.from_json(json_response)
 
     def _submit_revoke_request(self, url, cert_serial_number,
                                revocation_reason=None, invalidity_date=None,
@@ -691,13 +702,16 @@ class CertClient(object):
         if authority:
             params['issuer-id'] = authority
 
-        r = self.connection.post(
+        response = self.connection.post(
             url,
             revoke_request,
             headers=self.headers,
             params=params)
 
-        return CertRequestInfo.from_json(r.json())
+        json_response = response.json()
+        logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
+
+        return CertRequestInfo.from_json(json_response)
 
     @pki.handle_exceptions()
     def revoke_cert(self, cert_serial_number, revocation_reason=None,
@@ -756,13 +770,16 @@ class CertClient(object):
         if authority is not None:
             params['issuer-id'] = authority
 
-        r = self.connection.post(
+        response = self.connection.post(
             url,
             None,
             headers=self.headers,
             params=params)
 
-        return CertRequestInfo.from_json(r.json())
+        json_response = response.json()
+        logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
+
+        return CertRequestInfo.from_json(json_response)
 
     @pki.handle_exceptions()
     def get_request(self, request_id):
@@ -774,9 +791,12 @@ class CertClient(object):
         if request_id is None:
             raise ValueError("Request ID must be specified")
         url = self.cert_requests_url + '/' + str(request_id)
-        r = self.connection.get(url, headers=self.headers)
+        response = self.connection.get(url, headers=self.headers)
 
-        return CertRequestInfo.from_json(r.json())
+        json_response = response.json()
+        logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
+
+        return CertRequestInfo.from_json(json_response)
 
     @pki.handle_exceptions()
     def list_requests(self, request_status=None, request_type=None,
@@ -795,9 +815,15 @@ class CertClient(object):
             'maxResults': max_results,
             'maxTime': max_time
         }
-        r = self.connection.get(self.agent_cert_requests_url, self.headers,
-                                query_params)
-        return CertRequestInfoCollection.from_json(r.json())
+        response = self.connection.get(
+            self.agent_cert_requests_url,
+            self.headers,
+            query_params)
+
+        json_response = response.json()
+        logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
+
+        return CertRequestInfoCollection.from_json(json_response)
 
     @pki.handle_exceptions()
     def review_request(self, request_id):
@@ -810,8 +836,12 @@ class CertClient(object):
             raise ValueError("Request Id must be specified.")
 
         url = self.agent_cert_requests_url + '/' + str(request_id)
-        r = self.connection.get(url, headers=self.headers)
-        return CertReviewResponse.from_json(r.json())
+        response = self.connection.get(url, headers=self.headers)
+
+        json_response = response.json()
+        logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
+
+        return CertReviewResponse.from_json(json_response)
 
     @pki.handle_exceptions()
     def _perform_action(self, request_id, cert_review_response, action):
@@ -913,8 +943,12 @@ class CertClient(object):
             'start': start,
             'size': size
         }
-        r = self.connection.get(url, self.headers, query_params)
-        return profile.ProfileDataInfoCollection.from_json(r.json())
+        response = self.connection.get(url, self.headers, query_params)
+
+        json_response = response.json()
+        logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
+
+        return profile.ProfileDataInfoCollection.from_json(json_response)
 
     @pki.handle_exceptions()
     def get_enrollment_template(self, profile_id):
@@ -931,11 +965,13 @@ class CertClient(object):
         if profile_id in self.enrollment_templates:
             return copy.deepcopy(self.enrollment_templates[profile_id])
         url = self.cert_requests_url + '/profiles/' + str(profile_id)
-        r = self.connection.get(url, self.headers)
-        enrollment_request = r.json()
-        logger.info('Enrollment request: %s', enrollment_request)
+        response = self.connection.get(url, self.headers)
+
+        json_response = response.json()
+        logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
+
         # Caching the enrollment template object in-memory for future use.
-        enrollment_template = CertEnrollmentRequest.from_json(enrollment_request)
+        enrollment_template = CertEnrollmentRequest.from_json(json_response)
         self.enrollment_templates[profile_id] = enrollment_template
 
         return copy.deepcopy(enrollment_template)
@@ -976,9 +1012,16 @@ class CertClient(object):
             params['issuer-id'] = authority
 
         # print request_object
-        r = self.connection.post(self.cert_requests_url, request_object,
-                                 self.headers, params)
-        return CertRequestInfoCollection.from_json(r.json())
+        response = self.connection.post(
+            self.cert_requests_url,
+            request_object,
+            self.headers,
+            params)
+
+        json_response = response.json()
+        logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
+
+        return CertRequestInfoCollection.from_json(json_response)
 
     @pki.handle_exceptions()
     def enroll_cert(self, profile_id, inputs, authority=None):
