@@ -882,23 +882,17 @@ public class UGSubsystem {
 
     /**
      * Removes a user certificate for a user entry
-     * given a user certificate DN (actually, a combination of version,
-     * serialNumber, issuerDN, and SubjectDN), and it gets removed
+     * given a user certificate ID (a combination of version,
+     * serialNumber, issuerDN, and SubjectDN).
      */
-    public void removeUserCert(User identity) throws EUsrGrpException {
-        User user = identity;
-        User ldapUser = null;
-
-        if (user == null) {
-            return;
-        }
+    public void removeUserCert(String userID, String certID) throws EUsrGrpException {
 
         // retrieve all certs of the user, then match the cert String for
         // removal
-        ldapUser = getUser(user.getUserID());
+        User ldapUser = getUser(userID);
 
         if (ldapUser == null) {
-            throw new ResourceNotFoundException("User not found: " + user.getUserID());
+            throw new ResourceNotFoundException("User not found: " + userID);
         }
 
         X509Certificate[] certs = ldapUser.getX509Certificates();
@@ -907,9 +901,7 @@ public class UGSubsystem {
             throw new ResourceNotFoundException("User certificate not found");
         }
 
-        String delCertdn = user.getCertDN();
-
-        if (delCertdn == null) {
+        if (certID == null) {
             throw new ResourceNotFoundException("User certificate not found");
         }
 
@@ -918,20 +910,20 @@ public class UGSubsystem {
         for (int i = 0; i < certs.length; i++) {
             String certStr;
 
-            if (delCertdn.startsWith("-1;")) {
+            if (certID.startsWith("-1;")) {
                 certStr = getCertificateStringWithoutVersion(certs[i]);
             } else {
                 certStr = getCertificateString(certs[i]);
             }
 
-            if (!delCertdn.equalsIgnoreCase(certStr)) continue;
+            if (!certID.equalsIgnoreCase(certStr)) continue;
 
             LDAPConnection ldapconn = null;
 
             try {
                 ldapconn = getConn();
 
-                String dn = "uid=" + LDAPUtil.escapeRDNValue(user.getUserID()) + "," + getUserBaseDN();
+                String dn = "uid=" + LDAPUtil.escapeRDNValue(userID) + "," + getUserBaseDN();
 
                 try {
                     // remove seeAlso attribute
@@ -971,7 +963,7 @@ public class UGSubsystem {
                 logger.info(
                         AuditFormat.REMOVEUSERCERTFORMAT,
                         adminId,
-                        user.getUserID(),
+                        userID,
                         certs[0].getSubjectDN(),
                         certs[i].getSerialNumber().toString(16)
                 );

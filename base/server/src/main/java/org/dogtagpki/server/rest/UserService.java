@@ -954,7 +954,6 @@ public class UserService extends SubsystemService implements UserResource {
 
             CMSEngine engine = getCMSEngine();
             UGSubsystem userGroupManager = engine.getUGSubsystem();
-            User user = userGroupManager.createUser(userID);
             String certID = userCertData.getID();
 
             // no certDN is a success
@@ -963,9 +962,7 @@ public class UserService extends SubsystemService implements UserResource {
                 return;
             }
 
-            user.setCertDN(certID);
-
-            userGroupManager.removeUserCert(user);
+            userGroupManager.removeUserCert(userID, certID);
 
             auditDeleteUserCert(userID, userCertData, ILogger.SUCCESS);
 

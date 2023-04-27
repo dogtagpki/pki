@@ -1257,7 +1257,6 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 return;
             }
 
-            User user = mMgr.createUser(id);
             String certDN = super.getParameter(req, Constants.PR_USER_CERT);
 
             // no certDN is a success
@@ -1273,9 +1272,8 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 return;
             }
 
-            user.setCertDN(certDN);
             try {
-                mMgr.removeUserCert(user);
+                mMgr.removeUserCert(id, certDN);
                 NameValuePairs params = new NameValuePairs();
 
                 auditor.log(new ConfigRoleEvent(
