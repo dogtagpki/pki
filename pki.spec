@@ -156,7 +156,9 @@ BuildRequires:    policycoreutils
 # Java build dependencies
 BuildRequires:    %{java_devel}
 BuildRequires:    maven-local
+%if 0%{?fedora}
 BuildRequires:    xmvn-tools
+%endif
 BuildRequires:    javapackages-tools
 BuildRequires:    mvn(commons-cli:commons-cli)
 BuildRequires:    mvn(commons-codec:commons-codec)
