@@ -129,6 +129,13 @@ jobs:
     with:
       db-image: ${{ needs.init.outputs.db-image }}
 
+  ca-admin-user-test:
+    name: CA admin user
+    needs: [init, build]
+    uses: ./.github/workflows/ca-admin-user-test.yml
+    with:
+      db-image: ${{ needs.init.outputs.db-image }}
+
   ca-non-default-user-test:
     name: CA with non-default user
     needs: [init, build]
