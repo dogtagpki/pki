@@ -439,27 +439,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  caDoRevoke  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.cert.DoRevoke  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  templatePath </param-name>
-                         <param-value> /ee/ca/revocationResult.template </param-value> </init-param>
-             <init-param><param-name>  interface   </param-name>
-                         <param-value> ee          </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caDoRevoke  </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.ee.certificates </param-value> </init-param>
-             <init-param><param-name>  interface   </param-name>
-                         <param-value> ee          </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  caGetCookie  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.csadmin.CAGetCookie  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -665,11 +644,6 @@
    <servlet-mapping>  
       <servlet-name>  caDisplayBySerial  </servlet-name>
       <url-pattern>   /ee/ca/displayBySerial  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  caDoRevoke  </servlet-name>
-      <url-pattern>   /ee/ca/doRevoke  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
