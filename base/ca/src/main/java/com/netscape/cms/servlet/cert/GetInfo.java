@@ -25,6 +25,8 @@ import java.util.Vector;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -50,9 +52,19 @@ import com.netscape.cmscore.dbs.CRLRepository;
 
 /**
  * Get detailed information about CA CRL processing
- *
- * @version $Revision$, $Date$
  */
+@WebServlet(
+        name = "caGetInfo",
+        urlPatterns = "/ee/ca/getInfo",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="false"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="authority",     value="ca"),
+                @WebInitParam(name="ID",            value="caGetInfo"),
+                @WebInitParam(name="resourceID",    value="certServer.ee.crl"),
+                @WebInitParam(name="interface",     value="ee")
+        }
+)
 public class GetInfo extends CMSServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GetInfo.class);
