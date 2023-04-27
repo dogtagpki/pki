@@ -59,6 +59,14 @@ jobs:
               -D pki_request_id_generator=random \
               -v
 
+      - name: Check CA users
+        run: |
+          docker exec pki pki-server ca-user-find
+
+      - name: Check CA groups
+        run: |
+          docker exec pki pki-server ca-group-find
+
       - name: Check CA admin user
         run: |
           docker exec pki pki-server ca-user-show caadmin | tee output
@@ -75,7 +83,7 @@ jobs:
           CERT_ID=$(cat cert.id)
           echo "CERT_ID: $CERT_ID"
 
-      - name: Authentication with CA admin cert should work
+      - name: Authentication and authorization with CA admin cert should work
         run: |
           docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
           docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
@@ -99,7 +107,6 @@ jobs:
 
       - name: Authentication with CA admin cert should not work
         run: |
-          rc=0
           docker exec pki pki -n caadmin ca-user-find \
               > >(tee stdout) 2> >(tee stderr >&2) || true
 
@@ -120,6 +127,43 @@ jobs:
           diff cert.id actual
 
       - name: Authentication with CA admin cert should work again
+        run: |
+          docker exec pki pki -n caadmin ca-user-find
+
+      - name: Check CA admin roles
+        run: |
+          docker exec pki pki-server ca-user-role-find caadmin | tee output
+
+          echo "Administrators" > expected
+          echo "Certificate Manager Agents" >> expected
+          echo "Enterprise CA Administrators" >> expected
+          echo "Enterprise KRA Administrators" >> expected
+          echo "Enterprise OCSP Administrators" >> expected
+          echo "Enterprise RA Administrators" >> expected
+          echo "Enterprise TKS Administrators" >> expected
+          echo "Enterprise TPS Administrators" >> expected
+          echo "Security Domain Administrators" >> expected
+
+          sed -n 's/^ *Role ID: *\(.*\)$/\1/p' output | sort > actual
+          diff expected actual
+
+      - name: Remove CA admin role
+        run: |
+          docker exec pki pki-server ca-user-role-del caadmin Administrators
+
+      - name: Authorization with CA admin cert should not work
+        run: |
+          docker exec pki pki -n caadmin ca-user-find \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          echo "ForbiddenException: Authorization Error" > expected
+          diff expected stderr
+
+      - name: Restore CA admin role
+        run: |
+          docker exec pki pki-server ca-user-role-add caadmin Administrators
+
+      - name: Authorization with CA admin cert should work again
         run: |
           docker exec pki pki -n caadmin ca-user-find
 
