@@ -439,13 +439,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  caProxyProfileSubmit  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.ProfileSubmitProxyServlet  </servlet-class>
-             <init-param><param-name>  destServlet  </param-name>
-                         <param-value> /ee/ca/profileSubmit       </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  caProxyBulkIssuance  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.base.BulkIssuanceProxyServlet  </servlet-class>
              <init-param><param-name>  destServlet  </param-name>
@@ -599,11 +592,6 @@
    <servlet-mapping>  
       <servlet-name>  caDisplayBySerial  </servlet-name>
       <url-pattern>   /ee/ca/displayBySerial  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  caProxyProfileSubmit </servlet-name>
-      <url-pattern>   /profileSubmit </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
