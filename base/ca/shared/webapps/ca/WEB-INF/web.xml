@@ -43,7 +43,7 @@
 
    <servlet>
       <servlet-name>  caports  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.PortsServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.base.CAPortsServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
                          <param-value> caports     </param-value> </init-param>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -73,7 +73,7 @@
 
    <servlet>
       <servlet-name>  caProfileList-agent  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.profile.ProfileListServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.profile.ProfileListAgentServlet  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> true        </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
@@ -136,7 +136,7 @@
 
    <servlet>
       <servlet-name>  caDoRevoke-agent  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.cert.DoRevoke  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.cert.DoRevokeAgent  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> true        </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
@@ -176,7 +176,7 @@
 
    <servlet>
       <servlet-name>  camasterCAGetInfo  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.cert.GetInfo  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.cert.MasterCAGetInfo  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> true        </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
@@ -195,7 +195,7 @@
 
    <servlet>
       <servlet-name>  caOCSP  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.ocsp.OCSPServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.ocsp.CAOCSPServlet  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> false       </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
@@ -588,7 +588,7 @@
 
    <servlet>
       <servlet-name>  caGetCookie  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.csadmin.GetCookie  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.csadmin.CAGetCookie  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> false       </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
@@ -607,7 +607,7 @@
 
    <servlet>
       <servlet-name>  caTokenAuthenticate  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.csadmin.TokenAuthenticate  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.csadmin.CATokenAuthenticate  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> false       </param-value> </init-param>
              <init-param><param-name>  authority   </param-name>
@@ -620,7 +620,7 @@
 
    <servlet>
       <servlet-name>  caTokenAuthenticate-admin  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.csadmin.TokenAuthenticate  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.csadmin.CATokenAuthenticateAdmin  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> false       </param-value> </init-param>
              <init-param><param-name>  authority   </param-name>
@@ -633,21 +633,21 @@
 
    <servlet>
       <servlet-name>  caProxyProfileSubmit  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.ProxyServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.base.ProfileSubmitProxyServlet  </servlet-class>
              <init-param><param-name>  destServlet  </param-name>
                          <param-value> /ee/ca/profileSubmit       </param-value> </init-param>
    </servlet>
 
    <servlet>
       <servlet-name>  caProxyBulkIssuance  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.ProxyServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.base.BulkIssuanceProxyServlet  </servlet-class>
              <init-param><param-name>  destServlet  </param-name>
                          <param-value> /agent/ca/bulkissuance       </param-value> </init-param>
    </servlet>
 
    <servlet>
       <servlet-name>  caProxyDoRevoke  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.ProxyServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.base.DoRevokeProxyServlet  </servlet-class>
              <init-param><param-name>  destServlet  </param-name>
                          <param-value> /agent/ca/doRevoke       </param-value> </init-param>
    </servlet>
