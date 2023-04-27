@@ -17,6 +17,23 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "caDoRevoke-agent",
+        urlPatterns = "/agent/ca/doRevoke",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="true"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="authority",     value="ca"),
+                @WebInitParam(name="templatePath",  value="/agent/ca/revocationResult.template"),
+                @WebInitParam(name="interface",     value="agent"),
+                @WebInitParam(name="ID",            value="caDoRevoke"),
+                @WebInitParam(name="AuthMgr",       value="certUserDBAuthMgr"),
+                @WebInitParam(name="resourceID",    value="certServer.ca.certificates")
+        }
+)
 public class DoRevokeAgent extends DoRevoke {
     private static final long serialVersionUID = 1L;
 }
