@@ -169,8 +169,10 @@ else()
     find_file(JAXB_API_JAR
         NAMES
             jaxb-api.jar
+	    jakarta.xml.bind-api-4.jar
         PATHS
             /usr/share/java
+	    /usr/share/java/jaxb-api4
     )
 endif(XMVN_RESOLVE)
 
@@ -187,12 +189,14 @@ else()
             jakarta-activation.jar
             javax.activation.jar
             javax-activation.jar
+	    jakarta.activation-api-2.jar
         PATHS
             /usr/share/java/jakarta-activation
             /usr/share/java/jakarta
             /usr/share/java/javax-activation
             /usr/share/java/javax
             /usr/share/java
+	    /usr/share/java/jakarta-activation2
     )
 endif(XMVN_RESOLVE)
 
