@@ -29,6 +29,8 @@ import java.util.Vector;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -65,9 +67,20 @@ import com.netscape.cmscore.request.Request;
 
 /**
  * Revoke a Certificate
- *
- * @version $Revision$, $Date$
  */
+@WebServlet(
+        name = "caDoRevoke",
+        urlPatterns = "/ee/ca/doRevoke",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="false"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="authority",     value="ca"),
+                @WebInitParam(name="templatePath",  value="/ee/ca/revocationResult.template"),
+                @WebInitParam(name="interface",     value="ee"),
+                @WebInitParam(name="ID",            value="caDoRevoke"),
+                @WebInitParam(name="resourceID",    value="certServer.ee.certificates")
+        }
+)
 public class DoRevoke extends CMSServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DoRevoke.class);
