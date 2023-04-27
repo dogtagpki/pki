@@ -17,6 +17,22 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "caGetCookie",
+        urlPatterns = "/admin/ca/getCookie",
+        initParams = {
+                @WebInitParam(name="GetClientCert",     value="false"),
+                @WebInitParam(name="AuthzMgr",          value="BasicAclAuthz"),
+                @WebInitParam(name="authority",         value="ca"),
+                @WebInitParam(name="ID",                value="caGetCookie"),
+                @WebInitParam(name="AuthMgr",           value="passwdUserDBAuthMgr"),
+                @WebInitParam(name="templatePath",      value="/admin/ca/sendCookie.template"),
+                @WebInitParam(name="errorTemplatePath", value="/admin/ca/securitydomainlogin.template")
+        }
+)
 public class CAGetCookie extends GetCookie {
     private static final long serialVersionUID = 1L;
 }
