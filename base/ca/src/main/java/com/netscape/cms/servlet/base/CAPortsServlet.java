@@ -17,6 +17,18 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.base;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "caports",
+        urlPatterns = "/ee/ca/ports",
+        initParams = {
+                @WebInitParam(name="ID",            value="caports"),
+                @WebInitParam(name="GetClientCert", value="false"),
+                @WebInitParam(name="interface",     value="ee")
+        }
+)
 public class CAPortsServlet extends PortsServlet {
     private static final long serialVersionUID = 1L;
 }

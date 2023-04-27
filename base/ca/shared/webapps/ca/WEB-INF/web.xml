@@ -42,17 +42,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  caports  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.CAPortsServlet  </servlet-class>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caports     </param-value> </init-param>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false        </param-value> </init-param>
-             <init-param><param-name>  interface  </param-name>
-                         <param-value> ee      </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  caSrchCert  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.base.DisplayHtmlServlet  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -712,11 +701,6 @@
    <servlet-mapping>
       <servlet-name>  caUpdateDirectory  </servlet-name>
       <url-pattern>   /agent/ca/updateDir.html  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>  
-      <servlet-name>  caports  </servlet-name>
-      <url-pattern>   /ee/ca/ports  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>  
