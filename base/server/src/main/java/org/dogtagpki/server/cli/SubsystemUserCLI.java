@@ -22,5 +22,6 @@ public class SubsystemUserCLI extends CLI {
         addModule(new SubsystemUserShowCLI(this));
 
         addModule(new SubsystemUserCertCLI(this));
+        addModule(new SubsystemUserRoleCLI(this));
     }
 }
