@@ -61,29 +61,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  caProfileList-agent  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.profile.ProfileListAgentServlet  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> true        </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authorityId  </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  interface  </param-name>
-                         <param-value> agent      </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caProfileList </param-value> </init-param>
-             <init-param><param-name>  unauthorizedTemplate  </param-name>
-                         <param-value> /agent/GenUnauthorized.template </param-value> </init-param>
-             <init-param><param-name>  templatePath  </param-name>
-                         <param-value> /agent/ca/ProfileList.template </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> certUserDBAuthMgr </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.ca.profiles </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  caDisplayBySerial-agent  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.cert.DisplayBySerial  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -706,11 +683,6 @@
    <servlet-mapping>  
       <servlet-name>  caSrchCert  </servlet-name>
       <url-pattern>   /agent/ca/srchCert.html  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>  
-      <servlet-name>  caProfileList-agent  </servlet-name>
-      <url-pattern>   /agent/ca/profileList  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>  
