@@ -477,25 +477,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  caProfileList  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.profile.ProfileListServlet  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authorityId  </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caProfileList </param-value> </init-param>
-             <init-param><param-name>  templatePath  </param-name>
-                         <param-value> /ee/ca/ProfileList.template </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.ee.profiles </param-value> </init-param>
-             <init-param><param-name>  interface   </param-name>
-                         <param-value> ee          </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  caDisplayBySerial  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.cert.DisplayBySerial  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -773,11 +754,6 @@
    <servlet-mapping>
       <servlet-name>  caProfileSubmitSelfSignedCMCFull  </servlet-name>
       <url-pattern>   /ee/ca/profileSubmitSelfSignedCMCFull  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>  
-      <servlet-name>  caProfileList  </servlet-name>
-      <url-pattern>   /ee/ca/profileList  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>  
