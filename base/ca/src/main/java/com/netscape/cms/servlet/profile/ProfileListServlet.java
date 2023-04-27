@@ -22,6 +22,8 @@ import java.util.Locale;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -40,9 +42,20 @@ import com.netscape.cmscore.profile.ProfileSubsystem;
 
 /**
  * List all enabled profiles.
- *
- * @version $Revision$, $Date$
  */
+@WebServlet(
+        name = "caProfileList",
+        urlPatterns = "/ee/ca/profileList",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="false"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="authorityId",   value="ca"),
+                @WebInitParam(name="ID",            value="caProfileList"),
+                @WebInitParam(name="templatePath",  value="/ee/ca/ProfileList.template"),
+                @WebInitParam(name="resourceID",    value="certServer.ee.profiles"),
+                @WebInitParam(name="interface",     value="ee")
+        }
+)
 public class ProfileListServlet extends ProfileServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileListServlet.class);
