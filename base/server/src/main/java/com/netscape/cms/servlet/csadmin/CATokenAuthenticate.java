@@ -17,6 +17,19 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "caTokenAuthenticate",
+        urlPatterns = "/ee/ca/tokenAuthenticate",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="false"),
+                @WebInitParam(name="authority",     value="ca"),
+                @WebInitParam(name="ID",            value="caTokenAuthenticate"),
+                @WebInitParam(name="interface",     value="ee")
+        }
+)
 public class CATokenAuthenticate extends TokenAuthenticate {
     private static final long serialVersionUID = 1L;
 }
