@@ -1870,6 +1870,21 @@ class PKISubsystem(object):
             as_current_user=as_current_user,
             capture_output=True)
 
+    def remove_user_cert(self, user_id, cert_id):
+
+        cmd = [self.name + '-user-cert-del']
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        cmd.append(user_id)
+        cmd.append(cert_id)
+
+        self.run(cmd)
+
     def run(self,
             args,
             input=None,  # pylint: disable=W0622

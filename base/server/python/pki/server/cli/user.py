@@ -546,6 +546,7 @@ class UserCertCLI(pki.cli.CLI):
         self.parent = parent
         self.add_module(UserCertFindCLI(self))
         self.add_module(UserCertAddCLI(self))
+        self.add_module(UserCertRemoveCLI(self))
 
 
 class UserCertFindCLI(pki.cli.CLI):
@@ -704,3 +705,93 @@ class UserCertAddCLI(pki.cli.CLI):
             sys.exit(1)
 
         subsystem.add_user_cert(user_id, cert_path=cert_path, cert_format=cert_format)
+
+
+class UserCertRemoveCLI(pki.cli.CLI):
+    '''
+    Remove {subsystem} user certificate
+    '''
+
+    help = '''\
+        Usage: pki-server {subsystem}-user-cert-del [OPTIONS] <user ID> <cert ID>
+
+          -i, --instance <instance ID>       Instance ID (default: pki-tomcat).
+          -v, --verbose                      Run in verbose mode.
+              --debug                        Run in debug mode.
+              --help                         Show help message.
+    '''
+
+    def __init__(self, parent):
+        super().__init__(
+            'del',
+            inspect.cleandoc(self.__class__.__doc__).format(
+                subsystem=parent.parent.parent.name.upper()))
+
+        self.parent = parent
+
+    def print_help(self):
+        print(textwrap.dedent(self.__class__.help).format(
+            subsystem=self.parent.parent.parent.name))
+
+    def execute(self, argv):
+
+        try:
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        subsystem_name = self.parent.parent.parent.name
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('Invalid option: %s', o)
+                self.print_help()
+                sys.exit(1)
+
+        if len(args) < 1:
+            logger.error('Missing user ID')
+            self.print_help()
+            sys.exit(1)
+
+        if len(args) < 2:
+            logger.error('Missing certificate ID')
+            self.print_help()
+            sys.exit(1)
+
+        user_id = args[0]
+        cert_id = args[1]
+
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        if not instance.exists():
+            logger.error('Invalid instance: %s', instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem = instance.get_subsystem(subsystem_name)
+
+        if not subsystem:
+            logger.error('No %s subsystem in instance %s',
+                         subsystem_name.upper(), instance_name)
+            sys.exit(1)
+
+        subsystem.remove_user_cert(user_id, cert_id)

@@ -19,6 +19,7 @@ public class SubsystemUserCertCLI extends CLI {
 
         addModule(new SubsystemUserCertFindCLI(this));
         addModule(new SubsystemUserCertAddCLI(this));
+        addModule(new SubsystemUserCertRemoveCLI(this));
     }
 
     public static void printCert(
