@@ -57,13 +57,13 @@ public class AtoB {
     public static final String HEADER = "-----BEGIN";
     public static final String TRAILER = "-----END";
 
-    public static void main(String argv[]) {
+    public static void main(String[] argv) {
 
         BufferedReader inputBlob = null;
         String asciiBASE64BlobChunk;
         StringBuffer asciiBASE64Blob = new StringBuffer();
 
-        byte binaryBASE64Blob[] = null;
+        byte[] binaryBASE64Blob = null;
         FileOutputStream outputBlob = null;
 
         // (1) Check that two arguments were submitted to the program
