@@ -34,6 +34,7 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.kra.KRAPolicy;
+import org.dogtagpki.legacy.kra.KRAPolicyConfig;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.server.kra.KRAConfig;
 import org.dogtagpki.server.kra.KRAEngine;
@@ -313,10 +314,11 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
         DBSubsystem dbSubsystem = engine.getDBSubsystem();
 
         mConfig = engineConfig.getKRAConfig();
+        KRAPolicyConfig kraPolicyConfig = mConfig.getPolicyConfig();
 
         // initialize policy processor
         mPolicy = new KRAPolicy();
-        mPolicy.init(this, mConfig.getSubStore(PROP_POLICY, ConfigStore.class));
+        mPolicy.init(this, kraPolicyConfig);
 
         // create key repository
         int keydb_inc = mConfig.getInteger(PROP_KEYDB_INC, 5);

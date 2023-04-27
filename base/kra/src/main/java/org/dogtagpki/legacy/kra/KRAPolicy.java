@@ -23,7 +23,6 @@ import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.PolicyResult;
-import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 import com.netscape.kra.KeyRecoveryAuthority;
 
@@ -36,7 +35,7 @@ public class KRAPolicy implements IPolicy {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRAPolicy.class);
 
-    ConfigStore mConfig;
+    KRAPolicyConfig mConfig;
     KeyRecoveryAuthority mKRA = null;
 
     public GenericPolicyProcessor mPolicies;
@@ -44,7 +43,7 @@ public class KRAPolicy implements IPolicy {
     public KRAPolicy() {
     }
 
-    public void init(KeyRecoveryAuthority owner, ConfigStore config) throws EBaseException {
+    public void init(KeyRecoveryAuthority owner, KRAPolicyConfig config) throws EBaseException {
         mKRA = owner;
         mConfig = config;
 
