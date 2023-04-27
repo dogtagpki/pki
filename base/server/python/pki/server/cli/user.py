@@ -523,19 +523,19 @@ class UserShowCLI(pki.cli.CLI):
 
         email = user.get('email')
         if email:
-            print('  Email: {} '.format(email))
+            print('  Email: {}'.format(email))
 
         phone = user.get('phone')
         if phone:
-            print('  Phone: {} '.format(phone))
+            print('  Phone: {}'.format(phone))
 
         user_type = user.get('type')
         if user_type:
-            print('  Type: {} '.format(user_type))
+            print('  Type: {}'.format(user_type))
 
         state = user.get('state')
         if state:
-            print('  State: {} '.format(state))
+            print('  State: {}'.format(state))
 
 
 class UserCertCLI(pki.cli.CLI):
