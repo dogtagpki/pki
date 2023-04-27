@@ -5,7 +5,10 @@
 //
 package org.dogtagpki.server.ca;
 
+import org.dogtagpki.legacy.ca.CAPolicyConfig;
+
 import com.netscape.ca.CRLConfig;
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.connector.ConnectorsConfig;
 import com.netscape.certsrv.security.SigningUnitConfig;
 import com.netscape.cmscore.base.ConfigStorage;
@@ -66,5 +69,12 @@ public class CAConfig extends ConfigStore {
      */
     public ConnectorsConfig getConnectorsConfig() {
         return getSubStore("connector", ConnectorsConfig.class);
+    }
+
+    /**
+     * Returns ca.Policy.* parameters.
+     */
+    public CAPolicyConfig getPolicyConfig() {
+        return getSubStore(CertificateAuthority.PROP_POLICY, CAPolicyConfig.class);
     }
 }

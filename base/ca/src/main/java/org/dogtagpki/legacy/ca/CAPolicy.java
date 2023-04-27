@@ -26,7 +26,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.profile.common.Profile;
-import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.request.Request;
 
@@ -44,7 +43,7 @@ public class CAPolicy implements IPolicy {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CAPolicy.class);
 
-    ConfigStore mConfig;
+    CAPolicyConfig mConfig;
     CertificateAuthority mCA = null;
 
     public static String PROP_PROCESSOR =
@@ -67,7 +66,7 @@ public class CAPolicy implements IPolicy {
         return mPolicies;
     }
 
-    public void init(CertificateAuthority owner, ConfigStore config) throws EBaseException {
+    public void init(CertificateAuthority owner, CAPolicyConfig config) throws EBaseException {
         mCA = owner;
         mConfig = config;
 

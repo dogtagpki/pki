@@ -42,6 +42,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.lang3.StringUtils;
 import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.legacy.ca.CAPolicy;
+import org.dogtagpki.legacy.ca.CAPolicyConfig;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
 import org.mozilla.jss.CryptoManager;
@@ -829,7 +830,7 @@ public class CAEngine extends CMSEngine {
         logger.info("CAEngine: - max nonces: " + maxNonces);
 
         logger.info("CAEngine: Initializing CA policy");
-        ConfigStore caPolicyConfig = caConfig.getSubStore(CertificateAuthority.PROP_POLICY, ConfigStore.class);
+        CAPolicyConfig caPolicyConfig = caConfig.getPolicyConfig();
         caPolicy = new CAPolicy();
         caPolicy.init(hostCA, caPolicyConfig);
 
