@@ -439,25 +439,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  caGetCookie  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.csadmin.CAGetCookie  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caGetCookie  </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> passwdUserDBAuthMgr </param-value> </init-param>
-             <init-param><param-name>  templatePath  </param-name>
-                         <param-value> /admin/ca/sendCookie.template </param-value> </init-param>
-             <init-param><param-name>  errorTemplatePath  </param-name>
-                         <param-value> /admin/ca/securitydomainlogin.template </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  caTokenAuthenticate  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.csadmin.CATokenAuthenticate  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -644,11 +625,6 @@
    <servlet-mapping>  
       <servlet-name>  caDisplayBySerial  </servlet-name>
       <url-pattern>   /ee/ca/displayBySerial  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  caGetCookie </servlet-name>
-      <url-pattern>   /admin/ca/getCookie  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
