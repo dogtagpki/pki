@@ -1885,6 +1885,27 @@ class PKISubsystem(object):
 
         self.run(cmd)
 
+    def find_user_roles(
+            self,
+            user_id,
+            output_format=None):
+
+        cmd = [self.name + '-user-role-find']
+
+        if output_format:
+            cmd.append('--output-format')
+            cmd.append(output_format)
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        cmd.append(user_id)
+
+        self.run(cmd)
+
     def run(self,
             args,
             input=None,  # pylint: disable=W0622
