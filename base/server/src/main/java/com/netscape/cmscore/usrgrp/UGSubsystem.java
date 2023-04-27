@@ -21,7 +21,6 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Vector;
@@ -467,23 +466,31 @@ public class UGSubsystem {
      * @return the User entity.
      */
     protected User buildUser(LDAPEntry entry) throws EUsrGrpException {
-        LDAPAttribute uid = entry.getAttribute("uid");
-        if (uid == null) {
-            throw new EUsrGrpException("No Attribute UID in LDAP Entry " + entry.getDN());
-        }
-        User id = createUser(uid.getStringValues().nextElement());
-        LDAPAttribute cnAttr = entry.getAttribute("cn");
 
+        String dn = entry.getDN();
+        logger.info("UGSubsystem: User " + dn + ":");
+
+        LDAPAttribute uidAttr = entry.getAttribute("uid");
+        if (uidAttr == null) {
+            throw new EUsrGrpException("Missing UID attribute: " + entry.getDN());
+        }
+
+        String uid = uidAttr.getStringValues().nextElement();
+        logger.info("UGSubsystem: - uid: " + uid);
+
+        User user = createUser(uid);
+
+        LDAPAttribute cnAttr = entry.getAttribute("cn");
         if (cnAttr != null) {
             String cn = cnAttr.getStringValues().nextElement();
 
             if (cn != null) {
-                id.setFullName(cn);
+                logger.info("UGSubsystem: - cn: " + cn);
+                user.setFullName(cn);
             }
         }
 
-        String userdn = entry.getDN();
-        id.setUserDN(userdn);
+        user.setUserDN(dn);
 
         /*
          LDAPAttribute certdnAttr = entry.getAttribute(LDAP_ATTR_CERTDN);
@@ -503,25 +510,27 @@ public class UGSubsystem {
                 String mail = en.nextElement();
 
                 if (mail != null) {
-                    id.setEmail(mail);
+                    logger.info("UGSubsystem: - mail: " + mail);
+                    user.setEmail(mail);
                 }
             }
         }
-        if (id.getEmail() == null) {
-            id.setEmail(""); // safety net
+
+        if (user.getEmail() == null) {
+            user.setEmail(""); // safety net
         }
 
         LDAPAttribute pwdAttr = entry.getAttribute("userpassword");
-
         if (pwdAttr != null) {
             String pwd = pwdAttr.getStringValues().nextElement();
 
             if (pwd != null) {
-                id.setPassword(pwd);
+                logger.info("UGSubsystem: - userPassword: ********");
+                user.setPassword(pwd);
             }
         }
-        LDAPAttribute phoneAttr = entry.getAttribute("telephonenumber");
 
+        LDAPAttribute phoneAttr = entry.getAttribute("telephonenumber");
         if (phoneAttr != null) {
             Enumeration<String> en = phoneAttr.getStringValues();
 
@@ -529,53 +538,54 @@ public class UGSubsystem {
                 String phone = en.nextElement();
 
                 if (phone != null) {
-                    id.setPhone(phone);
+                    logger.info("UGSubsystem: - telephoneNumber: " + phone);
+                    user.setPhone(phone);
                 }
             }
         }
-        if (id.getPhone() == null) {
-            id.setPhone(""); // safety net
+
+        if (user.getPhone() == null) {
+            user.setPhone(""); // safety net
         }
 
         LDAPAttribute userTypeAttr = entry.getAttribute("usertype");
+        if (userTypeAttr == null) {
+            user.setUserType("");
 
-        if (userTypeAttr == null)
-            id.setUserType("");
-        else {
+        } else {
             Enumeration<String> en = userTypeAttr.getStringValues();
 
             if (en != null && en.hasMoreElements()) {
                 String userType = en.nextElement();
 
-                if ((userType != null) && (!userType.equals("undefined")))
-                    id.setUserType(userType);
-                else
-                    id.setUserType("");
-
+                if ((userType != null) && (!userType.equals("undefined"))) {
+                    logger.info("UGSubsystem: - usertype: " + userType);
+                    user.setUserType(userType);
+                } else {
+                    user.setUserType("");
+                }
             }
         }
 
         LDAPAttribute userStateAttr = entry.getAttribute("userstate");
-
-        if (userStateAttr == null)
-            id.setState("");
-        else {
+        if (userStateAttr == null) {
+            user.setState("");
+        } else {
             Enumeration<String> en = userStateAttr.getStringValues();
 
             if (en != null && en.hasMoreElements()) {
                 String userState = en.nextElement();
 
-                if (userState != null)
-                    id.setState(userState);
-                else
-                    id.setState("");
-
+                if (userState != null) {
+                    logger.info("UGSubsystem: - userstate: " + userState);
+                    user.setState(userState);
+                } else {
+                    user.setState("");
+                }
             }
         }
 
-        LDAPAttribute certAttr =
-                entry.getAttribute(LDAP_ATTR_USER_CERT);
-
+        LDAPAttribute certAttr = entry.getAttribute(LDAP_ATTR_USER_CERT);
         if (certAttr != null) {
             Vector<X509Certificate> certVector = new Vector<>();
             Enumeration<byte[]> e = certAttr.getByteValues();
@@ -583,8 +593,13 @@ public class UGSubsystem {
             try {
                 for (; e != null && e.hasMoreElements();) {
                     X509Certificate cert = new X509CertImpl(e.nextElement());
+
+                    String certID = getCertificateString(cert);
+                    logger.info("UGSubsystem: - user cert: " + certID);
+
                     certVector.addElement(cert);
                 }
+
             } catch (Exception ex) {
                 throw new EUsrGrpException("Unable to get user certificate: " + ex.getMessage(), ex);
             }
@@ -599,17 +614,25 @@ public class UGSubsystem {
                     certArray[i++] = en.nextElement();
                 }
 
-                id.setX509Certificates(certArray);
+                user.setX509Certificates(certArray);
             }
         }
 
         LDAPAttribute profileAttr = entry.getAttribute(LDAP_ATTR_PROFILE_ID);
         if (profileAttr != null) {
             Enumeration<String> profiles = profileAttr.getStringValues();
-            id.setTpsProfiles(Collections.list(profiles));
+
+            List<String> tpsProfiles = new ArrayList<>();
+            while (profiles.hasMoreElements()) {
+                String profileID = profiles.nextElement();
+                logger.info("UGSubsystem: - " + LDAP_ATTR_PROFILE_ID + ": " + profileID);
+                tpsProfiles.add(profileID);
+            }
+
+            user.setTpsProfiles(tpsProfiles);
         }
 
-        return id;
+        return user;
     }
 
     /**
