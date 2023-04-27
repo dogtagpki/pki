@@ -1745,15 +1745,17 @@ class ServerConfig(object):
         parent = resource.getparent()
         parent.remove(resource)
 
+    def get_service(self):
+        server = self.document.getroot()
+        return server.find('Service[@name="Catalina"]')
+
     def get_connectors(self):
 
-        server = self.document.getroot()
+        service = self.get_service()
 
         names = set()
         connectors = []
         counter = 0
-
-        service = server.find('Service[@name="Catalina"]')
 
         for connector in service.findall('Connector'):
 
@@ -1779,15 +1781,15 @@ class ServerConfig(object):
         Find connector by name or port.
         '''
 
-        server = self.document.getroot()
+        service = self.get_service()
 
-        xpath = 'Service[@name="Catalina"]/Connector'
+        xpath = 'Connector'
         if name is not None:
             xpath = xpath + '[@name="%s"]' % name
         if port is not None:
             xpath = xpath + '[@port="%s"]' % port
 
-        return server.find(xpath)
+        return service.find(xpath)
 
     def create_connector(self, name):
         '''
@@ -1806,9 +1808,7 @@ class ServerConfig(object):
         Add connector after the last connector.
         '''
 
-        server = self.document.getroot()
-
-        service = server.find('Service[@name="Catalina"]')
+        service = self.get_service()
         connectors = service.findall('Connector')
         last_connector = connectors[-1]
 
