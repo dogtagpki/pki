@@ -30,7 +30,11 @@ import org.mozilla.jss.ssl.SSLSocket;
 import org.mozilla.jss.ssl.SSLSocketListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.security.JssSubsystemConfig;
+import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.logging.event.ClientAccessSessionEstablishEvent;
 import com.netscape.certsrv.logging.event.ClientAccessSessionTerminatedEvent;
@@ -174,9 +178,37 @@ public class PKIClientSocketListener implements SSLSocketListener {
     public void handshakeCompleted(SSLHandshakeCompletedEvent event) {
         String method = "PKIClientSocketListener.handshakeCompleted: ";
         logger.debug(method + "begins");
+
+        //Note: This is an expensive brute force setting for testing only.
+	//This config setting should only be set if this kind of testing is explicitly needed.
+	boolean invalidateAfterHandshake = false;
+
+	CMSEngine cms = CMS.getCMSEngine();
+
+        EngineConfig cfg =  null ;
+        JssSubsystemConfig jcfg = null;
+
+        if(cms != null) {
+            cfg = cms.getConfig();
+            if(cfg != null) {
+                jcfg = cfg.getJssSubsystemConfig();
+                if(jcfg != null) {
+                    try {
+                        invalidateAfterHandshake = jcfg.getBoolean("ssl.client.invalidateSessionAfterHandshake",false);
+                    } catch(EBaseException e) {
+                        invalidateAfterHandshake = false;
+                    }
+                }
+            }
+        }
+
         try {
             SSLSocket socket = event.getSocket();
 
+	    if(socket != null && invalidateAfterHandshake) {
+                logger.debug("PKIClientSocketListener: About to invalidateAfterHandshake as per configuration.");
+                socket.invalidateSession();
+            }
             InetAddress serverAddress = socket.getInetAddress();
             InetAddress clientAddress = socket.getLocalAddress();
             String serverIP = serverAddress == null ? "" : serverAddress.getHostAddress();
