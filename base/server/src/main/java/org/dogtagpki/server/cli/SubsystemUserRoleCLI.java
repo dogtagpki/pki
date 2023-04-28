@@ -17,5 +17,6 @@ public class SubsystemUserRoleCLI extends CLI {
 
         addModule(new SubsystemUserRoleFindCLI(this));
         addModule(new SubsystemUserRoleAddCLI(this));
+        addModule(new SubsystemUserRoleRemoveCLI(this));
     }
 }
