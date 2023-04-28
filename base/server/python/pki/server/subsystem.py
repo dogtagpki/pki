@@ -1924,6 +1924,24 @@ class PKISubsystem(object):
 
         self.run(cmd)
 
+    def remove_user_role(
+            self,
+            user_id,
+            role_id):
+
+        cmd = [self.name + '-user-role-del']
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        cmd.append(user_id)
+        cmd.append(role_id)
+
+        self.run(cmd)
+
     def run(self,
             args,
             input=None,  # pylint: disable=W0622
