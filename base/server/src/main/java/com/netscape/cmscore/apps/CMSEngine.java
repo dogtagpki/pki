@@ -633,7 +633,7 @@ public class CMSEngine {
         PKISocketConfig socketConfig = mConfig.getSocketConfig();
 
         PKISocketFactory socketFactory = new PKISocketFactory();
-        socketFactory.setCMSEngine(this);
+        socketFactory.setAuditor(auditor);
         socketFactory.addSocketListener(clientSocketListener);
         socketFactory.setSecure(info.getSecure());
         socketFactory.init(socketConfig);

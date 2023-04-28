@@ -294,7 +294,7 @@ public class LdapBoundConnFactory extends LdapConnFactory {
         try {
             PKISocketFactory socketFactory = new PKISocketFactory();
             if (engine != null) {
-                socketFactory.setCMSEngine(engine);
+                socketFactory.setAuditor(engine.getAuditor());
                 socketFactory.addSocketListener(engine.getClientSocketListener());
             }
             socketFactory.setSecure(mConnInfo.getSecure());
