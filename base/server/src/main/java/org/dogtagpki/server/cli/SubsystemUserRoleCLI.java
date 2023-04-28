@@ -16,5 +16,6 @@ public class SubsystemUserRoleCLI extends CLI {
         super("role", parent.name.toUpperCase() + " user role management commands", parent);
 
         addModule(new SubsystemUserRoleFindCLI(this));
+        addModule(new SubsystemUserRoleAddCLI(this));
     }
 }
