@@ -99,6 +99,7 @@ import com.netscape.cmscore.selftests.SelfTestSubsystem;
 import com.netscape.cmscore.session.LDAPSecurityDomainSessionTable;
 import com.netscape.cmscore.session.MemorySecurityDomainSessionTable;
 import com.netscape.cmscore.session.SessionTimer;
+import com.netscape.cmscore.usrgrp.Group;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmscore.usrgrp.UGSubsystemConfig;
 import com.netscape.cmscore.util.Debug;
@@ -1914,5 +1915,48 @@ public class CMSEngine {
             auditor.log(auditMessage);
             throw e;
         }
+    }
+
+    /**
+     * Get signed audit groups
+     *
+     * This method is called to extract all groups associated
+     * with the audit subject ID.
+     *
+     * @param subjectID audit subject ID
+     * @return a comma-delimited string of groups associated
+     *         with the audit subject ID
+     */
+    public String getAuditGroups(String subjectID) {
+
+        if (subjectID == null || subjectID.equals(ILogger.UNIDENTIFIED)) {
+            return null;
+        }
+
+        Enumeration<Group> groups;
+
+        try {
+            groups = ugSubsystem.findGroups("*");
+
+        } catch (Exception e) {
+            return null;
+        }
+
+        StringBuilder sb = new StringBuilder();
+
+        while (groups.hasMoreElements()) {
+            Group group = groups.nextElement();
+
+            if (group.isMember(subjectID) == true) {
+                if (sb.length() != 0) sb.append(", ");
+                sb.append(group.getGroupID());
+            }
+        }
+
+        if (sb.length() == 0) {
+            return null;
+        }
+
+        return sb.toString();
     }
 }

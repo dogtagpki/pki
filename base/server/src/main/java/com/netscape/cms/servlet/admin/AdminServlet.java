@@ -953,23 +953,18 @@ public class AdminServlet extends HttpServlet {
     }
 
     /**
-     * Signed Audit Groups
+     * Get signed audit groups
      *
-     * This method is called to extract all "groups" associated
-     * with the "auditSubjectID()".
-     * <P>
+     * This method is called to extract all groups associated
+     * with the audit subject ID.
      *
-     * @param subjectID string containing the signed audit log message SubjectID
-     * @return a delimited string of groups associated
-     *         with the "auditSubjectID()"
+     * @param subjectID audit subject ID
+     * @return a comma-delimited string of groups associated
+     *         with the audit subject ID
      */
     private String auditGroups(String subjectID) {
-
         CMSEngine engine = getCMSEngine();
-        Auditor auditor = engine.getAuditor();
-        if (auditor == null) return null;
-
-        return auditor.getGroups(subjectID);
+        return engine.getAuditGroups(subjectID);
     }
 
     protected NameValuePairs convertStringArrayToNVPairs(String[] s) {

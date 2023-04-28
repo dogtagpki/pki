@@ -18,7 +18,6 @@
 
 package com.netscape.cmscore.logging;
 
-import java.util.Enumeration;
 import java.util.Map;
 
 import com.netscape.certsrv.base.SessionContext;
@@ -28,8 +27,6 @@ import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.usrgrp.Group;
-import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 /**
  * @author Endi S. Dewata
@@ -77,50 +74,6 @@ public class Auditor {
         if (subjectID == null) return ILogger.NONROLEUSER;
 
         return subjectID.trim();
-    }
-
-    /**
-     * Get signed audit groups
-     *
-     * This method is called to extract all "groups" associated
-     * with the "auditSubjectID()".
-     *
-     * @param subjectID string containing the signed audit log message SubjectID
-     * @return a delimited string of groups associated
-     *         with the "auditSubjectID()"
-     */
-    public String getGroups(String subjectID) {
-
-        if (subjectID == null || subjectID.equals(ILogger.UNIDENTIFIED)) {
-            return null;
-        }
-
-        Enumeration<Group> groups;
-
-        try {
-            UGSubsystem userGroupSubsystem = engine.getUGSubsystem();
-            groups = userGroupSubsystem.findGroups("*");
-
-        } catch (Exception e) {
-            return null;
-        }
-
-        StringBuilder sb = new StringBuilder();
-
-        while (groups.hasMoreElements()) {
-            Group group = groups.nextElement();
-
-            if (group.isMember(subjectID) == true) {
-                if (sb.length() != 0) sb.append(", ");
-                sb.append(group.getGroupID());
-            }
-        }
-
-        if (sb.length() == 0) {
-            return null;
-        }
-
-        return sb.toString();
     }
 
     /**
