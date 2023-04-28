@@ -694,7 +694,6 @@ public class CMSEngine {
 
     public void initAuditor() throws Exception {
         auditor = new Auditor();
-        auditor.setCMSEngine(this);
         auditor.init();
     }
 

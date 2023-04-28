@@ -26,7 +26,6 @@ import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
-import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * @author Endi S. Dewata
@@ -38,18 +37,9 @@ public class Auditor {
     public final static String SIGNED_AUDIT_RESOURCE = "Resource";
     public final static String SIGNED_AUDIT_EMPTY_NAME_VALUE_PAIR = "Unknown";
 
-    protected CMSEngine engine;
     protected Logger signedAuditLogger;
 
     public Auditor() {
-    }
-
-    public CMSEngine getCMSEngine() {
-        return engine;
-    }
-
-    public void setCMSEngine(CMSEngine engine) {
-        this.engine = engine;
     }
 
     public void init() {
