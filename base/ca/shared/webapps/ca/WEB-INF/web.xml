@@ -5,7 +5,7 @@
 
    <servlet>
       <servlet-name>  caListRequests  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.DisplayHtmlServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.base.ListRequests  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> true        </param-value> </init-param>
              <init-param><param-name>  htmlPath    </param-name>
@@ -24,7 +24,7 @@
 
    <servlet>
       <servlet-name>  caUpdateDirectory  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.DisplayHtmlServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.base.UpdateDirectory  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> true        </param-value> </init-param>
              <init-param><param-name>  htmlPath    </param-name>
@@ -43,7 +43,7 @@
 
    <servlet>
       <servlet-name>  caSrchCert  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.DisplayHtmlServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.base.SearchCert  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> true        </param-value> </init-param>
              <init-param><param-name>  htmlPath    </param-name>
@@ -62,7 +62,7 @@
 
    <servlet>
       <servlet-name>  caDisplayBySerial-agent  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.cert.DisplayBySerial  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.cert.CADisplayBySerialAgent  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> true        </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
@@ -83,7 +83,7 @@
 
    <servlet>
       <servlet-name>  caSrchRevokeCert  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.DisplayHtmlServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.base.SearchRevokeCert  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> true        </param-value> </init-param>
              <init-param><param-name>  htmlPath    </param-name>
@@ -102,7 +102,7 @@
 
    <servlet>
       <servlet-name>  caQueryBySerial  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.DisplayHtmlServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.base.QueryBySerial  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> true        </param-value> </init-param>
              <init-param><param-name>  htmlPath    </param-name>
@@ -121,7 +121,7 @@
 
    <servlet>
       <servlet-name>  caDynamicVariables  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.DynamicVariablesServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.base.CADynamicVariables  </servlet-class>
              <init-param><param-name>  ID          </param-name>
                          <param-value> caDynamicVariables </param-value> </init-param>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -136,7 +136,7 @@
 
    <servlet>
       <servlet-name>  caDynamicVariables-agent  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.DynamicVariablesServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.base.CADynamicVariablesAgent  </servlet-class>
              <init-param><param-name>  ID          </param-name>
                          <param-value> caDynamicVariables </param-value> </init-param>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -151,7 +151,7 @@
 
    <servlet>
       <servlet-name>  caDynamicVariables-admin  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.DynamicVariablesServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.base.CADynamicVariablesAdmin  </servlet-class>
              <init-param><param-name>  ID          </param-name>
                          <param-value> caDynamicVariables </param-value> </init-param>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -421,7 +421,7 @@
 
    <servlet>
       <servlet-name>  caDisplayBySerial  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.cert.DisplayBySerial  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.cert.CADisplayBySerial  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> false       </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>

@@ -75,9 +75,9 @@ import com.netscape.cmscore.request.Request;
  *
  * @version $Revision$, $Date$
  */
-public class DisplayBySerial extends CMSServlet {
+public class CADisplayBySerial extends CMSServlet {
 
-    public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DisplayBySerial.class);
+    public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CADisplayBySerial.class);
     private static final long serialVersionUID = -4143700762995036597L;
     private static final String TPL_FILE1 = "displayBySerial.template";
     private static final BigInteger MINUS_ONE = BigInteger.valueOf(-1);
@@ -89,7 +89,7 @@ public class DisplayBySerial extends CMSServlet {
     /**
      * Constructs DisplayBySerial servlet.
      */
-    public DisplayBySerial() {
+    public CADisplayBySerial() {
         super();
     }
 
