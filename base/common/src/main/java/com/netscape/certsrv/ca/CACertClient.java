@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.authentication.EAuthException;
+import com.netscape.certsrv.cert.AgentCertResource;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.cert.CertDataInfos;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
@@ -58,6 +59,7 @@ public class CACertClient extends Client {
 
     public CertResource certClient;
     public CertRequestResource certRequestClient;
+    public AgentCertResource agentCertClient;
 
     public CACertClient(SubsystemClient subsystemClient) throws Exception {
         this(subsystemClient.client, subsystemClient.getName());
@@ -71,6 +73,7 @@ public class CACertClient extends Client {
     public void init() throws Exception {
         certClient = createProxy(CertResource.class);
         certRequestClient = createProxy(CertRequestResource.class);
+        agentCertClient = createProxy(AgentCertResource.class);
     }
 
     public CertData getCert(CertId id) throws Exception {
@@ -79,7 +82,7 @@ public class CACertClient extends Client {
     }
 
     public CertData reviewCert(CertId id) throws Exception {
-        Response response = certClient.reviewCert(id);
+        Response response = agentCertClient.reviewCert(id);
         return client.getEntity(response, CertData.class);
     }
 
@@ -95,17 +98,17 @@ public class CACertClient extends Client {
     }
 
     public CertRequestInfo revokeCert(CertId id, CertRevokeRequest request) throws Exception {
-        Response response = certClient.revokeCert(id, request);
+        Response response = agentCertClient.revokeCert(id, request);
         return client.getEntity(response, CertRequestInfo.class);
     }
 
     public CertRequestInfo revokeCACert(CertId id, CertRevokeRequest request) throws Exception {
-        Response response = certClient.revokeCACert(id, request);
+        Response response = agentCertClient.revokeCACert(id, request);
         return client.getEntity(response, CertRequestInfo.class);
     }
 
     public CertRequestInfo unrevokeCert(CertId id) throws Exception {
-        Response response = certClient.unrevokeCert(id);
+        Response response = agentCertClient.unrevokeCert(id);
         return client.getEntity(response, CertRequestInfo.class);
     }
 
