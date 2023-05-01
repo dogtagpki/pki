@@ -110,7 +110,7 @@ jobs:
           context: .
           build-args: |
             BASE_IMAGE=${{ needs.init.outputs.base-image }}
-            COPR_REPO=${{ needs.init.outputs.repo }}
+            COPR_REPO=${{ vars.COPR_REPO }}
           tags: pki-deps
           target: pki-deps
           cache-to: type=local,dest=/tmp/.buildx-cache
@@ -122,7 +122,7 @@ jobs:
           context: .
           build-args: |
             BASE_IMAGE=${{ needs.init.outputs.base-image }}
-            COPR_REPO=${{ needs.init.outputs.repo }}
+            COPR_REPO=${{ vars.COPR_REPO }}
           tags: pki-builder-deps
           target: pki-builder-deps
           cache-to: type=local,dest=/tmp/.buildx-cache
@@ -134,7 +134,7 @@ jobs:
           context: .
           build-args: |
             BASE_IMAGE=${{ needs.init.outputs.base-image }}
-            COPR_REPO=${{ needs.init.outputs.repo }}
+            COPR_REPO=${{ vars.COPR_REPO }}
           tags: pki-runner
           target: pki-runner
           cache-from: type=local,src=/tmp/.buildx-cache

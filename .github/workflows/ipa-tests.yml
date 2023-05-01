@@ -32,7 +32,7 @@ jobs:
           context: .
           build-args: |
             BASE_IMAGE=${{ needs.init.outputs.base-image }}
-            COPR_REPO=${{ needs.init.outputs.repo }}
+            COPR_REPO=${{ vars.COPR_REPO }}
           tags: ipa-runner
           target: ipa-runner
           cache-from: type=local,src=/tmp/.buildx-cache
