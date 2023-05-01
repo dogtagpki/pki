@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.authentication.EAuthException;
+import com.netscape.certsrv.cert.AgentCertRequestResource;
 import com.netscape.certsrv.cert.AgentCertResource;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.cert.CertDataInfos;
@@ -60,6 +61,7 @@ public class CACertClient extends Client {
     public CertResource certClient;
     public CertRequestResource certRequestClient;
     public AgentCertResource agentCertClient;
+    public AgentCertRequestResource agentCertRequestClient;
 
     public CACertClient(SubsystemClient subsystemClient) throws Exception {
         this(subsystemClient.client, subsystemClient.getName());
@@ -74,6 +76,7 @@ public class CACertClient extends Client {
         certClient = createProxy(CertResource.class);
         certRequestClient = createProxy(CertRequestResource.class);
         agentCertClient = createProxy(AgentCertResource.class);
+        agentCertRequestClient = createProxy(AgentCertRequestResource.class);
     }
 
     public CertData getCert(CertId id) throws Exception {
@@ -133,48 +136,48 @@ public class CACertClient extends Client {
     }
 
     public CertReviewResponse reviewRequest(RequestId id) throws Exception {
-        Response response = certRequestClient.reviewRequest(id);
+        Response response = agentCertRequestClient.reviewRequest(id);
         return client.getEntity(response, CertReviewResponse.class);
     }
 
     public void approveRequest(RequestId id, CertReviewResponse data) throws Exception {
-        Response response = certRequestClient.approveRequest(id, data);
+        Response response = agentCertRequestClient.approveRequest(id, data);
         client.getEntity(response, Void.class);
     }
 
     public void rejectRequest(RequestId id, CertReviewResponse data) throws Exception {
-        Response response = certRequestClient.rejectRequest(id, data);
+        Response response = agentCertRequestClient.rejectRequest(id, data);
         client.getEntity(response, Void.class);
     }
 
     public void cancelRequest(RequestId id, CertReviewResponse data) throws Exception {
-        Response response = certRequestClient.cancelRequest(id, data);
+        Response response = agentCertRequestClient.cancelRequest(id, data);
         client.getEntity(response, Void.class);
     }
 
     public void updateRequest(RequestId id, CertReviewResponse data) throws Exception {
-        Response response = certRequestClient.updateRequest(id, data);
+        Response response = agentCertRequestClient.updateRequest(id, data);
         client.getEntity(response, Void.class);
     }
 
     public void validateRequest(RequestId id, CertReviewResponse data) throws Exception {
-        Response response = certRequestClient.validateRequest(id, data);
+        Response response = agentCertRequestClient.validateRequest(id, data);
         client.getEntity(response, Void.class);
     }
 
     public void assignRequest(RequestId id, CertReviewResponse data) throws Exception {
-        Response response = certRequestClient.assignRequest(id, data);
+        Response response = agentCertRequestClient.assignRequest(id, data);
         client.getEntity(response, Void.class);
     }
 
     public void unassignRequest(RequestId id, CertReviewResponse data) throws Exception {
-        Response response = certRequestClient.unassignRequest(id, data);
+        Response response = agentCertRequestClient.unassignRequest(id, data);
         client.getEntity(response, Void.class);
     }
 
     public CertRequestInfos listRequests(String requestState, String requestType, RequestId start, Integer pageSize,
             Integer maxResults, Integer maxTime) throws Exception {
-        Response response = certRequestClient.listRequests(requestState, requestType, start, pageSize, maxResults, maxTime);
+        Response response = agentCertRequestClient.listRequests(requestState, requestType, start, pageSize, maxResults, maxTime);
         return client.getEntity(response, CertRequestInfos.class);
     }
 

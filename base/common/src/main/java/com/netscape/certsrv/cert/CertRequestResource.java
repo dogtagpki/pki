@@ -24,15 +24,13 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
-import com.netscape.certsrv.acls.ACLMapping;
-import com.netscape.certsrv.authentication.AuthMethodMapping;
 import com.netscape.certsrv.request.RequestId;
 
-@Path("")
+@Path("certrequests")
 public interface CertRequestResource {
 
     @POST
-    @Path("certrequests")
+    @Path("")
     public Response enrollCert(
         String enrollmentRequest,
         @QueryParam("issuer-id") String caIDString,
@@ -42,78 +40,16 @@ public interface CertRequestResource {
      * Used to retrieve cert request info for a specific request
      */
     @GET
-    @Path("certrequests/{id}")
+    @Path("{id}")
     public Response getRequestInfo(@PathParam("id") RequestId id);
 
-    /**
-     * Used to generate list of cert requests based on the search parameters
-     */
     @GET
-    @Path("agent/certrequests")
-    @ACLMapping("certrequests")
-    @AuthMethodMapping("certrequests")
-    public Response listRequests(@QueryParam("requestState") String requestState,
-            @QueryParam("requestType") String requestType,
-            @QueryParam("start") RequestId start,
-            @QueryParam("pageSize") Integer pageSize,
-            @QueryParam("maxResults") Integer maxResults,
-            @QueryParam("maxTime") Integer maxTime);
-
-    @GET
-    @Path("agent/certrequests/{id}")
-    @ACLMapping("certrequests")
-    @AuthMethodMapping("certrequests")
-    public Response reviewRequest(@PathParam("id") RequestId id);
-
-    @GET
-    @Path("certrequests/profiles")
+    @Path("profiles")
     public Response listEnrollmentTemplates(
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
 
     @GET
-    @Path("certrequests/profiles/{id}")
+    @Path("profiles/{id}")
     public Response getEnrollmentTemplate(@PathParam("id") String id);
-
-    @POST
-    @Path("agent/certrequests/{id}/approve")
-    @ACLMapping("certrequests")
-    @AuthMethodMapping("certrequests")
-    public Response approveRequest(@PathParam("id") RequestId id, CertReviewResponse data);
-
-    @POST
-    @Path("agent/certrequests/{id}/reject")
-    @ACLMapping("certrequests")
-    @AuthMethodMapping("certrequests")
-    public Response rejectRequest(@PathParam("id") RequestId id, CertReviewResponse data);
-
-    @POST
-    @Path("agent/certrequests/{id}/cancel")
-    @ACLMapping("certrequests")
-    @AuthMethodMapping("certrequests")
-    public Response cancelRequest(@PathParam("id") RequestId id, CertReviewResponse data);
-
-    @POST
-    @Path("agent/certrequests/{id}/update")
-    @ACLMapping("certrequests")
-    @AuthMethodMapping("certrequests")
-    public Response updateRequest(@PathParam("id") RequestId id, CertReviewResponse data);
-
-    @POST
-    @Path("agent/certrequests/{id}/validate")
-    @ACLMapping("certrequests")
-    @AuthMethodMapping("certrequests")
-    public Response validateRequest(@PathParam("id") RequestId id, CertReviewResponse data);
-
-    @POST
-    @Path("agent/certrequests/{id}/unassign")
-    @ACLMapping("certrequests")
-    @AuthMethodMapping("certrequests")
-    public Response unassignRequest(@PathParam("id") RequestId id, CertReviewResponse data);
-
-    @POST
-    @Path("agent/certrequests/{id}/assign")
-    @ACLMapping("certrequests")
-    @AuthMethodMapping("certrequests")
-    public Response assignRequest(@PathParam("id") RequestId id, CertReviewResponse data);
 }

@@ -44,6 +44,7 @@ public class CAApplication extends Application {
         classes.add(CertService.class);
         classes.add(CertRequestService.class);
         classes.add(AgentCertService.class);
+        classes.add(AgentCertRequestService.class);
 
         // profile management
         classes.add(ProfileService.class);
