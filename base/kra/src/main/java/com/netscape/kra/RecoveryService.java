@@ -157,7 +157,7 @@ public class RecoveryService implements IService {
             cm = CryptoManager.getInstance();
             config = engine.getConfig();
             tokName = config.getString("kra.storageUnit.hardware", CryptoUtil.INTERNAL_TOKEN_NAME);
-            boolean useOAEPKeyWrap = config.getBoolean("keyWrap.useOAEP",false);
+            boolean useOAEPKeyWrap = config.getUseOAEPKeyWrap();
 
             // default to "KRA transport certificate" would require one to
             // change the nickname for existing KRA transport cert

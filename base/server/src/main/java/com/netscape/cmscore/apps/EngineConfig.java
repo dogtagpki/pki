@@ -141,4 +141,11 @@ public class EngineConfig extends ConfigStore {
     public LoggingConfig getLoggingConfig() {
         return getSubStore("log", LoggingConfig.class);
     }
+
+    /**
+     * Returns keyWrap.useOAEP parameter.
+     */
+    public boolean getUseOAEPKeyWrap() throws EBaseException {
+        return getBoolean("keyWrap.useOAEP", false);
+    }
 }

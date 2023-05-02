@@ -242,7 +242,7 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
         KRAEngineConfig kraCfg = null;
         kraCfg  = engine.getConfig();
 
-        useOAEPKeyWrap = kraCfg.getBoolean("keyWrap.useOAEP",false);
+        useOAEPKeyWrap = kraCfg.getUseOAEPKeyWrap();
         logger.debug("StorageKeyUnit.init: keyWrap.useOAEP" + useOAEPKeyWrap);
         try {
             mManager = CryptoManager.getInstance();
