@@ -46,6 +46,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthToken;
+import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NoSuchTokenException;
@@ -110,7 +111,6 @@ import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.ldap.LdapConnFactory;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
@@ -270,7 +270,7 @@ public class CRSEnrollment extends HttpServlet {
         }
 
         try {
-            ConfigStore authorityConfig = ((Subsystem) mAuthority).getConfigStore();
+            CAConfig authorityConfig = mAuthority.getConfig();
             ConfigStore scepConfig = authorityConfig.getSubStore("scep", ConfigStore.class);
             mEnabled = scepConfig.getBoolean("enable", false);
             mUseOAEPKeyWrap = authorityConfig.getBoolean("keyWrap.useOAEP",false);

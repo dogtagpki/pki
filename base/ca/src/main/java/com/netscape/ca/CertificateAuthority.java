@@ -480,6 +480,10 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
         return mConfig;
     }
 
+    public CAConfig getConfig() {
+        return mConfig;
+    }
+
     public void setConfig(CAConfig config) {
         mConfig = config;
     }
