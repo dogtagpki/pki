@@ -20,6 +20,7 @@
         <module>tomcat</module>
         <module>tomcat-9.0</module>
         <module>server</module>
+        <module>server-webapp</module>
         <module>ca</module>
         <module>kra</module>
         <module>ocsp</module>

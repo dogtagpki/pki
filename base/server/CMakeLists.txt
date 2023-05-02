@@ -150,19 +150,6 @@ add_custom_command(
     COMMAND ln -sf ../../../../../..${TOMCATJSS_JAR} common/lib/tomcatjss.jar
 )
 
-# Create /usr/share/pki/server/webapps/pki/WEB-INF/lib. This can be customized for different platforms in RPM spec.
-
-add_custom_target(pki-server-webapp-lib ALL
-    COMMENT "Creating links for PKI webapp library")
-
-add_custom_command(
-    TARGET pki-server-webapp-lib
-    COMMAND ${CMAKE_COMMAND} -E make_directory webapp/lib
-    COMMAND ln -sf ../../../../../../../..${SLF4J_API_JAR} webapp/lib/slf4j-api.jar
-    COMMAND ln -sf ../../../../../../../..${SLF4J_JDK14_JAR} webapp/lib/slf4j-jdk14.jar
-    COMMAND ln -sf ../../../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-server.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-server.jar
-)
-
 add_custom_target(pki-server-man ALL
     COMMENT "Creating PKI server manuals")
 
@@ -264,13 +251,6 @@ install(
         ${CMAKE_CURRENT_BINARY_DIR}/common/lib/
     DESTINATION
         ${DATA_INSTALL_DIR}/server/common/lib
-)
-
-install(
-    DIRECTORY
-        ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/
-    DESTINATION
-        ${DATA_INSTALL_DIR}/server/webapps/pki/WEB-INF/lib
 )
 
 install(
