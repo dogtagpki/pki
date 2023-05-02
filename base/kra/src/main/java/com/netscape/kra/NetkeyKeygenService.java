@@ -168,7 +168,7 @@ public class NetkeyKeygenService implements IService {
         KRAEngineConfig configStore = engine.getConfig();
         boolean allowEncDecrypt_archival = configStore.getBoolean("kra.allowEncDecrypt.archival", false);
 
-        boolean useOAEPKeyWrap = configStore.getBoolean("keyWrap.useOAEP",false);
+        boolean useOAEPKeyWrap = configStore.getUseOAEPKeyWrap();
         wrapped_des_key = null;
         boolean archive = true;
         byte[] publicKeyData = null;

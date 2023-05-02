@@ -506,7 +506,7 @@ public abstract class EnrollProfile extends Profile {
             String tokenName = cs.getString("cmc.token", CryptoUtil.INTERNAL_TOKEN_NAME);
             token = CryptoUtil.getCryptoToken(tokenName);
 
-            boolean useOAEP = cs.getBoolean("keyWrap.useOAEP",false);
+            boolean useOAEP = cs.getUseOAEPKeyWrap();
 
             byte[] iv = CryptoUtil.getNonceData(EncryptionAlgorithm.AES_128_CBC.getIVLength());
             IVParameterSpec ivps = new IVParameterSpec(iv);
@@ -1317,7 +1317,7 @@ public abstract class EnrollProfile extends Profile {
             token = CryptoUtil.getKeyStorageToken(tokenName);
 
             KeyWrapAlgorithm wrapAlg = KeyWrapAlgorithm.RSA;
-            boolean useOAEP = cs.getBoolean("keyWrap.useOAEP", false);
+            boolean useOAEP = cs.getUseOAEPKeyWrap();
             if (useOAEP) {
                 wrapAlg = KeyWrapAlgorithm.RSA_OAEP;
             }

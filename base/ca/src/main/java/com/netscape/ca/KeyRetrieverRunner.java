@@ -54,7 +54,7 @@ public class KeyRetrieverRunner implements Runnable {
         CAEngine engine = CAEngine.getInstance();
         CAEngineConfig cs = engine.getConfig();
         try {
-            this.useOAEPKeyWrap = cs.getBoolean("keyWrap.useOAEP",false);
+            this.useOAEPKeyWrap = cs.getUseOAEPKeyWrap();
         } catch (EBaseException e1) {
             throw new RuntimeException("Invalid value for keyWrap.useOAEP: " + e1);
         }

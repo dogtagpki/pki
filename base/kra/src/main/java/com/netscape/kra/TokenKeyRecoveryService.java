@@ -198,7 +198,7 @@ public class TokenKeyRecoveryService implements IService {
         try {
             config = engine.getConfig();
             allowEncDecrypt_recovery = config.getBoolean("kra.allowEncDecrypt.recovery", false);
-            useOAEPKeyWrap = config.getBoolean("keyWrap.useOAEP",false);
+            useOAEPKeyWrap = config.getUseOAEPKeyWrap();
         } catch (Exception e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
         }

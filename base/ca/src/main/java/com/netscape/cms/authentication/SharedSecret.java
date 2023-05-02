@@ -186,7 +186,7 @@ public class SharedSecret extends DirBasedAuthentication
             mShrTokAttr = DEF_SharedToken_ATTR;
         }
 
-        boolean useOAEP = cs.getBoolean("keyWrap.useOAEP",false);
+        boolean useOAEP = cs.getUseOAEPKeyWrap();
         logger.debug(method + " keyWrap.useOAEP: " + useOAEP );
 
         if(useOAEP == true) {

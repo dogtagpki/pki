@@ -91,7 +91,7 @@ public class TransportKeyUnit extends EncryptionUnit {
             KRAEngineConfig kraCfg = null;
             kraCfg  = engine.getConfig();
 
-            boolean useOAEPKeyWrap = kraCfg.getBoolean("keyWrap.useOAEP",false);
+            boolean useOAEPKeyWrap = kraCfg.getUseOAEPKeyWrap();
             logger.debug("TransportKeyUnit: keyWrap.useOAEP:  " + useOAEPKeyWrap);
             if(useOAEPKeyWrap == true) {
                 this.rsaKeyWrapAlg = KeyWrapAlgorithm.RSA_OAEP;

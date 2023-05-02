@@ -218,7 +218,7 @@ public class CAInfoService extends PKIService implements CAInfoResource {
         CAEngine engine = CAEngine.getInstance();
         CAEngineConfig cs = engine.getConfig();
 
-        boolean useOAEP = cs.getBoolean("keyWrap.useOAEP", false);
+        boolean useOAEP = cs.getUseOAEPKeyWrap();
 
         return useOAEP ? "RSA_OAEP" : "RSA";
     }

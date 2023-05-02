@@ -663,7 +663,7 @@ public class TokenServlet extends CMSServlet {
                         keyWrapper = token.getKeyWrapper(KeyWrapAlgorithm.AES_ECB);
                         keyWrapper.initWrap(pubKey, null);
                     } else {
-                        boolean useOAEP = config.getBoolean("keyWrap.useOAEP",false);
+                        boolean useOAEP = config.getUseOAEPKeyWrap();
                         KeyWrapAlgorithm wrapAlg = KeyWrapAlgorithm.RSA;
                         if(useOAEP == true) {
                             wrapAlg = KeyWrapAlgorithm.RSA_OAEP;
@@ -1237,7 +1237,7 @@ public class TokenServlet extends CMSServlet {
                             keyWrapper.initWrap(pubKey, null);
                         } else {
 
-                            boolean useOAEP = config.getBoolean("keyWrap.useOAEP",false);
+                            boolean useOAEP = config.getUseOAEPKeyWrap();
                             KeyWrapAlgorithm wrapAlg = KeyWrapAlgorithm.RSA;
                             if(useOAEP == true) {
                                 wrapAlg = KeyWrapAlgorithm.RSA_OAEP;
@@ -3147,7 +3147,7 @@ public class TokenServlet extends CMSServlet {
                 keyWrapper.initWrap(pubKey, null);
             } else {
 
-                boolean useOAEP = config.getBoolean("keyWrap.useOAEP",false);
+                boolean useOAEP = config.getUseOAEPKeyWrap();
                 KeyWrapAlgorithm wrapAlg = KeyWrapAlgorithm.RSA;
                 if(useOAEP == true) {
                     wrapAlg = KeyWrapAlgorithm.RSA_OAEP;
