@@ -36,6 +36,7 @@ import com.netscape.certsrv.notification.IEmailResolverKeys;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.notification.MailNotification;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
@@ -258,8 +259,8 @@ public class RenewalNotificationJob
 
         super.init(scheduler, id, implName, config);
 
-        CAEngine engine = CAEngine.getInstance();
-        mCertDB = engine.getCertificateRepository();
+        CAEngine caEngine = (CAEngine) engine;
+        mCertDB = caEngine.getCertificateRepository();
     }
 
     /**
@@ -268,12 +269,12 @@ public class RenewalNotificationJob
      */
     @Override
     public void run() {
-        CAEngine engine = CAEngine.getInstance();
-        CAEngineConfig cs = engine.getConfig();
+        CAEngine caEngine = (CAEngine) engine;
+        CAEngineConfig cs = caEngine.getConfig();
         try {
             // for forming renewal URL at template
             mHttpHost = cs.getHostname();
-            mHttpPort = engine.getEESSLPort();
+            mHttpPort = caEngine.getEESSLPort();
 
             // read from the configuration file
             mPreDays = mConfig.getInteger(PROP_NOTIFYTRIGGEROFFSET, 30); // in days
@@ -395,7 +396,7 @@ public class RenewalNotificationJob
                 }
 
                 ItemCounter ic = new ItemCounter();
-                CertRecProcessor cp = new CertRecProcessor(this, emailTemplate, summaryItemTemplate, ic);
+                CertRecProcessor cp = new CertRecProcessor(engine, this, emailTemplate, summaryItemTemplate, ic);
                 //CertRecordList list = mCertDB.findCertRecordsInList(filter, null, "serialno", 5);
                 //list.processCertRecords(0, list.getSize() - 1, cp);
 
@@ -470,8 +471,8 @@ public class RenewalNotificationJob
             CertRecord cr)
             throws IOException, ENotificationException, EBaseException {
 
-        CAEngine engine = CAEngine.getInstance();
-        MailNotification mn = engine.getMailNotification();
+        CAEngine caEngine = (CAEngine) engine;
+        MailNotification mn = caEngine.getMailNotification();
 
         String rcp = null;
         //		boolean sendFailed = false;
@@ -539,13 +540,19 @@ class CertRecProcessor extends ElementProcessor {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertRecProcessor.class);
 
+    protected CMSEngine engine;
     protected RenewalNotificationJob mJob;
     protected String mEmailTemplate;
     protected String mSummaryItemTemplate;
     protected ItemCounter mIC;
 
-    public CertRecProcessor(RenewalNotificationJob job, String emailTemplate,
-            String summaryItemTemplate, ItemCounter ic) {
+    public CertRecProcessor(
+            CMSEngine engine,
+            RenewalNotificationJob job,
+            String emailTemplate,
+            String summaryItemTemplate,
+            ItemCounter ic) {
+        this.engine = engine;
         mJob = job;
         mEmailTemplate = emailTemplate;
         mSummaryItemTemplate = summaryItemTemplate;
@@ -583,14 +590,14 @@ class CertRecProcessor extends ElementProcessor {
             }
         }
 
-        CAEngine engine = CAEngine.getInstance();
+        CAEngine caEngine = (CAEngine) engine;
         Request req = null;
 
         if (ridString != null) {
             RequestId rid = new RequestId(ridString);
 
             try {
-                req = engine.getRequestRepository().readRequest(rid);
+                req = caEngine.getRequestRepository().readRequest(rid);
             } catch (Exception e) {
                 // it is ok not to be able to get the request. The main reason
                 // to get the request is to retrieve the requestor's email.

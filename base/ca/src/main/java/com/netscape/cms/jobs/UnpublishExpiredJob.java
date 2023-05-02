@@ -118,11 +118,11 @@ public class UnpublishExpiredJob extends Job
 
         super.init(scheduler, id, implName, config);
 
-        CAEngine engine = CAEngine.getInstance();
-        requestRepository = engine.getRequestRepository();
-        mReqQ = engine.getRequestQueue();
-        mRepository = engine.getCertificateRepository();
-        mPublisherProcessor = engine.getPublisherProcessor();
+        CAEngine caEngine = (CAEngine) engine;
+        requestRepository = caEngine.getRequestRepository();
+        mReqQ = caEngine.getRequestQueue();
+        mRepository = caEngine.getCertificateRepository();
+        mPublisherProcessor = caEngine.getPublisherProcessor();
 
         // initialize the summary related config info
         ConfigStore sc = mConfig.getSubStore(PROP_SUMMARY, ConfigStore.class);

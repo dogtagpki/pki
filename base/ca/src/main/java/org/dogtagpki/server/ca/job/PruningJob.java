@@ -111,9 +111,9 @@ public class PruningJob extends Job implements IExtendedPluginInfo {
 
         super.init(scheduler, id, implName, config);
 
-        CAEngine engine = CAEngine.getInstance();
-        requestRepository = engine.getRequestRepository();
-        certRepository = engine.getCertificateRepository();
+        CAEngine caEngine = (CAEngine) engine;
+        requestRepository = caEngine.getRequestRepository();
+        certRepository = caEngine.getCertificateRepository();
 
         certRetentionTime = config.getInteger("certRetentionTime", 30);
         logger.info("PruningJob: - cert retention time: " + certRetentionTime);
