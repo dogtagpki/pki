@@ -1111,6 +1111,7 @@ fi
 %attr(644,-,-) %{_unitdir}/pki-tomcatd-nuxwdog@.service
 %attr(644,-,-) %{_unitdir}/pki-tomcatd-nuxwdog.target
 %{_javadir}/pki/pki-server.jar
+%{_javadir}/pki/pki-server-webapp.jar
 %{_javadir}/pki/pki-tomcat.jar
 %dir %{_sharedstatedir}/pki
 %{_mandir}/man1/pkidaemon.1.gz

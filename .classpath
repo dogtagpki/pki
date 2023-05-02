@@ -8,6 +8,7 @@
 	<classpathentry kind="src" path="base/tomcat-9.0/src/main/java"/>
 	<classpathentry kind="src" path="base/server/src/main/java"/>
 	<classpathentry kind="src" path="base/server/src/test/java"/>
+	<classpathentry kind="src" path="base/server-webapp/src/main/java"/>
 	<classpathentry kind="src" path="base/ca/src/main/java"/>
 	<classpathentry kind="src" path="base/ca/src/test/java"/>
 	<classpathentry kind="src" path="base/kra/src/main/java"/>

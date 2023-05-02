@@ -367,6 +367,7 @@ if(WITH_SERVER OR WITH_CA OR WITH_KRA OR WITH_OCSP OR WITH_TKS OR WITH_TPS OR WI
 
     add_subdirectory(${APP_SERVER})
     add_subdirectory(server)
+    add_subdirectory(server-webapp)
 
     list(APPEND PKI_JAVADOC_SOURCEPATH
         ${CMAKE_SOURCE_DIR}/base/server/src/main/java)
