@@ -48,6 +48,7 @@ import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.CAEngineConfig;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NoSuchTokenException;
 import org.mozilla.jss.NotInitializedException;
@@ -260,6 +261,7 @@ public class CRSEnrollment extends HttpServlet {
             crsCA = "ca";
 
         CAEngine engine = CAEngine.getInstance();
+        CAEngineConfig cs = engine.getConfig();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         mAuthority = (CertificateAuthority) engine.getSubsystem(crsCA);
@@ -273,7 +275,7 @@ public class CRSEnrollment extends HttpServlet {
             CAConfig authorityConfig = mAuthority.getConfig();
             ConfigStore scepConfig = authorityConfig.getSubStore("scep", ConfigStore.class);
             mEnabled = scepConfig.getBoolean("enable", false);
-            mUseOAEPKeyWrap = authorityConfig.getBoolean("keyWrap.useOAEP",false);
+            mUseOAEPKeyWrap = cs.getUseOAEPKeyWrap();
             if (sc.getServletName().equals(SERVLET_NAME_DYN_PROFILE)) {
                 mIsDynamicProfileId = true;
                 logger.debug("CRSEnrollment: init: expecting dynamic ProfileId in URL");
