@@ -44,15 +44,8 @@ public class CASystemCertClient extends Client {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CASystemCertClient.class);
 
-    public CASystemCertResource resource;
-
     public CASystemCertClient(PKIClient client, String subsystem) throws Exception {
-        super(client, subsystem, "systemcert");
-        init();
-    }
-
-    public void init() throws Exception {
-        resource = createProxy(CASystemCertResource.class);
+        super(client, subsystem, "config/cert");
     }
 
     public CertData getSigningCert() throws Exception {
@@ -61,9 +54,7 @@ public class CASystemCertClient extends Client {
 
         try {
             logger.info("Gettting CA signing certificate chain through REST service");
-
-            Response response = resource.getSigningCert();
-            certData = client.getEntity(response, CertData.class);
+            certData = get("signing", CertData.class);
 
         } catch (PKIException e) {
             if (e.getCode() != Response.Status.NOT_FOUND.getStatusCode()) {
@@ -114,7 +105,6 @@ public class CASystemCertClient extends Client {
     }
 
     public CertData getTransportCert() throws Exception {
-        Response response = resource.getTransportCert();
-        return client.getEntity(response, CertData.class);
+        return get("transport", CertData.class);
     }
 }
