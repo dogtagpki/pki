@@ -17,8 +17,6 @@
 //--- END COPYRIGHT BLOCK ---
 package org.dogtagpki.kra;
 
-import javax.ws.rs.core.Response;
-
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
@@ -28,19 +26,11 @@ import com.netscape.certsrv.client.PKIClient;
  */
 public class KRASystemCertClient extends Client {
 
-    public KRASystemCertResource resource;
-
     public KRASystemCertClient(PKIClient client, String subsystem) throws Exception {
-        super(client, subsystem, "systemcert");
-        init();
-    }
-
-    public void init() throws Exception {
-        resource = createProxy(KRASystemCertResource.class);
+        super(client, subsystem, "config/cert");
     }
 
     public CertData getTransportCert() throws Exception {
-        Response response = resource.getTransportCert();
-        return client.getEntity(response, CertData.class);
+        return get("transport", CertData.class);
     }
 }
