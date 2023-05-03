@@ -17,7 +17,8 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.selftests;
 
-import javax.ws.rs.core.Response;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
@@ -27,39 +28,33 @@ import com.netscape.certsrv.client.PKIClient;
  */
 public class SelfTestClient extends Client {
 
-    public SelfTestResource resource;
-
     public SelfTestClient(PKIClient client, String subsystem) throws Exception {
-        super(client, subsystem, "selftest");
-        init();
-    }
-
-    public void init() throws Exception {
-        resource = createProxy(SelfTestResource.class);
+        super(client, subsystem, "selftests");
     }
 
     public SelfTestCollection findSelfTests(String filter, Integer start, Integer size) throws Exception {
-        Response response = resource.findSelfTests(filter, start, size);
-        return client.getEntity(response, SelfTestCollection.class);
+        Map<String, Object> params = new HashMap<>();
+        if (filter != null) params.put("filter", filter);
+        if (start != null) params.put("start", start);
+        if (size != null) params.put("size", size);
+        return get(null, params, SelfTestCollection.class);
     }
 
     public void executeSelfTests(String action) throws Exception {
-        Response response = resource.executeSelfTests(action);
-        client.getEntity(response, Void.class);
+        Map<String, Object> params = new HashMap<>();
+        if (action != null) params.put("action", action);
+        post(null, params, Void.class);
     }
 
     public SelfTestResults runSelfTests() throws Exception {
-        Response response = resource.runSelfTests();
-        return client.getEntity(response, SelfTestResults.class);
+        return post("run", SelfTestResults.class);
     }
 
     public SelfTestResult runSelfTest(String selfTestID) throws Exception {
-        Response response = resource.runSelfTest(selfTestID);
-        return client.getEntity(response, SelfTestResult.class);
+        return post(selfTestID + "/run", SelfTestResult.class);
     }
 
     public SelfTestData getSelfTest(String selfTestID) throws Exception {
-        Response response = resource.getSelfTest(selfTestID);
-        return client.getEntity(response, SelfTestData.class);
+        return get(selfTestID, SelfTestData.class);
     }
 }
