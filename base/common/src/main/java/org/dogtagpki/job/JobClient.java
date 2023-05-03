@@ -5,8 +5,6 @@
 //
 package org.dogtagpki.job;
 
-import javax.ws.rs.core.Response;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,29 +18,19 @@ public class JobClient extends Client {
 
     public static final Logger logger = LoggerFactory.getLogger(JobClient.class);
 
-    JobResource resource;
-
     public JobClient(PKIClient client, String subsystem) throws Exception {
-        super(client, subsystem, "config");
-        init();
-    }
-
-    public void init() throws Exception {
-        resource = createProxy(JobResource.class);
+        super(client, subsystem, "jobs");
     }
 
     public JobCollection findJobs() throws Exception {
-        Response response = resource.findJobs();
-        return client.getEntity(response, JobCollection.class);
+        return get(JobCollection.class);
     }
 
     public JobInfo getJob(String id) throws Exception {
-        Response response = resource.getJob(id);
-        return client.getEntity(response, JobInfo.class);
+        return get(id, JobInfo.class);
     }
 
     public void startJob(String id) throws Exception {
-        Response response = resource.startJob(id);
-        client.getEntity(response, Void.class);
+        post(id + "/start", Void.class);
     }
 }
