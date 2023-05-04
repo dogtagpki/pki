@@ -35,7 +35,7 @@ import com.netscape.certsrv.system.InstallToken;
 import com.netscape.certsrv.system.SecurityDomainClient;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
-import com.netscape.cmscore.apps.ServerXml;
+import com.netscape.cmscore.apps.ServerConfig;
 
 /**
  * Utility class for functions to be used by the RESTful installer.
@@ -51,12 +51,12 @@ public class Configurator {
 
     protected CMSEngine engine;
     protected EngineConfig cs;
-    protected ServerXml serverXml;
+    protected ServerConfig serverConfig;
 
     public Configurator(CMSEngine engine) {
         this.engine = engine;
         this.cs = engine.getConfig();
-        this.serverXml = engine.getServerXml();
+        this.serverConfig = engine.getServerConfig();
     }
 
     public static PKIClient createClient(
@@ -78,8 +78,8 @@ public class Configurator {
         this.cs = cs;
     }
 
-    public void setServerXml(ServerXml serverXml) throws Exception {
-        this.serverXml = serverXml;
+    public void setServerConfig(ServerConfig serverConfig) throws Exception {
+        this.serverConfig = serverConfig;
     }
 
     public String getInstallToken(String sdhost, int sdport, String user, String passwd) throws Exception {

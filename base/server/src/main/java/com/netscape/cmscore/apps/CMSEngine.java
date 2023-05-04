@@ -126,7 +126,7 @@ public class CMSEngine {
 
     protected EngineConfig config;
     protected EngineConfig mConfig;
-    protected ServerXml serverXml;
+    protected ServerConfig serverConfig;
 
     // AutoSD : AutoShutdown
     private String mAutoSD_CrumbFile = null;
@@ -805,9 +805,9 @@ public class CMSEngine {
 
         String path = instanceDir + File.separator + "conf" + File.separator + SERVER_XML;
 
-        serverXml = ServerXml.load(path);
-        unsecurePort = serverXml.getUnsecurePort();
-        securePort = serverXml.getSecurePort();
+        serverConfig = ServerConfig.load(path);
+        unsecurePort = serverConfig.getUnsecurePort();
+        securePort = serverConfig.getSecurePort();
 
         String port = config.getString("proxy.securePort", "");
         if (!port.equals("")) {
@@ -1598,8 +1598,8 @@ public class CMSEngine {
         return mConfig;
     }
 
-    public ServerXml getServerXml() {
-        return serverXml;
+    public ServerConfig getServerConfig() {
+        return serverConfig;
     }
 
     /**

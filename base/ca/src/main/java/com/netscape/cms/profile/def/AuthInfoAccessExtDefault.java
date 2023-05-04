@@ -39,7 +39,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.ServerXml;
+import com.netscape.cmscore.apps.ServerConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
@@ -453,8 +453,8 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
         String instanceDir = CMS.getInstanceDir();
         String path = instanceDir + File.separator + "conf" + File.separator + "server.xml";
 
-        ServerXml serverXml = ServerXml.load(path);
-        port = serverXml.getUnsecurePort();
+        ServerConfig serverConfig = ServerConfig.load(path);
+        port = serverConfig.getUnsecurePort();
         logger.debug("AuthInfoAccessExtDefault: server.xml port: " + port);
 
         return port;

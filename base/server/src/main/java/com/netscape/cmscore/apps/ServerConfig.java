@@ -27,18 +27,18 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-public class ServerXml {
+public class ServerConfig {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ServerXml.class);
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ServerConfig.class);
 
     String unsecurePort;
     String securePort;
 
-    public static ServerXml load(String filename) throws Exception {
+    public static ServerConfig load(String filename) throws Exception {
 
-        logger.debug("ServerXml: Parsing " + filename);
+        logger.debug("ServerConfig: Parsing " + filename);
 
-        ServerXml serverXml = new ServerXml();
+        ServerConfig serverConfig = new ServerConfig();
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
@@ -68,16 +68,16 @@ public class ServerXml {
             String port = connector.getAttribute("port");
 
             if (scheme != null && scheme.equals("https")) {
-                logger.debug("ServerXml: - secure port: " + port);
-                serverXml.setSecurePort(port);
+                logger.debug("ServerConfig: - secure port: " + port);
+                serverConfig.setSecurePort(port);
 
             } else {
-                logger.debug("ServerXml: - unsecure port: " + port);
-                serverXml.setUnsecurePort(port);
+                logger.debug("ServerConfig: - unsecure port: " + port);
+                serverConfig.setUnsecurePort(port);
             }
         }
 
-        return serverXml;
+        return serverConfig;
     }
 
     public String getUnsecurePort() {
