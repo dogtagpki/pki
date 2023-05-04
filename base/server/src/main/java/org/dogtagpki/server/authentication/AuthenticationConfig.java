@@ -28,4 +28,11 @@ public class AuthenticationConfig extends ConfigStore {
     public AuthManagersConfig getAuthManagersConfig() {
         return getSubStore("instance", AuthManagersConfig.class);
     }
+
+    /**
+     * Returns auths.revocationChecking.* parameters.
+     */
+    public RevocationCheckingConfig getRevocationCheckingConfig() {
+        return getSubStore("revocationChecking", RevocationCheckingConfig.class);
+    }
 }

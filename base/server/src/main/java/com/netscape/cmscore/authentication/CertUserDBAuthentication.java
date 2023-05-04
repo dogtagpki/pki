@@ -25,6 +25,7 @@ import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
+import org.dogtagpki.server.authentication.RevocationCheckingConfig;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.authentication.AuthCredentials;
@@ -71,7 +72,7 @@ public class CertUserDBAuthentication extends AuthManager {
     private CertUserLocator mCULocator = null;
 
     private boolean mRevocationCheckingEnabled = false;
-    private ConfigStore mRevocationChecking;
+    private RevocationCheckingConfig mRevocationChecking;
 
     public CertUserDBAuthentication() {
     }
@@ -97,14 +98,14 @@ public class CertUserDBAuthentication extends AuthManager {
         mConfig = config;
 
         if (authenticationConfig != null) {
-            mRevocationChecking = authenticationConfig.getSubStore("revocationChecking", ConfigStore.class);
+            mRevocationChecking = authenticationConfig.getRevocationCheckingConfig();
         }
         if (mRevocationChecking != null) {
-            mRevocationCheckingEnabled = mRevocationChecking.getBoolean("enabled", false);
+            mRevocationCheckingEnabled = mRevocationChecking.isEnabled();
             if (mRevocationCheckingEnabled) {
-                int size = mRevocationChecking.getInteger("bufferSize", 0);
-                long interval = mRevocationChecking.getInteger("validityInterval", 28800);
-                long unknownStateInterval = mRevocationChecking.getInteger("unknownStateInterval", 1800);
+                int size = mRevocationChecking.getBufferSize();
+                long interval = mRevocationChecking.getValidityInterval();
+                long unknownStateInterval = mRevocationChecking.getUnknownStateInterval();
 
                 if (size > 0)
                     engine.setListOfVerifiedCerts(size, interval, unknownStateInterval);
