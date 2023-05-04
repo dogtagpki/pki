@@ -458,18 +458,26 @@ public class OCSPAdminServlet extends AdminServlet {
     }
 
     private void getSigningAlgConfig(NameValuePairs params) {
-        params.put(Constants.PR_DEFAULT_ALGORITHM,
-                mOCSP.getDefaultAlgorithm());
+
+        String defaultAlgorithm = mOCSP.getDefaultAlgorithm();
+        logger.info("OCSPAdminServlet: Default algorithm: " + defaultAlgorithm);
+        params.put(Constants.PR_DEFAULT_ALGORITHM, defaultAlgorithm);
+
         String[] algorithms = mOCSP.getOCSPSigningAlgorithms();
         StringBuffer algorStr = new StringBuffer();
 
+        logger.info("OCSPAdminServlet: Signing algorithms:");
         for (int i = 0; i < algorithms.length; i++) {
-            if (i == 0)
+            logger.info("OCSPAdminServlet: - " + algorithms[i]);
+
+            if (i == 0) {
                 algorStr.append(algorithms[i]);
-            else
+            } else {
                 algorStr.append(":");
+            }
             algorStr.append(algorithms[i]);
         }
+
         params.put(Constants.PR_ALL_ALGORITHMS, algorStr.toString());
     }
 
