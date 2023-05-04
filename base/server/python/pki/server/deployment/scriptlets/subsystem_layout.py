@@ -331,7 +331,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 subsystem.config['preop.cert.signing.profile'] = 'caInstallCACert'
 
             if config.str2bool(deployer.mdict['pki_profiles_in_ldap']):
-                subsystem.config['subsystem.1.class'] = \
+                index = subsystem.get_subsystem_index('profile')
+                subsystem.config['subsystem.%d.class' % index] = \
                     'com.netscape.cmscore.profile.LDAPProfileSubsystem'
 
         # configure OCSP

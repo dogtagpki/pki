@@ -238,6 +238,30 @@ class PKISubsystem(object):
         logger.info('Removing %s', self.base_dir)
         pki.util.rmtree(self.base_dir, force=force)
 
+    def get_subsystem_index(self, subsystem_id):
+        '''
+        Get index of subsystem in CS.cfg.
+        '''
+
+        # find subsystem.<index>.id params
+        pattern = re.compile(r'^subsystem\.(.*)\.id$')
+
+        for key, value in self.config.items():
+
+            m = pattern.match(key)
+            if not m:
+                continue
+
+            value = self.config[key]
+            if value != subsystem_id:
+                continue
+
+            # param value matches subsystem ID -> return index
+            index = m.group(1)
+            return int(index)
+
+        return None
+
     def find_system_certs(self):
 
         cert_ids = self.config['%s.cert.list' % self.name].split(',')
