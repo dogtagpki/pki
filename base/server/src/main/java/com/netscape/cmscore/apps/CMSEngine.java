@@ -1361,6 +1361,7 @@ public class CMSEngine {
     } // end shutdownHttpServer
 
     public void shutdownJobsScheduler() {
+        if (jobsScheduler == null) return;
         jobsScheduler.shutdown();
     }
 
