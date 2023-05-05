@@ -54,7 +54,7 @@ public abstract class SelfTest {
     protected CMSEngine engine;
     protected SelfTestSubsystem mSelfTestSubsystem;
     protected String mInstanceName = null;
-    protected ConfigStore mConfig;
+    protected SelfTestPluginConfig mConfig;
     protected String mPrefix = null;
 
     public CMSEngine getCMSEngine() {
@@ -104,7 +104,7 @@ public abstract class SelfTest {
         // compose self test plugin parameter property prefix
         String pluginPath = PROP_PLUGIN + "." + instanceName;
 
-        mConfig = parameters.getSubStore(pluginPath, ConfigStore.class);
+        mConfig = parameters.getSubStore(pluginPath, SelfTestPluginConfig.class);
 
         if ((mConfig != null) &&
                 (mConfig.getName() != null) &&
