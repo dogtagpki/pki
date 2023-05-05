@@ -959,24 +959,6 @@ public class CertUtils {
         return cu;
     }
 
-    public static String toLowerCaseSubsystemType(String s) {
-        if (s == null) {
-            return null;
-        }
-        if (s.equalsIgnoreCase("CA")) {
-            return "ca";
-        } else if (s.equalsIgnoreCase("KRA")) {
-            return "kra";
-        } else if (s.equalsIgnoreCase("OCSP")) {
-            return "ocsp";
-        } else if (s.equalsIgnoreCase("TKS")) {
-            return "tks";
-        } else if (s.equalsIgnoreCase("TPS")) {
-            return "tps";
-        }
-        return null;
-    }
-
     public static void printRequestContent(Request request) {
         String method = "CertUtils.printRequestContent: ";
         logger.debug(method + "Content of request: ");

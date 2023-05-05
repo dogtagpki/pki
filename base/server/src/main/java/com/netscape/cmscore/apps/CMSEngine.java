@@ -1773,8 +1773,8 @@ public class CMSEngine {
 
         try {
             String subsysType = config.getType();
-            if (subsysType.equals("")) {
-                logger.error("CMSEngine: verifySystemCerts() cs.type not defined in CS.cfg. System certificates verification not done");
+            if (subsysType == null || subsysType.equals("")) {
+                logger.error("CMSEngine: Missing cs.type in CS.cfg");
                 auditMessage = CMS.getLogMessage(
                             AuditEvent.CIMC_CERT_VERIFICATION,
                             ILogger.SYSTEM_UID,
@@ -1785,23 +1785,11 @@ public class CMSEngine {
                 throw new Exception("Missing cs.type in CS.cfg");
             }
 
-            subsysType = CertUtils.toLowerCaseSubsystemType(subsysType);
-            if (subsysType == null) {
-                logger.error("CMSEngine: verifySystemCerts() invalid cs.type in CS.cfg. System certificates verification not done");
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.CIMC_CERT_VERIFICATION,
-                            ILogger.SYSTEM_UID,
-                            ILogger.FAILURE,
-                            "");
-
-                auditor.log(auditMessage);
-                throw new Exception("Invalid cs.type in CS.cfg");
-            }
+            subsysType = subsysType.toLowerCase();
 
             String certlist = config.getString(subsysType + ".cert.list", "");
             if (certlist.equals("")) {
-                logger.error("CMSEngine: verifySystemCerts() "
-                        + subsysType + ".cert.list not defined in CS.cfg. System certificates verification not done");
+                logger.error("CMSEngine: Missing " + subsysType + ".cert.list in CS.cfg");
                 auditMessage = CMS.getLogMessage(
                             AuditEvent.CIMC_CERT_VERIFICATION,
                             ILogger.SYSTEM_UID,
@@ -1859,23 +1847,12 @@ public class CMSEngine {
 
         try {
             String subsysType = config.getType();
-            if (subsysType.equals("")) {
-                logger.error("CMSEngine: verifySystemCertByTag() cs.type not defined in CS.cfg. System certificates verification not done");
+            if (subsysType == null || subsysType.equals("")) {
+                logger.error("CMSEngine: Missing cs.type in CS.cfg");
                 throw new Exception("Missing cs.type in CS.cfg");
             }
 
-            subsysType = CertUtils.toLowerCaseSubsystemType(subsysType);
-            if (subsysType == null) {
-                logger.error("CMSEngine: verifySystemCerts() invalid cs.type in CS.cfg. System certificates verification not done");
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.CIMC_CERT_VERIFICATION,
-                            ILogger.SYSTEM_UID,
-                            ILogger.FAILURE,
-                            "");
-
-                auditor.log(auditMessage);
-                throw new Exception("Invalid cs.type in CS.cfg");
-            }
+            subsysType = subsysType.toLowerCase();
 
             String nickname = config.getString(subsysType + ".cert." + tag + ".nickname", "");
             if (nickname.equals("")) {
