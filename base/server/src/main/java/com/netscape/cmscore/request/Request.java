@@ -1040,4 +1040,22 @@ public class Request {
     public void setRealm(String realm) {
         this.realm = realm;
     }
+
+    public void printContent() {
+
+        String method = "Request.printContent: ";
+        logger.debug(method + "Content of request: ");
+
+        Enumeration<String> ereq = getExtDataKeys();
+        while (ereq.hasMoreElements()) {
+            String reqKey = ereq.nextElement();
+            String reqVal = getExtDataInString(reqKey);
+
+            if (reqVal != null) {
+                logger.debug("  req entry - " + reqKey + ": " + reqVal);
+            } else {
+                logger.debug("  req entry - " + reqKey + ": no value");
+            }
+        }
+    }
 }

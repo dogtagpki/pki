@@ -61,7 +61,6 @@ import org.mozilla.jss.pkix.crmf.CertReqMsg;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.request.Request;
 
 /**
  * Utility class with assorted methods to check for
@@ -957,21 +956,6 @@ public class CertUtils {
             cu = CertificateUsage.EmailRecipient;
 
         return cu;
-    }
-
-    public static void printRequestContent(Request request) {
-        String method = "CertUtils.printRequestContent: ";
-        logger.debug(method + "Content of request: ");
-        Enumeration<String> ereq = request.getExtDataKeys();
-        while (ereq.hasMoreElements()) {
-            String reqKey = ereq.nextElement();
-            String reqVal = request.getExtDataInString(reqKey);
-            if (reqVal != null) {
-                logger.debug("  req entry - " + reqKey + ": " + reqVal);
-            } else {
-                logger.debug("  req entry - " + reqKey + ": no value");
-            }
-        }
     }
 
     /*
