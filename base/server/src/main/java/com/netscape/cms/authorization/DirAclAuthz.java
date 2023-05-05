@@ -187,8 +187,10 @@ public class DirAclAuthz extends AAclAuthz
             Enumeration<String> en = aclRes.getStringValues();
 
             while (en.hasMoreElements()) {
-                String acl = en.nextElement();
-                logger.info("DirAclAuthz: - " + acl);
+                String resACLs = en.nextElement();
+
+                ACL acl = ACL.parseACL(resACLs);
+                logger.info("DirAclAuthz: - " + acl.getName());
 
                 // call super.addACLs() directly to avoid re-entering loadACLs()
                 super.addACLs(acl);
@@ -211,6 +213,12 @@ public class DirAclAuthz extends AAclAuthz
     public void addACLs(String resACLs) throws EACLsException {
         if (!loaded) loadACLs();
         super.addACLs(resACLs);
+    }
+
+    @Override
+    public void addACLs(ACL acl) throws EACLsException {
+        if (!loaded) loadACLs();
+        super.addACLs(acl);
     }
 
     @Override

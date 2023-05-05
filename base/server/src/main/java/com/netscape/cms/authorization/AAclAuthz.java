@@ -174,6 +174,11 @@ public abstract class AAclAuthz extends AuthzManager {
             return;
         }
 
+        addACLs(acl);
+    }
+
+    public void addACLs(ACL acl) throws EACLsException {
+
         ACL curACL = mACLs.get(acl.getName());
 
         if (curACL == null) {
