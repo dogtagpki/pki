@@ -19,6 +19,8 @@ package org.dogtag.util.cert;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -48,6 +50,7 @@ import org.mozilla.jss.netscape.security.x509.GeneralNameInterface;
 import org.mozilla.jss.netscape.security.x509.GeneralNames;
 import org.mozilla.jss.netscape.security.x509.SubjectAlternativeNameExtension;
 import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.pkcs11.PK11Store;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -408,5 +411,31 @@ public class CertUtil {
 
         // check the specified usage
         cm.verifyCertificate(nickname, true, cu);
+    }
+
+    /**
+     * Verify that the cert is currently valid (notBefore <= now <= notAfter).
+     */
+    public static void verifyCertValidity(String nickname) throws Exception {
+
+        logger.info("CertUtil: Checking cert validity for " + nickname);
+
+        try {
+            CryptoManager cm = CryptoManager.getInstance();
+            org.mozilla.jss.crypto.X509Certificate cert = cm.findCertByNickname(nickname);
+
+            X509CertImpl impl = new X509CertImpl(cert.getEncoded());
+            impl.checkValidity();
+
+        } catch (CertificateExpiredException | CertificateNotYetValidException e) {
+            String message = "Invalid certificate " + nickname + ": " + e.getMessage();
+            logger.error(message, e);
+            throw new Exception(message, e);
+
+        } catch (Exception e) {
+            String message = "Unable to validate certificate " + nickname + ": " + e.getMessage();
+            logger.error(message, e);
+            throw new Exception(message, e);
+        }
     }
 }

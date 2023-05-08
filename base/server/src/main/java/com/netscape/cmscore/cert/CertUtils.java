@@ -37,7 +37,6 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 
 import org.dogtag.util.cert.CertUtil;
-import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.netscape.security.extensions.NSCertTypeExtension;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
@@ -823,29 +822,6 @@ public class CertUtils {
         }
 
         return tmp.toString();
-    }
-
-    public static void verifySystemCertValidityByNickname(String nickname) throws Exception {
-
-        logger.info("CertUtils: Validating certificate " + nickname);
-
-        try {
-            CryptoManager cm = CryptoManager.getInstance();
-            org.mozilla.jss.crypto.X509Certificate cert = cm.findCertByNickname(nickname);
-
-            X509CertImpl impl = new X509CertImpl(cert.getEncoded());
-            impl.checkValidity();
-
-        } catch (CertificateExpiredException | CertificateNotYetValidException e) {
-            String message = "Invalid certificate " + nickname + ": " + e.getMessage();
-            logger.error(message, e);
-            throw new Exception(message, e);
-
-        } catch (Exception e) {
-            String message = "Unable to validate certificate " + nickname + ": " + e.getMessage();
-            logger.error(message, e);
-            throw new Exception(message, e);
-        }
     }
 
     /*

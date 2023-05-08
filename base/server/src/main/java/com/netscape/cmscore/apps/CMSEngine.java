@@ -69,7 +69,6 @@ import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.FileConfigStorage;
-import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.cert.OidLoaderSubsystem;
 import com.netscape.cmscore.cert.X500NameSubsystem;
 import com.netscape.cmscore.dbs.DBSubsystem;
@@ -1872,7 +1871,7 @@ public class CMSEngine {
             if (!checkValidityOnly) {
                 CertUtil.verifyCertificateUsage(nickname, certusage);
             } else {
-                CertUtils.verifySystemCertValidityByNickname(nickname);
+                CertUtil.verifyCertValidity(nickname);
             }
 
             auditMessage = CMS.getLogMessage(
