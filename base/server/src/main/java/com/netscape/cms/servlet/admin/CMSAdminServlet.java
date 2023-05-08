@@ -37,6 +37,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dogtag.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NoSuchTokenException;
 import org.mozilla.jss.NotInitializedException;
@@ -66,7 +67,6 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
-import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.security.JssSubsystem;
@@ -1452,7 +1452,7 @@ public class CMSAdminServlet extends AdminServlet {
             boolean verified = false;
             try {
                 logger.debug("CMSAdminServlet: verifying system certificate " + nickname);
-                CertUtils.verifySystemCertByNickname(nickname, null);
+                CertUtil.verifyCertificateUsage(nickname, null);
                 verified = true;
 
                 auditMessage = CMS.getLogMessage(

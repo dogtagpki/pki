@@ -39,6 +39,7 @@ import javax.servlet.http.HttpServlet;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.net.jss.TomcatJSS;
+import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.server.PKIClientSocketListener;
 import org.dogtagpki.server.PKIServerSocketListener;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
@@ -1869,7 +1870,7 @@ public class CMSEngine {
             }
 
             if (!checkValidityOnly) {
-                CertUtils.verifySystemCertByNickname(nickname, certusage);
+                CertUtil.verifyCertificateUsage(nickname, certusage);
             } else {
                 CertUtils.verifySystemCertValidityByNickname(nickname);
             }

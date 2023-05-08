@@ -37,7 +37,6 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 
 import org.dogtag.util.cert.CertUtil;
-import org.mozilla.jss.CertificateUsage;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.netscape.security.extensions.NSCertTypeExtension;
@@ -846,78 +845,6 @@ public class CertUtils {
             String message = "Unable to validate certificate " + nickname + ": " + e.getMessage();
             logger.error(message, e);
             throw new Exception(message, e);
-        }
-    }
-
-    /*
-     * verify a certificate by its nickname
-     * @throws Exception if something is wrong
-     */
-    public static void verifySystemCertByNickname(String nickname, String certusage) throws Exception {
-        logger.debug("CertUtils: verifySystemCertByNickname(" + nickname + ", " + certusage + ")");
-        CertificateUsage cu = CertUtil.toCertificateUsage(certusage);
-        int ccu = 0;
-
-        if (cu == null) {
-            logger.debug("CertUtils: verifySystemCertByNickname() failed: " +
-                    nickname + " with unsupported certusage =" + certusage);
-            throw new Exception("Unsupported certificate usage " + certusage + " in certificate " + nickname);
-        }
-
-        if (certusage == null || certusage.equals(""))
-            logger.debug("CertUtils: verifySystemCertByNickname(): required certusage not defined, getting current certusage");
-
-        try {
-            CryptoManager cm = CryptoManager.getInstance();
-            if (cu.getUsage() != CertificateUsage.CheckAllUsages.getUsage()) {
-                logger.debug("CertUtils: verifySystemCertByNickname(): calling verifyCertificate(" + nickname + ", true, " + cu + ")");
-                try {
-                    cm.verifyCertificate(nickname, true, cu);
-                } catch (CertificateException e) {
-                    throw new Exception("Certificate " + nickname + " is invalid: " + e.getMessage(), e);
-                }
-
-            } else {
-                logger.debug("CertUtils: verifySystemCertByNickname(): calling isCertValid(" + nickname + ", true)");
-                // find out about current cert usage
-                ccu = cm.isCertValid(nickname, true);
-                if (ccu == CertificateUsage.basicCertificateUsages) {
-                    /* cert is good for nothing */
-                    logger.error("CertUtils: verifySystemCertByNickname() failed: cert is good for nothing:" + nickname);
-                    throw new Exception("Unusable certificate " + nickname);
-
-                }
-                logger.debug("CertUtils: verifySystemCertByNickname() passed: " + nickname);
-
-                if ((ccu & CertificateUsage.SSLServer.getUsage()) != 0)
-                    logger.debug("CertUtils: verifySystemCertByNickname(): cert is SSLServer");
-                if ((ccu & CertificateUsage.SSLClient.getUsage()) != 0)
-                    logger.debug("CertUtils: verifySystemCertByNickname(): cert is SSLClient");
-                if ((ccu & CertificateUsage.SSLServerWithStepUp.getUsage()) != 0)
-                    logger.debug("CertUtils: verifySystemCertByNickname(): cert is SSLServerWithStepUp");
-                if ((ccu & CertificateUsage.SSLCA.getUsage()) != 0)
-                    logger.debug("CertUtils: verifySystemCertByNickname(): cert is SSLCA");
-                if ((ccu & CertificateUsage.EmailSigner.getUsage()) != 0)
-                    logger.debug("CertUtils: verifySystemCertByNickname(): cert is EmailSigner");
-                if ((ccu & CertificateUsage.EmailRecipient.getUsage()) != 0)
-                    logger.debug("CertUtils: verifySystemCertByNickname(): cert is EmailRecipient");
-                if ((ccu & CertificateUsage.ObjectSigner.getUsage()) != 0)
-                    logger.debug("CertUtils: verifySystemCertByNickname(): cert is ObjectSigner");
-                if ((ccu & CertificateUsage.UserCertImport.getUsage()) != 0)
-                    logger.debug("CertUtils: verifySystemCertByNickname(): cert is UserCertImport");
-                if ((ccu & CertificateUsage.VerifyCA.getUsage()) != 0)
-                    logger.debug("CertUtils: verifySystemCertByNickname(): cert is VerifyCA");
-                if ((ccu & CertificateUsage.ProtectedObjectSigner.getUsage()) != 0)
-                    logger.debug("CertUtils: verifySystemCertByNickname(): cert is ProtectedObjectSigner");
-                if ((ccu & CertificateUsage.StatusResponder.getUsage()) != 0)
-                    logger.debug("CertUtils: verifySystemCertByNickname(): cert is StatusResponder");
-                if ((ccu & CertificateUsage.AnyCA.getUsage()) != 0)
-                    logger.debug("CertUtils: verifySystemCertByNickname(): cert is AnyCA");
-            }
-
-        } catch (Exception e) {
-            logger.error("CertUtils: verifySystemCertByNickname() failed: " + e.getMessage(), e);
-            throw e;
         }
     }
 
