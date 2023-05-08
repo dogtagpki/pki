@@ -1213,7 +1213,7 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
 class SubsystemCertValidateCLI(pki.cli.CLI):
 
     def __init__(self):
-        super().__init__('validate', 'Validate subsystem certificates')
+        super().__init__('validate', 'Validate subsystem certificates', deprecated=True)
 
     def usage(self):
         print('Usage: pki-server subsystem-cert-validate [OPTIONS] <subsystem ID> [<cert_id>]')
@@ -1225,6 +1225,10 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
+
+        logger.warning(
+            'The pki-server subsystem-cert-validate has been deprecated. '
+            'Use pki-server cert-validate instead.')
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [

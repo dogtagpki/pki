@@ -26,12 +26,14 @@ from contextlib import contextmanager
 import datetime
 import getopt
 import getpass
+import inspect
 import logging
 import os
 import random
 import subprocess
 import sys
 from tempfile import NamedTemporaryFile
+import textwrap
 import time
 
 from six.moves.urllib.parse import quote  # pylint: disable=F0401,E0611
@@ -50,6 +52,7 @@ class CertCLI(pki.cli.CLI):
         super().__init__('cert', 'System certificate management commands')
         self.add_module(CertFindCLI())
         self.add_module(CertShowCLI())
+        self.add_module(CertValidateCLI())
         self.add_module(CertUpdateCLI())
         self.add_module(CertCreateCLI())
         self.add_module(CertImportCLI())
@@ -285,6 +288,91 @@ class CertShowCLI(pki.cli.CLI):
                     token=cert['token'])
             finally:
                 nssdb.close()
+
+
+class CertValidateCLI(pki.cli.CLI):
+    '''
+    Validate system certificate
+    '''
+
+    help = '''\
+        Usage: pki-server cert-validate [OPTIONS] <cert ID>
+
+          -i, --instance <instance ID>    Instance ID (default: pki-tomcat)
+          -v, --verbose                   Run in verbose mode.
+              --debug                     Run in debug mode.
+              --help                      Show help message.
+    '''
+
+    def __init__(self):
+        super().__init__(
+            'validate',
+            inspect.cleandoc(self.__class__.__doc__))
+
+    def print_help(self):
+        print(textwrap.dedent(self.__class__.help))
+
+    def execute(self, argv):
+        try:
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('Invalid option: %s', o)
+                self.print_help()
+                sys.exit(1)
+
+        if len(args) < 1:
+            logger.error('Missing cert ID')
+            self.print_help()
+            sys.exit(1)
+
+        cert_id = args[0]
+
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+
+        if not instance.exists():
+            logger.error('Invalid instance: %s', instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        # split cert ID into subsystem name and cert tag
+        subsystem_name, cert_tag = pki.server.PKIServer.split_cert_id(cert_id)
+
+        if subsystem_name:
+            subsystem = instance.get_subsystem(subsystem_name)
+        else:
+            # if cert ID doesn't contain subsystem name, get the first subsystem
+            subsystem = instance.get_subsystems()[0]
+
+        if not subsystem:
+            raise Exception(
+                'No %s subsystem in instance %s' % (subsystem.type, instance_name))
+
+        subsystem.validate_system_cert(cert_tag)
 
 
 class CertUpdateCLI(pki.cli.CLI):
