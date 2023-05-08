@@ -76,7 +76,8 @@ jobs:
               --ext /usr/share/pki/server/certs/subca_signing.conf \
               --cert subca_signing.crt
 
-          docker exec pki /usr/share/pki/tests/ca/bin/test-subca-signing-cert-ext.sh
+          # check MS sub CA signing cert extensions
+          docker exec pki /usr/share/pki/tests/ca/bin/test-ms-subca-signing-cert-ext.sh
 
       - name: Create SSL server cert request
         run: |

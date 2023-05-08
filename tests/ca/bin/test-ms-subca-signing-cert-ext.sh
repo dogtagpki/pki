@@ -3,7 +3,7 @@
 INPUT=$1
 
 if [ "$INPUT" = "" ]; then
-    INPUT=ca_signing.crt
+    INPUT=subca_signing.crt
 fi
 
 openssl x509 -text -noout -in $INPUT | tee output
@@ -11,6 +11,11 @@ openssl x509 -text -noout -in $INPUT | tee output
 # verify SKI extension
 echo "X509v3 Subject Key Identifier: " > expected
 sed -En 's/^ *(X509v3 Subject Key Identifier: .*)$/\1/p' output | tee actual
+diff actual expected
+
+# verify AKI extension
+echo "X509v3 Authority Key Identifier: " > expected
+sed -En 's/^ *(X509v3 Authority Key Identifier: .*)$/\1/p' output | tee actual
 diff actual expected
 
 # verify basic constraints extension
@@ -25,6 +30,9 @@ echo "Digital Signature, Non Repudiation, Certificate Sign, CRL Sign" >> expecte
 sed -En 'N; s/^ *(X509v3 Key Usage: .*)\n *(.*)$/\1\n\2/p; D' output | tee actual
 diff actual expected
 
-# verify there is no AIA extensions
-sed -En 'N; s/^ *(Authority Information Access: .*)\n *(.*)$/\1\n\2/p; D' output | tee actual
-diff actual /dev/null
+# verify MS subordinate CA extension
+echo "1.3.6.1.4.1.311.20.2: " > expected
+echo "." >> expected
+echo ".S.u.b.C.A" >> expected
+sed -En '1N;$!N;s/^ *(1.3.6.1.4.1.311.20.2: .*)\n *(.*)\n *(.*)/\1\n\2\n\3/p;D' output | tee actual
+diff actual expected

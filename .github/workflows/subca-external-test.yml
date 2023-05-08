@@ -108,7 +108,9 @@ jobs:
           docker exec pki pki-server cert-find
 
           docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
-          docker exec pki /usr/share/pki/tests/ca/bin/test-subca-signing-cert-ext.sh ca_signing.crt
+
+          # check MS sub CA signing cert extensions
+          docker exec pki /usr/share/pki/tests/ca/bin/test-ms-subca-signing-cert-ext.sh ca_signing.crt
 
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --failures-only

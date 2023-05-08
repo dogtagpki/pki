@@ -103,7 +103,9 @@ jobs:
       - name: Check CA signing cert
         run: |
           docker exec subordinate pki-server cert-export ca_signing --cert-file ca_signing.crt
-          docker exec subordinate openssl x509 -text -noout -in ca_signing.crt
+
+          # check sub CA signing cert extensions
+          docker exec subordinate /usr/share/pki/tests/ca/bin/test-subca-signing-cert-ext.sh ca_signing.crt
 
       - name: Check CA OCSP signing cert
         run: |
