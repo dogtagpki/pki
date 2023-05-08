@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.lang3.StringUtils;
+import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.CertificateUsage;
 import org.mozilla.jss.CryptoManager;
@@ -48,9 +49,9 @@ public class ClientCertValidateCLI extends CommandCLI {
     @Override
     public void createOptions() {
         Option option = new Option(null, "certusage", true, "Certificate usage: " +
-                "CheckAllUsages, SSLServer, SSLServerWithStepUp, SSLClient, SSLCA, AnyCA, " +
-                "StatusResponder, ObjectSigner, UserCertImport, ProtectedObjectSigner, " +
-                "VerifyCA, EmailSigner, EmailRecipient.");
+                "CheckAllUsages, SSLClient, SSLServer, SSLServerWithStepUp, SSLCA, " +
+                "EmailSigner, EmailRecipient, ObjectSigner, UserCertImport, " +
+                "VerifyCA, ProtectedObjectSigner, StatusResponder, AnyCA, IPsec.");
         option.setArgName("certusage");
         options.addOption(option);
     }
@@ -88,18 +89,11 @@ public class ClientCertValidateCLI extends CommandCLI {
     }
 
     public boolean verifySystemCertByNickname(String nickname, String certusage) throws Exception {
-        CertificateUsage cu = getCertificateUsage(certusage);
-        int ccu = 0;
-
-        if (cu == null) {
-            throw new Exception("Unsupported certificate usage " + certusage +
-                    " in certificate " + nickname);
-        }
-
+        CertificateUsage cu = CertUtil.toCertificateUsage(certusage);
         CryptoManager cm = CryptoManager.getInstance();
         if (cu.getUsage() == CertificateUsage.CheckAllUsages.getUsage()) {
             // check all possible usages
-            ccu = cm.isCertValid(nickname, true);
+            int ccu = cm.isCertValid(nickname, true);
             if (ccu == CertificateUsage.basicCertificateUsages) {
                 /* cert is good for nothing */
                 System.out.println("Cert is good for nothing: " + nickname);
@@ -142,39 +136,5 @@ public class ClientCertValidateCLI extends CommandCLI {
             System.out.println(e.getMessage());
             return false;
         }
-    }
-
-    public CertificateUsage getCertificateUsage(String certusage) {
-        CertificateUsage cu = null;
-        if ((certusage == null) || certusage.equals(""))
-            cu = CertificateUsage.CheckAllUsages;
-        else if (certusage.equalsIgnoreCase("CheckAllUsages"))
-            cu = CertificateUsage.CheckAllUsages;
-        else if (certusage.equalsIgnoreCase("SSLServer"))
-            cu = CertificateUsage.SSLServer;
-        else if (certusage.equalsIgnoreCase("SSLServerWithStepUp"))
-            cu = CertificateUsage.SSLServerWithStepUp;
-        else if (certusage.equalsIgnoreCase("SSLClient"))
-            cu = CertificateUsage.SSLClient;
-        else if (certusage.equalsIgnoreCase("SSLCA"))
-            cu = CertificateUsage.SSLCA;
-        else if (certusage.equalsIgnoreCase("AnyCA"))
-            cu = CertificateUsage.AnyCA;
-        else if (certusage.equalsIgnoreCase("StatusResponder"))
-            cu = CertificateUsage.StatusResponder;
-        else if (certusage.equalsIgnoreCase("ObjectSigner"))
-            cu = CertificateUsage.ObjectSigner;
-        else if (certusage.equalsIgnoreCase("UserCertImport"))
-            cu = CertificateUsage.UserCertImport;
-        else if (certusage.equalsIgnoreCase("ProtectedObjectSigner"))
-            cu = CertificateUsage.ProtectedObjectSigner;
-        else if (certusage.equalsIgnoreCase("VerifyCA"))
-            cu = CertificateUsage.VerifyCA;
-        else if (certusage.equalsIgnoreCase("EmailSigner"))
-            cu = CertificateUsage.EmailSigner;
-        else if (certusage.equalsIgnoreCase("EmailRecipient"))
-            cu = CertificateUsage.EmailRecipient;
-
-        return cu;
     }
 }

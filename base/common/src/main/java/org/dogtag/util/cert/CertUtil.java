@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import org.mozilla.jss.CertificateUsage;
 import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
@@ -276,5 +277,58 @@ public class CertUtil {
         }
 
         return dnsNames;
+    }
+
+    /**
+     * Convert cert usage string into CertificateUsage object.
+     */
+    public static CertificateUsage toCertificateUsage(String certUsage) throws Exception {
+
+        if (certUsage == null || certUsage.equals(""))
+            return CertificateUsage.CheckAllUsages;
+
+        if (certUsage.equalsIgnoreCase("CheckAllUsages"))
+            return CertificateUsage.CheckAllUsages;
+
+        if (certUsage.equalsIgnoreCase("SSLClient"))
+            return CertificateUsage.SSLClient;
+
+        if (certUsage.equalsIgnoreCase("SSLServer"))
+            return CertificateUsage.SSLServer;
+
+        if (certUsage.equalsIgnoreCase("SSLServerWithStepUp"))
+            return CertificateUsage.SSLServerWithStepUp;
+
+        if (certUsage.equalsIgnoreCase("SSLCA"))
+            return CertificateUsage.SSLCA;
+
+        if (certUsage.equalsIgnoreCase("EmailSigner"))
+            return CertificateUsage.EmailSigner;
+
+        if (certUsage.equalsIgnoreCase("EmailRecipient"))
+            return CertificateUsage.EmailRecipient;
+
+        if (certUsage.equalsIgnoreCase("ObjectSigner"))
+            return CertificateUsage.ObjectSigner;
+
+        if (certUsage.equalsIgnoreCase("UserCertImport"))
+            return CertificateUsage.UserCertImport;
+
+        if (certUsage.equalsIgnoreCase("VerifyCA"))
+            return CertificateUsage.VerifyCA;
+
+        if (certUsage.equalsIgnoreCase("ProtectedObjectSigner"))
+            return CertificateUsage.ProtectedObjectSigner;
+
+        if (certUsage.equalsIgnoreCase("StatusResponder"))
+            return CertificateUsage.StatusResponder;
+
+        if (certUsage.equalsIgnoreCase("AnyCA"))
+            return CertificateUsage.AnyCA;
+
+        if (certUsage.equalsIgnoreCase("IPsec"))
+            return CertificateUsage.IPsec;
+
+        throw new Exception("Unsupported certificate usage: " + certUsage);
     }
 }
