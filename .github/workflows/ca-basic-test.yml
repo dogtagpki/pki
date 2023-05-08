@@ -83,7 +83,9 @@ jobs:
               --csr-file ca_signing.csr \
               --cert-file ca_signing.crt
           docker exec pki openssl req -text -noout -in ca_signing.csr
-          docker exec pki openssl x509 -text -noout -in ca_signing.crt
+
+          # check CA signing cert extensions
+          docker exec pki /usr/share/pki/tests/ca/bin/test-ca-signing-cert-ext.sh
 
       - name: Check CA OCSP signing cert
         run: |

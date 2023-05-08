@@ -30,9 +30,8 @@ echo "Digital Signature, Non Repudiation, Certificate Sign, CRL Sign" >> expecte
 sed -En 'N; s/^ *(X509v3 Key Usage: .*)\n *(.*)$/\1\n\2/p; D' output | tee actual
 diff actual expected
 
-# verify subordinate CA extension
-echo "1.3.6.1.4.1.311.20.2: " > expected
-echo "." >> expected
-echo ".S.u.b.C.A" >> expected
-sed -En '1N;$!N;s/^ *(1.3.6.1.4.1.311.20.2: .*)\n *(.*)\n *(.*)/\1\n\2\n\3/p;D' output | tee actual
+# verify there is an AIA extension pointing to root CA's OCSP responsder
+echo "Authority Information Access: " > expected
+echo "OCSP - URI:http://root.example.com:8080/ca/ocsp" >> expected
+sed -En 'N; s/^ *(Authority Information Access: .*)\n *(.*)$/\1\n\2/p; D' output | tee actual
 diff actual expected
