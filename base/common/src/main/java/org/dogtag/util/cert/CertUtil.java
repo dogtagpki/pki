@@ -388,4 +388,25 @@ public class CertUtil {
 
         return usages;
     }
+
+    /**
+     * Verify certificate usage.
+     */
+    public static void verifyCertificateUsage(String nickname, String certUsage) throws Exception {
+
+        CryptoManager cm = CryptoManager.getInstance();
+        CertificateUsage cu = CertUtil.toCertificateUsage(certUsage);
+
+        if (cu.getUsage() == CertificateUsage.CheckAllUsages.getUsage()) {
+            // check all possible usages
+            int currentUsages = cm.isCertValid(nickname, true);
+            if (currentUsages == CertificateUsage.basicCertificateUsages) {
+                throw new Exception("Certificate is unusable");
+            }
+            return;
+        }
+
+        // check the specified usage
+        cm.verifyCertificate(nickname, true, cu);
+    }
 }

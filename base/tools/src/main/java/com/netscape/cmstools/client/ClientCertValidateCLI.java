@@ -18,7 +18,6 @@
 
 package com.netscape.cmstools.client;
 
-import java.security.cert.CertificateException;
 import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
@@ -27,7 +26,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.CertificateUsage;
-import org.mozilla.jss.CryptoManager;
 
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -84,36 +82,13 @@ public class ClientCertValidateCLI extends CommandCLI {
             return;
         }
 
-        boolean isValid = verifySystemCertByNickname(nickname, certusage);
-
-        if (isValid) {
-            System.exit(0);
-        } else {
-            System.exit(1);
-        }
-    }
-
-    public boolean verifySystemCertByNickname(String nickname, String certusage) throws Exception {
-        CertificateUsage cu = CertUtil.toCertificateUsage(certusage);
-        CryptoManager cm = CryptoManager.getInstance();
-        if (cu.getUsage() == CertificateUsage.CheckAllUsages.getUsage()) {
-            // check all possible usages
-            int ccu = cm.isCertValid(nickname, true);
-            if (ccu == CertificateUsage.basicCertificateUsages) {
-                /* cert is good for nothing */
-                System.out.println("Cert is good for nothing: " + nickname);
-                return false;
-            }
-            return true;
-        }
         try {
-            cm.verifyCertificate(nickname, true, cu);
-            System.out.println("Valid certificate: " + nickname);
-            return true;
-        } catch (CertificateException e) {
-            // Invalid certificate: (<code>) <message>
+            CertUtil.verifyCertificateUsage(nickname, certusage);
+            System.out.println("Certificate is valid");
+
+        } catch (Exception e) {
             System.out.println(e.getMessage());
-            return false;
+            System.exit(1);
         }
     }
 }
