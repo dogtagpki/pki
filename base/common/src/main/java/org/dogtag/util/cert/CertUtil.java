@@ -22,10 +22,12 @@ import java.io.PrintStream;
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.mozilla.jss.CertificateUsage;
+import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
@@ -330,5 +332,60 @@ public class CertUtil {
             return CertificateUsage.IPsec;
 
         throw new Exception("Unsupported certificate usage: " + certUsage);
+    }
+
+    /**
+     * Get certificate usages.
+     */
+    public static Set<CertificateUsage> getCertificateUsages(String nickname) throws Exception {
+
+        CryptoManager cm = CryptoManager.getInstance();
+
+        logger.debug("CertUtil: Calling CryptoManager.isCertValid(" + nickname + ", true)");
+        int currentUsages = cm.isCertValid(nickname, true);
+
+        logger.debug("CertUtil: Certificate usages: " + currentUsages);
+        Set<CertificateUsage> usages = new LinkedHashSet<>();
+
+        if ((currentUsages & CertificateUsage.SSLClient.getUsage()) != 0)
+            usages.add(CertificateUsage.SSLClient);
+
+        if ((currentUsages & CertificateUsage.SSLServer.getUsage()) != 0)
+            usages.add(CertificateUsage.SSLServer);
+
+        if ((currentUsages & CertificateUsage.SSLServerWithStepUp.getUsage()) != 0)
+            usages.add(CertificateUsage.SSLServerWithStepUp);
+
+        if ((currentUsages & CertificateUsage.SSLCA.getUsage()) != 0)
+            usages.add(CertificateUsage.SSLCA);
+
+        if ((currentUsages & CertificateUsage.EmailSigner.getUsage()) != 0)
+            usages.add(CertificateUsage.EmailSigner);
+
+        if ((currentUsages & CertificateUsage.EmailRecipient.getUsage()) != 0)
+            usages.add(CertificateUsage.EmailRecipient);
+
+        if ((currentUsages & CertificateUsage.ObjectSigner.getUsage()) != 0)
+            usages.add(CertificateUsage.ObjectSigner);
+
+        if ((currentUsages & CertificateUsage.UserCertImport.getUsage()) != 0)
+            usages.add(CertificateUsage.UserCertImport);
+
+        if ((currentUsages & CertificateUsage.VerifyCA.getUsage()) != 0)
+            usages.add(CertificateUsage.VerifyCA);
+
+        if ((currentUsages & CertificateUsage.ProtectedObjectSigner.getUsage()) != 0)
+            usages.add(CertificateUsage.ProtectedObjectSigner);
+
+        if ((currentUsages & CertificateUsage.StatusResponder.getUsage()) != 0)
+            usages.add(CertificateUsage.StatusResponder);
+
+        if ((currentUsages & CertificateUsage.AnyCA.getUsage()) != 0)
+            usages.add(CertificateUsage.AnyCA);
+
+        if ((currentUsages & CertificateUsage.IPsec.getUsage()) != 0)
+            usages.add(CertificateUsage.IPsec);
+
+        return usages;
     }
 }

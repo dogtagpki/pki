@@ -19,8 +19,7 @@
 package com.netscape.cmstools.client;
 
 import java.security.cert.CertificateException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -79,6 +78,12 @@ public class ClientCertValidateCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
+        if (certusage == null) {
+            Set<CertificateUsage> usages = CertUtil.getCertificateUsages(nickname);
+            System.out.println("Cert usages: " + StringUtils.join(usages, ", "));
+            return;
+        }
+
         boolean isValid = verifySystemCertByNickname(nickname, certusage);
 
         if (isValid) {
@@ -99,32 +104,6 @@ public class ClientCertValidateCLI extends CommandCLI {
                 System.out.println("Cert is good for nothing: " + nickname);
                 return false;
             }
-            List<String> usages = new ArrayList<>();
-            if ((ccu & CertificateUsage.SSLServer.getUsage()) != 0)
-                usages.add("SSLServer");
-            if ((ccu & CertificateUsage.SSLClient.getUsage()) != 0)
-                usages.add("SSLClient");
-            if ((ccu & CertificateUsage.SSLServerWithStepUp.getUsage()) != 0)
-                usages.add("SSLServerWithStepUp");
-            if ((ccu & CertificateUsage.SSLCA.getUsage()) != 0)
-                usages.add("SSLCA");
-            if ((ccu & CertificateUsage.EmailSigner.getUsage()) != 0)
-                usages.add("EmailSigner");
-            if ((ccu & CertificateUsage.EmailRecipient.getUsage()) != 0)
-                usages.add("EmailRecipient");
-            if ((ccu & CertificateUsage.ObjectSigner.getUsage()) != 0)
-                usages.add("ObjectSigner");
-            if ((ccu & CertificateUsage.UserCertImport.getUsage()) != 0)
-                usages.add("UserCertImport");
-            if ((ccu & CertificateUsage.VerifyCA.getUsage()) != 0)
-                usages.add("VerifyCA");
-            if ((ccu & CertificateUsage.ProtectedObjectSigner.getUsage()) != 0)
-                usages.add("ProtectedObjectSigner");
-            if ((ccu & CertificateUsage.StatusResponder.getUsage()) != 0)
-                usages.add("StatusResponder");
-            if ((ccu & CertificateUsage.AnyCA.getUsage()) != 0)
-                usages.add("AnyCA");
-            System.out.println("Cert has the following usages: " + StringUtils.join(usages, ','));
             return true;
         }
         try {
