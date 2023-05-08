@@ -18,7 +18,6 @@
 package com.netscape.cmscore.connector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
 import com.netscape.cmsutil.net.ISocketFactory;
@@ -90,10 +89,6 @@ public class HttpConnFactory {
     /**
      * initialize parameters obtained from either constructor or
      * config store
-     *
-     * @param connInfo ldap connection info.
-     * @param authInfo ldap authentication info.
-     * @exception ELdapException if any error occurs.
      */
     public void init() throws EBaseException {
 
