@@ -1,0 +1,5 @@
+= Tools Changes =
+
+== New pki-server cert-validate CLI ==
+
+The `pki-server cert-validate` command has been added to validate a system certificate.
