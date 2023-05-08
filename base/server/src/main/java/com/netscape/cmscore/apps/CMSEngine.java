@@ -1366,6 +1366,7 @@ public class CMSEngine {
     }
 
     public void shutdownAuthzSubsystem() {
+        if (authzSubsystem == null) return;
         authzSubsystem.shutdown();
     }
 
