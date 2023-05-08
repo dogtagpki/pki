@@ -333,16 +333,34 @@ class PKISubsystem(object):
         self.config['%s.%s.cert' % (self.name, cert_id)] = cert.get('data')
         self.config['%s.%s.certreq' % (self.name, cert_id)] = cert.get('request')
 
-    def validate_system_cert(self, cert_id):
+    def validate_system_cert(self, tag):
+
+        cert = self.get_subsystem_cert(tag)
+
+        nickname = cert['nickname']
+        token = pki.nssdb.normalize_token(cert['token'])
+
+        if token:
+            fullname = token + ':' + nickname
+        else:
+            fullname = nickname
+
+        cert_usage = cert['certusage']
 
         cmd = [
-            'pki-server',
-            'subsystem-cert-validate',
-            '-i',
-            self.instance.name,
-            self.name,
-            cert_id
+            'pki',
+            '-d', self.instance.nssdb_dir,
+            '-f', self.instance.password_conf
         ]
+
+        if token:
+            cmd.extend(['--token', token])
+
+        cmd.extend([
+            'client-cert-validate',
+            '--certusage', cert_usage,
+            fullname
+        ])
 
         logger.debug('Command: %s', ' '.join(cmd))
 
@@ -351,17 +369,17 @@ class PKISubsystem(object):
         # https://stackoverflow.com/questions/52663518/python-subprocess-popen-doesnt-take-text-argument
 
         try:
-            result = subprocess.run(
+            subprocess.run(
                 cmd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 check=True,
                 universal_newlines=True)
 
-            logger.debug('%s certificate is valid:\n%s', cert_id, result.stdout)
+            logger.debug('%s certificate is valid', tag)
 
         except subprocess.CalledProcessError as e:
-            logger.error('Unable to validate %s certificate:\n%s', cert_id, e.stdout)
+            logger.error('Unable to validate %s certificate: %s', tag, e.stdout)
             raise
 
     def export_system_cert(

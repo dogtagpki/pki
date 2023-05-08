@@ -30,7 +30,6 @@ import logging
 import os
 import subprocess
 import sys
-import tempfile
 import textwrap
 
 import pki.cli
@@ -1299,7 +1298,7 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
             else:
                 print()
 
-            certs_valid &= self.validate_certificate(instance, cert)
+            certs_valid &= self.validate_certificate(subsystem, cert)
 
         if certs_valid:
             self.print_message("Validation succeeded")
@@ -1308,7 +1307,7 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
             self.print_message("Validation failed")
             sys.exit(1)
 
-    def validate_certificate(self, instance, cert):
+    def validate_certificate(self, subsystem, cert):
 
         logger.info(cert)
 
@@ -1338,40 +1337,8 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
 
         print('  Token: %s' % token)
 
-        # normalize internal token into None
-        token = pki.nssdb.normalize_token(token)
-
-        # get token password and store in temporary file
-        passwd = instance.get_token_password(token)
-
-        pwfile_handle, pwfile_path = tempfile.mkstemp()
         try:
-            os.write(pwfile_handle, passwd.encode('utf-8'))
-        finally:
-            os.close(pwfile_handle)
-
-        try:
-            cmd = [
-                'pki',
-                '-d', instance.nssdb_dir
-            ]
-
-            fullname = nickname
-
-            if token:
-                cmd.extend(['--token', token])
-                fullname = token + ':' + fullname
-
-            cmd.extend([
-                '-C', pwfile_path,
-                'client-cert-validate',
-                fullname,
-                '--certusage', usage
-            ])
-
-            logger.info('Command: %s', ' '.join(cmd))
-
-            subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+            subsystem.validate_system_cert(cert['id'])
             print('  Status: VALID')
 
             return True
@@ -1383,6 +1350,3 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
                 status = 'ERROR'
             print('  Status: %s' % status)
             return False
-
-        finally:
-            os.unlink(pwfile_path)
