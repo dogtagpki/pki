@@ -855,7 +855,7 @@ public class CertUtils {
      */
     public static void verifySystemCertByNickname(String nickname, String certusage) throws Exception {
         logger.debug("CertUtils: verifySystemCertByNickname(" + nickname + ", " + certusage + ")");
-        CertificateUsage cu = getCertificateUsage(certusage);
+        CertificateUsage cu = CertUtil.toCertificateUsage(certusage);
         int ccu = 0;
 
         if (cu == null) {
@@ -919,43 +919,6 @@ public class CertUtils {
             logger.error("CertUtils: verifySystemCertByNickname() failed: " + e.getMessage(), e);
             throw e;
         }
-    }
-
-    /*
-     * returns CertificateUsage mapping to JSS
-     */
-    public static CertificateUsage getCertificateUsage(String certusage) {
-        CertificateUsage cu = null;
-        if ((certusage == null) || certusage.equals(""))
-            cu = CertificateUsage.CheckAllUsages;
-        else if (certusage.equalsIgnoreCase("CheckAllUsages"))
-            cu = CertificateUsage.CheckAllUsages;
-        else if (certusage.equalsIgnoreCase("SSLServer"))
-            cu = CertificateUsage.SSLServer;
-        else if (certusage.equalsIgnoreCase("SSLServerWithStepUp"))
-            cu = CertificateUsage.SSLServerWithStepUp;
-        else if (certusage.equalsIgnoreCase("SSLClient"))
-            cu = CertificateUsage.SSLClient;
-        else if (certusage.equalsIgnoreCase("SSLCA"))
-            cu = CertificateUsage.SSLCA;
-        else if (certusage.equalsIgnoreCase("AnyCA"))
-            cu = CertificateUsage.AnyCA;
-        else if (certusage.equalsIgnoreCase("StatusResponder"))
-            cu = CertificateUsage.StatusResponder;
-        else if (certusage.equalsIgnoreCase("ObjectSigner"))
-            cu = CertificateUsage.ObjectSigner;
-        else if (certusage.equalsIgnoreCase("UserCertImport"))
-            cu = CertificateUsage.UserCertImport;
-        else if (certusage.equalsIgnoreCase("ProtectedObjectSigner"))
-            cu = CertificateUsage.ProtectedObjectSigner;
-        else if (certusage.equalsIgnoreCase("VerifyCA"))
-            cu = CertificateUsage.VerifyCA;
-        else if (certusage.equalsIgnoreCase("EmailSigner"))
-            cu = CertificateUsage.EmailSigner;
-        else if (certusage.equalsIgnoreCase("EmailRecipient"))
-            cu = CertificateUsage.EmailRecipient;
-
-        return cu;
     }
 
     /*
