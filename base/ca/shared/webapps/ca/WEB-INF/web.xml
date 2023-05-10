@@ -341,25 +341,6 @@
                          <param-value> ee          </param-value> </init-param>
    </servlet>
 
-   <servlet>
-      <servlet-name>  caDisplayBySerial  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.cert.CADisplayBySerial  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  templatePath   </param-name>
-                         <param-value> /ee/ca/displayBySerial.template </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caDisplayBySerial </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.ee.certificate </param-value> </init-param>
-             <init-param><param-name>  interface   </param-name>
-                         <param-value> ee          </param-value> </init-param>
-   </servlet>
-
    <!-- ==================== RESTEasy Configuration =============== -->
 
    <listener>
@@ -475,11 +456,6 @@
    <servlet-mapping>
       <servlet-name>  caProfileSubmitSelfSignedCMCFull  </servlet-name>
       <url-pattern>   /ee/ca/profileSubmitSelfSignedCMCFull  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>  
-      <servlet-name>  caDisplayBySerial  </servlet-name>
-      <url-pattern>   /ee/ca/displayBySerial  </url-pattern>
    </servlet-mapping>
 
     <security-constraint>
