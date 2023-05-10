@@ -17,6 +17,22 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.base;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "caUpdateDirectory",
+        urlPatterns = "/agent/ca/updateDir.html",
+        initParams = {
+                @WebInitParam(name="GetClientCert",        value="true"),
+                @WebInitParam(name="htmlPath",             value="/agent/ca/UpdateDir.html"),
+                @WebInitParam(name="authority",            value="ca"),
+                @WebInitParam(name="ID",                   value="caUpdateDirectory"),
+                @WebInitParam(name="unauthorizedTemplate", value="/agent/GenUnauthorized.template"),
+                @WebInitParam(name="interface",            value="agent"),
+                @WebInitParam(name="AuthMgr",              value="certUserDBAuthMgr")
+        }
+)
 public class UpdateDirectory extends DisplayHtmlServlet {
     private static final long serialVersionUID = 1L;
 }
