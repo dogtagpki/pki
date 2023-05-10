@@ -3,6 +3,7 @@ package com.netscape.cmscore.dbs;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.MissingResourceException;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
@@ -81,7 +82,7 @@ public class DBRegistryTest extends CMSBaseTestCase {
         try {
             registry.getLDAPAttributes(new String[] { "badattr" });
             fail("Should not be able to map badattr");
-        } catch (EBaseException e) { /* good */
+        } catch (EBaseException | MissingResourceException e) { /* good */
         }
     }
 
