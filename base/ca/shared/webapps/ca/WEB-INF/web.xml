@@ -4,25 +4,6 @@
     <display-name>Certificate Authority</display-name>
 
    <servlet>
-      <servlet-name>  caUpdateDirectory  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.UpdateDirectory  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> true        </param-value> </init-param>
-             <init-param><param-name>  htmlPath    </param-name>
-                         <param-value> /agent/ca/UpdateDir.html </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caUpdateDirectory </param-value> </init-param>
-             <init-param><param-name>  unauthorizedTemplate  </param-name>
-                         <param-value> /agent/GenUnauthorized.template </param-value> </init-param>
-             <init-param><param-name>  interface  </param-name>
-                         <param-value> agent      </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> certUserDBAuthMgr </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  caSrchCert  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.base.SearchCert  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -469,11 +450,6 @@
    <servlet-mapping>
       <servlet-name>  caDynamicVariables-admin  </servlet-name>
       <url-pattern>   /admin/dynamicVars.js  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  caUpdateDirectory  </servlet-name>
-      <url-pattern>   /agent/ca/updateDir.html  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>  
