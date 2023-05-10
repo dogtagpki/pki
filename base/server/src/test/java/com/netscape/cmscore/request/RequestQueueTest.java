@@ -1,5 +1,6 @@
 package com.netscape.cmscore.request;
 
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -24,7 +25,7 @@ public class RequestQueueTest extends CMSBaseTestCase {
 
         request = new RequestStub();
 
-        requestRepository = new RequestRepository(secureRandom, dbSubsystem, null);
+        requestRepository = new RequestRepository(null, dbSubsystem, null);
         requestRepository.init(null);
 
         queue = new RequestQueue(
