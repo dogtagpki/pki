@@ -28,6 +28,8 @@ import java.util.Locale;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -72,9 +74,20 @@ import com.netscape.cmscore.request.Request;
  *
  * The template 'displayBySerial.template' is used to
  * render the response for this servlet.
- *
- * @version $Revision$, $Date$
  */
+@WebServlet(
+        name = "caDisplayBySerial",
+        urlPatterns = "/ee/ca/displayBySerial",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="false"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="authority",     value="ca"),
+                @WebInitParam(name="templatePath",  value="/ee/ca/displayBySerial.template"),
+                @WebInitParam(name="ID",            value="caDisplayBySerial"),
+                @WebInitParam(name="resourceID",    value="certServer.ee.certificate"),
+                @WebInitParam(name="interface",     value="ee")
+        }
+)
 public class CADisplayBySerial extends CMSServlet {
 
     public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CADisplayBySerial.class);
