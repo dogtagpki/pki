@@ -19,7 +19,6 @@
 	<classpathentry kind="src" path="base/acme/src/main/java"/>
 	<classpathentry kind="src" path="base/est/src/main/java"/>
 	<classpathentry kind="src" path="base/console/src/main/java"/>
-	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="tests/dogtag/dev_java_tests/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
 		<attributes>
 			<attribute name="module" value="true"/>
