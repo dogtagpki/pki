@@ -17,6 +17,22 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.base;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "caSrchCert",
+        urlPatterns = "/agent/ca/srchCert.html",
+        initParams = {
+                @WebInitParam(name="GetClientCert",        value="true"),
+                @WebInitParam(name="htmlPath",             value="/agent/ca/SrchCert.html"),
+                @WebInitParam(name="authority",            value="ca"),
+                @WebInitParam(name="interface",            value="agent"),
+                @WebInitParam(name="ID",                   value="caSrchCert"),
+                @WebInitParam(name="unauthorizedTemplate", value="/agent/GenUnauthorized.template"),
+                @WebInitParam(name="AuthMgr",              value="certUserDBAuthMgr")
+        }
+)
 public class SearchCert extends DisplayHtmlServlet {
     private static final long serialVersionUID = 1L;
 }
