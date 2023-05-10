@@ -17,6 +17,20 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.base;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "caDynamicVariables",
+        urlPatterns = "/ee/dynamicVars.js",
+        initParams = {
+                @WebInitParam(name="ID",               value="caDynamicVariables"),
+                @WebInitParam(name="GetClientCert",    value="false"),
+                @WebInitParam(name="dynamicVariables", value="serverdate=serverdate(),subsystemname=subsystemname(),http=http(),authmgrs=authmgrs(),clacrlurl=clacrlurl()"),
+                @WebInitParam(name="authority",        value="ca"),
+                @WebInitParam(name="interface",        value="ee")
+        }
+)
 public class CADynamicVariables extends DynamicVariablesServlet {
     private static final long serialVersionUID = 1L;
 }
