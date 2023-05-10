@@ -4,25 +4,6 @@
     <display-name>Certificate Authority</display-name>
 
    <servlet>
-      <servlet-name>  caSrchCert  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.SearchCert  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> true        </param-value> </init-param>
-             <init-param><param-name>  htmlPath    </param-name>
-                         <param-value> /agent/ca/SrchCert.html </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ca          </param-value> </init-param>
-             <init-param><param-name>  interface  </param-name>
-                         <param-value> agent      </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> caSrchCert  </param-value> </init-param>
-             <init-param><param-name>  unauthorizedTemplate  </param-name>
-                         <param-value> /agent/GenUnauthorized.template </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> certUserDBAuthMgr </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  caDisplayBySerial-agent  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.cert.CADisplayBySerialAgent  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -450,11 +431,6 @@
    <servlet-mapping>
       <servlet-name>  caDynamicVariables-admin  </servlet-name>
       <url-pattern>   /admin/dynamicVars.js  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>  
-      <servlet-name>  caSrchCert  </servlet-name>
-      <url-pattern>   /agent/ca/srchCert.html  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>  
