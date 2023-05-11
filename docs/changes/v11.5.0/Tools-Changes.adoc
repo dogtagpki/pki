@@ -3,3 +3,10 @@
 == New pki-server cert-validate CLI ==
 
 The `pki-server cert-validate` command has been added to validate a system certificate.
+
+== New SAN option for pki nss-cert CLIs ==
+
+The `pki nss-cert-request` and `pki nss-cert-issue` commands have been
+modified to provide a `--subjectAltName` option.
+This option will override the `subjectAltName` parameter in the extension
+configuration file.

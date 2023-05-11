@@ -84,6 +84,7 @@ jobs:
           docker exec pki pki nss-cert-request \
               --subject "CN=pki.example.com" \
               --ext /usr/share/pki/server/certs/sslserver.conf \
+              --subjectAltName "critical, DNS:www.example.com, DNS:pki.example.com" \
               --csr sslserver.csr
 
           docker exec pki /usr/share/pki/tests/bin/test-sslserver-csr-ext.sh
@@ -94,6 +95,7 @@ jobs:
               --issuer ca_signing \
               --csr sslserver.csr \
               --ext /usr/share/pki/server/certs/sslserver.conf \
+              --subjectAltName "critical, DNS:www.example.com, DNS:pki.example.com" \
               --cert sslserver.crt
 
           docker exec pki /usr/share/pki/tests/bin/test-sslserver-cert-ext.sh
