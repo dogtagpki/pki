@@ -49,6 +49,10 @@ public class NSSCertIssueCLI extends CommandCLI {
         option.setArgName("path");
         options.addOption(option);
 
+        option = new Option(null, "subjectAltName", true, "Subject alternative name");
+        option.setArgName("value");
+        options.addOption(option);
+
         option = new Option(null, "serial", true, "Serial number (default is 128-bit random number)");
         option.setArgName("number");
         options.addOption(option);
@@ -76,6 +80,7 @@ public class NSSCertIssueCLI extends CommandCLI {
         String issuerNickname = cmd.getOptionValue("issuer");
         String csrFile = cmd.getOptionValue("csr");
         String extConf = cmd.getOptionValue("ext");
+        String subjectAltName = cmd.getOptionValue("subjectAltName");
         String serialNumber = cmd.getOptionValue("serial");
         String monthsValid = cmd.getOptionValue("months-valid", "3");
         String hash = cmd.getOptionValue("hash", "SHA256");
@@ -103,12 +108,18 @@ public class NSSCertIssueCLI extends CommandCLI {
         byte[] csrBytes = CertUtil.parseCSR(csrPEM);
         PKCS10 pkcs10 = new PKCS10(csrBytes);
 
+        NSSExtensionGenerator generator = new NSSExtensionGenerator();
         Extensions extensions = null;
+
         if (extConf != null) {
-            NSSExtensionGenerator generator = new NSSExtensionGenerator();
             generator.init(extConf);
-            extensions = generator.createExtensions(issuer, pkcs10);
         }
+
+        if (subjectAltName != null) {
+            generator.setParameter("subjectAltName", subjectAltName);
+        }
+
+        extensions = generator.createExtensions(issuer, pkcs10);
 
         String tokenName = clientConfig.getTokenName();
 

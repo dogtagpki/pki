@@ -11,9 +11,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.HexFormat;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -455,17 +455,28 @@ public class NSSExtensionGenerator {
 
     public SubjectAlternativeNameExtension createSANExtension(PKCS10 pkcs10) throws Exception {
 
-        if (pkcs10 == null) return null;
-
         String subjectAltName = getParameter("subjectAltName");
         if (subjectAltName == null) return null;
 
+        logger.info("Creating subject alternative name extension:");
+        // currently it only supports DNS names
+        // TODO: support other types of names
+
         List<String> options = Arrays.asList(subjectAltName.split("\\s*,\\s*"));
-        Set<String> dnsNames = new HashSet<>();
+        boolean critical = false;
+
+        // prevent duplicate DNS names while maintaining the original order
+        Set<String> dnsNames = new LinkedHashSet<>();
 
         for (String option : options) {
 
-            if (option.equals("DNS:request_subject_cn")) {
+            if (option.equals("critical")) {
+                logger.info("- critical");
+                critical = true;
+                continue;
+            }
+
+            if (option.equals("DNS:request_subject_cn") && pkcs10 != null) {
                 X500Name subjectName = pkcs10.getSubjectName();
                 logger.info("Getting CN from subject name: " + subjectName);
 
@@ -475,9 +486,11 @@ public class NSSExtensionGenerator {
                     logger.info("- DNS:" + cn);
                     dnsNames.add(cn);
                 }
+
+                continue;
             }
 
-            if (option.equals("DNS:request_san_ext")) {
+            if (option.equals("DNS:request_san_ext") && pkcs10 != null) {
                 logger.info("Getting SAN extension from CSR");
                 SubjectAlternativeNameExtension sanExtension = CertUtil.getSANExtension(pkcs10);
 
@@ -486,21 +499,32 @@ public class NSSExtensionGenerator {
                     Set<String> names = CertUtil.getDNSNames(sanExtension);
 
                     for (String name : names) {
+                        name = name.toLowerCase();
                         logger.info("- DNS:" + name);
                         dnsNames.add(name);
                     }
                 }
+
+                continue;
+            }
+
+            if (option.startsWith("DNS:")) {
+                String name = option.substring(4);
+                name = name.toLowerCase();
+                logger.info("- DNS:" + name);
+                dnsNames.add(name);
+                continue;
             }
         }
 
-        logger.info("Converting DNS names to general names");
+        // convert DNS names to general names
         GeneralNames generalNames = new GeneralNames();
         for (String name : dnsNames) {
             generalNames.add(new DNSName(name));
         }
 
-        logger.info("Creating SAN extension");
-        return new SubjectAlternativeNameExtension(generalNames);
+        // create SAN extension from general names
+        return new SubjectAlternativeNameExtension(critical, generalNames);
     }
 
     public Collection<Extension> createGenericExtensions() throws Exception {

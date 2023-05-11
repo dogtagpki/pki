@@ -37,7 +37,7 @@ sed -En 'N; s/^ *(X509v3 Extended Key Usage: .*)\n *(.*)$/\1\n\2/p; D' output | 
 diff actual expected
 
 # verfiy SAN extension
-echo "X509v3 Subject Alternative Name: " > expected
-echo "DNS:pki.example.com" >> expected
+echo "X509v3 Subject Alternative Name: critical" > expected
+echo "DNS:www.example.com, DNS:pki.example.com" >> expected
 sed -En 'N; s/^ *(X509v3 Subject Alternative Name: .*)\n *(.*)$/\1\n\2/p; D' output | tee actual
 diff actual expected

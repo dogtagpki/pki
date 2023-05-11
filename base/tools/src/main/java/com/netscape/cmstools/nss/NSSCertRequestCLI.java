@@ -74,6 +74,10 @@ public class NSSCertRequestCLI extends CommandCLI {
         option.setArgName("path");
         options.addOption(option);
 
+        option = new Option(null, "subjectAltName", true, "Subject alternative name");
+        option.setArgName("value");
+        options.addOption(option);
+
         option = new Option(null, "csr", true, "Certificate signing request");
         option.setArgName("path");
         options.addOption(option);
@@ -99,6 +103,7 @@ public class NSSCertRequestCLI extends CommandCLI {
         boolean sslECDH = cmd.hasOption("ssl-ecdh");
         String hash = cmd.getOptionValue("hash", "SHA256");
         String extConf = cmd.getOptionValue("ext");
+        String subjectAltName = cmd.getOptionValue("subjectAltName");
 
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
@@ -144,14 +149,19 @@ public class NSSCertRequestCLI extends CommandCLI {
             throw new Exception("Unsupported key type: " + keyType);
         }
 
+        NSSExtensionGenerator generator = new NSSExtensionGenerator();
         Extensions extensions = null;
-        if (extConf != null) {
-            NSSExtensionGenerator generator = new NSSExtensionGenerator();
-            generator.init(extConf);
 
-            X509Key subjectKey = CryptoUtil.createX509Key(keyPair.getPublic());
-            extensions = generator.createExtensions(subjectKey);
+        if (extConf != null) {
+            generator.init(extConf);
         }
+
+        if (subjectAltName != null) {
+            generator.setParameter("subjectAltName", subjectAltName);
+        }
+
+        X509Key subjectKey = CryptoUtil.createX509Key(keyPair.getPublic());
+        extensions = generator.createExtensions(subjectKey);
 
         PK11PrivKey privateKey = (PK11PrivKey) keyPair.getPrivate();
         String keyAlgorithm = hash + "with" + privateKey.getType();
