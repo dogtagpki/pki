@@ -70,11 +70,6 @@ public abstract class Profile {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Profile.class);
 
-    public static final String PROP_ENABLE = "enable";
-    public static final String PROP_ENABLE_BY = "enableBy";
-    public static final String PROP_IS_RENEWAL = "renewal";
-    public static final String PROP_XML_OUTPUT = "xmlOutput";
-    public static final String PROP_VISIBLE = "visible";
     public static final String PROP_INPUT_LIST = "list";
     public static final String PROP_OUTPUT_LIST = "list";
     public static final String PROP_UPDATER_LIST = "list";
@@ -84,10 +79,7 @@ public abstract class Profile {
     public static final String PROP_INPUT = "input";
     public static final String PROP_OUTPUT = "output";
     public static final String PROP_CLASS_ID = "class_id";
-    public static final String PROP_INSTANCE_ID = "instance_id";
     public static final String PROP_PARAMS = "params";
-    public static final String PROP_NAME = "name";
-    public static final String PROP_DESC = "desc";
     public static final String PROP_NO_DEFAULT = "noDefaultImpl";
     public static final String PROP_NO_CONSTRAINT = "noConstraintImpl";
     public static final String PROP_GENERIC_EXT_DEFAULT = "genericExtDefaultImpl";
@@ -114,7 +106,7 @@ public abstract class Profile {
 
     public boolean isEnable() {
         try {
-            return mConfig.getBoolean(PROP_ENABLE, false);
+            return mConfig.getEnable();
         } catch (EBaseException e) {
             return false;
         }
@@ -125,14 +117,14 @@ public abstract class Profile {
      */
     public String isRenewal() {
         try {
-            return mConfig.getString(PROP_IS_RENEWAL, "false");
+            return mConfig.getRenewal();
         } catch (EBaseException e) {
             return "false";
         }
     }
 
     public void setRenewal(boolean renewal) {
-        mConfig.putBoolean(PROP_IS_RENEWAL, renewal);
+        mConfig.setRenewal(renewal);
     }
 
     /**
@@ -140,14 +132,14 @@ public abstract class Profile {
      */
     public String isXmlOutput() {
         try {
-            return mConfig.getString(PROP_XML_OUTPUT, "false");
+            return mConfig.getXmlOutput();
         } catch (EBaseException e) {
             return "false";
         }
     }
 
     public void setXMLOutput(boolean xmlOutput) {
-        mConfig.putBoolean(PROP_XML_OUTPUT, xmlOutput);
+        mConfig.setXMLOutput(xmlOutput);
     }
 
     /**
@@ -158,7 +150,7 @@ public abstract class Profile {
      */
     public String getApprovedBy() {
         try {
-            return mConfig.getString(PROP_ENABLE_BY, "");
+            return mConfig.getEnableBy();
         } catch (EBaseException e) {
             return "";
         }
@@ -210,12 +202,12 @@ public abstract class Profile {
      */
     public void setAuthenticatorId(String id) {
         mAuthInstanceId = id;
-        mConfig.putString("auth." + PROP_INSTANCE_ID, id);
+        mConfig.setAuthenticatorID(id);
     }
 
     public void setAuthzAcl(String id) {
         mAuthzAcl = id;
-        mConfig.putString("authz.acl", id);
+        mConfig.setAuthzAcl(id);
     }
 
     public String getAuthzAcl() {
@@ -260,8 +252,8 @@ public abstract class Profile {
 
         // handle profile authentication plugins
         try {
-            mAuthInstanceId = profileConfig.getString("auth." + PROP_INSTANCE_ID, null);
-            mAuthzAcl = profileConfig.getString("authz.acl", "");
+            mAuthInstanceId = profileConfig.getAuthenticatorID();
+            mAuthzAcl = profileConfig.getAuthzAcl();
         } catch (EBaseException e) {
             logger.warn("Profile: authentication class not found " + e.getMessage(), e);
         }
@@ -1141,7 +1133,7 @@ public abstract class Profile {
      */
     public boolean isVisible() {
         try {
-            return mConfig.getBoolean(PROP_VISIBLE, false);
+            return mConfig.getVisible();
         } catch (EBaseException e) {
             return false;
         }
@@ -1152,8 +1144,8 @@ public abstract class Profile {
      *
      * @param v end-user profile or not
      */
-    public void setVisible(boolean v) {
-        mConfig.putBoolean(PROP_VISIBLE, v);
+    public void setVisible(boolean visible) {
+        mConfig.setVisible(visible);
     }
 
     /**
@@ -1164,7 +1156,7 @@ public abstract class Profile {
      */
     public String getName(Locale locale) {
         try {
-            return mConfig.getString(PROP_NAME, "");
+            return mConfig.getProfileName();
         } catch (EBaseException e) {
             return "";
         }
@@ -1177,7 +1169,7 @@ public abstract class Profile {
      * @param name profile name
      */
     public void setName(Locale locale, String name) {
-        mConfig.putString(PROP_NAME, name);
+        mConfig.setProfileName(name);
     }
 
     /**
@@ -1200,7 +1192,7 @@ public abstract class Profile {
      */
     public String getDescription(Locale locale) {
         try {
-            return mConfig.getString(PROP_DESC, "");
+            return mConfig.getDescription();
         } catch (EBaseException e) {
             return "";
         }
@@ -1213,7 +1205,7 @@ public abstract class Profile {
      * @param desc profile description
      */
     public void setDescription(Locale locale, String desc) {
-        mConfig.putString(PROP_DESC, desc);
+        mConfig.setDescription(desc);
     }
 
     /**
