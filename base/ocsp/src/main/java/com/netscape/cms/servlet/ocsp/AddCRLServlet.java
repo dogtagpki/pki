@@ -30,6 +30,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ocsp.OCSPEngine;
@@ -70,10 +71,6 @@ public class AddCRLServlet extends CMSServlet {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AddCRLServlet.class);
 
     private static final long serialVersionUID = 1476080474638590902L;
-    public static final String BEGIN_HEADER =
-            "-----BEGIN CERTIFICATE REVOCATION LIST-----";
-    public static final String END_HEADER =
-            "-----END CERTIFICATE REVOCATION LIST-----";
 
     private final static String TPL_FILE = "addCRL.template";
     private String mFormPath = null;
@@ -238,7 +235,7 @@ public class AddCRLServlet extends CMSServlet {
             ArgBlock fixed = new ArgBlock();
             CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
-            if (b64.indexOf(BEGIN_HEADER) == -1) {
+            if (b64.indexOf(CertUtil.CRL_HEADER) == -1) {
                 logger.error(CMS.getLogMessage("CMSGW_MISSING_CRL_HEADER"));
 
                 // store a message in the signed audit log file
@@ -253,7 +250,7 @@ public class AddCRLServlet extends CMSServlet {
                 throw new ECMSGWException(CMS.getUserMessage(getLocale(req),
                                           "CMS_GW_MISSING_CRL_HEADER"));
             }
-            if (b64.indexOf(END_HEADER) == -1) {
+            if (b64.indexOf(CertUtil.CRL_FOOTER) == -1) {
                 logger.error(CMS.getLogMessage("CMSGW_MISSING_CRL_FOOTER"));
 
                 // store a message in the signed audit log file

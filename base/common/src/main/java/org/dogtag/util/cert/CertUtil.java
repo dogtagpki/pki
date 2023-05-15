@@ -61,7 +61,16 @@ public class CertUtil {
 
     public final static Logger logger = LoggerFactory.getLogger(CertUtil.class);
 
-    static final int LINE_COUNT = 76;
+    public static final String CERT_NEW_REQUEST_HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----";
+    public static final String CERT_NEW_REQUEST_FOOTER = "-----END NEW CERTIFICATE REQUEST-----";
+
+    public static final String CERT_RENEWAL_HEADER = "-----BEGIN RENEWAL CERTIFICATE REQUEST-----";
+    public static final String CERT_RENEWAL_FOOTER = "-----END RENEWAL CERTIFICATE REQUEST-----";
+
+    public static final String CRL_HEADER = "-----BEGIN CERTIFICATE REVOCATION LIST-----";
+    public static final String CRL_FOOTER = "-----END CERTIFICATE REVOCATION LIST-----";
+
+    public static final int LINE_COUNT = 76;
 
     public static byte[] parseCSR(String csr) {
 
@@ -70,9 +79,9 @@ public class CertUtil {
         }
 
         csr = csr.replaceAll(Cert.REQUEST_HEADER, "");
-        csr = csr.replaceAll("-----BEGIN NEW CERTIFICATE REQUEST-----", "");
+        csr = csr.replaceAll(CERT_NEW_REQUEST_HEADER, "");
         csr = csr.replaceAll(Cert.REQUEST_FOOTER, "");
-        csr = csr.replaceAll("-----END NEW CERTIFICATE REQUEST-----", "");
+        csr = csr.replaceAll(CERT_NEW_REQUEST_FOOTER, "");
 
         StringBuffer sb = new StringBuffer();
         StringTokenizer st = new StringTokenizer(csr, "\r\n ");
@@ -83,11 +92,11 @@ public class CertUtil {
             nextLine = nextLine.trim();
             if (nextLine.equals(Cert.REQUEST_HEADER))
                 continue;
-            if (nextLine.equals("-----BEGIN NEW CERTIFICATE REQUEST-----"))
+            if (nextLine.equals(CERT_NEW_REQUEST_HEADER))
                 continue;
             if (nextLine.equals(Cert.REQUEST_FOOTER))
                 continue;
-            if (nextLine.equals("-----END NEW CERTIFICATE REQUEST-----"))
+            if (nextLine.equals(CERT_NEW_REQUEST_FOOTER))
                 continue;
             sb.append(nextLine);
         }

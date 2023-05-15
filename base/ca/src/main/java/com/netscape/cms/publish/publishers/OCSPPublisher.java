@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
 import org.mozilla.jss.netscape.security.util.Utils;
@@ -249,9 +250,9 @@ public class OCSPPublisher
 
             StringBuffer query = new StringBuffer();
             query.append("crl=");
-            query.append(URLEncoder.encode("-----BEGIN CERTIFICATE REVOCATION LIST-----\n", "UTF-8"));
+            query.append(URLEncoder.encode(CertUtil.CRL_HEADER + "\n", "UTF-8"));
             query.append(URLEncoder.encode(Utils.base64encode(crl.getEncoded(), true), "UTF-8"));
-            query.append(URLEncoder.encode("\n-----END CERTIFICATE REVOCATION LIST-----", "UTF-8"));
+            query.append(URLEncoder.encode("\n" + CertUtil.CRL_FOOTER, "UTF-8"));
             query.append("&noui=true");
 
             Socket socket = null;

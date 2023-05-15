@@ -38,6 +38,7 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Vector;
 
+import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
@@ -143,8 +144,6 @@ public class CMCUserSignedAuth extends AuthManager implements IExtendedPluginInf
     // IAuthManager parameters //
     /////////////////////////////
 
-    private static final String HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----";
-    private static final String TRAILER = "-----END NEW CERTIFICATE REQUEST-----";
     public static final String TOKEN_CERT_SERIAL = "certSerialToRevoke";
     public static final String REASON_CODE = "reasonCode";
 
@@ -318,10 +317,10 @@ public class CMCUserSignedAuth extends AuthManager implements IExtendedPluginInf
             try {
                 String asciiBASE64Blob;
 
-                int startIndex = cmc.indexOf(HEADER);
-                int endIndex = cmc.indexOf(TRAILER);
+                int startIndex = cmc.indexOf(CertUtil.CERT_NEW_REQUEST_HEADER);
+                int endIndex = cmc.indexOf(CertUtil.CERT_NEW_REQUEST_FOOTER);
                 if (startIndex != -1 && endIndex != -1) {
-                    startIndex = startIndex + HEADER.length();
+                    startIndex = startIndex + CertUtil.CERT_NEW_REQUEST_HEADER.length();
                     asciiBASE64Blob = cmc.substring(startIndex, endIndex);
                 } else
                     asciiBASE64Blob = cmc;

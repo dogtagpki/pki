@@ -73,15 +73,6 @@ public class CertUtils {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertUtils.class);
 
-    public static final String CERT_NEW_REQUEST_HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----";
-    public static final String CERT_NEW_REQUEST_TRAILER = "-----END NEW CERTIFICATE REQUEST-----";
-    public static final String CERT_RENEWAL_HEADER = "-----BEGIN RENEWAL CERTIFICATE REQUEST-----";
-    public static final String CERT_RENEWAL_TRAILER = "-----END RENEWAL CERTIFICATE REQUEST-----";
-    public static final String BEGIN_CRL_HEADER =
-            "-----BEGIN CERTIFICATE REVOCATION LIST-----";
-    public static final String END_CRL_HEADER =
-            "-----END CERTIFICATE REVOCATION LIST-----";
-
     public static DerInputStream parseKeyGen(String certreq) throws Exception {
         byte[] data = Utils.base64decode(certreq);
         return new DerInputStream(data);
@@ -99,11 +90,11 @@ public class CertUtils {
 
         // check for "-----BEGIN NEW CERTIFICATE REQUEST-----";
         if (header == null) {
-            head = request.indexOf(CERT_NEW_REQUEST_HEADER);
-            trail = request.indexOf(CERT_NEW_REQUEST_TRAILER);
+            head = request.indexOf(CertUtil.CERT_NEW_REQUEST_HEADER);
+            trail = request.indexOf(CertUtil.CERT_NEW_REQUEST_FOOTER);
 
             if (!(head == -1 && trail == -1)) {
-                header = CERT_NEW_REQUEST_HEADER;
+                header = CertUtil.CERT_NEW_REQUEST_HEADER;
             }
         }
 
@@ -121,10 +112,10 @@ public class CertUtils {
 
         // check for "-----BEGIN RENEWAL CERTIFICATE REQUEST-----";
         if (header == null) {
-            head = request.indexOf(CERT_RENEWAL_HEADER);
-            trail = request.indexOf(CERT_RENEWAL_TRAILER);
+            head = request.indexOf(CertUtil.CERT_RENEWAL_HEADER);
+            trail = request.indexOf(CertUtil.CERT_RENEWAL_FOOTER);
             if (!(head == -1 && trail == -1)) {
-                header = CERT_RENEWAL_HEADER;
+                header = CertUtil.CERT_RENEWAL_HEADER;
             }
         }
 
@@ -641,8 +632,7 @@ public class CertUtils {
         if (s == null) {
             return s;
         }
-        if ((s.startsWith("-----BEGIN CERTIFICATE REVOCATION LIST-----")) &&
-                (s.endsWith("-----END CERTIFICATE REVOCATION LIST-----"))) {
+        if (s.startsWith(CertUtil.CRL_HEADER) && s.endsWith(CertUtil.CRL_FOOTER)) {
             return (s.substring(43, (s.length() - 41)));
         }
         return s;
@@ -660,8 +650,7 @@ public class CertUtils {
             return s;
         }
 
-        if ((s.startsWith(Cert.HEADER)) &&
-                (s.endsWith(Cert.FOOTER))) {
+        if (s.startsWith(Cert.HEADER) && s.endsWith(Cert.FOOTER)) {
             return (s.substring(27, (s.length() - 25)));
         }
 

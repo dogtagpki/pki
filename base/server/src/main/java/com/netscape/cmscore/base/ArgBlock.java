@@ -26,6 +26,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 
+import org.dogtag.util.cert.CertUtil;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
@@ -52,10 +53,6 @@ public class ArgBlock {
     /*==========================================================
      * variables
      *==========================================================*/
-    public static final String CERT_NEW_REQUEST_HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----";
-    public static final String CERT_NEW_REQUEST_TRAILER = "-----END NEW CERTIFICATE REQUEST-----";
-    public static final String CERT_RENEWAL_HEADER = "-----BEGIN RENEWAL CERTIFICATE REQUEST-----";
-    public static final String CERT_RENEWAL_TRAILER = "-----END RENEWAL CERTIFICATE REQUEST-----";
 
     private Hashtable<String, Object> mArgs = new Hashtable<>();
 
@@ -594,11 +591,11 @@ public class ArgBlock {
         int trail = -1;
 
         // check for "-----BEGIN NEW CERTIFICATE REQUEST-----";
-        head = request.indexOf(CERT_NEW_REQUEST_HEADER);
-        trail = request.indexOf(CERT_NEW_REQUEST_TRAILER);
+        head = request.indexOf(CertUtil.CERT_NEW_REQUEST_HEADER);
+        trail = request.indexOf(CertUtil.CERT_NEW_REQUEST_FOOTER);
 
         if (!(head == -1 && trail == -1)) {
-            header = CERT_NEW_REQUEST_HEADER;
+            header = CertUtil.CERT_NEW_REQUEST_HEADER;
         }
 
         // check for "-----BEGIN CERTIFICATE REQUEST-----";
@@ -616,10 +613,10 @@ public class ArgBlock {
 
         // check for "-----BEGIN RENEWAL CERTIFICATE REQUEST-----";
         if (header == null) {
-            head = request.indexOf(CERT_RENEWAL_HEADER);
-            trail = request.indexOf(CERT_RENEWAL_TRAILER);
+            head = request.indexOf(CertUtil.CERT_RENEWAL_HEADER);
+            trail = request.indexOf(CertUtil.CERT_RENEWAL_FOOTER);
             if (!(head == -1 && trail == -1)) {
-                header = CERT_RENEWAL_HEADER;
+                header = CertUtil.CERT_RENEWAL_HEADER;
             }
         }
 

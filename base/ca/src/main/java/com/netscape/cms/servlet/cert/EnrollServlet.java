@@ -171,8 +171,6 @@ public class EnrollServlet extends CAServlet {
             + "indeterminate reason for inability to process "
             + "cert request due to an EBaseException"
         };
-    private static final String HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----";
-    private static final String TRAILER = "-----END NEW CERTIFICATE REQUEST-----";
 
     public EnrollServlet() {
         super();
@@ -1026,10 +1024,10 @@ public class EnrollServlet extends CAServlet {
             String asciiBASE64Blob = httpParams.getValueAsString(CMC_REQUEST, null);
 
             if (asciiBASE64Blob != null) {
-                int startIndex = asciiBASE64Blob.indexOf(HEADER);
-                int endIndex = asciiBASE64Blob.indexOf(TRAILER);
+                int startIndex = asciiBASE64Blob.indexOf(CertUtil.CERT_NEW_REQUEST_HEADER);
+                int endIndex = asciiBASE64Blob.indexOf(CertUtil.CERT_NEW_REQUEST_FOOTER);
                 if (startIndex != -1 && endIndex != -1) {
-                    startIndex = startIndex + HEADER.length();
+                    startIndex = startIndex + CertUtil.CERT_NEW_REQUEST_HEADER.length();
                     cmc = asciiBASE64Blob.substring(startIndex, endIndex);
                 } else
                     cmc = asciiBASE64Blob;

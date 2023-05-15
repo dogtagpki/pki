@@ -26,6 +26,8 @@ import javax.swing.JLabel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextArea;
 
+import org.dogtag.util.cert.CertUtil;
+
 import com.netscape.admin.certsrv.CMSAdminUtil;
 import com.netscape.admin.certsrv.wizard.IWizardPanel;
 import com.netscape.admin.certsrv.wizard.WizardBasePanel;
@@ -48,10 +50,6 @@ import com.netscape.certsrv.common.TaskId;
 class WIGenKeyCertReqPage extends WizardBasePanel implements IWizardPanel {
     private JTextArea desc;
     private String mPanelName;
-    private static final String CERTREQ_BEGIN_HEADING =
-      "-----BEGIN NEW CERTIFICATE REQUEST-----";
-    private static final String CERTREQ_END_HEADING =
-      "-----END NEW CERTIFICATE REQUEST-----";
     private static final int LINE_COUNT = 76;
     protected String mHelpIndex;
     protected String mTokenName;
@@ -227,20 +225,20 @@ class WIGenKeyCertReqPage extends WizardBasePanel implements IWizardPanel {
     }
 
     private String reformat(String pkcs) {
-        int beginIndex = CERTREQ_BEGIN_HEADING.length();
-        int endIndex = CERTREQ_END_HEADING.length();
+        int beginIndex = CertUtil.CERT_NEW_REQUEST_HEADER.length();
+        int endIndex = CertUtil.CERT_NEW_REQUEST_FOOTER.length();
         int totalLen = pkcs.length();
         String content = pkcs.substring(beginIndex, totalLen-endIndex);
-        String result = CERTREQ_BEGIN_HEADING+"\n";
+        String result = CertUtil.CERT_NEW_REQUEST_HEADER + "\n";
         int index = 0;
         while (content.length() >= LINE_COUNT) {
             result = result+content.substring(0, LINE_COUNT)+"\n";
             content = content.substring(LINE_COUNT);
         }
         if (content.length() > 0) {
-            result = result+content+"\n"+CERTREQ_END_HEADING;
+            result = result + content + "\n" + CertUtil.CERT_NEW_REQUEST_FOOTER;
         } else {
-            result = result+CERTREQ_END_HEADING;
+            result = result + CertUtil.CERT_NEW_REQUEST_FOOTER;
         }
 
         return result;

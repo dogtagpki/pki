@@ -32,6 +32,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import org.dogtag.util.cert.CertUtil;
+
 import com.netscape.admin.certsrv.CMSAdminUtil;
 import com.netscape.admin.certsrv.config.install.InstallWizardInfo;
 import com.netscape.admin.certsrv.task.CMSConfigCert;
@@ -124,13 +126,11 @@ public class WBaseManualCertRequestPage extends WizardBasePanel {
 
 			// Break the long single line:header,64 byte lines,trailer
 			// Assuming this is the only format we generate.
-			String CERT_NEW_REQUEST_HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----";
-			String CERT_NEW_REQUEST_TRAILER = "-----END NEW CERTIFICATE REQUEST-----";
-			int head = mReq.indexOf(CERT_NEW_REQUEST_HEADER);
-			int trail = mReq.indexOf(CERT_NEW_REQUEST_TRAILER);
+			int head = mReq.indexOf(CertUtil.CERT_NEW_REQUEST_HEADER);
+			int trail = mReq.indexOf(CertUtil.CERT_NEW_REQUEST_FOOTER);
         	String unwrapped =
-				mReq.substring(head+CERT_NEW_REQUEST_HEADER.length(),trail);
-			String str = CERT_NEW_REQUEST_HEADER + "\n";
+				mReq.substring(head + CertUtil.CERT_NEW_REQUEST_HEADER.length(), trail);
+			String str = CertUtil.CERT_NEW_REQUEST_HEADER + "\n";
 			int len = unwrapped.length();
 			for (int i = 0; i < len; i=i+64){
 				if (i+64 < len)

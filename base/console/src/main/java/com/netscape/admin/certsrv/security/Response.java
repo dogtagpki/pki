@@ -33,6 +33,7 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 import com.netscape.management.client.util.Debug;
+import org.dogtag.util.cert.CertUtil;
 
 //this class need some optimization....
 
@@ -49,8 +50,6 @@ class Response {
     CertInfo _certInfo = null;
     Hashtable<String, String> _certInstInfo = null;
 
-    String startCert = "-----BEGIN NEW CERTIFICATE REQUEST-----";
-    String endCert = "-----END NEW CERTIFICATE REQUEST-----";
     String startCertList = "-----BEGIN CERT LIST-----";
     String endCertList = "-----END CERT LIST-----";
     String startCertInfo = "-----BEGIN CERTIFICATE INFO-----";
@@ -68,9 +67,9 @@ class Response {
     boolean _fsecurityDomestic = false, _fsecurityFortezza = false;
 
     void parseCertificate(String response) {
-        if (response.indexOf(startCert) != -1) {
-            _cert = response.substring(response.indexOf(startCert),
-                    response.indexOf(endCert) + endCert.length());
+        if (response.indexOf(CertUtil.CERT_NEW_REQUEST_HEADER) != -1) {
+            _cert = response.substring(response.indexOf(CertUtil.CERT_NEW_REQUEST_HEADER),
+                    response.indexOf(CertUtil.CERT_NEW_REQUEST_FOOTER) + CertUtil.CERT_NEW_REQUEST_FOOTER.length());
             _fCert = true;
         }
     }
