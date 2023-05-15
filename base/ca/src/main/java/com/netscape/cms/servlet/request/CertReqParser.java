@@ -32,6 +32,7 @@ import java.util.Vector;
 
 import org.dogtagpki.server.authentication.AuthToken;
 import org.mozilla.jss.netscape.security.extensions.NSCertTypeExtension;
+import org.mozilla.jss.netscape.security.util.PrettyPrintFormat;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
@@ -52,7 +53,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IPrettyPrintFormat;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
@@ -60,7 +60,6 @@ import com.netscape.cms.servlet.common.RawJS;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.cert.ExtPrettyPrint;
-import com.netscape.cmscore.cert.PrettyPrintFormat;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -76,7 +75,7 @@ public class CertReqParser extends ReqParser {
     public static final CertReqParser NODETAIL_PARSER = new CertReqParser(false);
 
     private boolean mDetails = true;
-    private IPrettyPrintFormat pp = null;
+    private PrettyPrintFormat pp;
 
     /**
      * Constructs a certificate request parser.

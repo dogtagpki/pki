@@ -19,10 +19,11 @@ package com.netscape.cms.servlet.key;
 
 import java.util.Date;
 
+import org.mozilla.jss.netscape.security.util.PrettyPrintFormat;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.cmscore.base.ArgBlock;
-import com.netscape.cmscore.cert.PrettyPrintFormat;
 import com.netscape.cmscore.dbs.KeyRecord;
 
 /**

@@ -39,6 +39,7 @@ import org.mozilla.jss.netscape.security.util.DerInputStream;
 import org.mozilla.jss.netscape.security.util.DerOutputStream;
 import org.mozilla.jss.netscape.security.util.DerValue;
 import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.util.PrettyPrintFormat;
 import org.mozilla.jss.netscape.security.x509.CIDRNetmask;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.DNSName;
@@ -69,7 +70,6 @@ import com.netscape.certsrv.security.SigningUnitConfig;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
-import com.netscape.cmscore.cert.PrettyPrintFormat;
 import com.netscape.cmscore.request.Request;
 
 /**
