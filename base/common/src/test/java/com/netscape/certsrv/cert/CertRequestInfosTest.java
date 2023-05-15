@@ -1,9 +1,9 @@
 package com.netscape.certsrv.cert;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
@@ -14,8 +14,8 @@ public class CertRequestInfosTest {
     private static CertRequestInfo request = new CertRequestInfo();
     private static CertRequestInfos before = new CertRequestInfos();
 
-    @Before
-    public void setUpBefore() {
+    @BeforeAll
+    public static void setUpBefore() {
         request.setRequestID(new RequestId("0x1"));
         request.setRequestType("enrollment");
         request.setRequestStatus(RequestStatus.COMPLETE);

@@ -230,6 +230,55 @@ find_file(JUNIT_JAR
         /usr/share/java
 )
 
+find_file(JUNIT_JUPITER_API_JAR
+    NAMES
+        junit-jupiter-api.jar
+    PATHS
+        /usr/share/java/junit5
+)
+
+find_file(JUNIT_JUPITER_ENGINE_JAR
+    NAMES
+        junit-jupiter-engine.jar
+    PATHS
+        /usr/share/java/junit5
+)
+
+find_file(JUNIT_PLATFORM_COMMONS_JAR
+    NAMES
+        junit-platform-commons.jar
+    PATHS
+        /usr/share/java/junit5
+)
+
+find_file(JUNIT_PLATFORM_ENGINE_JAR
+    NAMES
+        junit-platform-engine.jar
+    PATHS
+        /usr/share/java/junit5
+)
+
+find_file(JUNIT_PLATFORM_LAUNCHER_JAR
+    NAMES
+        junit-platform-launcher.jar
+    PATHS
+        /usr/share/java/junit5
+)
+
+find_file(JUNIT_PLATFORM_SUITE_JAR
+    NAMES
+        junit-platform-suite-api.jar
+    PATHS
+        /usr/share/java/junit5
+)
+
+find_file(OPENTEST4J_JAR
+    NAMES
+        opentest4j.jar
+    PATHS
+        /usr/share/java/opentest4j
+)
+
 find_file(LDAPJDK_JAR
     NAMES
         ldapjdk.jar

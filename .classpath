@@ -61,5 +61,14 @@
 	<classpathentry kind="lib" path="/usr/share/java/apache-commons-net.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/hamcrest/hamcrest.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/jakarta-annotations/jakarta.annotation-api.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/junit5/junit-jupiter.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/junit5/junit-jupiter-api.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/junit5/junit-platform-commons.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/junit5/junit-platform-engine.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/opentest4j/opentest4j.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/junit5/junit-platform-launcher.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/junit5/junit-platform-suite-api.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/junit5/junit-platform-suite-commons.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/junit5/junit-jupiter-engine.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

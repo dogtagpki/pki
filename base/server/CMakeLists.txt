@@ -67,20 +67,11 @@ if(RUN_TESTS)
             ${HAMCREST_JAR} ${JUNIT_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_IO_JAR}
             ${JACKSON2_ANNOTATIONS_JAR} ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
             ${CMAKE_BINARY_DIR}/test/classes
+            ${JUNIT_JUPITER_API_JAR} ${JUNIT_PLATFORM_LAUNCHER_JAR} ${JUNIT_PLATFORM_SUITE_JAR}
+            ${JUNIT_PLATFORM_ENGINE_JAR} ${JUNIT_PLATFORM_COMMONS_JAR} ${JUNIT_JUPITER_ENGINE_JAR}
+            ${OPENTEST4J_JAR}
         OUTPUT_DIR
             ${CMAKE_BINARY_DIR}/test/classes
-    )
-
-    # create test target
-    execute_process(
-        COMMAND bash "-c"
-        "grep -ilR @Test ${PROJECT_SOURCE_DIR} \
-        | cut -d':' -f1 \
-        | awk -F '/src/test/java/' '{ print $2 }' \
-        | sed 's/.java/;/g' \
-        | sed 's!/!.!g' \
-        | tr -d '\n'"
-        OUTPUT_VARIABLE DISCOVERED_TESTS
     )
 
     add_junit_test(test-pki-server
@@ -95,8 +86,9 @@ if(RUN_TESTS)
             ${JACKSON2_ANNOTATIONS_JAR} ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
             ${HAMCREST_JAR} ${JUNIT_JAR} ${COMMONS_IO_JAR}
             ${CMAKE_BINARY_DIR}/test/classes
-        TESTS
-            ${DISCOVERED_TESTS}
+            ${JUNIT_JUPITER_API_JAR} ${JUNIT_PLATFORM_LAUNCHER_JAR} ${JUNIT_PLATFORM_SUITE_JAR}
+            ${JUNIT_PLATFORM_ENGINE_JAR} ${JUNIT_PLATFORM_COMMONS_JAR} ${JUNIT_JUPITER_ENGINE_JAR}
+            ${OPENTEST4J_JAR}
         REPORTS_DIR
             reports
     )

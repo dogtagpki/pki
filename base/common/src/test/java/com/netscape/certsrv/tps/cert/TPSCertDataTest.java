@@ -1,11 +1,11 @@
 package com.netscape.certsrv.tps.cert;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Date;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.netscape.certsrv.util.JSONSerializer;
 
@@ -13,8 +13,8 @@ public class TPSCertDataTest {
 
     private static TPSCertData before = new TPSCertData();
 
-    @Before
-    public void setUpBefore() {
+    @BeforeAll
+    public static void setUpBefore() {
         before.setID("cert1");
         before.setSerialNumber("16");
         before.setSubject("cn=someone");

@@ -1,11 +1,11 @@
 package com.netscape.certsrv.cert;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Date;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.mozilla.jss.netscape.security.x509.RevocationReason;
 
 import com.netscape.certsrv.util.JSONSerializer;
@@ -14,8 +14,8 @@ public class CertRevokeRequestTest {
 
     private static CertRevokeRequest before = new CertRevokeRequest();
 
-    @Before
-    public void setUpBefore() {
+    @BeforeAll
+    public static void setUpBefore() {
         before.setReason(RevocationReason.CERTIFICATE_HOLD.getLabel());
         before.setInvalidityDate(new Date());
         before.setComments("test");

@@ -1,11 +1,11 @@
 package com.netscape.certsrv.authority;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.math.BigInteger;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.netscape.certsrv.util.JSONSerializer;
 
@@ -13,8 +13,8 @@ public class AuthorityDataTest {
 
     private static AuthorityData before = new AuthorityData();
 
-    @Before
-    public void setUpBefore() {
+    @BeforeAll
+    public static void setUpBefore() {
         before.setDescription("Test AuthorityData");
         before.setDn("dn");
         before.setEnabled(true);

@@ -1,11 +1,11 @@
 package com.netscape.certsrv.tps.token;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Date;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.netscape.certsrv.tps.token.TokenData.TokenStatusData;
 import com.netscape.certsrv.util.JSONSerializer;
@@ -15,8 +15,8 @@ public class TokenDataTest {
     private static TokenData before = new TokenData();
     private static TokenStatusData statusData = new TokenStatusData();
 
-    @Before
-    public void setUpBefore() {
+    @BeforeAll
+    public static void setUpBefore() {
         before.setID("token1");
         before.setUserID("user1");
         before.setType("userKey");

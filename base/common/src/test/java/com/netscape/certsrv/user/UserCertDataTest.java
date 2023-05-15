@@ -5,12 +5,12 @@
 //
 package com.netscape.certsrv.user;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mozilla.jss.netscape.security.util.Cert;
 
 import com.netscape.certsrv.dbs.certdb.CertId;

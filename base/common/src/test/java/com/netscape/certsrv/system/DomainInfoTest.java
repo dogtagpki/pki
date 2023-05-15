@@ -1,9 +1,9 @@
 package com.netscape.certsrv.system;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.netscape.certsrv.util.JSONSerializer;
 
@@ -12,7 +12,7 @@ public class DomainInfoTest {
     private static DomainInfo before = new DomainInfo();
     private static SecurityDomainHost host = new SecurityDomainHost();
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpBefore() {
         before.setName("EXAMPLE");
 

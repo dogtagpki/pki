@@ -1,11 +1,11 @@
 package com.netscape.certsrv.system;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.net.MalformedURLException;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.netscape.certsrv.util.JSONSerializer;
 
@@ -13,8 +13,8 @@ public class CertificateSetupRequestTest {
 
     private static CertificateSetupRequest before = new CertificateSetupRequest();
 
-    @Before
-    public void setUpBefore() throws MalformedURLException {
+    @BeforeAll
+    public static void setUpBefore() throws MalformedURLException {
         before.setPin("bar");
         before.setSystemCert(new SystemCertData());
         before.setTag("lorem");

@@ -1,19 +1,18 @@
 package com.netscape.certsrv.key;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.netscape.certsrv.util.JSONSerializer;
-
 
 public class KeyArchivalRequestTest {
 
     private static KeyArchivalRequest before = new KeyArchivalRequest();
 
-    @Before
-    public void setUpBefore() {
+    @BeforeAll
+    public static void setUpBefore() {
         before.setClientKeyId("vek 12345");
         before.setDataType(KeyRequestResource.SYMMETRIC_KEY_TYPE);
         before.setWrappedPrivateData("XXXXABCDEFXXX");
