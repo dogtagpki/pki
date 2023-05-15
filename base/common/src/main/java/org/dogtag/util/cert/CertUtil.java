@@ -414,7 +414,7 @@ public class CertUtil {
     }
 
     /**
-     * Verify that the cert is currently valid (notBefore <= now <= notAfter).
+     * Verify that the cert is currently valid (notBefore &lt;= now &lt;= notAfter).
      */
     public static void verifyCertValidity(String nickname) throws Exception {
 
