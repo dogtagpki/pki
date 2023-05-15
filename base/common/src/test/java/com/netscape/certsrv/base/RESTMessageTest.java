@@ -1,9 +1,9 @@
 package com.netscape.certsrv.base;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.netscape.certsrv.util.JSONSerializer;
 
@@ -11,8 +11,8 @@ public class RESTMessageTest {
 
     private static RESTMessage before = new RESTMessage();
 
-    @Before
-    public void setUpBefore() {
+    @BeforeAll
+    public static void setUpBefore() {
         before.setClassName(RESTMessage.class.getName());
         before.setAttribute("attr1", "value1");
         before.setAttribute("attr2", "value2");

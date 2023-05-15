@@ -1,22 +1,22 @@
 package com.netscape.certsrv.cert;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Date;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.netscape.certsrv.dbs.certdb.CertId;
 
 public class CertDataInfosTest {
 
-    private static CertDataInfo info;
-    private static CertDataInfos before;
+    private static CertDataInfo info = new CertDataInfo();
+    private static CertDataInfos before = new CertDataInfos();
 
-    @Before
-    public void setUpBefore() {
-        info = new CertDataInfo();
+
+    @BeforeAll
+    public static void setUpBefore() {
         info.setID(new CertId("12512514865863765114"));
         info.setSubjectDN("CN=Test User,UID=testuser,O=EXAMPLE-COM");
         info.setIssuerDN("CN=Certificate Authority,O=EXAMPLE-COM");
@@ -32,7 +32,6 @@ public class CertDataInfosTest {
         info.setRevokedOn(new Date());
         info.setRevokedBy("admin");
 
-        before = new CertDataInfos();
         before.addEntry(info);
         before.setTotal(1);
     }

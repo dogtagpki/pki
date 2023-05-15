@@ -17,18 +17,18 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.password;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import com.netscape.cmsutil.password.PlainPasswordFile;
 
@@ -38,8 +38,10 @@ import com.netscape.cmsutil.password.PlainPasswordFile;
  */
 public class PlainPasswordFileTest {
 
-    PlainPasswordFile pwdFile;
-    File createdFile;
+    static PlainPasswordFile pwdFile;
+    @TempDir
+    static Path folder;
+    static File createdFile;
     private final int TESTCASE_ENTRY = 0;
     private final int TESTCASE_KEY = 1;
     private final int TESTCASE_VALUE = 2;
@@ -59,14 +61,11 @@ public class PlainPasswordFileTest {
             { "hello world" }
     };
 
-    @Before
-    public void preTestSetup() throws IOException {
+    @BeforeEach
+    public void preTestSetup() {
         pwdFile = new PlainPasswordFile();
-        createdFile = folder.newFile("tempPasswordFile");
+        createdFile = new File(folder + "tempPasswordFile");
     }
-
-    @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
 
     @Test
     public void testInitNormal() throws IOException {
@@ -109,17 +108,17 @@ public class PlainPasswordFileTest {
     }
 
     @Test
-    public void testNoValue() throws IOException {
+    public void testNoValue() {
         assertThrows(IOException.class, () -> testHelper(8, false));
     }
 
     @Test
-    public void testWrongDelimiter() throws IOException {
+    public void testWrongDelimiter() {
         assertThrows(IOException.class, () -> testHelper(9, false));
     }
 
     @Test
-    public void testSpaceDelimiter() throws IOException {
+    public void testSpaceDelimiter() {
         assertThrows(IOException.class, () -> testHelper(10, false));
     }
 

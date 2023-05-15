@@ -1,9 +1,9 @@
 package com.netscape.certsrv.key;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.util.JSONSerializer;
@@ -13,8 +13,8 @@ public class KeyRequestInfoCollectionTest {
     private static KeyRequestInfoCollection before = new KeyRequestInfoCollection();
     private static KeyRequestInfo request = new KeyRequestInfo();
 
-    @Before
-    public void setUpBefore() {
+    @BeforeAll
+    public static void setUpBefore() {
         request.setRequestID(new RequestId("0x1"));
         request.setRequestType("securityDataEnrollment");
         before.addEntry(request);

@@ -1,11 +1,11 @@
 package com.netscape.certsrv.account;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.netscape.certsrv.util.JSONSerializer;
 
@@ -13,8 +13,8 @@ public class AccountTest {
 
     private static Account before = new Account();
 
-    @Before
-    public void buildAccount() {
+    @BeforeAll
+    public static void buildAccount() {
         // Arrange
         before.setID("testuser");
         before.setFullName("Test User");

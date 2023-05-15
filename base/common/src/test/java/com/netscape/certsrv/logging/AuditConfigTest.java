@@ -1,12 +1,12 @@
 package com.netscape.certsrv.logging;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.netscape.certsrv.util.JSONSerializer;
 
@@ -16,8 +16,8 @@ public class AuditConfigTest {
     private static Map<String, String> eventConfigs = new TreeMap<>();
 
 
-    @Before
-    public void setUpBefore() {
+    @BeforeAll
+    public static void setUpBefore() {
         before.setStatus("Enabled");
         before.setSigned(false);
         before.setInterval(10);

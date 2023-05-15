@@ -1,9 +1,9 @@
 package com.netscape.certsrv.user;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.netscape.certsrv.util.JSONSerializer;
 
@@ -13,7 +13,7 @@ public class UserMembershipCollectionTest {
     private static UserMembershipData membership1 = new UserMembershipData();
     private static UserMembershipData membership2 = new UserMembershipData();
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpBefore() {
         membership1.setID("Group 1");
         membership1.setUserID("User 1");

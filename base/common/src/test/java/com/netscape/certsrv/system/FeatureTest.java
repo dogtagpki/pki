@@ -1,9 +1,9 @@
 package com.netscape.certsrv.system;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.netscape.certsrv.util.JSONSerializer;
 
@@ -11,8 +11,8 @@ public class FeatureTest {
 
     private static Feature before = new Feature();
 
-    @Before
-    public void setUpBefore() {
+    @BeforeAll
+    public static void setUpBefore() {
         before.setId("authority");
         before.setEnabled(true);
         before.setDescription("Subordinate CA Feature");

@@ -1,12 +1,12 @@
 package com.netscape.certsrv.profile;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
@@ -24,7 +24,7 @@ public class PolicyConstraintTest {
             "CMS_PROFILE_CRITICAL");
     private static List<PolicyConstraintValue> constraints = new ArrayList<>();
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpBefore() {
         before.setClassId("foo");
         pcv1.setDescriptor(descriptor);

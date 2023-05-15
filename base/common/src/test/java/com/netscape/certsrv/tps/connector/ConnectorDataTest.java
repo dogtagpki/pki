@@ -1,12 +1,12 @@
 package com.netscape.certsrv.tps.connector;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.netscape.certsrv.util.JSONSerializer;
 
@@ -15,8 +15,8 @@ public class ConnectorDataTest {
     private static ConnectorData before = new ConnectorData();
     private static Map<String, String> properties = new LinkedHashMap<>();
 
-    @Before
-    public void setUpBefore() {
+    @BeforeAll
+    public static void setUpBefore() {
         before.setID("connector1");
         before.setStatus("ENABLED");
 

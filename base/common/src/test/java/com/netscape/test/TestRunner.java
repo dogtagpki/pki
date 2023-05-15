@@ -1,58 +1,37 @@
 package com.netscape.test;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
+import static org.junit.platform.engine.discovery.ClassNameFilter.includeClassNamePatterns;
+import static org.junit.platform.engine.discovery.DiscoverySelectors.selectPackage;
 
-import org.junit.runner.Description;
-import org.junit.runner.JUnitCore;
-import org.junit.runner.Result;
-import org.junit.runner.notification.Failure;
+import java.io.PrintWriter;
+
+import org.junit.platform.launcher.Launcher;
+import org.junit.platform.launcher.LauncherDiscoveryRequest;
+import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
+import org.junit.platform.launcher.core.LauncherFactory;
+import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
+import org.junit.platform.launcher.listeners.TestExecutionSummary;
 
 public class TestRunner {
 
-    public Result run(String... args) throws Exception {
+    SummaryGeneratingListener listener = new SummaryGeneratingListener();
 
-        JUnitCore core = new JUnitCore();
-        core.addListener(new TestListener());
-
-        List<Class<?>> classes= new ArrayList<>();
-        List<Failure> missingClasses= new ArrayList<>();
-        for (String each : args) {
-              try {
-                    classes.add(Class.forName(each));
-              } catch (ClassNotFoundException e) {
-                    Description description= Description.createSuiteDescription(each);
-                    Failure failure= new Failure(description, e);
-                    missingClasses.add(failure);
-              }
-        }
-        Result result= core.run(classes.toArray(new Class[0]));
-        for (Failure each : missingClasses)
-              result.getFailures().add(each);
-
-        return result;
+    public void runAll() {
+        LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder.request()
+          .selectors(selectPackage("com"), selectPackage("org"))
+          .filters(includeClassNamePatterns(".*Test"))
+          .build();
+        Launcher launcher = LauncherFactory.create();
+        launcher.registerTestExecutionListeners(listener);
+        launcher.execute(request);
     }
 
-    public static void main(String... args) throws Exception {
-
+    public static void main(String[] args) {
         TestRunner runner = new TestRunner();
-        Result result = runner.run(args);
+        runner.runAll();
 
-        if (result.wasSuccessful()) {
-            System.out.println("TestRunner: Test PASSED");
-            return;
-        }
-
-        for (Failure failure : result.getFailures()) {
-            System.err.println("TestRunner: " + failure.getTestHeader() + " FAILED");
-            System.err.println("TestRunner: " + failure.getTrace());
-        }
-
-        Path path = Paths.get(System.getProperty("junit.reports.dir"));
-        System.err.println("TestRunner: See test reports in " + path.toAbsolutePath());
-
-        System.exit(1);
+        TestExecutionSummary summary = runner.listener.getSummary();
+        summary.printTo(new PrintWriter(System.out));
+        summary.printFailuresTo(new PrintWriter(System.out));
     }
 }

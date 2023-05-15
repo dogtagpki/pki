@@ -1,9 +1,9 @@
 package com.netscape.certsrv.selftests;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.netscape.certsrv.util.JSONSerializer;
 
@@ -11,8 +11,8 @@ public class SelfTestDataTest {
 
     private static SelfTestData before = new SelfTestData();
 
-    @Before
-    public void setUpBefore() {
+    @BeforeAll
+    public static void setUpBefore() {
         before.setID("selftest1");
         before.setEnabledOnDemand(true);
         before.setCriticalOnDemand(false);

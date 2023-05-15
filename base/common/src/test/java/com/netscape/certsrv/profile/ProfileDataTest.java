@@ -1,13 +1,13 @@
 package com.netscape.certsrv.profile;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
@@ -38,7 +38,7 @@ public class ProfileDataTest {
     private static List<PolicyConstraintValue> constraints = new ArrayList<>();
     private static Vector<ProfilePolicy> policySet = new Vector<>();
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpBefore() {
         before.setClassId("com.netscape.cms.profile.common.CAEnrollProfile");
         before.setDescription("This certificate profile is for enrolling user certificates.");

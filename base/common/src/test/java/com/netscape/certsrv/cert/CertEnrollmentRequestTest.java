@@ -1,9 +1,9 @@
 package com.netscape.certsrv.cert;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.profile.ProfileAttribute;
@@ -18,8 +18,8 @@ public class CertEnrollmentRequestTest {
     private static ProfileInput subjectName = new ProfileInput();
     private static ProfileInput submitter = new ProfileInput();
 
-    @Before
-    public void setUpBefore() {
+    @BeforeAll
+    public static void setUpBefore() {
         before.setProfileId("caUserCert");
         before.setRenewal(true);
 

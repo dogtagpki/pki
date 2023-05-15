@@ -1,11 +1,11 @@
 package com.netscape.certsrv.base;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import javax.ws.rs.core.Response;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.netscape.certsrv.base.PKIException.Data;
 import com.netscape.certsrv.util.JSONSerializer;
@@ -14,8 +14,8 @@ public class DataTest {
 
     private static Data before = new PKIException("test").getData();
 
-    @Before
-    public void setUpBefore() {
+    @BeforeAll
+    public static void setUpBefore() {
         before.className = PKIException.class.getName();
         before.code = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
         before.message = "An error has occured";

@@ -1,9 +1,9 @@
 package com.netscape.certsrv.profile;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
@@ -14,8 +14,8 @@ public class ProfileInputTest {
     private static ProfileInput before = new ProfileInput("i1", "SubjectNameInput", null);
     private static Descriptor descriptor = new Descriptor(IDescriptor.CHOICE, "true,false,-", "-", "CMS_PROFILE_CRITICAL");
 
-    @Before
-    public void setUpBefore() {
+    @BeforeAll
+    public static void setUpBefore() {
         before.addAttribute(new ProfileAttribute("sn_uid", "user", descriptor));
         before.addConfigAttribute(new ProfileAttribute("sn_abc", "configattr", descriptor));
         before.addAttribute(new ProfileAttribute("sn_e", "user@example.com", null));

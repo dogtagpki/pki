@@ -1,12 +1,12 @@
 package org.dogtagpki.common;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.netscape.certsrv.util.JSONSerializer;
 
@@ -15,8 +15,8 @@ public class ConfigDataTest {
     private static ConfigData before = new ConfigData();
     private static Map<String, String> properties = new TreeMap<>();
 
-    @Before
-    public void setUpBefore() {
+    @BeforeAll
+    public static void setUpBefore() {
         properties.put("param1", "value1");
         properties.put("param2", "value2");
 

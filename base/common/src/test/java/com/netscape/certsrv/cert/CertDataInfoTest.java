@@ -1,11 +1,11 @@
 package com.netscape.certsrv.cert;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Date;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.util.JSONSerializer;
@@ -14,8 +14,8 @@ public class CertDataInfoTest {
 
     private static CertDataInfo before = new CertDataInfo();
 
-    @Before
-    public void setUpBefore() {
+    @BeforeAll
+    public static void setUpBefore() {
         before.setID(new CertId("12512514865863765114"));
         before.setSubjectDN("CN=Test User,UID=testuser,O=EXAMPLE-COM");
         before.setIssuerDN("CN=Certificate Authority,O=EXAMPLE-COM");

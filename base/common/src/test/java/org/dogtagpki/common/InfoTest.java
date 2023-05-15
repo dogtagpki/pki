@@ -1,9 +1,9 @@
 package org.dogtagpki.common;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.netscape.certsrv.util.JSONSerializer;
 
@@ -11,8 +11,8 @@ public class InfoTest {
 
     private static Info before = new Info();
 
-    @Before
-    public void setUpBefore() {
+    @BeforeAll
+    public static void setUpBefore() {
         before.setName("PKI");
         before.setVersion("10.8.0");
         before.setBanner(

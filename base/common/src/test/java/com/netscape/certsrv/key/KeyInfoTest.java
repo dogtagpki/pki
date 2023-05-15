@@ -1,19 +1,18 @@
 package com.netscape.certsrv.key;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.netscape.certsrv.util.JSONSerializer;
-
 
 public class KeyInfoTest {
 
     private static KeyInfo before = new KeyInfo();
 
-    @Before
-    public void setUpBefore() {
+    @BeforeAll
+    public static void setUpBefore() {
         before.setClientKeyID("key");
         before.setStatus("active");
     }

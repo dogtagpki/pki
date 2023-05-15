@@ -1,12 +1,12 @@
 package com.netscape.certsrv.key;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.netscape.certsrv.util.JSONSerializer;
 
@@ -14,8 +14,8 @@ public class AsymKeyGenerationRequestTest {
 
     private static AsymKeyGenerationRequest before = new AsymKeyGenerationRequest();
 
-    @Before
-    public void setUpBefore() {
+    @BeforeAll
+    public static void setUpBefore() {
         before.setKeyAlgorithm(KeyRequestResource.RSA_ALGORITHM);
         before.setKeySize(1024);
         before.setClientKeyId("vek12345");

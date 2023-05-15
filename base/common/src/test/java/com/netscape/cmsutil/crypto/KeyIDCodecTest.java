@@ -17,12 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.crypto;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Key ID encoder and decoder validation.
@@ -166,29 +165,17 @@ public class KeyIDCodecTest {
 
         System.out.println("Testing Key ID encoder with invalid data:");
 
-        try {
-            System.out.println(" - null data");
-            CryptoUtil.encodeKeyID(null);
-            Assert.fail("should throw NullPointerException");
-        } catch (Exception e) {
-            assertTrue(e instanceof NullPointerException);
-        }
+        System.out.println(" - null data");
+        assertThrows(NullPointerException.class,
+                () ->  CryptoUtil.encodeKeyID(null));
 
-        try {
-            System.out.println(" - empty data");
-            CryptoUtil.encodeKeyID(new byte[] {});
-            Assert.fail("should throw IllegalArgumentException");
-        } catch (Exception e) {
-            assertTrue(e instanceof IllegalArgumentException);
-        }
+        System.out.println(" - empty data");
+        assertThrows(IllegalArgumentException.class,
+                () ->  CryptoUtil.encodeKeyID(new byte[] {}));
 
-        try {
-            System.out.println(" - incorrect length data");
-            CryptoUtil.encodeKeyID(new byte[] { (byte)0x24, (byte)0xac });
-            Assert.fail("should throw IllegalArgumentException");
-        } catch (Exception e) {
-            assertTrue(e instanceof IllegalArgumentException);
-        }
+        System.out.println(" - incorrect length data");
+        assertThrows(IllegalArgumentException.class,
+                () ->  CryptoUtil.encodeKeyID(new byte[] { (byte)0x24, (byte)0xac }));
     }
 
     @Test
@@ -208,36 +195,20 @@ public class KeyIDCodecTest {
 
         System.out.println("Testing Key ID decoder with invalid data:");
 
-        try {
-            System.out.println(" - null data");
-            CryptoUtil.decodeKeyID(null);
-            Assert.fail("should throw NullPointerException");
-        } catch (Exception e) {
-            assertTrue(e instanceof NullPointerException);
-        }
+        System.out.println(" - null data");
+        assertThrows(NullPointerException.class,
+                () ->  CryptoUtil.decodeKeyID(null));
 
-        try {
-            System.out.println(" - empty data");
-            CryptoUtil.decodeKeyID("");
-            Assert.fail("should throw IllegalArgumentException");
-        } catch (Exception e) {
-            assertTrue(e instanceof IllegalArgumentException);
-        }
+        System.out.println(" - empty data");
+        assertThrows(IllegalArgumentException.class,
+                () ->  CryptoUtil.decodeKeyID(""));
 
-        try {
-            System.out.println(" - incorrect length data");
-            CryptoUtil.decodeKeyID("ffffffffffffffffffffffffffffffffffffffffff");
-            Assert.fail("should throw IllegalArgumentException");
-        } catch (Exception e) {
-            assertTrue(e instanceof IllegalArgumentException);
-        }
+        System.out.println(" - incorrect length data");
+        assertThrows(IllegalArgumentException.class,
+                () ->  CryptoUtil.decodeKeyID("ffffffffffffffffffffffffffffffffffffffffff"));
 
-        try {
-            System.out.println(" - garbage data");
-            CryptoUtil.decodeKeyID("garbage");
-            Assert.fail("should throw NumberFormatException");
-        } catch (Exception e) {
-            assertTrue(e instanceof NumberFormatException);
-        }
+        System.out.println(" - garbage data");
+        assertThrows(NumberFormatException.class,
+                () ->  CryptoUtil.decodeKeyID("garbage"));
     }
 }

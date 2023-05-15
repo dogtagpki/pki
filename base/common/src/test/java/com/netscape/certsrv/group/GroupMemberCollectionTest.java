@@ -1,9 +1,9 @@
 package com.netscape.certsrv.group;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.netscape.certsrv.util.JSONSerializer;
 
@@ -14,8 +14,8 @@ public class GroupMemberCollectionTest {
     private static GroupMemberData member1 = new GroupMemberData();
     private static GroupMemberData member2 = new GroupMemberData();
 
-    @Before
-    public void setUpBefore() {
+    @BeforeAll
+    public static void setUpBefore() {
         member1.setID("User 1");
         member1.setGroupID("Group 1");
         before.addEntry(member1);

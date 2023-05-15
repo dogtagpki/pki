@@ -1,12 +1,12 @@
 package com.netscape.certsrv.cert;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.mozilla.jss.netscape.security.util.Cert;
 
 import com.netscape.certsrv.dbs.certdb.CertId;
@@ -18,7 +18,7 @@ public class CertDataTest {
     private static StringWriter sw = new StringWriter();
     private static PrintWriter out = new PrintWriter(sw, true);
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpBefore() {
         out.println(Cert.HEADER);
         out.println("MIIB/zCCAWgCCQCtpWH58pqsejANBgkqhkiG9w0BAQUFADBEMRQwEgYDVQQKDAtF");

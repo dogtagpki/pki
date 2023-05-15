@@ -1,9 +1,9 @@
 package com.netscape.certsrv.system;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.netscape.certsrv.util.JSONSerializer;
 
@@ -12,8 +12,8 @@ public class SystemCertDataTest {
     private static SystemCertData before = new SystemCertData();
     private static String[] dnsNames = {"lorem, ipsum"};
 
-    @Before
-    public void setUpBefore() {
+    @BeforeAll
+    public static void setUpBefore() {
         before.setCert("foo");
         before.setProfile("sit");
         before.setToken("elit");

@@ -1,12 +1,12 @@
 package com.netscape.certsrv.profile;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
@@ -27,7 +27,7 @@ public class PolicyDefaultTest {
             "-",
             "CMS_PROFILE_CRITICAL");
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpBefore() {
         pa1.setDescriptor(descriptor);
         pa1.setName("spam1");
