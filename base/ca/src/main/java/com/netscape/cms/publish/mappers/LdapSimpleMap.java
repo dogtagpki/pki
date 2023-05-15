@@ -274,9 +274,7 @@ public class LdapSimpleMap extends Mapper implements IExtendedPluginInfo {
                 X509CRLImpl crl = (X509CRLImpl) obj;
                 subjectDN = (X500Name) crl.getIssuerDN();
 
-                // We know by now that obj is X509CRLImpl instead of
-                //   X509Certificate; no warning needed
-                // logger.warn("LdapSimpleMap: crl issuer dn: " + subjectDN + ": " + e.getMessage(), e);
+                logger.warn("LdapSimpleMap: crl issuer dn: " + subjectDN + ": " + e.getMessage(), e);
             } catch (ClassCastException ex) {
                 logger.warn(CMS.getLogMessage("PUBLISH_PUBLISH_OBJ_NOT_SUPPORTED",
                                 ((req == null) ? "" : req.getRequestId().toString())), ex);
