@@ -159,7 +159,7 @@ public class UpdateOCSPConfig extends CMSServlet {
             cs.putString(publisherPrefix+".path", "/ocsp/agent/ocsp/addCRL");
             cs.putString(publisherPrefix+".pluginName", "OCSPPublisher");
             cs.putString(publisherPrefix+".enableClientAuth", "true");
-            cs.putString(rulePrefix+".enable", "false");
+            cs.putString(rulePrefix+".enable", "true");
             cs.putString(rulePrefix+".mapper", "NoMap");
             cs.putString(rulePrefix+".pluginName", "Rule");
             cs.putString(rulePrefix+".publisher", "OCSPPublisher-"+ocspname);
