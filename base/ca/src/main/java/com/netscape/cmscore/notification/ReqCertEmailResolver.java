@@ -24,7 +24,7 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.notification.ENotificationException;
-import com.netscape.certsrv.notification.IEmailResolver;
+import com.netscape.certsrv.notification.EmailResolver;
 import com.netscape.certsrv.notification.IEmailResolverKeys;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
@@ -32,17 +32,12 @@ import com.netscape.cmscore.request.Request;
 /**
  * An email resolver that first checks the request email, if none,
  * then follows by checking the subjectDN of the certificate
- * <p>
  *
  * @author cfu
- * @version $Revision$, $Date$
  */
-public class ReqCertEmailResolver implements IEmailResolver {
+public class ReqCertEmailResolver extends EmailResolver {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ReqCertEmailResolver.class);
-
-    public static final String KEY_REQUEST = "request";
-    public static final String KEY_CERT = "cert";
 
     // required keys for this resolver to figure out the email address
     //	protected static String[] mRequiredKeys = {KEY_REQUEST, KEY_CERT};

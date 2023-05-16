@@ -31,7 +31,7 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
-import com.netscape.certsrv.notification.IEmailResolver;
+import com.netscape.certsrv.notification.EmailResolver;
 import com.netscape.certsrv.notification.IEmailResolverKeys;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.notification.MailNotification;
@@ -492,7 +492,7 @@ public class RenewalNotificationJob
                 }
             }
 
-            IEmailResolver er = new ReqCertSANameEmailResolver();
+            EmailResolver er = new ReqCertSANameEmailResolver();
 
             rcp = er.getEmail(keys);
 

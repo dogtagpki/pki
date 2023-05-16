@@ -22,11 +22,11 @@ import com.netscape.certsrv.base.EBaseException;
 /**
  * An email resolver that first checks the request email, if none,
  * then follows by checking the subjectDN of the certificate
- * <p>
- *
- * @version $Revision$, $Date$
  */
-public interface IEmailResolver {
+public abstract class EmailResolver {
+
+    public static final String KEY_REQUEST = "request";
+    public static final String KEY_CERT = "cert";
 
     /**
      * returns an email address by using the resolver keys. The
@@ -34,7 +34,7 @@ public interface IEmailResolver {
      *
      * @param keys list of keys used for resolving the email address
      */
-    public String getEmail(IEmailResolverKeys keys)
+    public abstract String getEmail(IEmailResolverKeys keys)
             throws EBaseException, ENotificationException;
 
 }

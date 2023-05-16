@@ -35,7 +35,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.notification.ENotificationException;
-import com.netscape.certsrv.notification.IEmailResolver;
+import com.netscape.certsrv.notification.EmailResolver;
 import com.netscape.certsrv.notification.IEmailResolverKeys;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.CertificateRepository;
@@ -45,17 +45,12 @@ import com.netscape.cmscore.request.Request;
  * An email resolver that first checks the request email, if none,
  * then follows by checking the subjectDN of the certificate, if none,
  * then follows by checking the subjectalternatename extension
- * <p>
  *
  * @author cfu
- * @version $Revision$, $Date$
  */
-public class ReqCertSANameEmailResolver implements IEmailResolver {
+public class ReqCertSANameEmailResolver extends EmailResolver {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ReqCertSANameEmailResolver.class);
-
-    public static final String KEY_REQUEST = IEmailResolverKeys.KEY_REQUEST;
-    public static final String KEY_CERT = IEmailResolverKeys.KEY_CERT;
 
     // required keys for this resolver to figure out the email address
     //	protected static String[] mRequiredKeys = {KEY_REQUEST, KEY_CERT};

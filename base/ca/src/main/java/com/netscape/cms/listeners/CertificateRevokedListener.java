@@ -36,7 +36,7 @@ import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.listeners.EListenersException;
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
-import com.netscape.certsrv.notification.IEmailResolver;
+import com.netscape.certsrv.notification.EmailResolver;
 import com.netscape.certsrv.notification.IEmailResolverKeys;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestListener;
@@ -221,7 +221,7 @@ public class CertificateRevokedListener extends RequestListener {
                     logger.warn(CMS.getLogMessage("LISTENERS_CERT_ISSUED_SET_RESOLVER", e.toString()), e);
                 }
 
-                IEmailResolver er = new ReqCertSANameEmailResolver();
+                EmailResolver er = new ReqCertSANameEmailResolver();
 
                 try {
                     mEmail = er.getEmail(keys);
