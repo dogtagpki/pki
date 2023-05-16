@@ -398,9 +398,9 @@ public class CryptoUtil {
     public static KeyPair generateRSAKeyPair(
             CryptoToken token,
             int keySize,
-            boolean temporary,
-            boolean sensitive,
-            boolean extractable,
+            Boolean temporary,
+            Boolean sensitive,
+            Boolean extractable,
             Usage[] usages,
             Usage[] usagesMask) throws Exception {
 
@@ -408,24 +408,22 @@ public class CryptoUtil {
 
         KeyPairGenerator keygen = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
 
-        if (usages != null) {
-            keygen.setKeyPairUsages(usages, usagesMask);
-        }
-
-        logger.debug("CryptoUtil: - extractable: " + extractable);
-        if (extractable) {
-            keygen.extractablePairs(true);
+        logger.debug("CryptoUtil: - temporary: " + temporary);
+        if (temporary != null) {
+            keygen.temporaryPairs(temporary);
         }
 
         logger.debug("CryptoUtil: - sensitive: " + sensitive);
-        if (sensitive) {
-            keygen.sensitivePairs(true);
+        if (sensitive != null) {
+            keygen.sensitivePairs(sensitive);
         }
 
-        logger.debug("CryptoUtil: - temporary: " + temporary);
-        if (temporary) {
-            keygen.temporaryPairs(true);
+        logger.debug("CryptoUtil: - extractable: " + extractable);
+        if (extractable != null) {
+            keygen.extractablePairs(extractable);
         }
+
+        keygen.setKeyPairUsages(usages, usagesMask);
 
         logger.debug("CryptoUtil: - key size: " + keySize);
         keygen.initialize(keySize);
@@ -462,9 +460,9 @@ public class CryptoUtil {
         return generateECCKeyPair(
                 token,
                 curveName,
-                false,
-                -1,
-                -1,
+                null,
+                null,
+                null,
                 usages,
                 usagesMask);
     }
@@ -484,31 +482,48 @@ public class CryptoUtil {
             Usage[] usages,
             Usage[] usagesMask) throws Exception {
 
+        return generateECCKeyPair(
+                token,
+                curveName,
+                temporary,
+                sensitive == -1 ? null : sensitive == 1,
+                extractable == -1 ? null : extractable == 1,
+                usages,
+                usagesMask);
+    }
+
+    public static KeyPair generateECCKeyPair(
+            CryptoToken token,
+            String curveName,
+            Boolean temporary,
+            Boolean sensitive,
+            Boolean extractable,
+            Usage[] usages,
+            Usage[] usagesMask) throws Exception {
+
         logger.debug("CryptoUtil: Generating ECC key pair");
 
         KeyPairGenerator keygen = token.getKeyPairGenerator(KeyPairAlgorithm.EC);
 
-        keygen.setKeyPairUsages(usages, usagesMask);
+        logger.debug("CryptoUtil: - curve: " + curveName);
+        int curveCode = keygen.getCurveCodeByName(curveName);
 
         logger.debug("CryptoUtil: - temporary: " + temporary);
-        keygen.temporaryPairs(temporary);
+        if (temporary != null) {
+            keygen.temporaryPairs(temporary);
+        }
 
         logger.debug("CryptoUtil: - sensitive: " + sensitive);
-        if (sensitive == 1) {
-            keygen.sensitivePairs(true);
-        } else if (sensitive == 0) {
-            keygen.sensitivePairs(false);
+        if (sensitive != null) {
+            keygen.sensitivePairs(sensitive);
         }
 
         logger.debug("CryptoUtil: - extractable: " + extractable);
-        if (extractable == 1) {
-            keygen.extractablePairs(true);
-        } else if (extractable == 0) {
-            keygen.extractablePairs(false);
+        if (extractable != null) {
+            keygen.extractablePairs(extractable);
         }
 
-        logger.debug("CryptoUtil: - curve: " + curveName);
-        int curveCode = keygen.getCurveCodeByName(curveName);
+        keygen.setKeyPairUsages(usages, usagesMask);
 
         keygen.initialize(curveCode);
 
