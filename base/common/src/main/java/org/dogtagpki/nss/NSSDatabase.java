@@ -940,20 +940,81 @@ public class NSSDatabase {
     public KeyPair createRSAKeyPair(
             CryptoToken token,
             int keySize,
+            Boolean temporary,
+            Boolean sensitive,
+            Boolean extractable,
             Usage[] usages,
             Usage[] usagesMask) throws Exception {
 
         logger.debug("NSSDatabase: Creating RSA key");
         logger.debug("NSSDatabase: - size: " + keySize);
 
-        return CryptoUtil.generateRSAKeyPair(token, keySize, usages, usagesMask);
+        return CryptoUtil.generateRSAKeyPair(
+                token,
+                keySize,
+                temporary,
+                sensitive,
+                extractable,
+                usages,
+                usagesMask);
+    }
+
+    public KeyPair createRSAKeyPair(
+            CryptoToken token,
+            int keySize,
+            Usage[] usages,
+            Usage[] usagesMask) throws Exception {
+
+        logger.debug("NSSDatabase: Creating RSA key");
+        logger.debug("NSSDatabase: - size: " + keySize);
+
+        return CryptoUtil.generateRSAKeyPair(
+                token,
+                keySize,
+                false,
+                false,
+                false,
+                usages,
+                usagesMask);
     }
 
     public KeyPair createRSAKeyPair(
             CryptoToken token,
             int keySize) throws Exception {
 
-        return createRSAKeyPair(token, keySize, null, null);
+        logger.debug("NSSDatabase: Creating RSA key");
+        logger.debug("NSSDatabase: - size: " + keySize);
+
+        return CryptoUtil.generateRSAKeyPair(
+                token,
+                keySize,
+                false,
+                false,
+                false,
+                null,
+                null);
+    }
+
+    public KeyPair createECKeyPair(
+            CryptoToken token,
+            String curveName,
+            Boolean temporary,
+            Boolean sensitive,
+            Boolean extractable,
+            Usage[] usages,
+            Usage[] usagesMask) throws Exception {
+
+        logger.debug("NSSDatabase: Creating EC key");
+        logger.debug("NSSDatabase: - curve: " + curveName);
+
+        return CryptoUtil.generateECCKeyPair(
+                token,
+                curveName,
+                temporary,
+                sensitive,
+                extractable,
+                usages,
+                usagesMask);
     }
 
     public KeyPair createECKeyPair(
@@ -965,14 +1026,31 @@ public class NSSDatabase {
         logger.debug("NSSDatabase: Creating EC key");
         logger.debug("NSSDatabase: - curve: " + curveName);
 
-        return CryptoUtil.generateECCKeyPair(token, curveName, usages, usagesMask);
+        return CryptoUtil.generateECCKeyPair(
+                token,
+                curveName,
+                null,
+                null,
+                null,
+                usages,
+                usagesMask);
     }
 
     public KeyPair createECKeyPair(
             CryptoToken token,
             String curveName) throws Exception {
 
-        return createECKeyPair(token, curveName, null, null);
+        logger.debug("NSSDatabase: Creating EC key");
+        logger.debug("NSSDatabase: - curve: " + curveName);
+
+        return CryptoUtil.generateECCKeyPair(
+                token,
+                curveName,
+                null,
+                null,
+                null,
+                null,
+                null);
     }
 
     public PKCS10 createPKCS10Request(
