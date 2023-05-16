@@ -76,6 +76,16 @@ public class NSSKeyCreateCLI extends CommandCLI {
 
         options.addOption(null, "ssl-ecdh", false, "Generate EC key for SSL with ECDH ECDSA.");
 
+        options.addOption(null, "temporary", false, "Generate temporary key");
+
+        option = new Option(null, "sensitive", true, "Generate sensitive key");
+        option.setArgName("boolean");
+        options.addOption(option);
+
+        option = new Option(null, "extractable", true, "Generate extractable key");
+        option.setArgName("boolean");
+        options.addOption(option);
+
         option = new Option(null, "output-format", true, "Output format: text (default), json.");
         option.setArgName("format");
         options.addOption(option);
@@ -105,6 +115,20 @@ public class NSSKeyCreateCLI extends CommandCLI {
         String curve = cmd.getOptionValue("curve", "nistp256");
         boolean sslECDH = cmd.hasOption("ssl-ecdh");
 
+        boolean temporary = cmd.hasOption("temporary");
+
+        String sensitiveStr = cmd.getOptionValue("sensitive");
+        Boolean sensitive = null;
+        if (sensitiveStr != null) {
+            sensitive = Boolean.valueOf(sensitiveStr);
+        }
+
+        String extractableStr = cmd.getOptionValue("extractable");
+        Boolean extractable = null;
+        if (extractableStr != null) {
+            extractable = Boolean.valueOf(extractableStr);
+        }
+
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
@@ -126,6 +150,9 @@ public class NSSKeyCreateCLI extends CommandCLI {
             KeyPair keyPair = nssdb.createRSAKeyPair(
                     token,
                     Integer.parseInt(keySize),
+                    temporary,
+                    sensitive,
+                    extractable,
                     usages,
                     usagesMask);
 
@@ -144,6 +171,9 @@ public class NSSKeyCreateCLI extends CommandCLI {
             KeyPair keyPair = nssdb.createECKeyPair(
                     token,
                     curve,
+                    temporary,
+                    sensitive,
+                    extractable,
                     usages,
                     usagesMask);
 
@@ -164,7 +194,11 @@ public class NSSKeyCreateCLI extends CommandCLI {
 
             KeyGenerator kg = token.getKeyGenerator(KeyGenAlgorithm.AES);
             kg.initialize(Integer.parseInt(keySize));
-            kg.temporaryKeys(false);
+            kg.temporaryKeys(temporary);
+
+            if (sensitive != null) {
+                kg.sensitiveKeys(sensitive);
+            }
 
             SymmetricKey symmetricKey = kg.generate();
             symmetricKey.setNickName(nickname);
