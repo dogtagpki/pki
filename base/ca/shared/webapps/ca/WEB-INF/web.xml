@@ -5,7 +5,7 @@
 
    <servlet>
       <servlet-name>  caProfileSubmitCMCSimple  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.profile.ProfileSubmitCMCServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.profile.ProfileSubmitCMCSimpleServlet  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> false       </param-value> </init-param>
              <init-param><param-name>  cert_request_type  </param-name>
@@ -30,7 +30,7 @@
 
    <servlet>
       <servlet-name>  caProfileSubmitCMCFull  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.profile.ProfileSubmitCMCServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.profile.ProfileSubmitCMCFullServlet  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> false       </param-value> </init-param>
              <init-param><param-name>  cert_request_type  </param-name>
@@ -53,7 +53,7 @@
 
    <servlet>
       <servlet-name>  caProfileSubmitCMCFullCACert  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.profile.ProfileSubmitCMCServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.profile.ProfileSubmitCMCFullCAServlet  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> false       </param-value> </init-param>
              <init-param><param-name>  cert_request_type  </param-name>
@@ -76,7 +76,7 @@
 
    <servlet>
       <servlet-name>  caProfileSubmitCMCFullServerCert  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.profile.ProfileSubmitCMCServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.profile.ProfileSubmitCMCFullServerServlet  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> false       </param-value> </init-param>
              <init-param><param-name>  cert_request_type  </param-name>
@@ -99,7 +99,7 @@
 
    <servlet>
       <servlet-name>  caProfileSubmitCMCFullOCSPCert  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.profile.ProfileSubmitCMCServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.profile.ProfileSubmitCMCFullOCSPServlet  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> false       </param-value> </init-param>
              <init-param><param-name>  cert_request_type  </param-name>
@@ -122,7 +122,7 @@
 
    <servlet>
       <servlet-name>  caProfileSubmitCMCFullSubsystemCert  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.profile.ProfileSubmitCMCServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.profile.ProfileSubmitCMCFullSubsystemServlet  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> false       </param-value> </init-param>
              <init-param><param-name>  cert_request_type  </param-name>
@@ -145,7 +145,7 @@
 
    <servlet>
       <servlet-name>  caProfileSubmitCMCFullAuditSigningCert  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.profile.ProfileSubmitCMCServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.profile.ProfileSubmitCMCFullAuditSigningServlet  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> false       </param-value> </init-param>
              <init-param><param-name>  cert_request_type  </param-name>
@@ -168,7 +168,7 @@
 
    <servlet>
       <servlet-name>  caProfileSubmitCMCFullKRATransportCert  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.profile.ProfileSubmitCMCServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.profile.ProfileSubmitCMCFullKRATransportServlet  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> false       </param-value> </init-param>
              <init-param><param-name>  cert_request_type  </param-name>
@@ -191,7 +191,7 @@
 
    <servlet>
       <servlet-name>  caProfileSubmitCMCFullKRAstorageCert  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.profile.ProfileSubmitCMCServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.profile.ProfileSubmitCMCFullKRAStorageServlet  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> false       </param-value> </init-param>
              <init-param><param-name>  cert_request_type  </param-name>
@@ -214,7 +214,7 @@
 
    <servlet>
       <servlet-name>  caProfileSubmitUserSignedCMCFull  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.profile.ProfileSubmitCMCServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.profile.ProfileSubmitUserSignedCMCFullServlet  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> false       </param-value> </init-param>
              <init-param><param-name>  cert_request_type  </param-name>
@@ -237,7 +237,7 @@
 
    <servlet>
       <servlet-name>  caProfileSubmitSelfSignedCMCFull  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.profile.ProfileSubmitCMCServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.profile.ProfileSubmitSelfSignedCMCFullServlet  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> false       </param-value> </init-param>
              <init-param><param-name>  cert_request_type  </param-name>
