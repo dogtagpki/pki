@@ -222,14 +222,6 @@ find_file(JSS_JAR
         /usr/share/java
 )
 
-find_file(JUNIT_JAR
-    NAMES
-        junit.jar
-        junit4.jar
-    PATHS
-        /usr/share/java
-)
-
 find_file(JUNIT_JUPITER_API_JAR
     NAMES
         junit-jupiter-api.jar

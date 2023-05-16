@@ -30,7 +30,6 @@
 	<classpathentry kind="lib" path="/usr/share/java/idm-console-base.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/idm-console-mcc.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/idm-console-nmclf.jar"/>
-	<classpathentry kind="lib" path="/usr/share/java/junit.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/ldapjdk.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/jaxb-api/jakarta.xml.bind-api.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/jakarta-activation/jakarta.activation-api.jar"/>

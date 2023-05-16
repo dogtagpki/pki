@@ -169,7 +169,6 @@ BuildRequires:    mvn(commons-net:commons-net)
 BuildRequires:    mvn(org.slf4j:slf4j-api)
 BuildRequires:    mvn(org.slf4j:slf4j-jdk14)
 BuildRequires:    mvn(org.junit.jupiter:junit-jupiter-api)
-BuildRequires:    mvn(org.junit.vintage:junit-vintage-engine)
 BuildRequires:    pki-resteasy >= 3.0.26
 BuildRequires:    jss = 5.4
 BuildRequires:    tomcatjss = 8.4
