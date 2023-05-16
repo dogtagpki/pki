@@ -23,7 +23,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
-import com.netscape.certsrv.notification.IEmailTemplate;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -32,10 +31,9 @@ import com.netscape.cmscore.apps.CMS;
  *
  *
  * @author cfu
- * @version $Revision$, $Date$
  */
 
-public class EmailTemplate implements IEmailTemplate {
+public class EmailTemplate {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EmailTemplate.class);
 
@@ -73,7 +71,6 @@ public class EmailTemplate implements IEmailTemplate {
      *
      * @return true if successful
      */
-    @Override
     public boolean init() {
 
         File template = new File(mTemplateFile);
@@ -113,7 +110,6 @@ public class EmailTemplate implements IEmailTemplate {
     /**
      * @return Template Name in string form
      */
-    @Override
     public String getTemplateName() {
         return mTemplateFile;
     }
@@ -121,7 +117,6 @@ public class EmailTemplate implements IEmailTemplate {
     /**
      * @return true if template is an html file, false otherwise
      */
-    @Override
     public boolean isHTML() {
         return mTemplateFile.endsWith(".html") ||
                 mTemplateFile.endsWith(".HTML") ||
@@ -161,7 +156,6 @@ public class EmailTemplate implements IEmailTemplate {
         return buf.toString();
     }
 
-    @Override
     public int length() {
         return (mFileContents == null) ? 0 : mFileContents.length();
     }
