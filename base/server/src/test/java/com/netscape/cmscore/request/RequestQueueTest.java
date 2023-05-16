@@ -23,11 +23,11 @@ public class RequestQueueTest {
 
         request = new RequestStub();
         CMSBaseTestHelper.setUp();
-        requestRepository = new RequestRepository(null, CMSBaseTestHelper.dbSubsystem, null);
+        requestRepository = new RequestRepository(null, CMSBaseTestHelper.getDbSubsystem(), null);
         requestRepository.init(null);
 
         queue = new RequestQueue(
-                CMSBaseTestHelper.dbSubsystem,
+                CMSBaseTestHelper.getDbSubsystem(),
                 requestRepository,
                 null,
                 null,

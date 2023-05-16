@@ -8,9 +8,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.MissingResourceException;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -25,13 +24,13 @@ import netscape.ldap.LDAPAttributeSet;
 
 public class DBRegistryTest {
 
-    static DBSubsystemStub db;
-    static DBRegistry registry;
-    static DBDynAttrMapperStub extAttrMapper;
-    static RequestRecordStub requestRecordStub = new RequestRecordStub();
+    DBSubsystemStub db;
+    DBRegistry registry;
+    DBDynAttrMapperStub extAttrMapper;
+    RequestRecordStub requestRecordStub = new RequestRecordStub();
 
-    @BeforeAll
-    public static void cmsTestSetUp() {
+    @BeforeEach
+    public void cmsTestSetUp() {
         db = new DBSubsystemStub();
         registry = new LDAPRegistry();
         db.registry = registry;
@@ -74,9 +73,12 @@ public class DBRegistryTest {
         assertTrue(TestHelper.contains(outAttrs, inAttrs[2]));
         assertTrue(TestHelper.contains(outAttrs, "sourceIdOut"));
 
-        assertThrows(MissingResourceException.class,
-                () -> {registry.getLDAPAttributes(new String[] { "badattr" });
-        });
+        // This is an ugly hack, but a different exception is thrown when running
+        // from an IDE, cmake and Maven and we want to catch anything. One of the
+        // possible exceptions is a runtime exception, hence Throwable.
+        assertThrows(Throwable.class,
+                () -> registry.getLDAPAttributes(new String[] { "badattr" })
+        );
     }
 
     @Test

@@ -6,15 +6,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Hashtable;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class ExtDataHashtableTest {
 
-    static ExtDataHashtable<String> hash;
+    ExtDataHashtable<String> hash;
 
-    @BeforeAll
-    public static void cmsTestSetUp() {
+    @BeforeEach
+    public void cmsTestSetUp() {
         hash = new ExtDataHashtable<>();
     }
 

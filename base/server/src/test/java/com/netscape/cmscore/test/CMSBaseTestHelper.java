@@ -9,18 +9,28 @@ import com.netscape.cmscore.dbs.DBSSession;
 import com.netscape.cmscore.dbs.DBSubsystem;
 
 /**
- * Helpe class for CMS unit tests. This sets up some basic stubs
+ * Helper class for CMS unit tests. This sets up some basic stubs
  * that allow unit tests to work without bumping into uninitialized subsystems
  * (like the CMS logging system).
  */
 public class CMSBaseTestHelper {
 
-    public static DBSubsystemStub dbSubsystem;
+    private CMSBaseTestHelper() {/* Do not instantiate */}
+
+    public static DBSubsystemStub getDbSubsystem() {
+        return dbSubsystem;
+    }
+
+    public static void setDbSubsystem(DBSubsystemStub dbSubsystem) {
+        CMSBaseTestHelper.dbSubsystem = dbSubsystem;
+    }
+
+    private static DBSubsystemStub dbSubsystem;
     static DBRegistry registry;
     static DBSSession session;
 
     public static final void setUp() {
-        dbSubsystem = new DBSubsystemStub();
+        setDbSubsystem(new DBSubsystemStub());
         registry = new DBRegistry();
         session = new DBSSession();
     }
