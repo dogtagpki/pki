@@ -1,6 +1,11 @@
 package com.netscape.cmscore.authentication;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -9,6 +14,8 @@ import java.security.cert.X509Certificate;
 import java.util.Date;
 
 import org.dogtagpki.server.authentication.AuthToken;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.mozilla.jss.netscape.security.util.DerOutputStream;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
@@ -16,32 +23,18 @@ import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.usrgrp.Certificates;
-import com.netscape.cmscore.test.CMSBaseTestCase;
+import com.netscape.cmscore.test.CMSBaseTestHelper;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+public class AuthTokenTest {
 
-public class AuthTokenTest extends CMSBaseTestCase {
+    static AuthToken authToken;
 
-    AuthToken authToken;
-
-    public AuthTokenTest(String name) {
-        super(name);
-    }
-
-    @Override
-    public void cmsTestSetUp() {
+    @BeforeAll
+    public static void cmsTestSetUp() {
         authToken = new AuthToken(null);
     }
 
-    @Override
-    public void cmsTestTearDown() {
-    }
-
-    public static Test suite() {
-        return new TestSuite(AuthTokenTest.class);
-    }
-
+    @Test
     public void testGetSetString() {
         authToken.set("key", "value");
         assertEquals("value", authToken.get("key"));
@@ -50,6 +43,7 @@ public class AuthTokenTest extends CMSBaseTestCase {
         assertFalse(authToken.set("key", (String) null));
     }
 
+    @Test
     public void testGetSetByteArray() {
         byte[] data = new byte[] { -12, 0, 14, 15 };
         authToken.set("key", data);
@@ -60,6 +54,7 @@ public class AuthTokenTest extends CMSBaseTestCase {
         assertFalse(authToken.set("key2", (byte[]) null));
     }
 
+    @Test
     public void testGetSetInteger() {
         authToken.set("key", Integer.valueOf(432));
         assertEquals("432", authToken.get("key"));
@@ -73,6 +68,7 @@ public class AuthTokenTest extends CMSBaseTestCase {
         assertFalse(authToken.set("key3", (Integer) null));
     }
 
+    @Test
     public void testGetSetBigIntegerArray() {
         BigInteger[] data = new BigInteger[] {
                 new BigInteger("111111111"),
@@ -102,6 +98,7 @@ public class AuthTokenTest extends CMSBaseTestCase {
         assertFalse(authToken.set("key4", (BigInteger[]) null));
     }
 
+    @Test
     public void testGetSetDate() throws Exception {
         Date value = new Date();
         authToken.set("key", value);
@@ -122,6 +119,7 @@ public class AuthTokenTest extends CMSBaseTestCase {
         assertFalse(authToken.set("key4", (Date) null));
     }
 
+    @Test
     public void testGetSetStringArray() throws IOException {
         String[] value = new String[] {
                 "eenie", "meenie", "miny", "moe"
@@ -149,8 +147,9 @@ public class AuthTokenTest extends CMSBaseTestCase {
         assertFalse(authToken.set("key4", (String[]) null));
     }
 
+    @Test
     public void testGetSetCert() throws CertificateException {
-        X509CertImpl cert = getFakeCert();
+        X509CertImpl cert = CMSBaseTestHelper.getFakeCert();
         authToken.set("key", cert);
 
         X509CertImpl retval = authToken.getInCert("key");
@@ -160,6 +159,7 @@ public class AuthTokenTest extends CMSBaseTestCase {
         assertFalse(authToken.set("key2", (X509CertImpl) null));
     }
 
+    @Test
     public void testGetSetCertExts() throws IOException {
         CertificateExtensions certExts = new CertificateExtensions();
         BasicConstraintsExtension ext = new BasicConstraintsExtension(false, 1);
@@ -183,9 +183,10 @@ public class AuthTokenTest extends CMSBaseTestCase {
         assertFalse(authToken.set("key3", (CertificateExtensions) null));
     }
 
+    @Test
     public void testGetSetCertificates() throws CertificateException, IOException {
-        X509CertImpl cert1 = getFakeCert();
-        X509CertImpl cert2 = getFakeCert();
+        X509CertImpl cert1 = CMSBaseTestHelper.getFakeCert();
+        X509CertImpl cert2 = CMSBaseTestHelper.getFakeCert();
         X509CertImpl[] certArray = new X509CertImpl[] { cert1, cert2 };
         Certificates certs = new Certificates(certArray);
 
@@ -200,6 +201,7 @@ public class AuthTokenTest extends CMSBaseTestCase {
         assertFalse(authToken.set("key2", (Certificates) null));
     }
 
+    @Test
     public void testGetSetByteArrayArray() throws IOException {
         byte[][] value = new byte[][] {
                 new byte[] { 1, 2, 3, 4 },

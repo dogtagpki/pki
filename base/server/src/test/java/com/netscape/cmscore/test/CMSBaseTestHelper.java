@@ -8,42 +8,24 @@ import com.netscape.cmscore.dbs.DBRegistry;
 import com.netscape.cmscore.dbs.DBSSession;
 import com.netscape.cmscore.dbs.DBSubsystem;
 
-import junit.framework.TestCase;
-
 /**
- * The base class for all CMS unit tests. This sets up some basic stubs
+ * Helpe class for CMS unit tests. This sets up some basic stubs
  * that allow unit tests to work without bumping into uninitialized subsystems
  * (like the CMS logging system).
  */
-public abstract class CMSBaseTestCase extends TestCase {
+public class CMSBaseTestHelper {
 
-    protected DBSubsystemStub dbSubsystem;
-    DBRegistry registry;
-    DBSSession session;
+    public static DBSubsystemStub dbSubsystem;
+    static DBRegistry registry;
+    static DBSSession session;
 
-    public CMSBaseTestCase(String name) {
-        super(name);
-    }
-
-    @Override
-    public final void setUp() throws Exception {
+    public static final void setUp() {
         dbSubsystem = new DBSubsystemStub();
         registry = new DBRegistry();
         session = new DBSSession();
-
-        cmsTestSetUp();
     }
 
-    @Override
-    public final void tearDown() {
-        cmsTestTearDown();
-    }
-
-    public abstract void cmsTestSetUp() throws Exception;
-
-    public abstract void cmsTestTearDown();
-
-    public X509CertImpl getFakeCert() throws CertificateException {
+    public static X509CertImpl getFakeCert() throws CertificateException {
         byte[] certData = new byte[] {
                 48, -126, 1, 18, 48, -127, -67, -96, 3, 2, 1, 2, 2, 1,
                 1, 48, 13, 6, 9, 42, -122, 72, -122, -9, 13, 1, 1, 4,
@@ -70,7 +52,7 @@ public abstract class CMSBaseTestCase extends TestCase {
         return new X509CertImpl(certData);
     }
 
-    class DBSubsystemStub extends DBSubsystem {
+    static class DBSubsystemStub extends DBSubsystem {
         @Override
         public DBSSession createSession() {
             return session;

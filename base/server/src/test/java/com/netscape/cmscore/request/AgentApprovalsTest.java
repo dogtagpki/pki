@@ -1,35 +1,27 @@
 package com.netscape.cmscore.request;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import java.util.Vector;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.netscape.certsrv.request.AgentApproval;
 import com.netscape.certsrv.request.AgentApprovals;
-import com.netscape.cmscore.test.CMSBaseTestCase;
 
-public class AgentApprovalsTest extends CMSBaseTestCase {
+public class AgentApprovalsTest {
 
-    AgentApprovals agentApprovals;
+    static AgentApprovals agentApprovals;
 
-    public AgentApprovalsTest(String name) {
-        super(name);
-    }
-
-    @Override
-    public void cmsTestSetUp() {
+    @BeforeAll
+    public static void cmsTestSetUp() {
         agentApprovals = new AgentApprovals();
     }
 
-    @Override
-    public void cmsTestTearDown() {
-    }
-
-    public static Test suite() {
-        return new TestSuite(AgentApprovalsTest.class);
-    }
-
+    @Test
     public void testToFromStringVector() {
         AgentApproval approval1 = agentApprovals.addApproval("user1");
         AgentApproval approval2 = agentApprovals.addApproval("user2");

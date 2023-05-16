@@ -1,35 +1,33 @@
 package com.netscape.cmscore.request;
 
-import java.security.SecureRandom;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.cmscore.test.CMSBaseTestCase;
+import com.netscape.cmscore.test.CMSBaseTestHelper;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+public class RequestQueueTest {
+    static RequestStub request;
+    static RequestRepository requestRepository;
+    static RequestQueue queue;
 
-public class RequestQueueTest extends CMSBaseTestCase {
-    RequestStub request;
-    RequestRepository requestRepository;
-    RequestQueue queue;
-
-    public RequestQueueTest(String name) {
-        super(name);
-    }
-
-    @Override
-    public void cmsTestSetUp() throws Exception {
+    @BeforeAll
+    public static void cmsTestSetUp() throws Exception {
 
         request = new RequestStub();
-
-        requestRepository = new RequestRepository(null, dbSubsystem, null);
+        CMSBaseTestHelper.setUp();
+        requestRepository = new RequestRepository(null, CMSBaseTestHelper.dbSubsystem, null);
         requestRepository.init(null);
 
         queue = new RequestQueue(
-                dbSubsystem,
+                CMSBaseTestHelper.dbSubsystem,
                 requestRepository,
                 null,
                 null,
@@ -37,14 +35,7 @@ public class RequestQueueTest extends CMSBaseTestCase {
                 null);
     }
 
-    @Override
-    public void cmsTestTearDown() {
-    }
-
-    public static Test suite() {
-        return new TestSuite(RequestQueueTest.class);
-    }
-
+    @Test
     public void testAddRequest() throws EBaseException {
         assertFalse(request.getExtDataKeysCalled);
         requestRepository.addRequest(request);
