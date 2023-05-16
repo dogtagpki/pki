@@ -38,10 +38,10 @@ import com.netscape.cmsutil.password.PlainPasswordFile;
  */
 public class PlainPasswordFileTest {
 
-    static PlainPasswordFile pwdFile;
+    PlainPasswordFile pwdFile;
     @TempDir
-    static Path folder;
-    static File createdFile;
+    Path folder;
+    File createdFile;
     private final int TESTCASE_ENTRY = 0;
     private final int TESTCASE_KEY = 1;
     private final int TESTCASE_VALUE = 2;

@@ -31,7 +31,7 @@ public class TestRunner {
         runner.runAll();
 
         TestExecutionSummary summary = runner.listener.getSummary();
-        summary.printTo(new PrintWriter(System.out));
-        summary.printFailuresTo(new PrintWriter(System.out));
+        summary.printTo(new PrintWriter(System.out)); // NOSONAR
+        summary.printFailuresTo(new PrintWriter(System.out)); // NOSONAR
     }
 }
