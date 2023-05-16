@@ -18,6 +18,7 @@
 package com.netscape.certsrv.notification;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.cmscore.notification.EmailResolverKeys;
 
 /**
  * An email resolver that first checks the request email, if none,
@@ -34,7 +35,7 @@ public abstract class EmailResolver {
      *
      * @param keys list of keys used for resolving the email address
      */
-    public abstract String getEmail(IEmailResolverKeys keys)
+    public abstract String getEmail(EmailResolverKeys keys)
             throws EBaseException, ENotificationException;
 
 }

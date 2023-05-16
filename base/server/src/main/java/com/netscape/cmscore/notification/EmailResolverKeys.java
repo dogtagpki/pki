@@ -21,20 +21,21 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.notification.IEmailResolverKeys;
+import com.netscape.certsrv.base.IAttrSet;
 
 /**
- * Email resolver keys as input to email resolvers
- * <P>
+ * Email resolver (ordered) keys as input to email for resolving emails,
+ * e.g. request/cert, cert/request, request, request/cert/subjectalternatename.
  *
  * @author cfu
- * @version $Revision$, $Date$
  */
-public class EmailResolverKeys implements IEmailResolverKeys {
-    /**
-     *
-     */
+public class EmailResolverKeys implements IAttrSet {
+
     private static final long serialVersionUID = -8823197350102151516L;
+
+    public static final String KEY_REQUEST = "request";
+    public static final String KEY_CERT = "cert";
+
     private Hashtable<String, Object> mKeys = null;
 
     public EmailResolverKeys() {

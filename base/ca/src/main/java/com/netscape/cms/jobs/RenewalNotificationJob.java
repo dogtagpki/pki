@@ -30,9 +30,8 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.notification.ENotificationException;
-import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.notification.EmailResolver;
-import com.netscape.certsrv.notification.IEmailResolverKeys;
+import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.notification.MailNotification;
 import com.netscape.cmscore.apps.CMS;
@@ -482,13 +481,13 @@ public class RenewalNotificationJob
 
         try {
             if (req != null) {
-                keys.set(IEmailResolverKeys.KEY_REQUEST, req);
+                keys.set(EmailResolverKeys.KEY_REQUEST, req);
             }
             if (cr != null) {
                 Object c = cr.getCertificate();
 
                 if (c != null) {
-                    keys.set(IEmailResolverKeys.KEY_CERT, cr.getCertificate());
+                    keys.set(EmailResolverKeys.KEY_CERT, cr.getCertificate());
                 }
             }
 

@@ -25,7 +25,6 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.EmailResolver;
-import com.netscape.certsrv.notification.IEmailResolverKeys;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
 
@@ -52,7 +51,7 @@ public class ReqCertEmailResolver extends EmailResolver {
      * @param keys list of keys used for resolving the email address
      */
     @Override
-    public String getEmail(IEmailResolverKeys keys)
+    public String getEmail(EmailResolverKeys keys)
             throws EBaseException, ENotificationException {
         Request req = (Request) keys.get(KEY_REQUEST);
 

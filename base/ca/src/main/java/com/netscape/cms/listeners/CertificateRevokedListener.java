@@ -35,9 +35,8 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.listeners.EListenersException;
 import com.netscape.certsrv.notification.ENotificationException;
-import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.notification.EmailResolver;
-import com.netscape.certsrv.notification.IEmailResolverKeys;
+import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestListener;
 import com.netscape.cms.notification.MailNotification;
@@ -214,9 +213,9 @@ public class CertificateRevokedListener extends RequestListener {
                 EmailResolverKeys keys = new EmailResolverKeys();
 
                 try {
-                    keys.set(IEmailResolverKeys.KEY_REQUEST, r);
-                    keys.set(IEmailResolverKeys.KEY_CERT,
-                            crlentries[0]);
+                    keys.set(EmailResolverKeys.KEY_REQUEST, r);
+                    keys.set(EmailResolverKeys.KEY_CERT, crlentries[0]);
+
                 } catch (EBaseException e) {
                     logger.warn(CMS.getLogMessage("LISTENERS_CERT_ISSUED_SET_RESOLVER", e.toString()), e);
                 }
