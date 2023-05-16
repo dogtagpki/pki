@@ -17,6 +17,24 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.profile;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "caProfileSubmitSelfSignedCMCFull",
+        urlPatterns = "/ee/ca/profileSubmitSelfSignedCMCFull",
+        initParams = {
+                @WebInitParam(name="GetClientCert",     value="false"),
+                @WebInitParam(name="cert_request_type", value="cmc"),
+                @WebInitParam(name="profileId",         value="caFullCMCSelfSignedCert"),
+                @WebInitParam(name="AuthzMgr",          value="BasicAclAuthz"),
+                @WebInitParam(name="authorityId",       value="ca"),
+                @WebInitParam(name="ID",                value="caProfileSubmitSelfSignedCMCFull"),
+                @WebInitParam(name="templatePath",      value="/ee/ca/ProfileSubmit.template"),
+                @WebInitParam(name="resourceID",        value="certServer.ee.profile"),
+                @WebInitParam(name="interface",         value="ee")
+        }
+)
 public class ProfileSubmitSelfSignedCMCFullServlet extends ProfileSubmitCMCServlet {
     private static final long serialVersionUID = 1L;
 }
