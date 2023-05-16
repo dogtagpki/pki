@@ -21,13 +21,13 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.dogtag.util.cert.CertUtil;
+import org.mozilla.jss.netscape.security.util.CertPrettyPrint;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.request.Request;
 
 /**

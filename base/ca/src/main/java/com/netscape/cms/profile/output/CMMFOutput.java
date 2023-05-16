@@ -24,6 +24,7 @@ import java.util.Map;
 
 import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.asn1.INTEGER;
+import org.mozilla.jss.netscape.security.util.CertPrettyPrint;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
@@ -38,7 +39,6 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.request.Request;
 
 /**

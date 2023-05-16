@@ -32,6 +32,7 @@ import java.util.Vector;
 
 import org.dogtagpki.server.authentication.AuthToken;
 import org.mozilla.jss.netscape.security.extensions.NSCertTypeExtension;
+import org.mozilla.jss.netscape.security.util.CertPrettyPrint;
 import org.mozilla.jss.netscape.security.util.PrettyPrintFormat;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
@@ -58,7 +59,6 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.RawJS;
 import com.netscape.cmscore.base.ArgBlock;
-import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.cert.ExtPrettyPrint;
 import com.netscape.cmscore.request.Request;
 
