@@ -24,13 +24,13 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TimeZone;
 
+import org.mozilla.jss.netscape.security.util.CrlPrettyPrint;
 import org.mozilla.jss.netscape.security.util.PrettyPrintFormat;
 import org.mozilla.jss.netscape.security.x509.CRLExtensions;
 import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
 
 import com.netscape.ca.CRLIssuingPoint;
-import com.netscape.certsrv.base.ICRLPrettyPrint;
 
 /**
  * This class will display the certificate content in predefined
@@ -39,7 +39,7 @@ import com.netscape.certsrv.base.ICRLPrettyPrint;
  * @author Andrew Wnuk
  * @version $Revision$, $Date$
  */
-public class CrlCachePrettyPrint implements ICRLPrettyPrint {
+public class CrlCachePrettyPrint extends CrlPrettyPrint {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CrlCachePrettyPrint.class);
 
@@ -59,6 +59,7 @@ public class CrlCachePrettyPrint implements ICRLPrettyPrint {
      *==========================================================*/
 
     public CrlCachePrettyPrint(CRLIssuingPoint ip) {
+        super(null);
         mIP = ip;
         pp = new PrettyPrintFormat(":");
     }

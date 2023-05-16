@@ -37,12 +37,12 @@ import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
+import org.mozilla.jss.netscape.security.util.CrlPrettyPrint;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 
 import com.netscape.ca.CRLIssuingPoint;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ICRLPrettyPrint;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -51,7 +51,6 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.cert.CrlCachePrettyPrint;
-import com.netscape.cmscore.cert.CrlPrettyPrint;
 import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.cmscore.dbs.CRLRepository;
 
@@ -313,7 +312,7 @@ public class DisplayCRL extends CMSServlet {
 
         if (crl != null || (isCRLCacheEnabled && crlDisplayType.equals("cachedCRL"))) {
             if (crlDisplayType.equals("entireCRL") || crlDisplayType.equals("cachedCRL")) {
-                ICRLPrettyPrint crlDetails = null;
+                CrlPrettyPrint crlDetails = null;
                 if (crlDisplayType.equals("entireCRL")) {
                     crlDetails = new CrlPrettyPrint(crl);
                 } else {
