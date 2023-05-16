@@ -23,7 +23,6 @@ import java.util.Date;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.base.ConfigStore;
@@ -196,11 +195,9 @@ public class RequestInQueueJob extends Job
 
         contentForm = getTemplateContent(mMailForm);
 
-        buildContentParams(IEmailFormProcessor.TOKEN_ID, mId);
-        buildContentParams(IEmailFormProcessor.TOKEN_SUMMARY_TOTAL_NUM,
-                String.valueOf(count));
-        buildContentParams(IEmailFormProcessor.TOKEN_EXECUTION_TIME,
-                nowString);
+        buildContentParams(EmailFormProcessor.TOKEN_ID, mId);
+        buildContentParams(EmailFormProcessor.TOKEN_SUMMARY_TOTAL_NUM, String.valueOf(count));
+        buildContentParams(EmailFormProcessor.TOKEN_EXECUTION_TIME, nowString);
 
         EmailFormProcessor emailFormProcessor = new EmailFormProcessor();
         String mailContent =

@@ -29,7 +29,6 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.listeners.EListenersException;
 import com.netscape.certsrv.notification.ENotificationException;
-import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestListener;
 import com.netscape.cms.notification.MailNotification;
@@ -203,8 +202,7 @@ public class RequestInQListener extends RequestListener {
 
     private void buildContentParams(Request r) {
         mContentParams.clear();
-        mContentParams.put(IEmailFormProcessor.TOKEN_ID,
-                mConfig.getName());
+        mContentParams.put(EmailFormProcessor.TOKEN_ID, mConfig.getName());
         Object val = null;
 
         String profileId = r.getExtDataInString(Request.PROFILE_ID);
@@ -221,8 +219,7 @@ public class RequestInQListener extends RequestListener {
             }
         }
         if (val != null)
-            mContentParams.put(IEmailFormProcessor.TOKEN_REQUESTOR_EMAIL,
-                    val);
+            mContentParams.put(EmailFormProcessor.TOKEN_REQUESTOR_EMAIL, val);
 
         if (profileId == null) {
             val = r.getExtDataInString(Request.HTTP_PARAMS, Request.CERT_TYPE);
@@ -230,25 +227,23 @@ public class RequestInQListener extends RequestListener {
             val = profileId;
         }
         if (val != null) {
-            mContentParams.put(IEmailFormProcessor.TOKEN_CERT_TYPE,
-                    val);
+            mContentParams.put(EmailFormProcessor.TOKEN_CERT_TYPE, val);
         }
 
         RequestId reqId = r.getRequestId();
 
-        mContentParams.put(IEmailFormProcessor.TOKEN_REQUEST_ID, reqId.toHexString());
-
-        mContentParams.put(IEmailFormProcessor.TOKEN_ID, mId);
+        mContentParams.put(EmailFormProcessor.TOKEN_REQUEST_ID, reqId.toHexString());
+        mContentParams.put(EmailFormProcessor.TOKEN_ID, mId);
 
         val = r.getRequestType();
         if (val != null)
-            mContentParams.put(IEmailFormProcessor.TOKEN_REQUEST_TYPE, val);
+            mContentParams.put(EmailFormProcessor.TOKEN_REQUEST_TYPE, val);
 
-        mContentParams.put(IEmailFormProcessor.TOKEN_HTTP_HOST, mHttpHost);
-        mContentParams.put(IEmailFormProcessor.TOKEN_HTTP_PORT, mAgentPort);
+        mContentParams.put(EmailFormProcessor.TOKEN_HTTP_HOST, mHttpHost);
+        mContentParams.put(EmailFormProcessor.TOKEN_HTTP_PORT, mAgentPort);
 
-        mContentParams.put(IEmailFormProcessor.TOKEN_SENDER_EMAIL, mSenderEmail);
-        mContentParams.put(IEmailFormProcessor.TOKEN_RECIPIENT_EMAIL, mRecipientEmail);
+        mContentParams.put(EmailFormProcessor.TOKEN_SENDER_EMAIL, mSenderEmail);
+        mContentParams.put(EmailFormProcessor.TOKEN_RECIPIENT_EMAIL, mRecipientEmail);
     }
 
     /**

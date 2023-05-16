@@ -24,13 +24,13 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.notification.ENotificationException;
-import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.cms.notification.MailNotification;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.jobs.JobConfig;
 import com.netscape.cmscore.jobs.JobCron;
 import com.netscape.cmscore.jobs.JobsScheduler;
+import com.netscape.cmscore.notification.EmailFormProcessor;
 import com.netscape.cmscore.notification.EmailTemplate;
 import com.netscape.cmscore.request.Request;
 
@@ -244,17 +244,17 @@ public abstract class Job implements Runnable {
     }
 
     protected void buildItemParams(X509CertImpl cert) {
-        mItemParams.put(IEmailFormProcessor.TOKEN_SERIAL_NUM,
+        mItemParams.put(EmailFormProcessor.TOKEN_SERIAL_NUM,
                 cert.getSerialNumber().toString());
-        mItemParams.put(IEmailFormProcessor.TOKEN_HEX_SERIAL_NUM,
+        mItemParams.put(EmailFormProcessor.TOKEN_HEX_SERIAL_NUM,
                 cert.getSerialNumber().toString(16));
-        mItemParams.put(IEmailFormProcessor.TOKEN_ISSUER_DN,
+        mItemParams.put(EmailFormProcessor.TOKEN_ISSUER_DN,
                 cert.getIssuerName().toString());
-        mItemParams.put(IEmailFormProcessor.TOKEN_SUBJECT_DN,
+        mItemParams.put(EmailFormProcessor.TOKEN_SUBJECT_DN,
                 cert.getSubjectName().toString());
-        mItemParams.put(IEmailFormProcessor.TOKEN_NOT_AFTER,
+        mItemParams.put(EmailFormProcessor.TOKEN_NOT_AFTER,
                 cert.getNotAfter().toString());
-        mItemParams.put(IEmailFormProcessor.TOKEN_NOT_BEFORE,
+        mItemParams.put(EmailFormProcessor.TOKEN_NOT_BEFORE,
                 cert.getNotBefore().toString());
         // ... and more
     }
@@ -263,19 +263,19 @@ public abstract class Job implements Runnable {
         String re = r.getExtDataInString(Request.HTTP_PARAMS, "csrRequestorEmail");
 
         if (re != null) {
-            mItemParams.put(IEmailFormProcessor.TOKEN_REQUESTOR_EMAIL, re);
+            mItemParams.put(EmailFormProcessor.TOKEN_REQUESTOR_EMAIL, re);
         }
 
         String ct = r.getExtDataInString(Request.HTTP_PARAMS, Request.CERT_TYPE);
 
         if (ct != null) {
-            mItemParams.put(IEmailFormProcessor.TOKEN_CERT_TYPE, ct);
+            mItemParams.put(EmailFormProcessor.TOKEN_CERT_TYPE, ct);
         }
 
         String rt = r.getExtDataInString(Request.REQ_TYPE);
 
         if (rt != null) {
-            mItemParams.put(IEmailFormProcessor.TOKEN_REQUEST_TYPE, rt);
+            mItemParams.put(EmailFormProcessor.TOKEN_REQUEST_TYPE, rt);
         }
     }
 

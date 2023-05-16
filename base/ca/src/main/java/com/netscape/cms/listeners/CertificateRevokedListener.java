@@ -36,7 +36,6 @@ import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.listeners.EListenersException;
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.EmailResolver;
-import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestListener;
 import com.netscape.cms.notification.MailNotification;
@@ -286,18 +285,15 @@ public class CertificateRevokedListener extends RequestListener {
     }
 
     private void buildContentParams(RevokedCertImpl crlentries[], String mEmail) {
-        mContentParams.put(IEmailFormProcessor.TOKEN_ID,
-                mConfig.getName());
-        mContentParams.put(IEmailFormProcessor.TOKEN_SERIAL_NUM,
+        mContentParams.put(EmailFormProcessor.TOKEN_ID, mConfig.getName());
+        mContentParams.put(EmailFormProcessor.TOKEN_SERIAL_NUM,
                 crlentries[0].getSerialNumber().toString());
-        mContentParams.put(IEmailFormProcessor.TOKEN_HEX_SERIAL_NUM,
+        mContentParams.put(EmailFormProcessor.TOKEN_HEX_SERIAL_NUM,
                 Long.toHexString(crlentries[0].getSerialNumber().longValue()));
-        mContentParams.put(IEmailFormProcessor.TOKEN_REQUEST_ID,
+        mContentParams.put(EmailFormProcessor.TOKEN_REQUEST_ID,
                 mReqId.toString());
-        mContentParams.put(IEmailFormProcessor.TOKEN_HTTP_HOST,
-                mHttpHost);
-        mContentParams.put(IEmailFormProcessor.TOKEN_HTTP_PORT,
-                mHttpPort);
+        mContentParams.put(EmailFormProcessor.TOKEN_HTTP_HOST, mHttpHost);
+        mContentParams.put(EmailFormProcessor.TOKEN_HTTP_PORT, mHttpPort);
 
         CAEngine engine = CAEngine.getInstance();
         CertificateRepository certDB = engine.getCertificateRepository();
@@ -306,22 +302,20 @@ public class CertificateRevokedListener extends RequestListener {
             RevokedCertImpl revCert = crlentries[0];
             X509Certificate cert = certDB.getX509Certificate(revCert.getSerialNumber());
 
-            mContentParams.put(IEmailFormProcessor.TOKEN_ISSUER_DN,
+            mContentParams.put(EmailFormProcessor.TOKEN_ISSUER_DN,
                     cert.getIssuerDN().toString());
-            mContentParams.put(IEmailFormProcessor.TOKEN_SUBJECT_DN,
+            mContentParams.put(EmailFormProcessor.TOKEN_SUBJECT_DN,
                     cert.getSubjectDN().toString());
             Date date = crlentries[0].getRevocationDate();
 
-            mContentParams.put(IEmailFormProcessor.TOKEN_REVOCATION_DATE,
+            mContentParams.put(EmailFormProcessor.TOKEN_REVOCATION_DATE,
                     mDateFormat.format(date));
         } catch (EBaseException e) {
             logger.warn(CMS.getLogMessage("LISTENERS_CERT_ISSUED_SET_RESOLVER", e.toString()), e);
         }
 
-        mContentParams.put(IEmailFormProcessor.TOKEN_SENDER_EMAIL,
-                mSenderEmail);
-        mContentParams.put(IEmailFormProcessor.TOKEN_RECIPIENT_EMAIL,
-                mEmail);
+        mContentParams.put(EmailFormProcessor.TOKEN_SENDER_EMAIL, mSenderEmail);
+        mContentParams.put(EmailFormProcessor.TOKEN_RECIPIENT_EMAIL, mEmail);
         // ... and more
     }
 

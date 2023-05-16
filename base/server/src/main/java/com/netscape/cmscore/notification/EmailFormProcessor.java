@@ -22,21 +22,43 @@ import java.util.Hashtable;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.cmscore.apps.CMS;
 
 /**
  * formulates the final email. Escape character '\' is understood.
  * '$' is used preceeding a token name. A token name should not be a
  * substring of any other token name
- * <p>
  *
  * @author cfu
- * @version $Revision$, $Date$
  */
-public class EmailFormProcessor implements IEmailFormProcessor {
+public class EmailFormProcessor {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EmailFormProcessor.class);
+
+    // list of token names
+    public final static String TOKEN_ID = "InstanceID";
+    public final static String TOKEN_SERIAL_NUM = "SerialNumber";
+    public final static String TOKEN_HEX_SERIAL_NUM = "HexSerialNumber";
+    public final static String TOKEN_REQUEST_ID = "RequestId";
+    public final static String TOKEN_HTTP_HOST = "HttpHost";
+    public final static String TOKEN_HTTP_PORT = "HttpPort";
+    public final static String TOKEN_ISSUER_DN = "IssuerDN";
+    public final static String TOKEN_SUBJECT_DN = "SubjectDN";
+    public final static String TOKEN_REQUESTOR_EMAIL = "RequestorEmail";
+    public final static String TOKEN_CERT_TYPE = "CertType";
+    public final static String TOKEN_REQUEST_TYPE = "RequestType";
+    public final static String TOKEN_STATUS = "Status";
+    public final static String TOKEN_NOT_AFTER = "NotAfter";
+    public final static String TOKEN_NOT_BEFORE = "NotBefore";
+    public final static String TOKEN_SENDER_EMAIL = "SenderEmail";
+    public final static String TOKEN_RECIPIENT_EMAIL = "RecipientEmail";
+    public final static String TOKEN_SUMMARY_ITEM_LIST = "SummaryItemList";
+    public final static String TOKEN_SUMMARY_TOTAL_NUM = "SummaryTotalNum";
+    public final static String TOKEN_SUMMARY_SUCCESS_NUM = "SummaryTotalSuccess";
+    public final static String TOKEN_SUMMARY_FAILURE_NUM = "SummaryTotalFailure";
+    public final static String TOKEN_EXECUTION_TIME = "ExecutionTime";
+
+    public final static String TOKEN_REVOCATION_DATE = "RevocationDate";
 
     protected final static String TOK_PREFIX = "$";
     protected final static String TOK_ESC = "\\";
@@ -85,7 +107,6 @@ public class EmailFormProcessor implements IEmailFormProcessor {
      *	 values corresponding to the $tokens
      * @return mail content
      */
-    @Override
     public String getEmailContent(String form,
             Hashtable<String, Object> tok2vals) {
         mTok2vals = tok2vals;
@@ -220,7 +241,6 @@ public class EmailFormProcessor implements IEmailFormProcessor {
     /**
      * takes a vector of strings and concatenate them
      */
-    @Override
     public String formContent(Vector<String> vec) {
         StringBuffer content = new StringBuffer();
 
@@ -239,7 +259,9 @@ public class EmailFormProcessor implements IEmailFormProcessor {
         return content.toString();
     }
 
-    @Override
+    /**
+     * logs an entry in the log file.
+     */
     public void log(int level, String msg) {
     }
 }

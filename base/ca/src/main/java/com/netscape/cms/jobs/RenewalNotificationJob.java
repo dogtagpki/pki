@@ -31,7 +31,6 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.EmailResolver;
-import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.notification.MailNotification;
 import com.netscape.cmscore.apps.CMS;
@@ -421,19 +420,18 @@ public class RenewalNotificationJob
 
                         mSummaryHTML = mMailHTML;
 
-                        buildContentParams(IEmailFormProcessor.TOKEN_ID,
-                                mId);
+                        buildContentParams(EmailFormProcessor.TOKEN_ID, mId);
 
-                        buildContentParams(IEmailFormProcessor.TOKEN_SUMMARY_ITEM_LIST,
+                        buildContentParams(EmailFormProcessor.TOKEN_SUMMARY_ITEM_LIST,
                                 ic.mItemListContent);
-                        buildContentParams(IEmailFormProcessor.TOKEN_SUMMARY_TOTAL_NUM,
+                        buildContentParams(EmailFormProcessor.TOKEN_SUMMARY_TOTAL_NUM,
                                 String.valueOf(ic.mNumFail + ic.mNumSuccessful));
-                        buildContentParams(IEmailFormProcessor.TOKEN_SUMMARY_SUCCESS_NUM,
+                        buildContentParams(EmailFormProcessor.TOKEN_SUMMARY_SUCCESS_NUM,
                                 String.valueOf(ic.mNumSuccessful));
-                        buildContentParams(IEmailFormProcessor.TOKEN_SUMMARY_FAILURE_NUM,
+                        buildContentParams(EmailFormProcessor.TOKEN_SUMMARY_FAILURE_NUM,
                                 String.valueOf(ic.mNumFail));
 
-                        buildContentParams(IEmailFormProcessor.TOKEN_EXECUTION_TIME,
+                        buildContentParams(EmailFormProcessor.TOKEN_EXECUTION_TIME,
                                 nowString);
 
                         EmailFormProcessor summaryEmfp = new EmailFormProcessor();
@@ -569,9 +567,8 @@ class CertRecProcessor extends ElementProcessor {
 
         if (cr != null) {
             mJob.buildItemParams(cr.getCertificate());
-            mJob.buildItemParams(IEmailFormProcessor.TOKEN_HTTP_HOST,
-                    mJob.mHttpHost);
-            mJob.buildItemParams(IEmailFormProcessor.TOKEN_HTTP_PORT, mJob.mHttpPort);
+            mJob.buildItemParams(EmailFormProcessor.TOKEN_HTTP_HOST, mJob.mHttpHost);
+            mJob.buildItemParams(EmailFormProcessor.TOKEN_HTTP_PORT, mJob.mHttpPort);
 
             MetaInfo metaInfo = null;
 
@@ -580,8 +577,7 @@ class CertRecProcessor extends ElementProcessor {
                 mIC.mNumFail++;
                 numFailCounted = true;
                 if (mJob.mSummary == true)
-                    mJob.buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
-                            Job.STATUS_FAILURE);
+                    mJob.buildItemParams(EmailFormProcessor.TOKEN_STATUS, Job.STATUS_FAILURE);
                 logger.warn("CertRecProcessor: " + CMS.getLogMessage("JOBS_GET_CERT_ERROR",
                                 cr.getCertificate().getSerialNumber().toString(16)));
             } else {
@@ -621,14 +617,13 @@ class CertRecProcessor extends ElementProcessor {
                     req,
                     cr);
 
-            mJob.buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
-                    Job.STATUS_SUCCESS);
+            mJob.buildItemParams(EmailFormProcessor.TOKEN_STATUS, Job.STATUS_SUCCESS);
 
             mIC.mNumSuccessful++;
 
         } catch (Exception e) {
             logger.warn("RenewalNotificationJob: " + e.getMessage(), e);
-            mJob.buildItemParams(IEmailFormProcessor.TOKEN_STATUS, Job.STATUS_FAILURE);
+            mJob.buildItemParams(EmailFormProcessor.TOKEN_STATUS, Job.STATUS_FAILURE);
             if (numFailCounted == false) {
                 mIC.mNumFail++;
             }

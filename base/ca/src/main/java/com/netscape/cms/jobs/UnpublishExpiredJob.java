@@ -27,7 +27,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.MetaInfo;
-import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
@@ -210,8 +209,7 @@ public class UnpublishExpiredJob extends Job
             } catch (EBaseException e) {
                 negCount += 1;
                 if (mSummary == true)
-                    buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
-                            STATUS_FAILURE);
+                    buildItemParams(EmailFormProcessor.TOKEN_STATUS, STATUS_FAILURE);
                 logger.warn("UnpublishExpiredJob: " + CMS.getLogMessage("JOBS_META_INFO_ERROR",
                                 cert.getSerialNumber().toString(16) + e.getMessage()), e);
             }
@@ -224,16 +222,14 @@ public class UnpublishExpiredJob extends Job
             } catch (EBaseException e) {
                 negCount += 1;
                 if (mSummary == true)
-                    buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
-                            STATUS_FAILURE);
+                    buildItemParams(EmailFormProcessor.TOKEN_STATUS, STATUS_FAILURE);
                 logger.warn("UnpublishExpiredJob: " + CMS.getLogMessage("JOBS_META_REQUEST_ERROR",
                                 cert.getSerialNumber().toString(16) + e.getMessage()), e);
             } catch (NullPointerException e) {
                 // no requestId in MetaInfo...skip to next record
                 negCount += 1;
                 if (mSummary == true)
-                    buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
-                            STATUS_FAILURE);
+                    buildItemParams(EmailFormProcessor.TOKEN_STATUS, STATUS_FAILURE);
                 logger.warn("UnpublishExpiredJob: " + CMS.getLogMessage("JOBS_META_REQUEST_ERROR",
                                 cert.getSerialNumber().toString(16) + e.getMessage()), e);
             }
@@ -253,8 +249,7 @@ public class UnpublishExpiredJob extends Job
                 } catch (EBaseException e) {
                     negCount += 1;
                     if (mSummary == true)
-                        buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
-                                STATUS_FAILURE);
+                        buildItemParams(EmailFormProcessor.TOKEN_STATUS, STATUS_FAILURE);
                     logger.warn("UnpublishExpiredJob: " + CMS.getLogMessage("JOBS_FIND_REQUEST_ERROR",
                                     cert.getSerialNumber().toString(16) + e.getMessage()), e);
                 }
@@ -263,8 +258,7 @@ public class UnpublishExpiredJob extends Job
                             mPublisherProcessor.isCertPublishingEnabled()) {
                         mPublisherProcessor.unpublishCert(cert, req);
                         if (mSummary == true)
-                            buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
-                                    STATUS_SUCCESS);
+                            buildItemParams(EmailFormProcessor.TOKEN_STATUS, STATUS_SUCCESS);
                         count += 1;
                     } else {
                         negCount += 1;
@@ -272,8 +266,7 @@ public class UnpublishExpiredJob extends Job
                 } catch (Exception e) {
                     negCount += 1;
                     if (mSummary == true)
-                        buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
-                                STATUS_FAILURE);
+                        buildItemParams(EmailFormProcessor.TOKEN_STATUS, STATUS_FAILURE);
                     logger.warn("UnpublishExpiredJob: " + CMS.getLogMessage("JOBS_UNPUBLISH_ERROR",
                                     cert.getSerialNumber().toString(16) + e.getMessage()), e);
                 }
@@ -284,8 +277,7 @@ public class UnpublishExpiredJob extends Job
                             mPublisherProcessor.isCertPublishingEnabled()) {
                         mPublisherProcessor.unpublishCert(cert, null);
                         if (mSummary == true)
-                            buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
-                                    STATUS_SUCCESS);
+                            buildItemParams(EmailFormProcessor.TOKEN_STATUS, STATUS_SUCCESS);
                         count += 1;
                     } else {
                         negCount += 1;
@@ -293,8 +285,7 @@ public class UnpublishExpiredJob extends Job
                 } catch (Exception e) {
                     negCount += 1;
                     if (mSummary == true)
-                        buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
-                                STATUS_FAILURE);
+                        buildItemParams(EmailFormProcessor.TOKEN_STATUS, STATUS_FAILURE);
                     logger.warn("UnpublishExpiredJob: " + CMS.getLogMessage("JOBS_UNPUBLISH_ERROR",
                                     cert.getSerialNumber().toString(16) + e.getMessage()), e);
                 }
@@ -320,17 +311,16 @@ public class UnpublishExpiredJob extends Job
 
         // time for summary
         if (mSummary == true) {
-            buildContentParams(IEmailFormProcessor.TOKEN_ID,
-                    mId);
-            buildContentParams(IEmailFormProcessor.TOKEN_SUMMARY_ITEM_LIST,
+            buildContentParams(EmailFormProcessor.TOKEN_ID, mId);
+            buildContentParams(EmailFormProcessor.TOKEN_SUMMARY_ITEM_LIST,
                     itemListContent);
-            buildContentParams(IEmailFormProcessor.TOKEN_SUMMARY_TOTAL_NUM,
+            buildContentParams(EmailFormProcessor.TOKEN_SUMMARY_TOTAL_NUM,
                     String.valueOf(count + negCount));
-            buildContentParams(IEmailFormProcessor.TOKEN_SUMMARY_SUCCESS_NUM,
+            buildContentParams(EmailFormProcessor.TOKEN_SUMMARY_SUCCESS_NUM,
                     String.valueOf(count));
-            buildContentParams(IEmailFormProcessor.TOKEN_SUMMARY_FAILURE_NUM,
+            buildContentParams(EmailFormProcessor.TOKEN_SUMMARY_FAILURE_NUM,
                     String.valueOf(negCount));
-            buildContentParams(IEmailFormProcessor.TOKEN_EXECUTION_TIME,
+            buildContentParams(EmailFormProcessor.TOKEN_EXECUTION_TIME,
                     nowString);
 
             EmailFormProcessor emailFormProcessor = new EmailFormProcessor();

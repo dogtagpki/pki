@@ -35,7 +35,6 @@ import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.listeners.EListenersException;
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.EmailResolver;
-import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestListener;
 import com.netscape.cms.notification.MailNotification;
@@ -361,10 +360,9 @@ public class CertificateIssuedListener extends RequestListener {
             }
 
             // build some token data
-            mContentParams.put(IEmailFormProcessor.TOKEN_ID, mConfig.getName());
+            mContentParams.put(EmailFormProcessor.TOKEN_ID, mConfig.getName());
             mReqId = r.getRequestId();
-            mContentParams.put(IEmailFormProcessor.TOKEN_REQUEST_ID,
-                    mReqId.toString());
+            mContentParams.put(EmailFormProcessor.TOKEN_REQUEST_ID, mReqId.toString());
             EmailFormProcessor et = new EmailFormProcessor();
             String c = et.getEmailContent(template.toString(), mContentParams);
 
@@ -387,36 +385,31 @@ public class CertificateIssuedListener extends RequestListener {
     }
 
     private void buildContentParams(X509CertImpl issuedCert[], String mEmail) {
-        mContentParams.put(IEmailFormProcessor.TOKEN_ID,
-                mConfig.getName());
-        mContentParams.put(IEmailFormProcessor.TOKEN_SERIAL_NUM,
+        mContentParams.put(EmailFormProcessor.TOKEN_ID, mConfig.getName());
+        mContentParams.put(EmailFormProcessor.TOKEN_SERIAL_NUM,
                 issuedCert[0].getSerialNumber().toString());
-        mContentParams.put(IEmailFormProcessor.TOKEN_HEX_SERIAL_NUM,
+        mContentParams.put(EmailFormProcessor.TOKEN_HEX_SERIAL_NUM,
                 Long.toHexString(issuedCert[0].getSerialNumber().longValue()));
-        mContentParams.put(IEmailFormProcessor.TOKEN_REQUEST_ID,
+        mContentParams.put(EmailFormProcessor.TOKEN_REQUEST_ID,
                 mReqId.toString());
-        mContentParams.put(IEmailFormProcessor.TOKEN_HTTP_HOST,
-                mHttpHost);
-        mContentParams.put(IEmailFormProcessor.TOKEN_HTTP_PORT,
-                mHttpPort);
-        mContentParams.put(IEmailFormProcessor.TOKEN_ISSUER_DN,
+        mContentParams.put(EmailFormProcessor.TOKEN_HTTP_HOST, mHttpHost);
+        mContentParams.put(EmailFormProcessor.TOKEN_HTTP_PORT, mHttpPort);
+        mContentParams.put(EmailFormProcessor.TOKEN_ISSUER_DN,
                 issuedCert[0].getIssuerName().toString());
-        mContentParams.put(IEmailFormProcessor.TOKEN_SUBJECT_DN,
+        mContentParams.put(EmailFormProcessor.TOKEN_SUBJECT_DN,
                 issuedCert[0].getSubjectName().toString());
 
         Date date = issuedCert[0].getNotAfter();
 
-        mContentParams.put(IEmailFormProcessor.TOKEN_NOT_AFTER,
+        mContentParams.put(EmailFormProcessor.TOKEN_NOT_AFTER,
                 mDateFormat.format(date));
 
         date = issuedCert[0].getNotBefore();
-        mContentParams.put(IEmailFormProcessor.TOKEN_NOT_BEFORE,
+        mContentParams.put(EmailFormProcessor.TOKEN_NOT_BEFORE,
                 mDateFormat.format(date));
 
-        mContentParams.put(IEmailFormProcessor.TOKEN_SENDER_EMAIL,
-                mSenderEmail);
-        mContentParams.put(IEmailFormProcessor.TOKEN_RECIPIENT_EMAIL,
-                mEmail);
+        mContentParams.put(EmailFormProcessor.TOKEN_SENDER_EMAIL, mSenderEmail);
+        mContentParams.put(EmailFormProcessor.TOKEN_RECIPIENT_EMAIL, mEmail);
         // ... and more
     }
 
