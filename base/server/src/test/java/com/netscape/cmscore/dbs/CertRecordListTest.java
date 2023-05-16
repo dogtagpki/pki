@@ -17,32 +17,17 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.DBVirtualList;
 import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.cmscore.test.CMSBaseTestCase;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+public class CertRecordListTest {
 
-public class CertRecordListTest extends CMSBaseTestCase {
-
-    public CertRecordListTest(String name) {
-        super(name);
-    }
-
-    @Override
-    public void cmsTestSetUp() {
-    }
-
-    @Override
-    public void cmsTestTearDown() {
-    }
-
-    public static Test suite() {
-        return new TestSuite(CertRecordListTest.class);
-    }
-
+    @Test
     public void testProcessCertRecordsUsesSize() throws EBaseException {
         DBVirtualListStub<CertRecord> dbList = new DBVirtualListStub<>();
         dbList.size = 5;

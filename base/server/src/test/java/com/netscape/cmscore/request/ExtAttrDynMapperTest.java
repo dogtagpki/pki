@@ -1,41 +1,36 @@
 package com.netscape.cmscore.request;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.dbs.RequestRecordDefaultStub;
-import com.netscape.cmscore.test.CMSBaseTestCase;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
 
-public class ExtAttrDynMapperTest extends CMSBaseTestCase {
+public class ExtAttrDynMapperTest {
 
-    ExtAttrDynMapper mapper;
+    static ExtAttrDynMapper mapper;
 
-    public ExtAttrDynMapperTest(String name) {
-        super(name);
-    }
-
-    @Override
-    public void cmsTestSetUp() {
+    @BeforeAll
+    public static void cmsTestSetUp() {
         mapper = new ExtAttrDynMapper();
     }
 
-    @Override
-    public void cmsTestTearDown() {
-    }
-
-    public static Test suite() {
-        return new TestSuite(ExtAttrDynMapperTest.class);
-    }
-
+    @Test
     public void testSupportLDAPAttributeName() {
         assertNotNull(mapper);
 
@@ -56,6 +51,7 @@ public class ExtAttrDynMapperTest extends CMSBaseTestCase {
         assertFalse(mapper.supportsLDAPAttributeName(null));
     }
 
+    @Test
     public void testGetSupportedLdapAttributesNames() {
         Enumeration<String> attrs = mapper.getSupportedLDAPAttributeNames();
         ArrayList<String> attrsList = new ArrayList<>();
@@ -67,6 +63,7 @@ public class ExtAttrDynMapperTest extends CMSBaseTestCase {
         assertEquals(Schema.LDAP_ATTR_EXT_ATTR, attrsList.get(0));
     }
 
+    @Test
     public void testIsAlphaNum() {
         assertTrue(mapper.isAlphaNum('a'));
         assertTrue(mapper.isAlphaNum('l'));
@@ -83,6 +80,7 @@ public class ExtAttrDynMapperTest extends CMSBaseTestCase {
         assertFalse(mapper.isAlphaNum('\u00ef'));
     }
 
+    @Test
     public void testEncodeDecodeKey() {
         // ; is 003b
         // $ is 0024
@@ -115,6 +113,7 @@ public class ExtAttrDynMapperTest extends CMSBaseTestCase {
         assertEquals(decoded, mapper.decodeKey(encoded));
     }
 
+    @Test
     public void testMapObjectToLDAPAttributeSet() throws EBaseException {
         LDAPAttributeSet attrs = new LDAPAttributeSet();
 
@@ -166,6 +165,7 @@ public class ExtAttrDynMapperTest extends CMSBaseTestCase {
         assertTrue(attrBim.hasSubtype("bi--003bm"));
     }
 
+    @Test
     public void testMapLDAPAttributeSetToObject() throws EBaseException {
         //
         // Test simple key-value pairs
@@ -219,40 +219,34 @@ public class ExtAttrDynMapperTest extends CMSBaseTestCase {
         Hashtable<?, ?> okey1Data = (Hashtable<?, ?>) extData.get("o;key1");
         assertEquals(3, okey1Data.keySet().size());
         assertTrue(okey1Data.containsKey("i;key11"));
-        assertEquals("val11", (String) okey1Data.get("i;key11"));
+        assertEquals("val11", okey1Data.get("i;key11"));
         assertTrue(okey1Data.containsKey("ikey12"));
-        assertEquals("val12", (String) okey1Data.get("ikey12"));
+        assertEquals("val12", okey1Data.get("ikey12"));
         assertTrue(okey1Data.containsKey("ikey13"));
-        assertEquals("val13", (String) okey1Data.get("ikey13"));
+        assertEquals("val13", okey1Data.get("ikey13"));
 
         assertTrue(extData.containsKey("okey2"));
         Hashtable<?, ?> okey2Data = (Hashtable<?, ?>) extData.get("okey2");
         assertEquals(2, okey2Data.keySet().size());
         assertTrue(okey2Data.containsKey("ikey21"));
-        assertEquals("val21", (String) okey2Data.get("ikey21"));
+        assertEquals("val21", okey2Data.get("ikey21"));
         assertTrue(okey2Data.containsKey("ikey22"));
-        assertEquals("val22", (String) okey2Data.get("ikey22"));
+        assertEquals("val22", okey2Data.get("ikey22"));
 
         assertFalse(extData.containsKey("foo"));
 
         //
         // test illegal data combination
         //
-        attrs = new LDAPAttributeSet();
-        attrs.add(new LDAPAttribute(
+        LDAPAttributeSet attrsSet = new LDAPAttributeSet();
+        attrsSet.add(new LDAPAttribute(
                 ExtAttrDynMapper.extAttrPrefix + "okey1", "val11"));
-        attrs.add(new LDAPAttribute(
+        attrsSet.add(new LDAPAttribute(
                 ExtAttrDynMapper.extAttrPrefix + "okey1;ikey12", "val12"));
 
-        requestRecord = new RequestRecordStub();
-
-        try {
-            mapper.mapLDAPAttributeSetToObject(attrs, RequestRecord.ATTR_EXT_DATA, requestRecord);
-            fail("Should have thrown EBaseException on illegal data");
-        } catch (EBaseException e) {
-            // good
-        }
-
+        assertThrows(EBaseException.class, () ->
+            mapper.mapLDAPAttributeSetToObject(attrsSet, RequestRecord.ATTR_EXT_DATA, new RequestRecordStub())
+        );
     }
 
     static class RequestRecordStub extends RequestRecordDefaultStub {

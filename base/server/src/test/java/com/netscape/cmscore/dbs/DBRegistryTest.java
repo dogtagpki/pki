@@ -1,36 +1,37 @@
 package com.netscape.cmscore.dbs;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.MissingResourceException;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.cmscore.request.DBDynAttrMapper;
 import com.netscape.cmscore.request.RequestRecord;
-import com.netscape.cmscore.test.CMSBaseTestCase;
 import com.netscape.cmscore.test.TestHelper;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
 
-public class DBRegistryTest extends CMSBaseTestCase {
+public class DBRegistryTest {
 
-    DBSubsystemStub db;
-    DBRegistry registry;
-    DBDynAttrMapperStub extAttrMapper;
-    RequestRecordStub requestRecordStub = new RequestRecordStub();
+    static DBSubsystemStub db;
+    static DBRegistry registry;
+    static DBDynAttrMapperStub extAttrMapper;
+    static RequestRecordStub requestRecordStub = new RequestRecordStub();
 
-    public DBRegistryTest(String name) {
-        super(name);
-    }
-
-    @Override
-    public void cmsTestSetUp() {
+    @BeforeAll
+    public static void cmsTestSetUp() {
         db = new DBSubsystemStub();
         registry = new LDAPRegistry();
         db.registry = registry;
@@ -51,20 +52,14 @@ public class DBRegistryTest extends CMSBaseTestCase {
         }
     }
 
-    @Override
-    public void cmsTestTearDown() {
-    }
-
-    public static Test suite() {
-        return new TestSuite(DBRegistryTest.class);
-    }
-
+    @Test
     public void testMapObject() throws EBaseException {
         assertFalse(extAttrMapper.mapObjectCalled);
         registry.mapObject(null, RequestRecord.ATTR_EXT_DATA, null, new LDAPAttributeSet());
         assertTrue(extAttrMapper.mapObjectCalled);
     }
 
+    @Test
     public void testGetLDAPAttributesForExtData() throws EBaseException {
         String inAttrs[] = new String[] {
                 "extData-foo",
@@ -79,13 +74,12 @@ public class DBRegistryTest extends CMSBaseTestCase {
         assertTrue(TestHelper.contains(outAttrs, inAttrs[2]));
         assertTrue(TestHelper.contains(outAttrs, "sourceIdOut"));
 
-        try {
-            registry.getLDAPAttributes(new String[] { "badattr" });
-            fail("Should not be able to map badattr");
-        } catch (EBaseException | MissingResourceException e) { /* good */
-        }
+        assertThrows(MissingResourceException.class,
+                () -> {registry.getLDAPAttributes(new String[] { "badattr" });
+        });
     }
 
+    @Test
     public void testCreateLDAPAttributeSet() throws EBaseException {
         assertFalse(extAttrMapper.mapObjectCalled);
 
@@ -99,6 +93,7 @@ public class DBRegistryTest extends CMSBaseTestCase {
         assertTrue(extAttrMapper.mapObjectCalled);
     }
 
+    @Test
     public void testCreateObject() throws EBaseException {
         LDAPAttributeSet attrs = new LDAPAttributeSet();
         attrs.add(new LDAPAttribute("objectclass", "ocvalue"));

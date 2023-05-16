@@ -1,45 +1,38 @@
 package com.netscape.cmscore.request;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Hashtable;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-import com.netscape.cmscore.test.CMSBaseTestCase;
+public class ExtDataHashtableTest {
 
-public class ExtDataHashtableTest extends CMSBaseTestCase {
+    static ExtDataHashtable<String> hash;
 
-    ExtDataHashtable<String> hash;
-
-    public ExtDataHashtableTest(String name) {
-        super(name);
-    }
-
-    @Override
-    public void cmsTestSetUp() {
+    @BeforeAll
+    public static void cmsTestSetUp() {
         hash = new ExtDataHashtable<>();
     }
 
-    @Override
-    public void cmsTestTearDown() {
-    }
-
-    public static Test suite() {
-        return new TestSuite(ExtDataHashtableTest.class);
-    }
-
+    @Test
     public void testContainsKey() {
         hash.put("FOO", "bar");
         assertTrue(hash.containsKey("foo"));
         assertTrue(hash.containsKey("Foo"));
     }
 
+    @Test
     public void testGet() {
         hash.put("FOO", "bar");
         assertEquals("bar", hash.get("foo"));
         assertEquals("bar", hash.get("fOO"));
     }
 
+    @Test
     public void testPut() {
         hash.put("FOO", "bar");
         hash.put("foo", "bar2");
@@ -47,6 +40,7 @@ public class ExtDataHashtableTest extends CMSBaseTestCase {
         assertEquals("bar2", hash.get("foo"));
     }
 
+    @Test
     public void testPutAll() {
         Hashtable<String, String> hash2 = new Hashtable<>();
         hash2.put("KEY1", "VAL1");
@@ -59,6 +53,7 @@ public class ExtDataHashtableTest extends CMSBaseTestCase {
         assertEquals("val2", hash.get("Key2"));
     }
 
+    @Test
     public void testRemove() {
         hash.put("foo", "bar");
         hash.put("one", "two");
@@ -68,6 +63,7 @@ public class ExtDataHashtableTest extends CMSBaseTestCase {
         assertTrue(hash.containsKey("one"));
     }
 
+    @Test
     public void testMapConstructor() {
         Hashtable<String, String> hash2 = new Hashtable<>();
         hash2.put("KEY1", "VAL1");

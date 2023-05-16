@@ -1,6 +1,14 @@
 package com.netscape.cmscore.request;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Hashtable;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.DBAttrMapper;
@@ -10,35 +18,20 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.dbs.DBRegistry;
 import com.netscape.cmscore.dbs.DBSubsystem;
-import com.netscape.cmscore.test.CMSBaseTestCase;
 import com.netscape.cmscore.test.TestHelper;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+public class RequestRecordTest {
 
-public class RequestRecordTest extends CMSBaseTestCase {
+    static RequestRecord requestRecord;
+    static Request request;
 
-    RequestRecord requestRecord;
-    Request request;
-
-    public RequestRecordTest(String name) {
-        super(name);
-    }
-
-    @Override
-    public void cmsTestSetUp() {
+    @BeforeAll
+    public static void cmsTestSetUp() {
         requestRecord = new RequestRecord();
         request = new Request(new RequestId("0xabcdef"));
     }
 
-    @Override
-    public void cmsTestTearDown() {
-    }
-
-    public static Test suite() {
-        return new TestSuite(RequestRecordTest.class);
-    }
-
+    @Test
     public void testGetExtData() {
         Hashtable<String, Object> hash = new Hashtable<>();
 
@@ -47,6 +40,7 @@ public class RequestRecordTest extends CMSBaseTestCase {
         assertSame(hash, requestRecord.get(RequestRecord.ATTR_EXT_DATA));
     }
 
+    @Test
     public void testSetExtData() {
         Hashtable<String, Object> hash = new Hashtable<>();
 
@@ -55,10 +49,12 @@ public class RequestRecordTest extends CMSBaseTestCase {
         assertSame(requestRecord.mExtData, hash);
     }
 
+    @Test
     public void testGetElements() {
         assertTrue(TestHelper.enumerationContains(requestRecord.getElements(), RequestRecord.ATTR_EXT_DATA));
     }
 
+    @Test
     public void testAddExtData() throws EBaseException {
         request.setExtData("foo", "bar");
         Hashtable<String, String> requestHashValue = new Hashtable<>();
@@ -72,6 +68,7 @@ public class RequestRecordTest extends CMSBaseTestCase {
         assertNotSame(request.mExtData, requestRecord.mExtData);
     }
 
+    @Test
     public void testReadExtData() throws EBaseException {
         Hashtable<String, Object> extData = new Hashtable<>();
         extData.put("foo", "bar");
@@ -92,6 +89,7 @@ public class RequestRecordTest extends CMSBaseTestCase {
         assertNotSame(requestRecord.mExtData, request.mExtData);
     }
 
+    @Test
     public void testModExtData() throws EBaseException {
         ModificationSetStub mods = new ModificationSetStub();
         request.setExtData("foo", "bar");
@@ -102,6 +100,7 @@ public class RequestRecordTest extends CMSBaseTestCase {
         assertEquals(mods.addExtDataObject, request.mExtData);
     }
 
+    @Test
     public void testRegister() throws EDBException {
         DBSubsystemStub db = new DBSubsystemStub();
 
