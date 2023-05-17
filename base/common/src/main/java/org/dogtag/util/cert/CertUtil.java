@@ -55,6 +55,7 @@ import org.mozilla.jss.pkcs11.PK11Store;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class CertUtil {
@@ -71,6 +72,65 @@ public class CertUtil {
     public static final String CRL_FOOTER = "-----END CERTIFICATE REVOCATION LIST-----";
 
     public static final int LINE_COUNT = 76;
+
+    /**
+     * Convert PKCS #10 request from PEM to Base64.
+     */
+    public static String unwrapPKCS10(String request, boolean checkHeader) throws EBaseException {
+
+        // check for "-----BEGIN NEW CERTIFICATE REQUEST-----"
+        int headerIndex = request.indexOf(CERT_NEW_REQUEST_HEADER);
+        int footerIndex = request.indexOf(CERT_NEW_REQUEST_FOOTER);
+
+        String header = null;
+        if (headerIndex >= 0 || footerIndex >= 0) {
+            header = CERT_NEW_REQUEST_HEADER;
+        }
+
+        // check for "-----BEGIN CERTIFICATE REQUEST-----"
+        if (header == null) {
+            headerIndex = request.indexOf(Cert.REQUEST_HEADER);
+            footerIndex = request.indexOf(Cert.REQUEST_FOOTER);
+
+            if (headerIndex >= 0 || footerIndex >= 0) {
+                header = Cert.REQUEST_HEADER;
+            }
+        }
+
+        // check for "-----BEGIN RENEWAL CERTIFICATE REQUEST-----"
+        if (header == null) {
+            headerIndex = request.indexOf(CERT_RENEWAL_HEADER);
+            footerIndex = request.indexOf(CERT_RENEWAL_FOOTER);
+
+            if (headerIndex >= 0 || footerIndex >= 0) {
+                header = CERT_RENEWAL_HEADER;
+            }
+        }
+
+        // check for missing header/footer
+        if (headerIndex < 0 && checkHeader) {
+            throw new EBaseException("Missing PKCS #10 header");
+        }
+
+        if (footerIndex < 0 && checkHeader) {
+            throw new EBaseException("Missing PKCS #10 footer");
+        }
+
+        // unwrap request
+        if (header != null) {
+            request = request.substring(headerIndex + header.length(), footerIndex);
+        }
+
+        // strip whitespaces
+        StringTokenizer st = new StringTokenizer(request, "\t\r\n ");
+        StringBuilder sb = new StringBuilder();
+
+        while (st.hasMoreTokens()) {
+            sb.append(st.nextToken());
+        }
+
+        return sb.toString();
+    }
 
     public static byte[] parseCSR(String csr) {
 

@@ -78,74 +78,8 @@ public class CertUtils {
         return new DerInputStream(data);
     }
 
-    /**
-     * Remove the header and footer in the PKCS10 request.
-     */
-    public static String unwrapPKCS10(String request, boolean checkHeader)
-            throws EBaseException {
-        String unwrapped;
-        String header = null;
-        int head = -1;
-        int trail = -1;
-
-        // check for "-----BEGIN NEW CERTIFICATE REQUEST-----";
-        if (header == null) {
-            head = request.indexOf(CertUtil.CERT_NEW_REQUEST_HEADER);
-            trail = request.indexOf(CertUtil.CERT_NEW_REQUEST_FOOTER);
-
-            if (!(head == -1 && trail == -1)) {
-                header = CertUtil.CERT_NEW_REQUEST_HEADER;
-            }
-        }
-
-        // check for "-----BEGIN CERTIFICATE REQUEST-----";
-        if (header == null) {
-            head = request.indexOf(Cert.REQUEST_HEADER);
-            trail = request.indexOf(Cert.REQUEST_FOOTER);
-
-            // If this is not a request header, check if this is a renewal header.
-            if (!(head == -1 && trail == -1)) {
-                header = Cert.REQUEST_HEADER;
-
-            }
-        }
-
-        // check for "-----BEGIN RENEWAL CERTIFICATE REQUEST-----";
-        if (header == null) {
-            head = request.indexOf(CertUtil.CERT_RENEWAL_HEADER);
-            trail = request.indexOf(CertUtil.CERT_RENEWAL_FOOTER);
-            if (!(head == -1 && trail == -1)) {
-                header = CertUtil.CERT_RENEWAL_HEADER;
-            }
-        }
-
-        // Now validate if any headers or trailers are in place
-        if (head == -1 && checkHeader) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_MISSING_PKCS10_HEADER"));
-        }
-        if (trail == -1 && checkHeader) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_MISSING_PKCS10_TRAILER"));
-        }
-
-        if (header != null) {
-            unwrapped = request.substring(head + header.length(), trail);
-        } else {
-            unwrapped = request;
-        }
-
-        // strip all the crtl-characters (i.e. \r\n)
-        StringTokenizer st = new StringTokenizer(unwrapped, "\t\r\n ");
-        StringBuffer stripped = new StringBuffer();
-
-        while (st.hasMoreTokens()) {
-            stripped.append(st.nextToken());
-        }
-
-        return stripped.toString();
-    }
-
     public static PKCS10 decodePKCS10(String req) throws EBaseException {
-        String normalized = unwrapPKCS10(req, true);
+        String normalized = CertUtil.unwrapPKCS10(req, true);
         PKCS10 pkcs10 = null;
 
         try {
