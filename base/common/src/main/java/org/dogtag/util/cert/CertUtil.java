@@ -80,6 +80,10 @@ public class CertUtil {
 
     /**
      * Convert PKCS #10 request from PEM to Base64.
+     *
+     * @param request string-formated PKCS #10 request
+     * @return Base64-encoded PKCS #10 request
+     * @exception EBaseException
      */
     public static String unwrapPKCS10(String request, boolean checkHeader) throws EBaseException {
 

@@ -24,11 +24,9 @@ import java.security.NoSuchProviderException;
 import java.security.SignatureException;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.StringTokenizer;
 
 import org.dogtag.util.cert.CertUtil;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
-import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -340,7 +338,7 @@ public class ArgBlock {
         }
         logger.trace("GET r={},k={},v={}", mType, name, mArgs.get(name));
 
-        String tempStr = unwrap((String) mArgs.get(name), false);
+        String tempStr = CertUtil.unwrapPKCS10((String) mArgs.get(name), false);
 
         if (tempStr == null) {
             throw new EBaseException(
@@ -374,7 +372,7 @@ public class ArgBlock {
         if (mArgs.get(name) == null) {
             return def;
         }
-        String tempStr = unwrap((String) mArgs.get(name), false);
+        String tempStr = CertUtil.unwrapPKCS10((String) mArgs.get(name), false);
 
         if (tempStr == null) {
             return def;
@@ -404,7 +402,7 @@ public class ArgBlock {
         if (mArgs.get(name) == null) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_ATTRIBUTE_NOT_FOUND", name));
         }
-        String tempStr = unwrap((String) mArgs.get(name), checkheader);
+        String tempStr = CertUtil.unwrapPKCS10((String) mArgs.get(name), checkheader);
 
         if (tempStr == null) {
             throw new EBaseException(
@@ -439,7 +437,7 @@ public class ArgBlock {
         if (mArgs.get(name) == null) {
             return def;
         }
-        String tempStr = unwrap((String) mArgs.get(name), checkheader);
+        String tempStr = CertUtil.unwrapPKCS10((String) mArgs.get(name), checkheader);
 
         if (tempStr == null) {
             return def;
@@ -575,71 +573,6 @@ public class ArgBlock {
     /*==========================================================
      * private methods
      *==========================================================*/
-
-    /**
-     * Unwrap PKCS10 Package
-     *
-     * @param request string formated PKCS10 request
-     * @exception EBaseException
-     * @return Base64Encoded PKCS10 request
-     */
-    private String unwrap(String request, boolean checkHeader)
-            throws EBaseException {
-        String unwrapped;
-        String header = null;
-        int head = -1;
-        int trail = -1;
-
-        // check for "-----BEGIN NEW CERTIFICATE REQUEST-----";
-        head = request.indexOf(CertUtil.CERT_NEW_REQUEST_HEADER);
-        trail = request.indexOf(CertUtil.CERT_NEW_REQUEST_FOOTER);
-
-        if (!(head == -1 && trail == -1)) {
-            header = CertUtil.CERT_NEW_REQUEST_HEADER;
-        }
-
-        // check for "-----BEGIN CERTIFICATE REQUEST-----";
-        if (header == null) {
-            head = request.indexOf(Cert.REQUEST_HEADER);
-            trail = request.indexOf(Cert.REQUEST_FOOTER);
-
-            // If this is not a request header, check if this is a renewal
-            // header.
-            if (!(head == -1 && trail == -1)) {
-                header = Cert.REQUEST_HEADER;
-
-            }
-        }
-
-        // check for "-----BEGIN RENEWAL CERTIFICATE REQUEST-----";
-        if (header == null) {
-            head = request.indexOf(CertUtil.CERT_RENEWAL_HEADER);
-            trail = request.indexOf(CertUtil.CERT_RENEWAL_FOOTER);
-            if (!(head == -1 && trail == -1)) {
-                header = CertUtil.CERT_RENEWAL_HEADER;
-            }
-        }
-
-        // Now validate if any headers or trailers are in place
-        if (head == -1 && checkHeader) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_MISSING_PKCS10_HEADER"));
-        }
-        if (trail == -1 && checkHeader) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_MISSING_PKCS10_TRAILER"));
-        }
-
-        unwrapped = header == null ? request : request.substring(head + header.length(), trail);
-
-        // strip all the crtl-characters (i.e. \r\n)
-        StringTokenizer st = new StringTokenizer(unwrapped, "\t\r\n ");
-        StringBuffer stripped = new StringBuffer();
-
-        while (st.hasMoreTokens()) {
-            stripped.append(st.nextToken());
-        }
-
-        return stripped.toString();
-    }
 
     /**
      * Decode Der encoded PKCS10 certifictae Request
