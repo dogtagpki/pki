@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
@@ -257,7 +258,19 @@ public class PKIClient implements AutoCloseable {
     }
 
     public <T> T get(String path, Class<T> responseType) throws Exception {
-        return connection.target(path).request().get(responseType);
+        return get(path, null, responseType);
+    }
+
+    public <T> T get(String path, Map<String, Object> params, Class<T> responseType) throws Exception {
+        WebTarget target = connection.target(path);
+        if (params != null) {
+            for (String name : params.keySet()) {
+                Object value = params.get(name);
+                if (value == null) continue;
+                target = target.queryParam(name, value);
+            }
+        }
+        return target.request().get(responseType);
     }
 
     public Response post(String path) throws Exception {
@@ -265,7 +278,19 @@ public class PKIClient implements AutoCloseable {
     }
 
     public <T> T post(String path, Class<T> responseType) throws Exception {
-        return connection.target(path).request().post(null, responseType);
+        return post(path, (Map<String, Object>) null, responseType);
+    }
+
+    public <T> T post(String path, Map<String, Object> params, Class<T> responseType) throws Exception {
+        WebTarget target = connection.target(path);
+        if (params != null) {
+            for (String name : params.keySet()) {
+                Object value = params.get(name);
+                if (value == null) continue;
+                target = target.queryParam(name, value);
+            }
+        }
+        return target.request().post(null, responseType);
     }
 
     public Response post(String path, MultivaluedMap<String, String> content) throws Exception {

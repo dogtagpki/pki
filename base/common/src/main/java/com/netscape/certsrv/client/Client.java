@@ -18,6 +18,7 @@
 package com.netscape.certsrv.client;
 
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import javax.ws.rs.core.Response;
 
@@ -109,6 +110,11 @@ public class Client {
     }
 
     public <T> T get(String suffix, Class<T> responseType) throws Exception {
+        return get(suffix, null, responseType);
+    }
+
+    public <T> T get(String suffix, Map<String, Object> params, Class<T> responseType) throws Exception {
+
         String path = subsystem;
 
         if (prefix != null) {
@@ -123,7 +129,7 @@ public class Client {
             path += "/" + suffix;
         }
 
-        return client.get(path, responseType);
+        return client.get(path, params, responseType);
     }
 
     public Response post() throws Exception {
@@ -153,6 +159,11 @@ public class Client {
     }
 
     public <T> T post(String suffix, Class<T> responseType) throws Exception {
+        return post(suffix, null, responseType);
+    }
+
+    public <T> T post(String suffix, Map<String, Object> params, Class<T> responseType) throws Exception {
+
         String path = subsystem;
 
         if (prefix != null) {
