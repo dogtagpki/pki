@@ -11,25 +11,8 @@ jobs:
   build:
     name: Waiting for build
     needs: init
-    runs-on: ubuntu-latest
-    steps:
-      - name: Wait for build
-        uses: lewagon/wait-on-check-action@v1.2.0
-        with:
-          ref: ${{ github.ref }}
-          check-name: 'Building PKI'
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          wait-interval: 30
-        if: github.event_name == 'push'
-
-      - name: Wait for build
-        uses: lewagon/wait-on-check-action@v1.2.0
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          check-name: 'Building PKI'
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          wait-interval: 30
-        if: github.event_name == 'pull_request'
+    uses: ./.github/workflows/wait-for-build.yml
+    secrets: inherit
 
   ocsp-basic-test:
     name: Basic OCSP
