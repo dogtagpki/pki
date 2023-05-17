@@ -138,7 +138,7 @@ public class WBaseManualCertRequestPage extends WizardBasePanel {
 				else
 					str = str + unwrapped.substring(i,len) +"\n";
 		    }
-			str = str + CERT_NEW_REQUEST_TRAILER;
+			str = str + CertUtil.CERT_NEW_REQUEST_FOOTER;
 			mReq = str;
 	    } else if (mReqFormat.equals(ConfigConstants.PR_REQUEST_CMC)){
 			String str = "";
