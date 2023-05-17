@@ -244,7 +244,7 @@ public class AgentCertService extends PKIService implements AgentCertResource {
             }
 
             // Find target cert record if different from client cert.
-            CertRecord targetRecord = id.equals(clientSerialNumber) ? clientRecord : processor.getCertificateRecord(id);
+            CertRecord targetRecord = clientRecord != null && id.toBigInteger().equals(clientSerialNumber) ? clientRecord : processor.getCertificateRecord(id);
             X509CertImpl targetCert = targetRecord.getCertificate();
 
             processor.createCRLExtension();
