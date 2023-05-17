@@ -131,7 +131,6 @@ import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.authentication.AuthSubsystem;
-import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestRepository;
@@ -260,7 +259,7 @@ public abstract class EnrollProfile extends Profile {
         }
 
         if (cert_request_type != null && cert_request_type.startsWith("crmf")) {
-            CertReqMsg[] msgs = CertUtils.parseCRMF(locale, cert_request);
+            CertReqMsg[] msgs = CertUtil.parseCRMF(locale, cert_request);
             num_requests = msgs.length;
         }
 

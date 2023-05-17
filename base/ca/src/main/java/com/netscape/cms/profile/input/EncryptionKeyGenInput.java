@@ -20,6 +20,7 @@ package com.netscape.cms.profile.input;
 import java.util.Locale;
 import java.util.Map;
 
+import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.DerInputStream;
@@ -140,7 +141,7 @@ public class EncryptionKeyGenInput extends EnrollInput {
 
         } else if (keygen_request_type.startsWith(EnrollProfile.REQ_TYPE_CRMF)) {
 
-            CertReqMsg[] msgs = CertUtils.parseCRMF(getLocale(request), keygen_request);
+            CertReqMsg[] msgs = CertUtil.parseCRMF(getLocale(request), keygen_request);
 
             if (msgs == null) {
                 throw new EProfileException(CMS.getUserMessage(
