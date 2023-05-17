@@ -39,7 +39,6 @@ import java.util.StringTokenizer;
 import org.dogtag.util.cert.CertUtil;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.netscape.security.extensions.NSCertTypeExtension;
-import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.DerInputStream;
@@ -76,20 +75,6 @@ public class CertUtils {
     public static DerInputStream parseKeyGen(String certreq) throws Exception {
         byte[] data = Utils.base64decode(certreq);
         return new DerInputStream(data);
-    }
-
-    public static PKCS10 decodePKCS10(String req) throws EBaseException {
-        String normalized = CertUtil.unwrapPKCS10(req, true);
-        PKCS10 pkcs10 = null;
-
-        try {
-            byte[] decodedBytes = Utils.base64decode(normalized);
-
-            pkcs10 = new PKCS10(decodedBytes);
-        } catch (Exception e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
-        }
-        return pkcs10;
     }
 
     public static CertReqMsg[] parseCRMF(Locale locale, String certreq) throws Exception {

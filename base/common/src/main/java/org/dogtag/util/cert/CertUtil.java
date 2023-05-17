@@ -164,6 +164,18 @@ public class CertUtil {
         return Utils.base64decode(sb.toString());
     }
 
+    public static PKCS10 decodePKCS10(String req) throws EBaseException {
+        String normalized = unwrapPKCS10(req, true);
+
+        try {
+            byte[] decodedBytes = Utils.base64decode(normalized);
+            return new PKCS10(decodedBytes);
+
+        } catch (Exception e) {
+            throw new EBaseException("Unable to decode PKCS #10 request: " + e.getMessage(), e);
+        }
+    }
+
     public static String toPEM(PKCS10 pkcs10) throws Exception {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         try (PrintStream out = new PrintStream(os)) {
