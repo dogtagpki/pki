@@ -207,12 +207,17 @@ public class CertUtil {
         }
     }
 
-    public static PKCS10 decodePKCS10(String req) throws EBaseException {
-        String normalized = unwrapPKCS10(req, true);
-
+    /**
+     * Decode PKCS #10 certificate request from Base64.
+     *
+     * @param request Base64-encoded certificate request
+     * @return PKCS10 object
+     * @exception EBaseException
+     */
+    public static PKCS10 decodePKCS10(String request) throws EBaseException {
         try {
-            byte[] decodedBytes = Utils.base64decode(normalized);
-            return new PKCS10(decodedBytes);
+            byte[] bytes = Utils.base64decode(request);
+            return new PKCS10(bytes);
 
         } catch (Exception e) {
             throw new EBaseException("Unable to decode PKCS #10 request: " + e.getMessage(), e);

@@ -19,15 +19,11 @@ package com.netscape.cmscore.base;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.SignatureException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
 import org.dogtag.util.cert.CertUtil;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
-import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.KeyGenInfo;
@@ -345,7 +341,7 @@ public class ArgBlock {
                     CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE", name, "Empty Content"));
         }
         try {
-            request = decodePKCS10(tempStr);
+            request = CertUtil.decodePKCS10(tempStr);
         } catch (Exception e) {
             throw new EBaseException(
                     CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE", name, e.toString()));
@@ -378,7 +374,7 @@ public class ArgBlock {
             return def;
         }
         try {
-            request = decodePKCS10(tempStr);
+            request = CertUtil.decodePKCS10(tempStr);
         } catch (Exception e) {
             return def;
         }
@@ -409,7 +405,7 @@ public class ArgBlock {
                     CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE", name, "Empty Content"));
         }
         try {
-            request = decodePKCS10(tempStr);
+            request = CertUtil.decodePKCS10(tempStr);
         } catch (Exception e) {
             throw new EBaseException(
                     CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE", name, e.toString()));
@@ -443,7 +439,7 @@ public class ArgBlock {
             return def;
         }
         try {
-            request = decodePKCS10(tempStr);
+            request = CertUtil.decodePKCS10(tempStr);
         } catch (Exception e) {
             return def;
         }
@@ -470,7 +466,7 @@ public class ArgBlock {
             return def;
         }
         try {
-            request = decodePKCS10(p10b64);
+            request = CertUtil.decodePKCS10(p10b64);
             return request;
         } catch (Exception e) {
             return def;
@@ -569,37 +565,4 @@ public class ArgBlock {
     public Object addBigIntegerValue(String n, BigInteger v, int radix) {
         return mArgs.put(n, v.toString(radix));
     }
-
-    /*==========================================================
-     * private methods
-     *==========================================================*/
-
-    /**
-     * Decode Der encoded PKCS10 certifictae Request
-     *
-     * @param base64Request Base64 Encoded Certificate Request
-     * @exception Exception
-     * @return PKCS10
-     */
-    private PKCS10 decodePKCS10(String base64Request)
-            throws EBaseException {
-        PKCS10 pkcs10 = null;
-
-        try {
-            byte[] decodedBytes = Utils.base64decode(base64Request);
-
-            pkcs10 = new PKCS10(decodedBytes);
-        } catch (NoSuchProviderException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
-        } catch (IOException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
-        } catch (SignatureException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
-        } catch (NoSuchAlgorithmException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
-        }
-
-        return pkcs10;
-    }
-
 }
