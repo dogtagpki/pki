@@ -33,7 +33,7 @@ public class TPSConnectorClient extends Client {
 
     public TPSConnectorData getConnector(String host, String port) throws Exception {
         TPSConnectorCollection connectors = findConnectors(host, port, null, null);
-        if (connectors.getTotal() < 1) {
+        if (connectors.getEntries().isEmpty()) {
             throw new ResourceNotFoundException("Connector not found: " + host + ":" + port);
         }
         return connectors.getEntries().iterator().next();
