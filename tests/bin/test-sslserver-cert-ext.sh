@@ -8,6 +8,11 @@ fi
 
 openssl x509 -text -noout -in $INPUT | tee output
 
+# verfiy subject name
+echo "Subject: " > expected
+sed -En 's/^ *(Subject: .*)$/\1/p' output | tee actual
+diff actual expected
+
 # verfiy SKI extension
 echo "X509v3 Subject Key Identifier: " > expected
 sed -En 's/^ *(X509v3 Subject Key Identifier: .*)$/\1/p' output | tee actual

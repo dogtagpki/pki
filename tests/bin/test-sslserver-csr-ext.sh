@@ -8,6 +8,11 @@ fi
 
 openssl req -text -noout -in $INPUT | tee output
 
+# verfiy subject name
+echo "Subject: " > expected
+sed -En 's/^ *(Subject: .*)$/\1/p' output | tee actual
+diff actual expected
+
 # verfiy basic constraints extension
 echo "X509v3 Basic Constraints: critical" > expected
 echo "CA:FALSE" >> expected
