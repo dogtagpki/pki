@@ -91,10 +91,6 @@ public class NSSCertRequestCLI extends CommandCLI {
     public void execute(CommandLine cmd) throws Exception {
 
         String subject = cmd.getOptionValue("subject");
-        if (subject == null) {
-            throw new Exception("Missing subject name");
-        }
-
         String keyID = cmd.getOptionValue("key-id");
         String keyType = cmd.getOptionValue("key-type", "RSA");
         String keySize = cmd.getOptionValue("key-size", "2048");
