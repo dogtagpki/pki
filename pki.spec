@@ -170,9 +170,9 @@ BuildRequires:    mvn(org.slf4j:slf4j-api)
 BuildRequires:    mvn(org.slf4j:slf4j-jdk14)
 BuildRequires:    mvn(org.junit.jupiter:junit-jupiter-api)
 BuildRequires:    pki-resteasy >= 3.0.26
-BuildRequires:    jss = 5.4
-BuildRequires:    tomcatjss = 8.4
-BuildRequires:    ldapjdk = 5.4
+BuildRequires:    jss >= 5.4
+BuildRequires:    tomcatjss >= 8.4
+BuildRequires:    ldapjdk >= 5.4
 
 %if 0%{?rhel} && ! 0%{?eln}
 BuildRequires:    pki-servlet-engine >= 9.0.31
@@ -370,8 +370,8 @@ Requires:         mvn(commons-logging:commons-logging)
 Requires:         mvn(commons-net:commons-net)
 Requires:         mvn(org.slf4j:slf4j-api)
 Requires:         mvn(org.slf4j:slf4j-jdk14)
-Requires:         jss = 5.4
-Requires:         ldapjdk = 5.4
+Requires:         jss >= 5.4
+Requires:         ldapjdk >= 5.4
 Requires:         %{product_id}-base = %{version}-%{release}
 Requires:         pki-resteasy >= 3.0.26
 
@@ -445,7 +445,7 @@ Requires:         systemd
 Requires(post):   systemd-units
 Requires(postun): systemd-units
 Requires(pre):    shadow-utils
-Requires:         tomcatjss = 8.4
+Requires:         tomcatjss >= 8.4
 
 # pki-healthcheck depends on the following library
 %if 0%{?rhel}
