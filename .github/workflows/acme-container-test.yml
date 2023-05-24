@@ -18,14 +18,14 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v3
 
-      - name: Retrieve PKI images
+      - name: Retrieve ACME images
         uses: actions/cache@v3
         with:
-          key: pki-images-${{ github.sha }}
-          path: pki-images.tar
+          key: acme-images-${{ github.sha }}
+          path: acme-images.tar
 
-      - name: Load PKI images
-        run: docker load --input pki-images.tar
+      - name: Load ACME images
+        run: docker load --input acme-images.tar
 
       - name: Create network
         run: docker network create example
