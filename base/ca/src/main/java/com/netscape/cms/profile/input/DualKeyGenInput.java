@@ -130,7 +130,7 @@ public class DualKeyGenInput extends EnrollInput {
 
         } else if (keygen_request_type.startsWith("crmf")) {
 
-            CertReqMsg[] msgs = CertUtil.parseCRMF(getLocale(request), keygen_request);
+            CertReqMsg[] msgs = CertUtil.parseCRMF(keygen_request);
 
             if (msgs == null) {
                 throw new EProfileException(CMS.getUserMessage(

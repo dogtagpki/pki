@@ -149,7 +149,7 @@ public class CertReqInput extends EnrollInput {
         } else if (cert_request_type.startsWith(EnrollProfile.REQ_TYPE_CRMF)) {
 
             logger.debug(method + "cert_request_type= REQ_TYPE_CRMF");
-            CertReqMsg[] msgs = CertUtil.parseCRMF(getLocale(request), cert_request);
+            CertReqMsg[] msgs = CertUtil.parseCRMF(cert_request);
 
             if (msgs == null) {
                 throw new EProfileException(CMS.getUserMessage(

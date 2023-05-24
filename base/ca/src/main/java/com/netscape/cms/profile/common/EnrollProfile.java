@@ -259,7 +259,7 @@ public abstract class EnrollProfile extends Profile {
         }
 
         if (cert_request_type != null && cert_request_type.startsWith("crmf")) {
-            CertReqMsg[] msgs = CertUtil.parseCRMF(locale, cert_request);
+            CertReqMsg[] msgs = CertUtil.parseCRMF(cert_request);
             num_requests = msgs.length;
         }
 

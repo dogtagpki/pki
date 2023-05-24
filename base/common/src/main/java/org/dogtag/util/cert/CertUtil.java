@@ -26,7 +26,6 @@ import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.Locale;
 import java.util.Set;
 import java.util.StringTokenizer;
 
@@ -156,7 +155,7 @@ public class CertUtil {
         return Utils.base64decode(csr);
     }
 
-    public static CertReqMsg[] parseCRMF(Locale locale, String certreq) throws Exception {
+    public static CertReqMsg[] parseCRMF(String certreq) throws Exception {
 
         logger.debug("CertUtil: Parsing CRMF request");
 

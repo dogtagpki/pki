@@ -141,7 +141,7 @@ public class EncryptionKeyGenInput extends EnrollInput {
 
         } else if (keygen_request_type.startsWith(EnrollProfile.REQ_TYPE_CRMF)) {
 
-            CertReqMsg[] msgs = CertUtil.parseCRMF(getLocale(request), keygen_request);
+            CertReqMsg[] msgs = CertUtil.parseCRMF(keygen_request);
 
             if (msgs == null) {
                 throw new EProfileException(CMS.getUserMessage(
