@@ -147,30 +147,13 @@ public class CertUtil {
             return null;
         }
 
-        csr = csr.replaceAll(Cert.REQUEST_HEADER, "");
-        csr = csr.replaceAll(CERT_NEW_REQUEST_HEADER, "");
-        csr = csr.replaceAll(Cert.REQUEST_FOOTER, "");
-        csr = csr.replaceAll(CERT_NEW_REQUEST_FOOTER, "");
-
-        StringBuffer sb = new StringBuffer();
-        StringTokenizer st = new StringTokenizer(csr, "\r\n ");
-
-        while (st.hasMoreTokens()) {
-            String nextLine = st.nextToken();
-
-            nextLine = nextLine.trim();
-            if (nextLine.equals(Cert.REQUEST_HEADER))
-                continue;
-            if (nextLine.equals(CERT_NEW_REQUEST_HEADER))
-                continue;
-            if (nextLine.equals(Cert.REQUEST_FOOTER))
-                continue;
-            if (nextLine.equals(CERT_NEW_REQUEST_FOOTER))
-                continue;
-            sb.append(nextLine);
+        try {
+            csr = unwrapPKCS10(csr, false);
+        } catch (EBaseException e) {
+            throw new RuntimeException(e);
         }
 
-        return Utils.base64decode(sb.toString());
+        return Utils.base64decode(csr);
     }
 
     public static CertReqMsg[] parseCRMF(Locale locale, String certreq) throws Exception {
