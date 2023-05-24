@@ -33,6 +33,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import org.dogtag.util.cert.CertUtil;
+import org.mozilla.jss.netscape.security.util.Cert;
 
 import com.netscape.admin.certsrv.CMSAdminUtil;
 import com.netscape.admin.certsrv.config.install.InstallWizardInfo;
@@ -40,6 +41,7 @@ import com.netscape.admin.certsrv.task.CMSConfigCert;
 import com.netscape.admin.certsrv.task.CMSRequestCert;
 import com.netscape.admin.certsrv.wizard.WizardBasePanel;
 import com.netscape.admin.certsrv.wizard.WizardInfo;
+import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.common.ConfigConstants;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.OpDef;
@@ -126,19 +128,22 @@ public class WBaseManualCertRequestPage extends WizardBasePanel {
 
 			// Break the long single line:header,64 byte lines,trailer
 			// Assuming this is the only format we generate.
-			int head = mReq.indexOf(CertUtil.CERT_NEW_REQUEST_HEADER);
-			int trail = mReq.indexOf(CertUtil.CERT_NEW_REQUEST_FOOTER);
-        	String unwrapped =
-				mReq.substring(head + CertUtil.CERT_NEW_REQUEST_HEADER.length(), trail);
-			String str = CertUtil.CERT_NEW_REQUEST_HEADER + "\n";
+			String unwrapped;
+			try {
+			    unwrapped = CertUtil.unwrapPKCS10(mReq, false);
+			} catch (EBaseException e) {
+			    throw new RuntimeException(e);
+			}
+
+			String str = Cert.REQUEST_HEADER + "\n";
 			int len = unwrapped.length();
 			for (int i = 0; i < len; i=i+64){
 				if (i+64 < len)
 					str = str + unwrapped.substring(i,i+64) +"\n";
 				else
 					str = str + unwrapped.substring(i,len) +"\n";
-		    }
-			str = str + CertUtil.CERT_NEW_REQUEST_FOOTER;
+		        }
+			str = str + Cert.REQUEST_FOOTER;
 			mReq = str;
 	    } else if (mReqFormat.equals(ConfigConstants.PR_REQUEST_CMC)){
 			String str = "";

@@ -1101,9 +1101,9 @@ class NSSDatabase(object):
 
             # add header and footer
             with open(request_file, 'w', encoding='utf-8') as f:
-                f.write('-----BEGIN NEW CERTIFICATE REQUEST-----\n')
+                f.write(CSR_HEADER + '\n')
                 f.write(b64_request)
-                f.write('-----END NEW CERTIFICATE REQUEST-----\n')
+                f.write(CSR_FOOTER + '\n')
 
         finally:
             shutil.rmtree(tmpdir)

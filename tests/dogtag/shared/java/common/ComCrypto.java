@@ -32,6 +32,7 @@ import java.net.URLEncoder;
 import java.security.KeyPair;
 import java.lang.Exception;
 
+import org.dogtag.util.cert.CertUtil;
 import org.mozilla.jss.*;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.InternalCertificate;
@@ -53,6 +54,7 @@ import org.mozilla.jss.pkix.crmf.*;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.util.BigInt;
+import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.x509.X500Signer;
 
 import sun.misc.BASE64Encoder;
@@ -89,10 +91,7 @@ public class ComCrypto {
     private CryptoStore store = null;
     private Password pass1 = null, pass2 = null;
 
-    private String bstr = "-----BEGIN NEW CERTIFICATE REQUEST-----";
-    private String blob, Blob1 = null;
-    private String Blob2 = null;
-    private String estr = "-----END NEW CERTIFICATE REQUEST-----";
+    private String blob;
 
     private String certprefix = null;
 
@@ -541,13 +540,9 @@ public class ComCrypto {
                         keytype, (byte[]) null, (byte[]) null, (byte[]) null);
 
                 System.out.println("Cert Request Generated.");
+                System.out.println(blob);
 
-                bstr = "-----BEGIN NEW CERTIFICATE REQUEST-----";
-                Blob1 = blob.substring(bstr.length() + 1);
-                Blob2 = Blob1.substring(0, Blob1.indexOf(estr));
-
-                System.out.println(Blob2);
-                pkcs10request = Blob2;
+                pkcs10request = CertUtil.unwrapPKCS10(blob, false);
             }
 
             return true;

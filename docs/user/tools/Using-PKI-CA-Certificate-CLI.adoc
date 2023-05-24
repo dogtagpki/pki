@@ -198,29 +198,9 @@ The request template will be stored in XML format:
 link:https://github.com/dogtagpki/pki/wiki/Generating-Certificate-Request[Generate a certificate request], for example:
 
 ----
-$ PKCS10Client -d ~/.dogtag/nssdb -p Secret.123 -a rsa -l 1024 -o testuser.csr -n "uid=testuser"
-PKCS10Client: Debug: got token.
-PKCS10Client: Debug: thread token set.
-PKCS10Client: token Internal Key Storage Token logged in...
-PKCS10Client: key pair generated.
-PKCS10Client: pair.getPublic() called.
-PKCS10Client: CertificationRequestInfo() created.
-PKCS10Client: CertificationRequest created.
-PKCS10Client: calling Utils.b64encode.
-PKCS10Client: b64encode completes.
------BEGIN NEW CERTIFICATE REQUEST-----
-MIIBfTCB5wIBADAaMRgwFgYKCZImiZPyLGQBARMIdGVzdHVzZXIwgZ8wDQYJKoZI
-hvcNAQEBBQADgY0AMIGJAoGBAPEcxFJBu2lNmIS+MNaZKO43h0dIhKZWZ8wEomQc
-tc9guIUGM5eFU+psj6n0XQCPMIVRe7mrzYHF8mlwAp416P5/97g9U6JOKkTXc5ia
-HVE1JRhykHiQ17Lp7Y6xXxfe6xKAXDoLOPJ4fNdadtbVeIGjudWktjgwh5CQBXsA
-GFP5AgMBAAGgJDAiBggrBgEFBQcHFzEWBBTmaclfLv+kkK5z5kTMP54dlnecUDAN
-BgkqhkiG9w0BAQQFAAOBgQAXrm979HwcG63Z64u+aybYrfOgyWxQ4kTtCA+NKYge
-HC6Z/mlb10J/wggOzrHUbE4IFyjbBo2k1FKe8zYcXIB6Ok5Z0TXueR1zKcb8hE35
-o9dkH2sGJsSqMLN8NRyY5QeqOKmtaX8pm1aPhJ0wkvOYou52YqJdq6LF9KXmBGOH
-hA==
-
------END NEW CERTIFICATE REQUEST-----
-PKCS10Client: done. Request written to file: testuser.csr
+$ PKCS10Client -d ~/.dogtag/nssdb -p Secret.123 -a rsa -l 2048 -o testuser.csr -n "uid=testuser"
+PKCS10Client: Certificate request written into testuser.csr
+PKCS10Client: PKCS#10 request key id written into testuser.csr.keyId
 ----
 
 == Submitting a Certificate Request ==

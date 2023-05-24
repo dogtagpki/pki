@@ -34,6 +34,7 @@ import java.util.Vector;
 
 import org.dogtag.util.cert.CertUtil;
 
+import com.netscape.certsrv.base.EBaseException;
 import com.netscape.management.client.util.Debug;
 
 //this class need some optimization....
@@ -68,9 +69,10 @@ class Response {
     boolean _fsecurityDomestic = false, _fsecurityFortezza = false;
 
     void parseCertificate(String response) {
-        if (response.indexOf(CertUtil.CERT_NEW_REQUEST_HEADER) != -1) {
-            _cert = response.substring(response.indexOf(CertUtil.CERT_NEW_REQUEST_HEADER),
-                    response.indexOf(CertUtil.CERT_NEW_REQUEST_FOOTER) + CertUtil.CERT_NEW_REQUEST_FOOTER.length());
+        try {
+            _cert = CertUtil.unwrapPKCS10(response, false);
+        } catch (EBaseException e) {
+            throw new RuntimeException(e);
         }
     }
 

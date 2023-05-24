@@ -27,11 +27,13 @@ import javax.swing.JRadioButton;
 import javax.swing.JTextArea;
 
 import org.dogtag.util.cert.CertUtil;
+import org.mozilla.jss.netscape.security.util.Cert;
 
 import com.netscape.admin.certsrv.CMSAdminUtil;
 import com.netscape.admin.certsrv.wizard.IWizardPanel;
 import com.netscape.admin.certsrv.wizard.WizardBasePanel;
 import com.netscape.admin.certsrv.wizard.WizardInfo;
+import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.common.ConfigConstants;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
@@ -225,21 +227,22 @@ class WIGenKeyCertReqPage extends WizardBasePanel implements IWizardPanel {
     }
 
     private String reformat(String pkcs) {
-        int beginIndex = CertUtil.CERT_NEW_REQUEST_HEADER.length();
-        int endIndex = CertUtil.CERT_NEW_REQUEST_FOOTER.length();
-        int totalLen = pkcs.length();
-        String content = pkcs.substring(beginIndex, totalLen-endIndex);
-        String result = CertUtil.CERT_NEW_REQUEST_HEADER + "\n";
-        int index = 0;
+        String content;
+        try {
+            content = CertUtil.unwrapPKCS10(pkcs, false);
+        } catch (EBaseException e) {
+            throw new RuntimeException(e);
+        }
+
+        String result = Cert.REQUEST_HEADER + "\n";
         while (content.length() >= LINE_COUNT) {
             result = result+content.substring(0, LINE_COUNT)+"\n";
             content = content.substring(LINE_COUNT);
         }
         if (content.length() > 0) {
-            result = result + content + "\n" + CertUtil.CERT_NEW_REQUEST_FOOTER;
-        } else {
-            result = result + CertUtil.CERT_NEW_REQUEST_FOOTER;
+            result = result + content + "\n";
         }
+        result = result + Cert.REQUEST_FOOTER;
 
         return result;
     }
