@@ -22,7 +22,6 @@ import java.io.IOException;
 
 import org.dogtagpki.cli.CLI;
 
-import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.selftests.SelfTestClient;
 import com.netscape.certsrv.selftests.SelfTestData;
 /**
@@ -46,8 +45,7 @@ public class SelfTestCLI extends CLI {
 
         if (selfTestClient != null) return selfTestClient;
 
-        PKIClient client = getClient();
-        selfTestClient = (SelfTestClient)parent.getClient("selftest");
+        selfTestClient = (SelfTestClient) parent.getClient("selftests");
 
         return selfTestClient;
     }
