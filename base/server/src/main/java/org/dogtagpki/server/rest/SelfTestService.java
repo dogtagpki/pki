@@ -79,10 +79,13 @@ public class SelfTestService extends PKIService implements SelfTestResource {
     @Override
     public Response findSelfTests(String filter, Integer start, Integer size) {
 
-        logger.debug("SelfTestService.findSelfTests()");
+        logger.info("SelfTestService: Searching for selftests");
+        logger.info("SelfTestService: - filter: " + filter);
+        logger.info("SelfTestService: - start: " + start);
+        logger.info("SelfTestService: - size: " + size);
 
         if (filter != null && filter.length() < MIN_FILTER_LENGTH) {
-            throw new BadRequestException("Filter is too short.");
+            throw new BadRequestException("Filter too short: " + filter);
         }
 
         start = start == null ? 0 : start;
@@ -92,10 +95,12 @@ public class SelfTestService extends PKIService implements SelfTestResource {
         SelfTestSubsystem subsystem = (SelfTestSubsystem) engine.getSubsystem(SelfTestSubsystem.ID);
 
         try {
+            logger.info("SelfTestService: Results:");
             // filter self tests
             Collection<String> results = new ArrayList<>();
             for (String name : subsystem.getSelfTestNames()) {
                 if (filter != null && !name.contains(filter)) continue;
+                logger.info("SelfTestService: - " + name);
                 results.add(name);
             }
 
@@ -127,9 +132,9 @@ public class SelfTestService extends PKIService implements SelfTestResource {
     @Override
     public Response getSelfTest(String selfTestID) {
 
-        if (selfTestID == null) throw new BadRequestException("Self test ID is null.");
+        logger.info("SelfTestService: Retrieving selftest " + selfTestID);
 
-        logger.debug("SelfTestService.getSelfTest(\"" + selfTestID + "\")");
+        if (selfTestID == null) throw new BadRequestException("Missing selftest ID");
 
         CMSEngine engine = getCMSEngine();
         SelfTestSubsystem subsystem = (SelfTestSubsystem) engine.getSubsystem(SelfTestSubsystem.ID);
@@ -146,9 +151,9 @@ public class SelfTestService extends PKIService implements SelfTestResource {
     @Override
     public Response executeSelfTests(String action) {
 
-        if (action == null) throw new BadRequestException("Action is null.");
+        logger.info("SelfTestService: Executing selftest " + action);
 
-        logger.debug("SelfTestService.executeSelfTests(\"" + action + "\")");
+        if (action == null) throw new BadRequestException("Missing selftest action");
 
         if (!"run".equals(action)) {
             throw new BadRequestException("Invalid action: " + action);
@@ -171,7 +176,7 @@ public class SelfTestService extends PKIService implements SelfTestResource {
     @Override
     public Response runSelfTests() {
 
-        logger.debug("SelfTestService.runSelfTests()");
+        logger.info("SelfTestService: Running all selftests");
 
         SelfTestResults results = new SelfTestResults();
 
@@ -196,7 +201,7 @@ public class SelfTestService extends PKIService implements SelfTestResource {
     @Override
     public Response runSelfTest(String selfTestID) {
 
-        logger.debug("SelfTestService.runSelfTest(" + selfTestID + ")");
+        logger.info("SelfTestService: Running selftest " + selfTestID);
 
         SelfTestResult result = new SelfTestResult();
         result.setID(selfTestID);
@@ -209,6 +214,9 @@ public class SelfTestService extends PKIService implements SelfTestResource {
             result.setStatus("PASSED");
 
         } catch (Exception e) {
+
+            logger.error("SelfTestService: " + e.getMessage(), e);
+
             result.setStatus("FAILED");
 
             StringWriter sw = new StringWriter();
@@ -216,6 +224,8 @@ public class SelfTestService extends PKIService implements SelfTestResource {
             e.printStackTrace(out);
             result.setOutput(sw.toString());
         }
+
+        logger.info("SelfTestService: Status: " + result.getStatus());
 
         return createOKResponse(result);
     }
