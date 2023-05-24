@@ -32,8 +32,9 @@ import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import com.netscape.management.client.util.Debug;
 import org.dogtag.util.cert.CertUtil;
+
+import com.netscape.management.client.util.Debug;
 
 //this class need some optimization....
 
@@ -62,7 +63,7 @@ class Response {
     String startCRLCertInstInfo = "-----BEGIN CRL INSTALL INFO-----";
     String endCRLCertInstInfo = "-----END CRL INSTALL INFO-----";
 
-    boolean _fCert = false, _fCertList = false, _fCertInfo = false,
+    boolean _fCertList = false, _fCertInfo = false,
     _fCertInstInfo = false;
     boolean _fsecurityDomestic = false, _fsecurityFortezza = false;
 
@@ -70,7 +71,6 @@ class Response {
         if (response.indexOf(CertUtil.CERT_NEW_REQUEST_HEADER) != -1) {
             _cert = response.substring(response.indexOf(CertUtil.CERT_NEW_REQUEST_HEADER),
                     response.indexOf(CertUtil.CERT_NEW_REQUEST_FOOTER) + CertUtil.CERT_NEW_REQUEST_FOOTER.length());
-            _fCert = true;
         }
     }
 
@@ -375,7 +375,7 @@ class Response {
     }
     public boolean hasCert() {
         parseCertificate(_response);
-        return _fCert;
+        return !_cert.isBlank();
     }
     public boolean hasMessage() {
         return (_messages.size() > 0);
@@ -394,7 +394,7 @@ class Response {
         return _fCertInstInfo;
     }
     public String getCert() {
-        return _fCert ? _cert : "";
+        return _cert;
     }
     public Vector<Message> getMessages() {
         return _messages;
