@@ -40,8 +40,9 @@ import com.netscape.cmscore.request.Request;
  */
 public class UserSubjectNameDefault extends EnrollDefault {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UserSubjectNameDefault.class);
+    public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UserSubjectNameDefault.class);
 
+    private static final String CMS_INVALID_PROPERTY = "CMS_INVALID_PROPERTY";
     public static final String VAL_NAME = "name";
     public static final String CONFIG_USE_SYS_ENCODING = "useSysEncoding";
 
@@ -57,9 +58,8 @@ public class UserSubjectNameDefault extends EnrollDefault {
             return new Descriptor(IDescriptor.BOOLEAN, null,
                     "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CONFIG_USE_SYS_ENCODING"));
-        } else {
-            return null;
         }
+        return null;
     }
 
     @Override
@@ -67,9 +67,8 @@ public class UserSubjectNameDefault extends EnrollDefault {
         if (name.equals(VAL_NAME)) {
             return new Descriptor(IDescriptor.STRING, null, null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_SUBJECT_NAME"));
-        } else {
-            return null;
         }
+        return null;
     }
 
     private X500Name getX500Name(X509CertInfo info, String value) {
@@ -81,8 +80,7 @@ public class UserSubjectNameDefault extends EnrollDefault {
              * policyset.<policy set>.<#>.default.params.useSysEncoding=true
              */
             boolean useSysEncoding = getConfigBoolean(CONFIG_USE_SYS_ENCODING);
-            logger.debug(method +
-                    "use system encoding: " + useSysEncoding);
+            logger.debug("{} use system encoding: {}", method, useSysEncoding);
 
             try {
                 if (value != null)
@@ -91,35 +89,29 @@ public class UserSubjectNameDefault extends EnrollDefault {
                 // oldName is what comes with the CSR
                 CertificateSubjectName oldName = info.getSubjectObj();
 
-                if (oldName != null) {
-                    logger.debug(method + "subjectDN exists in CSR: " + oldName);
+                if (oldName == null) {
+                    logger.debug("{} subjectDN does not exist in CSR.", method);
                 } else {
-                    logger.debug(method + "subjectDN does not exist in CSR. ");
+                    logger.debug("{} subjectDN exists in CSR: {}", method, oldName);
                 }
 
-                if ((useSysEncoding == false) && (oldName != null)) {
+                if (!useSysEncoding && oldName != null) {
                     /* If the canonical string representations of
                      * existing Subject DN and new DN are equal,
                      * keep the old name so that the attribute
                      * encodings are preserved. */
                     X500Name oldX500name = oldName.getX500Name();
                     if (x500name == null) {
-                        logger.debug( method
-                            + "new Subject DN is null; "
-                            + "retaining current value: " + oldX500name
-                        );
+                        logger.debug("{} new Subject DN is null; retaining current value: {}",
+                                method, oldX500name);
                         x500name = oldX500name;
                     } else if (x500name.toString().equals(oldX500name.toString())) {
-                        logger.debug( method
-                            + "new Subject DN has same string representation "
-                            + "as current value; retaining current value: " + oldX500name
-                        );
+                        logger.debug("{} new Subject DN has same string representation as current value;"
+                                + " retaining current value: {}", method, oldX500name);
                         x500name = oldX500name;
                     } else {
-                        logger.debug(method
-                            + "replacing current value `" + oldX500name.toString() + "` "
-                            + "with new value `" + x500name.toString() + "`"
-                        );
+                        logger.debug("{} replacing current value `{}` with new value `{}`",
+                                method, oldX500name, x500name);
                     }
                 }
             } catch (IOException e) {
@@ -127,7 +119,7 @@ public class UserSubjectNameDefault extends EnrollDefault {
                 // failed to build x500 name
             }
 
-            logger.debug(method + "subject: " + x500name);
+            logger.debug("{} subject: {}", method, x500name);
 
             return x500name;
     }
@@ -138,19 +130,16 @@ public class UserSubjectNameDefault extends EnrollDefault {
             throws EPropertyException {
         String method = "UserSubjectNameDefault: setValue: ";
         if (name == null) {
-            logger.error(name + "name null");
+            logger.error("{} name = null", method);
             throw new EPropertyException(CMS.getUserMessage(
-                        locale, "CMS_INVALID_PROPERTY", name));
+                        locale, CMS_INVALID_PROPERTY, name));
         }
-        logger.debug(method + "name = " + name);
-        if (value != null)
-            logger.debug(method + "value = " + value);
-        else
-            logger.debug(method + "value = null");
+        logger.debug("{} name = {}", method, name);
+        logger.debug("{} value = {}", method, value);
 
         if (name.equals(VAL_NAME)) {
             X500Name x500name = getX500Name(info, value);
-            logger.debug(method + "setting name=" + x500name);
+            logger.debug("{} setting name={}", method, x500name);
             try {
                 info.set(X509CertInfo.SUBJECT,
                         new CertificateSubjectName(x500name));
@@ -158,11 +147,11 @@ public class UserSubjectNameDefault extends EnrollDefault {
                 // failed to insert subject name
                 logger.error(method + e.getMessage(), e);
                 throw new EPropertyException(CMS.getUserMessage(
-                            locale, "CMS_INVALID_PROPERTY", name));
+                            locale, CMS_INVALID_PROPERTY, name));
             }
         } else {
             throw new EPropertyException(CMS.getUserMessage(
-                        locale, "CMS_INVALID_PROPERTY", name));
+                        locale, CMS_INVALID_PROPERTY, name));
         }
     }
 
@@ -172,7 +161,7 @@ public class UserSubjectNameDefault extends EnrollDefault {
             throws EPropertyException {
         if (name == null) {
             throw new EPropertyException(CMS.getUserMessage(
-                        locale, "CMS_INVALID_PROPERTY", name));
+                        locale, CMS_INVALID_PROPERTY, name));
         }
         if (name.equals(VAL_NAME)) {
             CertificateSubjectName sn = null;
@@ -185,11 +174,10 @@ public class UserSubjectNameDefault extends EnrollDefault {
                 // nothing
             }
             throw new EPropertyException(CMS.getUserMessage(
-                        locale, "CMS_INVALID_PROPERTY", name));
-        } else {
-            throw new EPropertyException(CMS.getUserMessage(
-                        locale, "CMS_INVALID_PROPERTY", name));
+                        locale, CMS_INVALID_PROPERTY, name));
         }
+        throw new EPropertyException(CMS.getUserMessage(
+                    locale, CMS_INVALID_PROPERTY, name));
     }
 
     @Override
@@ -206,11 +194,11 @@ public class UserSubjectNameDefault extends EnrollDefault {
 
         // authenticate the subject name and populate it
         // to the certinfo
-        CertificateSubjectName req_sbj = request.getExtDataInCertSubjectName(
+        CertificateSubjectName reqSbj = request.getExtDataInCertSubjectName(
                     Request.REQUEST_SUBJECT_NAME);
-        logger.info("UserSubjectNameDefault: Subject: " + req_sbj);
+        logger.info("UserSubjectNameDefault: Subject: {}", reqSbj);
 
-        if (req_sbj == null) {
+        if (reqSbj == null) {
             // failed to retrieve subject name
             logger.error("UserSubjectNameDefault: populate req_sbj is null");
             throw new EProfileException(CMS.getUserMessage(getLocale(request),
@@ -218,17 +206,16 @@ public class UserSubjectNameDefault extends EnrollDefault {
         }
 
         try {
-            info.set(X509CertInfo.SUBJECT, req_sbj);
+            info.set(X509CertInfo.SUBJECT, reqSbj);
 
             // see if the encoding needs changing
-            X500Name x500name = getX500Name(info, req_sbj.toString());
+            X500Name x500name = getX500Name(info, reqSbj.toString());
             if (x500name != null) {
                 info.set(X509CertInfo.SUBJECT,
                         new CertificateSubjectName(x500name));
             }
         } catch (Exception e) {
             // failed to insert subject name
-            logger.error("UserSubjectNameDefault: populate " + e.getMessage(), e);
             throw new EProfileException(e.toString());
         }
     }
