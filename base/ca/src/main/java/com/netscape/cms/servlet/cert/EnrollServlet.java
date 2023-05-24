@@ -1025,13 +1025,7 @@ public class EnrollServlet extends CAServlet {
 
             byte[] cmc = null;
             if (cmcBase64 != null && !cmcBase64.isBlank()) {
-                int startIndex = cmcBase64.indexOf(CertUtil.CERT_NEW_REQUEST_HEADER);
-                int endIndex = cmcBase64.indexOf(CertUtil.CERT_NEW_REQUEST_FOOTER);
-                if (startIndex != -1 && endIndex != -1) {
-                    startIndex = startIndex + CertUtil.CERT_NEW_REQUEST_HEADER.length();
-                    cmcBase64 = cmcBase64.substring(startIndex, endIndex);
-                }
-                cmc = Utils.base64decode(cmcBase64);
+                cmc = CertUtil.parseCSR(cmcBase64);
             }
 
             String crmfBase64 = httpParams.getValueAsString(CRMF_REQUEST, null);

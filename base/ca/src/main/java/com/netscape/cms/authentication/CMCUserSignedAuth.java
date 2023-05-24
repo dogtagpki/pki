@@ -315,17 +315,7 @@ public class CMCUserSignedAuth extends AuthManager implements IExtendedPluginInf
             AuthToken authToken = new AuthToken(this);
 
             try {
-                String asciiBASE64Blob;
-
-                int startIndex = cmc.indexOf(CertUtil.CERT_NEW_REQUEST_HEADER);
-                int endIndex = cmc.indexOf(CertUtil.CERT_NEW_REQUEST_FOOTER);
-                if (startIndex != -1 && endIndex != -1) {
-                    startIndex = startIndex + CertUtil.CERT_NEW_REQUEST_HEADER.length();
-                    asciiBASE64Blob = cmc.substring(startIndex, endIndex);
-                } else
-                    asciiBASE64Blob = cmc;
-
-                byte[] cmcBlob = Utils.base64decode(asciiBASE64Blob);
+                byte[] cmcBlob = CertUtil.parseCSR(cmc);
                 ByteArrayInputStream cmcBlobIn = new ByteArrayInputStream(cmcBlob);
 
                 org.mozilla.jss.pkix.cms.ContentInfo cmcReq = (org.mozilla.jss.pkix.cms.ContentInfo) org.mozilla.jss.pkix.cms.ContentInfo
