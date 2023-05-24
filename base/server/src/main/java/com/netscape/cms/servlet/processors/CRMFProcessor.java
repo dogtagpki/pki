@@ -29,7 +29,6 @@ import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.netscape.security.extensions.CertInfo;
 import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
-import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
 import org.mozilla.jss.netscape.security.x509.CertificateValidity;
@@ -323,17 +322,16 @@ public class CRMFProcessor extends PKIProcessor {
 
     @Override
     public X509CertInfo[] fillCertInfoArray(
-            String protocolString, AuthToken authToken, ArgBlock httpParams, Request req)
+            byte[] bytes,
+            AuthToken authToken,
+            ArgBlock httpParams,
+            Request req)
             throws EBaseException {
 
         logger.debug("CRMFProcessor.fillCertInfoArray!");
 
-        String crmf = protocolString;
-
         try {
-            byte[] crmfBlob = Utils.base64decode(crmf);
-            ByteArrayInputStream crmfBlobIn =
-                    new ByteArrayInputStream(crmfBlob);
+            ByteArrayInputStream crmfBlobIn = new ByteArrayInputStream(bytes);
 
             SEQUENCE crmfMsgs = (SEQUENCE)
                     new SEQUENCE.OF_Template(new CertReqMsg.Template()).decode(crmfBlobIn);

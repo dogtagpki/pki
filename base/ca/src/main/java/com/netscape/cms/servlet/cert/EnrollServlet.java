@@ -1020,23 +1020,27 @@ public class EnrollServlet extends CAServlet {
                 }
             }
 
-            String cmc = null;
-            String asciiBASE64Blob = httpParams.getValueAsString(CMC_REQUEST, null);
+            String cmcBase64 = httpParams.getValueAsString(CMC_REQUEST, null);
+            logger.debug("EnrollServlet: CMC: " + cmcBase64);
 
-            if (asciiBASE64Blob != null) {
-                int startIndex = asciiBASE64Blob.indexOf(CertUtil.CERT_NEW_REQUEST_HEADER);
-                int endIndex = asciiBASE64Blob.indexOf(CertUtil.CERT_NEW_REQUEST_FOOTER);
+            byte[] cmc = null;
+            if (cmcBase64 != null && !cmcBase64.isBlank()) {
+                int startIndex = cmcBase64.indexOf(CertUtil.CERT_NEW_REQUEST_HEADER);
+                int endIndex = cmcBase64.indexOf(CertUtil.CERT_NEW_REQUEST_FOOTER);
                 if (startIndex != -1 && endIndex != -1) {
                     startIndex = startIndex + CertUtil.CERT_NEW_REQUEST_HEADER.length();
-                    cmc = asciiBASE64Blob.substring(startIndex, endIndex);
-                } else
-                    cmc = asciiBASE64Blob;
-                logger.debug("EnrollServlet: cmc " + cmc);
+                    cmcBase64 = cmcBase64.substring(startIndex, endIndex);
+                }
+                cmc = Utils.base64decode(cmcBase64);
             }
 
-            String crmf = httpParams.getValueAsString(CRMF_REQUEST, null);
+            String crmfBase64 = httpParams.getValueAsString(CRMF_REQUEST, null);
+            logger.debug("EnrollServlet: CRMF: " + crmfBase64);
 
-            logger.debug("EnrollServlet: crmf " + crmf);
+            byte[] crmf = null;
+            if (crmfBase64 != null && !crmfBase64.isBlank()) {
+                crmf = Utils.base64decode(crmfBase64);
+            }
 
             if (certAuthEnroll == true) {
 
@@ -1143,14 +1147,15 @@ public class EnrollServlet extends CAServlet {
                         logger.debug("EnrollServlet: sslClientCert issuerDN = " +
                                 sslClientCert.getIssuerDN().toString());
 
-                    } else if (crmf != null && crmf != "") {
+                    } else if (crmf != null) {
                         CRMFProcessor crmfProc = new CRMFProcessor(cmsReq, this, enforcePop);
                         crmfProc.setCMSEngine(engine);
 
-                        certInfoArray = crmfProc.fillCertInfoArray(crmf,
-                                    authToken,
-                                    httpParams,
-                                    req);
+                        certInfoArray = crmfProc.fillCertInfoArray(
+                                crmf,
+                                authToken,
+                                httpParams,
+                                req);
 
                         req.setExtData(CLIENT_ISSUER,
                                 sslClientCert.getIssuerDN().toString());
@@ -1189,27 +1194,33 @@ public class EnrollServlet extends CAServlet {
 
                         keyGenProc.fillCertInfo(null, certInfo,
                                 authToken, httpParams);
+
                     } else if (pkcs10 != null) {
                         PKCS10Processor pkcs10Proc = new PKCS10Processor(cmsReq, this);
                         pkcs10Proc.setCMSEngine(engine);
 
                         pkcs10Proc.fillCertInfo(pkcs10, certInfo,
                                 authToken, httpParams);
-                    } else if (cmc != null && cmc != "") {
+
+                    } else if (cmc != null) {
                         CMCProcessor cmcProc = new CMCProcessor(cmsReq, this, enforcePop);
                         cmcProc.setCMSEngine(engine);
 
-                        certInfoArray = cmcProc.fillCertInfoArray(cmc,
-                                    authToken,
-                                    httpParams,
-                                    req);
-                    } else if (crmf != null && crmf != "") {
+                        certInfoArray = cmcProc.fillCertInfoArray(
+                                cmc,
+                                authToken,
+                                httpParams,
+                                req);
+
+                    } else if (crmf != null) {
                         CRMFProcessor crmfProc = new CRMFProcessor(cmsReq, this, enforcePop);
 
-                        certInfoArray = crmfProc.fillCertInfoArray(crmf,
-                                    authToken,
-                                    httpParams,
-                                    req);
+                        certInfoArray = crmfProc.fillCertInfoArray(
+                                crmf,
+                                authToken,
+                                httpParams,
+                                req);
+
                     } else {
                         logger.error(CMS.getLogMessage("CMSGW_CANT_PROCESS_ENROLL_REQ") +
                                         CMS.getLogMessage("CMSGW_MISSING_KEYGEN_INFO"));
@@ -1241,23 +1252,33 @@ public class EnrollServlet extends CAServlet {
                 KeyGenProcessor keyGenProc = new KeyGenProcessor(cmsReq, this);
 
                 keyGenProc.fillCertInfo(null, certInfo, authToken, httpParams);
+
             } else if (pkcs10 != null) {
                 logger.debug("EnrollServlet: Trying PKCS10 with no cert auth.");
                 PKCS10Processor pkcs10Proc = new PKCS10Processor(cmsReq, this);
 
                 pkcs10Proc.fillCertInfo(pkcs10, certInfo, authToken, httpParams);
+
             } else if (cmc != null) {
                 logger.debug("EnrollServlet: Trying CMC with no cert auth.");
                 CMCProcessor cmcProc = new CMCProcessor(cmsReq, this, enforcePop);
 
-                certInfoArray = cmcProc.fillCertInfoArray(cmc, authToken,
-                            httpParams, req);
-            } else if (crmf != null && crmf != "") {
+                certInfoArray = cmcProc.fillCertInfoArray(
+                        cmc,
+                        authToken,
+                        httpParams,
+                        req);
+
+            } else if (crmf != null) {
                 logger.debug("EnrollServlet: Trying CRMF with no cert auth.");
                 CRMFProcessor crmfProc = new CRMFProcessor(cmsReq, this, enforcePop);
 
-                certInfoArray = crmfProc.fillCertInfoArray(crmf, authToken,
-                            httpParams, req);
+                certInfoArray = crmfProc.fillCertInfoArray(
+                        crmf,
+                        authToken,
+                        httpParams,
+                        req);
+
             } else {
                 logger.error(CMS.getLogMessage("CMSGW_CANT_PROCESS_ENROLL_REQ") +
                                 CMS.getLogMessage("CMSGW_MISSING_KEYGEN_INFO"));

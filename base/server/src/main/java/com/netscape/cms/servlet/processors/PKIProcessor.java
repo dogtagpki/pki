@@ -99,7 +99,10 @@ public class PKIProcessor {
     }
 
     protected X509CertInfo[] fillCertInfoArray(
-            String protocolString, AuthToken authToken, ArgBlock httpParams, Request req)
+            byte[] bytes,
+            AuthToken authToken,
+            ArgBlock httpParams,
+            Request req)
             throws EBaseException {
         return null;
     }

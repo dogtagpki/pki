@@ -39,7 +39,6 @@ import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.crypto.DigestAlgorithm;
 import org.mozilla.jss.netscape.security.extensions.CertInfo;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
-import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
@@ -106,16 +105,16 @@ public class CMCProcessor extends PKIProcessor {
 
     @Override
     public X509CertInfo[] fillCertInfoArray(
-            String protocolString, AuthToken authToken, ArgBlock httpParams, Request req)
+            byte[] bytes,
+            AuthToken authToken,
+            ArgBlock httpParams,
+            Request req)
             throws EBaseException {
 
         logger.debug("CMCProcessor: In CMCProcessor.fillCertInfoArray!");
-        String cmc = protocolString;
 
         try {
-            byte[] cmcBlob = Utils.base64decode(cmc);
-            ByteArrayInputStream cmcBlobIn =
-                    new ByteArrayInputStream(cmcBlob);
+            ByteArrayInputStream cmcBlobIn = new ByteArrayInputStream(bytes);
 
             org.mozilla.jss.pkix.cms.ContentInfo cmcReq = (org.mozilla.jss.pkix.cms.ContentInfo)
                     org.mozilla.jss.pkix.cms.ContentInfo.getTemplate().decode(cmcBlobIn);
