@@ -50,8 +50,9 @@ option(WITH_TPS "Build TPS package" ON)
 option(WITH_ACME "Build ACME package" ON)
 option(WITH_EST "Build EST package" ON)
 option(WITH_JAVADOC "Build Javadoc package" ON)
-option(WITH_TESTS "Build tests package" ON)
+option(WITH_THEME "Build theme package" ON)
 option(WITH_META "Build meta package" ON)
+option(WITH_TESTS "Build tests package" ON)
 option(RUN_TESTS "Run unit tests" ON)
 
 set(APPLICATION_VERSION "${APPLICATION_VERSION_MAJOR}.${APPLICATION_VERSION_MINOR}.${APPLICATION_VERSION_PATCH}")
@@ -155,9 +156,9 @@ add_custom_target(clean-cmake
 
 add_subdirectory(base)
 
-if (NOT "${THEME}" STREQUAL "")
+if(WITH_THEME)
     add_subdirectory(themes)
-endif ()
+endif(WITH_THEME)
 
 if(WITH_TESTS)
     add_subdirectory(tests)

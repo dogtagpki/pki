@@ -463,9 +463,9 @@ if(WITH_JAVADOC)
     add_subdirectory(javadoc)
 endif(WITH_JAVADOC)
 
-if (WITH_CONSOLE)
+if(WITH_CONSOLE)
     add_subdirectory(console)
-endif (WITH_CONSOLE)
+endif(WITH_CONSOLE)
 
 if(WITH_META)
     add_subdirectory(meta)

@@ -1254,6 +1254,8 @@ fi
 
 %license themes/%{theme}/common-ui/LICENSE
 %dir %{_datadir}/pki
+
+%if %{with server}
 %{_datadir}/pki/CS_SERVER_VERSION
 %{_datadir}/pki/common-ui/
 %{_datadir}/pki/server/webapps/pki/ca
@@ -1265,6 +1267,9 @@ fi
 %{_datadir}/pki/server/webapps/pki/ocsp
 %{_datadir}/pki/server/webapps/pki/pki.properties
 %{_datadir}/pki/server/webapps/pki/tks
+
+# with server
+%endif
 
 %if %{with console}
 ################################################################################

@@ -11,8 +11,10 @@ else()
 endif()
 set(CERTIFICATE_SYSTEM_NAME "${CERTIFICATE_SYSTEM_THEME} Certificate System ${CERTIFICATE_SYSTEM_VERSION}")
 
-add_subdirectory(common-ui)
+if(WITH_SERVER)
+    add_subdirectory(common-ui)
+endif(WITH_SERVER)
 
-if (WITH_CONSOLE)
+if(WITH_CONSOLE)
     add_subdirectory(console-ui)
-endif (WITH_CONSOLE)
+endif(WITH_CONSOLE)
