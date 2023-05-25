@@ -293,10 +293,10 @@ jobs:
 
           # https://github.com/dogtagpki/pki/wiki/UpdateCRL-Service
           docker exec ca curl \
-              -d "xml=true" \
               --cert-type P12 \
               --cert /root/.dogtag/pki-tomcat/ca_admin_cert.p12:Secret.123 \
               -sk \
+              -d "xml=true" \
               https://ca.example.com:8443/ca/agent/ca/updateCRL \
               | xmllint --format -
 

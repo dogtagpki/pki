@@ -366,22 +366,29 @@ public class CRLIssuingPoint implements Runnable {
     private boolean mAutoUpdateIntervalEffectiveAtStart = false;
 
 
-     /* Optional future value for thisUpdate field of generated CRL
-      * Feature for now only available by command line "sslget" examples:
-      *
-      * # with future update date:
-
-       sslget -n "PKI Administrator for localhost.localdomain"
-             -e "crlIssuingPoint=MasterCRL&signatureAlgorithm&waitForUpdate=true&clearCRLCache=true&customFutureThisUpdateDateValue=2020:9:22:13:0:0"
-             -v -d . -p ""  -r /ca/agent/ca/updateCRL localhost.localdomain:8443
-
-
-       # Cancel any outstanding future thisUpdate value already established, if necessary to recover
-       sslget -n "PKI Administrator for localhost.localdomain"
-             -e "crlIssuingPoint=MasterCRL&signatureAlgorithm&waitForUpdate=true&clearCRLCache=true&cancelCurCustomFutureThisUpdateValue=true"
-             -v -d . -p ""  -r /ca/agent/ca/updateCRL localhost.localdomain:8443
-
-
+    /**
+     * Optional future value for thisUpdate field of generated CRL.
+     * Feature for now only available by command line:
+     *
+     * # with future update date:
+     * curl \
+     *     --cert-type P12 \
+     *     --cert /root/.dogtag/pki-tomcat/ca_admin_cert.p12:Secret.123 \
+     *     -sk \
+     *     -d "crlIssuingPoint=MasterCRL&waitForUpdate=true&clearCRLCache=true&customFutureThisUpdateDateValue=2020:9:22:13:0:0&xml=true" \
+     *     https://$HOSTNAME:8443/ca/agent/ca/updateCRL \
+     *     | xmllint --format -
+     *
+     * # Cancel any outstanding future thisUpdate value already established, if necessary to recover
+     * curl \
+     *     --cert-type P12 \
+     *     --cert /root/.dogtag/pki-tomcat/ca_admin_cert.p12:Secret.123 \
+     *     -sk \
+     *     -d "crlIssuingPoint=MasterCRL&waitForUpdate=true&clearCRLCache=true&cancelCurCustomFutureThisUpdateValue=true&xml=true" \
+     *     https://$HOSTNAME:8443/ca/agent/ca/updateCRL \
+     *     | xmllint --format -
+     *
+     * See also https://github.com/dogtagpki/pki/wiki/UpdateCRL-Service
      */
     private Date mCustomFutureThisUpdateValue = null;
 
