@@ -500,7 +500,6 @@ public class CRLIssuingPoint implements Runnable {
 
     public void setCancelCurFutureThisUpdateValue(boolean b) {
         mCancelCurFutureThisUpdateValue = b;
-
     }
 
     /**
@@ -581,6 +580,9 @@ public class CRLIssuingPoint implements Runnable {
      * @exception EBaseException if initialization failed
      */
     public void init(CertificateAuthority ca, String id, CRLIssuingPointConfig config) throws EBaseException {
+
+        logger.info("CRLIssuingPoint: Initializing " + id);
+
         mCA = ca;
         mId = id;
 
@@ -600,8 +602,9 @@ public class CRLIssuingPoint implements Runnable {
 
         CAConfig caConfig = mCA.getConfigStore();
         CRLConfig crlConfig = caConfig.getCRLConfig();
+
         mPageSize = crlConfig.getInteger(CertificateAuthority.PROP_CRL_PAGE_SIZE, CRL_PAGE_SIZE);
-        logger.debug("CRL Page Size: " + mPageSize);
+        logger.debug("CRLIssuingPoint: - page size: " + mPageSize);
 
         mCountMod = mConfigStore.getCountMod();
 
@@ -682,7 +685,7 @@ public class CRLIssuingPoint implements Runnable {
                 }
             }
         }
-        logger.debug("areTimeListsIdentical:  identical: " + identical);
+        logger.debug("CRLIssuingPoint: time lists identical: " + identical);
         return identical;
     }
 
@@ -692,7 +695,7 @@ public class CRLIssuingPoint implements Runnable {
             Vector<Integer> listedTimes = listedDays.elementAt(i);
             listSize += ((listedTimes != null) ? listedTimes.size() : 0);
         }
-        logger.debug("getTimeListSize:  ListSize=" + listSize);
+        logger.debug("CRLIssuingPoint: time list size: " + listSize);
         return listSize;
     }
 
@@ -852,12 +855,14 @@ public class CRLIssuingPoint implements Runnable {
 
         // get next update grace period
         mNextUpdateGracePeriod = MINUTE * config.getNextUpdateGracePeriod();
+
         // get unexpected exception wait time; default to 30 minutes
         mUnexpectedExceptionWaitTime = MINUTE * config.getUnexpectedExceptionWaitTime();
-        logger.debug("CRLIssuingPoint:initConfig: mUnexpectedExceptionWaitTime set to " + mUnexpectedExceptionWaitTime);
+        logger.debug("CRLIssuingPoint: unexpected exception wait time: " + mUnexpectedExceptionWaitTime);
+
         // get unexpected exception loop max; default to 10 times
         mUnexpectedExceptionLoopMax = config.getUnexpectedExceptionLoopMax();
-        logger.debug("CRLIssuingPoint:initConfig: mUnexpectedExceptionLoopMax set to " + mUnexpectedExceptionLoopMax);
+        logger.debug("CRLIssuingPoint: unexpected exception loop max: " + mUnexpectedExceptionLoopMax);
 
         // get next update as this update extension
         mNextAsThisUpdateExtension = MINUTE * config.getNextAsThisUpdateExtension();
@@ -913,9 +918,10 @@ public class CRLIssuingPoint implements Runnable {
         }
 
         mAutoUpdateIntervalEffectiveAtStart = config.getAutoUpdateIntervalEffectiveAtStart();
-        logger.debug("CRLIssuingPoint.initConfig : mAutoUpdateIntervalEffectiveAtStart: " +  mAutoUpdateIntervalEffectiveAtStart);
-	mForbidCustomFutureThisUpdateValue = config.getBoolean("forbidCustomFutureThisUpdateValue",true);
-        logger.debug("CRLIssuingPoint.initConfig: mForbidCustomFutureThisUpdateValue " + mForbidCustomFutureThisUpdateValue);
+        logger.debug("CRLIssuingPoint: auto update interval effective at start: " + mAutoUpdateIntervalEffectiveAtStart);
+
+        mForbidCustomFutureThisUpdateValue = config.getBoolean("forbidCustomFutureThisUpdateValue", true);
+        logger.debug("CRLIssuingPoint: forbid future thisUpdate: " + mForbidCustomFutureThisUpdateValue);
     }
 
     /**
@@ -980,15 +986,17 @@ public class CRLIssuingPoint implements Runnable {
 
             mNextUpdate = crlRecord.getNextUpdate();
 
-            logger.debug("CRLIssuingPoint.initCRL: mNextUpdate: " + mNextUpdate);
+            logger.debug("CRLIssuingPoint: next update: " + mNextUpdate);
 
             if (isDeltaCRLEnabled()) {
                 mNextDeltaUpdate = (mNextUpdate != null) ? new Date(mNextUpdate.getTime()) : null;
             }
 
             mFirstUnsaved = crlRecord.getFirstUnsaved();
-            logger.debug("initCRL  CRLNumber=" + mCRLNumber.toString() + "  CRLSize=" + mCRLSize +
-                            "  FirstUnsaved=" + mFirstUnsaved);
+            logger.debug("CRLIssuingPoint: CRL number: " + mCRLNumber);
+            logger.debug("CRLIssuingPoint: CRL size: " + mCRLSize);
+            logger.debug("CRLIssuingPoint: first unsaved: " + mFirstUnsaved);
+
             if (mFirstUnsaved == null ||
                     (mFirstUnsaved != null && mFirstUnsaved.equals(CRLIssuingPointRecord.NEW_CACHE))) {
                 clearCRLCache();
@@ -1069,7 +1077,7 @@ public class CRLIssuingPoint implements Runnable {
 
         if (crlRecord == null) {
             // no crl was ever created, or crl in db is corrupted.
-            logger.info("CRLIssuingPoint: creating new CRL issuing point: " + mId);
+            logger.info("CRLIssuingPoint: Creating new CRL issuing point: " + mId);
 
             CAConfig caConfig = mCA.getConfigStore();
             CRLConfig crlConfig = caConfig.getCRLConfig();
@@ -1077,7 +1085,7 @@ public class CRLIssuingPoint implements Runnable {
 
             try {
                 BigInteger startingCrlNumberBig = ipConfig.getBigInteger(PROP_CRL_STARTING_NUMBER, BigInteger.ZERO);
-                logger.debug("CRLIssuingPoint: startingCrlNumber: " + startingCrlNumberBig);
+                logger.debug("CRLIssuingPoint: starting CRL number: " + startingCrlNumberBig);
 
                 // Check for bogus negative value
 
@@ -1727,10 +1735,10 @@ public class CRLIssuingPoint implements Runnable {
         long next = 0L;
         long nextUpdate = 0L;
 
-        logger.debug("CRLIssuingPoint.findNextUpdate: mLastUpdate: " + mLastUpdate);
-        logger.debug("CRLIssuingPoint.findNextUpdate: mNextUpdate: " + mNextUpdate);
-        logger.debug("CRLIssuingPoint.findNextUpdate: mAutoUpdateInterval: " + mAutoUpdateInterval / 60000);
-        logger.debug("CRLIssuingPOint.findNextUpdate: lastUpdate: " + new Date(lastUpdate));
+        logger.debug("CRLIssuingPoint: last update: " + mLastUpdate);
+        logger.debug("CRLIssuingPoint: next update: " + mNextUpdate);
+        logger.debug("CRLIssuingPoint: auto update interval: " + mAutoUpdateInterval / 60000);
+        logger.debug("CRLIssuingPOint: last lpdate: " + new Date(lastUpdate));
 
         int numberOfDays = (int) ((startOfToday - lastUpdateDay) / oneDay);
         if (numberOfDays > 0 && mDailyUpdates.size() > 1 &&
@@ -1894,7 +1902,7 @@ public class CRLIssuingPoint implements Runnable {
             }
         }
 
-        logger.debug("CRLIssuingPoint.findNextUpdate: nextUpdate : " + new Date(nextUpdate) + " next: " + new Date(next));
+        logger.debug("CRLIssuingPoint: next update: " + new Date(nextUpdate) + " next: " + new Date(next));
 
         if (fromLastUpdate && nextUpdate > 0 && (nextUpdate < next || nextUpdate >= now)) {
             // We have the one time schedule updated flag set in CS.cfg, which means
@@ -1906,24 +1914,24 @@ public class CRLIssuingPoint implements Runnable {
                 // Check and see if the new schedule has taken us into the past:
                 if(next <= now ) {
                     mNextUpdate = new Date(now);
-                    logger.debug("CRLIssuingPoint.findNextUpdate: schedule updated to the past. Making mNextUpdate now: " +  mNextUpdate);
+                    logger.debug("CRLIssuingPoint: schedule updated to the past. Making nextUpdate now: " +  mNextUpdate);
                     next = now;
                 }  else {
                     //alter the value of the nextUpdate to be the time calculated from the new schedule
                     mNextUpdate = new Date(next);
                 }
 
-                logger.debug("CRLIssuingPoint.findNextUpdate: taking updated schedule value: " + mNextUpdate);
+                logger.debug("CRLIssuingPoint: taking updated schedule value: " + mNextUpdate);
                 // Now clear it since we only want this once upon startup.
                 mAutoUpdateIntervalEffectiveAtStart = false;
             } else {
-                logger.debug("CRLIssuingPoint.findNextUpdate: taking current schedule's nextUpdate value: " + new Date(nextUpdate));
+                logger.debug("CRLIssuingPoint: taking current schedule's nextUpdate value: " + new Date(nextUpdate));
                 //Normal behavior where the previous or current shedule's nextUpdate time is observed.
                 next = nextUpdate;
             }
         }
 
-        logger.debug("findNextUpdate:  "
+        logger.debug("CRLIssuingPoint: nextUpdate: "
                 + ((new Date(next)).toString()) + ((fromLastUpdate) ? "  delay: " + (next - now) : ""));
 
         return (fromLastUpdate) ? next - now : next;
@@ -2041,7 +2049,7 @@ public class CRLIssuingPoint implements Runnable {
                             handleUnexpectedFailure(loopCounter, timeOfUnexpectedFailure);
                         }
 
-                        logger.debug("CRLIssuingPoint:run(): before CRL generation");
+                        logger.debug("CRLIssuingPoint: Before CRL generation");
                         try {
                             if (doCacheUpdate) {
                                 logger.info("CRLIssuingPoint: Updating CRL cache");
@@ -2052,26 +2060,23 @@ public class CRLIssuingPoint implements Runnable {
                             }
                             // reset if no exception
                             if (unexpectedFailure) {
-                                logger.debug("CRLIssuingPoint:run(): reset unexpectedFailure values if no Exception.");
+                                logger.debug("CRLIssuingPoint: reset unexpectedFailure values if no exception");
                                 unexpectedFailure = false;
                                 timeOfUnexpectedFailure = 0;
                                 loopCounter = 0;
                             }
                         } catch (Exception e) {
-                            logger.debug("CRLIssuingPoint:run(): unexpectedFailure occurred:" + e);
+                            logger.warn("CRLIssuingPoint: Unable to update " + (doCacheUpdate ? "CRL cache" : "CRL") + ": " + e.getMessage(), e);
                             unexpectedFailure = true;
                             timeOfUnexpectedFailure = System.currentTimeMillis();
-                            logger.warn(CMS.getLogMessage("CMSCORE_CA_ISSUING_CRL",
-                                    (doCacheUpdate) ? "update CRL cache" : "update CRL", e.toString()));
-                            logger.warn((doCacheUpdate) ? "update CRL cache" : "update CRL" + " error " + e, e);
                         }
                         // put this here to prevent continuous loop if internal
                         // db is down.
                         if (mDoLastAutoUpdate)
-                            logger.debug("CRLIssuingPoint:run(): mDoLastAutoUpdate set to false");
+                            logger.debug("CRLIssuingPoint: mDoLastAutoUpdate set to false");
                             mDoLastAutoUpdate = false;
                         if (mDoManualUpdate) {
-                            logger.debug("CRLIssuingPoint:run(): mDoManualUpdate set to false");
+                            logger.debug("CRLIssuingPoint: mDoManualUpdate set to false");
                             mDoManualUpdate = false;
                             mSignatureAlgorithmForManualUpdate = null;
                         }
@@ -2082,7 +2087,7 @@ public class CRLIssuingPoint implements Runnable {
         } catch (EBaseException e1) {
             e1.printStackTrace();
         }
-        logger.debug("CRLIssuingPoint:run(): out of the while loop");
+        logger.debug("CRLIssuingPoint: out of the while loop");
         mUpdateThread = null;
     }
 
@@ -2227,8 +2232,10 @@ public class CRLIssuingPoint implements Runnable {
         logger.info("CRLIssuingPoint: Recovering CRL cache");
 
         if (mEnableCacheRecovery) {
+            logger.debug("CRLIssuingPoint: first unsaved: " + mFirstUnsaved);
+
             String filter = "(requeststate=complete)";
-            logger.debug("recoverCRLCache  mFirstUnsaved=" + mFirstUnsaved + "  filter=" + filter);
+            logger.debug("CRLIssuingPoint: filter: " + filter);
 
             CAEngine engine = CAEngine.getInstance();
             CertRequestRepository requestRepository = engine.getCertRequestRepository();
@@ -2240,7 +2247,8 @@ public class CRLIssuingPoint implements Runnable {
                         500,
                         "requestId");
 
-            logger.debug("recoverCRLCache  size=" + list.getSize() + "  index=" + list.getCurrentIndex());
+            logger.debug("CRLIssuingPoint: size: " + list.getSize());
+            logger.debug("CRLIssuingPoint: index: " + list.getCurrentIndex());
 
             CertRecordProcessor cp = new CertRecordProcessor(mCRLCerts, this, mAllowExtensions);
             boolean includeCert = true;
@@ -2256,15 +2264,15 @@ public class CRLIssuingPoint implements Runnable {
                 if (request == null) {
                     continue;
                 }
-                logger.debug("recoverCRLCache  request=" + request.getRequestId().toString() +
-                                "  type=" + request.getRequestType());
+                logger.debug("CRLIssuingPoint: request: " + request.getRequestId());
+                logger.debug("CRLIssuingPoint: type: " + request.getRequestType());
                 if (Request.REVOCATION_REQUEST.equals(request.getRequestType())) {
                     RevokedCertImpl[] revokedCert =
                             request.getExtDataInRevokedCertArray(Request.CERT_INFO);
                     if (revokedCert != null) {
                         for (int j = 0; j < revokedCert.length; j++) {
-                            logger.debug("recoverCRLCache R j=" + j + "  length=" + revokedCert.length +
-                                        "  SerialNumber=0x" + revokedCert[j].getSerialNumber().toString(16));
+                            logger.debug("CRLIssuingPoint: R j: " + j + " length: " + revokedCert.length +
+                                        " serial number: 0x" + revokedCert[j].getSerialNumber().toString(16));
                             if (cp != null)
                                 includeCert = cp.checkRevokedCertExtensions(revokedCert[j].getExtensions());
                             if (includeCert) {
@@ -2272,20 +2280,20 @@ public class CRLIssuingPoint implements Runnable {
                             }
                         }
                     } else {
-                        logger.error("Revocation Request: Revoked Certificates is a Null or has Invalid Values");
-                        throw new EBaseException("Revocation Request: Revoked Certificates is a Null or has Invalid Values");
+                        logger.error("CRLIssuingPoint: Revoked certificates is null or has invalid values");
+                        throw new EBaseException("Revoked certificates is null or has invalid values");
                     }
                 } else if (Request.UNREVOCATION_REQUEST.equals(request.getRequestType())) {
                     BigInteger[] serialNo = request.getExtDataInBigIntegerArray(Request.OLD_SERIALS);
                     if (serialNo != null) {
                         for (int j = 0; j < serialNo.length; j++) {
-                            logger.debug("recoverCRLCache U j=" + j + "  length=" + serialNo.length +
-                                        "  SerialNumber=0x" + serialNo[j].toString(16));
+                            logger.debug("CRLIssuingPoint: U j: " + j + " length: " + serialNo.length +
+                                        " serial number: 0x" + serialNo[j].toString(16));
                             updateRevokedCert(UNREVOKED_CERT, serialNo[j], null);
                         }
                     } else {
-                        logger.error("Unrevocation Request: Serial Numbers is a Null or has Invalid Values");
-                        throw new EBaseException("Unrevocation Request: Serial Numbers is a Null or has Invalid Values");
+                        logger.error("CRLIssuingPoint: Serial number is null or has invalid values");
+                        throw new EBaseException("Serial number is null or has invalid values");
                     }
                 }
             }
@@ -2354,7 +2362,7 @@ public class CRLIssuingPoint implements Runnable {
         } catch (Exception e) {
         }
 
-        logger.debug("CRLIssuingPoint.getCRLExtension extension: " + theExt);
+        logger.debug("CRLIssuingPoint: extension: " + theExt);
         return theExt;
     }
 
@@ -2793,17 +2801,18 @@ public class CRLIssuingPoint implements Runnable {
         Date nowDate = new Date();
 
 	if(mForbidCustomFutureThisUpdateValue && mCustomFutureThisUpdateValue != null) {
-            logger.debug("CRLIssuingPoint:updateCRLNow : Policy forbids use of the futerUpdate values feature.");
+            logger.error("CRLIssuingPoint: Unable to update CRL: Future thisUpdate not allowed");
             mUpdatingCRL = CRL_UPDATE_DONE;
             mCustomFutureThisUpdateValue = null;
-            throw new EBaseException("Can not update the CRL Now with future this update value, policy forbids it.");
+            throw new EBaseException("Unable to update CRL: Future thisUpdate not allowed");
         }
 
         if (mCustomFutureThisUpdateValue != null && mCustomFutureThisUpdateValue.after(nowDate)) {
-            logger.debug("CRLIssuingPoint:updateCRLNow : Future thisUpdate value requested: " + mCustomFutureThisUpdateValue.toString());
+            logger.info("CRLIssuingPoint: Setting thisUpdate to " + mCustomFutureThisUpdateValue);
             thisUpdate = mCustomFutureThisUpdateValue;
+
         } else {
-            logger.debug("CRLIssuingPoint:updateCRLNow : mCancelCurFutureThisUpdateValue: " + mCancelCurFutureThisUpdateValue);
+            logger.info("CRLIssuingPoint: Cancel future thisUpdate: " + mCancelCurFutureThisUpdateValue);
             //Check to see if the crl already has a future thisUpdate value. Thus we can't proceed
             if(nowDate.before(getLastUpdate()) && !mCancelCurFutureThisUpdateValue) {
                 //Here we have a case where the optional custom future thisUpdate feature
@@ -2812,10 +2821,10 @@ public class CRLIssuingPoint implements Runnable {
                 //If the cancel custom future thisUpdate option is set,  proceed and allow a normal update now.
                 //operation to take place.
 
-                logger.debug("CRLIssuingPoint:updateCRLNow : Future thisUpdate has been set, exit this attempt to update the CRL.");
+                logger.error("CRLIssuingPoint: Unable to update CRL: Future thisUpdate already set");
                 mUpdatingCRL = CRL_UPDATE_DONE;
                 mCancelCurFutureThisUpdateValue = false;
-                throw new EBaseException("Can not update the CR Now : thisUpdate Field of CRL set to future date.");
+                throw new EBaseException("Unable to update CRL: Future thisUpdate already set");
             }
             thisUpdate = nowDate;
         }
@@ -2999,7 +3008,6 @@ public class CRLIssuingPoint implements Runnable {
         clonedExpiredCerts = null;
 
         if ((!isDeltaCRLEnabled()) || mSchemaCounter == 0) {
-
             generateFullCRL(signingAlgorithm, thisUpdate, nextUpdate);
         }
 
@@ -3085,7 +3093,7 @@ public class CRLIssuingPoint implements Runnable {
             // #56123 - dont generate CRL if no revoked certificates
             if (mConfigStore.getNoCRLIfNoRevokedCert()) {
                 if (deltaCRLCerts.size() == 0) {
-                    logger.debug("CRLIssuingPoint: No Revoked Certificates Found And noCRLIfNoRevokedCert is set to true - No Delta CRL Generated");
+                    logger.info("CRLIssuingPoint: Not generating delta CRL since there are no revoked certificates");
                     mDeltaCRLSize = -1;
                     auditor.log(DeltaCRLGenerationEvent.createSuccessEvent(
                             getAuditSubjectID(),
@@ -3094,12 +3102,15 @@ public class CRLIssuingPoint implements Runnable {
                 }
             }
 
+            logger.info("CRLIssuingPoint: Generating delta CRL with " + deltaCRLCerts.size() + " cert(s)");
             X509CRLImpl crl = new X509CRLImpl(mCA.getCRLX500Name(),
                     AlgorithmId.get(signingAlgorithm),
                     thisUpdate, nextDeltaUpdate, deltaCRLCerts, ext);
 
+            logger.info("CRLIssuingPoint: Signing delta CRL with " + signingAlgorithm);
             newX509DeltaCRL = mCA.sign(crl, signingAlgorithm);
 
+            logger.info("CRLIssuingPoint: Encoding delta CRL");
             byte[] newDeltaCRL = newX509DeltaCRL.getEncoded();
 
             mSplits[2] += System.currentTimeMillis();
@@ -3132,6 +3143,8 @@ public class CRLIssuingPoint implements Runnable {
                     getAuditSubjectID(),
                     mCRLNumber));
 
+            logger.info("CRLIssuingPoint: Done generating delta CRL");
+
         } catch (EBaseException e) {
             String message = CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_OR_STORE_DELTA", e.toString());
             logger.error(message, e);
@@ -3150,6 +3163,8 @@ public class CRLIssuingPoint implements Runnable {
                     e.getMessage()));
             return;
         }
+
+        logger.info("CRLIssuingPoint: Publishing delta CRL");
 
         try {
             mSplits[4] -= System.currentTimeMillis();
@@ -3171,8 +3186,8 @@ public class CRLIssuingPoint implements Runnable {
             Date nextUpdate) throws EBaseException {
 
         logger.info("CRLIssuingPoint: Generating full CRL");
-
-        logger.debug("generateFullCRL: thisUpdate: " + thisUpdate + " nextUpdate: " + nextUpdate);
+        logger.debug("CRLIssuingPoint: - thisUpdate: " + thisUpdate);
+        logger.debug("CRLIssuingPoint: - nextUpdate: " + nextUpdate);
 
         mSplits[6] -= System.currentTimeMillis();
 
@@ -3194,8 +3209,7 @@ public class CRLIssuingPoint implements Runnable {
         X509CRLImpl newX509CRL = null;
 
         try {
-            logger.debug("Making CRL with algorithm " +
-                    signingAlgorithm + " " + AlgorithmId.get(signingAlgorithm));
+            logger.debug("CRLIssuingPoint: - signing algorithm: " + signingAlgorithm);
 
             mSplits[7] -= System.currentTimeMillis();
 
@@ -3205,7 +3219,7 @@ public class CRLIssuingPoint implements Runnable {
             if (mConfigStore.getNoCRLIfNoRevokedCert()) {
 
                 if (mCRLCerts.size() == 0) {
-                    logger.debug("CRLIssuingPoint: No Revoked Certificates Found And noCRLIfNoRevokedCert is set to true - No CRL Generated");
+                    logger.info("CRLIssuingPoint: Not generating full CRL since there are no revoked certificates");
                     auditor.log(FullCRLGenerationEvent.createSuccessEvent(
                             getAuditSubjectID(),
                             "No Revoked Certificates"));
@@ -3213,15 +3227,15 @@ public class CRLIssuingPoint implements Runnable {
                 }
             }
 
-            logger.debug("CRLIssuingPoint: creating CRL object");
+            logger.info("CRLIssuingPoint: Generating full CRL with " + mCRLCerts.size() + " cert(s)");
             X509CRLImpl crl = new X509CRLImpl(mCA.getCRLX500Name(),
                     AlgorithmId.get(signingAlgorithm),
                     thisUpdate, nextUpdate, mCRLCerts, ext);
 
-            logger.debug("CRLIssuingPoint: signing CRL");
+            logger.info("CRLIssuingPoint: Signing full CRL with " + signingAlgorithm);
             newX509CRL = mCA.sign(crl, signingAlgorithm);
 
-            logger.debug("CRLIssuingPoint: encoding CRL");
+            logger.info("CRLIssuingPoint: Encoding full CRL");
             byte[] newCRL = newX509CRL.getEncoded();
 
             mSplits[7] += System.currentTimeMillis();
@@ -3235,6 +3249,7 @@ public class CRLIssuingPoint implements Runnable {
                 nextUpdateDate = mNextDeltaUpdate;
             }
 
+            logger.info("CRLIssuingPoint: Storing full CRL");
             if (mSaveMemory) {
                 mCRLRepository.updateCRLIssuingPointRecord(
                         mId, newCRL, thisUpdate, nextUpdateDate,
@@ -3257,7 +3272,6 @@ public class CRLIssuingPoint implements Runnable {
             mNextCRLNumber = mCRLNumber.add(BigInteger.ONE);
             mNextDeltaCRLNumber = mNextCRLNumber;
 
-            logger.debug("CRLIssuingPoint: Logging CRL Update to transaction log");
             long totalTime = 0;
             long crlTime = 0;
             long deltaTime = 0;
@@ -3283,11 +3297,11 @@ public class CRLIssuingPoint implements Runnable {
             logger.debug("CRLIssuingPoint: - CRL time: " + crlTime);
             logger.debug("CRLIssuingPoint: - delta CRL time: " + deltaTime + splitTimes);
 
-            logger.debug("CRLIssuingPoint: Finished Logging CRL Update to transaction log");
-
             auditor.log(FullCRLGenerationEvent.createSuccessEvent(
                     getAuditSubjectID(),
                     mCRLNumber));
+
+            logger.info("CRLIssuingPoint: Done generating full CRL");
 
         } catch (EBaseException e) {
             mUpdatingCRL = CRL_UPDATE_DONE;
@@ -3307,6 +3321,8 @@ public class CRLIssuingPoint implements Runnable {
                     e.getMessage()));
             throw new ECAException(CMS.getUserMessage("CMS_CA_FAILED_CONSTRUCTING_CRL", e.toString()), e);
         }
+
+        logger.info("CRLIssuingPoint: Publishing full CRL");
 
         try {
             mSplits[9] -= System.currentTimeMillis();
@@ -3370,7 +3386,7 @@ public class CRLIssuingPoint implements Runnable {
 
         CRLIssuingPointRecord crlRecord = null;
 
-        logger.debug("Publish CRL");
+        logger.info("CRLIssuingPoint: Publishing " + mId);
         try {
             if (x509crl == null) {
                 crlRecord = mCRLRepository.readCRLIssuingPointRecord(mId);
@@ -3386,20 +3402,19 @@ public class CRLIssuingPoint implements Runnable {
                     mPublisherProcessor != null && mPublisherProcessor.isCRLPublishingEnabled()) {
                 Enumeration<LdapRule> rules = mPublisherProcessor.getRules(CAPublisherProcessor.PROP_LOCAL_CRL);
                 if (rules == null || !rules.hasMoreElements()) {
-                    logger.debug("CRL publishing is not enabled.");
+                    logger.debug("CRLIssuingPoint: CRL publishing is not enabled");
                 } else {
                     if (mPublishDN != null) {
                         mPublisherProcessor.publishCRL(mPublishDN, x509crl);
-                        logger.debug("CRL published to " + mPublishDN);
+                        logger.debug("CRLIssuingPoint: CRL published to " + mPublishDN);
                     } else {
                         mPublisherProcessor.publishCRL(x509crl, getId());
-                        logger.debug("CRL published.");
+                        logger.debug("CRLIssuingPoint: CRL published");
                     }
                 }
             }
         } catch (Exception e) {
-            logger.error("Could not publish CRL: " + e, e);
-            logger.error("Could not publish CRL. ID " + mId);
+            logger.error("CRLIssuingPoint: Could not publish " + mId + ": " + e.getMessage(), e);
             throw new EErrorPublishCRL(
                     CMS.getUserMessage("CMS_CA_ERROR_PUBLISH_CRL", mId, e.toString()));
         } finally {

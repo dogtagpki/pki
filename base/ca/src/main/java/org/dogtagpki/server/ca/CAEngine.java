@@ -564,7 +564,6 @@ public class CAEngine extends CMSEngine {
 
         while (ipIDs.hasMoreElements()) {
             String id = ipIDs.nextElement();
-            logger.info("CAEngine: - " + id);
 
             CRLIssuingPointConfig ipConfig = crlConfig.getCRLIssuingPointConfig(id);
             String className = ipConfig.getClassName();
