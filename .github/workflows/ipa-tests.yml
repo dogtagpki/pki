@@ -26,6 +26,30 @@ jobs:
           key: buildx-${{ hashFiles('pki.spec') }}
           path: /tmp/.buildx-cache
 
+      - name: Build pki-deps image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          build-args: |
+            BASE_IMAGE=${{ needs.init.outputs.base-image }}
+            COPR_REPO=${{ vars.COPR_REPO }}
+          tags: pki-deps
+          target: pki-deps
+          cache-to: type=local,dest=/tmp/.buildx-cache
+        if: steps.cache-buildx.outputs.cache-hit != 'true'
+
+      - name: Build pki-builder-deps image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          build-args: |
+            BASE_IMAGE=${{ needs.init.outputs.base-image }}
+            COPR_REPO=${{ vars.COPR_REPO }}
+          tags: pki-builder-deps
+          target: pki-builder-deps
+          cache-to: type=local,dest=/tmp/.buildx-cache
+        if: steps.cache-buildx.outputs.cache-hit != 'true'
+
       - name: Build ipa-runner image
         uses: docker/build-push-action@v3
         with:
@@ -33,6 +57,7 @@ jobs:
           build-args: |
             BASE_IMAGE=${{ needs.init.outputs.base-image }}
             COPR_REPO=${{ vars.COPR_REPO }}
+            BUILD_OPTS=--with-pkgs=base,server,ca,kra,acme --without-test
           tags: ipa-runner
           target: ipa-runner
           cache-from: type=local,src=/tmp/.buildx-cache

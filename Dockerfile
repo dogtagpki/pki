@@ -13,6 +13,7 @@ ARG ARCH="x86_64"
 ARG VERSION="0"
 ARG BASE_IMAGE="registry.fedoraproject.org/fedora:latest"
 ARG COPR_REPO=""
+ARG BUILD_OPTS=""
 
 ################################################################################
 FROM $BASE_IMAGE AS pki-base
@@ -53,6 +54,8 @@ RUN dnf builddep -y --skip-unavailable --spec pki.spec
 ################################################################################
 FROM pki-builder-deps AS pki-builder
 
+ARG BUILD_OPTS
+
 # Import JSS packages
 COPY --from=quay.io/dogtagpki/jss-dist:latest /root/RPMS /tmp/RPMS/
 
@@ -72,7 +75,7 @@ RUN dnf localinstall -y /tmp/RPMS/* \
 COPY . /root/pki/
 
 # Build and install PKI packages
-RUN ./build.sh --work-dir=build rpm
+RUN ./build.sh --work-dir=build $BUILD_OPTS rpm
 
 ################################################################################
 FROM alpine:latest AS pki-dist
