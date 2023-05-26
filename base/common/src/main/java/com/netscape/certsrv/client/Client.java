@@ -20,6 +20,7 @@ package com.netscape.certsrv.client;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
 
 /**
@@ -129,7 +130,11 @@ public class Client {
     }
 
     public <T> T post(String suffix, Map<String, Object> params, Class<T> responseType) throws Exception {
+        return post(suffix, params, null, responseType);
+    }
+
+    public <T> T post(String suffix, Map<String, Object> params, Entity<?> entity, Class<T> responseType) throws Exception {
         String path = getTargetPath(suffix);
-        return client.post(path, responseType);
+        return client.post(path, params, entity, responseType);
     }
 }
