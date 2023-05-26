@@ -275,6 +275,12 @@ public class PKIClient implements AutoCloseable {
         return getEntity(response, responseType);
     }
 
+    public <T> T get(String path, Map<String, Object> params, GenericType<T> responseType) throws Exception {
+        WebTarget target = target(path, params);
+        Response response = target.request().get();
+        return getEntity(response, responseType);
+    }
+
     public <T> T post(String path, Class<T> responseType) throws Exception {
         return post(path, (Map<String, Object>) null, responseType);
     }

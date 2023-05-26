@@ -20,6 +20,8 @@ package com.netscape.certsrv.client;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import javax.ws.rs.core.GenericType;
+
 /**
  * @author Endi S. Dewata
  */
@@ -109,6 +111,11 @@ public class Client {
     }
 
     public <T> T get(String suffix, Map<String, Object> params, Class<T> responseType) throws Exception {
+        String path = getTargetPath(suffix);
+        return client.get(path, params, responseType);
+    }
+
+    public <T> T get(String suffix, Map<String, Object> params, GenericType<T> responseType) throws Exception {
         String path = getTargetPath(suffix);
         return client.get(path, params, responseType);
     }
