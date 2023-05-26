@@ -81,6 +81,25 @@ public class Client {
         return client.createProxy(path, clazz);
     }
 
+    public String getTargetPath(String suffix) {
+
+        StringBuilder sb = new StringBuilder(subsystem);
+
+        if (prefix != null) {
+            sb.append("/").append(prefix);
+        }
+
+        if (name != null) {
+            sb.append("/").append(name);
+        }
+
+        if (suffix != null) {
+            sb.append("/").append(suffix);
+        }
+
+        return sb.toString();
+    }
+
     public <T> T get(Class<T> responseType) throws Exception {
         return get((String) null, responseType);
     }
@@ -90,21 +109,7 @@ public class Client {
     }
 
     public <T> T get(String suffix, Map<String, Object> params, Class<T> responseType) throws Exception {
-
-        String path = subsystem;
-
-        if (prefix != null) {
-            path += "/" + prefix;
-        }
-
-        if (name != null) {
-            path += "/" + name;
-        }
-
-        if (suffix != null) {
-            path += "/" + suffix;
-        }
-
+        String path = getTargetPath(suffix);
         return client.get(path, params, responseType);
     }
 
@@ -117,21 +122,7 @@ public class Client {
     }
 
     public <T> T post(String suffix, Map<String, Object> params, Class<T> responseType) throws Exception {
-
-        String path = subsystem;
-
-        if (prefix != null) {
-            path += "/" + prefix;
-        }
-
-        if (name != null) {
-            path += "/" + name;
-        }
-
-        if (suffix != null) {
-            path += "/" + suffix;
-        }
-
+        String path = getTargetPath(suffix);
         return client.post(path, responseType);
     }
 }
