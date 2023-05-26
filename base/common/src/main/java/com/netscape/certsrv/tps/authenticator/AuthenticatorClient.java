@@ -17,7 +17,10 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.tps.authenticator;
 
-import javax.ws.rs.core.Response;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.ws.rs.client.Entity;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
@@ -27,44 +30,39 @@ import com.netscape.certsrv.client.PKIClient;
  */
 public class AuthenticatorClient extends Client {
 
-    public AuthenticatorResource resource;
-
     public AuthenticatorClient(PKIClient client, String subsystem) throws Exception {
-        super(client, subsystem, "authenticator");
-        init();
-    }
-
-    public void init() throws Exception {
-        resource = createProxy(AuthenticatorResource.class);
+        super(client, subsystem, "authenticators");
     }
 
     public AuthenticatorCollection findAuthenticators(String filter, Integer start, Integer size) throws Exception {
-        Response response = resource.findAuthenticators(filter, start, size);
-        return client.getEntity(response, AuthenticatorCollection.class);
+        Map<String, Object> params = new HashMap<>();
+        if (filter != null) params.put("filter", filter);
+        if (start != null) params.put("start", start);
+        if (size != null) params.put("size", size);
+        return get(null, params, AuthenticatorCollection.class);
     }
 
     public AuthenticatorData getAuthenticator(String authenticatorID) throws Exception {
-        Response response = resource.getAuthenticator(authenticatorID);
-        return client.getEntity(response, AuthenticatorData.class);
+        return get(authenticatorID, AuthenticatorData.class);
     }
 
     public AuthenticatorData addAuthenticator(AuthenticatorData authenticatorData) throws Exception {
-        Response response = resource.addAuthenticator(authenticatorData);
-        return client.getEntity(response, AuthenticatorData.class);
+        Entity<AuthenticatorData> entity = client.entity(authenticatorData);
+        return post(null, null, entity, AuthenticatorData.class);
     }
 
     public AuthenticatorData updateAuthenticator(String authenticatorID, AuthenticatorData authenticatorData) throws Exception {
-        Response response = resource.updateAuthenticator(authenticatorID, authenticatorData);
-        return client.getEntity(response, AuthenticatorData.class);
+        Entity<AuthenticatorData> entity = client.entity(authenticatorData);
+        return patch(authenticatorID, null, entity, AuthenticatorData.class);
     }
 
     public AuthenticatorData changeAuthenticatorStatus(String authenticatorID, String action) throws Exception {
-        Response response = resource.changeStatus(authenticatorID, action);
-        return client.getEntity(response, AuthenticatorData.class);
+        Map<String, Object> params = new HashMap<>();
+        if (action != null) params.put("action", action);
+        return post(authenticatorID, params, null, AuthenticatorData.class);
     }
 
     public void removeAuthenticator(String authenticatorID) throws Exception {
-        Response response = resource.removeAuthenticator(authenticatorID);
-        client.getEntity(response, Void.class);
+        delete(authenticatorID, Void.class);
     }
 }
