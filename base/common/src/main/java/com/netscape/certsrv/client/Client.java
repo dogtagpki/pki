@@ -137,4 +137,9 @@ public class Client {
         String path = getTargetPath(suffix);
         return client.post(path, params, entity, responseType);
     }
+
+    public <T> T put(String suffix, Map<String, Object> params, Entity<?> entity, Class<T> responseType) throws Exception {
+        String path = getTargetPath(suffix);
+        return client.put(path, params, entity, responseType);
+    }
 }
