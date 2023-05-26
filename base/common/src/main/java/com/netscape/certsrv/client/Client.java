@@ -147,4 +147,9 @@ public class Client {
         String path = getTargetPath(suffix);
         return client.patch(path, params, entity, responseType);
     }
+
+    public <T> T delete(String suffix, Class<T> responseType) throws Exception {
+        String path = getTargetPath(suffix);
+        return client.delete(path, responseType);
+    }
 }
