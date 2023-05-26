@@ -23,7 +23,6 @@ import java.util.Map;
 
 import org.dogtagpki.cli.CLI;
 
-import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorClient;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorData;
 
@@ -50,8 +49,7 @@ public class AuthenticatorCLI extends CLI {
 
         if (authenticatorClient != null) return authenticatorClient;
 
-        PKIClient client = getClient();
-        authenticatorClient = (AuthenticatorClient)parent.getClient("authenticator");
+        authenticatorClient = (AuthenticatorClient) parent.getClient("authenticators");
 
         return authenticatorClient;
     }
