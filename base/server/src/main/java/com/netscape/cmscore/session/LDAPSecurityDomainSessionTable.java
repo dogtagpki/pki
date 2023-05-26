@@ -76,14 +76,13 @@ public class LDAPSecurityDomainSessionTable
     }
 
     @Override
-    public int addEntry(String sessionId, String ip,
+    public void addEntry(String sessionId, String ip,
             String uid, String group) throws Exception {
 
         EngineConfig cs = engine.getConfig();
         LDAPConfig ldapConfig = cs.getInternalDBConfig();
 
         LDAPConnection conn = null;
-        int status = FAILURE;
 
         String basedn = ldapConfig.getBaseDN();
         String sessionsdn = "ou=sessions,ou=Security Domain," + basedn;
@@ -107,7 +106,7 @@ public class LDAPSecurityDomainSessionTable
                     // continue
                 } else {
                     logger.error("SecurityDomainSessionTable: Unable to create ou=sessions: " + e.getMessage(), e);
-                    throw new PKIException("Unable to create ou=sessions", e);
+                    throw new PKIException("Unable to create ou=sessions: " + e.getMessage(), e);
                 }
             }
 
@@ -127,7 +126,6 @@ public class LDAPSecurityDomainSessionTable
             conn.add(entry);
 
             logger.info("SecurityDomainSessionTable: added session entry " + sessionId);
-            status = SUCCESS;
 
         } finally {
             try {
@@ -136,8 +134,6 @@ public class LDAPSecurityDomainSessionTable
                 logger.warn("Unable to return LDAP connection: " + e.getMessage(), e);
             }
         }
-
-        return status;
     }
 
     @Override

@@ -38,7 +38,7 @@ public class MemorySecurityDomainSessionTable
     }
 
     @Override
-    public int addEntry(String sessionId, String ip,
+    public void addEntry(String sessionId, String ip,
             String uid, String group) {
         Vector<Comparable<?>> v = new Vector<>();
         v.addElement(ip);
@@ -48,7 +48,6 @@ public class MemorySecurityDomainSessionTable
         long t = d.getTime();
         v.addElement(Long.valueOf(t));
         m_sessions.put(sessionId, v);
-        return SUCCESS;
     }
 
     @Override

@@ -132,26 +132,25 @@ public class SecurityDomainProcessor extends Processor {
                       "+uid;;" + user + "+groupname;;" + group;
 
         SecurityDomainSessionTable ctable = engine.getSecurityDomainSessionTable();
-        int status = ctable.addEntry(sessionID, ip, user, group);
-        String message;
+        try {
+            ctable.addEntry(sessionID, ip, user, group);
 
-        if (status == SecurityDomainSessionTable.SUCCESS) {
-            message = CMS.getLogMessage(
-                               AuditEvent.SECURITY_DOMAIN_UPDATE,
-                               user,
-                               ILogger.SUCCESS,
-                               auditParams);
+            String message = CMS.getLogMessage(
+                    AuditEvent.SECURITY_DOMAIN_UPDATE,
+                    user,
+                    ILogger.SUCCESS,
+                    auditParams);
             auditor.log(message);
 
-        } else {
-            message = CMS.getLogMessage(
-                               AuditEvent.SECURITY_DOMAIN_UPDATE,
-                               user,
-                               ILogger.FAILURE,
-                               auditParams);
+        } catch (Exception e) {
+            String message = CMS.getLogMessage(
+                    AuditEvent.SECURITY_DOMAIN_UPDATE,
+                    user,
+                    ILogger.FAILURE,
+                    auditParams);
             auditor.log(message);
 
-            throw new PKIException("Failed to create session.");
+            throw new PKIException("Unable to create session: " + e.getMessage(), e);
         }
 
 

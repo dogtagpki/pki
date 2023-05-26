@@ -29,7 +29,7 @@ public abstract class SecurityDomainSessionTable {
 
     protected long timeToLive;
 
-    public abstract int addEntry(String sessionID, String ip, String uid, String group) throws Exception;
+    public abstract void addEntry(String sessionID, String ip, String uid, String group) throws Exception;
 
     public abstract int removeEntry(String sessionID) throws Exception;
 
