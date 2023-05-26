@@ -142,4 +142,9 @@ public class Client {
         String path = getTargetPath(suffix);
         return client.put(path, params, entity, responseType);
     }
+
+    public <T> T patch(String suffix, Map<String, Object> params, Entity<?> entity, Class<T> responseType) throws Exception {
+        String path = getTargetPath(suffix);
+        return client.patch(path, params, entity, responseType);
+    }
 }

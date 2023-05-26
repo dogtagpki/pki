@@ -307,6 +307,12 @@ public class PKIClient implements AutoCloseable {
         return getEntity(response, responseType);
     }
 
+    public <T> T patch(String path, Map<String, Object> params, Entity<?> entity, Class<T> responseType) throws Exception {
+        WebTarget target = target(path, params);
+        Response response = target.request().method("PATCH", entity);
+        return getEntity(response, responseType);
+    }
+
     public Info getInfo() throws Exception {
         if (infoClient == null) {
             infoClient = new InfoClient(this);
