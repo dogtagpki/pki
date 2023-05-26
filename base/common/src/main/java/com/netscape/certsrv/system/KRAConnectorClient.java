@@ -18,7 +18,10 @@
 
 package com.netscape.certsrv.system;
 
-import javax.ws.rs.core.Response;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.ws.rs.client.Entity;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
@@ -28,35 +31,31 @@ import com.netscape.certsrv.client.PKIClient;
  */
 public class KRAConnectorClient extends Client {
 
-    public KRAConnectorResource kraConnectorClient;
-
-    public KRAConnectorClient(PKIClient client, String subsystem) throws Exception {
-        super(client, subsystem, "kraconnector");
-        init();
-    }
-
-    public void init() throws Exception {
-        kraConnectorClient = createProxy(KRAConnectorResource.class);
+    public KRAConnectorClient(PKIClient client, String subsystem) {
+        super(client, subsystem, "admin/kraconnector");
     }
 
     public void addConnector(KRAConnectorInfo info) throws Exception {
-        Response response = kraConnectorClient.addConnector(info);
-        client.getEntity(response, Void.class);
+        Entity<KRAConnectorInfo> entity = client.entity(info);
+        post("add", null, entity, Void.class);
     }
 
     public void addHost(String host, String port) throws Exception {
-        Response response = kraConnectorClient.addHost(host, port);
-        client.getEntity(response, Void.class);
+        Map<String, Object> params = new HashMap<>();
+        if (host != null) params.put("host", host);
+        if (port != null) params.put("port", port);
+        post("addHost", params, null, Void.class);
     }
 
     public void removeConnector(String host, String port) throws Exception {
-        Response response = kraConnectorClient.removeConnector(host, port);
-        client.getEntity(response, Void.class);
+        Map<String, Object> params = new HashMap<>();
+        if (host != null) params.put("host", host);
+        if (port != null) params.put("port", port);
+        post("remove", params, null, Void.class);
     }
 
     public KRAConnectorInfo getConnectorInfo() throws Exception {
-        Response response = kraConnectorClient.getConnectorInfo();
-        return client.getEntity(response, KRAConnectorInfo.class);
+        return get(KRAConnectorInfo.class);
     }
 
 }
