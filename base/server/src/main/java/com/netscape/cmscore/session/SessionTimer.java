@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.TimerTask;
 
+import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.SecurityDomainSessionTable;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
@@ -71,19 +72,30 @@ public class SessionTimer extends TimerTask {
             long nowTime = nowDate.getTime();
             long timeToLive = m_sessiontable.getTimeToLive();
 
-            if ((nowTime - beginTime) > timeToLive) {
+            if ((nowTime - beginTime) <= timeToLive) continue;
+
+            logger.info("SessionTimer: Removing expired session: " + sessionId);
+            String auditParams = "operation;;expire_token+token;;" + sessionId;
+
+            try {
                 m_sessiontable.removeEntry(sessionId);
-                logger.info("SessionTimer: removed expired security domain session: " + sessionId);
 
-                // audit message
-                String auditParams = "operation;;expire_token+token;;" + sessionId;
-                String auditMessage = CMS.getLogMessage(
-                                         AuditEvent.SECURITY_DOMAIN_UPDATE,
-                                         "system",
-                                         ILogger.SUCCESS,
-                                         auditParams);
+                String message = CMS.getLogMessage(
+                        AuditEvent.SECURITY_DOMAIN_UPDATE,
+                        "system",
+                        ILogger.SUCCESS,
+                        auditParams);
+                auditor.log(message);
 
-                auditor.log(auditMessage);
+            } catch (Exception e) {
+                String message = CMS.getLogMessage(
+                        AuditEvent.SECURITY_DOMAIN_UPDATE,
+                        "system",
+                        ILogger.FAILURE,
+                        auditParams);
+                 auditor.log(message);
+
+                 throw new PKIException("Unable to remove expired session: " + e.getMessage(), e);
             }
         }
     }

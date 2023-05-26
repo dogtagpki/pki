@@ -31,7 +31,7 @@ public abstract class SecurityDomainSessionTable {
 
     public abstract void addEntry(String sessionID, String ip, String uid, String group) throws Exception;
 
-    public abstract int removeEntry(String sessionID) throws Exception;
+    public abstract void removeEntry(String sessionID) throws Exception;
 
     public abstract boolean sessionExists(String sessionID) throws Exception;
 

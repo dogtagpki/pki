@@ -137,26 +137,24 @@ public class LDAPSecurityDomainSessionTable
     }
 
     @Override
-    public int removeEntry(String sessionId) throws Exception {
+    public void removeEntry(String sessionId) throws Exception {
 
         EngineConfig cs = engine.getConfig();
         LDAPConfig ldapConfig = cs.getInternalDBConfig();
 
         LDAPConnection conn = null;
-        int status = FAILURE;
         try {
             String basedn = ldapConfig.getBaseDN();
             String dn = "cn=" + sessionId + ",ou=sessions,ou=Security Domain," + basedn;
             conn = mLdapConnFactory.getConn();
             conn.delete(dn);
-            status = SUCCESS;
 
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
                 // continue
             } else {
                 logger.error("SecurityDomainSessionTable: unable to delete session " + sessionId + ": " + e.getMessage(), e);
-                throw new PKIException("Unable to delete session " + sessionId, e);
+                throw new PKIException("Unable to delete session: " + sessionId + ": " + e.getMessage(), e);
             }
 
         } finally {
@@ -166,8 +164,6 @@ public class LDAPSecurityDomainSessionTable
                 logger.warn("Unable to return LDAP connection: " + e.getMessage(), e);
             }
         }
-
-        return status;
     }
 
     @Override

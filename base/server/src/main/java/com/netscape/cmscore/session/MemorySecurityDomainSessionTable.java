@@ -51,9 +51,8 @@ public class MemorySecurityDomainSessionTable
     }
 
     @Override
-    public int removeEntry(String sessionId) {
+    public void removeEntry(String sessionId) {
         m_sessions.remove(sessionId);
-        return SUCCESS;
     }
 
     @Override
