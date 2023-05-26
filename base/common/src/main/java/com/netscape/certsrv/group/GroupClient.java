@@ -17,7 +17,10 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.group;
 
-import javax.ws.rs.core.Response;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.ws.rs.client.Entity;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
@@ -28,44 +31,38 @@ import com.netscape.certsrv.client.SubsystemClient;
  */
 public class GroupClient extends Client {
 
-    public GroupResource groupClient;
-
     public GroupClient(PKIClient client, String subsystem) throws Exception {
-        super(client, subsystem, "group");
-        init();
+        super(client, subsystem, "admin/groups");
     }
 
     public GroupClient(SubsystemClient subsystemClient) throws Exception {
         this(subsystemClient.client, subsystemClient.getName());
     }
 
-    public void init() throws Exception {
-        groupClient = createProxy(GroupResource.class);
-    }
-
-    public GroupCollection findGroups(String groupIDFilter, Integer start, Integer size) throws Exception {
-        Response response = groupClient.findGroups(groupIDFilter, start, size);
-        return client.getEntity(response, GroupCollection.class);
+    public GroupCollection findGroups(String filter, Integer start, Integer size) throws Exception {
+        Map<String, Object> params = new HashMap<>();
+        if (filter != null) params.put("filter", filter);
+        if (start != null) params.put("start", start);
+        if (size != null) params.put("size", size);
+        return get(null, params, GroupCollection.class);
     }
 
     public GroupData getGroup(String groupID) throws Exception {
-        Response response = groupClient.getGroup(groupID);
-        return client.getEntity(response, GroupData.class);
+        return get(groupID, GroupData.class);
     }
 
     public GroupData addGroup(GroupData groupData) throws Exception {
-        Response response = groupClient.addGroup(groupData);
-        return client.getEntity(response, GroupData.class);
+        Entity<GroupData> entity = client.entity(groupData);
+        return post(null, null, entity, GroupData.class);
     }
 
     public GroupData modifyGroup(String groupID, GroupData groupData) throws Exception {
-        Response response = groupClient.modifyGroup(groupID, groupData);
-        return client.getEntity(response, GroupData.class);
+        Entity<GroupData> entity = client.entity(groupData);
+        return patch(groupID, null, entity, GroupData.class);
     }
 
     public void removeGroup(String groupID) throws Exception {
-        Response response = groupClient.removeGroup(groupID);
-        client.getEntity(response, Void.class);
+        delete(groupID, Void.class);
     }
 
     public GroupMemberCollection findGroupMembers(
@@ -73,24 +70,25 @@ public class GroupClient extends Client {
             String filter,
             Integer start,
             Integer size) throws Exception {
-        Response response = groupClient.findGroupMembers(groupID, filter, start, size);
-        return client.getEntity(response, GroupMemberCollection.class);
+        Map<String, Object> params = new HashMap<>();
+        if (filter != null) params.put("filter", filter);
+        if (start != null) params.put("start", start);
+        if (size != null) params.put("size", size);
+        return get(groupID + "/members", params, GroupMemberCollection.class);
     }
 
     public GroupMemberData getGroupMember(String groupID, String memberID) throws Exception {
-        Response response = groupClient.getGroupMember(groupID, memberID);
-        return client.getEntity(response, GroupMemberData.class);
+        return get(groupID + "/members/" + memberID, GroupMemberData.class);
     }
 
     public GroupMemberData addGroupMember(String groupID, String memberID) throws Exception {
         GroupMemberData data = new GroupMemberData();
         data.setID(memberID);
-        Response response = groupClient.addGroupMember(groupID, data);
-        return client.getEntity(response, GroupMemberData.class);
+        Entity<GroupMemberData> entity = client.entity(data);
+        return post(groupID + "/members", null, entity, GroupMemberData.class);
     }
 
     public void removeGroupMember(String groupID, String memberID) throws Exception {
-        Response response = groupClient.removeGroupMember(groupID, memberID);
-        client.getEntity(response, Void.class);
+        delete(groupID + "/members/" + memberID, Void.class);
     }
 }
