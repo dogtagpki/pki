@@ -253,11 +253,7 @@ public class PKIClient implements AutoCloseable {
         return connection;
     }
 
-    public <T> T get(String path, Class<T> responseType) throws Exception {
-        return get(path, null, responseType);
-    }
-
-    public <T> T get(String path, Map<String, Object> params, Class<T> responseType) throws Exception {
+    public WebTarget target(String path, Map<String, Object> params) {
         WebTarget target = connection.target(path);
         if (params != null) {
             for (String name : params.keySet()) {
@@ -266,6 +262,15 @@ public class PKIClient implements AutoCloseable {
                 target = target.queryParam(name, value);
             }
         }
+        return target;
+    }
+
+    public <T> T get(String path, Class<T> responseType) throws Exception {
+        return get(path, null, responseType);
+    }
+
+    public <T> T get(String path, Map<String, Object> params, Class<T> responseType) throws Exception {
+        WebTarget target = target(path, params);
         Response response = target.request().get();
         return getEntity(response, responseType);
     }
@@ -275,14 +280,7 @@ public class PKIClient implements AutoCloseable {
     }
 
     public <T> T post(String path, Map<String, Object> params, Class<T> responseType) throws Exception {
-        WebTarget target = connection.target(path);
-        if (params != null) {
-            for (String name : params.keySet()) {
-                Object value = params.get(name);
-                if (value == null) continue;
-                target = target.queryParam(name, value);
-            }
-        }
+        WebTarget target = target(path, params);
         Response response = target.request().post(null);
         return getEntity(response, responseType);
     }
