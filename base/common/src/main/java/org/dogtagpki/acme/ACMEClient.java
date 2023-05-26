@@ -19,8 +19,6 @@ package org.dogtagpki.acme;
 
 import java.net.URISyntaxException;
 
-import javax.ws.rs.core.Response;
-
 import com.netscape.certsrv.account.Account;
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
@@ -37,8 +35,7 @@ public class ACMEClient extends Client {
     }
 
     public Account login() throws Exception {
-        Response response = post("login");
-        Account account = client.getEntity(response, Account.class);
+        Account account = post("login", Account.class);
 
         logger.info("Account: " + account.getID());
 
@@ -51,22 +48,18 @@ public class ACMEClient extends Client {
     }
 
     public void enable() throws Exception {
-        Response response = post("enable");
-        client.getEntity(response, Void.class);
+        post("enable", Void.class);
     }
 
     public void disable() throws Exception {
-        Response response = post("disable");
-        client.getEntity(response, Void.class);
+        post("disable", Void.class);
     }
 
     public void logout() throws Exception {
-        Response response = post("logout");
-        client.getEntity(response, Void.class);
+        post("logout", Void.class);
     }
 
     public ACMEDirectory getDirectory() throws Exception {
-        Response response = get("directory");
-        return client.getEntity(response, ACMEDirectory.class);
+        return get("directory", ACMEDirectory.class);
     }
 }

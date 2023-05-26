@@ -253,10 +253,6 @@ public class PKIClient implements AutoCloseable {
         return connection;
     }
 
-    public Response get(String path) throws Exception {
-        return connection.target(path).request().get();
-    }
-
     public <T> T get(String path, Class<T> responseType) throws Exception {
         return get(path, null, responseType);
     }
@@ -270,11 +266,8 @@ public class PKIClient implements AutoCloseable {
                 target = target.queryParam(name, value);
             }
         }
-        return target.request().get(responseType);
-    }
-
-    public Response post(String path) throws Exception {
-        return connection.target(path).request().post(null);
+        Response response = target.request().get();
+        return getEntity(response, responseType);
     }
 
     public <T> T post(String path, Class<T> responseType) throws Exception {
@@ -290,15 +283,14 @@ public class PKIClient implements AutoCloseable {
                 target = target.queryParam(name, value);
             }
         }
-        return target.request().post(null, responseType);
-    }
-
-    public Response post(String path, MultivaluedMap<String, String> content) throws Exception {
-        return connection.target(path).request().post(Entity.form(content));
+        Response response = target.request().post(null);
+        return getEntity(response, responseType);
     }
 
     public <T> T post(String path, MultivaluedMap<String, String> content, Class<T> responseType) throws Exception {
-        return connection.target(path).request().post(Entity.form(content), responseType);
+        WebTarget target = connection.target(path);
+        Response response = target.request().post(Entity.form(content));
+        return getEntity(response, responseType);
     }
 
     public Info getInfo() throws Exception {

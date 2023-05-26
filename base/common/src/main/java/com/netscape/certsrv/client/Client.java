@@ -20,8 +20,6 @@ package com.netscape.certsrv.client;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import javax.ws.rs.core.Response;
-
 /**
  * @author Endi S. Dewata
  */
@@ -83,30 +81,8 @@ public class Client {
         return client.createProxy(path, clazz);
     }
 
-    public Response get() throws Exception {
-        return get((String) null);
-    }
-
     public <T> T get(Class<T> responseType) throws Exception {
         return get((String) null, responseType);
-    }
-
-    public Response get(String suffix) throws Exception {
-        String path = subsystem;
-
-        if (prefix != null) {
-            path += "/" + prefix;
-        }
-
-        if (name != null) {
-            path += "/" + name;
-        }
-
-        if (suffix != null) {
-            path += "/" + suffix;
-        }
-
-        return client.get(path);
     }
 
     public <T> T get(String suffix, Class<T> responseType) throws Exception {
@@ -132,30 +108,8 @@ public class Client {
         return client.get(path, params, responseType);
     }
 
-    public Response post() throws Exception {
-        return post((String) null);
-    }
-
     public <T> T post(Class<T> responseType) throws Exception {
         return post((String) null, responseType);
-    }
-
-    public Response post(String suffix) throws Exception {
-        String path = subsystem;
-
-        if (prefix != null) {
-            path += "/" + prefix;
-        }
-
-        if (name != null) {
-            path += "/" + name;
-        }
-
-        if (suffix != null) {
-            path += "/" + suffix;
-        }
-
-        return client.post(path);
     }
 
     public <T> T post(String suffix, Class<T> responseType) throws Exception {

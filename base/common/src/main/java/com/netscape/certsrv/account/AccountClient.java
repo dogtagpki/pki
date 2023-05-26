@@ -17,8 +17,6 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.account;
 
-import javax.ws.rs.core.Response;
-
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
 
@@ -40,8 +38,7 @@ public class AccountClient extends Client {
     }
 
     public Account login() throws Exception {
-        Response response = get("login");
-        Account account = client.getEntity(response, Account.class);
+        Account account = get("login", Account.class);
         loggedIn = true;
 
         logger.info("Account:");
@@ -60,8 +57,7 @@ public class AccountClient extends Client {
     public void logout() throws Exception {
         if (!loggedIn) return;
 
-        Response response = get("logout");
-        client.getEntity(response, Void.class);
+        get("logout", Void.class);
         loggedIn = false;
     }
 }
