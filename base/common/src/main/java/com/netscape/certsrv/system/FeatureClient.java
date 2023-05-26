@@ -20,7 +20,6 @@ package com.netscape.certsrv.system;
 import java.util.List;
 
 import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
@@ -30,21 +29,16 @@ import com.netscape.certsrv.client.PKIClient;
 */
 public class FeatureClient extends Client {
 
-  public FeatureResource featureClient;
+    public FeatureClient(PKIClient client, String subsystem) throws Exception {
+        super(client, subsystem, "config/features");
+    }
 
-  public FeatureClient(PKIClient client, String subsystem) throws Exception {
-      super(client, subsystem, "feature");
-      featureClient = createProxy(FeatureResource.class);
-  }
+    public List<Feature> listFeatures() throws Exception {
+        GenericType<List<Feature>> type = new GenericType<>() {};
+        return get(null, null, type);
+    }
 
-  public List<Feature> listFeatures() throws Exception {
-      Response response = featureClient.listFeatures();
-      GenericType<List<Feature>> type = new GenericType<>() {};
-      return client.getEntity(response, type);
-  }
-
-  public Feature getFeature(String featureID) throws Exception {
-      Response response = featureClient.getFeature(featureID);
-      return client.getEntity(response, Feature.class);
-  }
+    public Feature getFeature(String featureID) throws Exception {
+        return get(featureID, null, Feature.class);
+    }
 }
