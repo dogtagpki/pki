@@ -18,9 +18,11 @@
 package com.netscape.certsrv.system;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
@@ -31,45 +33,36 @@ import com.netscape.certsrv.client.PKIClient;
  */
 public class SecurityDomainClient extends Client {
 
-    private SecurityDomainResource securityDomainClient;
-
     public SecurityDomainClient(PKIClient client, String subsystem) throws Exception {
-        super(client, subsystem, "securitydomain");
-        init();
-    }
-
-    public void init() throws Exception {
-        securityDomainClient = createProxy(SecurityDomainResource.class);
+        super(client, subsystem, "securityDomain");
     }
 
     public InstallToken getInstallToken(String hostname, String subsystem) throws Exception {
-        Response response = securityDomainClient.getInstallToken(hostname, subsystem);
-        return client.getEntity(response, InstallToken.class);
+        Map<String, Object> params = new HashMap<>();
+        if (hostname != null) params.put("hostname", hostname);
+        if (subsystem != null) params.put("subsystem", subsystem);
+        return get("installToken", params, InstallToken.class);
     }
 
     public DomainInfo getDomainInfo() throws Exception {
-        Response response = securityDomainClient.getDomainInfo();
-        return client.getEntity(response, DomainInfo.class);
+        return get("domainInfo", DomainInfo.class);
     }
 
     public Collection<SecurityDomainHost> getHosts() throws Exception {
-        Response response = securityDomainClient.getHosts();
-        GenericType<Collection<SecurityDomainHost>> type = new GenericType<>() {};
-        return client.getEntity(response, type);
+        GenericType<Collection<SecurityDomainHost>> responseType = new GenericType<>() {};
+        return get("hosts", null, responseType);
     }
 
     public SecurityDomainHost getHost(String hostID) throws Exception {
-        Response response = securityDomainClient.getHost(hostID);
-        return client.getEntity(response, SecurityDomainHost.class);
+        return get("hosts/" + hostID, null, SecurityDomainHost.class);
     }
 
     public void addHost(SecurityDomainHost host) throws Exception {
-        Response response = securityDomainClient.addHost(host);
-        client.getEntity(response, Void.class);
+        Entity<SecurityDomainHost> entity = client.entity(host);
+        put("hosts", null, entity, Void.class);
     }
 
     public void removeHost(String hostID) throws Exception {
-        Response response = securityDomainClient.removeHost(hostID);
-        client.getEntity(response, Void.class);
+        delete("hosts/" + hostID, Void.class);
     }
 }
