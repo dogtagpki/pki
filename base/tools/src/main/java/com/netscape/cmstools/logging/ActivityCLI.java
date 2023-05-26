@@ -20,7 +20,6 @@ package com.netscape.cmstools.logging;
 
 import org.dogtagpki.cli.CLI;
 
-import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.logging.ActivityClient;
 import com.netscape.certsrv.logging.ActivityData;
 import com.netscape.cmstools.tps.TPSCLI;
@@ -47,8 +46,7 @@ public class ActivityCLI extends CLI {
 
         if (activityClient != null) return activityClient;
 
-        PKIClient client = getClient();
-        activityClient = (ActivityClient)parent.getClient("activity");
+        activityClient = (ActivityClient) parent.getClient("activities");
 
         return activityClient;
     }

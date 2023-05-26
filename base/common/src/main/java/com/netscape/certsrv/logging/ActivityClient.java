@@ -17,7 +17,8 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.logging;
 
-import javax.ws.rs.core.Response;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
@@ -27,24 +28,19 @@ import com.netscape.certsrv.client.PKIClient;
  */
 public class ActivityClient extends Client {
 
-    public ActivityResource resource;
-
     public ActivityClient(PKIClient client, String subsystem) throws Exception {
-        super(client, subsystem, "activity");
-        init();
-    }
-
-    public void init() throws Exception {
-        resource = createProxy(ActivityResource.class);
+        super(client, subsystem, "activities");
     }
 
     public ActivityCollection findActivities(String filter, Integer start, Integer size) throws Exception {
-        Response response = resource.findActivities(filter, start, size);
-        return client.getEntity(response, ActivityCollection.class);
+        Map<String, Object> params = new HashMap<>();
+        if (filter != null) params.put("filter", filter);
+        if (start != null) params.put("start", start);
+        if (size != null) params.put("size", size);
+        return get(null, params, ActivityCollection.class);
     }
 
     public ActivityData getActivity(String activityID) throws Exception {
-        Response response = resource.getActivity(activityID);
-        return client.getEntity(response, ActivityData.class);
+        return get(activityID, ActivityData.class);
     }
 }
