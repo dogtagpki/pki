@@ -17,7 +17,8 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.tps.cert;
 
-import javax.ws.rs.core.Response;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
@@ -27,24 +28,20 @@ import com.netscape.certsrv.client.PKIClient;
  */
 public class TPSCertClient extends Client {
 
-    public TPSCertResource resource;
-
     public TPSCertClient(PKIClient client, String subsystem) throws Exception {
-        super(client, subsystem, "cert");
-        init();
-    }
-
-    public void init() throws Exception {
-        resource = createProxy(TPSCertResource.class);
+        super(client, subsystem, "certs");
     }
 
     public TPSCertCollection findCerts(String filter, String tokenID, Integer start, Integer size) throws Exception {
-        Response response = resource.findCerts(filter, tokenID, start, size);
-        return client.getEntity(response, TPSCertCollection.class);
+        Map<String, Object> params = new HashMap<>();
+        if (filter != null) params.put("filter", filter);
+        if (tokenID != null) params.put("tokenID", tokenID);
+        if (start != null) params.put("start", start);
+        if (size != null) params.put("size", size);
+        return get(null, params, TPSCertCollection.class);
     }
 
     public TPSCertData getCert(String tokenID) throws Exception {
-        Response response = resource.getCert(tokenID);
-        return client.getEntity(response, TPSCertData.class);
+        return get(tokenID, TPSCertData.class);
     }
 }
