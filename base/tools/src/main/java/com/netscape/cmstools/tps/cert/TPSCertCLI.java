@@ -20,7 +20,6 @@ package com.netscape.cmstools.tps.cert;
 
 import org.dogtagpki.cli.CLI;
 
-import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.tps.cert.TPSCertClient;
 import com.netscape.certsrv.tps.cert.TPSCertData;
 import com.netscape.cmstools.tps.TPSCLI;
@@ -47,8 +46,7 @@ public class TPSCertCLI extends CLI {
 
         if (certClient != null) return certClient;
 
-        PKIClient client = getClient();
-        certClient = (TPSCertClient)parent.getClient("cert");
+        certClient = (TPSCertClient) parent.getClient("certs");
 
         return certClient;
     }
