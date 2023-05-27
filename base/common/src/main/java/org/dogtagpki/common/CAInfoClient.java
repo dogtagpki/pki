@@ -18,8 +18,6 @@
 
 package org.dogtagpki.common;
 
-import javax.ws.rs.core.Response;
-
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
 
@@ -28,20 +26,12 @@ import com.netscape.certsrv.client.PKIClient;
  */
 public class CAInfoClient extends Client {
 
-    public CAInfoResource resource;
-
     public CAInfoClient(PKIClient client, String subsystem) throws Exception {
         super(client, subsystem, "info");
-        init();
-    }
-
-    public void init() throws Exception {
-        resource = createProxy(CAInfoResource.class);
     }
 
     public CAInfo getInfo() throws Exception {
-        Response response = resource.getInfo();
-        return client.getEntity(response, CAInfo.class);
+        return get(CAInfo.class);
     }
 }
 
