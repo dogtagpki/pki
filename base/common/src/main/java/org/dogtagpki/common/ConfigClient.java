@@ -22,9 +22,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,20 +44,12 @@ public class ConfigClient extends Client {
 
     public final static Logger logger = LoggerFactory.getLogger(ConfigClient.class);
 
-    public ConfigResource resource;
-
     public ConfigClient(PKIClient client, String subsystem) throws Exception {
         super(client, subsystem, "config");
-        init();
-    }
-
-    public void init() throws Exception {
-        resource = createProxy(ConfigResource.class);
     }
 
     public ConfigData getConfig() throws Exception {
-        Response response = resource.getConfig();
-        return client.getEntity(response, ConfigData.class);
+        return get(ConfigData.class);
     }
 
     public ConfigData getConfig(
@@ -141,7 +133,7 @@ public class ConfigClient extends Client {
     }
 
     public ConfigData updateConfig(ConfigData configData) throws Exception {
-        Response response = resource.updateConfig(configData);
-        return client.getEntity(response, ConfigData.class);
+        Entity<ConfigData> entity = client.entity(configData);
+        return patch(null, null, entity, ConfigData.class);
     }
 }
