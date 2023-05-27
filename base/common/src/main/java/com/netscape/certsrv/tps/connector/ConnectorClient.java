@@ -17,7 +17,10 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.tps.connector;
 
-import javax.ws.rs.core.Response;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.ws.rs.client.Entity;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
@@ -27,44 +30,39 @@ import com.netscape.certsrv.client.PKIClient;
  */
 public class ConnectorClient extends Client {
 
-    public ConnectorResource resource;
-
     public ConnectorClient(PKIClient client, String subsystem) throws Exception {
-        super(client, subsystem, "connector");
-        init();
-    }
-
-    public void init() throws Exception {
-        resource = createProxy(ConnectorResource.class);
+        super(client, subsystem, "connectors");
     }
 
     public ConnectorCollection findConnectors(String filter, Integer start, Integer size) throws Exception {
-        Response response = resource.findConnectors(filter, start, size);
-        return client.getEntity(response, ConnectorCollection.class);
+        Map<String, Object> params = new HashMap<>();
+        if (filter != null) params.put("filter", filter);
+        if (start != null) params.put("start", start);
+        if (size != null) params.put("size", size);
+        return get(null, params, ConnectorCollection.class);
     }
 
     public ConnectorData getConnector(String connectorID) throws Exception {
-        Response response = resource.getConnector(connectorID);
-        return client.getEntity(response, ConnectorData.class);
+        return get(connectorID, ConnectorData.class);
     }
 
     public ConnectorData addConnector(ConnectorData connectorData) throws Exception {
-        Response response = resource.addConnector(connectorData);
-        return client.getEntity(response, ConnectorData.class);
+        Entity<ConnectorData> entity = client.entity(connectorData);
+        return post(null, null, entity, ConnectorData.class);
     }
 
     public ConnectorData updateConnector(String connectorID, ConnectorData connectorData) throws Exception {
-        Response response = resource.updateConnector(connectorID, connectorData);
-        return client.getEntity(response, ConnectorData.class);
+        Entity<ConnectorData> entity = client.entity(connectorData);
+        return patch(connectorID, null, entity, ConnectorData.class);
     }
 
     public ConnectorData changeConnectorStatus(String connectorID, String action) throws Exception {
-        Response response = resource.changeStatus(connectorID, action);
-        return client.getEntity(response, ConnectorData.class);
+        Map<String, Object> params = new HashMap<>();
+        if (action != null) params.put("action", action);
+        return post(connectorID, params, null, ConnectorData.class);
     }
 
     public void removeConnector(String connectorID) throws Exception {
-        Response response = resource.removeConnector(connectorID);
-        client.getEntity(response, Void.class);
+        delete(connectorID, Void.class);
     }
 }

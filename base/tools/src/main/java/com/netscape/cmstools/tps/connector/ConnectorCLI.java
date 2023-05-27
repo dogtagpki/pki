@@ -23,7 +23,6 @@ import java.util.Map;
 
 import org.dogtagpki.cli.CLI;
 
-import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.tps.connector.ConnectorClient;
 import com.netscape.certsrv.tps.connector.ConnectorData;
 
@@ -50,8 +49,7 @@ public class ConnectorCLI extends CLI {
 
         if (connectorClient != null) return connectorClient;
 
-        PKIClient client = getClient();
-        connectorClient = (ConnectorClient)parent.getClient("connector");
+        connectorClient = (ConnectorClient) parent.getClient("connectors");
 
         return connectorClient;
     }
