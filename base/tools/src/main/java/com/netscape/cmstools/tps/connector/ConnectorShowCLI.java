@@ -79,7 +79,7 @@ public class ConnectorShowCLI extends CommandCLI {
 
         } else {
             try (PrintWriter out = new PrintWriter(new FileWriter(output))) {
-                out.println(connectorData);
+                out.println(connectorData.toJSON());
             }
             MainCLI.printMessage("Stored connector \"" + connectorID + "\" into " + output);
         }
