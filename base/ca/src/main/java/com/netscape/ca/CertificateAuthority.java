@@ -32,6 +32,8 @@ import java.security.SignatureException;
 import java.security.cert.CRLException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
+import java.security.interfaces.DSAKey;
+import java.security.interfaces.ECKey;
 import java.security.interfaces.RSAKey;
 import java.util.Arrays;
 import java.util.Collection;
@@ -1716,13 +1718,22 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
         logger.info("CertificateAuthority: generating RSA key");
 
         // Key size of sub-CA shall be key size of this CA.
-        // If the key is not RSA (e.g. EC) default to 3072 bits.
-        // TODO: key generation parameters
-        KeyPairGenerator gen = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
-        int keySize = 3072;
+        int keySize;
+        KeyPairGenerator gen;
         PublicKey thisPub = mSigningUnit.getPublicKey();
-        if (thisPub instanceof RSAKey) {
-            keySize = ((RSAKey) thisPub).getModulus().bitLength();
+        if (thisPub instanceof RSAKey rsaKey) {
+            keySize = rsaKey.getModulus().bitLength();
+            gen = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
+        } else if (thisPub instanceof ECKey ecKey) {
+            keySize = ecKey.getParams().getOrder().bitLength();
+            gen = token.getKeyPairGenerator(KeyPairAlgorithm.EC);
+        } else if (thisPub instanceof DSAKey dsaKey) {
+            keySize = dsaKey.getParams().getP().bitLength();
+            gen = token.getKeyPairGenerator(KeyPairAlgorithm.DSA);
+        } else {
+            // If the key is not RSA/DSA/EC default to RSA 3072 bits.
+            keySize = 3072;
+            gen = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
         }
         gen.initialize(keySize);
 
