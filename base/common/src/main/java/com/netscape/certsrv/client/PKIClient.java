@@ -197,6 +197,10 @@ public class PKIClient implements AutoCloseable {
         throw constructor.newInstance(data);
     }
 
+    public <T> Entity<T> entity(T object) throws Exception {
+        return Entity.entity(object, messageFormat);
+    }
+
     public <T> T getEntity(Response response, Class<T> clazz) throws Exception {
         try {
             Family family = response.getStatusInfo().getFamily();
