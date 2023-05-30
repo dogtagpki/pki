@@ -86,7 +86,7 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
     @Override
     public Response findConnectors(String filter, Integer start, Integer size) {
 
-        logger.debug("ConnectorService.findConnectors()");
+        logger.info("ConnectorService: Finding connectors");
 
         if (filter != null && filter.length() < MIN_FILTER_LENGTH) {
             throw new BadRequestException("Filter is too short.");
@@ -100,6 +100,7 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ConnectorDatabase database = subsystem.getConnectorDatabase();
 
+            logger.info("ConnectorService: Results:");
             Iterator<ConnectorRecord> connections = database.findRecords(filter).iterator();
 
             ConnectorCollection response = new ConnectorCollection();
@@ -111,7 +112,9 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
 
             // return entries up to the page size
             for (; i < start + size && connections.hasNext(); i++) {
-                response.addEntry(createConnectorData(connections.next()));
+                ConnectorRecord record = connections.next();
+                logger.info("ConnectorService: - " + record.getID());
+                response.addEntry(createConnectorData(record));
             }
 
             // count the total entries
@@ -134,10 +137,10 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
     @Override
     public Response getConnector(String connectorID) {
 
+        logger.info("ConnectorService: Retrieving connector " + connectorID);
+
         if (connectorID == null)
             throw new BadRequestException("Connector ID is null.");
-
-        logger.debug("ConnectorService.getConnector(\"" + connectorID + "\")");
 
         TPSEngine engine = TPSEngine.getInstance();
         try {
@@ -158,6 +161,7 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
 
     @Override
     public Response addConnector(ConnectorData connectorData) {
+
         String method = "ConnectorService.addConnector";
 
         if (connectorData == null) {
@@ -166,23 +170,31 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
             throw new BadRequestException("Connector data is null.");
         }
 
-        logger.debug("ConnectorService.addConnector(\"" + connectorData.getID() + "\")");
+        logger.info("ConnectorService: Adding connector " + connectorData.getID());
 
         TPSEngine engine = TPSEngine.getInstance();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ConnectorDatabase database = subsystem.getConnectorDatabase();
 
+            boolean requiresApproval = database.requiresApproval();
+            logger.info("ConnectorService: - requires approval: " + requiresApproval);
+
             String status = connectorData.getStatus();
             Principal principal = servletRequest.getUserPrincipal();
 
+            boolean canApprove = database.canApprove(principal);
+            logger.info("ConnectorService: - can approve: " + canApprove);
+
             boolean statusChanged = false;
-            if (StringUtils.isEmpty(status) || database.requiresApproval() && !database.canApprove(principal)) {
+            if (StringUtils.isEmpty(status) || requiresApproval && !canApprove) {
                 // if status is unspecified or user doesn't have rights to approve, the entry is disabled
                 status = Constants.CFG_DISABLED;
                 connectorData.setStatus(status);
                 statusChanged = true;
             }
+
+            logger.info("ConnectorService: - status: " + status);
 
             database.addRecord(connectorData.getID(), createConnectorRecord(connectorData));
             connectorData = createConnectorData(database.getRecord(connectorData.getID()));
@@ -216,6 +228,9 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
 
     @Override
     public Response updateConnector(String connectorID, ConnectorData connectorData) {
+
+        logger.info("ConnectorService: Updating connector " + connectorID);
+
         String method = "ConnectorService.updateConnector";
 
         if (connectorID == null) {
@@ -229,17 +244,17 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
             throw new BadRequestException("Connector data is null.");
         }
 
-        logger.debug("ConnectorService.updateConnector(\"" + connectorID + "\")");
-
         TPSEngine engine = TPSEngine.getInstance();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ConnectorDatabase database = subsystem.getConnectorDatabase();
 
             ConnectorRecord record = database.getRecord(connectorID);
+            String currentStatus = record.getStatus();
+            logger.info("ConnectorService: - current status: " + currentStatus);
 
             // only disabled connector can be updated
-            if (!Constants.CFG_DISABLED.equals(record.getStatus())) {
+            if (!Constants.CFG_DISABLED.equals(currentStatus)) {
                 Exception e = new ForbiddenException("Unable to update connector " + connectorID);
                 auditTPSConnectorChange(ILogger.FAILURE, method,
                         connectorData.getID(), connectorData.getProperties(), e.toString());
@@ -248,6 +263,8 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
 
             // update status if specified
             String status = connectorData.getStatus();
+            logger.info("ConnectorService: - new status: " + status);
+
             boolean statusChanged = false;
             if (status != null && !Constants.CFG_DISABLED.equals(status)) {
                 if (!Constants.CFG_ENABLED.equals(status)) {
@@ -257,13 +274,19 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
                     throw e;
                 }
 
+                boolean requiresApproval = database.requiresApproval();
+                logger.info("ConnectorService: - requires approve: " + requiresApproval);
+
                 // if user doesn't have rights, set to pending
                 Principal principal = servletRequest.getUserPrincipal();
-                if (database.requiresApproval() && !database.canApprove(principal)) {
+                boolean canApprove = database.canApprove(principal);
+                logger.info("ConnectorService: - can approve: " + canApprove);
+
+                if (requiresApproval && !canApprove) {
                     status = Constants.CFG_PENDING_APPROVAL;
                 }
 
-                // enable connector
+                // update connector status
                 record.setStatus(status);
                 statusChanged = true;
             }
@@ -300,6 +323,9 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
 
     @Override
     public Response changeStatus(String connectorID, String action) {
+
+        logger.info("ConnectorService: Changing connector " + connectorID + " status: " + action);
+
         String method = "ConnectorService.changeStatus";
         Map<String, String> auditModParams = new HashMap<>();
 
@@ -315,8 +341,6 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
         }
         auditModParams.put("Action", action);
 
-        logger.debug("ConnectorService.changeStatus(\"" + connectorID + "\", \"" + action + "\")");
-
         TPSEngine engine = TPSEngine.getInstance();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
@@ -327,10 +351,15 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
 
             Principal principal = servletRequest.getUserPrincipal();
             boolean canApprove = database.canApprove(principal);
+            logger.info("ConnectorService: - can approve: " + canApprove);
 
+            logger.info("ConnectorService: - current status: " + status);
             if (Constants.CFG_DISABLED.equals(status)) {
 
-                if (database.requiresApproval()) {
+                boolean requiresApproval = database.requiresApproval();
+                logger.info("ConnectorService: - requires approval: " + requiresApproval);
+
+                if (requiresApproval) {
 
                     if ("submit".equals(action) && !canApprove) {
                         status = Constants.CFG_PENDING_APPROVAL;
