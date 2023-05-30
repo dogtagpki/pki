@@ -815,6 +815,8 @@ main(int argc, char **argv)
 	int co;
 	char *crlf;
 
+    fprintf( stderr, "WARNING: sslget has been deprecated. Use pki CLI or curl instead.\n" );
+
     /* Call the NSPR initialization routines */
     PR_Init( PR_SYSTEM_THREAD, PR_PRIORITY_NORMAL, 1);
 

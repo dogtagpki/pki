@@ -10,3 +10,8 @@ The `pki nss-cert-request` and `pki nss-cert-issue` commands have been
 modified to provide a `--subjectAltName` option.
 This option will override the `subjectAltName` parameter in the extension
 configuration file.
+
+== Deprecate sslget ==
+
+The `sslget` command has been deprecated.
+Use `pki` CLI or the `curl` command instead.
