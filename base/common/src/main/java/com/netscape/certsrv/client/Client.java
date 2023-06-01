@@ -158,4 +158,9 @@ public class Client {
         String path = getTargetPath(suffix);
         return client.delete(path, responseType);
     }
+
+    public <T> T delete(String suffix, Map<String, Object> params, Class<T> responseType) throws Exception {
+        String path = getTargetPath(suffix);
+        return client.delete(path, params, responseType);
+    }
 }

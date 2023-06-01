@@ -322,6 +322,12 @@ public class PKIClient implements AutoCloseable {
         return getEntity(response, responseType);
     }
 
+    public <T> T delete(String path, Map<String, Object> params, Class<T> responseType) throws Exception {
+        WebTarget target = target(path, params);
+        Response response = target.request().delete();
+        return getEntity(response, responseType);
+    }
+
     public Info getInfo() throws Exception {
         if (infoClient == null) {
             infoClient = new InfoClient(this);
