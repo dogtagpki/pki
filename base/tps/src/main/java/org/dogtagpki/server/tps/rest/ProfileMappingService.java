@@ -62,6 +62,7 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
 
         ProfileMappingData profileMappingData = new ProfileMappingData();
         profileMappingData.setID(profileMappingRecord.getID());
+        profileMappingData.setProfileMappingID(profileMappingRecord.getID());
         profileMappingData.setStatus(profileMappingRecord.getStatus());
         profileMappingData.setProperties(profileMappingRecord.getProperties());
         return profileMappingData;
