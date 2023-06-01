@@ -5,8 +5,10 @@
 //
 package org.dogtagpki.server.tks;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -26,7 +28,9 @@ public class TKSEngineConfig extends EngineConfig {
 
     public Collection<String> getTPSConnectorIDs() throws EBaseException {
         String list = getString("tps.list", "");
-        return Arrays.asList(list.split(","));
+        ArrayList<String> array = new ArrayList<>(Arrays.asList(list.split(",")));
+        array.removeAll(Collections.singleton(""));
+        return array;
     }
 
     public void setTPSConnectorIDs(Collection<String> list) throws EBaseException {
