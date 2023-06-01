@@ -21,6 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
 
 /**
@@ -101,6 +102,11 @@ public class Client {
         }
 
         return sb.toString();
+    }
+
+    public WebTarget target(String suffix, Map<String, Object> params) {
+        String path = getTargetPath(suffix);
+        return client.target(path, params);
     }
 
     public <T> T get(Class<T> responseType) throws Exception {
