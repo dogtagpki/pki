@@ -42,7 +42,7 @@ import com.netscape.cmscore.request.Request;
  */
 public abstract class Job implements Runnable {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Job.class);
+    public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Job.class);
 
     // config parameters...
     protected static final String PROP_SUMMARY = "summary";
@@ -78,8 +78,7 @@ public abstract class Job implements Runnable {
 
     boolean stopped;
 
-    public Job() {
-    }
+    protected Job() {/* Prevent instantiation */}
 
     public CMSEngine getCMSEngine() {
         return engine;
@@ -110,6 +109,7 @@ public abstract class Job implements Runnable {
         try {
             enabled = mConfig.isEnabled();
         } catch (EBaseException e) {
+            // Swallow exceptions?
         }
         return enabled;
     }
@@ -124,25 +124,22 @@ public abstract class Job implements Runnable {
      */
     public void init(JobsScheduler scheduler, String id, String implName, JobConfig config) throws EBaseException {
 
-        logger.info("Job: Initializing job " + id);
+        logger.info("Job: Initializing job {}", id);
 
         mId = id;
 
         mImplName = implName;
-        logger.info("Job: - plugin: " + implName);
+        logger.info("Job: - plugin: {}", implName);
 
         mConfig = config;
 
         mCron = config.getCron();
-        logger.info("Job: - cron: " + mCron);
+        logger.info("Job: - cron: {}", mCron);
 
         if (mCron != null) {
             mJobCron = scheduler.createJobCron(mCron);
         }
     }
-
-    @Override
-    public abstract void run();
 
     /***********************
      * public methods
@@ -205,7 +202,7 @@ public abstract class Job implements Runnable {
         EmailTemplate template = new EmailTemplate(templatePath);
 
         if (!template.init()) {
-            logger.warn("Job: " + CMS.getLogMessage("JOBS_TEMPLATE_INIT_ERROR"));
+            logger.warn("Job: {}", CMS.getLogMessage("JOBS_TEMPLATE_INIT_ERROR"));
             return null;
         }
 
@@ -221,7 +218,7 @@ public abstract class Job implements Runnable {
 
     protected void mailSummary(String content) {
 
-        logger.info("Job: Sending email to " + mSummaryReceiverEmail);
+        logger.info("Job: Sending email to {}", mSummaryReceiverEmail);
 
         // no need for email resolver here...
         MailNotification mn = engine.getMailNotification();
@@ -229,17 +226,15 @@ public abstract class Job implements Runnable {
         mn.setFrom(mSummarySenderEmail);
         mn.setTo(mSummaryReceiverEmail);
         mn.setSubject(mSummaryMailSubject);
-        if (mMailHTML == true) {
+        if (mMailHTML) {
             mn.setContentType("text/html");
         }
 
         mn.setContent(content);
         try {
             mn.sendNotification();
-        } catch (ENotificationException e) {
-            logger.warn("Job: " + CMS.getLogMessage("JOBS_SEND_NOTIFICATION", e.toString()), e);
-        } catch (IOException e) {
-            logger.warn("Job: " + CMS.getLogMessage("JOBS_SEND_NOTIFICATION", e.toString()), e);
+        } catch (ENotificationException | IOException e) {
+            logger.warn("Job: {}", CMS.getLogMessage("JOBS_SEND_NOTIFICATION", e.toString()), e);
         }
     }
 
@@ -280,21 +275,19 @@ public abstract class Job implements Runnable {
     }
 
     protected void buildItemParams(String name, String val) {
-        if (val != null)
-            mItemParams.put(name, val);
-        else {
-            logger.debug("Job: buildItemParams: null value for name= " + name);
-            mItemParams.put(name, "");
+        if (val == null) {
+            logger.debug("Job: buildItemParams: null value for name={}", name);
+            val = "";
         }
+        mContentParams.put(name, val);
     }
 
     protected void buildContentParams(String name, String val) {
-        if (val != null)
-            mContentParams.put(name, val);
-        else {
-            logger.debug("Job: buildContentParams: null value for name= " + name);
-            mContentParams.put(name, "");
+        if (val == null) {
+            logger.debug("Job: buildContentParams: null value for name={}", name);
+            val = "";
         }
+        mContentParams.put(name, val);
     }
 
     /**
