@@ -19,9 +19,11 @@ package com.netscape.cmscore.dbs;
 
 import java.math.BigInteger;
 import java.security.cert.Certificate;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.Vector;
+import java.util.List;
 
 import org.mozilla.jss.netscape.security.x509.CRLExtensions;
 import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
@@ -31,7 +33,6 @@ import org.mozilla.jss.netscape.security.x509.X509ExtensionException;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
-import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.cmscore.apps.CMS;
 
@@ -44,21 +45,23 @@ import com.netscape.cmscore.apps.CMS;
  */
 public class CertRecord implements IDBObj {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertRecord.class);
+    private static final String CMS_BASE_INVALID_ATTRIBUTE = "CMS_BASE_INVALID_ATTRIBUTE";
+
+    public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertRecord.class);
 
     private static final long serialVersionUID = -6231895305929417777L;
 
-    public final static String ATTR_ID = "certRecordId";
-    public final static String ATTR_META_INFO = "certMetaInfo";
-    public final static String ATTR_REVO_INFO = "certRevoInfo";
-    public final static String ATTR_CERT_STATUS = "certStatus";
-    public final static String ATTR_CREATE_TIME = "certCreateTime";
-    public final static String ATTR_MODIFY_TIME = "certModifyTime";
-    public final static String ATTR_AUTO_RENEW = "certAutoRenew";
-    public final static String ATTR_ISSUED_BY = "certIssuedBy";
-    public final static String ATTR_REVOKED_BY = "certRevokedBy";
-    public final static String ATTR_REVOKED_ON = "certRevokedOn";
-    public final static String ATTR_X509CERT = "x509cert";
+    public static final String ATTR_ID = "certRecordId";
+    public static final String ATTR_META_INFO = "certMetaInfo";
+    public static final String ATTR_REVO_INFO = "certRevoInfo";
+    public static final String ATTR_CERT_STATUS = "certStatus";
+    public static final String ATTR_CREATE_TIME = "certCreateTime";
+    public static final String ATTR_MODIFY_TIME = "certModifyTime";
+    public static final String ATTR_AUTO_RENEW = "certAutoRenew";
+    public static final String ATTR_ISSUED_BY = "certIssuedBy";
+    public static final String ATTR_REVOKED_BY = "certRevokedBy";
+    public static final String ATTR_REVOKED_ON = "certRevokedOn";
+    public static final String ATTR_X509CERT = "x509cert";
 
     public static final String META_LDAPPUBLISH = "inLdapPublishDir";
     public static final String META_REQUEST_ID = "requestId";
@@ -71,59 +74,48 @@ public class CertRecord implements IDBObj {
     // for supporting CMC shared-secret based revocation
     public static final String META_REV_SHRTOK = "revShrTok";
 
-    public final static String STATUS_VALID = "VALID";
-    public final static String STATUS_INVALID = "INVALID";
-    public final static String STATUS_REVOKED = "REVOKED";
-    public final static String STATUS_EXPIRED = "EXPIRED";
-    public final static String STATUS_REVOKED_EXPIRED = "REVOKED_EXPIRED";
+    public static final String STATUS_VALID = "VALID";
+    public static final String STATUS_INVALID = "INVALID";
+    public static final String STATUS_REVOKED = "REVOKED";
+    public static final String STATUS_EXPIRED = "EXPIRED";
+    public static final String STATUS_REVOKED_EXPIRED = "REVOKED_EXPIRED";
 
-    public final static String AUTO_RENEWAL_DISABLED = "DISABLED";
-    public final static String AUTO_RENEWAL_ENABLED = "ENABLED";
-    public final static String AUTO_RENEWAL_DONE = "DONE";
-    public final static String AUTO_RENEWAL_NOTIFIED = "NOTIFIED";
+    public static final String AUTO_RENEWAL_DISABLED = "DISABLED";
+    public static final String AUTO_RENEWAL_ENABLED = "ENABLED";
+    public static final String AUTO_RENEWAL_DONE = "DONE";
+    public static final String AUTO_RENEWAL_NOTIFIED = "NOTIFIED";
 
-    public final static String X509CERT_NOT_BEFORE = "notBefore";
-    public final static String X509CERT_NOT_AFTER = "notAfter";
-    public final static String X509CERT_DURATION = "duration";
-    public final static String X509CERT_EXTENSION = "extension";
-    public final static String X509CERT_SUBJECT = "subject";
-    public final static String X509CERT_ISSUER = "issuer";
-    public final static String X509CERT_PUBLIC_KEY_DATA = "publicKeyData";
-    public final static String X509CERT_VERSION = "version";
-    public final static String X509CERT_ALGORITHM = "algorithm";
-    public final static String X509CERT_SIGNING_ALGORITHM = "signingAlgorithm";
-    public final static String X509CERT_SERIAL_NUMBER = "serialNumber";
+    public static final String X509CERT_NOT_BEFORE = "notBefore";
+    public static final String X509CERT_NOT_AFTER = "notAfter";
+    public static final String X509CERT_DURATION = "duration";
+    public static final String X509CERT_EXTENSION = "extension";
+    public static final String X509CERT_SUBJECT = "subject";
+    public static final String X509CERT_ISSUER = "issuer";
+    public static final String X509CERT_PUBLIC_KEY_DATA = "publicKeyData";
+    public static final String X509CERT_VERSION = "version";
+    public static final String X509CERT_ALGORITHM = "algorithm";
+    public static final String X509CERT_SIGNING_ALGORITHM = "signingAlgorithm";
+    public static final String X509CERT_SERIAL_NUMBER = "serialNumber";
 
     /* attribute type used the following with search filter */
-    public final static String ATTR_X509CERT_NOT_BEFORE =
-            ATTR_X509CERT + "." + X509CERT_NOT_BEFORE;
-    public final static String ATTR_X509CERT_NOT_AFTER =
-            ATTR_X509CERT + "." + X509CERT_NOT_AFTER;
-    public final static String ATTR_X509CERT_DURATION =
-            ATTR_X509CERT + "." + X509CERT_DURATION;
-    public final static String ATTR_X509CERT_EXTENSION =
-            ATTR_X509CERT + "." + X509CERT_EXTENSION;
-    public final static String ATTR_X509CERT_SUBJECT =
-            ATTR_X509CERT + "." + X509CERT_SUBJECT;
-    public final static String ATTR_X509CERT_ISSUER =
-            ATTR_X509CERT + "." + X509CERT_ISSUER;
-    public final static String ATTR_X509CERT_VERSION =
-            ATTR_X509CERT + "." + X509CERT_VERSION;
-    public final static String ATTR_X509CERT_ALGORITHM =
-            ATTR_X509CERT + "." + X509CERT_ALGORITHM;
-    public final static String ATTR_X509CERT_SIGNING_ALGORITHM =
-            ATTR_X509CERT + "." + X509CERT_SIGNING_ALGORITHM;
-    public final static String ATTR_X509CERT_SERIAL_NUMBER =
-            ATTR_X509CERT + "." + X509CERT_SERIAL_NUMBER;
-    public final static String ATTR_X509CERT_PUBLIC_KEY_DATA =
-            ATTR_X509CERT + "." + X509CERT_PUBLIC_KEY_DATA;
+    public static final String ATTR_X509CERT_NOT_BEFORE = ATTR_X509CERT + "." + X509CERT_NOT_BEFORE;
+    public static final String ATTR_X509CERT_NOT_AFTER = ATTR_X509CERT + "." + X509CERT_NOT_AFTER;
+    public static final String ATTR_X509CERT_DURATION = ATTR_X509CERT + "." + X509CERT_DURATION;
+    public static final String ATTR_X509CERT_EXTENSION = ATTR_X509CERT + "." + X509CERT_EXTENSION;
+    public static final String ATTR_X509CERT_SUBJECT = ATTR_X509CERT + "." + X509CERT_SUBJECT;
+    public static final String ATTR_X509CERT_ISSUER = ATTR_X509CERT + "." + X509CERT_ISSUER;
+    public static final String ATTR_X509CERT_VERSION = ATTR_X509CERT + "." + X509CERT_VERSION;
+    public static final String ATTR_X509CERT_ALGORITHM = ATTR_X509CERT + "." + X509CERT_ALGORITHM;
+    public static final String ATTR_X509CERT_SIGNING_ALGORITHM = ATTR_X509CERT + "." + X509CERT_SIGNING_ALGORITHM;
+    public static final String ATTR_X509CERT_SERIAL_NUMBER = ATTR_X509CERT + "." + X509CERT_SERIAL_NUMBER;
+    public static final String ATTR_X509CERT_PUBLIC_KEY_DATA = ATTR_X509CERT + "." + X509CERT_PUBLIC_KEY_DATA;
 
     private BigInteger mId = null;
     private X509CertImpl mX509Certificate = null;
     private String mStatus = null;
     private String mAutoRenew = null;
     private MetaInfo mMetaInfo = null;
-    // XXX revocationInfo not serializable
+    // revocationInfo not serializable
     private transient RevocationInfo mRevocationInfo = null;
     private Date mCreateTime = null;
     private Date mModifyTime = null;
@@ -131,20 +123,9 @@ public class CertRecord implements IDBObj {
     private String mRevokedBy = null;
     private Date mRevokedOn = null;
 
-    protected static Vector<String> mNames = new Vector<>();
-    static {
-        mNames.addElement(ATTR_ID);
-        mNames.addElement(ATTR_META_INFO);
-        mNames.addElement(ATTR_REVO_INFO);
-        mNames.addElement(ATTR_X509CERT);
-        mNames.addElement(ATTR_CREATE_TIME);
-        mNames.addElement(ATTR_MODIFY_TIME);
-        mNames.addElement(ATTR_CERT_STATUS);
-        mNames.addElement(ATTR_AUTO_RENEW);
-        mNames.addElement(ATTR_ISSUED_BY);
-        mNames.addElement(ATTR_REVOKED_BY);
-        mNames.addElement(ATTR_REVOKED_ON);
-    }
+    protected static List<String> mNames = Arrays.asList(
+            ATTR_ID, ATTR_META_INFO, ATTR_REVO_INFO, ATTR_X509CERT, ATTR_CREATE_TIME, ATTR_MODIFY_TIME,
+            ATTR_CERT_STATUS, ATTR_AUTO_RENEW, ATTR_ISSUED_BY, ATTR_REVOKED_BY, ATTR_REVOKED_ON);
 
     /**
      * Constructs empty certificate record.
@@ -158,8 +139,8 @@ public class CertRecord implements IDBObj {
      */
     public CertRecord(BigInteger id, Certificate cert, MetaInfo meta) {
         mId = id;
-        if (cert instanceof X509CertImpl)
-            mX509Certificate = (X509CertImpl) cert;
+        if (cert instanceof X509CertImpl x509Cert)
+            mX509Certificate = x509Cert;
         mMetaInfo = meta;
         mStatus = STATUS_VALID;
         mAutoRenew = AUTO_RENEWAL_ENABLED;
@@ -195,7 +176,7 @@ public class CertRecord implements IDBObj {
         } else if (name.equalsIgnoreCase(ATTR_REVOKED_ON)) {
             mRevokedOn = (Date) obj;
         } else {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
+            throw new EBaseException(CMS.getUserMessage(CMS_BASE_INVALID_ATTRIBUTE, name));
         }
     }
 
@@ -227,7 +208,7 @@ public class CertRecord implements IDBObj {
         } else if (name.equalsIgnoreCase(ATTR_REVOKED_ON)) {
             return mRevokedOn;
         } else {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
+            throw new EBaseException(CMS.getUserMessage(CMS_BASE_INVALID_ATTRIBUTE, name));
         }
     }
 
@@ -236,17 +217,17 @@ public class CertRecord implements IDBObj {
      */
     @Override
     public void delete(String name) throws EBaseException {
-        throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
+        throw new EBaseException(CMS.getUserMessage(CMS_BASE_INVALID_ATTRIBUTE, name));
     }
 
     @Override
     public Enumeration<String> getElements() {
-        return mNames.elements();
+        return Collections.enumeration(mNames);
     }
 
     @Override
     public Enumeration<String> getSerializableAttrNames() {
-        return mNames.elements();
+        return Collections.enumeration(mNames);
     }
 
     /**
@@ -353,7 +334,7 @@ public class CertRecord implements IDBObj {
     /**
      * Return revocation date.
      */
-    public Date getRevocationDate() throws EDBException {
+    public Date getRevocationDate() {
         return mRevocationInfo.getRevocationDate();
     }
 
@@ -383,14 +364,10 @@ public class CertRecord implements IDBObj {
      */
     public RevocationReason getRevReason()
             throws EBaseException, X509ExtensionException {
-        String method = "CertRecord.getRevReason:";
-        String msg = "";
-        // logger.debug(method + " checking for cert serial: "
-        //        + getSerialNumber().toString());
         RevocationInfo revInfo = getRevocationInfo();
         if (revInfo == null) {
-            msg = "revInfo null for" + getSerialNumber().toString();
-            logger.debug(method + msg);
+            String msg = "revInfo null for" + getSerialNumber().toString();
+            logger.debug("CertRecord.getRevReason: {}", msg);
             return null;
         }
 
@@ -411,18 +388,17 @@ public class CertRecord implements IDBObj {
      */
     public boolean isCertOnHold() {
         String method = "CertRecord.isCertOnHold: ";
-        logger.debug(method + "checking for cert serial: "
-                + getSerialNumber().toString());
+        logger.debug("{} checking for cert serial: {}", method, getSerialNumber());
         try {
             RevocationReason revReason = getRevReason();
             if (revReason == RevocationReason.CERTIFICATE_HOLD) {
-                logger.debug(method + "for " + getSerialNumber().toString() + " returning true");
+                logger.debug("{} for {} returning true", method, getSerialNumber());
                 return true;
             }
         } catch (Exception e) {
-            logger.warn(method + e.getMessage(), e);
+            logger.warn("{} {}", method, e.getMessage(), e);
         }
-        logger.debug(method + "for " + getSerialNumber().toString() + " returning false");
+        logger.debug("{} for {} returning false", method, getSerialNumber());
         return false;
     }
 
@@ -431,10 +407,10 @@ public class CertRecord implements IDBObj {
      */
     @Override
     public String toString() {
-        StringBuffer buf = new StringBuffer("CertRecord: ");
+        String certRecordString = "CertRecord: ";
 
         if (getSerialNumber() != null)
-            buf.append("    " + getSerialNumber().toString());
-        return buf.toString();
+            certRecordString = certRecordString.concat("    " + getSerialNumber().toString());
+        return certRecordString;
     }
 }

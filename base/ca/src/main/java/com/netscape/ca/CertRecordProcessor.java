@@ -32,10 +32,7 @@ import org.mozilla.jss.netscape.security.x509.RevocationReason;
 import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
 import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
 
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.dbs.certdb.CertId;
-import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.ElementProcessor;
 import com.netscape.cmscore.dbs.RevocationInfo;
@@ -209,36 +206,30 @@ public class CertRecordProcessor extends ElementProcessor {
     }
 
     @Override
-    public void process(Object o) throws EBaseException {
-        try {
-            CertRecord certRecord = (CertRecord) o;
+    public void process(Object o) {
+        CertRecord certRecord = (CertRecord) o;
 
-            BigInteger serialNumber = certRecord.getSerialNumber();
-            CertId certID = new CertId(serialNumber);
+        BigInteger serialNumber = certRecord.getSerialNumber();
+        CertId certID = new CertId(serialNumber);
 
-            Date revocationDate = certRecord.getRevocationDate();
-            RevocationInfo revInfo = certRecord.getRevocationInfo();
+        Date revocationDate = certRecord.getRevocationDate();
+        RevocationInfo revInfo = certRecord.getRevocationInfo();
 
-            CRLExtensions entryExt = null;
-            CRLExtensions crlExts = null;
+        CRLExtensions entryExt = null;
+        CRLExtensions crlExts = null;
 
-            if (revInfo != null) {
-                crlExts = revInfo.getCRLEntryExtensions();
-                entryExt = issuingPoint.getRequiredEntryExtensions(crlExts);
-            }
+        if (revInfo != null) {
+            crlExts = revInfo.getCRLEntryExtensions();
+            entryExt = issuingPoint.getRequiredEntryExtensions(crlExts);
+        }
 
-            RevokedCertificate newRevokedCert = new RevokedCertImpl(serialNumber, revocationDate, entryExt);
+        RevokedCertificate newRevokedCert = new RevokedCertImpl(serialNumber, revocationDate, entryExt);
 
-            boolean includeCert = checkRevokedCertExtensions(crlExts);
+        boolean includeCert = checkRevokedCertExtensions(crlExts);
 
-            if (includeCert == true) {
-                logger.info("CertRecordProcessor: Adding cert " + certID.toHexString() + " into CRL");
-                crlCerts.put(serialNumber, newRevokedCert);
-            }
-
-        } catch (EBaseException e) {
-            logger.error("CA failed constructing CRL entry: " + (crlCerts.size() + 1) + " " + e, e);
-            throw new ECAException(CMS.getUserMessage("CMS_CA_FAILED_CONSTRUCTING_CRL", e.toString()));
+        if (includeCert == true) {
+            logger.info("CertRecordProcessor: Adding cert " + certID.toHexString() + " into CRL");
+            crlCerts.put(serialNumber, newRevokedCert);
         }
     }
 }
