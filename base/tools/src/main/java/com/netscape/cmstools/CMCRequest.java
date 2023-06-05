@@ -114,6 +114,7 @@ import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import org.mozilla.jss.util.Password;
 
+import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -1184,7 +1185,8 @@ public class CMCRequest {
                 System.out.println(method + "revocation reason must be supplied");
                 System.exit(1);
             }
-            INTEGER snumber = new INTEGER(revRequestSerial);
+            CertId certId = new CertId(revRequestSerial);
+            INTEGER snumber = new INTEGER(certId.toBigInteger());
             ENUMERATED reason = toCRLReason(revRequestReason);
 
             if ((revRequestSharedSecret != null) && (revRequestSharedSecret.length() > 0)) {
