@@ -9,7 +9,7 @@ Name:             pki
 # Upstream version number:
 %global           major_version 11
 %global           minor_version 4
-%global           update_version 1
+%global           update_version 2
 
 # Downstream release number:
 # - development/stabilization (unsupported): 0.<n> where n >= 1
