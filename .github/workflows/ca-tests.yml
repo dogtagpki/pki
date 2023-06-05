@@ -63,10 +63,10 @@ jobs:
     with:
       db-image: ${{ needs.init.outputs.db-image }}
 
-  ca-shared-token-test:
-    name: CA with shared token
+  ca-cmc-shared-token-test:
+    name: CA with CMC shared token
     needs: [init, build]
-    uses: ./.github/workflows/ca-shared-token-test.yml
+    uses: ./.github/workflows/ca-cmc-shared-token-test.yml
     with:
       db-image: ${{ needs.init.outputs.db-image }}
 

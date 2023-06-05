@@ -1,4 +1,4 @@
-name: CA with shared token
+name: CA with CMC shared token
 
 on:
   workflow_call:
@@ -58,6 +58,9 @@ jobs:
               -D pki_ds_url=ldap://ds.example.com:3389 \
               -v
 
+          # disable audit event filters
+          docker exec pki pki-server ca-config-unset log.instance.SignedAudit.filters.CMC_USER_SIGNED_REQUEST_SIG_VERIFY
+
       - name: Install CA admin cert
         run: |
           docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
@@ -92,7 +95,11 @@ jobs:
           docker exec pki CMCResponse \
               -d /etc/pki/pki-tomcat/alias \
               -i ca_issuance_protection.cmc-response \
-              -o ca_issuance_protection.p7b
+              -o ca_issuance_protection.p7b | tee output
+
+          echo "SUCCESS" > expected
+          sed -n 's/^ *Status: *\(.*\)/\1/p' output > actual
+          diff expected actual
 
           # check issued cert chain
           docker exec pki openssl pkcs7 \
@@ -159,6 +166,11 @@ jobs:
               -e "s/^\(enable\)=.*/\1=true/" \
               /var/lib/pki/pki-tomcat/ca/profiles/ca/caFullCMCSharedTokenCert.cfg
 
+          # enable caFullCMCUserSignedCert profile
+          docker exec pki sed -i \
+              -e "s/^\(enable\)=.*/\1=true/" \
+              /var/lib/pki/pki-tomcat/ca/profiles/ca/caFullCMCUserSignedCert.cfg
+
           # restart CA subsystem
           docker exec pki pki-server ca-redeploy --wait
 
@@ -174,7 +186,8 @@ jobs:
               -o $SHARED/testuser.b64
 
           # convert into a single line
-          SHARED_TOKEN=$(sed -e :a -e 'N;s/\n//;ba' testuser.b64)
+          sed -e :a -e 'N;s/\r\n//;ba' testuser.b64 > token.txt
+          SHARED_TOKEN=$(cat token.txt)
           echo "SHARED_TOKEN: $SHARED_TOKEN"
 
           cat > add.ldif << EOF
@@ -237,7 +250,11 @@ jobs:
           docker exec pki CMCResponse \
               -d /root/.dogtag/nssdb \
               -i testuser.cmc-response \
-              -o testuser.p7b
+              -o testuser.p7b | tee output
+
+          echo "SUCCESS" > expected
+          sed -n 's/^ *Status: *\(.*\)/\1/p' output > actual
+          diff expected actual
 
           # check issued cert chain
           docker exec pki pki \
@@ -250,8 +267,118 @@ jobs:
               --pkcs7 testuser.p7b \
               testuser
 
-          # check imported cert chain
-          docker exec pki pki nss-cert-find
+          # check imported user cert
+          docker exec pki pki nss-cert-show testuser | tee output
+
+          # get user cert serial number
+          sed -n 's/^ *Serial Number: *\(.*\)/\1/p' output > testuser.serial
+
+      # https://github.com/dogtagpki/pki/wiki/Revoking-Certificate-with-CMC-Shared-Token
+      - name: Revoke user cert with shared token
+        run: |
+          HEX_SERIAL=$(cat testuser.serial)
+          echo "Hex serial: $HEX_SERIAL"
+
+          DEC_SERIAL=$((16#${HEX_SERIAL:2}))
+          echo "Dec serial: $DEC_SERIAL"
+
+          SHARED_TOKEN=$(cat token.txt)
+
+          cat > modify.ldif << EOF
+          dn: cn=$DEC_SERIAL,ou=certificateRepository,ou=ca,dc=ca,dc=pki,dc=example,dc=com
+          changetype: modify
+          add: metaInfo
+          metaInfo: revShrTok:$SHARED_TOKEN
+          -
+          EOF
+          cat modify.ldif
+
+          # add shared token into cert record
+          docker exec pki ldapmodify \
+              -H ldap://ds.example.com:3389 \
+              -x \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -f $SHARED/modify.ldif
+
+          # insert user cert serial number into CMCRequest config
+          docker cp \
+              pki:/usr/share/pki/tools/examples/cmc/testuser-cmc-revocation-request.cfg \
+              testuser-cmc-revocation-request.cfg
+          sed -i \
+              -e "s/^\(revRequest.serial\)=.*/\1=$HEX_SERIAL/" \
+              testuser-cmc-revocation-request.cfg
+          cat testuser-cmc-revocation-request.cfg
+
+          # create CMC request
+          docker exec pki CMCRequest \
+              $SHARED/testuser-cmc-revocation-request.cfg
+
+          # submit CMC request
+          docker exec pki HttpClient \
+              /usr/share/pki/tools/examples/cmc/testuser-cmc-revocation-submit.cfg
+
+          # process CMC response
+          docker exec pki CMCResponse \
+              -d /root/.dogtag/nssdb \
+              -i testuser.cmc-revocation-response | tee output
+
+          echo "SUCCESS" > expected
+          sed -n 's/^ *Status: *\(.*\)/\1/p' output > actual
+          diff expected actual
+
+          # check cert status
+          docker exec pki pki ca-cert-show $HEX_SERIAL | tee output
+
+          echo "REVOKED" > expected
+          sed -n 's/^ *Status: *\(.*\)/\1/p' output > actual
+          diff expected actual
+
+      - name: Check CMC_USER_SIGNED_REQUEST_SIG_VERIFY events
+        run: |
+          docker exec pki grep \
+              "\[AuditEvent=CMC_USER_SIGNED_REQUEST_SIG_VERIFY\]" \
+              /var/log/pki/pki-tomcat/ca/signedAudit/ca_audit | tee output
+
+          # there should be 1 event from user cert enrollment
+          echo "1" > expected
+          cat output | wc -l > actual
+          diff expected actual
+
+      - name: Check CERT_STATUS_CHANGE_REQUEST_PROCESSED events
+        run: |
+          docker exec pki grep \
+              "\[AuditEvent=CERT_STATUS_CHANGE_REQUEST_PROCESSED\]" \
+              /var/log/pki/pki-tomcat/ca/signedAudit/ca_audit | tee output
+
+          # there should be 1 event from user cert revocation
+          echo "1" > expected
+          cat output | wc -l > actual
+          diff expected actual
+
+      - name: Check CMC_REQUEST_RECEIVED events
+        run: |
+          docker exec pki grep \
+              "\[AuditEvent=CMC_REQUEST_RECEIVED\]" \
+              /var/log/pki/pki-tomcat/ca/signedAudit/ca_audit | tee output
+
+          # there should be 3 events from issuance protection cert enrollment,
+          # user cert enrollment, user cert revocation
+          echo "3" > expected
+          cat output | wc -l > actual
+          diff expected actual
+
+      - name: Check CMC_RESPONSE_SENT events
+        run: |
+          docker exec pki grep \
+              "\[AuditEvent=CMC_RESPONSE_SENT\]" \
+              /var/log/pki/pki-tomcat/ca/signedAudit/ca_audit | tee output
+
+          # there should be 3 events from issuance protection cert enrollment,
+          # user cert enrollment, user cert revocation
+          echo "3" > expected
+          cat output | wc -l > actual
+          diff expected actual
 
       - name: Gather artifacts
         if: always()
