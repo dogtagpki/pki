@@ -181,7 +181,7 @@ BuildRequires:    tomcat >= 1:9.0.31
 %endif
 
 # Python build dependencies
-BuildRequires:    python3 >= 3.6
+BuildRequires:    python3 >= 3.9
 BuildRequires:    python3-devel
 BuildRequires:    python3-setuptools
 BuildRequires:    python3-cryptography
@@ -338,7 +338,7 @@ Provides:         pki-base-python3 = %{version}-%{release}
 %{?python_provide:%python_provide python3-pki}
 
 Requires:         %{product_id}-base = %{version}-%{release}
-Requires:         python3 >= 3.6
+Requires:         python3 >= 3.9
 Requires:         python3-cryptography
 Requires:         python3-ldap
 Requires:         python3-lxml
@@ -718,12 +718,12 @@ This package provides %{product_name} API documentation.
 Summary:          %{product_name} Console Package
 BuildArch:        noarch
 
-BuildRequires:    idm-console-framework = 2.0
+BuildRequires:    idm-console-framework >= 2.0
 
 Obsoletes:        pki-console < %{version}-%{release}
 Provides:         pki-console = %{version}-%{release}
 
-Requires:         idm-console-framework = 2.0
+Requires:         idm-console-framework >= 2.0
 Requires:         %{product_id}-java = %{version}-%{release}
 Requires:         %{product_id}-console-theme = %{version}-%{release}
 
