@@ -335,6 +335,7 @@ jobs:
           diff expected actual
 
       - name: Check CMC_USER_SIGNED_REQUEST_SIG_VERIFY events
+        if: always()
         run: |
           docker exec pki grep \
               "\[AuditEvent=CMC_USER_SIGNED_REQUEST_SIG_VERIFY\]" \
@@ -346,6 +347,7 @@ jobs:
           diff expected actual
 
       - name: Check CERT_STATUS_CHANGE_REQUEST_PROCESSED events
+        if: always()
         run: |
           docker exec pki grep \
               "\[AuditEvent=CERT_STATUS_CHANGE_REQUEST_PROCESSED\]" \
@@ -357,6 +359,7 @@ jobs:
           diff expected actual
 
       - name: Check CMC_REQUEST_RECEIVED events
+        if: always()
         run: |
           docker exec pki grep \
               "\[AuditEvent=CMC_REQUEST_RECEIVED\]" \
@@ -369,6 +372,7 @@ jobs:
           diff expected actual
 
       - name: Check CMC_RESPONSE_SENT events
+        if: always()
         run: |
           docker exec pki grep \
               "\[AuditEvent=CMC_RESPONSE_SENT\]" \
@@ -394,6 +398,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: ca-shared-token
+          name: ca-cmc-shared-token
           path: |
             /tmp/artifacts/pki
