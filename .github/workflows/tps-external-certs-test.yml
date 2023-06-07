@@ -210,7 +210,7 @@ jobs:
       - name: Issue TPS admin cert
         run: |
           docker exec ca openssl req -text -noout -in ${SHARED}/tps_admin.csr
-          docker exec ca pki ca-cert-request-submit --profile caUserCert --csr-file ${SHARED}/tps_admin.csr --subject uid=tpsadmin | sed -n 's/Request ID: *\(.*\)/\1/p' > tps_admin.reqid
+          docker exec ca pki ca-cert-request-submit --profile AdminCert --csr-file ${SHARED}/tps_admin.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > tps_admin.reqid
           docker exec ca pki -n caadmin ca-cert-request-approve `cat tps_admin.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > tps_admin.certid
           docker exec ca pki ca-cert-export `cat tps_admin.certid` --output-file ${SHARED}/tps_admin.crt
           docker exec ca openssl x509 -text -noout -in ${SHARED}/tps_admin.crt

@@ -152,7 +152,7 @@ jobs:
       - name: Issue OCSP admin cert
         run: |
           docker exec ca openssl req -text -noout -in ${SHARED}/ocsp_admin.csr
-          docker exec ca pki ca-cert-request-submit --profile caUserCert --csr-file ${SHARED}/ocsp_admin.csr --subject uid=ocspadmin | tee output
+          docker exec ca pki ca-cert-request-submit --profile AdminCert --csr-file ${SHARED}/ocsp_admin.csr | tee output
           REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
           docker exec ca pki -n caadmin ca-cert-request-approve $REQUEST_ID --force | tee output
           CERT_ID=$(sed -n 's/Certificate ID: *\(.*\)/\1/p' output)
