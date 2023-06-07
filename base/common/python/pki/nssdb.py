@@ -1833,8 +1833,8 @@ class NSSDatabase(object):
 
             result = self.run(cmd, capture_output=True)
 
-            output = result.stdout
-            error = result.stderr
+            output = result.stdout.decode()
+            error = result.stderr.decode()
 
             if error:
                 # certutil returned an error
