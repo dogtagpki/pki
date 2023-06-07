@@ -16,7 +16,9 @@ import java.util.Vector;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.cli.CommandCLI;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X500Name;
@@ -193,12 +195,17 @@ public class CACertRequestSubmitCLI extends CommandCLI {
 
         String csrFilename = cmd.getOptionValue("csr-file");
         String csr = null;
+        PKCS10 pkcs10 = null;
 
         if (csrFilename != null) {
 
             csr = loadFile(csrFilename);
-
             logger.debug("CSR:\n" + csr);
+
+            byte[] bytes = CertUtil.parseCSR(csr);
+            if ("pkcs10".equals(requestType)) {
+                pkcs10 = new PKCS10(bytes);
+            }
 
             for (ProfileInput input : request.getInputs()) {
                 ProfileAttribute csrAttr = input.getAttribute("cert_request");
@@ -225,6 +232,14 @@ public class CACertRequestSubmitCLI extends CommandCLI {
         }
 
         String subjectDN = cmd.getOptionValue("subject");
+
+        if (subjectDN == null) {
+            // if no subject DN provided, get from CSR
+            if (pkcs10 != null) {
+                subjectDN = pkcs10.getSubjectName().toLdapDNString();
+            }
+        }
+
         if (subjectDN != null) {
             DN dn = new DN(subjectDN);
             Vector<?> rdns = dn.getRDNs();
