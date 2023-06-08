@@ -17,7 +17,10 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.tps.profile;
 
-import javax.ws.rs.core.Response;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.ws.rs.client.Entity;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
@@ -27,48 +30,43 @@ import com.netscape.certsrv.client.PKIClient;
  */
 public class ProfileClient extends Client {
 
-    public ProfileResource resource;
-
     public ProfileClient(PKIClient client) throws Exception {
         this(client, client.getSubsystem());
     }
 
     public ProfileClient(PKIClient client, String subsystem) throws Exception {
-        super(client, subsystem, "profile");
-        init();
-    }
-
-    public void init() throws Exception {
-        resource = createProxy(ProfileResource.class);
+        super(client, subsystem, "profiles");
     }
 
     public ProfileCollection findProfiles(String filter, Integer start, Integer size) throws Exception {
-        Response response = resource.findProfiles(filter, start, size);
-        return client.getEntity(response, ProfileCollection.class);
+        Map<String, Object> params = new HashMap<>();
+        if (filter != null) params.put("filter", filter);
+        if (start != null) params.put("start", start);
+        if (size != null) params.put("size", size);
+        return get(null, params, ProfileCollection.class);
     }
 
     public ProfileData getProfile(String profileID) throws Exception {
-        Response response = resource.getProfile(profileID);
-        return client.getEntity(response, ProfileData.class);
+        return get(profileID, ProfileData.class);
     }
 
     public ProfileData addProfile(ProfileData profileData) throws Exception {
-        Response response = resource.addProfile(profileData);
-        return client.getEntity(response, ProfileData.class);
+        Entity<ProfileData> entity = client.entity(profileData);
+        return post(null, null, entity, ProfileData.class);
     }
 
     public ProfileData updateProfile(String profileID, ProfileData profileData) throws Exception {
-        Response response = resource.updateProfile(profileID, profileData);
-        return client.getEntity(response, ProfileData.class);
+        Entity<ProfileData> entity = client.entity(profileData);
+        return patch(profileID, null, entity, ProfileData.class);
     }
 
     public ProfileData changeProfileStatus(String profileID, String action) throws Exception {
-        Response response = resource.changeStatus(profileID, action);
-        return client.getEntity(response, ProfileData.class);
+        Map<String, Object> params = new HashMap<>();
+        if (action != null) params.put("action", action);
+        return post(profileID, params, null, ProfileData.class);
     }
 
     public void removeProfile(String profileID) throws Exception {
-        Response response = resource.removeProfile(profileID);
-        client.getEntity(response, Void.class);
+        delete(profileID, Void.class);
     }
 }

@@ -23,7 +23,6 @@ import java.util.Map;
 
 import org.dogtagpki.cli.CLI;
 
-import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.tps.profile.ProfileClient;
 import com.netscape.certsrv.tps.profile.ProfileData;
 import com.netscape.cmstools.tps.TPSCLI;
@@ -60,8 +59,7 @@ public class ProfileCLI extends CLI {
 
         if (profileClient != null) return profileClient;
 
-        PKIClient client = getClient();
-        profileClient = (ProfileClient)parent.getClient("profile");
+        profileClient = (ProfileClient) parent.getClient("profiles");
 
         return profileClient;
     }
