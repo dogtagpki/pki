@@ -17,6 +17,12 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.logging;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
@@ -28,39 +34,32 @@ import com.netscape.certsrv.client.PKIClient;
  */
 public class AuditClient extends Client {
 
-    public AuditResource resource;
-
     public AuditClient(PKIClient client, String subsystem) throws Exception {
         super(client, subsystem, "audit");
-        init();
-    }
-
-    public void init() throws Exception {
-        resource = createProxy(AuditResource.class);
     }
 
     public AuditConfig getAuditConfig() throws Exception {
-        Response response = resource.getAuditConfig();
-        return client.getEntity(response, AuditConfig.class);
+        return get(AuditConfig.class);
     }
 
     public AuditConfig updateAuditConfig(AuditConfig auditConfig) throws Exception {
-        Response response = resource.updateAuditConfig(auditConfig);
-        return client.getEntity(response, AuditConfig.class);
+        Entity<AuditConfig> entity = client.entity(auditConfig);
+        return patch(null, null, entity, AuditConfig.class);
     }
 
     public AuditConfig changeAuditStatus(String action) throws Exception {
-        Response response = resource.changeAuditStatus(action);
-        return client.getEntity(response, AuditConfig.class);
+        Map<String, Object> params = new HashMap<>();
+        params.put("action", action);
+        return post(null, params, null, AuditConfig.class);
     }
 
     public AuditFileCollection findAuditFiles() throws Exception {
-        Response response = resource.findAuditFiles();
-        return client.getEntity(response, AuditFileCollection.class);
+        return get("files", AuditFileCollection.class);
     }
 
     public StreamingOutput getAuditFile(String filename) throws Exception {
-        Response response = resource.getAuditFile(filename);
+        WebTarget target = target("files/" + filename, null);
+        Response response = target.request(MediaType.APPLICATION_OCTET_STREAM).get();
         return client.getEntity(response, StreamingOutput.class);
     }
 }
