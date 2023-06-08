@@ -24,7 +24,6 @@ import java.util.Collection;
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.cli.CLI;
 
-import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.tps.token.TokenClient;
 import com.netscape.certsrv.tps.token.TokenData;
 import com.netscape.certsrv.tps.token.TokenData.TokenStatusData;
@@ -56,8 +55,7 @@ public class TokenCLI extends CLI {
 
         if (tokenClient != null) return tokenClient;
 
-        PKIClient client = getClient();
-        tokenClient = (TokenClient)parent.getClient("token");
+        tokenClient = (TokenClient) parent.getClient("tokens");
 
         return tokenClient;
     }

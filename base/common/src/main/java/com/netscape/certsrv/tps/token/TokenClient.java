@@ -17,7 +17,10 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.tps.token;
 
-import javax.ws.rs.core.Response;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.ws.rs.client.Entity;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
@@ -27,15 +30,8 @@ import com.netscape.certsrv.client.PKIClient;
  */
 public class TokenClient extends Client {
 
-    public TokenResource resource;
-
     public TokenClient(PKIClient client, String subsystem) throws Exception {
-        super(client, subsystem, "token");
-        init();
-    }
-
-    public void init() throws Exception {
-        resource = createProxy(TokenResource.class);
+        super(client, subsystem, "tokens");
     }
 
     public TokenCollection findTokens(
@@ -47,40 +43,39 @@ public class TokenClient extends Client {
             Integer start,
             Integer size) throws Exception {
 
-        Response response = resource.findTokens(
-                filter,
-                tokenID,
-                userID,
-                type,
-                status,
-                start,
-                size);
+        Map<String, Object> params = new HashMap<>();
+        if (filter != null) params.put("filter", filter);
+        if (tokenID != null) params.put("tokenID", tokenID);
+        if (userID != null) params.put("userID", userID);
+        if (type != null) params.put("type", type);
+        if (status != null) params.put("status", status);
+        if (start != null) params.put("start", start);
+        if (size != null) params.put("size", size);
 
-        return client.getEntity(response, TokenCollection.class);
+        return get(null, params, TokenCollection.class);
     }
 
     public TokenData getToken(String tokenID) throws Exception {
-        Response response = resource.getToken(tokenID);
-        return client.getEntity(response, TokenData.class);
+        return get(tokenID, TokenData.class);
     }
 
     public TokenData addToken(TokenData tokenData) throws Exception {
-        Response response = resource.addToken(tokenData);
-        return client.getEntity(response, TokenData.class);
+        Entity<TokenData> entity = client.entity(tokenData);
+        return post(null, null, entity, TokenData.class);
     }
 
     public TokenData modifyToken(String tokenID, TokenData tokenData) throws Exception {
-        Response response = resource.modifyToken(tokenID, tokenData);
-        return client.getEntity(response, TokenData.class);
+        Entity<TokenData> entity = client.entity(tokenData);
+        return patch(tokenID, null, entity, TokenData.class);
     }
 
     public TokenData changeTokenStatus(String tokenID, TokenStatus tokenStatus) throws Exception {
-        Response response = resource.changeTokenStatus(tokenID, tokenStatus);
-        return client.getEntity(response, TokenData.class);
+        Map<String, Object> params = new HashMap<>();
+        if (tokenStatus != null) params.put("status", tokenStatus);
+        return post(tokenID, params, null, TokenData.class);
     }
 
     public void removeToken(String tokenID) throws Exception {
-        Response response = resource.removeToken(tokenID);
-        client.getEntity(response, Void.class);
+        delete(tokenID, Void.class);
     }
 }
