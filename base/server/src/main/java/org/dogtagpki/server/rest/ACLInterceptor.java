@@ -45,6 +45,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.AuthzEvent;
+import com.netscape.certsrv.logging.event.RoleAssumeEvent;
 import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -194,13 +195,15 @@ public class ACLInterceptor implements ContainerRequestFilter {
 
         // If still not available, it's unprotected, allow request.
         if (!authzRequired) {
-            logger.debug("ACLInterceptor: No ACL mapping; authz not required.");
+            logger.debug("ACLInterceptor: Unprotected resource; access granted");
 
             auditor.log(AuthzEvent.createSuccessEvent(
                         auditSubjectID,
                         null, //resource
                         null, //operation
                         LOGGING_MISSING_ACL_MAPPING + ":" + auditInfo)); //info
+
+            // unprotected resource -> do not generate ROLE_ASSUME event
 
             return;
         }
@@ -230,7 +233,7 @@ public class ACLInterceptor implements ContainerRequestFilter {
 
         // If no property defined, allow request.
         if (value == null) {
-            logger.debug("ACLInterceptor: No ACL configuration.");
+            logger.debug("ACLInterceptor: Unprotected resource; access granted");
 
             auditor.log(AuthzEvent.createSuccessEvent(
                     auditSubjectID,
@@ -238,8 +241,12 @@ public class ACLInterceptor implements ContainerRequestFilter {
                     null, //operation
                     LOGGING_NO_ACL_ACCESS_ALLOWED + ":" + auditInfo));
 
+            // unprotected resource -> do not generate ROLE_ASSUME event
+
             return;
         }
+
+        // accessing protected resource
 
         values = value.split(",");
 
@@ -307,13 +314,22 @@ public class ACLInterceptor implements ContainerRequestFilter {
             throw new Failure(e);
         }
 
-        // Allow request.
+        logger.debug("ACLInterceptor: Protected resource; access granted");
 
         auditor.log(AuthzEvent.createSuccessEvent(
                     auditSubjectID,
                     values[0], // resource
                     values[1], // operation
                     auditInfo));
+
+        if (principal instanceof PKIPrincipal pkiPrincipal) {
+            String[] roles = pkiPrincipal.getRoles();
+            if (roles != null) {
+                auditor.log(RoleAssumeEvent.createSuccessEvent(
+                        auditSubjectID,
+                        String.join(",", roles)));
+            }
+        }
 
         return;
     }
