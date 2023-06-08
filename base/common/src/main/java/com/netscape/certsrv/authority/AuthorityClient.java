@@ -17,9 +17,14 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.authority;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.client.Client;
@@ -31,15 +36,12 @@ import com.netscape.certsrv.client.SubsystemClient;
  */
 public class AuthorityClient extends Client {
 
-    public AuthorityResource proxy;
-
     public AuthorityClient(SubsystemClient subsystemClient) throws Exception {
         this(subsystemClient.client, subsystemClient.getName());
     }
 
     public AuthorityClient(PKIClient client, String subsystem) throws Exception {
-        super(client, subsystem, "authority");
-        proxy = createProxy(AuthorityResource.class);
+        super(client, subsystem, "authorities");
     }
 
     public List<AuthorityData> listCAs() throws Exception {
@@ -47,34 +49,38 @@ public class AuthorityClient extends Client {
     }
 
     public List<AuthorityData> findCAs(String id, String parentID, String dn, String issuerDN) throws Exception {
-        Response response = proxy.findCAs(id, parentID, dn, issuerDN);
+        Map<String, Object> params = new HashMap<>();
+        if (id != null) params.put("id", id);
+        if (parentID != null) params.put("parentID", parentID);
+        if (dn != null) params.put("dn", dn);
+        if (issuerDN != null) params.put("issuerDN", issuerDN);
         GenericType<List<AuthorityData>> type = new GenericType<>() {};
-        return client.getEntity(response, type);
+        return get(null, params, type);
     }
 
     public AuthorityData getCA(String caIDString) throws Exception {
-        Response response = proxy.getCA(caIDString);
-        return client.getEntity(response, AuthorityData.class);
+        return get(caIDString, AuthorityData.class);
     }
 
     public String getChainPEM(String caIDString) throws Exception {
-        Response response = proxy.getChainPEM(caIDString);
+        WebTarget target = target(caIDString + "/chain", null);
+        MediaType mediaType = MediaType.valueOf("application/x-pem-file");
+        Response response = target.request(mediaType).get();
         return client.getEntity(response, String.class);
     }
 
     public AuthorityData createCA(AuthorityData data) throws Exception {
-        Response response = proxy.createCA(data);
-        return client.getEntity(response, AuthorityData.class);
+        Entity<AuthorityData> entity = client.entity(data);
+        return post(null, null, entity, AuthorityData.class);
     }
 
     public AuthorityData modifyCA(AuthorityData data) throws Exception {
-        Response response = proxy.modifyCA(data.getID(), data);
-        return client.getEntity(response, AuthorityData.class);
+        Entity<AuthorityData> entity = client.entity(data);
+        return put(data.getID(), null, entity, AuthorityData.class);
     }
 
     public void deleteCA(String aidString) throws Exception {
-        Response response = proxy.deleteCA(aidString);
-        client.getEntity(response, Void.class);
+        delete(aidString, Void.class);
     }
 
 }
