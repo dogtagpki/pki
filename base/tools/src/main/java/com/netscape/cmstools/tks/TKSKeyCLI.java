@@ -7,7 +7,6 @@ package com.netscape.cmstools.tks;
 
 import org.dogtagpki.cli.CLI;
 
-import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.key.KeyData;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.system.TPSConnectorClient;
@@ -39,8 +38,7 @@ public class TKSKeyCLI extends CLI {
 
         if (tpsConnectorClient != null) return tpsConnectorClient;
 
-        PKIClient client = getClient();
-        tpsConnectorClient = (TPSConnectorClient)parent.getClient("tpsconnector");
+        tpsConnectorClient = (TPSConnectorClient) parent.getClient("admin/tps-connectors");
 
         return tpsConnectorClient;
     }
