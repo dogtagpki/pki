@@ -17,7 +17,10 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.tps.profile;
 
-import javax.ws.rs.core.Response;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.ws.rs.client.Entity;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
@@ -27,44 +30,39 @@ import com.netscape.certsrv.client.PKIClient;
  */
 public class ProfileMappingClient extends Client {
 
-    public ProfileMappingResource resource;
-
     public ProfileMappingClient(PKIClient client, String subsystem) throws Exception {
-        super(client, subsystem, "profile-mapping");
-        init();
-    }
-
-    public void init() throws Exception {
-        resource = createProxy(ProfileMappingResource.class);
+        super(client, subsystem, "profile-mappings");
     }
 
     public ProfileMappingCollection findProfileMappings(String filter, Integer start, Integer size) throws Exception {
-        Response response = resource.findProfileMappings(filter, start, size);
-        return client.getEntity(response, ProfileMappingCollection.class);
+        Map<String, Object> params = new HashMap<>();
+        if (filter != null) params.put("filter", filter);
+        if (start != null) params.put("start", start);
+        if (size != null) params.put("size", size);
+        return get(null, params, ProfileMappingCollection.class);
     }
 
     public ProfileMappingData getProfileMapping(String profileMappingID) throws Exception {
-        Response response = resource.getProfileMapping(profileMappingID);
-        return client.getEntity(response, ProfileMappingData.class);
+        return get(profileMappingID, ProfileMappingData.class);
     }
 
     public ProfileMappingData addProfileMapping(ProfileMappingData profileMappingData) throws Exception {
-        Response response = resource.addProfileMapping(profileMappingData);
-        return client.getEntity(response, ProfileMappingData.class);
+        Entity<ProfileMappingData> entity = client.entity(profileMappingData);
+        return post(null, null, entity, ProfileMappingData.class);
     }
 
     public ProfileMappingData updateProfileMapping(String profileMappingID, ProfileMappingData profileMappingData) throws Exception {
-        Response response = resource.updateProfileMapping(profileMappingID, profileMappingData);
-        return client.getEntity(response, ProfileMappingData.class);
+        Entity<ProfileMappingData> entity = client.entity(profileMappingData);
+        return patch(profileMappingID, null, entity, ProfileMappingData.class);
     }
 
     public ProfileMappingData changeProfileMappingStatus(String profileMappingID, String action) throws Exception {
-        Response response = resource.changeStatus(profileMappingID, action);
-        return client.getEntity(response, ProfileMappingData.class);
+        Map<String, Object> params = new HashMap<>();
+        if (action != null) params.put("action", action);
+        return post(profileMappingID, params, null, ProfileMappingData.class);
     }
 
     public void removeProfileMapping(String profileMappingID) throws Exception {
-        Response response = resource.removeProfileMapping(profileMappingID);
-        client.getEntity(response, Void.class);
+        delete(profileMappingID, Void.class);
     }
 }
