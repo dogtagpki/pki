@@ -478,7 +478,7 @@ public class CMSEngine {
             return;
         }
 
-        boolean skipLdapConnectionTest = config.getBoolean("cms.password.skipLdapConnTest", false);
+        boolean skipLdapConnectionTest = config.getBoolean("cms.password.skipLdapConnTest", true);
         logger.debug("CMSEngine: skip LDAP connection test: " + skipLdapConnectionTest);
 
         if (skipLdapConnectionTest) {
