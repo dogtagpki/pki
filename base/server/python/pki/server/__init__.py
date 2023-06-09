@@ -1694,19 +1694,23 @@ class ServerConfig(object):
 
         return None
 
-    def create_listener(self, className):
+    def create_listener(self, className, index=None):
         '''
         Create listener and add it after the last listener.
+        Optionally the listener can be added at a specific index.
         '''
 
         listener = etree.Element('Listener')
         listener.set('className', className)
 
-        listeners = self.get_listeners()
-        last_listener = listeners[-1]
+        if index is None:
+            # insert after the last listener
+            listeners = self.get_listeners()
+            last_listener = listeners[-1]
 
-        server = self.document.getroot()
-        index = server.index(last_listener) + 1
+            server = self.document.getroot()
+            index = server.index(last_listener) + 1
+
         server.insert(index, listener)
 
         return listener
