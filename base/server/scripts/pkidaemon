@@ -30,6 +30,18 @@ SERVICE_PROG="/bin/systemctl"
 command="$1"
 pki_instance_id="$2"
 
+if [[ "$pki_instance_id" =~ .*"@".* ]]; then
+    # instance ID contains <type>@<name>
+    parts=(${pki_instance_id//@/ })
+    pki_instance_type=${parts[0]}
+    pki_instance_name=${parts[1]}
+
+else
+    # instance ID contains <name> only
+    pki_instance_type="pki-tomcatd"
+    pki_instance_name=$pki_instance_id
+fi
+
 PKI_REGISTRY="/etc/sysconfig/pki/tomcat"
 PKI_SYSTEMD_TARGET="pki-tomcatd"
 
@@ -58,7 +70,12 @@ print_usage()
 # since it's owned by PKI_USER so there won't be a permission
 # issue.
 
-cd /var/lib/pki/${pki_instance_id}
+if [[ "$pki_instance_type" = "tomcat" ]]; then
+    cd /var/lib/tomcats/${pki_instance_name}
+
+else  # pki-tomcatd
+    cd /var/lib/pki/${pki_instance_name}
+fi
 
 # See how we were called.
 case $command in
