@@ -186,6 +186,51 @@ jobs:
               --password Secret.123 \
               admin
 
+      - name: Set up CA container
+        run: |
+          mkdir certs
+          docker cp client:server.p12 certs
+          docker cp client:admin.p12 certs
+          docker cp client:ca_signing.csr certs
+          docker cp client:ocsp_signing.csr certs
+          docker cp client:audit_signing.csr certs
+          docker cp client:subsystem.csr certs
+          docker cp client:sslserver.csr certs
+          docker cp client:admin.csr certs
+          ls -la certs
+
+          docker run \
+              --name ca \
+              --hostname=ca.example.com \
+              --network=example \
+              --network-alias=ca.example.com \
+              -v $PWD/certs:/certs \
+              --detach \
+              pki-ca
+
+      - name: Wait for CA container to start
+        run: |
+          docker exec client curl \
+              --retry 180 \
+              --retry-delay 0 \
+              --retry-connrefused \
+              -s \
+              -k \
+              -o /dev/null \
+              https://ca.example.com:8443
+
+      - name: Check basic operations from CA container
+        run: |
+          # check PKI server info
+          docker exec ca pki info
+
+      - name: Check basic operations from client container
+        run: |
+          # check PKI server info
+          docker exec client pki \
+              -U https://ca.example.com:8443 \
+              info
+
       - name: Set up DS container
         run: |
           tests/bin/ds-container-create.sh ds
@@ -237,6 +282,18 @@ jobs:
               -w Secret.123 \
               -f $SHARED/create.ldif
 
+      - name: Add CA ACL resources
+        run: |
+          sed \
+              -e 's/{rootSuffix}/dc=ca,dc=pki,dc=example,dc=com/g' \
+              base/ca/database/ds/acl.ldif \
+              | tee acl.ldif
+          docker exec ds ldapadd \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -f $SHARED/acl.ldif
+
       - name: Add CA search indexes
         run: |
           sed \
@@ -285,18 +342,6 @@ jobs:
 
           echo "0" > expected
           diff expected nsTaskExitCode
-
-      - name: Add CA ACL resources
-        run: |
-          sed \
-              -e 's/{rootSuffix}/dc=ca,dc=pki,dc=example,dc=com/g' \
-              base/ca/database/ds/acl.ldif \
-              | tee acl.ldif
-          docker exec ds ldapadd \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -f $SHARED/acl.ldif
 
       - name: Add CA VLV indexes
         run: |
@@ -547,49 +592,8 @@ jobs:
               -f $SHARED/db-access-grant.ldif \
               -c
 
-      - name: Set up CA container
-        run: |
-          mkdir certs
-          docker cp client:server.p12 certs
-          docker cp client:admin.p12 certs
-          docker cp client:ca_signing.csr certs
-          docker cp client:ocsp_signing.csr certs
-          docker cp client:audit_signing.csr certs
-          docker cp client:subsystem.csr certs
-          docker cp client:sslserver.csr certs
-          docker cp client:admin.csr certs
-          ls -la certs
-
-          docker run \
-              --name ca \
-              --hostname=ca.example.com \
-              --network=example \
-              --network-alias=ca.example.com \
-              -v $PWD/certs:/certs \
-              --detach \
-              pki-ca
-
-      - name: Wait for CA container to start
-        run: |
-          docker exec client curl \
-              --retry 180 \
-              --retry-delay 0 \
-              --retry-connrefused \
-              -s \
-              -k \
-              -o /dev/null \
-              https://ca.example.com:8443
-
-      - name: Check server logs
-        if: always()
-        run: |
-          docker logs ca 2>&1
-
       - name: Check public operations from CA container
         run: |
-          # check PKI server info
-          docker exec ca pki info
-
           # check certs in CA
           docker exec ca pki ca-cert-find
 
@@ -616,11 +620,6 @@ jobs:
 
       - name: Check public operations from client container
         run: |
-          # check PKI server info
-          docker exec client pki \
-              -U https://ca.example.com:8443 \
-              info
-
           # check certs in CA
           docker exec client pki \
               -U https://ca.example.com:8443 \
@@ -649,6 +648,16 @@ jobs:
               ca-cert-request-approve \
               $REQUEST_ID \
               --force
+
+      - name: Check CA container logs
+        if: always()
+        run: |
+          docker logs ca 2>&1
+
+      - name: Check CA debug logs
+        if: always()
+        run: |
+          docker exec ca bash -c "cat /var/log/pki/pki-tomcat/ca/debug.*"
 
       - name: Gather artifacts from CA container
         if: always()

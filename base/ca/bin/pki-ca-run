@@ -306,6 +306,7 @@ pkispawn \
     -s CA \
     -D pki_ds_url=ldap://ds.example.com:3389 \
     -D pki_ds_setup=False \
+    -D pki_skip_ds_verify=True \
     -D pki_share_db=True \
     -D pki_existing=True \
     -D pki_import_system_certs=False \
@@ -325,6 +326,12 @@ pkispawn \
     -D pki_systemd_service_create=False \
     -D pki_registry_enable=False \
     -v
+
+echo "################################################################################"
+echo "INFO: Configuring PKI CA"
+
+pki-server ca-config-set internaldb.minConns 0
+pki-server ca-config-set ca.authorityMonitor.enable false
 
 echo "################################################################################"
 echo "INFO: Starting PKI CA"
