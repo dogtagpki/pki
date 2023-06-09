@@ -192,6 +192,11 @@ class PKIInstance(pki.server.PKIServer):
 
         if command == 'start':
 
+            if self.type == 'pki-tomcatd':
+                instance_id = self.name
+            else:
+                instance_id = '%s@%s' % (self.type, self.name)
+
             prefix = []
 
             # by default run pkidaemon as systemd user
@@ -212,7 +217,7 @@ class PKIInstance(pki.server.PKIServer):
             elif logger.isEnabledFor(logging.INFO):
                 cmd.append('--verbose')
 
-            cmd.append(self.name)
+            cmd.append(instance_id)
 
             logger.debug('Command: %s', ' '.join(cmd))
             subprocess.run(cmd, env=self.config, check=True)
@@ -226,13 +231,13 @@ class PKIInstance(pki.server.PKIServer):
             elif logger.isEnabledFor(logging.INFO):
                 cmd.append('--verbose')
 
-            cmd.append(self.name)
+            cmd.append(instance_id)
 
             logger.debug('Command: %s', ' '.join(cmd))
             subprocess.run(cmd, env=self.config, check=True)
 
             # run pkidaemon start <instance>
-            cmd = prefix + ['/usr/bin/pkidaemon', 'start', self.name]
+            cmd = prefix + ['/usr/bin/pkidaemon', 'start', instance_id]
 
             logger.debug('Command: %s', ' '.join(cmd))
             subprocess.run(cmd, env=self.config, check=True)
