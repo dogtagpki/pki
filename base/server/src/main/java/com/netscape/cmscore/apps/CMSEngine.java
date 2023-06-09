@@ -1371,20 +1371,22 @@ public class CMSEngine {
     }
 
     public void shutdownAuthSubsystem() {
-        if (authSubsystem != null) {
-            authSubsystem.shutdown();
-        }
+        if (authSubsystem == null) return;
+        authSubsystem.shutdown();
     }
 
     public void shutdownRequestSubsystem() {
+        if (requestSubsystem == null) return;
         requestSubsystem.shutdown();
     }
 
     public void shutdownX500NameSubsystem() {
+        if (x500NameSubsystem == null) return;
         x500NameSubsystem.shutdown();
     }
 
     public void shutdownOIDLoaderSubsystem() {
+        if (oidLoaderSubsystem == null) return;
         oidLoaderSubsystem.shutdown();
     }
 
@@ -1399,10 +1401,12 @@ public class CMSEngine {
     }
 
     public void shutdownJSSSubsystem() {
+        if (jssSubsystem == null) return;
         jssSubsystem.shutdown();
     }
 
     public void shutdownLogSubsystem() {
+        if (logSubsystem == null) return;
         logSubsystem.shutdown();
     }
 
@@ -1410,6 +1414,7 @@ public class CMSEngine {
     }
 
     public void shutdownPluginRegistry() {
+        if (pluginRegistry == null) return;
         pluginRegistry.shutdown();
     }
 
