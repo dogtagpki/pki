@@ -50,7 +50,7 @@ public class KeyClient extends Client {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyClient.class);
 
     public KeyResource keyClient;
-    public KeyRequestResource keyRequestClient;
+    public KeyRequestClient keyRequestClient;
 
     private CryptoProvider crypto;
     private X509Certificate transportCert;
@@ -94,7 +94,7 @@ public class KeyClient extends Client {
 
     public void init() throws Exception {
         keyClient = createProxy(KeyResource.class);
-        keyRequestClient = createProxy(KeyRequestResource.class);
+        keyRequestClient = new KeyRequestClient(client);
     }
 
     public CryptoProvider getCrypto() {
@@ -197,7 +197,7 @@ public class KeyClient extends Client {
             Integer maxResults,
             Integer maxTime,
             String realm) throws Exception {
-        Response response = keyRequestClient.listRequests(
+        return keyRequestClient.listRequests(
                 requestState,
                 requestType,
                 clientKeyID,
@@ -206,7 +206,6 @@ public class KeyClient extends Client {
                 maxResults,
                 maxTime,
                 realm);
-        return client.getEntity(response, KeyRequestInfoCollection.class);
     }
 
     /**
@@ -216,11 +215,7 @@ public class KeyClient extends Client {
      * @return the KeyRequestInfo object for a specific request.
      */
     public KeyRequestInfo getRequestInfo(RequestId id) throws Exception {
-        if (id == null) {
-            throw new IllegalArgumentException("Request Id must be specified.");
-        }
-        Response response = keyRequestClient.getRequestInfo(id);
-        return client.getEntity(response, KeyRequestInfo.class);
+        return keyRequestClient.getRequestInfo(id);
     }
 
     /**
@@ -274,11 +269,7 @@ public class KeyClient extends Client {
      * @param id -- Id of the request
      */
     public void approveRequest(RequestId id) throws Exception {
-        if (id == null) {
-            throw new IllegalArgumentException("Request Id must be specified.");
-        }
-        Response response = keyRequestClient.approveRequest(id);
-        client.getEntity(response, Void.class);
+        keyRequestClient.approveRequest(id);
     }
 
     /**
@@ -287,11 +278,7 @@ public class KeyClient extends Client {
      * @param id -- Id of the request
      */
     public void rejectRequest(RequestId id) throws Exception {
-        if (id == null) {
-            throw new IllegalArgumentException("Request Id must be specified.");
-        }
-        Response response = keyRequestClient.rejectRequest(id);
-        client.getEntity(response, Void.class);
+        keyRequestClient.rejectRequest(id);
     }
 
     /**
@@ -300,11 +287,7 @@ public class KeyClient extends Client {
      * @param id -- Id of the request
      */
     public void cancelRequest(RequestId id) throws Exception {
-        if (id == null) {
-            throw new IllegalArgumentException("Request Id must be specified.");
-        }
-        Response response = keyRequestClient.cancelRequest(id);
-        client.getEntity(response, Void.class);
+        keyRequestClient.cancelRequest(id);
     }
 
     /**
@@ -315,15 +298,7 @@ public class KeyClient extends Client {
      * @return A KeyRequestResponse object
      */
     private KeyRequestResponse submitRequest(RESTMessage request) throws Exception {
-
-        if (request == null) {
-            throw new IllegalArgumentException("A Request object must be specified.");
-        }
-
-        logger.info("Submitting " + request.getClassName() + " to KRA");
-
-        Response response = keyRequestClient.submitRequest(request);
-        return client.getEntity(response, KeyRequestResponse.class);
+        return keyRequestClient.submitRequest(request);
     }
 
     /**
