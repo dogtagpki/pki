@@ -17,7 +17,10 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.user;
 
-import javax.ws.rs.core.Response;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.ws.rs.client.Entity;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
@@ -28,78 +31,74 @@ import com.netscape.certsrv.client.SubsystemClient;
  */
 public class UserClient extends Client {
 
-    public UserResource userClient;
-
     public UserClient(PKIClient client, String subsystem) throws Exception {
-        super(client, subsystem, "user");
-        init();
+        super(client, subsystem, "admin/users");
     }
 
     public UserClient(SubsystemClient subsystemClient) throws Exception {
         this(subsystemClient.client, subsystemClient.getName());
     }
 
-    public void init() throws Exception {
-        userClient = createProxy(UserResource.class);
-    }
-
     public UserCollection findUsers(String filter, Integer start, Integer size) throws Exception {
-        Response response = userClient.findUsers(filter, start, size);
-        return client.getEntity(response, UserCollection.class);
+        Map<String, Object> params = new HashMap<>();
+        if (filter != null) params.put("filter", filter);
+        if (start != null) params.put("start", start);
+        if (size != null) params.put("size", size);
+        return get(null, params, UserCollection.class);
     }
 
     public UserData getUser(String userID) throws Exception {
-        Response response = userClient.getUser(userID);
-        return client.getEntity(response, UserData.class);
+        return get(userID, UserData.class);
     }
 
     public UserData addUser(UserData userData) throws Exception {
-        Response response = userClient.addUser(userData);
-        return client.getEntity(response, UserData.class);
+        Entity<UserData> entity = client.entity(userData);
+        return post(null, null, entity, UserData.class);
     }
 
     public UserData modifyUser(String userID, UserData userData) throws Exception {
-        Response response = userClient.modifyUser(userID, userData);
-        return client.getEntity(response, UserData.class);
+        Entity<UserData> entity = client.entity(userData);
+        return patch(userID, null, entity, UserData.class);
     }
 
     public void removeUser(String userID) throws Exception {
-        Response response = userClient.removeUser(userID);
-        client.getEntity(response, Void.class);
+        delete(userID, Void.class);
     }
 
     public UserCertCollection findUserCerts(String userID, Integer start, Integer size) throws Exception {
-        Response response = userClient.findUserCerts(userID, start, size);
-        return client.getEntity(response, UserCertCollection.class);
+        Map<String, Object> params = new HashMap<>();
+        if (start != null) params.put("start", start);
+        if (size != null) params.put("size", size);
+        return get(userID + "/certs", params, UserCertCollection.class);
     }
 
     public UserCertData getUserCert(String userID, String certID) throws Exception {
-        Response response = userClient.getUserCert(userID, certID);
-        return client.getEntity(response, UserCertData.class);
+        return get(userID + "/certs/" + certID, UserCertData.class);
     }
 
     public UserCertData addUserCert(String userID, UserCertData userCertData) throws Exception {
-        Response response = userClient.addUserCert(userID, userCertData);
-        return client.getEntity(response, UserCertData.class);
+        Entity<UserCertData> entity = client.entity(userCertData);
+        return post(userID + "/certs", null, entity, UserCertData.class);
     }
 
     public void removeUserCert(String userID, String certID) throws Exception {
-        Response response = userClient.removeUserCert(userID, certID);
-        client.getEntity(response, Void.class);
+        delete(userID + "/certs/" + certID, Void.class);
     }
 
     public UserMembershipCollection findUserMemberships(String userID, String filter, Integer start, Integer size) throws Exception {
-        Response response = userClient.findUserMemberships(userID, filter, start, size);
-        return client.getEntity(response, UserMembershipCollection.class);
+        Map<String, Object> params = new HashMap<>();
+        if (filter != null) params.put("filter", filter);
+        if (start != null) params.put("start", start);
+        if (size != null) params.put("size", size);
+        return get(userID + "/memberships", params, UserMembershipCollection.class);
     }
 
     public UserMembershipData addUserMembership(String userID, String groupID) throws Exception {
-        Response response = userClient.addUserMembership(userID, groupID);
-        return client.getEntity(response, UserMembershipData.class);
+        Entity<String> entity = client.entity(groupID);
+        return post(userID + "/memberships", null, entity, UserMembershipData.class);
     }
 
     public void removeUserMembership(String userD, String groupID) throws Exception {
-        Response response = userClient.removeUserMembership(userD, groupID);
-        client.getEntity(response, Void.class);
+        delete(userD + "/memberships/" + groupID, Void.class);
     }
 }
