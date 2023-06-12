@@ -30,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.authentication.EAuthException;
-import com.netscape.certsrv.cert.AgentCertRequestResource;
 import com.netscape.certsrv.cert.AgentCertResource;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.cert.CertDataInfos;
@@ -61,7 +60,7 @@ public class CACertClient extends Client {
     public CertResource certClient;
     public CertRequestResource certRequestClient;
     public AgentCertResource agentCertClient;
-    public AgentCertRequestResource agentCertRequestClient;
+    public CAAgentCertRequestClient agentCertRequestClient;
 
     public CACertClient(SubsystemClient subsystemClient) throws Exception {
         this(subsystemClient.client, subsystemClient.getName());
@@ -76,7 +75,7 @@ public class CACertClient extends Client {
         certClient = createProxy(CertResource.class);
         certRequestClient = createProxy(CertRequestResource.class);
         agentCertClient = createProxy(AgentCertResource.class);
-        agentCertRequestClient = createProxy(AgentCertRequestResource.class);
+        agentCertRequestClient = new CAAgentCertRequestClient(client);
     }
 
     public CertData getCert(CertId id) throws Exception {
@@ -136,49 +135,40 @@ public class CACertClient extends Client {
     }
 
     public CertReviewResponse reviewRequest(RequestId id) throws Exception {
-        Response response = agentCertRequestClient.reviewRequest(id);
-        return client.getEntity(response, CertReviewResponse.class);
+        return agentCertRequestClient.reviewRequest(id);
     }
 
     public void approveRequest(RequestId id, CertReviewResponse data) throws Exception {
-        Response response = agentCertRequestClient.approveRequest(id, data);
-        client.getEntity(response, Void.class);
+        agentCertRequestClient.approveRequest(id, data);
     }
 
     public void rejectRequest(RequestId id, CertReviewResponse data) throws Exception {
-        Response response = agentCertRequestClient.rejectRequest(id, data);
-        client.getEntity(response, Void.class);
+        agentCertRequestClient.rejectRequest(id, data);
     }
 
     public void cancelRequest(RequestId id, CertReviewResponse data) throws Exception {
-        Response response = agentCertRequestClient.cancelRequest(id, data);
-        client.getEntity(response, Void.class);
+        agentCertRequestClient.cancelRequest(id, data);
     }
 
     public void updateRequest(RequestId id, CertReviewResponse data) throws Exception {
-        Response response = agentCertRequestClient.updateRequest(id, data);
-        client.getEntity(response, Void.class);
+        agentCertRequestClient.updateRequest(id, data);
     }
 
     public void validateRequest(RequestId id, CertReviewResponse data) throws Exception {
-        Response response = agentCertRequestClient.validateRequest(id, data);
-        client.getEntity(response, Void.class);
+        agentCertRequestClient.validateRequest(id, data);
     }
 
     public void assignRequest(RequestId id, CertReviewResponse data) throws Exception {
-        Response response = agentCertRequestClient.assignRequest(id, data);
-        client.getEntity(response, Void.class);
+        agentCertRequestClient.assignRequest(id, data);
     }
 
     public void unassignRequest(RequestId id, CertReviewResponse data) throws Exception {
-        Response response = agentCertRequestClient.unassignRequest(id, data);
-        client.getEntity(response, Void.class);
+        agentCertRequestClient.unassignRequest(id, data);
     }
 
     public CertRequestInfos listRequests(String requestState, String requestType, RequestId start, Integer pageSize,
             Integer maxResults, Integer maxTime) throws Exception {
-        Response response = agentCertRequestClient.listRequests(requestState, requestType, start, pageSize, maxResults, maxTime);
-        return client.getEntity(response, CertRequestInfos.class);
+        return agentCertRequestClient.listRequests(requestState, requestType, start, pageSize, maxResults, maxTime);
     }
 
     public CertEnrollmentRequest getEnrollmentTemplate(String id) throws Exception {
