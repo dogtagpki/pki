@@ -19,8 +19,8 @@ package com.netscape.ca;
 
 import java.math.BigInteger;
 import java.util.Date;
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.List;
+import java.util.Map;
 
 import org.mozilla.jss.netscape.security.util.BitArray;
 import org.mozilla.jss.netscape.security.x509.CRLExtensions;
@@ -39,9 +39,9 @@ import com.netscape.cmscore.dbs.RevocationInfo;
 
 public class CertRecordProcessor extends ElementProcessor {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertRecordProcessor.class);
+    public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertRecordProcessor.class);
 
-    private Hashtable<BigInteger, RevokedCertificate> crlCerts;
+    private Map<BigInteger, RevokedCertificate> crlCerts;
     private boolean allowExtensions;
     private CRLIssuingPoint issuingPoint;
 
@@ -50,7 +50,7 @@ public class CertRecordProcessor extends ElementProcessor {
     private BitArray onlySomeReasons;
 
     public CertRecordProcessor(
-            Hashtable<BigInteger, RevokedCertificate> crlCerts,
+            Map<BigInteger, RevokedCertificate> crlCerts,
             CRLIssuingPoint ip,
             boolean allowExtensions) {
 
@@ -65,7 +65,7 @@ public class CertRecordProcessor extends ElementProcessor {
         CMSCRLExtensions exts = null;
 
         if (issuingDistPointAttempted ) {
-            return issuingDistPointEnabled == true && onlySomeReasons != null;
+            return issuingDistPointEnabled && onlySomeReasons != null;
         }
 
         issuingDistPointAttempted = true;
@@ -78,7 +78,7 @@ public class CertRecordProcessor extends ElementProcessor {
         boolean isIssuingDistPointExtEnabled = false;
         isIssuingDistPointExtEnabled = exts.isCRLExtensionEnabled(IssuingDistributionPointExtension.NAME);
 
-        if (isIssuingDistPointExtEnabled == false) {
+        if (!isIssuingDistPointExtEnabled) {
             issuingDistPointEnabled = false;
             return false;
         }
@@ -87,10 +87,9 @@ public class CertRecordProcessor extends ElementProcessor {
 
         // Get info out of the IssuingDistPointExtension
         CRLExtensions ext = new CRLExtensions();
-        Vector<String> extNames = exts.getCRLExtensionNames();
+        List<String> extNames = exts.getCRLExtensionNames();
 
-        for (int i = 0; i < extNames.size(); i++) {
-            String extName = extNames.elementAt(i);
+        for (String extName : extNames) {
             if (extName.equals(IssuingDistributionPointExtension.NAME)) {
                 exts.addToCRLExtensions(ext, extName, null);
             }
@@ -101,6 +100,7 @@ public class CertRecordProcessor extends ElementProcessor {
         try {
             issuingDistExt = ext.get(IssuingDistributionPointExtension.NAME);
         } catch (Exception e) {
+            // Swallowing exception?
         }
 
         IssuingDistributionPointExtension iExt = null;
@@ -115,19 +115,19 @@ public class CertRecordProcessor extends ElementProcessor {
             issuingDistributionPoint = iExt.getIssuingDistributionPoint();
         }
 
-        BitArray onlySomeReasons = null;
+        BitArray osr = null;
 
         if (issuingDistributionPoint != null) {
-            onlySomeReasons = issuingDistributionPoint.getOnlySomeReasons();
+            osr = issuingDistributionPoint.getOnlySomeReasons();
         }
 
         boolean applyReasonMatch = false;
 
-        if (onlySomeReasons != null) {
-            applyReasonMatch = !onlySomeReasons.toString().equals("0000000");
-            logger.debug("applyReasonMatch " + applyReasonMatch);
-            if (applyReasonMatch == true) {
-                this.onlySomeReasons = onlySomeReasons;
+        if (osr != null) {
+            applyReasonMatch = !osr.toString().equals("0000000");
+            logger.debug("applyReasonMatch {}", applyReasonMatch);
+            if (applyReasonMatch) {
+                this.onlySomeReasons = osr;
                 result = true;
             }
         }
@@ -161,7 +161,7 @@ public class CertRecordProcessor extends ElementProcessor {
                 CRLReasonExtension theReason = (CRLReasonExtension) crlReasonExt;
                 reason = (RevocationReason) theReason.get("value");
                 reasonIndex = reason.getCode();
-                logger.debug("revoked reason " + reason);
+                logger.debug("revoked reason {}", reason);
             } catch (Exception e) {
                 return includeCert;
             }
@@ -172,10 +172,10 @@ public class CertRecordProcessor extends ElementProcessor {
         boolean reasonMatch = false;
         if (onlySomeReasons != null) {
             reasonMatch = onlySomeReasons.get(reasonIndex);
-            if (reasonMatch != true) {
-                includeCert = false;
+            if (reasonMatch) {
+                logger.debug("onlySomeReasons match! reason: {}", reason);
             } else {
-                logger.debug("onlySomeReasons match! reason: " + reason);
+                includeCert = false;
             }
         }
 
@@ -187,7 +187,7 @@ public class CertRecordProcessor extends ElementProcessor {
         // For now just check the onlySomeReason CRL IssuingDistributionPoint extension
         boolean includeCert = true;
 
-        if ((crlExtensions == null) || (allowExtensions == false)) {
+        if ((crlExtensions == null) || (!allowExtensions)) {
             return includeCert;
         }
 
@@ -195,7 +195,7 @@ public class CertRecordProcessor extends ElementProcessor {
 
         // If the CRLIssuingDistPointExtension is not available or
         // if onlySomeReasons does not apply, bail.
-        if (inited == false) {
+        if (!inited) {
             return includeCert;
         }
 
@@ -227,8 +227,8 @@ public class CertRecordProcessor extends ElementProcessor {
 
         boolean includeCert = checkRevokedCertExtensions(crlExts);
 
-        if (includeCert == true) {
-            logger.info("CertRecordProcessor: Adding cert " + certID.toHexString() + " into CRL");
+        if (includeCert) {
+            logger.info("CertRecordProcessor: Adding cert {} into CRL", certID.toHexString()); //NOSONAR
             crlCerts.put(serialNumber, newRevokedCert);
         }
     }
