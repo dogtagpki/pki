@@ -143,7 +143,7 @@ public class CMSAdminServlet extends AdminServlet {
                             null, resp);
                     return;
                 }
-                getEnv(req, resp);
+                getEnv(resp);
                 return;
             }
             if (op.equals(OpDef.OP_READ)) {
@@ -157,17 +157,17 @@ public class CMSAdminServlet extends AdminServlet {
                 if (scope.equals(ScopeDef.SC_LDAP))
                     getDBConfig(req, resp);
                 else if (scope.equals(ScopeDef.SC_SMTP))
-                    readSMTPConfig(req, resp);
+                    readSMTPConfig(resp);
                 else if (scope.equals(ScopeDef.SC_STAT))
-                    readStat(req, resp);
+                    readStat(resp);
                 else if (scope.equals(ScopeDef.SC_ENCRYPTION))
-                    readEncryption(req, resp);
+                    readEncryption(resp);
                 else if (scope.equals(ScopeDef.SC_TOKEN))
-                    getAllTokenNames(req, resp);
+                    getAllTokenNames(resp);
                 else if (scope.equals(ScopeDef.SC_SUBJECT_NAME))
                     getSubjectName(req, resp);
                 else if (scope.equals(ScopeDef.SC_GET_NICKNAMES))
-                    getAllNicknames(req, resp);
+                    getAllNicknames(resp);
                 else if (scope.equals(ScopeDef.SC_CERT_PRETTY_PRINT))
                     getCertPrettyPrint(req, resp);
             } else if (op.equals(OpDef.OP_MODIFY)) {
@@ -209,19 +209,19 @@ public class CMSAdminServlet extends AdminServlet {
                     return;
                 }
                 if (scope.equals(ScopeDef.SC_SUBSYSTEM))
-                    readSubsystem(req, resp);
+                    readSubsystem(resp);
                 else if (scope.equals(ScopeDef.SC_CA_CERTLIST))
-                    getCACerts(req, resp);
+                    getCACerts(resp);
                 else if (scope.equals(ScopeDef.SC_ALL_CERTLIST))
-                    getAllCertsManage(req, resp);
+                    getAllCertsManage(resp);
                 else if (scope.equals(ScopeDef.SC_USERCERTSLIST))
-                    getUserCerts(req, resp);
+                    getUserCerts(resp);
                 else if (scope.equals(ScopeDef.SC_TKSKEYSLIST))
                     getTKSKeys(req, resp);
                 else if (scope.equals(ScopeDef.SC_TOKEN))
-                    getAllTokenNames(req, resp);
+                    getAllTokenNames(resp);
                 else if (scope.equals(ScopeDef.SC_ROOTCERTSLIST))
-                    getRootCerts(req, resp);
+                    getRootCerts(resp);
             } else if (op.equals(OpDef.OP_DELETE)) {
                 mOp = "delete";
                 if ((mToken = super.authorize(req)) == null) {
@@ -270,7 +270,7 @@ public class CMSAdminServlet extends AdminServlet {
                 if (scope.equals(ScopeDef.SC_SUBJECT_NAME))
                     validateSubjectName(req, resp);
                 else if (scope.equals(ScopeDef.SC_KEY_LENGTH))
-                    validateKeyLength(req, resp);
+                    validateKeyLength(resp);
                 else if (scope.equals(ScopeDef.SC_CERTIFICATE_EXTENSION))
                     validateCertExtension(req, resp);
                 else if (scope.equals(ScopeDef.SC_KEY_CURVENAME))
@@ -290,9 +290,7 @@ public class CMSAdminServlet extends AdminServlet {
         }
     }
 
-    private void getEnv(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    private void getEnv(HttpServletResponse resp) throws IOException {
         NameValuePairs params = new NameValuePairs();
 
         if (File.separator.equals("\\"))
@@ -303,9 +301,7 @@ public class CMSAdminServlet extends AdminServlet {
         sendResponse(SUCCESS, null, params, resp);
     }
 
-    private void getAllTokenNames(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    private void getAllTokenNames(HttpServletResponse resp) throws IOException, EBaseException {
 
         CMSEngine engine = getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
@@ -316,9 +312,7 @@ public class CMSAdminServlet extends AdminServlet {
         sendResponse(SUCCESS, null, params, resp);
     }
 
-    private void getAllNicknames(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    private void getAllNicknames(HttpServletResponse resp) throws IOException, EBaseException {
 
         NameValuePairs params = new NameValuePairs();
         CMSEngine engine = getCMSEngine();
@@ -336,9 +330,7 @@ public class CMSAdminServlet extends AdminServlet {
     public void readEncryption(NameValuePairs params) throws EBaseException {
     }
 
-    private void readEncryption(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    private void readEncryption(HttpServletResponse resp) throws IOException, EBaseException {
 
         CMSEngine engine = getCMSEngine();
 
@@ -435,9 +427,8 @@ public class CMSAdminServlet extends AdminServlet {
      * @exception IOException an input/output error has occurred
      * @exception EBaseException failed to modify encryption configuration
      */
-    private void modifyEncryption(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    private void modifyEncryption(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException, EBaseException {
 
         CMSEngine engine = getCMSEngine();
         Auditor auditor = engine.getAuditor();
@@ -572,9 +563,7 @@ public class CMSAdminServlet extends AdminServlet {
     /**
      * Performs Server Tasks: RESTART/STOP operation
      */
-    private void performTasks(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    private void performTasks(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String restart = req.getParameter(Constants.PR_SERVER_RESTART);
         String stop = req.getParameter(Constants.PR_SERVER_STOP);
         NameValuePairs params = new NameValuePairs();
@@ -605,9 +594,7 @@ public class CMSAdminServlet extends AdminServlet {
     /**
      * Reads subsystems that server has loaded with.
      */
-    private void readSubsystem(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    private void readSubsystem(HttpServletResponse resp) throws IOException {
 
         NameValuePairs params = new NameValuePairs();
         readSubsystem(params);
@@ -618,9 +605,7 @@ public class CMSAdminServlet extends AdminServlet {
     /**
      * Reads server statistics.
      */
-    private void readStat(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    private void readStat(HttpServletResponse resp) throws IOException {
         NameValuePairs params = new NameValuePairs();
         CMSEngine engine = getCMSEngine();
         EngineConfig cs = engine.getConfig();
@@ -652,9 +637,7 @@ public class CMSAdminServlet extends AdminServlet {
     /**
      * Modifies database information.
      */
-    private void setDBConfig(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    private void setDBConfig(HttpServletRequest req, HttpServletResponse resp) throws IOException, EBaseException {
 
         LDAPConfig dbConfig = mConfig.getInternalDBConfig();
         Enumeration<String> enum1 = req.getParameterNames();
@@ -679,9 +662,7 @@ public class CMSAdminServlet extends AdminServlet {
     /**
      * Create Master Key
      */
-    private void createMasterKey(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    private void createMasterKey(HttpServletRequest req, HttpServletResponse resp) throws IOException, EBaseException {
 
         NameValuePairs params = new NameValuePairs();
         Enumeration<String> e = req.getParameterNames();
@@ -716,9 +697,7 @@ public class CMSAdminServlet extends AdminServlet {
     /**
      * Reads secmod.db
      */
-    private void getTKSKeys(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    private void getTKSKeys(HttpServletRequest req, HttpServletResponse resp) throws IOException, EBaseException {
 
         NameValuePairs params = new NameValuePairs();
         Enumeration<String> e = req.getParameterNames();
@@ -760,9 +739,7 @@ public class CMSAdminServlet extends AdminServlet {
     /**
      * Reads database information.
      */
-    private void getDBConfig(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    private void getDBConfig(HttpServletRequest req, HttpServletResponse resp) throws IOException, EBaseException {
         DatabaseConfig dbConfig = mConfig.getDatabaseConfig();
         ConfigStore ldapConfig = dbConfig.getSubStore("ldap", ConfigStore.class);
         NameValuePairs params = new NameValuePairs();
@@ -788,10 +765,8 @@ public class CMSAdminServlet extends AdminServlet {
     /**
      * Modifies SMTP configuration.
      */
-    private void modifySMTPConfig(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
-        // XXX
+    private void modifySMTPConfig(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException, EBaseException {
         ConfigStore sConfig = mConfig.getSubStore(PROP_SMTP, ConfigStore.class);
 
         String host = req.getParameter(Constants.PR_SERVER_NAME);
@@ -812,9 +787,7 @@ public class CMSAdminServlet extends AdminServlet {
     /**
      * Reads SMTP configuration.
      */
-    private void readSMTPConfig(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    private void readSMTPConfig(HttpServletResponse resp) throws IOException, EBaseException {
         ConfigStore dbConfig = mConfig.getSubStore(PROP_SMTP, ConfigStore.class);
         NameValuePairs params = new NameValuePairs();
 
@@ -825,9 +798,7 @@ public class CMSAdminServlet extends AdminServlet {
         sendResponse(SUCCESS, null, params, resp);
     }
 
-    private void loggedInToken(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    private void loggedInToken(HttpServletRequest req, HttpServletResponse resp) throws IOException, EBaseException {
         Enumeration<String> enum1 = req.getParameterNames();
         String tokenName = "";
         String pwd = "";
@@ -852,9 +823,7 @@ public class CMSAdminServlet extends AdminServlet {
         sendResponse(SUCCESS, null, null, resp);
     }
 
-    private void checkTokenStatus(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    private void checkTokenStatus(HttpServletRequest req, HttpServletResponse resp) throws IOException, EBaseException {
         Enumeration<String> enum1 = req.getParameterNames();
         String key = "";
         String value = "";
@@ -890,9 +859,7 @@ public class CMSAdminServlet extends AdminServlet {
      * @exception IOException an input/output error has occurred
      * @exception EBaseException failed to retrieve certificate request
      */
-    private void getCertRequest(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    private void getCertRequest(HttpServletRequest req, HttpServletResponse resp) throws IOException, EBaseException {
 
         CMSEngine engine = getCMSEngine();
         Auditor auditor = engine.getAuditor();
@@ -1109,8 +1076,7 @@ public class CMSAdminServlet extends AdminServlet {
     void setKRANickname(String nickname) throws EBaseException {
     }
 
-    private void setRADMNewnickname(String tokenName, String nickName)
-            throws EBaseException {
+    private void setRADMNewnickname(String tokenName, String nickName) {
         CMSEngine engine = getCMSEngine();
         engine.setServerCertNickname(tokenName, nickName);
 
@@ -1128,8 +1094,7 @@ public class CMSAdminServlet extends AdminServlet {
          */
     }
 
-    private String getRADMNewnickname()
-            throws EBaseException {
+    private String getRADMNewnickname() {
         // assuming the nickname does not change.
         CMSEngine engine = getCMSEngine();
         return engine.getServerCertNickname();
@@ -1141,8 +1106,7 @@ public class CMSAdminServlet extends AdminServlet {
          */
     }
 
-    private void setAgentNewnickname(String tokenName, String nickName)
-            throws EBaseException {
+    private void setAgentNewnickname(String tokenName, String nickName) {
         CMSEngine engine = getCMSEngine();
         engine.setServerCertNickname(tokenName, nickName);
 
@@ -1160,8 +1124,7 @@ public class CMSAdminServlet extends AdminServlet {
          */
     }
 
-    private String getAgentNewnickname()
-            throws EBaseException {
+    private String getAgentNewnickname() {
         // assuming the nickname does not change.
         CMSEngine engine = getCMSEngine();
         return engine.getServerCertNickname();
@@ -1218,9 +1181,7 @@ public class CMSAdminServlet extends AdminServlet {
      * @exception IOException an input/output error has occurred
      * @exception EBaseException failed to install a certificate
      */
-    private void installCert(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    private void installCert(HttpServletRequest req, HttpServletResponse resp) throws IOException, EBaseException {
 
         CMSEngine engine = getCMSEngine();
         Auditor auditor = engine.getAuditor();
@@ -1564,9 +1525,7 @@ public class CMSAdminServlet extends AdminServlet {
         return nickname;
     }
 
-    private void getCertInfo(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    private void getCertInfo(HttpServletRequest req, HttpServletResponse resp) throws IOException, EBaseException {
         Enumeration<String> enum1 = req.getParameterNames();
         NameValuePairs results = new NameValuePairs();
         String pkcs = "";
@@ -1658,9 +1617,8 @@ public class CMSAdminServlet extends AdminServlet {
         sendResponse(SUCCESS, null, results, resp);
     }
 
-    private void getCertPrettyPrint(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    private void getCertPrettyPrint(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException, EBaseException {
         Enumeration<String> enum1 = req.getParameterNames();
         CMSEngine engine = getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
@@ -1701,9 +1659,8 @@ public class CMSAdminServlet extends AdminServlet {
         sendResponse(SUCCESS, null, pairs, resp);
     }
 
-    private void getRootCertTrustBit(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    private void getRootCertTrustBit(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException, EBaseException {
         Enumeration<String> enum1 = req.getParameterNames();
         CMSEngine engine = getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
@@ -1743,9 +1700,7 @@ public class CMSAdminServlet extends AdminServlet {
         sendResponse(SUCCESS, null, pairs, resp);
     }
 
-    private void getCACerts(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    private void getCACerts(HttpServletResponse resp) throws IOException, EBaseException {
 
         CMSEngine engine = getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
@@ -1754,9 +1709,7 @@ public class CMSAdminServlet extends AdminServlet {
         sendResponse(SUCCESS, null, pairs, resp);
     }
 
-    private void deleteRootCert(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    private void deleteRootCert(HttpServletRequest req, HttpServletResponse resp) throws IOException, EBaseException {
 
         String id = req.getParameter(Constants.RS_ID);
         CMSEngine engine = getCMSEngine();
@@ -1771,9 +1724,7 @@ public class CMSAdminServlet extends AdminServlet {
         sendResponse(SUCCESS, null, null, resp);
     }
 
-    private void deleteUserCert(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    private void deleteUserCert(HttpServletRequest req, HttpServletResponse resp) throws IOException, EBaseException {
 
         String id = req.getParameter(Constants.RS_ID);
         CMSEngine engine = getCMSEngine();
@@ -1788,9 +1739,7 @@ public class CMSAdminServlet extends AdminServlet {
         sendResponse(SUCCESS, null, null, resp);
     }
 
-    private void getRootCerts(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    private void getRootCerts(HttpServletResponse resp) throws IOException, EBaseException {
         CMSEngine engine = getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         NameValuePairs pairs = jssSubsystem.getRootCerts();
@@ -1798,9 +1747,7 @@ public class CMSAdminServlet extends AdminServlet {
         sendResponse(SUCCESS, null, pairs, resp);
     }
 
-    private void getAllCertsManage(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    private void getAllCertsManage(HttpServletResponse resp) throws IOException, EBaseException {
         CMSEngine engine = getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         NameValuePairs pairs = jssSubsystem.getAllCertsManage();
@@ -1808,18 +1755,14 @@ public class CMSAdminServlet extends AdminServlet {
         sendResponse(SUCCESS, null, pairs, resp);
     }
 
-    private void getUserCerts(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    private void getUserCerts(HttpServletResponse resp) throws IOException, EBaseException {
         CMSEngine engine = getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         NameValuePairs pairs = jssSubsystem.getUserCerts();
         sendResponse(SUCCESS, null, pairs, resp);
     }
 
-    private void deleteCerts(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    private void deleteCerts(HttpServletRequest req, HttpServletResponse resp) throws IOException, EBaseException {
         Enumeration<String> enum1 = req.getParameterNames();
         CMSEngine engine = getCMSEngine();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
@@ -1849,9 +1792,8 @@ public class CMSAdminServlet extends AdminServlet {
         sendResponse(SUCCESS, null, null, resp);
     }
 
-    private void validateSubjectName(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    private void validateSubjectName(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException, EBaseException {
 
         CMSEngine engine = getCMSEngine();
         Enumeration<String> enum1 = req.getParameterNames();
@@ -1869,16 +1811,12 @@ public class CMSAdminServlet extends AdminServlet {
         sendResponse(SUCCESS, null, null, resp);
     }
 
-    private void validateKeyLength(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
-
+    private void validateKeyLength(HttpServletResponse resp) throws IOException {
         sendResponse(SUCCESS, null, null, resp);
     }
 
-    private void validateCurveName(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    private void validateCurveName(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException, EBaseException {
         Enumeration<String> enum1 = req.getParameterNames();
         String curveName = null;
 
@@ -1906,9 +1844,8 @@ public class CMSAdminServlet extends AdminServlet {
         sendResponse(SUCCESS, null, null, resp);
     }
 
-    private void validateCertExtension(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    private void validateCertExtension(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException, EBaseException {
         Enumeration<String> enum1 = req.getParameterNames();
         String certExt = "";
 
@@ -1928,9 +1865,7 @@ public class CMSAdminServlet extends AdminServlet {
         sendResponse(SUCCESS, null, null, resp);
     }
 
-    private void getSubjectName(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    private void getSubjectName(HttpServletRequest req, HttpServletResponse resp) throws IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
         Enumeration<String> enum1 = req.getParameterNames();
 
@@ -1954,9 +1889,8 @@ public class CMSAdminServlet extends AdminServlet {
         sendResponse(SUCCESS, null, params, resp);
     }
 
-    private void processSubjectName(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    private void processSubjectName(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
         Enumeration<String> enum1 = req.getParameterNames();
 
@@ -1979,9 +1913,7 @@ public class CMSAdminServlet extends AdminServlet {
         sendResponse(SUCCESS, null, params, resp);
     }
 
-    public void setRootCertTrust(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    public void setRootCertTrust(HttpServletRequest req, HttpServletResponse resp) throws IOException, EBaseException {
 
         CMSEngine engine = getCMSEngine();
         Auditor auditor = engine.getAuditor();
@@ -2029,9 +1961,7 @@ public class CMSAdminServlet extends AdminServlet {
      * @exception IOException an input/output error has occurred
      * @exception EBaseException failed to establish CA certificate trust
      */
-    private void trustCACert(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    private void trustCACert(HttpServletRequest req, HttpServletResponse resp) throws IOException, EBaseException {
 
         CMSEngine engine = getCMSEngine();
         Auditor auditor = engine.getAuditor();
@@ -2116,12 +2046,8 @@ public class CMSAdminServlet extends AdminServlet {
      *                configuration parameter
      * @exception IOException an input/output error has occurred
      */
-    private synchronized void
-            runSelfTestsOnDemand(HttpServletRequest req,
-                    HttpServletResponse resp)
-                    throws EMissingSelfTestException,
-                    ESelfTestException,
-                    IOException {
+    private synchronized void runSelfTestsOnDemand(HttpServletRequest req, HttpServletResponse resp)
+            throws ESelfTestException, IOException {
 
         CMSEngine engine = getCMSEngine();
         Auditor auditor = engine.getAuditor();
