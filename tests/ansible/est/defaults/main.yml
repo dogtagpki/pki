@@ -1,0 +1,21 @@
+---
+# defaults file for est
+
+shared_workspace: /tmp/workdir/pki
+github_workspace: ./
+
+#DS
+ds_container: ds
+ds_image: quay.io/389ds/dirsrv
+ds_hostname: ds.example.com
+ds_password: Secret.123
+
+#PKI
+pki_container: pki
+pki_image: pki-runner
+pki_hostname: pki.example.com
+
+#Client
+client_container: client
+client_image: quay.io/dogtagpki/libest
+client_hostname: client.example.com
