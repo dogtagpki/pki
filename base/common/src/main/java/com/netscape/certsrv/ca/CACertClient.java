@@ -35,7 +35,6 @@ import com.netscape.certsrv.cert.CertDataInfos;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertRequestInfos;
-import com.netscape.certsrv.cert.CertRequestResource;
 import com.netscape.certsrv.cert.CertResource;
 import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.cert.CertRevokeRequest;
@@ -57,7 +56,7 @@ public class CACertClient extends Client {
     public final static Logger logger = LoggerFactory.getLogger(CACertClient.class);
 
     public CertResource certClient;
-    public CertRequestResource certRequestClient;
+    public CACertRequestClient certRequestClient;
     public CAAgentCertClient agentCertClient;
     public CAAgentCertRequestClient agentCertRequestClient;
 
@@ -72,7 +71,7 @@ public class CACertClient extends Client {
 
     public void init() throws Exception {
         certClient = createProxy(CertResource.class);
-        certRequestClient = createProxy(CertRequestResource.class);
+        certRequestClient = new CACertRequestClient(client);
         agentCertClient = new CAAgentCertClient(client);
         agentCertRequestClient = new CAAgentCertRequestClient(client);
     }
@@ -111,22 +110,11 @@ public class CACertClient extends Client {
 
     public CertRequestInfos enrollRequest(
             CertEnrollmentRequest data, AuthorityID aid, X500Name adn) throws Exception {
-        String aidString = aid != null ? aid.toString() : null;
-        String adnString = null;
-        if (adn != null) {
-            try {
-                adnString = adn.toLdapDNString();
-            } catch (IOException e) {
-            }
-        }
-        String enrollmentRequest = (String) client.marshall(data);
-        Response response = certRequestClient.enrollCert(enrollmentRequest, aidString, adnString);
-        return client.getEntity(response, CertRequestInfos.class);
+        return certRequestClient.enrollRequest(data, aid, adn);
     }
 
     public CertRequestInfo getRequest(RequestId id) throws Exception {
-        Response response = certRequestClient.getRequestInfo(id);
-        return client.getEntity(response, CertRequestInfo.class);
+        return certRequestClient.getRequest(id);
     }
 
     public CertReviewResponse reviewRequest(RequestId id) throws Exception {
@@ -167,13 +155,11 @@ public class CACertClient extends Client {
     }
 
     public CertEnrollmentRequest getEnrollmentTemplate(String id) throws Exception {
-        Response response = certRequestClient.getEnrollmentTemplate(id);
-        return client.getEntity(response, CertEnrollmentRequest.class);
+        return certRequestClient.getEnrollmentTemplate(id);
     }
 
     public ProfileDataInfos listEnrollmentTemplates(Integer start, Integer size) throws Exception {
-        Response response = certRequestClient.listEnrollmentTemplates(start, size);
-        return client.getEntity(response, ProfileDataInfos.class);
+        return certRequestClient.listEnrollmentTemplates(start, size);
     }
 
     public X509CertImpl submitRequest(
