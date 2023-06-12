@@ -17,12 +17,14 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.ca;
 
-import javax.ws.rs.core.Response;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.ws.rs.client.Entity;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.certsrv.cert.AgentCertRequestResource;
 import com.netscape.certsrv.cert.CertRequestInfos;
 import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.client.Client;
@@ -36,60 +38,57 @@ public class CAAgentCertRequestClient extends Client {
 
     public final static Logger logger = LoggerFactory.getLogger(CAAgentCertRequestClient.class);
 
-    public AgentCertRequestResource agentCertRequestClient;
-
     public CAAgentCertRequestClient(PKIClient client) throws Exception {
         super(client, "ca", "agent/certrequests");
-        init();
     }
 
     public CertRequestInfos listRequests(String requestState, String requestType, RequestId start, Integer pageSize,
             Integer maxResults, Integer maxTime) throws Exception {
-        Response response = agentCertRequestClient.listRequests(requestState, requestType, start, pageSize, maxResults, maxTime);
-        return client.getEntity(response, CertRequestInfos.class);
-    }
-
-    public void init() throws Exception {
-        agentCertRequestClient = createProxy(AgentCertRequestResource.class);
+        Map<String, Object> params = new HashMap<>();
+        if (requestType != null) params.put("requestType", requestType);
+        if (start != null) params.put("start", start.toHexString());
+        if (pageSize != null) params.put("pageSize", pageSize);
+        if (maxResults != null) params.put("maxResults", maxResults);
+        if (maxTime != null) params.put("maxTime", maxTime);
+        return get(null, params, CertRequestInfos.class);
     }
 
     public CertReviewResponse reviewRequest(RequestId id) throws Exception {
-        Response response = agentCertRequestClient.reviewRequest(id);
-        return client.getEntity(response, CertReviewResponse.class);
+        return get(id.toHexString(), CertReviewResponse.class);
     }
 
     public void approveRequest(RequestId id, CertReviewResponse data) throws Exception {
-        Response response = agentCertRequestClient.approveRequest(id, data);
-        client.getEntity(response, Void.class);
+        Entity<CertReviewResponse> entity = client.entity(data);
+        post(id.toHexString() + "/approve", null, entity, Void.class);
     }
 
     public void rejectRequest(RequestId id, CertReviewResponse data) throws Exception {
-        Response response = agentCertRequestClient.rejectRequest(id, data);
-        client.getEntity(response, Void.class);
+        Entity<CertReviewResponse> entity = client.entity(data);
+        post(id.toHexString() + "/reject", null, entity, Void.class);
     }
 
     public void cancelRequest(RequestId id, CertReviewResponse data) throws Exception {
-        Response response = agentCertRequestClient.cancelRequest(id, data);
-        client.getEntity(response, Void.class);
+        Entity<CertReviewResponse> entity = client.entity(data);
+        post(id.toHexString() + "/cancel", null, entity, Void.class);
     }
 
     public void updateRequest(RequestId id, CertReviewResponse data) throws Exception {
-        Response response = agentCertRequestClient.updateRequest(id, data);
-        client.getEntity(response, Void.class);
+        Entity<CertReviewResponse> entity = client.entity(data);
+        post(id.toHexString() + "/update", null, entity, Void.class);
     }
 
     public void validateRequest(RequestId id, CertReviewResponse data) throws Exception {
-        Response response = agentCertRequestClient.validateRequest(id, data);
-        client.getEntity(response, Void.class);
+        Entity<CertReviewResponse> entity = client.entity(data);
+        post(id.toHexString() + "/validate", null, entity, Void.class);
     }
 
     public void assignRequest(RequestId id, CertReviewResponse data) throws Exception {
-        Response response = agentCertRequestClient.assignRequest(id, data);
-        client.getEntity(response, Void.class);
+        Entity<CertReviewResponse> entity = client.entity(data);
+        post(id.toHexString() + "/assign", null, entity, Void.class);
     }
 
     public void unassignRequest(RequestId id, CertReviewResponse data) throws Exception {
-        Response response = agentCertRequestClient.unassignRequest(id, data);
-        client.getEntity(response, Void.class);
+        Entity<CertReviewResponse> entity = client.entity(data);
+        post(id.toHexString() + "/unassign", null, entity, Void.class);
     }
 }
