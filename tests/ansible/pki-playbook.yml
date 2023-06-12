@@ -1,0 +1,8 @@
+---
+
+- name: Test PKI
+  hosts: localhost
+  connection: local
+  roles:
+    - "{{ pki_subsystem }}"
+

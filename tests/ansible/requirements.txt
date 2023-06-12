@@ -1,0 +1,6 @@
+ansible
+ansible-lint
+jsondiff
+passlib
+PyYAML
+requests

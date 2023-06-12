@@ -1,0 +1,226 @@
+---
+# tasks file for est
+
+- name: Create a network
+  community.docker.docker_network:
+    name: example 
+
+- name: Set up DS container
+  community.docker.docker_container:
+    name: "{{ ds_container }}"
+    image: "{{ ds_image }}"
+    hostname: "{{ ds_hostname }}"
+    volumes:
+      - /data
+      - "{{ github_workspace }}:{{ shared_workspace }}"
+    state: started
+    detach: true
+    env:
+      DS_DM_PASSWORD={{ ds_password }}
+    networks:
+      - name: example
+        aliases:
+          - "{{ ds_hostname }}"
+    ports:
+      - 3389
+      - 3636
+    healthcheck:
+      test: ["CMD", "dsctl", "slapd-localhost", "healthcheck"]
+      start_period: 10s
+      timeout: 10s
+      interval: 15s
+      retries: 5
+
+- name: Wait for ds
+  community.docker.docker_container_info:
+    name: "{{ ds_container }}"
+  register: ds_info
+  retries: 5
+  delay: 15
+  until: ds_info.container.State.Health.Status == 'healthy'
+
+- name: Initialise ds
+  community.docker.docker_container_exec:
+    container: "{{ ds_container }}"
+    command: dsconf slapd-localhost backend create --suffix dc=example,dc=com  --be-name userRoot
+
+- name: Add base entry
+  community.docker.docker_container_exec:
+    container: "{{ ds_container }}"
+    command: ldapadd -H ldap://{{ ds_hostname }}:3389 -D "cn=Directory Manager" -w {{ ds_password }} -x
+    stdin: |
+      dn: dc=example,dc=com
+      objectClass: domain
+      dc: example
+
+      dn: dc=pki,dc=example,dc=com
+      objectClass: domain
+      dc: pki
+
+- name: Set up CA container
+  community.docker.docker_container:
+    name: "{{ pki_container }}"
+    image: "{{ pki_image }}"
+    hostname: "{{ pki_hostname }}"
+    volumes:
+      - "{{ github_workspace }}:{{ shared_workspace }}"
+    tmpfs:
+      - /tmp
+      - /run
+    state: started
+    detach: true
+    privileged: true
+    env:
+      SHARED="{{ shared_workspace }}"
+    networks:
+      - name: example
+        aliases:
+          - "{{ pki_hostname }}"
+    ports:
+      - 8080
+      - 8443
+    entrypoint: /usr/sbin/init
+
+- name: Deploy CA
+  community.docker.docker_container_exec:
+    container: "{{ pki_container }}"
+    command: pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg -s CA -D pki_ds_url=ldap://{{ ds_hostname }}:3389 -v
+
+- name: Configure admin certificate
+  community.docker.docker_container_exec:
+    container: "{{ pki_container }}"
+    command: "{{ item }}"
+  loop:
+    - pki-server cert-export ca_signing --cert-file ca_signing.crt
+    - pki client-cert-import ca_signing --ca-cert ca_signing.crt
+    - pki pkcs12-import --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 --pkcs12-password Secret.123
+
+- name: Create EST group and user
+  community.docker.docker_container_exec:
+    container: "{{ pki_container }}"
+    command: "{{ item }}"
+  loop:
+    - pki -n caadmin ca-group-add "EST RA Agents"
+    - pki -n caadmin ca-user-add est-ra-1 --fullName "EST RA 1" --password est4ever
+    - pki -n caadmin ca-group-member-add "EST RA Agents" est-ra-1
+
+- name: Enable EST profile
+  community.docker.docker_container_exec:
+    container: "{{ pki_container }}"
+    command: "{{ item }}"
+  loop:
+    - pki -n caadmin ca-profile-add --raw /usr/share/pki/ca/profiles/ca/estServiceCert.cfg
+    - pki -n caadmin ca-profile-enable estServiceCert
+
+- name: Create EST subsystem
+  community.docker.docker_container_exec:
+    container: "{{ pki_container }}"
+    command: pki-server est-create
+
+- name: Configure EST backend
+  community.docker.docker_container_copy_into:
+    container: "{{ pki_container }}"
+    container_path: /etc/pki/pki-tomcat/est/backend.conf
+    content: |
+      class=org.dogtagpki.est.DogtagRABackend
+      url=https://{{ pki_hostname }}:8443
+      profile=estServiceCert
+      username=est-ra-1
+      password=est4ever
+# Do not work in octal so the decimal equivalent is provided (0o644 = 420)
+    mode: 420      # 0o644
+
+- name: Configurte EST authorization exec
+  community.docker.docker_container_copy_into:
+    container: "{{ pki_container }}"
+    container_path: /etc/pki/pki-tomcat/est/authorizer.conf
+    content: |
+      class=org.dogtagpki.est.ExternalProcessRequestAuthorizer
+      executable=/usr/local/libexec/estauthz
+    mode: 420      # 0o644
+
+- name: Configurte EST authorization exec
+  community.docker.docker_container_copy_into:
+    container: "{{ pki_container }}"
+    container_path: /usr/local/libexec/estauthz
+    content: |
+      #!/usr/bin/python3
+      import json, sys
+      ALLOWED_ROLE = 'estclient'
+      obj = json.loads(sys.stdin.read())
+      if not ALLOWED_ROLE in obj['authzData']['principal']['roles']:
+        print(f'Principal does not have required role {ALLOWED_ROLE!r}')
+        sys.exit(1)
+    mode: 493      # 0o755
+
+- name: Configurte EST authentication
+  community.docker.docker_container_copy_into:
+    container: "{{ pki_container }}"
+    container_path: /etc/pki/pki-tomcat/est/realm.conf
+    content: |
+      class=com.netscape.cms.realm.PKIInMemoryRealm
+      username=alice
+      password=4me2Test
+      roles=estclient
+    mode: 420      # 0o644
+
+- name: EST deploy and start
+  community.docker.docker_container_exec:
+    container: "{{ pki_container }}"
+    command: "{{ item }}"
+  loop:
+    - pki-server est-deploy
+    - pki-server restart --wait
+      
+- name: Set up Client container
+  community.docker.docker_container:
+    name: "{{ client_container }}"
+    image: "{{ client_image }}"
+    hostname: "{{ client_hostname }}"
+    state: started
+    detach: true
+    networks:
+      - name: example
+        aliases:
+          - "{{ client_hostname }}"
+    entrypoint:
+      - sleep
+      - infinity
+
+- name: Get CA certificate
+  community.docker.docker_container_exec:
+    container: "{{ client_container }}"
+    command: "{{ item }}"
+  loop:
+    - curl -o cacert.p7 -k https://{{ pki_hostname }}:8443/.well-known/est/cacerts
+    - openssl base64 -d --in cacert.p7 --out cacert.p7.der
+    - openssl pkcs7 --in cacert.p7.der -inform DER -print_certs -out cacert.pem
+    - openssl x509 -in cacert.pem -text -noout
+
+- name: Get CA Subject
+  community.docker.docker_container_exec:
+    container: "{{ client_container }}"
+    command: openssl x509 -in cacert.pem -noout -subject
+  register: ca_subject
+  failed_when: ('subject=O = EXAMPLE, OU = pki-tomcat, CN = CA Signing Certificate' not in  ca_subject.stdout_lines)
+
+- name: Enrol certificate
+  community.docker.docker_container_exec:
+    container: "{{ client_container }}"
+    command: "{{ item }}"
+    env:
+      EST_OPENSSL_CACERT: cacert.pem
+  loop:
+    - estclient -e -s {{ pki_hostname }} -p 8443 --common-name {{ client_hostname }} -o . -u alice -h 4me2Test
+    - openssl base64 -d --in cert-0-0.pkcs7 --out cert-0-0.pkcs7.der
+    - openssl pkcs7 -in cert-0-0.pkcs7.der -inform DER -print_certs -out cert.pem
+    - openssl x509 -in cert.pem -text -noout
+
+- name: Get Subject and Issuer
+  community.docker.docker_container_exec:
+    container: "{{ client_container }}"
+    command: openssl x509 -in cert.pem -noout -subject -issuer
+  register: enrol_subject_issuer
+  failed_when: >
+    ('subject=CN = client.example.com' not in enrol_subject_issuer.stdout_lines)  or
+    ('issuer=O = EXAMPLE, OU = pki-tomcat, CN = CA Signing Certificate' not in enrol_subject_issuer.stdout_lines)
