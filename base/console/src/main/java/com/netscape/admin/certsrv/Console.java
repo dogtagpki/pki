@@ -54,7 +54,7 @@ import org.apache.commons.cli.UnrecognizedOptionException;
 import org.dogtagpki.common.Info;
 import org.dogtagpki.common.InfoClient;
 import org.dogtagpki.util.logging.PKILogger;
-import org.dogtagpki.util.logging.PKILogger.Level;
+import org.dogtagpki.util.logging.PKILogger.LogLevel;
 
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.AlreadyInitializedException;
@@ -1637,10 +1637,10 @@ public class Console implements CommClient {
         String[] cmdArgs = cmd.getArgs();
 
         if (cmd.hasOption("debug")) {
-            PKILogger.setLevel(Level.DEBUG);
+            PKILogger.setLevel(LogLevel.DEBUG);
 
         } else if (cmd.hasOption("verbose")) {
-            PKILogger.setLevel(Level.INFO);
+            PKILogger.setLevel(LogLevel.INFO);
         }
 
         String outFile = cmd.getOptionValue("f");

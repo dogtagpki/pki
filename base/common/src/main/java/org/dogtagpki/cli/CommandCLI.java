@@ -20,7 +20,7 @@ package org.dogtagpki.cli;
 
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.util.logging.PKILogger;
-import org.dogtagpki.util.logging.PKILogger.Level;
+import org.dogtagpki.util.logging.PKILogger.LogLevel;
 
 /**
  * @author Endi S. Dewata
@@ -49,10 +49,10 @@ public class CommandCLI extends CLI {
         }
 
         if (cmd.hasOption("debug")) {
-            PKILogger.setLevel(PKILogger.Level.DEBUG);
+            PKILogger.setLevel(PKILogger.LogLevel.DEBUG);
 
         } else if (cmd.hasOption("verbose")) {
-            PKILogger.setLevel(Level.INFO);
+            PKILogger.setLevel(LogLevel.INFO);
         }
 
         execute(cmd);

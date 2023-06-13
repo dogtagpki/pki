@@ -135,10 +135,10 @@ public class OCSPClient {
         }
 
         if (cmd.hasOption("debug")) {
-            PKILogger.setLevel(PKILogger.Level.DEBUG);
+            PKILogger.setLevel(PKILogger.LogLevel.DEBUG);
 
         } else if (cmd.hasOption("verbose")) {
-            PKILogger.setLevel(PKILogger.Level.INFO);
+            PKILogger.setLevel(PKILogger.LogLevel.INFO);
         }
 
         String databaseDir = cmd.getOptionValue("d", ".");

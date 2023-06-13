@@ -14,7 +14,7 @@ import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.server.ca.CAEngineConfig;
 import org.dogtagpki.util.logging.PKILogger;
-import org.dogtagpki.util.logging.PKILogger.Level;
+import org.dogtagpki.util.logging.PKILogger.LogLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,10 +54,10 @@ public class CACertRemoveCLI extends CommandCLI {
     public void execute(CommandLine cmd) throws Exception {
 
         if (cmd.hasOption("debug")) {
-            PKILogger.setLevel(PKILogger.Level.DEBUG);
+            PKILogger.setLevel(PKILogger.LogLevel.DEBUG);
 
         } else if (cmd.hasOption("verbose")) {
-            PKILogger.setLevel(Level.INFO);
+            PKILogger.setLevel(LogLevel.INFO);
         }
 
         String[] cmdArgs = cmd.getArgs();

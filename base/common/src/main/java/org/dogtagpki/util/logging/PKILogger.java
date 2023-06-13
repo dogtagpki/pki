@@ -17,31 +17,30 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.util.logging;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class PKILogger {
 
-    public enum Level {
+    public enum LogLevel {
         ERROR, WARN, INFO, DEBUG, TRACE
-    };
-
-    public static Map<Level, java.util.logging.Level> map = new HashMap<>();
-
-    static {
-        map.put(Level.ERROR, java.util.logging.Level.SEVERE);
-        map.put(Level.WARN, java.util.logging.Level.WARNING);
-        map.put(Level.INFO, java.util.logging.Level.INFO);
-        map.put(Level.DEBUG, java.util.logging.Level.FINE);
-        map.put(Level.TRACE, java.util.logging.Level.FINEST);
     }
 
-    public static void setLevel(Level level) {
+    protected static final Map<LogLevel, Level> map = new EnumMap<>(Map.of(
+            LogLevel.ERROR, Level.SEVERE,
+            LogLevel.WARN, Level.WARNING,
+            LogLevel.INFO, Level.INFO,
+            LogLevel.DEBUG, Level.FINE,
+            LogLevel.TRACE, Level.FINEST));
 
-        java.util.logging.Level julLevel = map.get(level);
+    public static void setLevel(LogLevel level) {
 
-        java.util.logging.Logger.getLogger("org.dogtagpki").setLevel(julLevel);
-        java.util.logging.Logger.getLogger("com.netscape").setLevel(julLevel);
-        java.util.logging.Logger.getLogger("netscape").setLevel(julLevel);
+        Level julLevel = map.get(level);
+
+        Logger.getLogger("org.dogtagpki").setLevel(julLevel);
+        Logger.getLogger("com.netscape").setLevel(julLevel);
+        Logger.getLogger("netscape").setLevel(julLevel);
     }
 }

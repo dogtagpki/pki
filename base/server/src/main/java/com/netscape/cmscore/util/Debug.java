@@ -69,22 +69,22 @@ public class Debug {
 
     public static void setLevel(int level) {
 
-        PKILogger.Level logLevel;
+        PKILogger.LogLevel logLevel;
 
         if (level <= OBNOXIOUS) {
-            logLevel = PKILogger.Level.TRACE;
+            logLevel = PKILogger.LogLevel.TRACE;
 
         } else if (level <= VERBOSE) {
-            logLevel = PKILogger.Level.DEBUG;
+            logLevel = PKILogger.LogLevel.DEBUG;
 
         } else if (level <= INFORM) {
-            logLevel = PKILogger.Level.INFO;
+            logLevel = PKILogger.LogLevel.INFO;
 
         } else if (level <= WARN) {
-            logLevel = PKILogger.Level.WARN;
+            logLevel = PKILogger.LogLevel.WARN;
 
         } else {
-            logLevel = PKILogger.Level.ERROR;
+            logLevel = PKILogger.LogLevel.ERROR;
         }
 
         PKILogger.setLevel(logLevel);

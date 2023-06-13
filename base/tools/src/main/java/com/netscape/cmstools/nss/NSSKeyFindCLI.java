@@ -27,7 +27,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.util.logging.PKILogger;
-import org.dogtagpki.util.logging.PKILogger.Level;
+import org.dogtagpki.util.logging.PKILogger.LogLevel;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
@@ -77,10 +77,10 @@ public class NSSKeyFindCLI extends CommandCLI {
     public void execute(CommandLine cmd) throws Exception {
 
         if (cmd.hasOption("debug")) {
-            PKILogger.setLevel(PKILogger.Level.DEBUG);
+            PKILogger.setLevel(PKILogger.LogLevel.DEBUG);
 
         } else if (cmd.hasOption("verbose")) {
-            PKILogger.setLevel(Level.INFO);
+            PKILogger.setLevel(LogLevel.INFO);
         }
 
         MainCLI mainCLI = (MainCLI) getRoot();
