@@ -78,22 +78,30 @@ public class KRAService implements IService {
     @Override
     public boolean serviceRequest(Request r) throws EBaseException {
 
-        logger.info("KRA services request " + r.getRequestId());
+        logger.info("KRAService: Processing request " + r.getRequestId().toHexString());
 
-        IService s = mServices.get(r.getRequestType());
+        String type = r.getRequestType();
+        logger.info("KRAService: - type: " + type);
+
+        IService s = mServices.get(type);
+        logger.info("KRAService: - service: " + s);
 
         if (s == null) {
+            logger.error("KRAService: Unable to find service " + type);
             r.setExtData(Request.RESULT, Request.RES_ERROR);
             r.setExtData(Request.ERROR, new EBaseException(
                     CMS.getUserMessage("CMS_BASE_INVALID_OPERATION")));
             return true;
         }
+
+        logger.info("KRAService: - service class: " + s.getClass().getSimpleName());
+
         try {
             return s.serviceRequest(r);
         } catch (EBaseException e) {
+            logger.error("KRAService: Unable to process request: " + e.getMessage(), e);
             r.setExtData(Request.RESULT, Request.RES_ERROR);
             r.setExtData(Request.ERROR, e);
-            logger.error("KRAService serviceRequest " + e, e);
             if ((e.getMessage()).equals(CMS.getUserMessage("CMS_KRA_INVALID_TRANSPORT_CERT"))) {
                 r.setRequestStatus(RequestStatus.REJECTED);
                 return true;
