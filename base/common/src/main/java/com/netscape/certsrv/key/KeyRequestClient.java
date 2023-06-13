@@ -17,7 +17,10 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.key;
 
-import javax.ws.rs.core.Response;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.ws.rs.client.Entity;
 
 import com.netscape.certsrv.base.RESTMessage;
 import com.netscape.certsrv.client.Client;
@@ -32,15 +35,8 @@ public class KeyRequestClient extends Client {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyRequestClient.class);
 
-    public KeyRequestResource keyRequestClient;
-
     public KeyRequestClient(PKIClient client) throws Exception {
         super(client, "kra", "agent/keyrequests");
-        init();
-    }
-
-    public void init() throws Exception {
-        keyRequestClient = createProxy(KeyRequestResource.class);
     }
 
     /**
@@ -98,16 +94,16 @@ public class KeyRequestClient extends Client {
             Integer maxResults,
             Integer maxTime,
             String realm) throws Exception {
-        Response response = keyRequestClient.listRequests(
-                requestState,
-                requestType,
-                clientKeyID,
-                start,
-                pageSize,
-                maxResults,
-                maxTime,
-                realm);
-        return client.getEntity(response, KeyRequestInfoCollection.class);
+        Map<String, Object> params = new HashMap<>();
+        if (requestState != null) params.put("requestState", requestState);
+        if (requestType != null) params.put("requestType", requestType);
+        if (clientKeyID != null) params.put("clientKeyID", clientKeyID);
+        if (start != null) params.put("start", start.toHexString());
+        if (pageSize != null) params.put("pageSize", pageSize);
+        if (maxResults != null) params.put("maxResults", maxResults);
+        if (maxTime != null) params.put("maxTime", maxTime);
+        if (realm != null) params.put("realm", realm);
+        return get(null, params, KeyRequestInfoCollection.class);
     }
 
     /**
@@ -120,8 +116,7 @@ public class KeyRequestClient extends Client {
         if (id == null) {
             throw new IllegalArgumentException("Request Id must be specified.");
         }
-        Response response = keyRequestClient.getRequestInfo(id);
-        return client.getEntity(response, KeyRequestInfo.class);
+        return get(id.toHexString(), KeyRequestInfo.class);
     }
 
     /**
@@ -133,8 +128,7 @@ public class KeyRequestClient extends Client {
         if (id == null) {
             throw new IllegalArgumentException("Request Id must be specified.");
         }
-        Response response = keyRequestClient.approveRequest(id);
-        client.getEntity(response, Void.class);
+        post(id.toHexString() + "/approve", Void.class);
     }
 
     /**
@@ -146,8 +140,7 @@ public class KeyRequestClient extends Client {
         if (id == null) {
             throw new IllegalArgumentException("Request Id must be specified.");
         }
-        Response response = keyRequestClient.rejectRequest(id);
-        client.getEntity(response, Void.class);
+        post(id.toHexString() + "/reject", Void.class);
     }
 
     /**
@@ -159,8 +152,7 @@ public class KeyRequestClient extends Client {
         if (id == null) {
             throw new IllegalArgumentException("Request Id must be specified.");
         }
-        Response response = keyRequestClient.cancelRequest(id);
-        client.getEntity(response, Void.class);
+        post(id.toHexString() + "/cancel", Void.class);
     }
 
     /**
@@ -178,7 +170,7 @@ public class KeyRequestClient extends Client {
 
         logger.info("Submitting " + request.getClassName() + " to KRA");
 
-        Response response = keyRequestClient.submitRequest(request);
-        return client.getEntity(response, KeyRequestResponse.class);
+        Entity<RESTMessage> entity = client.entity(request);
+        return post(null, null, entity, KeyRequestResponse.class);
     }
 }
