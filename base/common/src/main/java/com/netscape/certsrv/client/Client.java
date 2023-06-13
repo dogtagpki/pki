@@ -74,17 +74,6 @@ public class Client {
         clients.remove(name);
     }
 
-    public <T> T createProxy(Class<T> clazz) throws Exception {
-
-        String path = subsystem;
-
-        if (prefix != null) {
-            path += "/" + prefix;
-        }
-
-        return client.createProxy(path, clazz);
-    }
-
     public String getTargetPath(String suffix) {
 
         StringBuilder sb = new StringBuilder(subsystem);

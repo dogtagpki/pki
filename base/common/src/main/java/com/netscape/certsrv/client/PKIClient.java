@@ -37,7 +37,6 @@ import javax.ws.rs.core.Response.StatusType;
 
 import org.dogtagpki.common.Info;
 import org.dogtagpki.common.InfoClient;
-import org.jboss.resteasy.client.jaxrs.ProxyBuilder;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 
 import com.netscape.certsrv.base.PKIException;
@@ -95,17 +94,6 @@ public class PKIClient implements AutoCloseable {
 
     public MediaType getMessageFormat() {
         return messageFormat;
-    }
-
-    public <T> T createProxy(String path, Class<T> clazz) throws Exception {
-
-        WebTarget target = connection.target(path);
-
-        ProxyBuilder<T> builder = ProxyBuilder.builder(clazz, target);
-        builder.defaultConsumes(messageFormat);
-        builder.defaultProduces(messageFormat);
-
-        return builder.build();
     }
 
     public String getSubsystem() {
