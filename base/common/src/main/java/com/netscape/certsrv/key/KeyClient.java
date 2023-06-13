@@ -21,9 +21,11 @@ import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import javax.ws.rs.core.Response;
+import javax.ws.rs.client.Entity;
 
 import org.dogtagpki.common.Info;
 import org.dogtagpki.common.Version;
@@ -49,7 +51,6 @@ public class KeyClient extends Client {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyClient.class);
 
-    public KeyResource keyClient;
     public KeyRequestClient keyRequestClient;
 
     private CryptoProvider crypto;
@@ -60,7 +61,7 @@ public class KeyClient extends Client {
     private boolean useOAEP = false;
 
     public KeyClient(PKIClient client, String subsystem) throws Exception {
-        super(client, subsystem, "key");
+        super(client, subsystem, "agent/keys");
         init();
         crypto = client.getCrypto();
 
@@ -93,7 +94,6 @@ public class KeyClient extends Client {
     }
 
     public void init() throws Exception {
-        keyClient = createProxy(KeyResource.class);
         keyRequestClient = new KeyRequestClient(client);
     }
 
@@ -122,24 +122,54 @@ public class KeyClient extends Client {
      *
      * @param clientKeyID -- Client Key Identifier
      * @param status -- Status of the keys to be listed
-     * @param maxSize -- Maximum number of keys to be fetched
+     * @param maxResults -- Maximum number of keys to be fetched
      * @param maxTime -- Maximum time for the operation to take
      * @param start -- Start index of list
      * @param size -- Size of the list to be returned.
      * @param realm - authz realm
      * @return a KeyInfoCollection object.
      */
-    public KeyInfoCollection listKeys(String clientKeyID, String status, Integer maxSize, Integer maxTime,
-            Integer start, Integer size, String realm, String ownerName) throws Exception {
-        Response response = keyClient.listKeys(clientKeyID, status, maxSize, maxTime, start, size, realm, ownerName);
-        return client.getEntity(response, KeyInfoCollection.class);
+    public KeyInfoCollection listKeys(
+            String clientKeyID,
+            String status,
+            Integer maxResults,
+            Integer maxTime,
+            Integer start,
+            Integer size,
+            String realm,
+            String ownerName) throws Exception {
+        Map<String, Object> params = new HashMap<>();
+        if (clientKeyID != null) params.put("clientKeyID", clientKeyID);
+        if (status != null) params.put("status", status);
+        if (maxResults != null) params.put("maxResults", maxResults);
+        if (maxTime != null) params.put("maxTime", maxTime);
+        if (start != null) params.put("start", start);
+        if (size != null) params.put("size", size);
+        if (realm != null) params.put("realm", realm);
+        if (ownerName != null) params.put("owner", ownerName);
+        return get(null, params, KeyInfoCollection.class);
     }
 
     /* for backward compatibility */
-    public KeyInfoCollection listKeys(String clientKeyID, String status, Integer maxSize, Integer maxTime,
-            Integer start, Integer size, String ownerName) throws Exception {
-        Response response = keyClient.listKeys(clientKeyID, status, maxSize, maxTime, start, size, ownerName, null);
-        return client.getEntity(response, KeyInfoCollection.class);
+    @Deprecated(since="11.5.0", forRemoval=true)
+    public KeyInfoCollection listKeys(
+            String clientKeyID,
+            String status,
+            Integer maxResults,
+            Integer maxTime,
+            Integer start,
+            Integer size,
+            String ownerName) throws Exception {
+        Map<String, Object> params = new HashMap<>();
+        if (clientKeyID != null) params.put("clientKeyID", clientKeyID);
+        if (status != null) params.put("status", status);
+        if (maxResults != null) params.put("maxResults", maxResults);
+        if (maxTime != null) params.put("maxTime", maxTime);
+        if (start != null) params.put("start", start);
+        if (size != null) params.put("size", size);
+        // send ownerName as realm
+        if (ownerName != null) params.put("realm", ownerName);
+        return get(null, params, KeyInfoCollection.class);
     }
 
     /**
@@ -228,8 +258,7 @@ public class KeyClient extends Client {
         if (id == null) {
             throw new IllegalArgumentException("Key Id must be specified.");
         }
-        Response response = keyClient.getKeyInfo(id);
-        return client.getEntity(response, KeyInfo.class);
+        return get(id.toHexString(), KeyInfo.class);
     }
 
     /**
@@ -241,8 +270,7 @@ public class KeyClient extends Client {
         if (clientKeyID == null) {
             throw new IllegalArgumentException("Client Key Id must be specified.");
         }
-        Response response = keyClient.getActiveKeyInfo(clientKeyID);
-        return client.getEntity(response, KeyInfo.class);
+        return get("active/" + clientKeyID, KeyInfo.class);
     }
 
     /**
@@ -259,8 +287,9 @@ public class KeyClient extends Client {
                 && !status.equalsIgnoreCase(KeyResource.KEY_STATUS_INACTIVE)) {
             throw new IllegalArgumentException("Invalid status value.");
         }
-        Response response = keyClient.modifyKeyStatus(id, status);
-        client.getEntity(response, Void.class);
+        Map<String, Object> params = new HashMap<>();
+        if (status != null) params.put("status", status);
+        post(id.toHexString(), params, null, Void.class);
     }
 
     /**
@@ -359,8 +388,8 @@ public class KeyClient extends Client {
 
         logger.info("Submitting key retrieval request to KRA");
 
-        Response response = keyClient.retrieveKey(data);
-        return client.getEntity(response, KeyData.class);
+        Entity<KeyRecoveryRequest> entity = client.entity(data);
+        return post("retrieve", null, entity, KeyData.class);
     }
 
     public SymmetricKey generateSessionKey() throws Exception {
