@@ -342,4 +342,12 @@ public class RESTMessage implements JSONSerializer {
         Element element = document.getDocumentElement();
         return fromDOM(element);
     }
+
+    public String toString() {
+        try {
+            return toJSON();
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
