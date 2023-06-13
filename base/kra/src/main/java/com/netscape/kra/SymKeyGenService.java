@@ -37,6 +37,7 @@ import com.netscape.certsrv.key.SymKeyGenerationRequest;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.SymKeyGenerationProcessedEvent;
 import com.netscape.certsrv.request.IService;
+import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.cms.servlet.key.KeyRequestDAO;
 import com.netscape.cmscore.apps.CMS;
@@ -84,22 +85,30 @@ public class SymKeyGenService implements IService {
     @Override
     public boolean serviceRequest(Request request)
             throws EBaseException {
-        String id = request.getRequestId().toString();
+
+        RequestId id = request.getRequestId();
+        logger.info("SymKeyGenService: Generating symmetric key for request " + id.toHexString());
+
         String clientKeyId = request.getExtDataInString(Request.SECURITY_DATA_CLIENT_KEY_ID);
+        logger.info("SymKeyGenService: - client key ID: " + clientKeyId);
+
         String algorithm = request.getExtDataInString(Request.KEY_GEN_ALGORITHM);
+        logger.info("SymKeyGenService: - algorithm: " + algorithm);
+
         String realm = request.getRealm();
+        logger.info("SymKeyGenService: - realm: " + realm);
 
         String usageStr = request.getExtDataInString(Request.KEY_GEN_USAGES);
         List<String> usages = new ArrayList<>(
                 Arrays.asList(StringUtils.split(usageStr, ",")));
+        logger.info("SymKeyGenService: - usages: " + usages);
 
         String keySizeStr = request.getExtDataInString(Request.KEY_GEN_SIZE);
         int keySize = Integer.parseInt(keySizeStr);
-
-        logger.debug("SymKeyGenService: request ID: " + id);
-        logger.debug("SymKeyGenService: algorithm: " + algorithm);
+        logger.info("SymKeyGenService: - key size: " + keySize);
 
         String owner = request.getExtDataInString(Request.ATTR_REQUEST_OWNER);
+        logger.info("SymKeyGenService: - owner: " + owner);
 
         KRAEngine engine = KRAEngine.getInstance();
         Auditor auditor = engine.getAuditor();
@@ -107,6 +116,7 @@ public class SymKeyGenService implements IService {
 
         //Check here even though restful layer checks for this.
         if (algorithm == null || clientKeyId == null || keySize <= 0) {
+            logger.error("SymKeyGenService: Missing client key ID or algorithm or invalid key size");
             auditor.log(new SymKeyGenerationProcessedEvent(
                     auditSubjectID,
                     ILogger.FAILURE,
@@ -119,10 +129,13 @@ public class SymKeyGenService implements IService {
 
         KRAEngineConfig configStore = engine.getConfig();
         boolean allowEncDecrypt_archival = configStore.getBoolean("kra.allowEncDecrypt.archival", false);
+        logger.info("SymKeyGenService: - allowEncDecrypt archival: " + allowEncDecrypt_archival);
 
         CryptoToken token = mStorageUnit.getToken();
         KeyGenAlgorithm kgAlg = KeyRequestDAO.SYMKEY_GEN_ALGORITHMS.get(algorithm);
+
         if (kgAlg == null) {
+            logger.error("SymKeyGenService: Invalid algorithm: " + algorithm);
             throw new EBaseException("Invalid algorithm");
         }
 
@@ -161,6 +174,7 @@ public class SymKeyGenService implements IService {
             keyUsages[1] = SymmetricKey.Usage.ENCRYPT;
         }
 
+        logger.info("SymKeyGenService: Generating symmetric key");
         SymmetricKey sk = null;
         try {
             sk = CryptoUtil.generateKey(token, kgAlg, keySize, keyUsages, true);
@@ -178,10 +192,6 @@ public class SymKeyGenService implements IService {
             throw new EBaseException(message, e);
         }
 
-        byte[] publicKey = null;
-        byte privateSecurityData[] = null;
-        WrappingParams params = null;
-
         if (sk == null) {
             String message = "Unable to generate security data";
             logger.error("SymKeyGenService: " + message);
@@ -194,6 +204,12 @@ public class SymKeyGenService implements IService {
                     message));
             throw new EBaseException(message);
         }
+
+        logger.info("SymKeyGenService: Wrapping symmetric key");
+
+        byte[] publicKey = null;
+        byte privateSecurityData[] = null;
+        WrappingParams params = null;
 
         try {
             params = mStorageUnit.getWrappingParams(allowEncDecrypt_archival);
@@ -211,7 +227,8 @@ public class SymKeyGenService implements IService {
             throw new EBaseException(message, e);
         }
 
-        // create key record
+        logger.info("SymKeyGenService: Creating key record");
+
         KeyRecord rec = new KeyRecord(null, publicKey,
                 privateSecurityData, owner,
                 algorithm, owner);
@@ -283,6 +300,8 @@ public class SymKeyGenService implements IService {
                 clientKeyId,
                 new KeyId(serialNo),
                 "None"));
+
+        logger.info("SymKeyGenService: Updating key request record");
 
         request.setExtData(Request.RESULT, Request.RES_SUCCESS);
         engine.getRequestRepository().updateRequest(request);
