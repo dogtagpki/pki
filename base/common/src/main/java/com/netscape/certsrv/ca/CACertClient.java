@@ -19,10 +19,12 @@ package com.netscape.certsrv.ca;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
 
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
@@ -35,7 +37,6 @@ import com.netscape.certsrv.cert.CertDataInfos;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertRequestInfos;
-import com.netscape.certsrv.cert.CertResource;
 import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.cert.CertRevokeRequest;
 import com.netscape.certsrv.cert.CertSearchRequest;
@@ -55,7 +56,6 @@ public class CACertClient extends Client {
 
     public final static Logger logger = LoggerFactory.getLogger(CACertClient.class);
 
-    public CertResource certClient;
     public CACertRequestClient certRequestClient;
     public CAAgentCertClient agentCertClient;
     public CAAgentCertRequestClient agentCertRequestClient;
@@ -65,20 +65,18 @@ public class CACertClient extends Client {
     }
 
     public CACertClient(PKIClient client, String subsystem) throws Exception {
-        super(client, subsystem, "cert");
+        super(client, subsystem, "certs");
         init();
     }
 
     public void init() throws Exception {
-        certClient = createProxy(CertResource.class);
         certRequestClient = new CACertRequestClient(client);
         agentCertClient = new CAAgentCertClient(client);
         agentCertRequestClient = new CAAgentCertRequestClient(client);
     }
 
     public CertData getCert(CertId id) throws Exception {
-        Response response = certClient.getCert(id);
-        return client.getEntity(response, CertData.class);
+        return get(id.toHexString(), CertData.class);
     }
 
     public CertData reviewCert(CertId id) throws Exception {
@@ -86,14 +84,22 @@ public class CACertClient extends Client {
     }
 
     public CertDataInfos listCerts(String status, Integer maxResults, Integer maxTime, Integer start, Integer size) throws Exception {
-        Response response = certClient.listCerts(status, maxResults, maxTime, start, size);
-        return client.getEntity(response, CertDataInfos.class);
+        Map<String, Object> params = new HashMap<>();
+        if (status != null) params.put("status", status);
+        if (maxResults != null) params.put("maxResults", maxResults);
+        if (maxTime != null) params.put("maxTime", maxTime);
+        if (start != null) params.put("start", start);
+        if (size != null) params.put("size", size);
+        return get(null, params, CertDataInfos.class);
     }
 
     public CertDataInfos findCerts(CertSearchRequest data, Integer start, Integer size) throws Exception {
+        Map<String, Object> params = new HashMap<>();
+        if (start != null) params.put("start", start);
+        if (size != null) params.put("size", size);
         String searchRequest = (String) client.marshall(data);
-        Response response = certClient.searchCerts(searchRequest, start, size);
-        return client.getEntity(response, CertDataInfos.class);
+        Entity<String> entity = client.entity(searchRequest);
+        return post("search", params, entity, CertDataInfos.class);
     }
 
     public CertRequestInfo revokeCert(CertId id, CertRevokeRequest request) throws Exception {
