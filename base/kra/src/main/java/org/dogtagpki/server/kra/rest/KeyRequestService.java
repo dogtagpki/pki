@@ -448,6 +448,8 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
             throw new BadRequestException("Invalid request class." + e, e);
         }
 
+        logger.info("KeyRequestService: Request class: " + request.getClass().getSimpleName());
+
         if (request instanceof KeyArchivalRequest) {
             return archiveKey(new KeyArchivalRequest(data));
 
@@ -470,6 +472,8 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
             throw new BadRequestException("Invalid key generation request.");
         }
 
+        String realm = data.getRealm();
+
         KRAEngine engine = (KRAEngine) getCMSEngine();
 
         KeyRequestDAO dao = new KeyRequestDAO();
@@ -479,7 +483,6 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
                 throw new UnauthorizedException("Key generation must be performed by an agent");
             }
 
-            String realm = data.getRealm();
             if (realm != null) {
                 AuthzSubsystem authz = engine.getAuthzSubsystem();
                 authz.checkRealm(realm, getAuthToken(), null, "certServer.kra.requests.symkey", "execute");
@@ -490,14 +493,19 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
                     data.getClientKeyId());
 
             return createCreatedResponse(response, new URI(response.getRequestInfo().getRequestURL()));
+
         } catch (EAuthzAccessDenied e) {
+            logger.error("KeyRequestService: Unauthorized access to realm " + realm, e);
             auditSymKeyGenRequestMade(null, ILogger.FAILURE, data.getClientKeyId());
-            throw new UnauthorizedException("Not authorized to generate request in this realm", e);
+            throw new UnauthorizedException("Unauthorized access to realm " + realm, e);
+
         } catch (EAuthzUnknownRealm e) {
+            logger.error("KeyRequestService: Unknown realm: " + realm, e);
             auditSymKeyGenRequestMade(null, ILogger.FAILURE, data.getClientKeyId());
-            throw new BadRequestException("Invalid realm", e);
+            throw new BadRequestException("Unknown realm: " + realm);
+
         } catch (EBaseException | URISyntaxException e) {
-            e.printStackTrace();
+            logger.error("KeyRequestService: Unable to generate symmetric key: " + e.getMessage(), e);
             auditSymKeyGenRequestMade(null, ILogger.FAILURE, data.getClientKeyId());
             throw new PKIException(e.toString(), e);
         }
