@@ -1493,15 +1493,12 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
         return mName;
     }
 
-    public String getNickName() {
-        return getNickname();
-    }
-
     /**
      * Returns the nickname of the transport certificate.
      *
      * @return transport certificate nickname.
      */
+    @Override
     public String getNickname() {
         try {
             return mTransportKeyUnit.getNickName();
