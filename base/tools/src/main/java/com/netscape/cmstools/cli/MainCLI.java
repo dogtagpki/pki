@@ -49,7 +49,7 @@ import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.common.Info;
 import org.dogtagpki.nss.NSSDatabase;
 import org.dogtagpki.util.logging.PKILogger;
-import org.dogtagpki.util.logging.PKILogger.Level;
+import org.dogtagpki.util.logging.PKILogger.LogLevel;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.crypto.CryptoToken;
@@ -332,10 +332,10 @@ public class MainCLI extends CLI {
     public void parseOptions(CommandLine cmd) throws Exception {
 
         if (cmd.hasOption("debug")) {
-            PKILogger.setLevel(PKILogger.Level.DEBUG);
+            PKILogger.setLevel(PKILogger.LogLevel.DEBUG);
 
         } else if (cmd.hasOption("verbose")) {
-            PKILogger.setLevel(Level.INFO);
+            PKILogger.setLevel(LogLevel.INFO);
         }
 
         output = cmd.getOptionValue("output");

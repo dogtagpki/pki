@@ -184,7 +184,7 @@ public class PKCS12Export {
         }
 
         if (debug) {
-            PKILogger.setLevel(PKILogger.Level.DEBUG);
+            PKILogger.setLevel(PKILogger.LogLevel.DEBUG);
         }
 
         // TODO: validate parameters

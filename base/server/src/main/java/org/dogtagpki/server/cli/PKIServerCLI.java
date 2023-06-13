@@ -26,7 +26,7 @@ import org.apache.commons.cli.UnrecognizedOptionException;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.util.logging.PKILogger;
-import org.dogtagpki.util.logging.PKILogger.Level;
+import org.dogtagpki.util.logging.PKILogger.LogLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,10 +81,10 @@ public class PKIServerCLI extends CLI {
         CommandLine cmd = parser.parse(options, args, true);
 
         if (cmd.hasOption("debug")) {
-            PKILogger.setLevel(Level.DEBUG);
+            PKILogger.setLevel(LogLevel.DEBUG);
 
         } else if (cmd.hasOption("verbose")) {
-            PKILogger.setLevel(Level.INFO);
+            PKILogger.setLevel(LogLevel.INFO);
         }
 
         String[] cmdArgs = cmd.getArgs();
