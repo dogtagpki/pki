@@ -180,23 +180,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  kraGenerateKeyPair  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.connector.GenerateKeyPairServlet  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> true        </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> kra         </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> kraGenerateKeyPair </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> certUserDBAuthMgr </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.kra.GenerateKeyPair </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  kraindex  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.base.IndexServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
@@ -744,11 +727,6 @@
    <servlet-mapping>
       <servlet-name>  kraListRequests  </servlet-name>
       <url-pattern>   /agent/kra/listRequests.html  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  kraGenerateKeyPair  </servlet-name>
-      <url-pattern>   /agent/kra/GenerateKeyPair  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
