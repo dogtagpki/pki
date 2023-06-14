@@ -23,6 +23,8 @@ import java.util.Locale;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -46,6 +48,18 @@ import com.netscape.kra.TransportKeyUnit;
 /**
  * This servlet retrieves the transport certificate from DRM.
  */
+@WebServlet(
+        name = "kraGetTransportCert",
+        urlPatterns = "/admin/kra/getTransportCert",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="false"),
+                @WebInitParam(name="authority",     value="kra"),
+                @WebInitParam(name="ID",            value="kraGetTransportCert"),
+                @WebInitParam(name="AuthMgr",       value="TokenAuth"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="resourceID",    value="certServer.kra.getTransportCert")
+        }
+)
 public class GetTransportCert extends CMSServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GetTransportCert.class);
