@@ -23,6 +23,8 @@ import java.io.OutputStream;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -47,9 +49,20 @@ import com.netscape.cmscore.request.RequestQueue;
  * netkey TPS
  *
  * @author Christina Fu (cfu)
- * @version $Revision$, $Date$
  */
 //XXX add auditing later
+@WebServlet(
+        name = "kraTokenKeyRecovery",
+        urlPatterns = "/agent/kra/TokenKeyRecovery",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="true"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="authority",     value="kra"),
+                @WebInitParam(name="ID",            value="kraTokenKeyRecovery"),
+                @WebInitParam(name="AuthMgr",       value="certUserDBAuthMgr"),
+                @WebInitParam(name="resourceID",    value="certServer.kra.TokenKeyRecovery")
+        }
+)
 public class TokenKeyRecoveryServlet extends CMSServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TokenKeyRecoveryServlet.class);
