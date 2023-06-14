@@ -25,6 +25,8 @@ import java.util.Locale;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -48,9 +50,21 @@ import com.netscape.kra.KeyRecoveryAuthority;
 
 /**
  * View the Key Recovery Request
- *
- * @version $Revision$, $Date$
  */
+@WebServlet(
+        name = "kraKRAExamineRecovery",
+        urlPatterns = "/agent/kra/examineRecovery",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="true"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="authority",     value="kra"),
+                @WebInitParam(name="interface",     value="agent"),
+                @WebInitParam(name="templatePath",  value="/agent/kra/examineRecovery.template"),
+                @WebInitParam(name="ID",            value="kraKRAExamineRecovery"),
+                @WebInitParam(name="AuthMgr",       value="certUserDBAuthMgr"),
+                @WebInitParam(name="resourceID",    value="certServer.kra.key")
+        }
+)
 public class ExamineRecovery extends CMSServlet {
 
     /**
