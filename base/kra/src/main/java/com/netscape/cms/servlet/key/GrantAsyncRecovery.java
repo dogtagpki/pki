@@ -23,6 +23,8 @@ import java.util.Locale;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -50,6 +52,19 @@ import com.netscape.kra.KeyRecoveryAuthority;
  * Approve an asynchronous key recovery request
  *
  */
+@WebServlet(
+        name = "kraKRAGrantAsyncRecovery",
+        urlPatterns = "/agent/kra/grantAsyncRecovery",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="true"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="authority",     value="kra"),
+                @WebInitParam(name="templatePath",  value="/agent/kra/grantAsyncRecovery.template"),
+                @WebInitParam(name="ID",            value="kraKRAGrantAsyncRecovery"),
+                @WebInitParam(name="AuthMgr",       value="certUserDBAuthMgr"),
+                @WebInitParam(name="resourceID",    value="certServer.kra.key")
+        }
+)
 public class GrantAsyncRecovery extends CMSServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GrantAsyncRecovery.class);
