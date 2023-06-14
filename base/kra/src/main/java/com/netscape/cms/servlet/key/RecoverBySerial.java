@@ -26,6 +26,8 @@ import java.util.Vector;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -56,9 +58,20 @@ import com.netscape.kra.KeyRecoveryAuthority;
 
 /**
  * A class representing a recoverBySerial servlet.
- *
- * @version $Revision$, $Date$
  */
+@WebServlet(
+        name = "kraKRARecoverBySerial",
+        urlPatterns = "/agent/kra/recoverBySerial",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="true"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="authority",     value="kra"),
+                @WebInitParam(name="templatePath",  value="/agent/kra/recoverBySerial.template"),
+                @WebInitParam(name="ID",            value="kraKRARecoverBySerial"),
+                @WebInitParam(name="AuthMgr",       value="certUserDBAuthMgr"),
+                @WebInitParam(name="resourceID",    value="certServer.kra.key")
+        }
+)
 public class RecoverBySerial extends CMSServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RecoverBySerial.class);
