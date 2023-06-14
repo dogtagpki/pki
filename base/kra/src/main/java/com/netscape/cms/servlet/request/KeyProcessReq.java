@@ -19,6 +19,8 @@ package com.netscape.cms.servlet.request;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.base.ArgBlock;
@@ -26,6 +28,20 @@ import com.netscape.cmscore.base.ArgBlock;
 /**
  * Display key request detail to the user.
  */
+@WebServlet(
+        name = "kraKRAProcessReq",
+        urlPatterns = "/agent/kra/processReq",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="true"),
+                @WebInitParam(name="parser",        value="KeyReqParser.PARSER"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="authority",     value="kra"),
+                @WebInitParam(name="templatePath",  value="/agent/kra/processReq.template"),
+                @WebInitParam(name="ID",            value="kraKRAProcessReq"),
+                @WebInitParam(name="AuthMgr",       value="certUserDBAuthMgr"),
+                @WebInitParam(name="resourceID",    value="certServer.kra.request")
+        }
+)
 public class KeyProcessReq extends ProcessReq {
 
     public KeyProcessReq() {
