@@ -27,6 +27,8 @@ import java.util.Vector;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -48,9 +50,20 @@ import com.netscape.kra.KeyRecoveryAuthority;
 
 /**
  * Check to see if a Key Recovery Request has been approved
- *
- * @version $Revision$, $Date$
  */
+@WebServlet(
+        name = "kraGenerateKeyPair",
+        urlPatterns = "/agent/kra/getApprovalStatus",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="true"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="authority",     value="kra"),
+                @WebInitParam(name="templatePath",  value="/agent/kra/getApprovalStatus.template"),
+                @WebInitParam(name="ID",            value="kraKRAGetApprovalStatus"),
+                @WebInitParam(name="AuthMgr",       value="certUserDBAuthMgr"),
+                @WebInitParam(name="resourceID",    value="certServer.kra.request.status")
+        }
+)
 public class GetApprovalStatus extends CMSServlet {
 
     /**
