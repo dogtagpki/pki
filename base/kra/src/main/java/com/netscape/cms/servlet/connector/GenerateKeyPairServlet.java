@@ -23,6 +23,8 @@ import java.util.Hashtable;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -48,9 +50,20 @@ import com.netscape.cmscore.request.RequestQueue;
  * netkey RA.
  *
  * @author Christina Fu (cfu)
- * @version $Revision$, $Date$
  */
 //XXX add auditing later
+@WebServlet(
+        name = "kraGenerateKeyPair",
+        urlPatterns = "/agent/kra/GenerateKeyPair",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="true"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="authority",     value="kra"),
+                @WebInitParam(name="ID",            value="kraGenerateKeyPair"),
+                @WebInitParam(name="AuthMgr",       value="certUserDBAuthMgr"),
+                @WebInitParam(name="resourceID",    value="certServer.kra.GenerateKeyPair")
+        }
+)
 public class GenerateKeyPairServlet extends CMSServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GenerateKeyPairServlet.class);
