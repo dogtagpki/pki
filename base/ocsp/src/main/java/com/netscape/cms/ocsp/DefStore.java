@@ -67,7 +67,7 @@ import com.netscape.cmsutil.ocsp.UnknownInfo;
  */
 public class DefStore implements IDefStore, IExtendedPluginInfo {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DefStore.class);
+    public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DefStore.class);
 
     // refreshInSec is useful in the master-clone situation.
     // clone does not know that the CRL has been updated in
@@ -77,7 +77,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     private static final String PROP_REFRESH_IN_SEC = "refreshInSec";
     private static final int DEF_REFRESH_IN_SEC = 0;
 
-    public static final BigInteger BIG_ZERO = new BigInteger("0");
+    public static final BigInteger BIG_ZERO = BigInteger.ZERO;
     public static final Long MINUS_ONE = Long.valueOf(-1);
 
     private static final String PROP_BY_NAME =
@@ -234,9 +234,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     }
 
     public void deleteCRLsInCA(String caName, boolean oldCRLs) throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
-
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             CRLIssuingPointRecord cp = readCRLIssuingPoint(caName);
 
             if (cp == null)
@@ -272,9 +270,6 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                 }
                 s.delete(rep_dn);
             }
-        } finally {
-            if (s != null)
-                s.close();
         }
     }
 
@@ -510,26 +505,20 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     public Enumeration<CRLIssuingPointRecord> searchCRLIssuingPointRecord(String filter,
             int maxSize)
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
         Vector<CRLIssuingPointRecord> v = new Vector<>();
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             DBSearchResults sr = s.search(getBaseDN(), filter, maxSize);
             while (sr.hasMoreElements()) {
                 v.add((CRLIssuingPointRecord) sr.nextElement());
             }
-        } finally {
-            if (s != null)
-                s.close();
         }
         return v.elements();
     }
 
     public synchronized void modifyCRLIssuingPointRecord(String name,
             ModificationSet mods) throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
-
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             String dn = "cn=" +
                     transformDN(name) + "," + getBaseDN();
 
@@ -537,9 +526,6 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         } catch (EBaseException e) {
             logger.error("modifyCRLIssuingPointRecord: " + e.getMessage(), e);
             throw e;
-        } finally {
-            if (s != null)
-                s.close();
         }
     }
 
@@ -549,19 +535,15 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     @Override
     public CRLIssuingPointRecord readCRLIssuingPoint(String name)
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
         CRLIssuingPointRecord rec = null;
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             String dn = "cn=" +
                     transformDN(name) + "," + getBaseDN();
 
             if (s != null) {
                 rec = (CRLIssuingPointRecord) s.read(dn);
             }
-        } finally {
-            if (s != null)
-                s.close();
         }
         return rec;
     }
@@ -577,20 +559,13 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     @Override
     public void deleteCRLIssuingPointRecord(String id)
             throws EBaseException {
-
-        DBSSession s = null;
-
-        try {
-            s = dbSubsystem.createSession();
+        try (DBSSession s = dbSubsystem.createSession()) {
             String name = "cn=" + transformDN(id) + "," + getBaseDN();
             logger.debug("DefStore::deleteCRLIssuingPointRecord: Attempting to delete: " + name);
             if (s != null) {
                 deleteAllCRLsInCA(id);
                 s.delete(name);
             }
-        } finally {
-            if (s != null)
-                s.close();
         }
     }
 
@@ -600,33 +575,24 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     @Override
     public void addCRLIssuingPoint(String name, CRLIssuingPointRecord rec)
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
-
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             String dn = "cn=" +
                     transformDN(name) + "," + getBaseDN();
 
             s.add(dn, rec);
-        } finally {
-            if (s != null)
-                s.close();
         }
     }
 
     public Enumeration<RepositoryRecord> searchRepository(String name, String filter)
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
         Vector<RepositoryRecord> v = new Vector<>();
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             DBSearchResults sr = s.search("cn=" + transformDN(name) + "," + getBaseDN(),
                         filter);
             while (sr.hasMoreElements()) {
                 v.add((RepositoryRecord) sr.nextElement());
             }
-        } finally {
-            if (s != null)
-                s.close();
         }
         return v.elements();
     }
@@ -638,51 +604,37 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     public void addRepository(String name, String thisUpdate,
             RepositoryRecord rec)
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
-
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             String dn = "ou=" + thisUpdate + ",cn=" +
                     transformDN(name) + "," + getBaseDN();
 
             s.add(dn, rec);
-        } finally {
-            if (s != null)
-                s.close();
         }
     }
 
     public void modifyCertRecord(String name, String thisUpdate,
             String sno,
             ModificationSet mods) throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
-
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             String dn = "cn=" + sno + ",ou=" + thisUpdate +
                     ",cn=" + transformDN(name) + "," + getBaseDN();
 
             if (s != null)
                 s.modify(dn, mods);
-        } finally {
-            if (s != null)
-                s.close();
         }
     }
 
     public Enumeration<CertRecord> searchCertRecord(String name, String thisUpdate,
             String filter) throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
         Vector<CertRecord> v = new Vector<>();
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             DBSearchResults sr = s.search("ou=" + thisUpdate + ",cn=" +
                         transformDN(name) + "," + getBaseDN(),
                         filter);
             while (sr.hasMoreElements()) {
                 v.add((CertRecord) sr.nextElement());
             }
-        } finally {
-            if (s != null)
-                s.close();
         }
         return v.elements();
     }
@@ -690,19 +642,15 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     public CertRecord readCertRecord(String name, String thisUpdate,
             String sno)
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
         CertRecord rec = null;
 
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             String dn = "cn=" + sno + ",ou=" + thisUpdate +
                     ",cn=" + transformDN(name) + "," + getBaseDN();
 
             if (s != null) {
                 rec = (CertRecord) s.read(dn);
             }
-        } finally {
-            if (s != null)
-                s.close();
         }
         return rec;
     }
@@ -713,16 +661,11 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     public void addCertRecord(String name, String thisUpdate,
             String sno, CertRecord rec)
             throws EBaseException {
-        DBSSession s = dbSubsystem.createSession();
-
-        try {
+        try (DBSSession s = dbSubsystem.createSession()) {
             String dn = "cn=" + sno + ",ou=" + thisUpdate +
                     ",cn=" + transformDN(name) + "," + getBaseDN();
 
             s.add(dn, rec);
-        } finally {
-            if (s != null)
-                s.close();
         }
     }
 
@@ -873,7 +816,7 @@ class CRLIPContainer {
 
 class DefStoreCRLUpdater extends Thread {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DefStoreCRLUpdater.class);
+    public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DefStoreCRLUpdater.class);
 
     private Hashtable<String, CRLIPContainer> mCache = null;
     private int mSec = 0;
