@@ -19,6 +19,8 @@ package com.netscape.cms.servlet.key;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authentication.AuthToken;
@@ -38,9 +40,19 @@ import com.netscape.kra.TransportKeyUnit;
 /**
  * Retrieve Transport Certificate used to
  * wrap Private key Archival requests
- *
- * @version $Revision$, $Date$
  */
+@WebServlet(
+        name = "kraKRADisplayTransport",
+        urlPatterns = "/agent/kra/displayTransportCert",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="true"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="authority",     value="kra"),
+                @WebInitParam(name="ID",            value="kraKRADisplayTransport"),
+                @WebInitParam(name="AuthMgr",       value="certUserDBAuthMgr"),
+                @WebInitParam(name="resourceID",    value="certServer.kra.certificate.transport")
+        }
+)
 public class DisplayTransport extends CMSServlet {
 
     /**
