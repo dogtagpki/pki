@@ -28,9 +28,9 @@ add_custom_command(
     TARGET ${target}
     COMMAND ${CMAKE_COMMAND}
         -E copy_directory
-        ${CMAKE_CURRENT_SOURCE_DIR}/${SRC_DIR} ${CMAKE_CURRENT_BINARY_DIR}/${SRC_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/${SRC_DIR} ${SRC_DIR}
     COMMAND ${PYTHON} ${SETUP_PY} build
-    COMMAND ${PYTHON} ${SETUP_PY} install --root ${CMAKE_CURRENT_BINARY_DIR}
+    COMMAND ${PYTHON} ${SETUP_PY} install --root .
         --install-scripts bin
         --install-lib lib
 )

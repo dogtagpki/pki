@@ -55,8 +55,8 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E make_directory webapp/lib
     COMMAND ln -sf ../../../../../../../..${SLF4J_API_JAR} webapp/lib/slf4j-api.jar
     COMMAND ln -sf ../../../../../../../..${SLF4J_JDK14_JAR} webapp/lib/slf4j-jdk14.jar
-    COMMAND ln -sf ../../../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-server.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-server.jar
-    COMMAND ln -sf ../../../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-tps.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-tps.jar
+    COMMAND ln -sf ../../../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-server.jar webapp/lib/pki-server.jar
+    COMMAND ln -sf ../../../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-tps.jar webapp/lib/pki-tps.jar
 )
 
 add_custom_target(pki-tps-man ALL
@@ -64,9 +64,9 @@ add_custom_target(pki-tps-man ALL
 
 add_custom_command(
     TARGET pki-tps-man
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/man/man5
-    COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man5/pki-tps-connector.5.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man5/pki-tps-connector.5
-    COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man5/pki-tps-profile.5.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man5/pki-tps-profile.5
+    COMMAND ${CMAKE_COMMAND} -E make_directory man/man5
+    COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man5/pki-tps-connector.5.md -out man/man5/pki-tps-connector.5
+    COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man5/pki-tps-profile.5.md -out man/man5/pki-tps-profile.5
 )
 
 install(

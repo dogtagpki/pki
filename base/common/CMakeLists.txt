@@ -121,8 +121,8 @@ add_custom_command(
     COMMAND ln -sf ../../../..${JSS_JAR} lib/jss.jar
     COMMAND ln -sf ../../../..${LDAPJDK_JAR} lib/ldapjdk.jar
     COMMAND ln -sf ../../../..${P11_KIT_TRUST} lib/p11-kit-trust.so
-    COMMAND ln -sf ../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-common.jar ${CMAKE_CURRENT_BINARY_DIR}/lib/pki-common.jar
-    COMMAND ln -sf ../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-tools.jar ${CMAKE_CURRENT_BINARY_DIR}/lib/pki-tools.jar
+    COMMAND ln -sf ../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-common.jar lib/pki-common.jar
+    COMMAND ln -sf ../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-tools.jar lib/pki-tools.jar
     COMMAND ln -sf ../../../..${RESTEASY_CLIENT_JAR} lib/resteasy-client.jar
     COMMAND ln -sf ../../../..${RESTEASY_JACKSON2_PROVIDER_JAR} lib/resteasy-jackson2-provider.jar
     COMMAND ln -sf ../../../..${RESTEASY_JAXRS_JAR} lib/resteasy-jaxrs.jar
@@ -136,10 +136,10 @@ add_custom_target(pki-man ALL
 
 add_custom_command(
     TARGET pki-man
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/man/man5
-    COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man5/pki-logging.5.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man5/pki-logging.5
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/man/man8
-    COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man8/pki-upgrade.8.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man8/pki-upgrade.8
+    COMMAND ${CMAKE_COMMAND} -E make_directory man/man5
+    COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man5/pki-logging.5.md -out man/man5/pki-logging.5
+    COMMAND ${CMAKE_COMMAND} -E make_directory man/man8
+    COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man8/pki-upgrade.8.md -out man/man8/pki-upgrade.8
 )
 
 install(

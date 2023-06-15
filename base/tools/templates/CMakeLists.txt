@@ -45,7 +45,7 @@ add_custom_target(pki-DRMTool-link ALL
 
 add_custom_command(
     TARGET pki-DRMTool-link
-    COMMAND ln -sf ../..${BIN_INSTALL_DIR}/KRATool ${CMAKE_CURRENT_BINARY_DIR}/DRMTool
+    COMMAND ln -sf ../..${BIN_INSTALL_DIR}/KRATool DRMTool
 )
 
 install(
