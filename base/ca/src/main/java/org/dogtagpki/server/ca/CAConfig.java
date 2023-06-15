@@ -11,6 +11,7 @@ import com.netscape.ca.CRLConfig;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.connector.ConnectorsConfig;
 import com.netscape.certsrv.security.SigningUnitConfig;
+import com.netscape.cms.servlet.cert.scep.SCEPConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
@@ -76,5 +77,12 @@ public class CAConfig extends ConfigStore {
      */
     public CAPolicyConfig getPolicyConfig() {
         return getSubStore(CertificateAuthority.PROP_POLICY, CAPolicyConfig.class);
+    }
+
+    /**
+     * Returns ca.scep.* parameters.
+     */
+    public SCEPConfig getSCEPConfig() {
+        return getSubStore("scep", SCEPConfig.class);
     }
 }

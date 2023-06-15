@@ -273,22 +273,22 @@ public class CRSEnrollment extends HttpServlet {
 
         try {
             CAConfig authorityConfig = mAuthority.getConfig();
-            ConfigStore scepConfig = authorityConfig.getSubStore("scep", ConfigStore.class);
-            mEnabled = scepConfig.getBoolean("enable", false);
+            SCEPConfig scepConfig = authorityConfig.getSCEPConfig();
+            mEnabled = scepConfig.getEnable();
             mUseOAEPKeyWrap = cs.getUseOAEPKeyWrap();
             if (sc.getServletName().equals(SERVLET_NAME_DYN_PROFILE)) {
                 mIsDynamicProfileId = true;
                 logger.debug("CRSEnrollment: init: expecting dynamic ProfileId in URL");
             }
-            mHashAlgorithm = scepConfig.getString("hashAlgorithm", "SHA256");
-            mConfiguredEncryptionAlgorithm = scepConfig.getString("encryptionAlgorithm", "DES3");
-            mNonceSizeLimit = scepConfig.getInteger("nonceSizeLimit", 0);
-            mHashAlgorithmList = scepConfig.getString("allowedHashAlgorithms", "SHA256,SHA512");
+            mHashAlgorithm = scepConfig.getHashAlgorithm();
+            mConfiguredEncryptionAlgorithm = scepConfig.getEncryptionAlgorithm();
+            mNonceSizeLimit = scepConfig.getNonceSizeLimit();
+            mHashAlgorithmList = scepConfig.getAllowedHashAlgorithms();
             mAllowedHashAlgorithm = mHashAlgorithmList.split(",");
-            mEncryptionAlgorithmList = scepConfig.getString("allowedEncryptionAlgorithms", "DES3");
+            mEncryptionAlgorithmList = scepConfig.getAllowedEncryptionAlgorithms();
             mAllowedEncryptionAlgorithm = mEncryptionAlgorithmList.split(",");
             if (mIsDynamicProfileId) {
-                mAllowedDynamicProfileIdList = scepConfig.getString("allowedDynamicProfileIds", "caRouterCert");
+                mAllowedDynamicProfileIdList = scepConfig.getAllowedDynamicProfileIds();
                 logger.debug("CRSEnrollment: init: mAllowedDynamicProfileIdList: " + mAllowedDynamicProfileIdList);
                 mAllowedDynamicProfileId = mAllowedDynamicProfileIdList.split(",");
 
@@ -298,11 +298,11 @@ public class CRSEnrollment extends HttpServlet {
                 }
             }
 
-            mNickname = scepConfig.getString("nickname", ca.getNickname());
+            mNickname = scepConfig.getNickname(ca.getNickname());
             if (mNickname.equals(ca.getNickname())) {
                 mTokenName = ca.getSigningUnit().getTokenName();
             } else {
-                mTokenName = scepConfig.getString("tokenname", "");
+                mTokenName = scepConfig.getTokenName();
                 mUseCA = false;
             }
             if (!CryptoUtil.isInternalToken(mTokenName)) {
