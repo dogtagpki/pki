@@ -169,7 +169,10 @@ BuildRequires:    mvn(commons-net:commons-net)
 BuildRequires:    mvn(org.slf4j:slf4j-api)
 BuildRequires:    mvn(org.slf4j:slf4j-jdk14)
 BuildRequires:    mvn(org.junit.jupiter:junit-jupiter-api)
-BuildRequires:    pki-resteasy >= 3.0.26
+BuildRequires:    mvn(org.jboss.resteasy:resteasy-client)
+BuildRequires:    mvn(org.jboss.resteasy:resteasy-jackson2-provider)
+BuildRequires:    mvn(org.jboss.resteasy:resteasy-jaxrs)
+BuildRequires:    mvn(org.jboss.resteasy:resteasy-servlet-initializer)
 BuildRequires:    jss >= 5.4
 BuildRequires:    tomcatjss >= 8.4
 BuildRequires:    ldapjdk >= 5.4
@@ -376,10 +379,12 @@ Requires:         mvn(commons-logging:commons-logging)
 Requires:         mvn(commons-net:commons-net)
 Requires:         mvn(org.slf4j:slf4j-api)
 Requires:         mvn(org.slf4j:slf4j-jdk14)
+Requires:         mvn(org.jboss.resteasy:resteasy-client)
+Requires:         mvn(org.jboss.resteasy:resteasy-jackson2-provider)
+Requires:         mvn(org.jboss.resteasy:resteasy-jaxrs)
 Requires:         jss >= 5.4
 Requires:         ldapjdk >= 5.4
 Requires:         %{product_id}-base = %{version}-%{release}
-Requires:         pki-resteasy >= 3.0.26
 
 %description -n   %{product_id}-java
 This package provides common and client libraries for Java.
@@ -441,6 +446,7 @@ Requires:         python3-policycoreutils
 
 Requires:         selinux-policy-targeted >= 3.13.1-159
 
+Requires:         mvn(org.jboss.resteasy:resteasy-servlet-initializer)
 %if 0%{?rhel} && ! 0%{?eln}
 Requires:         pki-servlet-engine >= 9.0.31
 %else
