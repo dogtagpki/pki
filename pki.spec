@@ -194,6 +194,12 @@ BuildRequires:    python3-sphinx
 
 BuildRequires:    systemd-units
 
+%if 0%{?rhel} && ! 0%{?eln}
+BuildRequires:    pki-servlet-engine >= 9.0.31
+%else
+BuildRequires:    tomcat >= 1:9.0.31
+%endif
+
 # additional build requirements needed to build native 'tpsclient'
 # REMINDER:  Revisit these once 'tpsclient' is rewritten as a Java app
 BuildRequires:    apr-devel
