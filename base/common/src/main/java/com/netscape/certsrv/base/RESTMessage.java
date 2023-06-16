@@ -343,11 +343,15 @@ public class RESTMessage implements JSONSerializer {
         return fromDOM(element);
     }
 
+    /**
+     * Returns a string representation of the object.
+     *
+     * Do not serialize the REST message by default to avoid exposing
+     * sensitive info. Subclasses can override this method if it's safe.
+     */
+    @Override
     public String toString() {
-        try {
-            return toJSON();
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        // don't change this
+        return super.toString();
     }
 }
