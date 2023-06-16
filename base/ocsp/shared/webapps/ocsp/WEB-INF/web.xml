@@ -446,41 +446,6 @@
                          <param-value> admin          </param-value> </init-param>
    </servlet>
 
-   <listener>
-      <listener-class> org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap </listener-class>
-   </listener>
-
-   <context-param>
-      <param-name>resteasy.servlet.mapping.prefix</param-name>
-      <param-value>/rest</param-value>
-   </context-param>
-
-   <context-param>
-      <param-name>resteasy.role.based.security</param-name>
-      <param-value>true</param-value>
-   </context-param>
-
-   <context-param>
-      <param-name>resteasy.resource.method-interceptors</param-name>
-      <param-value>
-         org.jboss.resteasy.core.ResourceMethodSecurityInterceptor
-      </param-value>
-   </context-param>
-
-   <servlet>
-      <servlet-name>Resteasy</servlet-name>
-      <servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher</servlet-class>
-      <init-param>
-         <param-name>javax.ws.rs.Application</param-name>
-         <param-value>org.dogtagpki.server.ocsp.rest.OCSPApplication</param-value>
-      </init-param>
-   </servlet>
-
-   <servlet-mapping>
-      <servlet-name>Resteasy</servlet-name>
-      <url-pattern>/rest/*</url-pattern>
-   </servlet-mapping>
-
    <servlet-mapping>
       <servlet-name>  ocspacl  </servlet-name>
       <url-pattern>   /acl  </url-pattern>

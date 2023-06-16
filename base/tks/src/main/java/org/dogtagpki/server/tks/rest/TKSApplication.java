@@ -3,6 +3,7 @@ package org.dogtagpki.server.tks.rest;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
 import org.dogtagpki.server.rest.ACLInterceptor;
@@ -17,6 +18,7 @@ import org.dogtagpki.server.rest.SelfTestService;
 import org.dogtagpki.server.rest.SessionContextInterceptor;
 import org.dogtagpki.server.rest.UserService;
 
+@ApplicationPath("/rest")
 public class TKSApplication extends Application {
 
     private Set<Object> singletons = new LinkedHashSet<>();

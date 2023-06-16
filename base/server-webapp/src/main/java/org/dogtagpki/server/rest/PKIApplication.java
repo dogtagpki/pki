@@ -21,8 +21,10 @@ package org.dogtagpki.server.rest;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
+@ApplicationPath("/rest")
 public class PKIApplication extends Application {
 
     private Set<Object> singletons = new LinkedHashSet<>();

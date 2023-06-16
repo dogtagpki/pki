@@ -3,6 +3,7 @@ package org.dogtagpki.server.ca.rest;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
 import org.dogtagpki.server.rest.ACLInterceptor;
@@ -19,6 +20,7 @@ import org.dogtagpki.server.rest.SelfTestService;
 import org.dogtagpki.server.rest.SessionContextInterceptor;
 import org.dogtagpki.server.rest.UserService;
 
+@ApplicationPath("/rest")
 public class CAApplication extends Application {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CAApplication.class);

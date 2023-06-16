@@ -20,6 +20,7 @@ package org.dogtagpki.server.tps.rest;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
 import org.dogtagpki.server.rest.ACLInterceptor;
@@ -38,6 +39,7 @@ import org.dogtagpki.server.tps.config.ConfigService;
 /**
  * @author Endi S. Dewata <edewata@redhat.com>
  */
+@ApplicationPath("/rest")
 public class TPSApplication extends Application {
 
     private Set<Object> singletons = new LinkedHashSet<>();
