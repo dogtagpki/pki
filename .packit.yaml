@@ -1,0 +1,30 @@
+---
+# See the documentation for more information:
+# https://packit.dev/docs/configuration/
+specfile_path: pki.spec
+
+# add or remove files that should be synced
+files_to_sync:
+  - jss.spec
+  - .packit.yaml
+
+# Allow dist git reactions on packit and ckelley commits and PRs
+allowed_pr_authors:
+  - packit
+  - ckelleyRH
+allowed_committers:
+  - packit
+  - ckelleyRH
+
+upstream_package_name: pki
+# downstream (Fedora/CentOS) RPM package name
+downstream_package_name: dogtag-pki
+# see: https://packit.dev/docs/configuration/#upstream_tag_template
+upstream_tag_template: "v{version}"
+
+jobs:
+  - job: propose_downstream
+    trigger: release
+    dist_git_branches:
+      - fedora-development
+#     - centos-stream-9-x86_64 # When Packit integration with CentOS is avaiable, enable this
