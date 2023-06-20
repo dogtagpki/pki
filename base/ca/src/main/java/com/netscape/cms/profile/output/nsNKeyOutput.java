@@ -95,9 +95,8 @@ public class nsNKeyOutput extends EnrollOutput {
             } catch (Exception e) {
                 return "";
             }
-        } else {
-            return null;
         }
+        return null;
     }
 
 }
