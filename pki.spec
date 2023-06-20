@@ -1032,7 +1032,6 @@ fi
 %{_bindir}/CMCRevoke
 %{_bindir}/CMCSharedToken
 %{_bindir}/CRMFPopClient
-%{_bindir}/DRMTool
 %{_bindir}/ExtJoiner
 %{_bindir}/GenExtKeyUsage
 %{_bindir}/GenIssuerAltNameExt
@@ -1057,7 +1056,6 @@ fi
 %{_mandir}/man1/CMCRequest.1.gz
 %{_mandir}/man1/CMCSharedToken.1.gz
 %{_mandir}/man1/CMCResponse.1.gz
-%{_mandir}/man1/DRMTool.1.gz
 %{_mandir}/man1/KRATool.1.gz
 %{_mandir}/man1/PrettyPrintCert.1.gz
 %{_mandir}/man1/PrettyPrintCrl.1.gz

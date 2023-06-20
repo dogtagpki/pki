@@ -15,3 +15,8 @@ configuration file.
 
 The `sslget` command has been deprecated.
 Use `pki` CLI or the `curl` command instead.
+
+== Drop DRMTool ==
+
+The `DRMTool` command is no longer available.
+Use `KRATool` command instead.
