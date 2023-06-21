@@ -4,6 +4,7 @@ on: [push, pull_request]
 
 env:
   NAMESPACE: ${{ vars.REGISTRY_NAMESPACE || github.repository_owner }}
+  COPR_REPO: ${{ vars.COPR_REPO || '@pki/master' }}
 
 jobs:
   init:
@@ -35,7 +36,7 @@ jobs:
           context: .
           build-args: |
             BASE_IMAGE=${{ needs.init.outputs.base-image }}
-            COPR_REPO=${{ vars.COPR_REPO }}
+            COPR_REPO=${{ env.COPR_REPO }}
           tags: pki-deps
           target: pki-deps
           cache-to: type=local,dest=/tmp/.buildx-cache
@@ -47,7 +48,7 @@ jobs:
           context: .
           build-args: |
             BASE_IMAGE=${{ needs.init.outputs.base-image }}
-            COPR_REPO=${{ vars.COPR_REPO }}
+            COPR_REPO=${{ env.COPR_REPO }}
           tags: pki-builder-deps
           target: pki-builder-deps
           cache-to: type=local,dest=/tmp/.buildx-cache
@@ -59,7 +60,7 @@ jobs:
           context: .
           build-args: |
             BASE_IMAGE=${{ needs.init.outputs.base-image }}
-            COPR_REPO=${{ vars.COPR_REPO }}
+            COPR_REPO=${{ env.COPR_REPO }}
             BUILD_OPTS=--with-pkgs=base,server,ca,acme --without-test
           tags: pki-runner
           target: pki-runner
@@ -72,7 +73,7 @@ jobs:
           context: .
           build-args: |
             BASE_IMAGE=${{ needs.init.outputs.base-image }}
-            COPR_REPO=${{ vars.COPR_REPO }}
+            COPR_REPO=${{ env.COPR_REPO }}
             BUILD_OPTS=--with-pkgs=base,server,ca,acme --without-test
           tags: pki-acme
           target: pki-acme

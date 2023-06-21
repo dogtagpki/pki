@@ -2,6 +2,9 @@ name: IPA Tests
 
 on: [push, pull_request]
 
+env:
+  COPR_REPO: ${{ vars.COPR_REPO || '@pki/master' }}
+
 jobs:
   init:
     name: Initialization
@@ -32,7 +35,7 @@ jobs:
           context: .
           build-args: |
             BASE_IMAGE=${{ needs.init.outputs.base-image }}
-            COPR_REPO=${{ vars.COPR_REPO }}
+            COPR_REPO=${{ env.COPR_REPO }}
           tags: pki-deps
           target: pki-deps
           cache-to: type=local,dest=/tmp/.buildx-cache
@@ -44,7 +47,7 @@ jobs:
           context: .
           build-args: |
             BASE_IMAGE=${{ needs.init.outputs.base-image }}
-            COPR_REPO=${{ vars.COPR_REPO }}
+            COPR_REPO=${{ env.COPR_REPO }}
           tags: pki-builder-deps
           target: pki-builder-deps
           cache-to: type=local,dest=/tmp/.buildx-cache
@@ -56,7 +59,7 @@ jobs:
           context: .
           build-args: |
             BASE_IMAGE=${{ needs.init.outputs.base-image }}
-            COPR_REPO=${{ vars.COPR_REPO }}
+            COPR_REPO=${{ env.COPR_REPO }}
             BUILD_OPTS=--with-pkgs=base,server,ca,kra,acme --without-test
           tags: ipa-runner
           target: ipa-runner
