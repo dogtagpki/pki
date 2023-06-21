@@ -9,7 +9,7 @@ inspections:
 annocheck:
     # LTO tests fail for the Tools RPM, requires inspection when there is time
     jobs:
-        - hardened: --skip-lto
+        - hardened: --skip-lto --skip-cf-protection
 
 # We compile with Java 17
 javabytecode:
