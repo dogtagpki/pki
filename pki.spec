@@ -172,7 +172,9 @@ BuildRequires:    mvn(org.junit.jupiter:junit-jupiter-api)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-client)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-jackson2-provider)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-jaxrs)
+%if 0%{?fedora} && 0%{?fedora} > 38
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-servlet-initializer)
+%endif
 BuildRequires:    jss >= 5.4
 BuildRequires:    tomcatjss >= 8.4
 BuildRequires:    ldapjdk >= 5.4
@@ -446,7 +448,10 @@ Requires:         python3-policycoreutils
 
 Requires:         selinux-policy-targeted >= 3.13.1-159
 
-Requires:         mvn(org.jboss.resteasy:resteasy-servlet-initializer)
+%if 0%{?fedora} && 0%{?fedora} > 38
+BuildRequires:    mvn(org.jboss.resteasy:resteasy-servlet-initializer)
+%endif
+
 %if 0%{?rhel} && ! 0%{?eln}
 Requires:         pki-servlet-engine >= 9.0.31
 %else
