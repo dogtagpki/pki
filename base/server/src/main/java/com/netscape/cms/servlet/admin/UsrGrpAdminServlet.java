@@ -73,20 +73,19 @@ import com.netscape.cmscore.usrgrp.User;
  */
 public class UsrGrpAdminServlet extends AdminServlet {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UsrGrpAdminServlet.class);
+    public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UsrGrpAdminServlet.class);
 
     private static final long serialVersionUID = -4341817607402387714L;
-    private final static String INFO = "UsrGrpAdminServlet";
-    private final static String SYSTEM_USER = "$System$";
-    //	private final static String RES_GROUP = "root.common.goldfish";
+    private static final String INFO = "UsrGrpAdminServlet";
+    private static final String SYSTEM_USER = "$System$";
 
-    private final static String BACK_SLASH = "\\";
+    private static final String BACK_SLASH = "\\";
 
     private UGSubsystem mMgr = null;
 
     private static String[] mMultiRoleGroupEnforceList = null;
-    private final static String MULTI_ROLE_ENABLE = "multiroles.enable";
-    private final static String MULTI_ROLE_ENFORCE_GROUP_LIST = "multiroles.false.groupEnforceList";
+    private static final String MULTI_ROLE_ENABLE = "multiroles.enable";
+    private static final String MULTI_ROLE_ENFORCE_GROUP_LIST = "multiroles.false.groupEnforceList";
 
     /**
      * Constructs User/Group manager servlet.
@@ -146,164 +145,116 @@ public class UsrGrpAdminServlet extends AdminServlet {
             return;
         }
 
-        // authorization
-        // temporary test before servlets are exposed with authtoken
-        /*
-         SessionContext sc = SessionContext.getContext();
-         AuthToken authToken = (AuthToken) sc.get(SessionContext.AUTH_TOKEN);
-
-         AuthzToken authzTok = null;
-         logger.debug("UserGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_CHECK_AUTHZ_SUB"));
-         // hardcoded for now .. just testing
-         try {
-         authzTok = mAuthz.authorize("DirAclAuthz", authToken, RES_GROUP, "read");
-         } catch (EBaseException e) {
-             logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_CALL_FAIL",e.toString()), e);
-         }
-         if (AuthzToken.AUTHZ_STATUS_FAIL.equals(authzTok.get(AuthzToken.TOKEN_AUTHZ_STATUS))) {
-         // audit would have been needed here if this weren't just a test...
-
-         logger.error(CMS.getLogMessage("ADMIN_SRVLT_FAIL_AUTHS"), e);
-
-         sendResponse(ERROR,
-         MessageFormatter.getLocalizedString(
-         getLocale(req),
-         AdminResources.class.getName(),
-         AdminResources.SRVLT_FAIL_AUTHS),
-         null, resp);
-         return;
-         }
-         */
-
         String subsystemPath = getServletContext().getContextPath();
         String subsystemID = subsystemPath.substring(1);
         AUTHZ_RES_NAME = "certServer." + subsystemID + ".group";
 
         try {
-            if (scope != null) {
-                if (scope.equals(ScopeDef.SC_USER_TYPE)) {
-                    mOp = "read";
-                    if ((mToken = super.authorize(req)) == null) {
-                        sendResponse(ERROR,
-                                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                                null, resp);
-                        return;
-                    }
-
-                    getUserType(req, resp);
+            if (scope == null)
+                return;
+            if (scope.equals(ScopeDef.SC_USER_TYPE)) {
+                mOp = "read";
+                if ((mToken = super.authorize(req)) == null) {
+                    sendResponse(ERROR,
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                            null, resp);
                     return;
                 }
 
-                if (op.equals(OpDef.OP_READ)) {
-                    mOp = "read";
-                    if ((mToken = super.authorize(req)) == null) {
-                        sendResponse(ERROR,
-                                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                                null, resp);
-                        return;
-                    }
-                    if (scope.equals(ScopeDef.SC_GROUPS)) {
-                        findGroup(req, resp);
-                        return;
-                    } else if (scope.equals(ScopeDef.SC_USERS)) {
-                        findUser(req, resp);
-                        return;
-                    } else if (scope.equals(ScopeDef.SC_USER_CERTS)) {
-                        findUserCerts(req, resp, clientLocale);
-                        return;
-                    }
-                } else if (op.equals(OpDef.OP_MODIFY)) {
-                    mOp = "modify";
-                    if ((mToken = super.authorize(req)) == null) {
-                        sendResponse(ERROR,
-                                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                                null, resp);
-                        return;
-                    }
-                    if (scope.equals(ScopeDef.SC_GROUPS)) {
-                        modifyGroup(req, resp);
-                        return;
-                    } else if (scope.equals(ScopeDef.SC_USERS)) {
-                        modifyUser(req, resp);
-                        return;
-                    } else if (scope.equals(ScopeDef.SC_USER_CERTS)) {
-                        modifyUserCert(req, resp);
-                        return;
-                    }
-                } else if (op.equals(OpDef.OP_ADD)) {
-                    mOp = "modify";
-                    if ((mToken = super.authorize(req)) == null) {
-                        sendResponse(ERROR,
-                                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                                null, resp);
-                        return;
-                    }
-                    if (scope.equals(ScopeDef.SC_GROUPS)) {
-                        addGroup(req, resp);
-                        return;
-                    } else if (scope.equals(ScopeDef.SC_USERS)) {
-                        addUser(req, resp);
-                        return;
-                    } else if (scope.equals(ScopeDef.SC_USER_CERTS)) {
-                        addUserCert(req, resp);
-                        return;
-                    }
-                } else if (op.equals(OpDef.OP_DELETE)) {
-                    mOp = "modify";
-                    if ((mToken = super.authorize(req)) == null) {
-                        sendResponse(ERROR,
-                                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                                null, resp);
-                        return;
-                    }
-                    if (scope.equals(ScopeDef.SC_GROUPS)) {
-                        removeGroup(req, resp);
-                        return;
-                    } else if (scope.equals(ScopeDef.SC_USERS)) {
-                        removeUser(req, resp);
-                        return;
-                    }
-                } else if (op.equals(OpDef.OP_SEARCH)) {
-                    mOp = "read";
-                    if ((mToken = super.authorize(req)) == null) {
-                        sendResponse(ERROR,
-                                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                                null, resp);
-                        return;
-                    }
-                    if (scope.equals(ScopeDef.SC_GROUPS)) {
-                        findGroups(req, resp);
-                        return;
-                    } else if (scope.equals(ScopeDef.SC_USERS)) {
-                        findUsers(req, resp);
-                        return;
-                    } else {
-                        logger.error(CMS.getLogMessage("ADMIN_SRVLT_INVALID_OP_SCOPE"));
-                        sendResponse(ERROR,
-                                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_SCOPE"),
-                                null, resp);
-                        return;
-                    }
+                getUserType(req, resp);
+                return;
+            }
+            if (op.equals(OpDef.OP_READ)) {
+                mOp = "read";
+                if ((mToken = super.authorize(req)) == null) {
+                    sendResponse(ERROR,
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                            null, resp);
+                    return;
                 }
-            } // if
+                if (scope.equals(ScopeDef.SC_GROUPS)) {
+                    findGroup(req, resp);
+                } else if (scope.equals(ScopeDef.SC_USERS)) {
+                    findUser(req, resp);
+                } else if (scope.equals(ScopeDef.SC_USER_CERTS)) {
+                    findUserCerts(req, resp, clientLocale);
+                }
+            } else if (op.equals(OpDef.OP_MODIFY)) {
+                mOp = "modify";
+                if ((mToken = super.authorize(req)) == null) {
+                    sendResponse(ERROR,
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                            null, resp);
+                    return;
+                }
+                if (scope.equals(ScopeDef.SC_GROUPS)) {
+                    modifyGroup(req, resp);
+                } else if (scope.equals(ScopeDef.SC_USERS)) {
+                    modifyUser(req, resp);
+                } else if (scope.equals(ScopeDef.SC_USER_CERTS)) {
+                    modifyUserCert(req, resp);
+                }
+            } else if (op.equals(OpDef.OP_ADD)) {
+                mOp = "modify";
+                if ((mToken = super.authorize(req)) == null) {
+                    sendResponse(ERROR,
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                            null, resp);
+                    return;
+                }
+                if (scope.equals(ScopeDef.SC_GROUPS)) {
+                    addGroup(req, resp);
+                } else if (scope.equals(ScopeDef.SC_USERS)) {
+                    addUser(req, resp);
+                } else if (scope.equals(ScopeDef.SC_USER_CERTS)) {
+                    addUserCert(req, resp);
+                }
+            } else if (op.equals(OpDef.OP_DELETE)) {
+                mOp = "modify";
+                if ((mToken = super.authorize(req)) == null) {
+                    sendResponse(ERROR,
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                            null, resp);
+                    return;
+                }
+                if (scope.equals(ScopeDef.SC_GROUPS)) {
+                    removeGroup(req, resp);
+                } else if (scope.equals(ScopeDef.SC_USERS)) {
+                    removeUser(req, resp);
+                }
+            } else if (op.equals(OpDef.OP_SEARCH)) {
+                mOp = "read";
+                if ((mToken = super.authorize(req)) == null) {
+                    sendResponse(ERROR,
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                            null, resp);
+                    return;
+                }
+                if (scope.equals(ScopeDef.SC_GROUPS)) {
+                    findGroups(req, resp);
+                } else if (scope.equals(ScopeDef.SC_USERS)) {
+                    findUsers(req, resp);
+                } else {
+                    logger.error(CMS.getLogMessage("ADMIN_SRVLT_INVALID_OP_SCOPE"));
+                    sendResponse(ERROR,
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_SCOPE"),
+                            null, resp);
+                }
+            }
         } catch (EBaseException e) {
             logger.error("UsrGrpAdminServlet: " + e.getMessage(), e);
             sendResponse(ERROR, e.toString(getLocale(req)),
                     null, resp);
-            return;
         } catch (Exception e) {
             logger.error("UsrGrpAdminServlet: " + e.getMessage(), e);
             logger.error(CMS.getLogMessage(" ADMIN_SRVLT_FAIL_PERFORM"));
             sendResponse(ERROR,
                     CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_PERFORM_FAILED"),
                     null, resp);
-            return;
         }
     }
 
-    private void getUserType(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    private void getUserType(HttpServletRequest req, HttpServletResponse resp) throws IOException, EBaseException {
 
         String id = super.getParameter(req, Constants.RS_ID);
         User user = mMgr.getUser(id);
@@ -324,9 +275,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
      * http://warp.mcom.com/server/certificate/columbo/design/
      * ui/admin-protocol-definition.html#user-admin
      */
-    private synchronized void findUsers(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    private synchronized void findUsers(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
         NameValuePairs params = new NameValuePairs();
 
@@ -372,9 +321,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
      * http://warp.mcom.com/server/certificate/columbo/design/
      * ui/admin-protocol-definition.html#user-admin
      */
-    private synchronized void findUser(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    private synchronized void findUser(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
         //get id first
         String id = super.getParameter(req, Constants.RS_ID);
@@ -395,7 +342,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
         try {
             user = mMgr.getUser(id);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
             sendResponse(ERROR,
                     CMS.getUserMessage(getLocale(req), "CMS_INTERNAL_ERROR"), null, resp);
             return;
@@ -425,7 +372,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             while (e.hasMoreElements()) {
                 Group group = e.nextElement();
 
-                if (group.isMember(id) == true) {
+                if (group.isMember(id)) {
                     if (grpString.length() != 0) {
                         grpString.append(",");
                     }
@@ -443,7 +390,6 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
         sendResponse(ERROR,
                 CMS.getUserMessage(getLocale(req), "CMS_USRGRP_SRVLT_USER_NOT_EXIST"), null, resp);
-        return;
     }
 
     /**
@@ -476,7 +422,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
         try {
             user = mMgr.getUser(id);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
             sendResponse(ERROR,
                     CMS.getUserMessage(getLocale(req), "CMS_USRGRP_SRVLT_USER_NOT_EXIST"), null, resp);
             return;
@@ -509,7 +455,6 @@ public class UsrGrpAdminServlet extends AdminServlet {
         }
 
         sendResponse(SUCCESS, null, params, resp);
-        return;
     }
 
     /**
@@ -532,9 +477,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
      * http://warp.mcom.com/server/certificate/columbo/design/
      * ui/admin-protocol-definition.html#group
      */
-    private synchronized void findGroups(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    private synchronized void findGroups(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         NameValuePairs params = new NameValuePairs();
 
         Enumeration<Group> e = null;
@@ -551,10 +494,10 @@ public class UsrGrpAdminServlet extends AdminServlet {
             Group group = e.nextElement();
             String desc = group.getDescription();
 
-            if (desc != null) {
-                params.put(group.getGroupID(), desc);
-            } else {
+            if (desc == null) {
                 params.put(group.getGroupID(), "");
+            } else {
+                params.put(group.getGroupID(), desc);
             }
         }
 
@@ -567,9 +510,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
      * http://warp.mcom.com/server/certificate/columbo/design/
      * ui/admin-protocol-definition.html#user-admin
      */
-    private synchronized void findGroup(HttpServletRequest req,
-            HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+    private synchronized void findGroup(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         NameValuePairs params = new NameValuePairs();
 
         //get id first
@@ -619,13 +560,11 @@ public class UsrGrpAdminServlet extends AdminServlet {
             params.put(Constants.PR_GROUP_USER, membersString.toString());
 
             sendResponse(SUCCESS, null, params, resp);
-            return;
         } else {
             logger.error(CMS.getLogMessage("USRGRP_SRVLT_GROUP_NOT_EXIST"));
 
             sendResponse(ERROR,
                     CMS.getUserMessage(getLocale(req), "CMS_USRGRP_SRVLT_GROUP_NOT_EXIST"), null, resp);
-            return;
 
         }
     }
@@ -722,19 +661,21 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 sendResponse(ERROR, msg, null, resp);
                 return;
-            } else
-                user.setFullName(fname);
+            }
+            user.setFullName(fname);
 
             String email = super.getParameter(req, Constants.PR_USER_EMAIL);
 
-            if (email != null) {
-                user.setEmail(email);
-            } else {
+            if (email == null) {
                 user.setEmail("");
+            } else {
+                user.setEmail(email);
             }
             String pword = super.getParameter(req, Constants.PR_USER_PASSWORD);
 
-            if (pword != null && !pword.equals("")) {
+            if (pword == null || pword.equals("")) {
+                user.setPassword("");
+            } else {
                 PasswordChecker passwdCheck = engine.getPasswordChecker();
 
                 if (!passwdCheck.isGoodPassword(pword)) {
@@ -745,27 +686,23 @@ public class UsrGrpAdminServlet extends AdminServlet {
                                 auditParams(req)));
 
                     throw new EUsrGrpException(passwdCheck.getReason(pword));
-
-                    //UsrGrpResources.BAD_PASSWD);
                 }
 
                 user.setPassword(pword);
-            } else {
-                user.setPassword("");
             }
             String phone = super.getParameter(req, Constants.PR_USER_PHONE);
 
-            if (phone != null) {
-                user.setPhone(phone);
-            } else {
+            if (phone == null) {
                 user.setPhone("");
+            } else {
+                user.setPhone(phone);
             }
             String userType = super.getParameter(req, Constants.PR_USER_TYPE);
 
-            if (userType != null) {
-                user.setUserType(userType);
-            } else {
+            if (userType == null) {
                 user.setUserType("");
+            } else {
+                user.setUserType(userType);
             }
             String userState = super.getParameter(req, Constants.PR_USER_STATE);
 
@@ -837,7 +774,6 @@ public class UsrGrpAdminServlet extends AdminServlet {
                             auditParams(req)));
 
                 sendResponse(SUCCESS, null, params, resp);
-                return;
             } catch (EUsrGrpException e) {
                 logger.error("UsrGrpAdminServlet: " + e.getMessage(), e);
 
@@ -853,7 +789,6 @@ public class UsrGrpAdminServlet extends AdminServlet {
                     sendResponse(ERROR,
                             CMS.getUserMessage(getLocale(req), "CMS_USRGRP_USER_ADD_FAILED"), null, resp);
                 }
-                return;
 
             } catch (Exception e) {
                 logger.error("UsrGrpAdminServlet: " + e.getMessage(), e);
@@ -865,7 +800,6 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 sendResponse(ERROR,
                         CMS.getUserMessage(getLocale(req), "CMS_USRGRP_USER_ADD_FAILED"), null, resp);
-                return;
             }
         } catch (EBaseException eAudit1) {
 
@@ -885,18 +819,6 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
-            // } catch( ServletException eAudit3 ) {
-            //     // store a message in the signed audit log file
-            //     auditMessage = CMS.getLogMessage(
-            //                        LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
-            //                        auditSubjectID,
-            //                        ILogger.FAILURE,
-            //                        auditParams( req ) );
-            //
-            //     auditor.log( auditMessage );
-            //
-            //     // rethrow the specific exception to be handled later
-            //     throw eAudit3;
         }
     }
 
@@ -965,12 +887,12 @@ public class UsrGrpAdminServlet extends AdminServlet {
             }
 
             // only one cert added per operation
-            X509Certificate certs[] = null;
+            X509Certificate[] certs = null;
 
             // Base64 decode cert
 
             try {
-                byte bCert[] = Utils.base64decode(certsString);
+                byte[] bCert = Utils.base64decode(certsString);
                 X509Certificate cert = new X509CertImpl(bCert);
 
                 certs = new X509Certificate[1];
@@ -981,14 +903,14 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 // could it be a pkcs7 blob?
                 logger.debug("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_IS_PK_BLOB"));
-                byte p7Cert[] = Utils.base64decode(certsString);
+                byte[] p7Cert = Utils.base64decode(certsString);
 
                 try {
                     CryptoManager manager = CryptoManager.getInstance();
 
                     PKCS7 pkcs7 = new PKCS7(p7Cert);
 
-                    X509Certificate p7certs[] = pkcs7.getCertificates();
+                    X509Certificate[] p7certs = pkcs7.getCertificates();
 
                     if (p7certs.length == 0) {
 
@@ -1040,7 +962,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                     int jBegin = 0;
                     int jEnd = 0;
 
-                    if (assending == true) {
+                    if (assending) {
                         jBegin = 1;
                         jEnd = p7certs.length;
                     } else {
@@ -1064,8 +986,8 @@ public class UsrGrpAdminServlet extends AdminServlet {
                             logger.debug("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_LEAF_CERT_NON_NULL"));
                         }
 
-                        if (leafCert instanceof InternalCertificate) {
-                            ((InternalCertificate) leafCert).setSSLTrust(
+                        if (leafCert instanceof InternalCertificate ic) {
+                            ic.setSSLTrust(
                                     PK11Cert.VALID_CA |
                                     PK11Cert.TRUSTED_CA |
                                     PK11Cert.TRUSTED_CLIENT_CA);
@@ -1074,13 +996,6 @@ public class UsrGrpAdminServlet extends AdminServlet {
                                     String.valueOf(p7certs[j].getSubjectDN())));
                         }
                     }
-
-                    /*
-                     } catch (CryptoManager.UserCertConflictException ex) {
-                     // got a "user cert" in the chain, most likely the CA
-                    // cert of this instance, which has a private key.  Ignore
-                        logger.error(CMS.getLogMessage("ADMIN_SRVLT_PKS7_IGNORED", ex.toString()), ex);
-                    */
                 } catch (Exception ex) {
                     //-----
                     logger.error(CMS.getLogMessage("USRGRP_SRVLT_CERT_ERROR", ex.toString()), ex);
@@ -1121,7 +1036,6 @@ public class UsrGrpAdminServlet extends AdminServlet {
                             auditParams(req)));
 
                 sendResponse(SUCCESS, null, params, resp);
-                return;
 
             } catch (CertificateExpiredException e) {
                 logger.error(CMS.getLogMessage("ADMIN_SRVLT_ADD_CERT_EXPIRED",
@@ -1134,7 +1048,6 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 sendResponse(ERROR,
                         CMS.getUserMessage(getLocale(req), "CMS_USRGRP_SRVLT_CERT_EXPIRED"), null, resp);
-                return;
             } catch (CertificateNotYetValidException e) {
                 logger.error(CMS.getLogMessage("USRGRP_SRVLT_CERT_NOT_YET_VALID",
                         String.valueOf(certs[0].getSubjectDN())), e);
@@ -1146,7 +1059,6 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 sendResponse(ERROR,
                         CMS.getUserMessage(getLocale(req), "CMS_USRGRP_SRVLT_CERT_NOT_YET_VALID"), null, resp);
-                return;
 
             } catch (ConflictingOperationException e) {
 
@@ -1157,7 +1069,6 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 sendResponse(ERROR,
                         CMS.getUserMessage(getLocale(req), "CMS_USRGRP_SRVLT_USER_CERT_EXISTS"), null, resp);
-                return;
 
             } catch (Exception e) {
                 logger.error("UsrGrpAdminServlet: " + e.getMessage(), e);
@@ -1169,20 +1080,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 sendResponse(ERROR,
                         CMS.getUserMessage(getLocale(req), "CMS_USRGRP_USER_MOD_FAILED"), null, resp);
-                return;
             }
-            // } catch( EBaseException eAudit1 ) {
-            //     // store a message in the signed audit log file
-            //     auditMessage = CMS.getLogMessage(
-            //                        LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
-            //                        auditSubjectID,
-            //                        ILogger.FAILURE,
-            //                        auditParams( req ) );
-            //
-            //     auditor.log( auditMessage );
-            //
-            //     // rethrow the specific exception to be handled later
-            //     throw eAudit1;
         } catch (IOException eAudit2) {
 
             auditor.log(new ConfigRoleEvent(
@@ -1192,18 +1090,6 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
-            // } catch( ServletException eAudit3 ) {
-            //     // store a message in the signed audit log file
-            //     auditMessage = CMS.getLogMessage(
-            //                        LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
-            //                        auditSubjectID,
-            //                        ILogger.FAILURE,
-            //                        auditParams( req ) );
-            //
-            //     auditor.log( auditMessage );
-            //
-            //     // rethrow the specific exception to be handled later
-            //     throw eAudit3;
         }
     }
 
@@ -1282,7 +1168,6 @@ public class UsrGrpAdminServlet extends AdminServlet {
                             auditParams(req)));
 
                 sendResponse(SUCCESS, null, params, resp);
-                return;
             } catch (Exception e) {
                 logger.error("UsrGrpAdminServlet: " + e.getMessage(), e);
 
@@ -1293,20 +1178,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 sendResponse(ERROR,
                         CMS.getUserMessage(getLocale(req), "CMS_USRGRP_USER_MOD_FAILED"), null, resp);
-                return;
             }
-            // } catch( EBaseException eAudit1 ) {
-            //     // store a message in the signed audit log file
-            //     auditMessage = CMS.getLogMessage(
-            //                        LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
-            //                        auditSubjectID,
-            //                        ILogger.FAILURE,
-            //                        auditParams( req ) );
-            //
-            //     auditor.log( auditMessage );
-            //
-            //     // rethrow the specific exception to be handled later
-            //     throw eAudit1;
         } catch (IOException eAudit2) {
 
             auditor.log(new ConfigRoleEvent(
@@ -1316,18 +1188,6 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
-            // } catch( ServletException eAudit3 ) {
-            //     // store a message in the signed audit log file
-            //     auditMessage = CMS.getLogMessage(
-            //                        LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
-            //                        auditSubjectID,
-            //                        ILogger.FAILURE,
-            //                        auditParams( req ) );
-            //
-            //     auditor.log( auditMessage );
-            //
-            //     // rethrow the specific exception to be handled later
-            //     throw eAudit3;
         }
     }
 
@@ -1408,7 +1268,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             while (e.hasMoreElements()) {
                 Group group = e.nextElement();
 
-                if (group.isMember(id) == true) {
+                if (group.isMember(id)) {
                     if (mustDelete) {
                         mMgr.removeUserFromGroup(group, id);
                     } else {
@@ -1436,7 +1296,6 @@ public class UsrGrpAdminServlet extends AdminServlet {
                             auditParams(req)));
 
                 sendResponse(SUCCESS, null, params, resp);
-                return;
             } catch (Exception ex) {
 
                 auditor.log(new ConfigRoleEvent(
@@ -1446,7 +1305,6 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 sendResponse(ERROR,
                         CMS.getUserMessage(getLocale(req), "CMS_USRGRP_SRVLT_FAIL_USER_RMV"), null, resp);
-                return;
             }
         } catch (EBaseException eAudit1) {
 
@@ -1466,18 +1324,6 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
-            // } catch( ServletException eAudit3 ) {
-            //     // store a message in the signed audit log file
-            //     auditMessage = CMS.getLogMessage(
-            //                        LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
-            //                        auditSubjectID,
-            //                        ILogger.FAILURE,
-            //                        auditParams( req ) );
-            //
-            //     auditor.log( auditMessage );
-            //
-            //     // rethrow the specific exception to be handled later
-            //     throw eAudit3;
         }
     }
 
@@ -1558,7 +1404,6 @@ public class UsrGrpAdminServlet extends AdminServlet {
                             auditParams(req)));
 
                 sendResponse(SUCCESS, null, params, resp);
-                return;
             } catch (Exception e) {
 
                 auditor.log(new ConfigRoleEvent(
@@ -1569,7 +1414,6 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 sendResponse(ERROR,
                         CMS.getUserMessage(getLocale(req), "CMS_USRGRP_GROUP_ADD_FAILED"),
                         null, resp);
-                return;
             }
         } catch (EBaseException eAudit1) {
 
@@ -1589,18 +1433,6 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
-            // } catch( ServletException eAudit3 ) {
-            //     // store a message in the signed audit log file
-            //     auditMessage = CMS.getLogMessage(
-            //                        LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
-            //                        auditSubjectID,
-            //                        ILogger.FAILURE,
-            //                        auditParams( req ) );
-            //
-            //     auditor.log( auditMessage );
-            //
-            //     // rethrow the specific exception to be handled later
-            //     throw eAudit3;
         }
     }
 
@@ -1680,18 +1512,6 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
-            // } catch( ServletException eAudit3 ) {
-            //     // store a message in the signed audit log file
-            //     auditMessage = CMS.getLogMessage(
-            //                        LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
-            //                        auditSubjectID,
-            //                        ILogger.FAILURE,
-            //                        auditParams( req ) );
-            //
-            //     auditor.log( auditMessage );
-            //
-            //     // rethrow the specific exception to be handled later
-            //     throw eAudit3;
         }
     }
 
@@ -1820,7 +1640,6 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 sendResponse(ERROR,
                         CMS.getUserMessage(getLocale(req), "CMS_USRGRP_GROUP_MODIFY_FAILED"),
                         null, resp);
-                return;
             }
         } catch (EBaseException eAudit1) {
 
@@ -1840,18 +1659,6 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
-            // } catch( ServletException eAudit3 ) {
-            //     // store a message in the signed audit log file
-            //     auditMessage = CMS.getLogMessage(
-            //                        LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
-            //                        auditSubjectID,
-            //                        ILogger.FAILURE,
-            //                        auditParams( req ) );
-            //
-            //     auditor.log( auditMessage );
-            //
-            //     // rethrow the specific exception to be handled later
-            //     throw eAudit3;
         }
     }
 
@@ -1899,7 +1706,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
         } catch (Exception e) {
         }
 
-        if (isMember == true) {
+        if (isMember) {
             return false;
         }
         try {
@@ -1990,8 +1797,8 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 sendResponse(ERROR, msg, null, resp);
                 return;
-            } else
-                user.setFullName(fname);
+            }
+            user.setFullName(fname);
 
             String email = super.getParameter(req, Constants.PR_USER_EMAIL);
 
@@ -2011,8 +1818,6 @@ public class UsrGrpAdminServlet extends AdminServlet {
                                 auditParams(req)));
 
                     throw new EUsrGrpException(passwdCheck.getReason(pword));
-
-                    //UsrGrpResources.BAD_PASSWD);
                 }
 
                 user.setPassword(pword);
@@ -2038,7 +1843,6 @@ public class UsrGrpAdminServlet extends AdminServlet {
                             auditParams(req)));
 
                 sendResponse(SUCCESS, null, params, resp);
-                return;
             } catch (Exception e) {
                 logger.error("UsrGrpAdminServlet: " + e.getMessage(), e);
 
@@ -2049,7 +1853,6 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 sendResponse(ERROR,
                         CMS.getUserMessage(getLocale(req), "CMS_USRGRP_USER_MOD_FAILED"), null, resp);
-                return;
             }
         } catch (EBaseException eAudit1) {
 
@@ -2069,18 +1872,6 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
-            // } catch( ServletException eAudit3 ) {
-            //     // store a message in the signed audit log file
-            //     auditMessage = CMS.getLogMessage(
-            //                        LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
-            //                        auditSubjectID,
-            //                        ILogger.FAILURE,
-            //                        auditParams( req ) );
-            //
-            //     auditor.log( auditMessage );
-            //
-            //     // rethrow the specific exception to be handled later
-            //     throw eAudit3;
         }
     }
 }
