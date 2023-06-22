@@ -8,34 +8,11 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
     <display-name>EST service</display-name>
 
-    <listener>
-        <listener-class>org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap</listener-class>
-    </listener>
-
-    <context-param>
-        <param-name>resteasy.resource.method-interceptors</param-name>
-        <param-value>org.jboss.resteasy.core.ResourceMethodSecurityInterceptor</param-value>
-    </context-param>
-
-    <servlet>
-        <servlet-name>EST</servlet-name>
-        <servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher</servlet-class>
-        <init-param>
-            <param-name>javax.ws.rs.Application</param-name>
-            <param-value>org.dogtagpki.est.ESTApplication</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>EST</servlet-name>
-        <url-pattern>/</url-pattern>
-    </servlet-mapping>
-
     <!-- all GET methods are public -->
     <security-constraint>
         <display-name>Require TLS for all resources</display-name>
         <web-resource-collection>
-            <url-pattern>/*</url-pattern>
+            <url-pattern>/rest/*</url-pattern>
             <http-method>GET</http-method>
         </web-resource-collection>
         <user-data-constraint>
@@ -64,7 +41,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
     <security-constraint>
         <display-name>Require authenticated client for POST resources</display-name>
         <web-resource-collection>
-            <url-pattern>/*</url-pattern>
+            <url-pattern>/rest/*</url-pattern>
             <http-method>POST</http-method>
         </web-resource-collection>
         <auth-constraint>
@@ -79,7 +56,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
     <security-constraint>
         <display-name>Reject unused methods</display-name>
         <web-resource-collection>
-            <url-pattern>/*</url-pattern>
+            <url-pattern>/rest/*</url-pattern>
             <http-method-omission>GET</http-method-omission>
             <http-method-omission>POST</http-method-omission>
         </web-resource-collection>
