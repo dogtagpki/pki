@@ -81,7 +81,7 @@ public class PKIServerSocketListener implements SSLSocketListener {
 
         try {
             SSLSocket socket = event.getSocket();
-            JSSEngine engine = event.getEngine();
+            JSSEngine sslEngine = event.getEngine();
 
             InetAddress clientAddress = null;
             InetAddress serverAddress = null;
@@ -107,8 +107,8 @@ public class PKIServerSocketListener implements SSLSocketListener {
                 Principal subjectDN = peerCertificate == null ? null : peerCertificate.getSubjectDN();
                 subjectID = subjectDN == null ? "" : subjectDN.toString();
             } else {
-                if(engine != null) {
-                    JSSSession session = engine.getSession();
+                if(sslEngine != null) {
+                    JSSSession session = sslEngine.getSession();
                     if(session != null) {
                         Certificate[] certs = session.getPeerCertificates();
                         if(certs != null) {
@@ -116,6 +116,12 @@ public class PKIServerSocketListener implements SSLSocketListener {
                             if(cert != null) {
                                 subjectID = cert.getSubjectDN().toString();
                             }
+                        }
+                        if(session.getRemoteAddr() != null) {
+                            clientIP = session.getRemoteAddr();
+                        }
+                        if(session.getLocalAddr() != null) {
+                            serverIP = session.getLocalAddr();
                         }
                     }
                 }
@@ -151,7 +157,7 @@ public class PKIServerSocketListener implements SSLSocketListener {
 
         try {
             SSLSocket socket = event.getSocket();
-            JSSEngine engine = event.getEngine();
+            JSSEngine sslEngine = event.getEngine();
 
             int description = event.getDescription();
             String reason = "serverAlertSent: " + SSLAlertDescription.valueOf(description).toString();
@@ -173,13 +179,19 @@ public class PKIServerSocketListener implements SSLSocketListener {
                 serverIP = (String)info.get("serverIP");
                 subjectID = (String)info.get("subjectID");
             } else {
-                if(engine != null) {
-                    JSSSession session = engine.getSession();
+                if(sslEngine != null) {
+                    JSSSession session = sslEngine.getSession();
                     if(session != null) {
                         Certificate[] certs = session.getPeerCertificates();
                         if(certs != null) {
                              X509Certificate cert = (X509Certificate) certs[0];
                              subjectID = cert.getSubjectDN().toString();
+                        }
+                        if(session.getRemoteAddr() != null) {
+                            clientIP = session.getRemoteAddr();
+                        }
+                        if(session.getLocalAddr() != null) {
+                            serverIP = session.getLocalAddr();
                         }
                     }
                 }
@@ -205,8 +217,8 @@ public class PKIServerSocketListener implements SSLSocketListener {
                     subjectID = subjectDN == null ? "" : subjectDN.toString();
 
                } else {
-                   if(engine != null) {
-                        JSSSession session = engine.getSession();
+                   if(sslEngine != null) {
+                        JSSSession session = sslEngine.getSession();
                         if(session != null) {
                             Certificate[] certs = session.getPeerCertificates();
                             if(certs != null) {
@@ -214,6 +226,12 @@ public class PKIServerSocketListener implements SSLSocketListener {
                                  if(cert != null) {
                                      subjectID = cert.getSubjectDN().toString();
                                  }
+                            }
+                            if(session.getRemoteAddr() != null) {
+                                clientIP = session.getRemoteAddr();
+                            }
+                            if(session.getLocalAddr() != null) {
+                                serverIP = session.getLocalAddr();
                             }
                         }
                     }
@@ -250,7 +268,7 @@ public class PKIServerSocketListener implements SSLSocketListener {
 
         try {
             SSLSocket socket = event.getSocket();
-            JSSEngine engine = event.getEngine();
+            JSSEngine sslEngine = event.getEngine();
 
             InetAddress clientAddress = null;
             InetAddress serverAddress = null;
@@ -278,8 +296,8 @@ public class PKIServerSocketListener implements SSLSocketListener {
                 info.put("subjectID", subjectID);
                 socketInfos.put(socket, info);
             } else {
-                if(engine != null) {
-                    JSSSession session = engine.getSession();
+                if(sslEngine != null) {
+                    JSSSession session = sslEngine.getSession();
                     if(session != null) {
                         Certificate[] certs = session.getPeerCertificates();
                         if(certs != null) {
@@ -288,6 +306,12 @@ public class PKIServerSocketListener implements SSLSocketListener {
                                 subjectID = cert.getSubjectDN().toString();
                             }
                         }
+                    }
+                    if(session.getRemoteAddr() != null) {
+                        clientIP = session.getRemoteAddr();
+                    }
+                    if(session.getLocalAddr() != null) {
+                        serverIP = session.getLocalAddr();
                     }
                 }
             }
