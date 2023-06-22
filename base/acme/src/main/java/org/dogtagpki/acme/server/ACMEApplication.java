@@ -14,7 +14,7 @@ import javax.ws.rs.core.Application;
 /**
  * @author Endi S. Dewata
  */
-@ApplicationPath("")
+@ApplicationPath("/rest")
 public class ACMEApplication extends Application {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ACMEApplication.class);

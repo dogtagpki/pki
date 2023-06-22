@@ -8,103 +8,10 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
     <display-name>ACME Responder</display-name>
 
-    <listener>
-        <listener-class>org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap</listener-class>
-    </listener>
-
-    <context-param>
-        <param-name>resteasy.role.based.security</param-name>
-        <param-value>true</param-value>
-    </context-param>
-
-    <context-param>
-        <param-name>resteasy.resource.method-interceptors</param-name>
-        <param-value>org.jboss.resteasy.core.ResourceMethodSecurityInterceptor</param-value>
-    </context-param>
-
-    <servlet>
-        <servlet-name>ACME</servlet-name>
-        <servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher</servlet-class>
-        <init-param>
-            <param-name>javax.ws.rs.Application</param-name>
-            <param-value>org.dogtagpki.acme.server.ACMEApplication</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>ACME</servlet-name>
-        <url-pattern>/login</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>ACME</servlet-name>
-        <url-pattern>/logout</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>ACME</servlet-name>
-        <url-pattern>/enable</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>ACME</servlet-name>
-        <url-pattern>/disable</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>ACME</servlet-name>
-        <url-pattern>/directory</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>ACME</servlet-name>
-        <url-pattern>/new-nonce</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>ACME</servlet-name>
-        <url-pattern>/new-account</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>ACME</servlet-name>
-        <url-pattern>/new-order</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>ACME</servlet-name>
-        <url-pattern>/authz/*</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>ACME</servlet-name>
-        <url-pattern>/chall/*</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>ACME</servlet-name>
-        <url-pattern>/order/*</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>ACME</servlet-name>
-        <url-pattern>/acct/*</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>ACME</servlet-name>
-        <url-pattern>/cert/*</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>ACME</servlet-name>
-        <url-pattern>/revoke-cert</url-pattern>
-    </servlet-mapping>
-
     <security-constraint>
         <display-name>Allow somebody with credentials to log in</display-name>
         <web-resource-collection>
-            <url-pattern>/login</url-pattern>
+            <url-pattern>/rest/login</url-pattern>
             <http-method>POST</http-method>
         </web-resource-collection>
         <auth-constraint>
@@ -118,7 +25,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
     <security-constraint>
         <display-name>Allow anybody to get login information</display-name>
         <web-resource-collection>
-            <url-pattern>/login</url-pattern>
+            <url-pattern>/rest/login</url-pattern>
             <http-method-omission>POST</http-method-omission>
         </web-resource-collection>
         <user-data-constraint>
@@ -130,7 +37,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
         <display-name>Allow anybody to log out</display-name>
         <web-resource-collection>
             <web-resource-name>Logout Service</web-resource-name>
-            <url-pattern>/logout</url-pattern>
+            <url-pattern>/rest/logout</url-pattern>
         </web-resource-collection>
         <user-data-constraint>
             <transport-guarantee>CONFIDENTIAL</transport-guarantee>
@@ -140,7 +47,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
     <security-constraint>
         <display-name>Allow administrators to enable ACME services</display-name>
         <web-resource-collection>
-            <url-pattern>/enable</url-pattern>
+            <url-pattern>/rest/enable</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>Administrators</role-name>
@@ -154,7 +61,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
     <security-constraint>
         <display-name>Allow administrators to disable ACME services</display-name>
         <web-resource-collection>
-            <url-pattern>/disable</url-pattern>
+            <url-pattern>/rest/disable</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>Administrators</role-name>
