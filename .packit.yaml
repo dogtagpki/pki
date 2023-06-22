@@ -32,6 +32,8 @@ jobs:
   - job: copr_build
     trigger: pull_request
     branch: master
+    additional_repos:
+      - "https://copr.fedorainfracloud.org/coprs/g/pki/master/"
     targets:
       - fedora-development
       - centos-stream-9-x86_64
