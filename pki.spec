@@ -173,15 +173,10 @@ BuildRequires:    mvn(org.jboss.resteasy:resteasy-client)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-jackson2-provider)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-jaxrs)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-servlet-initializer)
+BuildRequires:    tomcat >= 1:9.0.31
 BuildRequires:    jss >= 5.4
 BuildRequires:    tomcatjss >= 8.4
 BuildRequires:    ldapjdk >= 5.4
-
-%if 0%{?rhel} && ! 0%{?eln}
-BuildRequires:    pki-servlet-engine >= 9.0.31
-%else
-BuildRequires:    tomcat >= 1:9.0.31
-%endif
 
 # Python build dependencies
 BuildRequires:    python3 >= 3.9
@@ -196,12 +191,6 @@ BuildRequires:    python3-six
 BuildRequires:    python3-sphinx
 
 BuildRequires:    systemd-units
-
-%if 0%{?rhel} && ! 0%{?eln}
-BuildRequires:    pki-servlet-engine >= 9.0.31
-%else
-BuildRequires:    tomcat >= 1:9.0.31
-%endif
 
 # additional build requirements needed to build native 'tpsclient'
 # REMINDER:  Revisit these once 'tpsclient' is rewritten as a Java app
@@ -447,11 +436,7 @@ Requires:         python3-policycoreutils
 Requires:         selinux-policy-targeted >= 3.13.1-159
 
 Requires:         mvn(org.jboss.resteasy:resteasy-servlet-initializer)
-%if 0%{?rhel} && ! 0%{?eln}
-Requires:         pki-servlet-engine >= 9.0.31
-%else
 Requires:         tomcat >= 1:9.0.31
-%endif
 
 Requires:         systemd
 Requires(post):   systemd-units
