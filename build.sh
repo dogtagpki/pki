@@ -705,63 +705,62 @@ if [ "$BUILD_TARGET" = "dist" ] ; then
     echo
     echo "Build artifacts:"
 
+    echo "- Java binaries:"
     if [[ " ${PKGS_TO_BUILD[*]} " =~ " base " ]]; then
-        echo "- base:"
         echo "    $WORK_DIR/dist/pki-common.jar"
         echo "    $WORK_DIR/dist/pki-tools.jar"
     fi
-
     if [[ " ${PKGS_TO_BUILD[*]} " =~ " server " ]]; then
-        echo "- server:"
         echo "    $WORK_DIR/dist/pki-server.jar"
+        echo "    $WORK_DIR/dist/pki-server-webapp.jar"
         echo "    $WORK_DIR/dist/pki-tomcat.jar"
     fi
-
-    if [[ " ${PKGS_TO_BUILD[*]} " =~ " acme " ]]; then
-        echo "- ACME:"
-        echo "    $WORK_DIR/dist/pki-acme.jar"
-    fi
-
-    if [[ " ${PKGS_TO_BUILD[*]} " =~ " est " ]]; then
-        echo "- EST:"
-        echo "    $WORK_DIR/dist/pki-est.jar"
-    fi
-
     if [[ " ${PKGS_TO_BUILD[*]} " =~ " ca " ]]; then
-        echo "- CA:"
         echo "    $WORK_DIR/dist/pki-ca.jar"
     fi
-
     if [[ " ${PKGS_TO_BUILD[*]} " =~ " kra " ]]; then
-        echo "- KRA:"
         echo "    $WORK_DIR/dist/pki-kra.jar"
     fi
-
     if [[ " ${PKGS_TO_BUILD[*]} " =~ " ocsp " ]]; then
-        echo "- OCSP:"
         echo "    $WORK_DIR/dist/pki-ocsp.jar"
     fi
-
     if [[ " ${PKGS_TO_BUILD[*]} " =~ " tks " ]]; then
-        echo "- TKS:"
         echo "    $WORK_DIR/dist/pki-tks.jar"
     fi
-
     if [[ " ${PKGS_TO_BUILD[*]} " =~ " tps " ]]; then
-        echo "- TPS:"
         echo "    $WORK_DIR/dist/pki-tps.jar"
-        echo "    $WORK_DIR/base/tools/src/main/native/tpsclient/src/libtps.so"
     fi
-
-    if [[ " ${PKGS_TO_BUILD[*]} " =~ " javadoc " ]]; then
-        echo "- Javadoc:"
-        echo "    $WORK_DIR/base/javadoc/javadoc/pki"
+    if [[ " ${PKGS_TO_BUILD[*]} " =~ " acme " ]]; then
+        echo "    $WORK_DIR/dist/pki-acme.jar"
     fi
-
+    if [[ " ${PKGS_TO_BUILD[*]} " =~ " est " ]]; then
+        echo "    $WORK_DIR/dist/pki-est.jar"
+    fi
     if [ "$WITH_CONSOLE" = true ] ; then
-        echo "- Console:"
         echo "    $WORK_DIR/dist/pki-console.jar"
-        echo "    $WORK_DIR/base/console/bin/pkiconsole"
+    fi
+
+    echo "- native binaries:"
+    echo "    $WORK_DIR/base/tools/src/main/native/p12tool/p12tool"
+    echo "    $WORK_DIR/base/tools/src/main/native/p7tool/p7tool"
+    echo "    $WORK_DIR/base/tools/src/main/native/pistool/src/pistool"
+    echo "    $WORK_DIR/base/tools/src/main/native/revoker/revoker"
+    echo "    $WORK_DIR/base/tools/src/main/native/setpin/setpin"
+    echo "    $WORK_DIR/base/tools/src/main/native/sslget/sslget"
+    echo "    $WORK_DIR/base/tools/src/main/native/tkstool/tkstool"
+    echo "    $WORK_DIR/base/tools/src/main/native/tpsclient/src/libtps.so"
+    echo "    $WORK_DIR/base/tools/src/main/native/tpsclient/tools/raclient/tpsclient"
+
+    echo "- documentation:"
+    echo "    $WORK_DIR/base/common/python/man"
+    echo "    $WORK_DIR/base/common/man"
+    echo "    $WORK_DIR/base/tools/src/main/native/tpsclient/man"
+    echo "    $WORK_DIR/base/tools/man"
+    echo "    $WORK_DIR/base/server/man"
+    echo "    $WORK_DIR/base/tps/man"
+    echo "    $WORK_DIR/base/common/python/html"
+    if [[ " ${PKGS_TO_BUILD[*]} " =~ " javadoc " ]]; then
+        echo "    $WORK_DIR/base/javadoc/javadoc/pki"
     fi
 
     echo
