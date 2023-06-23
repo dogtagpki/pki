@@ -33,7 +33,9 @@ jobs:
     trigger: pull_request
     branch: master
     additional_repos:
-      - "https://copr.fedorainfracloud.org/coprs/g/pki/master/"
+      - "https://download.copr.fedorainfracloud.org/results/%40pki/master/rhel-9-x86_64/"
+      - "https://download.copr.fedorainfracloud.org/results/%40pki/master/fedora-rawhide-x86_64"
+      - "https://download.copr.fedorainfracloud.org/results/%40pki/master/centos-stream-9-x86_64"
     targets:
       - fedora-development
       - centos-stream-9-x86_64
