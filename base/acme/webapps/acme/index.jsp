@@ -7,7 +7,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 <head>
     <title>ACME Responder</title>
     <link rel="stylesheet" href="/patternfly-4.35.2/patternfly.min.css">
-    <script src="js/jquery-3.5.1.js"></script>
+    <script src="/jquery-3.5.1/jquery.min.js"></script>
     <script src="js/pki-acme.js"></script>
     <script>
 $(function() {
