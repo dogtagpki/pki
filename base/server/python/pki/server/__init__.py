@@ -1084,16 +1084,21 @@ grant codeBase "file:%s" {
         if webapp_id == 'ROOT':
             path = '/'
         else:
-            path = '/' + webapp_id
+            # end with backslash to avoid redirection
+            path = '/' + webapp_id + '/'
 
         start_time = datetime.datetime.today()
-        stopped = False
         counter = 0
 
-        while not stopped:
+        while True:
             try:
                 time.sleep(1)
-                stopped = not self.is_available(path, timeout=timeout)
+                available = self.is_available(path, timeout=timeout)
+
+                if not available:
+                    break  # done
+
+                # continue waiting
 
             except requests.exceptions.SSLError as e:
                 max_retry_error = e.args[0]
@@ -1101,17 +1106,16 @@ grant codeBase "file:%s" {
                 raise Exception('Server unreachable due to SSL error: %s' % reason) from e
 
             except pki.RETRYABLE_EXCEPTIONS as e:
+                logger.debug('Unable to access path %s: %s', path, e)
+                # continue waiting
 
-                stop_time = datetime.datetime.today()
-                counter = (stop_time - start_time).total_seconds()
+            stop_time = datetime.datetime.today()
+            counter = (stop_time - start_time).total_seconds()
 
-                if max_wait is not None and counter >= max_wait:
-                    raise Exception('Web application did not stop after %ds' %
-                                    max_wait) from e
+            if max_wait is not None and counter >= max_wait:
+                raise Exception('Web application did not stop after %ds' % max_wait)
 
-                logger.info(
-                    'Waiting for web application to stop (%ds)',
-                    int(round(counter)))
+            logger.info('Waiting for web application to stop (%ds)', round(counter))
 
         logger.info('Web application stopped')
 
