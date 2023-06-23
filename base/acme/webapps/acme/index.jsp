@@ -6,7 +6,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 <html>
 <head>
     <title>ACME Responder</title>
-    <link rel="stylesheet" href="css/patternfly-4.35.2.css">
+    <link rel="stylesheet" href="/patternfly-4.35.2/patternfly.min.css">
     <script src="js/jquery-3.5.1.js"></script>
     <script src="js/pki-acme.js"></script>
     <script>
@@ -41,7 +41,7 @@ $(function() {
       <div class="pf-c-dropdown" style="--pf-global--BorderWidth--sm: 0px;">
         <button id="profile-menu" class="pf-c-dropdown__toggle" type="button" aria-expanded="false">
           <span class="pf-c-dropdown__toggle-image">
-            <img class="pf-c-avatar" alt="Avatar image" src="css/assets/images/img_avatar.svg">
+            <img class="pf-c-avatar" alt="Avatar image" src="/patternfly-4.35.2/assets/images/img_avatar.svg">
           </span>
           <span id="profile-fullName" class="pf-c-dropdown__toggle-text"></span>
           <span class="pf-c-dropdown__toggle-icon">
