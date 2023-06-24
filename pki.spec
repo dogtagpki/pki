@@ -173,7 +173,10 @@ BuildRequires:    mvn(org.jboss.resteasy:resteasy-client)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-jackson2-provider)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-jaxrs)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-servlet-initializer)
-BuildRequires:    tomcat >= 1:9.0.31
+BuildRequires:    mvn(org.apache.tomcat:tomcat-catalina)
+BuildRequires:    mvn(org.apache.tomcat:tomcat-servlet-api)
+BuildRequires:    mvn(org.apache.tomcat:tomcat-jaspic-api)
+BuildRequires:    mvn(org.apache.tomcat:tomcat-util-scan)
 BuildRequires:    jss >= 5.4
 BuildRequires:    tomcatjss >= 8.4
 BuildRequires:    ldapjdk >= 5.4
@@ -436,7 +439,7 @@ Requires:         python3-policycoreutils
 Requires:         selinux-policy-targeted >= 3.13.1-159
 
 Requires:         mvn(org.jboss.resteasy:resteasy-servlet-initializer)
-Requires:         tomcat >= 1:9.0.31
+Requires:         tomcat >= 1:9.0.50
 
 Requires:         systemd
 Requires(post):   systemd-units

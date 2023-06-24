@@ -17,6 +17,12 @@
     <dependencies>
 
         <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-util-scan</artifactId>
+            <version>9.0.50</version>
+        </dependency>
+
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>pki-tomcat</artifactId>
             <version>${project.version}</version>

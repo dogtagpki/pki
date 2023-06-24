@@ -220,6 +220,7 @@ jobs:
     displayName: Test PKI CLI
 
   - script: |
+      docker exec runner dnf install -y tomcat
       docker exec runner pki-server create tomcat@pki
       docker exec runner pki-server start tomcat@pki --wait
       docker exec runner pki-server status tomcat@pki
