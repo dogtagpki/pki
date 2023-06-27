@@ -1042,7 +1042,6 @@ fi
 %{_javadir}/pki/pki-tools.jar
 %{_datadir}/pki/tools/
 %{_datadir}/pki/lib/p11-kit-trust.so
-%{_libdir}/tps/libtps.so
 %{_mandir}/man1/AtoB.1.gz
 %{_mandir}/man1/AuditVerify.1.gz
 %{_mandir}/man1/BtoA.1.gz

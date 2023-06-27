@@ -748,8 +748,7 @@ if [ "$BUILD_TARGET" = "dist" ] ; then
     echo "    $WORK_DIR/base/tools/src/main/native/setpin/setpin"
     echo "    $WORK_DIR/base/tools/src/main/native/sslget/sslget"
     echo "    $WORK_DIR/base/tools/src/main/native/tkstool/tkstool"
-    echo "    $WORK_DIR/base/tools/src/main/native/tpsclient/src/libtps.so"
-    echo "    $WORK_DIR/base/tools/src/main/native/tpsclient/tools/raclient/tpsclient"
+    echo "    $WORK_DIR/base/tools/src/main/native/tpsclient/tpsclient"
 
     echo "- documentation:"
     echo "    $WORK_DIR/base/common/python/man"
