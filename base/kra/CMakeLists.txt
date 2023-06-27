@@ -25,22 +25,26 @@ javac(pki-kra-classes
         ${CMAKE_CURRENT_BINARY_DIR}/classes
 )
 
+set(PKI_KRA_JAR ${CMAKE_BINARY_DIR}/dist/pki-kra.jar
+    CACHE INTERNAL "pki-kra.jar"
+)
+
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/META-INF/MANIFEST.MF
     ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.MF
 )
 
 jar(pki-kra-jar
-    DEPENDS
-        pki-kra-classes
     CREATE
-        ${CMAKE_BINARY_DIR}/dist/pki-kra.jar
+        ${PKI_KRA_JAR}
     OPTIONS
         m
     PARAMS
         ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.MF
     INPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
+    DEPENDS
+        pki-kra-classes
 )
 
 # Create links at /usr/share/pki/kra/webapps/kra/admin/console.
@@ -64,12 +68,10 @@ add_custom_command(
 
 install(
     FILES
-        ${CMAKE_BINARY_DIR}/dist/pki-kra.jar
+        ${PKI_KRA_JAR}
     DESTINATION
         ${JAVA_JAR_INSTALL_DIR}/pki
 )
-
-set(PKI_KRA_JAR ${CMAKE_BINARY_DIR}/dist/pki-kra.jar CACHE INTERNAL "pki-kra jar file")
 
 # install directories
 install(

@@ -21,6 +21,10 @@ javac(pki-acme-classes
         ${CMAKE_CURRENT_BINARY_DIR}/classes
 )
 
+set(PKI_ACME_JAR ${CMAKE_BINARY_DIR}/dist/pki-acme.jar
+    CACHE INTERNAL "pki-acme.jar"
+)
+
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/META-INF/MANIFEST.MF
     ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.MF
@@ -28,7 +32,7 @@ configure_file(
 
 jar(pki-acme-jar
     CREATE
-        ${CMAKE_BINARY_DIR}/dist/pki-acme.jar
+        ${PKI_ACME_JAR}
     OPTIONS
         m
     PARAMS
@@ -38,8 +42,6 @@ jar(pki-acme-jar
     DEPENDS
         pki-acme-classes
 )
-
-set(PKI_ACME_JAR ${CMAKE_BINARY_DIR}/dist/pki-acme.jar CACHE INTERNAL "pki-acme.jar file")
 
 add_custom_target(pki-acme-links ALL
     COMMENT "Creating links for ACME")
@@ -56,7 +58,7 @@ add_custom_command(
 
 install(
     FILES
-        ${CMAKE_BINARY_DIR}/dist/pki-acme.jar
+        ${PKI_ACME_JAR}
     DESTINATION
         ${JAVA_JAR_INSTALL_DIR}/pki
 )

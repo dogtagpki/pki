@@ -20,20 +20,18 @@ javac(pki-common-classes
         ${CMAKE_CURRENT_BINARY_DIR}/classes
 )
 
+set(PKI_COMMON_JAR ${CMAKE_BINARY_DIR}/dist/pki-common.jar
+    CACHE INTERNAL "pki-common.jar"
+)
+
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/META-INF/MANIFEST.MF
     ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.MF
 )
 
-# Customize default pki.conf.
-configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/share/etc/pki.conf
-    ${CMAKE_CURRENT_BINARY_DIR}/share/etc/pki.conf
-)
-
 jar(pki-common-jar
     CREATE
-        ${CMAKE_BINARY_DIR}/dist/pki-common.jar
+        ${PKI_COMMON_JAR}
     OPTIONS
         m
     PARAMS
@@ -43,8 +41,6 @@ jar(pki-common-jar
     DEPENDS
         pki-common-classes
 )
-
-set(PKI_COMMON_JAR ${CMAKE_BINARY_DIR}/dist/pki-common.jar CACHE INTERNAL "pki-common jar file")
 
 if(RUN_TESTS)
     javac(pki-common-test-classes
@@ -142,9 +138,15 @@ add_custom_command(
     COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man8/pki-upgrade.8.md -out man/man8/pki-upgrade.8
 )
 
+# Customize default pki.conf.
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/share/etc/pki.conf
+    ${CMAKE_CURRENT_BINARY_DIR}/share/etc/pki.conf
+)
+
 install(
     FILES
-        ${CMAKE_BINARY_DIR}/dist/pki-common.jar
+        ${PKI_COMMON_JAR}
     DESTINATION
         ${JAVA_JAR_INSTALL_DIR}/pki
 )

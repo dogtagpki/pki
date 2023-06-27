@@ -25,6 +25,10 @@ javac(pki-tps-classes
         ${CMAKE_CURRENT_BINARY_DIR}/classes
 )
 
+set(PKI_TPS_JAR ${CMAKE_BINARY_DIR}/dist/pki-tps.jar
+    CACHE INTERNAL "pki-tps.jar"
+)
+
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/META-INF/MANIFEST.MF
     ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.MF
@@ -34,7 +38,7 @@ jar(pki-tps-jar
     DEPENDS
         pki-tps-classes
     CREATE
-        ${CMAKE_BINARY_DIR}/dist/pki-tps.jar
+        ${PKI_TPS_JAR}
     OPTIONS
         m
     PARAMS
@@ -72,12 +76,10 @@ add_custom_command(
 
 install(
     FILES
-        ${CMAKE_BINARY_DIR}/dist/pki-tps.jar
+        ${PKI_TPS_JAR}
     DESTINATION
         ${JAVA_JAR_INSTALL_DIR}/pki
 )
-
-set(PKI_TPS_JAR ${CMAKE_BINARY_DIR}/dist/pki-tps.jar CACHE INTERNAL "pki-tps jar file")
 
 # install directories
 install(

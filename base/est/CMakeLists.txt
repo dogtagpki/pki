@@ -25,6 +25,10 @@ javac(pki-est-classes
         ${CMAKE_CURRENT_BINARY_DIR}/classes
 )
 
+set(PKI_EST_JAR ${CMAKE_BINARY_DIR}/dist/pki-est.jar
+    CACHE INTERNAL "pki-est.jar"
+)
+
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/META-INF/MANIFEST.MF
     ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.MF
@@ -32,7 +36,7 @@ configure_file(
 
 jar(pki-est-jar
     CREATE
-        ${CMAKE_BINARY_DIR}/dist/pki-est.jar
+        ${PKI_EST_JAR}
     OPTIONS
         m
     PARAMS
@@ -42,8 +46,6 @@ jar(pki-est-jar
     DEPENDS
         pki-est-classes
 )
-
-set(PKI_EST_JAR ${CMAKE_BINARY_DIR}/dist/pki-est.jar CACHE INTERNAL "pki-est.jar file")
 
 add_custom_target(pki-est-links ALL
     COMMENT "Creating links for EST")
@@ -60,7 +62,7 @@ add_custom_command(
 
 install(
     FILES
-        ${CMAKE_BINARY_DIR}/dist/pki-est.jar
+        ${PKI_EST_JAR}
     DESTINATION
         ${JAVA_JAR_INSTALL_DIR}/pki
 )

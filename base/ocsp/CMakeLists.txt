@@ -24,22 +24,26 @@ javac(pki-ocsp-classes
         ${CMAKE_CURRENT_BINARY_DIR}/classes
 )
 
+set(PKI_OCSP_JAR ${CMAKE_BINARY_DIR}/dist/pki-ocsp.jar
+    CACHE INTERNAL "pki-ocsp.jar"
+)
+
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/META-INF/MANIFEST.MF
     ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.MF
 )
 
 jar(pki-ocsp-jar
-    DEPENDS
-        pki-ocsp-classes
     CREATE
-        ${CMAKE_BINARY_DIR}/dist/pki-ocsp.jar
+        ${PKI_OCSP_JAR}
     OPTIONS
         m
     PARAMS
         ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.MF
     INPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
+    DEPENDS
+        pki-ocsp-classes
 )
 
 # Create links at /usr/share/pki/ocsp/webapps/ocsp/admin/console.
@@ -63,12 +67,10 @@ add_custom_command(
 
 install(
     FILES
-        ${CMAKE_BINARY_DIR}/dist/pki-ocsp.jar
+        ${PKI_OCSP_JAR}
     DESTINATION
         ${JAVA_JAR_INSTALL_DIR}/pki
 )
-
-set(PKI_OCSP_JAR ${CMAKE_BINARY_DIR}/dist/pki-ocsp.jar CACHE INTERNAL "pki-ocsp jar file")
 
 # install directories
 install(

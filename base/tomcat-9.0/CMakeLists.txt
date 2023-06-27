@@ -25,11 +25,13 @@ configure_file(
     ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.MF
 )
 
-set(PKI_TOMCAT_JAR ${CMAKE_BINARY_DIR}/dist/pki-tomcat.jar CACHE INTERNAL "pki-tomcat jar file")
+set(PKI_TOMCAT_JAR ${CMAKE_BINARY_DIR}/dist/pki-tomcat.jar
+    CACHE INTERNAL "pki-tomcat.jar"
+)
 
 jar(pki-tomcat-jar
     CREATE
-        ${CMAKE_BINARY_DIR}/dist/pki-tomcat.jar
+        ${PKI_TOMCAT_JAR}
     OPTIONS
         m
     PARAMS
@@ -42,7 +44,7 @@ jar(pki-tomcat-jar
 
 install(
     FILES
-        ${CMAKE_BINARY_DIR}/dist/pki-tomcat.jar
+        ${PKI_TOMCAT_JAR}
     DESTINATION
         ${JAVA_JAR_INSTALL_DIR}/pki
 )

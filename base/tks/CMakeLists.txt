@@ -27,22 +27,24 @@ javac(pki-tks-classes
         ${CMAKE_CURRENT_BINARY_DIR}/classes
 )
 
+set(PKI_TKS_JAR ${CMAKE_BINARY_DIR}/dist/pki-tks.jar CACHE INTERNAL "pki-tks.jar")
+
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/META-INF/MANIFEST.MF
     ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.MF
 )
 
 jar(pki-tks-jar
-    DEPENDS
-        pki-tks-classes
     CREATE
-        ${CMAKE_BINARY_DIR}/dist/pki-tks.jar
+        ${PKI_TKS_JAR}
     OPTIONS
         m
     PARAMS
         ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.MF
     INPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
+    DEPENDS
+        pki-tks-classes
 )
 
 # Create links at /usr/share/pki/tks/webapps/tks/admin/console.
@@ -66,12 +68,10 @@ add_custom_command(
 
 install(
     FILES
-        ${CMAKE_BINARY_DIR}/dist/pki-tks.jar
+        ${PKI_TKS_JAR}
     DESTINATION
         ${JAVA_JAR_INSTALL_DIR}/pki
 )
-
-set(PKI_TKS_JAR ${CMAKE_BINARY_DIR}/dist/pki-tks.jar CACHE INTERNAL "pki-tks jar file")
 
 # install directories
 install(

@@ -30,22 +30,26 @@ javac(pki-ca-classes
         ${CMAKE_CURRENT_BINARY_DIR}/classes
 )
 
+set(PKI_CA_JAR ${CMAKE_BINARY_DIR}/dist/pki-ca.jar
+    CACHE INTERNAL "pki-ca.jar"
+)
+
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/META-INF/MANIFEST.MF
     ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.MF
 )
 
 jar(pki-ca-jar
-    DEPENDS
-        pki-ca-classes
     CREATE
-        ${CMAKE_BINARY_DIR}/dist/pki-ca.jar
+        ${PKI_CA_JAR}
     OPTIONS
         m
     PARAMS
         ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.MF
     INPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
+    DEPENDS
+        pki-ca-classes
 )
 
 # Create links at /usr/share/pki/ca/webapps/ca/admin/console.
@@ -68,12 +72,10 @@ add_custom_command(
 
 install(
     FILES
-        ${CMAKE_BINARY_DIR}/dist/pki-ca.jar
+        ${PKI_CA_JAR}
     DESTINATION
         ${JAVA_JAR_INSTALL_DIR}/pki
 )
-
-set(PKI_CA_JAR ${CMAKE_BINARY_DIR}/dist/pki-ca.jar CACHE INTERNAL "pki-ca jar file")
 
 # install directories
 install(

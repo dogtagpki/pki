@@ -18,6 +18,10 @@ javac(pki-console-classes
         ${CMAKE_CURRENT_BINARY_DIR}/classes
 )
 
+set(PKI_CONSOLE_JAR ${CMAKE_BINARY_DIR}/dist/pki-console.jar
+    CACHE INTERNAL "pki-console.jar"
+)
+
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/META-INF/MANIFEST.MF
     ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.MF
@@ -25,10 +29,8 @@ configure_file(
 
 # package console classes and resources
 jar(pki-console-jar
-    DEPENDS
-        pki-console-classes
     CREATE
-        ${CMAKE_BINARY_DIR}/dist/pki-console.jar
+        ${PKI_CONSOLE_JAR}
     OPTIONS
         m
     PARAMS
@@ -39,6 +41,8 @@ jar(pki-console-jar
         ${CMAKE_CURRENT_SOURCE_DIR}
     FILES
         com/netscape/admin/certsrv/images/*.gif
+    DEPENDS
+        pki-console-classes
 )
 
 configure_file(
@@ -60,9 +64,7 @@ install(
 
 install(
     FILES
-        ${CMAKE_BINARY_DIR}/dist/pki-console.jar
+        ${PKI_CONSOLE_JAR}
     DESTINATION
         ${JAVA_JAR_INSTALL_DIR}/pki
 )
-
-set(PKI_CONSOLE_JAR ${CMAKE_BINARY_DIR}/dist/pki-console.jar CACHE INTERNAL "pki-console jar file")

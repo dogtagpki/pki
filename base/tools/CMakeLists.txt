@@ -29,6 +29,10 @@ javac(pki-tools-classes
         pki-common-jar tkstool
 )
 
+set(PKI_TOOLS_JAR ${CMAKE_BINARY_DIR}/dist/pki-tools.jar
+    CACHE INTERNAL "pki-tools.jar"
+)
+
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/META-INF/MANIFEST.MF
     ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.MF
@@ -36,7 +40,7 @@ configure_file(
 
 jar(pki-tools-jar
     CREATE
-        ${CMAKE_BINARY_DIR}/dist/pki-tools.jar
+        ${PKI_TOOLS_JAR}
     OPTIONS
         m
     PARAMS
@@ -49,7 +53,7 @@ jar(pki-tools-jar
 
 install(
     FILES
-        ${CMAKE_BINARY_DIR}/dist/pki-tools.jar
+        ${PKI_TOOLS_JAR}
     DESTINATION
         ${JAVA_JAR_INSTALL_DIR}/pki
 )
@@ -60,8 +64,6 @@ install(
     DESTINATION
         ${SHARE_INSTALL_PREFIX}/pki/tools
 )
-
-set(PKI_TOOLS_JAR ${CMAKE_BINARY_DIR}/dist/pki-tools.jar CACHE INTERNAL "pki-tools jar file")
 
 add_custom_target(pki-tools-man ALL
     COMMENT "Creating PKI tools manuals")

@@ -26,6 +26,10 @@ javac(pki-server-classes
         ${CMAKE_CURRENT_BINARY_DIR}/classes
 )
 
+set(PKI_SERVER_JAR ${CMAKE_BINARY_DIR}/dist/pki-server.jar
+    CACHE INTERNAL "pki-server.jar"
+)
+
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/META-INF/MANIFEST.MF
     ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.MF
@@ -33,10 +37,8 @@ configure_file(
 
 # build pki-server.jar
 jar(pki-server-jar
-    DEPENDS
-        pki-server-classes
     CREATE
-        ${CMAKE_BINARY_DIR}/dist/pki-server.jar
+        ${PKI_SERVER_JAR}
     OPTIONS
         m
     PARAMS
@@ -49,9 +51,9 @@ jar(pki-server-jar
         audit-events.properties
         LogMessages.properties
         UserMessages.properties
+    DEPENDS
+        pki-server-classes
 )
-
-set(PKI_SERVER_JAR ${CMAKE_BINARY_DIR}/dist/pki-server.jar CACHE INTERNAL "pki-server jar file")
 
 if(RUN_TESTS)
     # build pki-server-test
@@ -181,7 +183,7 @@ configure_file(
 
 install(
     FILES
-        ${CMAKE_BINARY_DIR}/dist/pki-server.jar
+        ${PKI_SERVER_JAR}
     DESTINATION
         ${JAVA_JAR_INSTALL_DIR}/pki
 )

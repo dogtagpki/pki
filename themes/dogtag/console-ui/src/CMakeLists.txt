@@ -1,8 +1,12 @@
 set(pki-console-theme_java Java)
 
+set(PKI_CONSOLE_THEME_JAR ${CMAKE_BINARY_DIR}/dist/pki-console-theme.jar
+    CACHE INTERNAL "pki-console-theme.jar"
+)
+
 jar(pki-console-theme-jar
     CREATE
-        ${CMAKE_BINARY_DIR}/dist/pki-console-theme.jar
+        ${PKI_CONSOLE_THEME_JAR}
     FILES
         CMSAdminRS.properties
         com/netscape/management/client/theme/theme.properties
@@ -15,11 +19,7 @@ jar(pki-console-theme-jar
 
 install(
     FILES
-        ${CMAKE_BINARY_DIR}/dist/pki-console-theme.jar
+        ${PKI_CONSOLE_THEME_JAR}
     DESTINATION
         ${JAVA_JAR_INSTALL_DIR}/pki
-)
-
-set(PKI_CONSOLE_THEME_JAR ${CMAKE_BINARY_DIR}/dist/pki-console-theme.jar
-    CACHE INTERNAL "pki-console-theme jar file"
 )
