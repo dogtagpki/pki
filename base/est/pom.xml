@@ -11,27 +11,21 @@
         <version>${revision}</version>
     </parent>
 
-    <artifactId>pki-common</artifactId>
+    <artifactId>pki-est</artifactId>
     <packaging>jar</packaging>
 
     <dependencies>
 
         <dependency>
-            <groupId>org.dogtagpki.jss</groupId>
-            <artifactId>jss-base</artifactId>
-            <version>5.5.0-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.dogtagpki.ldap-sdk</groupId>
-            <artifactId>ldapjdk</artifactId>
-            <version>5.5.0-SNAPSHOT</version>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>pki-server</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
     </dependencies>
 
     <build>
-        <finalName>pki-common</finalName>
+        <finalName>pki-est</finalName>
     </build>
 
 </project>

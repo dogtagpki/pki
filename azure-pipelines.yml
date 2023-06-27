@@ -63,47 +63,63 @@ jobs:
   - script: |
       # get Python <major>.<minor> version
       docker exec runner python3 --version | tee output
-      VERSION=$(sed 's/Python \([0-9]\+\.[0-9]\+\)\..*/\1/' output)
+      PYTHON_VERSION=$(sed 's/Python \([0-9]\+\.[0-9]\+\)\..*/\1/' output)
 
       docker exec runner \
           /root/src/build.sh \
           --work-dir=/root/build \
-          --python-dir=/usr/lib/python$VERSION/site-packages \
+          --python-dir=/usr/lib/python$PYTHON_VERSION/site-packages \
           dist
     displayName: Build PKI with CMake
 
   - script: |
+      # get JSS <major>.<minor>.<update> version
+      docker exec runner rpm -q dogtag-jss | tee output
+      JSS_VERSION=$(sed -e 's/^dogtag-jss-\([0-9]\+\.[0-9]\+\.[0-9]\+\).*$/\1/' output)
+
+      # if built by COPR, jss-base.jar will be installed in /usr/lib/java/jss,
+      # otherwise it will be in /usr/share/java/jss.
+      JSS_BASE_JAR=$(docker exec runner find /usr/share/java/jss /usr/lib/java/jss -name jss-base.jar)
+
       docker exec runner \
           mvn install:install-file \
           -f /root/src \
-          -Dfile=/usr/lib/java/jss.jar \
+          -Dfile=$JSS_BASE_JAR \
           -DgroupId=org.dogtagpki.jss \
           -DartifactId=jss-base \
-          -Dversion=5.4.0-SNAPSHOT \
+          -Dversion=$JSS_VERSION-SNAPSHOT \
           -Dpackaging=jar \
           -DgeneratePom=true
     displayName: Install JSS into Maven repo
 
   - script: |
+      # get Tomcat JSS <major>.<minor>.<update> version
+      docker exec runner rpm -q dogtag-tomcatjss | tee output
+      TOMCATJSS_VERSION=$(sed -e 's/^dogtag-tomcatjss-\([0-9]\+\.[0-9]\+\.[0-9]\+\).*$/\1/' output)
+
       docker exec runner \
           mvn install:install-file \
           -f /root/src \
-          -Dfile=/usr/share/java/tomcatjss.jar \
+          -Dfile=/usr/share/java/tomcatjss/tomcatjss-core.jar \
           -DgroupId=org.dogtagpki.tomcatjss \
-          -DartifactId=tomcatjss-tomcat-9.0 \
-          -Dversion=8.4.0-SNAPSHOT \
+          -DartifactId=tomcatjss-core \
+          -Dversion=$TOMCATJSS_VERSION-SNAPSHOT \
           -Dpackaging=jar \
           -DgeneratePom=true
     displayName: Install Tomcat JSS into Maven repo
 
   - script: |
+      # get LDAP JDK <major>.<minor>.<update> version
+      docker exec runner rpm -q dogtag-ldapjdk | tee output
+      LDAPJDK_VERSION=$(sed -e 's/^dogtag-ldapjdk-\([0-9]\+\.[0-9]\+\.[0-9]\+\).*$/\1/' output)
+
       docker exec runner \
           mvn install:install-file \
           -f /root/src \
           -Dfile=/usr/share/java/ldapjdk.jar \
           -DgroupId=org.dogtagpki.ldap-sdk \
           -DartifactId=ldapjdk \
-          -Dversion=5.4.0-SNAPSHOT \
+          -Dversion=$LDAPJDK_VERSION-SNAPSHOT \
           -Dpackaging=jar \
           -DgeneratePom=true
     displayName: Install LDAP JDK into Maven repo
