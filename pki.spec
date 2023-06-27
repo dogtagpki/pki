@@ -167,7 +167,8 @@ BuildRequires:    mvn(org.apache.commons:commons-lang3)
 BuildRequires:    mvn(commons-logging:commons-logging)
 BuildRequires:    mvn(commons-net:commons-net)
 BuildRequires:    mvn(org.slf4j:slf4j-api)
-BuildRequires:    mvn(org.slf4j:slf4j-jdk14)
+BuildRequires:    mvn(xml-apis:xml-apis)
+BuildRequires:    mvn(xml-resolver:xml-resolver)
 BuildRequires:    mvn(org.junit.jupiter:junit-jupiter-api)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-client)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-jackson2-provider)
@@ -177,9 +178,9 @@ BuildRequires:    mvn(org.apache.tomcat:tomcat-catalina)
 BuildRequires:    mvn(org.apache.tomcat:tomcat-servlet-api)
 BuildRequires:    mvn(org.apache.tomcat:tomcat-jaspic-api)
 BuildRequires:    mvn(org.apache.tomcat:tomcat-util-scan)
-BuildRequires:    jss >= 5.4
-BuildRequires:    tomcatjss >= 8.4
-BuildRequires:    ldapjdk >= 5.4
+BuildRequires:    mvn(org.dogtagpki.jss:jss-base) >= 5.5.0
+BuildRequires:    mvn(org.dogtagpki.tomcatjss:tomcatjss-core) >= 8.5.0
+BuildRequires:    mvn(org.dogtagpki.ldap-sdk:ldapjdk) >= 5.5.0
 
 # Python build dependencies
 BuildRequires:    python3 >= 3.9
@@ -374,8 +375,8 @@ Requires:         mvn(org.slf4j:slf4j-jdk14)
 Requires:         mvn(org.jboss.resteasy:resteasy-client)
 Requires:         mvn(org.jboss.resteasy:resteasy-jackson2-provider)
 Requires:         mvn(org.jboss.resteasy:resteasy-jaxrs)
-Requires:         jss >= 5.4
-Requires:         ldapjdk >= 5.4
+Requires:         mvn(org.dogtagpki.jss:jss-base) >= 5.5.0
+Requires:         mvn(org.dogtagpki.ldap-sdk:ldapjdk) >= 5.5.0
 Requires:         %{product_id}-base = %{version}-%{release}
 
 %description -n   %{product_id}-java
@@ -440,12 +441,12 @@ Requires:         selinux-policy-targeted >= 3.13.1-159
 
 Requires:         mvn(org.jboss.resteasy:resteasy-servlet-initializer)
 Requires:         tomcat >= 1:9.0.50
+Requires:         mvn(org.dogtagpki.tomcatjss:tomcatjss-core) >= 8.5.0
 
 Requires:         systemd
 Requires(post):   systemd-units
 Requires(postun): systemd-units
 Requires(pre):    shadow-utils
-Requires:         tomcatjss >= 8.4
 
 # pki-healthcheck depends on the following library
 %if 0%{?rhel}

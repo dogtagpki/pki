@@ -33,12 +33,6 @@
         </dependency>
 
         <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
-            <version>3.2.2</version>
-        </dependency>
-
-        <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>2.11.0</version>
@@ -177,24 +171,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.dogtagpki.jss</groupId>
-            <artifactId>jss-base</artifactId>
-            <version>5.4.0-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.dogtagpki.tomcatjss</groupId>
-            <artifactId>tomcatjss-tomcat-9.0</artifactId>
-            <version>8.4.0-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.dogtagpki.ldap-sdk</groupId>
-            <artifactId>ldapjdk</artifactId>
-            <version>5.4.0-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>5.9.0</version>
@@ -251,6 +227,11 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.1.2</version>
             </plugin>
         </plugins>
     </build>

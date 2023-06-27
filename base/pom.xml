@@ -27,6 +27,7 @@
         <module>tks</module>
         <module>tps</module>
         <module>acme</module>
+        <module>est</module>
     </modules>
 
 </project>
