@@ -983,12 +983,13 @@ public class LDAPDatabase extends ACMEDatabase {
 
     void ldapAdd(LDAPEntry entry) throws Exception {
 
-        logger.info("LDAP: add " + entry.getDN());
+        logger.info("LDAPDatabase: Adding " + entry.getDN());
 
         LDAPConnection conn = connFactory.getConn();
         try {
             conn.add(entry);
         } catch (LDAPException e) {
+            logger.error("LDAPDatabase: Unable to add " + entry.getDN());
             throw new Exception("LDAP add failed: " + e, e);
         } finally {
             connFactory.returnConn(conn);
@@ -997,12 +998,13 @@ public class LDAPDatabase extends ACMEDatabase {
 
     void ldapModify(String dn, LDAPModificationSet mods) throws Exception {
 
-        logger.info("LDAP: modify " + dn);
+        logger.info("LDAPDatabase: Modifying " + dn);
 
         LDAPConnection conn = connFactory.getConn();
         try {
             conn.modify(dn, mods);
         } catch (LDAPException e) {
+            logger.error("LDAPDatabase: Unable to modify " + dn);
             throw new Exception("LDAP modify failed: " + e, e);
         } finally {
             connFactory.returnConn(conn);
@@ -1011,18 +1013,20 @@ public class LDAPDatabase extends ACMEDatabase {
 
     void ldapDelete(String dn, OnNoSuchObject action) throws Exception {
 
-        logger.info("LDAP: delete " + dn);
+        logger.info("LDAPDatabase: Deleting " + dn);
 
         LDAPConnection conn = connFactory.getConn();
         try {
             conn.delete(dn);
         } catch (LDAPException e) {
+            logger.error("LDAPDatabase: Unable to delete " + dn);
             if (
                 e.getLDAPResultCode() != LDAPException.NO_SUCH_OBJECT
                 || action == OnNoSuchObject.Throw
             ) {
                 throw e;
             }
+
         } finally {
             connFactory.returnConn(conn);
         }
@@ -1033,7 +1037,7 @@ public class LDAPDatabase extends ACMEDatabase {
      */
     LDAPEntry ldapGet(String dn) throws Exception {
 
-        logger.info("LDAP: search " + dn);
+        logger.info("LDAPDatabase: Searching " + dn);
 
         LDAPConnection conn = connFactory.getConn();
         try {
@@ -1063,7 +1067,7 @@ public class LDAPDatabase extends ACMEDatabase {
     List<LDAPEntry> ldapSearch(String searchBase, String filter, String[] attrs)
             throws Exception {
 
-        logger.info("LDAP: search " + searchBase);
+        logger.info("LDAPDatabase: Searching " + searchBase);
 
         List<LDAPEntry> l = new ArrayList<>();
 
