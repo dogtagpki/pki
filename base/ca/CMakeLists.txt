@@ -23,9 +23,12 @@ javac(pki-ca-classes
         ${LDAPJDK_JAR}
         ${SERVLET_JAR}
         ${TOMCAT_CATALINA_JAR}
-        ${TOMCATJSS_JAR}
+        ${TOMCATJSS_CORE_JAR}
+        ${TOMCATJSS_TOMCAT_9_0_JAR}
         ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR}
-        ${PKI_COMMON_JAR} ${PKI_SERVER_JAR} ${PKI_TOMCAT_JAR}
+        ${PKI_COMMON_JAR}
+        ${PKI_SERVER_JAR}
+        ${PKI_TOMCAT_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
 )

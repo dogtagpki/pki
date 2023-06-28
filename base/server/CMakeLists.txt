@@ -18,10 +18,12 @@ javac(pki-server-classes
         ${JSS_JAR}
         ${LDAPJDK_JAR}
         ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR}
-        ${TOMCATJSS_JAR}
+        ${TOMCATJSS_CORE_JAR}
+        ${TOMCATJSS_TOMCAT_9_0_JAR}
         ${JAVAX_ANNOTATIONS_API_JAR}
         ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR}
-        ${PKI_COMMON_JAR} ${PKI_TOMCAT_JAR}
+        ${PKI_COMMON_JAR}
+        ${PKI_TOMCAT_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
 )
@@ -141,7 +143,8 @@ add_custom_command(
     COMMAND ln -sf ../../../../../..${RESTEASY_CLIENT_JAR} common/lib/resteasy-client.jar
     COMMAND ln -sf ../../../../../..${RESTEASY_JACKSON2_PROVIDER_JAR} common/lib/resteasy-jackson2-provider.jar
     COMMAND ln -sf ../../../../../..${RESTEASY_JAXRS_JAR} common/lib/resteasy-jaxrs.jar
-    COMMAND ln -sf ../../../../../..${TOMCATJSS_JAR} common/lib/tomcatjss.jar
+    COMMAND ln -sf ../../../../../..${TOMCATJSS_CORE_JAR} common/lib/tomcatjss-core.jar
+    COMMAND ln -sf ../../../../../..${TOMCATJSS_TOMCAT_9_0_JAR} common/lib/tomcatjss-tomcat-9.0.jar
 )
 
 add_custom_target(pki-server-man ALL
