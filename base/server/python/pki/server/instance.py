@@ -343,9 +343,10 @@ class PKIInstance(pki.server.PKIServer):
         for filename in [
                 'jss.jar',
                 'ldapjdk.jar',
+                'tomcatjss-core.jar',
+                'tomcatjss-tomcat-9.0.jar',
                 'pki-common.jar',
-                'pki-tomcat.jar',
-                'tomcatjss.jar']:
+                'pki-tomcat.jar']:
 
             source = os.path.join(common_lib_dir, filename)
             dest = os.path.join(self.common_lib_dir, filename)

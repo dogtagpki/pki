@@ -361,11 +361,18 @@ find_file(TOMCAT_UTIL_SCAN_JAR
         /usr/share/java
 )
 
-find_file(TOMCATJSS_JAR
+find_file(TOMCATJSS_CORE_JAR
     NAMES
-        tomcatjss.jar
+        tomcatjss-core.jar
     PATHS
-        /usr/share/java
+        /usr/share/java/tomcatjss
+)
+
+find_file(TOMCATJSS_TOMCAT_9_0_JAR
+    NAMES
+        tomcatjss-tomcat-9.0.jar
+    PATHS
+        /usr/share/java/tomcatjss
 )
 
 find_file(BASE_JAR
