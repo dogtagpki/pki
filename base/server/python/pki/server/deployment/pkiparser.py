@@ -29,6 +29,7 @@ import logging
 import os
 import string
 
+import six
 from six.moves import input  # pylint: disable=W0622,F0401
 from six.moves import configparser  # pylint: disable=F0401
 from six.moves.urllib.parse import urlparse  # pylint: disable=F0401,E0611
@@ -342,7 +343,10 @@ class PKIConfigParser:
         self.deployer.user_config.optionxform = str
 
         with open(config.default_deployment_cfg, encoding='utf-8') as f:
-            self.deployer.main_config.readfp(f)
+            if six.PY2:
+                self.deployer.main_config.readfp(f)
+            else:
+                self.deployer.main_config.read_file(f)
 
         self.deployer.flatten_master_dict()
 
