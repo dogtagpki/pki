@@ -5,8 +5,6 @@ add_subdirectory(${APP_SERVER})
 
 # build pki-tks
 javac(pki-tks-classes
-    DEPENDS
-        pki-common-jar pki-server-jar
     SOURCES
         src/main/java/*.java
     CLASSPATH
@@ -25,6 +23,8 @@ javac(pki-tks-classes
         ${PKI_COMMON_JAR} ${PKI_SERVER_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
+    DEPENDS
+        pki-server-jar
 )
 
 set(PKI_TKS_JAR ${CMAKE_BINARY_DIR}/dist/pki-tks.jar CACHE INTERNAL "pki-tks.jar")

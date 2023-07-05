@@ -5,8 +5,6 @@ add_subdirectory(${APP_SERVER})
 
 # build pki-ca
 javac(pki-ca-classes
-    DEPENDS
-        pki-common-jar pki-server-jar
     SOURCES
         src/main/java/*.java
     CLASSPATH
@@ -27,10 +25,13 @@ javac(pki-ca-classes
         ${TOMCATJSS_TOMCAT_9_0_JAR}
         ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR}
         ${PKI_COMMON_JAR}
-        ${PKI_SERVER_JAR}
         ${PKI_TOMCAT_JAR}
+        ${PKI_TOMCAT_9_0_JAR}
+        ${PKI_SERVER_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
+    DEPENDS
+        pki-server-jar
 )
 
 set(PKI_CA_JAR ${CMAKE_BINARY_DIR}/dist/pki-ca.jar

@@ -346,7 +346,8 @@ class PKIInstance(pki.server.PKIServer):
                 'tomcatjss-core.jar',
                 'tomcatjss-tomcat-9.0.jar',
                 'pki-common.jar',
-                'pki-tomcat.jar']:
+                'pki-tomcat.jar',
+                'pki-tomcat-9.0.jar']:
 
             source = os.path.join(common_lib_dir, filename)
             dest = os.path.join(self.common_lib_dir, filename)

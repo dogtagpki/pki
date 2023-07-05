@@ -17,10 +17,11 @@ javac(pki-est-classes
         ${JSS_JAR}
         ${PKI_CMSUTIL_JAR}
         ${PKI_COMMON_JAR}
-        ${PKI_SERVER_JAR}
         ${PKI_TOMCAT_JAR}
+        ${PKI_TOMCAT_9_0_JAR}
+        ${PKI_SERVER_JAR}
     DEPENDS
-        pki-common-jar pki-server-jar
+        pki-server-jar
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
 )

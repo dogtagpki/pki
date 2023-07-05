@@ -1,6 +1,6 @@
-project(pki-tomcat-9.0)
+project(pki-tomcat)
 
-javac(pki-tomcat-9.0-classes
+javac(pki-tomcat-classes
     SOURCES
         src/main/java/*.java
     CLASSPATH
@@ -14,15 +14,14 @@ javac(pki-tomcat-9.0-classes
         ${TOMCATJSS_CORE_JAR}
         ${TOMCATJSS_TOMCAT_9_0_JAR}
         ${PKI_COMMON_JAR}
-        ${PKI_TOMCAT_JAR}
     OUTPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
     DEPENDS
-        pki-tomcat-jar
+        pki-common-jar
 )
 
-set(PKI_TOMCAT_9_0_JAR ${CMAKE_BINARY_DIR}/dist/pki-tomcat-9.0.jar
-    CACHE INTERNAL "pki-tomcat-9.0.jar"
+set(PKI_TOMCAT_JAR ${CMAKE_BINARY_DIR}/dist/pki-tomcat.jar
+    CACHE INTERNAL "pki-tomcat.jar"
 )
 
 configure_file(
@@ -30,9 +29,9 @@ configure_file(
     ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.MF
 )
 
-jar(pki-tomcat-9.0-jar
+jar(pki-tomcat-jar
     CREATE
-        ${PKI_TOMCAT_9_0_JAR}
+        ${PKI_TOMCAT_JAR}
     OPTIONS
         m
     PARAMS
@@ -40,19 +39,12 @@ jar(pki-tomcat-9.0-jar
     INPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
     DEPENDS
-        pki-tomcat-9.0-classes
+        pki-tomcat-classes
 )
 
 install(
     FILES
-        ${PKI_TOMCAT_9_0_JAR}
+        ${PKI_TOMCAT_JAR}
     DESTINATION
         ${JAVA_JAR_INSTALL_DIR}/pki
-)
-
-install(
-    DIRECTORY
-        conf/
-    DESTINATION
-        ${DATA_INSTALL_DIR}/server/conf/
 )

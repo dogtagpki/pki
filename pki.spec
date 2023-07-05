@@ -1111,6 +1111,7 @@ fi
 %{_javadir}/pki/pki-server.jar
 %{_javadir}/pki/pki-server-webapp.jar
 %{_javadir}/pki/pki-tomcat.jar
+%{_javadir}/pki/pki-tomcat-9.0.jar
 %dir %{_sharedstatedir}/pki
 %{_mandir}/man1/pkidaemon.1.gz
 %{_mandir}/man5/pki_default.cfg.5.gz
