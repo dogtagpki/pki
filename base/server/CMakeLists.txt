@@ -4,8 +4,6 @@ add_subdirectory(healthcheck)
 
 # build server classes
 javac(pki-server-classes
-    DEPENDS
-        pki-common-jar pki-tools-jar pki-tomcat-jar
     SOURCES
         src/main/java/*.java
     CLASSPATH
@@ -24,8 +22,11 @@ javac(pki-server-classes
         ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR}
         ${PKI_COMMON_JAR}
         ${PKI_TOMCAT_JAR}
+        ${PKI_TOMCAT_9_0_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
+    DEPENDS
+        pki-common-jar pki-tools-jar pki-tomcat-jar pki-tomcat-9.0-jar
 )
 
 set(PKI_SERVER_JAR ${CMAKE_BINARY_DIR}/dist/pki-server.jar
@@ -140,6 +141,7 @@ add_custom_command(
     COMMAND ln -sf ../../../../../..${LDAPJDK_JAR} common/lib/ldapjdk.jar
     COMMAND ln -sf ../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-common.jar common/lib/pki-common.jar
     COMMAND ln -sf ../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-tomcat.jar common/lib/pki-tomcat.jar
+    COMMAND ln -sf ../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-tomcat-9.0.jar common/lib/pki-tomcat-9.0.jar
     COMMAND ln -sf ../../../../../..${RESTEASY_CLIENT_JAR} common/lib/resteasy-client.jar
     COMMAND ln -sf ../../../../../..${RESTEASY_JACKSON2_PROVIDER_JAR} common/lib/resteasy-jackson2-provider.jar
     COMMAND ln -sf ../../../../../..${RESTEASY_JAXRS_JAR} common/lib/resteasy-jaxrs.jar

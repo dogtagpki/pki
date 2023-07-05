@@ -14,11 +14,14 @@ javac(pki-acme-classes
         ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
         ${JSS_JAR}
         ${LDAPJDK_JAR}
-        ${PKI_COMMON_JAR} ${PKI_SERVER_JAR} ${PKI_TOMCAT_JAR}
-    DEPENDS
-        pki-common-jar pki-server-jar
+        ${PKI_COMMON_JAR}
+        ${PKI_TOMCAT_JAR}
+        ${PKI_TOMCAT_9_0_JAR}
+        ${PKI_SERVER_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
+    DEPENDS
+        pki-server-jar
 )
 
 set(PKI_ACME_JAR ${CMAKE_BINARY_DIR}/dist/pki-acme.jar

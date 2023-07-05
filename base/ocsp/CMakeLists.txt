@@ -5,8 +5,6 @@ add_subdirectory(${APP_SERVER})
 
 # build pki-ocsp
 javac(pki-ocsp-classes
-    DEPENDS
-        pki-common-jar pki-server-jar
     SOURCES
         src/main/java/*.java
     CLASSPATH
@@ -24,6 +22,8 @@ javac(pki-ocsp-classes
         ${PKI_SERVER_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
+    DEPENDS
+        pki-server-jar
 )
 
 set(PKI_OCSP_JAR ${CMAKE_BINARY_DIR}/dist/pki-ocsp.jar

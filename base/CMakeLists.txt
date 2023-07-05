@@ -420,6 +420,7 @@ add_subdirectory(tools)
 
 if(WITH_SERVER OR WITH_CA OR WITH_KRA OR WITH_OCSP OR WITH_TKS OR WITH_TPS OR WITH_ACME OR WITH_EST)
 
+    add_subdirectory(tomcat)
     add_subdirectory(${APP_SERVER})
     add_subdirectory(server)
     add_subdirectory(server-webapp)
@@ -431,12 +432,12 @@ if(WITH_SERVER OR WITH_CA OR WITH_KRA OR WITH_OCSP OR WITH_TKS OR WITH_TPS OR WI
         com.netscape.cms)
 
     list(APPEND PKI_JAVADOC_CLASSPATH
-        ${PKI_SERVER_JAR}
-        ${PKI_TOMCAT_JAR})
+        ${PKI_TOMCAT_JAR}
+        ${PKI_TOMCAT_9_0_JAR}
+        ${PKI_SERVER_JAR})
 
     list(APPEND PKI_JAVADOC_DEPENDS
-        pki-server-jar
-        pki-tomcat-jar)
+        pki-server-jar)
 
     if(WITH_CA)
         add_subdirectory(ca)
