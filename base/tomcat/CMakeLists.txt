@@ -15,7 +15,7 @@ javac(pki-tomcat-classes
         ${TOMCATJSS_TOMCAT_9_0_JAR}
         ${PKI_COMMON_JAR}
     OUTPUT_DIR
-        ${CMAKE_BINARY_DIR}/classes
+        ${CMAKE_CURRENT_BINARY_DIR}/classes
     DEPENDS
         pki-common-jar
 )
@@ -37,7 +37,7 @@ jar(pki-tomcat-jar
     PARAMS
         ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.MF
     INPUT_DIR
-        ${CMAKE_BINARY_DIR}/classes
+        ${CMAKE_CURRENT_BINARY_DIR}/classes
     DEPENDS
         pki-tomcat-classes
 )
