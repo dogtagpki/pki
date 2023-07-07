@@ -308,13 +308,6 @@ class PKIConfigParser:
         self.deployer.nss_db_type = self.get_nss_db_type()
         java_home = self._getenv('JAVA_HOME').strip()
 
-        # Check if a instance name is provided before assigning a default
-        # instance_name
-        if pki_instance_name:
-            default_instance_name = pki_instance_name
-        else:
-            default_instance_name = 'pki-tomcat'
-
         default_http_port = '8080'
         default_https_port = '8443'
 
@@ -324,7 +317,6 @@ class PKIConfigParser:
         charset = string.digits + string.ascii_lowercase + string.ascii_uppercase
         self.deployer.main_config = configparser.ConfigParser({
             'application_version': application_version,
-            'pki_instance_name': default_instance_name,
             'pki_http_port': default_http_port,
             'pki_https_port': default_https_port,
             'pki_dns_domainname': self.deployer.dns_domainname,
@@ -335,6 +327,9 @@ class PKIConfigParser:
             'home_dir': os.path.expanduser("~"),
             'pki_hostname': self.deployer.hostname,
             'pki_random_ajp_secret': pki.generate_password(charset, length=25)})
+
+        if pki_instance_name:
+            self.deployer.main_config.set('DEFAULT', 'pki_instance_name', pki_instance_name)
 
         # Make keys case-sensitive!
         self.deployer.main_config.optionxform = str
