@@ -14,6 +14,8 @@ javac(pki-examples-classes
         pki-common-jar
 )
 
+add_dependencies(java pki-examples-classes)
+
 install(
     DIRECTORY
         java

@@ -22,8 +22,8 @@ set(p12tool_SRCS
 
 include_directories(${P12TOOL_PRIVATE_INCLUDE_DIRS})
 
-add_executable(p12tool ${p12tool_SRCS})
-add_dependencies(p12tool pki-common-jar)
+add_executable(p12tool EXCLUDE_FROM_ALL ${p12tool_SRCS})
+add_dependencies(native p12tool)
 target_link_libraries(p12tool ${P12TOOL_LINK_LIBRARIES})
 
 install(

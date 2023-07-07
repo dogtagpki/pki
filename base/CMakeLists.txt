@@ -436,32 +436,24 @@ if(WITH_SERVER OR WITH_CA OR WITH_KRA OR WITH_OCSP OR WITH_TKS OR WITH_TPS OR WI
         ${PKI_TOMCAT_9_0_JAR}
         ${PKI_SERVER_JAR})
 
-    list(APPEND PKI_JAVADOC_DEPENDS
-        pki-server-jar)
-
     if(WITH_CA)
         add_subdirectory(ca)
-        list(APPEND PKI_JAVADOC_DEPENDS pki-ca-jar)
     endif(WITH_CA)
 
     if(WITH_KRA)
         add_subdirectory(kra)
-        list(APPEND PKI_JAVADOC_DEPENDS pki-kra-jar)
     endif(WITH_KRA)
 
     if(WITH_OCSP)
         add_subdirectory(ocsp)
-        list(APPEND PKI_JAVADOC_DEPENDS pki-ocsp-jar)
     endif(WITH_OCSP)
 
     if(WITH_TKS)
         add_subdirectory(tks)
-        list(APPEND PKI_JAVADOC_DEPENDS pki-tks-jar)
     endif(WITH_TKS)
 
     if(WITH_TPS)
         add_subdirectory(tps)
-        list(APPEND PKI_JAVADOC_DEPENDS pki-tps-jar)
     endif(WITH_TPS)
 
     if(WITH_ACME)

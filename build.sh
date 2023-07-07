@@ -47,6 +47,7 @@ WITH_TIMESTAMP=
 WITH_COMMIT_ID=
 DIST=
 
+WITH_JAVA=true
 WITH_CONSOLE=
 RUN_TESTS=true
 
@@ -86,6 +87,7 @@ usage() {
     echo "    --with-timestamp       Append timestamp to release number."
     echo "    --with-commit-id       Append commit ID to release number."
     echo "    --dist=<name>          Distribution name (e.g. fc28)."
+    echo "    --without-java         Do not build Java binaries."
     echo "    --with-console         Build console package."
     echo "    --with-pkgs=<list>     Build packages specified in comma-separated list only."
     echo "    --without-pkgs=<list>  Build everything except packages specified in comma-separated list."
@@ -307,6 +309,9 @@ while getopts v-: arg ; do
             ;;
         dist=?*)
             DIST="$LONG_OPTARG"
+            ;;
+        without-java)
+            WITH_JAVA=false
             ;;
         with-console)
             WITH_CONSOLE=true
@@ -665,6 +670,10 @@ if [ "$BUILD_TARGET" = "dist" ] ; then
 
     OPTIONS+=(-DSYSTEMD_LIB_INSTALL_DIR=$UNIT_DIR)
 
+    if [ "$WITH_JAVA" = false ] ; then
+        OPTIONS+=(-DWITH_JAVA=FALSE)
+    fi
+
     for package in "${PKGS_TO_SKIP[@]}"
     do
         package=${package^^}
@@ -696,6 +705,22 @@ if [ "$BUILD_TARGET" = "dist" ] ; then
     OPTIONS+=(CMAKE_NO_VERBOSE=1)
     OPTIONS+=(--no-print-directory)
 
+    if [ "$WITH_JAVA" = true ] ; then
+        # build Java binaries
+        make "${OPTIONS[@]}" java
+    fi
+
+    if [ "$WITH_CONSOLE" = true ] ; then
+        # build PKI console
+        make "${OPTIONS[@]}" console
+    fi
+
+    if [[ " ${PKGS_TO_BUILD[*]} " =~ " javadoc " ]]; then
+        # build Javadoc
+        make "${OPTIONS[@]}" javadoc
+    fi
+
+    # build native binaries
     make "${OPTIONS[@]}" all
 
     if [ "$RUN_TESTS" = true ] ; then
@@ -705,40 +730,42 @@ if [ "$BUILD_TARGET" = "dist" ] ; then
     echo
     echo "Build artifacts:"
 
-    echo "- Java binaries:"
-    if [[ " ${PKGS_TO_BUILD[*]} " =~ " base " ]]; then
-        echo "    $WORK_DIR/dist/pki-common.jar"
-        echo "    $WORK_DIR/dist/pki-tools.jar"
-    fi
-    if [[ " ${PKGS_TO_BUILD[*]} " =~ " server " ]]; then
-        echo "    $WORK_DIR/dist/pki-tomcat.jar"
-        echo "    $WORK_DIR/dist/pki-tomcat-9.0.jar"
-        echo "    $WORK_DIR/dist/pki-server.jar"
-        echo "    $WORK_DIR/dist/pki-server-webapp.jar"
-    fi
-    if [[ " ${PKGS_TO_BUILD[*]} " =~ " ca " ]]; then
-        echo "    $WORK_DIR/dist/pki-ca.jar"
-    fi
-    if [[ " ${PKGS_TO_BUILD[*]} " =~ " kra " ]]; then
-        echo "    $WORK_DIR/dist/pki-kra.jar"
-    fi
-    if [[ " ${PKGS_TO_BUILD[*]} " =~ " ocsp " ]]; then
-        echo "    $WORK_DIR/dist/pki-ocsp.jar"
-    fi
-    if [[ " ${PKGS_TO_BUILD[*]} " =~ " tks " ]]; then
-        echo "    $WORK_DIR/dist/pki-tks.jar"
-    fi
-    if [[ " ${PKGS_TO_BUILD[*]} " =~ " tps " ]]; then
-        echo "    $WORK_DIR/dist/pki-tps.jar"
-    fi
-    if [[ " ${PKGS_TO_BUILD[*]} " =~ " acme " ]]; then
-        echo "    $WORK_DIR/dist/pki-acme.jar"
-    fi
-    if [[ " ${PKGS_TO_BUILD[*]} " =~ " est " ]]; then
-        echo "    $WORK_DIR/dist/pki-est.jar"
-    fi
-    if [ "$WITH_CONSOLE" = true ] ; then
-        echo "    $WORK_DIR/dist/pki-console.jar"
+    if [ "$WITH_JAVA" = true ] ; then
+        echo "- Java binaries:"
+        if [[ " ${PKGS_TO_BUILD[*]} " =~ " base " ]]; then
+            echo "    $WORK_DIR/dist/pki-common.jar"
+            echo "    $WORK_DIR/dist/pki-tools.jar"
+        fi
+        if [[ " ${PKGS_TO_BUILD[*]} " =~ " server " ]]; then
+            echo "    $WORK_DIR/dist/pki-tomcat.jar"
+            echo "    $WORK_DIR/dist/pki-tomcat-9.0.jar"
+            echo "    $WORK_DIR/dist/pki-server.jar"
+            echo "    $WORK_DIR/dist/pki-server-webapp.jar"
+        fi
+        if [[ " ${PKGS_TO_BUILD[*]} " =~ " ca " ]]; then
+            echo "    $WORK_DIR/dist/pki-ca.jar"
+        fi
+        if [[ " ${PKGS_TO_BUILD[*]} " =~ " kra " ]]; then
+            echo "    $WORK_DIR/dist/pki-kra.jar"
+        fi
+        if [[ " ${PKGS_TO_BUILD[*]} " =~ " ocsp " ]]; then
+            echo "    $WORK_DIR/dist/pki-ocsp.jar"
+        fi
+        if [[ " ${PKGS_TO_BUILD[*]} " =~ " tks " ]]; then
+            echo "    $WORK_DIR/dist/pki-tks.jar"
+        fi
+        if [[ " ${PKGS_TO_BUILD[*]} " =~ " tps " ]]; then
+            echo "    $WORK_DIR/dist/pki-tps.jar"
+        fi
+        if [[ " ${PKGS_TO_BUILD[*]} " =~ " acme " ]]; then
+            echo "    $WORK_DIR/dist/pki-acme.jar"
+        fi
+        if [[ " ${PKGS_TO_BUILD[*]} " =~ " est " ]]; then
+            echo "    $WORK_DIR/dist/pki-est.jar"
+        fi
+        if [ "$WITH_CONSOLE" = true ] ; then
+            echo "    $WORK_DIR/dist/pki-console.jar"
+        fi
     fi
 
     echo "- native binaries:"

@@ -815,6 +815,32 @@ This package provides test suite for %{product_name}.
 # (see /usr/lib/rpm/macros.d/macros.cmake)
 %set_build_flags
 
+export JAVA_HOME=%{java_home}
+
+# flatten-maven-plugin is not available in RPM
+%pom_remove_plugin org.codehaus.mojo:flatten-maven-plugin
+
+# build Java binaries and run unit tests with Maven
+%mvn_build %{!?with_test:-f} -j
+
+# create links to Maven-built JAR files for CMake
+mkdir -p %{_vpath_builddir}/dist
+pushd %{_vpath_builddir}/dist
+ln -sf ../../base/common/target/pki-common.jar
+ln -sf ../../base/tools/target/pki-tools.jar
+ln -sf ../../base/tomcat/target/pki-tomcat.jar
+ln -sf ../../base/tomcat-9.0/target/pki-tomcat-9.0.jar
+ln -sf ../../base/server/target/pki-server.jar
+ln -sf ../../base/server-webapp/target/pki-server-webapp.jar
+ln -sf ../../base/ca/target/pki-ca.jar
+ln -sf ../../base/kra/target/pki-kra.jar
+ln -sf ../../base/ocsp/target/pki-ocsp.jar
+ln -sf ../../base/tks/target/pki-tks.jar
+ln -sf ../../base/tps/target/pki-tps.jar
+ln -sf ../../base/acme/target/pki-acme.jar
+ln -sf ../../base/est/target/pki-est.jar
+popd
+
 # Remove all symbol table and relocation information from the executable.
 C_FLAGS="-s"
 
@@ -850,6 +876,7 @@ pkgs=base\
 %{?with_tests:,tests}\
 %{?with_debug:,debug}
 
+# build PKI console, Javadoc, and native binaries with CMake
 ./build.sh \
     %{?_verbose:-v} \
     --product-name="%{product_name}" \
@@ -870,15 +897,20 @@ pkgs=base\
     --unit-dir=%{_unitdir} \
     --python=%{python3} \
     --python-dir=%{python3_sitelib} \
+    --without-java \
     --with-pkgs=$pkgs \
     %{?with_console:--with-console} \
-    %{!?with_test:--without-test} \
+    --without-test \
     dist
 
 ################################################################################
 %install
 ################################################################################
 
+# install Java binaries
+%mvn_install
+
+# install PKI console, Javadoc, and native binaries
 ./build.sh \
     %{?_verbose:-v} \
     --work-dir=%{_vpath_builddir} \
@@ -943,10 +975,10 @@ fi
 %if %{with meta}
 %if "%{name}" != "%{product_id}"
 ################################################################################
-%files -n %{product_id}
+%files -n %{product_id} -f .mfiles
 ################################################################################
 %else
-%files
+%files -f .mfiles
 %endif
 
 %doc %{_datadir}/doc/pki/README

@@ -94,10 +94,9 @@ javadoc(pki-javadoc
         -version
         -quiet
         ${doclintstr}
-    DEPENDS
-        pki-common-jar pki-tools-jar
-        ${PKI_JAVADOC_DEPENDS}
 )
+
+add_dependencies(javadoc pki-javadoc)
 
 install(
     DIRECTORY

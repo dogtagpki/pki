@@ -29,6 +29,8 @@ javac(pki-tools-classes
         pki-common-jar
 )
 
+add_dependencies(java pki-tools-classes)
+
 set(PKI_TOOLS_JAR ${CMAKE_BINARY_DIR}/dist/pki-tools.jar
     CACHE INTERNAL "pki-tools.jar"
 )
@@ -51,12 +53,16 @@ jar(pki-tools-jar
         pki-tools-classes
 )
 
-install(
-    FILES
-        ${PKI_TOOLS_JAR}
-    DESTINATION
-        ${JAVA_JAR_INSTALL_DIR}/pki
-)
+add_dependencies(java pki-tools-jar)
+
+if(WITH_JAVA)
+    install(
+        FILES
+            ${PKI_TOOLS_JAR}
+        DESTINATION
+            ${JAVA_JAR_INSTALL_DIR}/pki
+    )
+endif(WITH_JAVA)
 
 install(
     FILES

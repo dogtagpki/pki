@@ -46,7 +46,7 @@ function(add_junit_test target)
 
     endforeach(arg)
 
-    add_custom_target(${target} ALL
+    add_custom_target(${target}
         DEPENDS ${depends}
         COMMENT "Running JUnit ${target}")
 

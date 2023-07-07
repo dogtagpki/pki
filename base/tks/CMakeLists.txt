@@ -27,6 +27,8 @@ javac(pki-tks-classes
         pki-server-jar
 )
 
+add_dependencies(java pki-tks-classes)
+
 set(PKI_TKS_JAR ${CMAKE_BINARY_DIR}/dist/pki-tks.jar
     CACHE INTERNAL "pki-tks.jar"
 )
@@ -49,6 +51,8 @@ jar(pki-tks-jar
         pki-tks-classes
 )
 
+add_dependencies(java pki-tks-jar)
+
 # Create links at /usr/share/pki/tks/webapps/tks/admin/console.
 # Create /usr/share/pki/tks/webapps/tks/WEB-INF/lib.
 # This can be customized for different platforms in RPM spec.
@@ -68,12 +72,14 @@ add_custom_command(
     COMMAND ln -sf ../../../../../../../..${RESTEASY_SERVLET_INITIALIZER_JAR} webapp/lib/resteasy-servlet-intializer.jar
 )
 
-install(
-    FILES
-        ${PKI_TKS_JAR}
-    DESTINATION
-        ${JAVA_JAR_INSTALL_DIR}/pki
-)
+if(WITH_JAVA)
+    install(
+        FILES
+            ${PKI_TKS_JAR}
+        DESTINATION
+            ${JAVA_JAR_INSTALL_DIR}/pki
+    )
+endif(WITH_JAVA)
 
 # install directories
 install(

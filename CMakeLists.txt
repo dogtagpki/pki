@@ -41,6 +41,8 @@ string(REGEX REPLACE "^[0-9]+\\.[0-9]+\\.([0-9]+).*" "\\1" APPLICATION_VERSION_P
 
 set(APP_SERVER "tomcat-9.0" CACHE STRING "Application server")
 
+option(WITH_JAVA "Build Java binaries." TRUE)
+
 option(WITH_SERVER "Build server package" ON)
 option(WITH_CA "Build CA package" ON)
 option(WITH_KRA "Build KRA package" ON)
@@ -120,6 +122,30 @@ include(ConfigureChecks)
 configure_file(cmake/config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
 add_definitions(-DHAVE_CONFIG_H)
+
+# java target
+add_custom_target(
+    java
+    COMMENT "Building Java binaries"
+)
+
+# console target
+add_custom_target(
+    console
+    COMMENT "Building PKI console"
+)
+
+# javadoc target
+add_custom_target(
+    javadoc
+    COMMENT "Building Javadoc"
+)
+
+# native target
+add_custom_target(
+    native ALL
+    COMMENT "Building native binaries"
+)
 
 # uninstall target
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"

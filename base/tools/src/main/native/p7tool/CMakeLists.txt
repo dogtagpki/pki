@@ -21,8 +21,8 @@ set(p7tool_SRCS
 
 include_directories(${P7TOOL_PRIVATE_INCLUDE_DIRS})
 
-add_executable(p7tool ${p7tool_SRCS})
-add_dependencies(p7tool pki-common-jar)
+add_executable(p7tool EXCLUDE_FROM_ALL ${p7tool_SRCS})
+add_dependencies(native p7tool)
 target_link_libraries(p7tool ${P7TOOL_LINK_LIBRARIES})
 
 install(

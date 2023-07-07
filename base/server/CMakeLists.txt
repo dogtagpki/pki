@@ -29,6 +29,8 @@ javac(pki-server-classes
         pki-common-jar pki-tools-jar pki-tomcat-jar pki-tomcat-9.0-jar
 )
 
+add_dependencies(java pki-server-classes)
+
 set(PKI_SERVER_JAR ${CMAKE_BINARY_DIR}/dist/pki-server.jar
     CACHE INTERNAL "pki-server.jar"
 )
@@ -58,6 +60,8 @@ jar(pki-server-jar
         pki-server-classes
 )
 
+add_dependencies(java pki-server-jar)
+
 if(RUN_TESTS)
     # build pki-server-test
     javac(pki-server-test-classes
@@ -79,6 +83,8 @@ if(RUN_TESTS)
             pki-common-test-classes pki-common-jar pki-server-jar
     )
 
+    add_dependencies(java pki-server-test-classes)
+
     add_junit_test(test-pki-server
         CLASSPATH
             ${SLF4J_API_JAR} ${SLF4J_SIMPLE_JAR}
@@ -97,6 +103,9 @@ if(RUN_TESTS)
         DEPENDS
             pki-server-test-classes
     )
+
+    add_dependencies(java test-pki-server)
+
 endif(RUN_TESTS)
 
 # Create /usr/share/pki/server/lib. This can be customized for different platforms in RPM spec.
@@ -186,12 +195,14 @@ configure_file(
     ${CMAKE_CURRENT_BINARY_DIR}/share/etc/tomcat.conf
 )
 
-install(
-    FILES
-        ${PKI_SERVER_JAR}
-    DESTINATION
-        ${JAVA_JAR_INSTALL_DIR}/pki
-)
+if(WITH_JAVA)
+    install(
+        FILES
+            ${PKI_SERVER_JAR}
+        DESTINATION
+            ${JAVA_JAR_INSTALL_DIR}/pki
+    )
+endif(WITH_JAVA)
 
 install(
     DIRECTORY
