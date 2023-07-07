@@ -308,17 +308,12 @@ class PKIConfigParser:
         self.deployer.nss_db_type = self.get_nss_db_type()
         java_home = self._getenv('JAVA_HOME').strip()
 
-        default_http_port = '8080'
-        default_https_port = '8443'
-
         application_version = str(pki.util.Version(
             pki.specification_version()))
 
         charset = string.digits + string.ascii_lowercase + string.ascii_uppercase
         self.deployer.main_config = configparser.ConfigParser({
             'application_version': application_version,
-            'pki_http_port': default_http_port,
-            'pki_https_port': default_https_port,
             'pki_dns_domainname': self.deployer.dns_domainname,
             'pki_subsystem': self.deployer.subsystem_name,
             'pki_subsystem_type': self.deployer.subsystem_name.lower(),
