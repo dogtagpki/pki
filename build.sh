@@ -47,8 +47,8 @@ WITH_TIMESTAMP=
 WITH_COMMIT_ID=
 DIST=
 
-WITHOUT_TEST=
 WITH_CONSOLE=
+RUN_TESTS=true
 
 PKG_LIST="base, server, ca, kra, ocsp, tks, tps, acme, est, javadoc, theme, meta, tests, debug"
 ALL_PKGS=( $(echo "$PKG_LIST" | sed 's/ *, */ /g') )
@@ -86,10 +86,10 @@ usage() {
     echo "    --with-timestamp       Append timestamp to release number."
     echo "    --with-commit-id       Append commit ID to release number."
     echo "    --dist=<name>          Distribution name (e.g. fc28)."
-    echo "    --without-test         Do not run unit tests."
     echo "    --with-console         Build console package."
     echo "    --with-pkgs=<list>     Build packages specified in comma-separated list only."
     echo "    --without-pkgs=<list>  Build everything except packages specified in comma-separated list."
+    echo "    --without-test         Do not run unit tests."
     echo " -v,--verbose              Run in verbose mode."
     echo "    --debug                Run in debug mode."
     echo "    --help                 Show help message."
@@ -208,11 +208,6 @@ generate_rpm_spec() {
         sed -i "s/# Patch: pki-VERSION-RELEASE.patch/Patch: $PATCH/g" "$SPEC_FILE"
     fi
 
-    if [ "$WITHOUT_TEST" = true ] ; then
-        # convert bcond_without into bcond_with to skip unit tests by default
-        sed -i "s/%bcond_without *test\$/%bcond_with test/g" "$SPEC_FILE"
-    fi
-
     if [ "$WITH_CONSOLE" = true ] ; then
         # convert bcond_with into bcond_without to build console by default
         sed -i "s/%bcond_with *console\$/%bcond_without console/g" "$SPEC_FILE"
@@ -224,6 +219,11 @@ generate_rpm_spec() {
         # convert bcond_without into bcond_with to skip the package by default
         sed -i "s/^%bcond_without *\($package\)\$/%bcond_with \1/g" "$SPEC_FILE"
     done
+
+    if [ "$RUN_TESTS" = false ] ; then
+        # convert bcond_without into bcond_with to skip unit tests by default
+        sed -i "s/%bcond_without *test\$/%bcond_with test/g" "$SPEC_FILE"
+    fi
 
     # rpmlint "$SPEC_FILE"
 }
@@ -308,9 +308,6 @@ while getopts v-: arg ; do
         dist=?*)
             DIST="$LONG_OPTARG"
             ;;
-        without-test)
-            WITHOUT_TEST=true
-            ;;
         with-console)
             WITH_CONSOLE=true
             ;;
@@ -327,6 +324,9 @@ while getopts v-: arg ; do
                 exit 1
             fi
             WITHOUT_PKGS="$LONG_OPTARG"
+            ;;
+        without-test)
+            RUN_TESTS=false
             ;;
         verbose)
             VERBOSE=true
@@ -681,7 +681,7 @@ if [ "$BUILD_TARGET" = "dist" ] ; then
         OPTIONS+=(-DWITH_CONSOLE:BOOL=ON)
     fi
 
-    if [ "$WITHOUT_TEST" = true ] ; then
+    if [ "$RUN_TESTS" = false ] ; then
         OPTIONS+=(-DRUN_TESTS:BOOL=OFF)
     fi
 
@@ -698,7 +698,7 @@ if [ "$BUILD_TARGET" = "dist" ] ; then
 
     make "${OPTIONS[@]}" all
 
-    if [ "$WITH_TESTS" = true ] ; then
+    if [ "$RUN_TESTS" = true ] ; then
         ctest --output-on-failure
     fi
 
@@ -858,7 +858,7 @@ if [ "$DIST" != "" ] ; then
     OPTIONS+=(--define "dist .$DIST")
 fi
 
-if [ "$WITHOUT_TEST" = true ] ; then
+if [ "$RUN_TESTS" = false ] ; then
     OPTIONS+=(--without test)
 fi
 
