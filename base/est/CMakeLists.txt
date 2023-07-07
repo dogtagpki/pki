@@ -20,10 +20,10 @@ javac(pki-est-classes
         ${PKI_TOMCAT_JAR}
         ${PKI_TOMCAT_9_0_JAR}
         ${PKI_SERVER_JAR}
-    DEPENDS
-        pki-server-jar
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
+    DEPENDS
+        pki-server-jar
 )
 
 set(PKI_EST_JAR ${CMAKE_BINARY_DIR}/dist/pki-est.jar

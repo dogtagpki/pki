@@ -26,7 +26,7 @@ javac(pki-tools-classes
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
     DEPENDS
-        pki-common-jar tkstool
+        pki-common-jar
 )
 
 set(PKI_TOOLS_JAR ${CMAKE_BINARY_DIR}/dist/pki-tools.jar

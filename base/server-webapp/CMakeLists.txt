@@ -2,8 +2,6 @@ project(server-webapp)
 
 # build server-webapp classes
 javac(pki-server-webapp-classes
-    DEPENDS
-        pki-server-jar
     SOURCES
         src/main/java/*.java
     CLASSPATH
@@ -16,6 +14,8 @@ javac(pki-server-webapp-classes
         ${PKI_SERVER_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
+    DEPENDS
+        pki-server-jar
 )
 
 set(PKI_SERVER_WEBAPP_JAR ${CMAKE_BINARY_DIR}/dist/pki-server-webapp.jar

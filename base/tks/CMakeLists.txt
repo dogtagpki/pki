@@ -27,7 +27,9 @@ javac(pki-tks-classes
         pki-server-jar
 )
 
-set(PKI_TKS_JAR ${CMAKE_BINARY_DIR}/dist/pki-tks.jar CACHE INTERNAL "pki-tks.jar")
+set(PKI_TKS_JAR ${CMAKE_BINARY_DIR}/dist/pki-tks.jar
+    CACHE INTERNAL "pki-tks.jar"
+)
 
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/META-INF/MANIFEST.MF

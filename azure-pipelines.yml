@@ -47,7 +47,7 @@ jobs:
       for rpm in $RPMS
       do
           docker exec runner \
-              rpm -qlp "/root/build/pki/RPMS/$rpm" | tee -a files
+              rpm -qlp "/root/build/pki/RPMS/$rpm" | tee -a file_list
       done
 
       # exclude RPM-specific files
@@ -57,7 +57,7 @@ jobs:
           -e '/^\/usr\/share\/doc\//d' \
           -e '/^\/usr\/lib\/.build-id\//d' \
           -e '/__pycache__/d' \
-          files
+          file_list
     displayName: Get list of files from RPM packages
 
   - script: |
@@ -243,7 +243,7 @@ jobs:
     displayName: Install PKI with CMake
 
   - script: |
-      readarray -t files < files
+      readarray -t files < file_list
       docker exec runner ls -ld "${files[@]}"
     displayName: Compare CMake and RPM files
 

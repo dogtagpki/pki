@@ -61,8 +61,6 @@ jar(pki-server-jar
 if(RUN_TESTS)
     # build pki-server-test
     javac(pki-server-test-classes
-        DEPENDS
-            pki-common-test-classes pki-common-jar pki-server-jar
         SOURCES
             src/test/java/*.java
         CLASSPATH
@@ -77,11 +75,11 @@ if(RUN_TESTS)
             ${OPENTEST4J_JAR} ${JAXRS_API_JAR}
         OUTPUT_DIR
             ${CMAKE_BINARY_DIR}/test/classes
+        DEPENDS
+            pki-common-test-classes pki-common-jar pki-server-jar
     )
 
     add_junit_test(test-pki-server
-        DEPENDS
-            pki-server-test-classes
         CLASSPATH
             ${SLF4J_API_JAR} ${SLF4J_SIMPLE_JAR}
             ${PKI_COMMON_JAR} ${PKI_SERVER_JAR}
@@ -96,6 +94,8 @@ if(RUN_TESTS)
             ${OPENTEST4J_JAR} ${JAXRS_API_JAR}
         REPORTS_DIR
             reports
+        DEPENDS
+            pki-server-test-classes
     )
 endif(RUN_TESTS)
 

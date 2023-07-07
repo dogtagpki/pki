@@ -35,8 +35,6 @@ configure_file(
 )
 
 jar(pki-tps-jar
-    DEPENDS
-        pki-tps-classes
     CREATE
         ${PKI_TPS_JAR}
     OPTIONS
@@ -45,6 +43,8 @@ jar(pki-tps-jar
         ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.MF
     INPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
+    DEPENDS
+        pki-tps-classes
 )
 
 # TPS does not support admin console.

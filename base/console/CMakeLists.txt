@@ -2,8 +2,6 @@ project(console NONE)
 
 # build console classes
 javac(pki-console-classes
-    DEPENDS
-        pki-common-jar
     SOURCES
         src/main/java/*.java
     CLASSPATH
@@ -16,6 +14,8 @@ javac(pki-console-classes
         ${JSS_JAR} ${COMMONS_CODEC_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
+    DEPENDS
+        pki-common-jar
 )
 
 set(PKI_CONSOLE_JAR ${CMAKE_BINARY_DIR}/dist/pki-console.jar
