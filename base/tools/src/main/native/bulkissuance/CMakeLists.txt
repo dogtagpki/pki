@@ -18,7 +18,8 @@ set(bulkissuance_SRCS
 
 include_directories(${BULKISSUANCE_PRIVATE_INCLUDE_DIRS})
 
-add_executable(bulkissuance ${bulkissuance_SRCS})
+add_executable(bulkissuance EXCLUDE_FROM_ALL ${bulkissuance_SRCS})
+add_dependencies(native bulkissuance)
 
 target_link_libraries(bulkissuance ${BULKISSUANCE_LINK_LIBRARIES})
 

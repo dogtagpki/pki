@@ -34,6 +34,8 @@ javac(pki-ca-classes
         pki-server-jar
 )
 
+add_dependencies(java pki-ca-classes)
+
 set(PKI_CA_JAR ${CMAKE_BINARY_DIR}/dist/pki-ca.jar
     CACHE INTERNAL "pki-ca.jar"
 )
@@ -56,6 +58,8 @@ jar(pki-ca-jar
         pki-ca-classes
 )
 
+add_dependencies(java pki-ca-jar)
+
 # Create links at /usr/share/pki/ca/webapps/ca/admin/console.
 # Create links in /usr/share/pki/ca/webapps/ca/WEB-INF/lib.
 # This can be customized for different platforms in RPM spec.
@@ -74,12 +78,14 @@ add_custom_command(
     COMMAND ln -sf ../../../../../../../..${RESTEASY_SERVLET_INITIALIZER_JAR} webapp/lib/resteasy-servlet-intializer.jar
 )
 
-install(
-    FILES
-        ${PKI_CA_JAR}
-    DESTINATION
-        ${JAVA_JAR_INSTALL_DIR}/pki
-)
+if(WITH_JAVA)
+    install(
+        FILES
+            ${PKI_CA_JAR}
+        DESTINATION
+            ${JAVA_JAR_INSTALL_DIR}/pki
+    )
+endif(WITH_JAVA)
 
 # install directories
 install(

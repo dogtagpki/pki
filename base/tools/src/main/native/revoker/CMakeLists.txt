@@ -18,8 +18,8 @@ set(revoker_SRCS
 
 include_directories(${REVOKER_PRIVATE_INCLUDE_DIRS})
 
-add_executable(revoker ${revoker_SRCS})
-add_dependencies(revoker p7tool)
+add_executable(revoker EXCLUDE_FROM_ALL ${revoker_SRCS})
+add_dependencies(native revoker)
 target_link_libraries(revoker ${REVOKER_LINK_LIBRARIES})
 
 install(

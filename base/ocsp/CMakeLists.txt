@@ -26,6 +26,8 @@ javac(pki-ocsp-classes
         pki-server-jar
 )
 
+add_dependencies(java pki-ocsp-classes)
+
 set(PKI_OCSP_JAR ${CMAKE_BINARY_DIR}/dist/pki-ocsp.jar
     CACHE INTERNAL "pki-ocsp.jar"
 )
@@ -48,6 +50,8 @@ jar(pki-ocsp-jar
         pki-ocsp-classes
 )
 
+add_dependencies(java pki-ocsp-jar)
+
 # Create links at /usr/share/pki/ocsp/webapps/ocsp/admin/console.
 # Create links in /usr/share/pki/ocsp/webapps/ocsp/WEB-INF/lib.
 # This can be customized for different platforms in RPM spec.
@@ -67,12 +71,14 @@ add_custom_command(
     COMMAND ln -sf ../../../../../../../..${RESTEASY_SERVLET_INITIALIZER_JAR} webapp/lib/resteasy-servlet-intializer.jar
 )
 
-install(
-    FILES
-        ${PKI_OCSP_JAR}
-    DESTINATION
-        ${JAVA_JAR_INSTALL_DIR}/pki
-)
+if(WITH_JAVA)
+    install(
+        FILES
+            ${PKI_OCSP_JAR}
+        DESTINATION
+            ${JAVA_JAR_INSTALL_DIR}/pki
+    )
+endif(WITH_JAVA)
 
 # install directories
 install(

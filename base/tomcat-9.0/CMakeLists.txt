@@ -21,6 +21,8 @@ javac(pki-tomcat-9.0-classes
         pki-tomcat-jar
 )
 
+add_dependencies(java pki-tomcat-9.0-classes)
+
 set(PKI_TOMCAT_9_0_JAR ${CMAKE_BINARY_DIR}/dist/pki-tomcat-9.0.jar
     CACHE INTERNAL "pki-tomcat-9.0.jar"
 )
@@ -43,12 +45,16 @@ jar(pki-tomcat-9.0-jar
         pki-tomcat-9.0-classes
 )
 
-install(
-    FILES
-        ${PKI_TOMCAT_9_0_JAR}
-    DESTINATION
-        ${JAVA_JAR_INSTALL_DIR}/pki
-)
+add_dependencies(java pki-tomcat-9.0-jar)
+
+if(WITH_JAVA)
+    install(
+        FILES
+            ${PKI_TOMCAT_9_0_JAR}
+        DESTINATION
+            ${JAVA_JAR_INSTALL_DIR}/pki
+    )
+endif(WITH_JAVA)
 
 install(
     DIRECTORY

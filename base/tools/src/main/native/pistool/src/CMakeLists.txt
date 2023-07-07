@@ -66,8 +66,8 @@ set(pistool_SRCS
 
 include_directories(${PISTOOL_PRIVATE_INCLUDE_DIRS})
 
-add_executable(pistool ${pistool_SRCS})
-add_dependencies(pistool sslget)
+add_executable(pistool EXCLUDE_FROM_ALL ${pistool_SRCS})
+add_dependencies(native pistool)
 target_link_libraries(pistool ${PISTOOL_LINK_LIBRARIES})
 
 install(

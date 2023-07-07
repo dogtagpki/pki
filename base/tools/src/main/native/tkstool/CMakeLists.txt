@@ -33,8 +33,8 @@ set(tkstool_SRCS
 
 include_directories(${TKSTOOL_PRIVATE_INCLUDE_DIRS})
 
-add_executable(tkstool ${tkstool_SRCS})
-add_dependencies(tkstool sslget)
+add_executable(tkstool EXCLUDE_FROM_ALL ${tkstool_SRCS})
+add_dependencies(native tkstool)
 target_link_libraries(tkstool ${TKSTOOL_LINK_LIBRARIES})
 
 install(

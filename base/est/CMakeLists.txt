@@ -26,6 +26,8 @@ javac(pki-est-classes
         pki-server-jar
 )
 
+add_dependencies(java pki-est-classes)
+
 set(PKI_EST_JAR ${CMAKE_BINARY_DIR}/dist/pki-est.jar
     CACHE INTERNAL "pki-est.jar"
 )
@@ -48,6 +50,8 @@ jar(pki-est-jar
         pki-est-classes
 )
 
+add_dependencies(java pki-est-jar)
+
 add_custom_target(pki-est-links ALL
     COMMENT "Creating links for EST")
 
@@ -61,12 +65,14 @@ add_custom_command(
     COMMAND ln -sf ../../../../../../../..${RESTEASY_SERVLET_INITIALIZER_JAR} webapp/lib/resteasy-servlet-intializer.jar
 )
 
-install(
-    FILES
-        ${PKI_EST_JAR}
-    DESTINATION
-        ${JAVA_JAR_INSTALL_DIR}/pki
-)
+if(WITH_JAVA)
+    install(
+        FILES
+            ${PKI_EST_JAR}
+        DESTINATION
+            ${JAVA_JAR_INSTALL_DIR}/pki
+    )
+endif(WITH_JAVA)
 
 # install deployment descriptor
 install(

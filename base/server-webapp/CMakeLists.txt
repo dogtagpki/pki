@@ -18,6 +18,8 @@ javac(pki-server-webapp-classes
         pki-server-jar
 )
 
+add_dependencies(java pki-server-webapp-classes)
+
 set(PKI_SERVER_WEBAPP_JAR ${CMAKE_BINARY_DIR}/dist/pki-server-webapp.jar
     CACHE INTERNAL "pki-server-webapp.jar"
 )
@@ -42,6 +44,8 @@ jar(pki-server-webapp-jar
         pki-server-webapp-classes
 )
 
+add_dependencies(java pki-server-webapp-jar)
+
 # Create /usr/share/pki/server/webapps/pki/WEB-INF/lib. This can be customized for different platforms in RPM spec.
 
 add_custom_target(pki-server-webapp-lib ALL
@@ -64,12 +68,14 @@ install(
         ${DATA_INSTALL_DIR}/server
 )
 
-install(
-    FILES
-        ${PKI_SERVER_WEBAPP_JAR}
-    DESTINATION
-        ${JAVA_JAR_INSTALL_DIR}/pki
-)
+if(WITH_JAVA)
+    install(
+        FILES
+            ${PKI_SERVER_WEBAPP_JAR}
+        DESTINATION
+            ${JAVA_JAR_INSTALL_DIR}/pki
+    )
+endif(WITH_JAVA)
 
 install(
     DIRECTORY

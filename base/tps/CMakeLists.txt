@@ -25,6 +25,8 @@ javac(pki-tps-classes
         pki-server-jar
 )
 
+add_dependencies(java pki-tps-classes)
+
 set(PKI_TPS_JAR ${CMAKE_BINARY_DIR}/dist/pki-tps.jar
     CACHE INTERNAL "pki-tps.jar"
 )
@@ -46,6 +48,8 @@ jar(pki-tps-jar
     DEPENDS
         pki-tps-classes
 )
+
+add_dependencies(java pki-tps-jar)
 
 # TPS does not support admin console.
 # Create links in /usr/share/pki/tps/webapps/tps/WEB-INF/lib.
@@ -74,12 +78,14 @@ add_custom_command(
     COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man5/pki-tps-profile.5.md -out man/man5/pki-tps-profile.5
 )
 
-install(
-    FILES
-        ${PKI_TPS_JAR}
-    DESTINATION
-        ${JAVA_JAR_INSTALL_DIR}/pki
-)
+if(WITH_JAVA)
+    install(
+        FILES
+            ${CMAKE_BINARY_DIR}/dist/pki-tps.jar
+        DESTINATION
+            ${JAVA_JAR_INSTALL_DIR}/pki
+    )
+endif(WITH_JAVA)
 
 # install directories
 install(

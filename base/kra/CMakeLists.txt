@@ -25,6 +25,8 @@ javac(pki-kra-classes
         pki-server-jar
 )
 
+add_dependencies(java pki-kra-classes)
+
 set(PKI_KRA_JAR ${CMAKE_BINARY_DIR}/dist/pki-kra.jar
     CACHE INTERNAL "pki-kra.jar"
 )
@@ -47,6 +49,8 @@ jar(pki-kra-jar
         pki-kra-classes
 )
 
+add_dependencies(java pki-kra-jar)
+
 # Create links at /usr/share/pki/kra/webapps/kra/admin/console.
 # Create links in /usr/share/pki/kra/webapps/kra/WEB-INF/lib.
 # This can be customized for different platforms in RPM spec.
@@ -66,12 +70,14 @@ add_custom_command(
     COMMAND ln -sf ../../../../../../../..${RESTEASY_SERVLET_INITIALIZER_JAR} webapp/lib/resteasy-servlet-intializer.jar
 )
 
-install(
-    FILES
-        ${PKI_KRA_JAR}
-    DESTINATION
-        ${JAVA_JAR_INSTALL_DIR}/pki
-)
+if(WITH_JAVA)
+    install(
+        FILES
+            ${PKI_KRA_JAR}
+        DESTINATION
+            ${JAVA_JAR_INSTALL_DIR}/pki
+    )
+endif(WITH_JAVA)
 
 # install directories
 install(

@@ -50,8 +50,11 @@ jobs:
               rpm -qlp "/root/build/pki/RPMS/$rpm" | tee -a file_list
       done
 
-      # exclude RPM-specific files
+      # exclude Maven-specific and RPM-specific files
+      # from comparison with CMake files
       sed -i \
+          -e '/^\/usr\/share\/maven-metadata\//d' \
+          -e '/^\/usr\/share\/maven-poms\//d' \
           -e '/^\/usr\/share\/licenses\//d' \
           -e '/^\/usr\/share\/man\//d' \
           -e '/^\/usr\/share\/doc\//d' \

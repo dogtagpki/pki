@@ -24,6 +24,8 @@ javac(pki-acme-classes
         pki-server-jar
 )
 
+add_dependencies(java pki-acme-classes)
+
 set(PKI_ACME_JAR ${CMAKE_BINARY_DIR}/dist/pki-acme.jar
     CACHE INTERNAL "pki-acme.jar"
 )
@@ -46,6 +48,8 @@ jar(pki-acme-jar
         pki-acme-classes
 )
 
+add_dependencies(java pki-acme-jar)
+
 add_custom_target(pki-acme-links ALL
     COMMENT "Creating links for ACME")
 
@@ -59,12 +63,14 @@ add_custom_command(
     COMMAND ln -sf ../../../../../../../..${RESTEASY_SERVLET_INITIALIZER_JAR} webapp/lib/resteasy-servlet-intializer.jar
 )
 
-install(
-    FILES
-        ${PKI_ACME_JAR}
-    DESTINATION
-        ${JAVA_JAR_INSTALL_DIR}/pki
-)
+if(WITH_JAVA)
+    install(
+        FILES
+            ${PKI_ACME_JAR}
+        DESTINATION
+            ${JAVA_JAR_INSTALL_DIR}/pki
+    )
+endif(WITH_JAVA)
 
 install(
     FILES

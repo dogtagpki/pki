@@ -20,6 +20,8 @@ javac(pki-common-classes
         ${CMAKE_CURRENT_BINARY_DIR}/classes
 )
 
+add_dependencies(java pki-common-classes)
+
 set(PKI_COMMON_JAR ${CMAKE_BINARY_DIR}/dist/pki-common.jar
     CACHE INTERNAL "pki-common.jar"
 )
@@ -41,6 +43,8 @@ jar(pki-common-jar
     DEPENDS
         pki-common-classes
 )
+
+add_dependencies(java pki-common-jar)
 
 if(RUN_TESTS)
     javac(pki-common-test-classes
@@ -65,6 +69,8 @@ if(RUN_TESTS)
             pki-common-jar
     )
 
+    add_dependencies(java pki-common-test-classes)
+
     add_junit_test(test-pki-common
         CLASSPATH
             ${JAVAX_ACTIVATION_JAR}
@@ -85,6 +91,9 @@ if(RUN_TESTS)
         DEPENDS
             pki-common-test-classes
     )
+
+    add_dependencies(java test-pki-common)
+
 endif(RUN_TESTS)
 
 # Create /usr/share/pki/lib. This can be customized for different platforms in RPM spec.
@@ -144,12 +153,14 @@ configure_file(
     ${CMAKE_CURRENT_BINARY_DIR}/share/etc/pki.conf
 )
 
-install(
-    FILES
-        ${PKI_COMMON_JAR}
-    DESTINATION
-        ${JAVA_JAR_INSTALL_DIR}/pki
-)
+if(WITH_JAVA)
+    install(
+        FILES
+            ${PKI_COMMON_JAR}
+        DESTINATION
+            ${JAVA_JAR_INSTALL_DIR}/pki
+    )
+endif(WITH_JAVA)
 
 install(
     DIRECTORY

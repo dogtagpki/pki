@@ -18,6 +18,8 @@ javac(pki-console-classes
         pki-common-jar
 )
 
+add_dependencies(console pki-console-classes)
+
 set(PKI_CONSOLE_JAR ${CMAKE_BINARY_DIR}/dist/pki-console.jar
     CACHE INTERNAL "pki-console.jar"
 )
@@ -44,6 +46,8 @@ jar(pki-console-jar
     DEPENDS
         pki-console-classes
 )
+
+add_dependencies(console pki-console-jar)
 
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/bin/pkiconsole
