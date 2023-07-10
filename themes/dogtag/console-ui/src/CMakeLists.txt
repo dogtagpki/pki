@@ -17,7 +17,7 @@ jar(pki-console-theme-jar
         com/netscape/admin/certsrv/theme/certmgmt.gif
 )
 
-add_dependencies(console pki-console-theme-jar)
+add_dependencies(theme pki-console-theme-jar)
 
 install(
     FILES

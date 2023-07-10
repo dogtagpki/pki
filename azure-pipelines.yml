@@ -30,6 +30,7 @@ jobs:
       docker exec runner dnf install -y dnf-plugins-core rpm-build maven
       docker exec runner dnf copr enable -y @pki/master
       docker exec runner dnf builddep -y --spec /root/src/pki.spec
+      docker exec runner dnf install -y dogtag-console-framework
     displayName: Install PKI dependencies
 
   - script: |
@@ -123,6 +124,21 @@ jobs:
           -Dpackaging=jar \
           -DgeneratePom=true
     displayName: Install LDAP JDK into local Maven repo
+
+  - script: |
+      # get IDM Console Framework <major>.<minor>.<update> version
+      IDM_CONSOLE_FRAMEWORK_VERSION=$(docker exec runner rpm -q --qf "%{version}" dogtag-console-framework)
+
+      docker exec runner \
+          mvn install:install-file \
+          -f /root/src \
+          -Dfile=/usr/share/java/idm-console-framework.jar \
+          -DgroupId=org.dogtagpki.console-framework \
+          -DartifactId=console-framework \
+          -Dversion=$IDM_CONSOLE_FRAMEWORK_VERSION-SNAPSHOT \
+          -Dpackaging=jar \
+          -DgeneratePom=true
+    displayName: Install IDM Console Framework into local Maven repo
 
   - script: |
       docker exec runner \

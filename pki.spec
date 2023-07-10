@@ -719,12 +719,12 @@ This package provides %{product_name} API documentation.
 Summary:          %{product_name} Console Package
 BuildArch:        noarch
 
-BuildRequires:    idm-console-framework >= 2.0
+BuildRequires:    mvn(org.dogtagpki.console-framework:console-framework) >= 2.1.0
 
 Obsoletes:        pki-console < %{version}-%{release}
 Provides:         pki-console = %{version}-%{release}
 
-Requires:         idm-console-framework >= 2.0
+Requires:         mvn(org.dogtagpki.console-framework:console-framework) >= 2.1.0
 Requires:         %{product_id}-java = %{version}-%{release}
 Requires:         %{product_id}-console-theme = %{version}-%{release}
 
@@ -820,6 +820,10 @@ export JAVA_HOME=%{java_home}
 # flatten-maven-plugin is not available in RPM
 %pom_remove_plugin org.codehaus.mojo:flatten-maven-plugin
 
+%if ! %{with console}
+%pom_disable_module console base
+%endif
+
 # build Java binaries and run unit tests with Maven
 %mvn_build %{!?with_test:-f} -j
 
@@ -839,6 +843,11 @@ ln -sf ../../base/tks/target/pki-tks.jar
 ln -sf ../../base/tps/target/pki-tps.jar
 ln -sf ../../base/acme/target/pki-acme.jar
 ln -sf ../../base/est/target/pki-est.jar
+
+%if %{with console}
+ln -sf ../../base/console/target/pki-console.jar
+%endif
+
 popd
 
 # Remove all symbol table and relocation information from the executable.

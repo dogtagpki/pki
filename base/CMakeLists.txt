@@ -375,41 +375,9 @@ find_file(TOMCATJSS_TOMCAT_9_0_JAR
         /usr/share/java/tomcatjss
 )
 
-find_file(BASE_JAR
+find_file(IDM_CONSOLE_FRAMEWORK_JAR
     NAMES
-        idm-console-base.jar
-    PATHS
-        ${JAVA_LIB_INSTALL_DIR}
-        /usr/share/java
-)
-
-find_file(MMC_JAR
-    NAMES
-        idm-console-mcc.jar
-    PATHS
-        ${JAVA_LIB_INSTALL_DIR}
-        /usr/share/java
-)
-
-find_file(MMC_EN_JAR
-    NAMES
-        idm-console-mcc_en.jar
-    PATHS
-        ${JAVA_LIB_INSTALL_DIR}
-        /usr/share/java
-)
-
-find_file(NMCLF_JAR
-    NAMES
-        idm-console-nmclf.jar
-    PATHS
-        ${JAVA_LIB_INSTALL_DIR}
-        /usr/share/java
-)
-
-find_file(NMCLF_EN_JAR
-    NAMES
-        idm-console-nmclf_en.jar
+        idm-console-framework.jar
     PATHS
         ${JAVA_LIB_INSTALL_DIR}
         /usr/share/java
