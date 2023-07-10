@@ -8,17 +8,18 @@ javac(pki-console-classes
         ${COMMONS_CLI_JAR}
         ${JAXRS_API_JAR}
         ${SLF4J_API_JAR}
-        ${BASE_JAR} ${LDAPJDK_JAR} ${MMC_JAR}
-        ${MMC_EN_JAR} ${NMCLF_JAR} ${NMCLF_EN_JAR}
+        ${COMMONS_CODEC_JAR}
+        ${JSS_JAR}
+        ${LDAPJDK_JAR}
+        ${IDM_CONSOLE_FRAMEWORK_JAR}
         ${PKI_COMMON_JAR}
-        ${JSS_JAR} ${COMMONS_CODEC_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
     DEPENDS
         pki-common-jar
 )
 
-add_dependencies(console pki-console-classes)
+add_dependencies(java pki-console-classes)
 
 set(PKI_CONSOLE_JAR ${CMAKE_BINARY_DIR}/dist/pki-console.jar
     CACHE INTERNAL "pki-console.jar"
@@ -47,7 +48,7 @@ jar(pki-console-jar
         pki-console-classes
 )
 
-add_dependencies(console pki-console-jar)
+add_dependencies(java pki-console-jar)
 
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/bin/pkiconsole
@@ -66,9 +67,11 @@ install(
         WORLD_EXECUTE WORLD_READ
 )
 
-install(
-    FILES
-        ${PKI_CONSOLE_JAR}
-    DESTINATION
-        ${JAVA_JAR_INSTALL_DIR}/pki
-)
+if(WITH_JAVA)
+    install(
+        FILES
+            ${PKI_CONSOLE_JAR}
+        DESTINATION
+            ${JAVA_JAR_INSTALL_DIR}/pki
+    )
+endif(WITH_JAVA)

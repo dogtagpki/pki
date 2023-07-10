@@ -28,6 +28,7 @@
         <module>tps</module>
         <module>acme</module>
         <module>est</module>
+        <module>console</module>
     </modules>
 
 </project>

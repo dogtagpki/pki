@@ -46,9 +46,7 @@ run_dev_junit_tests() {
     CLASSPATH=$CLASSPATH:/usr/share/java/apache-commons-codec.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/apache-commons-logging.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/commons-codec.jar
-    CLASSPATH=$CLASSPATH:/usr/share/java/idm-console-base-1.1.7.jar
-    CLASSPATH=$CLASSPATH:/usr/share/java/idm-console-mcc.jar
-    CLASSPATH=$CLASSPATH:/usr/share/java/idm-console-nmclf.jar
+    CLASSPATH=$CLASSPATH:/usr/share/java/idm-console-framework.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/jaxb-api.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/jakarta-activation/jakarta.activation.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/ldapjdk.jar

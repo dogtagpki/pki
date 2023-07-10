@@ -710,9 +710,9 @@ if [ "$BUILD_TARGET" = "dist" ] ; then
         make "${OPTIONS[@]}" java
     fi
 
-    if [ "$WITH_CONSOLE" = true ] ; then
-        # build PKI console
-        make "${OPTIONS[@]}" console
+    if [ "$THEME" != "" ] ; then
+        # build PKI theme
+        make "${OPTIONS[@]}" theme
     fi
 
     if [[ " ${PKGS_TO_BUILD[*]} " =~ " javadoc " ]]; then

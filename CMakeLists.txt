@@ -129,10 +129,10 @@ add_custom_target(
     COMMENT "Building Java binaries"
 )
 
-# console target
+# theme target
 add_custom_target(
-    console
-    COMMENT "Building PKI console"
+    theme
+    COMMENT "Building PKI theme"
 )
 
 # javadoc target
