@@ -77,12 +77,11 @@ jobs:
 
   - script: |
       # get JSS <major>.<minor>.<update> version
-      docker exec runner rpm -q dogtag-jss | tee output
-      JSS_VERSION=$(sed -e 's/^dogtag-jss-\([0-9]\+\.[0-9]\+\.[0-9]\+\).*$/\1/' output)
+      JSS_VERSION=$(docker exec runner rpm -q --qf "%{version}" dogtag-jss)
 
-      # if built by COPR, jss-base.jar will be installed in /usr/lib/java/jss,
-      # otherwise it will be in /usr/share/java/jss.
-      JSS_BASE_JAR=$(docker exec runner find /usr/share/java/jss /usr/lib/java/jss -name jss-base.jar)
+      # if built by COPR, jss-base.jar will be installed in /usr/lib/java,
+      # otherwise it will be in /usr/share/java.
+      JSS_BASE_JAR=$(docker exec runner find /usr/lib/java /usr/share/java -name jss-base.jar)
 
       docker exec runner \
           mvn install:install-file \
@@ -93,12 +92,11 @@ jobs:
           -Dversion=$JSS_VERSION-SNAPSHOT \
           -Dpackaging=jar \
           -DgeneratePom=true
-    displayName: Install JSS into Maven repo
+    displayName: Install JSS into local Maven repo
 
   - script: |
       # get Tomcat JSS <major>.<minor>.<update> version
-      docker exec runner rpm -q dogtag-tomcatjss | tee output
-      TOMCATJSS_VERSION=$(sed -e 's/^dogtag-tomcatjss-\([0-9]\+\.[0-9]\+\.[0-9]\+\).*$/\1/' output)
+      TOMCATJSS_VERSION=$(docker exec runner rpm -q --qf "%{version}" dogtag-tomcatjss)
 
       docker exec runner \
           mvn install:install-file \
@@ -109,12 +107,11 @@ jobs:
           -Dversion=$TOMCATJSS_VERSION-SNAPSHOT \
           -Dpackaging=jar \
           -DgeneratePom=true
-    displayName: Install Tomcat JSS into Maven repo
+    displayName: Install Tomcat JSS into local Maven repo
 
   - script: |
       # get LDAP JDK <major>.<minor>.<update> version
-      docker exec runner rpm -q dogtag-ldapjdk | tee output
-      LDAPJDK_VERSION=$(sed -e 's/^dogtag-ldapjdk-\([0-9]\+\.[0-9]\+\.[0-9]\+\).*$/\1/' output)
+      LDAPJDK_VERSION=$(docker exec runner rpm -q --qf "%{version}" dogtag-ldapjdk)
 
       docker exec runner \
           mvn install:install-file \
@@ -125,7 +122,7 @@ jobs:
           -Dversion=$LDAPJDK_VERSION-SNAPSHOT \
           -Dpackaging=jar \
           -DgeneratePom=true
-    displayName: Install LDAP JDK into Maven repo
+    displayName: Install LDAP JDK into local Maven repo
 
   - script: |
       docker exec runner \
@@ -136,106 +133,106 @@ jobs:
 
   - script: |
       docker exec runner \
-          jar tvf /root/build/dist/pki-common.jar | awk '{print $8;}' | grep -v '/$' | sort | tee cmake.out
+          jar tvf /root/build/dist/pki-common.jar | awk '{print $8;}' | grep -v '/$' | sort | tee pki-common.cmake
       docker exec runner \
-          jar tvf /root/src/base/common/target/pki-common.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort > maven.out
-      diff cmake.out maven.out
+          jar tvf /root/src/base/common/target/pki-common.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort | tee pki-common.maven
+      diff pki-common.cmake pki-common.maven
     displayName: Compare pki-common.jar
 
   - script: |
       docker exec runner \
-          jar tvf /root/build/dist/pki-tools.jar | awk '{print $8;}' | grep -v '/$' | sort | tee cmake.out
+          jar tvf /root/build/dist/pki-tools.jar | awk '{print $8;}' | grep -v '/$' | sort | tee pki-tools.cmake
       docker exec runner \
-          jar tvf /root/src/base/tools/target/pki-tools.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort > maven.out
-      diff cmake.out maven.out
+          jar tvf /root/src/base/tools/target/pki-tools.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort | tee pki-tools.maven
+      diff pki-tools.cmake pki-tools.maven
     displayName: Compare pki-tools.jar
 
   - script: |
       docker exec runner \
-          jar tvf /root/build/dist/pki-tomcat.jar | awk '{print $8;}' | grep -v '/$' | sort | tee cmake.out
+          jar tvf /root/build/dist/pki-tomcat.jar | awk '{print $8;}' | grep -v '/$' | sort | tee pki-tomcat.cmake
       docker exec runner \
-          jar tvf /root/src/base/tomcat/target/pki-tomcat.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort > maven.out
-      diff cmake.out maven.out
+          jar tvf /root/src/base/tomcat/target/pki-tomcat.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort | tee pki-tomcat.maven
+      diff pki-tomcat.cmake pki-tomcat.maven
     displayName: Compare pki-tomcat.jar
 
   - script: |
       docker exec runner \
-          jar tvf /root/build/dist/pki-tomcat-9.0.jar | awk '{print $8;}' | grep -v '/$' | sort | tee cmake.out
+          jar tvf /root/build/dist/pki-tomcat-9.0.jar | awk '{print $8;}' | grep -v '/$' | sort | tee pki-tomcat-9.0.cmake
       docker exec runner \
-          jar tvf /root/src/base/tomcat-9.0/target/pki-tomcat-9.0.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort > maven.out
-      diff cmake.out maven.out
+          jar tvf /root/src/base/tomcat-9.0/target/pki-tomcat-9.0.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort | tee pki-tomcat-9.0.maven
+      diff pki-tomcat-9.0.cmake pki-tomcat-9.0.maven
     displayName: Compare pki-tomcat-9.0.jar
 
   - script: |
       docker exec runner \
-          jar tvf /root/build/dist/pki-server.jar | awk '{print $8;}' | grep -v '/$' | sort | tee cmake.out
+          jar tvf /root/build/dist/pki-server.jar | awk '{print $8;}' | grep -v '/$' | sort | tee pki-server.cmake
       docker exec runner \
-          jar tvf /root/src/base/server/target/pki-server.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort > maven.out
-      diff cmake.out maven.out
+          jar tvf /root/src/base/server/target/pki-server.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort | tee pki-server.maven
+      diff pki-server.cmake pki-server.maven
     displayName: Compare pki-server.jar
 
   - script: |
       docker exec runner \
-          jar tvf /root/build/dist/pki-server-webapp.jar | awk '{print $8;}' | grep -v '/$' | sort | tee cmake.out
+          jar tvf /root/build/dist/pki-server-webapp.jar | awk '{print $8;}' | grep -v '/$' | sort | tee pki-server-webapp.cmake
       docker exec runner \
-          jar tvf /root/src/base/server-webapp/target/pki-server-webapp.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort > maven.out
-      diff cmake.out maven.out
+          jar tvf /root/src/base/server-webapp/target/pki-server-webapp.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort | tee pki-server-webapp.maven
+      diff pki-server-webapp.cmake pki-server-webapp.maven
     displayName: Compare pki-server-webapp.jar
 
   - script: |
       docker exec runner \
-          jar tvf /root/build/dist/pki-ca.jar | awk '{print $8;}' | grep -v '/$' | sort | tee cmake.out
+          jar tvf /root/build/dist/pki-ca.jar | awk '{print $8;}' | grep -v '/$' | sort | tee pki-ca.cmake
       docker exec runner \
-          jar tvf /root/src/base/ca/target/pki-ca.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort > maven.out
-      diff cmake.out maven.out
+          jar tvf /root/src/base/ca/target/pki-ca.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort | tee pki-ca.maven
+      diff pki-ca.cmake pki-ca.maven
     displayName: Compare pki-ca.jar
 
   - script: |
       docker exec runner \
-          jar tvf /root/build/dist/pki-kra.jar | awk '{print $8;}' | grep -v '/$' | sort | tee cmake.out
+          jar tvf /root/build/dist/pki-kra.jar | awk '{print $8;}' | grep -v '/$' | sort | tee pki-kra.cmake
       docker exec runner \
-          jar tvf /root/src/base/kra/target/pki-kra.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort > maven.out
-      diff cmake.out maven.out
+          jar tvf /root/src/base/kra/target/pki-kra.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort | tee pki-kra.maven
+      diff pki-kra.cmake pki-kra.maven
     displayName: Compare pki-kra.jar
 
   - script: |
       docker exec runner \
-          jar tvf /root/build/dist/pki-ocsp.jar | awk '{print $8;}' | grep -v '/$' | sort | tee cmake.out
+          jar tvf /root/build/dist/pki-ocsp.jar | awk '{print $8;}' | grep -v '/$' | sort | tee pki-ocsp.cmake
       docker exec runner \
-          jar tvf /root/src/base/ocsp/target/pki-ocsp.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort > maven.out
-      diff cmake.out maven.out
+          jar tvf /root/src/base/ocsp/target/pki-ocsp.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort | tee pki-ocsp.maven
+      diff pki-ocsp.cmake pki-ocsp.maven
     displayName: Compare pki-ocsp.jar
 
   - script: |
       docker exec runner \
-          jar tvf /root/build/dist/pki-tks.jar | awk '{print $8;}' | grep -v '/$' | sort | tee cmake.out
+          jar tvf /root/build/dist/pki-tks.jar | awk '{print $8;}' | grep -v '/$' | sort | tee pki-tks.cmake
       docker exec runner \
-          jar tvf /root/src/base/tks/target/pki-tks.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort > maven.out
-      diff cmake.out maven.out
+          jar tvf /root/src/base/tks/target/pki-tks.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort | tee pki-tks.maven
+      diff pki-tks.cmake pki-tks.maven
     displayName: Compare pki-tks.jar
 
   - script: |
       docker exec runner \
-          jar tvf /root/build/dist/pki-tps.jar | awk '{print $8;}' | grep -v '/$' | sort | tee cmake.out
+          jar tvf /root/build/dist/pki-tps.jar | awk '{print $8;}' | grep -v '/$' | sort | tee pki-tps.cmake
       docker exec runner \
-          jar tvf /root/src/base/tps/target/pki-tps.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort > maven.out
-      diff cmake.out maven.out
+          jar tvf /root/src/base/tps/target/pki-tps.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort | tee pki-tps.maven
+      diff pki-tps.cmake pki-tps.maven
     displayName: Compare pki-tps.jar
 
   - script: |
       docker exec runner \
-          jar tvf /root/build/dist/pki-acme.jar | awk '{print $8;}' | grep -v '/$' | sort | tee cmake.out
+          jar tvf /root/build/dist/pki-acme.jar | awk '{print $8;}' | grep -v '/$' | sort | tee pki-acme.cmake
       docker exec runner \
-          jar tvf /root/src/base/acme/target/pki-acme.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort > maven.out
-      diff cmake.out maven.out
+          jar tvf /root/src/base/acme/target/pki-acme.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort | tee pki-acme.maven
+      diff pki-acme.cmake pki-acme.maven
     displayName: Compare pki-acme.jar
 
   - script: |
       docker exec runner \
-          jar tvf /root/build/dist/pki-est.jar | awk '{print $8;}' | grep -v '/$' | sort | tee cmake.out
+          jar tvf /root/build/dist/pki-est.jar | awk '{print $8;}' | grep -v '/$' | sort | tee pki-est.cmake
       docker exec runner \
-          jar tvf /root/src/base/est/target/pki-est.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort > maven.out
-      diff cmake.out maven.out
+          jar tvf /root/src/base/est/target/pki-est.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort | tee pki-est.maven
+      diff pki-est.cmake pki-est.maven
     displayName: Compare pki-est.jar
 
   - script: |
