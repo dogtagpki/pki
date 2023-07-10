@@ -28,6 +28,9 @@ jobs:
     dist_git_branches:
       - fedora-development
 #     - centos-stream-9-x86_64 # When Packit integration with CentOS is avaiable, enable this
+    actions:
+      get-current-version:
+      - rpmspec -q --qf "%{Version}" --srpm pki.spec
 
   - job: copr_build
     trigger: pull_request
@@ -42,6 +45,9 @@ jobs:
       - fedora-all
       - centos-stream-9-x86_64
       - rhel-9-x86_64
+    actions:
+      get-current-version:
+      - rpmspec -q --qf "%{Version}" --srpm pki.spec
 
   - job: copr_build
     trigger: commit
@@ -56,4 +62,6 @@ jobs:
       - fedora-all
       - centos-stream-9-x86_64
       - rhel-9-x86_64
-
+    actions:
+      get-current-version:
+      - rpmspec -q --qf "%{Version}" --srpm pki.spec
