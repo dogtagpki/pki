@@ -89,21 +89,13 @@ public class UsrGrpAdminServlet extends AdminServlet {
     private final static String MULTI_ROLE_ENFORCE_GROUP_LIST = "multiroles.false.groupEnforceList";
 
     /**
-     * Constructs User/Group manager servlet.
-     */
-    public UsrGrpAdminServlet() {
-        super();
-        CMSEngine engine = getCMSEngine();
-        mAuthz = engine.getAuthzSubsystem();
-    }
-
-    /**
      * Initializes this servlet.
      */
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         CMSEngine engine = getCMSEngine();
+        mAuthz = engine.getAuthzSubsystem();
         mMgr = engine.getUGSubsystem();
     }
 
