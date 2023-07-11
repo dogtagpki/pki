@@ -36,11 +36,7 @@ jobs:
     trigger: pull_request
     branch: master
     additional_repos:
-      - "https://download.copr.fedorainfracloud.org/results/%40pki/master/rhel-9-x86_64/"
-      - "https://download.copr.fedorainfracloud.org/results/%40pki/master/fedora-37-x86_64"
-      - "https://download.copr.fedorainfracloud.org/results/%40pki/master/fedora-38-x86_64"
-      - "https://download.copr.fedorainfracloud.org/results/%40pki/master/fedora-rawhide-x86_64"
-      - "https://download.copr.fedorainfracloud.org/results/%40pki/master/centos-stream-9-x86_64"
+      - "copr://@pki/master"
     targets:
       - fedora-all
       - centos-stream-9-x86_64
@@ -53,11 +49,7 @@ jobs:
     trigger: commit
     branch: master
     additional_repos:
-      - "https://download.copr.fedorainfracloud.org/results/%40pki/master/rhel-9-x86_64/"
-      - "https://download.copr.fedorainfracloud.org/results/%40pki/master/fedora-37-x86_64"
-      - "https://download.copr.fedorainfracloud.org/results/%40pki/master/fedora-38-x86_64"
-      - "https://download.copr.fedorainfracloud.org/results/%40pki/master/fedora-rawhide-x86_64"
-      - "https://download.copr.fedorainfracloud.org/results/%40pki/master/centos-stream-9-x86_64"
+      - "copr://@pki/master"
     targets:
       - fedora-all
       - centos-stream-9-x86_64
