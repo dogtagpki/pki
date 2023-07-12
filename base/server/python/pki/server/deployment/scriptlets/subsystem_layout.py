@@ -131,12 +131,20 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # Copy /usr/share/pki/<subsystem>/conf/<type>AdminCert.profile
             # to /etc/pki/<instance>/<subsystem>/adminCert.profile
 
+            admin_key_type = deployer.mdict['pki_admin_key_type']
+
+            pki_source_admincert_profile = os.path.join(
+                pki.server.PKIServer.SHARE_DIR,
+                subsystem_name,
+                'conf',
+                admin_key_type + 'AdminCert.profile')
+
             pki_target_admincert_profile = os.path.join(
                 deployer.mdict['pki_subsystem_configuration_path'],
                 'adminCert.profile')
 
             instance.copy(
-                deployer.mdict['pki_source_admincert_profile'],
+                pki_source_admincert_profile,
                 pki_target_admincert_profile)
 
             # Copy /usr/share/pki/<subsystem>/conf/caAuditSigningCert.profile
