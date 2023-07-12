@@ -153,12 +153,18 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # Copy /usr/share/pki/<subsystem>/conf/caCert.profile
             # to /etc/pki/<instance>/<subsystem>/caCert.profile
 
+            pki_source_cacert_profile = os.path.join(
+                pki.server.PKIServer.SHARE_DIR,
+                subsystem_name,
+                'conf',
+                'caCert.profile')
+
             pki_target_cacert_profile = os.path.join(
                 deployer.mdict['pki_subsystem_configuration_path'],
                 'caCert.profile')
 
             instance.copy(
-                deployer.mdict['pki_source_cacert_profile'],
+                pki_source_cacert_profile,
                 pki_target_cacert_profile)
 
             # Copy /usr/share/pki/<subsystem>/conf/caOCSPCert.profile
