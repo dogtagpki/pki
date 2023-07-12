@@ -239,12 +239,18 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # Copy /usr/share/pki/<subsystem>/conf/proxy.conf
             # to /etc/pki/<instance>/<subsystem>/proxy.conf
 
+            pki_source_proxy_conf = os.path.join(
+                pki.server.PKIServer.SHARE_DIR,
+                subsystem_name,
+                'conf',
+                'proxy.conf')
+
             pki_target_proxy_conf = os.path.join(
                 deployer.mdict['pki_subsystem_configuration_path'],
                 'proxy.conf')
 
             instance.copyfile(
-                deployer.mdict['pki_source_proxy_conf'],
+                pki_source_proxy_conf,
                 pki_target_proxy_conf,
                 params=deployer.mdict)
 
