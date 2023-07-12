@@ -175,12 +175,20 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # Copy /usr/share/pki/<subsystem>/conf/<type>ServerCert.profile
             # to /etc/pki/<instance>/<subsystem>/serverCert.profile
 
+            sslserver_key_type = deployer.mdict['pki_sslserver_key_type']
+
+            pki_source_servercert_profile = os.path.join(
+                pki.server.PKIServer.SHARE_DIR,
+                subsystem_name,
+                'conf',
+                sslserver_key_type + 'ServerCert.profile')
+
             pki_target_servercert_profile = os.path.join(
                 deployer.mdict['pki_subsystem_configuration_path'],
                 'serverCert.profile')
 
             instance.copy(
-                deployer.mdict['pki_source_servercert_profile'],
+                pki_source_servercert_profile,
                 pki_target_servercert_profile)
 
             # Copy /usr/share/pki/<subsystem>/conf/<type>SubsystemCert.profile
