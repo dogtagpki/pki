@@ -107,8 +107,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             # Copy /usr/share/pki/ca/profiles
             # to /etc/pki/<instance>/ca/profiles
+
+            pki_source_profiles = os.path.join(
+                pki.server.PKIServer.SHARE_DIR,
+                subsystem_name,
+                'profiles')
+
             instance.copy(
-                deployer.mdict['pki_source_profiles'],
+                pki_source_profiles,
                 subsystem.conf_dir + '/profiles')
 
             # Link /var/lib/pki/<instance>/ca/profiles
