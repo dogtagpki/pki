@@ -1803,7 +1803,7 @@ class ServerConfig(object):
 
         return service.find(xpath)
 
-    def create_connector(self, name):
+    def create_connector(self, name, index=None):
         '''
         Create connector and add it after the last connector.
         '''
@@ -1811,20 +1811,23 @@ class ServerConfig(object):
         connector = etree.Element('Connector')
         connector.set('name', name)
 
-        self.add_connector(connector)
+        self.add_connector(connector, index=index)
 
         return connector
 
-    def add_connector(self, connector):
+    def add_connector(self, connector, index=None):
         '''
         Add connector after the last connector.
         '''
 
         service = self.get_service()
         connectors = service.findall('Connector')
-        last_connector = connectors[-1]
 
-        index = service.index(last_connector) + 1
+        if index is None:
+            # insert after the last connector
+            last_connector = connectors[-1]
+            index = service.index(last_connector) + 1
+
         service.insert(index, connector)
 
     def remove_connector(self, name):
