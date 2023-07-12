@@ -126,12 +126,18 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # Copy /usr/share/pki/<subsystem>/conf/flatfile.txt
             # to /etc/pki/<instance>/<subsystem>/flatfile.txt
 
+            pki_source_flatfile_txt = os.path.join(
+                pki.server.PKIServer.SHARE_DIR,
+                subsystem_name,
+                'conf',
+                'flatfile.txt')
+
             pki_target_flatfile_txt = os.path.join(
                 deployer.mdict['pki_subsystem_configuration_path'],
                 'flatfile.txt')
 
             instance.copy(
-                deployer.mdict['pki_source_flatfile_txt'],
+                pki_source_flatfile_txt,
                 pki_target_flatfile_txt)
 
             # Copy /usr/share/pki/<subsystem>/conf/<type>AdminCert.profile
