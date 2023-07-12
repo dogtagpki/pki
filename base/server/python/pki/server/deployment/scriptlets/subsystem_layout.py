@@ -186,12 +186,20 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # Copy /usr/share/pki/<subsystem>/conf/<type>SubsystemCert.profile
             # to /etc/pki/<instance>/<subsystem>/subsystemCert.profile
 
+            subsystem_key_type = deployer.mdict['pki_subsystem_key_type']
+
+            pki_source_subsystemcert_profile = os.path.join(
+                pki.server.PKIServer.SHARE_DIR,
+                subsystem_name,
+                'conf',
+                subsystem_key_type + 'SubsystemCert.profile')
+
             pki_target_subsystemcert_profile = os.path.join(
                 deployer.mdict['pki_subsystem_configuration_path'],
                 'subsystemCert.profile')
 
             instance.copy(
-                deployer.mdict['pki_source_subsystemcert_profile'],
+                pki_source_subsystemcert_profile,
                 pki_target_subsystemcert_profile)
 
             # Copy /usr/share/pki/<subsystem>/conf/proxy.conf
