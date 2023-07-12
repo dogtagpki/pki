@@ -1414,10 +1414,12 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     logMsg = "channel.getDRMWrappedDesKey() not null";
                     logger.debug(method + logMsg);
                 }
+                TPSBuffer drmDesKey = getDRMDesKeyByProtocol(channel);
+                TPSBuffer drmAesKey = getDRMAesKeyByProtocol(channel);
 
                 keyResp = tps.getEngine().recoverKey(cuid,
                         userid,
-                        channel.getDRMWrappedDesKey(),
+                        drmDesKey,drmAesKey,
                         getExternalRegRecoverByKeyID() ? null : b64cert,
                         kraConn, keyid);
 
@@ -1689,9 +1691,14 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     String b64cert = certResponse.getCertB64();
                     logger.debug(method +": cert blob recovered");
 
+                    TPSBuffer drmDesKey = getDRMDesKeyByProtocol(channel);
+                    TPSBuffer drmAesKey = getDRMAesKeyByProtocol(channel);
+
                     KRARecoverKeyResponse keyResponse = tps.getEngine().recoverKey(toBeRecovered.getId(),
                             toBeRecovered.getUserID(),
-                            channel.getDRMWrappedDesKey(), b64cert, getDRMConnectorID(toBeRecovered.getKeyType()));
+                            drmDesKey,
+                            drmAesKey,
+                            b64cert, getDRMConnectorID(toBeRecovered.getKeyType()));
 
                     //Try to write recovered cert to token
 
@@ -2034,9 +2041,13 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     //logger.debug(method +": recoverd cert blob: " + b64cert);
                     logger.debug(method +": cert blob recovered");
 
+		    TPSBuffer drmDesKey = getDRMDesKeyByProtocol(channel);
+		    TPSBuffer drmAesKey = getDRMAesKeyByProtocol(channel);
+
                     KRARecoverKeyResponse keyResponse = tps.getEngine().recoverKey(toBeRecovered.getId(),
                             toBeRecovered.getUserID(),
-                            channel.getDRMWrappedDesKey(), b64cert, getDRMConnectorID(certToRecover.getKeyType()));
+                            drmDesKey,drmAesKey,
+                            b64cert, getDRMConnectorID(certToRecover.getKeyType()));
 
                     CertEnrollInfo cEnrollInfo = new CertEnrollInfo();
 
@@ -2485,9 +2496,12 @@ public class TPSEnrollProcessor extends TPSProcessor {
             String publicKeyStr = null;
             //Do this for JUST server side keygen
             if (isRecovery == false) {
+                TPSBuffer drmDesKey = getDRMDesKeyByProtocol(channel);
+                TPSBuffer drmAesKey = getDRMAesKeyByProtocol(channel);
+
                 ssKeyGenResponse = getTPSEngine()
                         .serverSideKeyGen(cEnrollInfo.getKeySize(),
-                                aInfo.getCUIDhexStringPlain(), userid, kraConnId, channel.getDRMWrappedDesKey(),
+                                aInfo.getCUIDhexStringPlain(), userid, kraConnId, drmDesKey,drmAesKey,
                                 archive, isECC);
 
                 publicKeyStr = ssKeyGenResponse.getPublicKey();
@@ -3127,7 +3141,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         logger.debug(method + ": got keyCheck");
 
         //String ivParams = ssKeyGenResponse.getIVParam();
-        //logger.debug(method + ": ivParams: " + ivParams);
+        logger.debug(method + ": ivParams: " + ivParams);
         TPSBuffer ivParamsBuff = new TPSBuffer(Util.uriDecodeFromHex(ivParams));
 
         if (ivParamsBuff.size() == 0) {
@@ -3135,8 +3149,12 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
 
         }
-
+        TPSBuffer kekWrappedAESKey = channel.getKekAesKey();
         TPSBuffer kekWrappedDesKey = channel.getKekDesKey();
+        TPSBuffer kekWrappedKey = null;
+	if(kekWrappedAESKey != null) {
+            logger.debug(method + " kekWrappedAesKey provided.");
+        }
 
         if (kekWrappedDesKey != null) {
             //logger.debug(method + ": keyWrappedDesKey: " + kekWrappedDesKey.toHexString());
@@ -3146,15 +3164,24 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         byte alg = (byte) 0x80;
         if (kekWrappedDesKey != null && kekWrappedDesKey.size() > 0) {
+            kekWrappedKey = kekWrappedDesKey;
             alg = (byte) 0x81;
         }
 
+        //Give preference to AES kek wrapped key for SCP03, otherwise go with DES for SCP01
+	if(kekWrappedAESKey != null && kekWrappedAESKey.size() > 0 && channel.isSCP03()) {
+            alg = (byte) 0x88;
+            kekWrappedKey = kekWrappedAESKey;
+        }
+
+        //logger.debug(method + ": kek wrapped key outgoing: size:  " + kekWrappedKey.size() + " data: " + kekWrappedKey.toHexString());
+	logger.debug(method + ": kek wrapped key outgoing: size:  " + kekWrappedKey.size());
         TPSBuffer data = new TPSBuffer();
 
         data.add(objIdBuff);
         data.add(alg);
-        data.add((byte) kekWrappedDesKey.size());
-        data.add(kekWrappedDesKey);
+        data.add((byte) kekWrappedKey.size());
+        data.add(kekWrappedKey);
         data.add((byte) keyCheck.size());
         if (keyCheck.size() > 0) {
             data.add(keyCheck);
@@ -3167,9 +3194,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         int pe2 = (cEnrollInfo.getKeyUsage() << 4) + cEnrollInfo.getPublicKeyNumber();
 
         channel.importKeyEnc(pe1, pe2, data);
-
         logger.debug(method + " successful, leaving...");
-
     }
 
     private String buildCertificateLabel(CertEnrollInfo cEnrollInfo, AppletInfo ainfo) throws TPSException {
@@ -3936,6 +3961,35 @@ public class TPSEnrollProcessor extends TPSProcessor {
     }
 
     public static void main(String[] args) {
+    }
+
+    private TPSBuffer getDRMDesKeyByProtocol(SecureChannel channel) {
+
+        String method = "TPSEnrollProcessor.getDRMDesKeyByProtocol: ";
+        int prot = getProtocol();
+        TPSBuffer drmDesKey = null;
+
+	logger.debug(method + " protocol: " + prot);
+
+	if(prot == 1) 
+            drmDesKey = channel.getDRMWrappedDesKey();
+
+        return drmDesKey;
+    }
+
+    private TPSBuffer getDRMAesKeyByProtocol(SecureChannel channel) {
+
+	String method = "TPSEnrollProcessor.getDRMAesKeyByProtocol: ";
+
+        int prot = getProtocol();
+        TPSBuffer drmAesKey = null;
+
+        logger.debug(method + " protocol: " + prot);
+
+	if(prot == 3)
+            drmAesKey = channel.getDRMWrappedAesKey();
+
+        return drmAesKey;
     }
 
 }

@@ -314,6 +314,28 @@ public class TPSBuffer {
         return result.toString();
     }
 
+    /*
+     *  Convenience routine to put apdu's in format to import into java cmd line programs if so desired
+     */
+    public String toHexStringJavaByteArray() {
+        final String HEX_DIGITS = "0123456789ABCDEF";
+
+        StringBuffer result = new StringBuffer(buf.length * 2);
+        result.append("{ ");
+        for (int i = 0; i < buf.length; i++)
+        {
+            char c = (char) buf[i];
+	    result.append("(byte) 0x");
+            result.append(HEX_DIGITS.charAt((c & 0xF0) >> 4));
+            result.append(HEX_DIGITS.charAt(c & 0x0F));
+	    if(i < buf.length - 1)
+	        result.append(",");
+        }
+        result.append("}");
+        return result.toString();
+    }
+
+
     public int getIntFrom1Byte(int offset) {
 
         if (offset < 0 || offset >= (this.size())) {

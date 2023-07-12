@@ -528,12 +528,6 @@ public class TPSMessage {
             }
         }
 
-        int debug = 1;
-
-        if (debug == 1) {
-            logger.debug("TPSMessage.createMessage: message: " + message);
-        }
-
         TPSMessage new_msg = new TPSMessage(message);
 
         return new_msg.createMessage();
