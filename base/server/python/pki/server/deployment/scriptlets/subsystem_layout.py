@@ -142,12 +142,18 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # Copy /usr/share/pki/<subsystem>/conf/caAuditSigningCert.profile
             # to /etc/pki/<instance>/<subsystem>/caAuditSigningCert.profile
 
+            pki_source_caauditsigningcert_profile = os.path.join(
+                pki.server.PKIServer.SHARE_DIR,
+                subsystem_name,
+                'conf',
+                'caAuditSigningCert.profile')
+
             pki_target_caauditsigningcert_profile = os.path.join(
                 deployer.mdict['pki_subsystem_configuration_path'],
                 'caAuditSigningCert.profile')
 
             instance.copy(
-                deployer.mdict['pki_source_caauditsigningcert_profile'],
+                pki_source_caauditsigningcert_profile,
                 pki_target_caauditsigningcert_profile)
 
             # Copy /usr/share/pki/<subsystem>/conf/caCert.profile
