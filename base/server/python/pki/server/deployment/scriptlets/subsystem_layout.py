@@ -95,12 +95,19 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             # Copy /usr/share/pki/ca/emails
             # to /etc/pki/<instance>/ca/emails
+
+            pki_source_emails = os.path.join(
+                pki.server.PKIServer.SHARE_DIR,
+                subsystem_name,
+                'emails')
+
             instance.copy(
-                deployer.mdict['pki_source_emails'],
+                pki_source_emails,
                 subsystem.conf_dir + '/emails')
 
             # Link /var/lib/pki/<instance>/ca/emails
             # to /etc/pki/<instance>/ca/emails
+
             emails_path = os.path.join(instance.conf_dir, 'ca', 'emails')
             emails_link = os.path.join(instance.base_dir, 'ca', 'emails')
             instance.symlink(emails_path, emails_link, exist_ok=True)
