@@ -94,11 +94,11 @@ import com.netscape.certsrv.ca.CADisabledException;
 import com.netscape.certsrv.ca.CAEnabledException;
 import com.netscape.certsrv.ca.CAMissingCertException;
 import com.netscape.certsrv.ca.CAMissingKeyException;
-import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.certsrv.ca.CANotLeafException;
 import com.netscape.certsrv.ca.CATypeException;
 import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
+import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CRLSigningInfoEvent;
@@ -1367,34 +1367,35 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
          *    CertID in the request.
          *
          * 2. If this CA is *not* the issuer, look up the issuer
-         *    by its DN in CAEngine.  If not found, fail.  If
-         *    found, dispatch to its 'validate' method.  Otherwise
-         *    continue.
+         *    by its DN in CAEngine. If found, dispatch to its 'validate'
+         *    method. Otherwise continue.
          *
          * 3. If this CA is NOT the issuing CA, we locate the
          *    issuing CA and dispatch to its 'validate' method.
          *    Otherwise, we move forward to generate and sign the
          *    aggregate OCSP response.
          */
-        CertificateAuthority ocspCA = this;
-        if (engine.getCAs().size() > 0 && tbsReq.getRequestCount() > 0) {
+        for (CertificateAuthority ocspCA: engine.getCAs()) {
             Request req = tbsReq.getRequestAt(0);
-            BigInteger serialNo = req.getCertID().getSerialNumber();
-
-            CertificateRepository certificateRepository = engine.getCertificateRepository();
-            X509CertImpl cert = certificateRepository.getX509Certificate(serialNo);
-
-            X500Name certIssuerDN = cert.getIssuerName();
-            ocspCA = engine.getCA(certIssuerDN);
+            CertID cid = req.getCertID();
+            byte[] nameHash = null;
+            String digestName = cid.getDigestName();
+            if (digestName != null) {
+                try {
+                    MessageDigest md = MessageDigest.getInstance(digestName);
+                    nameHash = md.digest(ocspCA.getSubjectObj().getX500Name().getEncoded());
+                } catch (NoSuchAlgorithmException | IOException e) {
+                    logger.warn("CertificateAuthority: OCSP request hash algorithm " + digestName + " not recognised: " + e.getMessage(), e);
+                }
+            }
+            if(Arrays.equals(nameHash, cid.getIssuerNameHash().toByteArray())) {
+                if(ocspCA != this) {
+                    return ((IOCSPService) ocspCA).validate(request);
+                }
+                break;
+            }
         }
 
-        if (ocspCA == null) {
-            logger.error("CertificateAuthority: Could not locate issuing CA");
-            throw new CANotFoundException("Could not locate issuing CA");
-        }
-
-        if (ocspCA != this)
-            return ((IOCSPService) ocspCA).validate(request);
 
         logger.debug("CertificateAuthority: validating OCSP request");
 
@@ -1553,28 +1554,36 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
         }
     }
 
-    private SingleResponse processRequest(Request req) {
+    public SingleResponse processRequest(Request req) {
 
+        String name = "CertificateAuthority: processRequest: ";
         CAEngine engine = CAEngine.getInstance();
         CertificateRepository certificateRepository = engine.getCertificateRepository();
 
+        X509CertImpl caCert = mSigningUnit.getCertImpl();
+        X509Key key = (X509Key) caCert.getPublicKey();
+
         CertID cid = req.getCertID();
         INTEGER serialNo = cid.getSerialNumber();
-        logger.debug("CertificateAuthority: processing request for cert 0x" + serialNo.toString(16));
+        logger.debug( name + "for cert 0x" + serialNo.toString(16));
 
         CertStatus certStatus = null;
         GeneralizedTime thisUpdate = new GeneralizedTime(new Date());
 
         byte[] nameHash = null;
+        byte[] keyHash = null;
         String digestName = cid.getDigestName();
         if (digestName != null) {
             try {
                 MessageDigest md = MessageDigest.getInstance(digestName);
                 nameHash = md.digest(mName.getEncoded());
+                keyHash = md.digest(key.getKey());
             } catch (NoSuchAlgorithmException | IOException e) {
+                logger.warn("CertificateAuthority: OCSP request hash algorithm " + digestName + " not recognised: " + e.getMessage(), e);
             }
         }
-        if (!Arrays.equals(cid.getIssuerNameHash().toByteArray(), nameHash)) {
+        if (!Arrays.equals(cid.getIssuerNameHash().toByteArray(), nameHash) ||
+                !Arrays.equals(cid.getIssuerKeyHash().toByteArray(), keyHash)) {
             // issuer of cert is not this CA (or we couldn't work
             // out whether it is or not due to unknown hash alg);
             // do not return status information for this cert
@@ -1653,9 +1662,13 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
             } else {
                 certStatus = new UnknownInfo();
             }
+        } catch (EDBRecordNotFoundException e) {
+            logger.debug("{} cert record not found", name);
+            certStatus = new UnknownInfo(); // not issued by this CA
         } catch (Exception e) {
-            // not found
-            certStatus = new UnknownInfo(); // not issued not all
+            // internal error
+            logger.error(name + " Unable to retrieve certificate record: " + e.getMessage(), e);
+            certStatus = new UnknownInfo();
         }
 
         return new SingleResponse(
