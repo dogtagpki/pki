@@ -109,7 +109,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # to /etc/pki/<instance>/ca/profiles
             instance.copy(
                 deployer.mdict['pki_source_profiles'],
-                deployer.mdict['pki_subsystem_profiles_path'])
+                subsystem.conf_dir + '/profiles')
 
             # Link /var/lib/pki/<instance>/ca/profiles
             # to /etc/pki/<instance>/ca/profiles
@@ -371,9 +371,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 path=deployer.mdict['pki_subsystem_emails_path'],
                 force=deployer.force)
 
-            logger.info('Removing %s', deployer.mdict['pki_subsystem_profiles_path'])
+            logger.info('Removing %s/profiles', subsystem.conf_dir)
             pki.util.rmtree(
-                path=deployer.mdict['pki_subsystem_profiles_path'],
+                path=subsystem.conf_dir + '/profiles',
                 force=deployer.force)
 
         if deployer.remove_logs:
