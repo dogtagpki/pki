@@ -415,7 +415,9 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
         }
 
         if (theCert == null) {
-            throw new Exception("Issuer certificate not found/served");
+            logger.info("Missing issuer certificate");
+            // Unknown cert so respond with unknown state
+            return new SingleResponse(cid, new UnknownInfo(), new GeneralizedTime(new Date()), null);
         }
 
         if (theCRL == null) {
