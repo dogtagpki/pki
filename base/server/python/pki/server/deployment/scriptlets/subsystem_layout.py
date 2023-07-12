@@ -97,7 +97,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # to /etc/pki/<instance>/ca/emails
             instance.copy(
                 deployer.mdict['pki_source_emails'],
-                deployer.mdict['pki_subsystem_emails_path'])
+                subsystem.conf_dir + '/emails')
 
             # Link /var/lib/pki/<instance>/ca/emails
             # to /etc/pki/<instance>/ca/emails
@@ -366,9 +366,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         if deployer.mdict['pki_subsystem'] == "CA":
 
-            logger.info('Removing %s', deployer.mdict['pki_subsystem_emails_path'])
+            logger.info('Removing %s/emails', subsystem.conf_dir)
             pki.util.rmtree(
-                path=deployer.mdict['pki_subsystem_emails_path'],
+                path=subsystem.conf_dir + '/emails',
                 force=deployer.force)
 
             logger.info('Removing %s/profiles', subsystem.conf_dir)
