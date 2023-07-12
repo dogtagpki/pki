@@ -10,7 +10,7 @@ spec:
   tags:
     - from:
         kind: DockerImage
-        name: quay.io/dogtagpki/pki-acme:latest
+        name: quay.io/dogtagpki/pki-acme:11.4
       name: latest
       referencePolicy:
         type: Source

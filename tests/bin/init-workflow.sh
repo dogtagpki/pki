@@ -15,17 +15,6 @@ echo "BASE_IMAGE: $BASE_IMAGE"
 echo "base-image=$BASE_IMAGE" >> $GITHUB_OUTPUT
 
 ################################################################################
-# COPR repository
-
-if [ "$BASE64_REPO" != "" ]
-then
-    REPO=$(echo "$BASE64_REPO" | base64 -d)
-fi
-
-echo "REPO: $REPO"
-echo "repo=$REPO" >> $GITHUB_OUTPUT
-
-################################################################################
 # Database image
 
 if [ "$BASE64_DATABASE" != "" ]

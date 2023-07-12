@@ -54,13 +54,13 @@ RUN dnf builddep -y --skip-unavailable --spec pki.spec
 FROM pki-builder-deps AS pki-builder
 
 # Import JSS packages
-COPY --from=quay.io/dogtagpki/jss-dist:latest /root/RPMS /tmp/RPMS/
+COPY --from=quay.io/dogtagpki/jss-dist:5.4 /root/RPMS /tmp/RPMS/
 
 # Import Tomcat JSS packages
-COPY --from=quay.io/dogtagpki/tomcatjss-dist:latest /root/RPMS /tmp/RPMS/
+COPY --from=quay.io/dogtagpki/tomcatjss-dist:8.4 /root/RPMS /tmp/RPMS/
 
 # Import LDAP SDK packages
-COPY --from=quay.io/dogtagpki/ldapjdk-dist:latest /root/RPMS /tmp/RPMS/
+COPY --from=quay.io/dogtagpki/ldapjdk-dist:5.4 /root/RPMS /tmp/RPMS/
 
 # Install build dependencies
 RUN dnf localinstall -y /tmp/RPMS/* \
@@ -85,13 +85,13 @@ COPY --from=pki-builder /root/pki/build/RPMS /root/RPMS/
 FROM pki-deps AS pki-runner
 
 # Import JSS packages
-COPY --from=quay.io/dogtagpki/jss-dist:latest /root/RPMS /tmp/RPMS/
+COPY --from=quay.io/dogtagpki/jss-dist:5.4 /root/RPMS /tmp/RPMS/
 
 # Import Tomcat JSS packages
-COPY --from=quay.io/dogtagpki/tomcatjss-dist:latest /root/RPMS /tmp/RPMS/
+COPY --from=quay.io/dogtagpki/tomcatjss-dist:8.4 /root/RPMS /tmp/RPMS/
 
 # Import LDAP SDK packages
-COPY --from=quay.io/dogtagpki/ldapjdk-dist:latest /root/RPMS /tmp/RPMS/
+COPY --from=quay.io/dogtagpki/ldapjdk-dist:5.4 /root/RPMS /tmp/RPMS/
 
 # Import PKI packages
 COPY --from=pki-dist /root/RPMS /tmp/RPMS/

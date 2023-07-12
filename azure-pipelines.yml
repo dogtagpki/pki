@@ -6,7 +6,7 @@ jobs:
   - script: |
       docker build \
           --target pki-base \
-          --tag pki-base:latest \
+          --tag pki-base:11.4 \
           .
 
       docker run \
@@ -14,7 +14,7 @@ jobs:
           -v $BUILD_SOURCESDIRECTORY:/root/src \
           --privileged \
           --detach \
-          pki-base:latest
+          pki-base:11.4
 
       while :
       do
@@ -28,7 +28,7 @@ jobs:
 
   - script: |
       docker exec runner dnf install -y dnf-plugins-core rpm-build maven
-      docker exec runner dnf copr enable -y @pki/master
+      docker exec runner dnf copr enable -y @pki/11.4
       docker exec runner dnf builddep -y --spec /root/src/pki.spec
     displayName: Install PKI dependencies
 

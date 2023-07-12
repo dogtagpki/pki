@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: pki-acme
-          image: 'quay.io/dogtagpki/pki-acme:latest'
+          image: 'quay.io/dogtagpki/pki-acme:11.4'
           imagePullPolicy: Always
           volumeMounts:
             - mountPath: /var/lib/tomcats/pki/conf/certs
@@ -52,6 +52,6 @@ spec:
           - pki-acme
         from:
           kind: ImageStreamTag
-          name: 'pki-acme:latest'
+          name: 'pki-acme:11.4'
       type: ImageChange
     - type: ConfigChange

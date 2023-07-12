@@ -2,6 +2,9 @@ name: Build PKI
 
 on: [push, pull_request]
 
+env:
+  COPR_REPO: ${{ vars.COPR_REPO || '@pki/11.4' }}
+
 jobs:
   init:
     name: Initialization
@@ -33,7 +36,7 @@ jobs:
           context: .
           build-args: |
             BASE_IMAGE=${{ needs.init.outputs.base-image }}
-            COPR_REPO=${{ needs.init.outputs.repo }}
+            COPR_REPO=${{ env.COPR_REPO }}
           tags: pki-deps
           target: pki-deps
           cache-to: type=local,dest=/tmp/.buildx-cache
@@ -45,7 +48,7 @@ jobs:
           context: .
           build-args: |
             BASE_IMAGE=${{ needs.init.outputs.base-image }}
-            COPR_REPO=${{ needs.init.outputs.repo }}
+            COPR_REPO=${{ env.COPR_REPO }}
           tags: pki-builder-deps
           target: pki-builder-deps
           cache-to: type=local,dest=/tmp/.buildx-cache
@@ -57,7 +60,7 @@ jobs:
           context: .
           build-args: |
             BASE_IMAGE=${{ needs.init.outputs.base-image }}
-            COPR_REPO=${{ needs.init.outputs.repo }}
+            COPR_REPO=${{ env.COPR_REPO }}
           tags: pki-builder
           target: pki-builder
           cache-from: type=local,src=/tmp/.buildx-cache
@@ -69,7 +72,7 @@ jobs:
           context: .
           build-args: |
             BASE_IMAGE=${{ needs.init.outputs.base-image }}
-            COPR_REPO=${{ needs.init.outputs.repo }}
+            COPR_REPO=${{ env.COPR_REPO }}
           tags: pki-dist
           target: pki-dist
           cache-from: type=local,src=/tmp/.buildx-cache
@@ -81,7 +84,7 @@ jobs:
           context: .
           build-args: |
             BASE_IMAGE=${{ needs.init.outputs.base-image }}
-            COPR_REPO=${{ needs.init.outputs.repo }}
+            COPR_REPO=${{ env.COPR_REPO }}
           tags: pki-runner
           target: pki-runner
           cache-from: type=local,src=/tmp/.buildx-cache
@@ -93,7 +96,7 @@ jobs:
           context: .
           build-args: |
             BASE_IMAGE=${{ needs.init.outputs.base-image }}
-            COPR_REPO=${{ needs.init.outputs.repo }}
+            COPR_REPO=${{ env.COPR_REPO }}
           tags: pki-server
           target: pki-server
           cache-from: type=local,src=/tmp/.buildx-cache
@@ -105,7 +108,7 @@ jobs:
           context: .
           build-args: |
             BASE_IMAGE=${{ needs.init.outputs.base-image }}
-            COPR_REPO=${{ needs.init.outputs.repo }}
+            COPR_REPO=${{ env.COPR_REPO }}
           tags: pki-ca
           target: pki-ca
           cache-from: type=local,src=/tmp/.buildx-cache
@@ -117,7 +120,7 @@ jobs:
           context: .
           build-args: |
             BASE_IMAGE=${{ needs.init.outputs.base-image }}
-            COPR_REPO=${{ needs.init.outputs.repo }}
+            COPR_REPO=${{ env.COPR_REPO }}
           tags: pki-acme
           target: pki-acme
           cache-from: type=local,src=/tmp/.buildx-cache
