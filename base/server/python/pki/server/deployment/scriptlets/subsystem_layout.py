@@ -87,7 +87,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # to /etc/pki/<instance>/<subsystem>/registry.cfg
 
         pki_source_registry_cfg = os.path.join(
-            deployer.mdict['pki_source_conf_path'],
+            pki.server.PKIServer.SHARE_DIR,
+            subsystem_name,
+            'conf',
             'registry.cfg')
 
         pki_target_registry_cfg = os.path.join(
