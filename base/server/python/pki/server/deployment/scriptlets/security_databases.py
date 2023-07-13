@@ -95,9 +95,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 instance.nssdb_link,
                 exist_ok=True)
 
+        # Link /var/lib/pki/<instance>/<subsystem>/alias
+        # to /var/lib/pki/<instance>/alias
+
+        subsystem_nssdb_link = os.path.join(subsystem.base_dir, 'alias')
+
         instance.symlink(
             instance.nssdb_link,
-            deployer.mdict['pki_subsystem_database_link'],
+            subsystem_nssdb_link,
             exist_ok=True)
 
         if config.str2bool(deployer.mdict['pki_hsm_enable']) and \
