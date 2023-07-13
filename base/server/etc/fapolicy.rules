@@ -1,0 +1,1 @@
+allow perm=open dir=/usr/lib/jvm/ : dir=[WORK_DIR]/

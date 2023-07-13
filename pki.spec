@@ -978,6 +978,26 @@ then
     systemctl daemon-reload
 fi
 
+# Update the fapolicy rules for each PKI server instance
+for instance in $(ls /var/lib/pki)
+do
+    target="/etc/fapolicyd/rules.d/61-pki-$instance.rules"
+
+    sed -e "s/\[WORK_DIR\]/\/var\/lib\/pki\/$instance\/work/g" \
+        /usr/share/pki/server/etc/fapolicy.rules \
+        > $target
+
+    chown root:fapolicyd $target
+    chmod 644 $target
+done
+
+# Restart fapolicy daemon if it's active
+status=$(systemctl is-active fapolicyd)
+if [ "$status" = "active" ]
+then
+    systemctl restart fapolicyd
+fi
+
 # with server
 %endif
 
