@@ -84,7 +84,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             'registry.cfg')
 
         pki_target_registry_cfg = os.path.join(
-            deployer.mdict['pki_subsystem_configuration_path'],
+            subsystem.conf_dir,
             'registry.cfg')
 
         instance.copy(
@@ -140,7 +140,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 'flatfile.txt')
 
             pki_target_flatfile_txt = os.path.join(
-                deployer.mdict['pki_subsystem_configuration_path'],
+                subsystem.conf_dir,
                 'flatfile.txt')
 
             instance.copy(
@@ -159,7 +159,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 admin_key_type + 'AdminCert.profile')
 
             pki_target_admincert_profile = os.path.join(
-                deployer.mdict['pki_subsystem_configuration_path'],
+                subsystem.conf_dir,
                 'adminCert.profile')
 
             instance.copy(
@@ -176,7 +176,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 'caAuditSigningCert.profile')
 
             pki_target_caauditsigningcert_profile = os.path.join(
-                deployer.mdict['pki_subsystem_configuration_path'],
+                subsystem.conf_dir,
                 'caAuditSigningCert.profile')
 
             instance.copy(
@@ -193,7 +193,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 'caCert.profile')
 
             pki_target_cacert_profile = os.path.join(
-                deployer.mdict['pki_subsystem_configuration_path'],
+                subsystem.conf_dir,
                 'caCert.profile')
 
             instance.copy(
@@ -210,7 +210,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 'caOCSPCert.profile')
 
             pki_target_caocspcert_profile = os.path.join(
-                deployer.mdict['pki_subsystem_configuration_path'],
+                subsystem.conf_dir,
                 'caOCSPCert.profile')
 
             instance.copy(
@@ -229,7 +229,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 sslserver_key_type + 'ServerCert.profile')
 
             pki_target_servercert_profile = os.path.join(
-                deployer.mdict['pki_subsystem_configuration_path'],
+                subsystem.conf_dir,
                 'serverCert.profile')
 
             instance.copy(
@@ -248,7 +248,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 subsystem_key_type + 'SubsystemCert.profile')
 
             pki_target_subsystemcert_profile = os.path.join(
-                deployer.mdict['pki_subsystem_configuration_path'],
+                subsystem.conf_dir,
                 'subsystemCert.profile')
 
             instance.copy(
@@ -265,7 +265,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 'proxy.conf')
 
             pki_target_proxy_conf = os.path.join(
-                deployer.mdict['pki_subsystem_configuration_path'],
+                subsystem.conf_dir,
                 'proxy.conf')
 
             instance.copyfile(
@@ -279,7 +279,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # to /etc/pki/<instance>/<subsystem>/phoneHome.xml
 
             pki_target_phone_home_xml = os.path.join(
-                deployer.mdict['pki_subsystem_configuration_path'],
+                subsystem.conf_dir,
                 'phoneHome.xml')
 
             instance.copyfile(
@@ -293,7 +293,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         subsystem_conf_link = os.path.join(subsystem.base_dir, 'conf')
 
         instance.symlink(
-            deployer.mdict['pki_subsystem_configuration_path'],
+            subsystem.conf_dir,
             subsystem_conf_link,
             exist_ok=True)
 

@@ -335,8 +335,12 @@ class Namespace:
                 log.PKIHELPER_LOG_REUSE,
                 self.mdict['pki_instance_log_path'])
 
+        subsystem_conf_dir = os.path.join(
+            self.mdict['pki_instance_configuration_path'],
+            self.mdict['pki_subsystem_type'])
+
         if os.path.exists(self.mdict['pki_instance_configuration_path']) and\
-           os.path.exists(self.mdict['pki_subsystem_configuration_path']):
+           os.path.exists(subsystem_conf_dir):
             # Top-Level PKI configuration path collision
             logger.error(
                 log.PKIHELPER_NAMESPACE_COLLISION_2,
