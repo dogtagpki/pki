@@ -328,8 +328,12 @@ class Namespace:
                         self.mdict['pki_instance_name'],
                         self.mdict['pki_cgroup_cpu_systemd_service_path']))
 
+        subsystem_log_dir = os.path.join(
+            self.mdict['pki_instance_log_path'],
+            self.mdict['pki_subsystem_type'])
+
         if os.path.exists(self.mdict['pki_instance_log_path']) and\
-           os.path.exists(self.mdict['pki_subsystem_log_path']):
+           os.path.exists(subsystem_log_dir):
             # Check if logs already exist. If so, append to it. Log it as info
             logger.info(
                 log.PKIHELPER_LOG_REUSE,

@@ -303,7 +303,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         subsystem_logs_link = os.path.join(subsystem.base_dir, 'logs')
 
         instance.symlink(
-            deployer.mdict['pki_subsystem_log_path'],
+            subsystem.log_dir,
             subsystem_logs_link,
             exist_ok=True)
 
