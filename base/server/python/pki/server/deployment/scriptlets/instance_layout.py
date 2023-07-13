@@ -150,8 +150,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # Copy /usr/share/pki/server/conf/tomcat.conf
         # to /etc/sysconfig/<instance>
+
+        source_tomcat_conf = os.path.join(
+            pki.server.PKIServer.SHARE_DIR,
+            'server',
+            'conf',
+            'tomcat.conf')
+
         deployer.file.copy_with_slot_substitution(
-            deployer.mdict['pki_source_tomcat_conf'],
+            source_tomcat_conf,
             instance.service_conf,
             overwrite_flag=True)
 
