@@ -19,10 +19,13 @@
 #
 
 from __future__ import absolute_import
+import grp
 import logging
 import os
-import shutil
+import pwd
 import subprocess
+
+import pki
 
 # PKI Deployment Imports
 from .. import pkiconfig as config
@@ -60,12 +63,29 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         logger.info('Add fapolicy rule for the instance %s',
                     deployer.mdict['pki_instance_name'])
-        with open(fapolicy_rule_file, mode='w', encoding='utf-8') as rules:
-            rules.write('allow perm=open dir=/usr/lib/jvm/ : dir=' +
-                        deployer.mdict['pki_tomcat_work_catalina_host_path'] +
-                        '/\n')
-        shutil.chown(fapolicy_rule_file, user='root', group='fapolicyd')
-        os.chmod(fapolicy_rule_file, 0o644)
+
+        template = os.path.join(
+            pki.server.PKIServer.SHARE_DIR,
+            'server',
+            'etc',
+            'fapolicy.rules')
+
+        params = {
+            'WORK_DIR': self.instance.work_dir
+        }
+
+        uid = pwd.getpwnam('root').pw_uid
+        gid = grp.getgrnam('fapolicyd').gr_gid
+        mode = 0o644
+
+        pki.util.copyfile(
+            template,
+            fapolicy_rule_file,
+            params=params,
+            uid=uid,
+            gid=gid,
+            mode=mode,
+            force=True)
 
         self.restart_fapolicy_daemon()
 
