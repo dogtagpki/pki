@@ -452,9 +452,13 @@ class PKIDeployer:
 
         return rv
 
-    def verify_subsystem_exists(self):
+    def verify_subsystem_exists(self, instance):
 
-        if os.path.exists(self.mdict['pki_subsystem_path']):
+        subsystem_path = os.path.join(
+            instance.base_dir,
+            self.mdict['pki_subsystem_type'])
+
+        if os.path.exists(subsystem_path):
             return
 
         logger.error(
@@ -467,9 +471,13 @@ class PKIDeployer:
                 self.mdict['pki_subsystem'],
                 self.mdict['pki_instance_name']))
 
-    def verify_subsystem_does_not_exist(self):
+    def verify_subsystem_does_not_exist(self, instance):
 
-        if not os.path.exists(self.mdict['pki_subsystem_path']):
+        subsystem_path = os.path.join(
+            instance.base_dir,
+            self.mdict['pki_subsystem_type'])
+
+        if not os.path.exists(subsystem_path):
             return
 
         raise Exception(

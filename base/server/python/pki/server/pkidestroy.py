@@ -181,11 +181,11 @@ def main(argv):
         parser.arg_parser.exit(-1)
 
     # verify that previously deployed subsystem for this instance exists
-    deployed_pki_subsystem_path = os.path.join(
-        deployed_pki_instance_path, deployer.subsystem_name.lower()
-    )
+    subsystem_path = os.path.join(
+        deployed_pki_instance_path,
+        deployer.subsystem_name.lower())
 
-    if not os.path.exists(deployed_pki_subsystem_path) and not deployer.force:
+    if not os.path.exists(subsystem_path) and not deployer.force:
         print("ERROR:  " + log.PKI_SUBSYSTEM_DOES_NOT_EXIST_2 %
               (deployer.subsystem_name, deployed_pki_instance_path))
         print()
@@ -196,7 +196,7 @@ def main(argv):
 
     # establish complete path to previously deployed configuration file
     config.user_deployment_cfg = os.path.join(
-        deployed_pki_subsystem_path,
+        subsystem_path,
         "registry",
         deployer.subsystem_name.lower(),
         config.USER_DEPLOYMENT_CONFIGURATION

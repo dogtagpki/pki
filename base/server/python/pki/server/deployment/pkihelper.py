@@ -283,10 +283,15 @@ class Namespace:
     def __init__(self, deployer):
         self.mdict = deployer.mdict
 
+    # Run simple checks for pre-existing namespace collisions
     def collision_detection(self, instance):
-        # Run simple checks for pre-existing namespace collisions
+
+        subsystem_path = os.path.join(
+            instance.base_dir,
+            self.mdict['pki_subsystem_type'])
+
         if os.path.exists(self.mdict['pki_instance_path']):
-            if os.path.exists(self.mdict['pki_subsystem_path']):
+            if os.path.exists(subsystem_path):
                 # Top-Level PKI base path collision
                 logger.error(
                     log.PKIHELPER_NAMESPACE_COLLISION_2,
