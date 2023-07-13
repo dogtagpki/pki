@@ -413,9 +413,9 @@ class PKIDeployer:
         # SHOULD represent PKI instances, look for all possible
         # PKI instances within the top-level PKI infrastructure
 
-        for instance in os.listdir(self.mdict['pki_path']):
+        for instance in os.listdir(pki.server.PKIServer.BASE_DIR):
 
-            instance_dir = os.path.join(self.mdict['pki_path'], instance)
+            instance_dir = os.path.join(pki.server.PKIServer.BASE_DIR, instance)
             if not os.path.isdir(instance_dir) or os.path.islink(instance_dir):
                 continue
 
