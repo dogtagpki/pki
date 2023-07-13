@@ -303,9 +303,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # Link /var/lib/pki/<instance>/<subsystem>/registry
         # to /etc/sysconfig/pki/tomcat/<instance>
+
+        registry_link = os.path.join(subsystem.base_dir, 'registry')
+
         instance.symlink(
             deployer.mdict['pki_instance_registry_path'],
-            deployer.mdict['pki_subsystem_registry_link'],
+            registry_link,
             exist_ok=True)
 
         instance.load()
