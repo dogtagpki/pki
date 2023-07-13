@@ -125,7 +125,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         deployer.directory.create(deployer.mdict['pki_instance_log_path'])
 
-        shared_conf_path = deployer.mdict['pki_source_server_path']
+        shared_conf_path = os.path.join(
+            pki.server.PKIServer.SHARE_DIR,
+            'server',
+            'conf')
 
         deployer.create_server_xml(instance)
 
