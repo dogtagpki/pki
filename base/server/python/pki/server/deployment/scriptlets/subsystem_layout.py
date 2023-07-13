@@ -289,9 +289,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # Link /var/lib/pki/<instance>/<subsystem>/conf
         # to /etc/pki/<instance>/<subsystem>
+
+        subsystem_conf_link = os.path.join(subsystem.base_dir, 'conf')
+
         instance.symlink(
             deployer.mdict['pki_subsystem_configuration_path'],
-            deployer.mdict['pki_subsystem_conf_link'],
+            subsystem_conf_link,
             exist_ok=True)
 
         # Link /var/lib/pki/<instance>/<subsystem>/logs
