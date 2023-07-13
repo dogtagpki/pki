@@ -71,8 +71,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # Copy /usr/share/pki/<subsystem>/conf/CS.cfg
         # to /etc/pki/<instance>/<subsystem>/CS.cfg
+
+        source_cs_cfg = os.path.join(
+            pki.server.PKIServer.SHARE_DIR,
+            subsystem_name,
+            'conf',
+            'CS.cfg')
+
         instance.copyfile(
-            deployer.mdict['pki_source_cs_cfg'],
+            source_cs_cfg,
             subsystem.cs_conf,
             params=deployer.mdict)
 
