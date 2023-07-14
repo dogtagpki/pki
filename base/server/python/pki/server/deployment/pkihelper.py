@@ -322,16 +322,23 @@ class Namespace:
                     log.PKIHELPER_NAMESPACE_COLLISION_2 % (
                         self.mdict['pki_instance_name'],
                         self.mdict['pki_cgroup_systemd_service_path']))
-            if os.path.exists(self.mdict['pki_cgroup_cpu_systemd_service']):
+
+            cgroup_cpu_systemd_service_path = self.mdict['pki_cgroup_cpu_systemd_service_path']
+
+            cgroup_cpu_systemd_service = \
+                cgroup_cpu_systemd_service_path + \
+                self.mdict['pki_systemd_service']
+
+            if os.path.exists(cgroup_cpu_systemd_service):
                 # Systemd cgroup CPU path collision
                 logger.error(
                     log.PKIHELPER_NAMESPACE_COLLISION_2,
                     self.mdict['pki_instance_name'],
-                    self.mdict['pki_cgroup_cpu_systemd_service_path'])
+                    cgroup_cpu_systemd_service_path)
                 raise Exception(
                     log.PKIHELPER_NAMESPACE_COLLISION_2 % (
                         self.mdict['pki_instance_name'],
-                        self.mdict['pki_cgroup_cpu_systemd_service_path']))
+                        cgroup_cpu_systemd_service_path))
 
         subsystem_log_dir = os.path.join(
             self.mdict['pki_instance_log_path'],
