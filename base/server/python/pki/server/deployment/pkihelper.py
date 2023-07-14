@@ -377,8 +377,15 @@ class Namespace:
                 log.PKIHELPER_NAMESPACE_COLLISION_2 % (
                     self.mdict['pki_instance_name'],
                     self.mdict['pki_instance_configuration_path']))
-        if os.path.exists(self.mdict['pki_instance_registry_path']) and\
-           os.path.exists(self.mdict['pki_subsystem_registry_path']):
+
+        instance_registry_dir = self.mdict['pki_instance_registry_path']
+
+        subsystem_registry_dir = os.path.join(
+            instance_registry_dir,
+            self.mdict['pki_subsystem_type'])
+
+        if os.path.exists(instance_registry_dir) and\
+           os.path.exists(subsystem_registry_dir):
             # Top-Level PKI registry path collision
             logger.error(
                 log.PKIHELPER_NAMESPACE_COLLISION_2,
