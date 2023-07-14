@@ -50,7 +50,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     def restore_context(self, mdict):
         selinux.restorecon(mdict['pki_instance_path'], True)
         selinux.restorecon(config.PKI_DEPLOYMENT_LOG_ROOT, True)
-        selinux.restorecon(mdict['pki_instance_log_path'], True)
+        selinux.restorecon(self.instance.log_dir, True)
         selinux.restorecon(mdict['pki_instance_configuration_path'], True)
 
     # Helper function to check if a given `context_value` exists in the given
@@ -103,10 +103,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
                         logger.info(
                             "adding selinux fcontext \"%s\"",
-                            deployer.mdict['pki_instance_log_path'] +
+                            self.instance.log_dir +
                             self.suffix)
                         fcon.add(
-                            deployer.mdict['pki_instance_log_path'] +
+                            self.instance.log_dir +
                             self.suffix,
                             config.PKI_LOG_SELINUX_CONTEXT, "", "s0", "")
 
@@ -189,14 +189,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                                 self.suffix, "")
 
                         if self.context_exists(file_records,
-                                               deployer.mdict['pki_instance_log_path'] +
+                                               self.instance.log_dir +
                                                self.suffix):
                             logger.info(
                                 "deleting selinux fcontext \"%s\"",
-                                deployer.mdict['pki_instance_log_path'] +
+                                self.instance.log_dir +
                                 self.suffix)
                             fcon.delete(
-                                deployer.mdict['pki_instance_log_path'] +
+                                self.instance.log_dir +
                                 self.suffix, "")
 
                         if self.context_exists(file_records,

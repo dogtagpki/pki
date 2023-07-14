@@ -614,7 +614,7 @@ def main(argv):
         print()
 
         subsystem_log_dir = os.path.join(
-            deployer.mdict['pki_instance_log_path'],
+            instance.log_dir,
             deployer.mdict['pki_subsystem_type'])
 
         print('Please check the %s logs in %s.' %

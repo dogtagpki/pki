@@ -123,7 +123,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('Installing %s instance', deployer.mdict['pki_instance_name'])
             return
 
-        deployer.directory.create(deployer.mdict['pki_instance_log_path'])
+        deployer.directory.create(instance.log_dir)
 
         shared_conf_path = os.path.join(
             pki.server.PKIServer.SHARE_DIR,
@@ -245,7 +245,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # Link /var/lib/pki/<instance>/logs to /var/log/pki/<instance>
         logs_link = os.path.join(instance.base_dir, 'logs')
         deployer.symlink.create(
-            deployer.mdict['pki_instance_log_path'],
+            instance.log_dir,
             logs_link)
 
         if config.str2bool(deployer.mdict['pki_registry_enable']):
@@ -311,8 +311,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         if deployer.remove_logs:
 
-            logger.info('Removing %s', deployer.mdict['pki_instance_log_path'])
-            pki.util.rmtree(path=deployer.mdict['pki_instance_log_path'],
+            logger.info('Removing %s', instance.log_dir)
+            pki.util.rmtree(path=instance.log_dir,
                             force=deployer.force)
 
         logger.info('Removing %s', deployer.mdict['pki_instance_configuration_path'])
