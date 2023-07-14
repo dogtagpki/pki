@@ -272,8 +272,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 pki.server.instance.PKIInstance.TARGET_WANTS,
                 instance.service_name + '.service')
 
-            deployer.symlink.create(deployer.mdict['pki_systemd_service'],
-                                    systemd_service_link)
+            deployer.symlink.create(
+                pki.server.instance.PKIInstance.UNIT_FILE,
+                systemd_service_link)
 
     def destroy(self, deployer):
 

@@ -315,7 +315,7 @@ class Namespace:
 
             cgroup_systemd_service_path = \
                 '/sys/fs/cgroup/systemd/system' + \
-                self.mdict['pki_systemd_service']
+                pki.server.instance.PKIInstance.UNIT_FILE
 
             cgroup_systemd_service = os.path.join(
                 cgroup_systemd_service_path,
@@ -334,11 +334,11 @@ class Namespace:
 
             cgroup_cpu_systemd_service_path = \
                 '/sys/fs/cgroup/cpu,cpuacct/system' + \
-                self.mdict['pki_systemd_service']
+                pki.server.instance.PKIInstance.UNIT_FILE
 
             cgroup_cpu_systemd_service = \
                 cgroup_cpu_systemd_service_path + \
-                self.mdict['pki_systemd_service']
+                pki.server.instance.PKIInstance.UNIT_FILE
 
             if os.path.exists(cgroup_cpu_systemd_service):
                 # Systemd cgroup CPU path collision
