@@ -51,6 +51,7 @@ class PKIInstance(pki.server.PKIServer):
 
     REGISTRY_FILE = pki.server.PKIServer.SHARE_DIR + '/setup/pkidaemon_registry'
     UNIT_FILE = pki.server.LIB_SYSTEMD_DIR + '/system/pki-tomcatd@.service'
+    TARGET_FILE = pki.server.LIB_SYSTEMD_DIR + '/system/pki-tomcatd.target'
     TARGET_WANTS = pki.server.ETC_SYSTEMD_DIR + '/system/pki-tomcatd.target.wants'
 
     def __init__(self,
