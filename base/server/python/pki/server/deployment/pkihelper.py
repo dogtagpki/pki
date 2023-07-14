@@ -323,7 +323,9 @@ class Namespace:
                         self.mdict['pki_instance_name'],
                         self.mdict['pki_cgroup_systemd_service_path']))
 
-            cgroup_cpu_systemd_service_path = self.mdict['pki_cgroup_cpu_systemd_service_path']
+            cgroup_cpu_systemd_service_path = \
+                '/sys/fs/cgroup/cpu,cpuacct/system' + \
+                self.mdict['pki_systemd_service']
 
             cgroup_cpu_systemd_service = \
                 cgroup_cpu_systemd_service_path + \
