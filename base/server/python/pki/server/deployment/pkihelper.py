@@ -378,23 +378,21 @@ class Namespace:
                     self.mdict['pki_instance_name'],
                     self.mdict['pki_instance_configuration_path']))
 
-        instance_registry_dir = self.mdict['pki_instance_registry_path']
-
         subsystem_registry_dir = os.path.join(
-            instance_registry_dir,
+            instance.registry_dir,
             self.mdict['pki_subsystem_type'])
 
-        if os.path.exists(instance_registry_dir) and\
+        if os.path.exists(instance.registry_dir) and\
            os.path.exists(subsystem_registry_dir):
             # Top-Level PKI registry path collision
             logger.error(
                 log.PKIHELPER_NAMESPACE_COLLISION_2,
                 self.mdict['pki_instance_name'],
-                self.mdict['pki_instance_registry_path'])
+                instance.registry_dir)
             raise Exception(
                 log.PKIHELPER_NAMESPACE_COLLISION_2 % (
                     self.mdict['pki_instance_name'],
-                    self.mdict['pki_instance_registry_path']))
+                    instance.registry_dir))
         # Run simple checks for reserved name namespace collisions
         if self.mdict['pki_instance_name'] in config.PKI_BASE_RESERVED_NAMES:
             # Top-Level PKI base path reserved name collision
@@ -425,11 +423,11 @@ class Namespace:
             logger.error(
                 log.PKIHELPER_NAMESPACE_RESERVED_NAME_2,
                 self.mdict['pki_instance_name'],
-                self.mdict['pki_instance_registry_path'])
+                instance.registry_dir)
             raise Exception(
                 log.PKIHELPER_NAMESPACE_RESERVED_NAME_2 % (
                     self.mdict['pki_instance_name'],
-                    self.mdict['pki_instance_registry_path']))
+                    instance.registry_dir))
 
 
 class ConfigurationFile:

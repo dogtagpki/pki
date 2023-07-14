@@ -322,7 +322,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         registry_link = os.path.join(subsystem.base_dir, 'registry')
 
         instance.symlink(
-            deployer.mdict['pki_instance_registry_path'],
+            instance.registry_dir,
             registry_link,
             exist_ok=True)
 
