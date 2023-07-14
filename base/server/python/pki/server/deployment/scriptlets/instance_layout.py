@@ -267,8 +267,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             # Link /etc/systemd/system/pki-tomcatd.target.wants/pki-tomcatd@<instance>.service
             # to /lib/systemd/system/pki-tomcatd@.service
+
+            systemd_target_wants = deployer.mdict['pki_systemd_target_wants']
+
+            systemd_service_link = os.path.join(
+                systemd_target_wants,
+                instance.service_name + '.service')
+
             deployer.symlink.create(deployer.mdict['pki_systemd_service'],
-                                    deployer.mdict['pki_systemd_service_link'])
+                                    systemd_service_link)
 
     def destroy(self, deployer):
 
