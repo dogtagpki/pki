@@ -313,7 +313,9 @@ class Namespace:
                         self.mdict['pki_instance_name'],
                         instance.service_conf))
 
-            cgroup_systemd_service_path = self.mdict['pki_cgroup_systemd_service_path']
+            cgroup_systemd_service_path = \
+                '/sys/fs/cgroup/systemd/system' + \
+                self.mdict['pki_systemd_service']
 
             cgroup_systemd_service = os.path.join(
                 cgroup_systemd_service_path,
