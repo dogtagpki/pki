@@ -361,7 +361,7 @@ class NSSDatabase(object):
             filename)
 
     def create_tmpdir(self):
-        tmpdir = tempfile.mkdtemp()
+        tmpdir = tempfile.mkdtemp(dir='/tmp')
         if self.user:
             os.chown(tmpdir, self.uid, self.gid)
         return tmpdir
@@ -1724,7 +1724,7 @@ class NSSDatabase(object):
         if aia_ext:
             self.__create_aia_ext(exts, aia_ext)
 
-        tmpdir = tempfile.mkdtemp()
+        tmpdir = tempfile.mkdtemp(dir='/tmp')
 
         try:
             if exts:
