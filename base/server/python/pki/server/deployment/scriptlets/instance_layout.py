@@ -229,19 +229,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         deployer.directory.create(instance.temp_dir)
 
         # Create /var/lib/pki/<instance>/work
-        deployer.directory.create(deployer.mdict['pki_tomcat_work_path'])
-
-        # Create /var/lib/pki/<instance>/work/Catalina
-        deployer.directory.create(deployer.mdict['pki_tomcat_work_catalina_path'])
-
-        # Create /var/lib/pki/<instance>/work/Catalina/localhost
-        deployer.directory.create(deployer.mdict['pki_tomcat_work_catalina_host_path'])
-
-        # Create /var/lib/pki/<instance>/work/Catalina/localhost/_
-        deployer.directory.create(deployer.mdict['pki_tomcat_work_catalina_host_run_path'])
-
-        # Create /var/lib/pki/<instance>/work/Catalina/localhost/<subsystem>
-        deployer.directory.create(deployer.mdict['pki_tomcat_work_catalina_host_subsystem_path'])
+        deployer.directory.create(instance.work_dir)
 
         # Link /var/lib/pki/<instance>/bin to /usr/share/tomcat/bin
         deployer.symlink.create(
