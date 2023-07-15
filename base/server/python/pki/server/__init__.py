@@ -1236,6 +1236,9 @@ grant codeBase "file:%s" {
     def add_subsystem(self, subsystem):
         self.subsystems[subsystem.name] = subsystem
 
+    def remove_subsystem(self, subsystem):
+        return self.subsystems.pop(subsystem.name, None)
+
     def enable_subsystems(self):
         for subsystem in self.get_subsystems():
             if not subsystem.is_enabled():

@@ -446,6 +446,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         instance = self.instance
 
         subsystem = instance.get_subsystem(deployer.mdict['pki_subsystem'].lower())
+        instance.remove_subsystem(subsystem)
 
         if config.str2bool(deployer.mdict['pki_registry_enable']):
             subsystem.remove_registry(force=deployer.force)
