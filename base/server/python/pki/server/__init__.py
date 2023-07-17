@@ -1224,13 +1224,17 @@ grant codeBase "file:%s" {
 
             subsystem = pki.server.subsystem.PKISubsystemFactory.create(self, subsystem_name)
             subsystem.load()
-            self.subsystems[subsystem_name] = subsystem
+
+            self.add_subsystem(subsystem)
 
     def get_subsystems(self):
         return list(self.subsystems.values())
 
     def get_subsystem(self, subsystem_name):
         return self.subsystems.get(subsystem_name)
+
+    def add_subsystem(self, subsystem):
+        self.subsystems[subsystem.name] = subsystem
 
     def enable_subsystems(self):
         for subsystem in self.get_subsystems():
