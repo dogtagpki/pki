@@ -265,8 +265,6 @@ PKIHELPER_REGISTERED_SECURITY_MODULE_1 = \
 PKIHELPER_UNREGISTERED_SECURITY_MODULE_1 = \
     "security module '%s' is not registered."
 
-PKIHELPER_PKI_INSTANCE_SUBSYSTEMS_2 = \
-    "instance '%s' contains '%d' PKI subsystems"
 PKIHELPER_REMOVE_FILTER_SECTION_1 = "removing filter section from '%s'"
 PKIHELPER_RM_F_1 = "rm -f %s"
 PKIHELPER_RM_RF_1 = "rm -rf %s"

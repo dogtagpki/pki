@@ -417,39 +417,6 @@ class PKIDeployer:
 
         return (key_type, key_size, curve, hash_alg)
 
-    def pki_instance_subsystems(self):
-
-        rv = 0
-
-        # Since ALL directories within the top-level PKI infrastructure
-        # SHOULD represent PKI instances, look for all possible
-        # PKI instances within the top-level PKI infrastructure
-
-        for instance in os.listdir(pki.server.PKIServer.BASE_DIR):
-
-            instance_dir = os.path.join(pki.server.PKIServer.BASE_DIR, instance)
-            if not os.path.isdir(instance_dir) or os.path.islink(instance_dir):
-                continue
-
-            # Since ANY directory within this PKI instance COULD
-            # be a PKI subsystem, look for all possible
-            # PKI subsystems within this PKI instance
-
-            for name in os.listdir(instance_dir):
-
-                subsystem_dir = os.path.join(instance_dir, name)
-                if not os.path.isdir(subsystem_dir) or os.path.islink(subsystem_dir):
-                    continue
-
-                if name.upper() in config.PKI_SUBSYSTEMS:
-                    rv += 1
-
-        logger.debug(
-            log.PKIHELPER_PKI_INSTANCE_SUBSYSTEMS_2,
-            self.mdict['pki_instance_path'], rv)
-
-        return rv
-
     def tomcat_instance_subsystems(self):
 
         # Return list of PKI subsystems in the specified tomcat instance
