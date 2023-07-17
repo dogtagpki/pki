@@ -45,17 +45,6 @@ logger = logging.getLogger(__name__)
 # PKI Deployment Selinux Setup Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
-    suffix = "(/.*)?"
-
-    # Helper function to check if a given `context_value` exists in the given
-    # set of `records`. This method can process both port contexts and file contexts
-    def context_exists(self, records, context_value):
-        for keys in records.keys():
-            for key in keys:
-                if str(key) == context_value:
-                    return True
-        return False
-
     def spawn(self, deployer):
 
         if config.str2bool(deployer.mdict['pki_skip_installation']):
@@ -120,66 +109,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             try:
                 # remove SELinux contexts when removing the last subsystem
                 if len(deployer.tomcat_instance_subsystems()) == 0:
-                    trans = seobject.semanageRecords("targeted")
-                    trans.start()
-
                     if deployer.mdict['pki_instance_name'] != \
                             config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME:
-
-                        fcon = seobject.fcontextRecords(trans)
-                        file_records = fcon.get_all()
-
-                        if self.context_exists(file_records,
-                                               deployer.mdict['pki_instance_path'] +
-                                               self.suffix):
-                            logger.info(
-                                "deleting selinux fcontext \"%s\"",
-                                deployer.mdict['pki_instance_path'] + self.suffix)
-                            fcon.delete(
-                                deployer.mdict['pki_instance_path'] +
-                                self.suffix, "")
-
-                        if self.context_exists(file_records,
-                                               self.instance.log_dir +
-                                               self.suffix):
-                            logger.info(
-                                "deleting selinux fcontext \"%s\"",
-                                self.instance.log_dir +
-                                self.suffix)
-                            fcon.delete(
-                                self.instance.log_dir +
-                                self.suffix, "")
-
-                        if self.context_exists(file_records,
-                                               deployer.mdict['pki_instance_configuration_path'] +
-                                               self.suffix):
-                            logger.info(
-                                "deleting selinux fcontext \"%s\"",
-                                deployer.mdict['pki_instance_configuration_path'] +
-                                self.suffix)
-                            fcon.delete(
-                                deployer.mdict['pki_instance_configuration_path'] +
-                                self.suffix, "")
-
-                        if self.context_exists(file_records,
-                                               deployer.mdict['pki_server_database_path'] +
-                                               self.suffix):
-                            logger.info(
-                                "deleting selinux fcontext \"%s\"",
-                                deployer.mdict['pki_server_database_path'] + self.suffix)
-                            fcon.delete(
-                                deployer.mdict['pki_server_database_path'] +
-                                self.suffix, "")
-
-                        port_records = seobject.portRecords(trans)
-                        port_record_values = port_records.get_all()
-                        for port in ports:
-                            if self.context_exists(port_record_values, port):
-                                logger.info("deleting selinux port %s", port)
-                                port_records.delete(port, "tcp")
-
-                    trans.finish()
+                        deployer.remove_selinux_contexts(self.instance)
                 break
+
             except ValueError as e:
                 error_message = str(e)
                 logger.error(error_message)

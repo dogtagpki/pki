@@ -3685,6 +3685,17 @@ class PKIDeployer:
         selinux.restorecon(instance.log_dir, True)
         selinux.restorecon(instance.conf_dir, True)
 
+    def selinux_context_exists(self, records, context_value):
+        '''
+        Check if a given `context_value` exists in the given set of `records`.
+        This method can process both port contexts and file contexts.
+        '''
+        for keys in records.keys():
+            for key in keys:
+                if str(key) == context_value:
+                    return True
+        return False
+
     def create_selinux_contexts(self, instance):
 
         suffix = '(/.*)?'
@@ -3721,5 +3732,41 @@ class PKIDeployer:
             port_records.add(
                 port, 'tcp', 's0',
                 config.PKI_PORT_SELINUX_CONTEXT)
+
+        trans.finish()
+
+    def remove_selinux_contexts(self, instance):
+
+        suffix = '(/.*)?'
+
+        trans = seobject.semanageRecords('targeted')
+        trans.start()
+
+        port_records = seobject.portRecords(trans)
+        port_record_values = port_records.get_all()
+
+        for port in config.pki_selinux_config_ports:
+            if self.selinux_context_exists(port_record_values, port):
+                logger.info('Removing SELinux port %s', port)
+                port_records.delete(port, 'tcp')
+
+        fcon = seobject.fcontextRecords(trans)
+        file_records = fcon.get_all()
+
+        if self.selinux_context_exists(file_records, instance.log_dir + suffix):
+            logger.info('Removing SELinux fcontext "%s"', instance.log_dir + suffix)
+            fcon.delete(instance.log_dir + suffix, '')
+
+        if self.selinux_context_exists(file_records, instance.base_dir + suffix):
+            logger.info('Removing SELinux fcontext "%s"', instance.base_dir + suffix)
+            fcon.delete(instance.base_dir + suffix, '')
+
+        if self.selinux_context_exists(file_records, instance.nssdb_dir + suffix):
+            logger.info('Removing SELinux fcontext "%s"', instance.nssdb_dir + suffix)
+            fcon.delete(instance.nssdb_dir + suffix, '')
+
+        if self.selinux_context_exists(file_records, instance.conf_dir + suffix):
+            logger.info('Removing SELinux fcontext "%s"', instance.conf_dir + suffix)
+            fcon.delete(instance.conf_dir + suffix, '')
 
         trans.finish()
