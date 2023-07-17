@@ -26,10 +26,12 @@ import ldap
 import logging
 import os
 import re
+import selinux
 import shutil
 import socket
 import struct
 import subprocess
+import sys
 import tempfile
 import time
 from time import strftime as date
@@ -51,6 +53,16 @@ from . import pkiconfig as config
 from . import pkihelper as util
 from . import pkimanifest as manifest
 from . import pkimessages as log
+
+seobject = None
+if selinux.is_selinux_enabled():
+    try:
+        import seobject
+    except ImportError:
+        # TODO: Fedora 22 has an incomplete Python 3 package
+        # sepolgen is missing.
+        if sys.version_info.major == 2:
+            raise
 
 logger = logging.getLogger(__name__)
 
@@ -3666,3 +3678,48 @@ class PKIDeployer:
         logger.info('Creating %s', manifest_archive)
 
         self.file.copy(manifest_file, manifest_archive)
+
+    def restore_selinux_contexts(self, instance):
+        selinux.restorecon(instance.base_dir, True)
+        selinux.restorecon(config.PKI_DEPLOYMENT_LOG_ROOT, True)
+        selinux.restorecon(instance.log_dir, True)
+        selinux.restorecon(instance.conf_dir, True)
+
+    def create_selinux_contexts(self, instance):
+
+        suffix = '(/.*)?'
+
+        trans = seobject.semanageRecords('targeted')
+        trans.start()
+
+        fcon = seobject.fcontextRecords(trans)
+
+        logger.info('Adding SELinux fcontext "%s"', instance.conf_dir + suffix)
+        fcon.add(
+            instance.conf_dir + suffix,
+            config.PKI_CFG_SELINUX_CONTEXT, '', 's0', '')
+
+        logger.info('Adding SELinux fcontext "%s"', instance.nssdb_dir + suffix)
+        fcon.add(
+            instance.nssdb_dir + suffix,
+            config.PKI_CERTDB_SELINUX_CONTEXT, '', 's0', '')
+
+        logger.info('Adding SELinux fcontext "%s"', instance.base_dir + suffix)
+        fcon.add(
+            instance.base_dir + suffix,
+            config.PKI_INSTANCE_SELINUX_CONTEXT, '', 's0', '')
+
+        logger.info('Adding SELinux fcontext "%s"', instance.log_dir + suffix)
+        fcon.add(
+            instance.log_dir + suffix,
+            config.PKI_LOG_SELINUX_CONTEXT, '', 's0', '')
+
+        port_records = seobject.portRecords(trans)
+
+        for port in config.pki_selinux_config_ports:
+            logger.info('Adding SELinux port %s', port)
+            port_records.add(
+                port, 'tcp', 's0',
+                config.PKI_PORT_SELINUX_CONTEXT)
+
+        trans.finish()
