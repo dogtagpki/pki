@@ -513,12 +513,6 @@ def main(argv):
         else:
             break
 
-    if not os.path.exists(config.PKI_DEPLOYMENT_SOURCE_ROOT +
-                          "/" + deployer.subsystem_name.lower()):
-        print("ERROR:  " + log.PKI_SUBSYSTEM_NOT_INSTALLED_1 %
-              deployer.subsystem_name.lower())
-        sys.exit(1)
-
     if args.pki_verbosity > 1:
         logger.warning('The -%s option has been deprecated. Use --debug instead.',
                        'v' * args.pki_verbosity)
@@ -546,10 +540,12 @@ def main(argv):
     create_master_dictionary(parser)
     deployer.init()
 
-    instance = pki.server.instance.PKIInstance(
-        deployer.mdict['pki_instance_name'],
-        user=deployer.mdict['pki_user'],
-        group=deployer.mdict['pki_group'])
+    instance_name = deployer.mdict['pki_instance_name']
+    instance = pki.server.instance.PKIServerFactory.create(instance_name)
+    instance.user = deployer.mdict['pki_user']
+    instance.group = deployer.mdict['pki_group']
+
+    instance.load()
 
     if args.log_file:
         print('Installation log: %s' % args.log_file)
