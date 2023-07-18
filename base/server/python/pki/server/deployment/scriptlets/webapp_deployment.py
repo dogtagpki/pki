@@ -43,10 +43,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         logger.info('Undeploying /%s web application', deployer.mdict['pki_subsystem'].lower())
 
-        # Delete <instance>/Catalina/localhost/<subsystem>.xml if exists
+        # Delete /etc/pki/<instance>/Catalina/localhost/<subsystem>.xml if exists
 
         context_xml = os.path.join(
-            deployer.mdict['pki_instance_configuration_path'],
+            self.instance.conf_dir,
             'Catalina',
             'localhost',
             deployer.mdict['pki_subsystem'].lower() + '.xml')

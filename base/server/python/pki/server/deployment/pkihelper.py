@@ -363,20 +363,20 @@ class Namespace:
                 instance.log_dir)
 
         subsystem_conf_dir = os.path.join(
-            self.mdict['pki_instance_configuration_path'],
+            instance.conf_dir,
             self.mdict['pki_subsystem_type'])
 
-        if os.path.exists(self.mdict['pki_instance_configuration_path']) and\
+        if os.path.exists(instance.conf_dir) and\
            os.path.exists(subsystem_conf_dir):
             # Top-Level PKI configuration path collision
             logger.error(
                 log.PKIHELPER_NAMESPACE_COLLISION_2,
                 self.mdict['pki_instance_name'],
-                self.mdict['pki_instance_configuration_path'])
+                instance.conf_dir)
             raise Exception(
                 log.PKIHELPER_NAMESPACE_COLLISION_2 % (
                     self.mdict['pki_instance_name'],
-                    self.mdict['pki_instance_configuration_path']))
+                    instance.conf_dir))
 
         subsystem_registry_dir = os.path.join(
             instance.registry_dir,
@@ -411,11 +411,11 @@ class Namespace:
             logger.error(
                 log.PKIHELPER_NAMESPACE_RESERVED_NAME_2,
                 self.mdict['pki_instance_name'],
-                self.mdict['pki_instance_configuration_path'])
+                instance.conf_dir)
             raise Exception(
                 log.PKIHELPER_NAMESPACE_RESERVED_NAME_2 % (
                     self.mdict['pki_instance_name'],
-                    self.mdict['pki_instance_configuration_path']))
+                    instance.conf_dir))
 
         # Top-Level Tomcat PKI registry path reserved name collision
         if self.mdict['pki_instance_name'] in\
@@ -2126,7 +2126,7 @@ class TPSConnector:
 
         tks_url = 'https://%s:%s' % (tkshost, tksport)
         password_conf = os.path.join(
-            self.mdict['pki_instance_configuration_path'],
+            instance.conf_dir,
             'password.conf')
 
         command = ["pki",

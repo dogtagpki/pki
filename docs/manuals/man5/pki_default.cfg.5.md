@@ -533,7 +533,7 @@ Defaults to False.
 **pki_cert_chain_path**  
 Required for the second step of a stand-alone PKI process.
 This is the location of the file containing the external CA signing certificate (as issued by the external CA).
-Defaults to '%(pki_instance_configuration_path)s/external_ca.cert'.
+Defaults to /etc/pki/*instance_name*/external_ca.cert.
 
 **pki_ca_signing_cert_path**  
 Required for the second step of a stand-alone PKI process.

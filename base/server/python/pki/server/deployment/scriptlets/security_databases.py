@@ -66,7 +66,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # which ONLY contains the 'password' for the purposes of
         # allowing 'certutil' to generate the security databases
 
-        pki_shared_pfile = os.path.join(deployer.mdict['pki_instance_configuration_path'], 'pfile')
+        pki_shared_pfile = os.path.join(instance.conf_dir, 'pfile')
 
         logger.info('Creating password file: %s', pki_shared_pfile)
         deployer.password.create_password_conf(
@@ -524,8 +524,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         if len(external_certs) > 0:
             deployer.load_external_certs(
-                os.path.join(deployer.mdict['pki_instance_configuration_path'],
-                             'external_certs.conf')
+                os.path.join(self.instance.conf_dir, 'external_certs.conf')
             )
 
             for cert in external_certs:
