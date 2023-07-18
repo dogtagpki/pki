@@ -28,7 +28,6 @@ import org.dogtagpki.server.authentication.AuthenticationConfig;
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
-import com.netscape.certsrv.authentication.IPasswdUserDBAuthentication;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.profile.EProfileException;
@@ -52,14 +51,20 @@ import netscape.ldap.LDAPException;
  * Used to authenticate administrators in the Certificate Server Console.
  * Authentications by checking the uid and password against the
  * database.
- * <P>
  *
  * @author lhsiao, cfu
- * @version $Revision$, $Date$
  */
-public class PasswdUserDBAuthentication extends AuthManager implements IPasswdUserDBAuthentication {
+public class PasswdUserDBAuthentication extends AuthManager {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PasswdUserDBAuthentication.class);
+
+    /* required credentials. uid, pwd are strings */
+    public static final String CRED_UID = "uid";
+    public static final String CRED_PWD = "pwd";
+
+    /* attribute in returned token */
+    public static final String TOKEN_USERDN = "userdn";
+    public static final String TOKEN_USERID = "userid";
 
     /* required credentials. uid, pwd are strings */
     protected static String[] mRequiredCred = { CRED_UID, CRED_PWD };
