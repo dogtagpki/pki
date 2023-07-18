@@ -170,33 +170,29 @@ def main(argv):
     # --remove-logs
     deployer.remove_logs = args.remove_logs
 
-    # verify that previously deployed instance exists
-    deployed_pki_instance_path = os.path.join(
-        config.PKI_DEPLOYMENT_BASE_ROOT, config.pki_deployed_instance_name
-    )
-    if not os.path.exists(deployed_pki_instance_path) and not deployer.force:
-        print("ERROR:  " + log.PKI_INSTANCE_DOES_NOT_EXIST_1 %
-              deployed_pki_instance_path)
-        print()
-        parser.arg_parser.exit(-1)
+    instance_name = config.pki_deployed_instance_name
+    instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
-    # verify that previously deployed subsystem for this instance exists
-    subsystem_path = os.path.join(
-        deployed_pki_instance_path,
-        deployer.subsystem_name.lower())
+    if not instance.exists():
+        logger.error('No such instance: %s', instance_name)
+        sys.exit(1)
 
-    if not os.path.exists(subsystem_path) and not deployer.force:
-        print("ERROR:  " + log.PKI_SUBSYSTEM_DOES_NOT_EXIST_2 %
-              (deployer.subsystem_name, deployed_pki_instance_path))
-        print()
-        parser.arg_parser.exit(-1)
+    instance.load()
+
+    subsystem_name = deployer.subsystem_name.lower()
+    subsystem = instance.get_subsystem(subsystem_name)
+
+    if not subsystem:
+        logger.error('No %s subsystem in %s instance',
+                     subsystem_name.upper(), instance_name)
+        sys.exit(1)
 
     config.default_deployment_cfg = \
         config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE
 
     # establish complete path to previously deployed configuration file
     config.user_deployment_cfg = os.path.join(
-        subsystem_path,
+        subsystem.base_dir,
         "registry",
         deployer.subsystem_name.lower(),
         config.USER_DEPLOYMENT_CONFIGURATION
@@ -222,11 +218,6 @@ def main(argv):
     parser.compose_pki_master_dictionary()
     deployer.init()
 
-    instance = pki.server.instance.PKIInstance(
-        deployer.mdict['pki_instance_name'],
-        user=deployer.mdict['pki_user'],
-        group=deployer.mdict['pki_group'])
-
     if args.log_file:
         print('Uninstallation log: %s' % args.log_file)
 
@@ -237,7 +228,7 @@ def main(argv):
     logger.debug(pkilogging.log_format(parser.mdict))
 
     print("Uninstalling " + deployer.subsystem_name + " from " +
-          deployed_pki_instance_path + ".")
+          instance.base_dir + ".")
 
     # Process the various "scriptlets" to remove the specified PKI subsystem.
     pki_subsystem_scriptlets = parser.mdict['destroy_scriplets'].split()

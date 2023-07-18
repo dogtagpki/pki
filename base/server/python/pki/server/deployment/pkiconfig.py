@@ -48,7 +48,6 @@ PKI_DEPLOYMENT_INTERRUPT_BANNER = "-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"\
                                   "-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-"
 
 PKI_DEPLOYMENT_SOURCE_ROOT = "/usr/share/pki"
-PKI_DEPLOYMENT_BASE_ROOT = "/var/lib/pki"
 # NOTE: Top-level "/etc/pki" is owned by the "filesystem" package!
 PKI_DEPLOYMENT_CONFIGURATION_ROOT = "/etc/pki"
 PKI_DEPLOYMENT_LOG_ROOT = "/var/log/pki"
