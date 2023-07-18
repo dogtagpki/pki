@@ -563,7 +563,7 @@ def main(argv):
         sys.exit(0)
 
     print("Installing " + deployer.subsystem_name + " into " +
-          parser.mdict['pki_instance_path'] + ".")
+          instance.base_dir + ".")
 
     # Process the various "scriptlets" to create the specified PKI subsystem.
     pki_subsystem_scriptlets = parser.mdict['spawn_scriplets'].split()

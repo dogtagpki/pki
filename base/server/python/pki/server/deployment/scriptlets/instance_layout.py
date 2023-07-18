@@ -49,7 +49,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         instance.load()
 
         # Create /var/lib/pki/<instance>
-        instance.makedirs(deployer.mdict['pki_instance_path'], exist_ok=True)
+        instance.makedirs(instance.base_dir, exist_ok=True)
 
         instance_conf_path = deployer.mdict['pki_instance_configuration_path']
 
@@ -305,8 +305,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if config.str2bool(deployer.mdict['pki_registry_enable']):
             instance.remove_registry(force=deployer.force)
 
-        logger.info('Removing %s', deployer.mdict['pki_instance_path'])
-        pki.util.rmtree(path=deployer.mdict['pki_instance_path'],
+        logger.info('Removing %s', instance.base_dir)
+        pki.util.rmtree(path=instance.base_dir,
                         force=deployer.force)
 
         if deployer.remove_logs:

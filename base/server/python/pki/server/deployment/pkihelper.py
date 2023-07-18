@@ -290,17 +290,17 @@ class Namespace:
             instance.base_dir,
             self.mdict['pki_subsystem_type'])
 
-        if os.path.exists(self.mdict['pki_instance_path']):
+        if os.path.exists(instance.base_dir):
             if os.path.exists(subsystem_path):
                 # Top-Level PKI base path collision
                 logger.error(
                     log.PKIHELPER_NAMESPACE_COLLISION_2,
                     self.mdict['pki_instance_name'],
-                    self.mdict['pki_instance_path'])
+                    instance.base_dir)
                 raise Exception(
                     log.PKIHELPER_NAMESPACE_COLLISION_2 % (
                         self.mdict['pki_instance_name'],
-                        self.mdict['pki_instance_path']))
+                        instance.base_dir))
         else:
             if os.path.exists(instance.service_conf):
                 # Top-Level "/etc/sysconfig" path collision
@@ -399,11 +399,11 @@ class Namespace:
             logger.error(
                 log.PKIHELPER_NAMESPACE_RESERVED_NAME_2,
                 self.mdict['pki_instance_name'],
-                self.mdict['pki_instance_path'])
+                instance.base_dir)
             raise Exception(
                 log.PKIHELPER_NAMESPACE_RESERVED_NAME_2 % (
                     self.mdict['pki_instance_name'],
-                    self.mdict['pki_instance_path']))
+                    instance.base_dir))
         # No need to check for reserved name under Top-Level PKI log path
         if self.mdict['pki_instance_name'] in \
                 config.PKI_CONFIGURATION_RESERVED_NAMES:
