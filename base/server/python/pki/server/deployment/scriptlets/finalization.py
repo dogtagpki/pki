@@ -55,7 +55,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # by default store the backup file in the NSS databases directory
             if not deployer.mdict['pki_backup_file']:
                 deployer.mdict['pki_backup_file'] = \
-                    deployer.mdict['pki_server_database_path'] + '/' + \
+                    instance.nssdb_dir + '/' + \
                     deployer.mdict['pki_subsystem'].lower() + '_backup_keys.p12'
 
             logger.info('Backing up keys into %s', deployer.mdict['pki_backup_file'])

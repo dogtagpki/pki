@@ -74,24 +74,23 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.mdict['pki_server_database_password'], pin_sans_token=True)
         deployer.file.modify(instance.password_conf)
 
-        if not os.path.isdir(deployer.mdict['pki_server_database_path']):
-            instance.makedirs(deployer.mdict['pki_server_database_path'], exist_ok=True)
+        if not os.path.isdir(instance.nssdb_dir):
+            instance.makedirs(instance.nssdb_dir, exist_ok=True)
 
         nssdb = pki.nssdb.NSSDatabase(
-            directory=deployer.mdict['pki_server_database_path'],
+            directory=instance.nssdb_dir,
             password_file=pki_shared_pfile)
 
         try:
             if not nssdb.exists():
-                logger.info('Creating NSS database: %s',
-                            deployer.mdict['pki_server_database_path'])
+                logger.info('Creating NSS database: %s', instance.nssdb_dir)
                 nssdb.create()
         finally:
             nssdb.close()
 
         if not os.path.islink(instance.nssdb_link):
             instance.symlink(
-                deployer.mdict['pki_server_database_path'],
+                instance.nssdb_dir,
                 instance.nssdb_link,
                 exist_ok=True)
 
@@ -115,14 +114,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # Set the initial NSS database ownership and permissions.
         pki.util.chown(
-            deployer.mdict['pki_server_database_path'],
+            instance.nssdb_dir,
             deployer.mdict['pki_uid'],
             deployer.mdict['pki_gid'])
         pki.util.chmod(
-            deployer.mdict['pki_server_database_path'],
+            instance.nssdb_dir,
             config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
         os.chmod(
-            deployer.mdict['pki_server_database_path'],
+            instance.nssdb_dir,
             pki.server.DEFAULT_DIR_MODE)
 
         # import system certificates before starting the server
@@ -136,7 +135,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 raise Exception('Missing pki_server_pkcs12_password property.')
 
             nssdb = pki.nssdb.NSSDatabase(
-                directory=deployer.mdict['pki_server_database_path'],
+                directory=instance.nssdb_dir,
                 password_file=pki_shared_pfile)
 
             try:
@@ -153,7 +152,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # import CA certificates from PKCS #12 file for cloning
         pki_clone_pkcs12_path = deployer.mdict['pki_clone_pkcs12_path']
-        pki_server_database_path = deployer.mdict['pki_server_database_path']
 
         if pki_clone_pkcs12_path:
 
@@ -163,7 +161,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 raise Exception('Missing pki_clone_pkcs12_password property.')
 
             nssdb = pki.nssdb.NSSDatabase(
-                directory=pki_server_database_path,
+                directory=instance.nssdb_dir,
                 password_file=pki_shared_pfile)
 
             try:
@@ -186,7 +184,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     pkcs12_file=pki_clone_pkcs12_path,
                     pkcs12_password=pki_clone_pkcs12_password)
 
-                print('Certificates in %s:' % pki_server_database_path)
+                print('Certificates in %s:' % instance.nssdb_dir)
                 nssdb.show_certs()
 
             finally:
@@ -195,7 +193,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # Export CA certificate to PEM file; same command as in
             # PKIServer.setup_cert_authentication().
             # openssl pkcs12 -in <p12_file_path> -out /tmp/auth.pem -nodes -nokeys
-            pki_ca_crt_path = os.path.join(pki_server_database_path, 'ca.crt')
+            pki_ca_crt_path = os.path.join(instance.nssdb_dir, 'ca.crt')
             cmd_export_ca = [
                 'openssl', 'pkcs12',
                 '-in', pki_clone_pkcs12_path,
@@ -240,7 +238,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 #        the instance will utilize 'softokn' or an HSM
                 #
                 rv = deployer.certutil.verify_certificate_exists(
-                    path=deployer.mdict['pki_server_database_path'],
+                    path=instance.nssdb_dir,
                     token=deployer.mdict['pki_self_signed_token'],
                     nickname=deployer.mdict[
                         'pki_ds_secure_connection_ca_nickname'
@@ -254,7 +252,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             'pki_ds_secure_connection_ca_trustargs'],
                         deployer.mdict['pki_ds_secure_connection_ca_pem_file'],
                         password_file=pki_shared_pfile,
-                        path=deployer.mdict['pki_server_database_path'],
+                        path=instance.nssdb_dir,
                         token=deployer.mdict['pki_self_signed_token'])
 
         # Always delete the temporary 'pfile'
@@ -546,9 +544,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             pki.util.rmtree(deployer.mdict['pki_client_dir'],
                             deployer.force)
 
-        logger.info('Removing %s', deployer.mdict['pki_server_database_path'])
-        pki.util.rmtree(deployer.mdict['pki_server_database_path'],
-                        deployer.force)
+        logger.info('Removing %s', instance.nssdb_dir)
+        pki.util.rmtree(instance.nssdb_dir, deployer.force)
 
         logger.info('Removing %s', instance.password_conf)
         pki.util.remove(instance.password_conf, deployer.force)

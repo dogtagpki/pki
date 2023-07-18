@@ -1315,8 +1315,10 @@ class PKIDeployer:
 
         logger.info('Connecting to security domain at %s', sd_url)
 
-        ca_cert = os.path.join(self.mdict['pki_server_database_path'],
-                               "ca.crt")
+        conf_dir = os.path.join(pki.server.PKIServer.CONFIG_DIR,
+                                self.mdict['pki_instance_name'])
+        nssdb_dir = os.path.join(conf_dir, 'alias')
+        ca_cert = os.path.join(nssdb_dir, 'ca.crt')
 
         if not os.path.exists(ca_cert):
 
@@ -2283,16 +2285,16 @@ class PKIDeployer:
         # Reset the NSS database ownership and permissions
 
         pki.util.chown(
-            self.mdict['pki_server_database_path'],
+            subsystem.instance.nssdb_dir,
             self.mdict['pki_uid'],
             self.mdict['pki_gid'])
 
         pki.util.chmod(
-            self.mdict['pki_server_database_path'],
+            subsystem.instance.nssdb_dir,
             config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
 
         os.chmod(
-            self.mdict['pki_server_database_path'],
+            subsystem.instance.nssdb_dir,
             pki.server.DEFAULT_DIR_MODE)
 
         return system_certs

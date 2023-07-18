@@ -377,7 +377,9 @@ def main(argv):
 
             else:
                 while True:
-                    ca_cert = os.path.join(deployer.mdict['pki_server_database_path'], "ca.crt")
+                    conf_dir = os.path.join(pki.server.PKIServer.CONFIG_DIR, instance_name)
+                    nssdb_dir = os.path.join(conf_dir, 'alias')
+                    ca_cert = os.path.join(nssdb_dir, "ca.crt")
                     if not os.path.exists(ca_cert):
                         parser.read_text('Security Domain CA Root Certificate',
                                          deployer.subsystem_name,
@@ -642,19 +644,19 @@ def main(argv):
 
     elif (external or standalone) and step_one:
         if deployer.subsystem_name == 'CA':
-            print_external_ca_step_one_information(parser.mdict)
+            print_external_ca_step_one_information(parser.mdict, instance)
 
         elif deployer.subsystem_name == 'KRA':
-            print_kra_step_one_information(parser.mdict)
+            print_kra_step_one_information(parser.mdict, instance)
 
         elif deployer.subsystem_name == 'OCSP':
-            print_ocsp_step_one_information(parser.mdict)
+            print_ocsp_step_one_information(parser.mdict, instance)
 
         elif deployer.subsystem_name == 'TKS':
-            print_tks_step_one_information(parser.mdict)
+            print_tks_step_one_information(parser.mdict, instance)
 
         elif deployer.subsystem_name == 'TPS':
-            print_tps_step_one_information(parser.mdict)
+            print_tps_step_one_information(parser.mdict, instance)
 
     else:
         print_final_install_information(parser.mdict)
@@ -754,13 +756,13 @@ def set_port(parser, tag, prompt, existing_data):
         parser.read_text(prompt, deployer.subsystem_name, tag)
 
 
-def print_external_ca_step_one_information(mdict):
+def print_external_ca_step_one_information(mdict, instance):
 
     print(log.PKI_SPAWN_INFORMATION_HEADER)
     print("      The %s subsystem of the '%s' instance is still incomplete." %
           (deployer.subsystem_name, mdict['pki_instance_name']))
     print()
-    print("      NSS database: %s" % mdict['pki_server_database_path'])
+    print("      NSS database: %s" % instance.nssdb_dir)
     print()
 
     signing_csr = mdict['pki_ca_signing_csr_path']
@@ -775,13 +777,13 @@ def print_external_ca_step_one_information(mdict):
     print(log.PKI_SPAWN_INFORMATION_FOOTER)
 
 
-def print_kra_step_one_information(mdict):
+def print_kra_step_one_information(mdict, instance):
 
     print(log.PKI_SPAWN_INFORMATION_HEADER)
     print("      The %s subsystem of the '%s' instance is still incomplete." %
           (deployer.subsystem_name, mdict['pki_instance_name']))
     print()
-    print("      NSS database: %s" % mdict['pki_server_database_path'])
+    print("      NSS database: %s" % instance.nssdb_dir)
     print()
 
     storage_csr = mdict['pki_storage_csr_path']
@@ -814,13 +816,13 @@ def print_kra_step_one_information(mdict):
     print(log.PKI_SPAWN_INFORMATION_FOOTER)
 
 
-def print_ocsp_step_one_information(mdict):
+def print_ocsp_step_one_information(mdict, instance):
 
     print(log.PKI_SPAWN_INFORMATION_HEADER)
     print("      The %s subsystem of the '%s' instance is still incomplete." %
           (deployer.subsystem_name, mdict['pki_instance_name']))
     print()
-    print("      NSS database: %s" % mdict['pki_server_database_path'])
+    print("      NSS database: %s" % instance.nssdb_dir)
     print()
 
     signing_csr = mdict['pki_ocsp_signing_csr_path']
@@ -849,13 +851,13 @@ def print_ocsp_step_one_information(mdict):
     print(log.PKI_SPAWN_INFORMATION_FOOTER)
 
 
-def print_tks_step_one_information(mdict):
+def print_tks_step_one_information(mdict, instance):
 
     print(log.PKI_SPAWN_INFORMATION_HEADER)
     print("      The %s subsystem of the '%s' instance is still incomplete." %
           (deployer.subsystem_name, mdict['pki_instance_name']))
     print()
-    print("      NSS database: %s" % mdict['pki_server_database_path'])
+    print("      NSS database: %s" % instance.nssdb_dir)
     print()
 
     subsystem_csr = mdict['pki_subsystem_csr_path']
@@ -881,13 +883,13 @@ def print_tks_step_one_information(mdict):
     print(log.PKI_SPAWN_INFORMATION_FOOTER)
 
 
-def print_tps_step_one_information(mdict):
+def print_tps_step_one_information(mdict, instance):
 
     print(log.PKI_SPAWN_INFORMATION_HEADER)
     print("      The %s subsystem of the '%s' instance is still incomplete." %
           (deployer.subsystem_name, mdict['pki_instance_name']))
     print()
-    print("      NSS database: %s" % mdict['pki_server_database_path'])
+    print("      NSS database: %s" % instance.nssdb_dir)
     print()
 
     subsystem_csr = mdict['pki_subsystem_csr_path']

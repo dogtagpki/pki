@@ -1900,7 +1900,6 @@ class KRAConnector:
     def __init__(self, deployer):
         self.mdict = deployer.mdict
         self.password = deployer.password
-        self.ca_cert = os.path.join(self.mdict['pki_server_database_path'], "ca.crt")
 
     def deregister(self, instance, subsystem, critical_failure=True):
         krahost = None
@@ -1973,9 +1972,11 @@ class KRAConnector:
 
             logger.info('Getting security domain info from https://%s:%s', sechost, secport)
 
+            ca_cert = os.path.join(instance.nssdb_dir, 'ca.crt')
+
             try:
                 ca_list = self.get_ca_list_from_security_domain(
-                    sechost, secport, self.ca_cert)
+                    sechost, secport, ca_cert)
             except Exception as e:
                 logger.error(
                     "unable to access security domain. Continuing .. %s ",
@@ -1996,7 +1997,7 @@ class KRAConnector:
                 # pylint: disable=W0703
                 try:
                     result = self.execute_using_pki(
-                        ca_url, subsystemnick,
+                        instance, ca_url, subsystemnick,
                         token_pwd, krahost, kraport)
                     logger.debug('Output:\n%s', result.stdout.strip())
                 except subprocess.CalledProcessError as e:
@@ -2037,13 +2038,13 @@ class KRAConnector:
         return list(info.subsystems['CA'].hosts.values())
 
     def execute_using_pki(
-            self, ca_url, subsystemnick,
+            self, instance, ca_url, subsystemnick,
             token_pwd, krahost, kraport):
         command = ["/usr/bin/pki",
                    "-U", ca_url,
                    "-n", subsystemnick,
                    "-P", "https",
-                   "-d", self.mdict['pki_server_database_path'],
+                   "-d", instance.nssdb_dir,
                    "-c", token_pwd,
                    "--ignore-banner",
                    "ca-kraconnector-del",
@@ -2106,7 +2107,7 @@ class TPSConnector:
                     return
 
             self.execute_using_pki(
-                tkshost, tksport, subsystemnick,
+                instance, tkshost, tksport, subsystemnick,
                 tpshost, tpsport)
 
         except subprocess.CalledProcessError as exc:
@@ -2120,7 +2121,7 @@ class TPSConnector:
         return
 
     def execute_using_pki(
-            self, tkshost, tksport, subsystemnick,
+            self, instance, tkshost, tksport, subsystemnick,
             tpshost, tpsport, critical_failure=False):
 
         tks_url = 'https://%s:%s' % (tkshost, tksport)
@@ -2131,7 +2132,7 @@ class TPSConnector:
         command = ["pki",
                    "-U", tks_url,
                    "-n", subsystemnick,
-                   "-d", self.mdict['pki_server_database_path'],
+                   "-d", instance.nssdb_dir,
                    "-f", password_conf,
                    "--ignore-banner",
                    "tks-tpsconnector-del",
