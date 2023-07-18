@@ -417,20 +417,6 @@ class PKIDeployer:
 
         return (key_type, key_size, curve, hash_alg)
 
-    def tomcat_instance_subsystems(self):
-
-        # Return list of PKI subsystems in the specified tomcat instance
-
-        rv = []
-
-        for subsystem in config.PKI_SUBSYSTEMS:
-
-            path = os.path.join(self.mdict['pki_instance_path'], subsystem.lower())
-            if os.path.exists(path) and os.path.isdir(path):
-                rv.append(subsystem)
-
-        return rv
-
     def verify_subsystem_exists(self, instance):
 
         subsystem_path = os.path.join(
@@ -2241,7 +2227,7 @@ class PKIDeployer:
         system_certs = {}
 
         clone = self.configuration_file.clone
-        tomcat_instance_subsystems = len(self.tomcat_instance_subsystems())
+        num_subsystems = len(subsystem.instance.get_subsystems())
 
         external = config.str2bool(self.mdict['pki_external']) or \
             config.str2bool(self.mdict['pki_existing']) or \
@@ -2260,11 +2246,11 @@ class PKIDeployer:
                 logger.info('%s cert is already set up', tag)
                 continue
 
-            if tag == 'sslserver' and tomcat_instance_subsystems > 1:
+            if tag == 'sslserver' and num_subsystems > 1:
                 logger.info('sslserver cert is already set up')
                 continue
 
-            if tag == 'subsystem' and tomcat_instance_subsystems > 1:
+            if tag == 'subsystem' and num_subsystems > 1:
                 logger.info('subsystem cert is already set up')
                 continue
 

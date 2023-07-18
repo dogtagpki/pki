@@ -229,7 +229,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 # installing a non-CA subsystem on a fresh system.
                 instance.copyfile(ca_cert_path, destination)
 
-        if len(deployer.tomcat_instance_subsystems()) < 2:
+        if len(instance.get_subsystems()) == 1:
 
             # Check to see if a secure connection is being used for the DS
             if deployer.ds_url.scheme == 'ldaps':
@@ -535,11 +535,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def destroy(self, deployer):
 
-        # if this is not the last subsystem, skip
-        if len(deployer.tomcat_instance_subsystems()) > 0:
-            return
-
         instance = self.instance
+
+        # if this is not the last subsystem, skip
+        if instance.get_subsystems():
+            return
 
         if deployer.directory.exists(deployer.mdict['pki_client_dir']):
             logger.info('Removing %s', deployer.mdict['pki_client_dir'])

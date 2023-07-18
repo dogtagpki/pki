@@ -55,6 +55,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('SELinux disabled')
             return
 
+        instance = self.instance
+
         logger.info('Creating SELinux contexts')
 
         # A maximum of 10 tries to create the SELinux contexts
@@ -65,16 +67,16 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 # check first if any transactions are required
                 if len(ports) == 0 and deployer.mdict['pki_instance_name'] == \
                         config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME:
-                    deployer.restore_selinux_contexts(self.instance)
+                    deployer.restore_selinux_contexts(instance)
                     return
 
                 # add SELinux contexts when adding the first subsystem
-                if len(deployer.tomcat_instance_subsystems()) == 1:
+                if len(instance.get_subsystems()) == 1:
                     if deployer.mdict['pki_instance_name'] != \
                             config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME:
-                        deployer.create_selinux_contexts(self.instance)
+                        deployer.create_selinux_contexts(instance)
 
-                    deployer.restore_selinux_contexts(self.instance)
+                    deployer.restore_selinux_contexts(instance)
                 break
 
             except ValueError as e:
@@ -101,6 +103,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME):
             return
 
+        instance = self.instance
+
         logger.info('Removing SELinux contexts')
 
         # A maximum of 10 tries to delete the SELinux contexts
@@ -108,10 +112,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         for counter in range(1, max_tries):
             try:
                 # remove SELinux contexts when removing the last subsystem
-                if len(deployer.tomcat_instance_subsystems()) == 0:
+                if not instance.get_subsystems():
                     if deployer.mdict['pki_instance_name'] != \
                             config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME:
-                        deployer.remove_selinux_contexts(self.instance)
+                        deployer.remove_selinux_contexts(instance)
                 break
 
             except ValueError as e:
