@@ -101,7 +101,7 @@ public class PasswdUserDBAuthentication extends AuthManager {
         DBSubsystem dbSubsystem = engine.getDBSubsystem();
         LdapConnInfo ldapinfo = dbSubsystem.getLdapConnInfo();
 
-        mAnonConnFactory = new LdapAnonConnFactory("PasswdUserDBAuthentication", 3, 20, ldapinfo);
+        mAnonConnFactory = new LdapAnonConnFactory("PasswdUserDBAuthentication", 0, 20, ldapinfo);
         mAnonConnFactory.setCMSEngine(engine);
         mAnonConnFactory.init(socketConfig);
     }

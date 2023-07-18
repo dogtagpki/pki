@@ -177,7 +177,7 @@ public class LdapAnonConnFactory extends LdapConnFactory {
         if (mInited)
             return; // XXX should throw exception here ?
 
-        if (mMinConns <= 0)
+        if (mMinConns < 0)
             throw new ELdapException("Invalid minimum number of connections: " + mMinConns);
 
         if (mMaxConns <= 0)
