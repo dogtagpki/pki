@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.ocsp;
 
+import java.lang.Integer;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.cert.X509CRL;
@@ -246,12 +247,13 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
 
         if (oldCRL != null) {
             if (oldCRL.getThisUpdate().getTime() >= crl.getThisUpdate().getTime()) {
-                logger.info("LDAPStore: no update, received CRL is older than current CRL");
+                logger.info("LDAPStore: no update, received CRL is not newer than current CRL");
                 return; // no update
             }
         }
-        logger.debug("Added '" + caCert.getSubjectName() + "' into CRL hash");
+        logger.debug("LDAPStore: updateCRLHash: Added '" + caCert.getSubjectName() + "' into CRL hash");
         mCRLs.put(caCert, crl);
+        logger.debug("LDAPStore: updateCRLHash: mCRLs size= "+ mCRLs.size());
     }
 
     @Override
@@ -418,9 +420,12 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             logger.info("LDAPStore: Checking against " + caCert.getSubjectName());
 
             MessageDigest md = MessageDigest.getInstance(cid.getDigestName());
+            logger.debug("LDAPStore: processRequest: cert digest name=" +
+                    cid.getDigestName());
             X509Key key = (X509Key) caCert.getPublicKey();
 
             if (key == null) {
+                logger.debug("LDAPStore: processRequest: mCRLs caCert.getPublicKey() returns null");
                 throw new Exception("Missing issuer key");
             }
 
@@ -428,6 +433,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             byte keyhsh[] = cid.getIssuerKeyHash().toByteArray();
 
             if (!Arrays.equals(digest, keyhsh)) {
+                logger.debug("LDAPStore: processRequest: CA key digest and cert issuer key hash do not match; continue to look at next CA in mCRLs...");
                 continue;
             }
 
@@ -438,11 +444,12 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
         }
 
         if (theCert == null) {
-            throw new Exception("Missing issuer certificate");
+            throw new Exception("Issuer certificate not found/served");
         }
 
         if (theCRL == null) {
-            throw new Exception("Missing CRL data");
+            throw new Exception("Missing CRL data for issuing CA:" +
+                    theCert.getSubjectDN());
         }
 
         GeneralizedTime thisUpdate = new GeneralizedTime(

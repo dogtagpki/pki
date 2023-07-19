@@ -412,14 +412,14 @@ public class AddCRLServlet extends CMSServlet {
                     (pt.getThisUpdate().getTime() >=
                     crl.getThisUpdate().getTime())) {
 
-                logger.warn("AddCRLServlet: no update, received CRL is older than current CRL");
+                logger.warn("AddCRLServlet: no update, received CRL is not newer than current CRL");
 
                 if (noUI) {
                     try {
                         resp.setContentType("application/text");
                         resp.getOutputStream().write("status=1\n".getBytes());
                         resp.getOutputStream().write(
-                                "error=Sent CRL is older than the current CRL\n".getBytes());
+                                "error=Sent CRL is not newer than the current CRL\n".getBytes());
                         resp.getOutputStream().flush();
                         cmsReq.setStatus(CMSRequest.SUCCESS);
 
@@ -432,7 +432,7 @@ public class AddCRLServlet extends CMSServlet {
                     } catch (Exception e) {
                     }
                 } else {
-                    logger.error("AddCRLServlet: CRL is older");
+                    logger.error("AddCRLServlet: CRL is not newer");
 
                     // NOTE:  The signed audit events
                     //        LOGGING_SIGNED_AUDIT_CRL_RETRIEVAL and
