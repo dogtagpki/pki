@@ -49,6 +49,7 @@ import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SecurityDomainSessionTable;
@@ -183,11 +184,21 @@ public class CMSEngine {
     private static final int PW_CANNOT_CONNECT = 3;
     private static final int PW_MAX_ATTEMPTS = 3;
 
+    protected SSLCertificateApprovalCallback approvalCallback;
+
     public CMSEngine(String name) {
         this.id = name.toLowerCase();
         this.name = name;
 
         logger.info("Creating " + name + " engine");
+    }
+
+    public SSLCertificateApprovalCallback getApprovalCallback() {
+        return approvalCallback;
+    }
+
+    public void setApprovalCallback(SSLCertificateApprovalCallback approvalCallback) {
+        this.approvalCallback = approvalCallback;
     }
 
     public String getID() {
@@ -1195,6 +1206,25 @@ public class CMSEngine {
         String path = subsystemConfDir + File.separator + "CS.cfg";
         loadConfig(path);
 
+        initSequence();
+
+        ready = true;
+        isStarted = true;
+
+        mStartupTime = System.currentTimeMillis();
+
+        logger.info(name + " engine started");
+        // Register TomcatJSS socket listener
+        TomcatJSS tomcatJss = TomcatJSS.getInstance();
+        if(serverSocketListener == null) {
+            serverSocketListener = new PKIServerSocketListener();
+        }
+        tomcatJss.addSocketListener(serverSocketListener);
+
+        notifySubsystemStarted();
+    }
+
+    protected void initSequence() throws Exception {
         initDebug();
         initPasswordStore();
         initSubsystemListeners();
@@ -1231,19 +1261,6 @@ public class CMSEngine {
         configureServerCertNickname();
 
         initSecurityDomain();
-
-        ready = true;
-        isStarted = true;
-
-        mStartupTime = System.currentTimeMillis();
-
-        logger.info(name + " engine started");
-
-        // Register TomcatJSS socket listener
-        TomcatJSS tomcatJss = TomcatJSS.getInstance();
-        tomcatJss.addSocketListener(serverSocketListener);
-
-        notifySubsystemStarted();
     }
 
     public boolean isInRunningState() {

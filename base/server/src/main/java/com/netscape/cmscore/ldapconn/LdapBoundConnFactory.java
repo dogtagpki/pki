@@ -296,6 +296,7 @@ public class LdapBoundConnFactory extends LdapConnFactory {
             if (engine != null) {
                 socketFactory.setCMSEngine(engine);
                 socketFactory.addSocketListener(engine.getClientSocketListener());
+                socketFactory.setApprovalCallback(engine.getApprovalCallback());
             }
             socketFactory.setSecure(mConnInfo.getSecure());
             if (mAuthInfo.getAuthType() == LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH) {

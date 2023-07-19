@@ -28,6 +28,7 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Vector;
 
+import org.dogtagpki.server.ocsp.OCSPEngine;
 import org.mozilla.jss.asn1.GeneralizedTime;
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
@@ -82,6 +83,11 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     private static final String PROP_HOST = "host";
     private static final String PROP_PORT = "port";
 
+    // This option enables the revocation verification of peer certificates using the CRL stored in the LDAP.
+    // Peer certificate of all the outcome connections from the OCSP subsystem are verified with the CRL.
+    // If also auths.revocationChecking.is set to true the peer certificate og all the income connections to the OCSP subsystem are verified with the CRL.
+    private static final String PROP_VALIDATE_CONNECTION_WITH_CRL = "validateConnCertWithCRL";
+
     private final static String PROP_NOT_FOUND_GOOD = "notFoundAsGood";
     private final static String PROP_INCLUDE_NEXT_UPDATE =
             "includeNextUpdate";
@@ -93,6 +99,8 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     private String mCACertAttr = null;
     protected Hashtable<String, Long> mReqCounts = new Hashtable<>();
     private Hashtable<X509CertImpl, X509CRLImpl> mCRLs = new Hashtable<>();
+    private boolean mValidateConnection = true;
+
 
     /**
      * Constructs the default store.
@@ -140,6 +148,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
                     DEF_CA_CERT_ATTR);
         mByName = mConfig.getBoolean(PROP_BY_NAME, true);
 
+        mValidateConnection = mConfig.getBoolean(PROP_VALIDATE_CONNECTION_WITH_CRL, true);
     }
 
     /**
@@ -276,6 +285,9 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
                             DEF_REFRESH_IN_SEC));
 
             updater.start();
+        }
+        if(mValidateConnection && OCSPEngine.getInstance() != null) {
+            OCSPEngine.getInstance().setApprovalCallback(new CRLLdapValidator(this));
         }
     }
 
@@ -531,6 +543,11 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             mConfig.put(key, pairs.get(key));
         }
     }
+
+    public boolean isCRLCheckAvailable() {
+        return mValidateConnection;
+    }
+
 }
 
 class CRLUpdater extends Thread {

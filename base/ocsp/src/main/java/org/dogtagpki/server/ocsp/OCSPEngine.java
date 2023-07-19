@@ -18,10 +18,33 @@
 
 package org.dogtagpki.server.ocsp;
 
+import java.io.IOException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509CRLEntry;
+import java.security.cert.X509Certificate;
+import java.util.Arrays;
+import java.util.Enumeration;
+
+import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
+import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
+import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.ssl.SSLCertificateApprovalCallback.ValidityStatus;
+
+import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.Subsystem;
+import com.netscape.cms.ocsp.LDAPStore;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
+import com.netscape.cmscore.dbs.DBSubsystem;
+import com.netscape.cmscore.ldapconn.LDAPConfig;
+import com.netscape.cmscore.ldapconn.PKISocketConfig;
+import com.netscape.cmsutil.password.PasswordStore;
 import com.netscape.ocsp.OCSPAuthority;
 
 public class OCSPEngine extends CMSEngine {
@@ -52,6 +75,13 @@ public class OCSPEngine extends CMSEngine {
     }
 
     @Override
+    public void initDBSubsystem() throws Exception {
+
+        dbSubsystem = new DBSubsystem();
+        dbSubsystem.setCMSEngine(this);
+        dbSubsystem.setEngineConfig(config);
+    }
+    @Override
     public void initSubsystem(Subsystem subsystem, ConfigStore subsystemConfig) throws Exception {
 
         if (subsystem instanceof OCSPAuthority) {
@@ -60,5 +90,148 @@ public class OCSPEngine extends CMSEngine {
         }
 
         super.initSubsystem(subsystem, subsystemConfig);
+        if (subsystem instanceof OCSPAuthority) {
+            subsystem.startup();
+        }
+    }
+
+
+    protected void startupSubsystems() throws Exception {
+
+        for (Subsystem subsystem : subsystems.values()) {
+            logger.info("CMSEngine: Starting " + subsystem.getId() + " subsystem");
+            if (!(subsystem instanceof OCSPAuthority)) {
+                DatabaseConfig dbConfig = config.getDatabaseConfig();
+                LDAPConfig ldapConfig = dbConfig.getLDAPConfig();
+                PKISocketConfig socketConfig = config.getSocketConfig();
+                PasswordStore passwordStore = getPasswordStore();
+                dbSubsystem.init(dbConfig, ldapConfig, socketConfig, passwordStore);
+                subsystem.startup();
+            }
+        }
+
+        // global admin servlet. (anywhere else more fit for this ?)
+    }
+    @Override
+    protected void initSequence() throws Exception {
+
+
+        initDebug();
+        initAuditor();
+        initDBSubsystem();
+        init();
+        initPasswordStore();
+        initSubsystemListeners();
+        initSecurityProvider();
+        initPluginRegistry();
+        initLogSubsystem();
+
+        initClientSocketListener();
+        initServerSocketListener();
+
+        testLDAPConnections();
+        initDatabase();
+
+        initJssSubsystem();
+        initUGSubsystem();
+        initOIDLoaderSubsystem();
+        initX500NameSubsystem();
+        // skip TP subsystem;
+        // problem in needing dbsubsystem in constructor. and it's not used.
+        initRequestSubsystem();
+
+
+        startupSubsystems();
+
+        initAuthSubsystem();
+        initAuthzSubsystem();
+        initCMSGateway();
+        initJobsScheduler();
+
+        configureAutoShutdown();
+        configureServerCertNickname();
+
+        initSecurityDomain();
+    }
+
+    @Override
+    public boolean isRevoked(X509Certificate[] certificates) {
+        LDAPStore crlStore = null;
+        for (Subsystem subsystem : subsystems.values()) {
+            if (subsystem instanceof OCSPAuthority) {
+                OCSPAuthority ocsp = (OCSPAuthority) subsystem;
+                if (ocsp.getDefaultStore() instanceof LDAPStore) {
+                    crlStore = (LDAPStore) ocsp.getDefaultStore();
+                }
+                break;
+            }
+        }
+
+        if (crlStore == null || !crlStore.isCRLCheckAvailable()) {
+            return super.isRevoked(certificates);
+        }
+
+        for (X509Certificate cert: certificates) {
+            if(!crlCertValid(crlStore, cert, null)) {
+                return true;
+            }
+        }
+        return false;
+
+    }
+
+
+    private boolean crlCertValid(LDAPStore crlStore, X509Certificate certificate, ValidityStatus currentStatus) {
+        logger.info("OCSPEngine: validate of peer's certificate for the connection " + certificate.getSubjectX500Principal());
+        CRLIssuingPointRecord pt = null;
+        try {
+            X509CertImpl peerCert = new X509CertImpl(certificate.getEncoded());
+            Enumeration<CRLIssuingPointRecord> eCRL = crlStore.searchAllCRLIssuingPointRecord(-1);
+            AuthorityKeyIdentifierExtension peerAKIExt = (AuthorityKeyIdentifierExtension) peerCert.getExtension(PKIXExtensions.AuthorityKey_Id.toString());
+            if(peerAKIExt == null) {
+                logger.error("OCSPEngine: the certificate has not Authority Key Identifier Extension. CRL verification cannot be done.");
+                return false;
+            }
+            while (eCRL.hasMoreElements() && pt == null) {
+                CRLIssuingPointRecord tPt = eCRL.nextElement();
+                logger.debug("OCSPEngine: CRL check issuer  " + tPt.getId());
+                X509CertImpl caCert = new X509CertImpl(tPt.getCACert());
+
+                try {
+                    SubjectKeyIdentifierExtension caSKIExt = (SubjectKeyIdentifierExtension) caCert.getExtension(PKIXExtensions.SubjectKey_Id.toString());
+                    if(caSKIExt == null) {
+                        logger.error("OCSPEngine: signing certificate missing Subject Key Identifier. Skip CA " + caCert.getName());
+                        continue;
+                    }
+
+                    KeyIdentifier caSKIId = (KeyIdentifier) caSKIExt.get(SubjectKeyIdentifierExtension.KEY_ID);
+                    KeyIdentifier peerAKIId = (KeyIdentifier) peerAKIExt.get(AuthorityKeyIdentifierExtension.KEY_ID);
+                    if(Arrays.equals(caSKIId.getIdentifier(), peerAKIId.getIdentifier())) {
+                        pt = tPt;
+                    }
+                } catch (IOException e) {
+                    logger.error("OCSPEngine: problem extracting key from SKI/AKI: " + e.getMessage(), e);
+                }
+            }
+        } catch (EBaseException | CertificateException e) {
+            logger.error("OCSPEngine: problem find CRL issuing point for " + certificate.getIssuerX500Principal().toString());
+            return false;
+        }
+        if (pt == null) {
+            logger.error("OCSPEngine: CRL issuing point not found for " + certificate.getIssuerX500Principal().toString());
+            return false;
+        }
+        try {
+            X509CRLImpl crl = new X509CRLImpl(pt.getCRL());
+            X509CRLEntry crlentry = crl.getRevokedCertificate(certificate.getSerialNumber());
+
+            if (crlentry == null && crlStore.isNotFoundGood()) {
+                return true;
+            }
+        } catch (Exception e) {
+            logger.error("OCSPEngine: crl check error. " + e.getMessage(), e);
+        }
+        logger.info("OCSPEngine: peer certificate not valid");
+        return false;
     }
 }
