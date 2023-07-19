@@ -60,5 +60,62 @@ public class OCSPEngine extends CMSEngine {
         }
 
         super.initSubsystem(subsystem, subsystemConfig);
+        if (subsystem instanceof OCSPAuthority) {
+            subsystem.startup();
+        }
     }
+
+    protected void startupSubsystems() throws Exception {
+
+        for (Subsystem subsystem : subsystems.values()) {
+            logger.info("CMSEngine: Starting " + subsystem.getId() + " subsystem");
+            if (!(subsystem instanceof OCSPAuthority))
+                subsystem.startup();
+        }
+
+        // global admin servlet. (anywhere else more fit for this ?)
+    }
+    @Override
+    protected void initSequence() throws Exception {
+
+
+        initDebug();
+        init();
+        initPasswordStore();
+        initSubsystemListeners();
+        initSecurityProvider();
+        initPluginRegistry();
+        initAuditor();
+        initLogSubsystem();
+
+        initClientSocketListener();
+        initServerSocketListener();
+
+        testLDAPConnections();
+        initDatabase();
+
+        initJssSubsystem();
+        initDBSubsystem();
+        initUGSubsystem();
+        initOIDLoaderSubsystem();
+        initX500NameSubsystem();
+        // skip TP subsystem;
+        // problem in needing dbsubsystem in constructor. and it's not used.
+        initRequestSubsystem();
+
+
+        startupSubsystems();
+
+        initAuthSubsystem();
+        initAuthzSubsystem();
+        initCMSGateway();
+        initJobsScheduler();
+
+        configureAutoShutdown();
+        configureServerCertNickname();
+
+        initSecurityDomain();
+    }
+
+
 }

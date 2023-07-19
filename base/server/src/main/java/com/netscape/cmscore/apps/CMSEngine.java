@@ -1195,6 +1195,25 @@ public class CMSEngine {
         String path = subsystemConfDir + File.separator + "CS.cfg";
         loadConfig(path);
 
+        initSequence();
+
+        ready = true;
+        isStarted = true;
+
+        mStartupTime = System.currentTimeMillis();
+
+        logger.info(name + " engine started");
+        // Register TomcatJSS socket listener
+        TomcatJSS tomcatJss = TomcatJSS.getInstance();
+        if(serverSocketListener == null) {
+            serverSocketListener = new PKIServerSocketListener();
+        }
+        tomcatJss.addSocketListener(serverSocketListener);
+
+        notifySubsystemStarted();
+    }
+
+    protected void initSequence() throws Exception {
         initDebug();
         initPasswordStore();
         initSubsystemListeners();
@@ -1231,19 +1250,6 @@ public class CMSEngine {
         configureServerCertNickname();
 
         initSecurityDomain();
-
-        ready = true;
-        isStarted = true;
-
-        mStartupTime = System.currentTimeMillis();
-
-        logger.info(name + " engine started");
-
-        // Register TomcatJSS socket listener
-        TomcatJSS tomcatJss = TomcatJSS.getInstance();
-        tomcatJss.addSocketListener(serverSocketListener);
-
-        notifySubsystemStarted();
     }
 
     public boolean isInRunningState() {
