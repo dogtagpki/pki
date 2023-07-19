@@ -456,18 +456,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if config.str2bool(deployer.mdict['pki_registry_enable']):
             subsystem.remove_registry(force=deployer.force)
 
-        if deployer.mdict['pki_subsystem'] == "CA":
-
-            logger.info('Removing %s/emails', subsystem.conf_dir)
-            pki.util.rmtree(
-                path=subsystem.conf_dir + '/emails',
-                force=deployer.force)
-
-            logger.info('Removing %s/profiles', subsystem.conf_dir)
-            pki.util.rmtree(
-                path=subsystem.conf_dir + '/profiles',
-                force=deployer.force)
-
         if deployer.remove_logs:
             subsystem.remove_logs(force=deployer.force)
 
