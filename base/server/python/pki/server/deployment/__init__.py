@@ -380,6 +380,47 @@ class PKIDeployer:
 
         server_config.save()
 
+    def update_rsa_pss_algorithm(self, cert_id, alg_type):
+
+        param = 'pki_%s_%s_algorithm' % (cert_id, alg_type)
+        algorithm = self.mdict[param]
+
+        # if algorithm is XXXwithRSA, change it into XXXwithRSA/PSS
+        if not re.search(r'withRSA$', algorithm):
+            return
+
+        self.mdict[param] = '%s/PSS' % algorithm
+
+    def update_rsa_pss_algorithms(self, subsystem):
+
+        logger.info('Updating RSA-PSS algorithms')
+
+        if subsystem.type == 'CA':
+            self.update_rsa_pss_algorithm('ca_signing', 'key')
+            self.update_rsa_pss_algorithm('ca_signing', 'signing')
+
+        if subsystem.type == 'KRA':
+            self.update_rsa_pss_algorithm('storage', 'key')
+            self.update_rsa_pss_algorithm('storage', 'signing')
+
+            self.update_rsa_pss_algorithm('transport', 'key')
+            self.update_rsa_pss_algorithm('transport', 'signing')
+
+        if subsystem.type in ['CA', 'OCSP']:
+            self.update_rsa_pss_algorithm('ocsp_signing', 'key')
+            self.update_rsa_pss_algorithm('ocsp_signing', 'signing')
+
+        self.update_rsa_pss_algorithm('audit_signing', 'key')
+        self.update_rsa_pss_algorithm('audit_signing', 'signing')
+
+        self.update_rsa_pss_algorithm('sslserver', 'key')
+        self.update_rsa_pss_algorithm('sslserver', 'signing')
+
+        self.update_rsa_pss_algorithm('subsystem', 'key')
+        self.update_rsa_pss_algorithm('subsystem', 'signing')
+
+        self.update_rsa_pss_algorithm('admin', 'key')
+
     def get_key_params(self, cert_id):
 
         key_type = self.mdict['pki_%s_key_type' % cert_id]
