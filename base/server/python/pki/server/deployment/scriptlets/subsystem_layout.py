@@ -441,11 +441,16 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def destroy(self, deployer):
 
+        instance = self.instance
+        subsystem_name = deployer.mdict['pki_subsystem'].lower()
+
+        logger.info('Undeploying /%s web application', subsystem_name)
+
+        subsystem = instance.get_subsystem(subsystem_name)
+        subsystem.disable(force=deployer.force)
+
         logger.info('Removing %s subsystem', deployer.mdict['pki_subsystem'])
 
-        instance = self.instance
-
-        subsystem = instance.get_subsystem(deployer.mdict['pki_subsystem'].lower())
         instance.remove_subsystem(subsystem)
 
         if config.str2bool(deployer.mdict['pki_registry_enable']):

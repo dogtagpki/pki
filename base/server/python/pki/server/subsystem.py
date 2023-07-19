@@ -615,10 +615,11 @@ class PKISubsystem(object):
             max_wait=max_wait,
             timeout=timeout)
 
-    def disable(self, wait=False, max_wait=60, timeout=None):
+    def disable(self, force=False, wait=False, max_wait=60, timeout=None):
 
         self.instance.undeploy_webapp(
             self.name,
+            force=force,
             wait=wait,
             max_wait=max_wait,
             timeout=timeout)
