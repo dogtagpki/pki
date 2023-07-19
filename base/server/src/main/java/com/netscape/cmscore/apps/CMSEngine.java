@@ -1102,6 +1102,28 @@ public class CMSEngine implements ServletContextListener {
 
         CMS.setCMSEngine(this);
 
+        initSequence();
+
+        // Register realm for this subsystem
+        ProxyRealm.registerRealm(id, new PKIRealm());
+
+        ready = true;
+        isStarted = true;
+
+        mStartupTime = System.currentTimeMillis();
+
+        logger.info(name + " engine started");
+        // Register TomcatJSS socket listener
+        TomcatJSS tomcatJss = TomcatJSS.getInstance();
+        if(serverSocketListener == null) {
+            serverSocketListener = new PKIServerSocketListener();
+        }
+        tomcatJss.addSocketListener(serverSocketListener);
+
+        notifySubsystemStarted();
+    }
+
+    protected void initSequence() throws Exception {
         initDebug();
         initPasswordStore();
         initSubsystemListeners();
@@ -1131,24 +1153,6 @@ public class CMSEngine implements ServletContextListener {
         configureExcludedLdapAttrs();
 
         initSecurityDomain();
-
-        // Register realm for this subsystem
-        ProxyRealm.registerRealm(id, new PKIRealm());
-
-        ready = true;
-        isStarted = true;
-
-        mStartupTime = System.currentTimeMillis();
-
-        logger.info(name + " engine started");
-        // Register TomcatJSS socket listener
-        TomcatJSS tomcatJss = TomcatJSS.getInstance();
-        if(serverSocketListener == null) {
-            serverSocketListener = new PKIServerSocketListener();
-        }
-        tomcatJss.addSocketListener(serverSocketListener);
-
-        notifySubsystemStarted();
     }
 
     public boolean isInRunningState() {
