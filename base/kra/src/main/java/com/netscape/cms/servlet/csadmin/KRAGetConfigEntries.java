@@ -17,6 +17,21 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "kraGetConfigEntries",
+        urlPatterns = "/admin/kra/getConfigEntries",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="false"),
+                @WebInitParam(name="authority",     value="kra"),
+                @WebInitParam(name="ID",            value="kraGetConfigEntries"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="AuthMgr",       value="TokenAuth"),
+                @WebInitParam(name="resourceID",    value="certServer.clone.configuration.GetConfigEntries")
+        }
+)
 public class KRAGetConfigEntries extends GetConfigEntries {
     private static final long serialVersionUID = 1L;
 }
