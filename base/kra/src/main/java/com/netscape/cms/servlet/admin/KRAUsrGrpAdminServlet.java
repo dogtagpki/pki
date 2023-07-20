@@ -17,6 +17,17 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.admin;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "kraug",
+        urlPatterns = "/ug",
+        initParams = {
+                @WebInitParam(name="ID",       value="kraug"),
+                @WebInitParam(name="AuthzMgr", value="BasicAclAuthz")
+        }
+)
 public class KRAUsrGrpAdminServlet extends UsrGrpAdminServlet {
     private static final long serialVersionUID = 1L;
 }
