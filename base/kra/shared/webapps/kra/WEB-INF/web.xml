@@ -4,19 +4,6 @@
     <display-name>Key Recovery Authority</display-name>
 
    <servlet>
-      <servlet-name>  kraDynamicVariables  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.KRADynamicVariables  </servlet-class>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> kraDynamicVariables </param-value> </init-param>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  dynamicVariables  </param-name>
-                         <param-value> serverdate=serverdate(),subsystemname=subsystemname(),http=http(),authmgrs=authmgrs(),clacrlurl=clacrlurl() </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> kra         </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  kraheader  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.base.IndexServlet  </servlet-class>
              <init-param><param-name>  templatePath   </param-name>
@@ -522,11 +509,6 @@
    <servlet-mapping>
       <servlet-name>  krapolicy  </servlet-name>
       <url-pattern>   /krapolicy  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  kraDynamicVariables  </servlet-name>
-      <url-pattern>   /dynamicVars.js  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
