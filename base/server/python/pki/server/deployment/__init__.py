@@ -473,6 +473,243 @@ class PKIDeployer:
 
         return (key_type, key_size, curve, hash_alg)
 
+    def update_external_certs_conf(self, instance, external_path):
+
+        external_certs = pki.server.instance.PKIInstance.read_external_certs(
+            external_path)
+
+        if not external_certs:
+            return
+
+        # load existing external certs
+        instance.load_external_certs(
+            os.path.join(instance.conf_dir, 'external_certs.conf')
+        )
+
+        # add new external certs
+        for cert in external_certs:
+            instance.add_external_cert(cert.nickname, cert.token)
+
+    def init_server_nssdb(self, subsystem):
+
+        instance = subsystem.instance
+
+        if config.str2bool(self.mdict['pki_hsm_enable']):
+            hsm_token = self.mdict['pki_token_name']
+            subsystem.config['preop.module.token'] = hsm_token
+
+        # Since 'certutil' does NOT strip the 'token=' portion of
+        # the 'token=password' entries, create a temporary server 'pfile'
+        # which ONLY contains the 'password' for the purposes of
+        # allowing 'certutil' to generate the security databases
+
+        pki_shared_pfile = os.path.join(instance.conf_dir, 'pfile')
+
+        logger.info('Creating password file: %s', pki_shared_pfile)
+        self.password.create_password_conf(
+            pki_shared_pfile,
+            self.mdict['pki_server_database_password'], pin_sans_token=True)
+        self.file.modify(instance.password_conf)
+
+        if not os.path.isdir(instance.nssdb_dir):
+            instance.makedirs(instance.nssdb_dir, exist_ok=True)
+
+        nssdb = pki.nssdb.NSSDatabase(
+            directory=instance.nssdb_dir,
+            password_file=pki_shared_pfile)
+
+        try:
+            if not nssdb.exists():
+                logger.info('Creating NSS database: %s', instance.nssdb_dir)
+                nssdb.create()
+        finally:
+            nssdb.close()
+
+        if not os.path.islink(instance.nssdb_link):
+            instance.symlink(
+                instance.nssdb_dir,
+                instance.nssdb_link,
+                exist_ok=True)
+
+        # Link /var/lib/pki/<instance>/<subsystem>/alias
+        # to /var/lib/pki/<instance>/alias
+
+        subsystem_nssdb_link = os.path.join(subsystem.base_dir, 'alias')
+
+        instance.symlink(
+            instance.nssdb_link,
+            subsystem_nssdb_link,
+            exist_ok=True)
+
+        if config.str2bool(self.mdict['pki_hsm_enable']) and \
+                self.mdict['pki_hsm_modulename'] and \
+                self.mdict['pki_hsm_libfile'] and \
+                not nssdb.module_exists(self.mdict['pki_hsm_modulename']):
+            nssdb.add_module(
+                self.mdict['pki_hsm_modulename'],
+                self.mdict['pki_hsm_libfile'])
+
+        # set the initial NSS database ownership and permissions
+
+        pki.util.chown(
+            instance.nssdb_dir,
+            self.mdict['pki_uid'],
+            self.mdict['pki_gid'])
+        pki.util.chmod(
+            instance.nssdb_dir,
+            config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
+        os.chmod(
+            instance.nssdb_dir,
+            pki.server.DEFAULT_DIR_MODE)
+
+        # import system certificates before starting the server
+
+        pki_server_pkcs12_path = self.mdict['pki_server_pkcs12_path']
+        if pki_server_pkcs12_path:
+
+            pki_server_pkcs12_password = self.mdict[
+                'pki_server_pkcs12_password']
+            if not pki_server_pkcs12_password:
+                raise Exception('Missing pki_server_pkcs12_password property.')
+
+            nssdb = pki.nssdb.NSSDatabase(
+                directory=instance.nssdb_dir,
+                password_file=pki_shared_pfile)
+
+            try:
+                nssdb.import_pkcs12(
+                    pkcs12_file=pki_server_pkcs12_path,
+                    pkcs12_password=pki_server_pkcs12_password)
+            finally:
+                nssdb.close()
+
+            # update external CA file (if needed)
+            external_certs_path = self.mdict['pki_server_external_certs_path']
+            if external_certs_path is not None:
+                self.update_external_certs_conf(instance, external_certs_path)
+
+        # import CA certificates from PKCS #12 file for cloning
+        pki_clone_pkcs12_path = self.mdict['pki_clone_pkcs12_path']
+
+        if pki_clone_pkcs12_path:
+
+            pki_clone_pkcs12_password = self.mdict[
+                'pki_clone_pkcs12_password']
+            if not pki_clone_pkcs12_password:
+                raise Exception('Missing pki_clone_pkcs12_password property.')
+
+            nssdb = pki.nssdb.NSSDatabase(
+                directory=instance.nssdb_dir,
+                password_file=pki_shared_pfile)
+
+            try:
+                logger.info('Importing certificates from %s:', pki_clone_pkcs12_path)
+
+                # The PKCS12 class requires an NSS database to run. For simplicity
+                # it uses the NSS database that has just been created.
+                pkcs12 = pki.pkcs12.PKCS12(
+                    path=pki_clone_pkcs12_path,
+                    password=pki_clone_pkcs12_password,
+                    nssdb=nssdb)
+
+                try:
+                    pkcs12.show_certs()
+                finally:
+                    pkcs12.close()
+
+                # Import certificates
+                nssdb.import_pkcs12(
+                    pkcs12_file=pki_clone_pkcs12_path,
+                    pkcs12_password=pki_clone_pkcs12_password)
+
+                print('Certificates in %s:' % instance.nssdb_dir)
+                nssdb.show_certs()
+
+            finally:
+                nssdb.close()
+
+            # Export CA certificate to PEM file; same command as in
+            # PKIServer.setup_cert_authentication().
+            # openssl pkcs12 -in <p12_file_path> -out /tmp/auth.pem -nodes -nokeys
+
+            pki_ca_crt_path = os.path.join(instance.nssdb_dir, 'ca.crt')
+
+            cmd_export_ca = [
+                'openssl', 'pkcs12',
+                '-in', pki_clone_pkcs12_path,
+                '-out', pki_ca_crt_path,
+                '-nodes',
+                '-nokeys',
+                '-passin', 'pass:' + pki_clone_pkcs12_password
+            ]
+
+            res_ca = subprocess.check_output(
+                cmd_export_ca,
+                stderr=subprocess.STDOUT).decode('utf-8')
+
+            logger.debug('Result of CA certificate export: %s', res_ca)
+
+            # At this point, we're running as root. However, the subsystem
+            # will eventually start up as non-root and will attempt to do a
+            # migration. If we don't fix the permissions now, migration will
+            # fail and subsystem won't start up.
+            pki.util.chmod(pki_ca_crt_path, 0o644)
+            pki.util.chown(
+                pki_ca_crt_path,
+                self.mdict['pki_uid'],
+                self.mdict['pki_gid'])
+
+        ca_cert_path = self.mdict.get('pki_cert_chain_path')
+
+        if ca_cert_path and os.path.exists(ca_cert_path):
+
+            destination = os.path.join(instance.nssdb_dir, "ca.crt")
+
+            if not os.path.exists(destination):
+                # When we're passed a CA certificate file and we don't already
+                # have a CA file for some reason, we need to copy the passed
+                # file as the root CA certificate to establish trust in the
+                # Python code. It doesn't import it into the NSS DB for Java
+                # code, but so far we haven't had any issues with certificate
+                # validation there. This is only usually necessary when
+                # installing a non-CA subsystem on a fresh system.
+                instance.copyfile(ca_cert_path, destination)
+
+        if len(instance.get_subsystems()) == 1:
+
+            # Check to see if a secure connection is being used for the DS
+
+            if self.ds_url.scheme == 'ldaps':
+
+                # Check to see if a directory server CA certificate
+                # using the same nickname already exists
+                #
+                # NOTE:  ALWAYS use the software DB regardless of whether
+                #        the instance will utilize 'softokn' or an HSM
+                #
+
+                rv = self.certutil.verify_certificate_exists(
+                    path=instance.nssdb_dir,
+                    token=self.mdict['pki_self_signed_token'],
+                    nickname=self.mdict[
+                        'pki_ds_secure_connection_ca_nickname'
+                    ],
+                    password_file=pki_shared_pfile)
+
+                if not rv:
+                    # Import the directory server CA certificate
+                    self.certutil.import_cert(
+                        self.mdict['pki_ds_secure_connection_ca_nickname'],
+                        self.mdict[
+                            'pki_ds_secure_connection_ca_trustargs'],
+                        self.mdict['pki_ds_secure_connection_ca_pem_file'],
+                        password_file=pki_shared_pfile,
+                        path=instance.nssdb_dir,
+                        token=self.mdict['pki_self_signed_token'])
+
+        # Always delete the temporary 'pfile'
+        self.file.delete(pki_shared_pfile)
+
     def init_system_cert_params(self, subsystem):
 
         # Store system cert parameters in installation step to guarantee the
