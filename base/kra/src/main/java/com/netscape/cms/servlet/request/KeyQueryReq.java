@@ -19,6 +19,8 @@ package com.netscape.cms.servlet.request;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 
 import org.dogtagpki.server.authentication.AuthToken;
@@ -29,7 +31,23 @@ import com.netscape.cmsutil.ldap.LDAPUtil;
 /**
  * Show paged list of key requests matching search criteria.
  */
+@WebServlet(
+        name = "krakraqueryReq",
+        urlPatterns = "/agent/kra/queryReq",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="true"),
+                @WebInitParam(name="parser",        value="KeyReqParser.PARSER"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="authority",     value="kra"),
+                @WebInitParam(name="templatePath",  value="/agent/kra/queryReq.template"),
+                @WebInitParam(name="ID",            value="krakraqueryReq"),
+                @WebInitParam(name="resourceID",    value="certServer.kra.requests"),
+                @WebInitParam(name="AuthMgr",       value="certUserDBAuthMgr")
+        }
+)
 public class KeyQueryReq extends QueryReq {
+
+    private static final long serialVersionUID = 1L;
 
     public KeyQueryReq() {
     }
