@@ -17,6 +17,22 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "kraRegisterUser",
+        urlPatterns = "/admin/kra/registerUser",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="false"),
+                @WebInitParam(name="authority",     value="kra"),
+                @WebInitParam(name="ID",            value="kraRegisterUser"),
+                @WebInitParam(name="GroupName",     value="Data Recovery Manager Agents"),
+                @WebInitParam(name="AuthMgr",       value="TokenAuth"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="resourceID",    value="certServer.kra.registerUser")
+        }
+)
 public class KRARegisterUser extends RegisterUser {
     private static final long serialVersionUID = 1L;
 }
