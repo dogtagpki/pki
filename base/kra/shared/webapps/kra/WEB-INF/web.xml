@@ -154,27 +154,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  krakraqueryReq  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.request.KeyQueryReq  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> true        </param-value> </init-param>
-             <init-param><param-name>  parser      </param-name>
-                         <param-value> KeyReqParser.PARSER </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> kra         </param-value> </init-param>
-             <init-param><param-name>  templatePath   </param-name>
-                         <param-value> /agent/kra/queryReq.template</param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> krakraqueryReq </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.kra.requests </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> certUserDBAuthMgr </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  kraKRADisplayBySerial  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.key.DisplayBySerial  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -496,11 +475,6 @@
    <servlet-mapping>
       <servlet-name>  kraKRASrchKeyForRecovery  </servlet-name>
       <url-pattern>   /agent/kra/srchKeyForRecovery  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  krakraqueryReq  </servlet-name>
-      <url-pattern>   /agent/kra/queryReq  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
