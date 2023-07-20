@@ -388,50 +388,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         subsystem.save()
 
-        # Place 'slightly' less restrictive permissions on
-        # the top-level client directory ONLY
-
-        deployer.directory.create(
-            deployer.mdict['pki_client_subsystem_dir'],
-            uid=0, gid=0,
-            perms=config.PKI_DEPLOYMENT_DEFAULT_CLIENT_DIR_PERMISSIONS)
-
-        # Since 'certutil' does NOT strip the 'token=' portion of
-        # the 'token=password' entries, create a client password file
-        # which ONLY contains the 'password' for the purposes of
-        # allowing 'certutil' to generate the security databases
-
-        logger.info('Creating password file: %s', deployer.mdict['pki_client_password_conf'])
-        deployer.password.create_password_conf(
-            deployer.mdict['pki_client_password_conf'],
-            deployer.mdict['pki_client_database_password'], pin_sans_token=True)
-
-        deployer.file.modify(
-            deployer.mdict['pki_client_password_conf'],
-            uid=0, gid=0)
-
-        # Similarly, create a simple password file containing the
-        # PKCS #12 password used when exporting the 'Admin Certificate'
-        # into a PKCS #12 file
-
-        deployer.password.create_client_pkcs12_password_conf(
-            deployer.mdict['pki_client_pkcs12_password_conf'])
-
-        deployer.file.modify(deployer.mdict['pki_client_pkcs12_password_conf'])
-
-        pki.util.makedirs(deployer.mdict['pki_client_database_dir'], exist_ok=True)
-
-        nssdb = pki.nssdb.NSSDatabase(
-            directory=deployer.mdict['pki_client_database_dir'],
-            password_file=deployer.mdict['pki_client_password_conf'],
-            user=deployer.mdict['pki_user'],
-            group=deployer.mdict['pki_group'])
-
-        try:
-            if not nssdb.exists():
-                nssdb.create()
-        finally:
-            nssdb.close()
+        deployer.init_client_nssdb()
 
     def update_external_certs_conf(self, external_path, deployer):
         external_certs = pki.server.instance.PKIInstance.read_external_certs(

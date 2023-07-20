@@ -473,6 +473,57 @@ class PKIDeployer:
 
         return (key_type, key_size, curve, hash_alg)
 
+    def init_client_nssdb(self):
+
+        # Place 'slightly' less restrictive permissions on
+        # the top-level client directory ONLY
+
+        self.directory.create(
+            self.mdict['pki_client_subsystem_dir'],
+            uid=0,
+            gid=0,
+            perms=config.PKI_DEPLOYMENT_DEFAULT_CLIENT_DIR_PERMISSIONS)
+
+        # Since 'certutil' does NOT strip the 'token=' portion of
+        # the 'token=password' entries, create a client password file
+        # which ONLY contains the 'password' for the purposes of
+        # allowing 'certutil' to generate the security databases
+
+        logger.info('Creating password file: %s', self.mdict['pki_client_password_conf'])
+
+        self.password.create_password_conf(
+            self.mdict['pki_client_password_conf'],
+            self.mdict['pki_client_database_password'],
+            pin_sans_token=True)
+
+        self.file.modify(
+            self.mdict['pki_client_password_conf'],
+            uid=0,
+            gid=0)
+
+        # Similarly, create a simple password file containing the
+        # PKCS #12 password used when exporting the 'Admin Certificate'
+        # into a PKCS #12 file
+
+        self.password.create_client_pkcs12_password_conf(
+            self.mdict['pki_client_pkcs12_password_conf'])
+
+        self.file.modify(self.mdict['pki_client_pkcs12_password_conf'])
+
+        pki.util.makedirs(self.mdict['pki_client_database_dir'], exist_ok=True)
+
+        nssdb = pki.nssdb.NSSDatabase(
+            directory=self.mdict['pki_client_database_dir'],
+            password_file=self.mdict['pki_client_password_conf'],
+            user=self.mdict['pki_user'],
+            group=self.mdict['pki_group'])
+
+        try:
+            if not nssdb.exists():
+                nssdb.create()
+        finally:
+            nssdb.close()
+
     def verify_subsystem_exists(self, instance):
 
         subsystem_path = os.path.join(
