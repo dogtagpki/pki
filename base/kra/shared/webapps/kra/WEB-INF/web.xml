@@ -4,17 +4,6 @@
     <display-name>Key Recovery Authority</display-name>
 
    <servlet>
-      <servlet-name>  kraports  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.KRAPortsServlet  </servlet-class>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> kraports    </param-value> </init-param>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false        </param-value> </init-param>
-             <init-param><param-name>  interface  </param-name>
-                         <param-value> ee      </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  kraRegisterUser  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.csadmin.KRARegisterUser  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -552,11 +541,6 @@
    <servlet-mapping>
       <servlet-name>  krapolicy  </servlet-name>
       <url-pattern>   /krapolicy  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  kraports  </servlet-name>
-      <url-pattern>   /ee/kra/ports  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
