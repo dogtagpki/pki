@@ -114,23 +114,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  kraKRAGetAsyncPk12  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.key.GetAsyncPk12  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> true        </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> kra         </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> kraKRAGetAsyncPk12 </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> certUserDBAuthMgr </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.kra.key </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  kraGrantRecovery  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.base.DisplayHtmlServlet  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -503,11 +486,6 @@
    <servlet-mapping>
       <servlet-name>  kraKRASrchKey  </servlet-name>
       <url-pattern>   /agent/kra/srchKey  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  kraKRAGetAsyncPk12  </servlet-name>
-      <url-pattern>   /agent/kra/getAsyncPk12  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
