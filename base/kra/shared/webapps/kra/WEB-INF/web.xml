@@ -40,25 +40,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  kraConnector  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.connector.KRAConnectorServlet  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> true        </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> kra         </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> kraConnector </param-value> </init-param>
-             <init-param><param-name>  RequestEncoder  </param-name>
-                         <param-value> com.netscape.cmscore.connector.HttpRequestEncoder </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.kra.connector </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> certUserDBAuthMgr </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  kraSrchKey  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.base.DisplayHtmlServlet  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -519,11 +500,6 @@
    <servlet-mapping>
       <servlet-name>  kraSrchRecoverKey  </servlet-name>
       <url-pattern>   /agent/kra/srchRecoverKey.html  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  kraConnector  </servlet-name>
-      <url-pattern>   /agent/kra/connector  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>

@@ -17,6 +17,22 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.connector;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "kraConnector",
+        urlPatterns = "/agent/kra/connector",
+        initParams = {
+                @WebInitParam(name="GetClientCert",  value="true"),
+                @WebInitParam(name="AuthzMgr",       value="BasicAclAuthz"),
+                @WebInitParam(name="authority",      value="kra"),
+                @WebInitParam(name="ID",             value="kraConnector"),
+                @WebInitParam(name="RequestEncoder", value="com.netscape.cmscore.connector.HttpRequestEncoder"),
+                @WebInitParam(name="resourceID",     value="certServer.kra.connector"),
+                @WebInitParam(name="AuthMgr",        value="certUserDBAuthMgr")
+        }
+)
 public class KRAConnectorServlet extends ConnectorServlet {
     private static final long serialVersionUID = 1L;
 }
