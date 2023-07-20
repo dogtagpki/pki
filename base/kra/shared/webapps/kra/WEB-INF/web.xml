@@ -41,7 +41,7 @@
 
    <servlet>
       <servlet-name>  kraports  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.PortsServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.base.KRAPortsServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
                          <param-value> kraports    </param-value> </init-param>
              <init-param><param-name>  GetClientCert  </param-name>
