@@ -22,6 +22,8 @@ import java.util.Enumeration;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -43,13 +45,17 @@ import com.netscape.kra.KeyRecoveryAuthority;
  * Recovery Authority. This servlet is responsible to serve
  * KRA administrative operation such as configuration
  * parameter updates.
- *
- * @version $Revision$, $Date$
  */
+@WebServlet(
+        name = "krakra",
+        urlPatterns = "/kra",
+        initParams = {
+                @WebInitParam(name="ID",       value="krakra"),
+                @WebInitParam(name="AuthzMgr", value="BasicAclAuthz")
+        }
+)
 public class KRAAdminServlet extends AdminServlet {
-    /**
-     *
-     */
+
     private static final long serialVersionUID = -5794220348195666729L;
 
     protected static final String PROP_ENABLED = "enabled";
