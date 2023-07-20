@@ -473,6 +473,139 @@ class PKIDeployer:
 
         return (key_type, key_size, curve, hash_alg)
 
+    def init_system_cert_params(self, subsystem):
+
+        # Store system cert parameters in installation step to guarantee the
+        # parameters exist during configuration step and to allow customization.
+
+        certs = subsystem.find_system_certs()
+        for cert in certs:
+
+            # get CS.cfg tag and pkispawn tag
+            config_tag = cert['id']
+            deploy_tag = config_tag
+
+            if config_tag == 'signing':  # for CA and OCSP
+                deploy_tag = subsystem.name + '_signing'
+
+            # store nickname
+            nickname = self.mdict['pki_%s_nickname' % deploy_tag]
+            subsystem.config['%s.%s.nickname' % (subsystem.name, config_tag)] = nickname
+            subsystem.config['preop.cert.%s.nickname' % config_tag] = nickname
+
+            # store tokenname
+            tokenname = self.mdict['pki_%s_token' % deploy_tag]
+            subsystem.config['%s.%s.tokenname' % (subsystem.name, config_tag)] = tokenname
+
+            fullname = nickname
+            if pki.nssdb.normalize_token(tokenname):
+                fullname = tokenname + ':' + nickname
+
+            subsystem.config['%s.cert.%s.nickname' % (subsystem.name, config_tag)] = fullname
+
+            # store subject DN
+            subject_dn = self.mdict['pki_%s_subject_dn' % deploy_tag]
+            subsystem.config['preop.cert.%s.dn' % config_tag] = subject_dn
+
+            keyalgorithm = self.mdict['pki_%s_key_algorithm' % deploy_tag]
+            subsystem.config['preop.cert.%s.keyalgorithm' % config_tag] = keyalgorithm
+
+            signingalgorithm = self.mdict.get(
+                'pki_%s_signing_algorithm' % deploy_tag, keyalgorithm)
+            subsystem.config['preop.cert.%s.signingalgorithm' % config_tag] = signingalgorithm
+
+            if subsystem.name == 'ca':
+                if config_tag == 'signing':
+                    subsystem.config['ca.signing.defaultSigningAlgorithm'] = signingalgorithm
+                    subsystem.config['ca.crl.MasterCRL.signingAlgorithm'] = signingalgorithm
+
+                elif config_tag == 'ocsp_signing':
+                    subsystem.config['ca.ocsp_signing.defaultSigningAlgorithm'] = signingalgorithm
+
+            elif subsystem.name == 'ocsp':
+                if config_tag == 'signing':
+                    subsystem.config['ocsp.signing.defaultSigningAlgorithm'] = signingalgorithm
+
+            elif subsystem.name == 'kra':
+                if config_tag == 'transport':
+                    subsystem.config['kra.transportUnit.signingAlgorithm'] = signingalgorithm
+
+            # TODO: move more system cert params here
+
+        admin_dn = self.mdict['pki_admin_subject_dn']
+        subsystem.config['preop.cert.admin.dn'] = admin_dn
+
+        # If specified in the deployment parameter, add generic CA signing cert
+        # extension parameters into the CS.cfg. Generic extension for other
+        # system certs can be added directly into CS.cfg after before the
+        # configuration step.
+
+        if subsystem.type == 'CA':
+
+            signing_nickname = subsystem.config['ca.signing.nickname']
+            subsystem.config['ca.signing.certnickname'] = signing_nickname
+            subsystem.config['ca.signing.cacertnickname'] = signing_nickname
+
+            ocsp_signing_nickname = subsystem.config['ca.ocsp_signing.nickname']
+            subsystem.config['ca.ocsp_signing.certnickname'] = ocsp_signing_nickname
+            subsystem.config['ca.ocsp_signing.cacertnickname'] = ocsp_signing_nickname
+
+            if self.configuration_file.add_req_ext:
+
+                subsystem.config['preop.cert.signing.ext.oid'] = \
+                    self.configuration_file.req_ext_oid
+                subsystem.config['preop.cert.signing.ext.data'] = \
+                    self.configuration_file.req_ext_data
+                subsystem.config['preop.cert.signing.ext.critical'] = \
+                    self.configuration_file.req_ext_critical.lower()
+
+        if subsystem.type == 'KRA':
+
+            storage_nickname = subsystem.config['kra.storage.nickname']
+            storage_token = subsystem.config['kra.storage.tokenname']
+
+            if pki.nssdb.normalize_token(storage_token):
+                subsystem.config['kra.storageUnit.hardware'] = storage_token
+                subsystem.config['kra.storageUnit.nickName'] = \
+                    storage_token + ':' + storage_nickname
+            else:
+                subsystem.config['kra.storageUnit.nickName'] = \
+                    storage_nickname
+
+            transport_nickname = subsystem.config['kra.transport.nickname']
+            transport_token = subsystem.config['kra.transport.tokenname']
+
+            if pki.nssdb.normalize_token(transport_token):
+                subsystem.config['kra.transportUnit.nickName'] = \
+                    transport_token + ':' + transport_nickname
+            else:
+                subsystem.config['kra.transportUnit.nickName'] = \
+                    transport_nickname
+
+        if subsystem.type == 'OCSP':
+
+            signing_nickname = subsystem.config['ocsp.signing.nickname']
+            subsystem.config['ocsp.signing.certnickname'] = signing_nickname
+            subsystem.config['ocsp.signing.cacertnickname'] = signing_nickname
+
+        audit_nickname = subsystem.config['%s.audit_signing.nickname' % subsystem.name]
+        audit_token = subsystem.config['%s.audit_signing.tokenname' % subsystem.name]
+
+        if pki.nssdb.normalize_token(audit_token):
+            audit_nickname = audit_token + ':' + audit_nickname
+
+        subsystem.config['log.instance.SignedAudit.signedAuditCertNickname'] = audit_nickname
+
+        san_inject = config.str2bool(self.mdict['pki_san_inject'])
+        logger.info('Injecting SAN: %s', san_inject)
+
+        san_for_server_cert = self.mdict.get('pki_san_for_server_cert')
+        logger.info('SSL server cert SAN: %s', san_for_server_cert)
+
+        if san_inject and san_for_server_cert:
+            subsystem.config['service.injectSAN'] = 'true'
+            subsystem.config['service.sslserver.san'] = san_for_server_cert
+
     def init_client_nssdb(self):
 
         # Place 'slightly' less restrictive permissions on
