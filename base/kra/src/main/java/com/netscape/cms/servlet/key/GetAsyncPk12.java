@@ -23,6 +23,8 @@ import java.util.Locale;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -50,8 +52,19 @@ import com.netscape.kra.KeyRecoveryAuthority;
 /**
  * Get the recovered key in PKCS#12 format
  * - for asynchronous key recovery only
- *
  */
+@WebServlet(
+        name = "kraKRAGetAsyncPk12",
+        urlPatterns = "/agent/kra/getAsyncPk12",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="true"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="authority",     value="kra"),
+                @WebInitParam(name="ID",            value="kraKRAGetAsyncPk12"),
+                @WebInitParam(name="AuthMgr",       value="certUserDBAuthMgr"),
+                @WebInitParam(name="resourceID",    value="certServer.kra.key")
+        }
+)
 public class GetAsyncPk12 extends CMSServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GetAsyncPk12.class);
