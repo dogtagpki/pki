@@ -184,16 +184,6 @@
 -->
 
    <servlet>
-      <servlet-name>  kraug  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.admin.KRAUsrGrpAdminServlet  </servlet-class>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> kraug       </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-   </servlet>
-
-
-   <servlet>
       <servlet-name>  kraserver  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.admin.KRACMSAdminServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
@@ -378,12 +368,6 @@
    <servlet-mapping>
       <servlet-name>  kralog  </servlet-name>
       <url-pattern>   /log  </url-pattern>
-   </servlet-mapping>
-
-
-   <servlet-mapping>
-      <servlet-name>  kraug  </servlet-name>
-      <url-pattern>   /ug  </url-pattern>
    </servlet-mapping>
 
 <!--
