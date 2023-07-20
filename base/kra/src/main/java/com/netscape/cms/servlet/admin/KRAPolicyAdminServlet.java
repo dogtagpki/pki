@@ -19,6 +19,8 @@ package com.netscape.cms.servlet.admin;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.server.kra.KRAEngine;
@@ -32,8 +34,18 @@ import com.netscape.kra.KeyRecoveryAuthority;
  * KRA is responsible for registering an instance of this with the remote
  * administration subsystem.
  */
+@WebServlet(
+        name = "krapolicy",
+        urlPatterns = "/krapolicy",
+        initParams = {
+                @WebInitParam(name="ID",        value="krapolicy"),
+                @WebInitParam(name="AuthzMgr",  value="BasicAclAuthz"),
+                @WebInitParam(name="authority", value="kra")
+        }
+)
 public class KRAPolicyAdminServlet extends PolicyAdminServlet {
 
+    private static final long serialVersionUID = 1L;
     public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRAPolicyAdminServlet.class);
 
     /**
