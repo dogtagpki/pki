@@ -172,17 +172,6 @@
                          <param-value> certServer.kra.key </param-value> </init-param>
    </servlet>
 
-   <servlet>
-      <servlet-name>  krapolicy  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.admin.KRAPolicyAdminServlet  </servlet-class>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> krapolicy   </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> kra         </param-value> </init-param>
-   </servlet>
-
 <!--
    <servlet>
       <servlet-name>  krajobsScheduler  </servlet-name>
@@ -431,11 +420,6 @@
       <url-pattern>   /jobsScheduler  </url-pattern>
    </servlet-mapping>
 -->
-
-   <servlet-mapping>
-      <servlet-name>  krapolicy  </servlet-name>
-      <url-pattern>   /krapolicy  </url-pattern>
-   </servlet-mapping>
 
    <servlet-mapping>
       <servlet-name>  kraheader  </servlet-name>
