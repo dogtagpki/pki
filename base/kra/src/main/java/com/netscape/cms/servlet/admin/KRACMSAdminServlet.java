@@ -18,6 +18,9 @@ package com.netscape.cms.servlet.admin;
 // --- END COPYRIGHT BLOCK ---
 
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
 import org.dogtagpki.server.kra.KRAEngine;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -32,7 +35,17 @@ import com.netscape.kra.KeyRecoveryAuthority;
  * level administrative operations such as configuration
  * parameter updates.
  */
+@WebServlet(
+        name = "kraserver",
+        urlPatterns = "/server",
+        initParams = {
+                @WebInitParam(name="ID",       value="kraserver"),
+                @WebInitParam(name="AuthzMgr", value="BasicAclAuthz")
+        }
+)
 public class KRACMSAdminServlet extends CMSAdminServlet {
+
+    private static final long serialVersionUID = 1L;
 
     @Override
     public boolean isSubsystemInstalled(String subsystem) {
