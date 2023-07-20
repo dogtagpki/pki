@@ -24,6 +24,8 @@ import java.util.Locale;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -49,14 +51,22 @@ import com.netscape.kra.KeyRecoveryAuthority;
 /**
  * Display a Specific Key Archival Request, and initiate
  * key recovery process
- *
- * @version $Revision$, $Date$
  */
+@WebServlet(
+        name = "kraKRADisplayBySerialForRecovery",
+        urlPatterns = "/agent/kra/displayBySerialForRecovery",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="true"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="authority",     value="kra"),
+                @WebInitParam(name="templatePath",  value="/agent/kra/displayBySerialForRecovery.template"),
+                @WebInitParam(name="ID",            value="kraKRADisplayBySerialForRecovery"),
+                @WebInitParam(name="AuthMgr",       value="certUserDBAuthMgr"),
+                @WebInitParam(name="resourceID",    value="certServer.kra.key")
+        }
+)
 public class DisplayBySerialForRecovery extends CMSServlet {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 6876016034084761827L;
     private final static String INFO = "displayBySerial";
     private final static String TPL_FILE = "displayBySerialForRecovery.template";

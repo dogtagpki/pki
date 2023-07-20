@@ -4,25 +4,6 @@
     <display-name>Key Recovery Authority</display-name>
 
    <servlet>
-      <servlet-name>  kraKRADisplayBySerialForRecovery  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.key.DisplayBySerialForRecovery  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> true        </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> kra         </param-value> </init-param>
-             <init-param><param-name>  templatePath   </param-name>
-                         <param-value> /agent/kra/displayBySerialForRecovery.template </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> kraKRADisplayBySerialForRecovery </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> certUserDBAuthMgr </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.kra.key </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  kraGetConfigEntries  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.csadmin.KRAGetConfigEntries </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -588,11 +569,6 @@
    <servlet-mapping>
       <servlet-name>  krapolicy  </servlet-name>
       <url-pattern>   /krapolicy  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  kraKRADisplayBySerialForRecovery  </servlet-name>
-      <url-pattern>   /agent/kra/displayBySerialForRecovery  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
