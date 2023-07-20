@@ -184,15 +184,6 @@
 -->
 
    <servlet>
-      <servlet-name>  kraauths  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.admin.KRAAuthAdminServlet  </servlet-class>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> kraauths    </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  kraacl  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.admin.KRAACLAdminServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
@@ -407,11 +398,6 @@
    <servlet-mapping>
       <servlet-name>  kraacl  </servlet-name>
       <url-pattern>   /acl  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  kraauths  </servlet-name>
-      <url-pattern>   /auths  </url-pattern>
    </servlet-mapping>
 
 <!--
