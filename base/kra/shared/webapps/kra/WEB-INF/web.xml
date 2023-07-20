@@ -184,15 +184,6 @@
 -->
 
    <servlet>
-      <servlet-name>  kraserver  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.admin.KRACMSAdminServlet  </servlet-class>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> kraserver   </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  krakra  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.admin.KRAAdminServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
@@ -354,11 +345,6 @@
              <init-param><param-name>  interface   </param-name>
                          <param-value> admin          </param-value> </init-param>
    </servlet>
-
-   <servlet-mapping>
-      <servlet-name>  kraserver  </servlet-name>
-      <url-pattern>   /server  </url-pattern>
-   </servlet-mapping>
 
    <servlet-mapping>
       <servlet-name>  krakra  </servlet-name>
