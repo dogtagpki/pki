@@ -17,6 +17,19 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.base;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "kraDynamicVariables",
+        urlPatterns = "/dynamicVars.js",
+        initParams = {
+                @WebInitParam(name="ID",               value="kraDynamicVariables"),
+                @WebInitParam(name="GetClientCert",    value="false"),
+                @WebInitParam(name="dynamicVariables", value="serverdate=serverdate(),subsystemname=subsystemname(),http=http(),authmgrs=authmgrs(),clacrlurl=clacrlurl()"),
+                @WebInitParam(name="authority",        value="kra")
+        }
+)
 public class KRADynamicVariables extends DynamicVariablesServlet {
     private static final long serialVersionUID = 1L;
 }
