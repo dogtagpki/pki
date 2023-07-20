@@ -71,7 +71,7 @@
 
    <servlet>
       <servlet-name>  kraDynamicVariables  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.DynamicVariablesServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.base.KRADynamicVariables  </servlet-class>
              <init-param><param-name>  ID          </param-name>
                          <param-value> kraDynamicVariables </param-value> </init-param>
              <init-param><param-name>  GetClientCert  </param-name>
