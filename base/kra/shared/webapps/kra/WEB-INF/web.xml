@@ -367,7 +367,7 @@
 
    <servlet>
       <servlet-name>  kraug  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.admin.UsrGrpAdminServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.admin.KRAUsrGrpAdminServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
                          <param-value> kraug       </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
