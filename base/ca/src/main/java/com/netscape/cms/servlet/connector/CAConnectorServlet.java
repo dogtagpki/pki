@@ -28,7 +28,7 @@ import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.request.Request;
 
 /**
- * KRA connector servlet
+ * CA connector servlet
  * process requests from remote authority -
  * service request or return status.
  */
@@ -46,9 +46,11 @@ import com.netscape.cmscore.request.Request;
                 @WebInitParam(name="AuthMgr",        value="certUserDBAuthMgr")
         }
 )
-public class KRAConnectorServlet extends ConnectorServlet {
+public class CAConnectorServlet extends ConnectorServlet {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRAConnectorServlet.class);
+    private static final long serialVersionUID = 1L;
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CAConnectorServlet.class);
 
     @Override
     public void normalizeProfileRequest(Request request) {
@@ -62,7 +64,7 @@ public class KRAConnectorServlet extends ConnectorServlet {
         EnrollProfile profile = null;
 
         try {
-            logger.info("KRAConnectorServlet: Updating profile " + profileId);
+            logger.info("CAConnectorServlet: Updating profile " + profileId);
 
             profile = (EnrollProfile) ps.getProfile(profileId);
             profile.setDefaultCertInfo(request);
