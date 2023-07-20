@@ -927,6 +927,119 @@ class PKIDeployer:
                 self.mdict['pki_subsystem'],
                 self.mdict['pki_instance_name']))
 
+    def init_subsystem(self, subsystem):
+
+        external = self.configuration_file.external
+        standalone = self.configuration_file.standalone
+        subordinate = self.configuration_file.subordinate
+        clone = self.configuration_file.clone
+
+        if config.str2bool(self.mdict['pki_enable_proxy']):
+
+            logger.info('Enabling HTTP proxy')
+
+            subsystem.config['proxy.securePort'] = self.mdict['pki_proxy_https_port']
+            subsystem.config['proxy.unsecurePort'] = self.mdict['pki_proxy_http_port']
+
+        certs = subsystem.find_system_certs()
+        for cert in certs:
+
+            # get CS.cfg tag and pkispawn tag
+            config_tag = cert['id']
+            deploy_tag = config_tag
+
+            if config_tag == 'signing':  # for CA and OCSP
+                deploy_tag = subsystem.name + '_signing'
+
+            key_type = self.mdict['pki_%s_key_type' % deploy_tag].upper()
+
+            if key_type == 'ECC':
+                key_type = 'EC'
+
+            if key_type not in ['RSA', 'EC']:
+                raise Exception('Unsupported key type: %s' % key_type)
+
+            subsystem.config['preop.cert.%s.keytype' % config_tag] = key_type
+
+        # configure SSL server cert
+        if subsystem.type == 'CA' and clone or subsystem.type != 'CA':
+
+            subsystem.config['preop.cert.sslserver.type'] = 'remote'
+            key_type = subsystem.config['preop.cert.sslserver.keytype']
+
+            if key_type == 'RSA':
+                subsystem.config['preop.cert.sslserver.profile'] = 'caInternalAuthServerCert'
+
+            elif key_type == 'EC':
+                subsystem.config['preop.cert.sslserver.profile'] = 'caECInternalAuthServerCert'
+
+        # configure subsystem cert
+        if self.mdict['pki_security_domain_type'] == 'new':
+
+            subsystem.config['preop.cert.subsystem.type'] = 'local'
+            subsystem.config['preop.cert.subsystem.profile'] = 'subsystemCert.profile'
+
+        else:  # self.mdict['pki_security_domain_type'] == 'existing':
+
+            subsystem.config['preop.cert.subsystem.type'] = 'remote'
+            key_type = subsystem.config['preop.cert.subsystem.keytype']
+
+            if key_type == 'RSA':
+                subsystem.config['preop.cert.subsystem.profile'] = 'caInternalAuthSubsystemCert'
+
+            elif key_type == 'EC':
+                subsystem.config['preop.cert.subsystem.profile'] = 'caECInternalAuthSubsystemCert'
+
+        if external or standalone:
+
+            # This is needed by IPA to detect step 1 completion.
+            # See is_step_one_done() in ipaserver/install/cainstance.py.
+
+            subsystem.config['preop.ca.type'] = 'otherca'
+
+        elif subsystem.type != 'CA' or subordinate:
+
+            subsystem.config['preop.ca.type'] = 'sdca'
+
+        # configure cloning
+        if clone:
+            subsystem.config['subsystem.select'] = 'Clone'
+        else:
+            subsystem.config['subsystem.select'] = 'New'
+
+        # configure CA
+        if subsystem.type == 'CA':
+
+            if external or subordinate:
+                subsystem.config['hierarchy.select'] = 'Subordinate'
+            else:
+                subsystem.config['hierarchy.select'] = 'Root'
+
+            if subordinate:
+                subsystem.config['preop.cert.signing.type'] = 'remote'
+                subsystem.config['preop.cert.signing.profile'] = 'caInstallCACert'
+
+            if config.str2bool(self.mdict['pki_profiles_in_ldap']):
+                index = subsystem.get_subsystem_index('profile')
+                subsystem.config['subsystem.%d.class' % index] = \
+                    'com.netscape.cmscore.profile.LDAPProfileSubsystem'
+
+        # configure OCSP
+        if subsystem.type == 'OCSP':
+            if clone:
+                subsystem.config['ocsp.store.defStore.refreshInSec'] = '14400'
+
+        # configure TPS
+        if subsystem.type == 'TPS':
+            subsystem.config['auths.instance.ldap1.ldap.basedn'] = \
+                self.mdict['pki_authdb_basedn']
+            subsystem.config['auths.instance.ldap1.ldap.ldapconn.host'] = \
+                self.mdict['pki_authdb_hostname']
+            subsystem.config['auths.instance.ldap1.ldap.ldapconn.port'] = \
+                self.mdict['pki_authdb_port']
+            subsystem.config['auths.instance.ldap1.ldap.ldapconn.secureConn'] = \
+                self.mdict['pki_authdb_secure_conn']
+
     def configure_ca(self, subsystem):
 
         if config.str2bool(self.mdict['pki_use_oaep_rsa_keywrap']):
