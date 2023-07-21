@@ -17,6 +17,17 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.admin;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "kralog",
+        urlPatterns = "/log",
+        initParams = {
+                @WebInitParam(name="ID",       value="kralog"),
+                @WebInitParam(name="AuthzMgr", value="BasicAclAuthz")
+        }
+)
 public class KRALogAdminServlet extends LogAdminServlet {
     private static final long serialVersionUID = 1L;
 }
