@@ -24,6 +24,8 @@ import java.util.Locale;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -49,10 +51,20 @@ import com.netscape.kra.KeyRecoveryAuthority;
 
 /**
  * Retrieve archived keys matching given public key material
- *
- *
- * @version $Revision$, $Date$
  */
+@WebServlet(
+        name = "kraKRASrchKeyForRecovery",
+        urlPatterns = "/agent/kra/srchKeyForRecovery",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="true"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="authority",     value="kra"),
+                @WebInitParam(name="templatePath",  value="/agent/kra/srchKeyForRecovery.template"),
+                @WebInitParam(name="ID",            value="kraKRASrchKeyForRecovery"),
+                @WebInitParam(name="AuthMgr",       value="certUserDBAuthMgr"),
+                @WebInitParam(name="resourceID",    value="certServer.kra.keys")
+        }
+)
 public class SrchKeyForRecovery extends CMSServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SrchKeyForRecovery.class);
