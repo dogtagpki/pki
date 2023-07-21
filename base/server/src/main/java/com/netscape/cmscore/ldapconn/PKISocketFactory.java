@@ -151,7 +151,7 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
         SSLSocket s;
 
         if (mClientAuthCertNickname == null) {
-            s = new SSLSocket(host, port);
+            s = new SSLSocket(host, port, null, 0, CMS.getApprovalCallback(), null);
 
         } else {
             // Let's create a selection callback in the case the client auth
@@ -161,7 +161,7 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
 
             Socket js = new Socket(InetAddress.getByName(host), port);
             s = new SSLSocket(js, host,
-                    null,
+                    CMS.getApprovalCallback(),
                     new SSLClientCertificateSelectionCB(mClientAuthCertNickname));
         }
 

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.ocsp;
 
-import java.lang.Integer;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.cert.X509CRL;
@@ -238,6 +237,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
 
             updater.start();
         }
+        CMS.setApprovalCallbask(new CRLLdapValidator(this));
     }
 
     @Override
