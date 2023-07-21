@@ -185,7 +185,7 @@
 
    <servlet>
       <servlet-name>  kralog  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.admin.LogAdminServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.admin.KRALogAdminServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
                          <param-value> kralog      </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
