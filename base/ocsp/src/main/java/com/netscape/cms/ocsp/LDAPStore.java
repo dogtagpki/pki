@@ -277,6 +277,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
 
             updater.start();
         }
+        CMS.setApprovalCallbask(new CRLLdapValidator(this));
     }
 
     @Override
