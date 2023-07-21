@@ -464,13 +464,18 @@ class PropertyFile(object):
     are maintained internally as a list of properties.
 
     Properties are strings of the format <name> <delimiter> <value> where
-    '=' is the default delimiter.
+    '=' is the default delimiter. The value can optionally be quoted.
     """
 
-    def __init__(self, filename, delimiter='='):
+    def __init__(self, filename, delimiter='=', quote=None):
         """ Constructor """
+
+        if quote and len(quote) > 1:
+            raise Exception('Invalid quote character: ' + quote)
+
         self.filename = filename
         self.delimiter = delimiter
+        self.quote = quote
 
         self.lines = []
 
@@ -568,8 +573,6 @@ class PropertyFile(object):
         :type name: str
         :return: str -- value of property
         """
-        result = None
-
         for line in self.lines:
 
             # parse <key> <delimiter> <value>
@@ -582,10 +585,16 @@ class PropertyFile(object):
             key = match.group(1)
             value = match.group(2)
 
-            if key.lower() == name.lower():
-                return value
+            if key.lower() != name.lower():
+                continue
 
-        return result
+            # remove quotes if any
+            if self.quote and value.startswith(self.quote) and value.endswith(self.quote):
+                value = value[1:-1]
+
+            return value
+
+        return None
 
     def set(self, name, value, index=None):
         """
@@ -599,6 +608,9 @@ class PropertyFile(object):
         :type index: int
         :return: None
         """
+        if self.quote:
+            value = self.quote + value + self.quote
+
         for i, line in enumerate(self.lines):
 
             # parse <key> <delimiter> <value>
@@ -640,8 +652,15 @@ class PropertyFile(object):
             key = match.group(1)
             value = match.group(2)
 
-            if key.lower() == name.lower():
-                self.lines.pop(i)
-                return value
+            if key.lower() != name.lower():
+                continue
+
+            self.lines.pop(i)
+
+            # remove quotes if any
+            if self.quote and value.startswith(self.quote) and value.endswith(self.quote):
+                value = value[1:-1]
+
+            return value
 
         return None

@@ -69,7 +69,8 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
             '%s instance' % self.instance,
             INSTANCE_TRACKER % self.instance.conf_dir,
             version_key='PKI_VERSION',
-            index_key='PKI_UPGRADE_INDEX')
+            index_key='PKI_UPGRADE_INDEX',
+            quote='"')
 
         return self.tracker
 
