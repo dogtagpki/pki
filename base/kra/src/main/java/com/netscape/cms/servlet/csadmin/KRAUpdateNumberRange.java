@@ -17,13 +17,31 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
 import org.dogtagpki.server.kra.KRAEngine;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.dbs.Repository;
 import com.netscape.kra.KeyRecoveryAuthority;
 
+@WebServlet(
+        name = "kraUpdateNumberRange",
+        urlPatterns = "/admin/kra/updateNumberRange",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="false"),
+                @WebInitParam(name="authority",     value="kra"),
+                @WebInitParam(name="ID",            value="kraUpdateNumberRange"),
+                @WebInitParam(name="interface",     value="admin"),
+                @WebInitParam(name="AuthMgr",       value="TokenAuth"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="resourceID",    value="certServer.clone.configuration.UpdateNumberRange")
+        }
+)
 public class KRAUpdateNumberRange extends UpdateNumberRange {
+
+    private static final long serialVersionUID = 1L;
 
     @Override
     public Repository getRepository(String type) throws EBaseException {
