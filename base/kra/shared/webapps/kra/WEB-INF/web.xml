@@ -127,17 +127,6 @@
 -->
 
    <servlet>
-      <servlet-name>  kraGetStatus  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.csadmin.KRAGetStatus  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> kra          </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> kraGetStatus </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  kraUpdateDomainXML  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.csadmin.KRAUpdateDomainXML  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -255,11 +244,6 @@
    <servlet-mapping>
       <servlet-name>  kraGrantRecovery  </servlet-name>
       <url-pattern>   /agent/kra/grantRecovery.html  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  kraGetStatus  </servlet-name>
-      <url-pattern>   /admin/kra/getStatus  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
