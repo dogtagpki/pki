@@ -127,19 +127,6 @@
 -->
 
    <servlet>
-      <servlet-name>  services </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.csadmin.KRAMainPageServlet </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  authorityId  </param-name>
-                         <param-value> kra          </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> services </param-value> </init-param>
-             <init-param><param-name>  templatePath  </param-name>
-                         <param-value> /services.template </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  kraUpdateNumberRange  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.csadmin.KRAUpdateNumberRange  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -306,11 +293,6 @@
    <servlet-mapping>
       <servlet-name>  kraGrantRecovery  </servlet-name>
       <url-pattern>   /agent/kra/grantRecovery.html  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  services </servlet-name>
-      <url-pattern>   /services  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
