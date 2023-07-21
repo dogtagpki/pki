@@ -694,7 +694,7 @@ grant codeBase "file:%s" {
         # copy /etc/tomcat/tomcat.conf
         self.copy(Tomcat.TOMCAT_CONF, self.tomcat_conf, force=force)
 
-        tomcat_conf = pki.PropertyFile(self.tomcat_conf)
+        tomcat_conf = pki.PropertyFile(self.tomcat_conf, quote='"')
         tomcat_conf.read()
 
         # store JAVA_HOME from /usr/share/pki/etc/pki.conf

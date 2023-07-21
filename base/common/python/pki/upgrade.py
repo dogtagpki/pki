@@ -43,7 +43,8 @@ class PKIUpgradeTracker(object):
 
     def __init__(self, name, filename, delimiter='=',
                  version_key='PKI_VERSION',
-                 index_key='PKI_UPGRADE_INDEX'):
+                 index_key='PKI_UPGRADE_INDEX',
+                 quote=None):
 
         self.name = name
         self.filename = filename
@@ -54,7 +55,7 @@ class PKIUpgradeTracker(object):
         # properties must be read and written immediately to avoid
         # interfering with scriptlets that update the same file
 
-        self.properties = pki.PropertyFile(filename, delimiter)
+        self.properties = pki.PropertyFile(filename, delimiter=delimiter, quote=quote)
 
         # run all scriptlets for each upgrade version
         self.remove_index()
