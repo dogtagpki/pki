@@ -17,6 +17,19 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "kraTokenAuthenticate",
+        urlPatterns = "/ee/kra/tokenAuthenticate",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="false"),
+                @WebInitParam(name="authority",     value="kra"),
+                @WebInitParam(name="ID",            value="kraTokenAuthenticate"),
+                @WebInitParam(name="interface",     value="ee")
+        }
+)
 public class KRATokenAuthenticate extends TokenAuthenticate {
     private static final long serialVersionUID = 1L;
 }

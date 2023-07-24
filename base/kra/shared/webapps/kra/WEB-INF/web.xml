@@ -4,19 +4,6 @@
     <display-name>Key Recovery Authority</display-name>
 
    <servlet>
-      <servlet-name>  kraTokenAuthenticate  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.csadmin.KRATokenAuthenticate  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> kra         </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> kraTokenAuthenticate  </param-value> </init-param>
-             <init-param><param-name>  interface   </param-name>
-                         <param-value> ee          </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  kraTokenAuthenticate-admin  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.csadmin.KRATokenAuthenticateAdmin  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -28,11 +15,6 @@
              <init-param><param-name>  interface   </param-name>
                          <param-value> admin          </param-value> </init-param>
    </servlet>
-
-   <servlet-mapping>
-      <servlet-name>  kraTokenAuthenticate </servlet-name>
-      <url-pattern>   /ee/kra/tokenAuthenticate  </url-pattern>
-   </servlet-mapping>
 
    <servlet-mapping>
       <servlet-name>  kraTokenAuthenticate-admin </servlet-name>
