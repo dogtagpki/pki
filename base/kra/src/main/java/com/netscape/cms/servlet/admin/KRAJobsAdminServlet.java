@@ -17,6 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.admin;
 
+// @WebServlet(
+//         name = "krajobsScheduler",
+//         urlPatterns = "/jobsScheduler",
+//         initParams = {
+//                 @WebInitParam(name="ID",       value="krajobsScheduler"),
+//                 @WebInitParam(name="AuthzMgr", value="BasicAclAuthz")
+//         }
+// )
 public class KRAJobsAdminServlet extends JobsAdminServlet {
     private static final long serialVersionUID = 1L;
 }
