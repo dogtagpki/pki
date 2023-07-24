@@ -562,16 +562,35 @@ class PKIDeployer:
             instance.nssdb_dir,
             pki.server.DEFAULT_DIR_MODE)
 
-        # import system certificates before starting the server
+        # Always delete the temporary 'pfile'
+        self.file.delete(pki_shared_pfile)
+
+    def import_server_pkcs12(self, subsystem):
+        '''
+        Import system certificates from PKCS #12 file.
+        '''
 
         pki_server_pkcs12_path = self.mdict['pki_server_pkcs12_path']
-        if pki_server_pkcs12_path:
+        if not pki_server_pkcs12_path:
+            return
 
-            pki_server_pkcs12_password = self.mdict[
-                'pki_server_pkcs12_password']
-            if not pki_server_pkcs12_password:
-                raise Exception('Missing pki_server_pkcs12_password property.')
+        pki_server_pkcs12_password = self.mdict['pki_server_pkcs12_password']
+        if not pki_server_pkcs12_password:
+            raise Exception('Missing pki_server_pkcs12_password property')
 
+        instance = subsystem.instance
+
+        pki_shared_pfile = os.path.join(instance.conf_dir, 'pfile')
+        logger.info('Creating password file: %s', pki_shared_pfile)
+
+        self.password.create_password_conf(
+            pki_shared_pfile,
+            self.mdict['pki_server_database_password'],
+            pin_sans_token=True)
+
+        self.file.modify(pki_shared_pfile)
+
+        try:
             nssdb = pki.nssdb.NSSDatabase(
                 directory=instance.nssdb_dir,
                 password_file=pki_shared_pfile)
@@ -585,11 +604,13 @@ class PKIDeployer:
 
             # update external CA file (if needed)
             external_certs_path = self.mdict['pki_server_external_certs_path']
-            if external_certs_path is not None:
-                self.update_external_certs_conf(instance, external_certs_path)
+            if not external_certs_path:
+                return
 
-        # Always delete the temporary 'pfile'
-        self.file.delete(pki_shared_pfile)
+            self.update_external_certs_conf(instance, external_certs_path)
+
+        finally:
+            self.file.delete(pki_shared_pfile)
 
     def import_clone_pkcs12(self, subsystem):
         '''
