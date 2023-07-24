@@ -17,6 +17,19 @@ package com.netscape.cms.servlet.base;
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "kraindex",
+        urlPatterns = "/index",
+        initParams = {
+                @WebInitParam(name="ID",            value="kraindex"),
+                @WebInitParam(name="template",      value="index.template"),
+                @WebInitParam(name="GetClientCert", value="true"),
+                @WebInitParam(name="AuthMgr",       value="certUserDBAuthMgr")
+        }
+)
 public class KRAIndexServlet extends IndexServlet {
     private static final long serialVersionUID = 1L;
 }
