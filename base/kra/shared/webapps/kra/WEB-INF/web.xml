@@ -4,27 +4,6 @@
     <display-name>Key Recovery Authority</display-name>
 
    <servlet>
-      <servlet-name>  kraSrchKey  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.KRASearchKey  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> true        </param-value> </init-param>
-             <init-param><param-name>  htmlPath    </param-name>
-                         <param-value> /agent/kra/SrchKey.html </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> kra         </param-value> </init-param>
-             <init-param><param-name>  interface   </param-name>
-                         <param-value> agent  </param-value> </init-param>
-             <init-param><param-name>  templatePath   </param-name>
-                         <param-value> /agent/kra/srchKey.template</param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> kraSrchKey  </param-value> </init-param>
-             <init-param><param-name>  unauthorizedTemplate  </param-name>
-                         <param-value> /agent/kra/GenUnauthorized.template </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> certUserDBAuthMgr </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  kraListRequests  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.base.KRAListRequests  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -141,11 +120,6 @@
       <url-pattern>   /jobsScheduler  </url-pattern>
    </servlet-mapping>
 -->
-
-   <servlet-mapping>
-      <servlet-name>  kraSrchKey  </servlet-name>
-      <url-pattern>   /agent/kra/srchKey.html  </url-pattern>
-   </servlet-mapping>
 
    <servlet-mapping>
       <servlet-name>  kraListRequests  </servlet-name>
