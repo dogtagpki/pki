@@ -659,24 +659,32 @@ class PKIDeployer:
                 self.mdict['pki_uid'],
                 self.mdict['pki_gid'])
 
-        ca_cert_path = self.mdict.get('pki_cert_chain_path')
-
-        if ca_cert_path and os.path.exists(ca_cert_path):
-
-            destination = os.path.join(instance.nssdb_dir, "ca.crt")
-
-            if not os.path.exists(destination):
-                # When we're passed a CA certificate file and we don't already
-                # have a CA file for some reason, we need to copy the passed
-                # file as the root CA certificate to establish trust in the
-                # Python code. It doesn't import it into the NSS DB for Java
-                # code, but so far we haven't had any issues with certificate
-                # validation there. This is only usually necessary when
-                # installing a non-CA subsystem on a fresh system.
-                instance.copyfile(ca_cert_path, destination)
-
         # Always delete the temporary 'pfile'
         self.file.delete(pki_shared_pfile)
+
+    def install_cert_chain(self, subsystem):
+
+        ca_cert_path = self.mdict.get('pki_cert_chain_path')
+
+        if not ca_cert_path or not os.path.exists(ca_cert_path):
+            return
+
+        instance = subsystem.instance
+
+        destination = os.path.join(instance.nssdb_dir, 'ca.crt')
+
+        if os.path.exists(destination):
+            return
+
+        # When we're passed a CA certificate file and we don't already
+        # have a CA file for some reason, we need to copy the passed
+        # file as the root CA certificate to establish trust in the
+        # Python code. It doesn't import it into the NSS DB for Java
+        # code, but so far we haven't had any issues with certificate
+        # validation there. This is only usually necessary when
+        # installing a non-CA subsystem on a fresh system.
+
+        instance.copyfile(ca_cert_path, destination)
 
     def import_ds_ca_cert(self, subsystem):
 
