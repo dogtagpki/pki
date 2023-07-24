@@ -33,6 +33,6 @@ import javax.servlet.annotation.WebServlet;
                 @WebInitParam(name="AuthMgr",              value="certUserDBAuthMgr")
         }
 )
-public class ListRequests extends DisplayHtmlServlet {
+public class CAListRequests extends DisplayHtmlServlet {
     private static final long serialVersionUID = 1L;
 }
