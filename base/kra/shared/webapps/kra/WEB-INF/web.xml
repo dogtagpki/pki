@@ -5,7 +5,7 @@
 
    <servlet>
       <servlet-name>  kraheader  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.IndexServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.base.KRAHeaderServlet  </servlet-class>
              <init-param><param-name>  templatePath   </param-name>
                          <param-value> /agent/header.template</param-value> </init-param>
              <init-param><param-name>  ID          </param-name>
