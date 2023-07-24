@@ -118,7 +118,7 @@
 <!--
    <servlet>
       <servlet-name>  krajobsScheduler  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.admin.JobsAdminServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.admin.KRAJobsAdminServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
                          <param-value> krajobsScheduler </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
