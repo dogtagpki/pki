@@ -40,7 +40,6 @@ import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
@@ -118,27 +117,6 @@ public class FlatFileAuth extends AuthManager implements IExtendedPluginInfo {
         return false;
     }
 
-    /**
-     * Get the named property,
-     * If the property is not set, use b as the default, and create
-     * a new value for the property in the config file.
-     *
-     * @param propertyName Property name
-     * @param b The default value of the property
-     */
-    protected boolean getPropertyB(String propertyName, boolean b)
-            throws EBaseException {
-        boolean p;
-
-        try {
-            p = mConfig.getBoolean(propertyName);
-        } catch (EPropertyNotFound e) {
-            mConfig.put(propertyName, b ? "true" : "false");
-            p = b;
-        }
-        return p;
-    }
-
     @Override
     public void init(
             AuthenticationConfig authenticationConfig,
@@ -153,7 +131,7 @@ public class FlatFileAuth extends AuthManager implements IExtendedPluginInfo {
             mFilename = mConfig.getString(PROP_FILENAME, mFilename);
             mKeyAttributes = mConfig.getString(PROP_KEYATTRIBUTES, mKeyAttributes);
             mAuthAttrs = mConfig.getString(PROP_AUTHATTRS, mAuthAttrs);
-            mDeferOnFailure = getPropertyB(PROP_DEFERONFAILURE, mDeferOnFailure);
+            mDeferOnFailure = mConfig.getBoolean(PROP_DEFERONFAILURE, mDeferOnFailure);
         } catch (EBaseException e) {
             return;
         }
