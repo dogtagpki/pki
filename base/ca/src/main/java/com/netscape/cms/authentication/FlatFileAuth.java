@@ -113,27 +113,6 @@ public class FlatFileAuth extends AuthManager implements IExtendedPluginInfo {
      */
     protected Hashtable<String, Hashtable<String, String>> entries = null;
 
-    /**
-     * Get the named property
-     * If the property is not set, use s as the default, and create
-     * a new value for the property in the config file.
-     *
-     * @param propertyName Property name
-     * @param s The default value of the property
-     */
-    protected String getPropertyS(String propertyName, String s)
-            throws EBaseException {
-        String p;
-
-        try {
-            p = mConfig.getString(propertyName);
-        } catch (EPropertyNotFound e) {
-            mConfig.put(propertyName, s);
-            p = s;
-        }
-        return p;
-    }
-
     @Override
     public boolean isSSLClientRequired() {
         return false;
@@ -171,9 +150,9 @@ public class FlatFileAuth extends AuthManager implements IExtendedPluginInfo {
         mConfig = config;
 
         try {
-            mFilename = getPropertyS(PROP_FILENAME, mFilename);
-            mKeyAttributes = getPropertyS(PROP_KEYATTRIBUTES, mKeyAttributes);
-            mAuthAttrs = getPropertyS(PROP_AUTHATTRS, mAuthAttrs);
+            mFilename = mConfig.getString(PROP_FILENAME, mFilename);
+            mKeyAttributes = mConfig.getString(PROP_KEYATTRIBUTES, mKeyAttributes);
+            mAuthAttrs = mConfig.getString(PROP_AUTHATTRS, mAuthAttrs);
             mDeferOnFailure = getPropertyB(PROP_DEFERONFAILURE, mDeferOnFailure);
         } catch (EBaseException e) {
             return;
