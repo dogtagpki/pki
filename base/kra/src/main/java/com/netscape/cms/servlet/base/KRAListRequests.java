@@ -17,6 +17,23 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.base;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "kraListRequests",
+        urlPatterns = "/agent/kra/listRequests.html",
+        initParams = {
+                @WebInitParam(name="GetClientCert",        value="true"),
+                @WebInitParam(name="htmlPath",             value="/agent/kra/ListRequests.html"),
+                @WebInitParam(name="authority",            value="kra"),
+                @WebInitParam(name="interface",            value="agent"),
+                @WebInitParam(name="templatePath",         value="/agent/kra/ListRequests.template"),
+                @WebInitParam(name="ID",                   value="kraListRequests"),
+                @WebInitParam(name="unauthorizedTemplate", value="/agent/kra/GenUnauthorized.template"),
+                @WebInitParam(name="AuthMgr",              value="certUserDBAuthMgr")
+        }
+)
 public class KRAListRequests extends DisplayHtmlServlet {
     private static final long serialVersionUID = 1L;
 }
