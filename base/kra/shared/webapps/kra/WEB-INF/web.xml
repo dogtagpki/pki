@@ -4,21 +4,6 @@
     <display-name>Key Recovery Authority</display-name>
 
    <servlet>
-      <servlet-name>  kraheader  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.KRAHeaderServlet  </servlet-class>
-             <init-param><param-name>  templatePath   </param-name>
-                         <param-value> /agent/header.template</param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> kraheader   </param-value> </init-param>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> true        </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> certUserDBAuthMgr </param-value> </init-param>
-             <init-param><param-name>  template    </param-name>
-                         <param-value> /agent/header.template </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  kraSrchRecoverKey  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.base.KRASearchKeyForRecovery  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -177,11 +162,6 @@
       <url-pattern>   /jobsScheduler  </url-pattern>
    </servlet-mapping>
 -->
-
-   <servlet-mapping>
-      <servlet-name>  kraheader  </servlet-name>
-      <url-pattern>   /agent/header  </url-pattern>
-   </servlet-mapping>
 
    <servlet-mapping>
       <servlet-name>  kraSrchRecoverKey  </servlet-name>
