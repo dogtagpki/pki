@@ -675,40 +675,54 @@ class PKIDeployer:
                 # installing a non-CA subsystem on a fresh system.
                 instance.copyfile(ca_cert_path, destination)
 
-        if len(instance.get_subsystems()) == 1:
-
-            # Check to see if a secure connection is being used for the DS
-
-            if self.ds_url.scheme == 'ldaps':
-
-                # Check to see if a directory server CA certificate
-                # using the same nickname already exists
-                #
-                # NOTE:  ALWAYS use the software DB regardless of whether
-                #        the instance will utilize 'softokn' or an HSM
-                #
-
-                rv = self.certutil.verify_certificate_exists(
-                    path=instance.nssdb_dir,
-                    token=self.mdict['pki_self_signed_token'],
-                    nickname=self.mdict[
-                        'pki_ds_secure_connection_ca_nickname'
-                    ],
-                    password_file=pki_shared_pfile)
-
-                if not rv:
-                    # Import the directory server CA certificate
-                    self.certutil.import_cert(
-                        self.mdict['pki_ds_secure_connection_ca_nickname'],
-                        self.mdict[
-                            'pki_ds_secure_connection_ca_trustargs'],
-                        self.mdict['pki_ds_secure_connection_ca_pem_file'],
-                        password_file=pki_shared_pfile,
-                        path=instance.nssdb_dir,
-                        token=self.mdict['pki_self_signed_token'])
-
         # Always delete the temporary 'pfile'
         self.file.delete(pki_shared_pfile)
+
+    def import_ds_ca_cert(self, subsystem):
+
+        if self.ds_url.scheme != 'ldaps':
+            return
+
+        instance = subsystem.instance
+
+        pki_shared_pfile = os.path.join(instance.conf_dir, 'pfile')
+        logger.info('Creating password file: %s', pki_shared_pfile)
+
+        self.password.create_password_conf(
+            pki_shared_pfile,
+            self.mdict['pki_server_database_password'],
+            pin_sans_token=True)
+
+        self.file.modify(pki_shared_pfile)
+
+        try:
+            # Check to see if a directory server CA certificate
+            # using the same nickname already exists
+            #
+            # NOTE:  ALWAYS use the software DB regardless of whether
+            #        the instance will utilize 'softokn' or an HSM
+
+            exists = self.certutil.verify_certificate_exists(
+                path=instance.nssdb_dir,
+                token=self.mdict['pki_self_signed_token'],
+                nickname=self.mdict['pki_ds_secure_connection_ca_nickname'],
+                password_file=pki_shared_pfile)
+
+            if exists:
+                return
+
+            # Import the directory server CA certificate
+
+            self.certutil.import_cert(
+                self.mdict['pki_ds_secure_connection_ca_nickname'],
+                self.mdict['pki_ds_secure_connection_ca_trustargs'],
+                self.mdict['pki_ds_secure_connection_ca_pem_file'],
+                password_file=pki_shared_pfile,
+                path=instance.nssdb_dir,
+                token=self.mdict['pki_self_signed_token'])
+
+        finally:
+            self.file.delete(pki_shared_pfile)
 
     def init_system_cert_params(self, subsystem):
 
