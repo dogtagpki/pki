@@ -35,8 +35,8 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.ca.CAMissingCertException;
 import com.netscape.certsrv.ca.CAMissingKeyException;
 import com.netscape.certsrv.ca.ECAException;
-import com.netscape.certsrv.security.SigningUnitConfig;
 import com.netscape.certsrv.security.SigningUnit;
+import com.netscape.certsrv.security.SigningUnitConfig;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -84,7 +84,6 @@ public final class CASigningUnit extends SigningUnit {
             if (!CryptoUtil.isInternalToken(tokenname)) {
                 mNickname = tokenname + ":" + mNickname;
             }
-            setNewNickName(mNickname);
 
             try {
                 logger.debug("SigningUnit: Loading certificate " + mNickname);

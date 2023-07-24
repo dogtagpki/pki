@@ -29,8 +29,8 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.security.SigningUnitConfig;
 import com.netscape.certsrv.security.SigningUnit;
+import com.netscape.certsrv.security.SigningUnitConfig;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -70,7 +70,6 @@ public final class OCSPSigningUnit extends SigningUnit {
             mToken = CryptoUtil.getKeyStorageToken(tokenname);
             if (!CryptoUtil.isInternalToken(tokenname)) {
                 mNickname = tokenname + ":" + mNickname;
-                setNewNickName(mNickname);
             }
 
             logger.debug("SigningUnit: Loading certificate " + mNickname);
