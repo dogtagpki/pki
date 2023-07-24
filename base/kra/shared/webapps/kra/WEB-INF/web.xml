@@ -4,25 +4,6 @@
     <display-name>Key Recovery Authority</display-name>
 
    <servlet>
-      <servlet-name>  kraGetCookie  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.csadmin.KRAGetCookie  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> kra         </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> kraGetCookie  </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> passwdUserDBAuthMgr </param-value> </init-param>
-             <init-param><param-name>  templatePath  </param-name>
-                         <param-value> /admin/kra/sendCookie.template </param-value> </init-param>
-             <init-param><param-name>  errorTemplatePath  </param-name>
-                         <param-value> /admin/kra/securitydomainlogin.template </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  kraTokenAuthenticate  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.csadmin.KRATokenAuthenticate  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -47,11 +28,6 @@
              <init-param><param-name>  interface   </param-name>
                          <param-value> admin          </param-value> </init-param>
    </servlet>
-
-   <servlet-mapping>
-      <servlet-name>  kraGetCookie </servlet-name>
-      <url-pattern>   /admin/kra/getCookie  </url-pattern>
-   </servlet-mapping>
 
    <servlet-mapping>
       <servlet-name>  kraTokenAuthenticate </servlet-name>
