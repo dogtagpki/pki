@@ -62,7 +62,7 @@
 
    <servlet>
       <servlet-name>  kraListRequests  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.DisplayHtmlServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.base.KRAListRequests  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> true        </param-value> </init-param>
              <init-param><param-name>  htmlPath    </param-name>
