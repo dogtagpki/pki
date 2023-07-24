@@ -588,16 +588,37 @@ class PKIDeployer:
             if external_certs_path is not None:
                 self.update_external_certs_conf(instance, external_certs_path)
 
-        # import CA certificates from PKCS #12 file for cloning
+        # Always delete the temporary 'pfile'
+        self.file.delete(pki_shared_pfile)
+
+    def import_clone_pkcs12(self, subsystem):
+        '''
+        Import CA certificates from PKCS #12 file for cloning.
+        '''
+
         pki_clone_pkcs12_path = self.mdict['pki_clone_pkcs12_path']
 
-        if pki_clone_pkcs12_path:
+        if not pki_clone_pkcs12_path:
+            return
 
-            pki_clone_pkcs12_password = self.mdict[
-                'pki_clone_pkcs12_password']
-            if not pki_clone_pkcs12_password:
-                raise Exception('Missing pki_clone_pkcs12_password property.')
+        pki_clone_pkcs12_password = self.mdict['pki_clone_pkcs12_password']
 
+        if not pki_clone_pkcs12_password:
+            raise Exception('Missing pki_clone_pkcs12_password property')
+
+        instance = subsystem.instance
+
+        pki_shared_pfile = os.path.join(instance.conf_dir, 'pfile')
+        logger.info('Creating password file: %s', pki_shared_pfile)
+
+        self.password.create_password_conf(
+            pki_shared_pfile,
+            self.mdict['pki_server_database_password'],
+            pin_sans_token=True)
+
+        self.file.modify(pki_shared_pfile)
+
+        try:
             nssdb = pki.nssdb.NSSDatabase(
                 directory=instance.nssdb_dir,
                 password_file=pki_shared_pfile)
@@ -659,8 +680,8 @@ class PKIDeployer:
                 self.mdict['pki_uid'],
                 self.mdict['pki_gid'])
 
-        # Always delete the temporary 'pfile'
-        self.file.delete(pki_shared_pfile)
+        finally:
+            self.file.delete(pki_shared_pfile)
 
     def install_cert_chain(self, subsystem):
 
