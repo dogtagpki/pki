@@ -17,6 +17,23 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.base;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "kraGrantRecovery",
+        urlPatterns = "/agent/kra/grantRecovery.html",
+        initParams = {
+                @WebInitParam(name="GetClientCert",        value="true"),
+                @WebInitParam(name="htmlPath",             value="/agent/kra/GrantRecovery.html"),
+                @WebInitParam(name="authority",            value="kra"),
+                @WebInitParam(name="interface",            value="agent"),
+                @WebInitParam(name="templatePath",         value="/agent/kra/grantRecovery.template"),
+                @WebInitParam(name="ID",                   value="kraGrantRecovery"),
+                @WebInitParam(name="unauthorizedTemplate", value="/agent/kra/GenUnauthorized.template"),
+                @WebInitParam(name="AuthMgr",              value="certUserDBAuthMgr")
+        }
+)
 public class KRAGrantRecovery extends DisplayHtmlServlet {
     private static final long serialVersionUID = 1L;
 }

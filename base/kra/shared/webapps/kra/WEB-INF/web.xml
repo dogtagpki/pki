@@ -3,27 +3,6 @@
 
     <display-name>Key Recovery Authority</display-name>
 
-   <servlet>
-      <servlet-name>  kraGrantRecovery  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.KRAGrantRecovery  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> true        </param-value> </init-param>
-             <init-param><param-name>  htmlPath    </param-name>
-                         <param-value> /agent/kra/GrantRecovery.html </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> kra         </param-value> </init-param>
-             <init-param><param-name>  interface   </param-name>
-                         <param-value> agent  </param-value> </init-param>
-             <init-param><param-name>  templatePath   </param-name>
-                         <param-value> /agent/kra/grantRecovery.template</param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> kraGrantRecovery </param-value> </init-param>
-             <init-param><param-name>  unauthorizedTemplate  </param-name>
-                         <param-value> /agent/kra/GenUnauthorized.template </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> certUserDBAuthMgr </param-value> </init-param>
-   </servlet>
-
 <!--
    <servlet>
       <servlet-name>  krajobsScheduler  </servlet-name>
@@ -86,11 +65,6 @@
       <url-pattern>   /jobsScheduler  </url-pattern>
    </servlet-mapping>
 -->
-
-   <servlet-mapping>
-      <servlet-name>  kraGrantRecovery  </servlet-name>
-      <url-pattern>   /agent/kra/grantRecovery.html  </url-pattern>
-   </servlet-mapping>
 
    <servlet-mapping>
       <servlet-name>  kraGetCookie </servlet-name>
