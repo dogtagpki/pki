@@ -1138,8 +1138,8 @@ class PKIDeployer:
             subsystem.config['dbs.serialLowWaterMark'] = '2000000'
             subsystem.config['dbs.serialCloneTransferNumber'] = '10000'
             subsystem.config['dbs.serialRangeDN'] = 'ou=certificateRepository,ou=ranges'
-            subsystem.config['dbs.enableRandomSerialNumbers'] = \
-                self.mdict['pki_random_serial_numbers_enable']
+            if config.str2bool(self.mdict['pki_random_serial_numbers_enable']):
+                subsystem.config['dbs.enableRandomSerialNumbers'] = 'true'
             subsystem.config['dbs.randomSerialNumberCounter'] = '0'
 
             serial_number_range_start = self.mdict.get('pki_serial_number_range_start')

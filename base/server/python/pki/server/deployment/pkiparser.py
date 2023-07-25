@@ -658,10 +658,6 @@ class PKIConfigParser:
 
             self.mdict['pki_standalone'] = self.mdict['pki_standalone'].lower()
 
-            if self.mdict['pki_subsystem'] == "CA":
-                self.mdict['pki_random_serial_numbers_enable'] = \
-                    self.mdict['pki_random_serial_numbers_enable'].lower()
-
             # Configuration scriptlet
             # 'Security Domain' Configuration name/value pairs
             # 'Subsystem Name'  Configuration name/value pairs
