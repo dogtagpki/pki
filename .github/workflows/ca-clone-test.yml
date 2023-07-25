@@ -98,6 +98,9 @@ jobs:
 
       - name: Install CA in secondary PKI container
         run: |
+          # get CS.cfg from primary CA before cloning
+          docker cp primary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.primary
+
           docker exec primary pki-server ca-clone-prepare --pkcs12-file ${SHARED}/ca-certs.p12 --pkcs12-password Secret.123
           docker exec secondary pkispawn \
               -f /usr/share/pki/server/examples/installation/ca-clone.cfg \
@@ -111,6 +114,77 @@ jobs:
               -v
 
           docker exec secondary pki-server cert-find
+
+      - name: Check CS.cfg in primary CA after cloning
+        run: |
+          # get CS.cfg from primary CA after cloning
+          docker cp primary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.primary.after
+
+          # normalize expected result:
+          # - remove params that cannot be compared
+          # - set dbs.enableSerialManagement to true (automatically enabled when cloned)
+          sed -e '/^dbs.beginReplicaNumber=/d' \
+              -e '/^dbs.endReplicaNumber=/d' \
+              -e '/^dbs.nextBeginReplicaNumber=/d' \
+              -e '/^dbs.nextEndReplicaNumber=/d' \
+              -e 's/^\(dbs.enableSerialManagement\)=.*$/\1=true/' \
+              CS.cfg.primary \
+              | sort > expected
+
+          # normalize actual result:
+          # - remove params that cannot be compared
+          sed -e '/^dbs.beginReplicaNumber=/d' \
+              -e '/^dbs.endReplicaNumber=/d' \
+              -e '/^dbs.nextBeginReplicaNumber=/d' \
+              -e '/^dbs.nextEndReplicaNumber=/d' \
+              CS.cfg.primary.after \
+              | sort > actual
+
+          diff expected actual
+
+      - name: Check CS.cfg in secondary CA
+        run: |
+          # get CS.cfg from secondary CA
+          docker cp secondary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.secondary
+
+          # normalize expected result:
+          # - remove params that cannot be compared
+          # - replace primary.example.com with secondary.example.com
+          # - replace primaryds.example.com with secondaryds.example.com
+          # - set ca.crl.MasterCRL.enableCRLCache to false (automatically disabled in the clone)
+          # - set ca.crl.MasterCRL.enableCRLUpdates to false (automatically disabled in the clone)
+          # - add params for the clone
+          sed -e '/^installDate=/d' \
+              -e '/^dbs.beginReplicaNumber=/d' \
+              -e '/^dbs.endReplicaNumber=/d' \
+              -e '/^dbs.nextBeginReplicaNumber=/d' \
+              -e '/^dbs.nextEndReplicaNumber=/d' \
+              -e '/^ca.sslserver.cert=/d' \
+              -e '/^ca.sslserver.certreq=/d' \
+              -e 's/primary.example.com/secondary.example.com/' \
+              -e 's/primaryds.example.com/secondaryds.example.com/' \
+              -e 's/^\(ca.crl.MasterCRL.enableCRLCache\)=.*$/\1=false/' \
+              -e 's/^\(ca.crl.MasterCRL.enableCRLUpdates\)=.*$/\1=false/' \
+              -e '$ a ca.certStatusUpdateInterval=0' \
+              -e '$ a ca.listenToCloneModifications=false' \
+              -e '$ a master.ca.agent.host=primary.example.com' \
+              -e '$ a master.ca.agent.port=8443' \
+              CS.cfg.primary.after \
+              | sort > expected
+
+          # normalize actual result:
+          # - remove params that cannot be compared
+          sed -e '/^installDate=/d' \
+              -e '/^dbs.beginReplicaNumber=/d' \
+              -e '/^dbs.endReplicaNumber=/d' \
+              -e '/^dbs.nextBeginReplicaNumber=/d' \
+              -e '/^dbs.nextEndReplicaNumber=/d' \
+              -e '/^ca.sslserver.cert=/d' \
+              -e '/^ca.sslserver.certreq=/d' \
+              CS.cfg.secondary \
+              | sort > actual
+
+          diff expected actual
 
       - name: Verify users and SD hosts in secondary PKI container
         run: |
@@ -162,6 +236,68 @@ jobs:
               -v
 
           docker exec tertiary pki-server cert-find
+
+      - name: Check CS.cfg in secondary CA after cloning
+        run: |
+          # get CS.cfg from secondary CA after cloning
+          docker cp secondary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.secondary.after
+
+          # normalize expected result:
+          # - remove params that cannot be compared
+          sed -e '/^dbs.beginReplicaNumber=/d' \
+              -e '/^dbs.endReplicaNumber=/d' \
+              -e '/^dbs.nextBeginReplicaNumber=/d' \
+              -e '/^dbs.nextEndReplicaNumber=/d' \
+              CS.cfg.secondary \
+              | sort > expected
+
+          # normalize actual result:
+          # - remove params that cannot be compared
+          sed -e '/^dbs.beginReplicaNumber=/d' \
+              -e '/^dbs.endReplicaNumber=/d' \
+              -e '/^dbs.nextBeginReplicaNumber=/d' \
+              -e '/^dbs.nextEndReplicaNumber=/d' \
+              CS.cfg.secondary.after \
+              | sort > actual
+
+          diff expected actual
+
+      - name: Check CS.cfg in tertiary CA
+        run: |
+          # get CS.cfg from tertiary CA
+          docker cp tertiary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.tertiary
+
+          # normalize expected result:
+          # - remove params that cannot be compared
+          # - replace secondary.example.com with tertiary.example.com
+          # - replace secondaryds.example.com with tertiaryds.example.com
+          # - set master.ca.agent.host to secondary.example.com
+          sed -e '/^installDate=/d' \
+              -e '/^dbs.beginReplicaNumber=/d' \
+              -e '/^dbs.endReplicaNumber=/d' \
+              -e '/^dbs.nextBeginReplicaNumber=/d' \
+              -e '/^dbs.nextEndReplicaNumber=/d' \
+              -e '/^ca.sslserver.cert=/d' \
+              -e '/^ca.sslserver.certreq=/d' \
+              -e 's/secondary.example.com/tertiary.example.com/' \
+              -e 's/secondaryds.example.com/tertiaryds.example.com/' \
+              -e 's/^\(master.ca.agent.host\)=.*$/\1=secondary.example.com/' \
+              CS.cfg.secondary.after \
+              | sort > expected
+
+          # normalize actual result:
+          # - remove params that cannot be compared
+          sed -e '/^installDate=/d' \
+              -e '/^dbs.beginReplicaNumber=/d' \
+              -e '/^dbs.endReplicaNumber=/d' \
+              -e '/^dbs.nextBeginReplicaNumber=/d' \
+              -e '/^dbs.nextEndReplicaNumber=/d' \
+              -e '/^ca.sslserver.cert=/d' \
+              -e '/^ca.sslserver.certreq=/d' \
+              CS.cfg.tertiary \
+              | sort > actual
+
+          diff expected actual
 
       - name: Verify users and SD hosts in tertiary PKI container
         run: |
