@@ -2639,6 +2639,9 @@ class PKIDeployer:
         if not request.systemCert.token:
             request.systemCert.token = subsystem.config['preop.module.token']
 
+            if not pki.nssdb.normalize_token(request.systemCert.token):
+                request.systemCert.token = pki.nssdb.INTERNAL_TOKEN_NAME
+
         # cert type: selfsign, local, or remote
         request.systemCert.type = subsystem.config['preop.cert.%s.type' % tag]
 
