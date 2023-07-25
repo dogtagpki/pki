@@ -174,10 +174,7 @@ class PKIServerCLI(pki.cli.CLI):
             print()
             print('  CA Subsystem:')
 
-            if ca.config['subsystem.select'] == 'Clone':
-                subsystem_type = 'CA Clone'
-            else:
-                subsystem_type = ca.config['hierarchy.select'] + ' CA'
+            subsystem_type = ca.config['hierarchy.select'] + ' CA'
             if ca.config['securitydomain.select'] == 'new':
                 subsystem_type += ' (Security Domain)'
             print('    Type:                %s' % subsystem_type)
@@ -207,9 +204,7 @@ class PKIServerCLI(pki.cli.CLI):
             print('  KRA Subsystem:')
 
             subsystem_type = 'KRA'
-            if kra.config['subsystem.select'] == 'Clone':
-                subsystem_type += ' Clone'
-            elif kra.config['kra.standalone'] == 'true':
+            if kra.config['kra.standalone'] == 'true':
                 subsystem_type += ' (Standalone)'
             print('    Type:                %s' % subsystem_type)
 
@@ -234,9 +229,7 @@ class PKIServerCLI(pki.cli.CLI):
             print('  OCSP Subsystem:')
 
             subsystem_type = 'OCSP'
-            if ocsp.config['subsystem.select'] == 'Clone':
-                subsystem_type += ' Clone'
-            elif ocsp.config['ocsp.standalone'] == 'true':
+            if ocsp.config['ocsp.standalone'] == 'true':
                 subsystem_type += ' (Standalone)'
             print('    Type:                %s' % subsystem_type)
 
@@ -265,8 +258,6 @@ class PKIServerCLI(pki.cli.CLI):
             print('  TKS Subsystem:')
 
             subsystem_type = 'TKS'
-            if tks.config['subsystem.select'] == 'Clone':
-                subsystem_type += ' Clone'
             print('    Type:                %s' % subsystem_type)
 
             print('    SD Name:             %s' % tks.config['securitydomain.name'])
@@ -290,8 +281,6 @@ class PKIServerCLI(pki.cli.CLI):
             print('  TPS Subsystem:')
 
             subsystem_type = 'TPS'
-            if tps.config['subsystem.select'] == 'Clone':
-                subsystem_type += ' Clone'
             print('    Type:                %s' % subsystem_type)
 
             print('    SD Name:             %s' % tps.config['securitydomain.name'])

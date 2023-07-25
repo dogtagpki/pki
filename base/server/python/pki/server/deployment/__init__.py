@@ -1065,12 +1065,6 @@ class PKIDeployer:
 
             subsystem.config['preop.ca.type'] = 'sdca'
 
-        # configure cloning
-        if clone:
-            subsystem.config['subsystem.select'] = 'Clone'
-        else:
-            subsystem.config['subsystem.select'] = 'New'
-
         # configure CA
         if subsystem.type == 'CA':
 
