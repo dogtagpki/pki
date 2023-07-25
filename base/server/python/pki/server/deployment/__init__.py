@@ -789,19 +789,19 @@ class PKIDeployer:
             if config_tag == 'signing':  # for CA and OCSP
                 deploy_tag = subsystem.name + '_signing'
 
-            # store nickname
+            # store nickname and tokenname
             nickname = self.mdict['pki_%s_nickname' % deploy_tag]
-            subsystem.config['%s.%s.nickname' % (subsystem.name, config_tag)] = nickname
-            subsystem.config['preop.cert.%s.nickname' % config_tag] = nickname
-
-            # store tokenname
             tokenname = self.mdict['pki_%s_token' % deploy_tag]
-            subsystem.config['%s.%s.tokenname' % (subsystem.name, config_tag)] = tokenname
 
-            fullname = nickname
             if pki.nssdb.normalize_token(tokenname):
                 fullname = tokenname + ':' + nickname
+            else:
+                fullname = nickname
+                tokenname = pki.nssdb.INTERNAL_TOKEN_NAME
 
+            subsystem.config['preop.cert.%s.nickname' % config_tag] = nickname
+            subsystem.config['%s.%s.nickname' % (subsystem.name, config_tag)] = nickname
+            subsystem.config['%s.%s.tokenname' % (subsystem.name, config_tag)] = tokenname
             subsystem.config['%s.cert.%s.nickname' % (subsystem.name, config_tag)] = fullname
 
             # store subject DN
@@ -2114,8 +2114,12 @@ class PKIDeployer:
         logger.info('Configuring %s certificate with nickname %s', cert_id, nickname)
 
         subsystem.config['%s.%s.nickname' % (subsystem.name, tag)] = nickname
-        subsystem.config['%s.%s.tokenname' % (subsystem.name, tag)] = \
-            self.mdict['pki_%s_token' % cert_id]
+
+        tokenname = self.mdict['pki_%s_token' % cert_id]
+        if not pki.nssdb.normalize_token(tokenname):
+            tokenname = pki.nssdb.INTERNAL_TOKEN_NAME
+        subsystem.config['%s.%s.tokenname' % (subsystem.name, tag)] = tokenname
+
         subsystem.config['%s.%s.defaultSigningAlgorithm' % (subsystem.name, tag)] = \
             self.mdict['pki_%s_key_algorithm' % cert_id]
 
