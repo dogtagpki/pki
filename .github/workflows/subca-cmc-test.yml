@@ -124,7 +124,7 @@ jobs:
           docker exec root openssl req -text -noout -in $SHARED/ca_signing.csr
 
           # create CMC request
-          docker exec root mv $SHARED/ca_signing.csr ca_signing.csr
+          docker exec root cp $SHARED/ca_signing.csr ca_signing.csr
           docker exec root CMCRequest \
               /usr/share/pki/server/examples/cmc/ca_signing-cmc-request.cfg
 

@@ -111,7 +111,7 @@ jobs:
           docker exec ca openssl req -text -noout -in $SHARED/ocsp_signing.csr
 
           # create CMC request
-          docker exec ca mv $SHARED/ocsp_signing.csr ocsp_signing.csr
+          docker exec ca cp $SHARED/ocsp_signing.csr ocsp_signing.csr
           docker exec ca CMCRequest \
               /usr/share/pki/server/examples/cmc/ocsp_signing-cmc-request.cfg
 
@@ -135,7 +135,7 @@ jobs:
           docker exec ca openssl req -text -noout -in $SHARED/subsystem.csr
 
           # create CMC request
-          docker exec ca mv $SHARED/subsystem.csr subsystem.csr
+          docker exec ca cp $SHARED/subsystem.csr subsystem.csr
           docker exec ca CMCRequest \
               /usr/share/pki/server/examples/cmc/subsystem-cmc-request.cfg
 
@@ -159,7 +159,7 @@ jobs:
           docker exec ca openssl req -text -noout -in $SHARED/sslserver.csr
 
           # create CMC request
-          docker exec ca mv $SHARED/sslserver.csr sslserver.csr
+          docker exec ca cp $SHARED/sslserver.csr sslserver.csr
           docker exec ca CMCRequest \
               /usr/share/pki/server/examples/cmc/sslserver-cmc-request.cfg
 
@@ -183,7 +183,7 @@ jobs:
           docker exec ca openssl req -text -noout -in $SHARED/ocsp_audit_signing.csr
 
           # create CMC request
-          docker exec ca mv $SHARED/ocsp_audit_signing.csr audit_signing.csr
+          docker exec ca cp $SHARED/ocsp_audit_signing.csr audit_signing.csr
           docker exec ca CMCRequest \
               /usr/share/pki/server/examples/cmc/audit_signing-cmc-request.cfg
 
@@ -207,7 +207,7 @@ jobs:
           docker exec ca openssl req -text -noout -in $SHARED/ocsp_admin.csr
 
           # create CMC request
-          docker exec ca mv $SHARED/ocsp_admin.csr admin.csr
+          docker exec ca cp $SHARED/ocsp_admin.csr admin.csr
           docker exec ca CMCRequest \
               /usr/share/pki/server/examples/cmc/admin-cmc-request.cfg
 
@@ -228,7 +228,7 @@ jobs:
               --pkcs7 ocsp_admin.p7b \
               --output-prefix ocsp_admin- \
               --output-suffix .crt
-          docker exec ca mv ocsp_admin-1.crt $SHARED/ocsp_admin.crt
+          docker exec ca cp ocsp_admin-1.crt $SHARED/ocsp_admin.crt
 
           # check issued cert
           docker exec ca openssl x509 -text -noout -in $SHARED/ocsp_admin.crt

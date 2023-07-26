@@ -114,7 +114,7 @@ jobs:
           docker exec ca openssl req -text -noout -in $SHARED/kra_storage.csr
 
           # create CMC request
-          docker exec ca mv $SHARED/kra_storage.csr kra_storage.csr
+          docker exec ca cp $SHARED/kra_storage.csr kra_storage.csr
           docker exec ca CMCRequest \
               /usr/share/pki/server/examples/cmc/kra_storage-cmc-request.cfg
 
@@ -138,7 +138,7 @@ jobs:
           docker exec ca openssl req -text -noout -in $SHARED/kra_transport.csr
 
           # create CMC request
-          docker exec ca mv $SHARED/kra_transport.csr kra_transport.csr
+          docker exec ca cp $SHARED/kra_transport.csr kra_transport.csr
           docker exec ca CMCRequest \
               /usr/share/pki/server/examples/cmc/kra_transport-cmc-request.cfg
 
@@ -162,7 +162,7 @@ jobs:
           docker exec ca openssl req -text -noout -in $SHARED/subsystem.csr
 
           # create CMC request
-          docker exec ca mv $SHARED/subsystem.csr subsystem.csr
+          docker exec ca cp $SHARED/subsystem.csr subsystem.csr
           docker exec ca CMCRequest \
               /usr/share/pki/server/examples/cmc/subsystem-cmc-request.cfg
 
@@ -186,7 +186,7 @@ jobs:
           docker exec ca openssl req -text -noout -in $SHARED/sslserver.csr
 
           # create CMC request
-          docker exec ca mv $SHARED/sslserver.csr sslserver.csr
+          docker exec ca cp $SHARED/sslserver.csr sslserver.csr
           docker exec ca CMCRequest \
               /usr/share/pki/server/examples/cmc/sslserver-cmc-request.cfg
 
@@ -210,7 +210,7 @@ jobs:
           docker exec ca openssl req -text -noout -in $SHARED/kra_audit_signing.csr
 
           # create CMC request
-          docker exec ca mv $SHARED/kra_audit_signing.csr audit_signing.csr
+          docker exec ca cp $SHARED/kra_audit_signing.csr audit_signing.csr
           docker exec ca CMCRequest \
               /usr/share/pki/server/examples/cmc/audit_signing-cmc-request.cfg
 
@@ -234,7 +234,7 @@ jobs:
           docker exec ca openssl req -text -noout -in $SHARED/kra_admin.csr
 
           # create CMC request
-          docker exec ca mv $SHARED/kra_admin.csr admin.csr
+          docker exec ca cp $SHARED/kra_admin.csr admin.csr
           docker exec ca CMCRequest \
               /usr/share/pki/server/examples/cmc/admin-cmc-request.cfg
 
@@ -255,7 +255,7 @@ jobs:
               --pkcs7 kra_admin.p7b \
               --output-prefix kra_admin- \
               --output-suffix .crt
-          docker exec ca mv kra_admin-1.crt $SHARED/kra_admin.crt
+          docker exec ca cp kra_admin-1.crt $SHARED/kra_admin.crt
 
           # check issued cert
           docker exec ca openssl x509 -text -noout -in $SHARED/kra_admin.crt
