@@ -569,10 +569,17 @@ class PKIDeployer:
         '''
         Import system certificates from PKCS #12 file.
         '''
+        param = 'pki_server_pkcs12_path'
+        pki_server_pkcs12_path = self.mdict.get(param)
 
-        pki_server_pkcs12_path = self.mdict['pki_server_pkcs12_path']
         if not pki_server_pkcs12_path:
+            # no PKCS #12 file to import
             return
+
+        logger.info('Importing certs and keys from %s', pki_server_pkcs12_path)
+
+        if not os.path.exists(pki_server_pkcs12_path):
+            raise Exception('Invalid path in %s: %s' % (param, pki_server_pkcs12_path))
 
         pki_server_pkcs12_password = self.mdict['pki_server_pkcs12_password']
         if not pki_server_pkcs12_password:
@@ -616,14 +623,19 @@ class PKIDeployer:
         '''
         Import CA certificates from PKCS #12 file for cloning.
         '''
-
-        pki_clone_pkcs12_path = self.mdict['pki_clone_pkcs12_path']
+        param = 'pki_clone_pkcs12_path'
+        pki_clone_pkcs12_path = self.mdict.get(param)
 
         if not pki_clone_pkcs12_path:
+            # no PKCS #12 file to import
             return
 
-        pki_clone_pkcs12_password = self.mdict['pki_clone_pkcs12_password']
+        logger.info('Importing certs and keys from %s', pki_clone_pkcs12_path)
 
+        if not os.path.exists(pki_clone_pkcs12_path):
+            raise Exception('Invalid path in %s: %s' % (param, pki_clone_pkcs12_path))
+
+        pki_clone_pkcs12_password = self.mdict['pki_clone_pkcs12_password']
         if not pki_clone_pkcs12_password:
             raise Exception('Missing pki_clone_pkcs12_password property')
 
@@ -645,8 +657,6 @@ class PKIDeployer:
                 password_file=pki_shared_pfile)
 
             try:
-                logger.info('Importing certificates from %s:', pki_clone_pkcs12_path)
-
                 # The PKCS12 class requires an NSS database to run. For simplicity
                 # it uses the NSS database that has just been created.
                 pkcs12 = pki.pkcs12.PKCS12(
@@ -706,10 +716,14 @@ class PKIDeployer:
 
     def install_cert_chain(self, subsystem):
 
-        ca_cert_path = self.mdict.get('pki_cert_chain_path')
+        param = 'pki_cert_chain_path'
+        ca_cert_path = self.mdict.get(param)
 
         if not ca_cert_path or not os.path.exists(ca_cert_path):
+            # no cert chain to import
             return
+
+        logger.info('Importing cert chain from %s', ca_cert_path)
 
         instance = subsystem.instance
 
@@ -1881,12 +1895,17 @@ class PKIDeployer:
     def import_system_cert_request(self, subsystem, tag):
 
         cert_id = self.get_cert_id(subsystem, tag)
+        param = 'pki_%s_csr_path' % cert_id
+        csr_path = self.mdict.get(param)
 
-        csr_path = self.mdict.get('pki_%s_csr_path' % cert_id)
-        if not csr_path or not os.path.exists(csr_path):
+        if not csr_path:
+            # no CSR file to import
             return
 
-        logger.info('Importing %s CSR from %s', tag, csr_path)
+        logger.info('Importing CSR for %s from %s', tag, csr_path)
+
+        if not os.path.exists(csr_path):
+            raise Exception('Invalid path in %s: %s' % (param, csr_path))
 
         with open(csr_path, encoding='utf-8') as f:
             csr_data = f.read()
@@ -1917,10 +1936,13 @@ class PKIDeployer:
         cert_file = self.mdict.get(param)
 
         if not cert_file:
+            # no CA signing cert file to import
             return
 
+        logger.info('Importing CA signing cert from %s', cert_file)
+
         if not os.path.exists(cert_file):
-            raise Exception('Invalid certificate path: %s=%s' % (param, cert_file))
+            raise Exception('Invalid path in %s: %s' % (param, cert_file))
 
         nickname = self.mdict['pki_ca_signing_nickname']
 
@@ -1944,10 +1966,14 @@ class PKIDeployer:
         param = 'pki_%s_cert_path' % cert_id
         cert_file = self.mdict.get(param)
 
-        if not cert_file or not os.path.exists(cert_file):
+        if not cert_file:
+            # no system cert to import
             return
 
-        logger.info('Importing %s certificate from %s', cert_id, cert_file)
+        logger.info('Importing %s cert from %s', cert_id, cert_file)
+
+        if not os.path.exists(cert_file):
+            raise Exception('Invalid path in %s: %s' % (param, cert_file))
 
         cert = subsystem.get_subsystem_cert(tag)
         nickname = cert['nickname']
@@ -1966,9 +1992,17 @@ class PKIDeployer:
 
     def import_admin_cert(self):
 
-        cert_file = self.mdict.get('pki_admin_cert_path')
-        if not cert_file or not os.path.exists(cert_file):
+        param = 'pki_admin_cert_path'
+        cert_file = self.mdict.get(param)
+
+        if not cert_file:
+            # no admin cert to import
             return
+
+        logger.info('Importing admin cert from %s', cert_file)
+
+        if not os.path.exists(cert_file):
+            raise Exception('Invalid path in %s: %s' % (param, cert_file))
 
         nickname = self.mdict['pki_admin_nickname']
 
@@ -2037,11 +2071,17 @@ class PKIDeployer:
 
     def import_certs_and_keys(self, nssdb):
 
-        pkcs12_file = self.mdict.get('pki_external_pkcs12_path')
-        if not pkcs12_file or not os.path.exists(pkcs12_file):
+        param = 'pki_external_pkcs12_path'
+        pkcs12_file = self.mdict.get(param)
+
+        if not pkcs12_file:
+            # no PKCS #12 file to import
             return
 
-        logger.info('Importing certificates and keys from %s', pkcs12_file)
+        logger.info('Importing certs and keys from %s', pkcs12_file)
+
+        if not os.path.exists(pkcs12_file):
+            raise Exception('Invalid path in %s: %s' % (param, pkcs12_file))
 
         pkcs12_password = self.mdict['pki_external_pkcs12_password']
         nssdb.import_pkcs12(pkcs12_file, pkcs12_password)
@@ -2050,14 +2090,16 @@ class PKIDeployer:
 
         logger.debug('PKIDeployer.import_cert_chain()')
 
-        chain_file = self.mdict.get('pki_cert_chain_path')
+        param = 'pki_cert_chain_path'
+        chain_file = self.mdict.get(param)
 
         if not chain_file or not os.path.exists(chain_file):
+            # no cert chain to import
             return
 
-        nickname = self.mdict['pki_cert_chain_nickname']
+        logger.info('Importing cert chain from %s', chain_file)
 
-        logger.info('Importing certificate chain from %s', chain_file)
+        nickname = self.mdict['pki_cert_chain_nickname']
 
         nssdb.import_cert_chain(
             nickname=nickname,
