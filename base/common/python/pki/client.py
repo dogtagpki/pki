@@ -95,9 +95,12 @@ class SSLContextAdapter(adapters.HTTPAdapter):
 
     def init_poolmanager(self, connections, maxsize,
                          block=adapters.DEFAULT_POOLBLOCK, **pool_kwargs):
-        context = ssl.SSLContext(
-            ssl.PROTOCOL_TLS  # pylint: disable=no-member
-        )
+
+        if hasattr(ssl, "PROTOCOL_TLS_CLIENT"):
+            tls_version = ssl.PROTOCOL_TLS_CLIENT
+        else:
+            tls_version = ssl.PROTOCOL_TLS
+        context = ssl.SSLContext(tls_version)
 
         # Enable post handshake authentication for TLS 1.3
         if getattr(context, "post_handshake_auth", None) is not None:
@@ -116,9 +119,11 @@ class SSLContextAdapter(adapters.HTTPAdapter):
         for capath in self.capaths:
             context.load_verify_locations(capath=capath)
 
-        if self.verify:
-            # Enable certificate verification
-            context.verify_mode = ssl.VerifyMode.CERT_REQUIRED  # pylint: disable=no-member
+        if not self.verify:
+            # Disable certificate verification
+            context.verify_mode = ssl.VerifyMode.CERT_OPTIONAL  # pylint: disable=no-member
+            # Disable check_hostname
+            context.check_hostname = False
 
         pool_kwargs['ssl_context'] = context
         return super().init_poolmanager(
