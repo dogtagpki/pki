@@ -246,7 +246,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             system_certs = deployer.setup_system_certs(nssdb, subsystem)
             subsystem.save()
 
-            deployer.validate_system_certs(nssdb, subsystem)
+            deployer.validate_system_certs(subsystem)
 
         finally:
             nssdb.close()
