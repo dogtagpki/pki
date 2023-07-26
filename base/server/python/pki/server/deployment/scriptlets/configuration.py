@@ -77,8 +77,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.update_system_certs(nssdb, subsystem)
                 subsystem.save()
 
-                deployer.validate_system_certs(nssdb, subsystem)
-
             elif len(subsystems) > 1:
 
                 for s in subsystems:
@@ -246,11 +244,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         try:
             system_certs = deployer.setup_system_certs(nssdb, subsystem)
+            subsystem.save()
+
+            deployer.validate_system_certs(nssdb, subsystem)
 
         finally:
             nssdb.close()
-
-        subsystem.save()
 
         if config.str2bool(deployer.mdict['pki_security_domain_setup']) and \
                 subsystem.type == 'CA':
