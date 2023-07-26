@@ -47,7 +47,7 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?phase:-}%{?phase}
 #     > pki-VERSION-RELEASE.patch
 # Patch: pki-VERSION-RELEASE.patch
 
-%if 0%{?fedora} && 0%{?fedora} > 35
+%if 0%{?java_arches:1}
 ExclusiveArch: %{java_arches}
 %else
 ExcludeArch: i686
