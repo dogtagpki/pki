@@ -2148,13 +2148,12 @@ class PKIDeployer:
 
         self.import_cert_chain(nssdb)
 
-    def configure_system_cert(self, subsystem, tag):
+    def update_system_cert(self, nssdb, subsystem, tag):
+
+        logger.info('Updating %s cert', tag)
 
         cert_id = self.get_cert_id(subsystem, tag)
         nickname = self.mdict['pki_%s_nickname' % cert_id]
-
-        logger.info('Configuring %s certificate with nickname %s', cert_id, nickname)
-
         subsystem.config['%s.%s.nickname' % (subsystem.name, tag)] = nickname
 
         tokenname = self.mdict['pki_%s_token' % cert_id]
@@ -2164,36 +2163,6 @@ class PKIDeployer:
 
         subsystem.config['%s.%s.defaultSigningAlgorithm' % (subsystem.name, tag)] = \
             self.mdict['pki_%s_key_algorithm' % cert_id]
-
-    def configure_system_certs(self, subsystem):
-
-        logger.debug('PKIDeployer.configure_system_certs()')
-
-        if subsystem.name == 'ca':
-            self.configure_system_cert(subsystem, 'signing')
-
-            nickname = self.mdict['pki_ca_signing_nickname']
-            subsystem.config['ca.signing.cacertnickname'] = nickname
-
-            self.configure_system_cert(subsystem, 'ocsp_signing')
-
-        if subsystem.name == 'kra':
-            self.configure_system_cert(subsystem, 'storage')
-            self.configure_system_cert(subsystem, 'transport')
-
-        if subsystem.name == 'ocsp':
-            self.configure_system_cert(subsystem, 'signing')
-
-        self.configure_system_cert(subsystem, 'sslserver')
-        self.configure_system_cert(subsystem, 'subsystem')
-        self.configure_system_cert(subsystem, 'audit_signing')
-
-    def update_system_cert(self, nssdb, subsystem, tag):
-
-        logger.debug('update_system_cert')
-
-        cert_id = self.get_cert_id(subsystem, tag)
-        nickname = self.mdict['pki_%s_nickname' % cert_id]
 
         cert_data = nssdb.get_cert(
             nickname=nickname,
@@ -2227,10 +2196,14 @@ class PKIDeployer:
 
     def update_system_certs(self, nssdb, subsystem):
 
-        logger.debug('update_system_certs')
+        logger.info('Updating system certs')
 
         if subsystem.name == 'ca':
             self.update_system_cert(nssdb, subsystem, 'signing')
+
+            nickname = self.mdict['pki_ca_signing_nickname']
+            subsystem.config['ca.signing.cacertnickname'] = nickname
+
             self.update_system_cert(nssdb, subsystem, 'ocsp_signing')
 
         if subsystem.name == 'kra':

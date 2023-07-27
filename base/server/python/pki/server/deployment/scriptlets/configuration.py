@@ -71,9 +71,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
                 deployer.import_system_cert_requests(subsystem)
                 deployer.import_system_certs(nssdb, subsystem)
-
-                deployer.configure_system_certs(subsystem)
-
                 deployer.update_system_certs(nssdb, subsystem)
                 subsystem.save()
 
