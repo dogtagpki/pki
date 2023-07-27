@@ -917,8 +917,7 @@ class AuditFileVerifyCLI(pki.cli.CLI):
                 '-n', signing_cert['nickname'],
                 '-a', file_list])
 
-            if logger.isEnabledFor(logging.INFO):
-                print('Command: %s' % ' '.join(cmd))
+            logger.debug('Command: %s', ' '.join(cmd))
 
             subprocess.call(cmd)
 

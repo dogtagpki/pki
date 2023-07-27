@@ -146,7 +146,7 @@ class PKICLI(pki.cli.CLI):
 
         cmd.extend(args)
 
-        logger.info('Java command: %s', ' '.join(cmd))
+        logger.debug('Command: %s', ' '.join(cmd))
 
         subprocess.check_call(cmd, stdout=stdout)
 
@@ -260,8 +260,8 @@ class PKICLI(pki.cli.CLI):
             cmd_args.append(args[i])
             i = i + 1
 
-        logger.info('PKI options: %s', ' '.join(pki_options))
-        logger.info('PKI command: %s %s', command, ' '.join(cmd_args))
+        logger.debug('PKI options: %s', ' '.join(pki_options))
+        logger.debug('PKI command: %s %s', command, ' '.join(cmd_args))
 
         if client_type == 'python' or command in PYTHON_COMMANDS:
             (module, module_args) = self.parse_args(cmd_args)

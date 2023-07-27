@@ -271,12 +271,12 @@ public class MainCLI extends CLI {
             String password = line.substring(p + 1).trim();
 
             if (name.equals("internal")) {
-                logger.info("- internal: ********");
+                logger.debug("- internal: ********");
                 passwords.put(name, password);
 
             } else if (name.startsWith("hardware-")) {
                 name = name.substring(9);  // remove hardware- prefix
-                logger.info("- " + name + ": ********");
+                logger.debug("- " + name + ": ********");
                 passwords.put(name, password);
 
             } else {
@@ -462,7 +462,7 @@ public class MainCLI extends CLI {
 
         String messageFormat = cmd.getOptionValue("message-format");
         config.setMessageFormat(messageFormat);
-        logger.info("Message format: " + messageFormat);
+        logger.debug("Message format: " + messageFormat);
 
         optionsParsed = true;
     }
@@ -646,14 +646,14 @@ public class MainCLI extends CLI {
 
         parseOptions(cmd);
 
-        if (logger.isInfoEnabled()) {
+        if (logger.isDebugEnabled()) {
             StringBuilder sb = new StringBuilder("Command:");
             for (String arg : cmdArgs) {
                 if (arg.contains(" ")) arg = "\"" + arg + "\"";
                 sb.append(" ");
                 sb.append(arg);
             }
-            logger.info(sb.toString());
+            logger.debug(sb.toString());
         }
 
         super.execute(cmdArgs);

@@ -34,7 +34,7 @@ public class SystemdNotifier extends SubsystemListener {
         command.add("systemd-notify");
         command.add("--ready");
 
-        logger.info("SystemdNotifier: Command: " + String.join(" ", command));
+        logger.debug("SystemdNotifier: Command: " + String.join(" ", command));
 
         ProcessBuilder pb = new ProcessBuilder(command);
         pb.inheritIO();

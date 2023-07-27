@@ -88,7 +88,7 @@ public class PKIServerCLI extends CLI {
         }
 
         String[] cmdArgs = cmd.getArgs();
-        logger.info("Command: " + String.join(" ", cmdArgs));
+        logger.debug("Command: " + String.join(" ", cmdArgs));
 
         super.execute(cmdArgs);
     }

@@ -329,7 +329,7 @@ public class CLI {
             throw new Exception("Invalid module \"" + getFullModuleName(moduleName) + "\".");
         }
 
-        logger.info("Module: " + moduleName);
+        logger.debug("Module: " + moduleName);
 
         // Prepare module arguments.
         String[] moduleArgs;

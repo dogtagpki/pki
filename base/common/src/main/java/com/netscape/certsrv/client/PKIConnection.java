@@ -112,7 +112,7 @@ public class PKIConnection implements AutoCloseable {
                         value = "********";
                     }
 
-                    logger.info("  " + name + ": " + value);
+                    logger.debug("- " + name + ": " + value);
                 }
 
                 if (output != null) {
@@ -148,7 +148,7 @@ public class PKIConnection implements AutoCloseable {
 
                 logger.info("HTTP response: " + response.getStatusLine());
                 for (Header header : response.getAllHeaders()) {
-                    logger.info("  " + header.getName() + ": " + header.getValue());
+                    logger.debug("- " + header.getName() + ": " + header.getValue());
                 }
 
                 if (output != null) {

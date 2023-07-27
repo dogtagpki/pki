@@ -140,7 +140,7 @@ class PKIServerCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        logger.info('Command: %s', ' '.join(args))
+        logger.debug('Command: %s', ' '.join(args))
 
         super().execute(args)
 
