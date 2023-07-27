@@ -1398,7 +1398,17 @@ class PKIDeployer:
             for tag in tags:
                 if tag == 'sslserver':
                     continue
-                substores.append(subsystem.name + '.' + tag)
+
+                # check CSR in CS.cfg
+                param = '%s.%s.certreq' % (subsystem.name, tag)
+                csr = subsystem.config.get(param)
+
+                if csr:
+                    # CSR already exists
+                    continue
+
+                # CSR doesn't exist, import from master
+                names.append(param)
 
             if subsystem.name == 'ca':
                 substores.append('ca.connector.KRA')
@@ -1898,7 +1908,12 @@ class PKIDeployer:
         param = 'pki_%s_csr_path' % cert_id
         csr_path = self.mdict.get(param)
 
-        if not csr_path:
+        # IPA has a default value for pki_ca_signing_csr_path,
+        # so it's necessary to check whether the file actually exists.
+        # https://github.com/freeipa/freeipa/blob/master/install/share/ipaca_default.ini#L111
+        # TODO: remove the default value from IPA
+
+        if not csr_path or not os.path.exists(csr_path):
             # no CSR file to import
             return
 
@@ -1935,7 +1950,12 @@ class PKIDeployer:
         param = 'pki_ca_signing_cert_path'
         cert_file = self.mdict.get(param)
 
-        if not cert_file:
+        # IPA has a default value for pki_ca_signing_cert_path,
+        # so it's necessary to check whether the file actually exists.
+        # https://github.com/freeipa/freeipa/blob/master/install/share/ipaca_default.ini#L43
+        # TODO: remove the default value from IPA
+
+        if not cert_file or not os.path.exists(cert_file):
             # no CA signing cert file to import
             return
 
@@ -1966,7 +1986,12 @@ class PKIDeployer:
         param = 'pki_%s_cert_path' % cert_id
         cert_file = self.mdict.get(param)
 
-        if not cert_file:
+        # IPA has a default value for pki_ca_signing_cert_path,
+        # so it's necessary to check whether the file actually exists.
+        # https://github.com/freeipa/freeipa/blob/master/install/share/ipaca_default.ini#L43
+        # TODO: remove the default value from IPA
+
+        if not cert_file or not os.path.exists(cert_file):
             # no system cert to import
             return
 

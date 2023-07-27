@@ -222,14 +222,37 @@ jobs:
 
       - name: Install CA in tertiary PKI container
         run: |
-          docker exec secondary pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
-          docker exec secondary pki-server ca-clone-prepare --pkcs12-file ${SHARED}/ca-certs.p12 --pkcs12-password Secret.123
+          # export system certs and keys (except sslserver)
+          docker exec secondary pki-server ca-clone-prepare \
+              --pkcs12-file ${SHARED}/ca-certs.p12 \
+              --pkcs12-password Secret.123
+
+          # export CA signing CSR
+          docker exec secondary pki-server cert-export ca_signing \
+              --csr-file ${SHARED}/ca_signing.csr
+
+          # export CA OCSP signing CSR
+          docker exec secondary pki-server cert-export ca_ocsp_signing \
+              --csr-file ${SHARED}/ca_ocsp_signing.csr
+
+          # export CA audit signing CSR
+          docker exec secondary pki-server cert-export ca_audit_signing \
+              --csr-file ${SHARED}/ca_audit_signing.csr
+
+          # export subsystem CSR
+          docker exec secondary pki-server cert-export subsystem \
+              --csr-file ${SHARED}/subsystem.csr
+
           docker exec tertiary pkispawn \
               -f /usr/share/pki/server/examples/installation/ca-clone-of-clone.cfg \
               -s CA \
               -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
               -D pki_clone_pkcs12_path=${SHARED}/ca-certs.p12 \
               -D pki_clone_pkcs12_password=Secret.123 \
+              -D pki_ca_signing_csr_path=${SHARED}/ca_signing.csr \
+              -D pki_ocsp_signing_csr_path=${SHARED}/ca_ocsp_signing.csr \
+              -D pki_audit_signing_csr_path=${SHARED}/ca_audit_signing.csr \
+              -D pki_subsystem_csr_path=${SHARED}/subsystem.csr \
               -D pki_ds_url=ldap://tertiaryds.example.com:3389 \
               -D pki_cert_id_generator=random \
               -D pki_request_id_generator=random \

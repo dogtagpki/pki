@@ -61,20 +61,16 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             user=deployer.mdict['pki_user'],
             group=deployer.mdict['pki_group'])
 
-        existing = deployer.configuration_file.existing
-        step_two = deployer.configuration_file.external_step_two
         clone = deployer.configuration_file.clone
         master_url = deployer.mdict['pki_clone_uri']
 
         try:
-            if existing or (external or standalone) and step_two:
+            deployer.import_system_cert_requests(subsystem)
+            deployer.import_system_certs(nssdb, subsystem)
+            deployer.update_system_certs(nssdb, subsystem)
+            subsystem.save()
 
-                deployer.import_system_cert_requests(subsystem)
-                deployer.import_system_certs(nssdb, subsystem)
-                deployer.update_system_certs(nssdb, subsystem)
-                subsystem.save()
-
-            elif len(subsystems) > 1:
+            if len(subsystems) > 1:
 
                 for s in subsystems:
 
