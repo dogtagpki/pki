@@ -49,6 +49,22 @@ $ pki -d /etc/pki/pki-tomcat/alias -f /etc/pki/pki-tomcat/password.conf \
     --append
 ```
 
+Optionally, the CSRs for the above certificates can be exported as well with the following commands:
+
+```
+$ pki-server cert-export ca_signing \
+    --csr-file ca_signing.csr
+
+$ pki-server cert-export ca_ocsp_signing \
+    --csr-file ca_ocsp_signing.csr
+
+$ pki-server cert-export ca_audit_signing \
+    --csr-file ca_audit_signing.csr
+
+$ pki-server cert-export subsystem \
+    --csr-file subsystem.csr
+```
+
 SELinux Permissions
 -------------------
 
@@ -77,6 +93,15 @@ the CA signing certificate has been exported into `ca_signing.crt`,
 and the admin certificate and key have been exported into `ca_admin_cert.p12`.
 The PKCS #12 password is specified in the `pki_client_pkcs12_password` parameter.
 See [Installing CA](Installing_CA.md) for details.
+
+If the CSRs are available, they can be specified with the following parameters:
+
+```
+pki_ca_signing_csr_path=ca_signing.csr
+pki_ocsp_signing_csr_path=ca_ocsp_signing.csr
+pki_audit_signing_csr_path=ca_audit_signing.csr
+pki_subsystem_csr_path=subsystem.csr
+```
 
 To start the installation execute the following command:
 
