@@ -94,6 +94,8 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     private String mCACertAttr = null;
     protected Hashtable<String, Long> mReqCounts = new Hashtable<>();
     private Hashtable<X509CertImpl, X509CRLImpl> mCRLs = new Hashtable<>();
+    private boolean mCheckConnection = false;
+
 
     /**
      * Constructs the default store.
@@ -141,6 +143,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
                     DEF_CA_CERT_ATTR);
         mByName = mConfig.getBoolean(PROP_BY_NAME, true);
 
+        mCheckConnection = mConfig.getBoolean(PROP_CHECK_SUBSYSTEM_CONNECTION, false);
     }
 
     /**
@@ -278,7 +281,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
 
             updater.start();
         }
-        if(mConfig.getBoolean(PROP_CHECK_SUBSYSTEM_CONNECTION, false)) {
+        if(mCheckConnection) {
             CMS.setApprovalCallbask(new CRLLdapValidator(this));
         }
     }
@@ -535,6 +538,11 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             mConfig.put(key, pairs.get(key));
         }
     }
+
+    public boolean isCRLCheckAvailable() {
+        return mCheckConnection;
+    }
+
 }
 
 class CRLUpdater extends Thread {
