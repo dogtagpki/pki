@@ -81,6 +81,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     private static final String DEF_CA_CERT_ATTR = "cACertificate;binary";
     private static final String PROP_HOST = "host";
     private static final String PROP_PORT = "port";
+    private static final String PROP_CHECK_SUBSYSTEM_CONNECTION = "checkSubsystemConnection";
 
     private final static String PROP_NOT_FOUND_GOOD = "notFoundAsGood";
     private final static String PROP_INCLUDE_NEXT_UPDATE =
@@ -237,7 +238,9 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
 
             updater.start();
         }
-        CMS.setApprovalCallbask(new CRLLdapValidator(this));
+        if(mConfig.getBoolean(PROP_CHECK_SUBSYSTEM_CONNECTION, false)) {
+            CMS.setApprovalCallbask(new CRLLdapValidator(this));
+        }
     }
 
     @Override
