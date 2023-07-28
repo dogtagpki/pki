@@ -17,11 +17,22 @@
 // --- END COPYRIGHT BLOCK ---
 
 package org.dogtagpki.server.ocsp;
+import java.security.cert.X509CRLEntry;
+import java.security.cert.X509Certificate;
+import java.util.Enumeration;
 
+import javax.security.auth.x500.X500Principal;
+
+import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
+import org.mozilla.jss.ssl.SSLCertificateApprovalCallback.ValidityStatus;
+
+import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.Subsystem;
+import com.netscape.cms.ocsp.LDAPStore;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.ocsp.OCSPAuthority;
 
 public class OCSPEngine extends CMSEngine {
@@ -118,5 +129,65 @@ public class OCSPEngine extends CMSEngine {
         initSecurityDomain();
     }
 
+    @Override
+    public boolean isRevoked(X509Certificate[] certificates) {
+        LDAPStore crlStore = null;
+        for (Subsystem subsystem : subsystems.values()) {
+            if (subsystem instanceof OCSPAuthority) {
+                OCSPAuthority ocsp = (OCSPAuthority) subsystem;
+                if (ocsp.getDefaultStore() instanceof LDAPStore) {
+                    crlStore = (LDAPStore) ocsp.getDefaultStore();
+                }
+                break;
+            }
+        }
+
+        if (crlStore == null || !crlStore.isCRLCheckAvailable()) {
+            return super.isRevoked(certificates);
+        }
+
+        for (X509Certificate cert: certificates) {
+            if(crlCertValid(crlStore, cert, null)) {
+                return false;
+            }
+        }
+        return true;
+
+    }
+
+
+    private boolean crlCertValid(LDAPStore crlStore, X509Certificate certificate, ValidityStatus currentStatus) {
+        logger.info("OCSPEngine: validate of peer's certificate for the connection " + certificate.getSubjectX500Principal().toString());
+        CRLIssuingPointRecord pt = null;
+        try {
+            Enumeration<CRLIssuingPointRecord> eCRL = crlStore.searchAllCRLIssuingPointRecord(-1);
+            while (eCRL.hasMoreElements() && pt == null) {
+                CRLIssuingPointRecord tPt = eCRL.nextElement();
+                logger.debug("OCSPEngine: CRL check issuer  " + tPt.getId());
+                if(certificate.getIssuerX500Principal().equals(new X500Principal(tPt.getId()))) {
+                    pt = tPt;
+                }
+            }
+        } catch (EBaseException e) {
+            logger.error("OCSPEngine: problem find CRL issuing point for " + certificate.getIssuerX500Principal().toString());
+            return false;
+        }
+        if (pt == null) {
+            logger.error("OCSPEngine: CRL issuing point not found for " + certificate.getIssuerX500Principal().toString());
+            return false;
+        }
+        try {
+            X509CRLImpl crl = new X509CRLImpl(pt.getCRL());
+            X509CRLEntry crlentry = crl.getRevokedCertificate(certificate.getSerialNumber());
+
+            if (crlentry == null && crlStore.isNotFoundGood()) {
+                return true;
+            }
+        } catch (Exception e) {
+            logger.error("OCSPEngine: crl check error. " + e.getMessage());
+        }
+        logger.info("OCSPEngine: peer certificate not valid");
+        return false;
+    }
 
 }
