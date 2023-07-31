@@ -23,7 +23,6 @@ import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,26 +48,6 @@ public final class CMS {
 
     public static final int PRE_OP_MODE = 0;
     public static final int RUNNING_MODE = 1;
-
-    private static CMSEngine engine;
-
-    private static SSLCertificateApprovalCallback approvalCallback;
-
-    public static CMSEngine getCMSEngine() {
-        return engine;
-    }
-
-    public static void setCMSEngine(CMSEngine engine) {
-        CMS.engine = engine;
-    }
-
-    public static SSLCertificateApprovalCallback getApprovalCallback() {
-        return approvalCallback;
-    }
-
-    public static void setApprovalCallbask(SSLCertificateApprovalCallback approvalCallback) {
-        CMS.approvalCallback = approvalCallback;
-    }
 
     /**
      * Return the product name from /usr/share/pki/CS_SERVER_VERSION
