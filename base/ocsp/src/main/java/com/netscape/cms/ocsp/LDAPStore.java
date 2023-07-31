@@ -242,7 +242,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             updater.start();
         }
         if(mCheckConnection) {
-            CMS.setApprovalCallbask(new CRLLdapValidator(this));
+            CMS.getCMSEngine().setApprovalCallback(new CRLLdapValidator(this));
         }
     }
 
