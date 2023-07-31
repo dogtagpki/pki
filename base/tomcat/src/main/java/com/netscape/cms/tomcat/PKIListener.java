@@ -27,7 +27,7 @@ import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleEvent;
 import org.apache.catalina.Server;
 import org.apache.catalina.Service;
-import org.dogtagpki.tomcat.JSSListener;
+import org.dogtagpki.jss.tomcat.JSSListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

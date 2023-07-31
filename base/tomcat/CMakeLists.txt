@@ -11,8 +11,8 @@ javac(pki-tomcat-classes
         ${TOMCAT_API_JAR} ${TOMCAT_CATALINA_JAR} ${TOMCAT_COYOTE_JAR} ${TOMCAT_UTIL_SCAN_JAR}
         ${SLF4J_API_JAR}
         ${JSS_JAR}
-        ${TOMCATJSS_CORE_JAR}
-        ${TOMCATJSS_TOMCAT_9_0_JAR}
+        ${JSS_TOMCAT_JAR}
+        ${JSS_TOMCAT_9_0_JAR}
         ${PKI_COMMON_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes

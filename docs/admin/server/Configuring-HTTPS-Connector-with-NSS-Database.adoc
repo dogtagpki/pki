@@ -76,7 +76,7 @@ $ pki-server http-connector-add \
     --secure true \
     --sslEnabled true \
     --sslProtocol SSL \
-    --sslImpl org.dogtagpki.tomcat.JSSImplementation \
+    --sslImpl org.dogtagpki.jss.tomcat.JSSImplementation \
     Secure
 ----
 

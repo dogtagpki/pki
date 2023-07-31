@@ -9,9 +9,9 @@ import java.io.File;
 import java.security.SecureRandom;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.tomcat.util.net.jss.TomcatJSS;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CommandCLI;
+import org.dogtagpki.jss.tomcat.TomcatJSS;
 import org.dogtagpki.server.ca.CAEngineConfig;
 import org.dogtagpki.util.logging.PKILogger;
 import org.dogtagpki.util.logging.PKILogger.LogLevel;

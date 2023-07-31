@@ -28,7 +28,7 @@ jobs:
 
   - script: |
       docker exec runner dnf install -y dnf-plugins-core rpm-build maven
-      docker exec runner dnf copr enable -y @pki/master
+      docker exec runner dnf copr enable -y ${COPR_REPO:-@pki/master}
       docker exec runner dnf builddep -y --spec /root/src/pki.spec
       docker exec runner dnf install -y dogtag-console-framework
     displayName: Install PKI dependencies
@@ -93,22 +93,27 @@ jobs:
           -Dversion=$JSS_VERSION-SNAPSHOT \
           -Dpackaging=jar \
           -DgeneratePom=true
-    displayName: Install JSS into local Maven repo
-
-  - script: |
-      # get Tomcat JSS <major>.<minor>.<update> version
-      TOMCATJSS_VERSION=$(docker exec runner rpm -q --qf "%{version}" dogtag-tomcatjss)
 
       docker exec runner \
           mvn install:install-file \
           -f /root/src \
-          -Dfile=/usr/share/java/tomcatjss/tomcatjss-core.jar \
-          -DgroupId=org.dogtagpki.tomcatjss \
-          -DartifactId=tomcatjss-core \
-          -Dversion=$TOMCATJSS_VERSION-SNAPSHOT \
+          -Dfile=/usr/share/java/jss/jss-tomcat.jar \
+          -DgroupId=org.dogtagpki.jss \
+          -DartifactId=jss-tomcat \
+          -Dversion=$JSS_VERSION-SNAPSHOT \
           -Dpackaging=jar \
           -DgeneratePom=true
-    displayName: Install Tomcat JSS into local Maven repo
+
+      docker exec runner \
+          mvn install:install-file \
+          -f /root/src \
+          -Dfile=/usr/share/java/jss/jss-tomcat-9.0.jar \
+          -DgroupId=org.dogtagpki.jss \
+          -DartifactId=jss-tomcat-9.0 \
+          -Dversion=$JSS_VERSION-SNAPSHOT \
+          -Dpackaging=jar \
+          -DgeneratePom=true
+    displayName: Install JSS into local Maven repo
 
   - script: |
       # get LDAP JDK <major>.<minor>.<update> version

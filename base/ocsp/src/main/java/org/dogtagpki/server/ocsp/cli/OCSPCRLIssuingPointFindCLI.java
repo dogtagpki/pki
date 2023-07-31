@@ -10,9 +10,9 @@ import java.util.Enumeration;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.apache.tomcat.util.net.jss.TomcatJSS;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CommandCLI;
+import org.dogtagpki.jss.tomcat.TomcatJSS;
 import org.dogtagpki.server.ocsp.OCSPConfig;
 import org.dogtagpki.server.ocsp.OCSPEngineConfig;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;

@@ -15,7 +15,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Keyring;
 import com.netscape.cmsutil.util.NuxwdogUtil;
 
-public class NuxwdogPasswordStore implements org.apache.tomcat.util.net.jss.IPasswordStore {
+public class NuxwdogPasswordStore implements org.dogtagpki.jss.tomcat.IPasswordStore {
 
     // Note: pwCache is a temporary construct needed because nuxwdog currently
     // does not expose a putPassword() method.  When this is added, pwCache will

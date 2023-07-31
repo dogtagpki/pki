@@ -81,8 +81,8 @@ javadoc(pki-javadoc
         ${JAVAX_ANNOTATIONS_API_JAR}
         ${RESTEASY_JAXRS_JAR} ${RESTEASY_CLIENT_JAR}
         ${JSS_JAR}
-        ${TOMCATJSS_CORE_JAR}
-        ${TOMCATJSS_TOMCAT_9_0_JAR}
+        ${JSS_TOMCAT_JAR}
+        ${JSS_TOMCAT_9_0_JAR}
         ${PKI_COMMON_JAR}
         ${PKI_TOOLS_JAR}
         ${PKI_JAVADOC_CLASSPATH}

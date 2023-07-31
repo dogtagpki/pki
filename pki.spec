@@ -179,7 +179,7 @@ BuildRequires:    mvn(org.apache.tomcat:tomcat-servlet-api)
 BuildRequires:    mvn(org.apache.tomcat:tomcat-jaspic-api)
 BuildRequires:    mvn(org.apache.tomcat:tomcat-util-scan)
 BuildRequires:    mvn(org.dogtagpki.jss:jss-base) >= 5.5.0
-BuildRequires:    mvn(org.dogtagpki.tomcatjss:tomcatjss-core) >= 8.5.0
+BuildRequires:    mvn(org.dogtagpki.jss:jss-tomcat) >= 5.5.0
 BuildRequires:    mvn(org.dogtagpki.ldap-sdk:ldapjdk) >= 5.5.0
 
 # Python build dependencies
@@ -441,7 +441,7 @@ Requires:         selinux-policy-targeted >= 3.13.1-159
 
 Requires:         mvn(org.jboss.resteasy:resteasy-servlet-initializer)
 Requires:         tomcat >= 1:9.0.50
-Requires:         mvn(org.dogtagpki.tomcatjss:tomcatjss-core) >= 8.5.0
+Requires:         mvn(org.dogtagpki.jss:jss-tomcat) >= 5.5.0
 
 Requires:         systemd
 Requires(post):   systemd-units

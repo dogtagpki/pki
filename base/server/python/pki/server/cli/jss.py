@@ -98,7 +98,7 @@ class JSSEnableCLI(pki.cli.CLI):
         instance.store_jss_config(jss_config)
 
         server_config = instance.get_server_config()
-        server_config.create_listener('org.dogtagpki.tomcat.JSSListener')
+        server_config.create_listener('org.dogtagpki.jss.tomcat.JSSListener')
         server_config.save()
 
 
@@ -156,5 +156,5 @@ class JSSDisableCLI(pki.cli.CLI):
             sys.exit(1)
 
         server_config = instance.get_server_config()
-        server_config.remove_listener('org.dogtagpki.tomcat.JSSListener')
+        server_config.remove_listener('org.dogtagpki.jss.tomcat.JSSListener')
         server_config.save()

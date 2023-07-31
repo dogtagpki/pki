@@ -73,7 +73,7 @@ jobs:
               --secure true \
               --sslEnabled true \
               --sslProtocol SSL \
-              --sslImpl org.dogtagpki.tomcat.JSSImplementation \
+              --sslImpl org.dogtagpki.jss.tomcat.JSSImplementation \
               Secure
           docker exec pki pki-server http-connector-cert-add \
               --keyAlias sslserver \
