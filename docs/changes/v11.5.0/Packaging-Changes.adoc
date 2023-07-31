@@ -1,0 +1,6 @@
+= Packaging Changes =
+
+== Remove Tomcat JSS dependency ==
+
+Tomcat JSS 8.5 has been merged into JSS 5.5 so all references to Tomcat JSS
+have been updated accordingly.

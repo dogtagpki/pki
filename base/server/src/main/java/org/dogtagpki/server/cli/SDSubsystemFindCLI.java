@@ -9,9 +9,9 @@ import java.io.File;
 import java.util.Enumeration;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.tomcat.util.net.jss.TomcatJSS;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CommandCLI;
+import org.dogtagpki.jss.tomcat.TomcatJSS;
 
 import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.SecurityDomainHost;

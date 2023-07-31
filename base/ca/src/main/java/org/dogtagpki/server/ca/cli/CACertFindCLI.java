@@ -12,9 +12,9 @@ import java.util.Date;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.apache.tomcat.util.net.jss.TomcatJSS;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CommandCLI;
+import org.dogtagpki.jss.tomcat.TomcatJSS;
 import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngineConfig;
 import org.dogtagpki.util.logging.PKILogger;

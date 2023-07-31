@@ -13,11 +13,11 @@ javac(pki-server-classes
         ${HTTPCORE_JAR} ${HTTPCLIENT_JAR}
         ${JACKSON2_ANNOTATIONS_JAR} ${JACKSON2_JAXB_ANNOTATIONS_JAR}
         ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
-        ${JSS_JAR}
-        ${LDAPJDK_JAR}
         ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR}
-        ${TOMCATJSS_CORE_JAR}
-        ${TOMCATJSS_TOMCAT_9_0_JAR}
+        ${JSS_JAR}
+        ${JSS_TOMCAT_JAR}
+        ${JSS_TOMCAT_9_0_JAR}
+        ${LDAPJDK_JAR}
         ${JAVAX_ANNOTATIONS_API_JAR}
         ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR}
         ${PKI_COMMON_JAR}
@@ -147,6 +147,8 @@ add_custom_command(
     COMMAND ln -sf ../../../../../..${JAXRS_API_JAR} common/lib/jaxrs-api.jar
     COMMAND ln -sf ../../../../../..${JBOSS_LOGGING_JAR} common/lib/jboss-logging.jar
     COMMAND ln -sf ../../../../../..${JSS_JAR} common/lib/jss.jar
+    COMMAND ln -sf ../../../../../..${JSS_TOMCAT_JAR} common/lib/jss-tomcat.jar
+    COMMAND ln -sf ../../../../../..${JSS_TOMCAT_9_0_JAR} common/lib/jss-tomcat-9.0.jar
     COMMAND ln -sf ../../../../../..${LDAPJDK_JAR} common/lib/ldapjdk.jar
     COMMAND ln -sf ../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-common.jar common/lib/pki-common.jar
     COMMAND ln -sf ../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-tomcat.jar common/lib/pki-tomcat.jar
@@ -154,8 +156,6 @@ add_custom_command(
     COMMAND ln -sf ../../../../../..${RESTEASY_CLIENT_JAR} common/lib/resteasy-client.jar
     COMMAND ln -sf ../../../../../..${RESTEASY_JACKSON2_PROVIDER_JAR} common/lib/resteasy-jackson2-provider.jar
     COMMAND ln -sf ../../../../../..${RESTEASY_JAXRS_JAR} common/lib/resteasy-jaxrs.jar
-    COMMAND ln -sf ../../../../../..${TOMCATJSS_CORE_JAR} common/lib/tomcatjss-core.jar
-    COMMAND ln -sf ../../../../../..${TOMCATJSS_TOMCAT_9_0_JAR} common/lib/tomcatjss-tomcat-9.0.jar
 )
 
 add_custom_target(pki-server-man ALL

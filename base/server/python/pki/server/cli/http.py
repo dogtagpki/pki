@@ -588,7 +588,7 @@ class HTTPConnectorModCLI(pki.cli.CLI):
 
             connector.set(
                 'sslImplementationName',
-                'org.apache.tomcat.util.net.jss.JSSImplementation')
+                'org.dogtagpki.jss.tomcat.JSSImplementation')
 
             connector.attrib.pop('keystoreType', None)
             connector.attrib.pop('keystoreFile', None)
@@ -599,7 +599,7 @@ class HTTPConnectorModCLI(pki.cli.CLI):
 
             HTTPConnectorCLI.set_param(connector, 'certdbDir', nss_database_dir)
             HTTPConnectorCLI.set_param(connector, 'passwordClass',
-                                       'org.apache.tomcat.util.net.jss.PlainPasswordFile')
+                                       'org.dogtagpki.jss.tomcat.PlainPasswordFile')
             HTTPConnectorCLI.set_param(connector, 'passwordFile', nss_password_file)
             HTTPConnectorCLI.set_param(connector, 'serverCertNickFile', server_cert_nickname_file)
 
@@ -607,7 +607,7 @@ class HTTPConnectorModCLI(pki.cli.CLI):
 
             connector.set(
                 'protocol',
-                'org.dogtagpki.tomcat.Http11NioProtocol')
+                'org.dogtagpki.jss.tomcat.Http11NioProtocol')
 
             connector.attrib.pop('sslImplementationName', None)
 
@@ -621,7 +621,7 @@ class HTTPConnectorModCLI(pki.cli.CLI):
 
             HTTPConnectorCLI.set_param(connector, 'certdbDir', nss_database_dir)
             HTTPConnectorCLI.set_param(connector, 'passwordClass',
-                                       'org.apache.tomcat.util.net.jss.PlainPasswordFile')
+                                       'org.dogtagpki.jss.tomcat.PlainPasswordFile')
             HTTPConnectorCLI.set_param(connector, 'passwordFile', nss_password_file)
             HTTPConnectorCLI.set_param(connector, 'serverCertNickFile', server_cert_nickname_file)
 

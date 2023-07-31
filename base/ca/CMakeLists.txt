@@ -17,12 +17,12 @@ javac(pki-ca-classes
         ${COMMONS_NET_JAR}
         ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
         ${JACKSON2_ANNOTATIONS_JAR}
+        ${TOMCAT_CATALINA_JAR}
         ${JSS_JAR}
         ${LDAPJDK_JAR}
         ${SERVLET_JAR}
-        ${TOMCAT_CATALINA_JAR}
-        ${TOMCATJSS_CORE_JAR}
-        ${TOMCATJSS_TOMCAT_9_0_JAR}
+        ${JSS_TOMCAT_JAR}
+        ${JSS_TOMCAT_9_0_JAR}
         ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR}
         ${PKI_COMMON_JAR}
         ${PKI_TOMCAT_JAR}

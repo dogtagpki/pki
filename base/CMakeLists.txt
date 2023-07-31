@@ -361,18 +361,18 @@ find_file(TOMCAT_UTIL_SCAN_JAR
         /usr/share/java
 )
 
-find_file(TOMCATJSS_CORE_JAR
+find_file(JSS_TOMCAT_JAR
     NAMES
-        tomcatjss-core.jar
+        jss-tomcat.jar
     PATHS
-        /usr/share/java/tomcatjss
+        /usr/share/java/jss
 )
 
-find_file(TOMCATJSS_TOMCAT_9_0_JAR
+find_file(JSS_TOMCAT_9_0_JAR
     NAMES
-        tomcatjss-tomcat-9.0.jar
+        jss-tomcat-9.0.jar
     PATHS
-        /usr/share/java/tomcatjss
+        /usr/share/java/jss
 )
 
 find_file(IDM_CONSOLE_FRAMEWORK_JAR

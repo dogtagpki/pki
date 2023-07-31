@@ -41,9 +41,9 @@
 	<classpathentry kind="lib" path="/usr/share/java/tomcat/catalina.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/tomcat/tomcat-util.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/commons-io.jar"/>
-	<classpathentry kind="lib" path="/usr/lib/java/jss.jar"/>
-	<classpathentry kind="lib" path="/usr/share/java/tomcatjss-core.jar"/>
-	<classpathentry kind="lib" path="/usr/share/java/tomcatjss-tomcat-9.0.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/jss/jss.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/jss/jss-tomcat.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/jss/jss-tomcat-9.0.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/tomcat/tomcat-api.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/tomcat/tomcat-util-scan.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/slf4j/slf4j-api.jar"/>

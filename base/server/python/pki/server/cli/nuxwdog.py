@@ -226,7 +226,7 @@ class NuxwdogDisableCLI(pki.cli.CLI):
             'com.netscape.cms.tomcat.PKIListener'
         )
         self.plain_pwstore_class = (
-            'org.apache.tomcat.util.net.jss.PlainPasswordFile'
+            'org.dogtagpki.jss.tomcat.PlainPasswordFile'
         )
         super().__init__('disable', 'Disable nuxwdog')
 

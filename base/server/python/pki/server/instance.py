@@ -343,9 +343,9 @@ class PKIInstance(pki.server.PKIServer):
         # install PKI libraries in common/lib
         for filename in [
                 'jss.jar',
+                'jss-tomcat.jar',
+                'jss-tomcat-9.0.jar',
                 'ldapjdk.jar',
-                'tomcatjss-core.jar',
-                'tomcatjss-tomcat-9.0.jar',
                 'pki-common.jar',
                 'pki-tomcat.jar',
                 'pki-tomcat-9.0.jar']:

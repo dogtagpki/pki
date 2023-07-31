@@ -7,9 +7,9 @@ package org.dogtagpki.server.cli;
 
 import java.io.File;
 
-import org.apache.tomcat.util.net.jss.TomcatJSS;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CommandCLI;
+import org.dogtagpki.jss.tomcat.TomcatJSS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

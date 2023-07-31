@@ -15,9 +15,9 @@ javac(pki-ocsp-classes
         ${SERVLET_JAR}
         ${JAXRS_API_JAR}
         ${JSS_JAR}
+        ${JSS_TOMCAT_JAR}
+        ${JSS_TOMCAT_9_0_JAR}
         ${LDAPJDK_JAR}
-        ${TOMCATJSS_CORE_JAR}
-        ${TOMCATJSS_TOMCAT_9_0_JAR}
         ${PKI_COMMON_JAR}
         ${PKI_SERVER_JAR}
     OUTPUT_DIR

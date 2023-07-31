@@ -68,7 +68,7 @@ RUN pki-server http-connector-add -i tomcat@pki \
   --secure true \
   --sslEnabled true \
   --sslProtocol SSL \
-  --sslImpl org.dogtagpki.tomcat.JSSImplementation \
+  --sslImpl org.dogtagpki.jss.tomcat.JSSImplementation \
   Secure
 
 # Configure SSL server certificate
