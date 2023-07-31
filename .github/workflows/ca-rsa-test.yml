@@ -1,4 +1,4 @@
-name: CA with ECC
+name: CA with RSA
 
 on:
   workflow_call:
@@ -8,7 +8,6 @@ on:
         type: string
 
 jobs:
-  # docs/installation/ca/Installing_CA_with_ECC.md
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -50,23 +49,34 @@ jobs:
       - name: Connect PKI container to network
         run: docker network connect example pki --alias pki.example.com
 
-      - name: Install CA with SHA512withEC
+      - name: Install CA with SHA384withRSA
         run: |
           docker exec pki pkispawn \
-              -f /usr/share/pki/server/examples/installation/ca-ecc.cfg \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
               -s CA \
               -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_ca_signing_key_algorithm=SHA384withRSA \
+              -D pki_ca_signing_signing_algorithm=SHA384withRSA \
+              -D pki_ocsp_signing_key_algorithm=SHA384withRSA \
+              -D pki_ocsp_signing_signing_algorithm=SHA384withRSA \
+              -D pki_audit_signing_key_algorithm=SHA384withRSA \
+              -D pki_audit_signing_signing_algorithm=SHA384withRSA \
+              -D pki_subsystem_key_algorithm=SHA384withRSA \
+              -D pki_subsystem_signing_algorithm=SHA384withRSA \
+              -D pki_sslserver_key_algorithm=SHA384withRSA \
+              -D pki_sslserver_signing_algorithm=SHA384withRSA \
+              -D pki_admin_key_algorithm=SHA384withRSA \
               -D pki_cert_id_generator=random \
               -D pki_request_id_generator=random \
               -D pki_enable_access_log=False \
               -v
 
-      - name: Check system cert keys
+      - name: Check system certs keys
         run: |
-          # all keys should be "ec"
+          # all keys should be "rsa"
           echo Secret.123 > password.txt
           docker exec pki certutil -K -d /etc/pki/pki-tomcat/alias -f ${SHARED}/password.txt | tee output
-          echo "ec" > expected
+          echo "rsa" > expected
 
           grep ca_signing output | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > actual
           diff expected actual
@@ -88,8 +98,8 @@ jobs:
           # inspect cert with certutil
           docker exec pki certutil -L -d /etc/pki/pki-tomcat/alias -f ${SHARED}/password.txt -n ca_signing | tee output
 
-          # signing algorithm should be "X9.62 ECDSA signature with SHA512"
-          echo "X9.62 ECDSA signature with SHA512" > expected
+          # signing algorithm should be "PKCS #1 SHA-384 With RSA Encryption"
+          echo "PKCS #1 SHA-384 With RSA Encryption" > expected
           sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
           diff expected actual
 
@@ -97,8 +107,8 @@ jobs:
           docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
           docker exec pki openssl x509 -text -noout -in ca_signing.crt | tee output
 
-          # signing algorithm should be "ecdsa-with-SHA512"
-          echo "ecdsa-with-SHA512" > expected
+          # signing algorithm should be "sha384WithRSAEncryption"
+          echo "sha384WithRSAEncryption" > expected
           sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
           diff expected actual
 
@@ -107,8 +117,8 @@ jobs:
           # inspect cert with certutil
           docker exec pki certutil -L -d /etc/pki/pki-tomcat/alias -f ${SHARED}/password.txt -n ca_ocsp_signing | tee output
 
-          # signing algorithm should be "X9.62 ECDSA signature with SHA512"
-          echo "X9.62 ECDSA signature with SHA512" > expected
+          # signing algorithm should be "PKCS #1 SHA-384 With RSA Encryption"
+          echo "PKCS #1 SHA-384 With RSA Encryption" > expected
           sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
           diff expected actual
 
@@ -116,8 +126,8 @@ jobs:
           docker exec pki pki-server cert-export ca_ocsp_signing --cert-file ca_ocsp_signing.crt
           docker exec pki openssl x509 -text -noout -in ca_ocsp_signing.crt | tee output
 
-          # signing algorithm should be "ecdsa-with-SHA512"
-          echo "ecdsa-with-SHA512" > expected
+          # signing algorithm should be "sha384WithRSAEncryption"
+          echo "sha384WithRSAEncryption" > expected
           sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
           diff expected actual
 
@@ -126,8 +136,8 @@ jobs:
           # inspect cert with certutil
           docker exec pki certutil -L -d /etc/pki/pki-tomcat/alias -f ${SHARED}/password.txt -n ca_audit_signing | tee output
 
-          # signing algorithm should be "X9.62 ECDSA signature with SHA512"
-          echo "X9.62 ECDSA signature with SHA512" > expected
+          # signing algorithm should be "PKCS #1 SHA-384 With RSA Encryption"
+          echo "PKCS #1 SHA-384 With RSA Encryption" > expected
           sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
           diff expected actual
 
@@ -135,8 +145,8 @@ jobs:
           docker exec pki pki-server cert-export ca_audit_signing --cert-file ca_audit_signing.crt
           docker exec pki openssl x509 -text -noout -in ca_audit_signing.crt | tee output
 
-          # signing algorithm should be "ecdsa-with-SHA512"
-          echo "ecdsa-with-SHA512" > expected
+          # signing algorithm should be "sha384WithRSAEncryption"
+          echo "sha384WithRSAEncryption" > expected
           sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
           diff expected actual
 
@@ -145,8 +155,8 @@ jobs:
           # inspect cert with certutil
           docker exec pki certutil -L -d /etc/pki/pki-tomcat/alias -f ${SHARED}/password.txt -n subsystem | tee output
 
-          # signing algorithm should be "X9.62 ECDSA signature with SHA512"
-          echo "X9.62 ECDSA signature with SHA512" > expected
+          # signing algorithm should be "PKCS #1 SHA-384 With RSA Encryption"
+          echo "PKCS #1 SHA-384 With RSA Encryption" > expected
           sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
           diff expected actual
 
@@ -154,8 +164,8 @@ jobs:
           docker exec pki pki-server cert-export subsystem --cert-file subsystem.crt
           docker exec pki openssl x509 -text -noout -in subsystem.crt | tee output
 
-          # signing algorithm should be "ecdsa-with-SHA512"
-          echo "ecdsa-with-SHA512" > expected
+          # signing algorithm should be "sha384WithRSAEncryption"
+          echo "sha384WithRSAEncryption" > expected
           sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
           diff expected actual
 
@@ -164,8 +174,8 @@ jobs:
           # inspect cert with certutil
           docker exec pki certutil -L -d /etc/pki/pki-tomcat/alias -f ${SHARED}/password.txt -n sslserver | tee output
 
-          # signing algorithm should be "X9.62 ECDSA signature with SHA512"
-          echo "X9.62 ECDSA signature with SHA512" > expected
+          # signing algorithm should be "PKCS #1 SHA-384 With RSA Encryption"
+          echo "PKCS #1 SHA-384 With RSA Encryption" > expected
           sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
           diff expected actual
 
@@ -173,8 +183,8 @@ jobs:
           docker exec pki pki-server cert-export sslserver --cert-file sslserver.crt
           docker exec pki openssl x509 -text -noout -in sslserver.crt | tee output
 
-          # signing algorithm should be "ecdsa-with-SHA512"
-          echo "ecdsa-with-SHA512" > expected
+          # signing algorithm should be "sha384WithRSAEncryption"
+          echo "sha384WithRSAEncryption" > expected
           sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
           diff expected actual
 
@@ -195,16 +205,16 @@ jobs:
           # inspect cert with certutil
           docker exec pki certutil -L -d /root/.dogtag/nssdb -n caadmin | tee output
 
-          # signing algorithm should be "X9.62 ECDSA signature with SHA512"
-          echo "X9.62 ECDSA signature with SHA512" > expected
+          # signing algorithm should be "PKCS #1 SHA-384 With RSA Encryption"
+          echo "PKCS #1 SHA-384 With RSA Encryption" > expected
           sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
           diff expected actual
 
           # inspect cert with openssl
           docker exec pki openssl x509 -text -noout -in /root/.dogtag/pki-tomcat/ca_admin.cert | tee output
 
-          # signing algorithm should be "ecdsa-with-SHA512"
-          echo "ecdsa-with-SHA512" > expected
+          # signing algorithm should be "sha384WithRSAEncryption"
+          echo "sha384WithRSAEncryption" > expected
           sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
           diff expected actual
 
@@ -216,16 +226,16 @@ jobs:
           # inspect cert with certutil
           docker exec pki certutil -L -d /root/.dogtag/nssdb -n sslserver | tee output
 
-          # signing algorithm should be "X9.62 ECDSA signature with SHA512"
-          echo "X9.62 ECDSA signature with SHA512" > expected
+          # signing algorithm should be "PKCS #1 SHA-384 With RSA Encryption"
+          echo "PKCS #1 SHA-384 With RSA Encryption" > expected
           sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
           diff expected actual
 
           # inspect cert with openssl
           docker exec pki openssl x509 -text -noout -in sslserver.crt | tee output
 
-          # signing algorithm should be "ecdsa-with-SHA512"
-          echo "ecdsa-with-SHA512" > expected
+          # signing algorithm should be "sha384WithRSAEncryption"
+          echo "sha384WithRSAEncryption" > expected
           sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
           diff expected actual
 
@@ -243,6 +253,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: ca-ecc
+          name: ca-rsa
           path: |
             /tmp/artifacts/pki

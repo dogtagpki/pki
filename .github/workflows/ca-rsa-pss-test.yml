@@ -50,7 +50,7 @@ jobs:
       - name: Connect PKI container to network
         run: docker network connect example pki --alias pki.example.com
 
-      - name: Install CA
+      - name: Install CA with SHA512withRSA/PSS
         run: |
           docker exec pki pkispawn \
               -f /usr/share/pki/server/examples/installation/ca.cfg \
@@ -74,6 +74,7 @@ jobs:
 
       - name: Check system cert keys
         run: |
+          # all keys should be "rsa"
           echo Secret.123 > password.txt
           docker exec pki certutil -K -d /etc/pki/pki-tomcat/alias -f ${SHARED}/password.txt | tee output
           echo "rsa" > expected
@@ -95,53 +96,103 @@ jobs:
 
       - name: Check CA signing cert
         run: |
+          # inspect cert with certutil
+          docker exec pki certutil -L -d /etc/pki/pki-tomcat/alias -f ${SHARED}/password.txt -n ca_signing | tee output
+
+          # signing algorithm should be "PKCS #1 RSA-PSS Signature"
+          echo "PKCS #1 RSA-PSS Signature" > expected
+          sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
+          diff expected actual
+
+          # inspect cert with openssl
           docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
           docker exec pki openssl x509 -text -noout -in ca_signing.crt | tee output
 
+          # signing algorithm should be "rsassaPss"
           echo "rsassaPss" > expected
-          sed -n "/^\s*Signature Algorithm:/ {s/^.*:\s*\(\S*\)\s*$/\1/p;q}" output > actual
+          sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
           diff expected actual
 
       - name: Check CA OCSP signing cert
         run: |
+          # inspect cert with certutil
+          docker exec pki certutil -L -d /etc/pki/pki-tomcat/alias -f ${SHARED}/password.txt -n ca_ocsp_signing | tee output
+
+          # signing algorithm should be "PKCS #1 RSA-PSS Signature"
+          echo "PKCS #1 RSA-PSS Signature" > expected
+          sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
+          diff expected actual
+
+          # inspect cert with openssl
           docker exec pki pki-server cert-export ca_ocsp_signing --cert-file ca_ocsp_signing.crt
           docker exec pki openssl x509 -text -noout -in ca_ocsp_signing.crt | tee output
 
+          # signing algorithm should be "rsassaPss"
           echo "rsassaPss" > expected
-          sed -n "/^\s*Signature Algorithm:/ {s/^.*:\s*\(\S*\)\s*$/\1/p;q}" output > actual
+          sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
           diff expected actual
 
       - name: Check CA audit signing cert
         run: |
+          # inspect cert with certutil
+          docker exec pki certutil -L -d /etc/pki/pki-tomcat/alias -f ${SHARED}/password.txt -n ca_audit_signing | tee output
+
+          # signing algorithm should be "PKCS #1 RSA-PSS Signature"
+          echo "PKCS #1 RSA-PSS Signature" > expected
+          sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
+          diff expected actual
+
+          # inspect cert with openssl
           docker exec pki pki-server cert-export ca_audit_signing --cert-file ca_audit_signing.crt
           docker exec pki openssl x509 -text -noout -in ca_audit_signing.crt | tee output
 
+          # signing algorithm should be "rsassaPss"
           echo "rsassaPss" > expected
-          sed -n "/^\s*Signature Algorithm:/ {s/^.*:\s*\(\S*\)\s*$/\1/p;q}" output > actual
+          sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
           diff expected actual
 
       - name: Check subsystem cert
         run: |
+          # inspect cert with certutil
+          docker exec pki certutil -L -d /etc/pki/pki-tomcat/alias -f ${SHARED}/password.txt -n subsystem | tee output
+
+          # signing algorithm should be "PKCS #1 RSA-PSS Signature"
+          echo "PKCS #1 RSA-PSS Signature" > expected
+          sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
+          diff expected actual
+
+          # inspect cert with openssl
           docker exec pki pki-server cert-export subsystem --cert-file subsystem.crt
           docker exec pki openssl x509 -text -noout -in subsystem.crt | tee output
 
+          # signing algorithm should be "rsassaPss"
           echo "rsassaPss" > expected
-          sed -n "/^\s*Signature Algorithm:/ {s/^.*:\s*\(\S*\)\s*$/\1/p;q}" output > actual
+          sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
           diff expected actual
 
       - name: Check SSL server cert
         run: |
+          # inspect cert with certutil
+          docker exec pki certutil -L -d /etc/pki/pki-tomcat/alias -f ${SHARED}/password.txt -n sslserver | tee output
+
+          # signing algorithm should be "PKCS #1 RSA-PSS Signature"
+          echo "PKCS #1 RSA-PSS Signature" > expected
+          sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
+          diff expected actual
+
+          # inspect cert with openssl
           docker exec pki pki-server cert-export sslserver --cert-file sslserver.crt
           docker exec pki openssl x509 -text -noout -in sslserver.crt | tee output
 
+          # signing algorithm should be "rsassaPss"
           echo "rsassaPss" > expected
-          sed -n "/^\s*Signature Algorithm:/ {s/^.*:\s*\(\S*\)\s*$/\1/p;q}" output > actual
+          sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
           diff expected actual
 
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --failures-only
 
-      - name: Verify CA admin
+      - name: Check authenticating as CA admin user
         run: |
           docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
           docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
@@ -152,15 +203,42 @@ jobs:
 
       - name: Check CA admin cert
         run: |
-          docker exec pki openssl x509 -text -noout -in /root/.dogtag/pki-tomcat/ca_admin.cert | tee output
+          # inspect cert with certutil
+          docker exec pki certutil -L -d /root/.dogtag/nssdb -n caadmin | tee output
 
-          echo "rsassaPss" > expected
-          sed -n "/^\s*Signature Algorithm:/ {s/^.*:\s*\(\S*\)\s*$/\1/p;q}" output > actual
+          # signing algorithm should be "PKCS #1 RSA-PSS Signature"
+          echo "PKCS #1 RSA-PSS Signature" > expected
+          sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
           diff expected actual
 
-      - name: Check cert requests in CA
+          # inspect cert with openssl
+          docker exec pki openssl x509 -text -noout -in /root/.dogtag/pki-tomcat/ca_admin.cert | tee output
+
+          # signing algorithm should be "rsassaPss"
+          echo "rsassaPss" > expected
+          sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
+          diff expected actual
+
+      - name: Check issuing SSL server cert
         run: |
-          docker exec pki pki -n caadmin ca-cert-request-find
+          # issue cert
+          docker exec pki /usr/share/pki/tests/ca/bin/sslserver-create.sh
+
+          # inspect cert with certutil
+          docker exec pki certutil -L -d /root/.dogtag/nssdb -n sslserver | tee output
+
+          # signing algorithm should be "PKCS #1 RSA-PSS Signature"
+          echo "PKCS #1 RSA-PSS Signature" > expected
+          sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
+          diff expected actual
+
+          # inspect cert with openssl
+          docker exec pki openssl x509 -text -noout -in sslserver.crt | tee output
+
+          # signing algorithm should be "rsassaPss"
+          echo "rsassaPss" > expected
+          sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
+          diff expected actual
 
       - name: Gather artifacts
         if: always()

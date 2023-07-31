@@ -28,6 +28,13 @@ jobs:
     with:
       db-image: ${{ needs.init.outputs.db-image }}
 
+  ca-rsa-test:
+    name: CA with RSA
+    needs: [init, build]
+    uses: ./.github/workflows/ca-rsa-test.yml
+    with:
+      db-image: ${{ needs.init.outputs.db-image }}
+
   ca-rsa-pss-test:
     name: CA with RSA/PSS
     needs: [init, build]
