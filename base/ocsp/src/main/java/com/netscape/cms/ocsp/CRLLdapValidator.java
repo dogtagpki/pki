@@ -43,7 +43,7 @@ public class CRLLdapValidator implements SSLCertificateApprovalCallback {
 
     @Override
     public boolean approve(X509Certificate certificate, ValidityStatus currentStatus) {
-        logger.info("CRLLdapValidator: validate of peer's certificate for the connection " + certificate.getSubjectDN().toString());
+        logger.info("CRLLdapValidator: validate of peer's certificate for the connection " + certificate.getSubjectDN());
         ICRLIssuingPointRecord pt = null;
         try {
             Enumeration<ICRLIssuingPointRecord> eCRL = crlStore.searchAllCRLIssuingPointRecord(-1);
@@ -55,11 +55,11 @@ public class CRLLdapValidator implements SSLCertificateApprovalCallback {
                 }
             }
         } catch (EBaseException e) {
-            logger.error("CRLLdapValidator: problem find CRL issuing point for " + certificate.getIssuerDN().toString());
+            logger.error("CRLLdapValidator: problem find CRL issuing point. " + e.getMessage(), e);
             return false;
         }
         if (pt == null) {
-            logger.error("CRLLdapValidator: CRL issuing point not found for " + certificate.getIssuerDN().toString());
+            logger.error("CRLLdapValidator: CRL issuing point not found for " + certificate.getIssuerDN());
             return false;
         }
         try {
@@ -72,7 +72,7 @@ public class CRLLdapValidator implements SSLCertificateApprovalCallback {
                 }
             }
         } catch (Exception e) {
-            logger.error("CRLLdapValidator: crl check error. " + e.getMessage());
+            logger.error("CRLLdapValidator: crl check error. " + e.getMessage(), e);
         }
         logger.info("CRLLdapValidator: peer certificate not valid");
         return false;

@@ -50,6 +50,7 @@ import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 
 import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.base.EBaseException;
@@ -151,6 +152,8 @@ public class CMSEngine implements ServletContextListener {
     protected LogSubsystem logSubsystem = LogSubsystem.getInstance();
     protected JssSubsystem jssSubsystem = JssSubsystem.getInstance();
     protected DBSubsystem dbSubsystem = new DBSubsystem();
+    protected SSLCertificateApprovalCallback approvalCallback;
+
 
 
     protected RequestRepository requestRepository;
@@ -299,6 +302,14 @@ public class CMSEngine implements ServletContextListener {
 
     public void registerPendingListener(String name, IRequestListener listener) {
         pendingNotifier.registerListener(name, listener);
+    }
+
+    public SSLCertificateApprovalCallback getApprovalCallback() {
+        return approvalCallback;
+    }
+
+    public void setApprovalCallback(SSLCertificateApprovalCallback approvalCallback) {
+        this.approvalCallback = approvalCallback;
     }
 
     public void loadConfig(String path) throws Exception {

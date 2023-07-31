@@ -142,11 +142,11 @@ public class OCSPEngine extends CMSEngine {
         }
 
         for (X509Certificate cert: certificates) {
-            if(crlCertValid(crlStore, cert, null)) {
-                return false;
+            if(!crlCertValid(crlStore, cert, null)) {
+                return true;
             }
         }
-        return true;
+        return false;
 
     }
 

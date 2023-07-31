@@ -27,6 +27,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.dogtagpki.server.PKIClientSocketListener;
+import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.ssl.SSLClientCertificateSelectionCallback;
 import org.mozilla.jss.ssl.SSLHandshakeCompletedEvent;
 import org.mozilla.jss.ssl.SSLHandshakeCompletedListener;
@@ -149,9 +150,14 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
          */
 
         SSLSocket s;
+        SSLCertificateApprovalCallback callback = null;
+
+        if (CMS.getCMSEngine() != null) {
+            callback = CMS.getCMSEngine().getApprovalCallback();
+        }
 
         if (mClientAuthCertNickname == null) {
-            s = new SSLSocket(host, port, null, 0, CMS.getApprovalCallback(), null);
+            s = new SSLSocket(host, port, null, 0, callback, null);
 
         } else {
             // Let's create a selection callback in the case the client auth
@@ -161,7 +167,7 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
 
             Socket js = new Socket(InetAddress.getByName(host), port);
             s = new SSLSocket(js, host,
-                    CMS.getApprovalCallback(),
+                    callback,
                     new SSLClientCertificateSelectionCB(mClientAuthCertNickname));
         }
 
