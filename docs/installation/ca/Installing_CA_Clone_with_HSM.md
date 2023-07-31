@@ -7,8 +7,28 @@ Overview
 This page describes the process to install a CA subsystem as a clone of an existing CA subsystem
 where the system certificates and their keys are stored in HSM.
 
-Since the certificates and the keys are already in HSM, it's not necessary to export them into a
+Exporting Existing System Certificates
+--------------------------------------
+
+Since the system certificates and the keys are already in HSM, it's not necessary to export them into a
 PKCS #12 file to create a clone.
+
+However, the CSRs for the system certificates are stored in `CS.cfg` instead of HSM.
+They can optionally be exported with the following commands:
+
+```
+$ pki-server cert-export ca_signing \
+    --csr-file ca_signing.csr
+
+$ pki-server cert-export ca_ocsp_signing \
+    --csr-file ca_ocsp_signing.csr
+
+$ pki-server cert-export ca_audit_signing \
+    --csr-file ca_audit_signing.csr
+
+$ pki-server cert-export subsystem \
+    --csr-file subsystem.csr
+```
 
 CA Subsystem Installation
 -------------------------
@@ -52,6 +72,15 @@ pki_subsystem_nickname=subsystem
 pki_clone=True
 pki_clone_replicate_schema=True
 pki_clone_uri=https://pki.example.com:8443
+```
+
+If the CSRs are available, they can be specified with the following parameters:
+
+```
+pki_ca_signing_csr_path=ca_signing.csr
+pki_ocsp_signing_csr_path=ca_ocsp_signing.csr
+pki_audit_signing_csr_path=ca_audit_signing.csr
+pki_subsystem_csr_path=subsystem.csr
 ```
 
 Then execute the following command:
