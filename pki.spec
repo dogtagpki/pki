@@ -212,11 +212,7 @@ BuildRequires:    tomcatjss >= 7.7.0, tomcatjss < 8.0.0
 
 BuildRequires:    systemd-units
 
-%if 0%{?rhel} && ! 0%{?eln}
-BuildRequires:    pki-servlet-engine
-%else
-BuildRequires:    tomcat >= 1:9.0.7
-%endif
+BuildRequires:    tomcat
 
 # additional build requirements needed to build native 'tpsclient'
 # REMINDER:  Revisit these once 'tpsclient' is rewritten as a Java app
