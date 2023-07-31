@@ -24,6 +24,7 @@ import java.util.Enumeration;
 import javax.security.auth.x500.X500Principal;
 
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
+import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback.ValidityStatus;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -38,6 +39,7 @@ import com.netscape.ocsp.OCSPAuthority;
 public class OCSPEngine extends CMSEngine {
 
     static OCSPEngine instance;
+    protected SSLCertificateApprovalCallback approvalCallback;
 
     public OCSPEngine() {
         super("OCSP");
@@ -147,11 +149,11 @@ public class OCSPEngine extends CMSEngine {
         }
 
         for (X509Certificate cert: certificates) {
-            if(crlCertValid(crlStore, cert, null)) {
-                return false;
+            if(!crlCertValid(crlStore, cert, null)) {
+                return true;
             }
         }
-        return true;
+        return false;
 
     }
 
@@ -190,4 +192,11 @@ public class OCSPEngine extends CMSEngine {
         return false;
     }
 
+    public SSLCertificateApprovalCallback getApprovalCallback() {
+        return approvalCallback;
+    }
+
+    public void setApprovalCallback(SSLCertificateApprovalCallback approvalCallback) {
+        this.approvalCallback = approvalCallback;
+    }
 }
