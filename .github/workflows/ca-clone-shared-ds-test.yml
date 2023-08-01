@@ -1,0 +1,279 @@
+name: CA clone with shared DS
+
+on:
+  workflow_call:
+    inputs:
+      db-image:
+        required: false
+        type: string
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      - name: Retrieve PKI images
+        uses: actions/cache@v3
+        with:
+          key: pki-images-${{ github.sha }}
+          path: pki-images.tar
+
+      - name: Load PKI images
+        run: docker load --input pki-images.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-container-create.sh ds
+        env:
+          IMAGE: ${{ inputs.db-image }}
+          HOSTNAME: ds.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect DS container to network
+        run: docker network connect example ds --alias ds.example.com
+
+      - name: Set up primary PKI container
+        run: |
+          tests/bin/runner-init.sh primary
+        env:
+          HOSTNAME: primary.example.com
+
+      - name: Connect primary PKI container to network
+        run: docker network connect example primary --alias primary.example.com
+
+      # https://github.com/dogtagpki/pki/blob/master/docs/installation/ca/Installing_CA.md
+      - name: Install primary CA
+        run: |
+          docker exec primary pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_cert_id_generator=random \
+              -D pki_request_id_generator=random \
+              -v
+
+      - name: Export certs and keys from primary CA
+        run: |
+          docker exec primary pki-server ca-clone-prepare \
+              --pkcs12-file ${SHARED}/ca-certs.p12 \
+              --pkcs12-password Secret.123
+
+          docker exec primary pki-server cert-export ca_signing \
+              --cert-file ${SHARED}/ca_signing.crt
+
+      - name: Set up secondary PKI container
+        run: |
+          tests/bin/runner-init.sh secondary
+        env:
+          HOSTNAME: secondary.example.com
+
+      - name: Connect secondary PKI container to network
+        run: docker network connect example secondary --alias secondary.example.com
+
+      - name: Install secondary CA
+        run: |
+          # get CS.cfg from primary CA before cloning
+          docker cp primary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.primary
+
+          docker exec secondary pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca-clone.cfg \
+              -s CA \
+              -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
+              -D pki_clone_pkcs12_path=${SHARED}/ca-certs.p12 \
+              -D pki_clone_pkcs12_password=Secret.123 \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_ds_setup=False \
+              -D pki_cert_id_generator=random \
+              -D pki_request_id_generator=random \
+              -v
+
+      - name: Check system certs in primary CA and secondary CA
+        run: |
+          # get system certs from primary CA (except sslserver)
+          docker exec primary pki-server cert-show ca_signing > system-certs.primary
+          echo >> system-certs.primary
+          docker exec primary pki-server cert-show ca_ocsp_signing >> system-certs.primary
+          echo >> system-certs.primary
+          docker exec primary pki-server cert-show ca_audit_signing >> system-certs.primary
+          echo >> system-certs.primary
+          docker exec primary pki-server cert-show subsystem >> system-certs.primary
+
+          # get system certs from secondary CA (except sslserver)
+          docker exec secondary pki-server cert-show ca_signing > system-certs.secondary
+          echo >> system-certs.secondary
+          docker exec secondary pki-server cert-show ca_ocsp_signing >> system-certs.secondary
+          echo >> system-certs.secondary
+          docker exec secondary pki-server cert-show ca_audit_signing >> system-certs.secondary
+          echo >> system-certs.secondary
+          docker exec secondary pki-server cert-show subsystem >> system-certs.secondary
+
+          cat system-certs.primary
+          diff system-certs.primary system-certs.secondary
+
+      - name: Check CS.cfg in primary CA after cloning
+        run: |
+          # get CS.cfg from primary CA after cloning
+          docker cp primary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.primary.after
+
+          # normalize expected result:
+          # - remove params that cannot be compared
+          sed -e '/^dbs.beginReplicaNumber=/d' \
+              -e '/^dbs.endReplicaNumber=/d' \
+              -e '/^dbs.nextBeginReplicaNumber=/d' \
+              -e '/^dbs.nextEndReplicaNumber=/d' \
+              CS.cfg.primary \
+              | sort > expected
+
+          # normalize actual result:
+          # - remove params that cannot be compared
+          sed -e '/^dbs.beginReplicaNumber=/d' \
+              -e '/^dbs.endReplicaNumber=/d' \
+              -e '/^dbs.nextBeginReplicaNumber=/d' \
+              -e '/^dbs.nextEndReplicaNumber=/d' \
+              CS.cfg.primary.after \
+              | sort > actual
+
+          diff expected actual
+
+      - name: Check CS.cfg in secondary CA
+        run: |
+          # get CS.cfg from secondary CA
+          docker cp secondary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.secondary
+
+          # normalize expected result:
+          # - remove params that cannot be compared
+          # - replace primary.example.com with secondary.example.com
+          # - set ca.crl.MasterCRL.enableCRLCache to false (automatically disabled in the clone)
+          # - set ca.crl.MasterCRL.enableCRLUpdates to false (automatically disabled in the clone)
+          # - add params for the clone
+          sed -e '/^installDate=/d' \
+              -e '/^dbs.beginReplicaNumber=/d' \
+              -e '/^dbs.endReplicaNumber=/d' \
+              -e '/^dbs.nextBeginReplicaNumber=/d' \
+              -e '/^dbs.nextEndReplicaNumber=/d' \
+              -e '/^ca.sslserver.cert=/d' \
+              -e '/^ca.sslserver.certreq=/d' \
+              -e 's/primary.example.com/secondary.example.com/' \
+              -e 's/^\(ca.crl.MasterCRL.enableCRLCache\)=.*$/\1=false/' \
+              -e 's/^\(ca.crl.MasterCRL.enableCRLUpdates\)=.*$/\1=false/' \
+              -e '$ a ca.certStatusUpdateInterval=0' \
+              -e '$ a ca.listenToCloneModifications=false' \
+              -e '$ a master.ca.agent.host=primary.example.com' \
+              -e '$ a master.ca.agent.port=8443' \
+              CS.cfg.primary.after \
+              | sort > expected
+
+          # normalize actual result:
+          # - remove params that cannot be compared
+          sed -e '/^installDate=/d' \
+              -e '/^dbs.beginReplicaNumber=/d' \
+              -e '/^dbs.endReplicaNumber=/d' \
+              -e '/^dbs.nextBeginReplicaNumber=/d' \
+              -e '/^dbs.nextEndReplicaNumber=/d' \
+              -e '/^ca.sslserver.cert=/d' \
+              -e '/^ca.sslserver.certreq=/d' \
+              CS.cfg.secondary \
+              | sort > actual
+
+          diff expected actual
+
+      - name: Check users in primary CA and secondary CA
+        run: |
+          # get users from primary CA
+          docker exec primary pki-server cert-export ca_signing \
+              --cert-file ${SHARED}/ca_signing.crt
+          docker exec primary pki client-cert-import ca_signing \
+              --ca-cert ${SHARED}/ca_signing.crt
+          docker exec primary pki pkcs12-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+          docker exec primary pki -n caadmin ca-user-find | tee ca-users.primary
+
+          # get users from secondary CA
+          docker exec secondary pki client-cert-import ca_signing \
+              --ca-cert ${SHARED}/ca_signing.crt
+          docker exec primary cp \
+              /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              ${SHARED}/ca_admin_cert.p12
+          docker exec secondary pki pkcs12-import \
+              --pkcs12 ${SHARED}/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+          docker exec secondary pki -n caadmin ca-user-find > ca-users.secondary
+
+          diff ca-users.primary ca-users.secondary
+
+      - name: Check certs in primary CA and secondary CA
+        run: |
+          docker exec primary pki ca-cert-find | tee ca-certs.primary
+          docker exec secondary pki ca-cert-find > ca-certs.secondary
+
+          diff ca-certs.primary ca-certs.secondary
+
+      - name: Check security domain in primary CA and secondary CA
+        run: |
+          docker exec primary pki securitydomain-show | tee sd.primary
+          docker exec secondary pki securitydomain-show > sd.secondary
+
+          diff sd.primary sd.secondary
+
+      - name: Gather artifacts from primary CA
+        if: always()
+        run: |
+          tests/bin/pki-artifacts-save.sh primary
+        continue-on-error: true
+
+      - name: Gather artifacts from secondary CA
+        if: always()
+        run: |
+          tests/bin/pki-artifacts-save.sh secondary
+        continue-on-error: true
+
+      - name: Gather artifacts from DS
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh ds
+        continue-on-error: true
+
+      - name: Remove secondary CA
+        run: |
+          docker exec secondary pki -n caadmin ca-user-find
+          docker exec secondary pki securitydomain-host-find
+          docker exec secondary pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Remove primary CA
+        run: |
+          docker exec primary pki -n caadmin ca-user-find
+          docker exec primary pki securitydomain-host-find
+          docker exec primary pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Upload artifacts from primary CA
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ca-clone-shared-ds-primary-ca
+          path: |
+            /tmp/artifacts/primary
+
+      - name: Upload artifacts from secondary CA
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ca-clone-shared-ds-secondary-ca
+          path: |
+            /tmp/artifacts/secondary
+
+      - name: Upload artifacts from DS
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ca-clone-shared-ds
+          path: |
+            /tmp/artifacts/ds

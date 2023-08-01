@@ -1433,7 +1433,7 @@ class PKIDeployer:
 
         if config.str2bool(self.mdict['pki_ds_setup']):
 
-            logger.info('Validating %s master config params', subsystem.type)
+            logger.info('Validating %s database config params', subsystem.type)
 
             master_hostname = master_properties['internaldb.ldapconn.host']
             master_port = master_properties['internaldb.ldapconn.port']
@@ -1442,7 +1442,7 @@ class PKIDeployer:
             replica_port = subsystem.config['internaldb.ldapconn.port']
 
             if master_hostname == replica_hostname and master_port == replica_port:
-                raise Exception('Master and replica must not share LDAP database')
+                raise Exception('%s database already set up' % subsystem.type)
 
         logger.info('Importing %s master config params', subsystem.type)
 
