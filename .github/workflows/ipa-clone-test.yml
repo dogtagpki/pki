@@ -95,14 +95,11 @@ jobs:
           docker exec secondary pki-server ca-config-find | grep ca.connector.KRA
           docker exec primary pki-server ca-config-find | grep ca.connector.KRA
 
-      # TODO: Enable the following tests after the following issue is fixed:
-      # https://pagure.io/freeipa/issue/9099
-      #
-      # - name: Run PKI healthcheck in primary container
-      #   run: docker exec primary pki-healthcheck --failures-only
-      #
-      # - name: Run PKI healthcheck in secondary container
-      #   run: docker exec secondary pki-healthcheck --failures-only
+      - name: Run PKI healthcheck in primary container
+        run: docker exec primary pki-healthcheck --failures-only
+
+      - name: Run PKI healthcheck in secondary container
+        run: docker exec secondary pki-healthcheck --failures-only
 
       - name: Verify CA admin
         run: |
