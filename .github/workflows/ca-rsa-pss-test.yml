@@ -72,6 +72,27 @@ jobs:
               -D pki_request_id_generator=random \
               -v
 
+      - name: Check system cert keys
+        run: |
+          echo Secret.123 > password.txt
+          docker exec pki certutil -K -d /etc/pki/pki-tomcat/alias -f ${SHARED}/password.txt | tee output
+          echo "rsa" > expected
+
+          grep ca_signing output | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > actual
+          diff expected actual
+
+          grep ca_ocsp_signing output | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > actual
+          diff expected actual
+
+          grep ca_audit_signing output | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > actual
+          diff expected actual
+
+          grep subsystem output | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > actual
+          diff expected actual
+
+          grep sslserver output | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > actual
+          diff expected actual
+
       - name: Check CA signing cert
         run: |
           docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
@@ -117,35 +138,6 @@ jobs:
           sed -n "/^\s*Signature Algorithm:/ {s/^.*:\s*\(\S*\)\s*$/\1/p;q}" output > actual
           diff expected actual
 
-      - name: Check CA admin cert
-        run: |
-          docker exec pki openssl x509 -text -noout -in /root/.dogtag/pki-tomcat/ca_admin.cert | tee output
-
-          echo "rsassaPss" > expected
-          sed -n "/^\s*Signature Algorithm:/ {s/^.*:\s*\(\S*\)\s*$/\1/p;q}" output > actual
-          diff expected actual
-
-      - name: Verify that system certs have RSA keys
-        run: |
-          echo Secret.123 > password.txt
-          docker exec pki certutil -K -d /etc/pki/pki-tomcat/alias -f ${SHARED}/password.txt | tee output
-          echo "rsa" > expected
-
-          grep ca_signing output | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > actual
-          diff expected actual
-
-          grep ca_ocsp_signing output | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > actual
-          diff expected actual
-
-          grep ca_audit_signing output | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > actual
-          diff expected actual
-
-          grep subsystem output | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > actual
-          diff expected actual
-
-          grep sslserver output | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > actual
-          diff expected actual
-
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --failures-only
 
@@ -157,6 +149,14 @@ jobs:
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
           docker exec pki pki -n caadmin ca-user-show caadmin
+
+      - name: Check CA admin cert
+        run: |
+          docker exec pki openssl x509 -text -noout -in /root/.dogtag/pki-tomcat/ca_admin.cert | tee output
+
+          echo "rsassaPss" > expected
+          sed -n "/^\s*Signature Algorithm:/ {s/^.*:\s*\(\S*\)\s*$/\1/p;q}" output > actual
+          diff expected actual
 
       - name: Check cert requests in CA
         run: |

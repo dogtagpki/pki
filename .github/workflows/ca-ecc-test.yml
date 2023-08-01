@@ -61,6 +61,27 @@ jobs:
               -D pki_enable_access_log=False \
               -v
 
+      - name: Check system cert keys
+        run: |
+          echo Secret.123 > password.txt
+          docker exec pki certutil -K -d /etc/pki/pki-tomcat/alias -f ${SHARED}/password.txt | tee output
+          echo "ec" > expected
+
+          grep ca_signing output | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > actual
+          diff expected actual
+
+          grep ca_ocsp_signing output | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > actual
+          diff expected actual
+
+          grep ca_audit_signing output | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > actual
+          diff expected actual
+
+          grep subsystem output | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > actual
+          diff expected actual
+
+          grep sslserver output | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > actual
+          diff expected actual
+
       - name: Check CA signing cert
         run: |
           docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
@@ -86,31 +107,6 @@ jobs:
           docker exec pki pki-server cert-export sslserver --cert-file sslserver.crt
           docker exec pki openssl x509 -text -noout -in sslserver.crt
 
-      - name: Check CA admin cert
-        run: |
-          docker exec pki openssl x509 -text -noout -in /root/.dogtag/pki-tomcat/ca_admin.cert
-
-      - name: Verify that system certs have ECC keys
-        run: |
-          docker exec pki bash -c "echo Secret.123 > password.txt"
-          docker exec pki certutil -K -d /etc/pki/pki-tomcat/alias -f password.txt | tee output
-          echo "ec" > expected
-
-          grep ca_signing output | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > actual
-          diff expected actual
-
-          grep ca_ocsp_signing output | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > actual
-          diff expected actual
-
-          grep ca_audit_signing output | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > actual
-          diff expected actual
-
-          grep subsystem output | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > actual
-          diff expected actual
-
-          grep sslserver output | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > actual
-          diff expected actual
-
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --failures-only
 
@@ -122,6 +118,10 @@ jobs:
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
           docker exec pki pki -n caadmin ca-user-show caadmin
+
+      - name: Check CA admin cert
+        run: |
+          docker exec pki openssl x509 -text -noout -in /root/.dogtag/pki-tomcat/ca_admin.cert
 
       - name: Check cert requests in CA
         run: |
