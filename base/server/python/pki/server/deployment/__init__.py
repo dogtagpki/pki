@@ -1370,7 +1370,7 @@ class PKIDeployer:
         if subsystem.type == 'TPS':
             self.configure_tps(subsystem)
 
-    def setup_database(self, subsystem):
+    def import_master_config(self, subsystem):
 
         if config.str2bool(self.mdict['pki_clone']):
 
@@ -1437,6 +1437,14 @@ class PKIDeployer:
             logger.info('Importing %s master config params', subsystem.type)
 
             subsystem.import_master_config(master_properties)
+
+            return master_config
+
+        else:
+
+            return None
+
+    def setup_database(self, subsystem, master_config):
 
         if config.str2bool(self.mdict['pki_ds_remove_data']):
 
@@ -1519,7 +1527,7 @@ class PKIDeployer:
             logger.info('- replication security: %s', replication_security)
 
             subsystem.setup_replication(
-                master_properties,
+                master_config['Properties'],
                 master_replication_port=master_replication_port,
                 replica_replication_port=replica_replication_port,
                 replication_security=replication_security)
