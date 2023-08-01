@@ -1372,77 +1372,71 @@ class PKIDeployer:
 
     def import_master_config(self, subsystem):
 
-        if config.str2bool(self.mdict['pki_clone']):
+        master_url = self.mdict['pki_clone_uri']
 
-            master_url = self.mdict['pki_clone_uri']
+        if subsystem.type in ['CA', 'KRA']:
 
-            if subsystem.type in ['CA', 'KRA']:
+            logger.info('Requesting ranges from %s master', subsystem.type)
+            subsystem.request_ranges(master_url, session_id=self.install_token.token)
 
-                logger.info('Requesting ranges from %s master', subsystem.type)
-                subsystem.request_ranges(master_url, session_id=self.install_token.token)
+        logger.info('Retrieving config params from %s master', subsystem.type)
 
-            logger.info('Retrieving config params from %s master', subsystem.type)
+        names = [
+            'internaldb.ldapauth.password',
+            'internaldb.replication.password'
+        ]
 
-            names = [
-                'internaldb.ldapauth.password',
-                'internaldb.replication.password'
-            ]
+        substores = [
+            'internaldb',
+            'internaldb.ldapauth',
+            'internaldb.ldapconn'
+        ]
 
-            substores = [
-                'internaldb',
-                'internaldb.ldapauth',
-                'internaldb.ldapconn'
-            ]
+        tags = subsystem.config['preop.cert.list'].split(',')
+        for tag in tags:
+            if tag == 'sslserver':
+                continue
 
-            tags = subsystem.config['preop.cert.list'].split(',')
-            for tag in tags:
-                if tag == 'sslserver':
-                    continue
+            # check CSR in CS.cfg
+            param = '%s.%s.certreq' % (subsystem.name, tag)
+            csr = subsystem.config.get(param)
 
-                # check CSR in CS.cfg
-                param = '%s.%s.certreq' % (subsystem.name, tag)
-                csr = subsystem.config.get(param)
+            if csr:
+                # CSR already exists
+                continue
 
-                if csr:
-                    # CSR already exists
-                    continue
+            # CSR doesn't exist, import from master
+            names.append(param)
 
-                # CSR doesn't exist, import from master
-                names.append(param)
-
-            if subsystem.name == 'ca':
-                substores.append('ca.connector.KRA')
-            else:
-                names.append('cloning.ca.type')
-
-            master_config = subsystem.retrieve_config(
-                master_url,
-                names,
-                substores,
-                session_id=self.install_token.token)
-
-            logger.info('Validating %s master config params', subsystem.type)
-
-            master_properties = master_config['Properties']
-
-            master_hostname = master_properties['internaldb.ldapconn.host']
-            master_port = master_properties['internaldb.ldapconn.port']
-
-            replica_hostname = subsystem.config['internaldb.ldapconn.host']
-            replica_port = subsystem.config['internaldb.ldapconn.port']
-
-            if master_hostname == replica_hostname and master_port == replica_port:
-                raise Exception('Master and replica must not share LDAP database')
-
-            logger.info('Importing %s master config params', subsystem.type)
-
-            subsystem.import_master_config(master_properties)
-
-            return master_config
-
+        if subsystem.name == 'ca':
+            substores.append('ca.connector.KRA')
         else:
+            names.append('cloning.ca.type')
 
-            return None
+        master_config = subsystem.retrieve_config(
+            master_url,
+            names,
+            substores,
+            session_id=self.install_token.token)
+
+        logger.info('Validating %s master config params', subsystem.type)
+
+        master_properties = master_config['Properties']
+
+        master_hostname = master_properties['internaldb.ldapconn.host']
+        master_port = master_properties['internaldb.ldapconn.port']
+
+        replica_hostname = subsystem.config['internaldb.ldapconn.host']
+        replica_port = subsystem.config['internaldb.ldapconn.port']
+
+        if master_hostname == replica_hostname and master_port == replica_port:
+            raise Exception('Master and replica must not share LDAP database')
+
+        logger.info('Importing %s master config params', subsystem.type)
+
+        subsystem.import_master_config(master_properties)
+
+        return master_config
 
     def setup_database(self, subsystem, master_config):
 

@@ -186,7 +186,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         subsystem.save()
 
         if config.str2bool(deployer.mdict['pki_ds_setup']):
-            master_config = deployer.import_master_config(subsystem)
+
+            if clone:
+                master_config = deployer.import_master_config(subsystem)
+            else:
+                master_config = None
+
             deployer.setup_database(subsystem, master_config)
 
         subsystem.load()
