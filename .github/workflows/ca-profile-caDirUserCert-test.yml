@@ -1,0 +1,233 @@
+name: CA with caDirUserCert profile
+# https://github.com/dogtagpki/pki/wiki/Certificate-Enrollment-with-Directory-Authenticated-Profile
+
+on:
+  workflow_call:
+    inputs:
+      db-image:
+        required: false
+        type: string
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install jq moreutils xmlstarlet
+
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      - name: Retrieve PKI images
+        uses: actions/cache@v3
+        with:
+          key: pki-images-${{ github.sha }}
+          path: pki-images.tar
+
+      - name: Load PKI images
+        run: docker load --input pki-images.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-container-create.sh ds
+        env:
+          IMAGE: ${{ inputs.db-image }}
+          HOSTNAME: ds.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect DS container to network
+        run: docker network connect example ds --alias ds.example.com
+
+      # https://github.com/dogtagpki/pki/wiki/Configuring-Directory-Authenticated-Certificate-Profiles
+      - name: Prepare LDAP user
+        run: |
+          docker exec -i ds ldapadd \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 << EOF
+          dn: ou=people,dc=example,dc=com
+          objectclass: top
+          objectclass: organizationalUnit
+          ou: People
+          aci: (target = "ldap:///ou=people,dc=example,dc=com")
+           (targetattr=objectClass||dc||ou||uid||cn||sn||givenName)
+           (version 3.0; acl "Allow anyone to read and search basic attributes"; allow (search, read) userdn = "ldap:///anyone";)
+          aci: (target = "ldap:///ou=people,dc=example,dc=com")
+           (targetattr=*)
+           (version 3.0; acl "Allow anyone to read and search itself"; allow (search, read) userdn = "ldap:///self";)
+
+          dn: uid=testuser,ou=people,dc=example,dc=com
+          objectClass: person
+          objectClass: organizationalPerson
+          objectClass: inetOrgPerson
+          uid: testuser
+          cn: Test User
+          sn: User
+          userPassword: Secret.123
+          EOF
+
+      - name: Set up PKI container
+        run: |
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
+
+      - name: Connect PKI container to network
+        run: docker network connect example pki --alias pki.example.com
+
+      - name: Install CA
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_cert_id_generator=random \
+              -D pki_request_id_generator=random \
+              -v
+
+      - name: Configure UserDirEnrollment
+        run: |
+          docker exec pki pki-server ca-config-set auths.instance.UserDirEnrollment.pluginName UidPwdDirAuth
+          docker exec pki pki-server ca-config-set auths.instance.UserDirEnrollment.ldap.basedn dc=example,dc=com
+          docker exec pki pki-server ca-config-set auths.instance.UserDirEnrollment.ldap.ldapauth.authtype BasicAuth
+          docker exec pki pki-server ca-config-set auths.instance.UserDirEnrollment.ldap.ldapauth.bindDN "cn=Directory Manager"
+          docker exec pki pki-server ca-config-set auths.instance.UserDirEnrollment.ldap.ldapauth.bindPWPrompt internaldb
+          docker exec pki pki-server ca-config-set auths.instance.UserDirEnrollment.ldap.ldapconn.host ds.example.com
+          docker exec pki pki-server ca-config-set auths.instance.UserDirEnrollment.ldap.ldapconn.port 3389
+          docker exec pki pki-server ca-config-set auths.instance.UserDirEnrollment.ldap.ldapconn.secureConn false
+
+          docker exec pki pki-server ca-redeploy --wait
+
+      - name: Set up CA admin
+        run: |
+          docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
+          docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
+          docker exec pki pki pkcs12-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+
+      - name: Enable caDirUserCert
+        run: |
+          docker exec pki pki -n caadmin ca-profile-enable caDirUserCert
+
+      - name: Generate cert request
+        run: |
+          docker exec pki pki nss-cert-request \
+              --subject "UID=testuser" \
+              --csr $SHARED/testuser.csr
+
+      - name: Create XML request
+        run: |
+          # retrieve request template
+          docker exec pki pki ca-cert-request-profile-show caDirUserCert --output request.xml
+          docker cp pki:request.xml .
+
+          # insert username
+          xmlstarlet edit --inplace \
+              -s "/CertEnrollmentRequest/Attributes" --type elem --name "Attribute" -v "testuser" \
+              -i "/CertEnrollmentRequest/Attributes/Attribute[not(@name)]" -t attr -n "name" -v "uid" \
+              request.xml
+
+          # insert password
+          xmlstarlet edit --inplace \
+              -s "/CertEnrollmentRequest/Attributes" --type elem --name "Attribute" -v "Secret.123" \
+              -i "/CertEnrollmentRequest/Attributes/Attribute[not(@name)]" -t attr -n "name" -v "pwd" \
+              request.xml
+
+          # insert request type
+          xmlstarlet edit --inplace \
+              -u "/CertEnrollmentRequest/Input/Attribute[@name='cert_request_type']/Value" \
+              -v "pkcs10" \
+              request.xml
+
+          # insert CSR
+          xmlstarlet edit --inplace \
+              -u "/CertEnrollmentRequest/Input/Attribute[@name='cert_request']/Value" \
+              -v "$(cat testuser.csr)" \
+              request.xml
+
+          cat request.xml
+
+      - name: Submit XML request
+        run: |
+          # submit request
+          docker exec pki pki ca-cert-request-submit $SHARED/request.xml | tee output
+          CERT_ID=$(sed -n "s/^\s*Certificate ID:\s*\(\S*\)$/\1/p" output)
+
+          # retrieve cert
+          docker exec pki pki ca-cert-export $CERT_ID --output-file xml-testuser.crt
+          docker exec pki pki nss-cert-import xml-testuser --cert xml-testuser.crt
+          docker exec pki certutil -L -d /root/.dogtag/nssdb -n xml-testuser
+
+      - name: Create JSON request
+        run: |
+          # retrieve request template
+          docker exec pki curl \
+              -k \
+              -s \
+              -H "Content-Type: application/json" \
+              -H "Accept: application/json" \
+              https://pki.example.com:8443/ca/rest/certrequests/profiles/caDirUserCert \
+              | python -m json.tool > request.json
+
+          # insert username
+          jq '.Attributes.Attribute[.Attributes.Attribute|length] |= . + { "name": "uid", "value": "testuser" }' \
+              request.json | sponge request.json
+
+          # insert password
+          jq '.Attributes.Attribute[.Attributes.Attribute|length] |= . + { "name": "pwd", "value": "Secret.123" }' \
+              request.json | sponge request.json
+
+          # insert request type
+          jq '( .Input[].Attribute[] | select(.name=="cert_request_type") ).Value |= "pkcs10"' \
+              request.json | sponge request.json
+
+          # insert CSR
+          jq --rawfile cert_request testuser.csr '( .Input[].Attribute[] | select(.name=="cert_request") ).Value |= $cert_request' \
+              request.json | sponge request.json
+
+          cat request.json
+
+      - name: Submit JSON request
+        run: |
+          # submit request
+          docker exec pki curl \
+              -k \
+              -s \
+              -X POST \
+              -d @$SHARED/request.json \
+              -H "Content-Type: application/json" \
+              -H "Accept: application/json" \
+              https://pki.example.com:8443/ca/rest/certrequests | python -m json.tool | tee output
+          CERT_ID=$(jq -r '.entries[].certId' output)
+
+          # retrieve cert
+          docker exec pki pki ca-cert-export $CERT_ID --output-file json-testuser.crt
+          docker exec pki pki nss-cert-import json-testuser --cert json-testuser.crt
+          docker exec pki certutil -L -d /root/.dogtag/nssdb -n json-testuser
+
+      - name: Gather artifacts
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki ds
+          tests/bin/pki-artifacts-save.sh pki
+        continue-on-error: true
+
+      - name: Remove CA
+        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ca-profile-caDirUserCert
+          path: |
+            /tmp/artifacts/pki
