@@ -14,6 +14,13 @@ jobs:
     uses: ./.github/workflows/wait-for-build.yml
     secrets: inherit
 
+  ca-profile-caDirUserCert-test:
+    name: CA with caDirUserCert profile
+    needs: [init, build]
+    uses: ./.github/workflows/ca-profile-caDirUserCert-test.yml
+    with:
+      db-image: ${{ needs.init.outputs.db-image }}
+
   ca-clone-test:
     name: CA clone
     needs: [init, build]
