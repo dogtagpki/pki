@@ -112,6 +112,11 @@ jobs:
           sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
           diff expected actual
 
+          # default signing algorithm should be "SHA384withRSA"
+          echo "SHA384withRSA" > expected
+          docker exec pki pki-server ca-config-show ca.signing.defaultSigningAlgorithm | tee actual
+          diff expected actual
+
       - name: Check CA OCSP signing cert
         run: |
           # inspect cert with certutil
@@ -129,6 +134,11 @@ jobs:
           # signing algorithm should be "sha384WithRSAEncryption"
           echo "sha384WithRSAEncryption" > expected
           sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
+          diff expected actual
+
+          # default signing algorithm should be "SHA384withRSA"
+          echo "SHA384withRSA" > expected
+          docker exec pki pki-server ca-config-show ca.ocsp_signing.defaultSigningAlgorithm | tee actual
           diff expected actual
 
       - name: Check CA audit signing cert
@@ -150,6 +160,11 @@ jobs:
           sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
           diff expected actual
 
+          # default signing algorithm should be "SHA384withRSA"
+          echo "SHA384withRSA" > expected
+          docker exec pki pki-server ca-config-show ca.audit_signing.defaultSigningAlgorithm | tee actual
+          diff expected actual
+
       - name: Check subsystem cert
         run: |
           # inspect cert with certutil
@@ -169,6 +184,11 @@ jobs:
           sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
           diff expected actual
 
+          # default signing algorithm should be "SHA384withRSA"
+          echo "SHA384withRSA" > expected
+          docker exec pki pki-server ca-config-show ca.subsystem.defaultSigningAlgorithm | tee actual
+          diff expected actual
+
       - name: Check SSL server cert
         run: |
           # inspect cert with certutil
@@ -186,6 +206,11 @@ jobs:
           # signing algorithm should be "sha384WithRSAEncryption"
           echo "sha384WithRSAEncryption" > expected
           sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
+          diff expected actual
+
+          # default signing algorithm should be "SHA384withRSA"
+          echo "SHA384withRSA" > expected
+          docker exec pki pki-server ca-config-show ca.sslserver.defaultSigningAlgorithm | tee actual
           diff expected actual
 
       - name: Run PKI healthcheck
