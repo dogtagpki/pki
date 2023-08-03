@@ -188,6 +188,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if config.str2bool(deployer.mdict['pki_ds_setup']):
 
             if clone:
+                deployer.request_ranges(subsystem)
                 master_config = deployer.import_master_config(subsystem)
             else:
                 master_config = None

@@ -1370,14 +1370,19 @@ class PKIDeployer:
         if subsystem.type == 'TPS':
             self.configure_tps(subsystem)
 
-    def import_master_config(self, subsystem):
+    def request_ranges(self, subsystem):
+
+        if subsystem.type not in ['CA', 'KRA']:
+            return
 
         master_url = self.mdict['pki_clone_uri']
 
-        if subsystem.type in ['CA', 'KRA']:
+        logger.info('Requesting ranges from %s master', subsystem.type)
+        subsystem.request_ranges(master_url, session_id=self.install_token.token)
 
-            logger.info('Requesting ranges from %s master', subsystem.type)
-            subsystem.request_ranges(master_url, session_id=self.install_token.token)
+    def import_master_config(self, subsystem):
+
+        master_url = self.mdict['pki_clone_uri']
 
         logger.info('Retrieving config params from %s master', subsystem.type)
 
