@@ -17,11 +17,17 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.ocsp;
 
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.Security;
+import java.security.SignatureException;
+import java.security.cert.CertificateException;
 import java.security.cert.X509CRLEntry;
 import java.util.Enumeration;
 
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -51,7 +57,15 @@ public class CRLLdapValidator implements SSLCertificateApprovalCallback {
                 ICRLIssuingPointRecord tPt = eCRL.nextElement();
                 logger.debug("CRLLdapValidator: CRL check issuer  " + tPt.getId());
                 if(tPt.getId().equals(certificate.getIssuerDN().toString())) {
-                    pt = tPt;
+                    try {
+                        X509CertImpl caCert = new X509CertImpl(tPt.getCACert());
+                        X509CertImpl certToVerify = new X509CertImpl(certificate.getEncoded());
+                        certToVerify.verify(caCert.getPublicKey(), Security.getProvider("Mozilla-JSS"));
+                        pt = tPt;
+                    } catch (CertificateException | InvalidKeyException | NoSuchAlgorithmException
+                            | SignatureException e) {
+                        logger.error("CRLLdapValidator: issuer certificate cannot verify the certificate signature." );
+                    }
                 }
             }
         } catch (EBaseException e) {
