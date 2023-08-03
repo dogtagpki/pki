@@ -144,7 +144,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
                     DEF_CA_CERT_ATTR);
         mByName = mConfig.getBoolean(PROP_BY_NAME, true);
 
-        mCheckConnection = mConfig.getBoolean(PROP_CHECK_SUBSYSTEM_CONNECTION, false);
+        mCheckConnection = mConfig.getBoolean(PROP_CHECK_SUBSYSTEM_CONNECTION, true);
     }
 
     /**
