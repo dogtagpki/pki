@@ -18,6 +18,11 @@
 
 package org.dogtagpki.server.ocsp;
 
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.Security;
+import java.security.SignatureException;
+import java.security.cert.CertificateException;
 import java.security.cert.X509CRLEntry;
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
@@ -26,6 +31,7 @@ import javax.security.auth.x500.X500Principal;
 import javax.servlet.annotation.WebListener;
 
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback.ValidityStatus;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -152,7 +158,7 @@ public class OCSPEngine extends CMSEngine {
 
 
     private boolean crlCertValid(LDAPStore crlStore, X509Certificate certificate, ValidityStatus currentStatus) {
-        logger.info("OCSPEngine: validate of peer's certificate for the connection " + certificate.getSubjectX500Principal().toString());
+        logger.info("OCSPEngine: validate of peer's certificate for the connection " + certificate.getSubjectX500Principal());
         ICRLIssuingPointRecord pt = null;
         try {
             Enumeration<ICRLIssuingPointRecord> eCRL = crlStore.searchAllCRLIssuingPointRecord(-1);
@@ -160,7 +166,14 @@ public class OCSPEngine extends CMSEngine {
                 ICRLIssuingPointRecord tPt = eCRL.nextElement();
                 logger.debug("OCSPEngine: CRL check issuer  " + tPt.getId());
                 if(certificate.getIssuerX500Principal().equals(new X500Principal(tPt.getId()))) {
-                    pt = tPt;
+                    try {
+                        X509CertImpl caCert = new X509CertImpl(tPt.getCACert());
+                        certificate.verify(caCert.getPublicKey(), Security.getProvider("Mozilla-JSS"));
+                        pt = tPt;
+                    } catch (CertificateException | InvalidKeyException | NoSuchAlgorithmException
+                            | SignatureException e) {
+                        logger.error("OCSPEngine: issuer certificate cannot verify the certificate signature." );
+                    }
                 }
             }
         } catch (EBaseException e) {
