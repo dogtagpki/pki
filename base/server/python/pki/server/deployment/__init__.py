@@ -1386,16 +1386,21 @@ class PKIDeployer:
 
         logger.info('Retrieving config params from %s master', subsystem.type)
 
-        names = [
-            'internaldb.ldapauth.password',
-            'internaldb.replication.password'
-        ]
+        names = []
+        substores = []
 
-        substores = [
-            'internaldb',
-            'internaldb.ldapauth',
-            'internaldb.ldapconn'
-        ]
+        if config.str2bool(self.mdict['pki_ds_setup']):
+
+            names.extend([
+                'internaldb.ldapauth.password',
+                'internaldb.replication.password'
+            ])
+
+            substores.extend([
+                'internaldb',
+                'internaldb.ldapauth',
+                'internaldb.ldapconn'
+            ])
 
         tags = subsystem.config['preop.cert.list'].split(',')
         for tag in tags:
@@ -1424,18 +1429,20 @@ class PKIDeployer:
             substores,
             session_id=self.install_token.token)
 
-        logger.info('Validating %s master config params', subsystem.type)
-
         master_properties = master_config['Properties']
 
-        master_hostname = master_properties['internaldb.ldapconn.host']
-        master_port = master_properties['internaldb.ldapconn.port']
+        if config.str2bool(self.mdict['pki_ds_setup']):
 
-        replica_hostname = subsystem.config['internaldb.ldapconn.host']
-        replica_port = subsystem.config['internaldb.ldapconn.port']
+            logger.info('Validating %s master config params', subsystem.type)
 
-        if master_hostname == replica_hostname and master_port == replica_port:
-            raise Exception('Master and replica must not share LDAP database')
+            master_hostname = master_properties['internaldb.ldapconn.host']
+            master_port = master_properties['internaldb.ldapconn.port']
+
+            replica_hostname = subsystem.config['internaldb.ldapconn.host']
+            replica_port = subsystem.config['internaldb.ldapconn.port']
+
+            if master_hostname == replica_hostname and master_port == replica_port:
+                raise Exception('Master and replica must not share LDAP database')
 
         logger.info('Importing %s master config params', subsystem.type)
 
