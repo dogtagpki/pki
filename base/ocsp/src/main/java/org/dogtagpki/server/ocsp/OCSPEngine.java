@@ -18,18 +18,19 @@
 
 package org.dogtagpki.server.ocsp;
 
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.Security;
-import java.security.SignatureException;
+import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509CRLEntry;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 import java.util.Enumeration;
 
-import javax.security.auth.x500.X500Principal;
 import javax.servlet.annotation.WebListener;
 
+import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
+import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback.ValidityStatus;
@@ -161,22 +162,35 @@ public class OCSPEngine extends CMSEngine {
         logger.info("OCSPEngine: validate of peer's certificate for the connection " + certificate.getSubjectX500Principal());
         ICRLIssuingPointRecord pt = null;
         try {
+            X509CertImpl peerCert = new X509CertImpl(certificate.getEncoded());
             Enumeration<ICRLIssuingPointRecord> eCRL = crlStore.searchAllCRLIssuingPointRecord(-1);
+            AuthorityKeyIdentifierExtension aPeeExt = (AuthorityKeyIdentifierExtension) peerCert.getExtension(PKIXExtensions.AuthorityKey_Id.toString());
+            if(aPeeExt == null) {
+                logger.error("OCSPEngine: the certificate has not Authority Key Identifier Extension. CRL verification cannot be done.");
+                return false;
+            }
             while (eCRL.hasMoreElements() && pt == null) {
                 ICRLIssuingPointRecord tPt = eCRL.nextElement();
                 logger.debug("OCSPEngine: CRL check issuer  " + tPt.getId());
-                if(certificate.getIssuerX500Principal().equals(new X500Principal(tPt.getId()))) {
-                    try {
-                        X509CertImpl caCert = new X509CertImpl(tPt.getCACert());
-                        certificate.verify(caCert.getPublicKey(), Security.getProvider("Mozilla-JSS"));
-                        pt = tPt;
-                    } catch (CertificateException | InvalidKeyException | NoSuchAlgorithmException
-                            | SignatureException e) {
-                        logger.error("OCSPEngine: issuer certificate cannot verify the certificate signature." );
+                X509CertImpl caCert = new X509CertImpl(tPt.getCACert());
+
+                try {
+                    SubjectKeyIdentifierExtension sCaExt = (SubjectKeyIdentifierExtension) caCert.getExtension(PKIXExtensions.SubjectKey_Id.toString());
+                    if(sCaExt == null) {
+                        logger.error("OCSPEngine: signing certificate missing Subject Key Identifier. Skip CA " + caCert.getName());
+                        continue;
                     }
+
+                    KeyIdentifier sCaKeyId = (KeyIdentifier) sCaExt.get(SubjectKeyIdentifierExtension.KEY_ID);
+                    KeyIdentifier aPeerKeyId = (KeyIdentifier) aPeeExt.get(AuthorityKeyIdentifierExtension.KEY_ID);
+                    if(Arrays.equals(sCaKeyId.getIdentifier(), aPeerKeyId.getIdentifier())) {
+                        pt = tPt;
+                    }
+                } catch (IOException e) {
+                    logger.error("OCSPEngine: problem extracting key from SKI/AKI");
                 }
             }
-        } catch (EBaseException e) {
+        } catch (EBaseException | CertificateException e) {
             logger.error("OCSPEngine: problem find CRL issuing point for " + certificate.getIssuerX500Principal().toString());
             return false;
         }
