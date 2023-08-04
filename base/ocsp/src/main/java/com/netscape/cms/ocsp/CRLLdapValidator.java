@@ -17,15 +17,17 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.ocsp;
 
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.Security;
-import java.security.SignatureException;
+import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509CRLEntry;
+import java.util.Arrays;
 import java.util.Enumeration;
 
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
+import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
@@ -52,23 +54,34 @@ public class CRLLdapValidator implements SSLCertificateApprovalCallback {
         logger.info("CRLLdapValidator: validate of peer's certificate for the connection " + certificate.getSubjectDN());
         ICRLIssuingPointRecord pt = null;
         try {
+            X509CertImpl peerCert = new X509CertImpl(certificate.getEncoded());
             Enumeration<ICRLIssuingPointRecord> eCRL = crlStore.searchAllCRLIssuingPointRecord(-1);
+            AuthorityKeyIdentifierExtension aPeeExt = (AuthorityKeyIdentifierExtension) peerCert.getExtension(PKIXExtensions.AuthorityKey_Id.toString());
+            if(aPeeExt == null) {
+                logger.error("CRLLdapValidator: the certificate has not Authority Key Identifier Extension. CRL verification cannot be done.");
+                return false;
+            }
             while (eCRL.hasMoreElements() && pt == null) {
                 ICRLIssuingPointRecord tPt = eCRL.nextElement();
                 logger.debug("CRLLdapValidator: CRL check issuer  " + tPt.getId());
-                if(tPt.getId().equals(certificate.getIssuerDN().toString())) {
-                    try {
-                        X509CertImpl caCert = new X509CertImpl(tPt.getCACert());
-                        X509CertImpl certToVerify = new X509CertImpl(certificate.getEncoded());
-                        certToVerify.verify(caCert.getPublicKey(), Security.getProvider("Mozilla-JSS"));
-                        pt = tPt;
-                    } catch (CertificateException | InvalidKeyException | NoSuchAlgorithmException
-                            | SignatureException e) {
-                        logger.error("CRLLdapValidator: issuer certificate cannot verify the certificate signature." );
+                X509CertImpl caCert = new X509CertImpl(tPt.getCACert());
+                try {
+                    SubjectKeyIdentifierExtension sCaExt = (SubjectKeyIdentifierExtension) caCert.getExtension(PKIXExtensions.SubjectKey_Id.toString());
+                    if(sCaExt == null) {
+                        logger.error("CRLLdapValidator: signing certificate missing Subject Key Identifier. Skip CA " + caCert.getName());
+                        continue;
                     }
+
+                    KeyIdentifier sCaKeyId = (KeyIdentifier) sCaExt.get(SubjectKeyIdentifierExtension.KEY_ID);
+                    KeyIdentifier aPeerKeyId = (KeyIdentifier) aPeeExt.get(AuthorityKeyIdentifierExtension.KEY_ID);
+                    if(Arrays.equals(sCaKeyId.getIdentifier(), aPeerKeyId.getIdentifier())) {
+                        pt = tPt;
+                    }
+                } catch (IOException e) {
+                    logger.error("CRLLdapValidator: problem extracting key from SKI/AKI");
                 }
             }
-        } catch (EBaseException e) {
+        } catch (EBaseException | CertificateException e) {
             logger.error("CRLLdapValidator: problem find CRL issuing point. " + e.getMessage(), e);
             return false;
         }
@@ -88,7 +101,7 @@ public class CRLLdapValidator implements SSLCertificateApprovalCallback {
         } catch (Exception e) {
             logger.error("CRLLdapValidator: crl check error. " + e.getMessage(), e);
         }
-        logger.info("CRLLdapValidator: peer certificate not valid");
+        logger.error("CRLLdapValidator: peer certificate not valid");
         return false;
     }
 
