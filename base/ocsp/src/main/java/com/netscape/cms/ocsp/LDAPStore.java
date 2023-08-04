@@ -82,6 +82,10 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     private static final String DEF_CA_CERT_ATTR = "cACertificate;binary";
     private static final String PROP_HOST = "host";
     private static final String PROP_PORT = "port";
+
+    // This option enables the revocation verification of peer certificates using the CRL stored in the LDAP.
+    // Peer certificate of all the outcome connections from the OCSP subsystem are verified with the CRL.
+    // If also auths.revocationChecking.is set to true the peer certificate og all the income connections to the OCSP subsystem are verified with the CRL.
     private static final String PROP_VALIDATE_CONNECTION_WITH_CRL = "validateConnCertWithCRL";
 
     private final static String PROP_NOT_FOUND_GOOD = "notFoundAsGood";
