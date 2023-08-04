@@ -56,8 +56,8 @@ public class CRLLdapValidator implements SSLCertificateApprovalCallback {
         try {
             X509CertImpl peerCert = new X509CertImpl(certificate.getEncoded());
             Enumeration<ICRLIssuingPointRecord> eCRL = crlStore.searchAllCRLIssuingPointRecord(-1);
-            AuthorityKeyIdentifierExtension aPeeExt = (AuthorityKeyIdentifierExtension) peerCert.getExtension(PKIXExtensions.AuthorityKey_Id.toString());
-            if(aPeeExt == null) {
+            AuthorityKeyIdentifierExtension peerAKIExt = (AuthorityKeyIdentifierExtension) peerCert.getExtension(PKIXExtensions.AuthorityKey_Id.toString());
+            if(peerAKIExt == null) {
                 logger.error("CRLLdapValidator: the certificate has not Authority Key Identifier Extension. CRL verification cannot be done.");
                 return false;
             }
@@ -66,15 +66,15 @@ public class CRLLdapValidator implements SSLCertificateApprovalCallback {
                 logger.debug("CRLLdapValidator: CRL check issuer  " + tPt.getId());
                 X509CertImpl caCert = new X509CertImpl(tPt.getCACert());
                 try {
-                    SubjectKeyIdentifierExtension sCaExt = (SubjectKeyIdentifierExtension) caCert.getExtension(PKIXExtensions.SubjectKey_Id.toString());
-                    if(sCaExt == null) {
+                    SubjectKeyIdentifierExtension caAKIExt = (SubjectKeyIdentifierExtension) caCert.getExtension(PKIXExtensions.SubjectKey_Id.toString());
+                    if(caAKIExt == null) {
                         logger.error("CRLLdapValidator: signing certificate missing Subject Key Identifier. Skip CA " + caCert.getName());
                         continue;
                     }
 
-                    KeyIdentifier sCaKeyId = (KeyIdentifier) sCaExt.get(SubjectKeyIdentifierExtension.KEY_ID);
-                    KeyIdentifier aPeerKeyId = (KeyIdentifier) aPeeExt.get(AuthorityKeyIdentifierExtension.KEY_ID);
-                    if(Arrays.equals(sCaKeyId.getIdentifier(), aPeerKeyId.getIdentifier())) {
+                    KeyIdentifier caSKIId = (KeyIdentifier) caAKIExt.get(SubjectKeyIdentifierExtension.KEY_ID);
+                    KeyIdentifier peerAKIId = (KeyIdentifier) peerAKIExt.get(AuthorityKeyIdentifierExtension.KEY_ID);
+                    if(Arrays.equals(caSKIId.getIdentifier(), peerAKIId.getIdentifier())) {
                         pt = tPt;
                     }
                 } catch (IOException e) {
