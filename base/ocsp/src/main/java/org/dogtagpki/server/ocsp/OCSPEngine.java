@@ -164,8 +164,8 @@ public class OCSPEngine extends CMSEngine {
         try {
             X509CertImpl peerCert = new X509CertImpl(certificate.getEncoded());
             Enumeration<ICRLIssuingPointRecord> eCRL = crlStore.searchAllCRLIssuingPointRecord(-1);
-            AuthorityKeyIdentifierExtension aPeeExt = (AuthorityKeyIdentifierExtension) peerCert.getExtension(PKIXExtensions.AuthorityKey_Id.toString());
-            if(aPeeExt == null) {
+            AuthorityKeyIdentifierExtension peerAKIExt = (AuthorityKeyIdentifierExtension) peerCert.getExtension(PKIXExtensions.AuthorityKey_Id.toString());
+            if(peerAKIExt == null) {
                 logger.error("OCSPEngine: the certificate has not Authority Key Identifier Extension. CRL verification cannot be done.");
                 return false;
             }
@@ -175,15 +175,15 @@ public class OCSPEngine extends CMSEngine {
                 X509CertImpl caCert = new X509CertImpl(tPt.getCACert());
 
                 try {
-                    SubjectKeyIdentifierExtension sCaExt = (SubjectKeyIdentifierExtension) caCert.getExtension(PKIXExtensions.SubjectKey_Id.toString());
-                    if(sCaExt == null) {
+                    SubjectKeyIdentifierExtension caSKIExt = (SubjectKeyIdentifierExtension) caCert.getExtension(PKIXExtensions.SubjectKey_Id.toString());
+                    if(caSKIExt == null) {
                         logger.error("OCSPEngine: signing certificate missing Subject Key Identifier. Skip CA " + caCert.getName());
                         continue;
                     }
 
-                    KeyIdentifier sCaKeyId = (KeyIdentifier) sCaExt.get(SubjectKeyIdentifierExtension.KEY_ID);
-                    KeyIdentifier aPeerKeyId = (KeyIdentifier) aPeeExt.get(AuthorityKeyIdentifierExtension.KEY_ID);
-                    if(Arrays.equals(sCaKeyId.getIdentifier(), aPeerKeyId.getIdentifier())) {
+                    KeyIdentifier caSKIId = (KeyIdentifier) caSKIExt.get(SubjectKeyIdentifierExtension.KEY_ID);
+                    KeyIdentifier peerAKIId = (KeyIdentifier) peerAKIExt.get(AuthorityKeyIdentifierExtension.KEY_ID);
+                    if(Arrays.equals(caSKIId.getIdentifier(), peerAKIId.getIdentifier())) {
                         pt = tPt;
                     }
                 } catch (IOException e) {
