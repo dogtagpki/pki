@@ -82,7 +82,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     private static final String DEF_CA_CERT_ATTR = "cACertificate;binary";
     private static final String PROP_HOST = "host";
     private static final String PROP_PORT = "port";
-    private static final String PROP_CHECK_SUBSYSTEM_CONNECTION = "checkSubsystemConnection";
+    private static final String PROP_VALIDATE_CONNECTION_WITH_CRL = "validateConnCertWithCRL";
 
     private final static String PROP_NOT_FOUND_GOOD = "notFoundAsGood";
     private final static String PROP_INCLUDE_NEXT_UPDATE =
@@ -95,7 +95,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     private String mCACertAttr = null;
     protected Hashtable<String, Long> mReqCounts = new Hashtable<>();
     private Hashtable<X509CertImpl, X509CRLImpl> mCRLs = new Hashtable<>();
-    private boolean mCheckConnection = false;
+    private boolean mValidateConnection = true;
 
 
     /**
@@ -144,7 +144,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
                     DEF_CA_CERT_ATTR);
         mByName = mConfig.getBoolean(PROP_BY_NAME, true);
 
-        mCheckConnection = mConfig.getBoolean(PROP_CHECK_SUBSYSTEM_CONNECTION, true);
+        mValidateConnection = mConfig.getBoolean(PROP_VALIDATE_CONNECTION_WITH_CRL, true);
     }
 
     /**
@@ -282,7 +282,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
 
             updater.start();
         }
-        if(mCheckConnection) {
+        if(mValidateConnection) {
             OCSPEngine.getInstance().setApprovalCallback(new CRLLdapValidator(this));
         }
     }
@@ -541,7 +541,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     }
 
     public boolean isCRLCheckAvailable() {
-        return mCheckConnection;
+        return mValidateConnection;
     }
 
 }
