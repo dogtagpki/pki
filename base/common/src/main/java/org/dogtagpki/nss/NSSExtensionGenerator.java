@@ -476,7 +476,12 @@ public class NSSExtensionGenerator {
                 continue;
             }
 
-            if (option.equals("DNS:request_subject_cn") && pkcs10 != null) {
+            if (option.equals("DNS:request_subject_cn")) {
+
+                if (pkcs10 == null) {
+                    continue;
+                }
+
                 X500Name subjectName = pkcs10.getSubjectName();
                 logger.info("Getting CN from subject name: " + subjectName);
 
@@ -490,7 +495,12 @@ public class NSSExtensionGenerator {
                 continue;
             }
 
-            if (option.equals("DNS:request_san_ext") && pkcs10 != null) {
+            if (option.equals("DNS:request_san_ext")) {
+
+                if (pkcs10 == null) {
+                    continue;
+                }
+
                 logger.info("Getting SAN extension from CSR");
                 SubjectAlternativeNameExtension sanExtension = CertUtil.getSANExtension(pkcs10);
 
@@ -515,6 +525,10 @@ public class NSSExtensionGenerator {
                 dnsNames.add(name);
                 continue;
             }
+        }
+
+        if (dnsNames.isEmpty()) {
+            return null;
         }
 
         // convert DNS names to general names
