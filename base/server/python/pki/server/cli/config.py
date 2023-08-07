@@ -186,6 +186,7 @@ class SubsystemConfigShowCLI(pki.cli.CLI):
 
         else:
             logger.error('No such parameter: %s', name)
+            sys.exit(1)
 
 
 class SubsystemConfigSetCLI(pki.cli.CLI):

@@ -2200,9 +2200,6 @@ class PKIDeployer:
             tokenname = pki.nssdb.INTERNAL_TOKEN_NAME
         subsystem.config['%s.%s.tokenname' % (subsystem.name, tag)] = tokenname
 
-        subsystem.config['%s.%s.defaultSigningAlgorithm' % (subsystem.name, tag)] = \
-            self.mdict['pki_%s_key_algorithm' % cert_id]
-
         cert_data = nssdb.get_cert(
             nickname=nickname,
             token=self.mdict['pki_%s_token' % cert_id],
@@ -2243,7 +2240,13 @@ class PKIDeployer:
             nickname = self.mdict['pki_ca_signing_nickname']
             subsystem.config['ca.signing.cacertnickname'] = nickname
 
+            subsystem.config['ca.signing.defaultSigningAlgorithm'] = \
+                self.mdict['pki_ca_signing_signing_algorithm']
+
             self.update_system_cert(nssdb, subsystem, 'ocsp_signing')
+
+            subsystem.config['ca.ocsp_signing.defaultSigningAlgorithm'] = \
+                self.mdict['pki_ocsp_signing_signing_algorithm']
 
         if subsystem.name == 'kra':
             self.update_system_cert(nssdb, subsystem, 'storage')
@@ -2252,11 +2255,18 @@ class PKIDeployer:
 
         if subsystem.name == 'ocsp':
             self.update_system_cert(nssdb, subsystem, 'signing')
+
+            subsystem.config['ocsp.signing.defaultSigningAlgorithm'] = \
+                self.mdict['pki_ocsp_signing_signing_algorithm']
+
             self.update_admin_cert(subsystem)
 
         self.update_system_cert(nssdb, subsystem, 'sslserver')
         self.update_system_cert(nssdb, subsystem, 'subsystem')
         self.update_system_cert(nssdb, subsystem, 'audit_signing')
+
+        subsystem.config['%s.audit_signing.defaultSigningAlgorithm' % subsystem.name] = \
+            self.mdict['pki_audit_signing_signing_algorithm']
 
     def validate_system_certs(self, subsystem):
 
