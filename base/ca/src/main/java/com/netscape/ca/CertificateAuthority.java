@@ -102,7 +102,6 @@ import com.netscape.certsrv.ca.CADisabledException;
 import com.netscape.certsrv.ca.CAEnabledException;
 import com.netscape.certsrv.ca.CAMissingCertException;
 import com.netscape.certsrv.ca.CAMissingKeyException;
-import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.certsrv.ca.CANotLeafException;
 import com.netscape.certsrv.ca.CATypeException;
 import com.netscape.certsrv.ca.ECAException;
@@ -1550,9 +1549,8 @@ public class CertificateAuthority
          *    CertID in the request.
          *
          * 2. If this CA is *not* the issuer, look up the issuer
-         *    by its DN in CAEngine.  If not found, fail.  If
-         *    found, dispatch to its 'validate' method.  Otherwise
-         *    continue.
+         *    by its DN in CAEngine. If found, dispatch to its 'validate'
+         *    method. Otherwise continue.
          *
          * 3. If this CA is NOT the issuing CA, we locate the
          *    issuing CA and dispatch to its 'validate' method.
@@ -1564,16 +1562,16 @@ public class CertificateAuthority
             Request req = tbsReq.getRequestAt(0);
             BigInteger serialNo = req.getCertID().getSerialNumber();
 
-            CertificateRepository certificateRepository = engine.getCertificateRepository();
-            X509CertImpl cert = certificateRepository.getX509Certificate(serialNo);
+            try {
+                CertificateRepository certificateRepository = engine.getCertificateRepository();
+                X509CertImpl cert = certificateRepository.getX509Certificate(serialNo);
 
-            X500Name certIssuerDN = (X500Name) cert.getIssuerDN();
-            ocspCA = engine.getCA(certIssuerDN);
-        }
-
-        if (ocspCA == null) {
-            logger.error("CertificateAuthority: Could not locate issuing CA");
-            throw new CANotFoundException("Could not locate issuing CA");
+                X500Name certIssuerDN = (X500Name) cert.getIssuerDN();
+                ocspCA = engine.getCA(certIssuerDN);
+            } catch (EBaseException e) {
+                // If we don't know the issuer allow this CA to validate
+                // and report the CertStatus as Unknown
+            }
         }
 
         if (ocspCA != this)
