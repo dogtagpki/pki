@@ -3193,9 +3193,7 @@ class PKIDeployer:
 
             else:
 
-                ca_hostname = subsystem.config['preop.ca.hostname']
-                ca_port = subsystem.config['preop.ca.httpsport']
-                ca_url = 'https://%s:%s' % (ca_hostname, ca_port)
+                ca_url = self.mdict['pki_issuing_ca']
 
             hostname = self.mdict['pki_hostname']
 
