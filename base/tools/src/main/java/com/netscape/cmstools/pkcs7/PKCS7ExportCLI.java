@@ -5,7 +5,7 @@
 //
 package com.netscape.cmstools.pkcs7;
 
-import java.io.PrintWriter;
+import java.io.FileOutputStream;
 import java.security.cert.X509Certificate;
 
 import javax.net.ssl.KeyManagerFactory;
@@ -43,6 +43,10 @@ public class PKCS7ExportCLI extends CommandCLI {
         Option option = new Option(null, "pkcs7", true, "PKCS #7 file");
         option.setArgName("path");
         options.addOption(option);
+
+        option = new Option(null, "format", true, "PKCS #7 format: PEM (default), DER");
+        option.setArgName("format");
+        options.addOption(option);
     }
 
     @Override
@@ -56,9 +60,7 @@ public class PKCS7ExportCLI extends CommandCLI {
         String nickname = cmdArgs[0];
 
         String filename = cmd.getOptionValue("pkcs7");
-        if (filename == null) {
-            throw new Exception("Missing PKCS #7 file");
-        }
+        String format = cmd.getOptionValue("format", "PEM").toUpperCase();
 
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
@@ -75,15 +77,30 @@ public class PKCS7ExportCLI extends CommandCLI {
         CertificateChain certChain = new CertificateChain(certs);
         certChain.sort();
 
-        logger.info("Storing certificate chain into " + filename);
-        PKCS7 pkcs7 = certChain.toPKCS7();
-
         for (X509Certificate cert : certChain.getCertificates()) {
             logger.info("- " + cert.getSubjectDN());
         }
 
-        try (PrintWriter out = new PrintWriter(filename)) {
-            out.print(pkcs7.toPEMString());
+        PKCS7 pkcs7 = certChain.toPKCS7();
+        byte[] bytes;
+
+        if (format.equals("PEM")) {
+            bytes = pkcs7.toPEMString().getBytes();
+
+        } else if (format.equals("DER")) {
+            bytes = pkcs7.getBytes();
+
+        } else {
+            throw new Exception("Unsupported format: " + format);
+        }
+
+        if (filename == null) {
+            System.out.write(bytes);
+
+        } else {
+            try (FileOutputStream fos = new FileOutputStream(filename)) {
+                fos.write(bytes);
+            }
         }
     }
 }
