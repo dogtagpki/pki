@@ -3663,13 +3663,13 @@ class PKIDeployer:
         ca_type = subsystem.config['preop.ca.type']
 
         if ca_type == 'sdca':
-            ca_hostname = subsystem.config['preop.ca.hostname']
-            ca_port = subsystem.config['preop.ca.httpsport']
+            ca_url = self.mdict['pki_issuing_ca']
+
         else:
             ca_hostname = subsystem.config['securitydomain.host']
             ca_port = subsystem.config['securitydomain.httpseeport']
+            ca_url = 'https://%s:%s' % (ca_hostname, ca_port)
 
-        ca_url = 'https://%s:%s' % (ca_hostname, ca_port)
         logger.info('Requesting admin cert from %s', ca_url)
 
         request_type = self.mdict['pki_admin_cert_request_type']
