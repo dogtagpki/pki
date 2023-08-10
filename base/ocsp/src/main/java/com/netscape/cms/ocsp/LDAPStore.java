@@ -388,9 +388,9 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
 
         Enumeration<X509CertImpl> caCerts = mCRLs.keys();
 
+        MessageDigest md = MessageDigest.getInstance(cid.getDigestName());
         while (caCerts.hasMoreElements()) {
             X509CertImpl caCert = caCerts.nextElement();
-            MessageDigest md = MessageDigest.getInstance(cid.getDigestName());
 	    logger.debug("LDAPStore: processRequest: cert digest name=" +
                     cid.getDigestName());
             X509Key key = (X509Key) caCert.getPublicKey();
@@ -400,18 +400,20 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
                 throw new Exception("Missing issuer key");
             }
 
-            byte digest[] = md.digest(key.getKey());
-            byte keyhsh[] = cid.getIssuerKeyHash().toByteArray();
+            byte[] digest = md.digest(key.getKey());
+            byte[] keyhsh = cid.getIssuerKeyHash().toByteArray();
 
-            if (!Arrays.equals(digest, keyhsh)) {
-		logger.debug("LDAPStore: processRequest: CA key digest and cert issuer key hash do not match; continue to look at next CA in mCRLs...");
-                continue;
+
+            byte[] name = md.digest(caCert.getSubjectObj().getX500Name().getEncoded());
+            byte[] namehash = cid.getIssuerNameHash().toByteArray();
+
+            if (Arrays.equals(digest, keyhsh) && Arrays.equals(name, namehash)) {
+                theCert = caCert;
+                incReqCount(caCert.getSubjectX500Principal().getName());
+                theCRL = mCRLs.get(caCert);
+                break;
             }
-
-            theCert = caCert;
-            incReqCount(caCert.getSubjectDN().toString());
-            theCRL = mCRLs.get(caCert);
-            break;
+            logger.debug("LDAPStore: processRequest: CA key digest and cert issuer key hash do not match; continue to look at next CA in mCRLs...");
         }
 
         if (theCert == null) {
