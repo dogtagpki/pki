@@ -2342,6 +2342,51 @@ class NSSDatabase(object):
         finally:
             shutil.rmtree(tmpdir)
 
+    def export_pkcs7(
+            self,
+            nickname=None,
+            token=None,
+            output_format='PEM'):
+        '''
+        Export cert chain from NSS database into PKCS #7 data
+        in PEM or DER format.
+        '''
+
+        logger.debug('NSSDatabase.export_pkcs7()')
+
+        cmd = [
+            'pki',
+            '-d', self.directory
+        ]
+
+        if self.password_conf:
+            cmd.extend(['-f', self.password_conf])
+
+        elif self.password_file:
+            cmd.extend(['-C', self.password_file])
+
+        token = self.get_effective_token(token)
+
+        if token:
+            cmd.extend(['--token', token])
+
+        cmd.extend([
+            'pkcs7-export',
+            '--format', output_format
+        ])
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        cmd.append(nickname)
+
+        result = self.run(cmd, stdout=subprocess.PIPE, check=True)
+
+        return result.stdout.decode('utf-8')
+
     def import_pkcs12(self, pkcs12_file,
                       pkcs12_password=None,
                       pkcs12_password_file=None,
