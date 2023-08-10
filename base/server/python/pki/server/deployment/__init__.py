@@ -494,10 +494,6 @@ class PKIDeployer:
 
         instance = subsystem.instance
 
-        if config.str2bool(self.mdict['pki_hsm_enable']):
-            hsm_token = self.mdict['pki_token_name']
-            subsystem.config['preop.module.token'] = hsm_token
-
         # Since 'certutil' does NOT strip the 'token=' portion of
         # the 'token=password' entries, create a temporary server 'pfile'
         # which ONLY contains the 'password' for the purposes of
@@ -2668,6 +2664,15 @@ class PKIDeployer:
         system_cert.subjectDN = self.mdict['pki_%s_subject_dn' % cert_id]
         system_cert.token = self.mdict['pki_%s_token' % cert_id]
 
+        if not system_cert.token:
+            if config.str2bool(self.mdict['pki_hsm_enable']):
+                system_cert.token = self.mdict['pki_token_name']
+            else:
+                system_cert.token = subsystem.config['preop.module.token']
+
+        if not pki.nssdb.normalize_token(system_cert.token):
+            system_cert.token = pki.nssdb.INTERNAL_TOKEN_NAME
+
         return system_cert
 
     def create_cert_setup_request(self, subsystem, tag, cert):
@@ -2677,12 +2682,6 @@ class PKIDeployer:
         request.pin = self.mdict['pki_one_time_pin']
 
         request.systemCert = self.create_system_cert_info(subsystem, tag)
-
-        if not request.systemCert.token:
-            request.systemCert.token = subsystem.config['preop.module.token']
-
-            if not pki.nssdb.normalize_token(request.systemCert.token):
-                request.systemCert.token = pki.nssdb.INTERNAL_TOKEN_NAME
 
         # cert type: selfsign, local, or remote
         request.systemCert.type = subsystem.config['preop.cert.%s.type' % tag]
