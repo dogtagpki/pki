@@ -4428,17 +4428,25 @@ class PKIDeployer:
             subsystem.config['cloning.ca.type'] = ca_type
 
         clone = self.configuration_file.clone
+        external = self.configuration_file.external
+        standalone = self.configuration_file.standalone
 
         if not clone:
             logger.info('Updating KRA ranges')
             subsystem.update_ranges()
 
-        standalone = self.configuration_file.standalone
-        ca_host = subsystem.config.get('preop.ca.hostname')
+        if subsystem.type == 'CA' and external or \
+                subsystem.type in ['KRA', 'OCSP'] and standalone:
+            ca_url = None
+        else:
+            ca_url = self.mdict['pki_issuing_ca']
 
-        if not clone and not standalone and ca_host:
-            ca_port = subsystem.config.get('preop.ca.httpsadminport')
-            ca_url = 'https://%s:%s' % (ca_host, ca_port)
+        if ca_url and not clone:
+
+            url = urllib.parse.urlparse(ca_url)
+            ca_host = url.hostname
+            ca_port = str(url.port)
+
             ca_uid = 'CA-%s-%s' % (ca_host, ca_port)
 
             logger.info('Adding %s user into KRA', ca_uid)
@@ -4457,9 +4465,7 @@ class PKIDeployer:
             logger.info('Adding %s into Trusted Managers', ca_uid)
             subsystem.add_group_member('Trusted Managers', ca_uid)
 
-        ca_url = subsystem.config.get('preop.ca.url')
-
-        if not standalone and ca_host and ca_url:
+        if ca_url:
 
             logger.info('Adding KRA connector in CA')
             self.add_kra_connector(instance, subsystem)
