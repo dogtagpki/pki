@@ -1560,6 +1560,7 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
 
     public SingleResponse processRequest(Request req) {
 
+        String name = "CertificateAuthority: processRequest: ";
         CAEngine engine = CAEngine.getInstance();
         CertificateRepository certificateRepository = engine.getCertificateRepository();
 
@@ -1568,7 +1569,7 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
 
         CertID cid = req.getCertID();
         INTEGER serialNo = cid.getSerialNumber();
-        logger.debug("CertificateAuthority: processing request for cert 0x" + serialNo.toString(16));
+        logger.debug( name + "for cert 0x" + serialNo.toString(16));
 
         CertStatus certStatus = null;
         GeneralizedTime thisUpdate = new GeneralizedTime(new Date());
@@ -1665,10 +1666,15 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
                 certStatus = new UnknownInfo();
             }
         } catch (EDBRecordNotFoundException e) {
-            // not found
-            certStatus = new GoodInfo(); // not issued not all
+            logger.debug(name + "cert record not found");
+            certStatus = new UnknownInfo(); // not issued by this CA
         } catch (EBaseException e) {
             // internal error
+            logger.debug(name + e.toString());
+            certStatus = new UnknownInfo();
+        } catch (Exception e) {
+            // safety net
+            logger.debug(name + e.toString());
             certStatus = new UnknownInfo();
         }
 
