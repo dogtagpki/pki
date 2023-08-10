@@ -174,7 +174,7 @@ public final class CASigningUnit extends SigningUnit {
         }
         */
 
-        logger.info("CASigningUnit: Signing Certificate");
+        logger.info("CASigningUnit: Signing ...");
 
         boolean testSignatureFailure = mConfig.getBoolean("testSignatureFailure", false);
         if (testSignatureFailure) {
