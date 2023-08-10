@@ -20,7 +20,6 @@
 
 from __future__ import absolute_import
 import logging
-import urllib.parse
 
 # PKI Deployment Imports
 from .. import pkiconfig as config
@@ -116,30 +115,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.setup_security_domain(instance, subsystem)
 
         hierarchy = subsystem.config.get('hierarchy.select')
-        issuing_ca = deployer.mdict['pki_issuing_ca']
-
-        if external and subsystem.type == 'CA':
-            # No need to use issuing CA during CA installation
-            # with external certs since the certs will be provided.
-            pass
-
-        elif standalone and subsystem.type in ['KRA', 'OCSP']:
-            # No need to use issuing CA during standalone KRA/OCSP
-            # installation since the certs will be provided.
-            pass
-
-        else:
-            # For other cases, use issuing CA to issue certs during installation.
-            # KRA will also configure a connector in the issuing CA, and OCSP will
-            # configure a publisher in the issuing CA.
-
-            logger.info('Using CA at %s', issuing_ca)
-            url = urllib.parse.urlparse(issuing_ca)
-
-            subsystem.config['preop.ca.url'] = issuing_ca
-            subsystem.config['preop.ca.hostname'] = url.hostname
-            subsystem.config['preop.ca.httpsport'] = str(url.port)
-            subsystem.config['preop.ca.httpsadminport'] = str(url.port)
 
         system_certs_imported = \
             deployer.mdict['pki_server_pkcs12_path'] != '' or \
@@ -153,6 +128,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             elif not clone and not system_certs_imported:
 
+                issuing_ca = deployer.mdict['pki_issuing_ca']
                 logger.info('Retrieving CA certificate chain from %s', issuing_ca)
 
                 pem_chain = deployer.get_ca_signing_cert(instance, issuing_ca)
