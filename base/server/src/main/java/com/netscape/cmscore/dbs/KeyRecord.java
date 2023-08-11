@@ -31,7 +31,6 @@ import org.mozilla.jss.netscape.security.util.WrappingParams;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
-import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.keydb.KeyState;
 import com.netscape.cms.servlet.key.KeyRecordParser;
 
@@ -43,7 +42,7 @@ import com.netscape.cms.servlet.key.KeyRecordParser;
  *
  * @author thomask
  */
-public class KeyRecord implements IDBObj {
+public class KeyRecord extends DBRecord {
 
     private static final long serialVersionUID = -3765000841161998984L;
 

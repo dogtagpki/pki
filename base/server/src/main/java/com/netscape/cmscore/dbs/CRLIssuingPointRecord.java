@@ -26,7 +26,6 @@ import java.util.Vector;
 import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -34,7 +33,7 @@ import com.netscape.cmscore.apps.CMS;
  *
  * @author thomask
  */
-public class CRLIssuingPointRecord implements IDBObj {
+public class CRLIssuingPointRecord extends DBRecord {
 
     private static final long serialVersionUID = 400565044343905267L;
 

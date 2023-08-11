@@ -22,7 +22,6 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -31,7 +30,7 @@ import com.netscape.cmscore.apps.CMS;
  *
  * @author thomask
  */
-public class RepositoryRecord implements IDBObj {
+public class RepositoryRecord extends DBRecord {
 
     private static final long serialVersionUID = 1648450747848783853L;
 

@@ -33,7 +33,6 @@ import org.mozilla.jss.netscape.security.x509.X509ExtensionException;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
-import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -43,7 +42,7 @@ import com.netscape.cmscore.apps.CMS;
  * @author thomask
  * @version $Revision$, $Date$
  */
-public class CertRecord implements IDBObj {
+public class CertRecord extends DBRecord {
 
     private static final String CMS_BASE_INVALID_ATTRIBUTE = "CMS_BASE_INVALID_ATTRIBUTE";
 

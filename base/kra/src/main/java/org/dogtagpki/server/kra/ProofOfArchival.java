@@ -37,9 +37,9 @@ import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.kra.EKRAException;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.dbs.DBRecord;
 
 /**
  * A class represents a proof of escrow. It indicates a key
@@ -67,7 +67,7 @@ import com.netscape.cmscore.apps.CMS;
  *
  * @author thomask
  */
-public class ProofOfArchival implements IDBObj {
+public class ProofOfArchival extends DBRecord {
 
     private static final long serialVersionUID = -2533562170977678799L;
 

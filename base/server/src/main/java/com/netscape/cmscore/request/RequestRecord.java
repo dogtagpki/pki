@@ -28,11 +28,11 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
-import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cmscore.dbs.DBRecord;
 import com.netscape.cmscore.dbs.DBRegistry;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.DateMapper;
@@ -43,7 +43,7 @@ import com.netscape.cmscore.dbs.StringMapper;
  * It has a set of attributes that are mapped into LDAP
  * attributes for actual directory operations.
  */
-public class RequestRecord implements IDBObj {
+public class RequestRecord extends DBRecord {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestRecord.class);
 
