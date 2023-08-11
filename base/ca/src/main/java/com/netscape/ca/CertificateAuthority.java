@@ -1847,13 +1847,9 @@ public class CertificateAuthority
         } catch (EDBRecordNotFoundException e) {
             logger.debug(name + "cert record not found");
             certStatus = new UnknownInfo(); // not issued by this CA
-        } catch (EBaseException e) {
-            // internal error
-            logger.debug(name + e.toString());
-            certStatus = new UnknownInfo();
         } catch (Exception e) {
-            // safety net
-            logger.debug(name + e.toString());
+            // internal error
+            logger.debug(name + "failed on certificateRepository.readCertificateRecord " + e.toString());
             certStatus = new UnknownInfo();
         }
 
