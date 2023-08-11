@@ -37,6 +37,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         external = deployer.configuration_file.external
         standalone = deployer.configuration_file.standalone
+        subordinate = deployer.configuration_file.subordinate
         step_one = deployer.configuration_file.external_step_one
         skip_configuration = deployer.configuration_file.skip_configuration
 
@@ -113,27 +114,37 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if config.str2bool(deployer.mdict['pki_security_domain_setup']):
             deployer.setup_security_domain(instance, subsystem)
 
-        hierarchy = subsystem.config.get('hierarchy.select')
-
         system_certs_imported = \
             deployer.mdict['pki_server_pkcs12_path'] != '' or \
             deployer.mdict['pki_clone_pkcs12_path'] != ''
 
-        if not (subsystem.type == 'CA' and hierarchy == 'Root'):
+        if subsystem.type == 'CA' and external or \
+                subsystem.type in ['KRA', 'OCSP'] and standalone:
 
-            if external and subsystem.type == 'CA' or \
-                    standalone and subsystem.type in ['KRA', 'OCSP']:
-                subsystem.config['preop.ca.pkcs7'] = ''
+            # For external sub-CA and standalone KRA/OCSP, no need to retrieve
+            # the cert chain since it's already imported from a local file by
+            # PKIDeployer.import_cert_chain().
 
-            elif not clone and not system_certs_imported:
+            subsystem.config['preop.ca.pkcs7'] = ''
 
-                issuing_ca = deployer.mdict['pki_issuing_ca']
-                pem_chain = deployer.retrieve_cert_chain(instance, issuing_ca)
+        elif (subsystem.type == 'CA' and subordinate or subsystem.type != 'CA') and \
+                not clone and not system_certs_imported:
 
-                base64_chain = pki.nssdb.convert_pkcs7(pem_chain, 'pem', 'base64')
-                subsystem.config['preop.ca.pkcs7'] = base64_chain
+            # For primary (not clone) sub-CA and KRA, OCSP, TKS, and TPS,
+            # retrieve the cert chain from the issuing CA unless it's already
+            # imported from PKCS #12 file by PKIDeployer.import_server_pkcs12().
 
-        if subsystem.type == 'CA' and clone and not system_certs_imported:
+            issuing_ca = deployer.mdict['pki_issuing_ca']
+            pem_chain = deployer.retrieve_cert_chain(instance, issuing_ca)
+
+            base64_chain = pki.nssdb.convert_pkcs7(pem_chain, 'pem', 'base64')
+            subsystem.config['preop.ca.pkcs7'] = base64_chain
+
+        elif subsystem.type == 'CA' and clone and not system_certs_imported:
+
+            # For root CA and sub-CA clone, retrieve the cert chain from the
+            # primary server unless it's already imported from a PKCS #12 file
+            # by PKIDeployer.import_clone_pkcs12().
 
             master_url = deployer.mdict['pki_clone_uri']
             pem_chain = deployer.retrieve_cert_chain(instance, master_url)
