@@ -24,7 +24,7 @@ import java.io.FileWriter;
 import java.io.PrintStream;
 import java.security.KeyPair;
 
-import org.dogtag.util.cert.CertUtil;
+import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.InitializationValues;
 import org.mozilla.jss.crypto.CryptoToken;

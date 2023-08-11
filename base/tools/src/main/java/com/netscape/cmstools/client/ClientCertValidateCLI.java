@@ -23,8 +23,8 @@ import java.util.Set;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.lang3.StringUtils;
-import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.cli.CommandCLI;
+import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.CertificateUsage;
 
 import com.netscape.cmstools.cli.MainCLI;

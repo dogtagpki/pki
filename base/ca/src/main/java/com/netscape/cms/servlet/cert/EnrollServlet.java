@@ -34,12 +34,12 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
+import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.netscape.security.extensions.CertInfo;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Utils;

@@ -22,7 +22,7 @@ import java.math.BigInteger;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-import org.dogtag.util.cert.CertUtil;
+import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 
 import com.netscape.certsrv.base.EBaseException;

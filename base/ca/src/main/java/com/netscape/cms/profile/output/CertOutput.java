@@ -20,7 +20,7 @@ package com.netscape.cms.profile.output;
 import java.util.Locale;
 import java.util.Map;
 
-import org.dogtag.util.cert.CertUtil;
+import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.netscape.security.util.CertPrettyPrint;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 

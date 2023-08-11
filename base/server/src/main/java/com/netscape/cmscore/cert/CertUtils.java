@@ -34,7 +34,7 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.StringTokenizer;
 
-import org.dogtag.util.cert.CertUtil;
+import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.netscape.security.extensions.NSCertTypeExtension;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.mozilla.jss.netscape.security.util.Cert;

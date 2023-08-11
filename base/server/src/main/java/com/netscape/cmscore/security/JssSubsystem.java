@@ -46,7 +46,7 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import org.dogtag.util.cert.CertUtil;
+import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.InitializationValues;
 import org.mozilla.jss.NicknameConflictException;

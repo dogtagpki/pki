@@ -36,12 +36,12 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
+import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.asn1.SEQUENCE;

@@ -32,7 +32,7 @@ import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import org.dogtag.util.cert.CertUtil;
+import org.dogtagpki.util.cert.CertUtil;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.management.client.util.Debug;

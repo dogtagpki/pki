@@ -38,11 +38,11 @@ import java.util.Timer;
 import javax.servlet.http.HttpServlet;
 
 import org.apache.commons.lang3.StringUtils;
-import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.jss.tomcat.TomcatJSS;
 import org.dogtagpki.server.PKIClientSocketListener;
 import org.dogtagpki.server.PKIServerSocketListener;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
+import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.PrivateKey;

@@ -37,12 +37,12 @@ import java.util.Map;
 
 import javax.crypto.Mac;
 
-import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
+import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.ASN1Value;

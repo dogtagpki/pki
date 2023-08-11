@@ -15,7 +15,7 @@
 // (C) 2007 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package org.dogtag.util.cert;
+package org.dogtagpki.util.cert;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

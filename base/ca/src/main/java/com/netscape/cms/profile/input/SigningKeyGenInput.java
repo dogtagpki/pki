@@ -20,8 +20,8 @@ package com.netscape.cms.profile.input;
 import java.util.Locale;
 import java.util.Map;
 
-import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.DerInputStream;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;

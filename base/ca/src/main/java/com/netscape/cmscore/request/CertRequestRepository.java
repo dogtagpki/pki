@@ -19,7 +19,7 @@ package com.netscape.cmscore.request;
 
 import java.security.SecureRandom;
 
-import org.dogtag.util.cert.CertUtil;
+import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;

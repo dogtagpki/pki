@@ -26,7 +26,7 @@ import javax.swing.JLabel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextArea;
 
-import org.dogtag.util.cert.CertUtil;
+import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.netscape.security.util.Cert;
 
 import com.netscape.admin.certsrv.CMSAdminUtil;

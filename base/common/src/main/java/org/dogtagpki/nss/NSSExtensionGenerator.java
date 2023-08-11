@@ -21,7 +21,7 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.stream.Collectors;
 
-import org.dogtag.util.cert.CertUtil;
+import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.netscape.security.extensions.AuthInfoAccessExtension;
 import org.mozilla.jss.netscape.security.extensions.ExtendedKeyUsageExtension;
 import org.mozilla.jss.netscape.security.extensions.OCSPNoCheckExtension;

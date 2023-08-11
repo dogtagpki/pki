@@ -16,8 +16,8 @@ import java.util.Vector;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.cli.CommandCLI;
+import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;

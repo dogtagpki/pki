@@ -11,10 +11,10 @@ import java.security.cert.X509Certificate;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.nss.NSSDatabase;
 import org.dogtagpki.nss.NSSExtensionGenerator;
+import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.x509.Extensions;

@@ -32,8 +32,8 @@ import java.util.Map;
 
 import javax.ws.rs.core.Response;
 
-import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.mozilla.jss.netscape.security.pkcs.SignerInfo;

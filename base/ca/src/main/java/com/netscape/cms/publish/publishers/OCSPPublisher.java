@@ -30,9 +30,9 @@ import java.util.Date;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
+import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.base.EBaseException;

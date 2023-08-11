@@ -43,11 +43,11 @@ import java.util.Vector;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
-import org.dogtag.util.cert.CertUtil;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
+import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NicknameConflictException;
 import org.mozilla.jss.NotInitializedException;
