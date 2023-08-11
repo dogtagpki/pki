@@ -1,0 +1,626 @@
+name: Sub-CA clone
+# docs/installation/ca/Installing_CA_with_External_CA_Signing_Certificate.md
+# docs/installation/ca/Installing_CA_Clone_with_HSM.md
+
+on:
+  workflow_call:
+    inputs:
+      db-image:
+        required: false
+        type: string
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      - name: Retrieve PKI images
+        uses: actions/cache@v3
+        with:
+          key: pki-images-${{ github.sha }}
+          path: pki-images.tar
+
+      - name: Load PKI images
+        run: docker load --input pki-images.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up root CA container
+        run: |
+          tests/bin/runner-init.sh root-ca
+        env:
+          HOSTNAME: root-ca.example.com
+
+      - name: Connect root CA container to network
+        run: docker network connect example root-ca --alias root-ca.example.com
+
+      - name: Create root CA in NSS database
+        run: |
+          docker exec root-ca pki nss-cert-request \
+              --subject "CN=Root CA Signing Certificate" \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --csr $SHARED/root-ca_signing.csr
+          docker exec root-ca pki nss-cert-issue \
+              --csr $SHARED/root-ca_signing.csr \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --cert $SHARED/root-ca_signing.crt
+          docker exec root-ca pki nss-cert-import \
+              --cert $SHARED/root-ca_signing.crt \
+              --trust CT,C,C \
+              root-ca_signing
+
+      - name: Set up primary DS container
+        run: |
+          tests/bin/ds-container-create.sh primary-ds
+        env:
+          IMAGE: ${{ inputs.db-image }}
+          HOSTNAME: primary-ds.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect primary DS container to network
+        run: docker network connect example primary-ds --alias primary-ds.example.com
+
+      - name: Set up primary sub-CA container
+        run: |
+          tests/bin/runner-init.sh primary-subca
+        env:
+          HOSTNAME: primary-subca.example.com
+
+      - name: Connect primary sub-CA container to network
+        run: docker network connect example primary-subca --alias primary-subca.example.com
+
+      - name: Install dependencies
+        run: |
+          docker exec primary-subca dnf install -y softhsm
+
+      - name: Create SoftHSM token
+        run: |
+          # allow PKI user to access SoftHSM files
+          docker exec primary-subca usermod pkiuser -a -G ods
+
+          # create SoftHSM token for PKI server
+          docker exec primary-subca runuser -u pkiuser -- \
+              softhsm2-util \
+              --init-token \
+              --label HSM \
+              --so-pin Secret.HSM \
+              --pin Secret.HSM \
+              --free
+
+          docker exec primary-subca ls -laR /var/lib/softhsm/tokens
+
+      - name: Install primary sub-CA (step 1)
+        run: |
+          docker exec primary-subca pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca-external-cert-step1.cfg \
+              -s CA \
+              -D pki_hsm_enable=True \
+              -D pki_token_name=HSM \
+              -D pki_token_password=Secret.HSM \
+              -D pki_ds_url=ldap://primary-ds.example.com:3389 \
+              -D pki_ca_signing_token=HSM \
+              -D pki_ca_signing_csr_path=$SHARED/subca_signing.csr \
+              -D pki_ocsp_signing_token=HSM \
+              -D pki_audit_signing_token=HSM \
+              -D pki_subsystem_token=HSM \
+              -D pki_sslserver_token=internal \
+              -D pki_cert_id_generator=random \
+              -D pki_request_id_generator=random \
+              -D pki_client_admin_cert_p12=$SHARED/caadmin.p12 \
+              -v
+
+      - name: Issue primary sub-CA signing cert
+        run: |
+          docker exec root-ca pki nss-cert-issue \
+              --issuer root-ca_signing \
+              --csr $SHARED/subca_signing.csr \
+              --ext /usr/share/pki/server/certs/subca_signing.conf \
+              --cert $SHARED/subca_signing.crt
+
+      - name: Install primary sub-CA (step 2)
+        run: |
+          docker exec primary-subca pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca-external-cert-step2.cfg \
+              -s CA \
+              -D pki_ds_url=ldap://primary-ds.example.com:3389 \
+              -D pki_hsm_enable=True \
+              -D pki_token_name=HSM \
+              -D pki_token_password=Secret.HSM \
+              -D pki_cert_chain_path=${SHARED}/root-ca_signing.crt \
+              -D pki_cert_chain_nickname=root-ca_signing \
+              -D pki_ca_signing_token=HSM \
+              -D pki_ca_signing_csr_path=$SHARED/subca_signing.csr \
+              -D pki_ca_signing_cert_path=$SHARED/subca_signing.crt \
+              -D pki_ocsp_signing_token=HSM \
+              -D pki_audit_signing_token=HSM \
+              -D pki_subsystem_token=HSM \
+              -D pki_sslserver_token=internal \
+              -D pki_cert_id_generator=random \
+              -D pki_request_id_generator=random \
+              -D pki_client_admin_cert_p12=$SHARED/caadmin.p12 \
+              -v
+
+      - name: Check system certs in internal token
+        run: |
+          # there should be 6 certs
+          echo "6" > expected
+          docker exec primary-subca pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-find | tee output
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check root CA signing cert in internal token
+        run: |
+          echo "CT,C,C" > expected
+          docker exec primary-subca pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-show \
+              root-ca_signing | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check ca_signing cert in internal token
+        run: |
+          echo "CT,C,C" > expected
+          docker exec primary-subca pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-show \
+              ca_signing | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check ca_ocsp_signing cert in internal token
+        run: |
+          echo ",," > expected
+          docker exec primary-subca pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-show \
+              ca_ocsp_signing | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check ca_audit_signing cert in internal token
+        run: |
+          echo ",,P" > expected
+          docker exec primary-subca pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-show \
+              ca_audit_signing | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check subsystem cert in internal token
+        run: |
+          echo ",," > expected
+          docker exec primary-subca pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-show \
+              subsystem | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check sslserver cert in internal token
+        run: |
+          echo "u,u,u" > expected
+          docker exec primary-subca pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-show \
+              sslserver | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check system certs in HSM
+        run: |
+          echo "4" > expected
+          docker exec primary-subca pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-find | tee output
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check ca_signing cert in HSM
+        run: |
+          echo "CTu,Cu,Cu" > expected
+          docker exec primary-subca pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-show \
+              HSM:ca_signing | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check ca_ocsp_signing cert in HSM
+        run: |
+          echo "u,u,u" > expected
+          docker exec primary-subca pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-show \
+              HSM:ca_ocsp_signing | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check ca_audit_signing cert in HSM
+        run: |
+          echo "u,u,Pu" > expected
+          docker exec primary-subca pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-show \
+              HSM:ca_audit_signing | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check subsystem cert in HSM
+        run: |
+          echo "u,u,u" > expected
+          docker exec primary-subca pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-show \
+              HSM:subsystem | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+      - name: Run PKI healthcheck
+        run: docker exec primary-subca pki-healthcheck --failures-only
+
+      - name: Check primary sub-CA admin
+        run: |
+          docker exec primary-subca pki client-cert-import \
+              --ca-cert $SHARED/root-ca_signing.crt \
+              root-ca_signing
+          docker exec primary-subca pki pkcs12-import \
+              --pkcs12 $SHARED/caadmin.p12 \
+              --pkcs12-password Secret.123
+          docker exec primary-subca pki -n caadmin ca-user-show caadmin
+
+      - name: Set up secondary DS container
+        run: |
+          tests/bin/ds-container-create.sh secondary-ds
+        env:
+          IMAGE: ${{ inputs.db-image }}
+          HOSTNAME: secondary-ds.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect secondary DS container to network
+        run: docker network connect example secondary-ds --alias secondary-ds.example.com
+
+      - name: Set up secondary sub-CA container
+        run: |
+          tests/bin/runner-init.sh secondary-subca
+        env:
+          HOSTNAME: secondary-subca.example.com
+
+      - name: Connect secondary sub-CA container to network
+        run: docker network connect example secondary-subca --alias secondary-subca.example.com
+
+      - name: Install dependencies in secondary PKI container
+        run: |
+          docker exec secondary-subca dnf install -y softhsm
+
+      - name: Copy keys to secondary PKI container
+        run: |
+          # copy tokens from primary sub-CA
+          docker exec primary-subca ls -laR /var/lib/softhsm/tokens
+          docker cp primary-subca:/var/lib/softhsm/tokens/. tokens
+
+          # allow PKI user to access SoftHSM files
+          docker exec secondary-subca usermod pkiuser -a -G ods
+
+          docker cp tokens/. secondary-subca:/var/lib/softhsm/tokens
+          docker exec secondary-subca chown -R pkiuser:pkiuser /var/lib/softhsm/tokens
+          docker exec secondary-subca ls -laR /var/lib/softhsm/tokens
+
+          docker exec secondary-subca runuser -u pkiuser -- \
+              softhsm2-util --show-slots
+
+      - name: Install secondary sub-CA
+        run: |
+          # get CS.cfg from primary sub-CA before cloning
+          docker cp primary-subca:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.primary
+
+          docker exec secondary-subca pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca-clone.cfg \
+              -s CA \
+              -D pki_cert_chain_path=${SHARED}/root-ca_signing.crt \
+              -D pki_cert_chain_nickname=root-ca_signing \
+              -D pki_hsm_enable=True \
+              -D pki_token_name=HSM \
+              -D pki_token_password=Secret.HSM \
+              -D pki_security_domain_hostname=primary-subca.example.com \
+              -D pki_ds_url=ldap://secondary-ds.example.com:3389 \
+              -D pki_ca_signing_token=HSM \
+              -D pki_ocsp_signing_token=HSM \
+              -D pki_audit_signing_token=HSM \
+              -D pki_subsystem_token=HSM \
+              -D pki_sslserver_token=internal \
+              -D pki_cert_id_generator=random \
+              -D pki_request_id_generator=random \
+              -D pki_clone_uri=https://primary-subca.example.com:8443 \
+              -v
+
+      - name: Check CS.cfg in primary sub-CA after cloning
+        run: |
+          # get CS.cfg from primary sub-CA after cloning
+          docker cp primary-subca:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.primary.after
+
+          # normalize expected result:
+          # - remove params that cannot be compared
+          # - set dbs.enableSerialManagement to true (automatically enabled when cloned)
+          sed -e '/^dbs.beginReplicaNumber=/d' \
+              -e '/^dbs.endReplicaNumber=/d' \
+              -e '/^dbs.nextBeginReplicaNumber=/d' \
+              -e '/^dbs.nextEndReplicaNumber=/d' \
+              -e 's/^\(dbs.enableSerialManagement\)=.*$/\1=true/' \
+              CS.cfg.primary \
+              | sort > expected
+
+          # normalize actual result:
+          # - remove params that cannot be compared
+          sed -e '/^dbs.beginReplicaNumber=/d' \
+              -e '/^dbs.endReplicaNumber=/d' \
+              -e '/^dbs.nextBeginReplicaNumber=/d' \
+              -e '/^dbs.nextEndReplicaNumber=/d' \
+              CS.cfg.primary.after \
+              | sort > actual
+
+          diff expected actual
+
+      - name: Check CS.cfg in secondary sub-CA
+        run: |
+          # get CS.cfg from secondary sub-CA
+          docker cp secondary-subca:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.secondary
+
+          # normalize expected result:
+          # - remove params that cannot be compared
+          # - replace primary-subca.example.com with secondary-subca.example.com
+          # - replace primary-ds.example.com with secondary-ds.example.com
+          # - set ca.crl.MasterCRL.enableCRLCache to false (automatically disabled in the clone)
+          # - set ca.crl.MasterCRL.enableCRLUpdates to false (automatically disabled in the clone)
+          # - add params for the clone
+          sed -e '/^installDate=/d' \
+              -e '/^dbs.beginReplicaNumber=/d' \
+              -e '/^dbs.endReplicaNumber=/d' \
+              -e '/^dbs.nextBeginReplicaNumber=/d' \
+              -e '/^dbs.nextEndReplicaNumber=/d' \
+              -e '/^ca.sslserver.cert=/d' \
+              -e '/^ca.sslserver.certreq=/d' \
+              -e 's/primary-subca.example.com/secondary-subca.example.com/' \
+              -e 's/primary-ds.example.com/secondary-ds.example.com/' \
+              -e 's/^\(ca.crl.MasterCRL.enableCRLCache\)=.*$/\1=false/' \
+              -e 's/^\(ca.crl.MasterCRL.enableCRLUpdates\)=.*$/\1=false/' \
+              -e '$ a ca.certStatusUpdateInterval=0' \
+              -e '$ a ca.listenToCloneModifications=false' \
+              -e '$ a master.ca.agent.host=primary-subca.example.com' \
+              -e '$ a master.ca.agent.port=8443' \
+              CS.cfg.primary.after \
+              | sort > expected
+
+          # normalize actual result:
+          # - remove params that cannot be compared
+          # - change hierarchy.select from Root to Subordinate (TODO: fix this)
+          sed -e '/^installDate=/d' \
+              -e '/^dbs.beginReplicaNumber=/d' \
+              -e '/^dbs.endReplicaNumber=/d' \
+              -e '/^dbs.nextBeginReplicaNumber=/d' \
+              -e '/^dbs.nextEndReplicaNumber=/d' \
+              -e '/^ca.sslserver.cert=/d' \
+              -e '/^ca.sslserver.certreq=/d' \
+              -e 's/^\(hierarchy.select\)=.*$/\1=Subordinate/' \
+              CS.cfg.secondary \
+              | sort > actual
+
+          diff expected actual
+
+      - name: Check system certs in internal token
+        run: |
+          # there should be 6 certs in internal token but 2 are missing
+          # TODO: fix pkispawn to import the missing certs
+          echo "4" > expected
+          docker exec secondary-subca pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-find | tee output
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check root CA signing cert in internal token
+        run: |
+          echo "CT,C,C" > expected
+          docker exec secondary-subca pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-show \
+              root-ca_signing | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check ca_signing cert in internal token
+        run: |
+          echo "CT,C,C" > expected
+          docker exec secondary-subca pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-show \
+              ca_signing | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+      # OCSP signing cert is missing from internal token
+      # TODO: fix pkispawn to import OCSP signing cert into internal token
+      #
+      #- name: Check ca_ocsp_signing cert in internal token
+      #  run: |
+      #    echo ",," > expected
+      #    docker exec secondary-subca pki \
+      #        -d /etc/pki/pki-tomcat/alias \
+      #        nss-cert-show \
+      #        ca_ocsp_signing | tee output
+      #    sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+      #    diff expected actual
+
+      - name: Check ca_audit_signing cert in internal token
+        run: |
+          echo ",,P" > expected
+          docker exec secondary-subca pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-show \
+              ca_audit_signing | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+      # subsystem cert is missing from internal token
+      # TODO: fix pkispawn to import subsystem cert into internal token
+      #
+      #- name: Check subsystem cert in internal token
+      #  run: |
+      #    echo ",," > expected
+      #    docker exec secondary-subca pki \
+      #        -d /etc/pki/pki-tomcat/alias \
+      #        nss-cert-show \
+      #        subsystem | tee output
+      #    sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+      #    diff expected actual
+
+      - name: Check sslserver cert in internal token
+        run: |
+          echo "u,u,u" > expected
+          docker exec secondary-subca pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-show \
+              sslserver | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check system certs in HSM
+        run: |
+          echo "4" > expected
+          docker exec secondary-subca pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-find | tee output
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check ca_signing cert in HSM
+        run: |
+          echo "CTu,Cu,Cu" > expected
+          docker exec secondary-subca pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-show \
+              HSM:ca_signing | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check ca_ocsp_signing cert in HSM
+        run: |
+          echo "u,u,u" > expected
+          docker exec secondary-subca pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-show \
+              HSM:ca_ocsp_signing | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check ca_audit_signing cert in HSM
+        run: |
+          echo "u,u,Pu" > expected
+          docker exec secondary-subca pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-show \
+              HSM:ca_audit_signing | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check subsystem cert in HSM
+        run: |
+          echo "u,u,u" > expected
+          docker exec secondary-subca pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-show \
+              HSM:subsystem | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+      - name: Run PKI healthcheck
+        run: docker exec secondary-subca pki-healthcheck --failures-only
+
+      - name: Check secondary sub-CA admin
+        run: |
+          docker exec secondary-subca pki client-cert-import \
+              --ca-cert $SHARED/root-ca_signing.crt \
+              root-ca_signing
+          docker exec secondary-subca pki pkcs12-import \
+              --pkcs12 $SHARED/caadmin.p12 \
+              --pkcs12-password Secret.123
+          docker exec secondary-subca pki -n caadmin ca-user-show caadmin
+
+      - name: Check users in primary sub-CA and secondary sub-CA
+        run: |
+          docker exec primary-subca pki -n caadmin ca-user-find | tee subca-users.primary
+          docker exec secondary-subca pki -n caadmin ca-user-find > subca-users.secondary
+
+          diff subca-users.primary subca-users.secondary
+
+      - name: Check certs in primary sub-CA and secondary sub-CA
+        run: |
+          docker exec primary-subca pki ca-cert-find | tee subca-certs.primary
+          docker exec secondary-subca pki ca-cert-find > subca-certs.secondary
+
+          diff subca-certs.primary subca-certs.secondary
+
+      - name: Gather artifacts from primary sub-CA
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki primary-ds
+          tests/bin/pki-artifacts-save.sh primary-subca
+        continue-on-error: true
+
+      - name: Gather artifacts from secondary sub-CA
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki secondary-ds
+          tests/bin/pki-artifacts-save.sh secondary-subca
+        continue-on-error: true
+
+      - name: Remove secondary sub-CA
+        run: docker exec secondary-subca pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Remove primary sub-CA
+        run: docker exec primary-subca pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Upload artifacts from primary sub-CA
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: subca-clone-hsm-primary
+          path: |
+            /tmp/artifacts/primary-subca
+
+      - name: Upload artifacts from secondary sub-CA
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: subca-clone-hsm-secondary
+          path: |
+            /tmp/artifacts/secondary-subca
