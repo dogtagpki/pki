@@ -150,6 +150,13 @@ jobs:
     with:
       db-image: ${{ needs.init.outputs.db-image }}
 
+  subca-clone-hsm-test:
+    name: Sub-CA clone with HSM
+    needs: [init, build]
+    uses: ./.github/workflows/subca-clone-hsm-test.yml
+    with:
+      db-image: ${{ needs.init.outputs.db-image }}
+
   scep-test:
     name: SCEP responder
     needs: [init, build]
