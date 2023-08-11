@@ -61,7 +61,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             group=deployer.mdict['pki_group'])
 
         clone = deployer.configuration_file.clone
-        master_url = deployer.mdict['pki_clone_uri']
 
         try:
             deployer.import_system_cert_requests(subsystem)
@@ -129,35 +128,18 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             elif not clone and not system_certs_imported:
 
                 issuing_ca = deployer.mdict['pki_issuing_ca']
-                logger.info('Retrieving CA certificate chain from %s', issuing_ca)
+                pem_chain = deployer.retrieve_cert_chain(instance, issuing_ca)
 
-                pem_chain = deployer.get_ca_signing_cert(instance, issuing_ca)
                 base64_chain = pki.nssdb.convert_pkcs7(pem_chain, 'pem', 'base64')
                 subsystem.config['preop.ca.pkcs7'] = base64_chain
 
-                logger.info('Importing CA certificate chain')
-
-                nssdb = instance.open_nssdb()
-                try:
-                    nssdb.import_pkcs7(pkcs7_data=pem_chain, trust_attributes='CT,C,C')
-                finally:
-                    nssdb.close()
-
         if subsystem.type == 'CA' and clone and not system_certs_imported:
 
-            logger.info('Retrieving CA certificate chain from %s', master_url)
+            master_url = deployer.mdict['pki_clone_uri']
+            pem_chain = deployer.retrieve_cert_chain(instance, master_url)
 
-            pem_chain = deployer.get_ca_signing_cert(instance, master_url)
             base64_chain = pki.nssdb.convert_pkcs7(pem_chain, 'pem', 'base64')
             subsystem.config['preop.clone.pkcs7'] = base64_chain
-
-            logger.info('Importing CA certificate chain')
-
-            nssdb = instance.open_nssdb()
-            try:
-                nssdb.import_pkcs7(pkcs7_data=pem_chain, trust_attributes='CT,C,C')
-            finally:
-                nssdb.close()
 
         subsystem.save()
 

@@ -2141,6 +2141,22 @@ class PKIDeployer:
             cert_chain_file=chain_file,
             trust_attributes='CT,C,C')
 
+    def retrieve_cert_chain(self, instance, url):
+
+        logger.info('Retrieving cert chain from %s', url)
+        cert_chain = self.get_ca_signing_cert(instance, url)
+
+        logger.info('Importing cert chain from %s', url)
+        nssdb = instance.open_nssdb()
+        try:
+            nssdb.import_pkcs7(
+                pkcs7_data=cert_chain,
+                trust_attributes='CT,C,C')
+        finally:
+            nssdb.close()
+
+        return cert_chain
+
     def import_system_certs(self, nssdb, subsystem):
 
         logger.debug("import_system_certs")
