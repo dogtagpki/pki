@@ -1078,11 +1078,6 @@ class PKIDeployer:
         # configure CA
         if subsystem.type == 'CA':
 
-            if external or subordinate:
-                subsystem.config['hierarchy.select'] = 'Subordinate'
-            else:
-                subsystem.config['hierarchy.select'] = 'Root'
-
             if subordinate:
                 subsystem.config['preop.cert.signing.type'] = 'remote'
                 subsystem.config['preop.cert.signing.profile'] = 'caInstallCACert'
