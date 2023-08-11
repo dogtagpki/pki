@@ -229,7 +229,6 @@ jobs:
 
           # normalize actual result:
           # - remove params that cannot be compared
-          # - change hierarchy.select from Root to Subordinate (TODO: fix this)
           sed -e '/^installDate=/d' \
               -e '/^dbs.beginReplicaNumber=/d' \
               -e '/^dbs.endReplicaNumber=/d' \
@@ -237,7 +236,6 @@ jobs:
               -e '/^dbs.nextEndReplicaNumber=/d' \
               -e '/^ca.sslserver.cert=/d' \
               -e '/^ca.sslserver.certreq=/d' \
-              -e 's/^\(hierarchy.select\)=.*$/\1=Subordinate/' \
               CS.cfg.secondary \
               | sort > actual
 

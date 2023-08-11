@@ -174,7 +174,7 @@ class PKIServerCLI(pki.cli.CLI):
             print()
             print('  CA Subsystem:')
 
-            subsystem_type = ca.config['hierarchy.select'] + ' CA'
+            subsystem_type = 'CA'
             if ca.config['securitydomain.select'] == 'new':
                 subsystem_type += ' (Security Domain)'
             print('    Type:                %s' % subsystem_type)

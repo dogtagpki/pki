@@ -26,4 +26,8 @@ class RemoveUnusedParams(pki.server.upgrade.PKIServerUpgradeScriptlet):
         logger.info('Removing subsystem.select')
         subsystem.config.pop('subsystem.select', None)
 
+        # remove hierarchy.select param
+        logger.info('Removing hierarchy.select')
+        subsystem.config.pop('hierarchy.select', None)
+
         subsystem.save()
