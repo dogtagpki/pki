@@ -713,13 +713,16 @@ class PKIDeployer:
     def install_cert_chain(self, subsystem):
 
         param = 'pki_cert_chain_path'
-        ca_cert_path = self.mdict.get(param)
+        cert_chain_path = self.mdict.get(param)
 
-        if not ca_cert_path or not os.path.exists(ca_cert_path):
+        if not cert_chain_path:
             # no cert chain to import
             return
 
-        logger.info('Importing cert chain from %s', ca_cert_path)
+        if not os.path.exists(cert_chain_path):
+            raise Exception('Certificate chain not found: %s' % cert_chain_path)
+
+        logger.info('Importing cert chain from %s', cert_chain_path)
 
         instance = subsystem.instance
 
@@ -736,7 +739,7 @@ class PKIDeployer:
         # validation there. This is only usually necessary when
         # installing a non-CA subsystem on a fresh system.
 
-        instance.copyfile(ca_cert_path, destination)
+        instance.copyfile(cert_chain_path, destination)
 
     def import_ds_ca_cert(self, subsystem):
 
@@ -2126,19 +2129,22 @@ class PKIDeployer:
         logger.debug('PKIDeployer.import_cert_chain()')
 
         param = 'pki_cert_chain_path'
-        chain_file = self.mdict.get(param)
+        cert_chain_path = self.mdict.get(param)
 
-        if not chain_file or not os.path.exists(chain_file):
+        if not cert_chain_path:
             # no cert chain to import
             return
 
-        logger.info('Importing cert chain from %s', chain_file)
+        if not os.path.exists(cert_chain_path):
+            raise Exception('Certificate chain not found: %s' % cert_chain_path)
+
+        logger.info('Importing cert chain from %s', cert_chain_path)
 
         nickname = self.mdict['pki_cert_chain_nickname']
 
         nssdb.import_cert_chain(
             nickname=nickname,
-            cert_chain_file=chain_file,
+            cert_chain_file=cert_chain_path,
             trust_attributes='CT,C,C')
 
     def retrieve_cert_chain(self, instance, url):
@@ -2361,7 +2367,6 @@ class PKIDeployer:
             if cert_chain_path:
 
                 if not os.path.exists(cert_chain_path):
-                    # if cert chain is specified but doesn't exist, throw exception
                     raise Exception('Certificate chain not found: %s' % cert_chain_path)
 
                 ca_cert = cert_chain_path
