@@ -330,12 +330,11 @@ jobs:
               -p 8080 \
               -t /ocsp/ee/ocsp \
               -c ca_signing \
-              --serial $CERT_ID \
-              > >(tee stdout) 2> >(tee stderr >&2) || true
+              --serial $CERT_ID | tee output
 
-          # the responder should fail
-          sed -n "s/^SEVERE:\s*\(\S*\)/\1/p" stderr > actual
-          echo "InvalidBERException: Incorrect tag: expected [UNIVERSAL 16], found [UNIVERSAL 28]" > expected
+          # the responder does not provide valid answer
+          sed -n "s/^CertStatus=\(.*\)$/\1/p" output > actual
+          echo "Unknown" > expected
           diff expected actual
 
           # check cert status using OpenSSL
@@ -343,21 +342,15 @@ jobs:
               -url http://ocsp.example.com:8080/ocsp/ee/ocsp \
               -CAfile ${SHARED}/ca_signing.crt \
               -issuer ${SHARED}/ca_signing.crt \
-              -serial $CERT_ID \
-              > >(tee stdout) 2> >(tee stderr >&2) || true
-
-          # remove the random parts of stderr so it can be compared
-          sed -i "s/^[^:]*:error:/error:/g" stderr
+              -serial $CERT_ID | tee output
 
           # remove file names and line numbers so it can be compared
-          sed -i "s/^\([^:]*:[^:]*:[^:]*:[^:]*:[^:]*:\)[^:]*:[^:]*:/\1/" stderr
+          sed -n "s/^$CERT_ID:\s*\(\S*\)$/\1/p" output > actual
 
-          # the responder should fail
-          echo "Error querying OCSP responder" > expected
-          echo "error:1E800076:HTTP routines:OSSL_HTTP_REQ_CTX_nbio:unexpected content type:expected=application/ocsp-response, actual=text/html" >> expected
-          echo "error:1E800067:HTTP routines:OSSL_HTTP_REQ_CTX_exchange:error receiving:server=http://ocsp.example.com:8080" >> expected
+          # the responder does not provide valid answer
+          echo "unknown" > expected
 
-          diff expected stderr
+          diff expected actual
 
       - name: Check OCSP responder with initial CRL
         run: |
