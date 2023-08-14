@@ -315,7 +315,8 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         X509CertImpl theCert = null;
         X509CRLImpl theCRL = null;
         CRLIssuingPointRecord theRec = null;
-        byte keyhsh[] = cid.getIssuerKeyHash().toByteArray();
+        byte[] keyhsh = cid.getIssuerKeyHash().toByteArray();
+        byte[] namehash = cid.getIssuerNameHash().toByteArray();
         logger.info("DefStore: Issuer key hash: " + new String(Hex.encodeHex(keyhsh)));
 
         CRLIPContainer matched = mCacheCRLIssuingPoints.get(new String(keyhsh));
@@ -343,20 +344,22 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
 
                 MessageDigest md = MessageDigest.getInstance(cid.getDigestName());
                 X509Key key = (X509Key) cert.getPublicKey();
-                byte digest[] = md.digest(key.getKey());
-                logger.info("DefStore:   Digest: " + new String(Hex.encodeHex(digest)));
 
-                if (!Arrays.equals(digest, keyhsh)) {
+                byte[] digest = md.digest(key.getKey());
+                logger.info("DefStore:   Digest: " + new String(Hex.encodeHex(digest)));
+                byte[] name = md.digest(cert.getSubjectObj().getX500Name().getEncoded());
+
+                if (!Arrays.equals(digest, keyhsh) && Arrays.equals(name, namehash)) {
+                    theCert = cert;
                     continue;
                 }
-
                 logger.info("DefStore: Found issuer");
 
                 theCert = cert;
                 theRec = rec;
                 incReqCount(theRec.getId());
 
-                byte crldata[] = rec.getCRL();
+                byte[] crldata = rec.getCRL();
                 logger.info("DefStore: CRL: " + crldata);
 
                 if (crldata == null) {
@@ -391,7 +394,9 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         logger.info("DefStore: Issuer: " + theCert);
 
         if (theCert == null) {
-            throw new Exception("Missing issuer certificate");
+            logger.info("Missing issuer certificate");
+            // Unknown cert so respond with unknown state
+            return new SingleResponse(cid, new UnknownInfo(), new GeneralizedTime(new Date()), null);
         }
 
         logger.info("DefStore: Issuer: " + theCert.getSubjectX500Principal());
