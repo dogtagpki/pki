@@ -196,7 +196,7 @@ public class TPSProcessor {
         if (theTokenType == null) {
             throw new NullPointerException("TPSProcessor.setSelectedTokenType: Attempt to set invalid null token type!");
         }
-        logger.debug("TPS_Processor.setSelectedTokenType: tokenType=" + theTokenType);
+        logger.debug("TPSProcessor.setSelectedTokenType: tokenType=" + theTokenType);
         selectedTokenType = theTokenType;
 
         TokenRecord tokenRecord = getTokenRecord();
@@ -216,7 +216,7 @@ public class TPSProcessor {
         if (theKeySet == null) {
             throw new NullPointerException("TPSProcessor.setSelectedKeySet: Attempt to set invalid null key set!");
         }
-        logger.debug("TPS_Processor.setSelectedKeySet: keySet=" + theKeySet);
+        logger.debug("TPSProcessor.setSelectedKeySet: keySet=" + theKeySet);
         selectedKeySet = theKeySet;
 
     }
@@ -241,7 +241,7 @@ public class TPSProcessor {
     protected TPSBuffer extractTokenCUID(TPSBuffer cplc_data) throws TPSException {
         //Just make sure no one is inputing bogus cplc_data
         if (cplc_data == null || cplc_data.size() < CPLC_DATA_SIZE) {
-            logger.error("TPS_Processor.extractTokenCUID: cplc_data: invalid length.");
+            logger.error("TPSProcessor.extractTokenCUID: cplc_data: invalid length.");
             throw new TPSException("TPSProcessor.extractTokenCUID: Can't extract cuid from cplc data!",
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
         }
@@ -284,7 +284,7 @@ public class TPSProcessor {
 
     protected APDUResponse selectApplet(byte p1, byte p2, TPSBuffer aid) throws IOException, TPSException {
 
-        logger.debug("In TPS_Processor.SelectApplet.");
+        logger.debug("In TPSProcessor.selectApplet");
 
         if (aid == null || aid.size() == 0) {
             throw new TPSException("TPSProcessor.selectApplet: Invalid aid value!",
@@ -302,7 +302,7 @@ public class TPSProcessor {
 
     protected TPSBuffer getStatus() throws IOException, TPSException {
 
-        logger.debug("In TPS_Processor.GetStatus.");
+        logger.debug("In TPSProcessor.getStatus");
 
         GetStatusAPDU get_status_apdu = new GetStatusAPDU();
 
@@ -320,7 +320,7 @@ public class TPSProcessor {
         try {
             session.write(request_msg);
         } catch (IOException e) {
-            logger.error("TPS_Processor.HandleAPDURequest failed WriteMsg: " + e.getMessage(), e);
+            logger.error("TPSProcessor.handleAPDURequest failed WriteMsg: " + e.getMessage(), e);
             throw e;
 
         }
@@ -330,7 +330,7 @@ public class TPSProcessor {
         try {
             response_msg = (TokenPDUResponseMsg) session.read();
         } catch (IOException e) {
-            logger.error("TPS_Processor.HandleAPDURequest failed ReadMsg: " + e.getMessage(), e);
+            logger.error("TPSProcessor.handleAPDURequest failed ReadMsg: " + e.getMessage(), e);
             throw e;
 
         }
@@ -339,7 +339,7 @@ public class TPSProcessor {
     }
 
     protected TPSBuffer getCplcData() throws IOException, TPSException {
-        logger.debug("In TPS_Processor. getCplcData");
+        logger.debug("In TPSProcessor.getCplcData");
 
         GetDataAPDU get_data_apdu = new GetDataAPDU();
 
@@ -2733,17 +2733,17 @@ public class TPSProcessor {
         TPSEngine engine = TPSEngine.getInstance();
         TPSEngineConfig configStore = engine.getConfig();
         String External_Reg_Cfg = TPSEngine.CFG_EXTERNAL_REG + "." + "enable";
-        logger.debug("TPS_Processor.checkIsExternalReg: getting config:" + External_Reg_Cfg);
+        logger.debug("TPSProcessor.checkIsExternalReg: getting config:" + External_Reg_Cfg);
 
         try {
             //These defaults are well known, it is safe to use them.
 
-            logger.debug("In TPS_Processor.checkIsExternalReg.");
+            logger.debug("In TPSProcessor.checkIsExternalReg.");
 
             this.isExternalReg = configStore.getBoolean(External_Reg_Cfg, false);
-            logger.debug("In TPS_Processor.checkIsExternalReg. isExternalReg: " + isExternalReg);
+            logger.debug("In TPSProcessor.checkIsExternalReg. isExternalReg: " + isExternalReg);
         } catch (EBaseException e1) {
-            logger.error("TPS_Processor.checkIsExternalReg: Internal Error obtaining mandatory config values: "
+            logger.error("TPSProcessor.checkIsExternalReg: Internal Error obtaining mandatory config values: "
                     + e1.getMessage(), e1);
             throw new TPSException("TPS error getting config values from config store.",
                     TPSStatus.STATUS_ERROR_MISCONFIGURATION);
@@ -2909,7 +2909,7 @@ public class TPSProcessor {
                     TPSEngine.CFG_DEF_NETKEY_INSTANCE_AID);
 
         } catch (EBaseException e1) {
-            logger.error("TPS_Processor.getNetkeyAID: Internal Error obtaining mandatory config values: " + e1.getMessage(), e1);
+            logger.error("TPSProcessor.getNetkeyAID: Internal Error obtaining mandatory config values: " + e1.getMessage(), e1);
             throw new TPSException("TPS error getting config values from config store.", TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
 
@@ -2930,7 +2930,7 @@ public class TPSProcessor {
                     TPSEngine.CFG_APPLET_NETKEY_FILE_AID, TPSEngine.CFG_DEF_NETKEY_FILE_AID);
 
         } catch (EBaseException e1) {
-            logger.error("TPS_Processor.getNetkeyAID: Internal Error obtaining mandatory config values: " + e1.getMessage(), e1);
+            logger.error("TPSProcessor.getNetkeyAID: Internal Error obtaining mandatory config values: " + e1.getMessage(), e1);
             throw new TPSException("TPS error getting config values from config store.", TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
 
@@ -2951,7 +2951,7 @@ public class TPSProcessor {
                     TPSEngine.CFG_DEF_CARDMGR_INSTANCE_AID);
 
         } catch (EBaseException e1) {
-            logger.error("TPS_Processor.getNetkeyAID: Internal Error obtaining mandatory config values: " + e1.getMessage(), e1);
+            logger.error("TPSProcessor.getNetkeyAID: Internal Error obtaining mandatory config values: " + e1.getMessage(), e1);
             throw new TPSException("TPS error getting config values from config store.", TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
 
@@ -3234,7 +3234,7 @@ public class TPSProcessor {
         byte app_major_version = 0x0;
         byte app_minor_version = 0x0;
 
-        logger.debug("TPS_Processor.getAppletInfo: status: " + token_status.toHexString());
+        logger.debug("TPSProcessor.getAppletInfo: status: " + token_status.toHexString());
         if (token_status.size() >= 4) {
             major_version = token_status.at(0);
             minor_version = token_status.at(1);
