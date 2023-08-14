@@ -321,7 +321,8 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         X509CertImpl theCert = null;
         X509CRLImpl theCRL = null;
         ICRLIssuingPointRecord theRec = null;
-        byte keyhsh[] = cid.getIssuerKeyHash().toByteArray();
+        byte[] keyhsh = cid.getIssuerKeyHash().toByteArray();
+        byte[] namehash = cid.getIssuerNameHash().toByteArray();
         CRLIPContainer matched = mCacheCRLIssuingPoints.get(new String(keyhsh));
 
         if (matched == null) {
@@ -331,7 +332,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
 
             while (recs.hasMoreElements()) {
                 ICRLIssuingPointRecord rec = recs.nextElement();
-                byte certdata[] = rec.getCACert();
+                byte[] certdata = rec.getCACert();
                 X509CertImpl cert = null;
 
                 try {
@@ -343,17 +344,21 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
 
                 MessageDigest md = MessageDigest.getInstance(cid.getDigestName());
                 X509Key key = (X509Key) cert.getPublicKey();
-                byte digest[] = md.digest(key.getKey());
 
-                if (!Arrays.equals(digest, keyhsh)) {
+                byte[] digest = md.digest(key.getKey());
+                byte[] name = md.digest(cert.getSubjectObj().getX500Name().getEncoded());
+
+                if (!Arrays.equals(digest, keyhsh) || !Arrays.equals(name, namehash)) {
+                    theCert = cert;
                     continue;
                 }
-
+                logger.info("DefStore: Found issuer");
                 theCert = cert;
                 theRec = rec;
                 incReqCount(theRec.getId());
 
-                byte crldata[] = rec.getCRL();
+                byte[] crldata = rec.getCRL();
+                logger.info("DefStore: CRL: " + crldata);
 
                 if (crldata == null) {
                     throw new Exception("Missing CRL data");
@@ -384,7 +389,9 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         }
 
         if (theCert == null) {
-            throw new Exception("Missing issuer certificate");
+            logger.warn("Missing issuer certificate");
+            // Unknown cert so respond with unknown state
+            return new SingleResponse(cid, new UnknownInfo(), new GeneralizedTime(new Date()), null);
         }
 
         // check the serial number
