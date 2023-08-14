@@ -52,7 +52,7 @@ import com.netscape.kra.KeyRecoveryAuthority;
  * Check to see if a Key Recovery Request has been approved
  */
 @WebServlet(
-        name = "kraGenerateKeyPair",
+        name = "kraKRAGetApprovalStatus",
         urlPatterns = "/agent/kra/getApprovalStatus",
         initParams = {
                 @WebInitParam(name="GetClientCert", value="true"),
