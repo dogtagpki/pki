@@ -23,6 +23,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
 import org.mozilla.jss.netscape.security.util.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.apps.CMS;
@@ -38,6 +40,8 @@ import com.netscape.cmscore.apps.CMS;
  * @see ConfigStore
  */
 public class FileConfigStorage extends ConfigStorage {
+
+    public final static Logger logger = LoggerFactory.getLogger(FileConfigStorage.class);
 
     private File mFile;
 
@@ -76,6 +80,16 @@ public class FileConfigStorage extends ConfigStorage {
      */
     @Override
     public void commit(ConfigStore config, boolean createBackup) throws EBaseException {
+
+        StackTraceElement[] ste = Thread.currentThread().getStackTrace();
+        if (ste.length > 3) {
+            // log the code that calls ConfigStore.commit()
+            StackTraceElement st = ste[3];
+            String className = st.getClassName();
+            className = className.substring(className.lastIndexOf('.') + 1);
+            logger.info("{}: Storing config into {}", className, mFile.getPath());
+        }
+
         if (createBackup) {
             File newName = new File(mFile.getPath() + "." +
                     Long.toString(System.currentTimeMillis()));
