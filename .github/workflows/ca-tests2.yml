@@ -143,6 +143,13 @@ jobs:
     with:
       db-image: ${{ needs.init.outputs.db-image }}
 
+  subca-clone-test:
+    name: Sub-CA clone
+    needs: [init, build]
+    uses: ./.github/workflows/subca-clone-test.yml
+    with:
+      db-image: ${{ needs.init.outputs.db-image }}
+
   scep-test:
     name: SCEP responder
     needs: [init, build]
