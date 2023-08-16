@@ -12,3 +12,4 @@ tests/artifacts/
 tests/tests.retry
 base/util/test/PKICertImport/dbs
 target/
+.flattened-pom.xml
