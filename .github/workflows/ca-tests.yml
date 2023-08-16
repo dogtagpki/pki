@@ -1156,6 +1156,11 @@ jobs:
           path: |
             /tmp/artifacts/secondary
 
+  subca-clone-test:
+    name: Sub-CA clone
+    needs: [init, build]
+    uses: ./.github/workflows/subca-clone-test.yml
+
   scep-test:
     name: Testing SCEP responder
     needs: [init, build]
