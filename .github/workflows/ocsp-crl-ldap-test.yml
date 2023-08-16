@@ -332,7 +332,7 @@ jobs:
               -c ca_signing \
               --serial $CERT_ID | tee output
 
-          # the responder does not provide valid answer
+          # the responder should return "Unknown"
           sed -n "s/^CertStatus=\(.*\)$/\1/p" output > actual
           echo "Unknown" > expected
           diff expected actual
@@ -347,7 +347,7 @@ jobs:
           # remove file names and line numbers so it can be compared
           sed -n "s/^$CERT_ID:\s*\(\S*\)$/\1/p" output > actual
 
-          # the responder does not provide valid answer
+          # the responder should return "unknown"
           echo "unknown" > expected
 
           diff expected actual

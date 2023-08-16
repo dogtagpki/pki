@@ -443,7 +443,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
         }
 
         if (theCert == null) {
-            logger.info("Missing issuer certificate");
+            logger.warn("Missing issuer certificate");
             // Unknown cert so respond with unknown state
             return new SingleResponse(cid, new UnknownInfo(), new GeneralizedTime(new Date()), null);
         }

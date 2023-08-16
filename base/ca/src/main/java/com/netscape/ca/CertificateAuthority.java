@@ -1389,7 +1389,7 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
                     MessageDigest md = MessageDigest.getInstance(digestName);
                     nameHash = md.digest(ocspCA.getSubjectObj().getX500Name().getEncoded());
                 } catch (NoSuchAlgorithmException | IOException e) {
-                    logger.info("CertificateAuthority: OCSP request hash algorithm " + digestName + " not recognised - ");
+                    logger.warn("CertificateAuthority: OCSP request hash algorithm " + digestName + " not recognised: " + e.getMessage(), e);
                 }
             }
             if(Arrays.equals(nameHash, cid.getIssuerNameHash().toByteArray())) {
@@ -1583,6 +1583,7 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
                 nameHash = md.digest(mName.getEncoded());
                 keyHash = md.digest(key.getKey());
             } catch (NoSuchAlgorithmException | IOException e) {
+                logger.warn("CertificateAuthority: OCSP request hash algorithm " + digestName + " not recognised: " + e.getMessage(), e);
             }
         }
         if (!Arrays.equals(cid.getIssuerNameHash().toByteArray(), nameHash) ||
@@ -1666,11 +1667,11 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
                 certStatus = new UnknownInfo();
             }
         } catch (EDBRecordNotFoundException e) {
-            logger.debug(name + "cert record not found");
+            logger.debug("{} cert record not found", name);
             certStatus = new UnknownInfo(); // not issued by this CA
         } catch (Exception e) {
             // internal error
-            logger.debug(name + "failed on certificateRepository.readCertificateRecord " + e.toString());
+            logger.error(name + " Unable to retrieve certificate record: " + e.getMessage(), e);
             certStatus = new UnknownInfo();
         }
 
