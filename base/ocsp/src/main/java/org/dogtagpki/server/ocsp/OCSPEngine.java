@@ -31,7 +31,6 @@ import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
 import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback.ValidityStatus;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -46,7 +45,6 @@ import com.netscape.ocsp.OCSPAuthority;
 public class OCSPEngine extends CMSEngine {
 
     static OCSPEngine instance;
-    protected SSLCertificateApprovalCallback approvalCallback;
 
     public OCSPEngine() {
         super("OCSP");
@@ -101,12 +99,12 @@ public class OCSPEngine extends CMSEngine {
 
 
         initDebug();
+        initAuditor();
         init();
         initPasswordStore();
         initSubsystemListeners();
         initSecurityProvider();
         initPluginRegistry();
-        initAuditor();
         initLogSubsystem();
 
         initClientSocketListener();
@@ -217,13 +215,5 @@ public class OCSPEngine extends CMSEngine {
         }
         logger.info("OCSPEngine: peer certificate not valid");
         return false;
-    }
-
-    public SSLCertificateApprovalCallback getApprovalCallback() {
-        return approvalCallback;
-    }
-
-    public void setApprovalCallback(SSLCertificateApprovalCallback approvalCallback) {
-        this.approvalCallback = approvalCallback;
     }
 }

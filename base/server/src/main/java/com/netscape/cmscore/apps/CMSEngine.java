@@ -50,6 +50,7 @@ import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SecurityDomainSessionTable;
@@ -184,11 +185,21 @@ public class CMSEngine {
     private static final int PW_CANNOT_CONNECT = 3;
     private static final int PW_MAX_ATTEMPTS = 3;
 
+    protected static SSLCertificateApprovalCallback approvalCallback;
+
     public CMSEngine(String name) {
         this.id = name.toLowerCase();
         this.name = name;
 
         logger.info("Creating " + name + " engine");
+    }
+
+    public static SSLCertificateApprovalCallback getApprovalCallback() {
+        return approvalCallback;
+    }
+
+    public static void setApprovalCallback(SSLCertificateApprovalCallback approvalCallback) {
+        CMSEngine.approvalCallback = approvalCallback;
     }
 
     public String getID() {
