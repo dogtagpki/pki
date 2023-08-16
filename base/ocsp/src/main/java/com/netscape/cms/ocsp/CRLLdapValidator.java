@@ -33,7 +33,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
+import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 
 public class CRLLdapValidator implements SSLCertificateApprovalCallback {
 
@@ -52,17 +52,17 @@ public class CRLLdapValidator implements SSLCertificateApprovalCallback {
     @Override
     public boolean approve(X509Certificate certificate, ValidityStatus currentStatus) {
         logger.info("CRLLdapValidator: validate of peer's certificate for the connection " + certificate.getSubjectDN());
-        ICRLIssuingPointRecord pt = null;
+        CRLIssuingPointRecord pt = null;
         try {
             X509CertImpl peerCert = new X509CertImpl(certificate.getEncoded());
-            Enumeration<ICRLIssuingPointRecord> eCRL = crlStore.searchAllCRLIssuingPointRecord(-1);
+            Enumeration<CRLIssuingPointRecord> eCRL = crlStore.searchAllCRLIssuingPointRecord(-1);
             AuthorityKeyIdentifierExtension peerAKIExt = (AuthorityKeyIdentifierExtension) peerCert.getExtension(PKIXExtensions.AuthorityKey_Id.toString());
             if(peerAKIExt == null) {
                 logger.error("CRLLdapValidator: the certificate has not Authority Key Identifier Extension. CRL verification cannot be done.");
                 return false;
             }
             while (eCRL.hasMoreElements() && pt == null) {
-                ICRLIssuingPointRecord tPt = eCRL.nextElement();
+                CRLIssuingPointRecord tPt = eCRL.nextElement();
                 logger.debug("CRLLdapValidator: CRL check issuer  " + tPt.getId());
                 X509CertImpl caCert = new X509CertImpl(tPt.getCACert());
                 try {

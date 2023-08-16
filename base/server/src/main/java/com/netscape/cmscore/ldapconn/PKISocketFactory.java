@@ -26,8 +26,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
-import org.dogtagpki.server.ocsp.OCSPEngine;
-import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.ssl.SSLClientCertificateSelectionCallback;
 import org.mozilla.jss.ssl.SSLHandshakeCompletedEvent;
 import org.mozilla.jss.ssl.SSLHandshakeCompletedListener;
@@ -36,6 +34,7 @@ import org.mozilla.jss.ssl.SSLSocketListener;
 
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.logging.event.ClientAccessSessionEstablishEvent;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -175,14 +174,9 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
         // let it inherit TLS range and cipher settings
 
         SSLSocket s;
-        SSLCertificateApprovalCallback callback = null;
-
-        if (OCSPEngine.getInstance() != null) {
-            callback = OCSPEngine.getInstance().getApprovalCallback();
-        }
 
         if (clientCertNickname == null) {
-            s = new SSLSocket(host, port, null, 0, callback, null);
+            s = new SSLSocket(host, port, null, 0, CMSEngine.getApprovalCallback(), null);
         } else {
             // Let's create a selection callback in the case the client auth
             // No longer manually set the cert name.
@@ -191,7 +185,7 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
 
             Socket js = new Socket(InetAddress.getByName(host), port);
             s = new SSLSocket(js, host,
-                    callback,
+                    CMSEngine.getApprovalCallback(),
                     new SSLClientCertificateSelectionCB(clientCertNickname));
         }
 

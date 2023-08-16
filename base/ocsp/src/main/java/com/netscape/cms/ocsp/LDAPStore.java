@@ -28,7 +28,6 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Vector;
 
-import org.dogtagpki.server.ocsp.OCSPEngine;
 import org.mozilla.jss.asn1.GeneralizedTime;
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
@@ -42,6 +41,7 @@ import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.cmscore.dbs.DBSubsystem;
@@ -287,7 +287,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             updater.start();
         }
         if(mValidateConnection) {
-            OCSPEngine.getInstance().setApprovalCallback(new CRLLdapValidator(this));
+            CMSEngine.setApprovalCallback(new CRLLdapValidator(this));
         }
     }
 
