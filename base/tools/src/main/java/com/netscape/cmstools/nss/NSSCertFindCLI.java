@@ -57,7 +57,8 @@ public class NSSCertFindCLI extends CommandCLI {
                 System.out.println();
             }
 
-            NSSCertCLI.printCertInfo(cert);
+            NSSCertInfo certInfo = NSSCertCLI.createCertInfo(cert);
+            NSSCertCLI.printCertInfo(certInfo);
         }
     }
 }

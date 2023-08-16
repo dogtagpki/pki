@@ -48,6 +48,10 @@ public class NSSCertShowCLI extends CommandCLI {
         option = new Option(null, "cert-format", true, "Certificate format: PEM (default), DER");
         option.setArgName("format");
         options.addOption(option);
+
+        option = new Option(null, "output-format", true, "Output format: text (default), json");
+        option.setArgName("format");
+        options.addOption(option);
     }
 
     public X509Certificate findCertByNickname(String nickname) throws Exception {
@@ -112,6 +116,7 @@ public class NSSCertShowCLI extends CommandCLI {
 
         String certFile = cmd.getOptionValue("cert-file");
         String certFormat = cmd.getOptionValue("cert-format", "PEM");
+        String outputFormat = cmd.getOptionValue("output-format", "text");
 
         String[] cmdArgs = cmd.getArgs();
         String nickname = null;
@@ -135,6 +140,16 @@ public class NSSCertShowCLI extends CommandCLI {
             throw new CLIException("Missing certificate nickname or certificate file");
         }
 
-        NSSCertCLI.printCertInfo(cert);
+        NSSCertInfo certInfo = NSSCertCLI.createCertInfo(cert);
+
+        if ("json".equalsIgnoreCase(outputFormat)) {
+            System.out.println(certInfo.toJSON());
+
+        } else if ("text".equalsIgnoreCase(outputFormat)) {
+            NSSCertCLI.printCertInfo(certInfo);
+
+        } else {
+            throw new CLIException("Unsupported output format: " + outputFormat);
+        }
     }
 }

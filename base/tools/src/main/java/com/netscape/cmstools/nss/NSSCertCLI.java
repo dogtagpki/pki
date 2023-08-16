@@ -24,20 +24,34 @@ public class NSSCertCLI extends CLI {
         addModule(new NSSCertShowCLI(this));
     }
 
-    public static void printCertInfo(X509Certificate cert) throws Exception {
+    public static NSSCertInfo createCertInfo(X509Certificate cert) throws Exception {
 
-        System.out.println("  Nickname: " + cert.getNickname());
+        NSSCertInfo certInfo = new NSSCertInfo();
 
-        CertId serialNumber = new CertId(cert.getSerialNumber());
-        System.out.println("  Serial Number: " + serialNumber.toHexString());
+        certInfo.setNickname(cert.getNickname());
+        certInfo.setSerialNumber(new CertId(cert.getSerialNumber()));
 
-        System.out.println("  Subject DN: " + cert.getSubjectDN());
-        System.out.println("  Issuer DN: " + cert.getIssuerDN());
+        certInfo.setSubjectDN(cert.getSubjectDN().toString());
+        certInfo.setIssuerDN(cert.getIssuerDN().toString());
 
         PK11Cert pk11Cert = (PK11Cert) cert;
-        System.out.println("  Not Valid Before: " + pk11Cert.getNotBefore());
-        System.out.println("  Not Valid After: " + pk11Cert.getNotAfter());
 
-        System.out.println("  Trust Flags: " + pk11Cert.getTrustFlags());
+        certInfo.setNotBefore(pk11Cert.getNotBefore());
+        certInfo.setNotAfter(pk11Cert.getNotAfter());
+
+        certInfo.setTrustFlags(pk11Cert.getTrustFlags());
+
+        return certInfo;
+    }
+
+    public static void printCertInfo(NSSCertInfo cert) throws Exception {
+
+        System.out.println("  Nickname: " + cert.getNickname());
+        System.out.println("  Serial Number: " + cert.getSerialNumber().toHexString());
+        System.out.println("  Subject DN: " + cert.getSubjectDN());
+        System.out.println("  Issuer DN: " + cert.getIssuerDN());
+        System.out.println("  Not Valid Before: " + cert.getNotBefore());
+        System.out.println("  Not Valid After: " + cert.getNotAfter());
+        System.out.println("  Trust Flags: " + cert.getTrustFlags());
     }
 }
