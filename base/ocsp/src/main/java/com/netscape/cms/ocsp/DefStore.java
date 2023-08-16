@@ -346,7 +346,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                 X509Key key = (X509Key) cert.getPublicKey();
 
                 byte[] digest = md.digest(key.getKey());
-                logger.info("DefStore:   Digest: " + new String(Hex.encodeHex(digest)));
+                logger.info("DefStore:   Digest: {}", new String(Hex.encodeHex(digest)));
                 byte[] name = md.digest(cert.getSubjectObj().getX500Name().getEncoded());
 
                 if (!Arrays.equals(digest, keyhsh) && Arrays.equals(name, namehash)) {
@@ -379,7 +379,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                     logger.debug("DefStore: using crl cache");
                 }
 
-                logger.info("DefStore: Adding CRL issuing point container for " + new String(Hex.encodeHex(digest)));
+                logger.info("DefStore: Adding CRL issuing point container for {}", new String(Hex.encodeHex(digest)));
                 mCacheCRLIssuingPoints.put(new String(digest), new CRLIPContainer(theRec, theCert, theCRL));
                 break;
             }
@@ -394,7 +394,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         logger.info("DefStore: Issuer: " + theCert);
 
         if (theCert == null) {
-            logger.info("Missing issuer certificate");
+            logger.warn("Missing issuer certificate");
             // Unknown cert so respond with unknown state
             return new SingleResponse(cid, new UnknownInfo(), new GeneralizedTime(new Date()), null);
         }
