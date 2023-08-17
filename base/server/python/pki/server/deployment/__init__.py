@@ -1619,7 +1619,7 @@ class PKIDeployer:
         if not token:
             token = self.mdict['pki_token_name']
 
-        nssdb = subsystem.instance.open_nssdb(
+        nssdb = self.instance.open_nssdb(
             token=token,
             user=self.mdict.get('pki_user'),
             group=self.mdict.get('pki_group'),
@@ -1665,7 +1665,7 @@ class PKIDeployer:
         if not token:
             token = self.mdict['pki_token_name']
 
-        nssdb = subsystem.instance.open_nssdb(token)
+        nssdb = self.instance.open_nssdb(token)
 
         try:
             self.generate_csr(
@@ -1705,7 +1705,7 @@ class PKIDeployer:
         if not token:
             token = self.mdict['pki_token_name']
 
-        nssdb = subsystem.instance.open_nssdb(token)
+        nssdb = self.instance.open_nssdb(token)
 
         try:
             self.generate_csr(
@@ -1733,7 +1733,7 @@ class PKIDeployer:
         if not token:
             token = self.mdict['pki_token_name']
 
-        nssdb = subsystem.instance.open_nssdb(token)
+        nssdb = self.instance.open_nssdb(token)
 
         try:
             self.generate_csr(
@@ -1771,7 +1771,7 @@ class PKIDeployer:
         if not token:
             token = self.mdict['pki_token_name']
 
-        nssdb = subsystem.instance.open_nssdb(token)
+        nssdb = self.instance.open_nssdb(token)
 
         try:
             self.generate_csr(
@@ -1812,7 +1812,7 @@ class PKIDeployer:
         if not token:
             token = self.mdict['pki_token_name']
 
-        nssdb = subsystem.instance.open_nssdb(token)
+        nssdb = self.instance.open_nssdb(token)
 
         try:
             self.generate_csr(
@@ -1846,7 +1846,7 @@ class PKIDeployer:
         if not token:
             token = self.mdict['pki_token_name']
 
-        nssdb = subsystem.instance.open_nssdb(token)
+        nssdb = self.instance.open_nssdb(token)
 
         try:
             self.generate_csr(
