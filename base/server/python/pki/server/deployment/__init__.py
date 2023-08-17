@@ -960,10 +960,10 @@ class PKIDeployer:
         finally:
             nssdb.close()
 
-    def verify_subsystem_exists(self, instance):
+    def verify_subsystem_exists(self):
 
         subsystem_path = os.path.join(
-            instance.base_dir,
+            self.instance.base_dir,
             self.mdict['pki_subsystem_type'])
 
         if os.path.exists(subsystem_path):
@@ -979,10 +979,10 @@ class PKIDeployer:
                 self.mdict['pki_subsystem'],
                 self.mdict['pki_instance_name']))
 
-    def verify_subsystem_does_not_exist(self, instance):
+    def verify_subsystem_does_not_exist(self):
 
         subsystem_path = os.path.join(
-            instance.base_dir,
+            self.instance.base_dir,
             self.mdict['pki_subsystem_type'])
 
         if not os.path.exists(subsystem_path):
