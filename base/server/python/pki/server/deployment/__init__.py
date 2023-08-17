@@ -2416,7 +2416,7 @@ class PKIDeployer:
 
         self.get_install_token()
 
-    def leave_security_domain(self, instance, subsystem):
+    def leave_security_domain(self, subsystem):
 
         sd_host = subsystem.config['securitydomain.host']
         sd_port = subsystem.config['service.securityDomainPort']
@@ -2424,7 +2424,7 @@ class PKIDeployer:
 
         hostname = subsystem.config['machineName']
 
-        server_config = instance.get_server_config()
+        server_config = self.instance.get_server_config()
         secure_port = server_config.get_secure_port()
 
         proxy_secure_port = subsystem.config.get('proxy.securePort')
@@ -2455,9 +2455,9 @@ class PKIDeployer:
                 host_id)
             raise
 
-    def setup_security_domain(self, instance, subsystem):
+    def setup_security_domain(self, subsystem):
 
-        server_config = instance.get_server_config()
+        server_config = self.instance.get_server_config()
         unsecurePort = server_config.get_unsecure_port()
         securePort = server_config.get_secure_port()
 
@@ -2505,12 +2505,12 @@ class PKIDeployer:
 
         subsystem.config['service.securityDomainPort'] = securePort
 
-    def setup_security_domain_manager(self, instance, subsystem):
+    def setup_security_domain_manager(self, subsystem):
 
         clone = self.configuration_file.clone
         sd_name = subsystem.config['securitydomain.name']
 
-        server_config = instance.get_server_config()
+        server_config = self.instance.get_server_config()
         unsecurePort = server_config.get_unsecure_port()
         securePort = server_config.get_secure_port()
 

@@ -112,7 +112,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             nssdb.close()
 
         if config.str2bool(deployer.mdict['pki_security_domain_setup']):
-            deployer.setup_security_domain(instance, subsystem)
+            deployer.setup_security_domain(subsystem)
 
         system_certs_imported = \
             deployer.mdict['pki_server_pkcs12_path'] != '' or \
@@ -232,7 +232,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.setup_admin_user(subsystem, admin_cert)
 
         if config.str2bool(deployer.mdict['pki_security_domain_setup']):
-            deployer.setup_security_domain_manager(instance, subsystem)
+            deployer.setup_security_domain_manager(subsystem)
 
         if not config.str2bool(deployer.mdict['pki_share_db']) and not clone:
             logger.info('Setting up database user')
