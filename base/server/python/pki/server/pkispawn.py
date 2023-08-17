@@ -631,8 +631,8 @@ def main(argv):
 
         # Store user config and installation manifest into
         # /etc/sysconfig/pki/tomcat/<instance>/<subsystem>
-        deployer.store_config(deployer.instance)
-        deployer.store_manifest(deployer.instance)
+        deployer.store_config()
+        deployer.store_manifest()
 
     external = deployer.configuration_file.external
     standalone = deployer.configuration_file.standalone

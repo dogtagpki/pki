@@ -59,7 +59,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     deployer.mdict['pki_subsystem'].lower() + '_backup_keys.p12'
 
             logger.info('Backing up keys into %s', deployer.mdict['pki_backup_file'])
-            deployer.backup_keys(instance, subsystem)
+            deployer.backup_keys(subsystem)
 
         if config.str2bool(deployer.mdict['pki_systemd_service_create']):
 

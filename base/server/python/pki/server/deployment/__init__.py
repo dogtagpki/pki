@@ -3786,7 +3786,7 @@ class PKIDeployer:
             logger.warning('Unable to add %s into Subsystem Group', uid)
             # TODO: ignore failure only if user already exists in the group
 
-    def backup_keys(self, instance, subsystem):
+    def backup_keys(self, subsystem):
 
         tmpdir = tempfile.mkdtemp()
         try:
@@ -3798,7 +3798,7 @@ class PKIDeployer:
                 'pki-server',
                 'subsystem-cert-export',
                 subsystem.name,
-                '-i', instance.name,
+                '-i', self.instance.name,
                 '--pkcs12-file', self.mdict['pki_backup_file'],
                 '--pkcs12-password-file', password_file
             ]
@@ -4592,9 +4592,9 @@ class PKIDeployer:
 
         subsystem.save()
 
-    def store_config(self, instance):
+    def store_config(self):
 
-        subsystem = instance.get_subsystem(self.mdict['pki_subsystem'].lower())
+        subsystem = self.instance.get_subsystem(self.mdict['pki_subsystem'].lower())
 
         # Store user's deployment.cfg into
         # /etc/sysconfig/pki/tomcat/<instance>/<subsystem>/deployment.cfg
@@ -4617,9 +4617,9 @@ class PKIDeployer:
 
         self.file.copy(deployment_cfg, deployment_cfg_archive)
 
-    def store_manifest(self, instance):
+    def store_manifest(self):
 
-        subsystem = instance.get_subsystem(self.mdict['pki_subsystem'].lower())
+        subsystem = self.instance.get_subsystem(self.mdict['pki_subsystem'].lower())
 
         # Store installation manifest into
         # /etc/sysconfig/pki/tomcat/<instance>/<subsystem>/manifest
