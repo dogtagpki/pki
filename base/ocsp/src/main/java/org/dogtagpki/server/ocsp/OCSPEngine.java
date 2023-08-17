@@ -37,9 +37,14 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.Subsystem;
 import com.netscape.cms.ocsp.LDAPStore;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
+import com.netscape.cmscore.dbs.DBSubsystem;
+import com.netscape.cmscore.ldapconn.LDAPConfig;
+import com.netscape.cmscore.ldapconn.PKISocketConfig;
+import com.netscape.cmsutil.password.PasswordStore;
 import com.netscape.ocsp.OCSPAuthority;
 
 public class OCSPEngine extends CMSEngine {
@@ -70,6 +75,13 @@ public class OCSPEngine extends CMSEngine {
     }
 
     @Override
+    public void initDBSubsystem() throws Exception {
+
+        dbSubsystem = new DBSubsystem();
+        dbSubsystem.setCMSEngine(this);
+        dbSubsystem.setEngineConfig(config);
+    }
+    @Override
     public void initSubsystem(Subsystem subsystem, ConfigStore subsystemConfig) throws Exception {
 
         if (subsystem instanceof OCSPAuthority) {
@@ -88,8 +100,14 @@ public class OCSPEngine extends CMSEngine {
 
         for (Subsystem subsystem : subsystems.values()) {
             logger.info("CMSEngine: Starting " + subsystem.getId() + " subsystem");
-            if (!(subsystem instanceof OCSPAuthority))
+            if (!(subsystem instanceof OCSPAuthority)) {
+                DatabaseConfig dbConfig = config.getDatabaseConfig();
+                LDAPConfig ldapConfig = dbConfig.getLDAPConfig();
+                PKISocketConfig socketConfig = config.getSocketConfig();
+                PasswordStore passwordStore = getPasswordStore();
+                dbSubsystem.init(dbConfig, ldapConfig, socketConfig, passwordStore);
                 subsystem.startup();
+            }
         }
 
         // global admin servlet. (anywhere else more fit for this ?)

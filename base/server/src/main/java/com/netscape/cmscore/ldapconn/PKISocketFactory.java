@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
+import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.ssl.SSLClientCertificateSelectionCallback;
 import org.mozilla.jss.ssl.SSLHandshakeCompletedEvent;
 import org.mozilla.jss.ssl.SSLHandshakeCompletedListener;
@@ -34,7 +35,6 @@ import org.mozilla.jss.ssl.SSLSocketListener;
 
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.logging.event.ClientAccessSessionEstablishEvent;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -56,7 +56,7 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
     private boolean mClientAuth = false;
     private boolean keepAlive = true;
     private String mClientCiphers = null;
-
+    private SSLCertificateApprovalCallback approvalCallback;
     protected List<SSLSocketListener> socketListeners = new ArrayList<>();
 
     /*
@@ -119,6 +119,14 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
         socketListeners.remove(socketListener);
     }
 
+    public SSLCertificateApprovalCallback getApprovalCallback() {
+        return approvalCallback;
+    }
+
+    public void setApprovalCallback(SSLCertificateApprovalCallback approvalCallback) {
+        this.approvalCallback = approvalCallback;
+    }
+
     public void init() {
         init(null);
     }
@@ -176,7 +184,7 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
         SSLSocket s;
 
         if (clientCertNickname == null) {
-            s = new SSLSocket(host, port, null, 0, CMSEngine.getApprovalCallback(), null);
+            s = new SSLSocket(host, port, null, 0, approvalCallback, null);
         } else {
             // Let's create a selection callback in the case the client auth
             // No longer manually set the cert name.
@@ -185,7 +193,7 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
 
             Socket js = new Socket(InetAddress.getByName(host), port);
             s = new SSLSocket(js, host,
-                    CMSEngine.getApprovalCallback(),
+                    approvalCallback,
                     new SSLClientCertificateSelectionCB(clientCertNickname));
         }
 
@@ -193,6 +201,7 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
         s.enableV2CompatibleHello(false);
 
         for (SSLSocketListener socketListener : socketListeners) {
+            logger.error("Add listener!!! " + socketListener.toString());
             s.addSocketListener(socketListener);
         }
 

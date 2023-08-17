@@ -185,7 +185,7 @@ public class CMSEngine {
     private static final int PW_CANNOT_CONNECT = 3;
     private static final int PW_MAX_ATTEMPTS = 3;
 
-    protected static SSLCertificateApprovalCallback approvalCallback;
+    protected SSLCertificateApprovalCallback approvalCallback;
 
     public CMSEngine(String name) {
         this.id = name.toLowerCase();
@@ -194,12 +194,12 @@ public class CMSEngine {
         logger.info("Creating " + name + " engine");
     }
 
-    public static SSLCertificateApprovalCallback getApprovalCallback() {
+    public SSLCertificateApprovalCallback getApprovalCallback() {
         return approvalCallback;
     }
 
-    public static void setApprovalCallback(SSLCertificateApprovalCallback approvalCallback) {
-        CMSEngine.approvalCallback = approvalCallback;
+    public void setApprovalCallback(SSLCertificateApprovalCallback approvalCallback) {
+        this.approvalCallback = approvalCallback;
     }
 
     public String getID() {
