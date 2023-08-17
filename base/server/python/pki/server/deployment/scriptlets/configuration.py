@@ -149,9 +149,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             master_url = deployer.mdict['pki_clone_uri']
             pem_chain = deployer.retrieve_cert_chain(instance, master_url)
 
-            base64_chain = pki.nssdb.convert_pkcs7(pem_chain, 'pem', 'base64')
-            subsystem.config['preop.clone.pkcs7'] = base64_chain
-
         subsystem.save()
 
         if clone:
