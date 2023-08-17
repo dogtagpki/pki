@@ -2119,7 +2119,7 @@ class PKIDeployer:
     def retrieve_cert_chain(self, url):
 
         logger.info('Retrieving cert chain from %s', url)
-        cert_chain = self.get_ca_signing_cert(self.instance, url)
+        cert_chain = self.get_ca_signing_cert(url)
 
         logger.info('Importing cert chain from %s', url)
         nssdb = self.instance.open_nssdb()
@@ -3920,12 +3920,12 @@ class PKIDeployer:
         finally:
             shutil.rmtree(tmpdir)
 
-    def get_ca_signing_cert(self, instance, ca_url):
+    def get_ca_signing_cert(self, ca_url):
 
         cmd = [
             'pki',
-            '-d', instance.nssdb_dir,
-            '-f', instance.password_conf,
+            '-d', self.instance.nssdb_dir,
+            '-f', self.instance.password_conf,
             '-U', ca_url,
             '--ignore-cert-status', 'UNTRUSTED_ISSUER',
             '--ignore-banner',
@@ -3944,12 +3944,12 @@ class PKIDeployer:
 
         return output.decode()
 
-    def get_ca_subsystem_cert(self, instance, ca_url):
+    def get_ca_subsystem_cert(self, ca_url):
 
         cmd = [
             'pki',
-            '-d', instance.nssdb_dir,
-            '-f', instance.password_conf,
+            '-d', self.instance.nssdb_dir,
+            '-f', self.instance.password_conf,
             '-U', ca_url,
             '--ignore-banner',
             'ca-cert-subsystem-export'
@@ -3964,9 +3964,9 @@ class PKIDeployer:
         logger.debug('Command: %s', ' '.join(cmd))
         return subprocess.check_output(cmd)
 
-    def add_kra_connector(self, instance, subsystem, ca_url):
+    def add_kra_connector(self, subsystem, ca_url):
 
-        server_config = instance.get_server_config()
+        server_config = self.instance.get_server_config()
         hostname = self.mdict['pki_hostname']
         securePort = server_config.get_secure_port()
 
@@ -3992,8 +3992,8 @@ class PKIDeployer:
 
             cmd = [
                 'pki',
-                '-d', instance.nssdb_dir,
-                '-f', instance.password_conf,
+                '-d', self.instance.nssdb_dir,
+                '-f', self.instance.password_conf,
                 '-U', ca_url,
                 '--ignore-banner',
                 'ca-kraconnector-add',
@@ -4016,9 +4016,9 @@ class PKIDeployer:
         finally:
             shutil.rmtree(tmpdir)
 
-    def add_ocsp_publisher(self, instance, subsystem, ca_url):
+    def add_ocsp_publisher(self, subsystem, ca_url):
 
-        server_config = instance.get_server_config()
+        server_config = self.instance.get_server_config()
         hostname = self.mdict['pki_hostname']
         securePort = server_config.get_secure_port()
 
@@ -4038,8 +4038,8 @@ class PKIDeployer:
 
             cmd = [
                 'pki',
-                '-d', instance.nssdb_dir,
-                '-f', instance.password_conf,
+                '-d', self.instance.nssdb_dir,
+                '-f', self.instance.password_conf,
                 '-U', ca_url,
                 '--ignore-banner',
                 'ca-publisher-ocsp-add',
@@ -4060,14 +4060,14 @@ class PKIDeployer:
         finally:
             shutil.rmtree(tmpdir)
 
-    def get_kra_transport_cert(self, instance):
+    def get_kra_transport_cert(self):
 
         kra_url = self.mdict['pki_kra_uri']
 
         cmd = [
             'pki',
-            '-d', instance.nssdb_dir,
-            '-f', instance.password_conf,
+            '-d', self.instance.nssdb_dir,
+            '-f', self.instance.password_conf,
             '-U', kra_url,
             '--ignore-banner',
             'kra-cert-transport-export'
@@ -4084,14 +4084,14 @@ class PKIDeployer:
 
         return result.stdout.decode()
 
-    def set_tks_transport_cert(self, instance, cert, session=None, install_token=None):
+    def set_tks_transport_cert(self, cert, session=None, install_token=None):
 
         tks_url = self.mdict['pki_tks_uri']
         sd_url = self.mdict['pki_security_domain_uri']
 
         hostname = self.mdict['pki_hostname']
 
-        server_config = instance.get_server_config()
+        server_config = self.instance.get_server_config()
         secure_port = server_config.get_secure_port()
 
         nickname = 'transportCert-%s-%s' % (hostname, secure_port)
@@ -4105,8 +4105,8 @@ class PKIDeployer:
 
             cmd = [
                 'pki',
-                '-d', instance.nssdb_dir,
-                '-f', instance.password_conf,
+                '-d', self.instance.nssdb_dir,
+                '-f', self.instance.password_conf,
                 '-U', tks_url,
                 '--ignore-banner',
                 'tks-cert-transport-import',
@@ -4135,7 +4135,7 @@ class PKIDeployer:
         finally:
             shutil.rmtree(tmpdir)
 
-    def get_tps_connector(self, instance, subsystem):
+    def get_tps_connector(self, subsystem):
 
         tks_uri = self.mdict['pki_tks_uri']
         subsystem_cert = subsystem.get_subsystem_cert('subsystem')
@@ -4146,14 +4146,14 @@ class PKIDeployer:
         if not pki.nssdb.internal_token(token):
             nickname = token + ':' + nickname
 
-        server_config = instance.get_server_config()
+        server_config = self.instance.get_server_config()
         securePort = server_config.get_secure_port()
 
         cmd = [
             'pki',
             '-U', tks_uri,
-            '-d', instance.nssdb_dir,
-            '-f', instance.password_conf,
+            '-d', self.instance.nssdb_dir,
+            '-f', self.instance.password_conf,
             '-n', nickname,
             '--ignore-banner',
             'tks-tpsconnector-show',
@@ -4169,7 +4169,7 @@ class PKIDeployer:
         else:
             return None
 
-    def create_tps_connector(self, instance, subsystem):
+    def create_tps_connector(self, subsystem):
 
         tks_uri = self.mdict['pki_tks_uri']
         subsystem_cert = subsystem.get_subsystem_cert('subsystem')
@@ -4180,14 +4180,14 @@ class PKIDeployer:
         if not pki.nssdb.internal_token(token):
             nickname = token + ':' + nickname
 
-        server_config = instance.get_server_config()
+        server_config = self.instance.get_server_config()
         securePort = server_config.get_secure_port()
 
         cmd = [
             'pki',
             '-U', tks_uri,
-            '-d', instance.nssdb_dir,
-            '-f', instance.password_conf,
+            '-d', self.instance.nssdb_dir,
+            '-f', self.instance.password_conf,
             '-n', nickname,
             '--ignore-banner',
             'tks-tpsconnector-add',
@@ -4340,7 +4340,7 @@ class PKIDeployer:
         secret_nickname = 'TPS-%s-%s sharedSecret' % (hostname, securePort)
 
         logger.info('Searching for TPS connector in TKS')
-        tps_connector = self.get_tps_connector(instance, subsystem)
+        tps_connector = self.get_tps_connector(subsystem)
 
         if tps_connector:
             logger.info('Getting shared secret')
@@ -4357,7 +4357,7 @@ class PKIDeployer:
 
         else:
             logger.info('Creating a new TPS connector')
-            tps_connector = self.create_tps_connector(instance, subsystem)
+            tps_connector = self.create_tps_connector(subsystem)
             tps_connector_id = tps_connector['id']
 
             logger.info('Creating shared secret')
@@ -4405,7 +4405,7 @@ class PKIDeployer:
             serial_number = self.mdict['pki_ca_signing_serial_number']
             subsystem.remove_cert(serial_number)
 
-    def finalize_kra(self, instance, subsystem):
+    def finalize_kra(self, subsystem):
 
         ca_type = subsystem.config.get('preop.ca.type')
 
@@ -4440,7 +4440,7 @@ class PKIDeployer:
                 state='1')
 
             logger.info('Getting CA subsystem certificate from %s', ca_url)
-            subsystem_cert_data = self.get_ca_subsystem_cert(instance, ca_url)
+            subsystem_cert_data = self.get_ca_subsystem_cert(ca_url)
 
             logger.info('Adding CA subsystem certificate into %s', ca_uid)
             subsystem.add_user_cert(ca_uid, cert_data=subsystem_cert_data, cert_format='PEM')
@@ -4451,9 +4451,9 @@ class PKIDeployer:
         if ca_url:
 
             logger.info('Adding KRA connector in CA')
-            self.add_kra_connector(instance, subsystem, ca_url)
+            self.add_kra_connector(subsystem, ca_url)
 
-    def finalize_ocsp(self, instance, subsystem):
+    def finalize_ocsp(self, subsystem):
 
         ca_type = subsystem.config.get('preop.ca.type')
 
@@ -4489,7 +4489,7 @@ class PKIDeployer:
                 state='1')
 
             logger.info('Getting CA subsystem certificate from %s', ca_url)
-            subsystem_cert_data = self.get_ca_subsystem_cert(instance, ca_url)
+            subsystem_cert_data = self.get_ca_subsystem_cert(ca_url)
 
             logger.info('Adding CA subsystem certificate into %s', ca_uid)
             subsystem.add_user_cert(ca_uid, cert_data=subsystem_cert_data, cert_format='PEM')
@@ -4502,7 +4502,7 @@ class PKIDeployer:
             # preserving existing functionality.
             # Next we need to treat the publishing of clones as a group,
             # and fail over amongst them.
-            self.add_ocsp_publisher(instance, subsystem, ca_url)
+            self.add_ocsp_publisher(subsystem, ca_url)
 
     def finalize_tks(self, subsystem):
 
@@ -4553,11 +4553,10 @@ class PKIDeployer:
                 session=self.install_token.token)
 
             logger.info('Exporting transport cert from KRA')
-            transport_cert = self.get_kra_transport_cert(instance)
+            transport_cert = self.get_kra_transport_cert()
 
             logger.info('Importing transport cert into TKS')
             self.set_tks_transport_cert(
-                instance,
                 transport_cert,
                 session=self.install_token.token)
 
@@ -4570,10 +4569,10 @@ class PKIDeployer:
             self.finalize_ca(subsystem)
 
         if subsystem.type == 'KRA':
-            self.finalize_kra(instance, subsystem)
+            self.finalize_kra(subsystem)
 
         if subsystem.type == 'OCSP':
-            self.finalize_ocsp(instance, subsystem)
+            self.finalize_ocsp(subsystem)
 
         if subsystem.type == 'TKS':
             self.finalize_tks(subsystem)
