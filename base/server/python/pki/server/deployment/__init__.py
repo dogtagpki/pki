@@ -4044,13 +4044,12 @@ class PKIDeployer:
         finally:
             shutil.rmtree(tmpdir)
 
-    def add_ocsp_publisher(self, instance, subsystem):
+    def add_ocsp_publisher(self, instance, subsystem, ca_url):
 
         server_config = instance.get_server_config()
         hostname = self.mdict['pki_hostname']
         securePort = server_config.get_secure_port()
 
-        ca_url = self.mdict['pki_issuing_ca']
         ocsp_url = 'https://%s:%s' % (hostname, securePort)
 
         subsystem_cert = subsystem.get_subsystem_cert('subsystem').get('data')
@@ -4490,11 +4489,9 @@ class PKIDeployer:
             subsystem.config['cloning.ca.type'] = ca_type
 
         clone = self.configuration_file.clone
-        external = self.configuration_file.external
         standalone = self.configuration_file.standalone
 
-        if subsystem.type == 'CA' and external or \
-                subsystem.type in ['KRA', 'OCSP'] and standalone:
+        if standalone:
             ca_url = None
         else:
             ca_url = self.mdict['pki_issuing_ca']
@@ -4505,8 +4502,6 @@ class PKIDeployer:
             base64_chain = subsystem.config['preop.ca.pkcs7']
             cert_chain = base64.b64decode(base64_chain)
             subsystem.add_crl_issuing_point(cert_chain=cert_chain, cert_format='DER')
-
-        if ca_url and not clone:
 
             url = urllib.parse.urlparse(ca_url)
             ca_host = url.hostname
@@ -4535,7 +4530,7 @@ class PKIDeployer:
             # preserving existing functionality.
             # Next we need to treat the publishing of clones as a group,
             # and fail over amongst them.
-            self.add_ocsp_publisher(instance, subsystem)
+            self.add_ocsp_publisher(instance, subsystem, ca_url)
 
     def finalize_tks(self, subsystem):
 
