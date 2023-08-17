@@ -171,16 +171,16 @@ def main(argv):
     deployer.remove_logs = args.remove_logs
 
     instance_name = config.pki_deployed_instance_name
-    instance = pki.server.instance.PKIServerFactory.create(instance_name)
+    deployer.instance = pki.server.instance.PKIServerFactory.create(instance_name)
 
-    if not instance.exists():
+    if not deployer.instance.exists():
         logger.error('No such instance: %s', instance_name)
         sys.exit(1)
 
-    instance.load()
+    deployer.instance.load()
 
     subsystem_name = deployer.subsystem_name.lower()
-    subsystem = instance.get_subsystem(subsystem_name)
+    subsystem = deployer.instance.get_subsystem(subsystem_name)
 
     if not subsystem:
         logger.error('No %s subsystem in %s instance',
@@ -228,7 +228,7 @@ def main(argv):
     logger.debug(pkilogging.log_format(parser.mdict))
 
     print("Uninstalling " + deployer.subsystem_name + " from " +
-          instance.base_dir + ".")
+          deployer.instance.base_dir + ".")
 
     # Process the various "scriptlets" to remove the specified PKI subsystem.
     pki_subsystem_scriptlets = parser.mdict['destroy_scriplets'].split()
@@ -242,7 +242,7 @@ def main(argv):
 
             scriptlet = scriptlet_module.PkiScriptlet()
             scriptlet.deployer = deployer
-            scriptlet.instance = instance
+            scriptlet.instance = deployer.instance
             scriptlet.destroy(deployer)
 
     except subprocess.CalledProcessError as e:

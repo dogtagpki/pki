@@ -543,11 +543,11 @@ def main(argv):
     deployer.init()
 
     instance_name = deployer.mdict['pki_instance_name']
-    instance = pki.server.instance.PKIServerFactory.create(instance_name)
-    instance.user = deployer.mdict['pki_user']
-    instance.group = deployer.mdict['pki_group']
+    deployer.instance = pki.server.instance.PKIServerFactory.create(instance_name)
+    deployer.instance.user = deployer.mdict['pki_user']
+    deployer.instance.group = deployer.mdict['pki_group']
 
-    instance.load()
+    deployer.instance.load()
 
     if args.log_file:
         print('Installation log: %s' % args.log_file)
@@ -565,7 +565,7 @@ def main(argv):
         sys.exit(0)
 
     print("Installing " + deployer.subsystem_name + " into " +
-          instance.base_dir + ".")
+          deployer.instance.base_dir + ".")
 
     # Process the various "scriptlets" to create the specified PKI subsystem.
     pki_subsystem_scriptlets = parser.mdict['spawn_scriplets'].split()
@@ -582,7 +582,7 @@ def main(argv):
 
             scriptlet = scriptlet_module.PkiScriptlet()
             scriptlet.deployer = deployer
-            scriptlet.instance = instance
+            scriptlet.instance = deployer.instance
             scriptlet.spawn(deployer)
 
     except subprocess.CalledProcessError as e:
@@ -612,7 +612,7 @@ def main(argv):
         print()
 
         subsystem_log_dir = os.path.join(
-            instance.log_dir,
+            deployer.instance.log_dir,
             deployer.mdict['pki_subsystem_type'])
 
         print('Please check the %s logs in %s.' %
@@ -631,8 +631,8 @@ def main(argv):
 
         # Store user config and installation manifest into
         # /etc/sysconfig/pki/tomcat/<instance>/<subsystem>
-        deployer.store_config(instance)
-        deployer.store_manifest(instance)
+        deployer.store_config(deployer.instance)
+        deployer.store_manifest(deployer.instance)
 
     external = deployer.configuration_file.external
     standalone = deployer.configuration_file.standalone
@@ -644,19 +644,19 @@ def main(argv):
 
     elif (external or standalone) and step_one:
         if deployer.subsystem_name == 'CA':
-            print_external_ca_step_one_information(parser.mdict, instance)
+            print_external_ca_step_one_information(parser.mdict, deployer.instance)
 
         elif deployer.subsystem_name == 'KRA':
-            print_kra_step_one_information(parser.mdict, instance)
+            print_kra_step_one_information(parser.mdict, deployer.instance)
 
         elif deployer.subsystem_name == 'OCSP':
-            print_ocsp_step_one_information(parser.mdict, instance)
+            print_ocsp_step_one_information(parser.mdict, deployer.instance)
 
         elif deployer.subsystem_name == 'TKS':
-            print_tks_step_one_information(parser.mdict, instance)
+            print_tks_step_one_information(parser.mdict, deployer.instance)
 
         elif deployer.subsystem_name == 'TPS':
-            print_tps_step_one_information(parser.mdict, instance)
+            print_tps_step_one_information(parser.mdict, deployer.instance)
 
     else:
         print_final_install_information(parser.mdict)

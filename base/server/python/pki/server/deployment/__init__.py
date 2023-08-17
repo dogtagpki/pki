@@ -81,6 +81,7 @@ class PKIDeployer:
         self.user_config = None
         self.manifest_db = []
 
+        self.instance = None
         self.identity = None
         self.namespace = None
         self.configuration_file = None
