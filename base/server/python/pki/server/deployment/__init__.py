@@ -4204,7 +4204,7 @@ class PKIDeployer:
         else:
             return None
 
-    def get_shared_secret(self, instance, subsystem, tps_connector_id):
+    def get_shared_secret(self, subsystem, tps_connector_id):
 
         tks_uri = self.mdict['pki_tks_uri']
         subsystem_cert = subsystem.get_subsystem_cert('subsystem')
@@ -4218,8 +4218,8 @@ class PKIDeployer:
         cmd = [
             'pki',
             '-U', tks_uri,
-            '-d', instance.nssdb_dir,
-            '-f', instance.password_conf,
+            '-d', self.instance.nssdb_dir,
+            '-f', self.instance.password_conf,
             '-n', nickname,
             '--ignore-banner',
             'tks-key-export', tps_connector_id
@@ -4233,7 +4233,7 @@ class PKIDeployer:
         else:
             return None
 
-    def create_shared_secret(self, instance, subsystem, tps_connector_id):
+    def create_shared_secret(self, subsystem, tps_connector_id):
 
         tks_uri = self.mdict['pki_tks_uri']
         subsystem_cert = subsystem.get_subsystem_cert('subsystem')
@@ -4247,8 +4247,8 @@ class PKIDeployer:
         cmd = [
             'pki',
             '-U', tks_uri,
-            '-d', instance.nssdb_dir,
-            '-f', instance.password_conf,
+            '-d', self.instance.nssdb_dir,
+            '-f', self.instance.password_conf,
             '-n', nickname,
             '--ignore-banner',
             'tks-key-create', tps_connector_id,
@@ -4263,7 +4263,7 @@ class PKIDeployer:
         else:
             return None
 
-    def replace_shared_secret(self, instance, subsystem, tps_connector_id):
+    def replace_shared_secret(self, subsystem, tps_connector_id):
 
         tks_uri = self.mdict['pki_tks_uri']
         subsystem_cert = subsystem.get_subsystem_cert('subsystem')
@@ -4277,8 +4277,8 @@ class PKIDeployer:
         cmd = [
             'pki',
             '-U', tks_uri,
-            '-d', instance.nssdb_dir,
-            '-f', instance.password_conf,
+            '-d', self.instance.nssdb_dir,
+            '-f', self.instance.password_conf,
             '-n', nickname,
             '--ignore-banner',
             'tks-key-replace', tps_connector_id,
@@ -4293,7 +4293,7 @@ class PKIDeployer:
         else:
             return None
 
-    def import_shared_secret(self, instance, subsystem, secret_nickname, shared_secret):
+    def import_shared_secret(self, subsystem, secret_nickname, shared_secret):
 
         subsystem_cert = subsystem.get_subsystem_cert('subsystem')
 
@@ -4305,8 +4305,8 @@ class PKIDeployer:
 
         cmd = [
             'pki',
-            '-d', instance.nssdb_dir,
-            '-f', instance.password_conf,
+            '-d', self.instance.nssdb_dir,
+            '-f', self.instance.password_conf,
             'nss-key-import', secret_nickname,
             '--wrapper', nickname
         ]
@@ -4322,7 +4322,7 @@ class PKIDeployer:
             universal_newlines=True,
             check=True)
 
-    def setup_shared_secret(self, instance, subsystem):
+    def setup_shared_secret(self, subsystem):
 
         # This method configures the shared secret between TKS and TPS. The shared secret
         # is initially generated in TKS, then exported from TKS, and reimported into TPS.
@@ -4334,7 +4334,7 @@ class PKIDeployer:
 
         hostname = self.mdict['pki_hostname']
 
-        server_config = instance.get_server_config()
+        server_config = self.instance.get_server_config()
         securePort = server_config.get_secure_port()
 
         secret_nickname = 'TPS-%s-%s sharedSecret' % (hostname, securePort)
@@ -4345,15 +4345,15 @@ class PKIDeployer:
         if tps_connector:
             logger.info('Getting shared secret')
             tps_connector_id = tps_connector['id']
-            shared_secret = self.get_shared_secret(instance, subsystem, tps_connector_id)
+            shared_secret = self.get_shared_secret(subsystem, tps_connector_id)
 
             if shared_secret:
                 logger.info('Replacing shared secret')
-                shared_secret = self.replace_shared_secret(instance, subsystem, tps_connector_id)
+                shared_secret = self.replace_shared_secret(subsystem, tps_connector_id)
 
             else:
                 logger.info('Creating shared secret')
-                shared_secret = self.create_shared_secret(instance, subsystem, tps_connector_id)
+                shared_secret = self.create_shared_secret(subsystem, tps_connector_id)
 
         else:
             logger.info('Creating a new TPS connector')
@@ -4361,11 +4361,11 @@ class PKIDeployer:
             tps_connector_id = tps_connector['id']
 
             logger.info('Creating shared secret')
-            shared_secret = self.create_shared_secret(instance, subsystem, tps_connector_id)
+            shared_secret = self.create_shared_secret(subsystem, tps_connector_id)
 
         if config.str2bool(self.mdict['pki_import_shared_secret']):
             logger.info('Importing shared secret')
-            self.import_shared_secret(instance, subsystem, secret_nickname, shared_secret)
+            self.import_shared_secret(subsystem, secret_nickname, shared_secret)
 
         subsystem.config['conn.tks1.tksSharedSymKeyName'] = secret_nickname
         subsystem.save()
@@ -4511,7 +4511,7 @@ class PKIDeployer:
         if ca_type:
             subsystem.config['cloning.ca.type'] = ca_type
 
-    def finalize_tps(self, instance, subsystem):
+    def finalize_tps(self, subsystem):
 
         ca_type = subsystem.config.get('preop.ca.type')
 
@@ -4561,9 +4561,9 @@ class PKIDeployer:
                 session=self.install_token.token)
 
         logger.info('Setting up shared secret')
-        self.setup_shared_secret(instance, subsystem)
+        self.setup_shared_secret(subsystem)
 
-    def finalize_subsystem(self, instance, subsystem):
+    def finalize_subsystem(self, subsystem):
 
         if subsystem.type == 'CA':
             self.finalize_ca(subsystem)
@@ -4578,7 +4578,7 @@ class PKIDeployer:
             self.finalize_tks(subsystem)
 
         if subsystem.type == 'TPS':
-            self.finalize_tps(instance, subsystem)
+            self.finalize_tps(subsystem)
 
         # save EC type for sslserver cert (if present)
         ec_type = subsystem.config.get('preop.cert.sslserver.ec.type', 'ECDHE')

@@ -240,7 +240,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('Setting up database user')
             deployer.setup_database_user(subsystem)
 
-        deployer.finalize_subsystem(instance, subsystem)
+        deployer.finalize_subsystem(subsystem)
 
         logger.info('%s configuration complete', subsystem.type)
 
