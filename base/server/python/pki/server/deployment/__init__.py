@@ -493,39 +493,37 @@ class PKIDeployer:
 
     def init_server_nssdb(self, subsystem):
 
-        instance = subsystem.instance
-
         # Since 'certutil' does NOT strip the 'token=' portion of
         # the 'token=password' entries, create a temporary server 'pfile'
         # which ONLY contains the 'password' for the purposes of
         # allowing 'certutil' to generate the security databases
 
-        pki_shared_pfile = os.path.join(instance.conf_dir, 'pfile')
+        pki_shared_pfile = os.path.join(self.instance.conf_dir, 'pfile')
 
         logger.info('Creating password file: %s', pki_shared_pfile)
         self.password.create_password_conf(
             pki_shared_pfile,
             self.mdict['pki_server_database_password'], pin_sans_token=True)
-        self.file.modify(instance.password_conf)
+        self.file.modify(self.instance.password_conf)
 
-        if not os.path.isdir(instance.nssdb_dir):
-            instance.makedirs(instance.nssdb_dir, exist_ok=True)
+        if not os.path.isdir(self.instance.nssdb_dir):
+            self.instance.makedirs(self.instance.nssdb_dir, exist_ok=True)
 
         nssdb = pki.nssdb.NSSDatabase(
-            directory=instance.nssdb_dir,
+            directory=self.instance.nssdb_dir,
             password_file=pki_shared_pfile)
 
         try:
             if not nssdb.exists():
-                logger.info('Creating NSS database: %s', instance.nssdb_dir)
+                logger.info('Creating NSS database: %s', self.instance.nssdb_dir)
                 nssdb.create()
         finally:
             nssdb.close()
 
-        if not os.path.islink(instance.nssdb_link):
-            instance.symlink(
-                instance.nssdb_dir,
-                instance.nssdb_link,
+        if not os.path.islink(self.instance.nssdb_link):
+            self.instance.symlink(
+                self.instance.nssdb_dir,
+                self.instance.nssdb_link,
                 exist_ok=True)
 
         # Link /var/lib/pki/<instance>/<subsystem>/alias
@@ -533,8 +531,8 @@ class PKIDeployer:
 
         subsystem_nssdb_link = os.path.join(subsystem.base_dir, 'alias')
 
-        instance.symlink(
-            instance.nssdb_link,
+        self.instance.symlink(
+            self.instance.nssdb_link,
             subsystem_nssdb_link,
             exist_ok=True)
 
@@ -549,14 +547,14 @@ class PKIDeployer:
         # set the initial NSS database ownership and permissions
 
         pki.util.chown(
-            instance.nssdb_dir,
+            self.instance.nssdb_dir,
             self.mdict['pki_uid'],
             self.mdict['pki_gid'])
         pki.util.chmod(
-            instance.nssdb_dir,
+            self.instance.nssdb_dir,
             config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
         os.chmod(
-            instance.nssdb_dir,
+            self.instance.nssdb_dir,
             pki.server.DEFAULT_DIR_MODE)
 
         # Always delete the temporary 'pfile'
