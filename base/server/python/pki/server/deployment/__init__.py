@@ -3992,13 +3992,12 @@ class PKIDeployer:
         logger.debug('Command: %s', ' '.join(cmd))
         return subprocess.check_output(cmd)
 
-    def add_kra_connector(self, instance, subsystem):
+    def add_kra_connector(self, instance, subsystem, ca_url):
 
         server_config = instance.get_server_config()
         hostname = self.mdict['pki_hostname']
         securePort = server_config.get_secure_port()
 
-        ca_url = self.mdict['pki_issuing_ca']
         kra_url = 'https://%s:%s/kra/agent/kra/connector' % (hostname, securePort)
 
         subsystem_cert = subsystem.get_subsystem_cert('subsystem').get('data')
@@ -4443,15 +4442,13 @@ class PKIDeployer:
             subsystem.config['cloning.ca.type'] = ca_type
 
         clone = self.configuration_file.clone
-        external = self.configuration_file.external
         standalone = self.configuration_file.standalone
 
         if not clone:
             logger.info('Updating KRA ranges')
             subsystem.update_ranges()
 
-        if subsystem.type == 'CA' and external or \
-                subsystem.type in ['KRA', 'OCSP'] and standalone:
+        if standalone:
             ca_url = None
         else:
             ca_url = self.mdict['pki_issuing_ca']
@@ -4483,7 +4480,7 @@ class PKIDeployer:
         if ca_url:
 
             logger.info('Adding KRA connector in CA')
-            self.add_kra_connector(instance, subsystem)
+            self.add_kra_connector(instance, subsystem, ca_url)
 
     def finalize_ocsp(self, instance, subsystem):
 
