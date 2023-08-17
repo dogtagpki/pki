@@ -249,18 +249,18 @@ class PKIDeployer:
             subsystem_dict[0] = None
             self.mdict.update(subsystem_dict)
 
-    def create_server_xml(self, instance):
+    def create_server_xml(self):
 
         # Copy /etc/tomcat/server.xml
         # to /etc/pki/<instance>/server.xml
 
         self.file.copy_with_slot_substitution(
             pki.server.Tomcat.SERVER_XML,
-            instance.server_xml,
+            self.instance.server_xml,
             overwrite_flag=True)
 
         # Configure /etc/pki/<instance>/server.xml
-        server_config = instance.get_server_config()
+        server_config = self.instance.get_server_config()
 
         logger.info('Configuring Tomcat admin port')
         server_config.set_port(self.mdict['pki_tomcat_server_port'])
@@ -329,9 +329,9 @@ class PKIDeployer:
         connector.set('ocspMinCacheEntryDuration', '7200')
         connector.set('ocspMaxCacheEntryDuration', '14400')
         connector.set('ocspTimeout', '10')
-        connector.set('passwordFile', instance.password_conf)
+        connector.set('passwordFile', self.instance.password_conf)
         connector.set('passwordClass', 'org.dogtagpki.jss.tomcat.PlainPasswordFile')
-        connector.set('certdbDir', instance.nssdb_dir)
+        connector.set('certdbDir', self.instance.nssdb_dir)
 
         logger.info('Adding SSL host configuration')
         sslhost = server_config.create_sslhost(connector)

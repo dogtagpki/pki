@@ -128,7 +128,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             'server',
             'conf')
 
-        deployer.create_server_xml(instance)
+        deployer.create_server_xml()
 
         # Link /etc/pki/<instance>/catalina.properties
         # to /usr/share/pki/server/conf/catalina.properties.
