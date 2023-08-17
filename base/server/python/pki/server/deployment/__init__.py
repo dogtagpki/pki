@@ -474,7 +474,7 @@ class PKIDeployer:
 
         return (key_type, key_size, curve, hash_alg)
 
-    def update_external_certs_conf(self, instance, external_path):
+    def update_external_certs_conf(self, external_path):
 
         external_certs = pki.server.instance.PKIInstance.read_external_certs(
             external_path)
@@ -483,13 +483,13 @@ class PKIDeployer:
             return
 
         # load existing external certs
-        instance.load_external_certs(
-            os.path.join(instance.conf_dir, 'external_certs.conf')
+        self.instance.load_external_certs(
+            os.path.join(self.instance.conf_dir, 'external_certs.conf')
         )
 
         # add new external certs
         for cert in external_certs:
-            instance.add_external_cert(cert.nickname, cert.token)
+            self.instance.add_external_cert(cert.nickname, cert.token)
 
     def init_server_nssdb(self, subsystem):
 
@@ -611,7 +611,7 @@ class PKIDeployer:
             if not external_certs_path:
                 return
 
-            self.update_external_certs_conf(instance, external_certs_path)
+            self.update_external_certs_conf(external_certs_path)
 
         finally:
             self.file.delete(pki_shared_pfile)
