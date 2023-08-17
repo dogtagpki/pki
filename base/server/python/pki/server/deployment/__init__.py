@@ -2153,11 +2153,6 @@ class PKIDeployer:
             self.import_system_cert(nssdb, subsystem, 'signing')
             self.import_admin_cert()
 
-        sslserver = subsystem.get_subsystem_cert('sslserver')
-        nickname = sslserver['nickname']
-        token = sslserver['token']
-        subsystem.instance.set_sslserver_cert_nickname(nickname, token)
-
         self.import_system_cert(nssdb, subsystem, 'sslserver')
         self.import_system_cert(nssdb, subsystem, 'subsystem')
         self.import_system_cert(nssdb, subsystem, 'audit_signing', ',,P')
@@ -2954,7 +2949,7 @@ class PKIDeployer:
         finally:
             shutil.rmtree(tmpdir)
 
-    def create_temp_sslserver_cert(self, instance):
+    def create_temp_sslserver_cert(self):
 
         hostname = self.mdict['pki_hostname']
 
@@ -2971,10 +2966,10 @@ class PKIDeployer:
         validity = self.mdict.get('pki_self_signed_validity_period')
         trust_attributes = self.mdict.get('pki_self_signed_trustargs')
 
-        instance.set_sslserver_cert_nickname(nickname)
+        self.instance.set_sslserver_cert_nickname(nickname)
 
         tmpdir = tempfile.mkdtemp()
-        nssdb = instance.open_nssdb(
+        nssdb = self.instance.open_nssdb(
             user=self.mdict['pki_user'],
             group=self.mdict['pki_group']
         )
@@ -3040,12 +3035,12 @@ class PKIDeployer:
             nssdb.close()
             shutil.rmtree(tmpdir)
 
-    def remove_temp_sslserver_cert(self, instance):
+    def remove_temp_sslserver_cert(self):
 
         nickname = self.mdict['pki_self_signed_nickname']
         logger.info('Removing temp SSL server cert: %s', nickname)
 
-        nssdb = instance.open_nssdb(
+        nssdb = self.instance.open_nssdb(
             user=self.mdict['pki_user'],
             group=self.mdict['pki_group']
         )
@@ -3056,6 +3051,13 @@ class PKIDeployer:
 
         finally:
             nssdb.close()
+
+    def update_sslserver_cert_nickname(self, subsystem):
+
+        sslserver = subsystem.get_subsystem_cert('sslserver')
+        nickname = sslserver['nickname']
+        token = sslserver['token']
+        self.instance.set_sslserver_cert_nickname(nickname, token)
 
     def create_cert(self, subsystem, tag, request):
 

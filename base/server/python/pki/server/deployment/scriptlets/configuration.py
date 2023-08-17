@@ -69,6 +69,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.update_system_certs(nssdb, subsystem)
             subsystem.save()
 
+            deployer.update_sslserver_cert_nickname(subsystem)
+
             if len(subsystems) > 1:
 
                 for s in subsystems:
@@ -185,7 +187,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             if using_legacy_id_generator:
                 logger.info('Creating temporary SSL server cert')
-                deployer.create_temp_sslserver_cert(instance)
+                deployer.create_temp_sslserver_cert()
 
                 logger.info('Starting PKI server')
                 instance.start(
@@ -252,7 +254,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     timeout=deployer.request_timeout)
 
                 # Remove temp SSL server cert.
-                deployer.remove_temp_sslserver_cert(instance)
+                deployer.remove_temp_sslserver_cert()
 
             # Store perm SSL server cert nickname and token
             nickname = system_certs['sslserver']['nickname']
