@@ -224,7 +224,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if config.str2bool(deployer.mdict['pki_security_domain_setup']) and \
                 subsystem.type == 'CA':
             logger.info('Setting up subsystem user')
-            deployer.setup_subsystem_user(instance, subsystem, system_certs['subsystem'])
+            deployer.setup_subsystem_user(subsystem, system_certs['subsystem'])
 
         if config.str2bool(deployer.mdict['pki_admin_setup']) and not clone:
             logger.info('Setting up admin cert')
@@ -238,7 +238,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         if not config.str2bool(deployer.mdict['pki_share_db']) and not clone:
             logger.info('Setting up database user')
-            deployer.setup_database_user(instance, subsystem)
+            deployer.setup_database_user(subsystem)
 
         deployer.finalize_subsystem(instance, subsystem)
 

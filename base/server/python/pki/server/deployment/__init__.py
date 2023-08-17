@@ -3744,9 +3744,9 @@ class PKIDeployer:
         logger.info('Adding certificate for %s', uid)
         subsystem.add_user_cert(uid, cert_data=cert_data.encode(), cert_format='PEM')
 
-    def setup_subsystem_user(self, instance, subsystem, cert):
+    def setup_subsystem_user(self, subsystem, cert):
 
-        server_config = instance.get_server_config()
+        server_config = self.instance.get_server_config()
         secure_port = server_config.get_secure_port()
 
         uid = 'CA-%s-%s' % (self.mdict['pki_hostname'], secure_port)
@@ -3809,7 +3809,7 @@ class PKIDeployer:
         finally:
             shutil.rmtree(tmpdir)
 
-    def setup_database_user(self, instance, subsystem):
+    def setup_database_user(self, subsystem):
 
         logger.info('Adding pkidbuser')
         subsystem.add_user(
@@ -3823,7 +3823,7 @@ class PKIDeployer:
         subsystem_cert = subsystem.get_subsystem_cert('subsystem')
         subject = subsystem_cert['subject']
 
-        nssdb = instance.open_nssdb()
+        nssdb = self.instance.open_nssdb()
         try:
             cert_data = nssdb.get_cert(
                 nickname=subsystem_cert['nickname'],
@@ -3872,7 +3872,6 @@ class PKIDeployer:
 
     def add_subsystem_user(
             self,
-            instance,
             subsystem_type,
             subsystem_url,
             uid,
@@ -3892,8 +3891,8 @@ class PKIDeployer:
 
             cmd = [
                 'pki',
-                '-d', instance.nssdb_dir,
-                '-f', instance.password_conf,
+                '-d', self.instance.nssdb_dir,
+                '-f', self.instance.password_conf,
                 '-U', subsystem_url,
                 '--ignore-banner',
                 '%s-user-add' % subsystem_type,
@@ -4525,7 +4524,6 @@ class PKIDeployer:
 
         logger.info('Registering TPS in CA')
         self.add_subsystem_user(
-            instance,
             'ca',
             self.mdict['pki_ca_uri'],
             tps_uid,
@@ -4535,7 +4533,6 @@ class PKIDeployer:
 
         logger.info('Registering TPS in TKS')
         self.add_subsystem_user(
-            instance,
             'tks',
             self.mdict['pki_tks_uri'],
             tps_uid,
@@ -4548,7 +4545,6 @@ class PKIDeployer:
         if keygen:
             logger.info('Registering TPS in KRA')
             self.add_subsystem_user(
-                instance,
                 'kra',
                 self.mdict['pki_kra_uri'],
                 tps_uid,
