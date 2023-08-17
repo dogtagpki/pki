@@ -78,7 +78,7 @@ public class CRLLdapValidator implements SSLCertificateApprovalCallback {
                         pt = tPt;
                     }
                 } catch (IOException e) {
-                    logger.error("CRLLdapValidator: problem extracting key from SKI/AKI");
+                    logger.error("CRLLdapValidator: problem extracting key from SKI/AKI: " + e.getMessage(), e);
                 }
             }
         } catch (EBaseException | CertificateException e) {
