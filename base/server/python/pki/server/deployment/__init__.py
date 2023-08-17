@@ -2116,13 +2116,13 @@ class PKIDeployer:
             cert_chain_file=cert_chain_path,
             trust_attributes='CT,C,C')
 
-    def retrieve_cert_chain(self, instance, url):
+    def retrieve_cert_chain(self, url):
 
         logger.info('Retrieving cert chain from %s', url)
-        cert_chain = self.get_ca_signing_cert(instance, url)
+        cert_chain = self.get_ca_signing_cert(self.instance, url)
 
         logger.info('Importing cert chain from %s', url)
-        nssdb = instance.open_nssdb()
+        nssdb = self.instance.open_nssdb()
         try:
             nssdb.import_pkcs7(
                 pkcs7_data=cert_chain,
@@ -2571,9 +2571,9 @@ class PKIDeployer:
                     subsystem.config['securitydomain.httpsagentport'] = securePort
                     subsystem.config['securitydomain.httpseeport'] = securePort
 
-    def pki_connect(self, subsystem):
+    def pki_connect(self):
 
-        ca_cert = os.path.join(subsystem.instance.nssdb_dir, "ca.crt")
+        ca_cert = os.path.join(self.instance.nssdb_dir, "ca.crt")
 
         connection = pki.client.PKIConnection(
             protocol='https',
@@ -2744,11 +2744,11 @@ class PKIDeployer:
 
         return request
 
-    def find_cert_key(self, subsystem, tag, request):
+    def find_cert_key(self, tag, request):
 
         logger.info('Searching for %s key', tag)
 
-        nssdb = subsystem.instance.open_nssdb()
+        nssdb = self.instance.open_nssdb()
         try:
             result = nssdb.find_keys(
                 nickname=request.systemCert.nickname,
@@ -2764,7 +2764,7 @@ class PKIDeployer:
         # get the first key
         return keys[0]['keyId']
 
-    def create_cert_key(self, subsystem, tag, request):
+    def create_cert_key(self, tag, request):
 
         logger.info('Creating %s key', tag)
 
@@ -2787,7 +2787,7 @@ class PKIDeployer:
         else:
             raise Exception('Unsupported key type: %s' % key_type)
 
-        nssdb = subsystem.instance.open_nssdb(
+        nssdb = self.instance.open_nssdb(
             user=self.mdict['pki_user'],
             group=self.mdict['pki_group']
         )
@@ -3150,10 +3150,10 @@ class PKIDeployer:
             return
 
         if cert_info:
-            request.systemCert.keyID = self.find_cert_key(subsystem, tag, request)
+            request.systemCert.keyID = self.find_cert_key(tag, request)
 
         if not request.systemCert.keyID:
-            request.systemCert.keyID = self.create_cert_key(subsystem, tag, request)
+            request.systemCert.keyID = self.create_cert_key(tag, request)
 
         logger.info('- key ID: %s', request.systemCert.keyID)
 
@@ -3188,7 +3188,7 @@ class PKIDeployer:
 
             hostname = self.mdict['pki_hostname']
 
-            server_config = subsystem.instance.get_server_config()
+            server_config = self.instance.get_server_config()
             secure_port = server_config.get_secure_port()
 
             requestor = '%s-%s-%s' % (subsystem.type, hostname, secure_port)
@@ -3196,7 +3196,6 @@ class PKIDeployer:
             logger.info('Requesting %s cert from %s', tag, ca_url)
 
             pem_cert = self.request_cert(
-                subsystem,
                 ca_url,
                 request.systemCert.requestType,
                 request.systemCert.request,
@@ -3241,7 +3240,7 @@ class PKIDeployer:
         system_certs = {}
 
         clone = self.configuration_file.clone
-        num_subsystems = len(subsystem.instance.get_subsystems())
+        num_subsystems = len(self.instance.get_subsystems())
 
         external = config.str2bool(self.mdict['pki_external']) or \
             config.str2bool(self.mdict['pki_existing']) or \
@@ -3297,16 +3296,16 @@ class PKIDeployer:
         # Reset the NSS database ownership and permissions
 
         pki.util.chown(
-            subsystem.instance.nssdb_dir,
+            self.instance.nssdb_dir,
             self.mdict['pki_uid'],
             self.mdict['pki_gid'])
 
         pki.util.chmod(
-            subsystem.instance.nssdb_dir,
+            self.instance.nssdb_dir,
             config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
 
         os.chmod(
-            subsystem.instance.nssdb_dir,
+            self.instance.nssdb_dir,
             pki.server.DEFAULT_DIR_MODE)
 
         return system_certs
@@ -3351,7 +3350,6 @@ class PKIDeployer:
 
     def request_cert(
             self,
-            subsystem,
             url,
             request_type,
             csr,
@@ -3373,8 +3371,8 @@ class PKIDeployer:
 
             cmd = [
                 'pki',
-                '-d', subsystem.instance.nssdb_dir,
-                '-f', subsystem.instance.password_conf,
+                '-d', self.instance.nssdb_dir,
+                '-f', self.instance.password_conf,
                 '-U', url,
                 '--ignore-banner',
                 'ca-cert-request-submit',
@@ -3675,7 +3673,6 @@ class PKIDeployer:
         subject = self.mdict['pki_admin_subject_dn']
 
         pem_cert = self.request_cert(
-            subsystem,
             ca_url,
             request_type,
             b64csr,

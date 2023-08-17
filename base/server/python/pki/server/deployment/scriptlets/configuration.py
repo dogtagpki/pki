@@ -137,7 +137,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # imported from PKCS #12 file by PKIDeployer.import_server_pkcs12().
 
             issuing_ca = deployer.mdict['pki_issuing_ca']
-            pem_chain = deployer.retrieve_cert_chain(instance, issuing_ca)
+            pem_chain = deployer.retrieve_cert_chain(issuing_ca)
 
             base64_chain = pki.nssdb.convert_pkcs7(pem_chain, 'pem', 'base64')
             subsystem.config['preop.ca.pkcs7'] = base64_chain
@@ -149,7 +149,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # by PKIDeployer.import_clone_pkcs12().
 
             master_url = deployer.mdict['pki_clone_uri']
-            pem_chain = deployer.retrieve_cert_chain(instance, master_url)
+            pem_chain = deployer.retrieve_cert_chain(master_url)
 
         subsystem.save()
 
@@ -202,7 +202,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if config.str2bool(deployer.mdict['pki_enable_java_debugger']):
             config.wait_to_attach_an_external_java_debugger()
 
-        deployer.pki_connect(subsystem)
+        deployer.pki_connect()
 
         # If pki_one_time_pin is not already defined, load from CS.cfg
         if 'pki_one_time_pin' not in deployer.mdict:
