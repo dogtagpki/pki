@@ -4651,11 +4651,11 @@ class PKIDeployer:
 
         self.file.copy(manifest_file, manifest_archive)
 
-    def restore_selinux_contexts(self, instance):
-        selinux.restorecon(instance.base_dir, True)
+    def restore_selinux_contexts(self):
+        selinux.restorecon(self.instance.base_dir, True)
         selinux.restorecon(config.PKI_DEPLOYMENT_LOG_ROOT, True)
-        selinux.restorecon(instance.log_dir, True)
-        selinux.restorecon(instance.conf_dir, True)
+        selinux.restorecon(self.instance.log_dir, True)
+        selinux.restorecon(self.instance.conf_dir, True)
 
     def selinux_context_exists(self, records, context_value):
         '''
@@ -4668,7 +4668,7 @@ class PKIDeployer:
                     return True
         return False
 
-    def create_selinux_contexts(self, instance):
+    def create_selinux_contexts(self):
 
         suffix = '(/.*)?'
 
@@ -4677,24 +4677,24 @@ class PKIDeployer:
 
         fcon = seobject.fcontextRecords(trans)
 
-        logger.info('Adding SELinux fcontext "%s"', instance.conf_dir + suffix)
+        logger.info('Adding SELinux fcontext "%s"', self.instance.conf_dir + suffix)
         fcon.add(
-            instance.conf_dir + suffix,
+            self.instance.conf_dir + suffix,
             config.PKI_CFG_SELINUX_CONTEXT, '', 's0', '')
 
-        logger.info('Adding SELinux fcontext "%s"', instance.nssdb_dir + suffix)
+        logger.info('Adding SELinux fcontext "%s"', self.instance.nssdb_dir + suffix)
         fcon.add(
-            instance.nssdb_dir + suffix,
+            self.instance.nssdb_dir + suffix,
             config.PKI_CERTDB_SELINUX_CONTEXT, '', 's0', '')
 
-        logger.info('Adding SELinux fcontext "%s"', instance.base_dir + suffix)
+        logger.info('Adding SELinux fcontext "%s"', self.instance.base_dir + suffix)
         fcon.add(
-            instance.base_dir + suffix,
+            self.instance.base_dir + suffix,
             config.PKI_INSTANCE_SELINUX_CONTEXT, '', 's0', '')
 
-        logger.info('Adding SELinux fcontext "%s"', instance.log_dir + suffix)
+        logger.info('Adding SELinux fcontext "%s"', self.instance.log_dir + suffix)
         fcon.add(
-            instance.log_dir + suffix,
+            self.instance.log_dir + suffix,
             config.PKI_LOG_SELINUX_CONTEXT, '', 's0', '')
 
         port_records = seobject.portRecords(trans)
@@ -4707,7 +4707,7 @@ class PKIDeployer:
 
         trans.finish()
 
-    def remove_selinux_contexts(self, instance):
+    def remove_selinux_contexts(self):
 
         suffix = '(/.*)?'
 
@@ -4725,20 +4725,20 @@ class PKIDeployer:
         fcon = seobject.fcontextRecords(trans)
         file_records = fcon.get_all()
 
-        if self.selinux_context_exists(file_records, instance.log_dir + suffix):
-            logger.info('Removing SELinux fcontext "%s"', instance.log_dir + suffix)
-            fcon.delete(instance.log_dir + suffix, '')
+        if self.selinux_context_exists(file_records, self.instance.log_dir + suffix):
+            logger.info('Removing SELinux fcontext "%s"', self.instance.log_dir + suffix)
+            fcon.delete(self.instance.log_dir + suffix, '')
 
-        if self.selinux_context_exists(file_records, instance.base_dir + suffix):
-            logger.info('Removing SELinux fcontext "%s"', instance.base_dir + suffix)
-            fcon.delete(instance.base_dir + suffix, '')
+        if self.selinux_context_exists(file_records, self.instance.base_dir + suffix):
+            logger.info('Removing SELinux fcontext "%s"', self.instance.base_dir + suffix)
+            fcon.delete(self.instance.base_dir + suffix, '')
 
-        if self.selinux_context_exists(file_records, instance.nssdb_dir + suffix):
-            logger.info('Removing SELinux fcontext "%s"', instance.nssdb_dir + suffix)
-            fcon.delete(instance.nssdb_dir + suffix, '')
+        if self.selinux_context_exists(file_records, self.instance.nssdb_dir + suffix):
+            logger.info('Removing SELinux fcontext "%s"', self.instance.nssdb_dir + suffix)
+            fcon.delete(self.instance.nssdb_dir + suffix, '')
 
-        if self.selinux_context_exists(file_records, instance.conf_dir + suffix):
-            logger.info('Removing SELinux fcontext "%s"', instance.conf_dir + suffix)
-            fcon.delete(instance.conf_dir + suffix, '')
+        if self.selinux_context_exists(file_records, self.instance.conf_dir + suffix):
+            logger.info('Removing SELinux fcontext "%s"', self.instance.conf_dir + suffix)
+            fcon.delete(self.instance.conf_dir + suffix, '')
 
         trans.finish()

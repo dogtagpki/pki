@@ -67,16 +67,16 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 # check first if any transactions are required
                 if len(ports) == 0 and deployer.mdict['pki_instance_name'] == \
                         config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME:
-                    deployer.restore_selinux_contexts(instance)
+                    deployer.restore_selinux_contexts()
                     return
 
                 # add SELinux contexts when adding the first subsystem
                 if len(instance.get_subsystems()) == 1:
                     if deployer.mdict['pki_instance_name'] != \
                             config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME:
-                        deployer.create_selinux_contexts(instance)
+                        deployer.create_selinux_contexts()
 
-                    deployer.restore_selinux_contexts(instance)
+                    deployer.restore_selinux_contexts()
                 break
 
             except ValueError as e:
@@ -115,7 +115,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 if not instance.get_subsystems():
                     if deployer.mdict['pki_instance_name'] != \
                             config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME:
-                        deployer.remove_selinux_contexts(instance)
+                        deployer.remove_selinux_contexts()
                 break
 
             except ValueError as e:
