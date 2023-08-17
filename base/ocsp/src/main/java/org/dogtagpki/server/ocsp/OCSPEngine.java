@@ -100,6 +100,7 @@ public class OCSPEngine extends CMSEngine {
 
         initDebug();
         initAuditor();
+        initDBSubsystem();
         init();
         initPasswordStore();
         initSubsystemListeners();
@@ -114,7 +115,6 @@ public class OCSPEngine extends CMSEngine {
         initDatabase();
 
         initJssSubsystem();
-        initDBSubsystem();
         initUGSubsystem();
         initOIDLoaderSubsystem();
         initX500NameSubsystem();
@@ -192,7 +192,7 @@ public class OCSPEngine extends CMSEngine {
                         pt = tPt;
                     }
                 } catch (IOException e) {
-                    logger.error("OCSPEngine: problem extracting key from SKI/AKI");
+                    logger.error("OCSPEngine: problem extracting key from SKI/AKI: " + e.getMessage(), e);
                 }
             }
         } catch (EBaseException | CertificateException e) {
@@ -211,7 +211,7 @@ public class OCSPEngine extends CMSEngine {
                 return true;
             }
         } catch (Exception e) {
-            logger.error("OCSPEngine: crl check error. " + e.getMessage());
+            logger.error("OCSPEngine: crl check error. " + e.getMessage(), e);
         }
         logger.info("OCSPEngine: peer certificate not valid");
         return false;
