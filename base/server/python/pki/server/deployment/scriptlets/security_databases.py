@@ -53,10 +53,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.update_rsa_pss_algorithms(subsystem)
 
         deployer.init_server_nssdb(subsystem)
-        deployer.import_server_pkcs12(subsystem)
-        deployer.import_clone_pkcs12(subsystem)
-        deployer.install_cert_chain(subsystem)
-        deployer.import_ds_ca_cert(subsystem)
+        deployer.import_server_pkcs12()
+        deployer.import_clone_pkcs12()
+        deployer.install_cert_chain()
+        deployer.import_ds_ca_cert()
 
         deployer.init_system_cert_params(subsystem)
         subsystem.save()

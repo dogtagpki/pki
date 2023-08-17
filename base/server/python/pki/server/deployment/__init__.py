@@ -560,7 +560,7 @@ class PKIDeployer:
         # Always delete the temporary 'pfile'
         self.file.delete(pki_shared_pfile)
 
-    def import_server_pkcs12(self, subsystem):
+    def import_server_pkcs12(self):
         '''
         Import system certificates from PKCS #12 file.
         '''
@@ -580,9 +580,7 @@ class PKIDeployer:
         if not pki_server_pkcs12_password:
             raise Exception('Missing pki_server_pkcs12_password property')
 
-        instance = subsystem.instance
-
-        pki_shared_pfile = os.path.join(instance.conf_dir, 'pfile')
+        pki_shared_pfile = os.path.join(self.instance.conf_dir, 'pfile')
         logger.info('Creating password file: %s', pki_shared_pfile)
 
         self.password.create_password_conf(
@@ -594,7 +592,7 @@ class PKIDeployer:
 
         try:
             nssdb = pki.nssdb.NSSDatabase(
-                directory=instance.nssdb_dir,
+                directory=self.instance.nssdb_dir,
                 password_file=pki_shared_pfile)
 
             try:
@@ -614,7 +612,7 @@ class PKIDeployer:
         finally:
             self.file.delete(pki_shared_pfile)
 
-    def import_clone_pkcs12(self, subsystem):
+    def import_clone_pkcs12(self):
         '''
         Import CA certificates from PKCS #12 file for cloning.
         '''
@@ -634,9 +632,7 @@ class PKIDeployer:
         if not pki_clone_pkcs12_password:
             raise Exception('Missing pki_clone_pkcs12_password property')
 
-        instance = subsystem.instance
-
-        pki_shared_pfile = os.path.join(instance.conf_dir, 'pfile')
+        pki_shared_pfile = os.path.join(self.instance.conf_dir, 'pfile')
         logger.info('Creating password file: %s', pki_shared_pfile)
 
         self.password.create_password_conf(
@@ -648,7 +644,7 @@ class PKIDeployer:
 
         try:
             nssdb = pki.nssdb.NSSDatabase(
-                directory=instance.nssdb_dir,
+                directory=self.instance.nssdb_dir,
                 password_file=pki_shared_pfile)
 
             try:
@@ -669,7 +665,7 @@ class PKIDeployer:
                     pkcs12_file=pki_clone_pkcs12_path,
                     pkcs12_password=pki_clone_pkcs12_password)
 
-                print('Certificates in %s:' % instance.nssdb_dir)
+                print('Certificates in %s:' % self.instance.nssdb_dir)
                 nssdb.show_certs()
 
             finally:
@@ -679,7 +675,7 @@ class PKIDeployer:
             # PKIServer.setup_cert_authentication().
             # openssl pkcs12 -in <p12_file_path> -out /tmp/auth.pem -nodes -nokeys
 
-            pki_ca_crt_path = os.path.join(instance.nssdb_dir, 'ca.crt')
+            pki_ca_crt_path = os.path.join(self.instance.nssdb_dir, 'ca.crt')
 
             cmd_export_ca = [
                 'openssl', 'pkcs12',
@@ -709,7 +705,7 @@ class PKIDeployer:
         finally:
             self.file.delete(pki_shared_pfile)
 
-    def install_cert_chain(self, subsystem):
+    def install_cert_chain(self):
 
         param = 'pki_cert_chain_path'
         cert_chain_path = self.mdict.get(param)
@@ -723,9 +719,7 @@ class PKIDeployer:
 
         logger.info('Importing cert chain from %s', cert_chain_path)
 
-        instance = subsystem.instance
-
-        destination = os.path.join(instance.nssdb_dir, 'ca.crt')
+        destination = os.path.join(self.instance.nssdb_dir, 'ca.crt')
 
         if os.path.exists(destination):
             return
@@ -738,16 +732,14 @@ class PKIDeployer:
         # validation there. This is only usually necessary when
         # installing a non-CA subsystem on a fresh system.
 
-        instance.copyfile(cert_chain_path, destination)
+        self.instance.copyfile(cert_chain_path, destination)
 
-    def import_ds_ca_cert(self, subsystem):
+    def import_ds_ca_cert(self):
 
         if self.ds_url.scheme != 'ldaps':
             return
 
-        instance = subsystem.instance
-
-        pki_shared_pfile = os.path.join(instance.conf_dir, 'pfile')
+        pki_shared_pfile = os.path.join(self.instance.conf_dir, 'pfile')
         logger.info('Creating password file: %s', pki_shared_pfile)
 
         self.password.create_password_conf(
@@ -765,7 +757,7 @@ class PKIDeployer:
             #        the instance will utilize 'softokn' or an HSM
 
             exists = self.certutil.verify_certificate_exists(
-                path=instance.nssdb_dir,
+                path=self.instance.nssdb_dir,
                 token=self.mdict['pki_self_signed_token'],
                 nickname=self.mdict['pki_ds_secure_connection_ca_nickname'],
                 password_file=pki_shared_pfile)
@@ -780,7 +772,7 @@ class PKIDeployer:
                 self.mdict['pki_ds_secure_connection_ca_trustargs'],
                 self.mdict['pki_ds_secure_connection_ca_pem_file'],
                 password_file=pki_shared_pfile,
-                path=instance.nssdb_dir,
+                path=self.instance.nssdb_dir,
                 token=self.mdict['pki_self_signed_token'])
 
         finally:
