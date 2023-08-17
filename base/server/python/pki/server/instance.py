@@ -578,10 +578,10 @@ class PKIInstance(pki.server.PKIServer):
 
         super().set_sslserver_cert_nickname(nickname, token)
 
-        if pki.nssdb.normalize_token(token):
-            fullname = token + ':' + nickname
-        else:
+        if pki.nssdb.internal_token(token):
             fullname = nickname
+        else:
+            fullname = token + ':' + nickname
 
         # Store SSL server cert nickname into serverCertNick.conf
         # TODO: Remove serverCertNick.conf

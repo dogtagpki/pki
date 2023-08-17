@@ -132,7 +132,7 @@ class PKICLI(pki.cli.CLI):
         if self.password_conf:
             cmd.extend(['-f', self.password_conf])
 
-        if pki.nssdb.normalize_token(self.token):
+        if not pki.nssdb.internal_token(self.token):
             cmd.extend(['--token', self.token])
 
         if self.ignore_banner:

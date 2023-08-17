@@ -107,11 +107,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # If required, verify existence of Token Password
         if config.str2bool(deployer.mdict['pki_hsm_enable']):
             configuration_file.confirm_data_exists('pki_token_name')
-            if not pki.nssdb.normalize_token(deployer.mdict['pki_token_name']):
+            if pki.nssdb.internal_token(deployer.mdict['pki_token_name']):
                 logger.error(log.PKIHELPER_UNDEFINED_HSM_TOKEN)
                 raise Exception(log.PKIHELPER_UNDEFINED_HSM_TOKEN)
 
-        if pki.nssdb.normalize_token(deployer.mdict['pki_token_name']):
+        if not pki.nssdb.internal_token(deployer.mdict['pki_token_name']):
             configuration_file.confirm_data_exists('pki_token_password')
 
     def spawn(self, deployer):

@@ -1462,7 +1462,7 @@ class Password:
                 return
 
             token = self.mdict['pki_self_signed_token']
-            if not pki.nssdb.normalize_token(token):
+            if pki.nssdb.internal_token(token):
                 token = pki.nssdb.INTERNAL_TOKEN_NAME
 
             with open(path, 'w', encoding='utf-8') as fd:

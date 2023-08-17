@@ -698,7 +698,7 @@ class PKIConfigParser:
             #
 
             # if the case insensitive softokn name is the 'default' value
-            if not pki.nssdb.normalize_token(self.mdict['pki_token_name']):
+            if pki.nssdb.internal_token(self.mdict['pki_token_name']):
                 # always normalize 'default' softokn name
                 self.mdict['pki_token_name'] = pki.nssdb.INTERNAL_TOKEN_NAME
 

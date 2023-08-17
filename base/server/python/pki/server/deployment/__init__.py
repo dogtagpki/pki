@@ -806,11 +806,11 @@ class PKIDeployer:
             nickname = self.mdict['pki_%s_nickname' % deploy_tag]
             tokenname = self.mdict['pki_%s_token' % deploy_tag]
 
-            if pki.nssdb.normalize_token(tokenname):
-                fullname = tokenname + ':' + nickname
-            else:
+            if pki.nssdb.internal_token(tokenname):
                 fullname = nickname
                 tokenname = pki.nssdb.INTERNAL_TOKEN_NAME
+            else:
+                fullname = tokenname + ':' + nickname
 
             subsystem.config['preop.cert.%s.nickname' % config_tag] = nickname
             subsystem.config['%s.%s.nickname' % (subsystem.name, config_tag)] = nickname
@@ -878,23 +878,21 @@ class PKIDeployer:
             storage_nickname = subsystem.config['kra.storage.nickname']
             storage_token = subsystem.config['kra.storage.tokenname']
 
-            if pki.nssdb.normalize_token(storage_token):
+            if pki.nssdb.internal_token(storage_token):
+                subsystem.config['kra.storageUnit.nickName'] = storage_nickname
+            else:
                 subsystem.config['kra.storageUnit.hardware'] = storage_token
                 subsystem.config['kra.storageUnit.nickName'] = \
                     storage_token + ':' + storage_nickname
-            else:
-                subsystem.config['kra.storageUnit.nickName'] = \
-                    storage_nickname
 
             transport_nickname = subsystem.config['kra.transport.nickname']
             transport_token = subsystem.config['kra.transport.tokenname']
 
-            if pki.nssdb.normalize_token(transport_token):
-                subsystem.config['kra.transportUnit.nickName'] = \
-                    transport_token + ':' + transport_nickname
+            if pki.nssdb.internal_token(transport_token):
+                subsystem.config['kra.transportUnit.nickName'] = transport_nickname
             else:
                 subsystem.config['kra.transportUnit.nickName'] = \
-                    transport_nickname
+                    transport_token + ':' + transport_nickname
 
         if subsystem.type == 'OCSP':
 
@@ -905,7 +903,7 @@ class PKIDeployer:
         audit_nickname = subsystem.config['%s.audit_signing.nickname' % subsystem.name]
         audit_token = subsystem.config['%s.audit_signing.tokenname' % subsystem.name]
 
-        if pki.nssdb.normalize_token(audit_token):
+        if not pki.nssdb.internal_token(audit_token):
             audit_nickname = audit_token + ':' + audit_nickname
 
         subsystem.config['log.instance.SignedAudit.signedAuditCertNickname'] = audit_nickname
@@ -1219,10 +1217,10 @@ class PKIDeployer:
         nickname = subsystem.config['tps.subsystem.nickname']
         token = subsystem.config['tps.subsystem.tokenname']
 
-        if pki.nssdb.normalize_token(token):
-            fullname = token + ':' + nickname
-        else:
+        if pki.nssdb.internal_token(token):
             fullname = nickname
+        else:
+            fullname = token + ':' + nickname
 
         timestamp = round(time.time() * 1000 * 1000)
 
@@ -2209,7 +2207,7 @@ class PKIDeployer:
         subsystem.config['%s.%s.nickname' % (subsystem.name, tag)] = nickname
 
         tokenname = self.mdict['pki_%s_token' % cert_id]
-        if not pki.nssdb.normalize_token(tokenname):
+        if pki.nssdb.internal_token(tokenname):
             tokenname = pki.nssdb.INTERNAL_TOKEN_NAME
         subsystem.config['%s.%s.tokenname' % (subsystem.name, tag)] = tokenname
 
@@ -2686,7 +2684,7 @@ class PKIDeployer:
             else:
                 system_cert.token = subsystem.config['preop.module.token']
 
-        if not pki.nssdb.normalize_token(system_cert.token):
+        if pki.nssdb.internal_token(system_cert.token):
             system_cert.token = pki.nssdb.INTERNAL_TOKEN_NAME
 
         return system_cert
@@ -3304,10 +3302,10 @@ class PKIDeployer:
 
         logger.info('Setting up trust flags')
 
-        if pki.nssdb.normalize_token(self.mdict.get('pki_token_name')):
-            token = self.mdict['pki_token_name'] + ":"
+        if pki.nssdb.internal_token(self.mdict.get('pki_token_name')):
+            token = ''
         else:
-            token = ""
+            token = self.mdict['pki_token_name'] + ':'
 
         if subsystem.type == 'CA':
             nssdb.modify_cert(
@@ -4171,7 +4169,7 @@ class PKIDeployer:
         nickname = subsystem_cert['nickname']
         token = subsystem_cert['token']
 
-        if pki.nssdb.normalize_token(token):
+        if not pki.nssdb.internal_token(token):
             nickname = token + ':' + nickname
 
         server_config = instance.get_server_config()
@@ -4205,7 +4203,7 @@ class PKIDeployer:
         nickname = subsystem_cert['nickname']
         token = subsystem_cert['token']
 
-        if pki.nssdb.normalize_token(token):
+        if not pki.nssdb.internal_token(token):
             nickname = token + ':' + nickname
 
         server_config = instance.get_server_config()
@@ -4240,7 +4238,7 @@ class PKIDeployer:
         nickname = subsystem_cert['nickname']
         token = subsystem_cert['token']
 
-        if pki.nssdb.normalize_token(token):
+        if not pki.nssdb.internal_token(token):
             nickname = token + ':' + nickname
 
         cmd = [
@@ -4269,7 +4267,7 @@ class PKIDeployer:
         nickname = subsystem_cert['nickname']
         token = subsystem_cert['token']
 
-        if pki.nssdb.normalize_token(token):
+        if not pki.nssdb.internal_token(token):
             nickname = token + ':' + nickname
 
         cmd = [
@@ -4299,7 +4297,7 @@ class PKIDeployer:
         nickname = subsystem_cert['nickname']
         token = subsystem_cert['token']
 
-        if pki.nssdb.normalize_token(token):
+        if not pki.nssdb.internal_token(token):
             nickname = token + ':' + nickname
 
         cmd = [
@@ -4328,7 +4326,7 @@ class PKIDeployer:
         nickname = subsystem_cert['nickname']
         token = subsystem_cert['token']
 
-        if pki.nssdb.normalize_token(token):
+        if not pki.nssdb.internal_token(token):
             nickname = token + ':' + nickname
 
         cmd = [

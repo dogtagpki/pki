@@ -1288,7 +1288,7 @@ grant codeBase "file:%s" {
     def get_token_password(self, token=pki.nssdb.INTERNAL_TOKEN_NAME):
 
         # determine the password name for the token
-        if not pki.nssdb.normalize_token(token):
+        if pki.nssdb.internal_token(token):
             name = pki.nssdb.INTERNAL_TOKEN_NAME
 
         else:
@@ -1334,10 +1334,10 @@ grant codeBase "file:%s" {
 
         # Store SSL server cert nickname into server.xml
 
-        if pki.nssdb.normalize_token(token):
-            fullname = token + ':' + nickname
-        else:
+        if pki.nssdb.internal_token(token):
             fullname = nickname
+        else:
+            fullname = token + ':' + nickname
 
         server_config = self.get_server_config()
         connector = server_config.get_connector(name='Secure')

@@ -158,19 +158,30 @@ def get_file_type(filename):
     return None
 
 
+def internal_token(token):
+    '''
+    Check whether the token is an empty string, 'internal', or
+    'Internal Key Storage Token'.
+    '''
+    if not token:
+        return True
+
+    if token.lower() == INTERNAL_TOKEN_NAME:
+        return True
+
+    if token.lower() == INTERNAL_TOKEN_FULL_NAME.lower():
+        return True
+
+    return False
+
+
 def normalize_token(token):
-    """
+    '''
     Normalize internal token name (e.g. empty string, 'internal',
     'Internal Key Storage Token') into None. Other token names
     will be unchanged.
-    """
-    if not token:
-        return None
-
-    if token.lower() == INTERNAL_TOKEN_NAME:
-        return None
-
-    if token.lower() == INTERNAL_TOKEN_FULL_NAME.lower():
+    '''
+    if internal_token(token):
         return None
 
     return token
@@ -310,7 +321,7 @@ class NSSDatabase(object):
         shutil.rmtree(self.tmpdir)
 
     def get_effective_token(self, token=None):
-        if not normalize_token(token):
+        if internal_token(token):
             return self.token
         return token
 
@@ -357,10 +368,10 @@ class NSSDatabase(object):
         if all_tokens:
             password = self.get_all_passwords()
         else:
-            if normalize_token(token):
-                token = 'hardware-%s' % token
-            else:
+            if internal_token(token):
                 token = INTERNAL_TOKEN_NAME
+            else:
+                token = 'hardware-%s' % token
             password = self.passwords[token]
 
         # then store it in a temp file

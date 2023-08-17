@@ -57,7 +57,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # Configuring internal token password
 
         internal_token = deployer.mdict['pki_self_signed_token']
-        if not pki.nssdb.normalize_token(internal_token):
+        if pki.nssdb.internal_token(internal_token):
             internal_token = pki.nssdb.INTERNAL_TOKEN_NAME
 
         # If instance already exists and has password, reuse the password
