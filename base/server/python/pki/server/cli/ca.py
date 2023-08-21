@@ -54,6 +54,7 @@ class CACLI(pki.cli.CLI):
         self.add_module(pki.server.cli.subsystem.SubsystemRedeployCLI(self))
         self.add_module(pki.server.cli.audit.AuditCLI(self))
         self.add_module(CACertCLI())
+        self.add_module(CACRLCLI())
         self.add_module(CACloneCLI())
         self.add_module(pki.server.cli.config.SubsystemConfigCLI(self))
         self.add_module(pki.server.cli.db.SubsystemDBCLI(self))
@@ -820,6 +821,92 @@ class CACertRequestImportCLI(pki.cli.CLI):
 
         request_id = result['requestID']
         print('  Request ID: %s' % request_id)
+
+
+class CACRLCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super().__init__('crl', 'CA CRL configuration management commands')
+
+        self.add_module(CACRLShowCLI())
+
+    @staticmethod
+    def print_crl_config(config):
+
+        output = f'''
+            Page Size: {config.get('pageSize')}
+        '''
+
+        print(textwrap.indent(textwrap.dedent(output).strip(), '  '))
+
+
+class CACRLShowCLI(pki.cli.CLI):
+    '''
+    Show CRL configuration in CA
+    '''
+
+    help = '''\
+        Usage: pki-server ca-crl-show [OPTIONS]
+
+          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -v, --verbose                      Run in verbose mode.
+              --debug                        Run in debug mode.
+              --help                         Show help message.
+    '''  # noqa: E501
+
+    def __init__(self):
+        super().__init__('show', inspect.cleandoc(self.__class__.__doc__))
+
+    def print_help(self):
+        print(textwrap.dedent(self.__class__.help))
+
+    def execute(self, argv):
+
+        try:
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('Invalid option: %s', o)
+                self.print_help()
+                sys.exit(1)
+
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        if not instance.exists():
+            logger.error('Invalid instance: %s', instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem = instance.get_subsystem('ca')
+        if not subsystem:
+            logger.error('No CA subsystem in instance %s', instance_name)
+            sys.exit(1)
+
+        config = subsystem.get_crl_config()
+        CACRLCLI.print_crl_config(config)
 
 
 class CACloneCLI(pki.cli.CLI):
