@@ -2378,6 +2378,27 @@ class CASubsystem(PKISubsystem):
             subsystem_number = m.group(1)
             self.config['subsystem.%s.enabled' % subsystem_number] = 'false'
 
+    def get_crl_config(self):
+
+        config = {}
+
+        # find ca.crl.* params
+        pattern = re.compile(r'^ca.crl\.([^\.]*)$')
+
+        for key, value in self.config.items():
+
+            m = pattern.match(key)
+            if not m:
+                continue
+
+            name = m.group(1)
+            if name.startswith('_'):
+                continue
+
+            config[name] = value
+
+        return config
+
 
 class KRASubsystem(PKISubsystem):
 
