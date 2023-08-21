@@ -1609,12 +1609,8 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
                 // only do this if cache is enabled
                 BigInteger sno = new BigInteger(serialNo.toString());
                 boolean checkDeltaCache = mConfig.getOSPUseCacheCheckDeltaCache();
-                boolean includeExpiredCerts = false;
+                boolean includeExpiredCerts = mConfig.getOCSPUseCacheIncludeExpiredCerts();
 
-                try {
-                    includeExpiredCerts = mConfig.getBoolean("ocspUseCacheIncludeExpiredCerts", false);
-                } catch (EBaseException e) {
-                }
                 Date revokedOn = point.getRevocationDateFromCache(
                         sno, checkDeltaCache, includeExpiredCerts);
 

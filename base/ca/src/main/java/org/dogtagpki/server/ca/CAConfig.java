@@ -55,6 +55,14 @@ public class CAConfig extends ConfigStore {
         putBoolean("ocspUseCacheCheckDeltaCache", ocspUseCacheCheckDeltaCache);
     }
 
+    public boolean getOCSPUseCacheIncludeExpiredCerts() throws EBaseException {
+        return getBoolean("ocspUseCacheIncludeExpiredCerts", false);
+    }
+
+    public void setOCSPUseCacheIncludeExpiredCerts(boolean ocspUseCacheIncludeExpiredCerts) {
+        putBoolean("ocspUseCacheIncludeExpiredCerts", ocspUseCacheIncludeExpiredCerts);
+    }
+
     /**
      * Returns ca.publish.* parameters.
      */
