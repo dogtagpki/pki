@@ -281,6 +281,14 @@ public class CRLIssuingPointConfig extends ConfigStore {
         putString("publishDN", publishDN);
     }
 
+    public BigInteger getStartingCRLNumber() throws EBaseException {
+        return getBigInteger("startingCrlNumber", BigInteger.ZERO);
+    }
+
+    public void setStartingCRLNumber(BigInteger startingCRLNumber) {
+        putBigInteger("startingCrlNumber", startingCRLNumber);
+    }
+
     public BigInteger getCRLBeginSerialNo() throws EBaseException {
         return getBigInteger("crlBeginSerialNo", null);
     }

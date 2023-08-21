@@ -126,8 +126,6 @@ public class CRLIssuingPoint implements Runnable {
     public static final long SECOND = 1000L;
     public static final long MINUTE = (SECOND * 60L);
 
-    private static final String PROP_CRL_STARTING_NUMBER = "startingCrlNumber";
-
     /* configuration file property names */
 
     public CAPublisherProcessor mPublisherProcessor;
@@ -1082,7 +1080,7 @@ public class CRLIssuingPoint implements Runnable {
             CRLIssuingPointConfig ipConfig = crlConfig.getCRLIssuingPointConfig(mId);
 
             try {
-                BigInteger startingCrlNumberBig = ipConfig.getBigInteger(PROP_CRL_STARTING_NUMBER, BigInteger.ZERO);
+                BigInteger startingCrlNumberBig = ipConfig.getStartingCRLNumber();
                 logger.debug("CRLIssuingPoint: starting CRL number: " + startingCrlNumberBig);
 
                 // Check for bogus negative value
