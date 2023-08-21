@@ -1596,15 +1596,7 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
         boolean ocspUseCache = mConfig.getOCSPUseCache();
 
         if (ocspUseCache) {
-            String issuingPointId = PROP_MASTER_CRL;
-
-            try {
-                issuingPointId = mConfig.getString(
-                            "ocspUseCacheIssuingPointId", PROP_MASTER_CRL);
-
-            } catch (EBaseException e) {
-            }
-
+            String issuingPointId = mConfig.getOCSPUseCacheIssuingPointId();
             CRLIssuingPoint point = engine.getCRLIssuingPoint(issuingPointId);
 
             /* set nextUpdate to the nextUpdate time of the CRL */

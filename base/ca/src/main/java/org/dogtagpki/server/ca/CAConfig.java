@@ -39,6 +39,14 @@ public class CAConfig extends ConfigStore {
         putBoolean("ocspUseCache", ocspUseCache);
     }
 
+    public String getOCSPUseCacheIssuingPointId() throws EBaseException {
+        return getString("ocspUseCacheIssuingPointId", CertificateAuthority.PROP_MASTER_CRL);
+    }
+
+    public void setOCSPUseCacheIssuingPointId(String ocspUseCacheIssuingPointId) {
+        putString("ocspUseCacheIssuingPointId", ocspUseCacheIssuingPointId);
+    }
+
     /**
      * Returns ca.publish.* parameters.
      */
