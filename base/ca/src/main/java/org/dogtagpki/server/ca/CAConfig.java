@@ -9,6 +9,7 @@ import org.dogtagpki.legacy.ca.CAPolicyConfig;
 
 import com.netscape.ca.CRLConfig;
 import com.netscape.ca.CertificateAuthority;
+import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.connector.ConnectorsConfig;
 import com.netscape.certsrv.security.SigningUnitConfig;
 import com.netscape.cms.servlet.cert.scep.SCEPConfig;
@@ -28,6 +29,14 @@ public class CAConfig extends ConfigStore {
 
     public CAConfig(String name, SimpleProperties source) {
         super(name, source);
+    }
+
+    public boolean getOCSPUseCache() throws EBaseException {
+        return getBoolean("ocspUseCache", false);
+    }
+
+    public void setOCSPUseCache(boolean ocspUseCache) {
+        putBoolean("ocspUseCache", ocspUseCache);
     }
 
     /**

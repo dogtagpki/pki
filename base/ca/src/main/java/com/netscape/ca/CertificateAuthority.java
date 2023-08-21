@@ -1557,7 +1557,7 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
         }
     }
 
-    public SingleResponse processRequest(Request req) {
+    public SingleResponse processRequest(Request req) throws EBaseException {
 
         String name = "CertificateAuthority: processRequest: ";
         CAEngine engine = CAEngine.getInstance();
@@ -1593,13 +1593,7 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
             return new SingleResponse(cid, new UnknownInfo(), thisUpdate, null);
         }
 
-        boolean ocspUseCache = true;
-
-        try {
-            /* enable OCSP cache by default */
-            ocspUseCache = mConfig.getBoolean("ocspUseCache", false);
-        } catch (EBaseException e) {
-        }
+        boolean ocspUseCache = mConfig.getOCSPUseCache();
 
         if (ocspUseCache) {
             String issuingPointId = PROP_MASTER_CRL;
