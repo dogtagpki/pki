@@ -176,7 +176,6 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
     public static final String PROP_ENABLE_ADMIN_ENROLL = "enableAdminEnroll";
 
     // make this public so agent gateway can access for now.
-    public static final String PROP_CRL_PAGE_SIZE = "pageSize";
     public static final String PROP_MASTER_CRL = "MasterCRL";
 
     public static final String PROP_NOTIFY_SUBSTORE = "notification";

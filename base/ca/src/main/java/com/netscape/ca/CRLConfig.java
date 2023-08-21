@@ -5,6 +5,7 @@
 //
 package com.netscape.ca;
 
+import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
@@ -20,6 +21,14 @@ public class CRLConfig extends ConfigStore {
 
     public CRLConfig(String name, SimpleProperties source) {
         super(name, source);
+    }
+
+    public int getPageSize() throws EBaseException {
+        return getInteger("pageSize", 10000);
+    }
+
+    public void setPageSize(int pageSize) {
+        putInteger("pageSize", pageSize);
     }
 
     /**

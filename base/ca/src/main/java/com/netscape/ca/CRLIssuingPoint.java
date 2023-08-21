@@ -126,8 +126,6 @@ public class CRLIssuingPoint implements Runnable {
     public static final long SECOND = 1000L;
     public static final long MINUTE = (SECOND * 60L);
 
-    private static final int CRL_PAGE_SIZE = 10000;
-
     private static final String PROP_CRL_STARTING_NUMBER = "startingCrlNumber";
 
     /* configuration file property names */
@@ -138,7 +136,7 @@ public class CRLIssuingPoint implements Runnable {
 
     private int mCountMod = 0;
     private int mCount = 0;
-    private int mPageSize = CRL_PAGE_SIZE;
+    private int mPageSize;
 
     private CMSCRLExtensions mCMSCRLExtensions = null;
 
@@ -603,7 +601,7 @@ public class CRLIssuingPoint implements Runnable {
         CAConfig caConfig = mCA.getConfigStore();
         CRLConfig crlConfig = caConfig.getCRLConfig();
 
-        mPageSize = crlConfig.getInteger(CertificateAuthority.PROP_CRL_PAGE_SIZE, CRL_PAGE_SIZE);
+        mPageSize = crlConfig.getPageSize();
         logger.debug("CRLIssuingPoint: - page size: " + mPageSize);
 
         mCountMod = mConfigStore.getCountMod();
