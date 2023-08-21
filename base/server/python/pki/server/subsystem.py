@@ -2399,6 +2399,42 @@ class CASubsystem(PKISubsystem):
 
         return config
 
+    def find_crl_issuing_point_ids(self):
+
+        ids = []
+
+        # find ca.crl.<id>.class params
+        pattern = re.compile(r'^ca.crl\.([^\.]*)\.class$')
+
+        for key in self.config.keys():
+
+            m = pattern.match(key)
+            if not m:
+                continue
+
+            ip_id = m.group(1)
+            ids.append(ip_id)
+
+        return ids
+
+    def get_crl_issuing_point_config(self, ip_id):
+
+        config = {}
+
+        # find ca.crl.<id>.* params
+        pattern = re.compile(r'^ca.crl\.%s\.([^\.]*)' % ip_id)
+
+        for key, value in self.config.items():
+
+            m = pattern.match(key)
+            if not m:
+                continue
+
+            name = m.group(1)
+            config[name] = value
+
+        return config
+
 
 class KRASubsystem(PKISubsystem):
 
