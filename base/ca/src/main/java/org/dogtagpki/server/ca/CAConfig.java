@@ -47,6 +47,14 @@ public class CAConfig extends ConfigStore {
         putString("ocspUseCacheIssuingPointId", ocspUseCacheIssuingPointId);
     }
 
+    public boolean getOSPUseCacheCheckDeltaCache() throws EBaseException {
+        return getBoolean("ocspUseCacheCheckDeltaCache", false);
+    }
+
+    public void setOCSPUseCacheCheckDeltaCache(boolean ocspUseCacheCheckDeltaCache) {
+        putBoolean("ocspUseCacheCheckDeltaCache", ocspUseCacheCheckDeltaCache);
+    }
+
     /**
      * Returns ca.publish.* parameters.
      */

@@ -1608,13 +1608,9 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
             if (point.isCRLCacheEnabled()) {
                 // only do this if cache is enabled
                 BigInteger sno = new BigInteger(serialNo.toString());
-                boolean checkDeltaCache = false;
+                boolean checkDeltaCache = mConfig.getOSPUseCacheCheckDeltaCache();
                 boolean includeExpiredCerts = false;
 
-                try {
-                    checkDeltaCache = mConfig.getBoolean("ocspUseCacheCheckDeltaCache", false);
-                } catch (EBaseException e) {
-                }
                 try {
                     includeExpiredCerts = mConfig.getBoolean("ocspUseCacheIncludeExpiredCerts", false);
                 } catch (EBaseException e) {
