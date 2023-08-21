@@ -349,7 +349,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                 logger.info("DefStore:   Digest: {}", new String(Hex.encodeHex(digest)));
                 byte[] name = md.digest(cert.getSubjectObj().getX500Name().getEncoded());
 
-                if (!Arrays.equals(digest, keyhsh) && Arrays.equals(name, namehash)) {
+                if (!Arrays.equals(digest, keyhsh) || !Arrays.equals(name, namehash)) {
                     theCert = cert;
                     continue;
                 }

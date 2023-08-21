@@ -246,6 +246,104 @@ jobs:
           echo good > expected
           diff expected actual
 
+      - name: Check OCSP responder with non existing cert
+        run: |
+          # get cert serial number
+          CERT_ID=0x1
+          docker exec pki pki ca-cert-show $CERT_ID || true
+
+          # check cert status on OCSP subsystem using OCSPClient
+          docker exec pki OCSPClient \
+              -d /root/.dogtag/nssdb \
+              -h pki.example.com \
+              -p 8080 \
+              -t /ocsp/ee/ocsp \
+              -c ca_signing \
+              --serial $CERT_ID | tee output
+
+          # the status should be good
+          sed -n "s/^CertStatus=\(.*\)$/\1/p" output > actual
+          echo Good > expected
+          diff expected actual
+
+          # check cert status on OCSP using OpenSSL
+          docker exec pki openssl ocsp \
+              -url http://pki.example.com:8080/ocsp/ee/ocsp \
+              -CAfile ca_signing.crt \
+              -issuer ca_signing.crt \
+              -serial $CERT_ID | tee output
+
+          # the status should be good
+          sed -n "s/^$CERT_ID:\s*\(\S*\)$/\1/p" output > actual
+          echo good > expected
+          diff expected actual
+
+          # check cert status on CA subsystem using OCSPClient
+          docker exec pki OCSPClient \
+              -d /root/.dogtag/nssdb \
+              -h pki.example.com \
+              -p 8080 \
+              -t /ca/ocsp \
+              -c ca_signing \
+              --serial $CERT_ID | tee output
+
+          # the status should be unknown
+          sed -n "s/^CertStatus=\(.*\)$/\1/p" output > actual
+          echo Unknown > expected
+          diff expected actual
+
+          # check cert status on CA using OpenSSL
+          docker exec pki openssl ocsp \
+              -url http://pki.example.com:8080/ca/ocsp \
+              -CAfile ca_signing.crt \
+              -issuer ca_signing.crt \
+              -serial $CERT_ID | tee output
+
+          # the status should be unknown
+          sed -n "s/^$CERT_ID:\s*\(\S*\)$/\1/p" output > actual
+          echo unknown > expected
+          diff expected actual
+
+      - name: Check OCSP responder with non managed CA
+        run: |
+          # get cert serial number
+          docker exec pki pki nss-cert-show caagent | tee output
+          CERT_ID=$(sed -n "s/^\s*Serial Number:\s*\(\S*\)$/\1/p" output)
+
+          # Generate a new self signed CA certificate and create a request
+          docker exec pki openssl req \
+              -newkey rsa:2048 -nodes \
+              -keyout new_ca.key \
+              -x509 -days 365 -out new_ca.crt \
+              -subj "/O=EXAMPLE/OU=pki-tomcat/CN=CA Signing Certificate External"
+
+          docker exec pki openssl ocsp -issuer new_ca.crt \
+              -serial $CERT_ID -reqout ocsp_new_ca.req
+          
+          # check cert status using OCSPClient
+          docker exec pki OCSPClient \
+              -h pki.example.com \
+              -p 8080 \
+              -t /ocsp/ee/ocsp \
+              --input ocsp_new_ca.req | tee output
+
+          # the status should be unknown
+          sed -n "s/^CertStatus=\(.*\)$/\1/p" output > actual
+          echo Unknown > expected
+          diff expected actual
+
+          # check cert status using OpenSSL
+          docker exec pki openssl ocsp \
+              -url http://pki.example.com:8080/ocsp/ee/ocsp \
+              -CAfile ca_signing.crt \
+              -issuer new_ca.crt \
+              -serial $CERT_ID | tee output
+
+          # the status should be unknown
+          sed -n "s/^$CERT_ID:\s*\(\S*\)$/\1/p" output > actual
+          echo unknown > expected
+          diff expected actual
+
       - name: Gather artifacts
         if: always()
         run: |
