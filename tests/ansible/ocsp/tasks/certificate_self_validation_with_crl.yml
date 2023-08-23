@@ -1,0 +1,575 @@
+---
+
+- name: Create a network
+  community.docker.docker_network:
+    name: example 
+
+- name: Set up CA DS container
+  community.docker.docker_container:
+    name: "{{ cads_container }}"
+    image: "{{ cads_image }}"
+    hostname: "{{ cads_hostname }}"
+    volumes:
+      - "{{ github_workspace }}:{{ shared_workspace }}"
+    tmpfs:
+      - /tmp
+      - /run
+    state: started
+    detach: true
+    privileged: true
+    env:
+      SHARED="{{ shared_workspace }}"
+    networks:
+      - name: example
+        aliases:
+          - "{{ cads_hostname }}"
+    ports:
+      - 3389
+      - 3636
+    entrypoint: /usr/sbin/init
+  register: cads
+  
+- name: Initialise CA ds
+  community.docker.docker_container_exec:
+    container: "{{ cads_container }}"
+    command: "{{ item }}"
+  when: cads.changed
+  loop:
+    - dnf install -y 389-ds-base
+    - dscreate create-template ds.inf
+    - sed -i -e "s/;instance_name = .*/instance_name = localhost/g" ds.inf
+    - sed -i -e "s/;port = .*/port = 3389/g" -e "s/;secure_port = .*/secure_port = 3636/g" ds.inf
+    - sed -i -e "s/;root_password = .*/root_password = {{ cads_password }} /g" ds.inf
+    - sed -i -e "s/;suffix = .*/suffix = dc=example,dc=com/g" ds.inf
+    - sed -i -e "s/;self_sign_cert = .*/self_sign_cert = True/g" ds.inf
+    - dscreate from-file ds.inf
+
+- name: Add CA base entry
+  community.docker.docker_container_exec:
+    container: "{{ cads_container }}"
+    command: ldapadd -H ldap://{{ cads_hostname }}:3389 -D "cn=Directory Manager" -w {{ cads_password }} -x
+    stdin: |
+      dn: dc=example,dc=com
+      objectClass: domain
+      dc: example
+
+      dn: dc=pki,dc=example,dc=com
+      objectClass: domain
+      dc: pki
+  when: cads.changed
+    
+- name: Set up CA container
+  community.docker.docker_container:
+    name: "{{ ca_container }}"
+    image: "{{ ca_image }}"
+    hostname: "{{ ca_hostname }}"
+    volumes:
+      - "{{ github_workspace }}:{{ shared_workspace }}"
+    tmpfs:
+      - /tmp
+      - /run
+    state: started
+    detach: true
+    privileged: true
+    env:
+      SHARED="{{ shared_workspace }}"
+    networks:
+      - name: example
+        aliases:
+          - "{{ ca_hostname }}"
+    ports:
+      - 8080
+      - 8443
+    entrypoint: /usr/sbin/init
+
+- name: Install CA in CA container
+  community.docker.docker_container_exec:
+    container: "{{ ca_container }}"
+    command: >
+      pkispawn -f /usr/share/pki/server/examples/installation/ca.cfg
+      -s CA
+      -D pki_ds_url=ldap://{{ cads_hostname }}:3389
+      -D pki_cert_id_generator=random
+      -D pki_request_id_generator=random
+      -v
+
+- name: Install CA admin cert in CA container
+  community.docker.docker_container_exec:
+    container: "{{ ca_container }}"
+    command: "{{ item }}"
+  loop:
+    - pki-server cert-export ca_signing --cert-file {{ shared_workspace }}/ca_signing.crt
+    - pki client-cert-import ca_signing --ca-cert {{ shared_workspace }}/ca_signing.crt
+    - pki pkcs12-import --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 --pkcs12-password Secret.123
+
+- name: Set up OCSP DS container
+  community.docker.docker_container:
+    name: "{{ ocspds_container }}"
+    image: "{{ ocspds_image }}"
+    hostname: "{{ ocspds_hostname }}"
+    volumes:
+      - "{{ github_workspace }}:{{ shared_workspace }}"
+    tmpfs:
+      - /tmp
+      - /run
+    state: started
+    detach: true
+    privileged: true
+    env:
+      SHARED="{{ shared_workspace }}"
+    networks:
+      - name: example
+        aliases:
+          - "{{ ocspds_hostname }}"
+    ports:
+      - 3389
+      - 3636
+    entrypoint: /usr/sbin/init
+  register: ocspds
+  
+- name: Initialise OCSP ds
+  community.docker.docker_container_exec:
+    container: "{{ ocspds_container }}"
+    command: "{{ item }}"
+  when: ocspds.changed
+  loop:
+    - dnf install -y 389-ds-base
+    - dscreate create-template ds.inf
+    - sed -i -e "s/;instance_name = .*/instance_name = localhost/g" ds.inf
+    - sed -i -e "s/;port = .*/port = 3389/g" -e "s/;secure_port = .*/secure_port = 3636/g" ds.inf
+    - sed -i -e "s/;root_password = .*/root_password = {{ ocspds_password }} /g" ds.inf
+    - sed -i -e "s/;suffix = .*/suffix = dc=example,dc=com/g" ds.inf
+    - sed -i -e "s/;self_sign_cert = .*/self_sign_cert = True/g" ds.inf
+    - dscreate from-file ds.inf
+                                                    
+
+- name: Add OCSP base entry
+  community.docker.docker_container_exec:
+    container: "{{ ocspds_container }}"
+    command: ldapadd -H ldap://{{ ocspds_hostname }}:3389 -D "cn=Directory Manager" -w {{ ocspds_password }} -x
+    stdin: |
+      dn: dc=example,dc=com
+      objectClass: domain
+      dc: example
+
+      dn: dc=pki,dc=example,dc=com
+      objectClass: domain
+      dc: pki
+  when: ocspds.changed
+
+- name: Set up OCSP container
+  community.docker.docker_container:
+    name: "{{ ocsp_container }}"
+    image: "{{ ocsp_image }}"
+    hostname: "{{ ocsp_hostname }}"
+    volumes:
+      - "{{ github_workspace }}:{{ shared_workspace }}"
+    tmpfs:
+      - /tmp
+      - /run
+    state: started
+    detach: true
+    privileged: true
+    env:
+      SHARED="{{ shared_workspace }}"
+    networks:
+      - name: example
+        aliases:
+          - "{{ ocsp_hostname }}"
+    ports:
+      - 8080
+      - 8443
+    entrypoint: /usr/sbin/init
+
+- name: Install OCSP in OCSP container (step 1)
+  community.docker.docker_container_exec:
+    container: "{{ ocsp_container }}"
+    command: >
+      pkispawn -f /usr/share/pki/server/examples/installation/ocsp-standalone-step1.cfg
+      -s OCSP
+      -D pki_ds_url=ldap://{{ ocspds_hostname }}:3389
+      -D pki_cert_chain_path={{ shared_workspace }}/ca_signing.crt
+      -D pki_ocsp_signing_csr_path={{ shared_workspace }}/ocsp_signing.csr
+      -D pki_subsystem_csr_path={{ shared_workspace }}/subsystem.csr
+      -D pki_sslserver_csr_path={{ shared_workspace }}/sslserver.csr
+      -D pki_audit_signing_csr_path={{ shared_workspace }}/ocsp_audit_signing.csr
+      -D pki_admin_csr_path={{ shared_workspace }}/ocsp_admin.csr
+      -v
+
+- name: Issue OCSP signing cert - submit
+  community.docker.docker_container_exec:
+    container: "{{ ca_container }}"
+    command: pki ca-cert-request-submit --profile caOCSPCert --csr-file {{ shared_workspace }}/ocsp_signing.csr
+  register:
+    ca_command
+
+- name: Issue OCSP signing cert - approve
+  community.docker.docker_container_exec:
+    container: "{{ ca_container }}"
+    command: "pki -n caadmin ca-cert-request-approve {{ ca_command.stdout | regex_search('Request ID: *(.*)', '\\1') | first }} --force"
+  register:
+    ca_command
+
+- name: Issue OCSP signing cert - export
+  community.docker.docker_container_exec:
+    container: "{{ ca_container }}"
+    command: "pki ca-cert-export {{ ca_command.stdout | regex_search('Certificate ID: *(.*)', '\\1') | first }} --output-file {{ shared_workspace }}/ocsp_signing.crt"
+  register:
+    ca_command
+
+- name: Issue subsystem cert - submit
+  community.docker.docker_container_exec:
+    container: "{{ ca_container }}"
+    command: pki ca-cert-request-submit --profile caSubsystemCert --csr-file {{ shared_workspace }}/subsystem.csr
+  register:
+    ca_command
+
+- name: Issue subsystem cert - approve
+  community.docker.docker_container_exec:
+    container: "{{ ca_container }}"
+    command: "pki -n caadmin ca-cert-request-approve {{ ca_command.stdout | regex_search('Request ID: *(.*)', '\\1') | first }} --force"
+  register:
+    ca_command
+
+- name: Issue subsystem cert - export
+  community.docker.docker_container_exec:
+    container: "{{ ca_container }}"
+    command: "pki ca-cert-export {{ ca_command.stdout | regex_search('Certificate ID: *(.*)', '\\1') | first }} --output-file {{ shared_workspace }}/subsystem.crt"
+  register:
+    ca_command
+
+- name: Issue SSL server cert - submit
+  community.docker.docker_container_exec:
+    container: "{{ ca_container }}"
+    command: pki ca-cert-request-submit --profile caServerCert --csr-file {{ shared_workspace }}/sslserver.csr
+  register:
+    ca_command
+
+- name: Issue SSL server cert - approve
+  community.docker.docker_container_exec:
+    container: "{{ ca_container }}"
+    command: "pki -n caadmin ca-cert-request-approve {{ ca_command.stdout | regex_search('Request ID: *(.*)', '\\1') | first }} --force"
+  register:
+    ca_command
+
+- name: Issue SSL server cert - export
+  community.docker.docker_container_exec:
+    container: "{{ ca_container }}"
+    command: "pki ca-cert-export {{ ca_command.stdout | regex_search('Certificate ID: *(.*)', '\\1') | first }} --output-file {{ shared_workspace }}/sslserver.crt"
+  register:
+    ca_command
+
+- name: Issue OCSP audit signing cert - submit
+  community.docker.docker_container_exec:
+    container: "{{ ca_container }}"
+    command: pki ca-cert-request-submit --profile caAuditSigningCert --csr-file {{ shared_workspace }}/ocsp_audit_signing.csr
+  register:
+    ca_command
+
+- name: Issue OCSP audit signing cert - approve
+  community.docker.docker_container_exec:
+    container: "{{ ca_container }}"
+    command: "pki -n caadmin ca-cert-request-approve {{ ca_command.stdout | regex_search('Request ID: *(.*)', '\\1') | first }} --force"
+  register:
+    ca_command
+
+- name: Issue OCSP audit signing cert - export
+  community.docker.docker_container_exec:
+    container: "{{ ca_container }}"
+    command: "pki ca-cert-export {{ ca_command.stdout | regex_search('Certificate ID: *(.*)', '\\1') | first }} --output-file {{ shared_workspace }}/ocsp_audit_signing.crt"
+  register:
+    ca_command
+
+- name: Issue OCSP admin cert - submit
+  community.docker.docker_container_exec:
+    container: "{{ ca_container }}"
+    command: pki ca-cert-request-submit --profile AdminCert --csr-file {{ shared_workspace }}/ocsp_admin.csr
+  register:
+    ca_command
+
+- name: Issue OCSP admin cert - approve
+  community.docker.docker_container_exec:
+    container: "{{ ca_container }}"
+    command: "pki -n caadmin ca-cert-request-approve {{ ca_command.stdout | regex_search('Request ID: *(.*)', '\\1') | first }} --force"
+  register:
+    ca_command
+
+- name: Issue OCSP admin cert - export
+  community.docker.docker_container_exec:
+    container: "{{ ca_container }}"
+    command: "pki ca-cert-export {{ ca_command.stdout | regex_search('Certificate ID: *(.*)', '\\1') | first }} --output-file {{ shared_workspace }}/ocsp_admin.crt"
+  register:
+    ca_command
+
+- name: Install OCSP in OCSP container (step 2)
+  community.docker.docker_container_exec:
+    container: "{{ ocsp_container }}"
+    command: >      
+      pkispawn
+      -f /usr/share/pki/server/examples/installation/ocsp-standalone-step2.cfg
+      -s OCSP
+      -D pki_ds_url=ldap://{{ ocspds_hostname }}:3389
+      -D pki_cert_chain_path={{ shared_workspace }}/ca_signing.crt
+      -D pki_ocsp_signing_csr_path={{ shared_workspace }}/ocsp_signing.csr
+      -D pki_subsystem_csr_path={{ shared_workspace }}/subsystem.csr
+      -D pki_sslserver_csr_path={{ shared_workspace }}/sslserver.csr
+      -D pki_audit_signing_csr_path={{ shared_workspace }}/ocsp_audit_signing.csr
+      -D pki_admin_csr_path={{ shared_workspace }}/ocsp_admin.csr
+      -D pki_ocsp_signing_cert_path={{ shared_workspace }}/ocsp_signing.crt
+      -D pki_subsystem_cert_path={{ shared_workspace }}/subsystem.crt
+      -D pki_sslserver_cert_path={{ shared_workspace }}/sslserver.crt
+      -D pki_audit_signing_cert_path={{ shared_workspace }}/ocsp_audit_signing.crt
+      -D pki_admin_cert_path={{ shared_workspace }}/ocsp_admin.crt
+      -v
+
+- name: Install OCSP admin cert in OCSP container
+  community.docker.docker_container_exec:
+    container: "{{ ocsp_container }}"
+    command: "{{ item }}"
+  loop:
+    - pki client-cert-import ca_signing --ca-cert {{ shared_workspace }}/ca_signing.crt
+    - pki pkcs12-import --pkcs12 /root/.dogtag/pki-tomcat/ocsp_admin_cert.p12 --pkcs12-password Secret.123
+    - pki -n ocspadmin ocsp-user-show ocspadmin
+
+- name: Prepare CRL publishing subtree
+  community.docker.docker_container_exec:
+    container: "{{ ocsp_container }}"
+    command: ldapadd -H ldap://{{ ocspds_hostname }}:3389 -x -D "cn=Directory Manager" -w {{ ocspds_password }}
+    stdin: |
+      dn: dc=crl,dc=pki,dc=example,dc=com
+      objectClass: domain
+      dc: crl
+      aci: (targetattr!="userPassword || aci")
+        (version 3.0; acl "Enable anonymous access"; allow (read, search, compare) userdn="ldap:///anyone";)
+
+- name: Verify anonymous access
+  community.docker.docker_container_exec:
+    container: "{{ ocsp_container }}"
+    command: ldapsearch -H ldap://{{ ocspds_hostname }}:3389 -x -b "dc=crl,dc=pki,dc=example,dc=com"
+
+- name: Configure CA cert and CRL publishing in CA
+  community.docker.docker_container_exec:
+    container: "{{ ca_container }}"
+    command: "{{ item }}"
+  loop:
+    # configure LDAP connection
+    - pki-server ca-config-set ca.publish.ldappublish.enable true
+    - pki-server ca-config-set ca.publish.ldappublish.ldap.ldapauth.authtype BasicAuth
+    - pki-server ca-config-set ca.publish.ldappublish.ldap.ldapauth.bindDN "cn=Directory Manager"
+    - pki-server ca-config-set ca.publish.ldappublish.ldap.ldapauth.bindPWPrompt internaldb
+    - pki-server ca-config-set ca.publish.ldappublish.ldap.ldapconn.host ocspds.example.com
+    - pki-server ca-config-set ca.publish.ldappublish.ldap.ldapconn.port 3389
+    - pki-server ca-config-set ca.publish.ldappublish.ldap.ldapconn.secureConn false
+    # configure LDAP-based CA cert publisher
+    - pki-server ca-config-set ca.publish.publisher.instance.LdapCaCertPublisher.caCertAttr "cACertificate;binary"
+    - pki-server ca-config-set ca.publish.publisher.instance.LdapCaCertPublisher.caObjectClass pkiCA
+    - pki-server ca-config-set ca.publish.publisher.instance.LdapCaCertPublisher.pluginName LdapCaCertPublisher
+    # configure CA cert mapper
+    - pki-server ca-config-set ca.publish.mapper.instance.LdapCaCertMap.createCAEntry true
+    - pki-server ca-config-set ca.publish.mapper.instance.LdapCaCertMap.dnPattern "cn=$subj.cn,dc=crl,dc=pki,dc=example,dc=com"
+    - pki-server ca-config-set ca.publish.mapper.instance.LdapCaCertMap.pluginName LdapCaSimpleMap
+    # configure CA cert publishing rule
+    - pki-server ca-config-set ca.publish.rule.instance.LdapCaCertRule.enable true
+    - pki-server ca-config-set ca.publish.rule.instance.LdapCaCertRule.mapper LdapCaCertMap
+    - pki-server ca-config-set ca.publish.rule.instance.LdapCaCertRule.pluginName Rule
+    - pki-server ca-config-set ca.publish.rule.instance.LdapCaCertRule.predicate ""
+    - pki-server ca-config-set ca.publish.rule.instance.LdapCaCertRule.publisher LdapCaCertPublisher
+    - pki-server ca-config-set ca.publish.rule.instance.LdapCaCertRule.type cacert
+    # configure LDAP-based CRL publisher
+    - pki-server ca-config-set ca.publish.publisher.instance.LdapCrlPublisher.crlAttr "certificateRevocationList;binary"
+    - pki-server ca-config-set ca.publish.publisher.instance.LdapCrlPublisher.crlObjectClass pkiCA
+    - pki-server ca-config-set ca.publish.publisher.instance.LdapCrlPublisher.pluginName LdapCrlPublisher
+    # configure CRL mapper
+    - pki-server ca-config-set ca.publish.mapper.instance.LdapCrlMap.createCAEntry true
+    - pki-server ca-config-set ca.publish.mapper.instance.LdapCrlMap.dnPattern "cn=$subj.cn,dc=crl,dc=pki,dc=example,dc=com"
+    - pki-server ca-config-set ca.publish.mapper.instance.LdapCrlMap.pluginName LdapCaSimpleMap
+    # configure CRL publishing rule
+    - pki-server ca-config-set ca.publish.rule.instance.LdapCrlRule.enable true
+    - pki-server ca-config-set ca.publish.rule.instance.LdapCrlRule.mapper LdapCrlMap
+    - pki-server ca-config-set ca.publish.rule.instance.LdapCrlRule.pluginName Rule
+    - pki-server ca-config-set ca.publish.rule.instance.LdapCrlRule.predicate ""
+    - pki-server ca-config-set ca.publish.rule.instance.LdapCrlRule.publisher LdapCrlPublisher
+    - pki-server ca-config-set ca.publish.rule.instance.LdapCrlRule.type crl
+    # enable CRL publishing
+    - pki-server ca-config-set ca.publish.enable true
+    # set buffer size to 0 so that revocation will take effect immediately
+    - pki-server ca-config-set auths.revocationChecking.bufferSize 0
+    # update CRL immediately after each cert revocation
+    - pki-server ca-config-set ca.crl.MasterCRL.alwaysUpdate true
+    # restart CA subsystem
+    - pki-server ca-redeploy --wait
+
+- name: Configure revocation info store in OCSP
+  community.docker.docker_container_exec:
+    container: "{{ ocsp_container }}"
+    command: "{{ item }}"
+  loop:
+    # configure LDAP store
+    - pki-server ocsp-config-set ocsp.store.ldapStore.numConns 1
+    - pki-server ocsp-config-set ocsp.store.ldapStore.host0 ocspds.example.com
+    - pki-server ocsp-config-set ocsp.store.ldapStore.port0 3389
+    - pki-server ocsp-config-set ocsp.store.ldapStore.baseDN0 "dc=crl,dc=pki,dc=example,dc=com"
+    - pki-server ocsp-config-set ocsp.store.ldapStore.byName true
+    - pki-server ocsp-config-set ocsp.store.ldapStore.caCertAttr "cACertificate;binary"
+    - pki-server ocsp-config-set ocsp.store.ldapStore.crlAttr "certificateRevocationList;binary"
+    - pki-server ocsp-config-set ocsp.store.ldapStore.includeNextUpdate false
+    - pki-server ocsp-config-set ocsp.store.ldapStore.notFoundAsGood true
+    - pki-server ocsp-config-set ocsp.store.ldapStore.refreshInSec0 10
+    # enable LDAP store
+    - pki-server ocsp-config-set ocsp.storeId ldapStore
+    # restart OCSP subsystem
+    - pki-server ocsp-redeploy --wait
+
+- name: Create users and initial CRL
+  community.docker.docker_container_exec:
+    container: "{{ ca_container }}"
+    command: "{{ item }}"
+  loop:
+    - /usr/share/pki/tests/ca/bin/ca-agent-create.sh
+    - /usr/share/pki/tests/ca/bin/ca-agent-cert-create.sh
+    - curl --cert-type P12 --cert /root/.dogtag/pki-tomcat/ca_admin_cert.p12:Secret.123 -sk -d "xml=true" https://{{ ca_hostname }}:8443/ca/agent/ca/updateCRL
+    - sleep 10
+    - pki nss-cert-show caagent
+  register: user_agents
+
+- name: Check good certificate
+  community.docker.docker_container_exec:
+    container: "{{ ocsp_container }}"
+    command: "OCSPClient -d /root/.dogtag/nssdb -h {{ ocsp_hostname }} -p 8080 -t /ocsp/ee/ocsp -c ca_signing --serial {{ user_agents.results[-1].stdout | regex_search('\\s*Serial Number:\\s*(\\S*)', '\\1') | first }}" 
+  register: good_certificate_check
+  failed_when: "'CertStatus=Good' not in good_certificate_check.stdout_lines[-1]"
+
+- name: Create CSR for DS and submit
+  community.docker.docker_container_exec:
+    container: "{{ ca_container }}"
+    command: "{{ item }}"
+  loop:
+    - pki nss-cert-request --subject "CN={{ ocspds_hostname }}" --ext /usr/share/pki/server/certs/sslserver.conf --subjectAltName "critical, DNS:{{ ocspds_hostname }}" --csr {{ shared_workspace }}/ocspds.csr
+    - pki ca-cert-request-submit --profile caServerCert --csr-file {{ shared_workspace }}/ocspds.csr
+  register:
+    ca_command
+
+- name: Approve CSR request
+  community.docker.docker_container_exec:
+    container: "{{ ca_container }}"
+    command: "pki -n caadmin ca-cert-request-approve {{ ca_command.results[-1].stdout | regex_search('Request ID: *(.*)', '\\1') | first }} --force"
+  register:
+    ca_command
+
+- name: Issue OCSP admin cert - export
+  community.docker.docker_container_exec:
+    container: "{{ ca_container }}"
+    command: "{{ item }}"
+  loop:
+    - "pki ca-cert-export {{ ca_command.stdout | regex_search('Certificate ID: *(.*)', '\\1') | first }} --output-file {{ shared_workspace }}/ocspds.crt"
+    - "certutil -d /root/.dogtag/nssdb -A -n ocspds -t ',,' -i {{ shared_workspace }}/ocspds.crt"
+    - pk12util -d /root/.dogtag/nssdb -o {{ shared_workspace }}/ocspds.p12 -n ocspds -W {{ ocspds_password }}
+  register:
+    ca_command
+
+- name: Configure certificate in OCSP DS
+  community.docker.docker_container_exec:
+    container: "{{ ocspds_container }}"
+    command: "{{ item }}"
+  loop:
+    - dsctl slapd-localhost stop
+    - certutil -d /etc/dirsrv/slapd-localhost/ -D  -n Server-Cert
+    - pk12util -i {{ shared_workspace }}/ocspds.p12 -d /etc/dirsrv/slapd-localhost/ -W {{ ocspds_password }} -k /etc/dirsrv/slapd-localhost/pwdfile.txt
+    - certutil -d /etc/dirsrv/slapd-localhost/ --rename -n ocspds --new-n Server-Cert 
+    - dsctl slapd-localhost start
+
+- name: Configure secure ldap connection and enable client revocation check
+  community.docker.docker_container_exec:
+    container: "{{ ocsp_container }}"
+    command: "{{ item }}"
+  loop:
+    - pki-server stop
+    - pki-server ocsp-config-set internaldb.ldapconn.port 3636
+    - pki-server ocsp-config-set internaldb.ldapconn.secureConn true
+    - pki-server ocsp-config-set auths.revocationChecking.enabled true
+    - pki-server start --wait
+
+- name: Interact with good certificate
+  community.docker.docker_container_exec:
+    container: "{{ ocsp_container }}"
+    command: pki -n ocspadmin ocsp-user-show ocspadmin
+  register: ocsp_command
+  failed_when: "'User ID: ocspadmin' not in ocsp_command.stdout"
+
+- name: Identify the admin certificate serial
+  community.docker.docker_container_exec:
+    container: "{{ ca_container }}"
+    command: "pki -n caadmin  ca-cert-find --email ocspadmin@example.com"
+  register: ca_command
+
+- name: Put the OCSP admin on hold
+  community.docker.docker_container_exec:
+    container: "{{ ca_container }}"
+    command: "pki -n caadmin  ca-cert-hold {{ ca_command.stdout | regex_search('\\s*Serial Number:\\s*(\\S*)', '\\1') | first }}  --force"
+
+- name: Wait for CRL propagation
+  ansible.builtin.pause:
+    seconds: 15
+
+- name: Interact with revoked certificate
+  community.docker.docker_container_exec:
+    container: "{{ ocsp_container }}"
+    command: pki -n ocspadmin ocsp-user-show ocspadmin
+  register: ocsp_command
+  failed_when: "'PKIException: Unauthorized' not in ocsp_command.stderr"
+
+- name: Release the OCSP admin certificate
+  community.docker.docker_container_exec:
+    container: "{{ ca_container }}"
+    command: "pki -n caadmin  ca-cert-release-hold {{ ca_command.stdout | regex_search('\\s*Serial Number:\\s*(\\S*)', '\\1') | first }}  --force"
+
+- name: Wait for CRL propagation
+  ansible.builtin.pause:
+    seconds: 15
+
+- name: Interact with good certificate again
+  community.docker.docker_container_exec:
+    container: "{{ ocsp_container }}"
+    command: pki -n ocspadmin ocsp-user-show ocspadmin
+  register: ocsp_command
+  failed_when: "'User ID: ocspadmin' not in ocsp_command.stdout"
+
+- name: Identify the OCSP DS certificate serial
+  community.docker.docker_container_exec:
+    container: "{{ ca_container }}"
+    command: "pki -n caadmin  ca-cert-find --name {{ ocspds_hostname }}"
+  register: ca_command
+
+- name: Put the OCSP DS certificate on hold
+  community.docker.docker_container_exec:
+    container: "{{ ca_container }}"
+    command: "pki -n caadmin  ca-cert-hold {{ ca_command.stdout | regex_search('\\s*Serial Number:\\s*(\\S*)', '\\1') | first }}  --force"
+
+- name: Restart OCSP
+  community.docker.docker_container_exec:
+    container: "{{ ocsp_container }}"
+    command: pki-server restart --wait
+
+- name: Interact with good client and revoked server certificates
+  community.docker.docker_container_exec:
+    container: "{{ ocsp_container }}"
+    command: pki -n ocspadmin ocsp-user-show ocspadmin
+  register: ocsp_command
+  failed_when: "'PKIException: Not Found' not in ocsp_command.stderr"
+
+- name: Release the OCSP DS certificate
+  community.docker.docker_container_exec:
+    container: "{{ ca_container }}"
+    command: "pki -n caadmin  ca-cert-release-hold {{ ca_command.stdout | regex_search('\\s*Serial Number:\\s*(\\S*)', '\\1') | first }}  --force"
+
+- name: Restart OCSP 2 
+  community.docker.docker_container_exec:
+    container: "{{ ocsp_container }}"
+    command: pki-server restart --wait
+
+- name: Interact with good certificate again
+  community.docker.docker_container_exec:
+    container: "{{ ocsp_container }}"
+    command: pki -n ocspadmin ocsp-user-show ocspadmin
+  register: ocsp_command
+  failed_when: "'User ID: ocspadmin' not in ocsp_command.stdout"

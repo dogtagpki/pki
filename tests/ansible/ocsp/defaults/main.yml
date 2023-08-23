@@ -1,0 +1,33 @@
+---
+# defaults file for ocsp
+
+shared_workspace: /tmp/workdir/pki
+github_workspace: ../../
+
+#CA-DS
+cads_container: cads
+cads_image: pki-runner 
+cads_hostname: cads.example.com
+cads_password: Secret.123
+
+#CA
+ca_container: ca
+ca_image: pki-runner
+ca_hostname: ca.example.com
+
+#OCSP-DS
+ocspds_container: ocspds
+ocspds_image: pki-runner 
+ocspds_hostname: ocspds.example.com
+ocspds_password: Secret.123
+
+#OCSP
+ocsp_container: ocsp
+ocsp_image: pki-runner
+ocsp_hostname: ocsp.example.com
+
+
+#Client
+client_container: client
+client_image: quay.io/dogtagpki/libest
+client_hostname: client.example.com

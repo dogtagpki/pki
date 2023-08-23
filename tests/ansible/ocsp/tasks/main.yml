@@ -1,0 +1,3 @@
+---
+# tasks file for ocsp
+- ansible.builtin.import_tasks: certificate_self_validation_with_crl.yml

@@ -1,0 +1,24 @@
+galaxy_info:
+  author: Marco Fargetta (mfargett@redhat.com)
+  description: OCSP tests for CI
+  company: Red Hat
+
+
+  license: GPL-2.0-or-later
+
+  min_ansible_version: 2.1
+
+
+  platforms:
+  - name: Fedora
+    versions:
+    - all
+  - name: Ubuntu
+    versions:
+    - 22.04
+  
+  galaxy_tags:
+  - dogtag
+  - pki
+
+dependencies: []
