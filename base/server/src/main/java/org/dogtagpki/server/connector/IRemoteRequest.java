@@ -56,7 +56,10 @@ public interface IRemoteRequest {
     public static final String TKS_RESPONSE_MacSessionKey = "macSessionKey";
     public static final String TKS_RESPONSE_KekSessionKey = "kekSessionKey";
     public static final String TKS_RESPONSE_KEK_DesKey = "kek_wrapped_desKey";
+    public static final String TKS_RESPONSE_KEK_AesKey = "kek_wrapped_aesKey";
+
     public static final String TKS_RESPONSE_DRM_Trans_DesKey = "drm_trans_desKey";
+    public static final String TKS_RESPONSE_DRM_Trans_AesKey = "drm_trans_aesKey";
     public static final String TKS_RESPONSE_KeyCheck = "keycheck";
     public static final String TKS_RESPONSE_HostCryptogram = "hostCryptogram";
 
@@ -104,6 +107,8 @@ public interface IRemoteRequest {
     // KRA request params
     public static final String KRA_UserId = "userid";
     public static final String KRA_Trans_DesKey = "drm_trans_desKey";
+    public static final String KRA_Trans_AesKey = "drm_trans_aesKey";
+
     public static final String KRA_KEYGEN_Archive = "archive";
     public static final String KRA_KEYGEN_KeyType = "keytype";
     public static final String KRA_KEYGEN_EC_KeyCurve = "eckeycurve";

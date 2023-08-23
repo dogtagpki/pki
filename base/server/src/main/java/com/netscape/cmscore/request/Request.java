@@ -179,6 +179,8 @@ public class Request {
     public static final String NETKEY_ATTR_USERID = "USERID";
     public static final String NETKEY_ATTR_DRMTRANS_DES_KEY = "drm_trans_desKey";
     public static final String NETKEY_ATTR_ARCHIVE_FLAG = "archive";
+    public static final String NETKEY_ATTR_DRMTRANS_AES_KEY = "drm_trans_aesKey";
+
     public static final String NETKEY_ATTR_SERVERSIDE_MUSCLE_FLAG = "serverSideMuscle";
     public static final String NETKEY_ATTR_ENC_PRIVKEY_FLAG = "encryptPrivKey";
     public static final String NETKEY_ATTR_USER_CERT = "cert";

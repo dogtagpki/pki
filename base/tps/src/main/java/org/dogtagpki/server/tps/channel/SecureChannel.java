@@ -47,6 +47,7 @@ import org.dogtagpki.tps.apdu.ReadObjectAPDU;
 import org.dogtagpki.tps.apdu.SetIssuerInfoAPDU;
 import org.dogtagpki.tps.apdu.SetPinAPDU;
 import org.dogtagpki.tps.apdu.WriteObjectAPDU;
+import org.dogtagpki.tps.apdu.ReadBufferAPDU;
 import org.dogtagpki.tps.main.TPSBuffer;
 import org.dogtagpki.tps.main.TPSException;
 import org.dogtagpki.tps.main.Util;
@@ -84,9 +85,12 @@ public class SecureChannel {
     private TPSBuffer dekSessionKeyWrapped;
 
     private TPSBuffer drmDesKey;
+    private TPSBuffer drmAesKey;
+    private TPSBuffer aesDesKey;
 
     //SCP01 kek key
     private TPSBuffer kekDesKey;
+    private TPSBuffer kekAesKey;
     private TPSBuffer keyCheck;
     private TPSBuffer keyDiversificationData;
     private TPSBuffer cardChallenge;
@@ -1590,6 +1594,22 @@ public class SecureChannel {
         this.drmDesKey = drmDesKey;
     }
 
+    public void setDrmWrappedAesKey(TPSBuffer drmAesKey) {
+        this.drmAesKey = drmAesKey;
+    }
+
+    public TPSBuffer getDRMWrappedAesKey() {
+        return drmAesKey;
+    }
+
+    public void setAESWrappedDesKey(TPSBuffer aesDesKey) {
+        this.aesDesKey = aesDesKey;
+    }
+
+    public TPSBuffer getAESWrappedDesKey() {
+        return aesDesKey;
+    }
+
     public TPSBuffer getKeyCheck() {
         return keyCheck;
     }
@@ -1620,12 +1640,39 @@ public class SecureChannel {
 
     }
 
+    public TPSBuffer readIOBuffer(int offset, int length)  throws IOException, TPSException {
+        String method = "SecureChannel.readIOBuffer";
+
+        ReadBufferAPDU readIO = new ReadBufferAPDU (length,offset);
+        computeAPDU(readIO);
+        APDUResponse respApdu= processor.handleAPDURequest(readIO);
+
+         if (!respApdu.checkResult()) {
+             logger.debug(method + " problem reading IOBuffer!");
+	     //Keep going since this is not crucial to server operation, debug only,when supported by applet.
+             return null;
+         }
+         TPSBuffer ioBuffData = respApdu.getData();
+         // use this method only for debugging the applet, by feault this apdu in the applet is not allowed.
+         //logger.debug(method + " returning: " + ioBuffData.toHexString());
+         return ioBuffData;
+
+    }
+
     public TPSBuffer getKekDesKey() {
         return kekDesKey;
     }
 
     public void setKekDesKey(TPSBuffer kekDesKey) {
         this.kekDesKey = kekDesKey;
+    }
+
+    public void setKekAesKey(TPSBuffer kekAesKey) {
+        this.kekAesKey = kekAesKey;
+    }
+
+    public TPSBuffer getKekAesKey() {
+        return kekAesKey;
     }
 
     public TPSBuffer getSequenceCounter() {

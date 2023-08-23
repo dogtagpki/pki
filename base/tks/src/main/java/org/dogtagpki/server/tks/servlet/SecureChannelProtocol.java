@@ -1317,9 +1317,6 @@ public class SecureChannelProtocol {
 
     }
 
-    // Will be needed for aes based server side keygen to come
-    /* Commenting out until phase 2 is worked on.
-     *
     public SymmetricKey generateAESSymKey(String selectedToken, int keySize) throws EBaseException {
         String method = "SecureChannelProtocol.generateAESSymKey: ";
 
@@ -1342,7 +1339,6 @@ public class SecureChannelProtocol {
 
         return symKey;
     }
-    */
 
     public byte[] ecbEncrypt(SymmetricKey devKey, SymmetricKey symKey, String selectedToken) throws EBaseException {
         byte[] result = null;
@@ -1364,12 +1360,18 @@ public class SecureChannelProtocol {
         SymmetricKey des2 = this.extractDes2FromDes3(symKey, devKeyToken);
 
         //SecureChannelProtocol.debugByteArray(des2.getEncoded(), method + " raw des2 key, to be wrapped.");
+        SymmetricKey toBeWrapped = null;
+        if(symKey.getType() == SymmetricKey.Type.AES) {
+             toBeWrapped = symKey;
+         } else {
+             toBeWrapped = this.extractDes2FromDes3(symKey, devKeyToken);
+         }
 
-        result = this.wrapSessionKey(selectedToken, des2, devKey);
+         result = this.wrapSessionKey(selectedToken, toBeWrapped, devKey);
 
-        // SecureChannelProtocol.debugByteArray(result, " Wrapped des2 key");
+         //SecureChannelProtocol.debugByteArray(result, " Wrapped sym key");
 
-        return result;
+         return result;
     }
 
     /* Convenience routine to create a 3DES key from a 2DES key.
