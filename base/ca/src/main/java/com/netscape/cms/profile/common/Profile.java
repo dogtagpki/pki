@@ -73,7 +73,6 @@ public abstract class Profile {
     public static final String PROP_INPUT_LIST = "list";
     public static final String PROP_OUTPUT_LIST = "list";
     public static final String PROP_UPDATER_LIST = "list";
-    public static final String PROP_POLICY_LIST = "list";
     public static final String PROP_DEFAULT = "default";
     public static final String PROP_CONSTRAINT = "constraint";
     public static final String PROP_INPUT = "input";
@@ -352,19 +351,15 @@ public abstract class Profile {
             String setId = st.nextToken();
 
             ProfilePolicySetConfig policyStore = policySetStore.getPolicySetConfig(setId);
-            String list = policyStore.getString(PROP_POLICY_LIST, "");
+            String list = policyStore.getList();
             StringTokenizer st1 = new StringTokenizer(list, ",");
 
             while (st1.hasMoreTokens()) {
                 String id = st1.nextToken();
 
-                String defaultRoot = id + "." + PROP_DEFAULT;
-                String defaultClassId = policyStore.getString(defaultRoot + "." +
-                        PROP_CLASS_ID);
-
-                String constraintRoot = id + "." + PROP_CONSTRAINT;
-                String constraintClassId =
-                        policyStore.getString(constraintRoot + "." + PROP_CLASS_ID);
+                ProfilePolicyConfig policyConfig = policyStore.getPolicyConfig(id);
+                String defaultClassId = policyConfig.getString(PROP_DEFAULT + "." + PROP_CLASS_ID);
+                String constraintClassId = policyConfig.getString(PROP_CONSTRAINT + "." + PROP_CLASS_ID);
 
                 createProfilePolicy(setId, id, defaultClassId,
                         constraintClassId, false);
@@ -463,8 +458,8 @@ public abstract class Profile {
             ProfilePolicySetsConfig policySetSubStore = mConfig.getPolicySetsConfig();
             ProfilePolicySetConfig policySubStore = policySetSubStore.getPolicySetConfig(setId);
 
-            policySubStore.removeSubStore(policyId);
-            String list = policySubStore.getString(PROP_POLICY_LIST, null);
+            policySubStore.removePolicyConfig(policyId);
+            String list = policySubStore.getList();
             StringTokenizer st = new StringTokenizer(list, ",");
             String newlist = "";
             StringBuffer sb = new StringBuffer();
@@ -480,7 +475,7 @@ public abstract class Profile {
             newlist = sb.toString();
             if (!newlist.equals("")) {
                 newlist = newlist.substring(0, newlist.length() - 1);
-                policySubStore.putString(PROP_POLICY_LIST, newlist);
+                policySubStore.setList(newlist);
             } else {
                 policySetSubStore.removePolicySetConfig(setId);
             }
@@ -915,7 +910,7 @@ public abstract class Profile {
             String ids = null;
 
             try {
-                ids = policyStore.getString(PROP_POLICY_LIST, "");
+                ids = policyStore.getList();
             } catch (Exception ee) {
             }
 
@@ -966,7 +961,7 @@ public abstract class Profile {
 
             String list = null;
             try {
-                list = pStore.getString(PROP_POLICY_LIST, "");
+                list = pStore.getList();
             } catch (Exception e) {
                 logger.warn("can't get policy id list!");
             }
@@ -976,11 +971,10 @@ public abstract class Profile {
             while (st1.hasMoreTokens()) {
                 String curId = st1.nextToken();
 
-                String defaultRoot = curId + "." + PROP_DEFAULT;
+                ProfilePolicyConfig policyConfig = pStore.getPolicyConfig(curId);
                 String curDefaultClassId = null;
                 try {
-                    curDefaultClassId = pStore.getString(defaultRoot + "." +
-                            PROP_CLASS_ID);
+                    curDefaultClassId = policyConfig.getString(PROP_DEFAULT + "." + PROP_CLASS_ID);
                 } catch (Exception e) {
                     logger.warn("can't get default plugin id!");
                 }
@@ -1011,8 +1005,7 @@ public abstract class Profile {
                 }
             }
         }
-        String defaultRoot = id + "." + PROP_DEFAULT;
-        String constraintRoot = id + "." + PROP_CONSTRAINT;
+        ProfilePolicyConfig policyConfig = policyStore.getPolicyConfig(id);
         PluginInfo defInfo = registry.getPluginInfo("defaultPolicy", defaultClassId);
 
         if (defInfo == null) {
@@ -1034,7 +1027,7 @@ public abstract class Profile {
         if (def == null) {
             logger.warn("Profile: failed to create " + defaultClass);
         } else {
-            ConfigStore defStore = policyStore.getSubStore(defaultRoot, ConfigStore.class);
+            ConfigStore defStore = policyConfig.getSubStore(PROP_DEFAULT, ConfigStore.class);
             def.init(engineConfig, defStore);
             logger.debug(method + " default class initialized.");
         }
@@ -1059,7 +1052,7 @@ public abstract class Profile {
         if (constraint == null) {
             logger.warn(method + " failed to create " + constraintClass);
         } else {
-            ConfigStore conStore = policyStore.getSubStore(constraintRoot, ConfigStore.class);
+            ConfigStore conStore = policyConfig.getSubStore(PROP_CONSTRAINT, ConfigStore.class);
             constraint.init(conStore);
             policy = new ProfilePolicy(id, def, constraint);
             policies.addElement(policy);
@@ -1071,22 +1064,18 @@ public abstract class Profile {
             String list = null;
 
             try {
-                list = policyStore.getString(PROP_POLICY_LIST, null);
+                list = policyStore.getList();
             } catch (EBaseException e) {
             }
             if (list == null || list.equals("")) {
-                policyStore.putString(PROP_POLICY_LIST, id);
+                policyStore.setList(id);
             } else {
-                policyStore.putString(PROP_POLICY_LIST, list + "," + id);
+                policyStore.setList(list + "," + id);
             }
-            policyStore.putString(id + ".default.name",
-                    defInfo.getName(Locale.getDefault()));
-            policyStore.putString(id + ".default.class_id",
-                    defaultClassId);
-            policyStore.putString(id + ".constraint.name",
-                    conInfo.getName(Locale.getDefault()));
-            policyStore.putString(id + ".constraint.class_id",
-                    constraintClassId);
+            policyConfig.putString("default.name", defInfo.getName(Locale.getDefault()));
+            policyConfig.putString("default.class_id", defaultClassId);
+            policyConfig.putString("constraint.name", conInfo.getName(Locale.getDefault()));
+            policyConfig.putString("constraint.class_id", constraintClassId);
             try {
                 mConfig.putString("lastModified",
                         Long.toString(new Date().getTime()));

@@ -74,6 +74,7 @@ import com.netscape.cms.profile.common.ProfileInputConfig;
 import com.netscape.cms.profile.common.ProfileInputsConfig;
 import com.netscape.cms.profile.common.ProfileOutputConfig;
 import com.netscape.cms.profile.common.ProfileOutputsConfig;
+import com.netscape.cms.profile.common.ProfilePolicyConfig;
 import com.netscape.cms.profile.common.ProfilePolicySetConfig;
 import com.netscape.cms.profile.common.ProfilePolicySetsConfig;
 import com.netscape.cms.servlet.base.SubsystemService;
@@ -81,7 +82,6 @@ import com.netscape.cms.servlet.profile.PolicyConstraintFactory;
 import com.netscape.cms.servlet.profile.PolicyDefaultFactory;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
 import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.profile.ProfileSubsystem;
@@ -285,7 +285,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         com.netscape.cms.profile.common.ProfilePolicy policy = profile.getProfilePolicy(setId, policyId);
         ProfilePolicySetsConfig policiesConfig = profile.getConfigStore().getPolicySetsConfig();
         ProfilePolicySetConfig policySetConfig = policiesConfig.getPolicySetConfig(setId);
-        ConfigStore policyStore = policySetConfig.getSubStore(policy.getId(), ConfigStore.class);
+        ProfilePolicyConfig policyStore = policySetConfig.getPolicyConfig(policy.getId());
 
         ProfilePolicy p = new ProfilePolicy();
         String constraintClassId = policyStore.getString("constraint.class_id");
@@ -912,7 +912,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
                     // change specific elements to match incoming data for PolicyDefault
                     ProfilePolicySetsConfig policiesConfig = profile.getConfigStore().getPolicySetsConfig();
                     ProfilePolicySetConfig policySetConfig = policiesConfig.getPolicySetConfig(setId);
-                    ConfigStore pstore = policySetConfig.getSubStore(policy.getId(), ConfigStore.class);
+                    ProfilePolicyConfig pstore = policySetConfig.getPolicyConfig(policy.getId());
                     if (!def.getName().isEmpty()) {
                         pstore.putString("default.name", def.getName());
                     }
