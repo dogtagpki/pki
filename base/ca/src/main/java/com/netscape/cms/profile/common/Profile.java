@@ -800,8 +800,9 @@ public abstract class Profile {
         } else {
             logger.debug("Profile: initing " + id + " input");
 
-            logger.debug("Profile: inputs: " + inputsConfig);
-            input.init(this, inputsConfig);
+            ProfileInputConfig inputConfig = inputsConfig.getProfileInputConfig(inputId);
+            logger.debug("Profile: input: " + inputConfig);
+            input.init(this, inputConfig);
 
             mInputs.put(id, input);
             mInputIds.addElement(id);

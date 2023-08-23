@@ -25,7 +25,6 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IConfigTemplate;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -37,14 +36,14 @@ import com.netscape.cmscore.request.Request;
  */
 public abstract class ProfileInput implements IConfigTemplate {
 
-    public abstract void init(Profile profile, ConfigStore config) throws EProfileException;
+    public abstract void init(Profile profile, ProfileInputConfig config) throws EProfileException;
 
     /**
      * Returns configuration store.
      *
      * @return configuration store
      */
-    public abstract ConfigStore getConfigStore();
+    public abstract ProfileInputConfig getConfigStore();
 
     /**
      * Populates the request with this policy default.

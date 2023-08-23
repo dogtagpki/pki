@@ -39,8 +39,8 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.profile.common.ProfileInput;
+import com.netscape.cms.profile.common.ProfileInputConfig;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -54,7 +54,7 @@ public abstract class EnrollInput extends ProfileInput {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EnrollInput.class);
 
-    protected ConfigStore mConfig;
+    protected ProfileInputConfig mConfig;
     protected Vector<String> mValueNames = new Vector<>();
     protected Vector<String> mConfigNames = new Vector<>();
     protected Profile mProfile = null;
@@ -62,14 +62,14 @@ public abstract class EnrollInput extends ProfileInput {
     /**
      * Initializes this default policy.
      */
-    public void init(Profile profile, ConfigStore config)
+    public void init(Profile profile, ProfileInputConfig config)
             throws EProfileException {
         mConfig = config;
         mProfile = profile;
     }
 
     @Override
-    public ConfigStore getConfigStore() {
+    public ProfileInputConfig getConfigStore() {
         return mConfig;
     }
 

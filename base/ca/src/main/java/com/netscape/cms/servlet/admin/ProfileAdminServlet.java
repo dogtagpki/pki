@@ -45,6 +45,7 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cms.profile.common.CAEnrollProfile;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.profile.common.ProfileInput;
+import com.netscape.cms.profile.common.ProfileInputConfig;
 import com.netscape.cms.profile.common.ProfileOutput;
 import com.netscape.cms.profile.common.ProfilePolicy;
 import com.netscape.cms.profile.constraint.PolicyConstraint;
@@ -1663,7 +1664,7 @@ public class ProfileAdminServlet extends AdminServlet {
             }
 
             ProfileInput input = profile.getProfileInput(inputId);
-            ConfigStore inputConfig = input.getConfigStore();
+            ProfileInputConfig inputConfig = input.getConfigStore();
 
             Enumeration<String> names = req.getParameterNames();
 
