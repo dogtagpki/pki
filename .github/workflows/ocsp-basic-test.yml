@@ -114,7 +114,7 @@ jobs:
           docker exec pki pki-server ca-config-set auths.revocationChecking.bufferSize 0
 
           # update CRL immediately after each cert revocation
-          docker exec pki pki-server ca-config-set ca.crl.MasterCRL.alwaysUpdate true
+          docker exec pki pki-server ca-crl-ip-mod -D alwaysUpdate=true MasterCRL
 
           # restart CA subsystem
           docker exec pki pki-server ca-redeploy --wait

@@ -917,6 +917,7 @@ class CACRLIPCLI(pki.cli.CLI):
 
         self.add_module(CACRLIPFindCLI())
         self.add_module(CACRLIPShowCLI())
+        self.add_module(CACRLIPModifyCLI())
 
     @staticmethod
     def print_crl_issuing_point_config(ip_id, config, details=False):
@@ -936,10 +937,10 @@ class CACRLIPCLI(pki.cli.CLI):
         output = f'''
             Allow Extensions: {config.get('allowExtensions')}
             Always Update: {config.get('alwaysUpdate')}
-            Auto Update Interval: {config.get('autoUpdateInterval')}
+            Auto Update Interval (minutes): {config.get('autoUpdateInterval')}
             CA Certs Only: {config.get('caCertsOnly')}
-            Cache Update Interval: {config.get('cacheUpdateInterval')}
-            Unexpected Exception Wait Time: {config.get('unexpectedExceptionWaitTime')}
+            Cache Update Interval (minutes): {config.get('cacheUpdateInterval')}
+            Unexpected Exception Wait Time (minutes): {config.get('unexpectedExceptionWaitTime')}
             Unexpected Exception Loop Max: {config.get('unexpectedExceptionLoopMax')}
             Daily Updates: {config.get('dailyUpdates')}
             Enable CRL Cache: {config.get('enableCRLCache')}
@@ -950,8 +951,8 @@ class CACRLIPCLI(pki.cli.CLI):
             Enable Update Interval: {config.get('enableUpdateInterval')}
             Extended Next Update: {config.get('extendedNextUpdate')}
             Include Expired Certs: {config.get('includeExpiredCerts')}
-            Min Update Interval: {config.get('minUpdateInterval')}
-            Next Update Grace Period: {config.get('nextUpdateGracePeriod')}
+            Min Update Interval (minutes): {config.get('minUpdateInterval')}
+            Next Update Grace Period (minutes): {config.get('nextUpdateGracePeriod')}
             Publish On Start: {config.get('publishOnStart')}
             Save Memory: {config.get('saveMemory')}
             Signing Algorithm: {config.get('signingAlgorithm')}
@@ -1112,6 +1113,101 @@ class CACRLIPShowCLI(pki.cli.CLI):
 
         config = subsystem.get_crl_issuing_point_config(ip_id)
         CACRLIPCLI.print_crl_issuing_point_config(ip_id, config, details=True)
+
+
+class CACRLIPModifyCLI(pki.cli.CLI):
+    '''
+    Modify CRL issuing point configuration in CA
+    '''
+
+    help = '''\
+        Usage: pki-server ca-crl-ip-mod [OPTIONS] <id>
+
+          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+              --desc <value>                 Issuing point description
+              --class <value>                Issuing point class
+              --enable <value>               Enable issuing point (default: true)
+              -D <name>=<value>              Issuing point parameter
+          -v, --verbose                      Run in verbose mode.
+              --debug                        Run in debug mode.
+              --help                         Show help message.
+    '''  # noqa: E501
+
+    def __init__(self):
+        super().__init__('mod', inspect.cleandoc(self.__class__.__doc__))
+
+    def print_help(self):
+        print(textwrap.dedent(self.__class__.help))
+
+    def execute(self, argv):
+
+        try:
+            opts, args = getopt.gnu_getopt(argv, 'i:D:v', [
+                'instance=', 'desc=', 'class=', 'enable=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        if len(args) != 1:
+            logger.error('Missing CRL issuing point ID')
+            self.print_help()
+            sys.exit(1)
+
+        ip_id = args[0]
+        instance_name = 'pki-tomcat'
+        config = {}
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--desc':
+                config['description'] = a
+
+            elif o == '--class':
+                config['class'] = a
+
+            elif o == '--enable':
+                config['enable'] = a
+
+            elif o == '-D':
+                i = a.index('=')
+                name = a[0:i]
+                value = a[i + 1:]
+                config[name] = value
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('Invalid option: %s', o)
+                self.print_help()
+                sys.exit(1)
+
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        if not instance.exists():
+            logger.error('Invalid instance: %s', instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem = instance.get_subsystem('ca')
+        if not subsystem:
+            logger.error('No CA subsystem in instance %s', instance_name)
+            sys.exit(1)
+
+        subsystem.update_crl_issuing_point_config(ip_id, config)
+        subsystem.save()
 
 
 class CACloneCLI(pki.cli.CLI):

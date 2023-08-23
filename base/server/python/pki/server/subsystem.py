@@ -2435,6 +2435,12 @@ class CASubsystem(PKISubsystem):
 
         return config
 
+    def update_crl_issuing_point_config(self, ip_id, config):
+
+        for key, value in config.items():
+            param = 'ca.crl.%s.%s' % (ip_id, key)
+            pki.util.set_property(self.config, param, value)
+
 
 class KRASubsystem(PKISubsystem):
 
