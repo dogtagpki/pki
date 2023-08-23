@@ -345,13 +345,13 @@ public abstract class Profile {
 
         // handle profile policy plugins
         ProfilePolicySetsConfig policySetStore = profileConfig.getPolicySetsConfig();
-        String setlist = policySetStore.getString("list", "");
+        String setlist = policySetStore.getList();
         StringTokenizer st = new StringTokenizer(setlist, ",");
 
         while (st.hasMoreTokens()) {
             String setId = st.nextToken();
 
-            ConfigStore policyStore = policySetStore.getSubStore(setId, ConfigStore.class);
+            ProfilePolicySetConfig policyStore = policySetStore.getPolicySetConfig(setId);
             String list = policyStore.getString(PROP_POLICY_LIST, "");
             StringTokenizer st1 = new StringTokenizer(list, ",");
 
@@ -461,7 +461,7 @@ public abstract class Profile {
         }
         try {
             ProfilePolicySetsConfig policySetSubStore = mConfig.getPolicySetsConfig();
-            ConfigStore policySubStore = policySetSubStore.getSubStore(setId, ConfigStore.class);
+            ProfilePolicySetConfig policySubStore = policySetSubStore.getPolicySetConfig(setId);
 
             policySubStore.removeSubStore(policyId);
             String list = policySubStore.getString(PROP_POLICY_LIST, null);
@@ -482,7 +482,7 @@ public abstract class Profile {
                 newlist = newlist.substring(0, newlist.length() - 1);
                 policySubStore.putString(PROP_POLICY_LIST, newlist);
             } else {
-                policySetSubStore.removeSubStore(setId);
+                policySetSubStore.removePolicySetConfig(setId);
             }
 
             int size = policies.size();
@@ -495,7 +495,7 @@ public abstract class Profile {
                     policies.removeElementAt(i);
                     if (size == 1) {
                         mPolicySet.remove(setId);
-                        String setlist = policySetSubStore.getString(PROP_POLICY_LIST, null);
+                        String setlist = policySetSubStore.getList();
                         StringTokenizer st1 = new StringTokenizer(setlist, ",");
                         String newlist1 = "";
 
@@ -507,7 +507,7 @@ public abstract class Profile {
                         }
                         if (!newlist1.equals(""))
                             newlist1 = newlist1.substring(0, newlist1.length() - 1);
-                        policySetSubStore.putString(PROP_POLICY_LIST, newlist1);
+                        policySetSubStore.setList(newlist1);
                     }
                     break;
                 }
@@ -891,8 +891,8 @@ public abstract class Profile {
 
         Vector<ProfilePolicy> policies = mPolicySet.get(setId);
 
-        ProfilePolicySetsConfig policySetStore = mConfig.getPolicySetsConfig();
-        ConfigStore policyStore = policySetStore.getSubStore(setId, ConfigStore.class);
+        ProfilePolicySetsConfig policySetsStore = mConfig.getPolicySetsConfig();
+        ProfilePolicySetConfig policyStore = policySetsStore.getPolicySetConfig(setId);
         if (policies == null) {
             policies = new Vector<>();
             mPolicySet.put(setId, policies);
@@ -909,7 +909,7 @@ public abstract class Profile {
                     }
                     setlist.append(k);
                 }
-                policySetStore.putString("list", setlist.toString());
+                policySetsStore.setList(setlist.toString());
             }
         } else {
             String ids = null;
@@ -949,7 +949,7 @@ public abstract class Profile {
         // Now make sure we aren't trying to add a policy that already exists
         String setlist = null;
         try {
-            setlist = policySetStore.getString("list", "");
+            setlist = policySetsStore.getList();
         } catch (Exception e) {
         }
         StringTokenizer st = new StringTokenizer(setlist, ",");
@@ -962,7 +962,7 @@ public abstract class Profile {
             if (!sId.equals(setId)) {
                 continue;
             }
-            ConfigStore pStore = policySetStore.getSubStore(sId, ConfigStore.class);
+            ProfilePolicySetConfig pStore = policySetsStore.getPolicySetConfig(sId);
 
             String list = null;
             try {

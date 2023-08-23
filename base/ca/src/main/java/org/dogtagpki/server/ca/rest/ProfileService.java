@@ -74,6 +74,7 @@ import com.netscape.cms.profile.common.ProfileInputConfig;
 import com.netscape.cms.profile.common.ProfileInputsConfig;
 import com.netscape.cms.profile.common.ProfileOutputConfig;
 import com.netscape.cms.profile.common.ProfileOutputsConfig;
+import com.netscape.cms.profile.common.ProfilePolicySetConfig;
 import com.netscape.cms.profile.common.ProfilePolicySetsConfig;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cms.servlet.profile.PolicyConstraintFactory;
@@ -283,7 +284,8 @@ public class ProfileService extends SubsystemService implements ProfileResource 
     public ProfilePolicy createProfilePolicy(Profile profile, String setId, String policyId) throws EBaseException {
         com.netscape.cms.profile.common.ProfilePolicy policy = profile.getProfilePolicy(setId, policyId);
         ProfilePolicySetsConfig policiesConfig = profile.getConfigStore().getPolicySetsConfig();
-        ConfigStore policyStore = policiesConfig.getSubStore(setId + "." + policy.getId(), ConfigStore.class);
+        ProfilePolicySetConfig policySetConfig = policiesConfig.getPolicySetConfig(setId);
+        ConfigStore policyStore = policySetConfig.getSubStore(policy.getId(), ConfigStore.class);
 
         ProfilePolicy p = new ProfilePolicy();
         String constraintClassId = policyStore.getString("constraint.class_id");
@@ -909,7 +911,8 @@ public class ProfileService extends SubsystemService implements ProfileResource 
 
                     // change specific elements to match incoming data for PolicyDefault
                     ProfilePolicySetsConfig policiesConfig = profile.getConfigStore().getPolicySetsConfig();
-                    ConfigStore pstore = policiesConfig.getSubStore(setId + "." + policy.getId(), ConfigStore.class);
+                    ProfilePolicySetConfig policySetConfig = policiesConfig.getPolicySetConfig(setId);
+                    ConfigStore pstore = policySetConfig.getSubStore(policy.getId(), ConfigStore.class);
                     if (!def.getName().isEmpty()) {
                         pstore.putString("default.name", def.getName());
                     }
