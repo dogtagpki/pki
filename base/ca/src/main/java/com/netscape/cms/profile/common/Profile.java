@@ -700,8 +700,9 @@ public abstract class Profile {
         } else {
             logger.debug("Profile: initing " + id + " output");
 
-            logger.debug("Profile: outputStore " + outputsConfig);
-            output.init(outputsConfig);
+            ProfileOutputConfig outputConfig = outputsConfig.getProfileOutputConfig(outputId);
+            logger.debug("Profile: output: " + outputConfig);
+            output.init(outputConfig);
 
             mOutputs.put(id, output);
             mOutputIds.addElement(id);

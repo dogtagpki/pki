@@ -26,7 +26,7 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cms.profile.common.ProfileOutput;
-import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cms.profile.common.ProfileOutputConfig;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -35,7 +35,7 @@ import com.netscape.cmscore.request.Request;
  * @version $Revision$, $Date$
  */
 public abstract class EnrollOutput extends ProfileOutput {
-    private ConfigStore mConfig;
+    private ProfileOutputConfig mConfig;
     private Vector<String> mValueNames = new Vector<>();
     protected Vector<String> mConfigNames = new Vector<>();
 
@@ -43,12 +43,12 @@ public abstract class EnrollOutput extends ProfileOutput {
      * Initializes this default policy.
      */
     @Override
-    public void init(ConfigStore config) throws EProfileException {
+    public void init(ProfileOutputConfig config) throws EProfileException {
         mConfig = config;
     }
 
     @Override
-    public ConfigStore getConfigStore() {
+    public ProfileOutputConfig getConfigStore() {
         return mConfig;
     }
 
