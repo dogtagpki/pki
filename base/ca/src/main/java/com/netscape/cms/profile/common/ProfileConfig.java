@@ -105,9 +105,9 @@ public class ProfileConfig extends ConfigStore {
     }
 
     /**
-     * Returns profile policies configuration.
+     * Returns profile policy sets configuration.
      */
-    public ProfilePoliciesConfig getPoliciesConfig() {
-        return getSubStore("policyset", ProfilePoliciesConfig.class);
+    public ProfilePolicySetsConfig getPolicySetsConfig() {
+        return getSubStore("policyset", ProfilePolicySetsConfig.class);
     }
 }

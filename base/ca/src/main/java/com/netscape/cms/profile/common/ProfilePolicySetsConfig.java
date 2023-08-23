@@ -10,18 +10,18 @@ import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
 
 /**
- * Provides profile policies configuration.
+ * Provides profile policy sets configuration.
  */
-public class ProfilePoliciesConfig extends ConfigStore {
+public class ProfilePolicySetsConfig extends ConfigStore {
 
-    public ProfilePoliciesConfig() {
+    public ProfilePolicySetsConfig() {
     }
 
-    public ProfilePoliciesConfig(ConfigStorage storage) {
+    public ProfilePolicySetsConfig(ConfigStorage storage) {
         super(storage);
     }
 
-    public ProfilePoliciesConfig(String name, SimpleProperties source) {
+    public ProfilePolicySetsConfig(String name, SimpleProperties source) {
         super(name, source);
     }
 }

@@ -344,7 +344,7 @@ public abstract class Profile {
         }
 
         // handle profile policy plugins
-        ProfilePoliciesConfig policySetStore = profileConfig.getPoliciesConfig();
+        ProfilePolicySetsConfig policySetStore = profileConfig.getPolicySetsConfig();
         String setlist = policySetStore.getString("list", "");
         StringTokenizer st = new StringTokenizer(setlist, ",");
 
@@ -460,7 +460,7 @@ public abstract class Profile {
             return;
         }
         try {
-            ProfilePoliciesConfig policySetSubStore = mConfig.getPoliciesConfig();
+            ProfilePolicySetsConfig policySetSubStore = mConfig.getPolicySetsConfig();
             ConfigStore policySubStore = policySetSubStore.getSubStore(setId, ConfigStore.class);
 
             policySubStore.removeSubStore(policyId);
@@ -891,7 +891,7 @@ public abstract class Profile {
 
         Vector<ProfilePolicy> policies = mPolicySet.get(setId);
 
-        ProfilePoliciesConfig policySetStore = mConfig.getPoliciesConfig();
+        ProfilePolicySetsConfig policySetStore = mConfig.getPolicySetsConfig();
         ConfigStore policyStore = policySetStore.getSubStore(setId, ConfigStore.class);
         if (policies == null) {
             policies = new Vector<>();
