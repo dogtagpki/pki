@@ -1825,10 +1825,22 @@ class PKISubsystem(object):
         finally:
             shutil.rmtree(tmpdir)
 
-    def modify_user(self, user_id, add_see_also=None, del_see_also=None,
-                    as_current_user=False):
+    def modify_user(
+            self,
+            user_id,
+            password=None,
+            password_file=None,
+            add_see_also=None,
+            del_see_also=None,
+            as_current_user=False):
 
         cmd = [self.name + '-user-mod']
+
+        if password is not None:
+            cmd.extend(['--password', password])
+
+        if password_file is not None:
+            cmd.extend(['--password-file', password_file])
 
         if add_see_also:
             cmd.append('--add-see-also')

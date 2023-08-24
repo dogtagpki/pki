@@ -285,6 +285,8 @@ class UserModifyCLI(pki.cli.CLI):
         print('Usage: pki-server %s-user-mod [OPTIONS] <user ID>' % self.parent.parent.name)
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('      --password <password>          User password')
+        print('      --password-file <path>         User password file')
         print('      --add-see-also <subject DN>    Link user to a certificate.')
         print('      --del-see-also <subject DN>    Unlink user from a certificate.')
         print('  -v, --verbose                      Run in verbose mode.')
@@ -295,7 +297,8 @@ class UserModifyCLI(pki.cli.CLI):
     def execute(self, argv):
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'add-see-also=', 'del-see-also=',
+                'instance=', 'password=', 'password-file=',
+                'add-see-also=', 'del-see-also=',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -305,12 +308,20 @@ class UserModifyCLI(pki.cli.CLI):
 
         instance_name = 'pki-tomcat'
         subsystem_name = self.parent.parent.name
+        password = None
+        password_file = None
         add_see_also = None
         del_see_also = None
 
         for o, a in opts:
             if o in ('-i', '--instance'):
                 instance_name = a
+
+            elif o == '--password':
+                password = a
+
+            elif o == '--password-file':
+                password_file = a
 
             elif o == '--add-see-also':
                 add_see_also = a
@@ -356,6 +367,8 @@ class UserModifyCLI(pki.cli.CLI):
 
         subsystem.modify_user(
             user_id,
+            password=password,
+            password_file=password_file,
             add_see_also=add_see_also,
             del_see_also=del_see_also)
 

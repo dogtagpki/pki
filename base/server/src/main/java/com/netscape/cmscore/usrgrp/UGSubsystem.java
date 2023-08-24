@@ -1134,9 +1134,12 @@ public class UGSubsystem {
 
                 attrs.add(LDAPModification.REPLACE, ld);
             }
-            if ((st = user.getPassword()) != null && (!st.equals(""))) {
-                attrs.add(LDAPModification.REPLACE,
-                        new LDAPAttribute("userpassword", st));
+            if ((st = user.getPassword()) != null) {
+                if (st.equals("")) {
+                    attrs.add(LDAPModification.DELETE, new LDAPAttribute("userPassword"));
+                } else {
+                    attrs.add(LDAPModification.REPLACE, new LDAPAttribute("userPassword", st));
+                }
             }
             if ((st = user.getPhone()) != null) {
                 if (!st.equals("")) {
