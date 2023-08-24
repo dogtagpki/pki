@@ -5,18 +5,22 @@
 //
 package org.dogtagpki.server.cli;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CLIException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.certsrv.user.UserCollection;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmscore.usrgrp.UGSubsystemConfig;
+import com.netscape.cmscore.usrgrp.User;
 import com.netscape.cmsutil.password.PasswordStore;
 import com.netscape.cmsutil.password.PasswordStoreConfig;
 
@@ -34,7 +38,15 @@ public class SubsystemUserModifyCLI extends SubsystemCLI {
     @Override
     public void createOptions() {
 
-        Option option = new Option(null, "add-see-also", true, "Link user to a certificate.");
+        Option option = new Option(null, "password", true, "User password");
+        option.setArgName("password");
+        options.addOption(option);
+
+        option = new Option(null, "password-file", true, "User password file");
+        option.setArgName("password-file");
+        options.addOption(option);
+
+        option = new Option(null, "add-see-also", true, "Link user to a certificate.");
         option.setArgName("subject DN");
         options.addOption(option);
 
@@ -70,13 +82,30 @@ public class SubsystemUserModifyCLI extends SubsystemCLI {
 
         UGSubsystem ugSubsystem = new UGSubsystem();
 
+        String password = cmd.getOptionValue("password");
+        String passwordFile = cmd.getOptionValue("password-file");
+
+        if (passwordFile != null) {
+            try (BufferedReader br = new BufferedReader(new FileReader(passwordFile))) {
+                password = br.readLine();
+            }
+        }
+
         String addSeeAlso = cmd.getOptionValue("add-see-also");
         String delSeeAlso = cmd.getOptionValue("del-see-also");
 
-        UserCollection response = new UserCollection();
-
         try {
             ugSubsystem.init(ldapConfig, socketConfig, passwordStore);
+            User user = ugSubsystem.getUser(userID);
+
+            if (user == null) {
+                throw new CLIException("User not found: " + userID);
+            }
+
+            if (password != null) {
+                user.setPassword(password);
+                ugSubsystem.modifyUser(user);
+            }
 
             if (addSeeAlso != null) {
                 ugSubsystem.addSeeAlso(userID, addSeeAlso);

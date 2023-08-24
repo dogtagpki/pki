@@ -75,45 +75,100 @@ jobs:
           sed -n 's/^ *Type: *\(.*\)$/\1/p' output > actual
           diff expected actual
 
-      - name: Check CA admin certs
+      - name: Check auth with CA admin password
+        run: |
+          # import CA signing cert
+          docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
+          docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
+
+          # correct password should work
+          docker exec pki pki -u caadmin -w Secret.123 ca-user-find
+
+          # wrong password should not work
+          docker exec pki pki -u caadmin -w wrong ca-user-find \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          echo "PKIException: Unauthorized" > expected
+          diff expected stderr
+
+      - name: Change CA admin password
+        run: |
+          docker exec pki pki-server ca-user-mod --password new caadmin
+
+          # original password should no longer work
+          docker exec pki pki -u caadmin -w Secret.123 ca-user-find \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          echo "PKIException: Unauthorized" > expected
+          diff expected stderr
+
+          # new password should work
+          docker exec pki pki -u caadmin -w new ca-user-find
+
+      - name: Change CA admin password with file
+        run: |
+          echo secret > secret.txt
+          docker exec pki pki-server ca-user-mod --password-file $SHARED/secret.txt caadmin
+
+          # password file should work
+          docker exec pki pki -u caadmin -w secret ca-user-find
+
+      - name: Remove CA admin password
+        run: |
+          docker exec pki pki-server ca-user-mod --password "" caadmin
+
+          # old password should no longer work
+          docker exec pki pki -u caadmin -w secret ca-user-find \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          echo "PKIException: Unauthorized" > expected
+          diff expected stderr
+
+          # blank password should not work
+          docker exec pki pki -u caadmin -w "" ca-user-find \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          echo "PKIException: Unauthorized" > expected
+          diff expected stderr
+
+      - name: Check certs assigned to CA admin user
         run: |
           docker exec pki pki-server ca-user-cert-find caadmin | tee output
 
+          # get admin cert ID
           sed -n 's/^ *Cert ID: *\(.*\)$/\1/p' output > cert.id
           CERT_ID=$(cat cert.id)
           echo "CERT_ID: $CERT_ID"
 
-      - name: Authentication and authorization with CA admin cert should work
+      - name: Check auth with CA admin cert
         run: |
-          docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
-          docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
-
+          # import admin cert
           docker exec pki pki pkcs12-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
 
+          # admin cert should work
           docker exec pki pki -n caadmin ca-user-find
 
-      - name: Remove CA admin cert
+      - name: Unassign certs from CA admin user
         run: |
           CERT_ID=$(cat cert.id)
           echo "CERT_ID: $CERT_ID"
 
           docker exec pki pki-server ca-user-cert-del caadmin "$CERT_ID"
 
-          # admin should have no certs
+          # admin user should have no certs
           docker exec pki pki-server ca-user-cert-find caadmin | tee actual
           diff /dev/null actual
 
-      - name: Authentication with CA admin cert should not work
-        run: |
+          # admin cert should no longer work
           docker exec pki pki -n caadmin ca-user-find \
               > >(tee stdout) 2> >(tee stderr >&2) || true
 
           echo "PKIException: Unauthorized" > expected
           diff expected stderr
 
-      - name: Restore CA admin cert
+      - name: Reassign certs to CA admin user
         run: |
           CERT_ID=$(cat cert.id)
           echo "CERT_ID: $CERT_ID"
@@ -126,8 +181,7 @@ jobs:
           sed -n 's/^ *Cert ID: *\(.*\)$/\1/p' output > actual
           diff cert.id actual
 
-      - name: Authentication with CA admin cert should work again
-        run: |
+          # admin cert should work again
           docker exec pki pki -n caadmin ca-user-find
 
       - name: Check CA admin roles
