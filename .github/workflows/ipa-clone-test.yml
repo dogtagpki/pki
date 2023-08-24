@@ -50,13 +50,70 @@ jobs:
               -a Secret.123 \
               --no-host-dns \
               --no-ntp
+
+      - name: Check CA config in primary IPA
+        run: |
+          # CRL cache should be enabled
+          echo "true" > expected
+          docker exec primary pki-server ca-config-show ca.crl.MasterCRL.enableCRLCache | tee actual
+          diff expected actual
+
+          # CRL updates should be enabled
+          echo "true" > expected
+          docker exec primary pki-server ca-config-show ca.crl.MasterCRL.enableCRLUpdates | tee actual
+          diff expected actual
+
+          # CA should listen to clone modifications
+          echo "true" > expected
+          docker exec primary pki-server ca-config-show ca.listenToCloneModifications | tee actual
+          diff expected actual
+
+      - name: Check primary IPA server config
+        run: |
           docker exec primary bash -c "echo Secret.123 | kinit admin"
           docker exec primary klist
+
+          docker exec primary ipa config-show | tee output
+
+          # primary server should be IPA master
+          echo "primary.example.com" > expected
+          sed -n -e 's/^ *IPA masters: *\(.*\)$/\1/p' output | tee actual
+          diff expected actual
+
+          # primary server should have CA
+          echo "primary.example.com" > expected
+          sed -n -e 's/^ *IPA CA servers: *\(.*\)$/\1/p' output | tee actual
+          diff expected actual
+
+          # primary server should be the renewal master
+          echo "primary.example.com" > expected
+          sed -n -e 's/^ *IPA CA renewal master: *\(.*\)$/\1/p' output | tee actual
+          diff expected actual
 
       - name: Install KRA in primary container
         run: |
           docker exec primary ipa-kra-install -p Secret.123
-          docker exec primary pki-server ca-config-find | grep ca.connector.KRA
+
+      - name: Check KRA connector config
+        run: |
+          # KRA connector should be enabled
+          echo "true" > expected
+          docker exec primary pki-server ca-config-show ca.connector.KRA.enable | tee actual
+          diff expected actual
+
+          # KRA connector points to primary KRA
+          echo "primary.example.com" > expected
+          docker exec primary pki-server ca-config-show ca.connector.KRA.host | tee actual
+          diff expected actual
+
+      - name: Check primary IPA server config after KRA installation
+        run: |
+          docker exec primary ipa config-show | tee output
+
+          # primary servers should have KRA
+          echo "primary.example.com" > expected
+          sed -n -e 's/^ *IPA KRA servers: *\(.*\)$/\1/p' output | tee actual
+          diff expected actual
 
       - name: Run secondary container
         run: |
@@ -79,21 +136,212 @@ jobs:
               -p admin \
               -w Secret.123 \
               --no-ntp
+
           docker exec secondary bash -c "echo Secret.123 | kinit admin"
           docker exec secondary klist
 
+          docker exec secondary ipa config-show
+
       - name: Promote IPA client into IPA replica in secondary container
         run: |
-          docker exec secondary ipa-replica-install \
-              --no-host-dns \
-              --setup-ca
-          docker exec secondary pki-server ca-user-find
+          # install basic IPA replica (without CA and KRA)
+          docker exec secondary ipa-replica-install --no-host-dns
+
+          docker exec secondary ipa config-show
+
+      - name: Install CA in secondary container
+        run: |
+          docker exec secondary ipa-ca-install -p Secret.123
+
+          docker exec secondary ipa config-show
+
+      - name: Check CA config in primary IPA
+        run: |
+          # CRL cache should be enabled
+          echo "true" > expected
+          docker exec primary pki-server ca-config-show ca.crl.MasterCRL.enableCRLCache | tee actual
+          diff expected actual
+
+          # CRL updates should be enabled
+          echo "true" > expected
+          docker exec primary pki-server ca-config-show ca.crl.MasterCRL.enableCRLUpdates | tee actual
+          diff expected actual
+
+          # CA should listen to clone modifications
+          echo "true" > expected
+          docker exec primary pki-server ca-config-show ca.listenToCloneModifications | tee actual
+          diff expected actual
+
+      - name: Check CA config in secondary IPA
+        run: |
+          # CRL cache should be disabled
+          echo "false" > expected
+          docker exec secondary pki-server ca-config-show ca.crl.MasterCRL.enableCRLCache | tee actual
+          diff expected actual
+
+          # CRL updates should be disabled
+          echo "false" > expected
+          docker exec secondary pki-server ca-config-show ca.crl.MasterCRL.enableCRLUpdates | tee actual
+          diff expected actual
+
+          # CA should not listen to clone modifications
+          echo "false" > expected
+          docker exec secondary pki-server ca-config-show ca.listenToCloneModifications | tee actual
+          diff expected actual
 
       - name: Install KRA in secondary container
         run: |
           docker exec secondary ipa-kra-install -p Secret.123
-          docker exec secondary pki-server ca-config-find | grep ca.connector.KRA
-          docker exec primary pki-server ca-config-find | grep ca.connector.KRA
+
+      - name: Check KRA connector config
+        run: |
+          # KRA connector should be enabled in primary CA
+          echo "true" > expected
+          docker exec primary pki-server ca-config-show ca.connector.KRA.enable | tee actual
+          diff expected actual
+
+           # KRA connector should be enabled in secondary CA
+          echo "true" > expected
+          docker exec secondary pki-server ca-config-show ca.connector.KRA.enable | tee actual
+          diff expected actual
+
+          # KRA connector points to primary KRA in primary CA
+          echo "primary.example.com" > expected
+          docker exec primary pki-server ca-config-show ca.connector.KRA.host | tee actual
+          diff expected actual
+
+          # KRA connector points to both KRAs in secondary CA
+          echo "primary.example.com:8443 secondary.example.com:8443" > expected
+          docker exec secondary pki-server ca-config-show ca.connector.KRA.host | tee actual
+          diff expected actual
+
+          # KRA connectors should be consistent
+          # https://pagure.io/freeipa/issue/9432
+
+      - name: Check IPA server config
+        run: |
+          docker exec primary ipa config-show | tee output
+
+          # both servers should be IPA masters
+          echo "primary.example.com, secondary.example.com" > expected
+          sed -n -e 's/^ *IPA masters: *\(.*\)$/\1/p' output | tee actual
+          diff expected actual
+
+          # both servers should have CA
+          echo "primary.example.com, secondary.example.com" > expected
+          sed -n -e 's/^ *IPA CA servers: *\(.*\)$/\1/p' output | tee actual
+          diff expected actual
+
+          # both servers should have KRA
+          echo "primary.example.com, secondary.example.com" > expected
+          sed -n -e 's/^ *IPA KRA servers: *\(.*\)$/\1/p' output | tee actual
+          diff expected actual
+
+          # primary server should be the renewal master
+          echo "primary.example.com" > expected
+          sed -n -e 's/^ *IPA CA renewal master: *\(.*\)$/\1/p' output | tee actual
+          diff expected actual
+
+      - name: Change renewal master
+        run: |
+          # get CS.cfg before renewal update
+          docker cp primary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.primary.orig
+          docker cp secondary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.secondary.orig
+
+          # move renewal master to secondary server
+          docker exec primary ipa config-mod \
+              --ca-renewal-master-server secondary.example.com
+
+          docker exec primary ipa config-show | tee output
+
+          # secondary server should be the renewal master
+          echo "secondary.example.com" > expected
+          sed -n -e 's/^ *IPA CA renewal master: *\(.*\)$/\1/p' output | tee actual
+          diff expected actual
+
+      - name: Check primary CA config
+        run: |
+          docker cp primary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.primary.after-renewal-update
+
+          # renewal config is maintained by IPA, so there should be no change in PKI
+          diff CS.cfg.primary.orig CS.cfg.primary.after-renewal-update
+
+      - name: Check secondary CA config
+        run: |
+          docker cp secondary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.secondary.after-renewal-update
+
+          # renewal config is maintained by IPA, so there should be no change in PKI
+          diff CS.cfg.secondary.orig CS.cfg.secondary.after-renewal-update
+
+      - name: Check CRL generation config
+        run: |
+          docker exec primary ipa-crlgen-manage status | tee output
+
+          # CRL generation should be enabled in primary CA
+          echo "enabled" > expected
+          sed -n -e 's/^ *CRL generation: *\(.*\)$/\1/p' output | tee actual
+          diff expected actual
+
+          docker exec secondary ipa-crlgen-manage status | tee output
+
+          # CRL generation should be disabled in secondary CA
+          echo "disabled" > expected
+          sed -n -e 's/^ *CRL generation: *\(.*\)$/\1/p' output | tee actual
+          diff expected actual
+
+      - name: Change CRL master
+        run: |
+          # move CRL generation to secondary server
+          docker exec primary ipa-crlgen-manage disable
+          docker exec secondary ipa-crlgen-manage enable
+
+          docker exec primary ipa-crlgen-manage status | tee output
+
+          # CRL generation should be disabled on the primary server
+          echo "disabled" > expected
+          sed -n -e 's/^ *CRL generation: *\(.*\)$/\1/p' output | tee actual
+          diff expected actual
+
+          docker exec secondary ipa-crlgen-manage status | tee output
+
+          # CRL generation should be enabled on the secondary server
+          echo "enabled" > expected
+          sed -n -e 's/^ *CRL generation: *\(.*\)$/\1/p' output | tee actual
+          diff expected actual
+
+      - name: Check CRL generation config in primary CA
+        run: |
+          # get CS.cfg from primary CA after CRL generation update
+          docker cp primary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.primary.after-crl-update
+
+          # normalize expected result:
+          # - CRL cache and CRL updates should be disabled in primary CA
+          sed -e 's/^\(ca.crl.MasterCRL.enableCRLCache\)=.*$/\1=false/' \
+              -e 's/^\(ca.crl.MasterCRL.enableCRLUpdates\)=.*$/\1=false/' \
+              CS.cfg.primary.after-renewal-update \
+              | sort > expected
+
+          # normalize actual result
+          sort CS.cfg.primary.after-crl-update > actual
+
+          diff expected actual
+
+      - name: Check CRL generation config in secondary CA
+        run: |
+          # get CS.cfg from secondary CA after CRL generation update
+          docker cp secondary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.secondary.after-crl-update
+
+          # normalize expected result:
+          # - CRL cache and CRL updates should be enabled in secondary CA
+          sed -e 's/^\(ca.crl.MasterCRL.enableCRLCache\)=.*$/\1=true/' \
+              -e 's/^\(ca.crl.MasterCRL.enableCRLUpdates\)=.*$/\1=true/' \
+              CS.cfg.secondary.after-renewal-update \
+              | sort > expected
+
+          # normalize actual result
+          sort CS.cfg.secondary.after-crl-update > actual
+
+          diff expected actual
 
       - name: Run PKI healthcheck in primary container
         run: docker exec primary pki-healthcheck --failures-only
@@ -111,11 +359,55 @@ jobs:
               --pkcs12-password Secret.123
           docker exec secondary pki -n ipa-ca-agent ca-user-show admin
 
-      - name: Remove IPA server from secondary container
-        run: docker exec secondary ipa-server-install --uninstall -U
-
       - name: Remove IPA server from primary container
-        run: docker exec primary ipa-server-install --uninstall -U --ignore-last-of-role
+        run: |
+          docker exec secondary ipa server-del primary.example.com
+          docker exec primary ipa-server-install --uninstall -U
+
+      - name: Check IPA config after removing primary server
+        run: |
+          docker exec secondary ipa config-show | tee output
+
+          # secondary server should be IPA master
+          echo "secondary.example.com" > expected
+          sed -n -e 's/^ *IPA masters: *\(.*\)$/\1/p' output | tee actual
+          diff expected actual
+
+          # CA should only be available on secondary server
+          echo "secondary.example.com" > expected
+          sed -n -e 's/^ *IPA CA servers: *\(.*\)$/\1/p' output | tee actual
+          diff expected actual
+
+          # KRA should only be available on secondary server
+          echo "secondary.example.com" > expected
+          sed -n -e 's/^ *IPA KRA servers: *\(.*\)$/\1/p' output | tee actual
+          diff expected actual
+
+          # secondary server should be the renewal master
+          echo "secondary.example.com" > expected
+          sed -n -e 's/^ *IPA CA renewal master: *\(.*\)$/\1/p' output | tee actual
+          diff expected actual
+
+      - name: Check CRL generator after removing primary server
+        run: |
+          docker exec secondary ipa-crlgen-manage status | tee output
+
+          # CRL generation should be enabled on the secondary server
+          echo "enabled" > expected
+          sed -n -e 's/^ *CRL generation: *\(.*\)$/\1/p' output | tee actual
+          diff expected actual
+
+      - name: Check KRA connector after removing primary server
+        run: |
+          # KRA connector should only point to secondary KRA,
+          # but currently primary KRA is still listed
+          # https://pagure.io/freeipa/issue/9432
+          echo "secondary.example.com" > expected
+          docker exec secondary pki-server ca-config-show ca.connector.KRA.host | tee actual
+          diff expected actual || true
+
+      - name: Remove IPA server from secondary container
+        run: docker exec secondary ipa-server-install --uninstall -U --ignore-last-of-role
 
       - name: Gather artifacts from primary container
         if: always()
