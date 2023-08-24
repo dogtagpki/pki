@@ -42,7 +42,7 @@ import com.netscape.certsrv.base.EBaseException;
  *
  * @version $Revision$, $Date$
  */
-public interface IPolicyProcessor extends com.netscape.certsrv.request.IPolicy {
+public abstract class PolicyProcessor {
 
     public final static String PROP_DEF_POLICIES = "systemPolicies";
     public final static String PROP_UNDELETABLE_POLICIES = "undeletablePolicies";
@@ -54,14 +54,14 @@ public interface IPolicyProcessor extends com.netscape.certsrv.request.IPolicy {
     public final static String PROP_IMPL = "impl";
     public final static String PROP_ORDER = "order";
 
-    public IAuthority getAuthority();
+    public abstract IAuthority getAuthority();
 
     /**
      * Returns the policy substore id.
      *
      * @return storeID The policy store id used by this processor.
      */
-    String getPolicySubstoreId();
+    public abstract String getPolicySubstoreId();
 
     /**
      * Returns information on Policy impls.
@@ -70,7 +70,7 @@ public interface IPolicyProcessor extends com.netscape.certsrv.request.IPolicy {
      *         about policy implementations. Currently only the
      *         the implementation id is expected.
      */
-    Enumeration<String> getPolicyImplsInfo();
+    public abstract Enumeration<String> getPolicyImplsInfo();
 
     /**
      * Returns the rule implementations registered with this processor.
@@ -78,7 +78,7 @@ public interface IPolicyProcessor extends com.netscape.certsrv.request.IPolicy {
      * @return An Enumeration of uninitialized IPolicyRule
      *         objects.
      */
-    Enumeration<IPolicyRule> getPolicyImpls();
+    public abstract Enumeration<IPolicyRule> getPolicyImpls();
 
     /**
      * Returns an implementation identified by a given id.
@@ -86,7 +86,7 @@ public interface IPolicyProcessor extends com.netscape.certsrv.request.IPolicy {
      * @param id The implementation id.
      * @return The uninitialized instance of the policy rule.
      */
-    IPolicyRule getPolicyImpl(String id);
+    public abstract IPolicyRule getPolicyImpl(String id);
 
     /**
      * Returns configuration for an implmentation.
@@ -95,7 +95,7 @@ public interface IPolicyProcessor extends com.netscape.certsrv.request.IPolicy {
      * @return A vector of name/value pairs in the form of
      *         name=value.
      */
-    Vector<String> getPolicyImplConfig(String id);
+    public abstract Vector<String> getPolicyImplConfig(String id);
 
     /**
      * Deletes a policy implementation identified by an impl id.
@@ -106,8 +106,7 @@ public interface IPolicyProcessor extends com.netscape.certsrv.request.IPolicy {
      *            implementation.
      * @exception EBaseException is thrown if an error occurs in deletion.
      */
-    void deletePolicyImpl(String id)
-            throws EBaseException;
+    public abstract void deletePolicyImpl(String id) throws EBaseException;
 
     /**
      * Adds a policy implementation identified by an impl id.
@@ -117,7 +116,7 @@ public interface IPolicyProcessor extends com.netscape.certsrv.request.IPolicy {
      * @param classPath The fully qualified path for the implementation.
      * @exception EBaseException is thrown if an error occurs in addition.
      */
-    void addPolicyImpl(String id, String classPath)
+    public abstract void addPolicyImpl(String id, String classPath)
             throws EBaseException;
 
     /**
@@ -126,14 +125,14 @@ public interface IPolicyProcessor extends com.netscape.certsrv.request.IPolicy {
      * @return An Enumeration of Strings describing the information
      *         about policy rule instances.
      */
-    Enumeration<String> getPolicyInstancesInfo();
+    public abstract Enumeration<String> getPolicyInstancesInfo();
 
     /**
      * Returns policy instances registered with this processor.
      *
      * @return An Enumeration of policy instances.
      */
-    Enumeration<IPolicyRule> getPolicyInstances();
+    public abstract Enumeration<IPolicyRule> getPolicyInstances();
 
     /**
      * Returns instance configuration for a given instance id.
@@ -142,7 +141,7 @@ public interface IPolicyProcessor extends com.netscape.certsrv.request.IPolicy {
      * @return A vector of name/value pairs in the form of
      *         name=value.
      */
-    Vector<String> getPolicyInstanceConfig(String id);
+    public abstract Vector<String> getPolicyInstanceConfig(String id);
 
     /**
      * Returns instance configuration for a given instance id.
@@ -150,7 +149,7 @@ public interface IPolicyProcessor extends com.netscape.certsrv.request.IPolicy {
      * @param id The rule id.
      * @return the policy instance identified by the id.
      */
-    IPolicyRule getPolicyInstance(String id);
+    public abstract IPolicyRule getPolicyInstance(String id);
 
     /**
      * Deletes a policy instance identified by an instance id.
@@ -158,8 +157,7 @@ public interface IPolicyProcessor extends com.netscape.certsrv.request.IPolicy {
      * @param id The instance id of the policy to be deleted.
      * @exception EBaseException is thrown if an error occurs in deletion.
      */
-    void deletePolicyInstance(String id)
-            throws EBaseException;
+    public abstract void deletePolicyInstance(String id) throws EBaseException;
 
     /**
      * Adds a policy instance
@@ -169,7 +167,7 @@ public interface IPolicyProcessor extends com.netscape.certsrv.request.IPolicy {
      * @param ht a Hashtable of config params.
      * @exception EBaseException is thrown if an error occurs in addition.
      */
-    void addPolicyInstance(String id, Hashtable<String, String> ht)
+    public abstract void addPolicyInstance(String id, Hashtable<String, String> ht)
             throws EBaseException;
 
     /**
@@ -180,7 +178,7 @@ public interface IPolicyProcessor extends com.netscape.certsrv.request.IPolicy {
      * @param ht a Hashtable of config params.
      * @exception EBaseException is thrown if an error occurs in addition.
      */
-    void modifyPolicyInstance(String id, Hashtable<String, String> ht)
+    public abstract void modifyPolicyInstance(String id, Hashtable<String, String> ht)
             throws EBaseException;
 
     /**
@@ -189,6 +187,6 @@ public interface IPolicyProcessor extends com.netscape.certsrv.request.IPolicy {
      * @param policyOrderStr The comma separated list of instance ids.
      *
      */
-    void changePolicyInstanceOrdering(String policyOrderStr)
+    public abstract void changePolicyInstanceOrdering(String policyOrderStr)
             throws EBaseException;
 }

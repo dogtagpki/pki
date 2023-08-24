@@ -18,7 +18,7 @@
 package org.dogtagpki.legacy.kra;
 
 import org.dogtagpki.legacy.core.policy.GenericPolicyProcessor;
-import org.dogtagpki.legacy.policy.IPolicyProcessor;
+import org.dogtagpki.legacy.policy.PolicyProcessor;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.request.IPolicy;
@@ -52,7 +52,7 @@ public class KRAPolicy implements IPolicy {
         mPolicies.init(mKRA, mConfig);
     }
 
-    public IPolicyProcessor getPolicyProcessor() {
+    public PolicyProcessor getPolicyProcessor() {
         return mPolicies;
     }
 

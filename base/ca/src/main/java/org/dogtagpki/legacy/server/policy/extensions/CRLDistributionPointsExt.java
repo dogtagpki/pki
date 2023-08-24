@@ -24,7 +24,7 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
-import org.dogtagpki.legacy.policy.IPolicyProcessor;
+import org.dogtagpki.legacy.policy.PolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
 import org.mozilla.jss.netscape.security.util.BitArray;
 import org.mozilla.jss.netscape.security.x509.CRLDistributionPoint;
@@ -217,7 +217,7 @@ public class CRLDistributionPointsExt extends APolicyRule
      * Performs one-time initialization of the policy.
      */
     @Override
-    public void init(IPolicyProcessor owner, ConfigStore config) throws EBaseException {
+    public void init(PolicyProcessor owner, ConfigStore config) throws EBaseException {
         // Register the CRL Distribution Points extension.
         try {
             org.mozilla.jss.netscape.security.x509.OIDMap.addAttribute(

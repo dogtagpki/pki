@@ -21,7 +21,7 @@ import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.EPolicyException;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
-import org.dogtagpki.legacy.policy.IPolicyProcessor;
+import org.dogtagpki.legacy.policy.PolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
@@ -86,7 +86,7 @@ public class IssuerConstraints extends APolicyRule
      * @param config The config store reference
      */
     @Override
-    public void init(IPolicyProcessor owner, ConfigStore config) throws EPolicyException {
+    public void init(PolicyProcessor owner, ConfigStore config) throws EPolicyException {
         try {
             mIssuerDNString = config.getString(PROP_ISSUER_DN, null);
             if ((mIssuerDNString != null) &&

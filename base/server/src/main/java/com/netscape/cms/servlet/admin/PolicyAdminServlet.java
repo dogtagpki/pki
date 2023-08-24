@@ -26,7 +26,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.dogtagpki.legacy.policy.IPolicyProcessor;
+import org.dogtagpki.legacy.policy.PolicyProcessor;
 import org.dogtagpki.legacy.policy.IPolicyRule;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -63,7 +63,7 @@ public class PolicyAdminServlet extends AdminServlet {
 
     public static final String PROP_PREDICATE = "predicate";
 
-    protected IPolicyProcessor mProcessor;
+    protected PolicyProcessor mProcessor;
 
     // These will be moved to PolicyResources
     public static String INVALID_POLICY_SCOPE = "Invalid policy administration scope";

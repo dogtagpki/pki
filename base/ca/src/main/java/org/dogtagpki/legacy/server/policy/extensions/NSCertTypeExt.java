@@ -23,7 +23,7 @@ import java.security.cert.X509Certificate;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
-import org.dogtagpki.legacy.policy.IPolicyProcessor;
+import org.dogtagpki.legacy.policy.PolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.mozilla.jss.netscape.security.extensions.NSCertTypeExtension;
@@ -117,7 +117,7 @@ public class NSCertTypeExt extends APolicyRule
      * @param config The config store reference
      */
     @Override
-    public void init(IPolicyProcessor owner, ConfigStore config) throws EBaseException {
+    public void init(PolicyProcessor owner, ConfigStore config) throws EBaseException {
         mConfig = config;
 
         // XXX future use.

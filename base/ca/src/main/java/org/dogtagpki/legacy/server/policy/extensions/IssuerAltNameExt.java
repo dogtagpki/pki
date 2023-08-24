@@ -24,7 +24,7 @@ import java.util.Vector;
 import org.dogtagpki.legacy.core.policy.GeneralNamesConfig;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IGeneralNamesConfig;
-import org.dogtagpki.legacy.policy.IPolicyProcessor;
+import org.dogtagpki.legacy.policy.PolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateVersion;
@@ -102,7 +102,7 @@ public class IssuerAltNameExt extends APolicyRule
      * @param config The config store reference
      */
     @Override
-    public void init(IPolicyProcessor owner, ConfigStore config) throws EBaseException {
+    public void init(PolicyProcessor owner, ConfigStore config) throws EBaseException {
         mConfig = config;
 
         // get criticality
@@ -110,7 +110,7 @@ public class IssuerAltNameExt extends APolicyRule
 
         // get enabled.
         mEnabled = mConfig.getBoolean(
-                    IPolicyProcessor.PROP_ENABLE, false);
+                    PolicyProcessor.PROP_ENABLE, false);
 
         // form general names.
         mGNs = new GeneralNamesConfig(null, config, true, mEnabled);

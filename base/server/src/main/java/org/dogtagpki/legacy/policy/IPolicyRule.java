@@ -47,7 +47,7 @@ public interface IPolicyRule
      *
      * @param config The config store reference
      */
-    void init(IPolicyProcessor owner, ConfigStore config) throws EBaseException;
+    void init(PolicyProcessor owner, ConfigStore config) throws EBaseException;
 
     /**
      * Gets the description for this policy rule.

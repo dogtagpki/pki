@@ -22,7 +22,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
-import org.dogtagpki.legacy.policy.IPolicyProcessor;
+import org.dogtagpki.legacy.policy.PolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
@@ -241,7 +241,7 @@ public class AttributePresentConstraints extends APolicyRule
     }
 
     @Override
-    public void init(IPolicyProcessor owner, ConfigStore config) throws EBaseException {
+    public void init(PolicyProcessor owner, ConfigStore config) throws EBaseException {
 
         CAEngine engine = CAEngine.getInstance();
         CAEngineConfig cs = engine.getConfig();

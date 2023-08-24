@@ -18,7 +18,7 @@
 package org.dogtagpki.legacy.ca;
 
 import org.dogtagpki.legacy.core.policy.GenericPolicyProcessor;
-import org.dogtagpki.legacy.policy.IPolicyProcessor;
+import org.dogtagpki.legacy.policy.PolicyProcessor;
 import org.dogtagpki.server.ca.CAEngine;
 
 import com.netscape.ca.CertificateAuthority;
@@ -62,7 +62,7 @@ public class CAPolicy implements IPolicy {
      * Retrieves the policy processor of this certificate authority.
      * @return CA's policy processor
      */
-    public IPolicyProcessor getPolicyProcessor() {
+    public PolicyProcessor getPolicyProcessor() {
         return mPolicies;
     }
 

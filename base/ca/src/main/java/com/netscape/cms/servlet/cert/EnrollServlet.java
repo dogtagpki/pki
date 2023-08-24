@@ -34,7 +34,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.dogtagpki.legacy.policy.IPolicyProcessor;
+import org.dogtagpki.legacy.policy.PolicyProcessor;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
@@ -228,7 +228,7 @@ public class EnrollServlet extends CAServlet {
                 if (PKI_Subsystem.trim().equalsIgnoreCase("ca")) {
                     String policyStatus = PKI_Subsystem.trim().toLowerCase()
                                         + "." + "Policy"
-                                        + "." + IPolicyProcessor.PROP_ENABLE;
+                                        + "." + PolicyProcessor.PROP_ENABLE;
 
                     if (configStore.getBoolean(policyStatus, true) == true) {
                         // NOTE:  If "<subsystem>.Policy.enable=<boolean>"

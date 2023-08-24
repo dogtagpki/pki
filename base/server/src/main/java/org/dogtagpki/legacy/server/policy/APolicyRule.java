@@ -26,7 +26,7 @@ import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.EPolicyException;
 import org.dogtagpki.legacy.policy.IExpression;
-import org.dogtagpki.legacy.policy.IPolicyProcessor;
+import org.dogtagpki.legacy.policy.PolicyProcessor;
 import org.dogtagpki.legacy.policy.IPolicyRule;
 import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
 import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
@@ -71,7 +71,7 @@ public abstract class APolicyRule implements IPolicyRule {
      * @param config The config store reference
      */
     @Override
-    public abstract void init(IPolicyProcessor owner, ConfigStore config) throws EBaseException;
+    public abstract void init(PolicyProcessor owner, ConfigStore config) throws EBaseException;
 
     /**
      * Gets the description for this policy rule.

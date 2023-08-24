@@ -20,7 +20,7 @@ package org.dogtagpki.legacy.server.policy.constraints;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
-import org.dogtagpki.legacy.policy.IPolicyProcessor;
+import org.dogtagpki.legacy.policy.PolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
 import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
@@ -85,7 +85,7 @@ public class SubCANameConstraints extends APolicyRule implements IEnrollmentPoli
      * @param config The config store reference
      */
     @Override
-    public void init(IPolicyProcessor owner, ConfigStore config) throws EBaseException {
+    public void init(PolicyProcessor owner, ConfigStore config) throws EBaseException {
         // get CA's public key to create authority key id.
         CertificateAuthority certAuthority = (CertificateAuthority) owner.getAuthority();
 

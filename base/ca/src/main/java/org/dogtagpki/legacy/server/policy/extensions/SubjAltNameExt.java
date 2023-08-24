@@ -22,7 +22,7 @@ import java.security.cert.CertificateException;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
-import org.dogtagpki.legacy.policy.IPolicyProcessor;
+import org.dogtagpki.legacy.policy.PolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
@@ -125,7 +125,7 @@ public class SubjAltNameExt extends APolicyRule
      * @param config The config store reference
      */
     @Override
-    public void init(IPolicyProcessor owner, ConfigStore config) throws EBaseException {
+    public void init(PolicyProcessor owner, ConfigStore config) throws EBaseException {
         // future use.
         mAllowAgentOverride = config.getBoolean(PROP_AGENT_OVERR, false);
         mAllowEEOverride = config.getBoolean(PROP_EE_OVERR, false);

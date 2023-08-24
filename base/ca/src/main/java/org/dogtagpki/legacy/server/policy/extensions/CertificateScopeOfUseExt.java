@@ -24,7 +24,7 @@ import java.util.Vector;
 import org.dogtagpki.legacy.core.policy.GeneralNameUtil;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IGeneralNameUtil;
-import org.dogtagpki.legacy.policy.IPolicyProcessor;
+import org.dogtagpki.legacy.policy.PolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
 import org.mozilla.jss.netscape.security.extensions.CertificateScopeEntry;
 import org.mozilla.jss.netscape.security.extensions.CertificateScopeOfUseExtension;
@@ -108,7 +108,7 @@ public class CertificateScopeOfUseExt extends APolicyRule implements
      * @param config The config store reference
      */
     @Override
-    public void init(IPolicyProcessor owner, ConfigStore config) throws EBaseException {
+    public void init(PolicyProcessor owner, ConfigStore config) throws EBaseException {
         mConfig = config;
     }
 

@@ -22,7 +22,7 @@ import java.security.cert.CertificateException;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
-import org.dogtagpki.legacy.policy.IPolicyProcessor;
+import org.dogtagpki.legacy.policy.PolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateVersion;
@@ -98,7 +98,7 @@ public class PolicyConstraintsExt extends APolicyRule
      * @param config The config store reference
      */
     @Override
-    public void init(IPolicyProcessor owner, ConfigStore config) throws EBaseException {
+    public void init(PolicyProcessor owner, ConfigStore config) throws EBaseException {
         mConfig = config;
 
         // XXX should do do this ?
@@ -122,7 +122,7 @@ public class PolicyConstraintsExt extends APolicyRule
          ****/
 
         mEnabled = mConfig.getBoolean(
-                    IPolicyProcessor.PROP_ENABLE, false);
+                    PolicyProcessor.PROP_ENABLE, false);
         mCritical = mConfig.getBoolean(PROP_CRITICAL, DEF_CRITICAL);
 
         mReqExplicitPolicy = mConfig.getInteger(

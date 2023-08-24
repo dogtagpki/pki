@@ -25,11 +25,11 @@ import java.util.Vector;
 import org.dogtagpki.legacy.policy.EPolicyException;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IExpression;
-import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.legacy.policy.IPolicyRule;
 import org.dogtagpki.legacy.policy.IPolicySet;
 import org.dogtagpki.legacy.policy.IRenewalPolicy;
 import org.dogtagpki.legacy.policy.IRevocationPolicy;
+import org.dogtagpki.legacy.policy.PolicyProcessor;
 
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -58,7 +58,7 @@ import com.netscape.cmscore.request.RequestQueue;
  * @author kanda
  * @version $Revision$, $Date$
  */
-public class GenericPolicyProcessor implements IPolicyProcessor {
+public class GenericPolicyProcessor extends PolicyProcessor {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GenericPolicyProcessor.class);
 
@@ -175,7 +175,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
                     PKI_Subsystem.trim().equalsIgnoreCase("kra")) {
                 String policyStatus = PKI_Subsystem.trim().toLowerCase()
                                     + "." + "Policy"
-                                    + "." + IPolicyProcessor.PROP_ENABLE;
+                                    + "." + PolicyProcessor.PROP_ENABLE;
 
                 if (configStore.getBoolean(policyStatus, true) == true) {
                     // NOTE:  If "<subsystem>.Policy.enable=<boolean>" is
@@ -368,7 +368,6 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
      * @param request The given request
      * @return The policy result object.
      */
-    @Override
     public PolicyResult apply(Request request) {
         IPolicySet rules = null;
         String op = request.getRequestType();

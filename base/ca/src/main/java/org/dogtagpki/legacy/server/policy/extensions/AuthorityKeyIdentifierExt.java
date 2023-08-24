@@ -22,7 +22,7 @@ import java.security.cert.CertificateException;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
-import org.dogtagpki.legacy.policy.IPolicyProcessor;
+import org.dogtagpki.legacy.policy.PolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
 import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
@@ -114,11 +114,11 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
      * @param config The config store reference
      */
     @Override
-    public void init(IPolicyProcessor owner, ConfigStore config) throws EBaseException {
+    public void init(PolicyProcessor owner, ConfigStore config) throws EBaseException {
         mConfig = config;
 
         mEnabled = mConfig.getBoolean(
-                    IPolicyProcessor.PROP_ENABLE, false);
+                    PolicyProcessor.PROP_ENABLE, false);
         mCritical = mConfig.getBoolean(PROP_CRITICAL, DEF_CRITICAL);
 
         mAltKeyIdType = mConfig.getString(

@@ -21,7 +21,7 @@ import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.EPolicyException;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
-import org.dogtagpki.legacy.policy.IPolicyProcessor;
+import org.dogtagpki.legacy.policy.PolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
 
 import com.netscape.certsrv.request.AgentApprovals;
@@ -65,7 +65,7 @@ public class AgentPolicy extends APolicyRule
      * @param config The config store reference
      */
     @Override
-    public void init(IPolicyProcessor owner, ConfigStore config) throws EPolicyException {
+    public void init(PolicyProcessor owner, ConfigStore config) throws EPolicyException {
 
         // Create subordinate object
         String className = config.get("class");

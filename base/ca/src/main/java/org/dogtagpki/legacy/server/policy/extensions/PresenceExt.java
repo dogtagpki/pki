@@ -19,7 +19,7 @@ package org.dogtagpki.legacy.server.policy.extensions;
 
 import java.util.Vector;
 
-import org.dogtagpki.legacy.policy.IPolicyProcessor;
+import org.dogtagpki.legacy.policy.PolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -77,7 +77,7 @@ public class PresenceExt extends APolicyRule implements IExtendedPluginInfo {
     }
 
     @Override
-    public void init(IPolicyProcessor owner, ConfigStore config) throws EBaseException {
+    public void init(PolicyProcessor owner, ConfigStore config) throws EBaseException {
         mConfig = config;
 
         mCritical = config.getBoolean(PROP_IS_CRITICAL, false);

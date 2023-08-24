@@ -35,7 +35,7 @@ import java.util.Vector;
 
 import org.dogtagpki.legacy.kra.KRAPolicy;
 import org.dogtagpki.legacy.kra.KRAPolicyConfig;
-import org.dogtagpki.legacy.policy.IPolicyProcessor;
+import org.dogtagpki.legacy.policy.PolicyProcessor;
 import org.dogtagpki.server.kra.KRAConfig;
 import org.dogtagpki.server.kra.KRAEngine;
 import org.dogtagpki.server.kra.KRAEngineConfig;
@@ -198,7 +198,7 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
      *
      * @return policy processor
      */
-    public IPolicyProcessor getPolicyProcessor() {
+    public PolicyProcessor getPolicyProcessor() {
         return mPolicy.getPolicyProcessor();
     }
 

@@ -27,7 +27,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
-import org.dogtagpki.legacy.policy.IPolicyProcessor;
+import org.dogtagpki.legacy.policy.PolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
 import org.mozilla.jss.netscape.security.extensions.GenericASN1Extension;
 import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
@@ -221,7 +221,7 @@ public class GenericASN1Ext extends APolicyRule implements
      * @param config The config store reference
      */
     @Override
-    public void init(IPolicyProcessor owner, ConfigStore config) throws EBaseException {
+    public void init(PolicyProcessor owner, ConfigStore config) throws EBaseException {
         mConfig = config;
         if (mConfig == null) {
             logger.error(CMS.getLogMessage("POLICY_INIT_ERROR"));
