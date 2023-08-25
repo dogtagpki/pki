@@ -44,6 +44,7 @@ import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
 import org.mozilla.jss.netscape.security.util.PrettyPrintFormat;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.X500Name;
@@ -729,6 +730,43 @@ public class CertUtils {
         exts.set(CT_POISON_OID, ct_poison_ext);
         certinfo.delete(X509CertInfo.EXTENSIONS);
         certinfo.set(X509CertInfo.EXTENSIONS, exts);
+    }
+
+    public static boolean isCACert(X509Certificate cert) {
+        String method = "CertUtils.isCACert: ";
+        try {
+            X509CertImpl impl = new X509CertImpl(cert.getEncoded());
+            X509CertInfo certinfo = (X509CertInfo) impl.get(
+                    X509CertImpl.NAME + "." + X509CertImpl.INFO);
+            if (certinfo == null)
+                return false;
+            else {
+                CertificateExtensions exts = (CertificateExtensions) certinfo.get(X509CertInfo.EXTENSIONS);
+
+                if (exts == null)
+                    return false;
+                else {
+                    try {
+                        BasicConstraintsExtension ext = (BasicConstraintsExtension) exts
+                                .get(BasicConstraintsExtension.NAME);
+
+                        if (ext == null)
+                            return false;
+                        else {
+                            Boolean bool = (Boolean) ext.get(BasicConstraintsExtension.IS_CA);
+
+                            return bool.booleanValue();
+                        }
+                    } catch (IOException ee) {
+                        return false;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            logger.warn(method + CMS.getLogMessage("CMSCORE_SECURITY_IS_CA_CERT", e.toString()), e);
+            return false;
+            //throw new EBaseException(CMS.getUserMessage("CMS_BASE_DECODE_CERT_FAILED"));
+        }
     }
 
     /*

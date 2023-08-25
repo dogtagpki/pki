@@ -40,6 +40,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
@@ -96,6 +97,7 @@ public class OCSPEngine extends CMSEngine {
     }
 
 
+    @Override
     protected void startupSubsystems() throws Exception {
 
         for (Subsystem subsystem : subsystems.values()) {
@@ -158,10 +160,9 @@ public class OCSPEngine extends CMSEngine {
     public boolean isRevoked(X509Certificate[] certificates) {
         LDAPStore crlStore = null;
         for (Subsystem subsystem : subsystems.values()) {
-            if (subsystem instanceof OCSPAuthority) {
-                OCSPAuthority ocsp = (OCSPAuthority) subsystem;
-                if (ocsp.getDefaultStore() instanceof LDAPStore) {
-                    crlStore = (LDAPStore) ocsp.getDefaultStore();
+            if (subsystem instanceof OCSPAuthority ocsp) {
+                if (ocsp.getDefaultStore() instanceof LDAPStore store) {
+                    crlStore = store;
                 }
                 break;
             }
@@ -172,9 +173,13 @@ public class OCSPEngine extends CMSEngine {
         }
 
         for (X509Certificate cert: certificates) {
+            // validateConnCertWithCRL only handles leaf certs
+            if (CertUtils.isCACert(cert))
+                continue;
+
             if(!crlCertValid(crlStore, cert, null)) {
                 return true;
-            }
+            } else break;
         }
         return false;
 
