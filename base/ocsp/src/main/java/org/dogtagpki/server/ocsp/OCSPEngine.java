@@ -44,6 +44,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
+import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.ocsp.OCSPAuthority;
 
 @WebListener
@@ -149,9 +150,13 @@ public class OCSPEngine extends CMSEngine {
         }
 
         for (X509Certificate cert: certificates) {
+            // validateConnCertWithCRL only handles leaf certs
+            if (CertUtils.isCACert(cert))
+                continue;
+
             if(!crlCertValid(crlStore, cert, null)) {
                 return true;
-            }
+            } else break;
         }
         return false;
 
