@@ -39,6 +39,8 @@ import org.mozilla.jss.crypto.KeyWrapper;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.pkcs11.PK11SymKey;
+import org.mozilla.jss.crypto.IVParameterSpec;
+import org.mozilla.jss.crypto.EncryptionAlgorithm;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -866,7 +868,10 @@ public class TokenServlet extends CMSServlet {
 
         boolean serversideKeygen = false;
         byte[] drm_trans_wrapped_desKey = null;
+        byte[] aes_wrapped_desKey = null;
+        byte[] drm_trans_wrapped_aesKey = null;
         SymmetricKey desKey = null;
+        SymmetricKey aesKey = null;
         //        PK11SymKey kek_session_key;
         SymmetricKey kek_key;
 
@@ -902,6 +907,7 @@ public class TokenServlet extends CMSServlet {
         audit(auditMessage);
 
         String kek_wrapped_desKeyString = null;
+	String kek_wrapped_aesKeyString = null;
         String keycheck_s = null;
 
         CMS.debug("processComputeSessionKey:");
@@ -1151,10 +1157,14 @@ public class TokenServlet extends CMSServlet {
                             //cfu audit here? sym key gen
 
                             desKey = protocol.generateSymKey(CryptoUtil.INTERNAL_TOKEN_NAME);
+                            //128 for now until we implement the full > 128 aes funcionality.
+                            aesKey = protocol.generateAESSymKey(CryptoUtil.INTERNAL_TOKEN_NAME,128);
+
                             //cfu audit here? sym key gen done
                         } else {
                             CMS.debug("TokenServlet: key encryption key generated on " + selectedToken);
                             desKey = protocol.generateSymKey(selectedToken);
+                            aesKey = protocol.generateAESSymKey(selectedToken,128);
                         }
                         if (desKey != null) {
                             // AC: KDF SPEC CHANGE - Output using CUID and KDD
@@ -1172,13 +1182,35 @@ public class TokenServlet extends CMSServlet {
                             throw new Exception("can't generate key encryption key");
                         }
 
+                        if (aesKey != null) {
+                            CMS.debug("TokenServlet: aes key encryption key generated for CUID=" +
+                                    trim(pp.toHexString(xCUID)) /* +
+                                    ", KDD=" +
+                                    trim(pp.toHexString(xKDD)) */ );
+                        } else {
+                            CMS.debug("TokenServlet: aes key encryption key generation failed for CUID=" +
+                                    trim(pp.toHexString(xCUID)) /* +
+                                    ", KDD=" +
+                                    trim(pp.toHexString(xKDD)) */ );
+
+                            throw new Exception("can't generate aes key encryption key");
+                        }
+
                         /*
                          * ECBencrypt actually takes the 24 byte DES2 key
                          * and discard the last 8 bytes before it encrypts.
                          * This is done so that the applet can digest it
                          */
 
+                         /*  Now that ecbEncrypt() can handle AES keys,
+                         * in case it's an AES key, it simply
+                         * wraps the AES key with KEK and returns
+                         * the encrypted byte array
+                         */
+
                         byte[] encDesKey = protocol.ecbEncrypt(kek_key, desKey, selectedToken);
+                        byte[] encAesKey = protocol.ecbEncrypt(kek_key,aesKey,selectedToken);
+
 
                         /*
                         CMS.debug("computeSessionKey:encrypted desKey size = "+encDesKey.length);
@@ -1187,6 +1219,9 @@ public class TokenServlet extends CMSServlet {
 
                         kek_wrapped_desKeyString =
                                 com.netscape.cmsutil.util.Utils.SpecialEncode(encDesKey);
+
+                         kek_wrapped_aesKeyString =
+                               org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(encAesKey);
 
                         // get keycheck
 
@@ -1232,6 +1267,16 @@ public class TokenServlet extends CMSServlet {
                         CMS.debug("desKey token " + desKey.getOwningToken().getName() + " token: " + token.getName());
                         drm_trans_wrapped_desKey = keyWrapper.wrap(desKey);
                         CMS.debug("computeSessionKey:desKey wrapped with drm transportation key.");
+
+                        drm_trans_wrapped_aesKey = keyWrapper.wrap(aesKey);
+                        CMS.debug("computeSessionKey:aesKey wrapped with drm transportation key. size " + drm_trans_wrapped_aesKey.length);
+
+                        //wrap the des key with the aes sym key as well.
+
+                        KeyWrapper aesKeyWrap = token.getKeyWrapper(KeyWrapAlgorithm.AES_CBC_PAD);
+                        aesKeyWrap.initWrap(aesKey,new IVParameterSpec(new byte[EncryptionAlgorithm.AES_128_CBC_PAD.getIVLength()]));
+                        aes_wrapped_desKey = aesKeyWrap.wrap(desKey);
+                        CMS.debug("computeSessionKey:desKey wrapped with aes session key.");
 
                     } // if (serversideKeygen == true)
 
@@ -1306,6 +1351,8 @@ public class TokenServlet extends CMSServlet {
         String outputString = "";
         String encSessionKeyString = "";
         String drm_trans_wrapped_desKeyString = "";
+        String aes_wrapped_desKeyString = "";
+        String drm_trans_wrapped_aesKeyString = "";
         String cryptogram = "";
         String status = "0";
         if (session_key != null && session_key.length > 0) {
@@ -1313,6 +1360,7 @@ public class TokenServlet extends CMSServlet {
                     com.netscape.cmsutil.util.Utils.SpecialEncode(session_key);
         } else {
 
+CMS.debug("0");
             status = "1";
         }
 
@@ -1320,6 +1368,7 @@ public class TokenServlet extends CMSServlet {
             encSessionKeyString =
                     com.netscape.cmsutil.util.Utils.SpecialEncode(enc_session_key);
         } else {
+CMS.debug("1");
             status = "1";
         }
 
@@ -1328,8 +1377,29 @@ public class TokenServlet extends CMSServlet {
                 drm_trans_wrapped_desKeyString =
                         com.netscape.cmsutil.util.Utils.SpecialEncode(drm_trans_wrapped_desKey);
             else {
+CMS.debug("2");
                 status = "1";
             }
+
+             if (drm_trans_wrapped_aesKey != null &&  drm_trans_wrapped_aesKey.length > 0) {
+                drm_trans_wrapped_aesKeyString =
+                        org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(drm_trans_wrapped_aesKey);
+                        //CMS.debug("drm_trans_wrapped_aesKeyString: " + drm_trans_wrapped_aesKeyString);
+
+            } else {
+CMS.debug("3");
+                status = "1";
+            }
+
+            if (aes_wrapped_desKey != null &&  aes_wrapped_desKey.length > 0) {
+                aes_wrapped_desKeyString =
+                        org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(aes_wrapped_desKey);
+
+            } else {
+CMS.debug("4");
+                status = "1";
+            }
+
         }
 
         if (host_cryptogram != null && host_cryptogram.length > 0) {
@@ -1412,10 +1482,14 @@ public class TokenServlet extends CMSServlet {
                 sb.append(encSessionKeyString);
                 sb.append("&" + IRemoteRequest.TKS_RESPONSE_KEK_DesKey + "=");
                 sb.append(kek_wrapped_desKeyString);
+                sb.append("&" + IRemoteRequest.TKS_RESPONSE_KEK_AesKey + "=");
+                sb.append(kek_wrapped_aesKeyString);
                 sb.append("&" + IRemoteRequest.TKS_RESPONSE_KeyCheck + "=");
                 sb.append(keycheck_s);
                 sb.append("&" + IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey + "=");
                 sb.append(drm_trans_wrapped_desKeyString);
+                sb.append("&" + IRemoteRequest.TKS_RESPONSE_DRM_Trans_AesKey + "=");
+                sb.append(drm_trans_wrapped_aesKeyString);
                 value = sb.toString();
             } else {
 
@@ -1431,7 +1505,7 @@ public class TokenServlet extends CMSServlet {
             }
 
         }
-        //CMS.debug("TokenServlet:outputString.encode " + value);
+        CMS.debug("TokenServlet:outputString.encode " + value);
 
         try {
             resp.setContentLength(value.length());
@@ -2508,7 +2582,10 @@ public class TokenServlet extends CMSServlet {
         audit(auditMessage);
 
         String kek_wrapped_desKeyString = null;
+	String kek_wrapped_aesKeyString = null;
+
         String keycheck_s = null;
+	String keycheck_aes_s = null;
 
         String useSoftToken_s = CMS.getConfigStore().getString("tks.useSoftToken", "true");
         if (!useSoftToken_s.equalsIgnoreCase("true"))
@@ -2768,6 +2845,7 @@ public class TokenServlet extends CMSServlet {
         String kekSessionKeyString = "";
 
         String drm_trans_wrapped_desKeyString = "";
+        String drm_trans_wrapped_aesKeyString = "";
         String cryptogram = "";
         String status = "0";
 
@@ -2792,11 +2870,40 @@ public class TokenServlet extends CMSServlet {
             status = "1";
         }
 
+	// 0 : Kek wrapped des key
+        // 1 : keycheck value des
+        // 2 : keycheck value aes
+        // 3 : trans wrapped des key
+        // 4 : trans wrapped aes key
+        // 5 : kek wrapped aes key
+
+	//Values above returned by routine to calculate server side keygen values.
         if (serversideKeygen == true) {
-            if (serverSideValues.size() == 3) {
-                drm_trans_wrapped_desKeyString = serverSideValues.get(2);
+            CMS.debug(method + " serversideValues.size: " + serverSideValues.size());
+	    //for(int i = 0 ; i < serverSideValues.size(); i++) {
+            //    CMS.debug(method + " val:" + i  + " : " + serverSideValues.get(i));
+            //}
+
+            if (serverSideValues.size() >= 3) {
+                CMS.debug(method + " size >= 3 ");
+
+		//Get the value produced even for SC03 .
+                drm_trans_wrapped_desKeyString = serverSideValues.get(3);
+
                 kek_wrapped_desKeyString = serverSideValues.get(0);
                 keycheck_s = serverSideValues.get(1);
+                keycheck_aes_s = serverSideValues.get(2);
+
+                if(serverSideValues.size() >= 5) {
+		    CMS.debug(method + " size >= 5");
+                    drm_trans_wrapped_aesKeyString = serverSideValues.get(4);
+                }
+
+		if(serverSideValues.size() >= 6) {
+			CMS.debug(method + " size >= 6");
+                    kek_wrapped_aesKeyString = serverSideValues.get(5);
+		    //CMS.debug(method + "kek_wrapped_aesKeyString: " + kek_wrapped_aesKeyString);
+		}
             }
             else {
                 status = "1";
@@ -2877,10 +2984,15 @@ public class TokenServlet extends CMSServlet {
                 sb.append(kekSessionKeyString);
                 sb.append("&" + IRemoteRequest.TKS_RESPONSE_KEK_DesKey + "=");
                 sb.append(kek_wrapped_desKeyString);
+                sb.append("&" + IRemoteRequest.TKS_RESPONSE_KEK_AesKey + "=");
+                sb.append(kek_wrapped_aesKeyString);
                 sb.append("&" + IRemoteRequest.TKS_RESPONSE_KeyCheck + "=");
-                sb.append(keycheck_s);
+                sb.append(keycheck_aes_s);
                 sb.append("&" + IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey + "=");
                 sb.append(drm_trans_wrapped_desKeyString);
+                sb.append("&" + IRemoteRequest.TKS_RESPONSE_DRM_Trans_AesKey + "=");
+		//CMS.debug(method + " drm_trans_wrapped_aesKeyString " + drm_trans_wrapped_aesKeyString);
+                sb.append(drm_trans_wrapped_aesKeyString);
                 value = sb.toString();
             } else {
                 StringBuffer sb = new StringBuffer();
@@ -3011,14 +3123,21 @@ public class TokenServlet extends CMSServlet {
 
     //returns ArrayList of following values
     // 0 : Kek wrapped des key
-    // 1 : keycheck value
-    // 2 : trans wrapped des key
+    // 1 : keycheck value des
+    // 2 : keycheck value aes
+    // 3 : trans wrapped des key
+    // 4 : trans wrapped aes key
+    // 5 : kek wrapped aes key
+
     private ArrayList<String> calculateServerSideKeygenValues(String useSoftToken, String selectedToken,
             SymmetricKey kekSessionKey, SecureChannelProtocol protocol) throws EBaseException {
 
         SymmetricKey desKey = null;
+        SymmetricKey aesKey = null;
         String method = "TokenServlet.calculateSErverSideKeygenValues: ";
         ArrayList<String> values = new ArrayList<String>();
+        int protocolLevel = protocol.getProtocol();
+
 
         /**
          * 0. generate des key
@@ -3047,13 +3166,26 @@ public class TokenServlet extends CMSServlet {
         if (useSoftToken.equals("true")) {
             CMS.debug(method + " key encryption key generated on internal");
             desKey = protocol.generateSymKey("internal");
+            //128 for now until we implement the full > 128 aes funcionality.
+            if(protocolLevel == 3) {
+                //still do the des key as a backup later
+                aesKey = protocol.generateAESSymKey("internal",128);
+            }
+
             //cfu audit here? sym key gen done
         } else {
             CMS.debug("TokenServlet: key encryption key generated on " + selectedToken);
             desKey = protocol.generateSymKey(selectedToken);
+            if(protocolLevel == 3) {
+                aesKey = protocol.generateAESSymKey(selectedToken,128);
+            }
         }
-        if (desKey == null) {
-            throw new EBaseException(method + "can't generate key encryption key");
+        if (desKey == null && protocolLevel == 1) {
+            throw new EBaseException(method + "can't generate DES key encryption key");
+        }
+
+        if (aesKey == null && protocolLevel == 3) {
+            throw new EBaseException(method + "can't generate AES key encryption key");
         }
 
         /*
@@ -3062,13 +3194,22 @@ public class TokenServlet extends CMSServlet {
          * This is done so that the applet can digest it
          */
 
+        /*  Now that ecbEncrypt() can handle AES keys,
+         * in case it's an AES key, it simply
+         * wraps the AES key with KEK and returns
+         * the encrypted byte array
+         */
 
        // protocol.wrapSessionKey(tokenName, sessionKey, wrappingKey)
 
         byte[] encDesKey = protocol.ecbEncrypt(kekSessionKey, desKey, selectedToken);
+        byte[] encAesKey = protocol.ecbEncrypt(kekSessionKey,aesKey,selectedToken);
 
         String kek_wrapped_desKeyString =
                 com.netscape.cmsutil.util.Utils.SpecialEncode(encDesKey);
+
+         String kek_wrapped_aesKeyString =
+                 com.netscape.cmsutil.util.Utils.SpecialEncode(encAesKey);
 
 //        CMS.debug(method + "kek_wrapped_desKeyString: " + kek_wrapped_desKeyString);
 
@@ -3077,15 +3218,30 @@ public class TokenServlet extends CMSServlet {
         // get keycheck
 
         byte[] keycheck = null;
+        byte[] keycheck_aes = null;
 
         keycheck = protocol.computeKeyCheck(desKey, selectedToken);
+        if(aesKey != null) {
+             CMS.debug(method + "About to compute keycheck scp03");
+             keycheck_aes = protocol.computeKeyCheck_SCP03(aesKey, selectedToken);
+        }
 
-        String keycheck_s =
-                com.netscape.cmsutil.util.Utils.SpecialEncode(keycheck);
+        String keycheck_s = "";
+        String keycheck_aes_s = "";
 
-//        CMS.debug(method + "keycheck_s " + keycheck_s);
+        if(keycheck != null) {
+            keycheck_s =   com.netscape.cmsutil.util.Utils.SpecialEncode(keycheck);
+        }
+
+        if(keycheck_aes != null)  {
+            keycheck_aes_s =   com.netscape.cmsutil.util.Utils.SpecialEncode(keycheck_aes);
+        }
+
+
+        //        CMS.debug(method + "keycheck_s " + keycheck_s);
 
         values.add(keycheck_s);
+        values.add(keycheck_aes_s);
 
         //use DRM transport cert to wrap desKey
         String drmTransNickname = CMS.getConfigStore().getString("tks.drm_transport_cert_nickname", "");
@@ -3130,6 +3286,13 @@ public class TokenServlet extends CMSServlet {
 //            CMS.debug(method + " drmWrappedDesStr: " + drmWrappedDesStr);
             values.add(drmWrappedDesStr);
 
+            byte[] drm_trans_wrapped_aesKey = keyWrapper.wrap(aesKey);
+            String drmWrappedAesStr =
+                    com.netscape.cmsutil.util.Utils.SpecialEncode(drm_trans_wrapped_aesKey);
+
+	    //CMS.debug(method + " drmWrappedAesStr: " + drmWrappedAesStr);
+            values.add(drmWrappedAesStr);
+            values.add(kek_wrapped_aesKeyString);
         } catch (Exception e) {
             throw new EBaseException(e);
         }

@@ -190,10 +190,12 @@ public class TokenKeyRecoveryService implements IService {
     public synchronized boolean serviceRequest(IRequest request) throws EBaseException {
         String auditSubjectID = null;
         String iv_s = "";
+        String method = "TokenKeyRecoveryService.serviceRequest: ";
 
         CMS.debug("KRA services token key recovery request");
         IConfigStore config = null;
         Boolean allowEncDecrypt_recovery = false;
+        CryptoToken token = null;
 
         try {
             config = CMS.getConfigStore();
@@ -239,11 +241,23 @@ public class TokenKeyRecoveryService implements IService {
         String rCUID = request.getExtDataInString(IRequest.NETKEY_ATTR_CUID);
         String rUserid = request.getExtDataInString(IRequest.NETKEY_ATTR_USERID);
         String rWrappedDesKeyString = request.getExtDataInString(IRequest.NETKEY_ATTR_DRMTRANS_DES_KEY);
+
+        String rWrappedAesKeyString = request.getExtDataInString(IRequest.NETKEY_ATTR_DRMTRANS_AES_KEY);
         // the request record field delayLDAPCommit == "true" will cause
         // updateRequest() to delay actual write to ldap
         request.setExtData("delayLDAPCommit", "true");
         // wrappedDesKey no longer needed. removing.
         request.setExtData(IRequest.NETKEY_ATTR_DRMTRANS_DES_KEY, "");
+
+        boolean useAesTransWrapped = false;
+
+        byte[] wrapped_aes_key = null;
+        // Check for AES wrapped key. If present give AES precedence. Otherwise go with DES
+        if((rWrappedAesKeyString != null && rWrappedAesKeyString.length() > 0)) {
+            useAesTransWrapped = true;
+            wrapped_aes_key = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rWrappedAesKeyString);
+            CMS.debug(method + "TMS has sent trans wrapped aes key.");
+        }
 
         auditSubjectID = rCUID + ":" + rUserid;
 
@@ -252,13 +266,24 @@ public class TokenKeyRecoveryService implements IService {
         wrapped_des_key = com.netscape.cmsutil.util.Utils.SpecialDecode(rWrappedDesKeyString);
         CMS.debug("TokenKeyRecoveryService: wrapped_des_key specialDecoded");
 
+
+        KeyWrapAlgorithm wrapAlg = KeyWrapAlgorithm.RSA;
+        //Instantiate both DES3 or AES wrapping params. One or the other will be ultimately used.
+        WrappingParams wrapParams = new WrappingParams(
+                SymmetricKey.DES3, KeyGenAlgorithm.DES3, 0,
+                wrapAlg, EncryptionAlgorithm.DES3_CBC_PAD,
+                KeyWrapAlgorithm.DES3_CBC_PAD, EncryptionUnit.IV, EncryptionUnit.IV);
+
+
+        WrappingParams aesWrapParams = new WrappingParams(
+                    SymmetricKey.AES, KeyGenAlgorithm.AES,0,
+                     wrapAlg, EncryptionAlgorithm.AES_128_CBC_PAD,
+                     KeyWrapAlgorithm.AES_KEY_WRAP_PAD,EncryptionUnit.IV, EncryptionUnit.IV);
+
+         //Attempt legacy DES, if DES key not present or AES key present , drop down to AES processing.
+         
         if ((wrapped_des_key != null) &&
                 (wrapped_des_key.length > 0)) {
-
-            WrappingParams wrapParams = new WrappingParams(
-                    SymmetricKey.DES3, KeyGenAlgorithm.DES3, 0,
-                    KeyWrapAlgorithm.RSA, EncryptionAlgorithm.DES3_CBC_PAD,
-                    KeyWrapAlgorithm.DES3_CBC_PAD, EncryptionUnit.IV, EncryptionUnit.IV);
 
             // unwrap the des key
             try {
@@ -266,7 +291,10 @@ public class TokenKeyRecoveryService implements IService {
                 CMS.debug("TokenKeyRecoveryService: received des key");
             } catch (Exception e) {
                 CMS.debug("TokenKeyRecoveryService: no des key");
-                request.setExtData(IRequest.RESULT, Integer.valueOf(4));
+                if(!useAesTransWrapped) {
+                    request.setExtData(IRequest.RESULT, Integer.valueOf(4));
+                    return false;
+                }
             }
         } else {
             CMS.debug("TokenKeyRecoveryService: not receive des key");
@@ -279,10 +307,38 @@ public class TokenKeyRecoveryService implements IService {
                         "TokenRecoveryService: Did not receive DES key",
                         agentId));
 
-            return false;
+	    //Log the missing des key but we will use the aes key if present
+	    if(!useAesTransWrapped) {
+                return false;
+	    }
+	    CMS.debug("TokenKeyRecoveryService: no des key use aes key for scp03.");
+
+        }
+
+
+        //Now if we failed unwrapping the DES key directly to the token
+        //Use the included trans wrapped AES key to do so.
+        //We will fall back to AES wrapped key if present and DES key not present.
+
+        boolean attemptAesKeyWrap = false;
+        if(sk == null) {
+            CMS.debug(method + "Attempt to use the AES session key to unwrap session key");
+
+            attemptAesKeyWrap = true;
+            try {
+                sk = (PK11SymKey) mTransportUnit.unwrap_sym(wrapped_aes_key, aesWrapParams);
+                CMS.debug(method + " received AES session key");
+                //Use aes session key to unwrap the DES3 key
+
+            } catch (Exception e) {
+                CMS.debug(method + " no AES session key: or DES kek key. " + e);
+                request.setExtData(IRequest.RESULT, Integer.valueOf(4));
+                return false;
+            }
         }
 
         // retrieve based on Certificate
+        token = mStorageUnit.getToken();
         String cert_s = request.getExtDataInString(ATTR_USER_CERT);
         String keyid_s = request.getExtDataInString(IRequest.NETKEY_ATTR_KEYID);
         KeyId keyId = keyid_s != null ? new KeyId(keyid_s): null;
@@ -340,7 +396,7 @@ public class TokenKeyRecoveryService implements IService {
             CryptoToken internalToken =
             CryptoManager.getInstance().getInternalKeyStorageToken();
             */
-            CryptoToken token = mStorageUnit.getToken();
+            //CryptoToken token = mStorageUnit.getToken();
             CMS.debug("TokenKeyRecoveryService: got token slot:" + token.getName());
             IVParameterSpec algParam = new IVParameterSpec(iv);
 
@@ -442,6 +498,7 @@ public class TokenKeyRecoveryService implements IService {
 
             Type keyType = PrivateKey.RSA;
             byte wrapped[];
+
             if (encrypted) {
                 // Unwrap the archived private key
                 byte privateKeyData[] = null;
@@ -523,12 +580,24 @@ public class TokenKeyRecoveryService implements IService {
 
                 CMS.debug("TokenKeyRecoveryService: about to wrap...");
 
+		KeyWrapAlgorithm symWrapAlg = KeyWrapAlgorithm.DES3_CBC_PAD;
+                if(attemptAesKeyWrap == true) {
+                    //Here we must use AES KWP because it's the only common AES key wrap to be supoprted on hsm, nss, and soon the coolkey applet.
+                    //Should make this configurable at some point.
+                    symWrapAlg = KeyWrapAlgorithm.AES_KEY_WRAP_PAD_KWP;
+                    algParam =  null;
+                    CMS.debug(method + " attemptedAesKeyWrap = true ");
+                } else {
+		    symWrapAlg = KeyWrapAlgorithm.DES3_CBC_PAD;
+                    CMS.debug(method + " attemptedAesKeyWrap = false ");
+                }
+
                 wrapped = CryptoUtil.wrapUsingSymmetricKey(
                         token,
                         sk,
                         privKey,
                         algParam,
-                        KeyWrapAlgorithm.DES3_CBC_PAD);
+                        symWrapAlg);
 
                 iv_s = /*base64Encode(iv);*/com.netscape.cmsutil.util.Utils.SpecialEncode(iv);
                 request.setExtData("iv_s", iv_s);

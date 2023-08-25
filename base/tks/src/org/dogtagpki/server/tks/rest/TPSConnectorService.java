@@ -48,7 +48,8 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
     private static final String TPS_LIST = "tps.list";
 
     IConfigStore cs = CMS.getConfigStore();
-
+    
+    public static final int AES_SESS_KEYSIZE = 128;
     public IUGSubsystem userGroupManager = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
 
     @Override
@@ -312,19 +313,26 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
                 throw new BadRequestException("Shared secret already exists");
             }
 
-            CryptoUtil.createSharedSecret(nickname);
+//            CryptoUtil.createSharedSecret(nickname);
+            CryptoUtil.createSharedSecret(nickname,KeyGenAlgorithm.AES,AES_SESS_KEYSIZE);
 
             cs.putString("tps." + id + ".nickname", nickname);
             cs.commit(true);
 
-            //Create des3 session sym key to wrap the shared secret.
-            SymmetricKey tempKey = createDes3SessionKeyOnInternal();
+            //Create aes session sym key to wrap the shared secret.
+//            SymmetricKey tempKey = createDes3SessionKeyOnInternal();
+            SymmetricKey tempKey = CryptoUtil.createAESSessionKeyOnInternal(AES_SESS_KEYSIZE);
 
             if (tempKey == null) {
                 return createNoContentResponse();
             }
 
-            List<byte[]> listWrappedKeys = CryptoUtil.exportSharedSecret(nickname, certs[0], tempKey);
+            //List<byte[]> listWrappedKeys = CryptoUtil.exportSharedSecret(nickname, certs[0], tempKey);
+
+            CMS.debug("TPSConnectorService.createSharedSecret. about to export shared secret : " + nickname + " certs.length " + certs.length);
+            CMS.debug("TPSConnectorService.createSharedSecert cert: " + certs[certs.length -1]);
+            List<byte[]> listWrappedKeys = CryptoUtil.exportSharedSecretWithAES(nickname, certs[certs.length -1], tempKey);
+            CMS.debug("TPSConnectorService.createSharedSecret. done exporting shared secret : " + nickname);
 
             byte[] wrappedSessionKey = listWrappedKeys.get(0);
             byte[] wrappedSharedSecret = listWrappedKeys.get(1);
@@ -384,16 +392,22 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             X509Certificate[] certs = user.getX509Certificates();
 
             CryptoUtil.deleteSharedSecret(nickname);
-            CryptoUtil.createSharedSecret(nickname);
+            CryptoUtil.createSharedSecret(nickname,KeyGenAlgorithm.AES,AES_SESS_KEYSIZE);
+//            CryptoUtil.createSharedSecret(nickname);
+
+            // Create aes session sym key to wrap the shared secret.
+            SymmetricKey tempKey = CryptoUtil.createAESSessionKeyOnInternal(AES_SESS_KEYSIZE);
 
             //Create des3 session sym key to wrap the shared secret.
-            SymmetricKey tempKey = createDes3SessionKeyOnInternal();
+            //SymmetricKey tempKey = createDes3SessionKeyOnInternal();
 
             if (tempKey == null) {
                 return createNoContentResponse();
             }
 
-            List<byte[]> listWrappedKeys = CryptoUtil.exportSharedSecret(nickname,certs[0], tempKey);
+             List<byte[]> listWrappedKeys = CryptoUtil.exportSharedSecretWithAES(nickname, certs[certs.length -1], tempKey);
+
+            //List<byte[]> listWrappedKeys = CryptoUtil.exportSharedSecret(nickname,certs[0], tempKey);
 
             byte[] wrappedSessionKey = listWrappedKeys.get(0);
             byte[] wrappedSharedSecret = listWrappedKeys.get(1);
