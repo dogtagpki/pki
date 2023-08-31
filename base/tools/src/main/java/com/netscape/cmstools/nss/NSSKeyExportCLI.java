@@ -47,6 +47,9 @@ public class NSSKeyExportCLI extends CommandCLI {
         option = new Option(null, "wrapper", true, "Nickname of the wrapper certificate");
         option.setArgName("nickname");
         options.addOption(option);
+
+        option = new Option(null,"useOAEPKeyWrap", false, "Use OAEP Key Wrap to wrap exported key");
+        options.addOption(option);
     }
 
     @Override
@@ -55,6 +58,7 @@ public class NSSKeyExportCLI extends CommandCLI {
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length < 1) {
+            printHelp();
             throw new Exception("Missing key nickname");
         }
 
@@ -63,19 +67,21 @@ public class NSSKeyExportCLI extends CommandCLI {
         String wrapperNickname = cmd.getOptionValue("wrapper");
 
         if (wrapperNickname == null) {
+            printHelp();
             throw new Exception("Missing wrapper certificate nickname");
         }
-
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
-
         CryptoManager cm = CryptoManager.getInstance();
         X509Certificate cert = cm.findCertByNickname(wrapperNickname);
         X509CertImpl certImpl = new X509CertImpl(cert.getEncoded());
 
-        SymmetricKey tempKey = CryptoUtil.createDes3SessionKeyOnInternal();
+	SymmetricKey tempKey = CryptoUtil.createAESSessionKeyOnInternal(128);
 
-        List<byte[]> listWrappedKeys = CryptoUtil.exportSharedSecret(nickname, certImpl, tempKey);
+        boolean useOAEPKeyWrap = cmd.hasOption("useOAEPKeyWrap");
+
+        List<byte[]> listWrappedKeys = CryptoUtil.exportSharedSecret(nickname, certImpl, tempKey,useOAEPKeyWrap);
+
         byte[] wrappedSessionKey = listWrappedKeys.get(0);
         byte[] wrappedKey = listWrappedKeys.get(1);
 

@@ -181,7 +181,7 @@ BuildRequires:    tomcat >= 1:9.0.31
 %endif
 
 # Python build dependencies
-BuildRequires:    python3 >= 3.9
+BuildRequires:    python3 >= 3.6
 BuildRequires:    python3-devel
 BuildRequires:    python3-setuptools
 BuildRequires:    python3-cryptography
@@ -344,7 +344,7 @@ Provides:         pki-base-python3 = %{version}-%{release}
 %{?python_provide:%python_provide python3-pki}
 
 Requires:         %{product_id}-base = %{version}-%{release}
-Requires:         python3 >= 3.9
+Requires:         python3 >= 3.6
 Requires:         python3-cryptography
 Requires:         python3-ldap
 Requires:         python3-lxml
