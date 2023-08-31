@@ -198,6 +198,7 @@ public final class CMS {
                 name.equalsIgnoreCase("card_challenge") ||
                 name.equalsIgnoreCase("card_cryptogram") ||
                 name.equalsIgnoreCase("drm_trans_desKey") ||
-                name.equalsIgnoreCase("cert_request"));
+                name.equalsIgnoreCase("cert_request") ||
+		name.equalsIgnoreCase("drm_trans_aesKey"));
     }
 }

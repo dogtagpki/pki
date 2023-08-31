@@ -74,6 +74,13 @@ public class SecureChannelProtocol {
     static final int AES_192_BITS = 192;
     static final int AES_256_BITS = 256;
 
+    private static SymmetricKey.Usage session_key_usages[] = {
+        SymmetricKey.Usage.WRAP,
+        SymmetricKey.Usage.UNWRAP,
+        SymmetricKey.Usage.ENCRYPT,
+        SymmetricKey.Usage.DECRYPT
+    };
+
     private SymmetricKey transportKey = null;
     CryptoManager cryptoManager = null;
 
@@ -1003,9 +1010,19 @@ public class SecureChannelProtocol {
         }
 
         try {
-            encryptor = token.getCipherContext(EncryptionAlgorithm.DES3_ECB);
+            EncryptionAlgorithm  encAlg = EncryptionAlgorithm.DES3_ECB;
+            KeyWrapAlgorithm wrapAlg = KeyWrapAlgorithm.DES3_ECB;
 
-            encryptor.initEncrypt(encUnwrapKey);
+            IVParameterSpec iv = null;
+            if(encUnwrapKey.getType() == SymmetricKey.Type.AES) {
+                encAlg = EncryptionAlgorithm.AES_128_CBC_PAD;
+                wrapAlg = KeyWrapAlgorithm.AES_CBC_PAD;
+                iv = new IVParameterSpec(new byte[encAlg.getIVLength()]);
+            }
+
+            encryptor = token.getCipherContext(encAlg);
+
+            encryptor.initEncrypt(encUnwrapKey,iv);
 
             if (finalKeyArray != null) {
                 if(finalKeyType == SymmetricKey.Type.DES3 || finalKeyType == SymmetricKey.Type.DES)
@@ -1023,8 +1040,8 @@ public class SecureChannelProtocol {
 
             // SecureChannelProtocol.debugByteArray(wrappedKey, " encrypted key");
 
-            KeyWrapper keyWrap = token.getKeyWrapper(KeyWrapAlgorithm.DES3_ECB);
-            keyWrap.initUnwrap(encUnwrapKey, null);
+            KeyWrapper keyWrap = token.getKeyWrapper(wrapAlg);
+            keyWrap.initUnwrap(encUnwrapKey, iv);
 
             if (isPerm == true) {
                 unwrapped = keyWrap.unwrapSymmetricPerm(wrappedKey,
@@ -1300,6 +1317,29 @@ public class SecureChannelProtocol {
 
     }
 
+    public SymmetricKey generateAESSymKey(String selectedToken, int keySize) throws EBaseException {
+        String method = "SecureChannelProtocol.generateAESSymKey: ";
+
+        logger.debug(method + " entering , token: " + selectedToken + " size: " + keySize);
+        SymmetricKey symKey = null;
+
+        if (selectedToken == null) {
+            throw new EBaseException(method + " Invalid input data!");
+        }
+
+        try {
+            CryptoManager cm = this.getCryptoManger();
+            CryptoToken token = returnTokenByName(selectedToken, cm);
+            symKey =  CryptoUtil.generateKey(token, KeyGenAlgorithm.AES, keySize,
+                session_key_usages,true);
+        } catch (Exception e) {
+            logger.error(method + " " + e.getMessage(), e);
+            throw new EBaseException(e);
+        }
+
+        return symKey;
+    }
+
     public byte[] ecbEncrypt(SymmetricKey devKey, SymmetricKey symKey, String selectedToken) throws EBaseException {
         byte[] result = null;
         String method = "SecureChannelProtocol.ecbEncrypt:";
@@ -1320,12 +1360,18 @@ public class SecureChannelProtocol {
         SymmetricKey des2 = this.extractDes2FromDes3(symKey, devKeyToken);
 
         //SecureChannelProtocol.debugByteArray(des2.getEncoded(), method + " raw des2 key, to be wrapped.");
+        SymmetricKey toBeWrapped = null;
+        if(symKey.getType() == SymmetricKey.Type.AES) {
+             toBeWrapped = symKey;
+         } else {
+             toBeWrapped = this.extractDes2FromDes3(symKey, devKeyToken);
+         }
 
-        result = this.wrapSessionKey(selectedToken, des2, devKey);
+         result = this.wrapSessionKey(selectedToken, toBeWrapped, devKey);
 
-        // SecureChannelProtocol.debugByteArray(result, " Wrapped des2 key");
+         //SecureChannelProtocol.debugByteArray(result, " Wrapped sym key");
 
-        return result;
+         return result;
     }
 
     /* Convenience routine to create a 3DES key from a 2DES key.

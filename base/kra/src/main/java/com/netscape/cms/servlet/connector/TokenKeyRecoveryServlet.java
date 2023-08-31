@@ -170,6 +170,9 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
 
         //        ConfigStore sconfig = CMS.getConfigStore();
         boolean missingParam = false;
+        boolean missingTransAes = false;
+        boolean missingTransDes = false;
+
         String status = "0";
 
         logger.debug("processTokenKeyRecovery begins:");
@@ -180,9 +183,16 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
         String rdesKeyString = req.getParameter(IRemoteRequest.KRA_Trans_DesKey);
         String rCert = req.getParameter(IRemoteRequest.KRA_RECOVERY_CERT);
 
+        String raesKeyString = req.getParameter(IRemoteRequest.KRA_Trans_AesKey);
+
         if ((rCUID == null) || (rCUID.equals(""))) {
             logger.warn("TokenKeyRecoveryServlet: processTokenKeyRecovery(): missing request parameter: CUID");
             missingParam = true;
+        }
+
+        if ((raesKeyString == null) || (raesKeyString.equals(""))) {
+            logger.warn("TokenKeyRecoveryServlet: processTokenKeyRecovery(): missing request parameter: DRM-transportKey-wrapped aes key");
+            missingTransAes = true;
         }
 
         if ((rUserid == null) || (rUserid.equals(""))) {
@@ -193,7 +203,11 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
         if ((rdesKeyString == null) ||
                 (rdesKeyString.equals(""))) {
             logger.warn("TokenKeyRecoveryServlet: processTokenKeyRecovery(): missing request parameter: DRM-transportKey-wrapped des key");
-            missingParam = true;
+	    missingTransDes = true;
+        }
+            //We expect either a trans wrapped aes or des key
+        if(missingTransAes == true && missingTransDes == true) {
+             missingParam = true;
         }
 
         if (((rCert == null) || (rCert.equals(""))) &&
@@ -209,6 +223,14 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
             thisreq.setExtData(Request.NETKEY_ATTR_CUID, rCUID);
             thisreq.setExtData(Request.NETKEY_ATTR_USERID, rUserid);
             thisreq.setExtData(Request.NETKEY_ATTR_DRMTRANS_DES_KEY, rdesKeyString);
+
+            if(!missingTransDes) {
+                 thisreq.setExtData(Request.NETKEY_ATTR_DRMTRANS_DES_KEY, rdesKeyString);
+             }
+            if(!missingTransAes) {
+                thisreq.setExtData(Request.NETKEY_ATTR_DRMTRANS_AES_KEY, raesKeyString);
+            }
+
             if ((rCert != null) && (!rCert.equals(""))) {
                 thisreq.setExtData(Request.NETKEY_ATTR_USER_CERT, rCert);
                logger.debug("TokenKeyRecoveryServlet: processTokenKeyRecovery(): received request parameter: cert");
