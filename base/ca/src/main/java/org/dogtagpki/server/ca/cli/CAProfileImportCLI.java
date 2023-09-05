@@ -31,7 +31,7 @@ import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
-import com.netscape.cmscore.ldapconn.LdapBoundConnection;
+import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
@@ -121,6 +121,9 @@ public class CAProfileImportCLI extends CommandCLI {
         }
         socketFactory.init(socketConfig);
 
+        LdapBoundConnFactory connFactory = new LdapBoundConnFactory("CAProfileImportCLI");
+        connFactory.init(socketConfig, ldapConfig, passwordStore);
+
         ProfileSubsystemConfig profileSubsystemConfig = cs.getProfileSubsystemConfig();
 
         try {
@@ -134,9 +137,7 @@ public class CAProfileImportCLI extends CommandCLI {
 
                 logger.info("Importing profiles into LDAP");
                 importProfiles(
-                        socketFactory,
-                        connInfo,
-                        authInfo,
+                        connFactory,
                         profileSubsystemConfig,
                         pluginRegistry,
                         baseDN,
@@ -152,33 +153,9 @@ public class CAProfileImportCLI extends CommandCLI {
      * Import profiles from the filesystem into the database.
      */
     public void importProfiles(
-            PKISocketFactory socketFactory,
-            LdapConnInfo connInfo,
-            LdapAuthInfo authInfo,
+            LdapBoundConnFactory connFactory,
             ProfileSubsystemConfig profileSubsystemConfig,
             PluginRegistry pluginRegistry,
-            String baseDN,
-            String inputFolder) throws Exception {
-
-        LdapBoundConnection conn = new LdapBoundConnection(socketFactory, connInfo, authInfo);
-
-        try {
-            importProfiles(
-                    profileSubsystemConfig,
-                    pluginRegistry,
-                    conn,
-                    baseDN,
-                    inputFolder);
-
-        } finally {
-            conn.disconnect();
-        }
-    }
-
-    public void importProfiles(
-            ProfileSubsystemConfig profileSubsystemConfig,
-            PluginRegistry pluginRegistry,
-            LDAPConnection conn,
             String baseDN,
             String inputFolder) throws Exception {
 
@@ -190,7 +167,10 @@ public class CAProfileImportCLI extends CommandCLI {
             ProfileEntryConfig profileEntryConfig = profileSubsystemConfig.getProfileEntryConfig(profileID);
             String classID = profileEntryConfig.getString("class_id", "");
 
+            LDAPConnection conn = null;
             try {
+                conn = connFactory.getConn();
+
                 PluginInfo info = pluginRegistry.getPluginInfo("profile", classID);
                 if (info == null) {
                     throw new EBaseException("Invalid profile class ID: " + classID);
@@ -203,6 +183,9 @@ public class CAProfileImportCLI extends CommandCLI {
 
             } catch (EBaseException e) {
                 logger.warn("Unable to import profile " + profileID + ": " + e.getMessage(), e);
+
+            } finally {
+                if (conn != null) connFactory.returnConn(conn);
             }
         }
     }
