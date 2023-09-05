@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmsutil.ldap.LDAPPostReadControl;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
@@ -51,7 +52,7 @@ public class LDAPConfigStorage extends ConfigStorage {
 
     public static Logger logger = LoggerFactory.getLogger(LDAPConfigStorage.class);
 
-    private LDAPConnection conn;
+    private LdapBoundConnFactory connFactory;
     private String dn;
     private String attr;
     private LDAPAttribute[] createAttrs;
@@ -67,10 +68,12 @@ public class LDAPConfigStorage extends ConfigStorage {
      *              contain cn, objectclass and possibly other attributes.
      */
     public LDAPConfigStorage(
-        LDAPConnection conn,
-        String dn, LDAPAttribute[] createAttrs, String attr
-    ) throws Exception {
-        this.conn = conn;
+            LdapBoundConnFactory connFactory,
+            String dn,
+            LDAPAttribute[] createAttrs,
+            String attr) throws Exception {
+
+        this.connFactory = connFactory;
         this.dn = dn;
         this.createAttrs = createAttrs;
         this.attr = attr;
@@ -117,12 +120,16 @@ public class LDAPConfigStorage extends ConfigStorage {
 
         // first attempt to modify; if modification fails (due
         // to no such object), try and add the entry instead.
+        LDAPConnection conn = null;
+
         try {
+            conn = connFactory.getConn();
+
             try {
-                commitModify(configAttr, cons);
+                commitModify(conn, configAttr, cons);
             } catch (LDAPException e) {
                 if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
-                    commitAdd(configAttr, cons);
+                    commitAdd(conn, configAttr, cons);
                 } else {
                     throw e;
                 }
@@ -131,6 +138,9 @@ public class LDAPConfigStorage extends ConfigStorage {
 
         } catch (LDAPException e) {
             throw new ELdapException("Unable to store " + dn + ": " + e, e);
+
+        } finally {
+            if (conn != null) connFactory.returnConn(conn);
         }
 
         LDAPPostReadControl control = (LDAPPostReadControl)
@@ -146,6 +156,7 @@ public class LDAPConfigStorage extends ConfigStorage {
      * @return true on success, false if the entry does not exist.
      */
     private void commitModify(
+            LDAPConnection conn,
             LDAPAttribute configAttr,
             LDAPConstraints cons)
             throws LDAPException {
@@ -161,6 +172,7 @@ public class LDAPConfigStorage extends ConfigStorage {
      * @return true on success, false if the entry already exists.
      */
     private void commitAdd(
+            LDAPConnection conn,
             LDAPAttribute configAttr,
             LDAPConstraints cons)
             throws LDAPException {

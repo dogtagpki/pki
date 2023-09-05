@@ -42,7 +42,6 @@ import com.netscape.cmsutil.password.PasswordStore;
 import com.netscape.cmsutil.password.PasswordStoreConfig;
 
 import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPConnection;
 
 /**
  * @author Endi S. Dewata
@@ -167,10 +166,7 @@ public class CAProfileImportCLI extends CommandCLI {
             ProfileEntryConfig profileEntryConfig = profileSubsystemConfig.getProfileEntryConfig(profileID);
             String classID = profileEntryConfig.getString("class_id", "");
 
-            LDAPConnection conn = null;
             try {
-                conn = connFactory.getConn();
-
                 PluginInfo info = pluginRegistry.getPluginInfo("profile", classID);
                 if (info == null) {
                     throw new EBaseException("Invalid profile class ID: " + classID);
@@ -179,13 +175,10 @@ public class CAProfileImportCLI extends CommandCLI {
                 String profilePath = inputFolder + "/" + profileID + ".cfg";
                 logger.info("Importing " + profilePath);
 
-                importProfile(conn, baseDN, classID, profileID, profilePath);
+                importProfile(connFactory, baseDN, classID, profileID, profilePath);
 
             } catch (EBaseException e) {
                 logger.warn("Unable to import profile " + profileID + ": " + e.getMessage(), e);
-
-            } finally {
-                if (conn != null) connFactory.returnConn(conn);
             }
         }
     }
@@ -199,7 +192,7 @@ public class CAProfileImportCLI extends CommandCLI {
      * @param profilePath Path to the on-disk profile configuration.
      */
     public void importProfile(
-            LDAPConnection conn,
+            LdapBoundConnFactory connFactory,
             String baseDN,
             String classID,
             String profileID,
@@ -215,7 +208,7 @@ public class CAProfileImportCLI extends CommandCLI {
                 new LDAPAttribute("classId", classID)
         };
 
-        ConfigStorage storage = new LDAPConfigStorage(conn, dn, createAttrs, "certProfileConfig");
+        ConfigStorage storage = new LDAPConfigStorage(connFactory, dn, createAttrs, "certProfileConfig");
         ConfigStore configStore = new ConfigStore(storage);
 
         try (FileInputStream input = new FileInputStream(profilePath)) {

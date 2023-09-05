@@ -233,11 +233,7 @@ public class LDAPProfileSubsystem
         CAEngineConfig engineConfig = engine.getConfig();
         PluginRegistry registry = engine.getPluginRegistry();
 
-        LDAPConnection conn = null;
-
         try {
-            conn = dbFactory.getConn();
-
             String[] objectClasses = {"top", "certProfile"};
             LDAPAttribute[] createAttrs = {
                 new LDAPAttribute("objectclass", objectClasses),
@@ -245,7 +241,7 @@ public class LDAPProfileSubsystem
                 new LDAPAttribute("classId", classid)
             };
 
-            ConfigStorage storage = new LDAPConfigStorage(conn, createProfileDN(id), createAttrs, "certProfileConfig");
+            ConfigStorage storage = new LDAPConfigStorage(dbFactory, createProfileDN(id), createAttrs, "certProfileConfig");
             ProfileConfig profileConfig = new ProfileConfig(storage);
 
             if (data != null)
@@ -262,9 +258,6 @@ public class LDAPProfileSubsystem
         } catch (Exception e) {
             logger.error("LDAPProfileSubsystem: error creating or reading profile: " + e, e);
             throw new EProfileException("Error creating or reading profile: " + e, e);
-
-        } finally {
-            if (conn != null) dbFactory.returnConn(conn);
         }
     }
 
