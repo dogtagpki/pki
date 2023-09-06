@@ -19,6 +19,8 @@ package com.netscape.cmscore.request;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Set;
@@ -357,61 +359,64 @@ public class RequestRepository extends Repository {
         }
     }
 
-    public RequestList listRequestsByFilter(String filter) throws EBaseException {
+    public Collection<RequestRecord> listRequestsByFilter(String filter) throws EBaseException {
 
+        Collection<RequestRecord> records = new ArrayList<>();
         DBSSession s = dbSubsystem.createSession();
-        DBSearchResults results = null;
 
         try {
-            results = s.search(mBaseDN, filter);
+            DBSearchResults sr = s.search(mBaseDN, filter);
+
+            while (sr.hasMoreElements()) {
+                RequestRecord record = (RequestRecord) sr.nextElement();
+                records.add(record);
+            }
 
         } finally {
             s.close();
         }
 
-        if (results == null) {
-            return null;
-        }
-
-        return new SearchEnumeration(results);
+        return records;
     }
 
-    public RequestList listRequestsByFilter(String filter, int maxSize) throws EBaseException {
+    public Collection<RequestRecord> listRequestsByFilter(String filter, int maxSize) throws EBaseException {
 
+        Collection<RequestRecord> records = new ArrayList<>();
         DBSSession dbs = dbSubsystem.createSession();
-        DBSearchResults results = null;
 
         try {
-            results = dbs.search(mBaseDN, filter, maxSize);
+            DBSearchResults sr = dbs.search(mBaseDN, filter, maxSize);
+
+            while (sr.hasMoreElements()) {
+                RequestRecord record = (RequestRecord) sr.nextElement();
+                records.add(record);
+            }
 
         } finally {
             dbs.close();
         }
 
-        if (results == null) {
-            return null;
-        }
-
-        return new SearchEnumeration(results);
+        return records;
     }
 
-    public RequestList listRequestsByFilter(String filter, int maxSize, int timeLimit) throws EBaseException {
+    public Collection<RequestRecord> listRequestsByFilter(String filter, int maxSize, int timeLimit) throws EBaseException {
 
+        Collection<RequestRecord> records = new ArrayList<>();
         DBSSession dbs = dbSubsystem.createSession();
-        DBSearchResults results = null;
 
         try {
-            results = dbs.search(mBaseDN, filter, maxSize, timeLimit);
+            DBSearchResults sr = dbs.search(mBaseDN, filter, maxSize, timeLimit);
+
+            while (sr.hasMoreElements()) {
+                RequestRecord record = (RequestRecord) sr.nextElement();
+                records.add(record);
+            }
 
         } finally {
             dbs.close();
         }
 
-        if (results == null) {
-            return null;
-        }
-
-        return new SearchEnumeration(results);
+        return records;
     }
 
     /**

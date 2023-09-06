@@ -6,6 +6,7 @@
 package org.dogtagpki.server.ca.job;
 
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 
@@ -25,7 +26,6 @@ import com.netscape.cmscore.dbs.Repository.IDGenerator;
 import com.netscape.cmscore.jobs.JobConfig;
 import com.netscape.cmscore.jobs.JobsScheduler;
 import com.netscape.cmscore.request.Request;
-import com.netscape.cmscore.request.RequestList;
 import com.netscape.cmscore.request.RequestRecord;
 import com.netscape.cmscore.request.RequestRepository;
 
@@ -219,14 +219,13 @@ public class PruningJob extends Job implements IExtendedPluginInfo {
                 "(!(" + RequestRecord.ATTR_MODIFY_TIME + "=" + time + ")))";
         logger.info("PruningJob: - filter: " + filter);
 
-        RequestList requestRecords = requestRepository.listRequestsByFilter(
+        Collection<RequestRecord> records = requestRepository.listRequestsByFilter(
                 filter, requestSearchSizeLimit, requestSearchTimeLimit);
 
-        while (requestRecords.hasMoreElements()) {
-            RequestId requestID = requestRecords.nextElement();
+        for (RequestRecord record : records) {
+            Request request = record.toRequest();
+            RequestId requestID = request.getRequestId();
             logger.info("PruningJob: Pruning request " + requestID.toHexString());
-
-            Request request = requestRepository.readRequest(requestID);
             logger.info("PruningJob: - status: " + request.getRequestStatus());
             logger.info("PruningJob: - last modified: " + request.getModificationTime());
 
