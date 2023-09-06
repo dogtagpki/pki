@@ -6,6 +6,7 @@ on:
       - completed
 
 env:
+  BASE_IMAGE: ${{ vars.BASE_IMAGE || 'registry.fedoraproject.org/fedora:latest' }}
   COPR_REPO: ${{ vars.COPR_REPO || '@pki/master' }}
 
 jobs:
@@ -112,7 +113,7 @@ jobs:
         with:
           context: .
           build-args: |
-            BASE_IMAGE=${{ needs.init.outputs.base-image }}
+            BASE_IMAGE=${{ env.BASE_IMAGE }}
             COPR_REPO=${{ env.COPR_REPO }}
           tags: pki-deps
           target: pki-deps
@@ -124,7 +125,7 @@ jobs:
         with:
           context: .
           build-args: |
-            BASE_IMAGE=${{ needs.init.outputs.base-image }}
+            BASE_IMAGE=${{ env.BASE_IMAGE }}
             COPR_REPO=${{ env.COPR_REPO }}
           tags: pki-builder-deps
           target: pki-builder-deps
@@ -136,7 +137,7 @@ jobs:
         with:
           context: .
           build-args: |
-            BASE_IMAGE=${{ needs.init.outputs.base-image }}
+            BASE_IMAGE=${{ env.BASE_IMAGE }}
             COPR_REPO=${{ env.COPR_REPO }}
           tags: pki-runner
           target: pki-runner

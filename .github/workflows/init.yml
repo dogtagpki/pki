@@ -2,13 +2,9 @@ name: Initialization
 on:
   workflow_call:
     secrets:
-      BASE64_OS:
-        required: false
       BASE64_DATABASE:
         required: false
     outputs:
-      base-image:
-        value: ${{ jobs.init.outputs.base-image }}
       db-image:
         value: ${{ jobs.init.outputs.db-image }}
 
@@ -17,8 +13,6 @@ jobs:
     name: Initializing workflow
     runs-on: ubuntu-latest
     outputs:
-      base-image: ${{ steps.init.outputs.base-image }}
-      repo: ${{ steps.init.outputs.repo }}
       db-image: ${{ steps.init.outputs.db-image }}
     steps:
       - name: Clone repository
@@ -27,7 +21,6 @@ jobs:
       - name: Initialize workflow
         id: init
         env:
-          BASE64_OS: ${{ secrets.BASE64_OS }}
           BASE64_DATABASE: ${{ secrets.BASE64_DATABASE }}
         run: |
           tests/bin/init-workflow.sh

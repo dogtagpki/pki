@@ -4,6 +4,7 @@ on: [push, pull_request]
 
 env:
   NAMESPACE: ${{ vars.REGISTRY_NAMESPACE || github.repository_owner }}
+  BASE_IMAGE: ${{ vars.BASE_IMAGE || 'registry.fedoraproject.org/fedora:latest' }}
   COPR_REPO: ${{ vars.COPR_REPO || '@pki/master' }}
 
 jobs:
@@ -35,7 +36,7 @@ jobs:
         with:
           context: .
           build-args: |
-            BASE_IMAGE=${{ needs.init.outputs.base-image }}
+            BASE_IMAGE=${{ env.BASE_IMAGE }}
             COPR_REPO=${{ env.COPR_REPO }}
           tags: pki-deps
           target: pki-deps
@@ -47,7 +48,7 @@ jobs:
         with:
           context: .
           build-args: |
-            BASE_IMAGE=${{ needs.init.outputs.base-image }}
+            BASE_IMAGE=${{ env.BASE_IMAGE }}
             COPR_REPO=${{ env.COPR_REPO }}
           tags: pki-builder-deps
           target: pki-builder-deps
@@ -59,7 +60,7 @@ jobs:
         with:
           context: .
           build-args: |
-            BASE_IMAGE=${{ needs.init.outputs.base-image }}
+            BASE_IMAGE=${{ env.BASE_IMAGE }}
             COPR_REPO=${{ env.COPR_REPO }}
             BUILD_OPTS=--with-pkgs=base,server,ca,acme --without-test
           tags: pki-runner
@@ -72,7 +73,7 @@ jobs:
         with:
           context: .
           build-args: |
-            BASE_IMAGE=${{ needs.init.outputs.base-image }}
+            BASE_IMAGE=${{ env.BASE_IMAGE }}
             COPR_REPO=${{ env.COPR_REPO }}
             BUILD_OPTS=--with-pkgs=base,server,ca,acme --without-test
           tags: pki-acme
