@@ -19,6 +19,7 @@ package com.netscape.cms.servlet.cert;
 
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -48,7 +49,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
-import com.netscape.cmscore.request.RequestList;
+import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestRecord;
 import com.netscape.cmscore.request.RequestRepository;
 
@@ -318,19 +319,16 @@ public class Monitor extends CMSServlet {
             if (requestRepository != null) {
                 filter = Filter(RequestRecord.ATTR_CREATE_TIME, startTime, endTime);
 
-                RequestList reqList = requestRepository.listRequestsByFilter(filter);
+                Collection<RequestRecord> records = requestRepository.listRequestsByFilter(filter);
 
                 int count = 0;
 
-                while (reqList != null && reqList.hasMoreElements()) {
-                    RequestRecord rec = (RequestRecord) reqList.nextRequest();
-
-                    if (rec != null) {
-                        if (count == 0) {
-                            arg.addStringValue("firstRequest", rec.getRequestId().toString());
-                        }
-                        count++;
+                for (RequestRecord record : records) {
+                    Request request = record.toRequest();
+                    if (count == 0) {
+                        arg.addStringValue("firstRequest", request.getRequestId().toString());
                     }
+                    count++;
                 }
                 arg.addIntegerValue("numberOfRequests", count);
                 mTotalReqs += count;

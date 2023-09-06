@@ -18,6 +18,7 @@
 package com.netscape.cms.servlet.request;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Locale;
 
@@ -43,7 +44,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
-import com.netscape.cmscore.request.RequestList;
+import com.netscape.cmscore.request.RequestRecord;
 import com.netscape.cmscore.request.RequestRepository;
 
 /**
@@ -258,25 +259,22 @@ public class SearchReqs extends CMSServlet {
                 logger.debug("Resetting timelimit from " + timeLimit + " to " + mTimeLimits);
                 timeLimit = mTimeLimits;
             }
-            RequestList list = (timeLimit > 0) ?
+            Collection<RequestRecord> records = (timeLimit > 0) ?
                     requestRepository.listRequestsByFilter(newfilter, maxResults, timeLimit) :
                     requestRepository.listRequestsByFilter(newfilter, maxResults);
 
             int count = 0;
 
-            while (list != null && list.hasMoreElements()) {
-                Request request = list.nextRequestObject();
+            for (RequestRecord record : records) {
+                Request request = record.toRequest();
+                count++;
+                ArgBlock rarg = new ArgBlock();
+                mParser.fillRequestIntoArg(locale, request, argSet, rarg);
+                argSet.addRepeatRecord(rarg);
+                long endTime = new Date().getTime();
 
-                if (request != null) {
-                    count++;
-                    ArgBlock rarg = new ArgBlock();
-                    mParser.fillRequestIntoArg(locale, request, argSet, rarg);
-                    argSet.addRepeatRecord(rarg);
-                    long endTime = new Date().getTime();
-
-                    header.addIntegerValue(OUT_CURRENTCOUNT, count);
-                    header.addStringValue("time", Long.toString(endTime - startTime));
-                }
+                header.addIntegerValue(OUT_CURRENTCOUNT, count);
+                header.addStringValue("time", Long.toString(endTime - startTime));
             }
             header.addIntegerValue(OUT_TOTALCOUNT, count);
         } catch (EBaseException e) {

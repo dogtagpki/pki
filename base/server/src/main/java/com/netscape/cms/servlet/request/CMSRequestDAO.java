@@ -17,6 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.request;
 
+import java.util.Collection;
+
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
@@ -27,8 +29,8 @@ import com.netscape.certsrv.request.CMSRequestInfos;
 import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.request.Request;
-import com.netscape.cmscore.request.RequestList;
 import com.netscape.cmscore.request.RequestQueue;
+import com.netscape.cmscore.request.RequestRecord;
 import com.netscape.cmscore.request.RequestRepository;
 
 /**
@@ -120,20 +122,13 @@ public abstract class CMSRequestDAO {
             // The non-vlv requests are indexed, but are not paginated.
             // We should think about whether they should be, or if we need to
             // limit the number of results returned.
-            RequestList requests = requestRepository.listRequestsByFilter(filter, maxResults, maxTime);
-
-            if (requests == null) {
-                return ret;
-            }
+            Collection<RequestRecord> records = requestRepository.listRequestsByFilter(filter, maxResults, maxTime);
 
             logger.debug("CMSRequestDAO: records:");
-            while (requests.hasMoreElements()) {
-                RequestId rid = requests.nextElement();
-                Request request = requestRepository.readRequest(rid);
-                if (request != null) {
-                    logger.debug("- " + request.getRequestId().toHexString());
-                    ret.addEntry(createCMSRequestInfo(request, uriInfo));
-                }
+            for (RequestRecord record : records) {
+                Request request = record.toRequest();
+                logger.debug("- " + request.getRequestId().toHexString());
+                ret.addEntry(createCMSRequestInfo(request, uriInfo));
             }
             ret.setTotal(ret.getEntries().size());
         }
