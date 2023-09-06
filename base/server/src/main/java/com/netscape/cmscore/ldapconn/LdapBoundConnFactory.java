@@ -293,8 +293,8 @@ public class LdapBoundConnFactory extends LdapConnFactory {
         LdapBoundConnection conn = null;
         try {
             PKISocketFactory socketFactory = new PKISocketFactory();
+            socketFactory.setAuditor(auditor);
             if (engine != null) {
-                socketFactory.setAuditor(engine.getAuditor());
                 socketFactory.addSocketListener(engine.getClientSocketListener());
                 socketFactory.setApprovalCallback(engine.getApprovalCallback());
             }

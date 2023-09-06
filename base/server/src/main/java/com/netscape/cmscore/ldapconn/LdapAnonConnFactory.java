@@ -218,8 +218,8 @@ public class LdapAnonConnFactory extends LdapConnFactory {
                 logger.debug("LdapAnonConnFactory: increasing minimum connections by " + increment);
 
                 PKISocketFactory socketFactory = new PKISocketFactory();
+                socketFactory.setAuditor(auditor);
                 if (engine != null) {
-                    socketFactory.setAuditor(engine.getAuditor());
                     socketFactory.addSocketListener(engine.getClientSocketListener());
                 }
                 socketFactory.setSecure(mConnInfo.getSecure());
@@ -348,8 +348,8 @@ public class LdapAnonConnFactory extends LdapConnFactory {
             conn = null;
             try {
                 PKISocketFactory socketFactory = new PKISocketFactory();
+                socketFactory.setAuditor(auditor);
                 if (engine != null) {
-                    socketFactory.setAuditor(engine.getAuditor());
                     socketFactory.addSocketListener(engine.getClientSocketListener());
                 }
                 socketFactory.setSecure(mConnInfo.getSecure());

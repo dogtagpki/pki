@@ -18,6 +18,7 @@
 package com.netscape.certsrv.ldap;
 
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.logging.Auditor;
 
 import netscape.ldap.LDAPConnection;
 
@@ -29,6 +30,7 @@ import netscape.ldap.LDAPConnection;
 public abstract class LdapConnFactory {
 
     protected CMSEngine engine;
+    protected Auditor auditor;
 
     public CMSEngine getCMSEngine() {
         return engine;
@@ -36,6 +38,9 @@ public abstract class LdapConnFactory {
 
     public void setCMSEngine(CMSEngine engine) {
         this.engine = engine;
+        if (engine == null) return;
+
+        auditor = engine.getAuditor();
     }
 
     /**
