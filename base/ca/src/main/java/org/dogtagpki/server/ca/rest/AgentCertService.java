@@ -155,6 +155,10 @@ public class AgentCertService extends PKIService implements AgentCertResource {
         CertData data = getCertData(id);
 
         RevocationReason revReason = RevocationReason.valueOf(request.getReason());
+        if (revReason == null) {
+            logger.warn("CertService.revokeCert: request reason not recognised, set as Unspecified");
+            revReason =	RevocationReason.UNSPECIFIED;
+        }
         if (revReason == RevocationReason.REMOVE_FROM_CRL) {
             return unrevokeCert(id);
         }
