@@ -17,6 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.ldap;
 
+import org.mozilla.jss.ssl.SSLSocketListener;
+
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.logging.Auditor;
 
@@ -31,6 +33,7 @@ public abstract class LdapConnFactory {
 
     protected CMSEngine engine;
     protected Auditor auditor;
+    protected SSLSocketListener socketListener;
 
     public CMSEngine getCMSEngine() {
         return engine;
@@ -41,6 +44,7 @@ public abstract class LdapConnFactory {
         if (engine == null) return;
 
         auditor = engine.getAuditor();
+        socketListener = engine.getClientSocketListener();
     }
 
     /**

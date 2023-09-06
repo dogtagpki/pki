@@ -219,8 +219,8 @@ public class LdapAnonConnFactory extends LdapConnFactory {
 
                 PKISocketFactory socketFactory = new PKISocketFactory();
                 socketFactory.setAuditor(auditor);
-                if (engine != null) {
-                    socketFactory.addSocketListener(engine.getClientSocketListener());
+                if (socketListener != null) {
+                    socketFactory.addSocketListener(socketListener);
                 }
                 socketFactory.setSecure(mConnInfo.getSecure());
                 socketFactory.init(config);
@@ -349,8 +349,8 @@ public class LdapAnonConnFactory extends LdapConnFactory {
             try {
                 PKISocketFactory socketFactory = new PKISocketFactory();
                 socketFactory.setAuditor(auditor);
-                if (engine != null) {
-                    socketFactory.addSocketListener(engine.getClientSocketListener());
+                if (socketListener != null) {
+                    socketFactory.addSocketListener(socketListener);
                 }
                 socketFactory.setSecure(mConnInfo.getSecure());
                 socketFactory.init(config);
