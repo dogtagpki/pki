@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.request;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -424,13 +425,14 @@ public class RequestQueue {
      * @return The requestid corresponding to this source id. null is
      *  returned if the source id does not exist.
      */
-    public RequestId findRequestBySourceId(String id) {
-        RequestList irl = findRequestsBySourceId(id);
+    public RequestId findRequestBySourceId(String id) throws EBaseException {
+        Collection<RequestRecord> records = findRequestsBySourceId(id);
 
-        if (irl == null)
+        if (records.isEmpty())
             return null;
 
-        return irl.nextRequestId();
+        RequestRecord record = records.iterator().next();
+        return record.getRequestId();
     }
 
     /**
@@ -441,33 +443,9 @@ public class RequestQueue {
      * @return A list of requests corresponding to this source id. null is
      *  returned if the source id does not exist.
      */
-    public RequestList findRequestsBySourceId(String id) {
-        DBSearchResults results = null;
-        DBSSession dbs = null;
-
-        // Need only the requestid in the result of the search
-        // TODO: generic search returning RequestId
+    public Collection<RequestRecord> findRequestsBySourceId(String id) throws EBaseException {
         String filter = "(" + RequestRecord.ATTR_SOURCE_ID + "=" + id + ")";
-
-        try {
-            dbs = dbSubsystem.createSession();
-            results = dbs.search(mBaseDN, filter);
-        } catch (EBaseException e) {
-            logger.error("Error in Ldap Request searching code: " + e.getMessage(), e);
-        } finally {
-            // Close session - ignoring errors (UTIL)
-            if (dbs != null)
-                try {
-                    dbs.close();
-                } catch (EBaseException e) {
-                }
-        }
-
-        if (results == null || !results.hasMoreElements())
-            return null;
-
-        return new SearchEnumeration(results);
-
+        return requestRepository.listRequestsByFilter(filter);
     }
 
     /**

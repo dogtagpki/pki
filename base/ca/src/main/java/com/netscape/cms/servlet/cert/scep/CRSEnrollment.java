@@ -27,6 +27,7 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.MGF1ParameterSpec;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -118,7 +119,6 @@ import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.common.Profile;
@@ -134,7 +134,7 @@ import com.netscape.cmscore.request.CertRequestRepository;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestNotifier;
 import com.netscape.cmscore.request.RequestQueue;
-import com.netscape.cmscore.request.RequestRepository;
+import com.netscape.cmscore.request.RequestRecord;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.security.PWCBsdr;
 import com.netscape.cmscore.util.Debug;
@@ -1121,25 +1121,14 @@ public class CRSEnrollment extends HttpServlet {
         /* Check if certificate request has been completed */
 
         CAEngine engine = CAEngine.getInstance();
-        RequestRepository requestRepository = engine.getRequestRepository();
         RequestQueue rq = engine.getRequestQueue();
         Request foundRequest = null;
 
-        Enumeration<RequestId> rids = rq.findRequestsBySourceId(txid);
-        if (rids == null) {
-            return null;
-        }
+        Collection<RequestRecord> records = rq.findRequestsBySourceId(txid);
 
-        while (rids.hasMoreElements()) {
-            RequestId rid = rids.nextElement();
-            if (rid == null) {
-                continue;
-            }
+        for (RequestRecord record : records) {
+            Request request = record.toRequest();
 
-            Request request = requestRepository.readRequest(rid);
-            if (request == null) {
-                continue;
-            }
             if (!ignoreRejected ||
                     request.getRequestStatus().equals(RequestStatus.PENDING) ||
                     request.getRequestStatus().equals(RequestStatus.COMPLETE)) {
