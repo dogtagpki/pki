@@ -471,42 +471,6 @@ public class RequestQueue {
     }
 
     /**
-     * Get complete list of RequestId values found in this queue.
-     *
-     * This method can form the basis for creating other types of search/list
-     * operations (although there are probably more efficient ways of doing this.
-     * RequestQueue implements default versions of some of the searching by using
-     * this method as a basis.
-     *
-     * TODO: return IRequestList -or- just use listRequests as the basic engine.
-     *
-     * @return an Enumeration that generates RequestId objects.
-     */
-    protected Enumeration<RequestId> getRawList() {
-        DBSearchResults results = null;
-        DBSSession dbs = null;
-
-        try {
-            dbs = dbSubsystem.createSession();
-            results = dbs.search(mBaseDN, "(requestId=*)");
-        } catch (EBaseException e) {
-            logger.warn("RequestQueue: " + e.getMessage(), e);
-        } finally {
-            // Close session - ignoring errors (UTIL)
-            if (dbs != null)
-                try {
-                    dbs.close();
-                } catch (EBaseException e) {
-                }
-        }
-
-        if (results == null)
-            return null;
-
-        return new SearchEnumeration(results);
-    }
-
-    /**
      * Protected access for setting the modification time of a request.
      *
      * @param request The request to be modified.
@@ -524,23 +488,6 @@ public class RequestQueue {
      */
     protected void setCreationTime(Request request, Date date) {
         request.mCreationTime = date;
-    }
-
-    /**
-     * Returns an enumerator that lists all RequestIds in the
-     * queue. The caller should use the RequestIds to locate
-     * each request by calling findRequest().
-     *
-     * NOTE: This interface will not be useful for large databases.
-     * This needs to be replaced by a VLV (paged) search object.
-     *
-     * Should be overridden by the specialized class if a more
-     * efficient method is available for implementing this operation.
-     *
-     * @return request list
-     */
-    public RequestList listRequests() {
-        return new RequestList(getRawList());
     }
 
     /**
