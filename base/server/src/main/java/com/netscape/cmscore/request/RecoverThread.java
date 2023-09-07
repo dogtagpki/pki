@@ -19,6 +19,8 @@ package com.netscape.cmscore.request;
 
 public class RecoverThread extends Thread {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RecoverThread.class);
+
     RequestQueue queue;
 
     public RecoverThread(RequestQueue queue) {
@@ -28,6 +30,10 @@ public class RecoverThread extends Thread {
 
     @Override
     public void run() {
-        queue.recoverWillBlock();
+        try {
+            queue.recoverWillBlock();
+        } catch (Exception e) {
+            logger.error("RecoverThread: " + e.getMessage(), e);
+        }
     }
 }

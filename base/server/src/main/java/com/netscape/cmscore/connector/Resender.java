@@ -18,6 +18,7 @@
 package com.netscape.cmscore.connector;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Vector;
 import java.util.concurrent.Executors;
@@ -31,8 +32,8 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.request.Request;
-import com.netscape.cmscore.request.RequestList;
 import com.netscape.cmscore.request.RequestQueue;
+import com.netscape.cmscore.request.RequestRecord;
 import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
 
@@ -103,13 +104,12 @@ public class Resender implements Runnable {
     }
 
     // must be done after a subsystem 'start' so queue is initialized.
-    private void initRequests() {
+    private void initRequests() throws EBaseException {
         // get all requests in mAuthority that are still pending.
-        RequestList list =
-                mQueue.listRequestsByStatus(RequestStatus.SVC_PENDING);
+        Collection<RequestRecord> records = mQueue.listRequestsByStatus(RequestStatus.SVC_PENDING);
 
-        while (list != null && list.hasMoreElements()) {
-            RequestId rid = list.nextRequestId();
+        for (RequestRecord record : records) {
+            RequestId rid = record.getRequestId();
             logger.debug("added request Id " + rid + " in init to resend queue.");
             // note these are added as strings
             mRequestIds.addElement(rid.toString());
@@ -145,6 +145,14 @@ public class Resender implements Runnable {
 
     @Override
     public void run() {
+        try {
+            runImpl();
+        } catch (Exception e) {
+            logger.error("Resender: " + e.getMessage(), e);
+        }
+    }
+
+    public void runImpl() throws Exception {
         if (! engine.isInRunningState())
             return;
 

@@ -18,6 +18,7 @@
 package com.netscape.cms.jobs;
 
 import java.text.DateFormat;
+import java.util.Collection;
 import java.util.Date;
 
 import com.netscape.certsrv.authority.IAuthority;
@@ -29,8 +30,8 @@ import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.jobs.JobConfig;
 import com.netscape.cmscore.jobs.JobsScheduler;
 import com.netscape.cmscore.notification.EmailFormProcessor;
-import com.netscape.cmscore.request.RequestList;
 import com.netscape.cmscore.request.RequestQueue;
+import com.netscape.cmscore.request.RequestRecord;
 
 /**
  * A job for the Jobs Scheduler. This job checks in the internal ldap
@@ -158,6 +159,14 @@ public class RequestInQueueJob extends Job
      */
     @Override
     public void run() {
+        try {
+            runImpl();
+        } catch (Exception e) {
+            logger.error("RequestInQueue: " + e.getMessage(), e);
+        }
+    }
+
+    public void runImpl() throws Exception {
 
         logger.info("RequestInQueueJob: Running job " + mId);
 
@@ -170,11 +179,10 @@ public class RequestInQueueJob extends Job
 
         logger.info("RequestInQueueJob: Searching for pending requests");
         int count = 0;
-        RequestList list =
-                mReqQ.listRequestsByStatus(RequestStatus.PENDING);
+        Collection<RequestRecord> records = mReqQ.listRequestsByStatus(RequestStatus.PENDING);
 
-        while (list != null && list.hasMoreElements()) {
-            RequestId requestID = list.nextRequestId();
+        for (RequestRecord record : records) {
+            RequestId requestID = record.getRequestId();
             logger.info("RequestInQueueJob: - " + requestID.toHexString());
 
             /*  This is way too slow

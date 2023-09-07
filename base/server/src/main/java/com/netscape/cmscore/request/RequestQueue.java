@@ -32,8 +32,6 @@ import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.request.RequestScheduler;
-import com.netscape.cmscore.dbs.DBSSession;
-import com.netscape.cmscore.dbs.DBSearchResults;
 import com.netscape.cmscore.dbs.DBSubsystem;
 
 /**
@@ -483,37 +481,11 @@ public class RequestQueue {
      * @param s request status
      * @return request list
      */
-    public RequestList listRequestsByStatus(RequestStatus s) {
-        DBSearchResults results = null;
-        DBSSession dbs = null;
-
-        try {
-            String f1;
-            String f2;
-
-            f1 = "(" + RequestRecord.ATTR_REQUEST_STATE + "=" + s + ")";
-            f2 = "(" + RequestRecord.ATTR_REQUEST_ID + "=*)";
-
-            f1 = "(&" + f1 + f2 + ")";
-
-            dbs = dbSubsystem.createSession();
-            results = dbs.search(mBaseDN, f1);
-        } catch (EBaseException e) {
-            //System.err.println("Error: "+e);
-            //e.printStackTrace();
-        } finally {
-            // Close session - ignoring errors (UTIL)
-            if (dbs != null)
-                try {
-                    dbs.close();
-                } catch (EBaseException e) {
-                }
-        }
-
-        if (results == null)
-            return null;
-
-        return new SearchEnumeration(results);
+    public Collection<RequestRecord> listRequestsByStatus(RequestStatus s) throws EBaseException {
+        String f1 = "(" + RequestRecord.ATTR_REQUEST_STATE + "=" + s + ")";
+        String f2 = "(" + RequestRecord.ATTR_REQUEST_ID + "=*)";
+        String filter = "(&" + f1 + f2 + ")";
+        return requestRepository.listRequestsByFilter(filter);
     }
 
     /**
@@ -541,20 +513,14 @@ public class RequestQueue {
      * Recovers from a crash. Resends all requests that are in
      * the APPROVED state.
      */
-    public void recoverWillBlock() {
+    public void recoverWillBlock() throws Exception {
 
-        RequestList list = listRequestsByStatus(RequestStatus.APPROVED);
+        Collection<RequestRecord> records = listRequestsByStatus(RequestStatus.APPROVED);
 
-        if (list == null) {
-            return;
-        }
-
-        while (list.hasMoreElements()) {
-            RequestId requestID = list.nextRequestId();
+        for (RequestRecord record : records) {
+            Request request = record.toRequest();
 
             try {
-                Request request = requestRepository.readRequest(requestID);
-
                 // Recheck the status - should be the same!!
                 if (request.getRequestStatus() == RequestStatus.APPROVED) {
                     stateEngine(request);
