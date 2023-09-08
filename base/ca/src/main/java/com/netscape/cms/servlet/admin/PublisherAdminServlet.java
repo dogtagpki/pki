@@ -66,6 +66,7 @@ import com.netscape.cmscore.ldap.PublisherProcessor;
 import com.netscape.cmscore.ldap.PublishingConfig;
 import com.netscape.cmscore.ldap.PublishingMapperConfig;
 import com.netscape.cmscore.ldap.PublishingPublisherConfig;
+import com.netscape.cmscore.ldap.PublishingPublisherPluginsConfig;
 import com.netscape.cmscore.ldap.PublishingRuleConfig;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
@@ -2216,7 +2217,7 @@ public class PublisherAdminServlet extends AdminServlet {
         }
 
         PublishingPublisherConfig destStore = publishingConfig.getPublisherConfig();
-        ConfigStore instancesConfig = destStore.getSubStore("impl", ConfigStore.class);
+        PublishingPublisherPluginsConfig pluginsConfig = destStore.getPublisherPluginsConfig();
 
         // Does the class exist?
         Class<?> newImpl = null;
@@ -2243,7 +2244,7 @@ public class PublisherAdminServlet extends AdminServlet {
             return;
         }
 
-        ConfigStore substore = instancesConfig.makeSubStore(id);
+        ConfigStore substore = pluginsConfig.createPublisherPluginConfig(id);
 
         substore.put(Constants.PR_PUBLISHER_CLASS, classPath);
 
@@ -2498,9 +2499,9 @@ public class PublisherAdminServlet extends AdminServlet {
         mProcessor.getPublisherPlugins().remove(id);
 
         PublishingPublisherConfig destStore = publishingConfig.getPublisherConfig();
-        ConfigStore instancesConfig = destStore.getSubStore("impl", ConfigStore.class);
+        PublishingPublisherPluginsConfig pluginsConfig = destStore.getPublisherPluginsConfig();
 
-        instancesConfig.removeSubStore(id);
+        pluginsConfig.removePublisherPluginConfig(id);
         // commiting
         try {
             mConfig.commit(true);

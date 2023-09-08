@@ -24,4 +24,11 @@ public class PublishingPublisherConfig extends ConfigStore {
     public PublishingPublisherConfig(String name, SimpleProperties source) {
         super(name, source);
     }
+
+    /**
+     * Returns ca.publish.publisher.impl.* parameters.
+     */
+    public PublishingPublisherPluginsConfig getPublisherPluginsConfig() {
+        return getSubStore("impl", PublishingPublisherPluginsConfig.class);
+    }
 }

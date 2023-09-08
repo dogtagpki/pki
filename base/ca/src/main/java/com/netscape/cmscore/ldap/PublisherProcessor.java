@@ -102,20 +102,17 @@ public abstract class PublisherProcessor {
         mConfig = config;
 
         PublishingPublisherConfig publisherConfig = config.getPublisherConfig();
+        PublishingPublisherPluginsConfig pluginsConfig = publisherConfig.getPublisherPluginsConfig();
 
-        ConfigStore c = publisherConfig.getSubStore(PROP_IMPL, ConfigStore.class);
-        Enumeration<String> mImpls = c.getSubStoreNames().elements();
-
-        while (mImpls.hasMoreElements()) {
-            String id = mImpls.nextElement();
+        for (String id : pluginsConfig.getPluginIDs()) {
             logger.info("PublisherProcessor: Loading publisher plugin " + id);
 
-            String pluginPath = c.getString(id + "." + PROP_CLASS);
+            String pluginPath = pluginsConfig.getString(id + "." + PROP_CLASS);
             PublisherPlugin plugin = new PublisherPlugin(id, pluginPath);
             mPublisherPlugins.put(id, plugin);
         }
 
-        c = publisherConfig.getSubStore(PROP_INSTANCE, ConfigStore.class);
+        ConfigStore c = publisherConfig.getSubStore(PROP_INSTANCE, ConfigStore.class);
         Enumeration<String> instances = c.getSubStoreNames().elements();
 
         while (instances.hasMoreElements()) {
