@@ -22,6 +22,8 @@ import java.util.Enumeration;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -46,14 +48,17 @@ import com.netscape.ocsp.OCSPAuthority;
  * Authority. This servlet is responsible to serve OCSP
  * administrative operations such as configuration parameter
  * updates.
- *
- * @version $Revision$, $Date$
  */
+@WebServlet(
+        name = "ocspocsp",
+        urlPatterns = "/ocsp",
+        initParams = {
+                @WebInitParam(name="ID",       value="ocspocsp"),
+                @WebInitParam(name="AuthzMgr", value="BasicAclAuthz")
+        }
+)
 public class OCSPAdminServlet extends AdminServlet {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -3349635369730415767L;
 
     protected static final String PROP_ENABLED = "enabled";
