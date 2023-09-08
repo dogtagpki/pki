@@ -41,7 +41,6 @@ import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.LDAPConfigStorage;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
-import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.registry.PluginInfo;
 import com.netscape.cmscore.registry.PluginRegistry;
 import com.netscape.cmsutil.ldap.LDAPUtil;
@@ -99,12 +98,9 @@ public class LDAPProfileSubsystem
         CAEngine caEngine = (CAEngine) engine;
         CAEngineConfig cs = caEngine.getConfig();
 
-        PKISocketConfig socketConfig = cs.getSocketConfig();
         LDAPConfig dbCfg = cs.getInternalDBConfig();
 
-        dbFactory = new LdapBoundConnFactory("LDAPProfileSubsystem");
-        dbFactory.setCMSEngine(engine);
-        dbFactory.init(socketConfig, dbCfg, engine.getPasswordStore());
+        dbFactory = engine.createLdapBoundConnFactory("LDAPProfileSubsystem", dbCfg);
 
         mConfig = config;
 

@@ -33,12 +33,10 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.ldapconn.LdapAnonConnFactory;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
-import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmscore.usrgrp.User;
@@ -94,16 +92,10 @@ public class PasswdUserDBAuthentication extends AuthManager {
         mImplName = implName;
         mConfig = config;
 
-        EngineConfig cs = engine.getConfig();
-
-        PKISocketConfig socketConfig = cs.getSocketConfig();
-
         DBSubsystem dbSubsystem = engine.getDBSubsystem();
         LdapConnInfo ldapinfo = dbSubsystem.getLdapConnInfo();
 
-        mAnonConnFactory = new LdapAnonConnFactory("PasswdUserDBAuthentication", 0, 20, ldapinfo);
-        mAnonConnFactory.setCMSEngine(engine);
-        mAnonConnFactory.init(socketConfig);
+        mAnonConnFactory = engine.createLdapAnonConnFactory("PasswdUserDBAuthentication", 0, 20, ldapinfo);
     }
 
     @Override

@@ -99,7 +99,6 @@ import com.netscape.cmscore.ldap.LdapRequestListener;
 import com.netscape.cmscore.ldap.PublishingConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
-import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.listeners.ListenerPlugin;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.request.CertRequestRepository;
@@ -206,14 +205,9 @@ public class CAEngine extends CMSEngine {
     @Override
     public void initDatabase() throws Exception {
 
-        connectionFactory = new LdapBoundConnFactory("CertificateAuthority");
-        connectionFactory.setCMSEngine(this);
-
-        CAEngineConfig config = getConfig();
-        PKISocketConfig socketConfig = config.getSocketConfig();
         LDAPConfig ldapConfig = config.getInternalDBConfig();
 
-        connectionFactory.init(socketConfig, ldapConfig, getPasswordStore());
+        connectionFactory = createLdapBoundConnFactory("CertificateAuthority", ldapConfig);
     }
 
     public CertRequestRepository getCertRequestRepository() {

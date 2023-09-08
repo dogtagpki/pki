@@ -20,11 +20,9 @@ package com.netscape.cms.listeners;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.request.RequestListener;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
-import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.request.Request;
 
 import netscape.ldap.LDAPAttribute;
@@ -93,18 +91,13 @@ public class PinRemovalListener extends RequestListener {
     public void init(String name, String ImplName, ConfigStore config)
             throws EBaseException {
 
-        EngineConfig cs = engine.getConfig();
-
         mName = name;
         mImplName = ImplName;
         mConfig = config;
 
-        PKISocketConfig socketConfig = cs.getSocketConfig();
         mLdapConfig = mConfig.getSubStore(PROP_LDAP, LDAPConfig.class);
 
-        mConnFactory = new LdapBoundConnFactory("PinRemovalListener");
-        mConnFactory.setCMSEngine(engine);
-        mConnFactory.init(socketConfig, mLdapConfig, engine.getPasswordStore());
+        mConnFactory = engine.createLdapBoundConnFactory("PinRemovalListener", mLdapConfig);
 
         mRemovePinLdapConnection = mConnFactory.getConn();
 

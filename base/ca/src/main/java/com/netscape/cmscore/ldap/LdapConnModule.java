@@ -18,7 +18,6 @@
 package com.netscape.cmscore.ldap;
 
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.CAEngineConfig;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ldap.ELdapException;
@@ -30,7 +29,6 @@ import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
-import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmsutil.password.PasswordStore;
 
 import netscape.ldap.LDAPConnection;
@@ -78,9 +76,7 @@ public class LdapConnModule {
         logger.debug("LdapConnModule: init begins");
 
         CAEngine engine = CAEngine.getInstance();
-        CAEngineConfig cs = engine.getConfig();
 
-        PKISocketConfig socketConfig = cs.getSocketConfig();
         PasswordStore passwordStore = engine.getPasswordStore();
 
         mConfig = config;
@@ -110,9 +106,7 @@ public class LdapConnModule {
         // must get authInfo from the config, don't default to internaldb!!!
 
         logger.debug("Creating LdapBoundConnFactory for LdapConnModule.");
-        mLdapConnFactory = new LdapBoundConnFactory("LDAPConnModule", minConns, maxConns, connInfo, authInfo);
-        mLdapConnFactory.setCMSEngine(engine);
-        mLdapConnFactory.init(socketConfig, passwordStore);
+        mLdapConnFactory = engine.createLdapBoundConnFactory("LDAPConnModule", minConns, maxConns, connInfo, authInfo);
 
         mInited = true;
 

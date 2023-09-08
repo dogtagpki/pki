@@ -26,7 +26,6 @@ import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.CAEngineConfig;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.Subsystem;
@@ -36,7 +35,6 @@ import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
-import com.netscape.cmscore.ldapconn.PKISocketConfig;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
@@ -104,7 +102,6 @@ public class CrossCertPairSubsystem extends Subsystem {
         logger.debug("CrossCertPairSubsystem: initializing");
 
         CAEngine caEngine = (CAEngine) engine;
-        CAEngineConfig cs = caEngine.getConfig();
 
         try {
             mConfig = config;
@@ -122,11 +119,7 @@ public class CrossCertPairSubsystem extends Subsystem {
 
             mBaseDN = ldapConfig.getBaseDN();
 
-            mLdapConnFactory = new LdapBoundConnFactory("CrossCertPairSubsystem");
-            mLdapConnFactory.setCMSEngine(engine);
-
-            PKISocketConfig socketConfig = cs.getSocketConfig();
-            mLdapConnFactory.init(socketConfig, ldapConfig, engine.getPasswordStore());
+            mLdapConnFactory = engine.createLdapBoundConnFactory("CrossCertPairSubsystem", ldapConfig);
 
         } catch (EBaseException e) {
             logger.error("CrossCertPairSubsystem: Unable to initialize subsystem: " + e.getMessage(), e);

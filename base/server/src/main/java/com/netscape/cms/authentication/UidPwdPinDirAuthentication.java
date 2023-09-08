@@ -40,11 +40,9 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
-import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.request.Request;
 
 import netscape.ldap.LDAPAttribute;
@@ -157,8 +155,6 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication {
             throws EBaseException {
         super.init(authenticationConfig, name, implName, config);
 
-        EngineConfig cs = engine.getConfig();
-
         mRemovePin =
                 config.getBoolean(PROP_REMOVE_PIN, DEF_REMOVE_PIN);
         mPinAttr =
@@ -168,12 +164,8 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication {
         }
 
         if (mRemovePin) {
-            PKISocketConfig socketConfig = cs.getSocketConfig();
-
             removePinLdapConfigStore = config.getLDAPConfig();
-            removePinLdapFactory = new LdapBoundConnFactory("UidPwdPinDirAuthentication");
-            removePinLdapFactory.setCMSEngine(engine);
-            removePinLdapFactory.init(socketConfig, removePinLdapConfigStore, engine.getPasswordStore());
+            removePinLdapFactory = engine.createLdapBoundConnFactory("UidPwdPinDirAuthentication", removePinLdapConfigStore);
 
             removePinLdapConnection = removePinLdapFactory.getConn();
         }

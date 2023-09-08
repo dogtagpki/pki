@@ -29,11 +29,9 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
-import com.netscape.cmscore.ldapconn.PKISocketConfig;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
@@ -112,8 +110,6 @@ public class DirAclAuthz extends AAclAuthz
 
         super.init(name, implName, config);
 
-        EngineConfig cs = engine.getConfig();
-
         searchBase = config.getString(PROP_SEARCHBASE, null);
 
         LDAPConfig ldapConfig = config.getLDAPConfig();
@@ -137,11 +133,7 @@ public class DirAclAuthz extends AAclAuthz
             }
         }
 
-        PKISocketConfig socketConfig = cs.getSocketConfig();
-
-        mLdapConnFactory = new LdapBoundConnFactory("DirAclAuthz");
-        mLdapConnFactory.setCMSEngine(engine);
-        mLdapConnFactory.init(socketConfig, ldapConfig, engine.getPasswordStore());
+        mLdapConnFactory = engine.createLdapBoundConnFactory("DirAclAuthz", ldapConfig);
 
         logger.info("DirAclAuthz: initialization done");
     }

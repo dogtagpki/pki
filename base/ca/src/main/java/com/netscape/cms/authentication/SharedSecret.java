@@ -50,7 +50,6 @@ import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
-import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 import netscape.ldap.LDAPAttribute;
@@ -240,9 +239,6 @@ public class SharedSecret extends DirBasedAuthentication
         String method = "SharedSecret.initLdapConn";
         String msg = "";
 
-        CAEngine caEngine = (CAEngine) engine;
-        CAEngineConfig cs = caEngine.getConfig();
-
         shrTokLdapConfigStore = config.getLDAPConfig();
         if (shrTokLdapConfigStore == null) {
             msg = method + "config substore ldap null";
@@ -250,13 +246,7 @@ public class SharedSecret extends DirBasedAuthentication
             throw new EBaseException(msg);
         }
 
-        PKISocketConfig socketConfig = cs.getSocketConfig();
-
-        LdapBoundConnFactory connFactory = new LdapBoundConnFactory("SharedSecret");
-        connFactory.setCMSEngine(engine);
-        connFactory.init(socketConfig, shrTokLdapConfigStore, engine.getPasswordStore());
-
-        shrTokLdapFactory = connFactory;
+        shrTokLdapFactory = engine.createLdapBoundConnFactory("SharedSecret", shrTokLdapConfigStore);
     }
 
     /**
