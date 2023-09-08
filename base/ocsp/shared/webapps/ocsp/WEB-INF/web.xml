@@ -55,7 +55,7 @@
 
    <servlet>
       <servlet-name>  ocspauths  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.admin.AuthAdminServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.admin.OCSPAuthAdminServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
                          <param-value> ocspauths   </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
