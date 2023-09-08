@@ -46,7 +46,7 @@
                                                                                 
    <servlet>
       <servlet-name>  ocsplog  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.admin.LogAdminServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.admin.OCSPLogAdminServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
                          <param-value> ocsplog     </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
