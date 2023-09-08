@@ -18,6 +18,9 @@ package com.netscape.cms.servlet.admin;
 // --- END COPYRIGHT BLOCK ---
 
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
 import org.dogtagpki.server.ocsp.OCSPEngine;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -33,7 +36,17 @@ import com.netscape.ocsp.OCSPAuthority;
  * level administrative operations such as configuration
  * parameter updates.
  */
+@WebServlet(
+        name = "ocspserver",
+        urlPatterns = "/server",
+        initParams = {
+                @WebInitParam(name="ID",       value="ocspserver"),
+                @WebInitParam(name="AuthzMgr", value="BasicAclAuthz")
+        }
+)
 public class OCSPCMSAdminServlet extends CMSAdminServlet {
+
+    private static final long serialVersionUID = 1L;
 
     @Override
     public boolean isSubsystemInstalled(String subsystem) {
