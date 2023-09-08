@@ -25,6 +25,8 @@ import java.util.Locale;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -48,14 +50,23 @@ import com.netscape.ocsp.OCSPAuthority;
 
 /**
  * Check the status of a specific certificate
- *
- * @version $Revision$ $Date$
  */
+@WebServlet(
+        name = "ocspCheckCert",
+        urlPatterns = "/agent/ocsp/checkCert",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="true"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="interface",     value="agent"),
+                @WebInitParam(name="authority",     value="ocsp"),
+                @WebInitParam(name="ID",            value="ocspCheckCert"),
+                @WebInitParam(name="AuthMgr",       value="certUserDBAuthMgr"),
+                @WebInitParam(name="resourceID",    value="certServer.ocsp.certificate"),
+                @WebInitParam(name="templatePath",  value="/agent/ocsp/checkCert.template")
+        }
+)
 public class CheckCertServlet extends CMSServlet {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 7782198059640825050L;
 
     public static final String ATTR_STATUS = "status";
