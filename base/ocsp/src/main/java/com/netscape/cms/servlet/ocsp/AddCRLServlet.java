@@ -28,6 +28,8 @@ import java.util.Set;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -66,9 +68,21 @@ import com.netscape.ocsp.OCSPAuthority;
 
 /**
  * Update the OCSP responder with a new CRL
- *
- * @version $Revision$ $Date$
  */
+@WebServlet(
+        name = "ocspAddCRL",
+        urlPatterns = "/agent/ocsp/addCRL",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="true"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="interface",     value="agent"),
+                @WebInitParam(name="authority",     value="ocsp"),
+                @WebInitParam(name="ID",            value="ocspAddCRL"),
+                @WebInitParam(name="AuthMgr",       value="certUserDBAuthMgr"),
+                @WebInitParam(name="resourceID",    value="certServer.ocsp.crl"),
+                @WebInitParam(name="templatePath",  value="/agent/ocsp/addCRL.template")
+        }
+)
 public class AddCRLServlet extends CMSServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AddCRLServlet.class);
