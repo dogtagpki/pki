@@ -185,7 +185,7 @@
    </servlet>
    <servlet>
       <servlet-name>  ocspports  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.PortsServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.base.OCSPPortsServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
                          <param-value> ocspports   </param-value> </init-param>
              <init-param><param-name>  GetClientCert  </param-name>
