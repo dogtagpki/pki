@@ -75,27 +75,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  ocspCheckCert  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.ocsp.CheckCertServlet  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> true        </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  interface   </param-name>
-                         <param-value> agent  </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ocsp        </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> ocspCheckCert </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> certUserDBAuthMgr </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.ocsp.certificate </param-value> </init-param>
-             <init-param><param-name>  templatePath  </param-name>
-                         <param-value> /agent/ocsp/checkCert.template </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  ocspAddCA  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.ocsp.AddCAServlet  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -322,11 +301,6 @@
    <servlet-mapping>
       <servlet-name>  ocspReadAddCRLPage  </servlet-name>
       <url-pattern>   /agent/ocsp/addCRL.html  </url-pattern>
-   </servlet-mapping>
-                                                                                
-   <servlet-mapping>
-      <servlet-name>  ocspCheckCert  </servlet-name>
-      <url-pattern>   /agent/ocsp/checkCert  </url-pattern>
    </servlet-mapping>
                                                                                 
    <servlet-mapping>
