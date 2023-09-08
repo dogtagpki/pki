@@ -9,7 +9,7 @@
 
    <servlet>
       <servlet-name>  ocspacl  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.admin.ACLAdminServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.admin.OCSPACLAdminServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
                          <param-value> ocspacl     </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
