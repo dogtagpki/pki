@@ -17,6 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.admin;
 
+// @WebServlet(
+//         name = "ocspjobsScheduler",
+//         urlPatterns = "/jobsScheduler",
+//         initParams = {
+//                 @WebInitParam(name="ID",       value="ocspjobsScheduler"),
+//                 @WebInitParam(name="AuthzMgr", value="BasicAclAuthz")
+//         }
+// )
 public class OCSPJobsAdminServlet extends JobsAdminServlet {
     private static final long serialVersionUID = 1L;
 }
