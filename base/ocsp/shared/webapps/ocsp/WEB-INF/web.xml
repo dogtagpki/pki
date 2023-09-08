@@ -8,15 +8,6 @@
     <display-name>Online Certificate Status Protocol Manager</display-name>
 
    <servlet>
-      <servlet-name>  ocspserver  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.admin.OCSPCMSAdminServlet  </servlet-class>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> ocspserver  </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-   </servlet>
-                                                                                
-   <servlet>
       <servlet-name>  ocsplog  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.admin.OCSPLogAdminServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
@@ -417,11 +408,6 @@
              <init-param><param-name>  interface   </param-name>
                          <param-value> admin          </param-value> </init-param>
    </servlet>
-                                                                                
-   <servlet-mapping>
-      <servlet-name>  ocspserver  </servlet-name>
-      <url-pattern>   /server  </url-pattern>
-   </servlet-mapping>
                                                                                 
    <servlet-mapping>
       <servlet-name>  ocsplog  </servlet-name>
