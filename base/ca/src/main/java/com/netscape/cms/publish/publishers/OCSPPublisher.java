@@ -263,11 +263,14 @@ public class OCSPPublisher
                 }
             }
 
-            StringBuffer query = new StringBuffer();
+            String pemCRL = CertUtil.CRL_HEADER + "\n" +
+                    Utils.base64encode(crl.getEncoded(), true) +
+                    CertUtil.CRL_FOOTER;
+            logger.info("OCSPPublisher: CRL:\n" + pemCRL);
+
+            StringBuilder query = new StringBuilder();
             query.append("crl=");
-            query.append(URLEncoder.encode(CertUtil.CRL_HEADER + "\n", "UTF-8"));
-            query.append(URLEncoder.encode(Utils.base64encode(crl.getEncoded(), true), "UTF-8"));
-            query.append(URLEncoder.encode("\n" + CertUtil.CRL_FOOTER, "UTF-8"));
+            query.append(URLEncoder.encode(pemCRL, "UTF-8"));
             query.append("&noui=true");
 
             Socket socket = null;
