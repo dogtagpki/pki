@@ -25,6 +25,8 @@ import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.netscape.certsrv.dbs.certdb.CertId;
+
 /**
  * @author Endi S. Dewata
  */
@@ -87,19 +89,19 @@ public class ProxyRealm implements Realm {
                 name,
                 name);
 
-        logger.error(message);
+        logger.error("ProxyRealm: " + message);
         throw new ServiceUnavailableException(message);
     }
     @Override
     public Principal authenticate(String username) {
         validateRealm();
-        logger.info("Authenticating user " + username);
+        logger.info("ProxyRealm: Authenticating user " + username);
         try {
             Principal principal = realm.authenticate(username);
-            logger.info("Principal: " + principal);
+            logger.info("ProxyRealm: Principal: " + principal);
             return principal;
         } catch (Exception e) {
-            logger.error("Unable to authenticate " + username + ": " + e.getMessage(), e);
+            logger.error("ProxyRealm: Unable to authenticate " + username + ": " + e.getMessage(), e);
             throw e;
         }
     }
@@ -107,13 +109,13 @@ public class ProxyRealm implements Realm {
     @Override
     public Principal authenticate(String username, String password) {
         validateRealm();
-        logger.info("Authenticating user " + username + " with password");
+        logger.info("ProxyRealm: Authenticating user " + username + " with password");
         try {
             Principal principal = realm.authenticate(username, password);
-            logger.info("Principal: " + principal);
+            logger.info("ProxyRealm: Principal: " + principal);
             return principal;
         } catch (Exception e) {
-            logger.error("Unable to authenticate " + username + " with password: " + e.getMessage(), e);
+            logger.error("ProxyRealm: Unable to authenticate " + username + " with password: " + e.getMessage(), e);
             throw e;
         }
     }
@@ -121,9 +123,11 @@ public class ProxyRealm implements Realm {
     @Override
     public Principal authenticate(X509Certificate[] certs) {
         validateRealm();
-        logger.info("Authenticating certificate chain:");
+
+        logger.info("ProxyRealm: Authenticating certificate chain:");
         for (X509Certificate cert : certs) {
-            logger.info("- " + cert.getSubjectDN());
+            logger.info("ProxyRealm: - Serial Number: " + new CertId(cert.getSerialNumber()).toHexString());
+            logger.info("ProxyRealm:   Subject DN: " + cert.getSubjectX500Principal());
         }
 
         X500Principal subjectDN;
@@ -137,19 +141,19 @@ public class ProxyRealm implements Realm {
 
             X509Certificate userCert = sortedCerts.get(size - 1);
             subjectDN = userCert.getSubjectX500Principal();
-            logger.info("Authenticating cert " + subjectDN);
+            logger.info("ProxyRealm: Authenticating cert " + subjectDN);
 
         } catch (Exception e) {
-            logger.error("Unable to sort certificates: " + e.getMessage(), e);
+            logger.error("ProxyRealm: Unable to sort certificates: " + e.getMessage(), e);
             throw new RuntimeException("Unable to sort certificates: " + e.getMessage(), e);
         }
 
         try {
             Principal principal = realm.authenticate(certs);
-            logger.info("Principal: " + principal);
+            logger.info("ProxyRealm: Principal: " + principal);
             return principal;
         } catch (Exception e) {
-            logger.error("Unable to authenticate " + subjectDN + ": " + e.getMessage(), e);
+            logger.error("ProxyRealm: Unable to authenticate " + subjectDN + ": " + e.getMessage(), e);
             throw e;
         }
     }
@@ -166,13 +170,13 @@ public class ProxyRealm implements Realm {
             String md5a2
     ) {
         validateRealm();
-        logger.info("Authenticating user " + username + " for realm "+ realmName);
+        logger.info("ProxyRealm: Authenticating user " + username + " for realm "+ realmName);
         try {
             Principal principal = realm.authenticate(username, digest, nonce, nc, cnonce, qop, realmName, md5a2);
-            logger.info("Principal: " + principal);
+            logger.info("ProxyRealm: Principal: " + principal);
             return principal;
         } catch (Exception e) {
-            logger.error("Unable to authenticate " + username + " for realm " + realmName + ": " + e.getMessage(), e);
+            logger.error("ProxyRealm: Unable to authenticate " + username + " for realm " + realmName + ": " + e.getMessage(), e);
             throw e;
         }
 }
@@ -180,13 +184,13 @@ public class ProxyRealm implements Realm {
     @Override
     public Principal authenticate(GSSContext gssContext, boolean storeCreds) {
         validateRealm();
-        logger.info("Authenticating GSS context " + gssContext);
+        logger.info("ProxyRealm: Authenticating GSS context " + gssContext);
         try {
             Principal principal = realm.authenticate(gssContext, storeCreds);
-            logger.info("Principal: " + principal);
+            logger.info("ProxyRealm: Principal: " + principal);
             return principal;
         } catch (Exception e) {
-            logger.error("Unable to authenticate " + gssContext + ": " + e.getMessage(), e);
+            logger.error("ProxyRealm: Unable to authenticate " + gssContext + ": " + e.getMessage(), e);
             throw e;
         }
     }

@@ -16,6 +16,7 @@ import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.AuthEvent;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
@@ -110,10 +111,9 @@ public class PKIRealm extends RealmBase {
     public Principal authenticate(final X509Certificate[] certs) {
 
         logger.info("PKIRealm: Authenticating certificate chain:");
-
-        for (int i=0; i<certs.length; i++) {
-            X509Certificate cert = certs[i];
-            logger.info("PKIRealm: - " + cert.getSubjectDN());
+        for (X509Certificate cert : certs) {
+            logger.info("PKIRealm: - Serial Number: " + new CertId(cert.getSerialNumber()).toHexString());
+            logger.info("PKIRealm:   Subject DN: " + cert.getSubjectX500Principal());
         }
 
         // get the cert from the ssl client auth
