@@ -31,4 +31,11 @@ public class PublishingPublisherConfig extends ConfigStore {
     public PublishingPublisherPluginsConfig getPublisherPluginsConfig() {
         return getSubStore("impl", PublishingPublisherPluginsConfig.class);
     }
+
+    /**
+     * Returns ca.publish.publisher.instance.* parameters.
+     */
+    public PublishingPublisherInstancesConfig getPublisherInstancesConfig() {
+        return getSubStore("instance", PublishingPublisherInstancesConfig.class);
+    }
 }

@@ -66,6 +66,7 @@ import com.netscape.cmscore.ldap.PublisherProcessor;
 import com.netscape.cmscore.ldap.PublishingConfig;
 import com.netscape.cmscore.ldap.PublishingMapperConfig;
 import com.netscape.cmscore.ldap.PublishingPublisherConfig;
+import com.netscape.cmscore.ldap.PublishingPublisherInstancesConfig;
 import com.netscape.cmscore.ldap.PublishingPublisherPluginsConfig;
 import com.netscape.cmscore.ldap.PublishingRuleConfig;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
@@ -2320,8 +2321,8 @@ public class PublisherAdminServlet extends AdminServlet {
         Vector<String> configParams = mProcessor.getPublisherDefaultParams(implname);
 
         PublishingPublisherConfig destStore = publishingConfig.getPublisherConfig();
-        ConfigStore instancesConfig = destStore.getSubStore("instance", ConfigStore.class);
-        ConfigStore substore = instancesConfig.makeSubStore(id);
+        PublishingPublisherInstancesConfig instancesConfig = destStore.getPublisherInstancesConfig();
+        ConfigStore substore = instancesConfig.createPublisherInstanceConfig(id);
 
         if (configParams != null) {
             for (int i = 0; i < configParams.size(); i++) {
@@ -2360,7 +2361,7 @@ public class PublisherAdminServlet extends AdminServlet {
         try {
             publisherInst = (Publisher) Class.forName(className).getDeclaredConstructor().newInstance();
         } catch (Exception e) {
-            instancesConfig.removeSubStore(id);
+            instancesConfig.removePublisherInstanceConfig(id);
             sendResponse(ERROR,
                     new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
                             .toString(),
@@ -2373,11 +2374,11 @@ public class PublisherAdminServlet extends AdminServlet {
             publisherInst.init(substore);
         } catch (EBaseException e) {
             // don't commit in this case and cleanup the new substore.
-            instancesConfig.removeSubStore(id);
+            instancesConfig.removePublisherInstanceConfig(id);
             sendResponse(ERROR, e.toString(getLocale(req)), null, resp);
             return;
         } catch (Throwable e) {
-            instancesConfig.removeSubStore(id);
+            instancesConfig.removePublisherInstanceConfig(id);
             sendResponse(ERROR, e.toString(), null, resp);
             return;
         }
@@ -2387,7 +2388,7 @@ public class PublisherAdminServlet extends AdminServlet {
             mConfig.commit(true);
         } catch (EBaseException e) {
             // clean up.
-            instancesConfig.removeSubStore(id);
+            instancesConfig.removePublisherInstanceConfig(id);
             sendResponse(ERROR,
                     CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_COMMIT_FAILED"),
                     null, resp);
@@ -2548,9 +2549,9 @@ public class PublisherAdminServlet extends AdminServlet {
 
         // remove the configuration.
         PublishingPublisherConfig destStore = publishingConfig.getPublisherConfig();
-        ConfigStore instancesConfig = destStore.getSubStore("instance", ConfigStore.class);
+        PublishingPublisherInstancesConfig instancesConfig = destStore.getPublisherInstancesConfig();
 
-        instancesConfig.removeSubStore(id);
+        instancesConfig.removePublisherInstanceConfig(id);
         // commiting
         try {
             mConfig.commit(true);
@@ -2734,7 +2735,7 @@ public class PublisherAdminServlet extends AdminServlet {
         // remove old substore.
 
         PublishingPublisherConfig destStore = publishingConfig.getPublisherConfig();
-        ConfigStore instancesConfig = destStore.getSubStore("instance", ConfigStore.class);
+        PublishingPublisherInstancesConfig instancesConfig = destStore.getPublisherInstancesConfig();
 
         // get objects added and deleted
         if (pubType.equals("cacert")) {
@@ -2749,9 +2750,9 @@ public class PublisherAdminServlet extends AdminServlet {
 
         Vector<String> configParams = mProcessor.getPublisherInstanceParams(id);
 
-        instancesConfig.removeSubStore(id);
+        instancesConfig.removePublisherInstanceConfig(id);
 
-        ConfigStore substore = instancesConfig.makeSubStore(id);
+        ConfigStore substore = instancesConfig.createPublisherInstanceConfig(id);
 
         substore.put("pluginName", implname);
         if (configParams != null) {

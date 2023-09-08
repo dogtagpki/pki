@@ -112,14 +112,12 @@ public abstract class PublisherProcessor {
             mPublisherPlugins.put(id, plugin);
         }
 
-        ConfigStore c = publisherConfig.getSubStore(PROP_INSTANCE, ConfigStore.class);
-        Enumeration<String> instances = c.getSubStoreNames().elements();
+        PublishingPublisherInstancesConfig instancesConfig = publisherConfig.getPublisherInstancesConfig();
 
-        while (instances.hasMoreElements()) {
-            String insName = instances.nextElement();
+        for (String insName : instancesConfig.getInstanceIDs()) {
             logger.info("PublisherProcessor: Loading publisher instance " + insName);
 
-            String implName = c.getString(insName + "." + PROP_PLUGIN);
+            String implName = instancesConfig.getString(insName + "." + PROP_PLUGIN);
             PublisherPlugin plugin = mPublisherPlugins.get(implName);
 
             if (plugin == null) {
@@ -135,7 +133,7 @@ public abstract class PublisherProcessor {
 
             try {
                 publisherInst = (Publisher) Class.forName(className).getDeclaredConstructor().newInstance();
-                ConfigStore pConfig = c.getSubStore(insName, ConfigStore.class);
+                ConfigStore pConfig = instancesConfig.getPublisherInstanceConfig(insName);
 
                 publisherInst.init(pConfig);
                 isEnable = true;
@@ -174,8 +172,8 @@ public abstract class PublisherProcessor {
 
         PublishingMapperConfig mapperConfig = config.getMapperConfig();
 
-        c = mapperConfig.getSubStore(PROP_IMPL, ConfigStore.class);
-        mImpls = c.getSubStoreNames().elements();
+        ConfigStore c = mapperConfig.getSubStore(PROP_IMPL, ConfigStore.class);
+        Enumeration<String> mImpls = c.getSubStoreNames().elements();
         while (mImpls.hasMoreElements()) {
             String id = mImpls.nextElement();
             logger.info("PublisherProcessor: Loading mapper plugin " + id);
@@ -186,7 +184,7 @@ public abstract class PublisherProcessor {
         }
 
         c = mapperConfig.getSubStore(PROP_INSTANCE, ConfigStore.class);
-        instances = c.getSubStoreNames().elements();
+        Enumeration<String> instances = c.getSubStoreNames().elements();
         while (instances.hasMoreElements()) {
             String insName = instances.nextElement();
             logger.info("PublisherProcessor: Loading mapper instance " + insName);
