@@ -27,6 +27,7 @@ import java.net.URLEncoder;
 import java.security.cert.CRLException;
 import java.security.cert.X509CRL;
 import java.util.Date;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -34,9 +35,12 @@ import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
 import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
+import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.publish.Publisher;
 import com.netscape.cmscore.apps.CMS;
@@ -247,6 +251,17 @@ public class OCSPPublisher
 
             String url = "https://" + host + ":" + port + path;
             logger.info("OCSPPublisher: Publishing CRL to " + url);
+
+            if (object instanceof X509CRLImpl crlImpl) {
+                logger.info("OCSPPublisher: Revoked certs:");
+                Set<RevokedCertificate> certs = crlImpl.getRevokedCertificates();
+                if (certs != null) {
+                    for (RevokedCertificate cert : certs) {
+                        CertId certID = new CertId(cert.getSerialNumber());
+                        logger.info("OCSPPublisher: - " + certID.toHexString());
+                    }
+                }
+            }
 
             StringBuffer query = new StringBuffer();
             query.append("crl=");
