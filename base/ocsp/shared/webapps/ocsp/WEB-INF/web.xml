@@ -8,15 +8,6 @@
     <display-name>Online Certificate Status Protocol Manager</display-name>
 
    <servlet>
-      <servlet-name>  ocspocsp  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.admin.OCSPAdminServlet  </servlet-class>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> ocspocsp    </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  ocspReadCheckCertPage  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.base.DisplayHtmlServlet  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -390,11 +381,6 @@
              <init-param><param-name>  interface   </param-name>
                          <param-value> admin          </param-value> </init-param>
    </servlet>
-                                                                                
-   <servlet-mapping>
-      <servlet-name>  ocspocsp  </servlet-name>
-      <url-pattern>   /ocsp  </url-pattern>
-   </servlet-mapping>
 
    <servlet-mapping>
       <servlet-name>  ocspReadCheckCertPage  </servlet-name>
