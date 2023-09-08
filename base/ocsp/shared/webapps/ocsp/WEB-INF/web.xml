@@ -7,15 +7,6 @@
 
     <display-name>Online Certificate Status Protocol Manager</display-name>
 
-   <servlet>
-      <servlet-name>  ocspacl  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.admin.OCSPACLAdminServlet  </servlet-class>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> ocspacl     </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-   </servlet>
-
 <!--
    <servlet>
       <servlet-name>  ocspjobsScheduler  </servlet-name>
@@ -445,11 +436,6 @@
              <init-param><param-name>  interface   </param-name>
                          <param-value> admin          </param-value> </init-param>
    </servlet>
-
-   <servlet-mapping>
-      <servlet-name>  ocspacl  </servlet-name>
-      <url-pattern>   /acl  </url-pattern>
-   </servlet-mapping>
 
 <!--                                                                                
    <servlet-mapping>
