@@ -25,7 +25,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.CAEngineConfig;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
@@ -47,7 +46,6 @@ import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
-import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.request.Request;
 
 import netscape.ldap.LDAPConnection;
@@ -124,18 +122,14 @@ public class LdapPublishModule extends RequestListener {
             return;
 
         CAEngine engine = CAEngine.getInstance();
-        CAEngineConfig cs = engine.getConfig();
 
         mAuthority = authority;
         mPubProcessor = p;
         mConfig = config;
 
-        PKISocketConfig socketConfig = cs.getSocketConfig();
         LDAPConfig ldapCfg = mConfig.getSubStore("ldap", LDAPConfig.class);
 
-        mLdapConnFactory = new LdapBoundConnFactory("LdapPublishModule");
-        mLdapConnFactory.setCMSEngine(engine);
-        mLdapConnFactory.init(socketConfig, ldapCfg, engine.getPasswordStore());
+        mLdapConnFactory = engine.createLdapBoundConnFactory("LdapPublishModule", ldapCfg);
 
         // initMappers(config);
         initHandlers();
@@ -148,17 +142,13 @@ public class LdapPublishModule extends RequestListener {
             return;
 
         CAEngine engine = CAEngine.getInstance();
-        CAEngineConfig cs = engine.getConfig();
 
         mAuthority = authority;
         mConfig = config;
 
-        PKISocketConfig socketConfig = cs.getSocketConfig();
         LDAPConfig ldapCfg = mConfig.getSubStore("ldap", LDAPConfig.class);
 
-        mLdapConnFactory = new LdapBoundConnFactory("LdapPublishModule");
-        mLdapConnFactory.setCMSEngine(engine);
-        mLdapConnFactory.init(socketConfig, ldapCfg, engine.getPasswordStore());
+        mLdapConnFactory = engine.createLdapBoundConnFactory("LdapPublishModule", ldapCfg);
 
         initMappers(config);
         initHandlers();

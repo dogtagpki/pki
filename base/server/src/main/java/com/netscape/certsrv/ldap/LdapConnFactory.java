@@ -20,7 +20,6 @@ package com.netscape.certsrv.ldap;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.ssl.SSLSocketListener;
 
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.logging.Auditor;
@@ -70,7 +69,6 @@ public abstract class LdapConnFactory {
      */
     protected boolean mDefErrorIfDown;
 
-    protected CMSEngine engine;
     protected Auditor auditor;
     protected SSLSocketListener socketListener;
     protected SSLCertificateApprovalCallback approvalCallback;
@@ -82,17 +80,28 @@ public abstract class LdapConnFactory {
         return mConnInfo;
     }
 
-    public CMSEngine getCMSEngine() {
-        return engine;
+    public Auditor getAuditor() {
+        return auditor;
     }
 
-    public void setCMSEngine(CMSEngine engine) {
-        this.engine = engine;
-        if (engine == null) return;
+    public void setAuditor(Auditor auditor) {
+        this.auditor = auditor;
+    }
 
-        auditor = engine.getAuditor();
-        socketListener = engine.getClientSocketListener();
-        approvalCallback = engine.getApprovalCallback();
+    public SSLSocketListener getSocketListener() {
+        return socketListener;
+    }
+
+    public void setSocketListener(SSLSocketListener socketListener) {
+        this.socketListener = socketListener;
+    }
+
+    public SSLCertificateApprovalCallback getApprovalCallback() {
+        return approvalCallback;
+    }
+
+    public void setApprovalCallback(SSLCertificateApprovalCallback approvalCallback) {
+        this.approvalCallback = approvalCallback;
     }
 
     /**

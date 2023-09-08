@@ -25,7 +25,6 @@ import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.PolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.CAEngineConfig;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -34,7 +33,6 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
-import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.request.Request;
 
 import netscape.ldap.LDAPAttribute;
@@ -244,7 +242,6 @@ public class AttributePresentConstraints extends APolicyRule
     public void init(PolicyProcessor owner, ConfigStore config) throws EBaseException {
 
         CAEngine engine = CAEngine.getInstance();
-        CAEngineConfig cs = engine.getConfig();
 
         mConfig = config;
 
@@ -264,12 +261,9 @@ public class AttributePresentConstraints extends APolicyRule
         getStringConfigParam(mConfig, PROP_ATTR);
         getStringConfigParam(mConfig, PROP_VALUE);
 
-        PKISocketConfig socketConfig = cs.getSocketConfig();
         mLdapConfig = mConfig.getSubStore(PROP_LDAP, LDAPConfig.class);
 
-        mConnFactory = new LdapBoundConnFactory("AttributePresentConstraints");
-        mConnFactory.setCMSEngine(engine);
-        mConnFactory.init(socketConfig, mLdapConfig, engine.getPasswordStore());
+        mConnFactory = engine.createLdapBoundConnFactory("AttributePresentConstraints", mLdapConfig);
 
         mCheckAttrLdapConnection = mConnFactory.getConn();
     }

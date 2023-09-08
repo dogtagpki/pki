@@ -78,6 +78,9 @@ import com.netscape.cmscore.jobs.JobsSchedulerConfig;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
+import com.netscape.cmscore.ldapconn.LdapAnonConnFactory;
+import com.netscape.cmscore.ldapconn.LdapAuthInfo;
+import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
@@ -1288,6 +1291,84 @@ public class CMSEngine {
 
     public void setServerCertNickname(String newName) {
         mServerCertNickname = newName;
+    }
+
+    public LdapAnonConnFactory createLdapAnonConnFactory(
+            String id,
+            LDAPConfig ldapConfig
+            ) throws EBaseException {
+
+        PKISocketConfig socketConfig = mConfig.getSocketConfig();
+
+        LdapAnonConnFactory connFactory = new LdapAnonConnFactory(id);
+        connFactory.setAuditor(auditor);
+        connFactory.setSocketListener(clientSocketListener);
+        connFactory.setApprovalCallback(approvalCallback);
+        connFactory.init(socketConfig, ldapConfig);
+
+        return connFactory;
+    }
+
+    public LdapAnonConnFactory createLdapAnonConnFactory(
+            String id,
+            int minConns,
+            int maxConns,
+            LdapConnInfo connInfo
+            ) throws EBaseException {
+
+        PKISocketConfig socketConfig = mConfig.getSocketConfig();
+
+        LdapAnonConnFactory connFactory = new LdapAnonConnFactory(
+                id,
+                minConns,
+                maxConns,
+                connInfo);
+        connFactory.setAuditor(auditor);
+        connFactory.setSocketListener(clientSocketListener);
+        connFactory.setApprovalCallback(approvalCallback);
+        connFactory.init(socketConfig);
+
+        return connFactory;
+    }
+
+    public LdapBoundConnFactory createLdapBoundConnFactory(
+            String id,
+            LDAPConfig ldapConfig
+            ) throws EBaseException {
+
+        PKISocketConfig socketConfig = mConfig.getSocketConfig();
+
+        LdapBoundConnFactory connFactory = new LdapBoundConnFactory(id);
+        connFactory.setAuditor(auditor);
+        connFactory.setSocketListener(clientSocketListener);
+        connFactory.setApprovalCallback(approvalCallback);
+        connFactory.init(socketConfig, ldapConfig, getPasswordStore());
+
+        return connFactory;
+    }
+
+    public LdapBoundConnFactory createLdapBoundConnFactory(
+            String id,
+            int minConns,
+            int maxConns,
+            LdapConnInfo connInfo,
+            LdapAuthInfo authInfo
+            ) throws EBaseException {
+
+        PKISocketConfig socketConfig = mConfig.getSocketConfig();
+
+        LdapBoundConnFactory connFactory = new LdapBoundConnFactory(
+                id,
+                minConns,
+                maxConns,
+                connInfo,
+                authInfo);
+        connFactory.setAuditor(auditor);
+        connFactory.setSocketListener(clientSocketListener);
+        connFactory.setApprovalCallback(approvalCallback);
+        connFactory.init(socketConfig, getPasswordStore());
+
+        return connFactory;
     }
 
     public MailNotification getMailNotification() {

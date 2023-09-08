@@ -50,12 +50,8 @@ import com.netscape.certsrv.ldap.LdapConnFactory;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
-import com.netscape.cmscore.ldapconn.LdapAnonConnFactory;
-import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
-import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.request.Request;
 
 import netscape.ldap.LDAPAttribute;
@@ -265,9 +261,6 @@ public abstract class DirBasedAuthentication extends AuthManager implements IExt
         mName = name;
         mImplName = implName;
         mConfig = config;
-        String method = "DirBasedAuthentication: init: ";
-
-        EngineConfig cs = engine.getConfig();
 
         /* initialize ldap server configuration */
         mLdapConfig = mConfig.getLDAPConfig();
@@ -299,8 +292,6 @@ public abstract class DirBasedAuthentication extends AuthManager implements IExt
             logger.info("DirBasedAuthentication: Group user ID name: " + mGroupUserIDName);
         }
 
-        PKISocketConfig socketConfig = cs.getSocketConfig();
-
         mBoundConnEnable = mLdapConfig.getBoolean(PROP_LDAP_BOUND_CONN, false);
         logger.info("DirBasedAuthentication: Bound connection enable: " + mBoundConnEnable);
 
@@ -309,16 +300,10 @@ public abstract class DirBasedAuthentication extends AuthManager implements IExt
             mTag = mLdapConfig.getString("bindPWPrompt");
             logger.info("DirBasedAuthentication: Bind password prompt: " + mTag);
 
-            LdapBoundConnFactory connFactory = new LdapBoundConnFactory(mTag);
-            connFactory.setCMSEngine(engine);
-            connFactory.init(socketConfig, mLdapConfig, engine.getPasswordStore());
-            mConnFactory = connFactory;
+            mConnFactory = engine.createLdapBoundConnFactory(mTag, mLdapConfig);
 
         } else {
-            LdapAnonConnFactory connFactory = new LdapAnonConnFactory("DirBasedAuthentication");
-            connFactory.setCMSEngine(engine);
-            connFactory.init(socketConfig, mLdapConfig);
-            mConnFactory = connFactory;
+            mConnFactory = engine.createLdapAnonConnFactory("DirBasedAuthentication", mLdapConfig);
         }
 
         /* initialize dn pattern */
@@ -438,10 +423,6 @@ public abstract class DirBasedAuthentication extends AuthManager implements IExt
 
         logger.debug(method + " begins...mBoundConnEnable=" + mBoundConnEnable);
 
-        EngineConfig cs = engine.getConfig();
-
-        PKISocketConfig socketConfig = cs.getSocketConfig();
-
         try {
             if (mConnFactory == null) {
                 logger.debug(method + " mConnFactory null, getting conn factory");
@@ -451,16 +432,10 @@ public abstract class DirBasedAuthentication extends AuthManager implements IExt
                     mTag = authConfig.getString("bindPWPrompt");
                     logger.debug(method + " getting ldap bound conn factory using id= " + mTag);
 
-                    LdapBoundConnFactory connFactory = new LdapBoundConnFactory(mTag);
-                    connFactory.setCMSEngine(engine);
-                    connFactory.init(socketConfig, mLdapConfig, engine.getPasswordStore());
-                    mConnFactory = connFactory;
+                    mConnFactory = engine.createLdapBoundConnFactory(mTag, mLdapConfig);
 
                 } else {
-                    LdapAnonConnFactory connFactory = new LdapAnonConnFactory("DirBasedAuthentication");
-                    connFactory.setCMSEngine(engine);
-                    connFactory.init(socketConfig, mLdapConfig);
-                    mConnFactory = connFactory;
+                    mConnFactory = engine.createLdapAnonConnFactory("DirBasedAuthentication", mLdapConfig);
                 }
 
                 if (mConnFactory != null) {

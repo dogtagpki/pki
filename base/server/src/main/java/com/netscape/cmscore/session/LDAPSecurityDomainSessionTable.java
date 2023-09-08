@@ -29,7 +29,6 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
-import com.netscape.cmscore.ldapconn.PKISocketConfig;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
@@ -66,13 +65,9 @@ public class LDAPSecurityDomainSessionTable
     public void init() throws ELdapException, EBaseException {
 
         EngineConfig cs = engine.getConfig();
-
-        PKISocketConfig socketConfig = cs.getSocketConfig();
         LDAPConfig internaldb = cs.getInternalDBConfig();
 
-        mLdapConnFactory = new LdapBoundConnFactory("LDAPSecurityDomainSessionTable");
-        mLdapConnFactory.setCMSEngine(engine);
-        mLdapConnFactory.init(socketConfig, internaldb, engine.getPasswordStore());
+        mLdapConnFactory = engine.createLdapBoundConnFactory("LDAPSecurityDomainSessionTable", internaldb);
     }
 
     @Override

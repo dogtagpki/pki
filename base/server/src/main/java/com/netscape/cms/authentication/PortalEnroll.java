@@ -36,12 +36,10 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
-import com.netscape.cmscore.ldapconn.PKISocketConfig;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
@@ -143,8 +141,6 @@ public class PortalEnroll extends DirBasedAuthentication {
             throws EBaseException {
         super.init(authenticationConfig, name, implName, config);
 
-        EngineConfig cs = engine.getConfig();
-
         /* Get Bind DN for directory server */
         LDAPAuthenticationConfig authConfig = mLdapConfig.getAuthenticationConfig();
         mBindDN = authConfig.getString(PROP_BINDDN);
@@ -161,12 +157,8 @@ public class PortalEnroll extends DirBasedAuthentication {
         if (mObjectClass == null || mObjectClass.length() == 0)
             throw new EPropertyNotFound(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED", "objectclass"));
 
-        PKISocketConfig socketConfig = cs.getSocketConfig();
-
         /* Get connect parameter */
-        mLdapFactory = new LdapBoundConnFactory("PortalEnroll");
-        mLdapFactory.setCMSEngine(engine);
-        mLdapFactory.init(socketConfig, mLdapConfig, engine.getPasswordStore());
+        mLdapFactory = engine.createLdapBoundConnFactory("PortalEnroll", mLdapConfig);
 
         mLdapConn = mLdapFactory.getConn();
 
