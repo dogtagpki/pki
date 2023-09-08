@@ -19,6 +19,7 @@ package com.netscape.cms.ocsp;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
+import java.security.cert.CRLException;
 import java.security.cert.X509CRL;
 import java.security.cert.X509CRLEntry;
 import java.util.Arrays;
@@ -750,8 +751,9 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
             try {
                 mods.add(CRLIssuingPointRecord.ATTR_CRL,
                         Modification.MOD_REPLACE, crl.getEncoded());
-            } catch (Exception e) {
-                // ignore
+            } catch (CRLException e) {
+                logger.error("Unable to store CRL: " + e.getMessage(), e);
+                throw new EBaseException("Unable to store CRL: " + e.getMessage(), e);
             }
             logger.debug("DefStore: ready to CRL update " +
                     crl.getIssuerDN().getName());
