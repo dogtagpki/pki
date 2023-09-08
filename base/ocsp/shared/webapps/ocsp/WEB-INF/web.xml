@@ -56,27 +56,6 @@
              <init-param><param-name>  AuthMgr     </param-name>
                          <param-value> certUserDBAuthMgr </param-value> </init-param>
    </servlet>
-                                                                                
-   <servlet>
-      <servlet-name>  ocspGetOCSPInfo  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.ocsp.OCSPGetOCSPInfo  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> true        </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  interface   </param-name>
-                         <param-value> agent  </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ocsp        </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> ocspGetOCSPInfo </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.ocsp.info </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> certUserDBAuthMgr </param-value> </init-param>
-             <init-param><param-name>  templatePath  </param-name>
-                         <param-value> /agent/ocsp/getOCSPInfo.template </param-value> </init-param>
-   </servlet>
 
    <servlet>
       <servlet-name>  ocspListCAs  </servlet-name>
@@ -395,11 +374,6 @@
    <servlet-mapping>
       <servlet-name>  ocspReadAddCRLPage  </servlet-name>
       <url-pattern>   /agent/ocsp/addCRL.html  </url-pattern>
-   </servlet-mapping>
-                                                                                
-   <servlet-mapping>
-      <servlet-name>  ocspGetOCSPInfo  </servlet-name>
-      <url-pattern>   /agent/ocsp/getOCSPInfo  </url-pattern>
    </servlet-mapping>
                                                                                 
    <servlet-mapping>
