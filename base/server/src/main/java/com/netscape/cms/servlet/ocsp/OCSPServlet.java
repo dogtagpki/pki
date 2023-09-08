@@ -35,6 +35,7 @@ import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.logging.event.OCSPGenerationEvent;
 import com.netscape.certsrv.ocsp.IOCSPService;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -152,7 +153,7 @@ public class OCSPServlet extends CMSServlet {
 
             if (method != null && method.equals("POST")) {
 
-                logger.debug("OCSPServlet: processing POST request");
+                logger.info("OCSPServlet: Processing POST request");
 
                 int reqlen = httpReq.getContentLength();
 
@@ -187,7 +188,7 @@ public class OCSPServlet extends CMSServlet {
 
             } else {
 
-                logger.debug("OCSPServlet: processing GET request");
+                logger.info("OCSPServlet: Processing GET request");
 
                 if ((pathInfo == null) ||
                         (pathInfo.equals("")) ||
@@ -216,10 +217,23 @@ public class OCSPServlet extends CMSServlet {
                 logger.debug("OCSPServlet: decoding request");
                 ocspReq = (OCSPRequest) reqTemplate.decode(is);
 
-                if ((ocspReq == null) ||
-                        (ocspReq.toString().equals(""))) {
-                    throw new Exception("OCSPServlet: Decoded OCSP request "
-                                       + "is empty or malformed");
+                if (logger.isDebugEnabled()) {
+                    logger.debug("OCSPServlet: OCSP Request:");
+                    logger.debug("OCSPServlet: " + Utils.base64encode(ASN1Util.encode(ocspReq), true));
+                }
+
+                if (ocspReq == null || ocspReq.toString().equals("")) {
+                    logger.error("OCSPServlet: Empty or malformed OCSP request");
+                    throw new Exception("OCSPServlet: Empty or malformed OCSP request");
+                }
+
+                TBSRequest tbsReq = ocspReq.getTBSRequest();
+
+                logger.info("OCSPServlet: Cert status requests:");
+                for (int i = 0; i < tbsReq.getRequestCount(); i++) {
+                    com.netscape.cmsutil.ocsp.Request req = tbsReq.getRequestAt(i);
+                    CertId certID = new CertId(req.getCertID().getSerialNumber());
+                    logger.info("OCSPServlet: - " + certID.toHexString());
                 }
 
                 logger.debug("OCSPServlet: validating request");
@@ -250,14 +264,6 @@ public class OCSPServlet extends CMSServlet {
                 // print out OCSP response in debug mode so that
                 // we can validate the response
                 if (logger.isDebugEnabled()) {
-                    logger.debug("OCSPServlet: OCSP Request:");
-                    logger.debug("OCSPServlet: " + Utils.base64encode(ASN1Util.encode(ocspReq), true));
-
-                    TBSRequest tbsReq = ocspReq.getTBSRequest();
-                    for (int i = 0; i < tbsReq.getRequestCount(); i++) {
-                        com.netscape.cmsutil.ocsp.Request req = tbsReq.getRequestAt(i);
-                        logger.debug("Serial Number: " + req.getCertID().getSerialNumber());
-                    }
 
                     logger.debug("OCSPServlet: OCSP Response Size:");
                     logger.debug("OCSPServlet: " + Integer.toString(respbytes.length));
