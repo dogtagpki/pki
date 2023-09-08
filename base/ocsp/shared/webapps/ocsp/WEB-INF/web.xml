@@ -58,17 +58,6 @@
    </servlet>
                                                                                 
    <servlet>
-      <servlet-name>  ocspports  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.OCSPPortsServlet  </servlet-class>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> ocspports   </param-value> </init-param>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false        </param-value> </init-param>
-             <init-param><param-name>  interface  </param-name>
-                         <param-value> ee      </param-value> </init-param>
-   </servlet>
-                                                                                
-   <servlet>
       <servlet-name>  ocspGetConfigEntries  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.csadmin.OCSPGetConfigEntries </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -333,11 +322,6 @@
    <servlet-mapping>
       <servlet-name>  ocspReadAddCRLPage  </servlet-name>
       <url-pattern>   /agent/ocsp/addCRL.html  </url-pattern>
-   </servlet-mapping>
-                                                                                
-   <servlet-mapping>
-      <servlet-name>  ocspports  </servlet-name>
-      <url-pattern>   /ee/ocsp/ports  </url-pattern>
    </servlet-mapping>
                                                                                 
    <servlet-mapping>
