@@ -26,6 +26,8 @@ import java.util.Locale;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -47,14 +49,23 @@ import com.netscape.ocsp.OCSPAuthority;
 
 /**
  * Show the list of CA's that the OCSP responder can service
- *
- * @version $Revision$ $Date$
  */
+@WebServlet(
+        name = "ocspListCAs",
+        urlPatterns = "/agent/ocsp/listCAs",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="true"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="interface",     value="agent"),
+                @WebInitParam(name="authority",     value="ocsp"),
+                @WebInitParam(name="ID",            value="ocspListCAs"),
+                @WebInitParam(name="AuthMgr",       value="certUserDBAuthMgr"),
+                @WebInitParam(name="resourceID",    value="certServer.ocsp.cas"),
+                @WebInitParam(name="templatePath",  value="/agent/ocsp/listCAs.template")
+        }
+)
 public class ListCAServlet extends CMSServlet {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 3764395161795483452L;
 
     private final static String TPL_FILE = "listCAs.template";
