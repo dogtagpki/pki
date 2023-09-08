@@ -203,10 +203,14 @@ public class LdapCrlPublisher
                         sslSocket, mgr_dn, mgr_pwd);
                 conn = altConn;
             }
+
         } catch (LDAPException e) {
-            logger.warn("LdapCrlPublisher: Failed to create alt connection " + e.getMessage(), e);
+            logger.error("LdapCrlPublisher: Unable to create LDAP connection: " + e.getMessage(), e);
+            throw new ELdapException(e.getMessage(), e);
+
         } catch (EBaseException e) {
-            logger.warn("LdapCrlPublisher: Failed to create alt connection " + e.getMessage(), e);
+            logger.error("LdapCrlPublisher: Unable to create LDAP connection: " + e.getMessage(), e);
+            throw new ELdapException(e.getMessage(), e);
         }
 
         int orig_timelimit = 0;
