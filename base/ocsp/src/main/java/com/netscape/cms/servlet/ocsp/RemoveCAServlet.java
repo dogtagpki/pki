@@ -23,6 +23,8 @@ import java.util.Locale;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -48,9 +50,21 @@ import com.netscape.ocsp.OCSPAuthority;
 
 /**
  * Configure the CA to no longer respond to OCSP requests for a CA
- *
- * @version $Revision: 1274 $ $Date: 2010-09-07 22:14:41 -0700 (Tue, 07 Sep 2010) $
  */
+@WebServlet(
+        name = "ocspRemoveCA",
+        urlPatterns = "/agent/ocsp/removeCA",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="true"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="interface",     value="agent"),
+                @WebInitParam(name="authority",     value="ocsp"),
+                @WebInitParam(name="ID",            value="ocspRemoveCA"),
+                @WebInitParam(name="AuthMgr",       value="certUserDBAuthMgr"),
+                @WebInitParam(name="resourceID",    value="certServer.ocsp.ca"),
+                @WebInitParam(name="templatePath",  value="/agent/ocsp/removeCA.template")
+        }
+)
 public class RemoveCAServlet extends CMSServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RemoveCAServlet.class);
