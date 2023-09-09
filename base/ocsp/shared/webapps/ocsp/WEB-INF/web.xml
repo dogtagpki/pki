@@ -322,7 +322,7 @@
 
    <servlet>
       <servlet-name>  ocspOCSP  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.ocsp.OCSPServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.ocsp.OCSPOCSPServlet  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> false       </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
