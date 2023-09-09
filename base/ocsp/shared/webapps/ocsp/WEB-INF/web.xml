@@ -103,21 +103,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>  ocspOCSP  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.ocsp.OCSPOCSPServlet  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ocsp        </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> ocspOCSP    </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.ee.request.ocsp </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  ocspDownloadPKCS12  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.csadmin.DownloadPKCS12  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -251,16 +236,6 @@
    <servlet-mapping>
       <servlet-name>  ocspheader  </servlet-name>
       <url-pattern>   /agent/header  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  ocspOCSP  </servlet-name>
-      <url-pattern>   /ee/ocsp  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  ocspOCSP  </servlet-name>
-      <url-pattern>   /ee/ocsp/*  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
