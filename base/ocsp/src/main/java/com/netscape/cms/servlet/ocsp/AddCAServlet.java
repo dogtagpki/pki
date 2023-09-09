@@ -25,6 +25,8 @@ import java.util.Locale;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -52,9 +54,21 @@ import com.netscape.ocsp.OCSPAuthority;
 
 /**
  * Configure the CA to respond to OCSP requests for a CA
- *
- * @version $Revision$ $Date$
  */
+@WebServlet(
+        name = "ocspAddCA",
+        urlPatterns = "/agent/ocsp/addCA",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="true"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="interface",     value="agent"),
+                @WebInitParam(name="authority",     value="ocsp"),
+                @WebInitParam(name="ID",            value="ocspAddCA"),
+                @WebInitParam(name="AuthMgr",       value="certUserDBAuthMgr"),
+                @WebInitParam(name="resourceID",    value="certServer.ocsp.ca"),
+                @WebInitParam(name="templatePath",  value="/agent/ocsp/addCA.template")
+        }
+)
 public class AddCAServlet extends CMSServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AddCAServlet.class);
