@@ -6,7 +6,9 @@
 package org.dogtagpki.acme.server;
 
 import java.net.URI;
+import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 
 import javax.ws.rs.POST;
@@ -18,14 +20,17 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.codec.binary.Base64;
 import org.dogtagpki.acme.ACMEAccount;
 import org.dogtagpki.acme.ACMEAuthorization;
+import org.dogtagpki.acme.ACMEChallenge;
 import org.dogtagpki.acme.ACMEHeader;
 import org.dogtagpki.acme.ACMEIdentifier;
 import org.dogtagpki.acme.ACMENonce;
 import org.dogtagpki.acme.ACMEOrder;
 import org.dogtagpki.acme.JWS;
 import org.dogtagpki.acme.ValidationResult;
+import org.dogtagpki.acme.validator.ACMEValidator;
 
 /**
  * @author Endi S. Dewata
@@ -66,6 +71,15 @@ public class ACMENewOrderService extends ACMEService {
 
         ACMEOrder request = ACMEOrder.fromJSON(payload);
         ArrayList<String> authzIDs = new ArrayList<>();
+
+        // generate 128-bit token for authorization challenges
+        // TODO: make it configurable
+
+        byte[] bytes = new byte[16];
+        SecureRandom random = SecureRandom.getInstance("pkcs11prng", "Mozilla-JSS");
+        random.nextBytes(bytes);
+        String token = Base64.encodeBase64URLSafeString(bytes);
+        logger.info("Token: " + token);
 
         logger.info("Generating authorization for each identifiers");
         for (ACMEIdentifier identifier : request.getIdentifiers()) {
@@ -113,6 +127,16 @@ public class ACMENewOrderService extends ACMEService {
             authorization.setCreationTime(currentTime);
             authorization.setIdentifier(identifier);
             authorization.setWildcard(wildcard);
+
+            Collection<ACMEChallenge> challenges = new ArrayList<>();
+
+            for (ACMEValidator validator : engine.getValidators()) {
+                ACMEChallenge challenge = validator.createChallenge(authzID, token);
+                logger.info("  - challenge ID: " + challenge.getID());
+                challenges.add(challenge);
+            }
+
+            authorization.setChallenges(challenges);
 
             authorization.setStatus("pending");
 
