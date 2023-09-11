@@ -778,6 +778,10 @@ public class LDAPDatabase extends ACMEDatabase {
                         + "," + RDN_AUTHORIZATION + "," + baseDN;
         LDAPEntry entry = new LDAPEntry(dn, attrSet);
         ldapAdd(entry);
+
+        for (ACMEChallenge challenge : authorization.getChallenges()) {
+            addChallenge(authorization.getAccountID(), challenge);
+        }
     }
 
     public void addChallenge(String accountID, ACMEChallenge challenge)

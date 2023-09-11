@@ -6,8 +6,6 @@
 package org.dogtagpki.acme.server;
 
 import java.net.URI;
-import java.security.SecureRandom;
-import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.ws.rs.POST;
@@ -20,14 +18,12 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 
-import org.apache.commons.codec.binary.Base64;
 import org.dogtagpki.acme.ACMEAccount;
 import org.dogtagpki.acme.ACMEAuthorization;
 import org.dogtagpki.acme.ACMEChallenge;
 import org.dogtagpki.acme.ACMEHeader;
 import org.dogtagpki.acme.ACMENonce;
 import org.dogtagpki.acme.JWS;
-import org.dogtagpki.acme.validator.ACMEValidator;
 
 /**
  * @author Endi S. Dewata
@@ -69,29 +65,7 @@ public class ACMEAuthorizationService {
         String authorizationStatus = authorization.getStatus();
         logger.info("Authorization status: " + authorizationStatus);
 
-        // generate 128-bit token with JSS
-        // TODO: make it configurable
-
-        byte[] bytes = new byte[16];
-        SecureRandom random = SecureRandom.getInstance("pkcs11prng", "Mozilla-JSS");
-        random.nextBytes(bytes);
-        String token = Base64.encodeBase64URLSafeString(bytes);
-        logger.info("Token: " + token);
-
         Collection<ACMEChallenge> challenges = authorization.getChallenges();
-
-        if (challenges == null || challenges.size() <= 0) {
-            logger.info("Creating new challenges");
-            challenges = new ArrayList<>();
-
-            for (ACMEValidator validator : engine.getValidators()) {
-                ACMEChallenge challenge = validator.createChallenge(authzID, token);
-                challenges.add(challenge);
-            }
-
-            authorization.setChallenges(challenges);
-            engine.updateAuthorization(account, authorization);
-        }
 
         logger.info("Challenges:");
         for (ACMEChallenge challenge : challenges) {
