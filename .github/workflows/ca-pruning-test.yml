@@ -73,10 +73,10 @@ jobs:
 
       - name: Configure user cert profile
         run: |
-          # set cert validity to 3 minute
+          # set cert validity to 4 minute
           VALIDITY_DEFAULT="policyset.userCertSet.2.default.params"
           docker exec pki sed -i \
-              -e "s/^$VALIDITY_DEFAULT.range=.*$/$VALIDITY_DEFAULT.range=3/" \
+              -e "s/^$VALIDITY_DEFAULT.range=.*$/$VALIDITY_DEFAULT.range=4/" \
               -e "/^$VALIDITY_DEFAULT.range=.*$/a $VALIDITY_DEFAULT.rangeUnit=minute" \
               /etc/pki/pki-tomcat/ca/profiles/ca/caUserCert.cfg
 

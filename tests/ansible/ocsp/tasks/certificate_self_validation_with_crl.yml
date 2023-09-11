@@ -545,6 +545,10 @@
     container: "{{ ca_container }}"
     command: "pki -n caadmin  ca-cert-hold {{ ca_command.stdout | regex_search('\\s*Serial Number:\\s*(\\S*)', '\\1') | first }}  --force"
 
+- name: Wait for CRL propagation
+  ansible.builtin.pause:
+    seconds: 15
+
 - name: Restart OCSP
   community.docker.docker_container_exec:
     container: "{{ ocsp_container }}"
@@ -561,6 +565,10 @@
   community.docker.docker_container_exec:
     container: "{{ ca_container }}"
     command: "pki -n caadmin  ca-cert-release-hold {{ ca_command.stdout | regex_search('\\s*Serial Number:\\s*(\\S*)', '\\1') | first }}  --force"
+
+- name: Wait for CRL propagation
+  ansible.builtin.pause:
+    seconds: 15
 
 - name: Restart OCSP 2 
   community.docker.docker_container_exec:

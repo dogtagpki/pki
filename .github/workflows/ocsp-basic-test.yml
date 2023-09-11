@@ -181,6 +181,8 @@ jobs:
           # revoke CA agent cert
           docker exec pki /usr/share/pki/tests/ca/bin/ca-agent-cert-revoke.sh
 
+          sleep 5
+
           # get cert serial number
           docker exec pki pki nss-cert-show caagent | tee output
           CERT_ID=$(sed -n "s/^\s*Serial Number:\s*\(\S*\)$/\1/p" output)

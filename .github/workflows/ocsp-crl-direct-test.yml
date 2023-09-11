@@ -334,6 +334,18 @@ jobs:
           # revoke CA agent cert
           docker exec ca /usr/share/pki/tests/ca/bin/ca-agent-cert-revoke.sh
 
+          # https://github.com/dogtagpki/pki/wiki/UpdateCRL-Service
+          docker exec ca curl \
+              --cert-type P12 \
+              --cert /root/.dogtag/pki-tomcat/ca_admin_cert.p12:Secret.123 \
+              -sk \
+              -d "xml=true" \
+              https://ca.example.com:8443/ca/agent/ca/updateCRL \
+              | xmllint --format -
+
+          # wait for CRL update
+          sleep 10
+
           # get cert serial number
           docker exec ca pki nss-cert-show caagent | tee output
           CERT_ID=$(sed -n "s/^\s*Serial Number:\s*\(\S*\)$/\1/p" output)
@@ -368,6 +380,18 @@ jobs:
         run: |
           # unrevoke CA agent cert
           docker exec ca /usr/share/pki/tests/ca/bin/ca-agent-cert-unrevoke.sh
+
+          # https://github.com/dogtagpki/pki/wiki/UpdateCRL-Service
+          docker exec ca curl \
+              --cert-type P12 \
+              --cert /root/.dogtag/pki-tomcat/ca_admin_cert.p12:Secret.123 \
+              -sk \
+              -d "xml=true" \
+              https://ca.example.com:8443/ca/agent/ca/updateCRL \
+              | xmllint --format -
+
+          # wait for CRL update
+          sleep 10
 
           # get cert serial number
           docker exec ca pki nss-cert-show caagent | tee output

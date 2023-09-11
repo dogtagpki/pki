@@ -104,7 +104,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install --user -r tests/ansible/requirements.txt
 
-    - name: Execute est playbook
+    - name: Execute OCSP playbook
       run: |
         ansible-playbook  -e 'pki_subsystem="ocsp"' tests/ansible/pki-playbook.yml 
       env:
