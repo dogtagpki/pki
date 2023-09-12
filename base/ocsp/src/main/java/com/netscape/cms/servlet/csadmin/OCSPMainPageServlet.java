@@ -17,6 +17,19 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "services",
+        urlPatterns = "/services",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="false"),
+                @WebInitParam(name="authorityId",   value="ocsp"),
+                @WebInitParam(name="ID",            value="services"),
+                @WebInitParam(name="templatePath",  value="/services.template")
+        }
+)
 public class OCSPMainPageServlet extends MainPageServlet {
     private static final long serialVersionUID = 1L;
 }
