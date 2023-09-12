@@ -17,6 +17,22 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "ocspUpdateDomainXML",
+        urlPatterns = "/agent/ocsp/updateDomainXML",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="true"),
+                @WebInitParam(name="authority",     value="ocsp"),
+                @WebInitParam(name="ID",            value="ocspUpdateDomainXML"),
+                @WebInitParam(name="interface",     value="agent"),
+                @WebInitParam(name="AuthMgr",       value="certUserDBAuthMgr"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="resourceID",    value="certServer.securitydomain.domainxml")
+        }
+)
 public class OCSPUpdateDomainXML extends UpdateDomainXML {
     private static final long serialVersionUID = 1L;
 }
