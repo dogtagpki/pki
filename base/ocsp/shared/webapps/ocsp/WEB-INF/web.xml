@@ -7,24 +7,6 @@
 
     <display-name>Online Certificate Status Protocol Manager</display-name>
 
-   <servlet>
-      <servlet-name>  ocspTokenAuthenticate-admin  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.csadmin.OCSPTokenAuthenticateAdmin  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ocsp        </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> ocspTokenAuthenticate  </param-value> </init-param>
-             <init-param><param-name>  interface   </param-name>
-                         <param-value> admin          </param-value> </init-param>
-   </servlet>
-
-   <servlet-mapping>
-      <servlet-name>  ocspTokenAuthenticate-admin </servlet-name>
-      <url-pattern>   /admin/ocsp/tokenAuthenticate  </url-pattern>
-   </servlet-mapping>
-
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>Account Services</web-resource-name>
