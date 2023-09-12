@@ -17,6 +17,22 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.base;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "ocspReadAddCAPage",
+        urlPatterns = "/agent/ocsp/addCA.html",
+        initParams = {
+                @WebInitParam(name="GetClientCert",        value="true"),
+                @WebInitParam(name="interface",            value="agent"),
+                @WebInitParam(name="htmlPath",             value="/agent/ocsp/AddCA.html"),
+                @WebInitParam(name="authority",            value="ocsp"),
+                @WebInitParam(name="ID",                   value="ocspReadAddCAPage"),
+                @WebInitParam(name="unauthorizedTemplate", value="/agent/GenUnauthorized.template"),
+                @WebInitParam(name="AuthMgr",              value="certUserDBAuthMgr")
+        }
+)
 public class OCSPReadAddCAPage extends DisplayHtmlServlet {
     private static final long serialVersionUID = 1L;
 }
