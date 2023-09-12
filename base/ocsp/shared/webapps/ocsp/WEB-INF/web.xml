@@ -8,17 +8,6 @@
     <display-name>Online Certificate Status Protocol Manager</display-name>
 
    <servlet>
-      <servlet-name>  ocspGetStatus  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.csadmin.OCSPGetStatus  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ocsp          </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> ocspGetStatus </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  ocspUpdateDomainXML  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.csadmin.OCSPUpdateDomainXML  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -100,11 +89,6 @@
              <init-param><param-name>  interface   </param-name>
                          <param-value> admin          </param-value> </init-param>
    </servlet>
-
-   <servlet-mapping>
-      <servlet-name>  ocspGetStatus  </servlet-name>
-      <url-pattern>   /admin/ocsp/getStatus  </url-pattern>
-   </servlet-mapping>
 
    <servlet-mapping>
       <servlet-name>  ocspUpdateDomainXML </servlet-name>
