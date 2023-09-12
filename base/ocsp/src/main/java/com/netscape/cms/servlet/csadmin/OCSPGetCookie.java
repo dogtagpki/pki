@@ -17,6 +17,22 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "ocspGetCookie",
+        urlPatterns = "/admin/ocsp/getCookie",
+        initParams = {
+                @WebInitParam(name="GetClientCert",     value="false"),
+                @WebInitParam(name="AuthzMgr",          value="BasicAclAuthz"),
+                @WebInitParam(name="authority",         value="ocsp"),
+                @WebInitParam(name="ID",                value="ocspGetCookie"),
+                @WebInitParam(name="AuthMgr",           value="passwdUserDBAuthMgr"),
+                @WebInitParam(name="templatePath",      value="/admin/ocsp/sendCookie.template"),
+                @WebInitParam(name="errorTemplatePath", value="/admin/ocsp/securitydomainlogin.template")
+        }
+)
 public class OCSPGetCookie extends GetCookie {
     private static final long serialVersionUID = 1L;
 }
