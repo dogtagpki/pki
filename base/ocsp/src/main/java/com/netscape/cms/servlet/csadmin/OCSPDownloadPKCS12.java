@@ -17,6 +17,21 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "ocspDownloadPKCS12",
+        urlPatterns = "/admin/console/config/savepkcs12",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="false"),
+                @WebInitParam(name="authority",     value="ocsp"),
+                @WebInitParam(name="ID",            value="ocspDownloadPKCS12"),
+                @WebInitParam(name="interface",     value="ee"),
+                @WebInitParam(name="AuthMgr",       value="TokenAuth"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz")
+        }
+)
 public class OCSPDownloadPKCS12 extends DownloadPKCS12 {
     private static final long serialVersionUID = 1L;
 }
