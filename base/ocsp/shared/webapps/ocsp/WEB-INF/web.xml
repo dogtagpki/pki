@@ -8,25 +8,6 @@
     <display-name>Online Certificate Status Protocol Manager</display-name>
 
    <servlet>
-      <servlet-name>  ocspUpdateDomainXML-admin  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.csadmin.OCSPAdminUpdateDomainXML  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ocsp        </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> ocspUpdateDomainXML </param-value> </init-param>
-             <init-param><param-name>  interface   </param-name>
-                         <param-value> admin          </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> TokenAuth </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.securitydomain.domainxml </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  ocspGetCookie  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.csadmin.OCSPGetCookie  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -70,11 +51,6 @@
              <init-param><param-name>  interface   </param-name>
                          <param-value> admin          </param-value> </init-param>
    </servlet>
-
-   <servlet-mapping>
-      <servlet-name>  ocspUpdateDomainXML-admin </servlet-name>
-      <url-pattern>   /admin/ocsp/updateDomainXML  </url-pattern>
-   </servlet-mapping>
 
    <servlet-mapping>
       <servlet-name>  ocspGetCookie </servlet-name>
