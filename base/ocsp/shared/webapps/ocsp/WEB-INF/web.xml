@@ -8,19 +8,6 @@
     <display-name>Online Certificate Status Protocol Manager</display-name>
 
    <servlet>
-      <servlet-name>  ocspheader  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.OCSPHeaderServlet  </servlet-class>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> ocspheader  </param-value> </init-param>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> true        </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> certUserDBAuthMgr </param-value> </init-param>
-             <init-param><param-name>  template    </param-name>
-                         <param-value> /agent/header.template </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  services </servlet-name>
       <servlet-class> com.netscape.cms.servlet.csadmin.OCSPMainPageServlet </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -143,11 +130,6 @@
              <init-param><param-name>  interface   </param-name>
                          <param-value> admin          </param-value> </init-param>
    </servlet>
-                                                                                
-   <servlet-mapping>
-      <servlet-name>  ocspheader  </servlet-name>
-      <url-pattern>   /agent/header  </url-pattern>
-   </servlet-mapping>
 
    <servlet-mapping>
       <servlet-name>  services </servlet-name>

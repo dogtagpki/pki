@@ -17,6 +17,19 @@ package com.netscape.cms.servlet.base;
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "ocspheader",
+        urlPatterns = "/agent/header",
+        initParams = {
+                @WebInitParam(name="ID",            value="ocspheader"),
+                @WebInitParam(name="GetClientCert", value="true"),
+                @WebInitParam(name="AuthMgr",       value="certUserDBAuthMgr"),
+                @WebInitParam(name="template",      value="/agent/header.template")
+        }
+)
 public class OCSPHeaderServlet extends IndexServlet {
     private static final long serialVersionUID = 1L;
 }
