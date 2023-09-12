@@ -17,6 +17,18 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "ocspGetStatus",
+        urlPatterns = "/admin/ocsp/getStatus",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="false"),
+                @WebInitParam(name="authority",     value="ocsp"),
+                @WebInitParam(name="ID",            value="ocspGetStatus")
+        }
+)
 public class OCSPGetStatus extends GetStatus {
     private static final long serialVersionUID = 1L;
 }
