@@ -8,19 +8,6 @@
     <display-name>Online Certificate Status Protocol Manager</display-name>
 
    <servlet>
-      <servlet-name>  services </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.csadmin.OCSPMainPageServlet </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  authorityId  </param-name>
-                         <param-value> ocsp          </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> services </param-value> </init-param>
-             <init-param><param-name>  templatePath  </param-name>
-                         <param-value> /services.template </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  ocspDownloadPKCS12  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.csadmin.OCSPDownloadPKCS12  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -130,11 +117,6 @@
              <init-param><param-name>  interface   </param-name>
                          <param-value> admin          </param-value> </init-param>
    </servlet>
-
-   <servlet-mapping>
-      <servlet-name>  services </servlet-name>
-      <url-pattern>   /services  </url-pattern>
-   </servlet-mapping>
 
    <servlet-mapping>
       <servlet-name>  ocspDownloadPKCS12 </servlet-name>
