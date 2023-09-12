@@ -12,6 +12,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -19,6 +20,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import org.dogtagpki.acme.ACMEAccount;
+import org.dogtagpki.acme.ACMEError;
 import org.dogtagpki.acme.ACMEHeader;
 import org.dogtagpki.acme.ACMENonce;
 import org.dogtagpki.acme.ACMEOrder;
@@ -66,8 +68,25 @@ public class ACMEFinalizeOrderService {
         ACMEOrder order = engine.getOrder(account, orderID);
 
         if (!order.getStatus().equals("ready")) {
-            // TODO: generate proper exception
-            throw new Exception("Order not ready: " + orderID);
+
+            // RFC 8555 Section 7.4: Applying for Certificate Issuance
+            //
+            // A request to finalize an order will result in error if the order is
+            // not in the "ready" state.  In such cases, the server MUST return a
+            // 403 (Forbidden) error with a problem document of type
+            // "orderNotReady".  The client should then send a POST-as-GET request
+            // to the order resource to obtain its current state.  The status of the
+            // order will indicate what action the client should take (see below).
+
+            ResponseBuilder builder = Response.status(Response.Status.FORBIDDEN);
+            builder.type("application/problem+json");
+
+            ACMEError error = new ACMEError();
+            error.setType("urn:ietf:params:acme:error:orderNotReady");
+            error.setDetail("Order not ready: " + orderID);
+            builder.entity(error);
+
+            throw new WebApplicationException(builder.build());
         }
 
         order.setStatus("processing");
