@@ -17,6 +17,19 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "ocspTokenAuthenticate",
+        urlPatterns = "/ee/ocsp/tokenAuthenticate",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="false"),
+                @WebInitParam(name="authority",     value="ocsp"),
+                @WebInitParam(name="ID",            value="ocspTokenAuthenticate"),
+                @WebInitParam(name="interface",     value="ee")
+        }
+)
 public class OCSPTokenAuthenticate extends TokenAuthenticate {
     private static final long serialVersionUID = 1L;
 }
