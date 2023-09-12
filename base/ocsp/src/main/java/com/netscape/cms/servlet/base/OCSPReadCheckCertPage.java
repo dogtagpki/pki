@@ -17,6 +17,22 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.base;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "ocspReadCheckCertPage",
+        urlPatterns = "/agent/ocsp/checkCert.html",
+        initParams = {
+                @WebInitParam(name="GetClientCert",        value="true"),
+                @WebInitParam(name="interface",            value="agent"),
+                @WebInitParam(name="htmlPath",             value="/ocsp/CheckCert.html"),
+                @WebInitParam(name="authority",            value="ocsp"),
+                @WebInitParam(name="ID",                   value="ocspReadCheckCertPage"),
+                @WebInitParam(name="unauthorizedTemplate", value="/agent/GenUnauthorized.template"),
+                @WebInitParam(name="AuthMgr",              value="certUserDBAuthMgr")
+        }
+)
 public class OCSPReadCheckCertPage extends DisplayHtmlServlet {
     private static final long serialVersionUID = 1L;
 }
