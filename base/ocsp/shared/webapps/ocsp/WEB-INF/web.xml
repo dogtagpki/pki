@@ -78,7 +78,7 @@
 
    <servlet>
       <servlet-name>  ocspheader  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.IndexServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.base.OCSPHeaderServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
                          <param-value> ocspheader  </param-value> </init-param>
              <init-param><param-name>  GetClientCert  </param-name>
