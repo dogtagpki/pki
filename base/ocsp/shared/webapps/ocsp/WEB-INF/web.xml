@@ -28,7 +28,7 @@
                                                                                 
    <servlet>
       <servlet-name>  ocspindex  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.IndexServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.base.OCSPIndexServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
                          <param-value> ocspindex   </param-value> </init-param>
              <init-param><param-name>  template    </param-name>
