@@ -6,25 +6,6 @@
 <web-app>
 
     <display-name>Online Certificate Status Protocol Manager</display-name>
-
-   <servlet>
-      <servlet-name>  ocspReadAddCRLPage  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.OCSPReadAddCRLPage  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> true        </param-value> </init-param>
-             <init-param><param-name>  interface   </param-name>
-                         <param-value> agent  </param-value> </init-param>
-             <init-param><param-name>  htmlPath    </param-name>
-                         <param-value> /agent/ocsp/AddCRL.html </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> ocsp        </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> ocspReadAddCRLPage </param-value> </init-param>
-             <init-param><param-name>  unauthorizedTemplate  </param-name>
-                         <param-value> /agent/GenUnauthorized.template </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> certUserDBAuthMgr </param-value> </init-param>
-   </servlet>
                                                                                 
    <servlet>
       <servlet-name>  ocspReadAddCAPage  </servlet-name>
@@ -181,11 +162,6 @@
              <init-param><param-name>  interface   </param-name>
                          <param-value> admin          </param-value> </init-param>
    </servlet>
-                                                                                
-   <servlet-mapping>
-      <servlet-name>  ocspReadAddCRLPage  </servlet-name>
-      <url-pattern>   /agent/ocsp/addCRL.html  </url-pattern>
-   </servlet-mapping>
                                                                                 
    <servlet-mapping>
       <servlet-name>  ocspReadAddCAPage  </servlet-name>
