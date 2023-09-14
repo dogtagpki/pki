@@ -18,6 +18,9 @@ package com.netscape.cms.servlet.admin;
 // --- END COPYRIGHT BLOCK ---
 
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
 import org.dogtagpki.server.tks.TKSEngine;
 
 import com.netscape.certsrv.common.Constants;
@@ -30,7 +33,17 @@ import com.netscape.tks.TKSAuthority;
  * level administrative operations such as configuration
  * parameter updates.
  */
+@WebServlet(
+        name = "tksserver",
+        urlPatterns = "/server",
+        initParams = {
+                @WebInitParam(name="ID",       value="tksserver"),
+                @WebInitParam(name="AuthzMgr", value="BasicAclAuthz")
+        }
+)
 public class TKSCMSAdminServlet extends CMSAdminServlet {
+
+    private static final long serialVersionUID = 1L;
 
     @Override
     void readSubsystem(NameValuePairs params) {
