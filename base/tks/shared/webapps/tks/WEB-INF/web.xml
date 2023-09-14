@@ -165,7 +165,7 @@
 
    <servlet>
       <servlet-name>  tksports  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.PortsServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.base.TKSPortsServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
                          <param-value> tksports    </param-value> </init-param>
              <init-param><param-name>  GetClientCert  </param-name>
