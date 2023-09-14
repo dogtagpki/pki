@@ -17,6 +17,18 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.base;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "tksports",
+        urlPatterns = "/ee/tks/ports",
+        initParams = {
+                @WebInitParam(name="ID",            value="tksports"),
+                @WebInitParam(name="GetClientCert", value="false"),
+                @WebInitParam(name="interface",     value="ee")
+        }
+)
 public class TKSPortsServlet extends PortsServlet {
     private static final long serialVersionUID = 1L;
 }
