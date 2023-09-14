@@ -6,15 +6,6 @@
 <web-app>
 
     <display-name>Token Key Service</display-name>
-
-   <servlet>
-      <servlet-name>  tkslog  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.admin.TKSLogAdminServlet  </servlet-class>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> tkslog      </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-   </servlet>
                                                                                 
    <servlet>
       <servlet-name>  tksauths  </servlet-name>
@@ -224,11 +215,6 @@
              <init-param><param-name>  ID          </param-name>
                          <param-value> tksGetStatus </param-value> </init-param>
    </servlet>
-                                                                                
-   <servlet-mapping>
-      <servlet-name>  tkslog  </servlet-name>
-      <url-pattern>   /log  </url-pattern>
-   </servlet-mapping>
                                                                                 
    <servlet-mapping>
       <servlet-name>  tksauths  </servlet-name>
