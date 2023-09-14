@@ -8,17 +8,6 @@
     <display-name>Token Key Service</display-name>
 
    <servlet>
-      <servlet-name>  tksports  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.base.TKSPortsServlet  </servlet-class>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> tksports    </param-value> </init-param>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false        </param-value> </init-param>
-             <init-param><param-name>  interface  </param-name>
-                         <param-value> ee      </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  services </servlet-name>
       <servlet-class> com.netscape.cms.servlet.csadmin.TKSMainPageServlet </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -81,11 +70,6 @@
    <servlet-mapping>
       <servlet-name>  tksGetConfigEntries  </servlet-name>
       <url-pattern>   /admin/tks/getConfigEntries  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  tksports  </servlet-name>
-      <url-pattern>   /ee/tks/ports  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
