@@ -8,23 +8,6 @@
     <display-name>Token Key Service</display-name>
 
    <servlet>
-      <servlet-name>  tksSessionKey  </servlet-name>
-      <servlet-class> org.dogtagpki.server.tks.servlet.TKSSessionKey  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> true        </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> tksSessionKey </param-value> </init-param>
-             <init-param><param-name>  template    </param-name>
-                         <param-value> index.template </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.tks.sessionkey </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> certUserDBAuthMgr </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  tksRandomData  </servlet-name>
       <servlet-class> org.dogtagpki.server.tks.servlet.TKSRandomData  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -112,11 +95,6 @@
              <init-param><param-name>  ID          </param-name>
                          <param-value> tksGetStatus </param-value> </init-param>
    </servlet>
-                                                                                
-   <servlet-mapping>
-      <servlet-name>  tksSessionKey  </servlet-name>
-      <url-pattern>   /agent/tks/computeSessionKey  </url-pattern>
-   </servlet-mapping>
 
    <servlet-mapping>
       <servlet-name>  tksRandomData  </servlet-name>
