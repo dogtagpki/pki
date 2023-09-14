@@ -118,8 +118,6 @@ public class ACMEChallengeProcessor implements Runnable {
         Date expirationTime = engine.getPolicy().getValidAuthorizationExpirationTime(currentTime);
         authorization.setExpirationTime(expirationTime);
 
-        engine.updateAuthorization(account, authorization);
-
         logger.info("Updating pending orders");
 
         Collection<ACMEOrder> orders =
@@ -129,6 +127,10 @@ public class ACMEChallengeProcessor implements Runnable {
             boolean allAuthorizationsValid = true;
 
             for (String orderAuthzID : order.getAuthzIDs()) {
+                if (orderAuthzID.equals(authzID)) {
+                    // We're about to set it to valid, so treat it as such
+                    continue;
+                }
 
                 ACMEAuthorization authz = engine.getAuthorization(account, orderAuthzID);
                 if (authz.getStatus().equals("valid")) continue;
@@ -147,6 +149,13 @@ public class ACMEChallengeProcessor implements Runnable {
 
             engine.updateOrder(account, order);
         }
+
+        // We defer the LDAP update until AFTER any order transitions
+        // occur.  This avoids a race condition where clients that eagerly
+        // proceed to finalization when all Authorizations are "valid"
+        // experience finalization failure, because the __Order__ has not yet
+        // transition to "ready".
+        engine.updateAuthorization(account, authorization);
     }
 
     public void finalizeInvalidAuthorization(ACMEError err) throws Exception {
