@@ -17,6 +17,17 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.admin;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "tkslog",
+        urlPatterns = "/log",
+        initParams = {
+                @WebInitParam(name="ID",       value="tkslog"),
+                @WebInitParam(name="AuthzMgr", value="BasicAclAuthz")
+        }
+)
 public class TKSLogAdminServlet extends LogAdminServlet {
     private static final long serialVersionUID = 1L;
 }
