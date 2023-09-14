@@ -17,6 +17,17 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.admin;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "tksauths",
+        urlPatterns = "/auths",
+        initParams = {
+                @WebInitParam(name="ID",       value="tksauths"),
+                @WebInitParam(name="AuthzMgr", value="BasicAclAuthz")
+        }
+)
 public class TKSAuthAdminServlet extends AuthAdminServlet {
     private static final long serialVersionUID = 1L;
 }
