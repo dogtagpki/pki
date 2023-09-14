@@ -189,7 +189,7 @@
 
    <servlet>
       <servlet-name>  tksDownloadPKCS12  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.csadmin.DownloadPKCS12  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.csadmin.TKSDownloadPKCS12  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> false       </param-value> </init-param>
              <init-param><param-name>  authority   </param-name>
