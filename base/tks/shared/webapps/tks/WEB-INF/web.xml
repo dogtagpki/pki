@@ -27,7 +27,7 @@
                                                                                 
    <servlet>
       <servlet-name>  tksauths  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.admin.AuthAdminServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.admin.TKSAuthAdminServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
                          <param-value> tksauths    </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
