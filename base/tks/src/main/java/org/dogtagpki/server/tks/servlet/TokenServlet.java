@@ -72,8 +72,6 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  * Service Authority. This servlet is responsible to serve
  * tks administrative operation such as configuration
  * parameter updates.
- *
- * @version $Revision$, $Date$
  */
 public class TokenServlet extends CMSServlet {
 
