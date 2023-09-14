@@ -22,6 +22,8 @@ import java.util.Locale;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -45,6 +47,18 @@ import com.netscape.cmsutil.json.JSONObject;
 /**
  * This servlet imports DRM's transport certificate into TKS.
  */
+@WebServlet(
+        name = "tksImportTransportCert",
+        urlPatterns = "/admin/tks/importTransportCert",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="false"),
+                @WebInitParam(name="authority",     value="tks"),
+                @WebInitParam(name="ID",            value="tksImportTransportCert"),
+                @WebInitParam(name="AuthMgr",       value="TokenAuth"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="resourceID",    value="certServer.tks.importTransportCert")
+        }
+)
 public class ImportTransportCert extends CMSServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ImportTransportCert.class);
