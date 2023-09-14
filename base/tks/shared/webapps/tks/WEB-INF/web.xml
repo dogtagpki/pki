@@ -225,7 +225,7 @@
 
    <servlet>
       <servlet-name>  tksGetStatus  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.csadmin.GetStatus  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.csadmin.TKSGetStatus  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> false       </param-value> </init-param>
              <init-param><param-name>  authority   </param-name>
