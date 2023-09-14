@@ -8,19 +8,6 @@
     <display-name>Token Key Service</display-name>
 
    <servlet>
-      <servlet-name>  services </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.csadmin.TKSMainPageServlet </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  authorityId  </param-name>
-                         <param-value> tks          </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> services </param-value> </init-param>
-             <init-param><param-name>  templatePath  </param-name>
-                         <param-value> /services.template </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  tksDownloadPKCS12  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.csadmin.TKSDownloadPKCS12  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -70,11 +57,6 @@
    <servlet-mapping>
       <servlet-name>  tksGetConfigEntries  </servlet-name>
       <url-pattern>   /admin/tks/getConfigEntries  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  services </servlet-name>
-      <url-pattern>   /services  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
