@@ -7,22 +7,6 @@
 
     <display-name>Token Key Service</display-name>
 
-   <servlet>       
-          <servlet-name>  tksRegisterUser  </servlet-name>       
-          <servlet-class> com.netscape.cms.servlet.csadmin.TKSRegisterUser  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>                          <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> tks          </param-value> </init-param>             <init-param><param-name>  ID          </param-name>
-                         <param-value> tksRegisterUser </param-value> </init-param>
-             <init-param><param-name>  GroupName     </param-name>
-                          <param-value> Token Key Service Manager Agents </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>                          <param-value> TokenAuth </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.tks.registerUser </param-value> </init-param>
-   </servlet>
-
    <servlet>       <servlet-name>  tksImportTransportCert  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.csadmin.ImportTransportCert  </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -206,11 +190,6 @@
    <servlet-mapping>
       <servlet-name>  tksports  </servlet-name>
       <url-pattern>   /ee/tks/ports  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  tksRegisterUser </servlet-name>
-      <url-pattern>   /admin/tks/registerUser  </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
