@@ -17,6 +17,21 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.tks.servlet;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "tksRandomData",
+        urlPatterns = "/agent/tks/computeRandomData",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="true"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="ID",            value="tksRandomData"),
+                @WebInitParam(name="template",      value="index.template"),
+                @WebInitParam(name="resourceID",    value="certServer.tks.randomdata"),
+                @WebInitParam(name="AuthMgr",       value="certUserDBAuthMgr")
+        }
+)
 public class TKSRandomData extends TokenServlet {
     private static final long serialVersionUID = 1L;
 }
