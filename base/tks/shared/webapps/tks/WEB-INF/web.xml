@@ -208,7 +208,7 @@
 
    <servlet>
       <servlet-name>  tksGetConfigEntries  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.csadmin.GetConfigEntries </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.csadmin.TPSGetConfigEntries </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
                          <param-value> false       </param-value> </init-param>
              <init-param><param-name>  authority   </param-name>
