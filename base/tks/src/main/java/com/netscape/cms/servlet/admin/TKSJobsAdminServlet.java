@@ -17,6 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.admin;
 
+// @WebServlet(
+//         name = "tksjobsScheduler",
+//         urlPatterns = "/jobsScheduler",
+//         initParams = {
+//                 @WebInitParam(name="ID",       value="tksjobsScheduler"),
+//                 @WebInitParam(name="AuthzMgr", value="BasicAclAuthz")
+//         }
+// )
 public class TKSJobsAdminServlet extends JobsAdminServlet {
     private static final long serialVersionUID = 1L;
 }
