@@ -18,7 +18,7 @@
 
    <servlet>
       <servlet-name>  tkslog  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.admin.LogAdminServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.admin.TKSLogAdminServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
                          <param-value> tkslog      </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
