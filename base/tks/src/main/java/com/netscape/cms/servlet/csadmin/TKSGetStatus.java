@@ -17,6 +17,18 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "tksGetStatus",
+        urlPatterns = "/admin/tks/getStatus",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="false"),
+                @WebInitParam(name="authority",     value="tks"),
+                @WebInitParam(name="ID",            value="tksGetStatus")
+        }
+)
 public class TKSGetStatus extends GetStatus {
     private static final long serialVersionUID = 1L;
 }
