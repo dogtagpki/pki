@@ -17,6 +17,22 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "tksRegisterUser",
+        urlPatterns = "/admin/tks/registerUser",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="false"),
+                @WebInitParam(name="authority",     value="tks"),
+                @WebInitParam(name="ID",            value="tksRegisterUser"),
+                @WebInitParam(name="GroupName",     value="Token Key Service Manager Agents"),
+                @WebInitParam(name="AuthMgr",       value="TokenAuth"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="resourceID",    value="certServer.tks.registerUser")
+        }
+)
 public class TKSRegisterUser extends RegisterUser {
     private static final long serialVersionUID = 1L;
 }
