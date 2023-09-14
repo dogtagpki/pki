@@ -8,25 +8,6 @@
     <display-name>Token Key Service</display-name>
 
    <servlet>
-      <servlet-name>  tksDownloadPKCS12  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.csadmin.TKSDownloadPKCS12  </servlet-class>
-             <init-param><param-name>  GetClientCert  </param-name>
-                         <param-value> false       </param-value> </init-param>
-             <init-param><param-name>  authority   </param-name>
-                         <param-value> tks          </param-value> </init-param>
-             <init-param><param-name>  ID          </param-name>
-                         <param-value> tksDownloadPKCS12 </param-value> </init-param>
-             <init-param><param-name>  interface   </param-name>
-                         <param-value> ee          </param-value> </init-param>
-             <init-param><param-name>  AuthMgr     </param-name>
-                         <param-value> TokenAuth </param-value> </init-param>
-             <init-param><param-name>  AuthzMgr    </param-name>
-                         <param-value> BasicAclAuthz </param-value> </init-param>
-             <init-param><param-name>  resourceID  </param-name>
-                         <param-value> certServer.clone.configuration </param-value> </init-param>
-   </servlet>
-
-   <servlet>
       <servlet-name>  tksGetConfigEntries  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.csadmin.TPSGetConfigEntries </servlet-class>
              <init-param><param-name>  GetClientCert  </param-name>
@@ -57,11 +38,6 @@
    <servlet-mapping>
       <servlet-name>  tksGetConfigEntries  </servlet-name>
       <url-pattern>   /admin/tks/getConfigEntries  </url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>  tksDownloadPKCS12 </servlet-name>
-      <url-pattern>   /admin/console/config/savepkcs12 </url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>
