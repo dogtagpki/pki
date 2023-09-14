@@ -9,7 +9,7 @@
                                                                                 
    <servlet>
       <servlet-name>  tksug  </servlet-name>
-      <servlet-class> com.netscape.cms.servlet.admin.UsrGrpAdminServlet  </servlet-class>
+      <servlet-class> com.netscape.cms.servlet.admin.TKSUsrGrpAdminServlet  </servlet-class>
              <init-param><param-name>  ID          </param-name>
                          <param-value> tksug       </param-value> </init-param>
              <init-param><param-name>  AuthzMgr    </param-name>
