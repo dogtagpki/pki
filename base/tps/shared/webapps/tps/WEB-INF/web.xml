@@ -8,18 +8,6 @@
     <display-name>Token Processing Service</display-name>
 
     <servlet>
-        <servlet-name>tpslog</servlet-name>
-        <servlet-class>com.netscape.cms.servlet.admin.TPSLogAdminServlet</servlet-class>
-        <init-param>
-            <param-name>ID</param-name>
-            <param-value>tpslog</param-value> </init-param>
-        <init-param>
-            <param-name>AuthzMgr</param-name>
-            <param-value>BasicAclAuthz</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet>
         <servlet-name>tpsGetStatus </servlet-name>
         <servlet-class> com.netscape.cms.servlet.csadmin.TPSGetStatus</servlet-class>
         <init-param>
@@ -74,11 +62,6 @@
         <servlet-name>tps</servlet-name>
         <servlet-class>org.dogtagpki.server.tps.TPSServlet</servlet-class>
     </servlet>
-
-    <servlet-mapping>
-        <servlet-name>tpslog</servlet-name>
-        <url-pattern>/log</url-pattern>
-    </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>tpsGetStatus</servlet-name>
