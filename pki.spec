@@ -748,6 +748,12 @@ Provides:         pki-server-theme = %{version}-%{release}
 Obsoletes:        %{product_id}-server-theme < %{version}-%{release}
 Provides:         %{product_id}-server-theme = %{version}-%{release}
 
+%if 0%{?fedora} > 38
+Requires:         fontawesome4-fonts-web
+%else
+Requires:         fontawesome-fonts-web
+%endif
+
 # Ensure we end up with a useful installation
 Conflicts:        pki-base < %{version}
 Conflicts:        pki-javadoc < %{version}
@@ -925,6 +931,17 @@ pkgs=base\
     --work-dir=%{_vpath_builddir} \
     --install-dir=%{buildroot} \
     install
+
+%if %{with theme}
+# create links to FontAwesome fonts
+%if 0%{?fedora} > 38
+ln -s ../../../fonts/fontawesome4/fontawesome-webfont.woff \
+    %{buildroot}%{_datadir}/pki/common-ui/fonts/fontawesome-webfont.woff
+%else
+ln -s ../../../fonts/fontawesome/fontawesome-webfont.woff \
+    %{buildroot}%{_datadir}/pki/common-ui/fonts/fontawesome-webfont.woff
+%endif
+%endif
 
 %if %{with server}
 
