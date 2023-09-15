@@ -7,6 +7,7 @@ import java.io.IOException;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -15,6 +16,10 @@ import org.dogtagpki.tps.main.TPSBuffer;
 
 import com.netscape.cmscore.apps.CMS;
 
+@WebServlet(
+        name = "phoneHome",
+        urlPatterns = "/phoneHome"
+)
 public class TPSPhoneHome extends HttpServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSPhoneHome.class);
