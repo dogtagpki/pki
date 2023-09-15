@@ -17,6 +17,17 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.admin;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "tpsug",
+        urlPatterns = "/ug",
+        initParams = {
+                @WebInitParam(name="ID",       value="tpsug"),
+                @WebInitParam(name="AuthzMgr", value="BasicAclAuthz")
+        }
+)
 public class TPSUsrGrpAdminServlet extends UsrGrpAdminServlet {
     private static final long serialVersionUID = 1L;
 }
