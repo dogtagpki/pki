@@ -32,6 +32,6 @@ import javax.servlet.annotation.WebServlet;
                 @WebInitParam(name="resourceID",    value="certServer.clone.configuration.GetConfigEntries")
         }
 )
-public class TPSGetConfigEntries extends GetConfigEntries {
+public class TKSGetConfigEntries extends GetConfigEntries {
     private static final long serialVersionUID = 1L;
 }
