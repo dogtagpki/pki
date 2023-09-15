@@ -8,23 +8,6 @@
     <display-name>Token Processing Service</display-name>
 
     <servlet>
-        <servlet-name>tpsGetStatus </servlet-name>
-        <servlet-class> com.netscape.cms.servlet.csadmin.TPSGetStatus</servlet-class>
-        <init-param>
-            <param-name>GetClientCert</param-name>
-            <param-value>false</param-value>
-        </init-param>
-        <init-param>
-            <param-name>authority</param-name>
-            <param-value>tps</param-value>
-        </init-param>
-        <init-param>
-            <param-name>ID</param-name>
-            <param-value>tpsGetStatus</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet>
         <servlet-name>tpsGetConfigEntries</servlet-name>
         <servlet-class>com.netscape.cms.servlet.csadmin.TPSGetConfigEntries</servlet-class>
         <init-param>
@@ -62,11 +45,6 @@
         <servlet-name>tps</servlet-name>
         <servlet-class>org.dogtagpki.server.tps.TPSServlet</servlet-class>
     </servlet>
-
-    <servlet-mapping>
-        <servlet-name>tpsGetStatus</servlet-name>
-        <url-pattern>/admin/tps/getStatus</url-pattern>
-    </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>tpsGetConfigEntries</servlet-name>
