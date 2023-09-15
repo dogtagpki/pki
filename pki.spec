@@ -247,7 +247,6 @@ to manage enterprise Public Key Infrastructure deployments.
 
 Summary:          %{product_name} Package
 %endif
-BuildArch:        noarch
 
 Obsoletes:        pki-symkey < %{version}
 Obsoletes:        %{product_id}-symkey < %{version}
