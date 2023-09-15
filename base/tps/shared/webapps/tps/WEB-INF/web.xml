@@ -7,16 +7,6 @@
 
     <display-name>Token Processing Service</display-name>
 
-    <servlet>
-        <servlet-name>tps</servlet-name>
-        <servlet-class>org.dogtagpki.server.tps.TPSServlet</servlet-class>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>tps</servlet-name>
-        <url-pattern>/tps</url-pattern>
-    </servlet-mapping>
-
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>Account Services</web-resource-name>
