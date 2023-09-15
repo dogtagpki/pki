@@ -9,7 +9,7 @@
 
     <servlet>
         <servlet-name>tpsug</servlet-name>
-        <servlet-class>com.netscape.cms.servlet.admin.UsrGrpAdminServlet</servlet-class>
+        <servlet-class>com.netscape.cms.servlet.admin.TPSUsrGrpAdminServlet</servlet-class>
         <init-param>
             <param-name>ID</param-name>
             <param-value>tpsug</param-value>
