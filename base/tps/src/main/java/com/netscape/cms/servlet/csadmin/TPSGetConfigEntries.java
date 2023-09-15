@@ -17,6 +17,21 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(
+        name = "tpsGetConfigEntries",
+        urlPatterns = "/admin/tps/getConfigEntries",
+        initParams = {
+                @WebInitParam(name="GetClientCert", value="false"),
+                @WebInitParam(name="authority",     value="tps"),
+                @WebInitParam(name="ID",            value="tpsGetConfigEntries"),
+                @WebInitParam(name="AuthzMgr",      value="BasicAclAuthz"),
+                @WebInitParam(name="AuthMgr",       value="TokenAuth"),
+                @WebInitParam(name="resourceID",    value="certServer.clone.configuration.GetConfigEntries")
+        }
+)
 public class TPSGetConfigEntries extends GetConfigEntries {
     private static final long serialVersionUID = 1L;
 }
