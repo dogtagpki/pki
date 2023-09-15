@@ -931,6 +931,27 @@ pkgs=base\
     --install-dir=%{buildroot} \
     install
 
+%if "%{name}" != "pki"
+# Maven installs the JAR files in /usr/share/java/<name>, so create
+# links in /usr/share/java/pki for backward compatibility
+mkdir -p %{buildroot}%{_javadir}/pki
+pushd %{buildroot}%{_javadir}/pki
+ln -sf ../../..%{_javadir}/%{name}/pki-common.jar
+ln -sf ../../..%{_javadir}/%{name}/pki-tools.jar
+ln -sf ../../..%{_javadir}/%{name}/pki-server.jar
+ln -sf ../../..%{_javadir}/%{name}/pki-server-webapp.jar
+ln -sf ../../..%{_javadir}/%{name}/pki-tomcat.jar
+ln -sf ../../..%{_javadir}/%{name}/pki-tomcat-9.0.jar
+ln -sf ../../..%{_javadir}/%{name}/pki-ca.jar
+ln -sf ../../..%{_javadir}/%{name}/pki-kra.jar
+ln -sf ../../..%{_javadir}/%{name}/pki-ocsp.jar
+ln -sf ../../..%{_javadir}/%{name}/pki-tks.jar
+ln -sf ../../..%{_javadir}/%{name}/pki-tps.jar
+ln -sf ../../..%{_javadir}/%{name}/pki-acme.jar
+ln -sf ../../..%{_javadir}/%{name}/pki-est.jar
+popd
+%endif
+
 %if %{with theme}
 # create links to FontAwesome fonts
 %if 0%{?fedora} > 38
@@ -1068,6 +1089,9 @@ fi
 %{_datadir}/pki/lib/*.jar
 %dir %{_javadir}/pki
 %{_javadir}/pki/pki-common.jar
+%if "%{name}" != "pki"
+%{_javadir}/%{name}/pki-common.jar
+%endif
 
 ################################################################################
 %files -n python3-%{product_id}
@@ -1118,6 +1142,9 @@ fi
 %{_bindir}/PrettyPrintCrl
 %{_bindir}/TokenInfo
 %{_javadir}/pki/pki-tools.jar
+%if "%{name}" != "pki"
+%{_javadir}/%{name}/pki-tools.jar
+%endif
 %{_datadir}/pki/tools/
 %{_datadir}/pki/lib/p11-kit-trust.so
 %{_mandir}/man1/AtoB.1.gz
@@ -1189,6 +1216,12 @@ fi
 %{_javadir}/pki/pki-server-webapp.jar
 %{_javadir}/pki/pki-tomcat.jar
 %{_javadir}/pki/pki-tomcat-9.0.jar
+%if "%{name}" != "pki"
+%{_javadir}/%{name}/pki-server.jar
+%{_javadir}/%{name}/pki-server-webapp.jar
+%{_javadir}/%{name}/pki-tomcat.jar
+%{_javadir}/%{name}/pki-tomcat-9.0.jar
+%endif
 %dir %{_sharedstatedir}/pki
 %{_mandir}/man1/pkidaemon.1.gz
 %{_mandir}/man5/pki_default.cfg.5.gz
@@ -1223,6 +1256,9 @@ fi
 ################################################################################
 
 %{_javadir}/pki/pki-acme.jar
+%if "%{name}" != "pki"
+%{_javadir}/%{name}/pki-acme.jar
+%endif
 %{_datadir}/pki/acme/
 
 # with acme
@@ -1235,6 +1271,9 @@ fi
 
 %license base/ca/LICENSE
 %{_javadir}/pki/pki-ca.jar
+%if "%{name}" != "pki"
+%{_javadir}/%{name}/pki-ca.jar
+%endif
 %{_datadir}/pki/ca/
 
 # with ca
@@ -1246,6 +1285,10 @@ fi
 ################################################################################
 
 %{_javadir}/pki/pki-est.jar
+%if "%{name}" != "pki"
+%{_javadir}/%{name}/pki-est.jar
+%endif
+
 %{_datadir}/pki/est/
 
 # with est
@@ -1258,6 +1301,9 @@ fi
 
 %license base/kra/LICENSE
 %{_javadir}/pki/pki-kra.jar
+%if "%{name}" != "pki"
+%{_javadir}/%{name}/pki-kra.jar
+%endif
 %{_datadir}/pki/kra/
 
 # with kra
@@ -1270,6 +1316,9 @@ fi
 
 %license base/ocsp/LICENSE
 %{_javadir}/pki/pki-ocsp.jar
+%if "%{name}" != "pki"
+%{_javadir}/%{name}/pki-ocsp.jar
+%endif
 %{_datadir}/pki/ocsp/
 
 # with ocsp
@@ -1282,6 +1331,9 @@ fi
 
 %license base/tks/LICENSE
 %{_javadir}/pki/pki-tks.jar
+%if "%{name}" != "pki"
+%{_javadir}/%{name}/pki-tks.jar
+%endif
 %{_datadir}/pki/tks/
 
 # with tks
@@ -1294,6 +1346,9 @@ fi
 
 %license base/tps/LICENSE
 %{_javadir}/pki/pki-tps.jar
+%if "%{name}" != "pki"
+%{_javadir}/%{name}/pki-tps.jar
+%endif
 %{_datadir}/pki/tps/
 %{_mandir}/man5/pki-tps-connector.5.gz
 %{_mandir}/man5/pki-tps-profile.5.gz
@@ -1319,6 +1374,9 @@ fi
 %license base/console/LICENSE
 %{_bindir}/pkiconsole
 %{_javadir}/pki/pki-console.jar
+%if "%{name}" != "pki"
+%{_javadir}/%{name}/pki-console.jar
+%endif
 
 # with console
 %endif
@@ -1354,6 +1412,9 @@ fi
 
 %license themes/%{theme}/console-ui/LICENSE
 %{_javadir}/pki/pki-console-theme.jar
+%if "%{name}" != "pki"
+%{_javadir}/%{name}/pki-console-theme.jar
+%endif
 
 # with console
 %endif
