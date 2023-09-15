@@ -19,6 +19,7 @@ package org.dogtagpki.server.tps;
 
 import java.io.IOException;
 
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,6 +29,10 @@ import org.dogtagpki.tps.TPSConnection;
 /**
  * @author Endi S. Dewata <edewata@redhat.com>
  */
+@WebServlet(
+        name = "tps",
+        urlPatterns = "/tps"
+)
 public class TPSServlet extends HttpServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSServlet.class);
