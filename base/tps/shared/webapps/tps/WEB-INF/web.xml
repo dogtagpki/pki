@@ -8,19 +8,6 @@
     <display-name>Token Processing Service</display-name>
 
     <servlet>
-        <servlet-name>tpsug</servlet-name>
-        <servlet-class>com.netscape.cms.servlet.admin.TPSUsrGrpAdminServlet</servlet-class>
-        <init-param>
-            <param-name>ID</param-name>
-            <param-value>tpsug</param-value>
-        </init-param>
-        <init-param>
-            <param-name>AuthzMgr</param-name>
-            <param-value>BasicAclAuthz</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet>
         <servlet-name>tpslog</servlet-name>
         <servlet-class>com.netscape.cms.servlet.admin.TPSLogAdminServlet</servlet-class>
         <init-param>
@@ -87,11 +74,6 @@
         <servlet-name>tps</servlet-name>
         <servlet-class>org.dogtagpki.server.tps.TPSServlet</servlet-class>
     </servlet>
-
-    <servlet-mapping>
-        <servlet-name>tpsug</servlet-name>
-        <url-pattern>/ug</url-pattern>
-    </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>tpslog</servlet-name>
