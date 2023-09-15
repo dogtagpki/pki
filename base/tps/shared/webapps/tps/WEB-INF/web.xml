@@ -22,7 +22,7 @@
 
     <servlet>
         <servlet-name>tpslog</servlet-name>
-        <servlet-class>com.netscape.cms.servlet.admin.LogAdminServlet</servlet-class>
+        <servlet-class>com.netscape.cms.servlet.admin.TPSLogAdminServlet</servlet-class>
         <init-param>
             <param-name>ID</param-name>
             <param-value>tpslog</param-value> </init-param>
