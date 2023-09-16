@@ -44,44 +44,15 @@ import netscape.ldap.LDAPv3;
  */
 public class LdapBoundConnFactory extends LdapConnFactory {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapBoundConnFactory.class);
-
-    protected String id;
-
-    PKISocketConfig config;
-
-    protected int mMinConns = 5;
-    protected int mMaxConns = 1000;
-    protected int mMaxResults = 0;
-
-    protected LdapConnInfo mConnInfo = null;
-    protected LdapAuthInfo mAuthInfo = null;
-    PasswordStore passwordStore;
-
-    public static final String PROP_MINCONNS = "minConns";
-    public static final String PROP_MAXCONNS = "maxConns";
-    public static final String PROP_MAXRESULTS = "maxResults";
     public static final String PROP_LDAPCONNINFO = "ldapconn";
     public static final String PROP_LDAPAUTHINFO = "ldapauth";
 
-    public static final String PROP_ERROR_IF_DOWN = "errorIfDown";
+    LdapAuthInfo mAuthInfo;
+    PasswordStore passwordStore;
 
-    private int mNumConns = 0; // number of available conns in array
-    private int mTotal = 0; // total num conns
-
-    private boolean doCloning = true;
-    private LdapBoundConnection mMasterConn = null; // master connection object.
-    private LdapBoundConnection[] mConns;
-
-    /**
-     * return error if server is down at creation time.
-     */
-    private boolean mErrorIfDown;
-
-    /**
-     * default value for the above at init time.
-     */
-    private boolean mDefErrorIfDown = false;
+    boolean doCloning = true;
+    LdapBoundConnection mMasterConn; // master connection object.
+    LdapBoundConnection[] mConns;
 
     /**
      * Constructor for initializing from the config store.
@@ -152,21 +123,6 @@ public class LdapBoundConnFactory extends LdapConnFactory {
 
         this.mConnInfo = connInfo;
         this.mAuthInfo = authInfo;
-    }
-
-    @Override
-    public int totalConn() {
-        return mTotal;
-    }
-
-    @Override
-    public synchronized int freeConn() {
-        return mNumConns;
-    }
-
-    @Override
-    public int maxConn() {
-        return mMaxConns;
     }
 
     public void init(
@@ -562,12 +518,6 @@ public class LdapBoundConnFactory extends LdapConnFactory {
 
     }
 
-    @Override
-    protected void finalize()
-            throws Exception {
-        reset();
-    }
-
     /**
      * used for disconnecting all connections and reset everything to 0
      * as if connections were never made. used just before a subsystem
@@ -634,13 +584,6 @@ public class LdapBoundConnFactory extends LdapConnFactory {
         if (mAuthInfo != null) {
             mAuthInfo.reset();
         }
-    }
-
-    /**
-     * return ldap connection info
-     */
-    public LdapConnInfo getConnInfo() {
-        return mConnInfo;
     }
 
     /**

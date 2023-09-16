@@ -21,6 +21,8 @@ import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.ssl.SSLSocketListener;
 
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.ldapconn.LdapConnInfo;
+import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.logging.Auditor;
 
 import netscape.ldap.LDAPConnection;
@@ -32,10 +34,53 @@ import netscape.ldap.LDAPConnection;
  */
 public abstract class LdapConnFactory {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapConnFactory.class);
+
+    public static final String PROP_MINCONNS = "minConns";
+    public static final String PROP_MAXCONNS = "maxConns";
+    public static final String PROP_MAXRESULTS = "maxResults";
+    public static final String PROP_ERROR_IF_DOWN = "errorIfDown";
+
+    protected String id;
+
+    protected PKISocketConfig config;
+    protected LdapConnInfo mConnInfo;
+
+    protected int mMinConns = 5;
+    protected int mMaxConns = 1000;
+    protected int mMaxResults = 0;
+
+    /**
+     * number of available conns in array
+     */
+    protected int mNumConns = 0;
+
+    /**
+     * total num conns
+     */
+    protected int mTotal = 0;
+
+    /**
+     * return error if server is down at creation time.
+     */
+    protected boolean mErrorIfDown;
+
+    /**
+     * default value for the above at init time.
+     */
+    protected boolean mDefErrorIfDown;
+
     protected CMSEngine engine;
     protected Auditor auditor;
     protected SSLSocketListener socketListener;
     protected SSLCertificateApprovalCallback approvalCallback;
+
+    /**
+     * returns connection info.
+     */
+    public LdapConnInfo getConnInfo() {
+        return mConnInfo;
+    }
 
     public CMSEngine getCMSEngine() {
         return engine;
@@ -65,8 +110,9 @@ public abstract class LdapConnFactory {
      *
      * @return Integer number of free connections.
      */
-
-    public abstract int freeConn();
+    public synchronized int freeConn() {
+        return mNumConns;
+    }
 
     /**
      * Returns the number of total connections available from this pool.
@@ -74,14 +120,18 @@ public abstract class LdapConnFactory {
      *
      * @return Integer number of total connections.
      */
-    public abstract int totalConn();
+    public int totalConn() {
+        return mTotal;
+    }
 
     /**
      * Returns the maximum number of connections available from this pool.
      *
      * @return Integer maximum number of connections.
      */
-    public abstract int maxConn();
+    public int maxConn() {
+        return mMaxConns;
+    }
 
     /**
      * Request access to a Ldap connection from the pool.
@@ -99,4 +149,9 @@ public abstract class LdapConnFactory {
      * @exception ELdapException On any failure to return the connection.
      */
     public abstract void returnConn(LDAPConnection conn) throws ELdapException;
+
+    @Override
+    protected void finalize() throws Exception {
+        reset();
+    }
 }

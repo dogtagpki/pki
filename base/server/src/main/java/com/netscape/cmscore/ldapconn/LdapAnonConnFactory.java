@@ -34,31 +34,8 @@ import netscape.ldap.LDAPv3;
  */
 public class LdapAnonConnFactory extends LdapConnFactory {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapAnonConnFactory.class);
-
-    protected String id;
-
-    PKISocketConfig config;
-
-    protected int mMinConns = 5;
-    protected int mMaxConns = 1000;
-    protected int mMaxResults = 0;
-    protected LdapConnInfo mConnInfo = null;
-
-    public static final String PROP_MINCONNS = "minConns";
-    public static final String PROP_MAXCONNS = "maxConns";
-    public static final String PROP_MAXRESULTS = "maxResults";
-
-    public static final String PROP_ERROR_IF_DOWN = "errorIfDown";
-
-    private int mNumConns = 0; // number of available conns in array
-    private int mTotal = 0; // total num conns
-    private AnonConnection mConns[] = null;
-
-    private boolean mInited = false;
-
-    private boolean mErrorIfDown;
-    private boolean mDefErrorIfDown = false;
+    AnonConnection[] mConns;
+    boolean mInited;
 
     /**
      * Constructor for initializing from the config store.
@@ -126,22 +103,6 @@ public class LdapAnonConnFactory extends LdapConnFactory {
         this.mMaxConns = maxConns;
         this.mMaxResults = maxResults;
         this.mConnInfo = connInfo;
-    }
-
-
-    @Override
-    public int totalConn() {
-        return mTotal;
-    }
-
-    @Override
-    public int freeConn() {
-        return mNumConns;
-    }
-
-    @Override
-    public int maxConn() {
-        return mMaxConns;
     }
 
     public void init(PKISocketConfig config) throws ELdapException {
@@ -453,19 +414,6 @@ public class LdapAnonConnFactory extends LdapConnFactory {
 
         notifyAll();
         logger.debug(method + " final values. Total: " + mTotal + ", pool: " + mNumConns);
-    }
-
-    @Override
-    protected void finalize()
-            throws Exception {
-        reset();
-    }
-
-    /**
-     * returns connection info.
-     */
-    public LdapConnInfo getConnInfo() {
-        return mConnInfo;
     }
 
     /**
