@@ -20,7 +20,6 @@ package com.netscape.cms.profile.common;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.cms.profile.def.PolicyDefault;
-import com.netscape.cmscore.base.ConfigStore;
 
 /**
  * This class implements a Certificate Manager enrollment
@@ -55,7 +54,7 @@ public class UserCertCAEnrollProfile extends CAEnrollProfile {
                 createProfilePolicy("set1", "p2",
                         "validityDefaultImpl", "noConstraintImpl");
         PolicyDefault def2 = policy2.getDefault();
-        ConfigStore defConfig2 = def2.getConfigStore();
+        PolicyDefaultConfig defConfig2 = def2.getConfigStore();
         defConfig2.putString("params.range", "180");
         defConfig2.putString("params.startTime", "0");
 
@@ -63,7 +62,7 @@ public class UserCertCAEnrollProfile extends CAEnrollProfile {
                 createProfilePolicy("set1", "p3",
                         "userKeyDefaultImpl", "noConstraintImpl");
         PolicyDefault def3 = policy3.getDefault();
-        ConfigStore defConfig3 = def3.getConfigStore();
+        PolicyDefaultConfig defConfig3 = def3.getConfigStore();
         defConfig3.putString("params.keyType", "RSA");
         defConfig3.putString("params.keyMinLength", "512");
         defConfig3.putString("params.keyMaxLength", "4096");
@@ -72,7 +71,7 @@ public class UserCertCAEnrollProfile extends CAEnrollProfile {
                 createProfilePolicy("set1", "p4",
                         "signingAlgDefaultImpl", "noConstraintImpl");
         PolicyDefault def4 = policy4.getDefault();
-        ConfigStore defConfig4 = def4.getConfigStore();
+        PolicyDefaultConfig defConfig4 = def4.getConfigStore();
         defConfig4.putString("params.signingAlg", "-");
         defConfig4
                 .putString(
@@ -83,7 +82,7 @@ public class UserCertCAEnrollProfile extends CAEnrollProfile {
                 createProfilePolicy("set1", "p5",
                         "keyUsageExtDefaultImpl", "noConstraintImpl");
         PolicyDefault def5 = policy5.getDefault();
-        ConfigStore defConfig5 = def5.getConfigStore();
+        PolicyDefaultConfig defConfig5 = def5.getConfigStore();
         defConfig5.putString("params.keyUsageCritical", "true");
         defConfig5.putString("params.keyUsageCrlSign", "false");
         defConfig5.putString("params.keyUsageDataEncipherment", "false");

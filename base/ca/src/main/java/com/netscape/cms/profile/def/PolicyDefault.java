@@ -26,7 +26,7 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IConfigTemplate;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cms.profile.common.PolicyDefaultConfig;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -53,7 +53,7 @@ import com.netscape.cmscore.request.Request;
 public abstract class PolicyDefault implements IConfigTemplate {
 
     protected CAEngineConfig engineConfig;
-    protected ConfigStore mConfig;
+    protected PolicyDefaultConfig mConfig;
 
     /**
      * Initializes this default policy.
@@ -62,7 +62,7 @@ public abstract class PolicyDefault implements IConfigTemplate {
      * @param config configuration store for this default
      * @exception EProfileException failed to initialize
      */
-    public void init(CAEngineConfig engineConfig, ConfigStore config) throws EProfileException {
+    public void init(CAEngineConfig engineConfig, PolicyDefaultConfig config) throws EProfileException {
         this.engineConfig = engineConfig;
         this.mConfig = config;
     }
@@ -72,7 +72,7 @@ public abstract class PolicyDefault implements IConfigTemplate {
      *
      * @return configuration store of this default policy
      */
-    public abstract ConfigStore getConfigStore();
+    public abstract PolicyDefaultConfig getConfigStore();
 
     /**
      * Populates the request with this policy default.

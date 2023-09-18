@@ -43,6 +43,7 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
+import com.netscape.cms.profile.common.PolicyDefaultConfig;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
@@ -120,7 +121,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
     }
 
     @Override
-    public void init(CAEngineConfig engineConfig, ConfigStore config) throws EProfileException {
+    public void init(CAEngineConfig engineConfig, PolicyDefaultConfig config) throws EProfileException {
         super.init(engineConfig, config);
         refreshConfigAndValueNames();
     }
@@ -646,7 +647,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
             int num = getNumPolicies();
             logger.info("CertificatePoliciesExtension: policies: " + num);
 
-            ConfigStore config = getConfigStore();
+            PolicyDefaultConfig config = getConfigStore();
 
             for (int i = 0; i < num; i++) {
 

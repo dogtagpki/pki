@@ -24,6 +24,7 @@ import java.util.Vector;
 import org.dogtagpki.server.ca.CAEngineConfig;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
+import com.netscape.cms.profile.common.PolicyDefaultConfig;
 import com.netscape.cms.profile.def.EnrollDefault;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
@@ -54,11 +55,14 @@ public class BootstrapProfile {
         StringTokenizer st = new StringTokenizer(config.getString("list"), ",");
         while (st.hasMoreTokens()) {
             String id = st.nextToken();
-            String c = config.getString(id + ".default.class");
+
+            PolicyDefaultConfig defaultConfig = config.getSubStore(id + ".default", PolicyDefaultConfig.class);
+            String c = defaultConfig.getClassName();
+
             try {
                 /* load defaults */
                 EnrollDefault def = (EnrollDefault) Class.forName(c).getDeclaredConstructor().newInstance();
-                init(config.getSubStore(id + ".default", ConfigStore.class), def);
+                init(defaultConfig, def);
                 mDefaults.addElement(def);
             } catch (Exception e) {
                 logger.warn("BootstrapProfile: Unable to create PolicyDefault: " + e.getMessage(), e);
@@ -66,7 +70,7 @@ public class BootstrapProfile {
         }
     }
 
-    private void init(ConfigStore config, EnrollDefault def)
+    private void init(PolicyDefaultConfig config, EnrollDefault def)
             throws Exception {
         try {
             def.init(engineConfig, config);

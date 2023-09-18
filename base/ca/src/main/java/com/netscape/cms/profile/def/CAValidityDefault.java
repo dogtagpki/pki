@@ -35,8 +35,8 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
+import com.netscape.cms.profile.common.PolicyDefaultConfig;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -73,7 +73,7 @@ public class CAValidityDefault extends EnrollDefault {
     }
 
     @Override
-    public void init(CAEngineConfig engineConfig, ConfigStore config) throws EProfileException {
+    public void init(CAEngineConfig engineConfig, PolicyDefaultConfig config) throws EProfileException {
         super.init(engineConfig, config);
     }
 

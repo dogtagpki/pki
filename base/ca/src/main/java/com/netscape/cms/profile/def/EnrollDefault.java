@@ -68,6 +68,7 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.security.SigningUnitConfig;
 import com.netscape.cms.profile.common.EnrollProfile;
+import com.netscape.cms.profile.common.PolicyDefaultConfig;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
@@ -80,8 +81,6 @@ import com.netscape.cmscore.request.Request;
 public abstract class EnrollDefault extends PolicyDefault {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EnrollDefault.class);
-
-    public static final String PROP_NAME = "name";
 
     public static final String GN_RFC822_NAME = "RFC822Name";
     public static final String GN_DNS_NAME = "DNSName";
@@ -163,14 +162,14 @@ public abstract class EnrollDefault extends PolicyDefault {
     public abstract String getText(Locale locale);
 
     @Override
-    public ConfigStore getConfigStore() {
+    public PolicyDefaultConfig getConfigStore() {
         return mConfig;
     }
 
     @Override
     public String getName(Locale locale) {
         try {
-            return mConfig.getString(PROP_NAME);
+            return mConfig.getDefaultName();
         } catch (EBaseException e) {
             return null;
         }

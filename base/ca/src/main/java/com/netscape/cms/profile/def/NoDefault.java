@@ -25,8 +25,8 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
+import com.netscape.cms.profile.common.PolicyDefaultConfig;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -35,8 +35,6 @@ import com.netscape.cmscore.request.Request;
  * @version $Revision$, $Date$
  */
 public class NoDefault extends PolicyDefault {
-
-    public static final String PROP_NAME = "name";
 
     protected Vector<String> mValues = new Vector<>();
     protected Vector<String> mNames = new Vector<>();
@@ -66,7 +64,7 @@ public class NoDefault extends PolicyDefault {
     }
 
     @Override
-    public ConfigStore getConfigStore() {
+    public PolicyDefaultConfig getConfigStore() {
         return mConfig;
     }
 
@@ -107,7 +105,7 @@ public class NoDefault extends PolicyDefault {
     @Override
     public String getName(Locale locale) {
         try {
-            return mConfig.getString(PROP_NAME);
+            return mConfig.getDefaultName();
         } catch (EBaseException e) {
             return null;
         }

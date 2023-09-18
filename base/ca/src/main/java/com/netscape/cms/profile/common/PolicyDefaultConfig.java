@@ -26,6 +26,10 @@ public class PolicyDefaultConfig extends ConfigStore {
         super(name, source);
     }
 
+    public String getClassName() throws EBaseException {
+        return getString("class");
+    }
+
     public String getClassID() throws EBaseException {
         return getString("class_id");
     }
