@@ -31,4 +31,11 @@ public class ProfilePolicyConfig extends ConfigStore {
     public PolicyDefaultConfig getPolicyDefaultConfig() {
         return getSubStore("default", PolicyDefaultConfig.class);
     }
+
+    /**
+     * Returns policy constraint configuration.
+     */
+    public PolicyConstraintConfig getPolicyConstraintConfig() {
+        return getSubStore("constraint", PolicyConstraintConfig.class);
+    }
 }

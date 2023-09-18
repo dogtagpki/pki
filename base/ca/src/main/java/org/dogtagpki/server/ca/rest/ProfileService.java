@@ -68,6 +68,7 @@ import com.netscape.certsrv.profile.ProfileResource;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.cms.profile.common.CAEnrollProfile;
+import com.netscape.cms.profile.common.PolicyConstraintConfig;
 import com.netscape.cms.profile.common.PolicyDefaultConfig;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.profile.common.ProfileConfig;
@@ -291,7 +292,8 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         ProfilePolicy p = new ProfilePolicy();
         p.setId(policy.getId());
 
-        String constraintClassId = policyStore.getString("constraint.class_id");
+        PolicyConstraintConfig constraintConfig = policyStore.getPolicyConstraintConfig();
+        String constraintClassId = constraintConfig.getClassID();
         p.setConstraint(PolicyConstraintFactory.create(getLocale(headers), policy.getConstraint(), constraintClassId));
 
         PolicyDefaultConfig defaultConfig = policyStore.getPolicyDefaultConfig();
@@ -919,6 +921,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
                     ProfilePolicySetConfig policySetConfig = policiesConfig.getPolicySetConfig(setId);
                     ProfilePolicyConfig pstore = policySetConfig.getPolicyConfig(policy.getId());
                     PolicyDefaultConfig defaultConfig = pstore.getPolicyDefaultConfig();
+                    PolicyConstraintConfig constraintConfig = pstore.getPolicyConstraintConfig();
 
                     if (!def.getName().isEmpty()) {
                         defaultConfig.setDefaultName(def.getName());
@@ -934,10 +937,10 @@ public class ProfileService extends SubsystemService implements ProfileResource 
 
                     // change specific elements to match incoming data for PolicyConstraint
                     if (!con.getName().isEmpty()) {
-                        pstore.putString("constraint.name", con.getName());
+                        constraintConfig.setConstraintName(con.getName());
                     }
                     /*if (!con.getText().isEmpty()) {
-                        pstore.putString("constraint.description", con.getText());
+                        constraintConfig.setDescription(con.getText());
                     }*/
                     for (PolicyConstraintValue pcv : con.getConstraints()) {
                         if (!pcv.getValue().isEmpty()) {

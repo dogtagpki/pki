@@ -73,7 +73,6 @@ public abstract class Profile {
     public static final String PROP_INPUT_LIST = "list";
     public static final String PROP_OUTPUT_LIST = "list";
     public static final String PROP_UPDATER_LIST = "list";
-    public static final String PROP_CONSTRAINT = "constraint";
     public static final String PROP_INPUT = "input";
     public static final String PROP_OUTPUT = "output";
     public static final String PROP_CLASS_ID = "class_id";
@@ -361,7 +360,8 @@ public abstract class Profile {
                 PolicyDefaultConfig defaultConfig = policyConfig.getPolicyDefaultConfig();
                 String defaultClassId = defaultConfig.getClassID();
 
-                String constraintClassId = policyConfig.getString(PROP_CONSTRAINT + "." + PROP_CLASS_ID);
+                PolicyConstraintConfig constraintConfig = policyConfig.getPolicyConstraintConfig();
+                String constraintClassId = constraintConfig.getClassID();
 
                 createProfilePolicy(setId, id, defaultClassId,
                         constraintClassId, false);
@@ -1056,8 +1056,8 @@ public abstract class Profile {
         if (constraint == null) {
             logger.warn(method + " failed to create " + constraintClass);
         } else {
-            ConfigStore conStore = policyConfig.getSubStore(PROP_CONSTRAINT, ConfigStore.class);
-            constraint.init(conStore);
+            PolicyConstraintConfig constraintConfig = policyConfig.getPolicyConstraintConfig();
+            constraint.init(constraintConfig);
             policy = new ProfilePolicy(id, def, constraint);
             policies.addElement(policy);
             logger.debug(method + " constraint class initialized.");
@@ -1081,8 +1081,10 @@ public abstract class Profile {
             defaultConfig.setDefaultName(defInfo.getName(Locale.getDefault()));
             defaultConfig.setClassID(defaultClassId);
 
-            policyConfig.putString("constraint.name", conInfo.getName(Locale.getDefault()));
-            policyConfig.putString("constraint.class_id", constraintClassId);
+            PolicyConstraintConfig constraintConfig = policyConfig.getPolicyConstraintConfig();
+            constraintConfig.setConstraintName(conInfo.getName(Locale.getDefault()));
+            constraintConfig.setClassID(constraintClassId);
+
             try {
                 mConfig.putString("lastModified",
                         Long.toString(new Date().getTime()));
