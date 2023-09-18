@@ -748,8 +748,10 @@ Obsoletes:        %{product_id}-server-theme < %{version}-%{release}
 Provides:         %{product_id}-server-theme = %{version}-%{release}
 
 %if 0%{?fedora} > 38
+BuildRequires:    fontawesome4-fonts-web
 Requires:         fontawesome4-fonts-web
 %else
+BuildRequires:    fontawesome-fonts-web
 Requires:         fontawesome-fonts-web
 %endif
 
@@ -955,17 +957,6 @@ ln -sf ../../..%{_javadir}/%{name}/pki-console.jar
 %endif
 
 popd
-%endif
-
-%if %{with theme}
-# create links to FontAwesome fonts
-%if 0%{?fedora} > 38
-ln -s ../../../fonts/fontawesome4/fontawesome-webfont.woff \
-    %{buildroot}%{_datadir}/pki/common-ui/fonts/fontawesome-webfont.woff
-%else
-ln -s ../../../fonts/fontawesome/fontawesome-webfont.woff \
-    %{buildroot}%{_datadir}/pki/common-ui/fonts/fontawesome-webfont.woff
-%endif
 %endif
 
 %if %{with server}
