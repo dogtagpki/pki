@@ -81,4 +81,11 @@ public class PublishingConfig extends ConfigStore {
     public PublishingQueueConfig getQueueConfig() {
         return getSubStore("queue", PublishingQueueConfig.class);
     }
+
+    /**
+     * Returns ca.publish.ldappublish.* parameters.
+     */
+    public LDAPPublishingConfig getLDAPPublishingConfig() {
+        return getSubStore("ldappublish", LDAPPublishingConfig.class);
+    }
 }

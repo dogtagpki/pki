@@ -61,6 +61,7 @@ import com.netscape.certsrv.publish.RulePlugin;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
+import com.netscape.cmscore.ldap.LDAPPublishingConfig;
 import com.netscape.cmscore.ldap.LdapRule;
 import com.netscape.cmscore.ldap.PublisherProcessor;
 import com.netscape.cmscore.ldap.PublishingConfig;
@@ -449,8 +450,8 @@ public class PublisherAdminServlet extends AdminServlet {
         CAEngine engine = CAEngine.getInstance();
         CAConfig config = engine.getConfig().getCAConfig();
         PublishingConfig publishcfg = config.getPublishingConfig();
-        ConfigStore ldapcfg = publishcfg.getSubStore(PublisherProcessor.PROP_LDAP_PUBLISH_SUBSTORE, ConfigStore.class);
-        ConfigStore ldap = ldapcfg.getSubStore(PublisherProcessor.PROP_LDAP, ConfigStore.class);
+        LDAPPublishingConfig ldapcfg = publishcfg.getLDAPPublishingConfig();
+        LDAPConfig ldap = ldapcfg.getLDAPConfig();
 
         Enumeration<String> e = req.getParameterNames();
 
@@ -507,8 +508,7 @@ public class PublisherAdminServlet extends AdminServlet {
                 publishcfg.getString(Constants.PR_PUBLISHING_QUEUE_PRIORITY, "0"));
         params.put(Constants.PR_PUBLISHING_QUEUE_STATUS,
                 publishcfg.getString(Constants.PR_PUBLISHING_QUEUE_STATUS, "200"));
-        params.put(Constants.PR_ENABLE,
-                ldapcfg.getString(PublisherProcessor.PROP_ENABLE, Constants.FALSE));
+        params.put(Constants.PR_ENABLE, ldapcfg.getEnable());
         sendResponse(SUCCESS, null, params, resp);
     }
 
@@ -520,14 +520,14 @@ public class PublisherAdminServlet extends AdminServlet {
 
         //Save New Settings to the config file
         PublishingConfig publishcfg = config.getPublishingConfig();
-        ConfigStore ldapcfg = publishcfg.getSubStore(PublisherProcessor.PROP_LDAP_PUBLISH_SUBSTORE, ConfigStore.class);
-        ConfigStore ldap = ldapcfg.getSubStore(PublisherProcessor.PROP_LDAP, ConfigStore.class);
+        LDAPPublishingConfig ldapcfg = publishcfg.getLDAPPublishingConfig();
+        LDAPConfig ldap = ldapcfg.getLDAPConfig();
 
         //set enable flag
         publishcfg.putString(PublisherProcessor.PROP_ENABLE, req.getParameter(Constants.PR_PUBLISHING_ENABLE));
         String enable = req.getParameter(Constants.PR_ENABLE);
 
-        ldapcfg.putString(PublisherProcessor.PROP_ENABLE, enable);
+        ldapcfg.setEnable(enable);
         if (enable.equals("false")) {
             // need to disable the ldap module here
             mProcessor.setLdapConnModule(null);
@@ -645,8 +645,8 @@ public class PublisherAdminServlet extends AdminServlet {
 
         //Save New Settings to the config file
         PublishingConfig publishcfg = config.getPublishingConfig();
-        ConfigStore ldapcfg = publishcfg.getSubStore(PublisherProcessor.PROP_LDAP_PUBLISH_SUBSTORE, ConfigStore.class);
-        LDAPConfig ldap = ldapcfg.getSubStore(PublisherProcessor.PROP_LDAP, LDAPConfig.class);
+        LDAPPublishingConfig ldapcfg = publishcfg.getLDAPPublishingConfig();
+        LDAPConfig ldap = ldapcfg.getLDAPConfig();
         LDAPAuthenticationConfig authConfig = ldap.getAuthenticationConfig();
 
         //set enable flag
@@ -654,7 +654,7 @@ public class PublisherAdminServlet extends AdminServlet {
                 req.getParameter(Constants.PR_PUBLISHING_ENABLE));
         String ldapPublish = req.getParameter(Constants.PR_ENABLE);
 
-        ldapcfg.putString(PublisherProcessor.PROP_ENABLE, ldapPublish);
+        ldapcfg.setEnable(ldapPublish);
         if (ldapPublish.equals("false")) {
             // need to disable the ldap module here
             mProcessor.setLdapConnModule(null);
@@ -711,7 +711,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         // test before commit
         if (publishcfg.getBoolean(PublisherProcessor.PROP_ENABLE) &&
-                ldapcfg.getBoolean(PublisherProcessor.PROP_ENABLE)) {
+                ldapcfg.isEnabled()) {
             params.put("title",
                     "You've attempted to configure CMS to connect" +
                             " to a LDAP directory. The connection status is" +
@@ -908,8 +908,7 @@ public class PublisherAdminServlet extends AdminServlet {
         }
 
         //commit(true);
-        if (ldapcfg.getBoolean(PublisherProcessor.PROP_ENABLE) &&
-                pwd != null) {
+        if (ldapcfg.isEnabled() && pwd != null) {
 
             /* Do a "PUT" of the new pw to the watchdog"
              ** do not remove - cfu
@@ -952,7 +951,7 @@ public class PublisherAdminServlet extends AdminServlet {
             mProcessor.startup();
             //params.add("restarted", "Publishing is restarted.");
 
-            if (ldapcfg.getBoolean(PublisherProcessor.PROP_ENABLE)) {
+            if (ldapcfg.isEnabled()) {
                 CertificateAuthority ca = mProcessor.getAuthority();
 
                 // publish ca cert

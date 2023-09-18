@@ -44,8 +44,6 @@ public abstract class PublisherProcessor {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PublisherProcessor.class);
 
-    public final static String PROP_LDAP_PUBLISH_SUBSTORE = "ldappublish";
-
     public final static String PROP_CLASS = "class";
     public final static String PROP_IMPL = "impl";
     public final static String PROP_PLUGIN = "pluginName";
@@ -66,7 +64,7 @@ public abstract class PublisherProcessor {
     protected LdapConnModule mLdapConnModule;
 
     protected PublishingConfig mConfig;
-    protected ConfigStore mLdapConfig;
+    protected LDAPPublishingConfig mLdapConfig;
     protected String mId;
 
     protected RequestListener requestListener;
@@ -355,8 +353,8 @@ public abstract class PublisherProcessor {
 
     public void startup() throws EBaseException {
         logger.debug("PublisherProcessor: startup()");
-        mLdapConfig = mConfig.getSubStore(PROP_LDAP_PUBLISH_SUBSTORE, ConfigStore.class);
-        if (mLdapConfig.getBoolean(PROP_ENABLE, false)) {
+        mLdapConfig = mConfig.getLDAPPublishingConfig();
+        if (mLdapConfig.isEnabled()) {
             logger.debug("PublisherProcessor: about to initLdapConn");
             initLdapConn(mLdapConfig);
         } else {
@@ -813,7 +811,7 @@ public abstract class PublisherProcessor {
      */
     public boolean ldapEnabled() {
         try {
-            return mInited && mLdapConfig.getBoolean(PROP_ENABLE, false);
+            return mInited && mLdapConfig.isEnabled();
         } catch (EBaseException e) {
             return false;
         }
