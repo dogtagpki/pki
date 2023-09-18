@@ -329,15 +329,11 @@ public abstract class PublisherProcessor {
     /**
      * init ldap connection
      */
-    private void initLdapConn(ConfigStore ldapConfig)
-            throws EBaseException {
-        ConfigStore c = ldapConfig;
-
+    private void initLdapConn() throws EBaseException {
         try {
-            //c = authConfig.getSubStore(PROP_LDAP_PUBLISH_SUBSTORE);
-            if (c != null && c.size() > 0) {
+            if (mLdapConfig != null && mLdapConfig.size() > 0) {
                 mLdapConnModule = new LdapConnModule();
-                mLdapConnModule.init(c);
+                mLdapConnModule.init(mLdapConfig);
                 logger.debug("LdapPublishing connection inited");
             } else {
                 logger.error("PublisherProcessor: No Ldap Module configuration found");
@@ -356,7 +352,7 @@ public abstract class PublisherProcessor {
         mLdapConfig = mConfig.getLDAPPublishingConfig();
         if (mLdapConfig.isEnabled()) {
             logger.debug("PublisherProcessor: about to initLdapConn");
-            initLdapConn(mLdapConfig);
+            initLdapConn();
         } else {
             logger.debug("No LdapPublishing enabled");
         }

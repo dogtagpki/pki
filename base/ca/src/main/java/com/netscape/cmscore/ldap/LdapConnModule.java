@@ -22,7 +22,6 @@ import org.dogtagpki.server.ca.CAEngine;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.LdapConnFactory;
-import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
@@ -42,7 +41,7 @@ public class LdapConnModule {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapConnModule.class);
 
-    protected ConfigStore mConfig;
+    protected LDAPPublishingConfig mConfig;
     protected LdapBoundConnFactory mLdapConnFactory = null;
     private boolean mInited = false;
 
@@ -65,7 +64,7 @@ public class LdapConnModule {
      * @exception ELdapException Due to Ldap error.
      * @exception EBaseException Due to config value errors and all other errors.
      */
-    public void init(ConfigStore config) throws EBaseException {
+    public void init(LDAPPublishingConfig config) throws EBaseException {
 
         logger.debug("LdapConnModule: init called");
         if (mInited) {
@@ -86,13 +85,14 @@ public class LdapConnModule {
         */
 
         // support publishing dirsrv with different pwd than internaldb
-        LDAPConfig ldap = mConfig.getSubStore("ldap", LDAPConfig.class);
+        LDAPConfig ldap = mConfig.getLDAPConfig();
 
         LDAPConnectionConfig connConfig = ldap.getConnectionConfig();
         LdapConnInfo connInfo = new LdapConnInfo(connConfig);
 
         LDAPAuthenticationConfig authConfig = ldap.getAuthenticationConfig();
 
+        // must get authInfo from the config, don't default to internaldb!!!
         LdapAuthInfo authInfo = new LdapAuthInfo();
         authInfo.setPasswordStore(passwordStore);
         authInfo.init(
@@ -103,7 +103,6 @@ public class LdapConnModule {
 
         int minConns = mConfig.getInteger(LdapBoundConnFactory.PROP_MINCONNS, 3);
         int maxConns = mConfig.getInteger(LdapBoundConnFactory.PROP_MAXCONNS, 15);
-        // must get authInfo from the config, don't default to internaldb!!!
 
         logger.debug("Creating LdapBoundConnFactory for LdapConnModule.");
         mLdapConnFactory = engine.createLdapBoundConnFactory("LDAPConnModule", minConns, maxConns, connInfo, authInfo);
