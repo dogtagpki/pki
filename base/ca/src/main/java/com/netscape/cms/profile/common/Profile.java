@@ -73,7 +73,6 @@ public abstract class Profile {
     public static final String PROP_INPUT_LIST = "list";
     public static final String PROP_OUTPUT_LIST = "list";
     public static final String PROP_UPDATER_LIST = "list";
-    public static final String PROP_DEFAULT = "default";
     public static final String PROP_CONSTRAINT = "constraint";
     public static final String PROP_INPUT = "input";
     public static final String PROP_OUTPUT = "output";
@@ -358,7 +357,10 @@ public abstract class Profile {
                 String id = st1.nextToken();
 
                 ProfilePolicyConfig policyConfig = policyStore.getPolicyConfig(id);
-                String defaultClassId = policyConfig.getString(PROP_DEFAULT + "." + PROP_CLASS_ID);
+
+                PolicyDefaultConfig defaultConfig = policyConfig.getPolicyDefaultConfig();
+                String defaultClassId = defaultConfig.getClassID();
+
                 String constraintClassId = policyConfig.getString(PROP_CONSTRAINT + "." + PROP_CLASS_ID);
 
                 createProfilePolicy(setId, id, defaultClassId,
@@ -972,9 +974,11 @@ public abstract class Profile {
                 String curId = st1.nextToken();
 
                 ProfilePolicyConfig policyConfig = pStore.getPolicyConfig(curId);
+                PolicyDefaultConfig defaultConfig = policyConfig.getPolicyDefaultConfig();
+
                 String curDefaultClassId = null;
                 try {
-                    curDefaultClassId = policyConfig.getString(PROP_DEFAULT + "." + PROP_CLASS_ID);
+                    curDefaultClassId = defaultConfig.getClassID();
                 } catch (Exception e) {
                     logger.warn("can't get default plugin id!");
                 }
@@ -1027,8 +1031,8 @@ public abstract class Profile {
         if (def == null) {
             logger.warn("Profile: failed to create " + defaultClass);
         } else {
-            ConfigStore defStore = policyConfig.getSubStore(PROP_DEFAULT, ConfigStore.class);
-            def.init(engineConfig, defStore);
+            PolicyDefaultConfig defaultConfig = policyConfig.getPolicyDefaultConfig();
+            def.init(engineConfig, defaultConfig);
             logger.debug(method + " default class initialized.");
         }
 
@@ -1072,8 +1076,11 @@ public abstract class Profile {
             } else {
                 policyStore.setList(list + "," + id);
             }
-            policyConfig.putString("default.name", defInfo.getName(Locale.getDefault()));
-            policyConfig.putString("default.class_id", defaultClassId);
+
+            PolicyDefaultConfig defaultConfig = policyConfig.getPolicyDefaultConfig();
+            defaultConfig.setDefaultName(defInfo.getName(Locale.getDefault()));
+            defaultConfig.setClassID(defaultClassId);
+
             policyConfig.putString("constraint.name", conInfo.getName(Locale.getDefault()));
             policyConfig.putString("constraint.class_id", constraintClassId);
             try {

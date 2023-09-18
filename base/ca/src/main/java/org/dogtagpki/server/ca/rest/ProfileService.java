@@ -68,6 +68,7 @@ import com.netscape.certsrv.profile.ProfileResource;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.cms.profile.common.CAEnrollProfile;
+import com.netscape.cms.profile.common.PolicyDefaultConfig;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.profile.common.ProfileConfig;
 import com.netscape.cms.profile.common.ProfileInputConfig;
@@ -288,11 +289,15 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         ProfilePolicyConfig policyStore = policySetConfig.getPolicyConfig(policy.getId());
 
         ProfilePolicy p = new ProfilePolicy();
+        p.setId(policy.getId());
+
         String constraintClassId = policyStore.getString("constraint.class_id");
         p.setConstraint(PolicyConstraintFactory.create(getLocale(headers), policy.getConstraint(), constraintClassId));
-        String defaultClassId = policyStore.getString("default.class_id");
+
+        PolicyDefaultConfig defaultConfig = policyStore.getPolicyDefaultConfig();
+        String defaultClassId = defaultConfig.getClassID();
         p.setDef(PolicyDefaultFactory.create(getLocale(headers), policy.getDefault(), defaultClassId));
-        p.setId(policy.getId());
+
         return p;
     }
 
@@ -913,11 +918,13 @@ public class ProfileService extends SubsystemService implements ProfileResource 
                     ProfilePolicySetsConfig policiesConfig = profile.getConfigStore().getPolicySetsConfig();
                     ProfilePolicySetConfig policySetConfig = policiesConfig.getPolicySetConfig(setId);
                     ProfilePolicyConfig pstore = policySetConfig.getPolicyConfig(policy.getId());
+                    PolicyDefaultConfig defaultConfig = pstore.getPolicyDefaultConfig();
+
                     if (!def.getName().isEmpty()) {
-                        pstore.putString("default.name", def.getName());
+                        defaultConfig.setDefaultName(def.getName());
                     }
                     /*if (!def.getText().isEmpty()) {
-                        pstore.putString("default.description", def.getText());
+                        defaultConfig.setDescription(def.getText());
                     }*/
                     for (ProfileParameter param : def.getParams()) {
                         if (!param.getValue().isEmpty()) {

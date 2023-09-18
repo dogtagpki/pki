@@ -24,4 +24,11 @@ public class ProfilePolicyConfig extends ConfigStore {
     public ProfilePolicyConfig(String name, SimpleProperties source) {
         super(name, source);
     }
+
+    /**
+     * Returns policy default configuration.
+     */
+    public PolicyDefaultConfig getPolicyDefaultConfig() {
+        return getSubStore("default", PolicyDefaultConfig.class);
+    }
 }
