@@ -39,7 +39,6 @@ import com.netscape.certsrv.publish.Publisher;
 import com.netscape.cms.publish.mappers.LdapCertSubjMap;
 import com.netscape.cms.publish.publishers.FileBasedPublisher;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.request.Request;
@@ -92,25 +91,25 @@ public class CAPublisherProcessor extends PublisherProcessor {
                 engine.registerRequestListener(requestListener);
             }
 
-            ConfigStore queueConfig = mConfig.getSubStore(PROP_QUEUE_PUBLISH_SUBSTORE, ConfigStore.class);
+            PublishingQueueConfig queueConfig = mConfig.getQueueConfig();
 
             if (queueConfig != null) {
 
                 logger.info("CAPublisherProcessor: Publishing queue:");
 
-                boolean isPublishingQueueEnabled = queueConfig.getBoolean("enable", false);
+                boolean isPublishingQueueEnabled = queueConfig.isEnabled();
                 logger.info("CAPublisherProcessor: - enabled: " + isPublishingQueueEnabled);
 
-                int publishingQueuePriorityLevel = queueConfig.getInteger("priorityLevel", 0);
+                int publishingQueuePriorityLevel = queueConfig.getPriorityLevel();
                 logger.info("CAPublisherProcessor: - priority level: " + publishingQueuePriorityLevel);
 
-                int maxNumberOfPublishingThreads = queueConfig.getInteger("maxNumberOfThreads", 1);
+                int maxNumberOfPublishingThreads = queueConfig.getMaxNumberOfThreads();
                 logger.info("CAPublisherProcessor: - max threads: " + maxNumberOfPublishingThreads);
 
-                int publishingQueuePageSize = queueConfig.getInteger("pageSize", 100);
+                int publishingQueuePageSize = queueConfig.getPageSize();
                 logger.info("CAPublisherProcessor: - page size: " + publishingQueuePageSize);
 
-                int savePublishingStatus = queueConfig.getInteger("saveStatus", 0);
+                int savePublishingStatus = queueConfig.getSaveStatus();
                 logger.info("CAPublisherProcessor: - save status: " + savePublishingStatus);
 
                 RequestNotifier requestNotifier = engine.getRequestNotifier();

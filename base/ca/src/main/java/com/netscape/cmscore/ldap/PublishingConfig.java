@@ -74,4 +74,11 @@ public class PublishingConfig extends ConfigStore {
     public PublishingRuleConfig getRuleConfig() {
         return getSubStore("rule", PublishingRuleConfig.class);
     }
+
+    /**
+     * Returns ca.publish.queue.* parameters.
+     */
+    public PublishingQueueConfig getQueueConfig() {
+        return getSubStore("queue", PublishingQueueConfig.class);
+    }
 }

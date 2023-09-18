@@ -45,7 +45,6 @@ public abstract class PublisherProcessor {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PublisherProcessor.class);
 
     public final static String PROP_LDAP_PUBLISH_SUBSTORE = "ldappublish";
-    public final static String PROP_QUEUE_PUBLISH_SUBSTORE = "queue";
 
     public final static String PROP_CLASS = "class";
     public final static String PROP_IMPL = "impl";
