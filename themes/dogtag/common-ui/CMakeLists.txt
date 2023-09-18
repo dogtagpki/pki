@@ -15,6 +15,8 @@ add_custom_command(
     COMMAND ln -sf ../../../../../..${DATA_INSTALL_DIR}/common-ui/ocsp links/
     COMMAND ln -sf ../../../../../..${DATA_INSTALL_DIR}/common-ui/pki.properties links/pki.properties
     COMMAND ln -sf ../../../../../..${DATA_INSTALL_DIR}/common-ui/tks links/
+    COMMAND ${CMAKE_COMMAND} -E make_directory fonts
+    COMMAND ln -sf ../../../../..${DATA_INSTALL_DIR}/common-ui/fonts/${FONTAWESOME_WEBFONT} fonts/fontawesome-webfont.woff
 )
 
 install(
@@ -22,6 +24,13 @@ install(
         ${CMAKE_CURRENT_BINARY_DIR}/links/
     DESTINATION
         ${DATA_INSTALL_DIR}/server/webapps/pki
+)
+
+install(
+    DIRECTORY
+        ${CMAKE_CURRENT_BINARY_DIR}/fonts/
+    DESTINATION
+        ${DATA_INSTALL_DIR}/common-ui/fonts
 )
 
 install(

@@ -383,6 +383,14 @@ find_file(IDM_CONSOLE_FRAMEWORK_JAR
         /usr/share/java
 )
 
+find_file(FONTAWESOME_WEBFONT
+    NAMES
+        fontawesome-webfont.woff
+    PATHS
+        /usr/share/fonts/fontawesome/
+        /usr/share/fonts/fontawesome4/
+)
+
 add_subdirectory(common)
 add_subdirectory(tools)
 
