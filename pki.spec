@@ -949,6 +949,11 @@ ln -sf ../../..%{_javadir}/%{name}/pki-tks.jar
 ln -sf ../../..%{_javadir}/%{name}/pki-tps.jar
 ln -sf ../../..%{_javadir}/%{name}/pki-acme.jar
 ln -sf ../../..%{_javadir}/%{name}/pki-est.jar
+
+%if %{with console}
+ln -sf ../../..%{_javadir}/%{name}/pki-console.jar
+%endif
+
 popd
 %endif
 
@@ -1412,9 +1417,6 @@ fi
 
 %license themes/%{theme}/console-ui/LICENSE
 %{_javadir}/pki/pki-console-theme.jar
-%if "%{name}" != "pki"
-%{_javadir}/%{name}/pki-console-theme.jar
-%endif
 
 # with console
 %endif
