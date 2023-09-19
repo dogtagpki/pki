@@ -25,7 +25,6 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.profile.ERejectException;
-import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.def.CMCUserSignedSubjectNameDefault;
 import com.netscape.cms.profile.def.PolicyDefault;
@@ -44,15 +43,6 @@ public class CMCUserSignedSubjectNameConstraint extends EnrollConstraint {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMCUserSignedSubjectNameConstraint.class);
 
     public CMCUserSignedSubjectNameConstraint() {
-    }
-
-    @Override
-    public IDescriptor getConfigDescriptor(Locale locale, String name) {
-        return null;
-    }
-
-    public String getDefaultConfig(String name) {
-        return null;
     }
 
     /**

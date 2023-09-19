@@ -17,92 +17,18 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.constraint;
 
-import java.util.Enumeration;
 import java.util.Locale;
-import java.util.Vector;
 
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.profile.ERejectException;
-import com.netscape.certsrv.property.EPropertyException;
-import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.base.ConfigStore;
-import com.netscape.cmscore.request.Request;
 
 /**
  * This class implements no constraint.
- *
- * @version $Revision$, $Date$
  */
 public class NoConstraint extends PolicyConstraint {
-
-    public static final String CONFIG_NAME = "name";
-
-    private ConfigStore mConfig;
-    private Vector<String> mNames = new Vector<>();
-
-    @Override
-    public Enumeration<String> getConfigNames() {
-        return mNames.elements();
-    }
-
-    @Override
-    public IDescriptor getConfigDescriptor(Locale locale, String name) {
-        return null;
-    }
-
-    @Override
-    public void setConfig(String name, String value)
-            throws EPropertyException {
-    }
-
-    @Override
-    public String getConfig(String name) {
-        return null;
-    }
-
-    public String getDefaultConfig(String name) {
-        return null;
-    }
-
-    @Override
-    public void init(ConfigStore config) throws EProfileException {
-        mConfig = config;
-    }
-
-    @Override
-    public ConfigStore getConfigStore() {
-        return mConfig;
-    }
-
-    /**
-     * Validates the request. The request is not modified
-     * during the validation.
-     */
-    @Override
-    public void validate(Request request)
-            throws ERejectException {
-    }
 
     @Override
     public String getText(Locale locale) {
         return CMS.getUserMessage(locale,
                 "CMS_PROFILE_CONSTRAINT_NO_CONSTRAINT_TEXT");
-    }
-
-    @Override
-    public String getName(Locale locale) {
-        try {
-            return mConfig.getString(CONFIG_NAME);
-        } catch (EBaseException e) {
-            return null;
-        }
-    }
-
-    @Override
-    public boolean isApplicable(PolicyDefault def) {
-        return true;
     }
 }

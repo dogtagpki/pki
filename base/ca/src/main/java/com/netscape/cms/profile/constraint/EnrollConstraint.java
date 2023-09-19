@@ -19,19 +19,16 @@ package com.netscape.cms.profile.constraint;
 
 import java.util.Enumeration;
 import java.util.Locale;
-import java.util.Vector;
 
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cms.profile.common.EnrollProfile;
-import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
@@ -42,29 +39,9 @@ import com.netscape.cmscore.request.Request;
  */
 public abstract class EnrollConstraint extends PolicyConstraint {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EnrollConstraint.class);
-
-    public static final String CONFIG_NAME = "name";
     public static final String CONFIG_PARAMS = "params";
 
-    protected ConfigStore mConfig;
-    protected Vector<String> mConfigNames = new Vector<>();
-
     public EnrollConstraint() {
-    }
-
-    @Override
-    public Enumeration<String> getConfigNames() {
-        return mConfigNames.elements();
-    }
-
-    public void addConfigName(String name) {
-        mConfigNames.addElement(name);
-    }
-
-    @Override
-    public IDescriptor getConfigDescriptor(Locale locale, String name) {
-        return null;
     }
 
     public IDescriptor getValueDescriptor(Locale locale, String name) {
@@ -124,16 +101,6 @@ public abstract class EnrollConstraint extends PolicyConstraint {
         }
     }
 
-    @Override
-    public void init(ConfigStore config) throws EProfileException {
-        mConfig = config;
-    }
-
-    @Override
-    public ConfigStore getConfigStore() {
-        return mConfig;
-    }
-
     /**
      * Validates the request. The request is not modified
      * during the validation.
@@ -179,15 +146,6 @@ public abstract class EnrollConstraint extends PolicyConstraint {
         return "Enroll Constraint";
     }
 
-    @Override
-    public String getName(Locale locale) {
-        try {
-            return mConfig.getString(CONFIG_NAME);
-        } catch (EBaseException e) {
-            return null;
-        }
-    }
-
     protected Extension getExtension(String name, X509CertInfo info) {
         CertificateExtensions exts = null;
 
@@ -229,10 +187,5 @@ public abstract class EnrollConstraint extends PolicyConstraint {
 
     protected int getConfigInt(String value) {
         return getInt(getConfig(value));
-    }
-
-    @Override
-    public boolean isApplicable(PolicyDefault def) {
-        return true;
     }
 }

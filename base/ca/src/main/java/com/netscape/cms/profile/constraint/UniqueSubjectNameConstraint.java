@@ -75,10 +75,6 @@ public class UniqueSubjectNameConstraint extends EnrollConstraint {
         return null;
     }
 
-    public String getDefaultConfig(String name) {
-        return null;
-    }
-
     /**
      * Checks if the key extension in the issued certificate
      * is the same as the one in the certificate template.

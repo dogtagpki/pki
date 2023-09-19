@@ -71,10 +71,6 @@ public class SubjectNameConstraint extends EnrollConstraint {
         return null;
     }
 
-    public String getDefaultConfig(String name) {
-        return null;
-    }
-
     /**
      * Validates the request. The request is not modified
      * during the validation.

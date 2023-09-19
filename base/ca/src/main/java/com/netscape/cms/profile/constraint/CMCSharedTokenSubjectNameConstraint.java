@@ -25,7 +25,6 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.profile.ERejectException;
-import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cms.profile.def.AuthTokenSubjectNameDefault;
 import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cmscore.apps.CMS;
@@ -44,15 +43,6 @@ public class CMCSharedTokenSubjectNameConstraint extends EnrollConstraint {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMCSharedTokenSubjectNameConstraint.class);
 
     public CMCSharedTokenSubjectNameConstraint() {
-    }
-
-    @Override
-    public IDescriptor getConfigDescriptor(Locale locale, String name) {
-        return null;
-    }
-
-    public String getDefaultConfig(String name) {
-        return null;
     }
 
     /**
