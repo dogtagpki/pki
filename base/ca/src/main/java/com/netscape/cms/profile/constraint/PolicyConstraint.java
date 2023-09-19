@@ -27,8 +27,8 @@ import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IConfigTemplate;
 import com.netscape.certsrv.property.IDescriptor;
+import com.netscape.cms.profile.common.PolicyConstraintConfig;
 import com.netscape.cms.profile.def.PolicyDefault;
-import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -40,9 +40,7 @@ public abstract class PolicyConstraint implements IConfigTemplate {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PolicyConstraint.class);
 
-    public static final String CONFIG_NAME = "name";
-
-    protected ConfigStore mConfig;
+    protected PolicyConstraintConfig mConfig;
     protected Vector<String> mConfigNames = new Vector<>();
 
     /**
@@ -51,7 +49,7 @@ public abstract class PolicyConstraint implements IConfigTemplate {
      * @param config configuration store for this constraint
      * @exception EProfileException failed to initialize
      */
-    public void init(ConfigStore config) throws EProfileException {
+    public void init(PolicyConstraintConfig config) throws EProfileException {
         mConfig = config;
     }
 
@@ -61,7 +59,7 @@ public abstract class PolicyConstraint implements IConfigTemplate {
      *
      * @return config store of this constraint
      */
-    public ConfigStore getConfigStore() {
+    public PolicyConstraintConfig getConfigStore() {
         return mConfig;
     }
 
@@ -121,7 +119,7 @@ public abstract class PolicyConstraint implements IConfigTemplate {
      */
     public String getName(Locale locale) {
         try {
-            return mConfig.getString(CONFIG_NAME);
+            return mConfig.getConstraintName();
         } catch (EBaseException e) {
             return null;
         }

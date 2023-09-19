@@ -36,11 +36,11 @@ import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
+import com.netscape.cms.profile.common.PolicyConstraintConfig;
 import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cms.profile.def.UserKeyDefault;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -69,7 +69,7 @@ public class KeyConstraint extends EnrollConstraint {
     }
 
     @Override
-    public void init(ConfigStore config) throws EProfileException {
+    public void init(PolicyConstraintConfig config) throws EProfileException {
         super.init(config);
 
         CAEngine engine = CAEngine.getInstance();

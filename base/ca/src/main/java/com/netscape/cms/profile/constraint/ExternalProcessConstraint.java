@@ -33,6 +33,7 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
+import com.netscape.cms.profile.common.PolicyConstraintConfig;
 import com.netscape.cms.profile.input.CertReqInput;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
@@ -73,7 +74,7 @@ public class ExternalProcessConstraint extends EnrollConstraint {
     }
 
     @Override
-    public void init(ConfigStore config) throws EProfileException {
+    public void init(PolicyConstraintConfig config) throws EProfileException {
         super.init(config);
 
         this.executable = getConfig(CONFIG_EXECUTABLE);
