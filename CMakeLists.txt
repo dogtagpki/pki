@@ -1,7 +1,7 @@
-project(pki)
-
 # Required cmake version
 cmake_minimum_required(VERSION 3.0.0)
+
+project(pki)
 
 # global needed variables
 set(APPLICATION_NAME ${PROJECT_NAME})

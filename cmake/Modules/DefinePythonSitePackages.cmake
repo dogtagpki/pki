@@ -23,12 +23,7 @@ function(find_site_packages pythonexecutable targetname)
 endfunction(find_site_packages)
 
 # Find default Python
-set(Python_ADDITIONAL_VERSIONS 3)
-find_package(PythonInterp REQUIRED)
-# FindPythonInterp doesn't restrict version with ADDITIONAL_VERSIONS
-if (PYTHON_VERSION_STRING VERSION_LESS "3.5.0")
-    message(FATAL_ERROR "Detect Python interpreter < 3.5.0")
-endif()
+find_package(Python COMPONENTS Interpreter Development)
 message(STATUS "Building pki.server for ${PYTHON_VERSION_STRING}")
 
 if (NOT DEFINED PYTHON3_SITE_PACKAGES)
