@@ -70,7 +70,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             else:
                 instance.enable()
 
-            if len(instance.get_subsystems()) == 1:
+            if (len(instance.get_subsystems()) == 1 or
+                    config.str2bool(deployer.mdict['pki_hsm_enable'])):
                 logger.info('Starting PKI server')
                 instance.start(
                     wait=True,

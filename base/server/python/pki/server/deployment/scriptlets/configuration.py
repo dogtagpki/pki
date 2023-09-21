@@ -268,14 +268,21 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             instance.set_sslserver_cert_nickname(nickname, token)
 
         else:
-            logger.info('Starting %s subsystem', subsystem.type)
-            subsystem.enable(
-                wait=True,
-                max_wait=deployer.startup_timeout,
-                timeout=deployer.request_timeout)
+            if config.str2bool(deployer.mdict['pki_hsm_enable']):
+                logger.info('Stopping PKI server')
+                instance.stop(
+                    wait=True,
+                    max_wait=deployer.startup_timeout,
+                    timeout=deployer.request_timeout)
+            else:
+                logger.info('Starting %s subsystem', subsystem.type)
+                subsystem.enable(
+                    wait=True,
+                    max_wait=deployer.startup_timeout,
+                    timeout=deployer.request_timeout)
 
-            logger.info('Waiting for %s subsystem', subsystem.type)
-            subsystem.wait_for_startup(deployer.startup_timeout, deployer.request_timeout)
+                logger.info('Waiting for %s subsystem', subsystem.type)
+                subsystem.wait_for_startup(deployer.startup_timeout, deployer.request_timeout)
 
     def destroy(self, deployer):
         pass
