@@ -123,6 +123,10 @@ jobs:
         run: |
           docker exec pki openssl x509 -text -noout -in /root/.dogtag/pki-tomcat/ca_admin.cert
 
+      - name: Check CA audit events
+        run: |
+          docker exec pki pki-server ca-audit-event-find
+
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --failures-only
 
