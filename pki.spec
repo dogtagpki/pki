@@ -428,6 +428,8 @@ Requires:         openldap-clients
 Requires:         openssl
 Requires:         %{product_id}-tools = %{version}-%{release}
 
+Requires:         %{java_devel}
+
 Requires:         keyutils
 
 Requires:         policycoreutils-python-utils
