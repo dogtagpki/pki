@@ -110,7 +110,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
     }
 
     @Override
-    public Response listProfiles(Integer start, Integer size) {
+    public Response listProfiles(Integer start, Integer size, Boolean visible, Boolean enable) {
 
         start = start == null ? 0 : start;
         size = size == null ? DEFAULT_SIZE : size;
@@ -136,6 +136,10 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         Enumeration<String> e = ps.getProfileIds();
         if (e == null) return createOKResponse(infos);
 
+        if (visibleOnly && visible != null && !visible.booleanValue()) {
+            return createOKResponse(infos);
+        }
+
         // store non-null results in a list
         List<ProfileDataInfo> results = new ArrayList<>();
         while (e.hasMoreElements()) {
@@ -143,6 +147,10 @@ public class ProfileService extends SubsystemService implements ProfileResource 
                 String id = e.nextElement();
                 ProfileDataInfo info = createProfileDataInfo(id, visibleOnly, uriInfo, getLocale(headers));
                 if (info == null) continue;
+                if (visible != null && info.getProfileVisible() != null && !info.getProfileVisible().equals(visible))
+                    continue;
+                if (enable != null && info.getProfileEnable() != null && !info.getProfileEnable().equals(enable))
+                    continue;
                 results.add(info);
             } catch (EBaseException ex) {
                 continue;
@@ -383,6 +391,11 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         ret.setProfileName(profile.getName(locale));
         ret.setProfileDescription(profile.getDescription(locale));
 
+        if (!visibleOnly) {
+            ret.setProfileVisible(Boolean.valueOf(profile.isVisible()));
+            ret.setProfileEnable(Boolean.valueOf(profile.isEnable()));
+            ret.setProfileEnableBy(profile.getApprovedBy());
+        }
         UriBuilder profileBuilder = uriInfo.getBaseUriBuilder();
         URI uri = profileBuilder.path(ProfileResource.class).path("{id}").
                 build(profileId);

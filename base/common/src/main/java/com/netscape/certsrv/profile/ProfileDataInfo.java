@@ -56,6 +56,12 @@ public class ProfileDataInfo implements JSONSerializer {
 
     protected String profileDescription;
 
+    protected Boolean profileVisible;
+
+    protected Boolean profileEnable;
+
+    protected String profileEnableBy;
+
     public ProfileDataInfo() {
     }
 
@@ -98,6 +104,31 @@ public class ProfileDataInfo implements JSONSerializer {
 
     public void setProfileDescription(String profileDescription) {
         this.profileDescription = profileDescription;
+    }
+
+
+    public Boolean getProfileVisible() {
+        return profileVisible;
+    }
+
+    public void setProfileVisible(Boolean profileVisible) {
+        this.profileVisible = profileVisible;
+    }
+
+    public Boolean getProfileEnable() {
+        return profileEnable;
+    }
+
+    public void setProfileEnable(Boolean profileEnable) {
+        this.profileEnable = profileEnable;
+    }
+
+    public String getProfileEnableBy() {
+        return profileEnableBy;
+    }
+
+    public void setProfileEnableBy(String profileEnableBy) {
+        this.profileEnableBy = profileEnableBy;
     }
 
     @Override
@@ -143,6 +174,21 @@ public class ProfileDataInfo implements JSONSerializer {
             profileDescriptionElement.appendChild(document.createTextNode(profileDescription));
             profileDataInfoElement.appendChild(profileDescriptionElement);
         }
+        if (profileVisible != null) {
+            Element profileVisibleElement = document.createElement("profileVisible");
+            profileVisibleElement.appendChild(document.createTextNode(profileVisible.toString()));
+            profileDataInfoElement.appendChild(profileVisibleElement);
+        }
+        if (profileEnable != null) {
+            Element profileEnableElement = document.createElement("profileEnable");
+            profileEnableElement.appendChild(document.createTextNode(profileEnable.toString()));
+            profileDataInfoElement.appendChild(profileEnableElement);
+        }
+        if (profileEnableBy != null) {
+            Element profileEnableByElement = document.createElement("profileEnableBy");
+            profileEnableByElement.appendChild(document.createTextNode(profileEnableBy));
+            profileDataInfoElement.appendChild(profileEnableByElement);
+        }
         return profileDataInfoElement;
     }
 
@@ -165,6 +211,18 @@ public class ProfileDataInfo implements JSONSerializer {
         NodeList profileDescriptionList = profileDataInfoElement.getElementsByTagName("profileDescription");
         if (profileDescriptionList.getLength() > 0) {
             profileDataInfo.setProfileDescription(profileDescriptionList.item(0).getTextContent());
+        }
+        NodeList profileVisibleList = profileDataInfoElement.getElementsByTagName("profileVisible");
+        if (profileVisibleList.getLength() > 0) {
+            profileDataInfo.setProfileVisible(Boolean.valueOf(profileVisibleList.item(0).getTextContent()));
+        }
+        NodeList profileEnableList = profileDataInfoElement.getElementsByTagName("profileEnable");
+        if (profileEnableList.getLength() > 0) {
+            profileDataInfo.setProfileEnable(Boolean.valueOf(profileEnableList.item(0).getTextContent()));
+        }
+        NodeList profileEnableByList = profileDataInfoElement.getElementsByTagName("profileEnableBy");
+        if (profileEnableByList.getLength() > 0) {
+            profileDataInfo.setProfileEnableBy(profileEnableByList.item(0).getTextContent());
         }
         return profileDataInfo;
     }

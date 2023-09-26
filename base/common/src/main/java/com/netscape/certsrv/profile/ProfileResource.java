@@ -20,7 +20,9 @@ public interface ProfileResource {
     @ACLMapping("profiles.list")
     public Response listProfiles(
             @QueryParam("start") Integer start,
-            @QueryParam("size") Integer size);
+            @QueryParam("size") Integer size,
+            @QueryParam("visible") Boolean visible,
+            @QueryParam("enable") Boolean enable);
 
     @GET
     @Path("{id}")
