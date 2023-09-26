@@ -216,6 +216,15 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
             response.put(IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey, Util.specialDecode(value));
         }
 
+        value = (String) response.get(IRemoteRequest.TKS_RESPONSE_DRM_Trans_AesKey);
+        if (value == null) {
+            logger.debug("TKSRemoteRequestHandler: computeSessionKey(): response missing name-value pair for: " +
+                   IRemoteRequest.TKS_RESPONSE_DRM_Trans_AesKey);
+        } else {
+            logger.debug("TKSRemoteRequestHandler: computeSessionKey(): got IRemoteRequest.TKS_RESPONSE_DRM_Trans_AesKey ");
+            response.put(IRemoteRequest.TKS_RESPONSE_DRM_Trans_AesKey, Util.specialDecode(value));
+        }
+
         value = (String) response.get(IRemoteRequest.TKS_RESPONSE_KEK_DesKey);
         if (value == null) {
             logger.debug("TKSRemoteRequestHandler: computeSessionKey(): response missing name-value pair for: " +
@@ -223,6 +232,15 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
         } else {
             logger.debug("TKSRemoteRequestHandler: computeSessionKey(): got IRemoteRequest.TKS_RESPONSE_KEK_DesKey");
             response.put(IRemoteRequest.TKS_RESPONSE_KEK_DesKey, Util.specialDecode(value));
+        }
+
+        value = (String) response.get(IRemoteRequest.TKS_RESPONSE_KEK_AesKey);
+        if (value == null) {
+             logger.debug("TKSRemoteRequestHandler: computeSessionKey(): response missing name-value pair for: " +
+                    IRemoteRequest.TKS_RESPONSE_KEK_AesKey);
+        } else {
+            logger.debug("TKSRemoteRequestHandler: computeSessionKey(): got IRemoteRequest.TKS_RESPONSE_KEK_AesKey");
+            response.put(IRemoteRequest.TKS_RESPONSE_KEK_AesKey, Util.specialDecode(value));
         }
 
         value = (String) response.get(IRemoteRequest.TKS_RESPONSE_KeyCheck);
@@ -357,6 +375,15 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
             response.put(IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey, Util.specialDecode(value));
         }
 
+        value = (String) response.get(IRemoteRequest.TKS_RESPONSE_DRM_Trans_AesKey);
+        if (value == null) {
+            logger.debug("TKSRemoteRequestHandler: computeSessionKey(): response missing name-value pair for: " +
+                    IRemoteRequest.TKS_RESPONSE_DRM_Trans_AesKey);
+        } else {
+            logger.debug("TKSRemoteRequestHandler: computeSessionKey(): got IRemoteRequest.TKS_RESPONSE_DRM_Trans_AesKey ");
+            response.put(IRemoteRequest.TKS_RESPONSE_DRM_Trans_AesKey, Util.specialDecode(value));
+        }
+
         value = (String) response.get(IRemoteRequest.TKS_RESPONSE_MacSessionKey);
         if (value == null) {
             logger.debug(method + "response missing name-value pair for: " +
@@ -367,6 +394,14 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
 
         }
 
+        value = (String) response.get(IRemoteRequest.TKS_RESPONSE_KEK_AesKey);
+        if (value == null) {
+            logger.debug(method + "response missing name-value pair for: " +
+                    IRemoteRequest.TKS_RESPONSE_KEK_AesKey);
+        } else {
+            logger.debug(method + " got IRemoteRequest.TKS_RESPONSE_KEK_AesKey");
+            response.put(IRemoteRequest.TKS_RESPONSE_KEK_AesKey, Util.specialDecode(value));
+        }
 
         value = (String) response.get(IRemoteRequest.TKS_RESPONSE_KekSessionKey);
         if (value == null) {

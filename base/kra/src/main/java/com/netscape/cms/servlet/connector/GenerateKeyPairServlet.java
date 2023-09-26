@@ -161,6 +161,9 @@ public class GenerateKeyPairServlet extends CMSServlet {
         String rKeytype = req.getParameter(IRemoteRequest.KRA_KEYGEN_KeyType);
         String rKeycurve = req.getParameter(IRemoteRequest.KRA_KEYGEN_EC_KeyCurve);
 
+        //Get trans wrapped aes session key if provided.
+        String raesKeyString = req.getParameter(IRemoteRequest.KRA_Trans_AesKey);
+
         if ((rCUID == null) || (rCUID.equals(""))) {
             logger.warn("GenerateKeyPairServlet: processServerSideKeygen(): missing request parameter: CUID");
             missingParam = true;
@@ -195,10 +198,22 @@ public class GenerateKeyPairServlet extends CMSServlet {
             }
         }
 
+        boolean wrappedAesPresent = true;
+        boolean wrappedDesPresent = true;
         if ((rdesKeyString == null) ||
                 (rdesKeyString.equals(""))) {
-            logger.warn("GenerateKeyPairServlet: processServerSideKeygen(): missing request parameter: DRM-transportKey-wrapped DES key");
-            missingParam = true;
+            logger.warn("GenerateKeyPairServlet: processServerSideKeygen(): missing request parameter: DRM-transportKey-wrapped DES key, possibly AES key sent instead.");
+            wrappedDesPresent = false;
+
+        }
+
+        if((raesKeyString == null) || (raesKeyString.equals(""))) {
+            wrappedAesPresent = false;
+            logger.warn("GenerateKeyPairServlet: processServerSideKeygen(): missing DRM-wrapped AES Key, possibly DES key sent instead.");
+        }
+
+        if(wrappedAesPresent == false && wrappedDesPresent == false) {
+             missingParam = true;
         }
 
         if ((rArchive == null) || (rArchive.equals(""))) {
@@ -212,7 +227,15 @@ public class GenerateKeyPairServlet extends CMSServlet {
             thisreq.setExtData(Request.REQUESTOR_TYPE, Request.REQUESTOR_NETKEY_RA);
             thisreq.setExtData(Request.NETKEY_ATTR_CUID, rCUID);
             thisreq.setExtData(Request.NETKEY_ATTR_USERID, rUserid);
-            thisreq.setExtData(Request.NETKEY_ATTR_DRMTRANS_DES_KEY, rdesKeyString);
+
+            if(wrappedDesPresent == true) {
+                 thisreq.setExtData(Request.NETKEY_ATTR_DRMTRANS_DES_KEY, rdesKeyString);
+            }
+
+            if(wrappedAesPresent == true) {
+                 thisreq.setExtData(Request.NETKEY_ATTR_DRMTRANS_AES_KEY, raesKeyString);
+            }
+
             thisreq.setExtData(Request.NETKEY_ATTR_ARCHIVE_FLAG, rArchive);
             thisreq.setExtData(Request.NETKEY_ATTR_KEY_SIZE, rKeysize);
             thisreq.setExtData(Request.NETKEY_ATTR_KEY_TYPE, rKeytype);
