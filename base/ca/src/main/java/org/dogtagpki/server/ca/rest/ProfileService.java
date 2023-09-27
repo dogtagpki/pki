@@ -110,7 +110,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
     }
 
     @Override
-    public Response listProfiles(Integer start, Integer size, Boolean visible, Boolean enable) {
+    public Response listProfiles(Integer start, Integer size, Boolean visible, Boolean enable, String enableBy) {
 
         start = start == null ? 0 : start;
         size = size == null ? DEFAULT_SIZE : size;
@@ -145,15 +145,16 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         while (e.hasMoreElements()) {
             try {
                 String id = e.nextElement();
-                ProfileDataInfo info = createProfileDataInfo(id, visibleOnly, uriInfo, getLocale(headers));
-                if (info == null) continue;
-                if (visible != null && info.getProfileVisible() != null && !info.getProfileVisible().equals(visible))
-                    continue;
-                if (enable != null && info.getProfileEnable() != null && !info.getProfileEnable().equals(enable))
+                ProfileDataInfo info = createProfileDataInfo(id, uriInfo, getLocale(headers));
+                if (info == null ||
+                        (visibleOnly && !info.getProfileVisible().booleanValue()) ||
+                        (visible != null && !visible.equals(info.getProfileVisible())) ||
+                        (enable != null && !enable.equals(info.getProfileEnable())) ||
+                        (enableBy != null && !enableBy.equals(info.getProfileEnableBy())))
                     continue;
                 results.add(info);
             } catch (EBaseException ex) {
-                continue;
+                logger.warn("ProfileService: {}", ex.getMessage());
             }
         }
 
@@ -363,7 +364,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         return output;
     }
 
-    public static ProfileDataInfo createProfileDataInfo(String profileId, boolean visibleOnly, UriInfo uriInfo,
+    public static ProfileDataInfo createProfileDataInfo(String profileId, UriInfo uriInfo,
             Locale locale) throws EBaseException {
 
         CAEngine engine = CAEngine.getInstance();
@@ -381,21 +382,16 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             return null;
         }
 
-        if (visibleOnly && !profile.isVisible()) {
-            return null;
-        }
-
         ret = new ProfileDataInfo();
 
         ret.setProfileId(profileId);
         ret.setProfileName(profile.getName(locale));
         ret.setProfileDescription(profile.getDescription(locale));
 
-        if (!visibleOnly) {
-            ret.setProfileVisible(Boolean.valueOf(profile.isVisible()));
-            ret.setProfileEnable(Boolean.valueOf(profile.isEnable()));
-            ret.setProfileEnableBy(profile.getApprovedBy());
-        }
+        ret.setProfileVisible(profile.isVisible());
+        ret.setProfileEnable(profile.isEnable());
+        ret.setProfileEnableBy(profile.getApprovedBy());
+
         UriBuilder profileBuilder = uriInfo.getBaseUriBuilder();
         URI uri = profileBuilder.path(ProfileResource.class).path("{id}").
                 build(profileId);
