@@ -22,7 +22,8 @@ public interface ProfileResource {
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size,
             @QueryParam("visible") Boolean visible,
-            @QueryParam("enable") Boolean enable);
+            @QueryParam("enable") Boolean enable,
+            @QueryParam("enableBy") String enableBy);
 
     @GET
     @Path("{id}")

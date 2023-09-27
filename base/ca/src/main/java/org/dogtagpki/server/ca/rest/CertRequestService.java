@@ -265,7 +265,6 @@ public class CertRequestService extends PKIService implements CertRequestResourc
         }
 
         ProfileDataInfos infos = new ProfileDataInfos();
-        boolean visibleOnly = true;
 
         Enumeration<String> e = ps.getProfileIds();
         if (e == null) return createOKResponse(infos);
@@ -275,12 +274,13 @@ public class CertRequestService extends PKIService implements CertRequestResourc
         while (e.hasMoreElements()) {
             try {
                 String id = e.nextElement();
-                ProfileDataInfo info = ProfileService.createProfileDataInfo(id, visibleOnly, uriInfo, getLocale(headers));
-                if (info == null) continue;
+                ProfileDataInfo info = ProfileService.createProfileDataInfo(id, uriInfo, getLocale(headers));
+                if (info == null || !info.getProfileVisible().booleanValue()) {
+                    continue;
+                }
                 results.add(info);
             } catch (EBaseException ex) {
-                logger.warn("CertRequestService: " + ex.getMessage());
-                continue;
+                logger.warn("CertRequestService: {}",  ex.getMessage());
             }
         }
 

@@ -38,6 +38,18 @@ public class ProfileFindCLI extends CommandCLI {
         option = new Option(null, "size", true, "Page size");
         option.setArgName("size");
         options.addOption(option);
+
+        option = new Option(null, "visible", true, "Profile with visible value");
+        option.setArgName("true/false");
+        options.addOption(option);
+
+        option = new Option(null, "enable", true, "Profile with enable value");
+        option.setArgName("true/false");
+        options.addOption(option);
+
+        option = new Option(null, "enableBy", true, "Only enabled by the user");
+        option.setArgName("user");
+        options.addOption(option);
     }
 
     @Override
@@ -55,11 +67,15 @@ public class ProfileFindCLI extends CommandCLI {
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
+        Boolean visible = cmd.hasOption("visible") ? Boolean.valueOf(cmd.getOptionValue("visible")) : null;
+        Boolean enable = cmd.hasOption("enable") ? Boolean.valueOf(cmd.getOptionValue("enable")) : null;
+        String enableBy = cmd.getOptionValue("enableBy");
+
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
         ProfileClient profileClient = profileCLI.getProfileClient();
-        ProfileDataInfos response = profileClient.listProfiles(start, size);
+        ProfileDataInfos response = profileClient.listProfiles(start, size, visible, enable, enableBy);
 
         MainCLI.printMessage(response.getTotal() + " entries matched");
         if (response.getTotal() == 0) return;

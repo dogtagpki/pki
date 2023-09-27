@@ -275,7 +275,7 @@ public class CATest {
 
         //Get a list of Profiles
 
-        ProfileDataInfos pInfos = profileClient.listProfiles(null, null);
+        ProfileDataInfos pInfos = profileClient.listProfiles(null, null, null, null, null);
 
         printProfileInfos(pInfos);
 

@@ -42,10 +42,13 @@ public class ProfileClient extends Client {
         return get(id + "/raw", byte[].class);
     }
 
-    public ProfileDataInfos listProfiles(Integer start, Integer size) throws Exception {
+    public ProfileDataInfos listProfiles(Integer start, Integer size, Boolean visible, Boolean enable, String enableBy) throws Exception {
         Map<String, Object> params = new HashMap<>();
         if (start != null) params.put("start", start);
         if (size != null) params.put("size", size);
+        if (visible != null) params.put("visible", visible);
+        if (enable != null) params.put("enable", enable);
+        if (enableBy != null) params.put("enableBy", enableBy);
         return get(null, params, ProfileDataInfos.class);
     }
 
