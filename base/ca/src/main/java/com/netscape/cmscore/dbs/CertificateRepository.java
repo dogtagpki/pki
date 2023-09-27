@@ -1180,13 +1180,10 @@ public class CertificateRepository extends Repository {
             throws EBaseException {
         Enumeration<CertRecord> e = null;
 
-        try (DBSSession s = dbSubsystem.createSession()) {
-            //e = s.search(getDN(), filter);
-            CertRecordList list = findCertRecordsInList(filter, null, "serialno", 10);
-            int size = list.getSize();
+        CertRecordList list = findCertRecordsInList(filter, null, "serialno", 10);
+        int size = list.getSize();
 
-            e = list.getCertRecords(0, size - 1);
-        }
+        e = list.getCertRecords(0, size - 1);
         return e;
     }
 
@@ -1424,39 +1421,37 @@ public class CertificateRepository extends Repository {
 
         Hashtable<String, RenewableCertificateCollection> tab = null;
 
-        try (DBSSession s = dbSubsystem.createSession()) {
-            String filter = "(&(" + CertRecord.ATTR_CERT_STATUS + "=" +
-                    CertRecord.STATUS_VALID + ")("
-                    + CertRecord.ATTR_X509CERT +
-                    "." + CertificateValidity.NOT_AFTER + "<=" + renewalTime +
-                    ")(!(" + CertRecord.ATTR_AUTO_RENEW + "=" +
-                    CertRecord.AUTO_RENEWAL_DONE +
-                    "))(!(" + CertRecord.ATTR_AUTO_RENEW + "=" +
-                    CertRecord.AUTO_RENEWAL_NOTIFIED + ")))";
-            //Enumeration e = s.search(getDN(), filter);
-            CertRecordList list = findCertRecordsInList(filter, null, "serialno", 10);
-            int size = list.getSize();
-            Enumeration<CertRecord> e = list.getCertRecords(0, size - 1);
+        String filter = "(&(" + CertRecord.ATTR_CERT_STATUS + "=" +
+                CertRecord.STATUS_VALID + ")("
+                + CertRecord.ATTR_X509CERT +
+                "." + CertificateValidity.NOT_AFTER + "<=" + renewalTime +
+                ")(!(" + CertRecord.ATTR_AUTO_RENEW + "=" +
+                CertRecord.AUTO_RENEWAL_DONE +
+                "))(!(" + CertRecord.ATTR_AUTO_RENEW + "=" +
+                CertRecord.AUTO_RENEWAL_NOTIFIED + ")))";
 
-            tab = new Hashtable<>();
-            while (e.hasMoreElements()) {
-                CertRecord rec = e.nextElement();
-                X509CertImpl cert = rec.getCertificate();
-                String subjectDN = cert.getSubjectName().toString();
-                String renewalFlag = rec.getAutoRenew();
+        CertRecordList list = findCertRecordsInList(filter, null, "serialno", 10);
+        int size = list.getSize();
+        Enumeration<CertRecord> e = list.getCertRecords(0, size - 1);
 
-                // See if the subjectDN is in the table
-                Object val = null;
+        tab = new Hashtable<>();
+        while (e.hasMoreElements()) {
+            CertRecord rec = e.nextElement();
+            X509CertImpl cert = rec.getCertificate();
+            String subjectDN = cert.getSubjectName().toString();
+            String renewalFlag = rec.getAutoRenew();
 
-                if ((val = tab.get(subjectDN)) == null) {
-                    RenewableCertificateCollection collection =
-                            new RenewableCertificateCollection();
+            // See if the subjectDN is in the table
+            Object val = null;
 
-                    collection.addCertificate(renewalFlag, cert);
-                    tab.put(subjectDN, collection);
-                } else {
-                    ((RenewableCertificateCollection) val).addCertificate(renewalFlag, cert);
-                }
+            if ((val = tab.get(subjectDN)) == null) {
+                RenewableCertificateCollection collection =
+                        new RenewableCertificateCollection();
+
+                collection.addCertificate(renewalFlag, cert);
+                tab.put(subjectDN, collection);
+            } else {
+                ((RenewableCertificateCollection) val).addCertificate(renewalFlag, cert);
             }
         }
         return tab;
@@ -1477,42 +1472,39 @@ public class CertificateRepository extends Repository {
 
         X509CertImpl certs[] = null;
 
-        try (DBSSession s = dbSubsystem.createSession()) {
-            // XXX - not checking validityType...
-            String filter = "(&(" + CertRecord.ATTR_X509CERT +
-                    "." + X509CertInfo.SUBJECT + "=" + subjectDN;
+        // XXX - not checking validityType...
+        String filter = "(&(" + CertRecord.ATTR_X509CERT +
+                "." + X509CertInfo.SUBJECT + "=" + subjectDN;
 
-            if (validityType == ALL_VALID_CERTS) {
-                filter += ")(" +
-                        CertRecord.ATTR_CERT_STATUS + "=" +
-                        CertRecord.STATUS_VALID;
-            }
-            if (validityType == ALL_UNREVOKED_CERTS) {
-                filter += ")(|(" +
-                        CertRecord.ATTR_CERT_STATUS + "=" +
-                        CertRecord.STATUS_VALID + ")(" +
-                        CertRecord.ATTR_CERT_STATUS + "=" +
-                        CertRecord.STATUS_EXPIRED + ")";
-            }
-            filter += "))";
-
-            //Enumeration e = s.search(getDN(), filter);
-            CertRecordList list = findCertRecordsInList(filter, null, "serialno", 10);
-            int size = list.getSize();
-            Enumeration<CertRecord> e = list.getCertRecords(0, size - 1);
-
-            Vector<X509CertImpl> v = new Vector<>();
-
-            while (e.hasMoreElements()) {
-                CertRecord rec = e.nextElement();
-
-                v.addElement(rec.getCertificate());
-            }
-            if (v.size() == 0)
-                return null;
-            certs = new X509CertImpl[v.size()];
-            v.copyInto(certs);
+        if (validityType == ALL_VALID_CERTS) {
+            filter += ")(" +
+                    CertRecord.ATTR_CERT_STATUS + "=" +
+                    CertRecord.STATUS_VALID;
         }
+        if (validityType == ALL_UNREVOKED_CERTS) {
+            filter += ")(|(" +
+                    CertRecord.ATTR_CERT_STATUS + "=" +
+                    CertRecord.STATUS_VALID + ")(" +
+                    CertRecord.ATTR_CERT_STATUS + "=" +
+                    CertRecord.STATUS_EXPIRED + ")";
+        }
+        filter += "))";
+
+        CertRecordList list = findCertRecordsInList(filter, null, "serialno", 10);
+        int size = list.getSize();
+        Enumeration<CertRecord> e = list.getCertRecords(0, size - 1);
+
+        Vector<X509CertImpl> v = new Vector<>();
+
+        while (e.hasMoreElements()) {
+            CertRecord rec = e.nextElement();
+
+            v.addElement(rec.getCertificate());
+        }
+        if (v.size() == 0)
+            return null;
+        certs = new X509CertImpl[v.size()];
+        v.copyInto(certs);
         return certs;
     }
 
@@ -1521,28 +1513,25 @@ public class CertificateRepository extends Repository {
 
         X509CertImpl certs[] = null;
 
-        try (DBSSession s = dbSubsystem.createSession()) {
-            Enumeration<CertRecord> e = null;
+        Enumeration<CertRecord> e = null;
 
-            if (filter != null && filter.length() > 0) {
-                //e = s.search(getDN(), filter);
-                CertRecordList list = findCertRecordsInList(filter, null, "serialno", 10);
-                int size = list.getSize();
+        if (filter != null && filter.length() > 0) {
+            CertRecordList list = findCertRecordsInList(filter, null, "serialno", 10);
+            int size = list.getSize();
 
-                e = list.getCertRecords(0, size - 1);
-            }
+            e = list.getCertRecords(0, size - 1);
+        }
 
-            Vector<X509CertImpl> v = new Vector<>();
+        Vector<X509CertImpl> v = new Vector<>();
 
-            while (e != null && e.hasMoreElements()) {
-                CertRecord rec = e.nextElement();
+        while (e != null && e.hasMoreElements()) {
+            CertRecord rec = e.nextElement();
 
-                v.addElement(rec.getCertificate());
-            }
-            if (v.size() > 0) {
-                certs = new X509CertImpl[v.size()];
-                v.copyInto(certs);
-            }
+            v.addElement(rec.getCertificate());
+        }
+        if (v.size() > 0) {
+            certs = new X509CertImpl[v.size()];
+            v.copyInto(certs);
         }
         return certs;
     }
@@ -1559,47 +1548,44 @@ public class CertificateRepository extends Repository {
             throws EBaseException {
         Vector<CertRecord> v = new Vector<>();
 
-        try (DBSSession s = dbSubsystem.createSession()) {
+        // 'from' determines 'jumpto' value
+        // 'to' determines where to stop looking
 
-            // 'from' determines 'jumpto' value
-            // 'to' determines where to stop looking
+        String ldapfilter = "(certstatus=VALID)";
 
-            String ldapfilter = "(certstatus=VALID)";
-
-            String fromVal = "0";
-            try {
-                if (from != null) {
-                    new BigInteger(from);
-                    fromVal = from;
-                }
-            } catch (Exception e1) {
-                // from is not integer
+        String fromVal = "0";
+        try {
+            if (from != null) {
+                new BigInteger(from);
+                fromVal = from;
             }
-
-            CertRecordList list = findCertRecordsInList(ldapfilter, null, fromVal, "serialno", 40);
-
-            BigInteger toInt = null;
-            if (to != null && !to.trim().equals("")) {
-                toInt = new BigInteger(to);
-            }
-
-            for (int i = 0;; i++) {
-                CertRecord rec = list.getCertRecord(i);
-                logger.debug("processing record: " + i);
-                if (rec == null) {
-                    break; // no element returned
-                }
-                logger.debug("processing record: " + i + " " + rec.getSerialNumber());
-                // Check if we are past the 'to' marker
-                if (toInt != null) {
-                    if (rec.getSerialNumber().compareTo(toInt) > 0) {
-                        break;
-                    }
-                }
-                v.addElement(rec);
-            }
-
+        } catch (Exception e1) {
+            // from is not integer
         }
+
+        CertRecordList list = findCertRecordsInList(ldapfilter, null, fromVal, "serialno", 40);
+
+        BigInteger toInt = null;
+        if (to != null && !to.trim().equals("")) {
+            toInt = new BigInteger(to);
+        }
+
+        for (int i = 0;; i++) {
+            CertRecord rec = list.getCertRecord(i);
+            logger.debug("processing record: " + i);
+            if (rec == null) {
+                break; // no element returned
+            }
+            logger.debug("processing record: " + i + " " + rec.getSerialNumber());
+            // Check if we are past the 'to' marker
+            if (toInt != null) {
+                if (rec.getSerialNumber().compareTo(toInt) > 0) {
+                    break;
+                }
+            }
+            v.addElement(rec);
+        }
+
         logger.debug("returning " + v.size() + " elements");
         return v.elements();
     }
@@ -1611,22 +1597,19 @@ public class CertificateRepository extends Repository {
             throws EBaseException {
         Enumeration<CertRecord> e = null;
 
-        try (DBSSession s = dbSubsystem.createSession()) {
-            Date now = new Date();
-            String ldapfilter = "(&(!(" + CertRecord.ATTR_REVO_INFO + "=*))(" +
-                    CertRecord.ATTR_X509CERT + "." +
-                    CertificateValidity.NOT_BEFORE + "<=" +
-                    DateMapper.dateToDB(now) + ")(" +
-                    CertRecord.ATTR_X509CERT + "." +
-                    CertificateValidity.NOT_AFTER + ">=" +
-                    DateMapper.dateToDB(now) + "))";
-            //e = s.search(getDN(), ldapfilter);
-            CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
-            int size = list.getSize();
+        Date now = new Date();
+        String ldapfilter = "(&(!(" + CertRecord.ATTR_REVO_INFO + "=*))(" +
+                CertRecord.ATTR_X509CERT + "." +
+                CertificateValidity.NOT_BEFORE + "<=" +
+                DateMapper.dateToDB(now) + ")(" +
+                CertRecord.ATTR_X509CERT + "." +
+                CertificateValidity.NOT_AFTER + ">=" +
+                DateMapper.dateToDB(now) + "))";
+        CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
+        int size = list.getSize();
 
-            e = list.getCertRecords(0, size - 1);
+        e = list.getCertRecords(0, size - 1);
 
-        }
         // XXX - transaction is not done at this moment
         return e;
     }
@@ -1643,31 +1626,29 @@ public class CertificateRepository extends Repository {
             throws EBaseException {
         Enumeration<CertRecord> e = null;
 
-        try (DBSSession s = dbSubsystem.createSession()) {
-            Date now = new Date();
-            String ldapfilter = "(&(";
+        Date now = new Date();
+        String ldapfilter = "(&(";
 
-            if (from != null && from.length() > 0)
-                ldapfilter += CertRecord.ATTR_ID + ">=" + from + ")(";
-            if (to != null && to.length() > 0)
-                ldapfilter += CertRecord.ATTR_ID + "<=" + to + ")(";
-            ldapfilter += "!(" + CertRecord.ATTR_REVO_INFO + "=*))(" +
-                    CertRecord.ATTR_X509CERT + "." +
-                    CertificateValidity.NOT_BEFORE + "<=" +
-                    DateMapper.dateToDB(now) + ")(" +
-                    CertRecord.ATTR_X509CERT + "." +
-                    CertificateValidity.NOT_AFTER + ">=" +
-                    DateMapper.dateToDB(now) + ")(!(" +
-                    "certMetainfo=" +
-                    CertRecord.META_LDAPPUBLISH +
-                    ":true)))";
-            //e = s.search(getDN(), ldapfilter);
-            CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
-            int size = list.getSize();
+        if (from != null && from.length() > 0)
+            ldapfilter += CertRecord.ATTR_ID + ">=" + from + ")(";
+        if (to != null && to.length() > 0)
+            ldapfilter += CertRecord.ATTR_ID + "<=" + to + ")(";
+        ldapfilter += "!(" + CertRecord.ATTR_REVO_INFO + "=*))(" +
+                CertRecord.ATTR_X509CERT + "." +
+                CertificateValidity.NOT_BEFORE + "<=" +
+                DateMapper.dateToDB(now) + ")(" +
+                CertRecord.ATTR_X509CERT + "." +
+                CertificateValidity.NOT_AFTER + ">=" +
+                DateMapper.dateToDB(now) + ")(!(" +
+                "certMetainfo=" +
+                CertRecord.META_LDAPPUBLISH +
+                ":true)))";
 
-            e = list.getCertRecords(0, size - 1);
+        CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
+        int size = list.getSize();
 
-        }
+        e = list.getCertRecords(0, size - 1);
+
         return e;
     }
 
@@ -1679,25 +1660,22 @@ public class CertificateRepository extends Repository {
             throws EBaseException {
         Enumeration<CertRecord> e = null;
 
-        try (DBSSession s = dbSubsystem.createSession()) {
-            Date now = new Date();
-            String ldapfilter = "(&(!(" + CertRecord.ATTR_REVO_INFO + "=*))(" +
-                    CertRecord.ATTR_X509CERT + "." +
-                    CertificateValidity.NOT_BEFORE + "<=" +
-                    DateMapper.dateToDB(now) + ")(" +
-                    CertRecord.ATTR_X509CERT + "." +
-                    CertificateValidity.NOT_AFTER + ">=" +
-                    DateMapper.dateToDB(now) + ")(!(" +
-                    "certMetainfo=" +
-                    CertRecord.META_LDAPPUBLISH +
-                    ":true)))";
-            //e = s.search(getDN(), ldapfilter);
-            CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
-            int size = list.getSize();
+        Date now = new Date();
+        String ldapfilter = "(&(!(" + CertRecord.ATTR_REVO_INFO + "=*))(" +
+                CertRecord.ATTR_X509CERT + "." +
+                CertificateValidity.NOT_BEFORE + "<=" +
+                DateMapper.dateToDB(now) + ")(" +
+                CertRecord.ATTR_X509CERT + "." +
+                CertificateValidity.NOT_AFTER + ">=" +
+                DateMapper.dateToDB(now) + ")(!(" +
+                "certMetainfo=" +
+                CertRecord.META_LDAPPUBLISH +
+                ":true)))";
+        CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
+        int size = list.getSize();
 
-            e = list.getCertRecords(0, size - 1);
+        e = list.getCertRecords(0, size - 1);
 
-        }
         return e;
     }
 
@@ -1714,24 +1692,21 @@ public class CertificateRepository extends Repository {
 
         Enumeration<CertRecord> e = null;
 
-        try (DBSSession s = dbSubsystem.createSession()) {
-            Date now = new Date();
-            String ldapfilter = "(&(";
+        Date now = new Date();
+        String ldapfilter = "(&(";
 
-            if (from != null && from.length() > 0)
-                ldapfilter += CertRecord.ATTR_ID + ">=" + from + ")(";
-            if (to != null && to.length() > 0)
-                ldapfilter += CertRecord.ATTR_ID + "<=" + to + ")(";
-            ldapfilter += "!(" + CertRecord.ATTR_X509CERT + "." +
-                    CertificateValidity.NOT_AFTER + ">=" +
-                    DateMapper.dateToDB(now) + ")))";
-            //e = s.search(getDN(), ldapfilter);
+        if (from != null && from.length() > 0)
+            ldapfilter += CertRecord.ATTR_ID + ">=" + from + ")(";
+        if (to != null && to.length() > 0)
+            ldapfilter += CertRecord.ATTR_ID + "<=" + to + ")(";
+        ldapfilter += "!(" + CertRecord.ATTR_X509CERT + "." +
+                CertificateValidity.NOT_AFTER + ">=" +
+                DateMapper.dateToDB(now) + ")))";
 
-            CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
-            int size = list.getSize();
+        CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
+        int size = list.getSize();
 
-            e = list.getCertRecords(0, size - 1);
-        }
+        e = list.getCertRecords(0, size - 1);
         return e;
     }
 
@@ -1743,18 +1718,16 @@ public class CertificateRepository extends Repository {
 
         Enumeration<CertRecord> e = null;
 
-        try (DBSSession s = dbSubsystem.createSession()) {
-            Date now = new Date();
-            String ldapfilter = "(!(" + CertRecord.ATTR_X509CERT + "." +
-                    CertificateValidity.NOT_AFTER + ">=" +
-                    DateMapper.dateToDB(now) + "))";
-            //e = s.search(getDN(), ldapfilter);
-            CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
-            int size = list.getSize();
+        Date now = new Date();
+        String ldapfilter = "(!(" + CertRecord.ATTR_X509CERT + "." +
+                CertificateValidity.NOT_AFTER + ">=" +
+                DateMapper.dateToDB(now) + "))";
 
-            e = list.getCertRecords(0, size - 1);
+        CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
+        int size = list.getSize();
 
-        }
+        e = list.getCertRecords(0, size - 1);
+
         return e;
     }
 
@@ -1771,28 +1744,26 @@ public class CertificateRepository extends Repository {
 
         Enumeration<CertRecord> e = null;
 
-        try (DBSSession s = dbSubsystem.createSession()) {
-            Date now = new Date();
-            String ldapfilter = "(&(";
+        Date now = new Date();
+        String ldapfilter = "(&(";
 
-            if (from != null && from.length() > 0)
-                ldapfilter += CertRecord.ATTR_ID + ">=" + from + ")(";
-            if (to != null && to.length() > 0)
-                ldapfilter += CertRecord.ATTR_ID + "<=" + to + ")(";
-            ldapfilter += "!(" + CertRecord.ATTR_X509CERT + "." +
-                    CertificateValidity.NOT_AFTER + ">=" +
-                    //DateMapper.dateToDB(now) + ")))";
-                    DateMapper.dateToDB(now) + "))(" +
-                    "certMetainfo=" +
-                    CertRecord.META_LDAPPUBLISH +
-                    ":true))";
-            //e = s.search(getDN(), ldapfilter);
+        if (from != null && from.length() > 0)
+            ldapfilter += CertRecord.ATTR_ID + ">=" + from + ")(";
+        if (to != null && to.length() > 0)
+            ldapfilter += CertRecord.ATTR_ID + "<=" + to + ")(";
+        ldapfilter += "!(" + CertRecord.ATTR_X509CERT + "." +
+                CertificateValidity.NOT_AFTER + ">=" +
+                //DateMapper.dateToDB(now) + ")))";
+                DateMapper.dateToDB(now) + "))(" +
+                "certMetainfo=" +
+                CertRecord.META_LDAPPUBLISH +
+                ":true))";
 
-            CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
-            int size = list.getSize();
+        CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
+        int size = list.getSize();
 
-            e = list.getCertRecords(0, size - 1);
-        }
+        e = list.getCertRecords(0, size - 1);
+
         return e;
     }
 
@@ -1804,24 +1775,21 @@ public class CertificateRepository extends Repository {
 
         Enumeration<CertRecord> e = null;
 
-        try (DBSSession s = dbSubsystem.createSession()) {
-            Date now = new Date();
-            String ldapfilter = "(&";
+        Date now = new Date();
+        String ldapfilter = "(&";
 
-            ldapfilter += "(!(" + CertRecord.ATTR_X509CERT + "." +
-                    CertificateValidity.NOT_AFTER + ">=" +
-                    DateMapper.dateToDB(now) + "))";
-            ldapfilter += "(certMetainfo=" +
-                    CertRecord.META_LDAPPUBLISH +
-                    ":true))";
+        ldapfilter += "(!(" + CertRecord.ATTR_X509CERT + "." +
+                CertificateValidity.NOT_AFTER + ">=" +
+                DateMapper.dateToDB(now) + "))";
+        ldapfilter += "(certMetainfo=" +
+                CertRecord.META_LDAPPUBLISH +
+                ":true))";
 
-            //e = s.search(getDN(), ldapfilter);
-            CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
-            int size = list.getSize();
+        CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
+        int size = list.getSize();
 
-            e = list.getCertRecords(0, size - 1);
+        e = list.getCertRecords(0, size - 1);
 
-        }
         return e;
     }
 
@@ -1839,25 +1807,22 @@ public class CertificateRepository extends Repository {
 
         CertRecordList list = null;
 
-        try (DBSSession s = dbSubsystem.createSession()) {
-            String ldapfilter = "(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_INVALID + ")";
+        String ldapfilter = "(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_INVALID + ")";
 
-            String[] attrs = null;
+        String[] attrs = null;
 
-            if (mConsistencyCheck == false) {
-                attrs = new String[] { "objectclass", CertRecord.ATTR_ID, CertRecord.ATTR_X509CERT };
-            }
-
-            logger.debug("getInvalidCertificatesByNotBeforeDate filter " + ldapfilter);
-            //e = s.search(getDN(), ldapfilter);
-            logger.debug("getInvalidCertificatesByNotBeforeDate: about to call findCertRecordsInList");
-
-            list = findCertRecordsInListRawJumpto(ldapfilter, attrs,
-                        DateMapper.dateToDB(date), "notBefore", pageSize);
-
-            //e = list.getCertRecords(0, size - 1);
-
+        if (mConsistencyCheck == false) {
+            attrs = new String[] { "objectclass", CertRecord.ATTR_ID, CertRecord.ATTR_X509CERT };
         }
+
+        logger.debug("getInvalidCertificatesByNotBeforeDate filter " + ldapfilter);
+
+        logger.debug("getInvalidCertificatesByNotBeforeDate: about to call findCertRecordsInList");
+
+        list = findCertRecordsInListRawJumpto(ldapfilter, attrs,
+                    DateMapper.dateToDB(date), "notBefore", pageSize);
+
+
         return list;
 
     }
@@ -1876,20 +1841,18 @@ public class CertificateRepository extends Repository {
 
         CertRecordList list = null;
 
-        try (DBSSession s = dbSubsystem.createSession()) {
-            String ldapfilter = "(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_VALID + ")";
+        String ldapfilter = "(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_VALID + ")";
 
-            String[] attrs = null;
+        String[] attrs = null;
 
-            if (mConsistencyCheck == false) {
-                attrs = new String[] { "objectclass", CertRecord.ATTR_ID, CertRecord.ATTR_X509CERT };
-            }
-
-            logger.debug("getValidCertsByNotAfterDate filter " + ldapfilter);
-            //e = s.search(getDN(), ldapfilter);
-            list = findCertRecordsInListRawJumpto(ldapfilter, attrs, DateMapper.dateToDB(date), "notAfter", pageSize);
-
+        if (mConsistencyCheck == false) {
+            attrs = new String[] { "objectclass", CertRecord.ATTR_ID, CertRecord.ATTR_X509CERT };
         }
+
+        logger.debug("getValidCertsByNotAfterDate filter " + ldapfilter);
+
+        list = findCertRecordsInListRawJumpto(ldapfilter, attrs, DateMapper.dateToDB(date), "notAfter", pageSize);
+
         return list;
     }
 
@@ -1907,25 +1870,22 @@ public class CertificateRepository extends Repository {
 
         CertRecordList list = null;
 
+        String ldapfilter = "(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED + ")";
 
-        try (DBSSession s = dbSubsystem.createSession()) {
-            String ldapfilter = "(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED + ")";
+        String[] attrs = null;
 
-            String[] attrs = null;
-
-            if (mConsistencyCheck == false) {
-                attrs = new String[] { "objectclass", CertRecord.ATTR_REVOKED_ON, CertRecord.ATTR_ID,
-                            CertRecord.ATTR_REVO_INFO, CertificateValidity.NOT_AFTER, CertRecord.ATTR_X509CERT };
-            }
-
-            logger.debug("getRevokedCertificatesByNotAfterDate filter " + ldapfilter);
-            //e = s.search(getDN(), ldapfilter);
-            logger.debug("getRevokedCertificatesByNotAfterDate: about to call findCertRecordsInList");
-
-            list = findCertRecordsInListRawJumpto(ldapfilter, attrs,
-                        DateMapper.dateToDB(date), "notafter", pageSize);
-
+        if (mConsistencyCheck == false) {
+            attrs = new String[] { "objectclass", CertRecord.ATTR_REVOKED_ON, CertRecord.ATTR_ID,
+                        CertRecord.ATTR_REVO_INFO, CertificateValidity.NOT_AFTER, CertRecord.ATTR_X509CERT };
         }
+
+        logger.debug("getRevokedCertificatesByNotAfterDate filter " + ldapfilter);
+
+        logger.debug("getRevokedCertificatesByNotAfterDate: about to call findCertRecordsInList");
+
+        list = findCertRecordsInListRawJumpto(ldapfilter, attrs,
+                    DateMapper.dateToDB(date), "notafter", pageSize);
+
         return list;
 
     }
@@ -1943,20 +1903,18 @@ public class CertificateRepository extends Repository {
 
         Enumeration<CertRecord> e = null;
 
-        try (DBSSession s = dbSubsystem.createSession()) {
-            String ldapfilter = "(&(" + CertRecord.ATTR_REVO_INFO + "=*)";
+        String ldapfilter = "(&(" + CertRecord.ATTR_REVO_INFO + "=*)";
 
-            if (from != null && from.length() > 0)
-                ldapfilter += "(" + CertRecord.ATTR_ID + ">=" + from + ")";
-            if (to != null && to.length() > 0)
-                ldapfilter += "(" + CertRecord.ATTR_ID + "<=" + to + ")";
-            ldapfilter += ")";
-            //e = s.search(getDN(), ldapfilter);
-            CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
-            int size = list.getSize();
+        if (from != null && from.length() > 0)
+            ldapfilter += "(" + CertRecord.ATTR_ID + ">=" + from + ")";
+        if (to != null && to.length() > 0)
+            ldapfilter += "(" + CertRecord.ATTR_ID + "<=" + to + ")";
+        ldapfilter += ")";
 
-            e = list.getCertRecords(0, size - 1);
-        }
+        CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
+        int size = list.getSize();
+
+        e = list.getCertRecords(0, size - 1);
         return e;
     }
 
@@ -1974,13 +1932,11 @@ public class CertificateRepository extends Repository {
         String ldapfilter = "(|(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED + ")("
                 + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED_EXPIRED + "))";
 
-        try (DBSSession s = dbSubsystem.createSession()) {
-            //e = s.search(getDN(), ldapfilter);
-            CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
-            int size = list.getSize();
+        CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
+        int size = list.getSize();
 
-            e = list.getCertRecords(0, size - 1);
-        }
+        e = list.getCertRecords(0, size - 1);
+
         return e;
     }
 
@@ -1996,23 +1952,20 @@ public class CertificateRepository extends Repository {
             throws EBaseException {
         Enumeration<CertRecord> e = null;
 
-        try (DBSSession s = dbSubsystem.createSession()) {
-            String ldapfilter = "(&(" + CertRecord.ATTR_REVO_INFO + "=*)";
+        String ldapfilter = "(&(" + CertRecord.ATTR_REVO_INFO + "=*)";
 
-            if (from != null && from.length() > 0)
-                ldapfilter += "(" + CertRecord.ATTR_ID + ">=" + from + ")";
-            if (to != null && to.length() > 0)
-                ldapfilter += "(" + CertRecord.ATTR_ID + "<=" + to + ")";
-            //ldapfilter += ")";
-            ldapfilter += "(certMetainfo=" +
-                    CertRecord.META_LDAPPUBLISH +
-                    ":true))";
-            //e = s.search(getDN(), ldapfilter);
-            CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
-            int size = list.getSize();
+        if (from != null && from.length() > 0)
+            ldapfilter += "(" + CertRecord.ATTR_ID + ">=" + from + ")";
+        if (to != null && to.length() > 0)
+            ldapfilter += "(" + CertRecord.ATTR_ID + "<=" + to + ")";
+        ldapfilter += "(certMetainfo=" +
+                CertRecord.META_LDAPPUBLISH +
+                ":true))";
 
-            e = list.getCertRecords(0, size - 1);
-        }
+        CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
+        int size = list.getSize();
+
+        e = list.getCertRecords(0, size - 1);
         return e;
     }
 
@@ -2031,13 +1984,11 @@ public class CertificateRepository extends Repository {
         ldapfilter += "(certMetainfo=" +
                 CertRecord.META_LDAPPUBLISH +
                 ":true))";
-        try (DBSSession s = dbSubsystem.createSession()) {
-            //e = s.search(getDN(), ldapfilter);
-            CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
-            int size = list.getSize();
 
-            e = list.getCertRecords(0, size - 1);
-        }
+        CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
+        int size = list.getSize();
+
+        e = list.getCertRecords(0, size - 1);
         return e;
     }
 
@@ -2053,21 +2004,14 @@ public class CertificateRepository extends Repository {
 
         Enumeration<CertRecord> e = null;
 
-        try (DBSSession s = dbSubsystem.createSession()) {
+        String ldapfilter = "(&(" +
+                CertRecord.ATTR_REVO_INFO + "=*)(" + CertRecord.ATTR_X509CERT +
+                "." + CertificateValidity.NOT_AFTER + " >= " +
+                DateMapper.dateToDB(asOfDate) + "))";
+        CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
+        int size = list.getSize();
 
-            /*e = s.search(getDN(), "(&(" +
-             CertRecord.ATTR_REVO_INFO + "=*)(" + CertRecord.ATTR_X509CERT +
-             "." +  CertificateValidity.NOT_AFTER + " >= " +
-             DateMapper.dateToDB(asOfDate) + "))");*/
-            String ldapfilter = "(&(" +
-                    CertRecord.ATTR_REVO_INFO + "=*)(" + CertRecord.ATTR_X509CERT +
-                    "." + CertificateValidity.NOT_AFTER + " >= " +
-                    DateMapper.dateToDB(asOfDate) + "))";
-            CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
-            int size = list.getSize();
-
-            e = list.getCertRecords(0, size - 1);
-        }
+        e = list.getCertRecords(0, size - 1);
         return e;
     }
 
@@ -2083,13 +2027,10 @@ public class CertificateRepository extends Repository {
         Enumeration<CertRecord> e = null;
         String ldapfilter = "(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED + ")"; // index is setup for this filter
 
-        try (DBSSession s = dbSubsystem.createSession()) {
-            //e = s.search(getDN(), ldapfilter);
-            CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
-            int size = list.getSize();
+        CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
+        int size = list.getSize();
 
-            e = list.getCertRecords(0, size - 1);
-        }
+        e = list.getCertRecords(0, size - 1);
         return e;
     }
 
