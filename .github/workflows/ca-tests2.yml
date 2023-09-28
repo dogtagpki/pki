@@ -21,6 +21,13 @@ jobs:
     with:
       db-image: ${{ needs.init.outputs.db-image }}
 
+  ca-profile-caServerCert-test:
+    name: CA with caServerCert profile
+    needs: [init, build]
+    uses: ./.github/workflows/ca-profile-caServerCert-test.yml
+    with:
+      db-image: ${{ needs.init.outputs.db-image }}
+
   ca-secure-ds-test:
     name: CA with secure DS
     needs: [init, build]
