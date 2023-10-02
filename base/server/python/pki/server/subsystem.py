@@ -306,7 +306,6 @@ class PKISubsystem(object):
         cert['id'] = tag
         cert['nickname'] = self.config.get('%s.%s.nickname' % (self.name, tag))
         cert['token'] = self.config.get('%s.%s.tokenname' % (self.name, tag))
-        cert['data'] = self.config.get('%s.%s.cert' % (self.name, tag))
         cert['request'] = self.config.get('%s.%s.certreq' % (self.name, tag))
         cert['certusage'] = self.config.get('%s.cert.%s.certusage' % (self.name, tag))
 
