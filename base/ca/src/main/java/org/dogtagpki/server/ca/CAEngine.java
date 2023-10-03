@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -173,9 +172,6 @@ public class CAEngine extends CMSEngine {
     // Track authority updates to avoid race conditions and unnecessary reloads due to replication
     public static TreeMap<AuthorityID, BigInteger> entryUSNs = new TreeMap<>();
     public static TreeMap<AuthorityID, String> nsUniqueIds = new TreeMap<>();
-
-    // Track authority deletions
-    public static TreeSet<String> deletedNsUniqueIds = new TreeSet<>();
 
     protected AuthorityMonitor authorityMonitor;
     protected boolean enableAuthorityMonitor = true;
@@ -1347,7 +1343,7 @@ public class CAEngine extends CMSEngine {
 
         String nsUniqueId = nsUniqueIds.get(aid);
         if (nsUniqueId != null) {
-            deletedNsUniqueIds.add(nsUniqueId);
+            authorityMonitor.deletedNsUniqueIds.add(nsUniqueId);
         }
 
         removeCA(aid);
@@ -1358,7 +1354,7 @@ public class CAEngine extends CMSEngine {
         CertificateAuthority hostCA = getCA();
 
         String nsUniqueId = entry.getAttribute("nsUniqueId").getStringValueArray()[0];
-        if (deletedNsUniqueIds.contains(nsUniqueId)) {
+        if (authorityMonitor.deletedNsUniqueIds.contains(nsUniqueId)) {
             logger.warn("CAEngine: ignoring entry with nsUniqueId '"
                     + nsUniqueId + "' due to deletion");
             return;

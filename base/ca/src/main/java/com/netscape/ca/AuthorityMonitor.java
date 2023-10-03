@@ -18,6 +18,7 @@
 package com.netscape.ca;
 
 import java.util.Arrays;
+import java.util.TreeSet;
 
 import org.dogtagpki.server.ca.CAEngine;
 
@@ -45,6 +46,9 @@ public class AuthorityMonitor implements Runnable {
 
     public AsyncLoader loader = new AsyncLoader(10 /* 10s timeout */);
     public boolean foundHostCA;
+
+    // Track authority deletions
+    public TreeSet<String> deletedNsUniqueIds = new TreeSet<>();
 
     public AuthorityMonitor() {
     }
@@ -230,7 +234,7 @@ public class AuthorityMonitor implements Runnable {
         if (attr != null)
             nsUniqueId = attr.getStringValueArray()[0];
 
-        if (CAEngine.deletedNsUniqueIds.remove(nsUniqueId)) {
+        if (deletedNsUniqueIds.remove(nsUniqueId)) {
             logger.debug("handleDELETE: delete was already effected");
             return;
         }
