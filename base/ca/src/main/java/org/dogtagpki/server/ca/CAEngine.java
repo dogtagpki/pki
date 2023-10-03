@@ -171,7 +171,6 @@ public class CAEngine extends CMSEngine {
 
     // Track authority updates to avoid race conditions and unnecessary reloads due to replication
     public static TreeMap<AuthorityID, BigInteger> entryUSNs = new TreeMap<>();
-    public static TreeMap<AuthorityID, String> nsUniqueIds = new TreeMap<>();
 
     protected AuthorityMonitor authorityMonitor;
     protected boolean enableAuthorityMonitor = true;
@@ -1032,7 +1031,7 @@ public class CAEngine extends CMSEngine {
     public void removeCA(AuthorityID aid) {
         authorities.remove(aid);
         entryUSNs.remove(aid);
-        nsUniqueIds.remove(aid);
+        authorityMonitor.nsUniqueIds.remove(aid);
     }
 
     public void ensureAuthorityDNAvailable(X500Name dn)
@@ -1283,7 +1282,7 @@ public class CAEngine extends CMSEngine {
         if (attr != null) {
             String nsUniqueId = attr.getStringValueArray()[0];
             logger.info("CAEngine: tracking nsUniqueId: " + nsUniqueId);
-            nsUniqueIds.put(aid, nsUniqueId);
+            authorityMonitor.nsUniqueIds.put(aid, nsUniqueId);
         }
     }
 
@@ -1341,7 +1340,7 @@ public class CAEngine extends CMSEngine {
             connectionFactory.returnConn(conn);
         }
 
-        String nsUniqueId = nsUniqueIds.get(aid);
+        String nsUniqueId = authorityMonitor.nsUniqueIds.get(aid);
         if (nsUniqueId != null) {
             authorityMonitor.deletedNsUniqueIds.add(nsUniqueId);
         }
@@ -1492,7 +1491,7 @@ public class CAEngine extends CMSEngine {
 
             addCA(aid, ca);
             entryUSNs.put(aid, newEntryUSN);
-            nsUniqueIds.put(aid, nsUniqueId);
+            authorityMonitor.nsUniqueIds.put(aid, nsUniqueId);
 
         } catch (Exception e) {
             logger.warn("CAEngine: Error initializing lightweight CA: " + e.getMessage(), e);

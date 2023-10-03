@@ -18,6 +18,7 @@
 package com.netscape.ca;
 
 import java.util.Arrays;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.dogtagpki.server.ca.CAEngine;
@@ -46,6 +47,9 @@ public class AuthorityMonitor implements Runnable {
 
     public AsyncLoader loader = new AsyncLoader(10 /* 10s timeout */);
     public boolean foundHostCA;
+
+    // Track authority updates to avoid race conditions and unnecessary reloads due to replication
+    public TreeMap<AuthorityID, String> nsUniqueIds = new TreeMap<>();
 
     // Track authority deletions
     public TreeSet<String> deletedNsUniqueIds = new TreeSet<>();
