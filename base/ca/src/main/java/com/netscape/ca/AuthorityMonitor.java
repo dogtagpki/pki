@@ -279,6 +279,10 @@ public class AuthorityMonitor implements Runnable {
         }
     }
 
+    public void addCA(AuthorityID aid, CertificateAuthority ca) {
+        authorities.put(aid, ca);
+    }
+
     public synchronized void trackUpdate(AuthorityID aid, LDAPControl[] responseControls) {
 
         LDAPPostReadControl control = (LDAPPostReadControl)

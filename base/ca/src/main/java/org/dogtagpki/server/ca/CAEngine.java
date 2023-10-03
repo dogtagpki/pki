@@ -603,7 +603,7 @@ public class CAEngine extends CMSEngine {
         if (!authorityMonitor.foundHostCA) {
             logger.debug("CAEngine: No entry for host authority");
             logger.debug("CAEngine: Adding entry for host authority");
-            addCA(addHostAuthorityEntry(), hostCA);
+            authorityMonitor.addCA(addHostAuthorityEntry(), hostCA);
         }
     }
 
@@ -1013,10 +1013,6 @@ public class CAEngine extends CMSEngine {
         return null;
     }
 
-    public void addCA(AuthorityID aid, CertificateAuthority ca) {
-        authorityMonitor.authorities.put(aid, ca);
-    }
-
     public void removeCA(AuthorityID aid) {
         authorityMonitor.authorities.remove(aid);
         authorityMonitor.entryUSNs.remove(aid);
@@ -1371,7 +1367,7 @@ public class CAEngine extends CMSEngine {
             logger.info("CAEngine: - description: " + desc);
             hostCA.setAuthorityDescription(desc);
 
-            addCA(aid, hostCA);
+            authorityMonitor.addCA(aid, hostCA);
 
             return;
         }
@@ -1456,7 +1452,7 @@ public class CAEngine extends CMSEngine {
             ca.setCMSEngine(this);
             ca.init(caConfig);
 
-            addCA(aid, ca);
+            authorityMonitor.addCA(aid, ca);
             authorityMonitor.entryUSNs.put(aid, newEntryUSN);
             authorityMonitor.nsUniqueIds.put(aid, nsUniqueId);
 
