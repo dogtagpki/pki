@@ -30,10 +30,12 @@ import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.util.AsyncLoader;
+import com.netscape.cmsutil.ldap.LDAPPostReadControl;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPControl;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSearchConstraints;
@@ -274,6 +276,28 @@ public class AuthorityMonitor implements Runnable {
             }
 
             engine.removeCA(aid);
+        }
+    }
+
+    public synchronized void trackUpdate(AuthorityID aid, LDAPControl[] responseControls) {
+
+        LDAPPostReadControl control = (LDAPPostReadControl)
+            LDAPUtil.getControl(LDAPPostReadControl.class, responseControls);
+
+        LDAPEntry entry = control.getEntry();
+
+        LDAPAttribute attr = entry.getAttribute("entryUSN");
+        if (attr != null) {
+            BigInteger entryUSN = new BigInteger(attr.getStringValueArray()[0]);
+            logger.debug("AuthorityMonitor: tracking entryUSN: " + entryUSN);
+            entryUSNs.put(aid, entryUSN);
+        }
+
+        attr = entry.getAttribute("nsUniqueId");
+        if (attr != null) {
+            String nsUniqueId = attr.getStringValueArray()[0];
+            logger.info("AuthorityMonitor: tracking nsUniqueId: " + nsUniqueId);
+            nsUniqueIds.put(aid, nsUniqueId);
         }
     }
 

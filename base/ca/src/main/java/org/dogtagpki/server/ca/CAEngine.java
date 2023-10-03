@@ -103,7 +103,6 @@ import com.netscape.cmscore.request.RequestNotifier;
 import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ldap.LDAPPostReadControl;
-import com.netscape.cmsutil.ldap.LDAPUtil;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
@@ -1254,28 +1253,6 @@ public class CAEngine extends CMSEngine {
         return cons;
     }
 
-    public synchronized void trackUpdate(AuthorityID aid, LDAPControl[] responseControls) {
-
-        LDAPPostReadControl control = (LDAPPostReadControl)
-            LDAPUtil.getControl(LDAPPostReadControl.class, responseControls);
-
-        LDAPEntry entry = control.getEntry();
-
-        LDAPAttribute attr = entry.getAttribute("entryUSN");
-        if (attr != null) {
-            BigInteger entryUSN = new BigInteger(attr.getStringValueArray()[0]);
-            logger.debug("CAEngine: tracking entryUSN: " + entryUSN);
-            authorityMonitor.entryUSNs.put(aid, entryUSN);
-        }
-
-        attr = entry.getAttribute("nsUniqueId");
-        if (attr != null) {
-            String nsUniqueId = attr.getStringValueArray()[0];
-            logger.info("CAEngine: tracking nsUniqueId: " + nsUniqueId);
-            authorityMonitor.nsUniqueIds.put(aid, nsUniqueId);
-        }
-    }
-
     public synchronized void addAuthorityEntry(AuthorityID aid, LDAPEntry entry) throws EBaseException {
 
         LDAPConnection conn = connectionFactory.getConn();
@@ -1292,7 +1269,7 @@ public class CAEngine extends CMSEngine {
             connectionFactory.returnConn(conn);
         }
 
-        trackUpdate(aid, responseControls);
+        authorityMonitor.trackUpdate(aid, responseControls);
     }
 
     public synchronized void modifyAuthorityEntry(AuthorityID aid, LDAPModificationSet mods) throws EBaseException {
@@ -1312,7 +1289,7 @@ public class CAEngine extends CMSEngine {
             connectionFactory.returnConn(conn);
         }
 
-        trackUpdate(aid, responseControls);
+        authorityMonitor.trackUpdate(aid, responseControls);
     }
 
     public synchronized void deleteAuthorityEntry(AuthorityID aid) throws EBaseException {
