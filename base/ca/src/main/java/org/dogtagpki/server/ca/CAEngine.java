@@ -18,7 +18,6 @@
 
 package org.dogtagpki.server.ca;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.security.PublicKey;
 import java.security.SecureRandom;
@@ -1120,47 +1119,27 @@ public class CAEngine extends CMSEngine {
                     "DN '" + subjectX500Name + "' is used by an existing authority");
         }
 
-        // generate authority ID and nickname
-        AuthorityID aid = new AuthorityID();
-        String aidString = aid.toString();
-        logger.info("CAEngine: Creating authority " + aidString);
+        AuthorityRecord record = new AuthorityRecord();
+
+        // generate authority ID
+        AuthorityID authorityID = new AuthorityID();
+        record.setAuthorityID(authorityID);
+        record.setAuthorityDN(subjectX500Name);
+
+        record.setParentID(parentCA.getAuthorityID());
+        record.setParentDN(parentCA.getX500Name());
+
+        record.setDescription(description);
+        record.setEnabled(true);
 
         CertificateAuthority hostCA = getCA();
-        String nickname = hostCA.getNickname() + " " + aidString;
-        logger.info("CAEngine: - nickname: " + nickname);
 
-        // build database entry
-        String dn = "cn=" + aidString + "," + getAuthorityBaseDN();
-        logger.info("CAEngine: - authority record: " + dn);
+        String keyNickname = hostCA.getNickname() + " " + authorityID;
+        record.setKeyNickname(keyNickname);
 
-        String parentDNString = parentCA.getX500Name().toLdapDNString();
+        record.addKeyHost(mConfig.getHostname() + ":" + getEESSLPort());
 
-        String keyHost = mConfig.getHostname() + ":" + getEESSLPort();
-        logger.info("CAEngine: - key host: " + keyHost);
-
-        LDAPAttribute[] attrs = {
-            new LDAPAttribute("objectclass", "authority"),
-            new LDAPAttribute("cn", aidString),
-            new LDAPAttribute("authorityID", aidString),
-            new LDAPAttribute("authorityKeyNickname", nickname),
-            new LDAPAttribute("authorityKeyHost", keyHost),
-            new LDAPAttribute("authorityEnabled", "TRUE"),
-            new LDAPAttribute("authorityDN", subjectDN),
-            new LDAPAttribute("authorityParentDN", parentDNString)
-        };
-
-        LDAPAttributeSet attrSet = new LDAPAttributeSet(attrs);
-        if (parentCA.getAuthorityID() != null) {
-            attrSet.add(new LDAPAttribute("authorityParentID", parentCA.getAuthorityID().toString()));
-        }
-
-        if (description != null) {
-            logger.info("CAEngine: - description: " + description);
-            attrSet.add(new LDAPAttribute("description", description));
-        }
-
-        LDAPEntry ldapEntry = new LDAPEntry(dn, attrSet);
-        addAuthorityEntry(aid, ldapEntry);
+        addAuthorityRecord(record);
 
         X509CertImpl cert = null;
 
@@ -1170,24 +1149,24 @@ public class CAEngine extends CMSEngine {
 
             logger.info("CAEngine: Importing signing certificate into NSS database");
             CryptoManager cryptoManager = CryptoManager.getInstance();
-            cryptoManager.importCertPackage(cert.getEncoded(), nickname);
+            cryptoManager.importCertPackage(cert.getEncoded(), keyNickname);
 
         } catch (Exception e) {
             logger.error("Unable to generate signing certificate: " + e.getMessage(), e);
 
             // something went wrong; delete just-added entry
-            deleteAuthorityEntry(aid);
+            deleteAuthorityEntry(authorityID);
 
             throw e;
         }
 
         ca = new CertificateAuthority(
             subjectX500Name,
-            aid,
+            authorityID,
             parentCA.getAuthorityID(),
             cert.getSerialNumber(),
-            nickname,
-            Collections.singleton(keyHost),
+            keyNickname,
+            record.getKeyHosts(),
             description,
             true);
 
@@ -1196,7 +1175,7 @@ public class CAEngine extends CMSEngine {
         ca.setCMSEngine(this);
         ca.init(caConfig);
 
-        updateAuthoritySerialNumber(aid, cert.getSerialNumber());
+        updateAuthoritySerialNumber(authorityID, cert.getSerialNumber());
 
         return ca;
     }
@@ -1344,7 +1323,62 @@ public class CAEngine extends CMSEngine {
         return cons;
     }
 
-    public synchronized void addAuthorityEntry(AuthorityID aid, LDAPEntry entry) throws EBaseException {
+    public synchronized void addAuthorityRecord(AuthorityRecord record) throws Exception {
+
+        AuthorityID authorityID = record.getAuthorityID();
+        String aidStr = authorityID.toString();
+        String dn = "cn=" + aidStr + "," + getAuthorityBaseDN();
+        logger.info("CAEngine: Creating " + dn);
+
+        LDAPAttributeSet attrSet = new LDAPAttributeSet();
+        attrSet.add(new LDAPAttribute("objectclass", "authority"));
+
+        logger.info("CAEngine: - authority ID: " + aidStr);
+        attrSet.add(new LDAPAttribute("cn", aidStr));
+        attrSet.add(new LDAPAttribute("authorityID", aidStr));
+
+        X500Name authorityDN = record.getAuthorityDN();
+        logger.info("CAEngine: - authority DN: " + authorityDN);
+        attrSet.add(new LDAPAttribute("authorityDN", authorityDN.toLdapDNString()));
+
+        AuthorityID parentID = record.getParentID();
+        if (parentID != null) {
+            logger.info("CAEngine: - parent ID: " + parentID);
+            attrSet.add(new LDAPAttribute("authorityParentID", parentID.toString()));
+        }
+
+        X500Name parentDN = record.getParentDN();
+        if (parentDN != null) {
+            logger.info("CAEngine: - parent DN: " + parentDN);
+            attrSet.add(new LDAPAttribute("authorityParentDN", parentDN.toLdapDNString()));
+        }
+
+        String description = record.getDescription();
+        if (description != null) {
+            logger.info("CAEngine: - description: " + description);
+            attrSet.add(new LDAPAttribute("description", description));
+        }
+
+        Boolean enabled = record.getEnabled();
+        if (enabled != null) {
+            logger.info("CAEngine: - enabled: " + description);
+            attrSet.add(new LDAPAttribute("authorityEnabled", enabled ? "TRUE" : "FALSE"));
+        }
+
+        String keyNickname = record.getKeyNickname();
+        if (keyNickname != null) {
+            logger.info("CAEngine: - key nickname: " + keyNickname);
+            attrSet.add(new LDAPAttribute("authorityKeyNickname", keyNickname));
+        }
+
+        Collection<String> keyHosts = record.getKeyHosts();
+        if (!keyHosts.isEmpty()) {
+            logger.info("CAEngine: - key hosts: " + keyHosts);
+            String[] values = keyHosts.toArray(new String[keyHosts.size()]);
+            attrSet.add(new LDAPAttribute("authorityKeyHost", values));
+        }
+
+        LDAPEntry entry = new LDAPEntry(dn, attrSet);
 
         LDAPConnection conn = connectionFactory.getConn();
         LDAPControl[] responseControls;
@@ -1360,7 +1394,7 @@ public class CAEngine extends CMSEngine {
             connectionFactory.returnConn(conn);
         }
 
-        authorityMonitor.trackUpdate(aid, responseControls);
+        authorityMonitor.trackUpdate(authorityID, responseControls);
     }
 
     public synchronized void modifyAuthorityEntry(AuthorityID aid, LDAPModificationSet mods) throws EBaseException {
@@ -1415,43 +1449,27 @@ public class CAEngine extends CMSEngine {
      * It is the caller's responsibility to add the returned
      * AuthorityID to the CAEngine.
      */
-    public AuthorityID addHostAuthorityEntry() throws EBaseException {
+    public AuthorityID addHostAuthorityEntry() throws Exception {
 
         CertificateAuthority hostCA = getCA();
 
+        AuthorityRecord record = new AuthorityRecord();
+
         // generate authority ID
-        AuthorityID aid = new AuthorityID();
-        String aidString = aid.toString();
+        record.setAuthorityID(new AuthorityID());
+        record.setAuthorityDN(hostCA.getX500Name());
 
-        // build database entry
-        String dn = "cn=" + aidString + "," + getAuthorityBaseDN();
-        String dnString = null;
-        try {
-            dnString = hostCA.getX500Name().toLdapDNString();
+        record.setDescription("Host authority");
+        record.setEnabled(true);
 
-        } catch (IOException e) {
-            throw new EBaseException("Unable to convert issuer DN to string: " + e.getMessage(), e);
-        }
+        record.setKeyNickname(hostCA.getNickname());
 
-        String desc = "Host authority";
-        LDAPAttribute[] attrs = {
-            new LDAPAttribute("objectclass", "authority"),
-            new LDAPAttribute("cn", aidString),
-            new LDAPAttribute("authorityID", aidString),
-            new LDAPAttribute("authorityKeyNickname", hostCA.getNickname()),
-            new LDAPAttribute("authorityEnabled", "TRUE"),
-            new LDAPAttribute("authorityDN", dnString),
-            new LDAPAttribute("description", desc)
-        };
-        LDAPAttributeSet attrSet = new LDAPAttributeSet(attrs);
-        LDAPEntry ldapEntry = new LDAPEntry(dn, attrSet);
+        addAuthorityRecord(record);
 
-        addAuthorityEntry(aid, ldapEntry);
+        hostCA.setAuthorityID(record.getAuthorityID());
+        hostCA.setAuthorityDescription(record.getDescription());
 
-        hostCA.setAuthorityID(aid);
-        hostCA.setAuthorityDescription(desc);
-
-        return aid;
+        return record.getAuthorityID();
     }
 
     public void updateAuthoritySerialNumber(AuthorityID aid, BigInteger serialNumber) throws Exception {
