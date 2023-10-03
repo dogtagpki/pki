@@ -14,4 +14,7 @@ public class ServiceUnavailableException extends PKIException {
         super(Response.Status.SERVICE_UNAVAILABLE, message, cause);
     }
 
+    public ServiceUnavailableException(Data data) {
+        super(data);
+    }
 }
