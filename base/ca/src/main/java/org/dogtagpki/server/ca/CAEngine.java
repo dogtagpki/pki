@@ -169,9 +169,6 @@ public class CAEngine extends CMSEngine {
     public Map<AuthorityID, Thread> keyRetrievers =
             Collections.synchronizedSortedMap(new TreeMap<AuthorityID, Thread>());
 
-    // Track authority updates to avoid race conditions and unnecessary reloads due to replication
-    public static TreeMap<AuthorityID, BigInteger> entryUSNs = new TreeMap<>();
-
     protected AuthorityMonitor authorityMonitor;
     protected boolean enableAuthorityMonitor = true;
 
@@ -1030,7 +1027,7 @@ public class CAEngine extends CMSEngine {
 
     public void removeCA(AuthorityID aid) {
         authorities.remove(aid);
-        entryUSNs.remove(aid);
+        authorityMonitor.entryUSNs.remove(aid);
         authorityMonitor.nsUniqueIds.remove(aid);
     }
 
@@ -1275,7 +1272,7 @@ public class CAEngine extends CMSEngine {
         if (attr != null) {
             BigInteger entryUSN = new BigInteger(attr.getStringValueArray()[0]);
             logger.debug("CAEngine: tracking entryUSN: " + entryUSN);
-            entryUSNs.put(aid, entryUSN);
+            authorityMonitor.entryUSNs.put(aid, entryUSN);
         }
 
         attr = entry.getAttribute("nsUniqueId");
@@ -1432,7 +1429,7 @@ public class CAEngine extends CMSEngine {
             logger.debug("CAEngine: new entryUSN: " + newEntryUSN);
         }
 
-        BigInteger knownEntryUSN = entryUSNs.get(aid);
+        BigInteger knownEntryUSN = authorityMonitor.entryUSNs.get(aid);
         if (newEntryUSN != null && knownEntryUSN != null) {
             logger.debug("CAEngine: known entryUSN: " + knownEntryUSN);
             if (newEntryUSN.compareTo(knownEntryUSN) <= 0) {
@@ -1490,7 +1487,7 @@ public class CAEngine extends CMSEngine {
             ca.init(caConfig);
 
             addCA(aid, ca);
-            entryUSNs.put(aid, newEntryUSN);
+            authorityMonitor.entryUSNs.put(aid, newEntryUSN);
             authorityMonitor.nsUniqueIds.put(aid, nsUniqueId);
 
         } catch (Exception e) {
