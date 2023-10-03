@@ -1232,6 +1232,29 @@ public class CAEngine extends CMSEngine {
         return ca;
     }
 
+    public CertificateAuthority createCA(AuthorityRecord record) throws Exception {
+
+        CertId certID = record.getSerialNumber();
+        BigInteger serialNumber = certID == null ? null : certID.toBigInteger();
+
+        CertificateAuthority ca = new CertificateAuthority(
+            record.getAuthorityDN(),
+            record.getAuthorityID(),
+            record.getParentID(),
+            serialNumber,
+            record.getKeyNickname(),
+            record.getKeyHosts(),
+            record.getDescription(),
+            record.getEnabled());
+
+        CAEngineConfig engineConfig = getConfig();
+        CAConfig caConfig = engineConfig.getCAConfig();
+        ca.setCMSEngine(this);
+        ca.init(caConfig);
+
+        return ca;
+    }
+
     public void startKeyRetriever(CertificateAuthority ca) throws EBaseException {
 
         AuthorityID authorityID = ca.getAuthorityID();
@@ -1461,25 +1484,8 @@ public class CAEngine extends CMSEngine {
             }
         }
 
-        String keyNick = record.getKeyNickname();
-        Collection<String> keyHosts = record.getKeyHosts();
-
-        AuthorityID parentAID = record.getParentID();
-
-        CertId certID = record.getSerialNumber();
-        BigInteger serial = certID == null ? null : certID.toBigInteger();
-
-        boolean enabled = record.getEnabled();
-
         try {
-            CertificateAuthority ca = new CertificateAuthority(
-                dn, aid, parentAID, serial,
-                keyNick, keyHosts, desc, enabled);
-
-            CAEngineConfig engineConfig = getConfig();
-            CAConfig caConfig = engineConfig.getCAConfig();
-            ca.setCMSEngine(this);
-            ca.init(caConfig);
+            CertificateAuthority ca = createCA(record);
 
             authorityMonitor.addCA(aid, ca);
             authorityMonitor.entryUSNs.put(aid, newEntryUSN);
