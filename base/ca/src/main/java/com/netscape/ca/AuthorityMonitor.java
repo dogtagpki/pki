@@ -234,7 +234,7 @@ public class AuthorityMonitor implements Runnable {
             LDAPAttribute attr = entry.getAttribute("authorityID");
             if (attr != null) {
                 AuthorityID aid = new AuthorityID(attr.getStringValueArray()[0]);
-                engine.removeCA(aid);
+                removeCA(aid);
             }
 
         } else if (!wasMonitored && isMonitored) {
@@ -275,12 +275,18 @@ public class AuthorityMonitor implements Runnable {
                     + "for authority '" + aid + "': " + e.getMessage(), e);
             }
 
-            engine.removeCA(aid);
+            removeCA(aid);
         }
     }
 
     public void addCA(AuthorityID aid, CertificateAuthority ca) {
         authorities.put(aid, ca);
+    }
+
+    public void removeCA(AuthorityID aid) {
+        authorities.remove(aid);
+        entryUSNs.remove(aid);
+        nsUniqueIds.remove(aid);
     }
 
     public synchronized void trackUpdate(AuthorityID aid, LDAPControl[] responseControls) {

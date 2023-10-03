@@ -1013,12 +1013,6 @@ public class CAEngine extends CMSEngine {
         return null;
     }
 
-    public void removeCA(AuthorityID aid) {
-        authorityMonitor.authorities.remove(aid);
-        authorityMonitor.entryUSNs.remove(aid);
-        authorityMonitor.nsUniqueIds.remove(aid);
-    }
-
     public void ensureAuthorityDNAvailable(X500Name dn)
             throws IssuerUnavailableException {
 
@@ -1308,7 +1302,7 @@ public class CAEngine extends CMSEngine {
             authorityMonitor.deletedNsUniqueIds.add(nsUniqueId);
         }
 
-        removeCA(aid);
+        authorityMonitor.removeCA(aid);
     }
 
     public synchronized void readAuthority(LDAPEntry entry) throws Exception {
