@@ -24,6 +24,7 @@ import org.dogtagpki.server.ca.CAEngine;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.util.AsyncLoader;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 import netscape.ldap.LDAPAttribute;
@@ -41,6 +42,8 @@ public class AuthorityMonitor implements Runnable {
     public final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuthorityMonitor.class);
 
     private boolean running = true;
+
+    public AsyncLoader loader = new AsyncLoader(10 /* 10s timeout */);
 
     public AuthorityMonitor() {
     }
@@ -82,7 +85,7 @@ public class AuthorityMonitor implements Runnable {
                  * the load lock so that we can continue to service
                  * requests while LDAP is down.
                  */
-                engine.getLoader().startLoading();
+                loader.startLoading();
 
                 while (running && results.hasMoreElements()) {
 
@@ -100,7 +103,7 @@ public class AuthorityMonitor implements Runnable {
                          * watchdog timer to interrupt waiting threads after it
                          * times out.
                          */
-                        engine.getLoader().setNumItems(Integer.valueOf(entry.getAttribute("numSubordinates").getStringValueArray()[0]));
+                        loader.setNumItems(Integer.valueOf(entry.getAttribute("numSubordinates").getStringValueArray()[0]));
                         continue;
                     }
 
@@ -120,7 +123,7 @@ public class AuthorityMonitor implements Runnable {
                     if (!Arrays.asList(objectClasses).contains("authority")) {
                         /* It is not a LWCA entry; ignore it.  But it does
                          * contribute to numSubordinates so increment the loader. */
-                        engine.getLoader().increment();
+                        loader.increment();
                         continue;
                     }
 
@@ -160,7 +163,7 @@ public class AuthorityMonitor implements Runnable {
                     } else {
                         logger.debug("AuthorityMonitor: immediate result");
                         engine.readAuthority(entry);
-                        engine.getLoader().increment();
+                        loader.increment();
                     }
                 }
 
@@ -265,5 +268,6 @@ public class AuthorityMonitor implements Runnable {
      */
     public void shutdown() {
         running = false;
+        loader.shutdown();
     }
 }

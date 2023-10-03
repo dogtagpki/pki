@@ -78,7 +78,6 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.publish.CRLPublisher;
 import com.netscape.certsrv.request.RequestListener;
-import com.netscape.certsrv.util.AsyncLoader;
 import com.netscape.cms.authentication.CAAuthSubsystem;
 import com.netscape.cms.request.RequestScheduler;
 import com.netscape.cmscore.apps.CMS;
@@ -178,7 +177,6 @@ public class CAEngine extends CMSEngine {
     // Track authority deletions
     public static TreeSet<String> deletedNsUniqueIds = new TreeSet<>();
 
-    protected AsyncLoader loader = new AsyncLoader(10 /* 10s timeout */);
     protected boolean foundHostCA;
     protected AuthorityMonitor authorityMonitor;
     protected boolean enableAuthorityMonitor = true;
@@ -407,10 +405,6 @@ public class CAEngine extends CMSEngine {
         return requestInQueueListener;
     }
 
-    public AsyncLoader getLoader() {
-        return loader;
-    }
-
     public LdapBoundConnFactory getConnectionFactory() {
         return connectionFactory;
     }
@@ -614,7 +608,7 @@ public class CAEngine extends CMSEngine {
             // container entry), or watchdog times it out (in case
             // numSubordinates is larger than the number of entries
             // we can see, e.g. replication conflict entries).
-            loader.awaitLoadDone();
+            authorityMonitor.loader.awaitLoadDone();
 
         } catch (InterruptedException e) {
             logger.warn("CAEngine: Caught InterruptedException "
@@ -1957,8 +1951,6 @@ public class CAEngine extends CMSEngine {
         if (authorityMonitor != null) {
             authorityMonitor.shutdown();
         }
-
-        loader.shutdown();
     }
 
     @Override
