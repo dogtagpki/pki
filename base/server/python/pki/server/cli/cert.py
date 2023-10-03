@@ -959,11 +959,17 @@ class CertExportCLI(pki.cli.CLI):
                 logger.info('Exporting %s certificate into %s.', cert_id, cert_file)
 
                 cert_data = cert.get('data')
-                if cert_data is None:
-                    logger.error('Unable to find certificate data for %s', cert_id)
-                    sys.exit(1)
+                if cert_data:
+                    cert_data = pki.nssdb.convert_cert(cert_data, 'base64', 'pem')
+                else:
+                    crt_path = os.path.join(instance.conf_dir, 'conf', 'certs', cert_id + '.crt')
+                    try:
+                        with open(crt_path, 'r', encoding='utf-8') as f:
+                            cert_data = ''.join(f.readlines())
+                    except FileNotFoundError:
+                        logger.error('Unable to find certificate data for %s', cert_id)
+                        sys.exit(1)
 
-                cert_data = pki.nssdb.convert_cert(cert_data, 'base64', 'pem')
                 with open(cert_file, 'w', encoding='utf-8') as f:
                     f.write(cert_data)
 
@@ -972,11 +978,17 @@ class CertExportCLI(pki.cli.CLI):
                 logger.info('Exporting %s CSR into %s.', cert_id, csr_file)
 
                 cert_request = cert.get('request')
-                if cert_request is None:
-                    logger.error('Unable to find certificate request for %s', cert_id)
-                    sys.exit(1)
+                if cert_request:
+                    csr_data = pki.nssdb.convert_csr(cert_request, 'base64', 'pem')
+                else:
+                    csr_path = os.path.join(instance.conf_dir, 'conf', 'certs', cert_id + '.csr')
+                    try:
+                        with open(csr_path, 'r', encoding='utf-8') as f:
+                            csr_data = ''.join(f.readlines())
+                    except FileNotFoundError:
+                        logger.error('Unable to find certificate request for %s', cert_id)
+                        sys.exit(1)
 
-                csr_data = pki.nssdb.convert_csr(cert_request, 'base64', 'pem')
                 with open(csr_file, 'w', encoding='utf-8') as f:
                     f.write(csr_data)
 
