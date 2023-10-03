@@ -44,6 +44,7 @@ public class AuthorityMonitor implements Runnable {
     private boolean running = true;
 
     public AsyncLoader loader = new AsyncLoader(10 /* 10s timeout */);
+    public boolean foundHostCA;
 
     public AuthorityMonitor() {
     }

@@ -177,7 +177,6 @@ public class CAEngine extends CMSEngine {
     // Track authority deletions
     public static TreeSet<String> deletedNsUniqueIds = new TreeSet<>();
 
-    protected boolean foundHostCA;
     protected AuthorityMonitor authorityMonitor;
     protected boolean enableAuthorityMonitor = true;
 
@@ -617,7 +616,7 @@ public class CAEngine extends CMSEngine {
                     + "extraneous data under " + getAuthorityBaseDN());
         }
 
-        if (!foundHostCA) {
+        if (!authorityMonitor.foundHostCA) {
             logger.debug("CAEngine: No entry for host authority");
             logger.debug("CAEngine: Adding entry for host authority");
             addCA(addHostAuthorityEntry(), hostCA);
@@ -1402,7 +1401,7 @@ public class CAEngine extends CMSEngine {
 
         if (dn.toString().equals(hostCA.getX500Name().toString())) {
             logger.info("CAEngine: Updating host CA");
-            foundHostCA = true;
+            authorityMonitor.foundHostCA = true;
 
             logger.info("CAEngine: - ID: " + aid);
             hostCA.setAuthorityID(aid);
