@@ -24,7 +24,9 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.dogtagpki.server.ca.AuthorityRecord;
 import org.dogtagpki.server.ca.CAEngine;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.ECAException;
@@ -161,7 +163,7 @@ public class AuthorityMonitor implements Runnable {
                         switch (changeType) {
                         case LDAPPersistSearchControl.ADD:
                             logger.debug("AuthorityMonitor: ADD");
-                            engine.readAuthority(entry);
+                            readAuthority(entry);
                             break;
                         case LDAPPersistSearchControl.DELETE:
                             logger.debug("AuthorityMonitor: DELETE");
@@ -170,7 +172,7 @@ public class AuthorityMonitor implements Runnable {
                         case LDAPPersistSearchControl.MODIFY:
                             logger.debug("AuthorityMonitor: MODIFY");
                             // TODO how do we handle authorityID change?
-                            engine.readAuthority(entry);
+                            readAuthority(entry);
                             break;
                         case LDAPPersistSearchControl.MODDN:
                             logger.debug("AuthorityMonitor: MODDN");
@@ -183,7 +185,7 @@ public class AuthorityMonitor implements Runnable {
 
                     } else {
                         logger.debug("AuthorityMonitor: immediate result");
-                        engine.readAuthority(entry);
+                        readAuthority(entry);
                         loader.increment();
                     }
                 }
@@ -238,7 +240,7 @@ public class AuthorityMonitor implements Runnable {
             }
 
         } else if (!wasMonitored && isMonitored) {
-            engine.readAuthority(entry);
+            readAuthority(entry);
         }
     }
 
@@ -276,6 +278,93 @@ public class AuthorityMonitor implements Runnable {
             }
 
             removeCA(aid);
+        }
+    }
+
+    public synchronized void readAuthority(LDAPEntry entry) throws Exception {
+
+        logger.info("AuthorityMonitor: Loading authority record " + entry.getDN());
+
+        CAEngine engine = CAEngine.getInstance();
+        AuthorityRecord record;
+        try {
+            record = engine.getAuthorityRecord(entry);
+        } catch (Exception e) {
+            logger.warn("Unable to load authority record: " + e.getMessage(), e);
+            return;
+        }
+
+        String nsUniqueID = record.getNSUniqueID();
+        if (deletedNsUniqueIds.contains(nsUniqueID)) {
+            logger.warn("AuthorityMonitor: ignoring entry with nsUniqueId '"
+                    + nsUniqueID + "' due to deletion");
+            return;
+        }
+
+        AuthorityID authorityID = record.getAuthorityID();
+        X500Name authorityDN = record.getAuthorityDN();
+        String description = record.getDescription();
+
+        // Determine if it is the host authority's entry, by
+        // comparing DNs.  DNs must be serialized in case different
+        // encodings are used for AVA values, e.g. PrintableString
+        // from LDAP vs UTF8String in certificate.
+
+        CertificateAuthority hostCA = engine.getCA();
+
+        if (authorityDN.toString().equals(hostCA.getX500Name().toString())) {
+            logger.info("AuthorityMonitor: Updating host CA");
+            foundHostCA = true;
+
+            logger.info("AuthorityMonitor: - ID: " + authorityID);
+            hostCA.setAuthorityID(authorityID);
+
+            logger.info("AuthorityMonitor: - description: " + description);
+            hostCA.setAuthorityDescription(description);
+
+            addCA(authorityID, hostCA);
+
+            return;
+        }
+
+        BigInteger newEntryUSN = record.getEntryUSN();
+        logger.debug("AuthorityMonitor: new entryUSN: " + newEntryUSN);
+
+        if (newEntryUSN == null) {
+            logger.debug("AuthorityMonitor: no entryUSN");
+            if (!engine.entryUSNPluginEnabled()) {
+                logger.warn("AuthorityMonitor: dirsrv USN plugin is not enabled; skipping entry");
+                logger.warn("Lightweight authority entry has no"
+                        + " entryUSN attribute and USN plugin not enabled;"
+                        + " skipping.  Enable dirsrv USN plugin.");
+                return;
+
+            }
+
+            logger.debug("AuthorityMonitor: dirsrv USN plugin is enabled; continuing");
+            // entryUSN plugin is enabled, but no entryUSN attribute. We
+            // can proceed because future modifications will result in the
+            // entryUSN attribute being added.
+        }
+
+        BigInteger knownEntryUSN = entryUSNs.get(authorityID);
+        if (newEntryUSN != null && knownEntryUSN != null) {
+            logger.debug("AuthorityMonitor: known entryUSN: " + knownEntryUSN);
+            if (newEntryUSN.compareTo(knownEntryUSN) <= 0) {
+                logger.debug("AuthorityMonitor: data is current");
+                return;
+            }
+        }
+
+        try {
+            CertificateAuthority ca = engine.createCA(record);
+
+            addCA(authorityID, ca);
+            entryUSNs.put(authorityID, newEntryUSN);
+            nsUniqueIds.put(authorityID, nsUniqueID);
+
+        } catch (Exception e) {
+            logger.warn("AuthorityMonitor: Error initializing lightweight CA: " + e.getMessage(), e);
         }
     }
 
