@@ -108,6 +108,14 @@ public class AuthorityRecord {
         this.keyHosts.addAll(keyHosts);
     }
 
+    public void addKeyHost(String keyHost) {
+        keyHosts.add(keyHost);
+    }
+
+    public void removeKeyHost(String keyHost) {
+        keyHosts.remove(keyHost);
+    }
+
     public String getNSUniqueID() {
         return nsUniqueID;
     }
