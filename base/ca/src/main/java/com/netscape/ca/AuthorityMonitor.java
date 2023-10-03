@@ -19,6 +19,8 @@ package com.netscape.ca;
 
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -48,6 +50,9 @@ public class AuthorityMonitor implements Runnable {
 
     public AsyncLoader loader = new AsyncLoader(10 /* 10s timeout */);
     public boolean foundHostCA;
+
+    public Map<AuthorityID, Thread> keyRetrievers =
+            Collections.synchronizedSortedMap(new TreeMap<AuthorityID, Thread>());
 
     // Track authority updates to avoid race conditions and unnecessary reloads due to replication
     public TreeMap<AuthorityID, BigInteger> entryUSNs = new TreeMap<>();

@@ -166,9 +166,6 @@ public class CAEngine extends CMSEngine {
     public static Map<AuthorityID, CertificateAuthority> authorities =
             Collections.synchronizedSortedMap(new TreeMap<AuthorityID, CertificateAuthority>());
 
-    public Map<AuthorityID, Thread> keyRetrievers =
-            Collections.synchronizedSortedMap(new TreeMap<AuthorityID, Thread>());
-
     protected AuthorityMonitor authorityMonitor;
     protected boolean enableAuthorityMonitor = true;
 
@@ -1179,7 +1176,7 @@ public class CAEngine extends CMSEngine {
             return;
         }
 
-        if (keyRetrievers.containsKey(authorityID)) {
+        if (authorityMonitor.keyRetrievers.containsKey(authorityID)) {
             logger.info("CertificateAuthority: KeyRetriever already running for authority " + authorityID);
             return;
         }
@@ -1220,11 +1217,11 @@ public class CAEngine extends CMSEngine {
         Thread thread = new Thread(runner, "KeyRetriever-" + authorityID);
         thread.start();
 
-        keyRetrievers.put(authorityID, thread);
+        authorityMonitor.keyRetrievers.put(authorityID, thread);
     }
 
     public void removeKeyRetriever(AuthorityID aid) {
-        keyRetrievers.remove(aid);
+        authorityMonitor.keyRetrievers.remove(aid);
     }
 
     public String getAuthorityBaseDN() {
