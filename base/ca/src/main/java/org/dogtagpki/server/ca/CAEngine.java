@@ -33,7 +33,6 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -162,9 +161,6 @@ public class CAEngine extends CMSEngine {
     public SerialNumberUpdateTask serialNumberUpdateTask;
 
     protected LdapBoundConnFactory connectionFactory;
-
-    public static Map<AuthorityID, CertificateAuthority> authorities =
-            Collections.synchronizedSortedMap(new TreeMap<AuthorityID, CertificateAuthority>());
 
     protected AuthorityMonitor authorityMonitor;
     protected boolean enableAuthorityMonitor = true;
@@ -990,8 +986,8 @@ public class CAEngine extends CMSEngine {
      */
     public List<CertificateAuthority> getCAs() {
         List<CertificateAuthority> list = new ArrayList<>();
-        synchronized (authorities) {
-            list.addAll(authorities.values());
+        synchronized (authorityMonitor.authorities) {
+            list.addAll(authorityMonitor.authorities.values());
         }
         return list;
     }
@@ -1005,7 +1001,7 @@ public class CAEngine extends CMSEngine {
      * @return the authority, or null if not found
      */
     public CertificateAuthority getCA(AuthorityID aid) {
-        return aid == null ? getCA() : authorities.get(aid);
+        return aid == null ? getCA() : authorityMonitor.authorities.get(aid);
     }
 
     public CertificateAuthority getCA(X500Name dn) {
@@ -1019,11 +1015,11 @@ public class CAEngine extends CMSEngine {
     }
 
     public void addCA(AuthorityID aid, CertificateAuthority ca) {
-        authorities.put(aid, ca);
+        authorityMonitor.authorities.put(aid, ca);
     }
 
     public void removeCA(AuthorityID aid) {
-        authorities.remove(aid);
+        authorityMonitor.authorities.remove(aid);
         authorityMonitor.entryUSNs.remove(aid);
         authorityMonitor.nsUniqueIds.remove(aid);
     }
@@ -1159,7 +1155,7 @@ public class CAEngine extends CMSEngine {
         }
 
         CertificateAuthority ca = createCA(parentCA, authToken, subjectDN, description);
-        authorities.put(ca.getAuthorityID(), ca);
+        authorityMonitor.authorities.put(ca.getAuthorityID(), ca);
 
         return ca;
     }

@@ -51,6 +51,9 @@ public class AuthorityMonitor implements Runnable {
     public AsyncLoader loader = new AsyncLoader(10 /* 10s timeout */);
     public boolean foundHostCA;
 
+    public Map<AuthorityID, CertificateAuthority> authorities =
+            Collections.synchronizedSortedMap(new TreeMap<AuthorityID, CertificateAuthority>());
+
     public Map<AuthorityID, Thread> keyRetrievers =
             Collections.synchronizedSortedMap(new TreeMap<AuthorityID, Thread>());
 
