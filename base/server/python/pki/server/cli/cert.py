@@ -962,7 +962,7 @@ class CertExportCLI(pki.cli.CLI):
                 if cert_data:
                     cert_data = pki.nssdb.convert_cert(cert_data, 'base64', 'pem')
                 else:
-                    crt_path = os.path.join(instance.conf_dir, 'conf', 'certs', cert_id + '.crt')
+                    crt_path = os.path.join(instance.conf_dir, 'certs', cert_id + '.crt')
                     try:
                         with open(crt_path, 'r', encoding='utf-8') as f:
                             cert_data = ''.join(f.readlines())
@@ -981,7 +981,7 @@ class CertExportCLI(pki.cli.CLI):
                 if cert_request:
                     csr_data = pki.nssdb.convert_csr(cert_request, 'base64', 'pem')
                 else:
-                    csr_path = os.path.join(instance.conf_dir, 'conf', 'certs', cert_id + '.csr')
+                    csr_path = os.path.join(instance.conf_dir, 'certs', cert_id + '.csr')
                     try:
                         with open(csr_path, 'r', encoding='utf-8') as f:
                             csr_data = ''.join(f.readlines())
