@@ -1096,16 +1096,6 @@ public class CAEngine extends CMSEngine {
         return null;
     }
 
-    public void ensureAuthorityDNAvailable(X500Name dn)
-            throws IssuerUnavailableException {
-
-        for (CertificateAuthority ca : getCAs()) {
-            if (ca.getX500Name().equals(dn))
-                throw new IssuerUnavailableException(
-                    "DN '" + dn + "' is used by an existing authority");
-        }
-    }
-
     /**
      * Create a CA signed by a parent CA.
      *
@@ -1123,7 +1113,12 @@ public class CAEngine extends CMSEngine {
 
         // check requested DN
         X500Name subjectX500Name = new X500Name(subjectDN);
-        ensureAuthorityDNAvailable(subjectX500Name);
+        CertificateAuthority ca = getCA(subjectX500Name);
+
+        if (ca != null) {
+            throw new IssuerUnavailableException(
+                    "DN '" + subjectX500Name + "' is used by an existing authority");
+        }
 
         // generate authority ID and nickname
         AuthorityID aid = new AuthorityID();
@@ -1186,7 +1181,7 @@ public class CAEngine extends CMSEngine {
             throw e;
         }
 
-        CertificateAuthority ca = new CertificateAuthority(
+        ca = new CertificateAuthority(
             subjectX500Name,
             aid,
             parentCA.getAuthorityID(),
