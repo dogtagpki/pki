@@ -72,6 +72,7 @@ import com.netscape.certsrv.ca.CATypeException;
 import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.ca.IssuerUnavailableException;
 import com.netscape.certsrv.connector.ConnectorsConfig;
+import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.publish.CRLPublisher;
@@ -973,6 +974,88 @@ public class CAEngine extends CMSEngine {
         }
     }
 
+    public AuthorityRecord getAuthorityRecord(LDAPEntry entry) throws Exception {
+
+        logger.info("CAEngine: Loading " + entry.getDN());
+
+        AuthorityRecord record = new AuthorityRecord();
+
+        LDAPAttribute authorityIDAttr = entry.getAttribute("authorityID");
+        if (authorityIDAttr == null) {
+            throw new Exception("Missing authorityID attribute: " + entry.getDN());
+        }
+
+        AuthorityID authorityID = new AuthorityID(authorityIDAttr.getStringValues().nextElement());
+        record.setAuthorityID(authorityID);
+
+        LDAPAttribute authorityDNAttr = entry.getAttribute("authorityDN");
+        if (authorityDNAttr == null) {
+            throw new Exception("Missing authorityDN attribute: " + entry.getDN());
+        }
+
+        X500Name authorityDN = new X500Name(authorityDNAttr.getStringValues().nextElement());
+        record.setAuthorityDN(authorityDN);
+
+        LDAPAttribute parentIDAttr = entry.getAttribute("authorityParentID");
+        if (parentIDAttr != null) {
+            AuthorityID parentID = new AuthorityID(parentIDAttr.getStringValues().nextElement());
+            record.setParentID(parentID);
+        }
+
+        LDAPAttribute parentDNAttr = entry.getAttribute("authorityParentDN");
+        if (parentDNAttr != null) {
+            X500Name parentDN = new X500Name(parentDNAttr.getStringValues().nextElement());
+            record.setParentDN(parentDN);
+        }
+
+        LDAPAttribute descriptionAttr = entry.getAttribute("description");
+        if (descriptionAttr != null) {
+            String description = descriptionAttr.getStringValues().nextElement();
+            record.setDescription(description);
+        }
+
+        LDAPAttribute enabledAttr = entry.getAttribute("authorityEnabled");
+        if (enabledAttr != null) {
+            String enabledString = enabledAttr.getStringValues().nextElement();
+            record.setEnabled(enabledString.equalsIgnoreCase("TRUE"));
+        }
+
+        LDAPAttribute serialAttr = entry.getAttribute("authoritySerial");
+        if (serialAttr != null) {
+            CertId certID = new CertId(new BigInteger(serialAttr.getStringValueArray()[0]));
+            record.setSerialNumber(certID);
+        }
+
+        LDAPAttribute keyNicknameAttr = entry.getAttribute("authorityKeyNickname");
+        if (keyNicknameAttr == null) {
+            throw new Exception("Missing authorityKeyNickname attribute: " + entry.getDN());
+        }
+
+        String keyNickname = keyNicknameAttr.getStringValues().nextElement();
+        record.setKeyNickname(keyNickname);
+
+        Collection<String> keyHosts;
+        LDAPAttribute keyHostAttr = entry.getAttribute("authorityKeyHost");
+        if (keyHostAttr == null) {
+            keyHosts = Collections.emptyList();
+        } else {
+            Enumeration<String> keyHostsEnum = keyHostAttr.getStringValues();
+            keyHosts = Collections.list(keyHostsEnum);
+        }
+        record.setKeyHosts(keyHosts);
+
+        String nsUniqueID = entry.getAttribute("nsUniqueId").getStringValueArray()[0];
+        record.setNSUniqueID(nsUniqueID);
+
+        LDAPAttribute entryUSNAttr = entry.getAttribute("entryUSN");
+        if (entryUSNAttr != null) {
+            BigInteger entryUSN = new BigInteger(entryUSNAttr.getStringValueArray()[0]);
+            record.setEntryUSN(entryUSN);
+        }
+
+        return record;
+    }
+
     /**
      * Returns the main/host CA.
      */
@@ -1307,49 +1390,33 @@ public class CAEngine extends CMSEngine {
 
     public synchronized void readAuthority(LDAPEntry entry) throws Exception {
 
-        CertificateAuthority hostCA = getCA();
+        logger.info("CAEngine: Loading authority record " + entry.getDN());
 
-        String nsUniqueId = entry.getAttribute("nsUniqueId").getStringValueArray()[0];
+        AuthorityRecord record;
+        try {
+            record = getAuthorityRecord(entry);
+        } catch (Exception e) {
+            logger.warn("Unable to load authority record: " + e.getMessage(), e);
+            return;
+        }
+
+        String nsUniqueId = record.getNSUniqueID();
         if (authorityMonitor.deletedNsUniqueIds.contains(nsUniqueId)) {
             logger.warn("CAEngine: ignoring entry with nsUniqueId '"
                     + nsUniqueId + "' due to deletion");
             return;
         }
 
-        logger.info("CAEngine: Loading authority record " + entry.getDN());
-
-        LDAPAttribute aidAttr = entry.getAttribute("authorityID");
-        LDAPAttribute nickAttr = entry.getAttribute("authorityKeyNickname");
-        LDAPAttribute keyHostsAttr = entry.getAttribute("authorityKeyHost");
-        LDAPAttribute dnAttr = entry.getAttribute("authorityDN");
-        LDAPAttribute parentAIDAttr = entry.getAttribute("authorityParentID");
-        LDAPAttribute parentDNAttr = entry.getAttribute("authorityParentDN");
-        LDAPAttribute serialAttr = entry.getAttribute("authoritySerial");
-
-        if (aidAttr == null || nickAttr == null || dnAttr == null) {
-            logger.warn("Malformed authority object; required attribute(s) missing: " + entry.getDN());
-            return;
-        }
-
-        AuthorityID aid = new AuthorityID(aidAttr.getStringValues().nextElement());
-
-        X500Name dn = null;
-        try {
-            dn = new X500Name(dnAttr.getStringValues().nextElement());
-        } catch (IOException e) {
-            logger.warn("Malformed authority object; invalid authorityDN: " + entry.getDN() + ": " + e.getMessage(), e);
-        }
-
-        String desc = null;
-        LDAPAttribute descAttr = entry.getAttribute("description");
-        if (descAttr != null) {
-            desc = descAttr.getStringValues().nextElement();
-        }
+        AuthorityID aid = record.getAuthorityID();
+        X500Name dn = record.getAuthorityDN();
+        String desc = record.getDescription();
 
         // Determine if it is the host authority's entry, by
         // comparing DNs.  DNs must be serialized in case different
         // encodings are used for AVA values, e.g. PrintableString
         // from LDAP vs UTF8String in certificate.
+
+        CertificateAuthority hostCA = getCA();
 
         if (dn.toString().equals(hostCA.getX500Name().toString())) {
             logger.info("CAEngine: Updating host CA");
@@ -1366,10 +1433,10 @@ public class CAEngine extends CMSEngine {
             return;
         }
 
-        BigInteger newEntryUSN = null;
-        LDAPAttribute entryUSNAttr = entry.getAttribute("entryUSN");
+        BigInteger newEntryUSN = record.getEntryUSN();
+        logger.debug("CAEngine: new entryUSN: " + newEntryUSN);
 
-        if (entryUSNAttr == null) {
+        if (newEntryUSN == null) {
             logger.debug("CAEngine: no entryUSN");
             if (!entryUSNPluginEnabled()) {
                 logger.warn("CAEngine: dirsrv USN plugin is not enabled; skipping entry");
@@ -1377,16 +1444,12 @@ public class CAEngine extends CMSEngine {
                         + " entryUSN attribute and USN plugin not enabled;"
                         + " skipping.  Enable dirsrv USN plugin.");
                 return;
-
             }
+
             logger.debug("CAEngine: dirsrv USN plugin is enabled; continuing");
             // entryUSN plugin is enabled, but no entryUSN attribute. We
             // can proceed because future modifications will result in the
             // entryUSN attribute being added.
-
-        } else {
-            newEntryUSN = new BigInteger(entryUSNAttr.getStringValueArray()[0]);
-            logger.debug("CAEngine: new entryUSN: " + newEntryUSN);
         }
 
         BigInteger knownEntryUSN = authorityMonitor.entryUSNs.get(aid);
@@ -1398,43 +1461,15 @@ public class CAEngine extends CMSEngine {
             }
         }
 
-        @SuppressWarnings("unused")
-        X500Name parentDN = null;
-        if (parentDNAttr != null) {
-            try {
-                parentDN = new X500Name(parentDNAttr.getStringValues().nextElement());
-            } catch (IOException e) {
-                logger.warn("Malformed authority object; invalid authorityParentDN: " + entry.getDN() + ": " + e.getMessage(), e);
-                return;
-            }
-        }
+        String keyNick = record.getKeyNickname();
+        Collection<String> keyHosts = record.getKeyHosts();
 
-        String keyNick = nickAttr.getStringValues().nextElement();
+        AuthorityID parentAID = record.getParentID();
 
-        Collection<String> keyHosts;
-        if (keyHostsAttr == null) {
-            keyHosts = Collections.emptyList();
-        } else {
-            Enumeration<String> keyHostsEnum = keyHostsAttr.getStringValues();
-            keyHosts = Collections.list(keyHostsEnum);
-        }
+        CertId certID = record.getSerialNumber();
+        BigInteger serial = certID == null ? null : certID.toBigInteger();
 
-        AuthorityID parentAID = null;
-        if (parentAIDAttr != null) {
-            parentAID = new AuthorityID(parentAIDAttr.getStringValues().nextElement());
-        }
-
-        BigInteger serial = null;
-        if (serialAttr != null) {
-            serial = new BigInteger(serialAttr.getStringValueArray()[0]);
-        }
-
-        boolean enabled = true;
-        LDAPAttribute enabledAttr = entry.getAttribute("authorityEnabled");
-        if (enabledAttr != null) {
-            String enabledString = enabledAttr.getStringValues().nextElement();
-            enabled = enabledString.equalsIgnoreCase("TRUE");
-        }
+        boolean enabled = record.getEnabled();
 
         try {
             CertificateAuthority ca = new CertificateAuthority(
