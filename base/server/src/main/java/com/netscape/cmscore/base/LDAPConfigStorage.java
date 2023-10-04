@@ -43,9 +43,7 @@ import netscape.ldap.LDAPModification;
  * Extends ConfigStore with methods to load/save from/to file for
  * persistent storage. This is a configuration store agent who
  * reads data from an LDAP entry.
- * <P>
  *
- * @version $Revision$, $Date$
  * @see ConfigStore
  */
 public class LDAPConfigStorage extends ConfigStorage {
@@ -59,9 +57,8 @@ public class LDAPConfigStorage extends ConfigStorage {
 
     /**
      * Constructs an LDAP configuration store.
-     * <P>
      *
-     * @param conn Database connection
+     * @param connFactory Database connection factory
      * @param dn Distinguished name of record containing config store
      * @param attr Name of attribute containing config store
      * @param createAttrs Set of initial attributes if creating the entry.  Should
