@@ -66,7 +66,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         try:
             deployer.import_system_cert_requests(subsystem)
             deployer.import_system_certs(nssdb, subsystem)
-            deployer.update_system_certs(nssdb, subsystem)
+            deployer.update_system_certs(subsystem)
             subsystem.save()
 
             deployer.update_sslserver_cert_nickname(subsystem)
@@ -79,16 +79,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     if s.name == subsystem.name:
                         continue
 
-                    # import cert/request data from the existing subsystem
+                    # import request data from the existing subsystem
                     # into the new subsystem being installed
-
-                    logger.info('Importing sslserver cert data from %s', s.type)
-                    subsystem.config['%s.sslserver.cert' % subsystem.name] = \
-                        s.config['%s.sslserver.cert' % s.name]
-
-                    logger.info('Importing subsystem cert data from %s', s.type)
-                    subsystem.config['%s.subsystem.cert' % subsystem.name] = \
-                        s.config['%s.subsystem.cert' % s.name]
 
                     logger.info('Importing sslserver request data from %s', s.type)
                     subsystem.config['%s.sslserver.certreq' % subsystem.name] = \

@@ -330,7 +330,6 @@ class PKISubsystem(object):
         cert_id = cert['id']
         self.config['%s.%s.nickname' % (self.name, cert_id)] = cert.get('nickname')
         self.config['%s.%s.tokenname' % (self.name, cert_id)] = cert.get('token')
-        self.config['%s.%s.cert' % (self.name, cert_id)] = cert.get('data')
         self.config['%s.%s.certreq' % (self.name, cert_id)] = cert.get('request')
 
     def validate_system_cert(self, tag):
