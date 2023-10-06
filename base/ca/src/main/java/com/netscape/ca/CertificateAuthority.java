@@ -42,7 +42,6 @@ import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
@@ -63,13 +62,13 @@ import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyPairAlgorithm;
 import org.mozilla.jss.crypto.KeyPairGenerator;
 import org.mozilla.jss.crypto.NoSuchItemOnTokenException;
+import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.DerOutputStream;
 import org.mozilla.jss.netscape.security.util.DerValue;
-import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
@@ -1037,19 +1036,25 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
             return caCertImpl;
         }
 
-        String cert = mConfig.getString("signing.cert");
-        logger.debug("CertificateAuthority: CA signing cert: " + cert);
+        String certnickname = mConfig.getString("signing.certnickname");
+        String tokennickname = mConfig.getString("signing.tokenname");
 
-        if (StringUtils.isEmpty(cert)) {
+        String certName = tokennickname + ":" + certnickname;
+        logger.debug("CertificateAuthority: Getting CA signing cert: " + certName);
+
+        CryptoManager manager;
+        X509Certificate caCert;
+        try {
+            manager= CryptoManager.getInstance();
+            caCert = manager.findCertByNickname(certName);
+        } catch (ObjectNotFoundException | NotInitializedException | TokenException e) {
             logger.error("CertificateAuthority: Missing CA signing certificate");
-            throw new EBaseException("Missing CA signing certificate");
+            throw new EBaseException("Missing CA signing certificate", e);
         }
 
-        byte[] bytes = Utils.base64decode(cert);
-        logger.debug("CertificateAuthority: size: " + bytes.length + " bytes");
-
         try {
-            return new X509CertImpl(bytes);
+
+            return new X509CertImpl(caCert.getEncoded());
 
         } catch (CertificateException e) {
             logger.error("Unable to parse CA signing cert: " + e.getMessage(), e);
