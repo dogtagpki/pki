@@ -3964,8 +3964,9 @@ class PKIDeployer:
         kra_url = 'https://%s:%s/kra/agent/kra/connector' % (hostname, securePort)
 
         subsystem_cert = subsystem.get_subsystem_cert('subsystem').get('data')
-        transport_cert = subsystem.config.get('kra.transport.cert')
-        transport_nickname = subsystem.config.get('kra.cert.transport.nickname')
+        transport_cert_info = subsystem.get_subsystem_cert('transport')
+        transport_cert = transport_cert_info.get('data')
+        transport_nickname = transport_cert_info.get('nickname')
 
         tmpdir = tempfile.mkdtemp()
         try:
