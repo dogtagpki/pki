@@ -63,6 +63,13 @@ jobs:
     with:
       db-image: ${{ needs.init.outputs.db-image }}
 
+  kra-clone-shared-ds-test:
+    name: KRA clone with shared DS
+    needs: [init, build]
+    uses: ./.github/workflows/kra-clone-shared-ds-test.yml
+    with:
+      db-image: ${{ needs.init.outputs.db-image }}
+
   kra-standalone-test:
     name: Standalone KRA
     needs: [init, build]
