@@ -1036,10 +1036,13 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
             return caCertImpl;
         }
 
-        String certnickname = mConfig.getString("signing.certnickname");
-        String tokennickname = mConfig.getString("signing.tokenname");
+        String certName = mConfig.getString("signing.certnickname");
+        String tokenName = mConfig.getString("signing.tokenname");
 
-        String certName = tokennickname + ":" + certnickname;
+        if(!CryptoUtil.isInternalToken(tokenName)) {
+            certName = tokenName + ":" + certName;
+        }
+
         logger.debug("CertificateAuthority: Getting CA signing cert: " + certName);
 
         CryptoManager manager;
@@ -1048,8 +1051,8 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
             manager= CryptoManager.getInstance();
             caCert = manager.findCertByNickname(certName);
         } catch (ObjectNotFoundException | NotInitializedException | TokenException e) {
-            logger.error("CertificateAuthority: Missing CA signing certificate");
-            throw new EBaseException("Missing CA signing certificate", e);
+            logger.error("CertificateAuthority: Unable to find CA signing certificate: " + e.getMessage(), e);
+            throw new EBaseException("Unable to find CA signing certificate: " + e.getMessage(), e);
         }
 
         try {
