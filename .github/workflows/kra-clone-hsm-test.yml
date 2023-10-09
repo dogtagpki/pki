@@ -1,0 +1,585 @@
+name: KRA clone with HSM
+
+on:
+  workflow_call:
+    inputs:
+      db-image:
+        required: false
+        type: string
+
+jobs:
+  # docs/installation/kra/Installing_KRA_Clone_with_HSM.md
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      - name: Retrieve PKI images
+        uses: actions/cache@v3
+        with:
+          key: pki-images-${{ github.sha }}
+          path: pki-images.tar
+
+      - name: Load PKI images
+        run: docker load --input pki-images.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up primary DS container
+        run: |
+          tests/bin/ds-container-create.sh primaryds
+        env:
+          IMAGE: ${{ inputs.db-image }}
+          HOSTNAME: primaryds.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect primary DS container to network
+        run: docker network connect example primaryds --alias primaryds.example.com
+
+      - name: Set up primary PKI container
+        run: |
+          tests/bin/runner-init.sh primary
+        env:
+          HOSTNAME: primary.example.com
+
+      - name: Connect primary PKI container to network
+        run: docker network connect example primary --alias primary.example.com
+
+      - name: Install dependencies in primary PKI container
+        run: |
+          docker exec primary dnf install -y softhsm
+
+      - name: Create SoftHSM token in primary PKI container
+        run: |
+          # allow PKI user to access SoftHSM files
+          docker exec primary usermod pkiuser -a -G ods
+
+          # create SoftHSM token for PKI server
+          docker exec primary runuser -u pkiuser -- \
+              softhsm2-util \
+              --init-token \
+              --label HSM \
+              --so-pin Secret.HSM \
+              --pin Secret.HSM \
+              --free
+
+          docker exec primary ls -laR /var/lib/softhsm/tokens
+
+          docker exec primary runuser -u pkiuser -- \
+              softhsm2-util --show-slots
+
+      - name: Install CA in primary PKI container
+        run: |
+          docker exec primary pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_hostname=primaryds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -D pki_hsm_enable=True \
+              -D pki_token_name=HSM \
+              -D pki_token_password=Secret.HSM \
+              -D pki_ca_signing_token=HSM \
+              -D pki_ocsp_signing_token=HSM \
+              -D pki_audit_signing_token=HSM \
+              -D pki_subsystem_token=HSM \
+              -D pki_sslserver_token=internal \
+              -D pki_cert_id_generator=random \
+              -D pki_request_id_generator=random \
+              -v
+
+      - name: Install KRA in primary PKI container
+        run: |
+          docker exec primary pkispawn \
+              -f /usr/share/pki/server/examples/installation/kra.cfg \
+              -s KRA \
+              -D pki_ds_hostname=primaryds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -D pki_hsm_enable=True \
+              -D pki_token_name=HSM \
+              -D pki_token_password=Secret.HSM \
+              -D pki_storage_token=HSM \
+              -D pki_transport_token=HSM \
+              -D pki_audit_signing_token=HSM \
+              -D pki_subsystem_token=HSM \
+              -D pki_sslserver_token=internal \
+              -D pki_key_id_generator=random \
+              -D pki_request_id_generator=random \
+              -v
+
+      - name: Check system certs in internal token
+        run: |
+          # there should be 8 certs
+          echo "8" > expected
+          docker exec primary pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-find | tee output
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check system certs in HSM
+        run: |
+          # there should be 7 certs
+          echo "7" > expected
+          docker exec primary pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-find | tee output
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+      - name: Copy keys from primary PKI container
+        run: |
+          docker exec primary ls -laR /var/lib/softhsm/tokens
+          docker cp primary:/var/lib/softhsm/tokens/. tokens
+          ls -laR tokens
+
+      - name: Set up secondary DS container
+        run: |
+          tests/bin/ds-container-create.sh secondaryds
+        env:
+          IMAGE: ${{ inputs.db-image }}
+          HOSTNAME: secondaryds.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect secondary DS container to network
+        run: docker network connect example secondaryds --alias secondaryds.example.com
+
+      - name: Set up secondary PKI container
+        run: |
+          tests/bin/runner-init.sh secondary
+        env:
+          HOSTNAME: secondary.example.com
+
+      - name: Connect secondary PKI container to network
+        run: docker network connect example secondary --alias secondary.example.com
+
+      - name: Install dependencies in secondary PKI container
+        run: |
+          docker exec secondary dnf install -y softhsm
+
+      - name: Copy keys to secondary PKI container
+        run: |
+          # allow PKI user to access SoftHSM files
+          docker exec secondary usermod pkiuser -a -G ods
+
+          docker cp tokens/. secondary:/var/lib/softhsm/tokens
+          docker exec secondary chown -R pkiuser:pkiuser /var/lib/softhsm/tokens
+          docker exec secondary ls -laR /var/lib/softhsm/tokens
+
+          docker exec secondary runuser -u pkiuser -- \
+              softhsm2-util --show-slots
+
+      - name: Install CA in secondary PKI container
+        run: |
+          docker exec primary pki-server cert-export ca_signing \
+              --cert-file ${SHARED}/ca_signing.crt
+          docker exec secondary pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca-clone.cfg \
+              -s CA \
+              -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
+              -D pki_ds_hostname=secondaryds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -D pki_hsm_enable=True \
+              -D pki_token_name=HSM \
+              -D pki_token_password=Secret.HSM \
+              -D pki_ca_signing_token=HSM \
+              -D pki_ocsp_signing_token=HSM \
+              -D pki_audit_signing_token=HSM \
+              -D pki_subsystem_token=HSM \
+              -D pki_sslserver_token=internal \
+              -D pki_cert_id_generator=random \
+              -D pki_request_id_generator=random \
+              -v
+
+      - name: Install KRA in secondary PKI container
+        run: |
+          # get CS.cfg from primary KRA before cloning
+          docker cp primary:/etc/pki/pki-tomcat/kra/CS.cfg CS.cfg.primary
+
+          docker exec secondary pkispawn \
+              -f /usr/share/pki/server/examples/installation/kra-clone.cfg \
+              -s KRA \
+              -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
+              -D pki_ds_hostname=secondaryds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -D pki_hsm_enable=True \
+              -D pki_token_name=HSM \
+              -D pki_token_password=Secret.HSM \
+              -D pki_server_database_password=Secret.123 \
+              -D pki_storage_token=HSM \
+              -D pki_transport_token=HSM \
+              -D pki_audit_signing_token=HSM \
+              -D pki_subsystem_token=HSM \
+              -D pki_sslserver_token=internal \
+              -D pki_key_id_generator=random \
+              -D pki_request_id_generator=random \
+              -v
+
+      - name: Check system certs in internal token
+        run: |
+          # there should be 4 certs
+          # NOTE: ideally it should match the
+          # primary CA, but it works fine as is
+          # TODO: investigate the discrepancy
+          echo "4" > expected
+          docker exec secondary pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-find | tee output
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check system certs in HSM
+        run: |
+          # there should be 7 certs
+          echo "7" > expected
+          docker exec secondary pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-find | tee output
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check CS.cfg in primary KRA after cloning
+        run: |
+          # get CS.cfg from primary KRA after cloning
+          docker cp primary:/etc/pki/pki-tomcat/kra/CS.cfg CS.cfg.primary.after
+
+          # normalize expected result:
+          # - remove params that cannot be compared
+          # - set dbs.enableSerialManagement to true (automatically enabled when cloned)
+          sed -e '/^dbs.beginReplicaNumber=/d' \
+              -e '/^dbs.endReplicaNumber=/d' \
+              -e '/^dbs.nextBeginReplicaNumber=/d' \
+              -e '/^dbs.nextEndReplicaNumber=/d' \
+              -e 's/^\(dbs.enableSerialManagement\)=.*$/\1=true/' \
+              CS.cfg.primary \
+              | sort > expected
+
+          # normalize actual result:
+          # - remove params that cannot be compared
+          sed -e '/^dbs.beginReplicaNumber=/d' \
+              -e '/^dbs.endReplicaNumber=/d' \
+              -e '/^dbs.nextBeginReplicaNumber=/d' \
+              -e '/^dbs.nextEndReplicaNumber=/d' \
+              CS.cfg.primary.after \
+              | sort > actual
+
+          diff expected actual
+
+      - name: Check CS.cfg in secondary KRA
+        run: |
+          # get CS.cfg from secondary KRA
+          docker cp secondary:/etc/pki/pki-tomcat/kra/CS.cfg CS.cfg.secondary
+
+          # normalize expected result:
+          # - remove params that cannot be compared
+          # - replace primary.example.com with secondary.example.com
+          # - replace primaryds.example.com with secondaryds.example.com
+          # - set securitydomain.host to primary.example.com
+          # - set subsystem.select to Clone
+          sed -e '/^installDate=/d' \
+              -e '/^dbs.beginReplicaNumber=/d' \
+              -e '/^dbs.endReplicaNumber=/d' \
+              -e '/^dbs.nextBeginReplicaNumber=/d' \
+              -e '/^dbs.nextEndReplicaNumber=/d' \
+              -e '/^kra.sslserver.cert=/d' \
+              -e '/^kra.sslserver.certreq=/d' \
+              -e 's/primary.example.com/secondary.example.com/' \
+              -e 's/primaryds.example.com/secondaryds.example.com/' \
+              -e 's/^\(securitydomain.host\)=.*$/\1=primary.example.com/' \
+              -e 's/^\(subsystem.select\)=.*$/\1=Clone/' \
+              CS.cfg.primary.after \
+              | sort > expected
+
+          # normalize actual result:
+          # - remove params that cannot be compared
+          sed -e '/^installDate=/d' \
+              -e '/^dbs.beginReplicaNumber=/d' \
+              -e '/^dbs.endReplicaNumber=/d' \
+              -e '/^dbs.nextBeginReplicaNumber=/d' \
+              -e '/^dbs.nextEndReplicaNumber=/d' \
+              -e '/^kra.sslserver.cert=/d' \
+              -e '/^kra.sslserver.certreq=/d' \
+              CS.cfg.secondary \
+              | sort > actual
+
+          diff expected actual
+
+      - name: Check KRA admin in secondary PKI container
+        run: |
+          docker exec primary cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${SHARED}/ca_admin_cert.p12
+          docker exec secondary pki client-cert-import ca_signing --ca-cert ${SHARED}/ca_signing.crt
+          docker exec secondary pki pkcs12-import \
+              --pkcs12 ${SHARED}/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+          docker exec secondary pki -n caadmin kra-user-show kraadmin
+
+      - name: Set up tertiary DS container
+        run: |
+          tests/bin/ds-container-create.sh tertiaryds
+        env:
+          IMAGE: ${{ inputs.db-image }}
+          HOSTNAME: tertiaryds.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect tertiary DS container to network
+        run: docker network connect example tertiaryds --alias tertiaryds.example.com
+
+      - name: Set up tertiary PKI container
+        run: |
+          tests/bin/runner-init.sh tertiary
+        env:
+          HOSTNAME: tertiary.example.com
+
+      - name: Connect tertiary PKI container to network
+        run: docker network connect example tertiary --alias tertiary.example.com
+
+      - name: Install dependencies in tertiary PKI container
+        run: |
+          docker exec tertiary dnf install -y softhsm
+
+      - name: Copy keys to tertiary PKI container
+        run: |
+          # allow PKI user to access SoftHSM files
+          docker exec tertiary usermod pkiuser -a -G ods
+
+          docker cp tokens/. tertiary:/var/lib/softhsm/tokens
+          docker exec tertiary chown -R pkiuser:pkiuser /var/lib/softhsm/tokens
+          docker exec tertiary ls -laR /var/lib/softhsm/tokens
+
+          docker exec tertiary runuser -u pkiuser -- \
+              softhsm2-util --show-slots
+
+      - name: Install CA in tertiary PKI container
+        run: |
+          # export CA signing CSR
+          docker exec secondary pki-server cert-export ca_signing \
+              --csr-file ${SHARED}/ca_signing.csr
+
+          # export CA OCSP signing CSR
+          docker exec secondary pki-server cert-export ca_ocsp_signing \
+              --csr-file ${SHARED}/ca_ocsp_signing.csr
+
+          # export CA audit signing CSR
+          docker exec secondary pki-server cert-export ca_audit_signing \
+              --csr-file ${SHARED}/ca_audit_signing.csr
+
+          # export subsystem CSR
+          docker exec secondary pki-server cert-export subsystem \
+              --csr-file ${SHARED}/subsystem.csr
+
+          docker exec tertiary pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca-clone-of-clone.cfg \
+              -s CA \
+              -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
+              -D pki_ds_hostname=tertiaryds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -D pki_hsm_enable=True \
+              -D pki_token_name=HSM \
+              -D pki_token_password=Secret.HSM \
+              -D pki_ca_signing_token=HSM \
+              -D pki_ca_signing_csr_path=${SHARED}/ca_signing.csr \
+              -D pki_ocsp_signing_token=HSM \
+              -D pki_ocsp_signing_csr_path=${SHARED}/ca_ocsp_signing.csr \
+              -D pki_audit_signing_token=HSM \
+              -D pki_audit_signing_csr_path=${SHARED}/ca_audit_signing.csr \
+              -D pki_subsystem_token=HSM \
+              -D pki_subsystem_csr_path=${SHARED}/subsystem.csr \
+              -D pki_sslserver_token=internal \
+              -D pki_cert_id_generator=random \
+              -D pki_request_id_generator=random \
+              -v
+
+      - name: Install KRA in tertiary PKI container
+        run: |
+          # export KRA storage CSR
+          docker exec secondary pki-server cert-export kra_storage \
+              --csr-file ${SHARED}/kra_storage.csr
+
+          # export KRA transport CSR
+          docker exec secondary pki-server cert-export kra_transport \
+              --csr-file ${SHARED}/kra_transport.csr
+
+          # export KRA audit signing CSR
+          docker exec secondary pki-server cert-export kra_audit_signing \
+              --csr-file ${SHARED}/kra_audit_signing.csr
+
+          # export subsystem CSR
+          docker exec secondary pki-server cert-export subsystem \
+              --csr-file ${SHARED}/subsystem.csr
+
+          docker exec tertiary pkispawn \
+              -f /usr/share/pki/server/examples/installation/kra-clone-of-clone.cfg \
+              -s KRA \
+              -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
+              -D pki_ds_hostname=tertiaryds.example.com \
+              -D pki_ds_ldap_port=3389 \
+              -D pki_hsm_enable=True \
+              -D pki_token_name=HSM \
+              -D pki_token_password=Secret.HSM \
+              -D pki_server_database_password=Secret.123 \
+              -D pki_storage_token=HSM \
+              -D pki_storage_csr_path=${SHARED}/kra_storage.csr \
+              -D pki_transport_token=HSM \
+              -D pki_transport_csr_path=${SHARED}/kra_transport.csr \
+              -D pki_audit_signing_token=HSM \
+              -D pki_audit_signing_csr_path=${SHARED}/kra_audit_signing.csr \
+              -D pki_subsystem_token=HSM \
+              -D pki_subsystem_csr_path=${SHARED}/subsystem.csr \
+              -D pki_sslserver_token=internal \
+              -D pki_key_id_generator=random \
+              -D pki_request_id_generator=random \
+              -v
+
+      - name: Check system certs in internal token
+        run: |
+          # there should be 4 certs
+          # NOTE: ideally it should match the
+          # primary CA, but it works fine as is
+          # TODO: investigate the discrepancy
+          echo "4" > expected
+          docker exec tertiary pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-find | tee output
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check system certs in HSM
+        run: |
+          # there should be 7 certs
+          echo "7" > expected
+          docker exec tertiary pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              --token HSM \
+              nss-cert-find | tee output
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check CS.cfg in secondary KRA after cloning
+        run: |
+          # get CS.cfg from secondary KRA after cloning
+          docker cp secondary:/etc/pki/pki-tomcat/kra/CS.cfg CS.cfg.secondary.after
+
+          # normalize expected result:
+          # - remove params that cannot be compared
+          sed -e '/^dbs.beginReplicaNumber=/d' \
+              -e '/^dbs.endReplicaNumber=/d' \
+              -e '/^dbs.nextBeginReplicaNumber=/d' \
+              -e '/^dbs.nextEndReplicaNumber=/d' \
+              CS.cfg.secondary \
+              | sort > expected
+
+          # normalize actual result:
+          # - remove params that cannot be compared
+          sed -e '/^dbs.beginReplicaNumber=/d' \
+              -e '/^dbs.endReplicaNumber=/d' \
+              -e '/^dbs.nextBeginReplicaNumber=/d' \
+              -e '/^dbs.nextEndReplicaNumber=/d' \
+              CS.cfg.secondary.after \
+              | sort > actual
+
+          diff expected actual
+
+      - name: Check CS.cfg in tertiary KRA
+        run: |
+          # get CS.cfg from tertiary KRA
+          docker cp tertiary:/etc/pki/pki-tomcat/kra/CS.cfg CS.cfg.tertiary
+
+          # normalize expected result:
+          # - remove params that cannot be compared
+          # - replace secondary.example.com with tertiary.example.com
+          # - replace secondaryds.example.com with tertiaryds.example.com
+          # - set securitydomain.host to secondary.example.com
+          sed -e '/^installDate=/d' \
+              -e '/^dbs.beginReplicaNumber=/d' \
+              -e '/^dbs.endReplicaNumber=/d' \
+              -e '/^dbs.nextBeginReplicaNumber=/d' \
+              -e '/^dbs.nextEndReplicaNumber=/d' \
+              -e '/^kra.sslserver.cert=/d' \
+              -e '/^kra.sslserver.certreq=/d' \
+              -e 's/secondary.example.com/tertiary.example.com/' \
+              -e 's/secondaryds.example.com/tertiaryds.example.com/' \
+              -e 's/^\(securitydomain.host\)=.*$/\1=secondary.example.com/' \
+              CS.cfg.secondary.after \
+              | sort > expected
+
+          # normalize actual result:
+          # - remove params that cannot be compared
+          sed -e '/^installDate=/d' \
+              -e '/^dbs.beginReplicaNumber=/d' \
+              -e '/^dbs.endReplicaNumber=/d' \
+              -e '/^dbs.nextBeginReplicaNumber=/d' \
+              -e '/^dbs.nextEndReplicaNumber=/d' \
+              -e '/^kra.sslserver.cert=/d' \
+              -e '/^kra.sslserver.certreq=/d' \
+              CS.cfg.tertiary \
+              | sort > actual
+
+          diff expected actual
+
+      - name: Check KRA admin in tertiary PKI container
+        run: |
+          docker exec tertiary pki client-cert-import ca_signing --ca-cert ${SHARED}/ca_signing.crt
+          docker exec tertiary pki pkcs12-import \
+              --pkcs12 ${SHARED}/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+          docker exec tertiary pki -n caadmin kra-user-show kraadmin
+
+      - name: Run PKI healthcheck in primary container
+        run: docker exec primary pki-healthcheck --failures-only
+
+      - name: Run PKI healthcheck in secondary container
+        run: docker exec secondary pki-healthcheck --failures-only
+
+      - name: Run PKI healthcheck in tertiary container
+        run: docker exec tertiary pki-healthcheck --failures-only
+
+      - name: Gather artifacts
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh primaryds
+          tests/bin/pki-artifacts-save.sh primary
+          tests/bin/ds-artifacts-save.sh secondaryds
+          tests/bin/pki-artifacts-save.sh secondary
+          tests/bin/ds-artifacts-save.sh tertiaryds
+          tests/bin/pki-artifacts-save.sh tertiary
+        continue-on-error: true
+
+      - name: Remove KRA from tertiary PKI container
+        run: docker exec tertiary pkidestroy -i pki-tomcat -s KRA -v
+
+      - name: Remove CA from tertiary PKI container
+        run: docker exec tertiary pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Remove KRA from secondary PKI container
+        run: docker exec secondary pkidestroy -i pki-tomcat -s KRA -v
+
+      - name: Remove CA from secondary PKI container
+        run: docker exec secondary pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Remove KRA from primary PKI container
+        run: docker exec primary pkidestroy -i pki-tomcat -s KRA -v
+
+      - name: Remove CA from primary PKI container
+        run: docker exec primary pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: kra-clone-hsm
+          path: |
+            /tmp/artifacts/primaryds
+            /tmp/artifacts/primary
+            /tmp/artifacts/secondaryds
+            /tmp/artifacts/secondary
+            /tmp/artifacts/tertiaryds
+            /tmp/artifacts/tertiary
