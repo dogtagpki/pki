@@ -18,6 +18,9 @@
 package com.netscape.cms.servlet.csadmin;
 
 import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.StringTokenizer;
@@ -27,6 +30,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
+import org.dogtagpki.util.cert.CertUtil;
 import org.w3c.dom.Node;
 
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
@@ -159,6 +163,8 @@ public class GetConfigEntries extends CMSServlet {
                 } else if (name.equals("internaldb.replication.password")) {
                     value = getReplicationPassword();
 
+                } else if (name.endsWith(".certreq")) {
+                    value = getCSR(name);
                 } else {
                     value = config.getString(name, null);
                     if ("localhost".equals(value))
@@ -218,4 +224,27 @@ public class GetConfigEntries extends CMSServlet {
         return pwdStore.getPassword("replicationdb", 0);
     }
 
+    /**
+     * @author Marco Fargetta
+     * @deprecated <subsystem_name>.<cert_id>,certreq configuration properties will be removed in future versions..
+     */
+    @Deprecated (since = "11.5.0")
+    private String getCSR(String param) throws EBaseException {
+        CMSEngine engine = getCMSEngine();
+        EngineConfig config = engine.getConfig();
+        String csr = null;
+
+        String nickname = config.getString(param.replace(".certreq", ".nickname"), null);
+        if (nickname == null || nickname.isEmpty()) {
+            return null;
+        }
+        Path csrConfCertsPath = FileSystems.getDefault().getPath(CMS.getInstanceDir(), "conf", "certs", nickname + ".csr");
+        try {
+            csr = Files.readString(csrConfCertsPath);
+        } catch (IOException e) {
+            logger.warn("GetConfigEntries: impossible to access the csr file" + csrConfCertsPath, e);
+            return null;
+        }
+        return CertUtil.unwrapPKCS10(csr, true);
+    }
 }

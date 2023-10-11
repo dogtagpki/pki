@@ -306,8 +306,6 @@ class PKISubsystem(object):
         cert['id'] = tag
         cert['nickname'] = self.config.get('%s.%s.nickname' % (self.name, tag))
         cert['token'] = self.config.get('%s.%s.tokenname' % (self.name, tag))
-        cert['data'] = self.config.get('%s.%s.cert' % (self.name, tag))
-        cert['request'] = self.config.get('%s.%s.certreq' % (self.name, tag))
         cert['certusage'] = self.config.get('%s.cert.%s.certusage' % (self.name, tag))
 
         return cert
@@ -330,7 +328,12 @@ class PKISubsystem(object):
         cert_id = cert['id']
         self.config['%s.%s.nickname' % (self.name, cert_id)] = cert.get('nickname')
         self.config['%s.%s.tokenname' % (self.name, cert_id)] = cert.get('token')
-        self.config['%s.%s.certreq' % (self.name, cert_id)] = cert.get('request')
+        certs_path = os.path.join(self.instance.conf_dir, 'certs')
+        self.instance.makedirs(certs_path, exist_ok=True)
+        csr_file = os.path.join(certs_path, cert.get('nickname') + '.csr')
+        with open(csr_file, "w", encoding='utf-8') as f:
+            f.write(pki.nssdb.convert_csr(cert.get('request'), 'base64', 'pem'))
+        os.chown(csr_file, self.instance.uid, self.instance.gid)
 
     def validate_system_cert(self, tag):
 

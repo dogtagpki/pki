@@ -240,6 +240,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             instance.conf_dir,
             conf_link)
 
+        # Create /etc/pki/<instance>/certs
+        certs_path = os.path.join(instance.conf_dir, 'certs')
+        deployer.directory.create(certs_path)
+
         # Link /var/lib/pki/<instance>/logs to /var/log/pki/<instance>
         logs_link = os.path.join(instance.base_dir, 'logs')
         deployer.symlink.create(

@@ -1391,15 +1391,15 @@ class PKIDeployer:
                 continue
 
             # check CSR in CS.cfg
-            param = '%s.%s.certreq' % (subsystem.name, tag)
-            csr = subsystem.config.get(param)
+            cert_id = self.get_cert_id(subsystem, tag)
+            param = 'pki_%s_csr_path' % cert_id
 
-            if csr:
+            if self.mdict.get(param):
                 # CSR already exists
                 continue
 
-            # CSR doesn't exist, import from master
-            names.append(param)
+            # CSR doesn't provided, import from master
+            names.append('%s.%s.certreq' % (subsystem.name, tag))
 
         if subsystem.name == 'ca':
             substores.append('ca.connector.KRA')
@@ -1429,9 +1429,25 @@ class PKIDeployer:
 
         logger.info('Importing %s master config params', subsystem.type)
 
-        subsystem.import_master_config(master_properties)
+        requests = {key: val for key, val in master_properties.items() if key.endswith('.certreq')}
+        for key, value in requests.items():
+            self.store_master_cert_request(subsystem, key, value)
+            master_properties.pop(key)
 
+        subsystem.import_master_config(master_properties)
         return master_config
+
+    def store_master_cert_request(self, subsystem, key, csr):
+
+        nickname = subsystem.config.get(key.replace('.certreq', '.nickname'))
+
+        csr_path = os.path.join(self.instance.conf_dir, 'certs', nickname + '.csr')
+        try:
+            self.file.create(csr_path)
+            with open(csr_path, 'w', encoding='utf-8') as f:
+                f.write(pki.nssdb.convert_csr(csr, 'base64', 'pem'))
+        except OSError:
+            logger.debug('Certificate request %s not stored', key)
 
     def setup_database(self, subsystem, master_config):
 
@@ -1904,6 +1920,7 @@ class PKIDeployer:
         cert_id = self.get_cert_id(subsystem, tag)
         param = 'pki_%s_csr_path' % cert_id
         csr_path = self.mdict.get(param)
+        certs_folder = os.path.join(self.instance.conf_dir, 'certs')
 
         if not csr_path:
             # no CSR file to import
@@ -1914,11 +1931,11 @@ class PKIDeployer:
         if not os.path.exists(csr_path):
             raise Exception('Invalid path in %s: %s' % (param, csr_path))
 
-        with open(csr_path, encoding='utf-8') as f:
-            csr_data = f.read()
-
-        b64_csr = pki.nssdb.convert_csr(csr_data, 'pem', 'base64')
-        subsystem.config['%s.%s.certreq' % (subsystem.name, tag)] = b64_csr
+        cert_nickname = subsystem.config.get('%s.%s.nickname' % (subsystem.name, tag))
+        self.file.copy(
+            old_name=csr_path,
+            new_name=os.path.join(certs_folder, cert_nickname + '.csr'),
+            overwrite_flag=True)
 
     def import_system_cert_requests(self, subsystem):
 
@@ -1938,7 +1955,6 @@ class PKIDeployer:
         self.import_system_cert_request(subsystem, 'sslserver')
 
     def import_ca_signing_cert(self, nssdb):
-
         param = 'pki_ca_signing_cert_path'
         cert_file = self.mdict.get(param)
 
@@ -2710,12 +2726,17 @@ class PKIDeployer:
         request.systemCert.keyAlgorithm = subsystem.config['preop.cert.%s.keyalgorithm' % tag]
 
         request.systemCert.requestType = 'pkcs10'
-        request.systemCert.request = subsystem.config.get('%s.%s.certreq' % (subsystem.name, tag))
+        try:
+            csr_path = os.path.join(self.instance.conf_dir, 'certs', cert.get('nickname') + '.csr')
+            with open(csr_path, 'r', encoding='utf-8') as f:
+                csr_data = f.read()
+                request.systemCert.request = pki.nssdb.convert_csr(csr_data, 'pem', 'base64')
+
+        except FileNotFoundError:
+            logger.debug('Certificate request for %s not provided', tag)
 
         request.systemCert.cert = cert.get('data')
-
         request.systemCert.profile = subsystem.config['preop.cert.%s.profile' % tag]
-
         request.systemCert.req_ext_oid = subsystem.config.get('preop.cert.%s.ext.oid' % tag)
         request.systemCert.req_ext_data = subsystem.config.get('preop.cert.%s.ext.data' % tag)
         request.systemCert.req_ext_critical = subsystem.config.get(
@@ -2835,7 +2856,7 @@ class PKIDeployer:
 
             logger.debug('generate_csr: calling PKCS10Client for %s', cert_id)
 
-            b64_csr = nssdb.create_request_with_wrapping_key(
+            nssdb.create_request_with_wrapping_key(
                 subject_dn=subject_dn,
                 request_file=csr_path,
                 key_size=key_size)
@@ -2858,14 +2879,13 @@ class PKIDeployer:
                 generic_exts=generic_exts,
                 use_jss=True)
 
-            with open(csr_pathname, encoding='utf-8') as f:
-                csr = f.read()
-
-            b64_csr = pki.nssdb.convert_csr(csr, 'pem', 'base64')
-
             shutil.move(csr_pathname, csr_path)
 
-        subsystem.config['%s.%s.certreq' % (subsystem.name, tag)] = b64_csr
+        certs_folder = os.path.join(self.instance.conf_dir, 'certs')
+        self.file.copy(
+            old_name=csr_path,
+            new_name=os.path.join(certs_folder, cert_id + '.csr'),
+            overwrite_flag=True)
 
     def create_cert_request(self, nssdb, tag, request):
 
