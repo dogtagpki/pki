@@ -14,3 +14,9 @@ A new `pki_ds_url` parameter has been added for `pkispawn` to replace the follow
 A new `pki_http_enable` parameter has been added for `pkispawn`
 to enable/disable the plain HTTP connector in `server.xml`.
 The default value is `True`.
+
+== Remove cert and CSR from _CS.cfg_ ==
+
+The parameters `<subsystem_name>.<cert_id>.cert` and `<subsystem_name>.<cert_id>.certreq` are removed from `CS.cfg` files.
+Certificates are retrieved from the nssdb configured and they are not stored in other places.
+CSR are stored in the folder `<instance_config>/certs` as `<cert_nickname>.csr` and they are retrieved from this location.

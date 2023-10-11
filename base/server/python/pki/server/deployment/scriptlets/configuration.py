@@ -71,28 +71,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             deployer.update_sslserver_cert_nickname(subsystem)
 
-            if len(subsystems) > 1:
+            if len(subsystems) == 1:
 
-                for s in subsystems:
-
-                    # find a subsystem that is already installed
-                    if s.name == subsystem.name:
-                        continue
-
-                    # import request data from the existing subsystem
-                    # into the new subsystem being installed
-
-                    logger.info('Importing sslserver request data from %s', s.type)
-                    subsystem.config['%s.sslserver.certreq' % subsystem.name] = \
-                        s.config['%s.sslserver.certreq' % s.name]
-
-                    logger.info('Importing subsystem request data from %s', s.type)
-                    subsystem.config['%s.subsystem.certreq' % subsystem.name] = \
-                        s.config['%s.subsystem.certreq' % s.name]
-
-                    break
-
-            else:  # self-signed CA
+                # self-signed CA
 
                 # To be implemented in ticket #1692.
 
