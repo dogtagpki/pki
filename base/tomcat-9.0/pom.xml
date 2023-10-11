@@ -19,7 +19,7 @@
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-util-scan</artifactId>
-            <version>9.0.50</version>
+            <version>9.0.62</version>
         </dependency>
 
         <dependency>

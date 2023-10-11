@@ -174,10 +174,10 @@ BuildRequires:    mvn(org.jboss.resteasy:resteasy-client)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-jackson2-provider)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-jaxrs)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-servlet-initializer)
-BuildRequires:    mvn(org.apache.tomcat:tomcat-catalina)
-BuildRequires:    mvn(org.apache.tomcat:tomcat-servlet-api)
-BuildRequires:    mvn(org.apache.tomcat:tomcat-jaspic-api)
-BuildRequires:    mvn(org.apache.tomcat:tomcat-util-scan)
+BuildRequires:    mvn(org.apache.tomcat:tomcat-catalina) >= 9.0.62
+BuildRequires:    mvn(org.apache.tomcat:tomcat-servlet-api) >= 9.0.62
+BuildRequires:    mvn(org.apache.tomcat:tomcat-jaspic-api) >= 9.0.62
+BuildRequires:    mvn(org.apache.tomcat:tomcat-util-scan) >= 9.0.62
 BuildRequires:    mvn(org.dogtagpki.jss:jss-base) >= 5.5.0
 BuildRequires:    mvn(org.dogtagpki.jss:jss-tomcat) >= 5.5.0
 BuildRequires:    mvn(org.dogtagpki.ldap-sdk:ldapjdk) >= 5.5.0
@@ -441,7 +441,7 @@ Requires:         python3-policycoreutils
 Requires:         selinux-policy-targeted >= 3.13.1-159
 
 Requires:         mvn(org.jboss.resteasy:resteasy-servlet-initializer)
-Requires:         tomcat >= 1:9.0.50
+Requires:         tomcat >= 1:9.0.62
 Requires:         mvn(org.dogtagpki.jss:jss-tomcat) >= 5.5.0
 
 Requires:         systemd
