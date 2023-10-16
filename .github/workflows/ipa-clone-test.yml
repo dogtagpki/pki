@@ -273,6 +273,21 @@ jobs:
           # renewal config is maintained by IPA, so there should be no change in PKI
           diff CS.cfg.secondary.orig CS.cfg.secondary.after-renewal-update
 
+      - name: Check CA CSR copied correctly 
+        run: |
+          docker exec primary pki-server ca-config-find \
+          | grep -oP '^ca\.(\w*)\.nickname=(.*)$' \
+          | grep -v sslserver \
+          | sed -E 's/^ca\.(.*)\.nickname=(.*)$/\2/g' \
+          | tee listCerts
+          
+          docker cp primary:/etc/pki/pki-tomcat/certs primary-certs
+          docker cp secondary:/etc/pki/pki-tomcat/certs secondary-certs
+
+          while IFS="" read -r cert ; do \
+              diff "primary-certs/$cert.csr" "secondary-certs/$cert.csr" || exit 1 ; \
+              done < listCerts
+
       - name: Check CRL generation config
         run: |
           docker exec primary ipa-crlgen-manage status | tee output
