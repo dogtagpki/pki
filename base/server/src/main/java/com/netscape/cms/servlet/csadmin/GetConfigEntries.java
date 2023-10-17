@@ -230,15 +230,16 @@ public class GetConfigEntries extends CMSServlet {
      */
     @Deprecated (since = "11.5.0")
     private String getCSR(String param) throws EBaseException {
-        CMSEngine engine = getCMSEngine();
-        EngineConfig config = engine.getConfig();
         String csr = null;
+        String[] paramParts = param.split("\\.");
+        String csrFileName;
 
-        String nickname = config.getString(param.replace(".certreq", ".nickname"), null);
-        if (nickname == null || nickname.isEmpty()) {
-            return null;
+        if(paramParts[1].equals("sslserver") || paramParts[1].equals("subsystem")) {
+            csrFileName = paramParts[1] + ".csr";
+        } else {
+            csrFileName = paramParts[0] + "_" + paramParts[1] + ".csr";
         }
-        Path csrConfCertsPath = FileSystems.getDefault().getPath(CMS.getInstanceDir(), "conf", "certs", nickname + ".csr");
+        Path csrConfCertsPath = FileSystems.getDefault().getPath(CMS.getInstanceDir(), "conf", "certs", csrFileName);
         try {
             csr = Files.readString(csrConfCertsPath);
         } catch (IOException e) {

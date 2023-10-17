@@ -1438,10 +1438,10 @@ class PKIDeployer:
         return master_config
 
     def store_master_cert_request(self, subsystem, key, csr):
-
-        nickname = subsystem.config.get(key.replace('.certreq', '.nickname'))
-
-        csr_path = os.path.join(self.instance.conf_dir, 'certs', nickname + '.csr')
+        cert_id = key.split('.')[1]
+        if cert_id != 'sslserver' and cert_id != 'subsystem':
+            cert_id = subsystem.name + '_' + cert_id
+        csr_path = os.path.join(self.instance.conf_dir, 'certs', cert_id + '.csr')
         try:
             self.file.create(csr_path)
             with open(csr_path, 'w', encoding='utf-8') as f:
@@ -1931,10 +1931,12 @@ class PKIDeployer:
         if not os.path.exists(csr_path):
             raise Exception('Invalid path in %s: %s' % (param, csr_path))
 
-        cert_nickname = subsystem.config.get('%s.%s.nickname' % (subsystem.name, tag))
+        if tag != 'sslserver' and tag != 'subsystem':
+            tag = subsystem.name + '_' + tag
+
         self.file.copy(
             old_name=csr_path,
-            new_name=os.path.join(certs_folder, cert_nickname + '.csr'),
+            new_name=os.path.join(certs_folder, tag + '.csr'),
             overwrite_flag=True)
 
     def import_system_cert_requests(self, subsystem):
@@ -2727,7 +2729,11 @@ class PKIDeployer:
 
         request.systemCert.requestType = 'pkcs10'
         try:
-            csr_path = os.path.join(self.instance.conf_dir, 'certs', cert.get('nickname') + '.csr')
+            if tag != 'sslserver' and tag != 'subsystem':
+                csr_name = subsystem.name + '_' + tag + '.csr'
+            else:
+                csr_name = tag + '.csr'
+            csr_path = os.path.join(self.instance.conf_dir, 'certs', csr_name)
             with open(csr_path, 'r', encoding='utf-8') as f:
                 csr_data = f.read()
                 request.systemCert.request = pki.nssdb.convert_csr(csr_data, 'pem', 'base64')
@@ -2882,9 +2888,14 @@ class PKIDeployer:
             shutil.move(csr_pathname, csr_path)
 
         certs_folder = os.path.join(self.instance.conf_dir, 'certs')
+        if tag != 'sslserver' and tag != 'subsystem':
+            csr_name = subsystem.name + '_' + tag + '.csr'
+        else:
+            csr_name = tag + '.csr'
+
         self.file.copy(
             old_name=csr_path,
-            new_name=os.path.join(certs_folder, cert_id + '.csr'),
+            new_name=os.path.join(certs_folder, csr_name),
             overwrite_flag=True)
 
     def create_cert_request(self, nssdb, tag, request):

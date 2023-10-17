@@ -330,7 +330,9 @@ class PKISubsystem(object):
         self.config['%s.%s.tokenname' % (self.name, cert_id)] = cert.get('token')
         certs_path = os.path.join(self.instance.conf_dir, 'certs')
         self.instance.makedirs(certs_path, exist_ok=True)
-        csr_file = os.path.join(certs_path, cert.get('nickname') + '.csr')
+        if cert_id != 'sslserver' and cert_id != 'subsystem':
+            cert_id = self.name + '_' + cert_id
+        csr_file = os.path.join(certs_path, cert_id + '.csr')
         with open(csr_file, "w", encoding='utf-8') as f:
             f.write(pki.nssdb.convert_csr(cert.get('request'), 'base64', 'pem'))
         os.chown(csr_file, self.instance.uid, self.instance.gid)
