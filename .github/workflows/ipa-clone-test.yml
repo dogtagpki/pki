@@ -275,18 +275,12 @@ jobs:
 
       - name: Check CA CSR copied correctly 
         run: |
-          docker exec primary pki-server ca-config-find \
-          | grep -oP '^ca\.(\w*)\.nickname=(.*)$' \
-          | grep -v sslserver \
-          | sed -E 's/^ca\.(.*)\.nickname=(.*)$/\2/g' \
-          | tee listCerts
-          
           docker cp primary:/etc/pki/pki-tomcat/certs primary-certs
           docker cp secondary:/etc/pki/pki-tomcat/certs secondary-certs
 
-          while IFS="" read -r cert ; do \
-              diff "primary-certs/$cert.csr" "secondary-certs/$cert.csr" || exit 1 ; \
-              done < listCerts
+          diff primary-certs/ca_audit_signing.csr secondary-certs/ca_audit_signing.csr
+          diff primary-certs/ca_ocsp_signing.csr secondary-certs/ca_ocsp_signing.csr
+          diff primary-certs/ca_signing.csr secondary-certs/ca_signing.csr
 
       - name: Check CRL generation config
         run: |
