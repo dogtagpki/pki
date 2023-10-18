@@ -31,8 +31,6 @@ setup(
         ],
         # plugin modules for pkihealthcheck.meta registry
         'pkihealthcheck.meta': [
-            # Temporary disabled untile certs from CS config will be completely removed
-            #'pki_certs = pki.server.healthcheck.meta.csconfig',
             'pki_connectivity = pki.server.healthcheck.meta.connectivity',
         ],
         # plugin modules for pkihealthcheck.certs registry
