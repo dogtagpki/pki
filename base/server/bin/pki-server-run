@@ -68,7 +68,8 @@ then
     pki -d /var/lib/tomcats/pki/conf/alias nss-cert-issue \
         --csr /tmp/ca_signing.csr \
         --ext /usr/share/pki/server/certs/ca_signing.conf \
-        --months-valid 12 \
+        --validity-length 1 \
+        --validity-unit year \
         --cert /tmp/ca_signing.crt
 
     # import and trust CA signing cert into NSS database
