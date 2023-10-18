@@ -2,12 +2,10 @@ name: Sub-CA clone
 # docs/installation/ca/Installing_CA_with_External_CA_Signing_Certificate.md
 # docs/installation/ca/Installing_CA_Clone_with_HSM.md
 
-on:
-  workflow_call:
-    inputs:
-      db-image:
-        required: false
-        type: string
+on: workflow_call
+
+env:
+  DB_IMAGE: ${{ vars.DB_IMAGE || 'quay.io/389ds/dirsrv' }}
 
 jobs:
   test:
@@ -59,7 +57,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh primary-ds
         env:
-          IMAGE: ${{ inputs.db-image }}
+          IMAGE: ${{ env.DB_IMAGE }}
           HOSTNAME: primary-ds.example.com
           PASSWORD: Secret.123
 
@@ -292,7 +290,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh secondary-ds
         env:
-          IMAGE: ${{ inputs.db-image }}
+          IMAGE: ${{ env.DB_IMAGE }}
           HOSTNAME: secondary-ds.example.com
           PASSWORD: Secret.123
 

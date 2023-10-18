@@ -1,11 +1,9 @@
 name: Basic IPA
 
-on:
-  workflow_call:
-    inputs:
-      db-image:
-        required: false
-        type: string
+on: workflow_call
+
+env:
+  DB_IMAGE: ${{ vars.DB_IMAGE || 'quay.io/389ds/dirsrv' }}
 
 jobs:
   test:

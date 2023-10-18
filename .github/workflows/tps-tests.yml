@@ -18,33 +18,23 @@ jobs:
     name: Basic TPS
     needs: [init, build]
     uses: ./.github/workflows/tps-basic-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   tps-separate-test:
     name: TPS on separate instance
     needs: [init, build]
     uses: ./.github/workflows/tps-separate-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   tps-external-certs-test:
     name: TPS with external certs
     needs: [init, build]
     uses: ./.github/workflows/tps-external-certs-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   tps-clone-test:
     name: TPS clone
     needs: [init, build]
     uses: ./.github/workflows/tps-clone-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   tps-hsm-test:
     name: TPS with HSM
     needs: [init, build]
     uses: ./.github/workflows/tps-hsm-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}

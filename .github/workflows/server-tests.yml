@@ -18,54 +18,38 @@ jobs:
     name: Basic server
     needs: [init, build]
     uses: ./.github/workflows/server-basic-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   server-https-pem-test:
     name: HTTPS connector with PEM files
     needs: [init, build]
     uses: ./.github/workflows/server-https-pem-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   server-https-jks-test:
     name: HTTPS connector with JKS file
     needs: [init, build]
     uses: ./.github/workflows/server-https-jks-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   server-https-pkcs12-test:
     name: "HTTPS connector with PKCS #12 file"
     needs: [init, build]
     uses: ./.github/workflows/server-https-pkcs12-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   server-https-nss-test:
     name: HTTPS connector with NSS database
     needs: [init, build]
     uses: ./.github/workflows/server-https-nss-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   server-backup-test:
     name: Server backup
     needs: [init, build]
     uses: ./.github/workflows/server-backup-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   server-upgrade-test:
     name: Server upgrade
     needs: [init, build]
     uses: ./.github/workflows/server-upgrade-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   server-container-test:
     name: Server container
     needs: [init, build]
     uses: ./.github/workflows/server-container-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}

@@ -18,75 +18,53 @@ jobs:
     name: Basic KRA
     needs: [init, build]
     uses: ./.github/workflows/kra-basic-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   kra-oaep-test:
     name: KRA with RSA OAEP padding
     needs: [init, build]
     uses: ./.github/workflows/kra-oaep-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   kra-separate-test:
     name: KRA on separate instance
     needs: [init, build]
     uses: ./.github/workflows/kra-separate-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   kra-external-certs-test:
     name: KRA with external certs
     needs: [init, build]
     uses: ./.github/workflows/kra-external-certs-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   kra-cmc-test:
     name: KRA with CMC
     needs: [init, build]
     uses: ./.github/workflows/kra-cmc-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   kra-clone-test:
     name: KRA clone
     needs: [init, build]
     uses: ./.github/workflows/kra-clone-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   kra-clone-hsm-test:
     name: KRA clone with HSM
     needs: [init, build]
     uses: ./.github/workflows/kra-clone-hsm-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   kra-clone-shared-ds-test:
     name: KRA clone with shared DS
     needs: [init, build]
     uses: ./.github/workflows/kra-clone-shared-ds-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   kra-standalone-test:
     name: Standalone KRA
     needs: [init, build]
     uses: ./.github/workflows/kra-standalone-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   kra-sequential-test:
     name: KRA with sequential serial numbers
     needs: [init, build]
     uses: ./.github/workflows/kra-sequential-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   kra-hsm-test:
     name: KRA with HSM
     needs: [init, build]
     uses: ./.github/workflows/kra-hsm-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}

@@ -1,11 +1,9 @@
 name: OCSP on separate instance
 
-on:
-  workflow_call:
-    inputs:
-      db-image:
-        required: false
-        type: string
+on: workflow_call
+
+env:
+  DB_IMAGE: ${{ vars.DB_IMAGE || 'quay.io/389ds/dirsrv' }}
 
 jobs:
   test:
@@ -33,7 +31,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh cads
         env:
-          IMAGE: ${{ inputs.db-image }}
+          IMAGE: ${{ env.DB_IMAGE }}
           HOSTNAME: cads.example.com
           PASSWORD: Secret.123
 
@@ -68,7 +66,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh ocspds
         env:
-          IMAGE: ${{ inputs.db-image }}
+          IMAGE: ${{ env.DB_IMAGE }}
           HOSTNAME: ocspds.example.com
           PASSWORD: Secret.123
 

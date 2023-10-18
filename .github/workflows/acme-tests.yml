@@ -96,29 +96,21 @@ jobs:
     name: ACME with certbot
     needs: [init, build]
     uses: ./.github/workflows/acme-certbot-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   acme-switchover-test:
     name: ACME server switchover
     needs: [init, build]
     uses: ./.github/workflows/acme-switchover-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   acme-container-test:
     name: ACME container
     needs: [init, build]
     uses: ./.github/workflows/acme-container-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   acme-postgresql-test:
     name: ACME with postgresql back-end
     needs: [init, build]
     uses: ./.github/workflows/acme-postgresql-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   publish:
     if: github.event_name == 'push' && github.ref_name == 'master'

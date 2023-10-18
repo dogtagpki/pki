@@ -1,11 +1,9 @@
 name: TKS clone
 
-on:
-  workflow_call:
-    inputs:
-      db-image:
-        required: false
-        type: string
+on: workflow_call
+
+env:
+  DB_IMAGE: ${{ vars.DB_IMAGE || 'quay.io/389ds/dirsrv' }}
 
 jobs:
   # docs/installation/tks/Installing_TKS_Clone.md
@@ -36,7 +34,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh primaryds
         env:
-          IMAGE: ${{ inputs.db-image }}
+          IMAGE: ${{ env.DB_IMAGE }}
           HOSTNAME: primaryds.example.com
           PASSWORD: Secret.123
 
@@ -78,7 +76,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh secondaryds
         env:
-          IMAGE: ${{ inputs.db-image }}
+          IMAGE: ${{ env.DB_IMAGE }}
           HOSTNAME: secondaryds.example.com
           PASSWORD: Secret.123
 
@@ -138,7 +136,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh tertiaryds
         env:
-          IMAGE: ${{ inputs.db-image }}
+          IMAGE: ${{ env.DB_IMAGE }}
           HOSTNAME: tertiaryds.example.com
           PASSWORD: Secret.123
 

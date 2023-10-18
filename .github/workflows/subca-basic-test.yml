@@ -1,11 +1,9 @@
 name: Basic Sub-CA
 
-on:
-  workflow_call:
-    inputs:
-      db-image:
-        required: false
-        type: string
+on: workflow_call
+
+env:
+  DB_IMAGE: ${{ vars.DB_IMAGE || 'quay.io/389ds/dirsrv' }}
 
 jobs:
   # docs/installation/ca/Installing_Subordinate_CA.md
@@ -34,7 +32,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh rootds
         env:
-          IMAGE: ${{ inputs.db-image }}
+          IMAGE: ${{ env.DB_IMAGE }}
           HOSTNAME: rootds.example.com
           PASSWORD: Secret.123
 
@@ -69,7 +67,7 @@ jobs:
         run: |
           tests/bin/ds-container-create.sh subds
         env:
-          IMAGE: ${{ inputs.db-image }}
+          IMAGE: ${{ env.DB_IMAGE }}
           HOSTNAME: subds.example.com
           PASSWORD: Secret.123
 

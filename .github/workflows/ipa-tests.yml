@@ -82,26 +82,18 @@ jobs:
     name: Basic IPA
     needs: [init, build]
     uses: ./.github/workflows/ipa-basic-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   ipa-acme-test:
     name: IPA ACME
     needs: [init, build]
     uses: ./.github/workflows/ipa-acme-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   ipa-subca-test:
     name: IPA with Sub-CA
     needs: [init, build]
     uses: ./.github/workflows/ipa-subca-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   ipa-clone-test:
     name: IPA clone
     needs: [init, build]
     uses: ./.github/workflows/ipa-clone-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}

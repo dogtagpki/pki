@@ -18,124 +18,88 @@ jobs:
     name: Basic CA
     needs: [init, build]
     uses: ./.github/workflows/ca-basic-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   ca-ecc-test:
     name: CA with ECC
     needs: [init, build]
     uses: ./.github/workflows/ca-ecc-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   ca-rsa-test:
     name: CA with RSA
     needs: [init, build]
     uses: ./.github/workflows/ca-rsa-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   ca-rsa-pss-test:
     name: CA with RSA/PSS
     needs: [init, build]
     uses: ./.github/workflows/ca-rsa-pss-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   ca-existing-certs-test:
     name: CA with existing certs
     needs: [init, build]
     uses: ./.github/workflows/ca-existing-certs-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   ca-existing-nssdb-test:
     name: CA with existing NSS database
     needs: [init, build]
     uses: ./.github/workflows/ca-existing-nssdb-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   ca-existing-hsm-test:
     name: CA with existing HSM
     needs: [init, build]
     uses: ./.github/workflows/ca-existing-hsm-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   ca-existing-ds-test:
     name: CA with existing DS
     needs: [init, build]
     uses: ./.github/workflows/ca-existing-ds-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   ca-cmc-shared-token-test:
     name: CA with CMC shared token
     needs: [init, build]
     uses: ./.github/workflows/ca-cmc-shared-token-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   ca-hsm-test:
     name: CA with HSM
     needs: [init, build]
     uses: ./.github/workflows/ca-hsm-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   ca-nuxwdog-test:
     name: CA with Nuxwdog
     needs: [init, build]
     uses: ./.github/workflows/ca-nuxwdog-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   ca-ds-connection-test:
     name: CA connection with DS
     needs: [init, build]
     uses: ./.github/workflows/ca-ds-connection-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   ca-rsnv1-test:
     name: CA with RSNv1
     needs: [init, build]
     uses: ./.github/workflows/ca-rsnv1-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   ca-sequential-test:
     name: CA with Sequential Serial Numbers
     needs: [init, build]
     uses: ./.github/workflows/ca-sequential-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   ca-pruning-test:
     name: CA database pruning
     needs: [init, build]
     uses: ./.github/workflows/ca-pruning-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   ca-admin-user-test:
     name: CA admin user
     needs: [init, build]
     uses: ./.github/workflows/ca-admin-user-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   ca-non-default-user-test:
     name: CA with non-default user
     needs: [init, build]
     uses: ./.github/workflows/ca-non-default-user-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
 
   ca-container-test:
     name: CA container
     needs: [init, build]
     uses: ./.github/workflows/ca-container-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}

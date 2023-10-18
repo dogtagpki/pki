@@ -1,11 +1,9 @@
 name: "HTTPS connector with PKCS #12 file"
 
-on:
-  workflow_call:
-    inputs:
-      db-image:
-        required: false
-        type: string
+on: workflow_call
+
+env:
+  DB_IMAGE: ${{ vars.DB_IMAGE || 'quay.io/389ds/dirsrv' }}
 
 jobs:
   # docs/admin/server/Configuring-HTTPS-Connector-with-PKCS12-File.adoc

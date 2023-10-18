@@ -1,11 +1,9 @@
 name: ACME container
 
-on:
-  workflow_call:
-    inputs:
-      db-image:
-        required: false
-        type: string
+on: workflow_call
+
+env:
+  DB_IMAGE: ${{ vars.DB_IMAGE || 'quay.io/389ds/dirsrv' }}
 
 jobs:
   # docs/installation/podman/Deploying_PKI_ACME_Responder_on_Podman.md
