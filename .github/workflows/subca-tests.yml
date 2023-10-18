@@ -1,0 +1,71 @@
+name: SubCA Tests
+
+on: [push, pull_request]
+
+jobs:
+  init:
+    name: Initialization
+    uses: ./.github/workflows/init.yml
+    secrets: inherit
+
+  build:
+    name: Waiting for build
+    needs: init
+    uses: ./.github/workflows/wait-for-build.yml
+    secrets: inherit
+
+  subca-basic-test:
+    name: Basic SubCA
+    needs: [init, build]
+    uses: ./.github/workflows/subca-basic-test.yml
+    with:
+      db-image: ${{ needs.init.outputs.db-image }}
+
+  subca-cmc-test:
+    name: SubCA with CMC
+    needs: [init, build]
+    uses: ./.github/workflows/subca-cmc-test.yml
+    with:
+      db-image: ${{ needs.init.outputs.db-image }}
+
+  subca-external-test:
+    name: SubCA with external cert
+    needs: [init, build]
+    uses: ./.github/workflows/subca-external-test.yml
+    with:
+      db-image: ${{ needs.init.outputs.db-image }}
+
+  subca-hsm-test:
+    name: SubCA with HSM
+    needs: [init, build]
+    uses: ./.github/workflows/subca-hsm-test.yml
+    with:
+      db-image: ${{ needs.init.outputs.db-image }}
+
+  subca-clone-test:
+    name: SubCA clone
+    needs: [init, build]
+    uses: ./.github/workflows/subca-clone-test.yml
+    with:
+      db-image: ${{ needs.init.outputs.db-image }}
+
+  subca-clone-heml-test:
+    name: SubCA clone with HSM
+    needs: [init, build]
+    uses: ./.github/workflows/subca-clone-hsm-test.yml
+    with:
+      db-image: ${{ needs.init.outputs.db-image }}
+
+  subca-lightweight-test:
+    name: Lightweight SubCA
+    needs: [init, build]
+    uses: ./.github/workflows/subca-lightweight-test.yml
+    with:
+      db-image: ${{ needs.init.outputs.db-image }}
+
+  subca-lightweight-hsm-test:
+    name: Lightweight SubCA with HSM
+    needs: [init, build]
+    uses: ./.github/workflows/subca-lightweight-hsm-test.yml
+    with:
+      db-image: ${{ needs.init.outputs.db-image }}

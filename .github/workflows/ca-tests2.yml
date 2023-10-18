@@ -77,62 +77,6 @@ jobs:
     with:
       db-image: ${{ needs.init.outputs.db-image }}
 
-  ca-lightweight-test:
-    name: Lightweight CA
-    needs: [init, build]
-    uses: ./.github/workflows/ca-lightweight-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
-
-  ca-lightweight-hsm-test:
-    name: Lightweight CA with HSM
-    needs: [init, build]
-    uses: ./.github/workflows/ca-lightweight-hsm-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
-
-  subca-basic-test:
-    name: Basic Sub-CA
-    needs: [init, build]
-    uses: ./.github/workflows/subca-basic-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
-
-  subca-cmc-test:
-    name: Sub-CA with CMC
-    needs: [init, build]
-    uses: ./.github/workflows/subca-cmc-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
-
-  subca-external-test:
-    name: Sub-CA with external cert
-    needs: [init, build]
-    uses: ./.github/workflows/subca-external-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
-
-  subca-hsm-test:
-    name: Sub-CA with HSM
-    needs: [init, build]
-    uses: ./.github/workflows/subca-hsm-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
-
-  subca-clone-test:
-    name: Sub-CA clone
-    needs: [init, build]
-    uses: ./.github/workflows/subca-clone-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
-
-  subca-clone-heml-test:
-    name: Sub-CA clone with HSM
-    needs: [init, build]
-    uses: ./.github/workflows/subca-clone-hsm-test.yml
-    with:
-      db-image: ${{ needs.init.outputs.db-image }}
-
   scep-test:
     name: SCEP responder
     needs: [init, build]
