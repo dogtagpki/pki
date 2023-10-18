@@ -8,14 +8,8 @@ env:
   COPR_REPO: ${{ vars.COPR_REPO || '@pki/master' }}
 
 jobs:
-  init:
-    name: Initialization
-    uses: ./.github/workflows/init.yml
-    secrets: inherit
-
   build:
     name: Building ACME images
-    needs: init
     runs-on: ubuntu-latest
     steps:
       - name: Clone repository
@@ -94,28 +88,28 @@ jobs:
 
   acme-certbot-test:
     name: ACME with certbot
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/acme-certbot-test.yml
 
   acme-switchover-test:
     name: ACME server switchover
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/acme-switchover-test.yml
 
   acme-container-test:
     name: ACME container
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/acme-container-test.yml
 
   acme-postgresql-test:
     name: ACME with postgresql back-end
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/acme-postgresql-test.yml
 
   publish:
     if: github.event_name == 'push' && github.ref_name == 'master'
     name: Publishing ACME images
-    needs: [init, build]
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Log in to GitHub Container Registry

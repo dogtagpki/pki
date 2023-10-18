@@ -3,53 +3,47 @@ name: SubCA Tests
 on: [push, pull_request]
 
 jobs:
-  init:
-    name: Initialization
-    uses: ./.github/workflows/init.yml
-    secrets: inherit
-
   build:
     name: Waiting for build
-    needs: init
     uses: ./.github/workflows/wait-for-build.yml
     secrets: inherit
 
   subca-basic-test:
     name: Basic SubCA
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/subca-basic-test.yml
 
   subca-cmc-test:
     name: SubCA with CMC
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/subca-cmc-test.yml
 
   subca-external-test:
     name: SubCA with external cert
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/subca-external-test.yml
 
   subca-hsm-test:
     name: SubCA with HSM
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/subca-hsm-test.yml
 
   subca-clone-test:
     name: SubCA clone
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/subca-clone-test.yml
 
   subca-clone-heml-test:
     name: SubCA clone with HSM
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/subca-clone-hsm-test.yml
 
   subca-lightweight-test:
     name: Lightweight SubCA
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/subca-lightweight-test.yml
 
   subca-lightweight-hsm-test:
     name: Lightweight SubCA with HSM
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/subca-lightweight-hsm-test.yml

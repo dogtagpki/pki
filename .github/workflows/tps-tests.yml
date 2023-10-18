@@ -3,38 +3,32 @@ name: TPS Tests
 on: [push, pull_request]
 
 jobs:
-  init:
-    name: Initialization
-    uses: ./.github/workflows/init.yml
-    secrets: inherit
-
   build:
     name: Waiting for build
-    needs: init
     uses: ./.github/workflows/wait-for-build.yml
     secrets: inherit
 
   tps-basic-test:
     name: Basic TPS
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/tps-basic-test.yml
 
   tps-separate-test:
     name: TPS on separate instance
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/tps-separate-test.yml
 
   tps-external-certs-test:
     name: TPS with external certs
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/tps-external-certs-test.yml
 
   tps-clone-test:
     name: TPS clone
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/tps-clone-test.yml
 
   tps-hsm-test:
     name: TPS with HSM
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/tps-hsm-test.yml

@@ -3,14 +3,8 @@ name: QE Tests
 on: [push, pull_request]
 
 jobs:
-  init:
-    name: Initialization
-    uses: ./.github/workflows/init.yml
-    secrets: inherit
-
   build:
     name: Waiting for build
-    needs: init
     uses: ./.github/workflows/wait-for-build.yml
     secrets: inherit
 
@@ -19,7 +13,7 @@ jobs:
     # This job uses Ansible playbooks in the tests dir to setup a PKI deployment.
     # All 5 subsystems are deployed on "discrete" instances
     name: Testing installation sanity
-    needs: [init, build]
+    needs: build
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki

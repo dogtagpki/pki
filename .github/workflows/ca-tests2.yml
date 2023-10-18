@@ -3,63 +3,57 @@ name: CA Tests 2
 on: [push, pull_request]
 
 jobs:
-  init:
-    name: Initialization
-    uses: ./.github/workflows/init.yml
-    secrets: inherit
-
   build:
     name: Waiting for build
-    needs: init
     uses: ./.github/workflows/wait-for-build.yml
     secrets: inherit
 
   ca-profile-caDirUserCert-test:
     name: CA with caDirUserCert profile
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ca-profile-caDirUserCert-test.yml
 
   ca-profile-caServerCert-test:
     name: CA with caServerCert profile
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ca-profile-caServerCert-test.yml
 
   ca-secure-ds-test:
     name: CA with secure DS
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ca-secure-ds-test.yml
 
   ca-crl-test:
     name: CA CRL database
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ca-crl-test.yml
 
   ca-publishing-ca-cert-test:
     name: CA with CA cert publishing
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ca-publishing-ca-cert-test.yml
 
   ca-publishing-user-cert-test:
     name: CA with user cert publishing
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ca-publishing-user-cert-test.yml
 
   ca-publishing-crl-file-test:
     name: CA with file-based CRL publishing
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ca-publishing-crl-file-test.yml
 
   ca-publishing-crl-ldap-test:
     name: CA with LDAP-based CRL publishing
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ca-publishing-crl-ldap-test.yml
 
   ca-notification-request-test:
     name: CA with request notification
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ca-notification-request-test.yml
 
   scep-test:
     name: SCEP responder
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/scep-test.yml

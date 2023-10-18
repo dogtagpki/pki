@@ -9,15 +9,9 @@ env:
   NAMESPACE: ${{ vars.REGISTRY_NAMESPACE || github.repository_owner }}
 
 jobs:
-  init:
-    name: Initialization
-    uses: ./.github/workflows/init.yml
-    secrets: inherit
-    if: vars.REGISTRY != ''
-
   publish-maven:
+    if: vars.REGISTRY != ''
     name: Publishing Maven artifacts
-    needs: init
     runs-on: ubuntu-latest
     steps:
       - name: Clone repository
@@ -53,8 +47,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   wait-for-images:
+    if: vars.REGISTRY != ''
     name: Waiting for container images
-    needs: init
     runs-on: ubuntu-latest
     steps:
       - name: Wait for container images
@@ -67,7 +61,7 @@ jobs:
 
   publish-images:
     name: Publishing container images
-    needs: [init, wait-for-images]
+    needs: wait-for-images
     runs-on: ubuntu-latest
     steps:
       - name: Log in to GitHub Container Registry

@@ -3,38 +3,32 @@ name: TKS Tests
 on: [push, pull_request]
 
 jobs:
-  init:
-    name: Initialization
-    uses: ./.github/workflows/init.yml
-    secrets: inherit
-
   build:
     name: Waiting for build
-    needs: init
     uses: ./.github/workflows/wait-for-build.yml
     secrets: inherit
 
   tks-basic-test:
     name: Basic TKS
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/tks-basic-test.yml
 
   tks-separate-test:
     name: TKS on separate instance
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/tks-separate-test.yml
 
   tks-external-certs-test:
     name: TKS with external certs
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/tks-external-certs-test.yml
 
   tks-clone-test:
     name: TKS clone
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/tks-clone-test.yml
 
   tks-hsm-test:
     name: TKS with HSM
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/tks-hsm-test.yml

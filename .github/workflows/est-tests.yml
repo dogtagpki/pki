@@ -3,20 +3,14 @@ name: EST Tests
 on: [push, pull_request]
 
 jobs:
-  init:
-    name: Initialization
-    uses: ./.github/workflows/init.yml
-    secrets: inherit
-
   build:
     name: Waiting for build
-    needs: init
     uses: ./.github/workflows/wait-for-build.yml
     secrets: inherit
 
   est-basic-test:
     name: Basic EST
-    needs: [init, build]
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Clone repository

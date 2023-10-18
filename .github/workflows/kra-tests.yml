@@ -3,68 +3,62 @@ name: KRA Tests
 on: [push, pull_request]
 
 jobs:
-  init:
-    name: Initialization
-    uses: ./.github/workflows/init.yml
-    secrets: inherit
-
   build:
     name: Waiting for build
-    needs: init
     uses: ./.github/workflows/wait-for-build.yml
     secrets: inherit
 
   kra-basic-test:
     name: Basic KRA
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/kra-basic-test.yml
 
   kra-oaep-test:
     name: KRA with RSA OAEP padding
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/kra-oaep-test.yml
 
   kra-separate-test:
     name: KRA on separate instance
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/kra-separate-test.yml
 
   kra-external-certs-test:
     name: KRA with external certs
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/kra-external-certs-test.yml
 
   kra-cmc-test:
     name: KRA with CMC
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/kra-cmc-test.yml
 
   kra-clone-test:
     name: KRA clone
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/kra-clone-test.yml
 
   kra-clone-hsm-test:
     name: KRA clone with HSM
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/kra-clone-hsm-test.yml
 
   kra-clone-shared-ds-test:
     name: KRA clone with shared DS
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/kra-clone-shared-ds-test.yml
 
   kra-standalone-test:
     name: Standalone KRA
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/kra-standalone-test.yml
 
   kra-sequential-test:
     name: KRA with sequential serial numbers
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/kra-sequential-test.yml
 
   kra-hsm-test:
     name: KRA with HSM
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/kra-hsm-test.yml

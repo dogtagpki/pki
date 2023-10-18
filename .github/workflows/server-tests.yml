@@ -3,53 +3,47 @@ name: Server Tests
 on: [push, pull_request]
 
 jobs:
-  init:
-    name: Initialization
-    uses: ./.github/workflows/init.yml
-    secrets: inherit
-
   build:
     name: Waiting for build
-    needs: init
     uses: ./.github/workflows/wait-for-build.yml
     secrets: inherit
 
   server-basic-test:
     name: Basic server
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/server-basic-test.yml
 
   server-https-pem-test:
     name: HTTPS connector with PEM files
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/server-https-pem-test.yml
 
   server-https-jks-test:
     name: HTTPS connector with JKS file
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/server-https-jks-test.yml
 
   server-https-pkcs12-test:
     name: "HTTPS connector with PKCS #12 file"
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/server-https-pkcs12-test.yml
 
   server-https-nss-test:
     name: HTTPS connector with NSS database
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/server-https-nss-test.yml
 
   server-backup-test:
     name: Server backup
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/server-backup-test.yml
 
   server-upgrade-test:
     name: Server upgrade
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/server-upgrade-test.yml
 
   server-container-test:
     name: Server container
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/server-container-test.yml

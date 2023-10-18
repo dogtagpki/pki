@@ -2,22 +2,16 @@ name: Code Analysis
 on: [push, pull_request]
 
 jobs:
-  init:
-    name: Initialization
-    uses: ./.github/workflows/init.yml
-    secrets: inherit
-
   build:
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
     name: Waiting for build
-    needs: init
     uses: ./.github/workflows/wait-for-build.yml
     secrets: inherit
 
   sonarcloud:
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
     name: Sonar Cloud code analysis
-    needs: [init, build]
+    needs: build
     runs-on: ubuntu-latest
     env:
       SHARED: /tmp/workdir/pki

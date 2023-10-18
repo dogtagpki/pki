@@ -7,14 +7,8 @@ env:
   COPR_REPO: ${{ vars.COPR_REPO || '@pki/master' }}
 
 jobs:
-  init:
-    name: Initialization
-    uses: ./.github/workflows/init.yml
-    secrets: inherit
-
   build:
     name: Building IPA images
-    needs: init
     runs-on: ubuntu-latest
     steps:
       - name: Clone repository
@@ -80,20 +74,20 @@ jobs:
 
   ipa-basic-test:
     name: Basic IPA
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ipa-basic-test.yml
 
   ipa-acme-test:
     name: IPA ACME
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ipa-acme-test.yml
 
   ipa-subca-test:
     name: IPA with Sub-CA
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ipa-subca-test.yml
 
   ipa-clone-test:
     name: IPA clone
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ipa-clone-test.yml

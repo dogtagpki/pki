@@ -71,15 +71,9 @@ jobs:
             var pr_base = fs.readFileSync('./BaseBranch');
             return pr_base;
 
-  init:
-    name: Initialization
-    needs: retrieve-pr
-    uses: ./.github/workflows/init.yml
-    secrets: inherit
-
   build:
     name: Building PKI for Sonar
-    needs: [init, retrieve-pr]
+    needs: retrieve-pr
     runs-on: ubuntu-latest
     steps:
       - name: Clone repository
@@ -152,7 +146,7 @@ jobs:
         
   sonarcloud:
     name: Sonar Cloud code analysis
-    needs: [retrieve-pr, init, build]
+    needs: [retrieve-pr, build]
     if: needs.retrieve-pr.outputs.pr-number != ''
     runs-on: ubuntu-latest
     env:

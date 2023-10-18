@@ -3,38 +3,32 @@ name: CA Clone Tests
 on: [push, pull_request]
 
 jobs:
-  init:
-    name: Initialization
-    uses: ./.github/workflows/init.yml
-    secrets: inherit
-
   build:
     name: Waiting for build
-    needs: init
     uses: ./.github/workflows/wait-for-build.yml
     secrets: inherit
 
   ca-clone-test:
     name: CA clone
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ca-clone-test.yml
 
   ca-clone-hsm-test:
     name: CA clone with HSM
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ca-clone-hsm-test.yml
 
   ca-clone-secure-ds-test:
     name: CA clone with secure DS
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ca-clone-secure-ds-test.yml
 
   ca-clone-shared-ds-test:
     name: CA clone with shared DS
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ca-clone-shared-ds-test.yml
 
   ca-clone-replicated-ds-test:
     name: CA clone with replicated DS
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ca-clone-replicated-ds-test.yml

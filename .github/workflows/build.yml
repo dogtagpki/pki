@@ -7,15 +7,9 @@ env:
   COPR_REPO: ${{ vars.COPR_REPO || '@pki/master' }}
 
 jobs:
-  init:
-    name: Initialization
-    uses: ./.github/workflows/init.yml
-    secrets: inherit
-
   # docs/development/Building_PKI.md
   build:
     name: Building PKI
-    needs: init
     runs-on: ubuntu-latest
     steps:
       - name: Clone repository

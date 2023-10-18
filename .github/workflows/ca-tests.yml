@@ -3,103 +3,97 @@ name: CA Tests
 on: [push, pull_request]
 
 jobs:
-  init:
-    name: Initialization
-    uses: ./.github/workflows/init.yml
-    secrets: inherit
-
   build:
     name: Waiting for build
-    needs: init
     uses: ./.github/workflows/wait-for-build.yml
     secrets: inherit
 
   ca-basic-test:
     name: Basic CA
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ca-basic-test.yml
 
   ca-ecc-test:
     name: CA with ECC
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ca-ecc-test.yml
 
   ca-rsa-test:
     name: CA with RSA
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ca-rsa-test.yml
 
   ca-rsa-pss-test:
     name: CA with RSA/PSS
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ca-rsa-pss-test.yml
 
   ca-existing-certs-test:
     name: CA with existing certs
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ca-existing-certs-test.yml
 
   ca-existing-nssdb-test:
     name: CA with existing NSS database
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ca-existing-nssdb-test.yml
 
   ca-existing-hsm-test:
     name: CA with existing HSM
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ca-existing-hsm-test.yml
 
   ca-existing-ds-test:
     name: CA with existing DS
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ca-existing-ds-test.yml
 
   ca-cmc-shared-token-test:
     name: CA with CMC shared token
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ca-cmc-shared-token-test.yml
 
   ca-hsm-test:
     name: CA with HSM
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ca-hsm-test.yml
 
   ca-nuxwdog-test:
     name: CA with Nuxwdog
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ca-nuxwdog-test.yml
 
   ca-ds-connection-test:
     name: CA connection with DS
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ca-ds-connection-test.yml
 
   ca-rsnv1-test:
     name: CA with RSNv1
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ca-rsnv1-test.yml
 
   ca-sequential-test:
     name: CA with Sequential Serial Numbers
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ca-sequential-test.yml
 
   ca-pruning-test:
     name: CA database pruning
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ca-pruning-test.yml
 
   ca-admin-user-test:
     name: CA admin user
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ca-admin-user-test.yml
 
   ca-non-default-user-test:
     name: CA with non-default user
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ca-non-default-user-test.yml
 
   ca-container-test:
     name: CA container
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ca-container-test.yml

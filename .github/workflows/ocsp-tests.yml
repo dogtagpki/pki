@@ -3,65 +3,59 @@ name: OCSP Tests
 on: [push, pull_request]
 
 jobs:
-  init:
-    name: Initialization
-    uses: ./.github/workflows/init.yml
-    secrets: inherit
-
   build:
     name: Waiting for build
-    needs: init
     uses: ./.github/workflows/wait-for-build.yml
     secrets: inherit
 
   ocsp-basic-test:
     name: Basic OCSP
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ocsp-basic-test.yml
 
   ocsp-separate-test:
     name: OCSP on separate instance
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ocsp-separate-test.yml
 
   ocsp-external-certs-test:
     name: OCSP with external certs
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ocsp-external-certs-test.yml
 
   ocsp-cmc-test:
     name: OCSP with CMC
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ocsp-cmc-test.yml
 
   ocsp-clone-test:
     name: OCSP clone
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ocsp-clone-test.yml
 
   ocsp-standalone-test:
     name: Standalone OCSP
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ocsp-standalone-test.yml
 
   ocsp-crl-direct-test:
     name: OCSP with direct CRL publishing
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ocsp-crl-direct-test.yml
 
   ocsp-crl-ldap-test:
     name: OCSP with LDAP-based CRL publishing
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ocsp-crl-ldap-test.yml
 
   ocsp-hsm-test:
     name: OCSP with HSM
-    needs: [init, build]
+    needs: build
     uses: ./.github/workflows/ocsp-hsm-test.yml
 
   ocsp-crl-ldap-self-verification-test:
     name: OCSP with self certificate verification test
-    needs: [init, build]
+    needs: build
     runs-on: ubuntu-latest
     steps:
     - name: Clone repository
