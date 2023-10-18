@@ -107,6 +107,7 @@ public interface IRemoteRequest {
     public static final String KRA_UserId = "userid";
     public static final String KRA_Trans_DesKey = "drm_trans_desKey";
     public static final String KRA_Trans_AesKey = "drm_trans_aesKey";
+    public static final String KRA_Aes_Wrap_Alg = "drm_aes_wrapAlg";
     public static final String KRA_KEYGEN_Archive = "archive";
     public static final String KRA_KEYGEN_KeyType = "keytype";
     public static final String KRA_KEYGEN_EC_KeyCurve = "eckeycurve";

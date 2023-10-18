@@ -202,6 +202,7 @@ public class TPSEngine {
     public static final String ENROLL_MODE_RECOVERY = RECOVERY_OP;
     public static final String ERNOLL_MODE_RENEWAL = RENEWAL_OP;
     public static final String CFG_ALLOW_MULTI_TOKENS_USER = "allowMultiActiveTokensUser";
+    public static final String CFG_AES_KEY_WRAP_ALG = "aesKeyWrapAlg";
 
     public void init() {
         //ToDo
@@ -524,17 +525,17 @@ public class TPSEngine {
     public KRARecoverKeyResponse recoverKey(String cuid,
             String userid,
             TPSBuffer drmWrappedDesKey, TPSBuffer drmWrappedAesKey,
-            String b64cert, String drmConnId) throws TPSException {
+            String b64cert, String drmConnId,String aesKeyWrapAlg) throws TPSException {
 
         return this.recoverKey(cuid, userid, drmWrappedDesKey, drmWrappedAesKey,
-             b64cert, drmConnId, BigInteger.valueOf(0));
+             b64cert, drmConnId, BigInteger.valueOf(0),aesKeyWrapAlg);
 
     }
 
     public KRARecoverKeyResponse recoverKey(String cuid,
             String userid,
             TPSBuffer drmWrappedDesKey,TPSBuffer drmWrappedAesKey,
-            String b64cert, String drmConnId,BigInteger keyid) throws TPSException {
+            String b64cert, String drmConnId,BigInteger keyid,String aesKeyWrapAlg) throws TPSException {
         String method = "TPSEngine.recoverKey";
         CMS.debug("TPSEngine.recoverKey");
         if (cuid == null)
@@ -570,7 +571,7 @@ public class TPSEngine {
 
             resp = kra.recoverKey(cuid, userid, encodedDes,
                 encodedAes, 
-                (b64cert != null) ? Util.uriEncode(b64cert) : b64cert,keyid);
+                (b64cert != null) ? Util.uriEncode(b64cert) : b64cert,keyid,aesKeyWrapAlg);
         } catch (EBaseException e) {
             throw new TPSException("TPSEngine.recoverKey: Problem creating or using KRARemoteRequestHandler! "
                     + e.toString(), TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
@@ -610,7 +611,7 @@ public class TPSEngine {
     public KRAServerSideKeyGenResponse serverSideKeyGen(int keySize, String cuid, String userid, String drmConnId,
             TPSBuffer wrappedDesKey, TPSBuffer drmWrappedAesKey,
             boolean archive,
-            boolean isECC) throws TPSException {
+            boolean isECC,String aesKeyWrapAlg) throws TPSException {
 
 /*
         CMS.debug("TPSEngine.serverSideKeyGen entering... keySize: " + keySize + " cuid: " + cuid + " userid: "
@@ -632,7 +633,7 @@ public class TPSEngine {
             resp = kra.serverSideKeyGen(isECC, keySize, cuid, userid,
                     (wrappedDesKey != null) ? Util.specialURLEncode(wrappedDesKey) :  "",
                     (drmWrappedAesKey != null) ? Util.specialURLEncode(drmWrappedAesKey) : "",
-                    archive);
+                    archive,aesKeyWrapAlg);
 
         } catch (EBaseException e) {
             throw new TPSException("TPSEngine.serverSideKeyGen: Problem creating  or using KRARemoteRequestHandler! "

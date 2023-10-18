@@ -176,6 +176,11 @@ public class NetkeyKeygenService implements IService {
         String method = "NetkeyKeygenService: serviceRequest: ";
 
         byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
+        int ivLength = EncryptionAlgorithm.AES_128_CBC.getIVLength();
+
+        CMS.debug(method + " cbc iv len: " + ivLength);
+
+        byte iv_cbc[] = new byte[ivLength];
         String iv_s = "";
         try {
             JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
@@ -188,6 +193,7 @@ public class NetkeyKeygenService implements IService {
 
         IVParameterSpec algParam = null;
         IVParameterSpec desAlgParam =	new IVParameterSpec(iv);
+        IVParameterSpec aesCBCAlgParam =   new IVParameterSpec(iv_cbc);
 
         IConfigStore configStore = CMS.getConfigStore();
         boolean allowEncDecrypt_archival = configStore.getBoolean("kra.allowEncDecrypt.archival", false);
@@ -228,6 +234,15 @@ public class NetkeyKeygenService implements IService {
 
         String rWrappedDesKeyString = request.getExtDataInString(IRequest.NETKEY_ATTR_DRMTRANS_DES_KEY);
         String rWrappedAesKeyString = request.getExtDataInString(IRequest.NETKEY_ATTR_DRMTRANS_AES_KEY);
+        String aesKeyWrapAlg        = request.getExtDataInString(IRequest.NETKEY_ATTR_SSKEYGEN_AES_KEY_WRAP_ALG);
+
+        CMS.debug(method + " IRequest.NETKEY_ATTR_SSKEYGEN_AES_KEY_WRAP_ALG: " + IRequest.NETKEY_ATTR_SSKEYGEN_AES_KEY_WRAP_ALG);
+
+        if(aesKeyWrapAlg != null) {
+            CMS.debug(method + " aesKeyWrapAlg: " + aesKeyWrapAlg);
+        } else {
+            CMS.debug(method + " no aesKeyWrapAlg provided.");
+        }
 
         boolean useAesTransWrapped = false;
 
@@ -396,10 +411,23 @@ public class NetkeyKeygenService implements IService {
 
                 KeyWrapAlgorithm symWrapAlg = KeyWrapAlgorithm.DES3_CBC_PAD;
                 if(useAesTransWrapped == true) {
-                    //Here we must use AES KWP because it's the only common AES key wrap to be supoprted on hsm, nss, and soon the coolkey applet.
-		    //Should make this configurable at some point.
-                    symWrapAlg = KeyWrapAlgorithm.AES_KEY_WRAP_PAD_KWP;
-		    algParam =  null;
+                    //Here we recomment to use AES KWP because it's the only common AES key wrap to be supoprted on hsm, nss, and soon the coolkey applet.
+		    //But now we are going to make it configurable to AES CBC based on interest in doing so. KWP is the one that is assured to work
+		    //with the applet and nss / hsm envorinments. CBC can be chosen at the admin's discretion.
+                   
+                    if(aesKeyWrapAlg != null && "CBC".equalsIgnoreCase(aesKeyWrapAlg)) {
+                    // We want CBC
+                        CMS.debug(method + " TPS has selected CBC for AES key wrap method.");
+                        symWrapAlg = KeyWrapAlgorithm.AES_CBC_PAD;
+
+                        algParam =  aesCBCAlgParam;
+                        iv_s = org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(iv_cbc);
+
+                    } else { 
+                        symWrapAlg = KeyWrapAlgorithm.AES_KEY_WRAP_PAD_KWP;
+		        algParam =  null;
+                        iv_s = org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(iv);
+                    }
                     CMS.debug(method + " attemptedAesKeyWrap = true ");
                 } else {
                     algParam = desAlgParam;
@@ -453,7 +481,7 @@ public class NetkeyKeygenService implements IService {
                             PubKey));
                 }
 
-                iv_s = org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(iv);
+                //iv_s = org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(iv);
                 request.setExtData("iv_s", iv_s);
 
             } catch (Exception e) {

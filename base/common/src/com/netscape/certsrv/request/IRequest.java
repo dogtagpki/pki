@@ -162,6 +162,7 @@ public interface IRequest extends Serializable {
     public final static String NETKEY_ATTR_USERID = "USERID";
     public final static String NETKEY_ATTR_DRMTRANS_DES_KEY = "drm_trans_desKey";
     public static final String NETKEY_ATTR_DRMTRANS_AES_KEY = "drm_trans_aesKey";
+    public static final String NETKEY_ATTR_SSKEYGEN_AES_KEY_WRAP_ALG = "drm_aes_wrapAlg";
 
     public final static String NETKEY_ATTR_ARCHIVE_FLAG = "archive";
     public final static String NETKEY_ATTR_SERVERSIDE_MUSCLE_FLAG = "serverSideMuscle";
