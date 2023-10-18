@@ -1070,10 +1070,55 @@ public class NSSDatabase {
                 extensions);
     }
 
+    public static int validityUnitFromString(String validityUnit) throws Exception {
+
+        if (validityUnit.equalsIgnoreCase("year")) {
+            return Calendar.YEAR;
+
+        } else if (validityUnit.equalsIgnoreCase("month")) {
+            return Calendar.MONTH;
+
+        } else if (validityUnit.equalsIgnoreCase("day")) {
+            return Calendar.DAY_OF_YEAR;
+
+        } else if (validityUnit.equalsIgnoreCase("hour")) {
+            return Calendar.HOUR_OF_DAY;
+
+        } else if (validityUnit.equalsIgnoreCase("minute")) {
+            return Calendar.MINUTE;
+
+        } else {
+            throw new Exception("Invalid validity unit: " + validityUnit);
+        }
+    }
+
+    public static String validityUnitToString(int validityUnit) throws Exception {
+
+        if (validityUnit == Calendar.YEAR) {
+            return "year";
+
+        } else if (validityUnit == Calendar.MONTH) {
+            return "month";
+
+        } else if (validityUnit == Calendar.DAY_OF_YEAR) {
+            return "day";
+
+        } else if (validityUnit == Calendar.HOUR_OF_DAY) {
+            return "hour";
+
+        } else if (validityUnit == Calendar.MINUTE) {
+            return "minute";
+
+        } else {
+            throw new Exception("Invalid validity unit: " + validityUnit);
+        }
+    }
+
     public X509Certificate createCertificate(
             org.mozilla.jss.crypto.X509Certificate issuer,
             PKCS10 pkcs10,
-            Integer monthsValid,
+            int validityLength,
+            int validityUnit,
             String hash,
             Extensions extensions) throws Exception {
 
@@ -1081,7 +1126,8 @@ public class NSSDatabase {
                 issuer,
                 pkcs10,
                 null, // serial number
-                monthsValid,
+                validityLength,
+                validityUnit,
                 hash,
                 extensions);
     }
@@ -1090,7 +1136,8 @@ public class NSSDatabase {
             org.mozilla.jss.crypto.X509Certificate issuer,
             PKCS10 pkcs10,
             String serialNumber,
-            Integer monthsValid,
+            int validityLength,
+            int validityUnit,
             String hash,
             Extensions extensions) throws Exception {
 
@@ -1099,7 +1146,8 @@ public class NSSDatabase {
                 issuer,
                 pkcs10,
                 serialNumber,
-                monthsValid,
+                validityLength,
+                validityUnit,
                 hash,
                 extensions);
     }
@@ -1109,7 +1157,8 @@ public class NSSDatabase {
             org.mozilla.jss.crypto.X509Certificate issuer,
             PKCS10 pkcs10,
             String serialNumber,
-            Integer monthsValid,
+            int validityLength,
+            int validityUnit,
             String hash,
             Extensions extensions) throws Exception {
 
@@ -1150,7 +1199,7 @@ public class NSSDatabase {
         Date notBeforeDate = calendar.getTime();
         logger.debug("NSSDatabase: - not before: " + notBeforeDate);
 
-        calendar.add(Calendar.MONTH, monthsValid);
+        calendar.add(validityUnit, validityLength);
         Date notAfterDate = calendar.getTime();
         logger.debug("NSSDatabase: - not after: " + notAfterDate);
 

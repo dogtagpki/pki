@@ -20,3 +20,11 @@ The default value is `True`.
 The parameters `<subsystem_name>.<cert_id>.cert` and `<subsystem_name>.<cert_id>.certreq` are removed from `CS.cfg` files.
 Certificates are retrieved from the nssdb configured and they are not stored in other places.
 CSR are stored in the folder `<instance_config>/certs` as `<cert_nickname>.csr` and they are retrieved from this location.
+
+== New validity parameters for NSS Issuer in ACME ==
+
+The `NSSIssuer` in ACME has been modified to provide `validityLength`
+and `validityUnit` parameters to specify the certificate validity.
+The default is 3 months.
+
+The `monthsValid` parameter has been deprecated.

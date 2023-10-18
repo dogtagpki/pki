@@ -11,6 +11,7 @@ import java.math.BigInteger;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
+import java.util.Calendar;
 import java.util.Date;
 
 import org.apache.commons.codec.binary.Base64;
@@ -43,7 +44,8 @@ public class NSSIssuer extends ACMEIssuer {
     org.mozilla.jss.crypto.X509Certificate issuer;
 
     NSSExtensionGenerator extGenerator;
-    Integer monthsValid;
+    int validityLength = 3;
+    int validityUnit = Calendar.MONTH;
     String hash;
 
     @Override
@@ -78,9 +80,27 @@ public class NSSIssuer extends ACMEIssuer {
         CryptoManager cm = CryptoManager.getInstance();
         issuer = cm.findCertByNickname(nickname);
 
+        // TODO: add upgrade script to replace monthsValid with validityLength and validityUnit
         String monthsValid = config.getParameter("monthsValid");
-        this.monthsValid = monthsValid == null ? 3 : Integer.valueOf(monthsValid);
-        logger.info("- months valid: " + monthsValid);
+        if (monthsValid != null) {
+            logger.warn("The monthsValid parameter has been deprecated. Use validityLength and validityUnit parameters instead.");
+            this.validityLength = Integer.valueOf(monthsValid);
+
+        } else {
+
+            String validityLengthStr = config.getParameter("validityLength");
+            if (validityLengthStr != null) {
+                validityLength = Integer.valueOf(validityLengthStr);
+            }
+
+            String validityUnitStr = config.getParameter("validityUnit");
+            if (validityUnitStr != null) {
+                validityUnit = NSSDatabase.validityUnitFromString(validityUnitStr);
+            }
+        }
+
+        logger.info("- validity length: " + validityLength);
+        logger.info("- validity unit: " + NSSDatabase.validityUnitToString(validityUnit));
 
         String hash = config.getParameter("hash");
         if (hash != null) {
@@ -114,7 +134,8 @@ public class NSSIssuer extends ACMEIssuer {
         X509Certificate cert = nssDatabase.createCertificate(
                 issuer,
                 pkcs10,
-                monthsValid,
+                validityLength,
+                validityUnit,
                 hash,
                 extensions);
 

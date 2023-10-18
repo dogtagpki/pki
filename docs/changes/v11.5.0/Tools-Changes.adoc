@@ -20,3 +20,11 @@ Use `pki` CLI or the `curl` command instead.
 
 The `DRMTool` command is no longer available.
 Use `KRATool` command instead.
+
+== New validity options for pki nss-cert-issue CLI ==
+
+The `pki nss-cert-issue` command has been modified to provide
+`--validity-length` and `--validity-unit` options to specify
+the certificate validity. The default is 3 months.
+
+The `--months-valid` option has been deprecated.

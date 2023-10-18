@@ -8,6 +8,7 @@ package com.netscape.cmstools.nss;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
+import java.util.Calendar;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -57,8 +58,16 @@ public class NSSCertIssueCLI extends CommandCLI {
         option.setArgName("number");
         options.addOption(option);
 
-        option = new Option(null, "months-valid", true, "Months valid (default is 3)");
+        option = new Option(null, "months-valid", true, "DEPRECATED: Months valid");
         option.setArgName("months");
+        options.addOption(option);
+
+        option = new Option(null, "validity-length", true, "Validity length (default: 3)");
+        option.setArgName("length");
+        options.addOption(option);
+
+        option = new Option(null, "validity-unit", true, "Validity unit: minute, hour, day, month (default), year");
+        option.setArgName("unit");
         options.addOption(option);
 
         option = new Option(null, "hash", true, "Hash algorithm (default is SHA256)");
@@ -82,7 +91,9 @@ public class NSSCertIssueCLI extends CommandCLI {
         String extConf = cmd.getOptionValue("ext");
         String subjectAltName = cmd.getOptionValue("subjectAltName");
         String serialNumber = cmd.getOptionValue("serial");
-        String monthsValid = cmd.getOptionValue("months-valid", "3");
+        String monthsValid = cmd.getOptionValue("months-valid");
+        String validityLengthStr = cmd.getOptionValue("validity-length", "3");
+        String validityUnitStr = cmd.getOptionValue("validity-unit", "month");
         String hash = cmd.getOptionValue("hash", "SHA256");
 
         if (csrFile == null) {
@@ -121,6 +132,19 @@ public class NSSCertIssueCLI extends CommandCLI {
 
         extensions = generator.createExtensions(issuer, pkcs10);
 
+        int validityLength;
+        int validityUnit;
+
+        if (monthsValid != null) {
+            logger.warn("The --months-valid option has been deprecated. Use --validity-length and --validity-unit instead.");
+            validityLength = Integer.valueOf(monthsValid);
+            validityUnit = Calendar.MONTH;
+
+        } else {
+            validityLength = Integer.valueOf(validityLengthStr);
+            validityUnit = NSSDatabase.validityUnitFromString(validityUnitStr);
+        }
+
         String tokenName = clientConfig.getTokenName();
 
         X509Certificate cert = nssdb.createCertificate(
@@ -128,7 +152,8 @@ public class NSSCertIssueCLI extends CommandCLI {
                 issuer,
                 pkcs10,
                 serialNumber,
-                Integer.valueOf(monthsValid),
+                validityLength,
+                validityUnit,
                 hash,
                 extensions);
 
