@@ -51,6 +51,8 @@ jobs:
 
       - name: Check CA config in primary IPA
         run: |
+          docker exec primary pki-server ca-config-find | grep ca.crl.MasterCRL
+
           # CRL cache should be enabled
           echo "true" > expected
           docker exec primary pki-server ca-config-show ca.crl.MasterCRL.enableCRLCache | tee actual
@@ -155,6 +157,8 @@ jobs:
 
       - name: Check CA config in primary IPA
         run: |
+          docker exec primary pki-server ca-config-find | grep ca.crl.MasterCRL
+
           # CRL cache should be enabled
           echo "true" > expected
           docker exec primary pki-server ca-config-show ca.crl.MasterCRL.enableCRLCache | tee actual
@@ -172,6 +176,8 @@ jobs:
 
       - name: Check CA config in secondary IPA
         run: |
+          docker exec secondary pki-server ca-config-find | grep ca.crl.MasterCRL
+
           # CRL cache should be disabled
           echo "false" > expected
           docker exec secondary pki-server ca-config-show ca.crl.MasterCRL.enableCRLCache | tee actual
@@ -321,6 +327,8 @@ jobs:
           # get CS.cfg from primary CA after CRL generation update
           docker cp primary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.primary.after-crl-update
 
+          docker exec primary pki-server ca-config-find | grep ca.crl.MasterCRL
+
           # normalize expected result:
           # - CRL cache and CRL updates should be disabled in primary CA
           sed -e 's/^\(ca.crl.MasterCRL.enableCRLCache\)=.*$/\1=false/' \
@@ -337,6 +345,8 @@ jobs:
         run: |
           # get CS.cfg from secondary CA after CRL generation update
           docker cp secondary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.secondary.after-crl-update
+
+          docker exec secondary pki-server ca-config-find | grep ca.crl.MasterCRL
 
           # normalize expected result:
           # - CRL cache and CRL updates should be enabled in secondary CA

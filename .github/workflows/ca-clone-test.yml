@@ -118,6 +118,8 @@ jobs:
           # get CS.cfg from primary CA after cloning
           docker cp primary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.primary.after
 
+          docker exec primary pki-server ca-config-find | grep ca.crl.MasterCRL
+
           # normalize expected result:
           # - remove params that cannot be compared
           # - set dbs.enableSerialManagement to true (automatically enabled when cloned)
@@ -144,6 +146,8 @@ jobs:
         run: |
           # get CS.cfg from secondary CA
           docker cp secondary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.secondary
+
+          docker exec secondary pki-server ca-config-find | grep ca.crl.MasterCRL
 
           # normalize expected result:
           # - remove params that cannot be compared
@@ -263,6 +267,8 @@ jobs:
           # get CS.cfg from secondary CA after cloning
           docker cp secondary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.secondary.after
 
+          docker exec secondary pki-server ca-config-find | grep ca.crl.MasterCRL
+
           # normalize expected result:
           # - remove params that cannot be compared
           sed -e '/^dbs.beginReplicaNumber=/d' \
@@ -287,6 +293,8 @@ jobs:
         run: |
           # get CS.cfg from tertiary CA
           docker cp tertiary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.tertiary
+
+          docker exec tertiary pki-server ca-config-find | grep ca.crl.MasterCRL
 
           # normalize expected result:
           # - remove params that cannot be compared
