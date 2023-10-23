@@ -816,6 +816,51 @@ This package provides test suite for %{product_name}.
 
 %autosetup -n pki-%{version}%{?phase:-}%{?phase} -p 1
 
+%if ! %{with console}
+%pom_disable_module console base
+%endif
+
+# flatten-maven-plugin is not available in RPM
+%pom_remove_plugin org.codehaus.mojo:flatten-maven-plugin
+
+# specify Maven artifact locations
+%mvn_file org.dogtagpki.pki:pki-common            pki/pki-common
+%mvn_file org.dogtagpki.pki:pki-tools             pki/pki-tools
+%mvn_file org.dogtagpki.pki:pki-server            pki/pki-server
+%mvn_file org.dogtagpki.pki:pki-server-webapp     pki/pki-server-webapp
+%mvn_file org.dogtagpki.pki:pki-tomcat            pki/pki-tomcat
+%mvn_file org.dogtagpki.pki:pki-tomcat-9.0        pki/pki-tomcat-9.0
+%mvn_file org.dogtagpki.pki:pki-ca                pki/pki-ca
+%mvn_file org.dogtagpki.pki:pki-kra               pki/pki-kra
+%mvn_file org.dogtagpki.pki:pki-ocsp              pki/pki-ocsp
+%mvn_file org.dogtagpki.pki:pki-tks               pki/pki-tks
+%mvn_file org.dogtagpki.pki:pki-tps               pki/pki-tps
+%mvn_file org.dogtagpki.pki:pki-acme              pki/pki-acme
+%mvn_file org.dogtagpki.pki:pki-est               pki/pki-est
+
+%if %{with console}
+%mvn_file org.dogtagpki.pki:pki-console           pki/pki-console
+%endif
+
+# specify Maven artifact packages
+%mvn_package org.dogtagpki.pki:pki-common         pki-java
+%mvn_package org.dogtagpki.pki:pki-tools          pki-tools
+%mvn_package org.dogtagpki.pki:pki-server         pki-server
+%mvn_package org.dogtagpki.pki:pki-server-webapp  pki-server
+%mvn_package org.dogtagpki.pki:pki-tomcat         pki-server
+%mvn_package org.dogtagpki.pki:pki-tomcat-9.0     pki-server
+%mvn_package org.dogtagpki.pki:pki-ca             pki-ca
+%mvn_package org.dogtagpki.pki:pki-kra            pki-kra
+%mvn_package org.dogtagpki.pki:pki-ocsp           pki-ocsp
+%mvn_package org.dogtagpki.pki:pki-tks            pki-tks
+%mvn_package org.dogtagpki.pki:pki-tps            pki-tps
+%mvn_package org.dogtagpki.pki:pki-acme           pki-acme
+%mvn_package org.dogtagpki.pki:pki-est            pki-est
+
+%if %{with console}
+%mvn_package org.dogtagpki.pki:pki-console        pki-console
+%endif
+
 ################################################################################
 %build
 ################################################################################
@@ -825,13 +870,6 @@ This package provides test suite for %{product_name}.
 %set_build_flags
 
 export JAVA_HOME=%{java_home}
-
-# flatten-maven-plugin is not available in RPM
-%pom_remove_plugin org.codehaus.mojo:flatten-maven-plugin
-
-%if ! %{with console}
-%pom_disable_module console base
-%endif
 
 # build Java binaries and run unit tests with Maven
 %mvn_build %{!?with_test:-f} -j
@@ -934,32 +972,6 @@ pkgs=base\
     --work-dir=%{_vpath_builddir} \
     --install-dir=%{buildroot} \
     install
-
-%if "%{name}" != "pki"
-# Maven installs the JAR files in /usr/share/java/<name>, so create
-# links in /usr/share/java/pki for backward compatibility
-mkdir -p %{buildroot}%{_javadir}/pki
-pushd %{buildroot}%{_javadir}/pki
-ln -sf ../../..%{_javadir}/%{name}/pki-common.jar
-ln -sf ../../..%{_javadir}/%{name}/pki-tools.jar
-ln -sf ../../..%{_javadir}/%{name}/pki-server.jar
-ln -sf ../../..%{_javadir}/%{name}/pki-server-webapp.jar
-ln -sf ../../..%{_javadir}/%{name}/pki-tomcat.jar
-ln -sf ../../..%{_javadir}/%{name}/pki-tomcat-9.0.jar
-ln -sf ../../..%{_javadir}/%{name}/pki-ca.jar
-ln -sf ../../..%{_javadir}/%{name}/pki-kra.jar
-ln -sf ../../..%{_javadir}/%{name}/pki-ocsp.jar
-ln -sf ../../..%{_javadir}/%{name}/pki-tks.jar
-ln -sf ../../..%{_javadir}/%{name}/pki-tps.jar
-ln -sf ../../..%{_javadir}/%{name}/pki-acme.jar
-ln -sf ../../..%{_javadir}/%{name}/pki-est.jar
-
-%if %{with console}
-ln -sf ../../..%{_javadir}/%{name}/pki-console.jar
-%endif
-
-popd
-%endif
 
 %if %{with server}
 
@@ -1078,18 +1090,13 @@ fi
 %{_mandir}/man8/pki-upgrade.8.gz
 
 ################################################################################
-%files -n %{product_id}-java
+%files -n %{product_id}-java -f .mfiles-pki-java
 ################################################################################
 
 %license base/common/LICENSE
 %license base/common/LICENSE.LESSER
 %{_datadir}/pki/examples/java/
 %{_datadir}/pki/lib/*.jar
-%dir %{_javadir}/pki
-%{_javadir}/pki/pki-common.jar
-%if "%{name}" != "pki"
-%{_javadir}/%{name}/pki-common.jar
-%endif
 
 ################################################################################
 %files -n python3-%{product_id}
@@ -1103,7 +1110,7 @@ fi
 %{python3_sitelib}/pki
 
 ################################################################################
-%files -n %{product_id}-tools
+%files -n %{product_id}-tools -f .mfiles-pki-tools
 ################################################################################
 
 %license base/tools/LICENSE
@@ -1139,10 +1146,6 @@ fi
 %{_bindir}/PrettyPrintCert
 %{_bindir}/PrettyPrintCrl
 %{_bindir}/TokenInfo
-%{_javadir}/pki/pki-tools.jar
-%if "%{name}" != "pki"
-%{_javadir}/%{name}/pki-tools.jar
-%endif
 %{_datadir}/pki/tools/
 %{_datadir}/pki/lib/p11-kit-trust.so
 %{_mandir}/man1/AtoB.1.gz
@@ -1181,7 +1184,7 @@ fi
 
 %if %{with server}
 ################################################################################
-%files -n %{product_id}-server
+%files -n %{product_id}-server -f .mfiles-pki-server
 ################################################################################
 
 %license base/common/THIRD_PARTY_LICENSES
@@ -1210,16 +1213,6 @@ fi
 %dir %{_sysconfdir}/systemd/system/pki-tomcatd-nuxwdog.target.wants
 %attr(644,-,-) %{_unitdir}/pki-tomcatd-nuxwdog@.service
 %attr(644,-,-) %{_unitdir}/pki-tomcatd-nuxwdog.target
-%{_javadir}/pki/pki-server.jar
-%{_javadir}/pki/pki-server-webapp.jar
-%{_javadir}/pki/pki-tomcat.jar
-%{_javadir}/pki/pki-tomcat-9.0.jar
-%if "%{name}" != "pki"
-%{_javadir}/%{name}/pki-server.jar
-%{_javadir}/%{name}/pki-server-webapp.jar
-%{_javadir}/%{name}/pki-tomcat.jar
-%{_javadir}/%{name}/pki-tomcat-9.0.jar
-%endif
 %dir %{_sharedstatedir}/pki
 %{_mandir}/man1/pkidaemon.1.gz
 %{_mandir}/man5/pki_default.cfg.5.gz
@@ -1250,13 +1243,9 @@ fi
 
 %if %{with acme}
 ################################################################################
-%files -n %{product_id}-acme
+%files -n %{product_id}-acme -f .mfiles-pki-acme
 ################################################################################
 
-%{_javadir}/pki/pki-acme.jar
-%if "%{name}" != "pki"
-%{_javadir}/%{name}/pki-acme.jar
-%endif
 %{_datadir}/pki/acme/
 
 # with acme
@@ -1264,14 +1253,10 @@ fi
 
 %if %{with ca}
 ################################################################################
-%files -n %{product_id}-ca
+%files -n %{product_id}-ca -f .mfiles-pki-ca
 ################################################################################
 
 %license base/ca/LICENSE
-%{_javadir}/pki/pki-ca.jar
-%if "%{name}" != "pki"
-%{_javadir}/%{name}/pki-ca.jar
-%endif
 %{_datadir}/pki/ca/
 
 # with ca
@@ -1279,13 +1264,8 @@ fi
 
 %if %{with est}
 ################################################################################
-%files -n %{product_id}-est
+%files -n %{product_id}-est -f .mfiles-pki-est
 ################################################################################
-
-%{_javadir}/pki/pki-est.jar
-%if "%{name}" != "pki"
-%{_javadir}/%{name}/pki-est.jar
-%endif
 
 %{_datadir}/pki/est/
 
@@ -1294,14 +1274,10 @@ fi
 
 %if %{with kra}
 ################################################################################
-%files -n %{product_id}-kra
+%files -n %{product_id}-kra -f .mfiles-pki-kra
 ################################################################################
 
 %license base/kra/LICENSE
-%{_javadir}/pki/pki-kra.jar
-%if "%{name}" != "pki"
-%{_javadir}/%{name}/pki-kra.jar
-%endif
 %{_datadir}/pki/kra/
 
 # with kra
@@ -1309,14 +1285,10 @@ fi
 
 %if %{with ocsp}
 ################################################################################
-%files -n %{product_id}-ocsp
+%files -n %{product_id}-ocsp -f .mfiles-pki-ocsp
 ################################################################################
 
 %license base/ocsp/LICENSE
-%{_javadir}/pki/pki-ocsp.jar
-%if "%{name}" != "pki"
-%{_javadir}/%{name}/pki-ocsp.jar
-%endif
 %{_datadir}/pki/ocsp/
 
 # with ocsp
@@ -1324,14 +1296,10 @@ fi
 
 %if %{with tks}
 ################################################################################
-%files -n %{product_id}-tks
+%files -n %{product_id}-tks -f .mfiles-pki-tks
 ################################################################################
 
 %license base/tks/LICENSE
-%{_javadir}/pki/pki-tks.jar
-%if "%{name}" != "pki"
-%{_javadir}/%{name}/pki-tks.jar
-%endif
 %{_datadir}/pki/tks/
 
 # with tks
@@ -1339,14 +1307,10 @@ fi
 
 %if %{with tps}
 ################################################################################
-%files -n %{product_id}-tps
+%files -n %{product_id}-tps -f .mfiles-pki-tps
 ################################################################################
 
 %license base/tps/LICENSE
-%{_javadir}/pki/pki-tps.jar
-%if "%{name}" != "pki"
-%{_javadir}/%{name}/pki-tps.jar
-%endif
 %{_datadir}/pki/tps/
 %{_mandir}/man5/pki-tps-connector.5.gz
 %{_mandir}/man5/pki-tps-profile.5.gz
@@ -1366,15 +1330,11 @@ fi
 
 %if %{with console}
 ################################################################################
-%files -n %{product_id}-console
+%files -n %{product_id}-console -f .mfiles-pki-console
 ################################################################################
 
 %license base/console/LICENSE
 %{_bindir}/pkiconsole
-%{_javadir}/pki/pki-console.jar
-%if "%{name}" != "pki"
-%{_javadir}/%{name}/pki-console.jar
-%endif
 
 # with console
 %endif
