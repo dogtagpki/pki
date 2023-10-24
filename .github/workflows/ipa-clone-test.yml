@@ -330,14 +330,20 @@ jobs:
           docker exec primary pki-server ca-config-find | grep ca.crl.MasterCRL
 
           # normalize expected result:
-          # - CRL cache and CRL updates should be disabled in primary CA
-          sed -e 's/^\(ca.crl.MasterCRL.enableCRLCache\)=.*$/\1=false/' \
+          # - CRL, cache, and updates should be disabled in primary CA
+          sed -e 's/^\(ca.crl.MasterCRL.enable\)=.*$/\1=false/' \
+              -e 's/^\(ca.crl.MasterCRL.enableCRLCache\)=.*$/\1=false/' \
               -e 's/^\(ca.crl.MasterCRL.enableCRLUpdates\)=.*$/\1=false/' \
               CS.cfg.primary.after-renewal-update \
               | sort > expected
 
           # normalize actual result
-          sort CS.cfg.primary.after-crl-update > actual
+          # - temporarily change ca.crl.MasterCRL.enable to false
+          #   TODO: remove this change once the following PR is merged:
+          #   https://github.com/freeipa/freeipa/pull/6971
+          sed -e 's/^\(ca.crl.MasterCRL.enable\)=.*$/\1=false/' \
+              CS.cfg.primary.after-crl-update \
+              | sort > actual
 
           diff expected actual
 
@@ -349,8 +355,9 @@ jobs:
           docker exec secondary pki-server ca-config-find | grep ca.crl.MasterCRL
 
           # normalize expected result:
-          # - CRL cache and CRL updates should be enabled in secondary CA
-          sed -e 's/^\(ca.crl.MasterCRL.enableCRLCache\)=.*$/\1=true/' \
+          # - CRL, cache, and updates should be enabled in secondary CA
+          sed -e 's/^\(ca.crl.MasterCRL.enable\)=.*$/\1=true/' \
+              -e 's/^\(ca.crl.MasterCRL.enableCRLCache\)=.*$/\1=true/' \
               -e 's/^\(ca.crl.MasterCRL.enableCRLUpdates\)=.*$/\1=true/' \
               CS.cfg.secondary.after-renewal-update \
               | sort > expected

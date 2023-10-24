@@ -4395,6 +4395,13 @@ class PKIDeployer:
 
     def finalize_ca(self, subsystem):
 
+        if config.str2bool(self.mdict['pki_master_crl_enable']):
+            logger.info('Enabling CRL')
+            subsystem.config['ca.crl.MasterCRL.enable'] = 'true'
+        else:
+            logger.info('Disabling CRL')
+            subsystem.config['ca.crl.MasterCRL.enable'] = 'false'
+
         clone = self.configuration_file.clone
 
         if clone:
