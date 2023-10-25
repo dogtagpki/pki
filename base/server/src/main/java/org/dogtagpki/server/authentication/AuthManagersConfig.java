@@ -9,6 +9,9 @@ import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
 
+/**
+ * Provides auths.instance.* parameters.
+ */
 public class AuthManagersConfig extends ConfigStore {
 
     public AuthManagersConfig(ConfigStorage storage) {
@@ -23,6 +26,9 @@ public class AuthManagersConfig extends ConfigStore {
         return new AuthManagerConfig(getFullName(name), mSource);
     }
 
+    /**
+     * Returns auths.instance.<name>.* parameters.
+     */
     public AuthManagerConfig getAuthManagerConfig(String name) {
         return getSubStore(name, AuthManagerConfig.class);
     }

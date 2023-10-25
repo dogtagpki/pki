@@ -24,6 +24,15 @@ import com.netscape.cmscore.base.SimpleProperties;
 
 /**
  * Provides <LDAP>.* parameters.
+ *
+ * For example:
+ * - internaldb.*
+ * - dbs.ldap.*
+ * - usrgrp.ldap.*
+ * - CrossCertPair.ldap.*
+ * - auths.instance.<name>.ldap.*
+ * - authz.instance.<name>.ldap.*
+ * - ca.publish.ldappublish.ldap.*
  */
 public class LDAPConfig extends ConfigStore {
 

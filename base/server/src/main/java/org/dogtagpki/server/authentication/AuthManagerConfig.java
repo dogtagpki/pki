@@ -10,6 +10,9 @@ import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 
+/**
+ * Provides auths.instance.<name>.* parameters.
+ */
 public class AuthManagerConfig extends ConfigStore {
 
     public AuthManagerConfig(ConfigStorage storage) {
