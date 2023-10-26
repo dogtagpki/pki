@@ -254,21 +254,63 @@ Obsoletes:        pki-console < %{version}
 Obsoletes:        pki-console-theme < %{version}
 Obsoletes:        idm-console-framework < 2.0
 
-# Make certain that this 'meta' package requires the latest version(s)
-# of ALL PKI theme packages
-Requires:         %{product_id}-theme = %{version}-%{release}
+%if %{with base}
+Requires:         %{product_id}-base = %{version}-%{release}
+Requires:         python3-%{product_id} = %{version}-%{release}
+Requires:         %{product_id}-java = %{version}-%{release}
+Requires:         %{product_id}-tools = %{version}-%{release}
+%endif
 
-# Make certain that this 'meta' package requires the latest version(s)
-# of ALL PKI core packages
+%if %{with server}
+Requires:         %{product_id}-server = %{version}-%{release}
+%endif
+
+%if %{with acme}
 Requires:         %{product_id}-acme = %{version}-%{release}
-Requires:         %{product_id}-ca = %{version}-%{release}
-Requires:         %{product_id}-est = %{version}-%{release}
-Requires:         %{product_id}-kra = %{version}-%{release}
-Requires:         %{product_id}-ocsp = %{version}-%{release}
-Requires:         %{product_id}-tks = %{version}-%{release}
-Requires:         %{product_id}-tps = %{version}-%{release}
+%endif
 
+%if %{with ca}
+Requires:         %{product_id}-ca = %{version}-%{release}
+%endif
+
+%if %{with est}
+Requires:         %{product_id}-est = %{version}-%{release}
+%endif
+
+%if %{with kra}
+Requires:         %{product_id}-kra = %{version}-%{release}
+%endif
+
+%if %{with ocsp}
+Requires:         %{product_id}-ocsp = %{version}-%{release}
+%endif
+
+%if %{with tks}
+Requires:         %{product_id}-tks = %{version}-%{release}
+%endif
+
+%if %{with tps}
+Requires:         %{product_id}-tps = %{version}-%{release}
+%endif
+
+%if %{with javadoc}
 Requires:         %{product_id}-javadoc = %{version}-%{release}
+%endif
+
+%if %{with console}
+Requires:         %{product_id}-console = %{version}-%{release}
+%endif
+
+%if %{with theme}
+Requires:         %{product_id}-theme = %{version}-%{release}
+%if %{with console}
+Requires:         %{product_id}-console-theme = %{version}-%{release}
+%endif
+%endif
+
+%if %{with tests}
+Requires:         %{product_id}-tests = %{version}-%{release}
+%endif
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL PKI clients -- except for s390/s390x where 'esc' is not built
