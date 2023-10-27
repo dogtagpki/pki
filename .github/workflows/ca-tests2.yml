@@ -18,6 +18,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/ca-profile-caServerCert-test.yml
 
+  ca-renewal-system-certs-test:
+    name: CA system certs renewal
+    needs: build
+    uses: ./.github/workflows/ca-renewal-system-certs-test.yml
+
   ca-secure-ds-test:
     name: CA with secure DS
     needs: build
