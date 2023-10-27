@@ -933,34 +933,16 @@ class PKISubsystem(object):
                 target_tests[testID] = critical
         self.set_startup_tests(target_tests)
 
-    def setup_temp_renewal(self, tmpdir, cert_tag):
+    def setup_temp_renewal(self, tmpdir):
         """
-        Retrieve CA's cert, Subject Key Identifier (SKI aka AKI) and CSR for
-        the *cert_id* provided
+        Retrieve CA signing cert info and Subject Key Identifier (SKI aka AKI)
 
-        :param tmpdir: Path to temp dir to write cert's .csr and CA's .crt file
+        :param tmpdir: Path to temp dir to write CA signing cert file
         :type tmpdir: str
-        :param cert_tag: Cert for which CSR is requested
-        :type cert_tag: str
-        :return: (ca_signing_cert, aki, csr_file)
+        :return: (ca_signing_cert, aki)
         """
 
-        csr_file = os.path.join(tmpdir, cert_tag + '.csr')
         ca_cert_file = os.path.join(tmpdir, 'ca_certificate.crt')
-
-        logger.debug('Exporting CSR for %s cert', cert_tag)
-
-        # Retrieve CSR for cert_id
-        cert_request = self.get_subsystem_cert(cert_tag).get('request')
-        if cert_request is None:
-            raise pki.server.PKIServerException('Unable to find CSR for %s cert' % cert_tag)
-
-        logger.debug('Retrieved CSR: %s', cert_request)
-
-        csr_data = pki.nssdb.convert_csr(cert_request, 'base64', 'pem')
-        with open(csr_file, 'w', encoding='utf-8') as f:
-            f.write(csr_data)
-        logger.info('CSR for %s has been written to %s', cert_tag, csr_file)
 
         logger.debug('Extracting SKI from CA cert')
         # TODO: Support remote CA.
@@ -997,7 +979,7 @@ class PKISubsystem(object):
         aki = '0x' + aki.strip().replace(':', '')
         logger.info('AKI: %s', aki)
 
-        return ca_signing_cert, aki, csr_file
+        return ca_signing_cert, aki
 
     def temp_cert_create(self, nssdb, tmpdir, cert_tag, serial, new_cert_file):
         """
@@ -1024,8 +1006,10 @@ class PKISubsystem(object):
             raise pki.server.PKIServerException(
                 'Temp cert for %s is not supported yet.' % cert_tag)
 
-        ca_signing_cert, aki, csr_file = \
-            self.setup_temp_renewal(tmpdir=tmpdir, cert_tag=cert_tag)
+        ca_signing_cert, aki = self.setup_temp_renewal(tmpdir=tmpdir)
+
+        csr_file = self.instance.csr_file(cert_tag)
+        logger.debug('Reusing existing CSR in %s', csr_file)
 
         # --keyUsage
         key_usage_ext = {

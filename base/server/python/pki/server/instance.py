@@ -707,6 +707,10 @@ class PKIInstance(pki.server.PKIServer):
         """Compute name of certificate under instance cert folder."""
         return os.path.join(self.cert_folder, cert_id + '.crt')
 
+    def csr_file(self, cert_id):
+        """Compute name of CSR under instance cert folder."""
+        return os.path.join(self.cert_folder, cert_id + '.csr')
+
     def nssdb_import_cert(self, cert_id, cert_file=None):
         """
         Add cert from cert_file to NSS db with appropriate trust flags
@@ -783,8 +787,7 @@ class PKIInstance(pki.server.PKIServer):
 
     def cert_import(self, cert_id, cert_file=None):
         """
-        Import cert from cert_file into NSS db with appropriate trust flags and update
-        all corresponding subsystem's CS.cfg
+        Import cert from cert_file into NSS db with appropriate trust
 
         :param cert_id: Cert ID
         :type cert_id: str
@@ -793,8 +796,7 @@ class PKIInstance(pki.server.PKIServer):
         :return: None
         :rtype: None
         """
-        updated_cert = self.nssdb_import_cert(cert_id, cert_file)
-        self.cert_update_config(cert_id, updated_cert)
+        self.nssdb_import_cert(cert_id, cert_file)
 
     def cert_create(
             self, cert_id=None,
