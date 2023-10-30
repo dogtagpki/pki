@@ -17,12 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.base;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -44,7 +40,6 @@ import javax.ws.rs.core.UriInfo;
 
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.util.JSONSerializer;
-import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 
 /**
@@ -87,16 +82,6 @@ public class PKIService {
 
     @Context
     protected ServletContext servletContext;
-
-    public static final Path bannerFile = Paths.get(CMS.getInstanceDir(), "conf", "banner.txt");
-
-    public static boolean isBannerEnabled() {
-        return Files.exists(bannerFile);
-    }
-
-    public static String getBanner() throws IOException {
-        return new String(Files.readAllBytes(bannerFile), "UTF-8").trim();
-    }
 
     /**
      * Return a match for a candidate media type (which may be a wildcard)
