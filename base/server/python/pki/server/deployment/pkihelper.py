@@ -2454,6 +2454,7 @@ class SecurityDomain:
             logger.warning(
                 log.PKIHELPER_SECURITY_DOMAIN_UNREACHABLE_1,
                 secname)
+            exc.cmd[4] = '******'
             logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
             if critical_failure:
                 raise
