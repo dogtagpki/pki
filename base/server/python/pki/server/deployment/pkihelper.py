@@ -3472,6 +3472,7 @@ class SecurityDomain:
                 log.PKIHELPER_SECURITY_DOMAIN_UNREACHABLE_1,
                 secname,
                 extra=config.PKI_INDENTATION_LEVEL_2)
+            exc.cmd[4] = '******'
             config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure:
