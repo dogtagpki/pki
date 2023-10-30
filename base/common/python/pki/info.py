@@ -108,7 +108,7 @@ class InfoClient(object):
 
         self.connection = connection
 
-        self.info_url = '/pki/rest/info'
+        self.info_url = '/pki/v2/info'
 
     @pki.handle_exceptions()
     def get_info(self):
