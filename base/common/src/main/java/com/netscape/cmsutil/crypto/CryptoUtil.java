@@ -1898,7 +1898,16 @@ public class CryptoUtil {
             throws TokenException, ObjectNotFoundException,
             NoSuchItemOnTokenException, NotInitializedException {
 
+        deleteCertificates(nickname, true);
+    }
+
+    public static void deleteCertificates(String nickname, boolean removeKey)
+            throws TokenException, ObjectNotFoundException,
+            NoSuchItemOnTokenException, NotInitializedException {
+
         CryptoManager manager = CryptoManager.getInstance();
+
+        logger.info("Finding cert " + nickname);
         X509Certificate[] certs = manager.findCertsByNickname(nickname);
 
         if (certs == null || certs.length == 0) {
@@ -1917,7 +1926,15 @@ public class CryptoUtil {
             }
 
             CryptoStore store = token.getCryptoStore();
-            store.deleteCert(cert);
+
+            if (removeKey) {
+                logger.info("Removing cert " + nickname + " and the key");
+                store.deleteCert(cert);
+
+            } else {
+                logger.info("Removing cert " + nickname);
+                store.deleteCertOnly(cert);
+            }
         }
     }
 

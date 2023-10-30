@@ -22,6 +22,7 @@ public class NSSCertCLI extends CLI {
         addModule(new NSSCertIssueCLI(this));
         addModule(new NSSCertRequestCLI(this));
         addModule(new NSSCertShowCLI(this));
+        addModule(new NSSCertRemoveCLI(this));
     }
 
     public static NSSCertInfo createCertInfo(X509Certificate cert) throws Exception {

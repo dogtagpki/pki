@@ -142,11 +142,24 @@ jobs:
           sed -n 's/\s*Type:\s*\(\S\+\)\s*$/\L\1/p' output > actual
           diff actual expected
 
-      - name: Delete SSL server cert
+      - name: Delete SSL server cert but keep the key
         run: |
-          docker exec pki certutil -D -d /root/.dogtag/nssdb -n sslserver
-          docker exec pki certutil -L -d /root/.dogtag/nssdb
-          docker exec pki certutil -K -d /root/.dogtag/nssdb
+          docker exec pki pki nss-cert-del sslserver
+
+          docker exec pki certutil -L -d /root/.dogtag/nssdb | tee output
+
+          # SSL server cert should not exist
+          echo "ca_signing CTu,Cu,Cu" > expected
+          sed -n -e '1,4d' -e 's/^\(.*\S\)\s\+\(\S\+\)\s*$/\1 \2/p' output > actual
+          diff expected actual
+
+          docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
+
+          # SSL server key should exist but orphaned
+          echo "(orphan)" > expected
+          echo "NSS Certificate DB:ca_signing" >> expected
+          sed -n 's/^<.*>\s\+\S\+\s\+\S\+\s\+\(.*\)$/\1/p' output | sort > actual
+          diff expected actual
 
       - name: Create new SSL server cert request with existing EC key
         run: |
@@ -201,3 +214,21 @@ jobs:
           docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
           sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\)\s\+NSS Certificate DB:new_sslserver$/\1/p' output > new_sslserver_key_id
           diff sslserver_key_id new_sslserver_key_id
+
+      - name: Delete SSL server cert and key
+        run: |
+          docker exec pki pki nss-cert-del new_sslserver --remove-key
+
+          docker exec pki certutil -L -d /root/.dogtag/nssdb | tee output
+
+          # SSL server cert should not exist
+          echo "ca_signing CTu,Cu,Cu" > expected
+          sed -n -e '1,4d' -e 's/^\(.*\S\)\s\+\(\S\+\)\s*$/\1 \2/p' output > actual
+          diff expected actual
+
+          docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
+
+          # SSL server key should not exist
+          echo "NSS Certificate DB:ca_signing" > expected
+          sed -n 's/^<.*>\s\+\S\+\s\+\S\+\s\+\(.*\)$/\1/p' output | sort > actual
+          diff expected actual

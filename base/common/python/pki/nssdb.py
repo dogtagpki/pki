@@ -2163,24 +2163,52 @@ class NSSDatabase(object):
             token = self.get_effective_token(token)
             password_file = self.get_password_file(tmpdir, token)
 
-            cmd = ['certutil']
+            # remove cert from internal token
+
+            cmd = [
+                'pki',
+                '-d', self.directory
+            ]
+
+            if self.password_conf:
+                cmd.extend(['-f', self.password_conf])
+
+            elif password_file:
+                cmd.extend(['-C', password_file])
+
+            cmd.extend([
+                'nss-cert-del',
+                nickname
+            ])
 
             if remove_key:
-                cmd.extend(['-F'])
-            else:
-                cmd.extend(['-D'])
-
-            cmd.extend(['-d', self.directory])
-
-            if token:
-                cmd.extend(['-h', token])
-
-            if password_file:
-                cmd.extend(['-f', password_file])
-
-            cmd.extend(['-n', nickname])
+                cmd.append('--remove-key')
 
             self.run(cmd, check=True, runas=True)
+
+            if token:
+                # remove cert from HSM
+
+                cmd = [
+                    'pki',
+                    '-d', self.directory
+                ]
+
+                if self.password_conf:
+                    cmd.extend(['-f', self.password_conf])
+
+                elif password_file:
+                    cmd.extend(['-C', password_file])
+
+                cmd.extend([
+                    'nss-cert-del',
+                    token + ':' + nickname
+                ])
+
+                if remove_key:
+                    cmd.append('--remove-key')
+
+                self.run(cmd, check=True, runas=True)
 
         finally:
             shutil.rmtree(tmpdir)

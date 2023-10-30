@@ -395,8 +395,7 @@ jobs:
           docker exec pki pki ca-cert-export $CERT_ID --output-file caadmin.crt
 
           # delete current cert
-          # TODO: add pki nss-cert-del command
-          docker exec pki certutil -D -d /root/.dogtag/nssdb -n caadmin
+          docker exec pki pki nss-cert-del caadmin
 
           # install new cert
           docker exec pki pki nss-cert-import caadmin --cert caadmin.crt
