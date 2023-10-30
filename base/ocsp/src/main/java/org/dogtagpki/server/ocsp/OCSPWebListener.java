@@ -7,10 +7,10 @@ package org.dogtagpki.server.ocsp;
 
 import javax.servlet.annotation.WebListener;
 
-import com.netscape.cmscore.apps.PKIWebListener;
+import com.netscape.cmscore.apps.CMSWebListener;
 
 @WebListener
-public class OCSPWebListener extends PKIWebListener {
+public class OCSPWebListener extends CMSWebListener {
 
     public OCSPEngine createEngine() {
         return new OCSPEngine();

@@ -7,10 +7,10 @@ package org.dogtagpki.server.kra;
 
 import javax.servlet.annotation.WebListener;
 
-import com.netscape.cmscore.apps.PKIWebListener;
+import com.netscape.cmscore.apps.CMSWebListener;
 
 @WebListener
-public class KRAWebListener extends PKIWebListener {
+public class KRAWebListener extends CMSWebListener {
 
     public KRAEngine createEngine() {
         return new KRAEngine();

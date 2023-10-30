@@ -13,9 +13,9 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.cms.realm.PKIRealm;
 import com.netscape.cms.tomcat.ProxyRealm;
 
-public abstract class PKIWebListener implements ServletContextListener {
+public abstract class CMSWebListener implements ServletContextListener {
 
-    public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PKIWebListener.class);
+    public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSWebListener.class);
 
     public abstract CMSEngine createEngine();
 

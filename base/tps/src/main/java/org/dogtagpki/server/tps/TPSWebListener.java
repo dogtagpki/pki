@@ -7,10 +7,10 @@ package org.dogtagpki.server.tps;
 
 import javax.servlet.annotation.WebListener;
 
-import com.netscape.cmscore.apps.PKIWebListener;
+import com.netscape.cmscore.apps.CMSWebListener;
 
 @WebListener
-public class TPSWebListener extends PKIWebListener {
+public class TPSWebListener extends CMSWebListener {
 
     public TPSEngine createEngine() {
         return new TPSEngine();
