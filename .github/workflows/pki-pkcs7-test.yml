@@ -98,8 +98,8 @@ jobs:
 
       - name: Remove certs from NSS database
         run: |
-          docker exec pki certutil -D -d /root/.dogtag/nssdb -n sslserver
-          docker exec pki certutil -D -d /root/.dogtag/nssdb -n ca_signing
+          docker exec pki pki nss-cert-del sslserver
+          docker exec pki pki nss-cert-del ca_signing
           docker exec pki certutil -L -d /root/.dogtag/nssdb
 
       - name: "Import PKCS #7 chain into NSS database"
@@ -130,8 +130,8 @@ jobs:
 
       - name: Remove certs from NSS database
         run: |
-          docker exec pki certutil -D -d /root/.dogtag/nssdb -n sslserver
-          docker exec pki certutil -D -d /root/.dogtag/nssdb -n "Certificate Authority"
+          docker exec pki pki nss-cert-del sslserver
+          docker exec pki pki nss-cert-del "Certificate Authority"
           docker exec pki certutil -L -d /root/.dogtag/nssdb
 
       - name: Import PEM certificates into NSS database

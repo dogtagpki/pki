@@ -28,3 +28,7 @@ The `pki nss-cert-issue` command has been modified to provide
 the certificate validity. The default is 3 months.
 
 The `--months-valid` option has been deprecated.
+
+== New pki nss-cert-del CLI ==
+
+The `pki nss-cert-del` command has been added to delete a certificate from NSS database.
