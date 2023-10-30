@@ -58,7 +58,7 @@ var PKI = {
     getInfo: function(options) {
         $.ajax({
             type: "GET",
-            url: "/pki/rest/info",
+            url: "/pki/v2/info",
             dataType: "json"
         }).done(function(data, textStatus, jqXHR) {
             if (options.success) options.success.call(self, data, textStatus, jqXHR);
