@@ -66,12 +66,20 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
             String userid,
             String sDesKey,
             String sAesKey,
-            boolean archive)
+            boolean archive,
+            String aesKeyWrapAlg)
             throws EBaseException {
 
         CMS.debug("KRARemoteRequestHandler: serverSideKeyGen(): begins.");
         if (cuid == null || userid == null || sDesKey == null) {
             throw new EBaseException("KRARemoteRequestHandler: serverSideKeyGen(): input parameter null.");
+        }
+
+        String aesWrapAlg = aesKeyWrapAlg;
+
+        //Just check for unsupported values that are not CBC or KWP and give default.
+        if(aesWrapAlg == null || aesWrapAlg.length() != 3) {
+            aesWrapAlg = "KWP";
         }
 
         TPSSubsystem subsystem =
@@ -109,7 +117,9 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
                     "&" + IRemoteRequest.KRA_Trans_DesKey + "=" +
                     sDesKey +
                     "&" + IRemoteRequest.KRA_Trans_AesKey + "=" +
-                    sAesKey; 
+                    sAesKey +
+                    "&" + IRemoteRequest.KRA_Aes_Wrap_Alg + "=" + 
+                    aesWrapAlg; 
 
             //CMS.debug("KRARemoteRequestHandler: outgoing request for ECC: " + request);
 
@@ -131,7 +141,10 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
                     "&" + IRemoteRequest.KRA_Trans_DesKey + "=" +
                     sDesKey +
                     "&" + IRemoteRequest.KRA_Trans_AesKey + "=" +
-                    sAesKey; ;
+                    sAesKey +  
+                    "&" + IRemoteRequest.KRA_Aes_Wrap_Alg + "=" +
+                    aesWrapAlg;
+
 
             //CMS.debug("KRARemoteRequestHandler: outgoing request for RSA: " + request);
 
@@ -237,9 +250,10 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
             String userid,
             String sDesKey,
             String sAesKey,
-            String b64cert)
+            String b64cert,
+            String aesKeyWrapAlg)
             throws EBaseException {
-        return recoverKey(cuid, userid, sDesKey,sAesKey, b64cert, BigInteger.valueOf(0));
+        return recoverKey(cuid, userid, sDesKey,sAesKey, b64cert, BigInteger.valueOf(0),aesKeyWrapAlg);
     }
 
     public KRARecoverKeyResponse recoverKey(
@@ -248,7 +262,8 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
             String sDesKey,
             String sAesKey,
             String b64cert,
-            BigInteger keyid)
+            BigInteger keyid,
+            String aesKeyWrapAlg)
             throws EBaseException {
 
         CMS.debug("KRARemoteRequestHandler: recoverKey(): begins.");
@@ -257,6 +272,13 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
         }
         if (cuid == null || userid == null) {
             throw new EBaseException("KRARemoteRequestHandler: recoverKey(): input parameter null.");
+        }
+
+        String aesWrapAlg = aesKeyWrapAlg;
+
+        //Just check for unsupported values that are not CBC or KWP and give default.
+        if(aesWrapAlg == null || aesWrapAlg.length() != 3) {
+            aesWrapAlg = "KWP";
         }
 
         TPSSubsystem subsystem =
@@ -289,7 +311,10 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
                         "&" + IRemoteRequest.KRA_UserId + "=" +
                         userid +
                         "&" + IRemoteRequest.KRA_RECOVERY_CERT + "=" +
-                        b64cert  + desPart + aesPart;
+                        b64cert  + desPart + aesPart +
+                        "&" + IRemoteRequest.KRA_Aes_Wrap_Alg + "=" +
+                        aesWrapAlg;
+ 
 
             } else if (keyid != BigInteger.valueOf(0)) { // recover by keyid ... keyid != BigInteger.valueOf(0)
                 CMS.debug("KRARemoteRequestHandler: recoverKey(): keyid = " + keyid);
@@ -298,7 +323,10 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
                         "&" + IRemoteRequest.KRA_UserId + "=" +
                         userid +
                         "&" + IRemoteRequest.KRA_RECOVERY_KEYID + "=" +
-                        keyid.toString() + desPart + aesPart;
+                        keyid.toString() + desPart + aesPart +
+                        "&" + IRemoteRequest.KRA_Aes_Wrap_Alg + "=" +
+                        aesWrapAlg;
+
 
             }
         } catch (Exception e) {

@@ -207,6 +207,12 @@ public class TokenKeyRecoveryService implements IService {
         byte[] wrapped_des_key;
 
         byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
+
+        int ivLength = EncryptionAlgorithm.AES_128_CBC.getIVLength();
+        CMS.debug(method + " cbc iv len: " + ivLength);
+
+        byte iv_cbc[] = new byte[ivLength];
+
         try {
             JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
             SecureRandom random = jssSubsystem.getRandomNumberGenerator();
@@ -243,6 +249,14 @@ public class TokenKeyRecoveryService implements IService {
         String rWrappedDesKeyString = request.getExtDataInString(IRequest.NETKEY_ATTR_DRMTRANS_DES_KEY);
 
         String rWrappedAesKeyString = request.getExtDataInString(IRequest.NETKEY_ATTR_DRMTRANS_AES_KEY);
+        String aesKeyWrapAlg        = request.getExtDataInString(IRequest.NETKEY_ATTR_SSKEYGEN_AES_KEY_WRAP_ALG);
+
+        if(aesKeyWrapAlg != null) {
+            CMS.debug(method + " aesKeyWrapAlg: " + aesKeyWrapAlg);
+        } else {
+            CMS.debug(method + " no aesKeyWrapAlg provided.");
+        }
+
         // the request record field delayLDAPCommit == "true" will cause
         // updateRequest() to delay actual write to ldap
         request.setExtData("delayLDAPCommit", "true");
@@ -398,7 +412,9 @@ public class TokenKeyRecoveryService implements IService {
             */
             //CryptoToken token = mStorageUnit.getToken();
             CMS.debug("TokenKeyRecoveryService: got token slot:" + token.getName());
-            IVParameterSpec algParam = new IVParameterSpec(iv);
+            IVParameterSpec desAlgParam =   new IVParameterSpec(iv);
+            IVParameterSpec algParam = null;
+            IVParameterSpec aesCBCAlgParam =   new IVParameterSpec(iv_cbc);
 
             KeyRecord keyRecord = null;
             CMS.debug("KRA reading key record");
@@ -581,14 +597,28 @@ public class TokenKeyRecoveryService implements IService {
                 CMS.debug("TokenKeyRecoveryService: about to wrap...");
 
 		KeyWrapAlgorithm symWrapAlg = KeyWrapAlgorithm.DES3_CBC_PAD;
-                if(attemptAesKeyWrap == true) {
-                    //Here we must use AES KWP because it's the only common AES key wrap to be supoprted on hsm, nss, and soon the coolkey applet.
-                    //Should make this configurable at some point.
-                    symWrapAlg = KeyWrapAlgorithm.AES_KEY_WRAP_PAD_KWP;
-                    algParam =  null;
+
+                if(useAesTransWrapped == true) {
+                    //Here we recomment to use AES KWP because it's the only common AES key wrap to be supoprted on hsm, nss, and soon the coolkey applet.
+                    //But now we are going to make it configurable to AES CBC based on interest in doing so. KWP is the one that is assured to work
+                    //with the applet and nss / hsm envorinments. CBC can be chosen at the admin's discretion.
+
+                    if(aesKeyWrapAlg != null && "CBC".equalsIgnoreCase(aesKeyWrapAlg)) {
+                    // We want CBC
+                        CMS.debug(method + " TPS has selected CBC for AES key wrap method.");
+                        symWrapAlg = KeyWrapAlgorithm.AES_CBC_PAD;
+
+                        algParam =  aesCBCAlgParam;
+                        iv_s = org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(iv_cbc);
+
+                    } else {
+                        symWrapAlg = KeyWrapAlgorithm.AES_KEY_WRAP_PAD_KWP;
+                        algParam =  null;
+                        iv_s = org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(iv);
+                    }
                     CMS.debug(method + " attemptedAesKeyWrap = true ");
                 } else {
-		    symWrapAlg = KeyWrapAlgorithm.DES3_CBC_PAD;
+                    algParam = desAlgParam;
                     CMS.debug(method + " attemptedAesKeyWrap = false ");
                 }
 
