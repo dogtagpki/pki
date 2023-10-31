@@ -933,55 +933,45 @@ class PKISubsystem(object):
                 target_tests[testID] = critical
         self.set_startup_tests(target_tests)
 
-    def setup_temp_renewal(self, tmpdir):
+    def get_cert_ski(self, cert_data):
         """
-        Retrieve CA signing cert info and Subject Key Identifier (SKI aka AKI)
+        Get the Subject Key Identifier of a certificate
 
-        :param tmpdir: Path to temp dir to write CA signing cert file
-        :type tmpdir: str
-        :return: (ca_signing_cert, aki)
+        :param cert_data: Base64-encoded cert data
+        :type cert_data: str
+        :return: ski
         """
 
-        ca_cert_file = os.path.join(tmpdir, 'ca_certificate.crt')
+        pem_cert = pki.nssdb.convert_cert(cert_data, 'base64', 'pem')
 
-        logger.debug('Extracting SKI from CA cert')
-        # TODO: Support remote CA.
+        tmpdir = tempfile.mkdtemp()
+        try:
+            cert_file = os.path.join(tmpdir, 'cert.crt')
+            with open(cert_file, 'w', encoding='utf-8') as f:
+                f.write(pem_cert)
 
-        # Retrieve Subject Key Identifier from CA cert
-        ca_signing_cert = self.instance.get_subsystem('ca').get_subsystem_cert('signing')
+            cmd = [
+                'openssl',
+                'x509',
+                '-in', cert_file,
+                '-noout',
+                '-text'
+            ]
 
-        ca_cert_data = ca_signing_cert.get('data')
-        if ca_cert_data is None:
-            raise pki.server.PKIServerException(
-                'Unable to find certificate data for CA signing certificate.')
+            logger.debug('Command: %s', ' '.join(cmd))
+            cert_info = subprocess.check_output(cmd).decode('utf-8')
 
-        logger.debug('Retrieved CA cert details: %s', ca_cert_data)
+        finally:
+            shutil.rmtree(tmpdir)
 
-        ca_cert = pki.nssdb.convert_cert(ca_cert_data, 'base64', 'pem')
-        with open(ca_cert_file, 'w', encoding='utf-8') as f:
-            f.write(ca_cert)
-        logger.info('CA cert written to %s', ca_cert_file)
+        ski = re.search(r'Subject Key Identifier.*\n.*?(.*?)\n', cert_info).group(1)
 
-        ca_cert_retrieve_cmd = [
-            'openssl',
-            'x509',
-            '-in', ca_cert_file,
-            '-noout',
-            '-text'
-        ]
+        ski = '0x' + ski.strip().replace(':', '')
+        logger.info('SKI: %s', ski)
 
-        logger.debug('Command: %s', ' '.join(ca_cert_retrieve_cmd))
-        ca_cert_details = subprocess.check_output(ca_cert_retrieve_cmd).decode('utf-8')
+        return ski
 
-        aki = re.search(r'Subject Key Identifier.*\n.*?(.*?)\n', ca_cert_details).group(1)
-
-        # Add 0x to represent this as a Hex
-        aki = '0x' + aki.strip().replace(':', '')
-        logger.info('AKI: %s', aki)
-
-        return ca_signing_cert, aki
-
-    def temp_cert_create(self, nssdb, tmpdir, cert_tag, serial, new_cert_file):
+    def temp_cert_create(self, nssdb, cert_tag, serial, new_cert_file):
         """
         Generates temp cert with validity of 3 months by default
 
@@ -989,8 +979,6 @@ class PKISubsystem(object):
 
         :param nssdb: NSS db instance
         :type nssdb: NSSDatabase
-        :param tmpdir: Path to temp dir to write cert's csr and ca's cert file
-        :type tmpdir: str
         :param cert_tag: Cert for which temp cert needs to be created
         :type cert_tag: str
         :param serial: Serial number to be assigned to new cert
@@ -1006,7 +994,16 @@ class PKISubsystem(object):
             raise pki.server.PKIServerException(
                 'Temp cert for %s is not supported yet.' % cert_tag)
 
-        ca_signing_cert, aki = self.setup_temp_renewal(tmpdir=tmpdir)
+        ca_signing_cert = self.instance.get_subsystem('ca').get_subsystem_cert('signing')
+        # TODO: Support remote CA.
+
+        ca_cert_data = ca_signing_cert.get('data')
+        logger.debug('CA signing cert: %s', ca_cert_data)
+
+        if ca_cert_data is None:
+            raise pki.server.PKIServerException('Missing CA signing certificate')
+
+        aki = self.get_cert_ski(ca_cert_data)
 
         csr_file = self.instance.csr_file(cert_tag)
         logger.debug('Reusing existing CSR in %s', csr_file)

@@ -861,7 +861,7 @@ class PKIInstance(pki.server.PKIServer):
                 logger.info('Trying to create a new temp cert for %s.', cert_id)
 
                 # Create Temp Cert and write it to new_cert_file
-                subsystem.temp_cert_create(nssdb, tmpdir, cert_tag, serial, new_cert_file)
+                subsystem.temp_cert_create(nssdb, cert_tag, serial, new_cert_file)
 
                 logger.info('Temp cert for %s is available at %s.', cert_id, new_cert_file)
 
