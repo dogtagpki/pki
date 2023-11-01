@@ -28,9 +28,14 @@ import org.dogtagpki.server.ca.ICAService;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
 import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
 
 import com.netscape.ca.CertificateAuthority;
@@ -292,6 +297,7 @@ public class CAEnrollProfile extends EnrollProfile {
 
         // process certificate issuance
         X509CertInfo info = request.getExtDataInCertInfo(REQUEST_CERTINFO);
+        logger.debug(method + "cfu before: X509CertInfo info = " + info.toString());
 
         if (isSSKeygen) {
             try {
@@ -299,22 +305,58 @@ public class CAEnrollProfile extends EnrollProfile {
                 if (pubKeyStr == null) {
                     throw new EProfileException("Server-Side Keygen enrollment failed to retrieve public_key from KRA");
                 }
-                //logger.debug(method + "pubKeyStr = " + pubKeyStr);
+                logger.debug(method + "pubKeyStr = " + pubKeyStr);
                 byte[] pubKeyB = CryptoUtil.base64Decode(pubKeyStr);
                 CertificateX509Key certKey = new CertificateX509Key(
                     new ByteArrayInputStream(pubKeyB));
-                Object oj = info.get(X509CertInfo.KEY);
-                if (oj != null) {
+
+                // replace fake key in info
+                CertificateX509Key infokey = (CertificateX509Key)
+                        info.get(X509CertInfo.KEY);
+                if (infokey != null) {
+                    X509Key key = (X509Key)
+                            infokey.get(CertificateX509Key.KEY);
+                    logger.debug(method + "key = " + key.toString());
                     // a placeholder temporary fake key was put in
                     // ServerKeygenUserKeyDefault
                     info.delete(X509CertInfo.KEY);
-                    //logger.debug(method + " fake key deleted");
+                    logger.debug(method + "key deleted");
                 }
+
+                // adding real key
                 info.set(X509CertInfo.KEY, certKey);
+
+                // fake key relaced;
+                // need to compute/replace SKI as well if present
+
+                Extension ext = CertUtils.getExtension(PKIXExtensions.SubjectKey_Id.toString(), info);
+                if (ext != null) {
+                    logger.debug(method + "found SubjectKey_Id extension");
+                    // compute keyId
+                    X509Key realkey = (X509Key)
+                            certKey.get(CertificateX509Key.KEY);
+                    byte[] hash = CryptoUtil.generateKeyIdentifier(realkey.getKey());
+                    KeyIdentifier id = new KeyIdentifier(hash);
+                    SubjectKeyIdentifierExtension skiExt =
+                            new SubjectKeyIdentifierExtension(id.getIdentifier());
+
+                    // replace it
+                    CertUtils.replaceExtension(PKIXExtensions.SubjectKey_Id.toString(), skiExt, info);
+                    logger.debug(method + " SubjectKey_Id replaced");
+
+                    logger.debug(method + " after replacement: X509CertInfo info = " + info.toString());
+                }/* else 
+                    Not every cert needs an SKI
+                    logger.debug(method + "did not find SubjectKey_Id");
+                  */
+
             } catch (IOException e) {
                 logger.debug(method + e);
                 throw new EProfileException(e);
             } catch (CertificateException e) {
+                logger.debug(method + e);
+                throw new EProfileException(e);
+            } catch (Exception e) {
                 logger.debug(method + e);
                 throw new EProfileException(e);
             }
