@@ -54,7 +54,6 @@ import java.util.Vector;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.cli.CLIException;
-import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
@@ -91,6 +90,7 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
+import org.mozilla.jss.pkcs11.PK11Cert;
 import org.mozilla.jss.pkcs11.PK11ECPrivateKey;
 import org.mozilla.jss.pkcs11.PK11PrivKey;
 import org.mozilla.jss.pkcs11.PK11PubKey;
@@ -323,29 +323,30 @@ public class NSSDatabase {
 
     public void addCertificate(
             String nickname,
-            X509Certificate cert,
+            X509CertImpl certImpl,
             String trustFlags) throws Exception {
 
-        addCertificate(null, nickname, cert, trustFlags);
+        addCertificate(null, nickname, certImpl, trustFlags);
     }
 
     public void addCertificate(
             String tokenName,
             String nickname,
-            X509Certificate cert,
+            X509CertImpl certImpl,
             String trustFlags) throws Exception {
 
-        byte[] bytes = CertUtil.toPEM(cert).getBytes();
-        Path certPath = null;
+        CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
+        logger.info("NSSDatabase: Importing cert " + nickname + " into " + token.getName());
 
-        try {
-            certPath = Files.createTempFile("nss-cert-", ".crt", FILE_PERMISSIONS);
-            Files.write(certPath, bytes);
+        CryptoStore store = token.getCryptoStore();
 
-            addPEMCertificate(tokenName, nickname, certPath.toString(), trustFlags);
+        org.mozilla.jss.crypto.X509Certificate cert = store.importCert(
+                certImpl.getEncoded(),
+                nickname);
 
-        } finally {
-            if (certPath != null) Files.delete(certPath);
+        if (trustFlags != null) {
+            PK11Cert pk11Cert = (PK11Cert) cert;
+            pk11Cert.setTrustFlags(trustFlags);
         }
     }
 

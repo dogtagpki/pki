@@ -658,7 +658,7 @@ class NSSDatabase(object):
             cert_format='pem',
             token=None,
             trust_attributes=None,
-            use_jss=False):
+            use_jss=True):
 
         logger.debug('NSSDatabase.add_cert(%s)', nickname)
 
@@ -751,6 +751,12 @@ class NSSDatabase(object):
         '''
         check = True
 
+        if cert_file and not cert_data:
+            with open(cert_file, 'r', encoding='utf-8') as f:
+                cert_data = f.read()
+
+        cert_data = convert_cert(cert_data, cert_format, 'pem')
+
         cmd = [
             'pki',
             '-d', self.directory
@@ -771,14 +777,10 @@ class NSSDatabase(object):
             # Trust is most likely ,, anyway so there is no loss.
             check = False
 
-        cmd.extend(['nss-cert-import'])
-
-        if cert_file:
-            cmd.extend(['--cert', cert_file])
-
-        if cert_data:
-            cert_data = convert_cert(cert_data, cert_format, 'pem')
-            cmd.extend(['--format', 'PEM'])
+        cmd.extend([
+            'nss-cert-import',
+            '--format', 'PEM'
+        ])
 
         if trust_attributes:
             cmd.extend(['--trust', trust_attributes])
