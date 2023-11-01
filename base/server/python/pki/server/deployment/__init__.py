@@ -3052,9 +3052,7 @@ class PKIDeployer:
                 nickname=nickname,
                 cert_file=cert_file,
                 token=token,
-                trust_attributes=trust_attributes,
-                use_jss=True
-            )
+                trust_attributes=trust_attributes)
 
         finally:
             nssdb.close()
@@ -3253,8 +3251,7 @@ class PKIDeployer:
             nickname=request.systemCert.nickname,
             cert_data=system_cert['data'],
             cert_format='base64',
-            token=request.systemCert.token,
-            use_jss=False)
+            token=request.systemCert.token)
 
     def setup_system_certs(self, nssdb, subsystem):
 
