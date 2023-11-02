@@ -1645,11 +1645,7 @@ class PKIDeployer:
         if not token:
             token = self.mdict['pki_token_name']
 
-        nssdb = self.instance.open_nssdb(
-            token=token,
-            user=self.mdict.get('pki_user'),
-            group=self.mdict.get('pki_group'),
-        )
+        nssdb = self.instance.open_nssdb(token)
 
         try:
             self.generate_csr(
@@ -2815,10 +2811,7 @@ class PKIDeployer:
         else:
             raise Exception('Unsupported key type: %s' % key_type)
 
-        nssdb = self.instance.open_nssdb(
-            user=self.mdict['pki_user'],
-            group=self.mdict['pki_group']
-        )
+        nssdb = self.instance.open_nssdb()
         try:
             result = nssdb.create_key(
                 token=token,
@@ -3001,10 +2994,7 @@ class PKIDeployer:
         self.instance.set_sslserver_cert_nickname(nickname)
 
         tmpdir = tempfile.mkdtemp()
-        nssdb = self.instance.open_nssdb(
-            user=self.mdict['pki_user'],
-            group=self.mdict['pki_group']
-        )
+        nssdb = self.instance.open_nssdb()
 
         try:
             logger.info('Checking existing temp SSL server cert: %s', nickname)
@@ -3072,10 +3062,7 @@ class PKIDeployer:
         nickname = self.mdict['pki_self_signed_nickname']
         logger.info('Removing temp SSL server cert: %s', nickname)
 
-        nssdb = self.instance.open_nssdb(
-            user=self.mdict['pki_user'],
-            group=self.mdict['pki_group']
-        )
+        nssdb = self.instance.open_nssdb()
 
         try:
             # remove temp SSL server cert and key
