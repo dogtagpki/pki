@@ -227,23 +227,8 @@ def main(argv):
     logger.debug(log.PKI_DICTIONARY_MASTER)
     logger.debug(pkilogging.log_format(parser.mdict))
 
-    print("Uninstalling " + deployer.subsystem_name + " from " +
-          deployer.instance.base_dir + ".")
-
-    # Process the various "scriptlets" to remove the specified PKI subsystem.
-    pki_subsystem_scriptlets = parser.mdict['destroy_scriplets'].split()
-
     try:
-        for scriptlet_name in pki_subsystem_scriptlets:
-
-            scriptlet_module = __import__(
-                "pki.server.deployment.scriptlets." + scriptlet_name,
-                fromlist=[scriptlet_name])
-
-            scriptlet = scriptlet_module.PkiScriptlet()
-            scriptlet.deployer = deployer
-            scriptlet.instance = deployer.instance
-            scriptlet.destroy(deployer)
+        deployer.destroy()
 
     except subprocess.CalledProcessError as e:
         log_error_details()

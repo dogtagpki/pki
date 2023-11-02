@@ -4828,3 +4828,57 @@ class PKIDeployer:
         scriptlet.deployer = self
         scriptlet.instance = self.instance
         scriptlet.spawn(self)
+
+    def destroy(self):
+
+        print('Uninstalling ' + self.subsystem_name + ' from ' + self.instance.base_dir + '.')
+
+        scriptlet = pki.server.deployment.scriptlets.initialization.PkiScriptlet()
+        scriptlet.deployer = self
+        scriptlet.instance = self.instance
+        scriptlet.destroy(self)
+
+        scriptlet = pki.server.deployment.scriptlets.configuration.PkiScriptlet()
+        scriptlet.deployer = self
+        scriptlet.instance = self.instance
+        scriptlet.destroy(self)
+
+        scriptlet = pki.server.deployment.scriptlets.keygen.PkiScriptlet()
+        scriptlet.deployer = self
+        scriptlet.instance = self.instance
+        scriptlet.destroy(self)
+
+        scriptlet = pki.server.deployment.scriptlets.subsystem_layout.PkiScriptlet()
+        scriptlet.deployer = self
+        scriptlet.instance = self.instance
+        scriptlet.destroy(self)
+
+        scriptlet = pki.server.deployment.scriptlets.security_databases.PkiScriptlet()
+        scriptlet.deployer = self
+        scriptlet.instance = self.instance
+        scriptlet.destroy(self)
+
+        scriptlet = pki.server.deployment.scriptlets.instance_layout.PkiScriptlet()
+        scriptlet.deployer = self
+        scriptlet.instance = self.instance
+        scriptlet.destroy(self)
+
+        scriptlet = pki.server.deployment.scriptlets.selinux_setup.PkiScriptlet()
+        scriptlet.deployer = self
+        scriptlet.instance = self.instance
+        scriptlet.destroy(self)
+
+        scriptlet = pki.server.deployment.scriptlets.infrastructure_layout.PkiScriptlet()
+        scriptlet.deployer = self
+        scriptlet.instance = self.instance
+        scriptlet.destroy(self)
+
+        scriptlet = pki.server.deployment.scriptlets.finalization.PkiScriptlet()
+        scriptlet.deployer = self
+        scriptlet.instance = self.instance
+        scriptlet.destroy(self)
+
+        scriptlet = pki.server.deployment.scriptlets.fapolicy_setup.PkiScriptlet()
+        scriptlet.deployer = self
+        scriptlet.instance = self.instance
+        scriptlet.destroy(self)
