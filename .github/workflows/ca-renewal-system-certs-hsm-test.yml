@@ -1,0 +1,511 @@
+name: CA system certs renewal with HSM
+# https://github.com/dogtagpki/pki/wiki/Renewing-System-Certificates
+# https://github.com/dogtagpki/pki/wiki/Renewing-Admin-Certificate
+
+on: workflow_call
+
+env:
+  DB_IMAGE: ${{ vars.DB_IMAGE || 'quay.io/389ds/dirsrv' }}
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      - name: Retrieve PKI images
+        uses: actions/cache@v3
+        with:
+          key: pki-images-${{ github.sha }}
+          path: pki-images.tar
+
+      - name: Load PKI images
+        run: docker load --input pki-images.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-container-create.sh ds
+        env:
+          IMAGE: ${{ env.DB_IMAGE }}
+          HOSTNAME: ds.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect DS container to network
+        run: docker network connect example ds --alias ds.example.com
+
+      - name: Set up PKI container
+        run: |
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
+
+      - name: Connect PKI container to network
+        run: docker network connect example pki --alias pki.example.com
+
+      - name: Install dependencies
+        run: |
+          docker exec pki dnf install -y softhsm
+
+      - name: Create SoftHSM token
+        run: |
+          # allow PKI user to access SoftHSM files
+          docker exec pki usermod pkiuser -a -G ods
+
+          # create SoftHSM token for PKI server
+          docker exec pki runuser -u pkiuser -- \
+              softhsm2-util \
+              --init-token \
+              --label HSM \
+              --so-pin Secret.HSM \
+              --pin Secret.HSM \
+              --free
+
+          docker exec pki ls -laR /var/lib/softhsm/tokens
+
+      - name: Configure short-lived SSL server cert profile
+        run: |
+          # set cert validity to 3 minute
+          VALIDITY_DEFAULT="2.default.params"
+          docker exec pki sed -i \
+              -e "s/^$VALIDITY_DEFAULT.range=.*$/$VALIDITY_DEFAULT.range=3/" \
+              -e "/^$VALIDITY_DEFAULT.range=.*$/a $VALIDITY_DEFAULT.rangeUnit=minute" \
+              /usr/share/pki/ca/conf/rsaServerCert.profile
+
+          docker exec pki cat /usr/share/pki/ca/conf/rsaServerCert.profile
+
+      - name: Configure short-lived subsystem cert profile
+        run: |
+          # set cert validity to 3 minute
+          VALIDITY_DEFAULT="2.default.params"
+          docker exec pki sed -i \
+              -e "s/^$VALIDITY_DEFAULT.range=.*$/$VALIDITY_DEFAULT.range=3/" \
+              -e "/^$VALIDITY_DEFAULT.range=.*$/a $VALIDITY_DEFAULT.rangeUnit=minute" \
+              /usr/share/pki/ca/conf/rsaSubsystemCert.profile
+
+          docker exec pki cat /usr/share/pki/ca/conf/rsaSubsystemCert.profile
+
+      - name: Configure short-lived audit signing cert profile
+        run: |
+          # set cert validity to 3 minute
+          VALIDITY_DEFAULT="2.default.params"
+          docker exec pki sed -i \
+              -e "s/^$VALIDITY_DEFAULT.range=.*$/$VALIDITY_DEFAULT.range=3/" \
+              -e "/^$VALIDITY_DEFAULT.range=.*$/a $VALIDITY_DEFAULT.rangeUnit=minute" \
+              /usr/share/pki/ca/conf/caAuditSigningCert.profile
+
+          docker exec pki cat /usr/share/pki/ca/conf/caAuditSigningCert.profile
+
+      - name: Configure short-lived OCSP signing cert profile
+        run: |
+          # set cert validity to 3 minute
+          VALIDITY_DEFAULT="2.default.params"
+          docker exec pki sed -i \
+              -e "s/^$VALIDITY_DEFAULT.range=.*$/$VALIDITY_DEFAULT.range=3/" \
+              -e "/^$VALIDITY_DEFAULT.range=.*$/a $VALIDITY_DEFAULT.rangeUnit=minute" \
+              /usr/share/pki/ca/conf/caOCSPCert.profile
+
+          # check updated profile
+          docker exec pki cat /usr/share/pki/ca/conf/caOCSPCert.profile
+
+      - name: Configure short-lived admin cert profile
+        run: |
+          # set cert validity to 3 minute
+          VALIDITY_DEFAULT="2.default.params"
+          docker exec pki sed -i \
+              -e "s/^$VALIDITY_DEFAULT.range=.*$/$VALIDITY_DEFAULT.range=3/" \
+              -e "/^$VALIDITY_DEFAULT.range=.*$/a $VALIDITY_DEFAULT.rangeUnit=minute" \
+              /usr/share/pki/ca/conf/rsaAdminCert.profile
+
+          docker exec pki cat /usr/share/pki/ca/conf/rsaAdminCert.profile
+
+      - name: Install CA
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_hsm_enable=True \
+              -D pki_token_name=HSM \
+              -D pki_token_password=Secret.HSM \
+              -D pki_server_database_password=Secret.123 \
+              -D pki_ca_signing_token=HSM \
+              -D pki_ocsp_signing_token=HSM \
+              -D pki_audit_signing_token=HSM \
+              -D pki_subsystem_token=HSM \
+              -D pki_sslserver_token=internal \
+              -v
+
+      - name: Check system certs
+        run: |
+          docker exec pki pki-server cert-find
+
+          echo "Secret.123" > password.internal
+          docker exec pki certutil \
+              -K \
+              -d /etc/pki/pki-tomcat/alias \
+              -f $SHARED/password.internal | tee keys.internal.orig
+
+          echo "Secret.HSM" > password.HSM
+          docker exec pki certutil \
+              -K \
+              -d /etc/pki/pki-tomcat/alias \
+              -f $SHARED/password.HSM \
+              -h HSM | tee keys.HSM.orig
+
+      - name: Run PKI healthcheck
+        run: |
+          # healthcheck should generate warnings
+          docker exec pki pki-healthcheck --failures-only \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          echo "Expiring in a day: ocsp_signing" > expected
+          echo "Expiring in a day: sslserver" >> expected
+          echo "Expiring in a day: subsystem" >> expected
+          echo "Expiring in a day: audit_signing" >> expected
+          diff expected stderr
+
+      - name: Check CA admin
+        run: |
+          docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
+          docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
+          docker exec pki pki pkcs12-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+          docker exec pki pki nss-cert-show caadmin
+
+          docker exec pki pki -n caadmin ca-user-show caadmin
+
+      - name: Restart PKI server with expired certs
+        run: |
+          # wait for SSL server cert to expire
+          sleep 180
+
+          docker exec pki pki-server restart --wait \
+              > >(tee stdout) 2> >(tee stderr >&2)
+
+      - name: Run PKI healthcheck
+        run: |
+          # healthcheck should fail
+          docker exec pki pki-healthcheck --failures-only \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          echo "Expired Cert: ocsp_signing" > expected
+          echo "Expired Cert: sslserver" >> expected
+          echo "Expired Cert: subsystem" >> expected
+          echo "Expired Cert: audit_signing" >> expected
+          echo "Internal server error 404 Client Error:  for url: http://pki.example.com:8080/ca/rest/securityDomain/domainInfo" >> expected
+          echo "Internal server error 404 Client Error:  for url: https://pki.example.com:8443/ca/admin/ca/getStatus" >> expected
+          diff expected stderr
+
+      - name: Check CA admin
+        run: |
+          # client should fail
+          docker exec pki pki -n caadmin ca-user-show caadmin \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          echo "ERROR: EXPIRED_CERTIFICATE encountered on 'CN=pki.example.com,OU=pki-tomcat,O=EXAMPLE' results in a denied SSL server cert!" > expected
+          grep "^ERROR:" stderr > actual
+          diff expected actual
+
+      - name: Create temp SSL server cert
+        # https://github.com/dogtagpki/pki/wiki/Creating-Temporary-SSL-Server-Certificate
+        run: |
+          # create temp cert
+          docker exec pki pki-server cert-create sslserver --temp
+
+          # delete current cert
+          docker exec pki pki-server cert-del sslserver
+
+          # import temp cert
+          docker exec pki pki-server cert-import sslserver
+
+          docker exec pki pki-server cert-show sslserver
+
+      - name: Restart PKI server with temp SSL server cert
+        run: |
+          # disable selftests
+          docker exec pki pki-server selftest-disable
+
+          # restart server
+          docker exec pki pki-server restart --wait
+
+      - name: Run PKI healthcheck
+        run: |
+          # healthcheck should fail
+          docker exec pki pki-healthcheck --failures-only \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          echo "Expired Cert: ocsp_signing" > expected
+          echo "Expired Cert: subsystem" >> expected
+          echo "Expired Cert: audit_signing" >> expected
+          diff expected stderr
+
+      - name: Check PKI client
+        run: |
+          # client should work
+          docker exec pki pki info
+
+      - name: Renew SSL server cert
+        # https://github.com/dogtagpki/pki/wiki/Renewing-SSL-Server-Certificate
+        run: |
+          # get current serial number
+          docker exec pki pki-server cert-show sslserver | tee output
+          CERT_ID=$(sed -n "s/^\s*Serial Number:\s*\(\S*\)$/\1/p" output)
+
+          # submit renewal request
+          docker exec pki pki ca-cert-request-submit \
+              --profile caManualRenewal \
+              --serial $CERT_ID \
+              --renewal | tee output
+          REQUEST_ID=$(sed -n "s/^\s*Request ID:\s*\(\S*\)$/\1/p" output)
+
+          # approve renewal request
+          docker exec pki pki \
+              -u caadmin \
+              -w Secret.123 \
+              ca-cert-request-approve \
+              $REQUEST_ID \
+              --force | tee output
+          CERT_ID=$(sed -n "s/^\s*Certificate ID:\s*\(\S*\)$/\1/p" output)
+
+          # export new cert
+          docker exec pki pki ca-cert-export $CERT_ID --output-file sslserver.crt
+
+          # delete current cert
+          docker exec pki pki-server cert-del sslserver
+
+          # install new cert
+          docker exec pki pki-server cert-import sslserver --input sslserver.crt
+
+          docker exec pki pki-server cert-show sslserver
+
+      - name: Renew subsystem cert
+        # https://github.com/dogtagpki/pki/wiki/Renewing-Subsystem-Certificate
+        run: |
+          # get current serial number
+          docker exec pki pki-server cert-show subsystem | tee output
+          CERT_ID=$(sed -n "s/^\s*Serial Number:\s*\(\S*\)$/\1/p" output)
+
+          # submit renewal request
+          docker exec pki pki ca-cert-request-submit \
+              --profile caManualRenewal \
+              --serial $CERT_ID \
+              --renewal | tee output
+          REQUEST_ID=$(sed -n "s/^\s*Request ID:\s*\(\S*\)$/\1/p" output)
+
+          # approve renewal request
+          docker exec pki pki \
+              -u caadmin \
+              -w Secret.123 \
+              ca-cert-request-approve \
+              $REQUEST_ID \
+              --force | tee output
+          CERT_ID=$(sed -n "s/^\s*Certificate ID:\s*\(\S*\)$/\1/p" output)
+
+          # export new cert
+          docker exec pki pki ca-cert-export $CERT_ID --output-file subsystem.crt
+
+          # delete current cert
+          docker exec pki pki-server cert-del subsystem
+
+          # install new cert
+          docker exec pki pki-server cert-import subsystem --input subsystem.crt
+
+          docker exec pki pki-server cert-show subsystem
+
+      - name: Update subsystem user cert
+        # https://github.com/dogtagpki/pki/wiki/Renewing-Subsystem-Certificate
+        # this is needed by pkidestroy to remove the subsystem from security domain
+        run: |
+          # get cert ID
+          docker exec pki pki-server ca-user-cert-find CA-pki.example.com-8443 | tee output
+          CERT_ID=$(sed -n "s/^\s*Cert ID:\s*\(.*\)$/\1/p" output)
+          echo "CERT_ID: $CERT_ID"
+
+          # remove current cert
+          docker exec pki pki-server ca-user-cert-del CA-pki.example.com-8443 "$CERT_ID"
+
+          # install new cert
+          docker exec pki pki-server ca-user-cert-add CA-pki.example.com-8443 --cert subsystem.crt
+
+          docker exec pki pki-server ca-user-cert-find CA-pki.example.com-8443
+
+      - name: Renew audit signing cert
+        # https://github.com/dogtagpki/pki/wiki/Renewing-Audit-Signing-Certificate
+        run: |
+          # get current serial number
+          docker exec pki pki-server cert-show ca_audit_signing | tee output
+          CERT_ID=$(sed -n "s/^\s*Serial Number:\s*\(\S*\)$/\1/p" output)
+
+          # submit renewal request
+          docker exec pki pki ca-cert-request-submit \
+              --profile caManualRenewal \
+              --serial $CERT_ID \
+              --renewal | tee output
+          REQUEST_ID=$(sed -n "s/^\s*Request ID:\s*\(\S*\)$/\1/p" output)
+
+          # approve renewal request
+          docker exec pki pki \
+              -u caadmin \
+              -w Secret.123 \
+              ca-cert-request-approve \
+              $REQUEST_ID \
+              --force | tee output
+          CERT_ID=$(sed -n "s/^\s*Certificate ID:\s*\(\S*\)$/\1/p" output)
+
+          # export new cert
+          docker exec pki pki ca-cert-export $CERT_ID --output-file ca_audit_signing.crt
+
+          # delete current cert
+          docker exec pki pki-server cert-del ca_audit_signing
+
+          # install new cert
+          docker exec pki pki-server cert-import ca_audit_signing --input ca_audit_signing.crt
+
+          docker exec pki pki-server cert-show ca_audit_signing
+
+      - name: Renew OCSP signing cert
+        # https://github.com/dogtagpki/pki/wiki/Renewing-OCSP-Signing-Certificate
+        run: |
+          # get current serial number
+          docker exec pki pki-server cert-show ca_ocsp_signing | tee output
+          CERT_ID=$(sed -n "s/^\s*Serial Number:\s*\(\S*\)$/\1/p" output)
+
+          # submit renewal request
+          docker exec pki pki ca-cert-request-submit \
+              --profile caManualRenewal \
+              --serial $CERT_ID \
+              --renewal | tee output
+          REQUEST_ID=$(sed -n "s/^\s*Request ID:\s*\(\S*\)$/\1/p" output)
+
+          # approve renewal request
+          docker exec pki pki \
+              -u caadmin \
+              -w Secret.123 \
+              ca-cert-request-approve \
+              $REQUEST_ID \
+              --force | tee output
+          CERT_ID=$(sed -n "s/^\s*Certificate ID:\s*\(\S*\)$/\1/p" output)
+
+          # export new cert
+          docker exec pki pki ca-cert-export $CERT_ID --output-file ca_ocsp_signing.crt
+
+          # delete current cert
+          docker exec pki pki-server cert-del ca_ocsp_signing
+
+          # install new cert
+          docker exec pki pki-server cert-import ca_ocsp_signing --input ca_ocsp_signing.crt
+
+          docker exec pki pki-server cert-show ca_ocsp_signing
+
+      - name: Renew admin cert
+        # https://github.com/dogtagpki/pki/wiki/Renewing-Admin-Certificate
+        run: |
+          # get current serial number
+          docker exec pki pki nss-cert-show caadmin | tee output
+          CERT_ID=$(sed -n "s/^\s*Serial Number:\s*\(\S*\)$/\1/p" output)
+
+          # submit renewal request
+          docker exec pki pki ca-cert-request-submit \
+              --profile caManualRenewal \
+              --serial $CERT_ID \
+              --renewal | tee output
+          REQUEST_ID=$(sed -n "s/^\s*Request ID:\s*\(\S*\)$/\1/p" output)
+
+          # approve renewal request
+          docker exec pki pki \
+              -u caadmin \
+              -w Secret.123 \
+              ca-cert-request-approve \
+              $REQUEST_ID \
+              --force | tee output
+          CERT_ID=$(sed -n "s/^\s*Certificate ID:\s*\(\S*\)$/\1/p" output)
+
+          # export new cert
+          docker exec pki pki ca-cert-export $CERT_ID --output-file caadmin.crt
+
+          # delete current cert
+          docker exec pki pki nss-cert-del caadmin
+
+          # install new cert
+          docker exec pki pki nss-cert-import caadmin --cert caadmin.crt
+
+          docker exec pki pki nss-cert-show caadmin
+
+      - name: Update admin user cert
+        # https://github.com/dogtagpki/pki/wiki/Renewing-Admin-Certificate
+        # this is needed by admin to access CA with client cert auth
+        run: |
+          # get cert ID
+          docker exec pki pki-server ca-user-cert-find caadmin | tee output
+          CERT_ID=$(sed -n "s/^\s*Cert ID:\s*\(.*\)$/\1/p" output)
+          echo "CERT_ID: $CERT_ID"
+
+          # remove current cert
+          docker exec pki pki-server ca-user-cert-del caadmin "$CERT_ID"
+
+          # install new cert
+          docker exec pki pki-server ca-user-cert-add caadmin --cert caadmin.crt
+
+          docker exec pki pki-server ca-user-cert-find caadmin
+
+      - name: Restart PKI server with renewed certs
+        run: |
+          # enable selftests
+          docker exec pki pki-server selftest-enable
+
+          docker exec pki pki-server restart --wait
+
+      - name: Check system certs after renewal
+        run: |
+          docker exec pki pki-server cert-find
+
+          # the keys should not change
+          docker exec pki certutil \
+              -K -d /etc/pki/pki-tomcat/alias \
+              -f $SHARED/password.internal | tee keys.internal.after
+          diff keys.internal.orig keys.internal.after
+
+          # the keys should not change
+          docker exec pki certutil \
+              -K -d /etc/pki/pki-tomcat/alias \
+              -f $SHARED/password.HSM \
+              -h HSM | tee keys.HSM.after
+          diff keys.HSM.orig keys.HSM.after
+
+      - name: Run PKI healthcheck
+        run: |
+          # healthcheck should not fail
+          docker exec pki pki-healthcheck --failures-only
+
+      - name: Check CA admin
+        run: |
+          # client should not fail
+          docker exec pki pki -n caadmin ca-user-show caadmin
+
+      - name: Check systemd journal
+        if: always()
+        run: |
+          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check CA debug log
+        if: always()
+        run: |
+          docker exec pki find /var/log/pki/pki-tomcat/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check CA selftests log
+        if: always()
+        run: |
+          docker exec pki cat /var/log/pki/pki-tomcat/ca/selftests.log
+
+      - name: Remove CA
+        run: |
+          # pkidestroy should not fail
+          docker exec pki pkidestroy -i pki-tomcat -s CA -v

@@ -1005,6 +1005,14 @@ class PKISubsystem(object):
 
         aki = self.get_cert_ski(ca_cert_data)
 
+        nickname = ca_signing_cert['nickname']
+        token = ca_signing_cert['token']
+
+        if not pki.nssdb.internal_token(token):
+            nickname = token + ':' + nickname
+
+        logger.debug('CA signing cert nickname: %s', nickname)
+
         csr_file = self.instance.csr_file(cert_tag)
         logger.debug('Reusing existing CSR in %s', csr_file)
 
@@ -1030,7 +1038,7 @@ class PKISubsystem(object):
         logger.debug('Creating temp cert')
 
         rc = nssdb.create_cert(
-            issuer=ca_signing_cert['nickname'],
+            issuer=nickname,
             request_file=csr_file,
             cert_file=new_cert_file,
             serial=serial,
