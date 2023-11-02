@@ -23,6 +23,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/ca-renewal-system-certs-test.yml
 
+  ca-renewal-system-certs-hsm-test:
+    name: CA system certs renewal with HSM
+    needs: build
+    uses: ./.github/workflows/ca-renewal-system-certs-hsm-test.yml
+
   ca-secure-ds-test:
     name: CA with secure DS
     needs: build
