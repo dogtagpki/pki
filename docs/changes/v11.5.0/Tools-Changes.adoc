@@ -32,3 +32,8 @@ The `--months-valid` option has been deprecated.
 == New pki nss-cert-del CLI ==
 
 The `pki nss-cert-del` command has been added to delete a certificate from NSS database.
+
+== Deprecate pki client-cert-del ==
+
+The `pki client-cert-del` command has been deprecated.
+Use `pki nss-cert-del` command instead.

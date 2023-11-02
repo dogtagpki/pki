@@ -26,10 +26,12 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * @author Endi S. Dewata
+ * @deprecated Replaced by NSSCertRemoveCLI.
  */
+@Deprecated
 public class ClientCertRemoveCLI extends CommandCLI {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ClientCertRemoveCLI.class);
+    public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ClientCertRemoveCLI.class);
 
     public ClientCLI clientCLI;
 
@@ -45,6 +47,8 @@ public class ClientCertRemoveCLI extends CommandCLI {
 
     @Override
     public void execute(CommandLine cmd) throws Exception {
+
+        logger.warn("The pki " + getFullName() + " has been deprecated. Use pki nss-cert-del instead.");
 
         String[] cmdArgs = cmd.getArgs();
 
