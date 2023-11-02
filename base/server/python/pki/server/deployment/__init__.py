@@ -46,6 +46,16 @@ import pki.nssdb
 import pki.account
 import pki.client
 import pki.server
+import pki.server.deployment.scriptlets.configuration
+import pki.server.deployment.scriptlets.fapolicy_setup
+import pki.server.deployment.scriptlets.finalization
+import pki.server.deployment.scriptlets.infrastructure_layout
+import pki.server.deployment.scriptlets.initialization
+import pki.server.deployment.scriptlets.instance_layout
+import pki.server.deployment.scriptlets.keygen
+import pki.server.deployment.scriptlets.security_databases
+import pki.server.deployment.scriptlets.selinux_setup
+import pki.server.deployment.scriptlets.subsystem_layout
 import pki.system
 import pki.util
 
@@ -4764,3 +4774,57 @@ class PKIDeployer:
             fcon.delete(self.instance.conf_dir + suffix, '')
 
         trans.finish()
+
+    def spawn(self):
+
+        print('Installing ' + self.subsystem_name + ' into ' + self.instance.base_dir + '.')
+
+        scriptlet = pki.server.deployment.scriptlets.initialization.PkiScriptlet()
+        scriptlet.deployer = self
+        scriptlet.instance = self.instance
+        scriptlet.spawn(self)
+
+        scriptlet = pki.server.deployment.scriptlets.infrastructure_layout.PkiScriptlet()
+        scriptlet.deployer = self
+        scriptlet.instance = self.instance
+        scriptlet.spawn(self)
+
+        scriptlet = pki.server.deployment.scriptlets.instance_layout.PkiScriptlet()
+        scriptlet.deployer = self
+        scriptlet.instance = self.instance
+        scriptlet.spawn(self)
+
+        scriptlet = pki.server.deployment.scriptlets.subsystem_layout.PkiScriptlet()
+        scriptlet.deployer = self
+        scriptlet.instance = self.instance
+        scriptlet.spawn(self)
+
+        scriptlet = pki.server.deployment.scriptlets.security_databases.PkiScriptlet()
+        scriptlet.deployer = self
+        scriptlet.instance = self.instance
+        scriptlet.spawn(self)
+
+        scriptlet = pki.server.deployment.scriptlets.selinux_setup.PkiScriptlet()
+        scriptlet.deployer = self
+        scriptlet.instance = self.instance
+        scriptlet.spawn(self)
+
+        scriptlet = pki.server.deployment.scriptlets.keygen.PkiScriptlet()
+        scriptlet.deployer = self
+        scriptlet.instance = self.instance
+        scriptlet.spawn(self)
+
+        scriptlet = pki.server.deployment.scriptlets.fapolicy_setup.PkiScriptlet()
+        scriptlet.deployer = self
+        scriptlet.instance = self.instance
+        scriptlet.spawn(self)
+
+        scriptlet = pki.server.deployment.scriptlets.configuration.PkiScriptlet()
+        scriptlet.deployer = self
+        scriptlet.instance = self.instance
+        scriptlet.spawn(self)
+
+        scriptlet = pki.server.deployment.scriptlets.finalization.PkiScriptlet()
+        scriptlet.deployer = self
+        scriptlet.instance = self.instance
+        scriptlet.spawn(self)

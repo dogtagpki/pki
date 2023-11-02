@@ -540,6 +540,7 @@ def main(argv):
             deployer.set_property(name, value)
 
     create_master_dictionary(parser)
+    deployer.with_maven_deps = args.with_maven_deps
     deployer.init()
 
     instance_name = deployer.mdict['pki_instance_name']
@@ -564,26 +565,8 @@ def main(argv):
         print('pre-checks completed successfully.')
         sys.exit(0)
 
-    print("Installing " + deployer.subsystem_name + " into " +
-          deployer.instance.base_dir + ".")
-
-    # Process the various "scriptlets" to create the specified PKI subsystem.
-    pki_subsystem_scriptlets = parser.mdict['spawn_scriplets'].split()
-
-    logger.debug('Installing Maven dependencies: %s', args.with_maven_deps)
-    deployer.with_maven_deps = args.with_maven_deps
-
     try:
-        for scriptlet_name in pki_subsystem_scriptlets:
-
-            scriptlet_module = __import__(
-                "pki.server.deployment.scriptlets." + scriptlet_name,
-                fromlist=[scriptlet_name])
-
-            scriptlet = scriptlet_module.PkiScriptlet()
-            scriptlet.deployer = deployer
-            scriptlet.instance = deployer.instance
-            scriptlet.spawn(deployer)
+        deployer.spawn()
 
     except subprocess.CalledProcessError as e:
         log_error_details()
