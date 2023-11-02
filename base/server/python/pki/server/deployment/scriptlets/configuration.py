@@ -136,11 +136,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             deployer.setup_database(subsystem, master_config)
 
-        subsystem.load()
+            if not clone and subsystem.type == 'CA':
+                subsystem.import_profiles(
+                    input_folder='/usr/share/pki/ca/profiles/ca')
 
-        if not clone and subsystem.type == 'CA':
-            subsystem.import_profiles(
-                input_folder='/usr/share/pki/ca/profiles/ca')
+        subsystem.load()
 
         # Check whether the subsystem uses a legacy ID generator.
         using_legacy_id_generator = deployer.is_using_legacy_id_generator(subsystem)
