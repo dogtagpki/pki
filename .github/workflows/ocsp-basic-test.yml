@@ -60,6 +60,42 @@ jobs:
 
           docker exec pki pki-server cert-find
 
+      - name: Check CA security domain
+        run: |
+          # security domain should be enabled (i.e. securitydomain.select=new)
+          cat > expected << EOF
+          securitydomain.checkIP=false
+          securitydomain.checkinterval=300000
+          securitydomain.flushinterval=86400000
+          securitydomain.host=pki.example.com
+          securitydomain.httpport=8080
+          securitydomain.httpsadminport=8443
+          securitydomain.name=EXAMPLE
+          securitydomain.select=new
+          securitydomain.source=ldap
+          EOF
+          docker exec pki pki-server ca-config-find | grep ^securitydomain. | sort | tee actual
+          diff expected actual
+
+          docker exec pki pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
+          docker exec pki pki client-cert-import ca_signing --ca-cert ${SHARED}/ca_signing.crt
+
+          # REST API should return security domain info
+          cat > expected << EOF
+            Domain: EXAMPLE
+
+            CA Subsystem:
+
+              Host ID: CA pki.example.com 8443
+              Hostname: pki.example.com
+              Port: 8080
+              Secure Port: 8443
+              Domain Manager: TRUE
+
+          EOF
+          docker exec pki pki securitydomain-show | tee output
+          diff expected output
+
       - name: Install OCSP
         run: |
           docker exec pki pkispawn \
@@ -104,9 +140,36 @@ jobs:
         run: |
           docker exec pki openssl x509 -text -noout -in /root/.dogtag/pki-tomcat/ca_admin.cert
 
-      - name: Check OCSP publishing configuration
+      - name: Check OCSP publishing in CA
         run: |
-          docker exec pki pki-server ca-config-find | grep ca.publish.
+          docker exec pki pki-server ca-config-find | grep ^ca.publish. | sort > output
+
+          cat > expected << EOF
+          ca.publish.enable=true
+          EOF
+          sed -n '/^ca.publish.enable=/p' output | tee actual
+          diff expected actual
+
+          cat > expected << EOF
+          ca.publish.publisher.instance.OCSPPublisher-pki-example-com-8443.enableClientAuth=true
+          ca.publish.publisher.instance.OCSPPublisher-pki-example-com-8443.host=pki.example.com
+          ca.publish.publisher.instance.OCSPPublisher-pki-example-com-8443.nickName=subsystem
+          ca.publish.publisher.instance.OCSPPublisher-pki-example-com-8443.path=/ocsp/agent/ocsp/addCRL
+          ca.publish.publisher.instance.OCSPPublisher-pki-example-com-8443.pluginName=OCSPPublisher
+          ca.publish.publisher.instance.OCSPPublisher-pki-example-com-8443.port=8443
+          EOF
+          sed -n '/^ca.publish.publisher.instance.OCSPPublisher-/p' output | tee actual
+          diff expected actual
+
+          cat > expected << EOF
+          ca.publish.rule.instance.ocsprule-pki-example-com-8443.enable=true
+          ca.publish.rule.instance.ocsprule-pki-example-com-8443.mapper=NoMap
+          ca.publish.rule.instance.ocsprule-pki-example-com-8443.pluginName=Rule
+          ca.publish.rule.instance.ocsprule-pki-example-com-8443.publisher=OCSPPublisher-pki-example-com-8443
+          ca.publish.rule.instance.ocsprule-pki-example-com-8443.type=crl
+          EOF
+          sed -n '/^ca.publish.rule.instance.ocsprule-/p' output | tee actual
+          diff expected actual
 
           # set buffer size to 0 so that revocation will take effect immediately
           docker exec pki pki-server ca-config-set auths.revocationChecking.bufferSize 0

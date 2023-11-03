@@ -60,6 +60,42 @@ jobs:
 
           docker exec pki pki-server cert-find
 
+      - name: Check CA security domain
+        run: |
+          # security domain should be enabled (i.e. securitydomain.select=new)
+          cat > expected << EOF
+          securitydomain.checkIP=false
+          securitydomain.checkinterval=300000
+          securitydomain.flushinterval=86400000
+          securitydomain.host=pki.example.com
+          securitydomain.httpport=8080
+          securitydomain.httpsadminport=8443
+          securitydomain.name=EXAMPLE
+          securitydomain.select=new
+          securitydomain.source=ldap
+          EOF
+          docker exec pki pki-server ca-config-find | grep ^securitydomain. | sort | tee actual
+          diff expected actual
+
+          docker exec pki pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
+          docker exec pki pki client-cert-import ca_signing --ca-cert ${SHARED}/ca_signing.crt
+
+          # REST API should return security domain info
+          cat > expected << EOF
+            Domain: EXAMPLE
+
+            CA Subsystem:
+
+              Host ID: CA pki.example.com 8443
+              Hostname: pki.example.com
+              Port: 8080
+              Secure Port: 8443
+              Domain Manager: TRUE
+
+          EOF
+          docker exec pki pki securitydomain-show | tee output
+          diff expected output
+
       - name: Install KRA
         run: |
           docker exec pki pkispawn \
@@ -126,8 +162,24 @@ jobs:
               --pkcs12-password Secret.123
           docker exec pki pki -n caadmin kra-user-show kraadmin
 
-      - name: Verify KRA connector in CA
+      - name: Check KRA connector in CA
         run: |
+          docker exec pki pki-server ca-config-find | grep ^ca.connector.KRA. | sort | tee output
+
+          # KRA connector should be configured
+          cat > expected << EOF
+          ca.connector.KRA.enable=true
+          ca.connector.KRA.host=pki.example.com
+          ca.connector.KRA.local=false
+          ca.connector.KRA.nickName=subsystem
+          ca.connector.KRA.port=8443
+          ca.connector.KRA.timeout=30
+          ca.connector.KRA.uri=/kra/agent/kra/connector
+          EOF
+          sed -e '/^ca.connector.KRA.transportCert=/d' output > actual
+          diff expected actual
+
+          # REST API should return KRA connector info
           docker exec pki pki -n caadmin ca-kraconnector-show | tee output
           sed -n 's/\s*Host:\s\+\(\S\+\):.*/\1/p' output > actual
           echo pki.example.com > expected
