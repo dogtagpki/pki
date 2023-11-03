@@ -195,15 +195,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('Setting up subsystem user')
             deployer.setup_subsystem_user(subsystem, system_certs['subsystem'])
 
+        if config.str2bool(deployer.mdict['pki_security_domain_setup']):
+            deployer.setup_security_domain_manager(subsystem)
+
         if config.str2bool(deployer.mdict['pki_admin_setup']) and not clone:
             logger.info('Setting up admin cert')
             admin_cert = deployer.setup_admin_cert(subsystem)
 
             logger.info('Setting up admin user')
             deployer.setup_admin_user(subsystem, admin_cert)
-
-        if config.str2bool(deployer.mdict['pki_security_domain_setup']):
-            deployer.setup_security_domain_manager(subsystem)
 
         if not config.str2bool(deployer.mdict['pki_share_db']) and not clone:
             logger.info('Setting up database user')

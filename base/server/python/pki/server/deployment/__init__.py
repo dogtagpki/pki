@@ -2469,42 +2469,37 @@ class PKIDeployer:
 
         if self.mdict['pki_security_domain_type'] == 'existing':
 
-            logger.info('Joining existing domain')
+            sd_url = self.mdict['pki_security_domain_uri']
+            logger.info('Joining security domain at %s', sd_url)
 
             self.join_security_domain()
 
-            sd_type = 'existing'
-            sd_name = self.domain_info.id
             sd_hostname = self.sd_host.Hostname
             sd_port = self.sd_host.Port
             sd_secure_port = self.sd_host.SecurePort
 
-        elif config.str2bool(self.mdict['pki_subordinate']) and \
-                config.str2bool(self.mdict['pki_subordinate_create_new_security_domain']):
+        else:  # self.mdict['pki_security_domain_type'] == 'new'
 
-            logger.info('Creating new subordinate security domain')
+            if config.str2bool(self.mdict['pki_subordinate']) and \
+                    config.str2bool(self.mdict['pki_subordinate_create_new_security_domain']):
 
-            self.join_security_domain()
+                logger.info('Creating new subordinate security domain')
 
-            sd_type = 'new'
-            sd_name = self.mdict['pki_subordinate_security_domain_name']
-            sd_hostname = self.mdict['pki_hostname']
-            sd_port = unsecurePort
-            sd_secure_port = securePort
+                self.join_security_domain()
 
-        else:
+                sd_hostname = self.mdict['pki_hostname']
+                sd_port = unsecurePort
+                sd_secure_port = securePort
 
-            logger.info('Creating new security domain')
+            else:
 
-            sd_type = 'new'
-            sd_name = self.mdict['pki_security_domain_name']
-            sd_hostname = self.mdict['pki_hostname']
-            sd_port = unsecurePort
-            sd_secure_port = securePort
+                logger.info('Creating new security domain')
+
+                sd_hostname = self.mdict['pki_hostname']
+                sd_port = unsecurePort
+                sd_secure_port = securePort
 
         subsystem.configure_security_domain(
-            sd_type,
-            sd_name,
             sd_hostname,
             sd_port,
             sd_secure_port)
@@ -2512,7 +2507,6 @@ class PKIDeployer:
     def setup_security_domain_manager(self, subsystem):
 
         clone = self.configuration_file.clone
-        sd_name = subsystem.config['securitydomain.name']
 
         server_config = self.instance.get_server_config()
         unsecurePort = server_config.get_unsecure_port()
@@ -2543,6 +2537,10 @@ class PKIDeployer:
 
             sd_url = self.mdict['pki_security_domain_uri']
             logger.info('Joining security domain at %s', sd_url)
+
+            subsystem.config['securitydomain.select'] = 'existing'
+            subsystem.config['securitydomain.name'] = self.domain_info.id
+
             subsystem.join_security_domain(
                 sd_url,
                 self.mdict['pki_subsystem_name'],
@@ -2553,8 +2551,21 @@ class PKIDeployer:
                 clone=clone,
                 session_id=self.install_token.token)
 
-        else:
-            logger.info('Creating security domain')
+        else:  # self.mdict['pki_security_domain_type'] == 'new'
+
+            if config.str2bool(self.mdict['pki_subordinate']) and \
+                    config.str2bool(self.mdict['pki_subordinate_create_new_security_domain']):
+
+                logger.info('Creating new subordinate security domain')
+                sd_name = self.mdict['pki_subordinate_security_domain_name']
+
+            else:
+                logger.info('Creating new security domain')
+                sd_name = self.mdict['pki_security_domain_name']
+
+            subsystem.config['securitydomain.select'] = 'new'
+            subsystem.config['securitydomain.name'] = sd_name
+
             subsystem.create_security_domain(name=sd_name)
 
             logger.info('Adding security domain manager')

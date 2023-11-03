@@ -1437,14 +1437,10 @@ class PKISubsystem(object):
 
     def configure_security_domain(
             self,
-            sd_type,
-            name,
             hostname,
             port,
             secure_port):
 
-        self.config['securitydomain.select'] = sd_type
-        self.config['securitydomain.name'] = name
         self.config['securitydomain.host'] = hostname
         self.config['securitydomain.httpport'] = port
         self.config['securitydomain.httpsadminport'] = secure_port
