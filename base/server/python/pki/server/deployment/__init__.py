@@ -2573,7 +2573,6 @@ class PKIDeployer:
                     subsystem.config['securitydomain.host'] = self.mdict['pki_hostname']
                     subsystem.config['securitydomain.httpport'] = unsecurePort
                     subsystem.config['securitydomain.httpsadminport'] = securePort
-                    subsystem.config['securitydomain.httpsagentport'] = securePort
 
     def pki_connect(self):
 
