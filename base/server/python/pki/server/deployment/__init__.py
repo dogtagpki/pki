@@ -2361,17 +2361,14 @@ class PKIDeployer:
 
     def get_domain_info(self):
 
-        if self.domain_info:
-            return self.domain_info
-
         logger.info('Getting security domain info')
 
         self.sd_connect()
 
         sd_client = pki.system.SecurityDomainClient(self.sd_connection)
-        self.domain_info = sd_client.get_domain_info()
+        domain_info = sd_client.get_domain_info()
 
-        return self.domain_info
+        return domain_info
 
     def sd_login(self):
 
@@ -2412,8 +2409,6 @@ class PKIDeployer:
         return self.install_token
 
     def join_security_domain(self):
-
-        self.get_domain_info()
 
         sd_url = self.mdict['pki_security_domain_uri']
 

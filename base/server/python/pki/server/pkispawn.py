@@ -395,9 +395,9 @@ def main(argv):
 
                     try:
                         deployer.sd_connect()
-                        info = deployer.get_domain_info()
-                        parser.print_text('Name: ' + info.id)
-                        deployer.set_property('pki_security_domain_name', info.id)
+                        deployer.domain_info = deployer.get_domain_info()
+                        parser.print_text('Name: ' + deployer.domain_info.id)
+                        deployer.set_property('pki_security_domain_name', deployer.domain_info.id)
                         break
                     except pki.RETRYABLE_EXCEPTIONS as e:
                         parser.print_text('ERROR: ' + str(e))
@@ -700,10 +700,10 @@ def check_security_domain():
 
         deployer.sd_connect()
 
-        info = deployer.get_domain_info()
-        deployer.set_property('pki_security_domain_name', info.id)
+        deployer.domain_info = deployer.get_domain_info()
+        deployer.set_property('pki_security_domain_name', deployer.domain_info.id)
 
-        logger.info('Logging into security domain %s', info.id)
+        logger.info('Logging into security domain %s', deployer.domain_info.id)
 
         deployer.sd_login()
 
