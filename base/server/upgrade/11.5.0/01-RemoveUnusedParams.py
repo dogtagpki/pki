@@ -22,12 +22,13 @@ class RemoveUnusedParams(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
         self.backup(subsystem.cs_conf)
 
-        # remove subsystem.select param
         logger.info('Removing subsystem.select')
         subsystem.config.pop('subsystem.select', None)
 
-        # remove hierarchy.select param
         logger.info('Removing hierarchy.select')
         subsystem.config.pop('hierarchy.select', None)
+
+        logger.info('Removing service.securityDomainPort')
+        subsystem.config.pop('service.securityDomainPort', None)
 
         subsystem.save()

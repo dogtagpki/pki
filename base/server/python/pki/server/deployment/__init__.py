@@ -2421,7 +2421,7 @@ class PKIDeployer:
     def leave_security_domain(self, subsystem):
 
         sd_host = subsystem.config['securitydomain.host']
-        sd_port = subsystem.config['service.securityDomainPort']
+        sd_port = subsystem.config['securitydomain.httpsadminport']
         sd_url = 'https://%s:%s' % (sd_host, sd_port)
 
         hostname = subsystem.config['machineName']
@@ -2504,8 +2504,6 @@ class PKIDeployer:
             sd_hostname,
             sd_port,
             sd_secure_port)
-
-        subsystem.config['service.securityDomainPort'] = securePort
 
     def setup_security_domain_manager(self, subsystem):
 
