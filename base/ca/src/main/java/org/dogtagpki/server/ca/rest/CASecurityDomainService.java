@@ -5,14 +5,12 @@
 //
 package org.dogtagpki.server.ca.rest;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
 import org.dogtagpki.server.rest.SecurityDomainService;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.PKIException;
 
 /**
  * @author Endi S. Dewata
@@ -32,7 +30,8 @@ public class CASecurityDomainService extends SecurityDomainService {
             return "new".equals(select);
 
         } catch (EBaseException e) {
-            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+            logger.error("SecurityDomainService: " + e.getMessage(), e);
+            throw new PKIException(e.getMessage(), e);
         }
     }
 }

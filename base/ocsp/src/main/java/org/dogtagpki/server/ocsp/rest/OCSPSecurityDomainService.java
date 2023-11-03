@@ -5,14 +5,12 @@
 //
 package org.dogtagpki.server.ocsp.rest;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-
 import org.dogtagpki.server.ocsp.OCSPEngine;
 import org.dogtagpki.server.ocsp.OCSPEngineConfig;
 import org.dogtagpki.server.rest.SecurityDomainService;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.PKIException;
 
 /**
  * @author Endi S. Dewata
@@ -30,7 +28,8 @@ public class OCSPSecurityDomainService extends SecurityDomainService {
             return engineConfig.getBoolean("ocsp.standalone", false);
 
         } catch (EBaseException e) {
-            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+            logger.error("SecurityDomainService: " + e.getMessage(), e);
+            throw new PKIException(e.getMessage(), e);
         }
     }
 }

@@ -52,6 +52,7 @@ public class SecurityDomainService extends PKIService implements SecurityDomainR
     public Response getInstallToken(String hostname, String subsystem) {
 
         if (!isEnabled()) {
+            logger.error("Unable to get install token: Security domain disabled");
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
 
@@ -81,6 +82,7 @@ public class SecurityDomainService extends PKIService implements SecurityDomainR
     public Response getDomainInfo() {
 
         if (!isEnabled()) {
+            logger.error("Unable to get security domain info: Security domain disabled");
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
 
@@ -106,6 +108,7 @@ public class SecurityDomainService extends PKIService implements SecurityDomainR
     public Response getHosts() {
 
         if (!isEnabled()) {
+            logger.error("Unable to get security domain hosts: Security domain disabled");
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
 
@@ -146,6 +149,7 @@ public class SecurityDomainService extends PKIService implements SecurityDomainR
     public Response getHost(String hostID) {
 
         if (!isEnabled()) {
+            logger.error("Unable to get security domain host: Security domain disabled");
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
 
@@ -186,6 +190,7 @@ public class SecurityDomainService extends PKIService implements SecurityDomainR
     public Response addHost(SecurityDomainHost host) {
 
         if (!isEnabled()) {
+            logger.error("Unable to add security domain host: Security domain disabled");
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
 
@@ -277,6 +282,7 @@ public class SecurityDomainService extends PKIService implements SecurityDomainR
     public Response removeHost(String hostID) {
 
         if (!isEnabled()) {
+            logger.error("Unable to remove security domain host: Security domain disabled");
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
 
