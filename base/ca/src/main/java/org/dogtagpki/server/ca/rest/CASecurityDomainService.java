@@ -26,7 +26,7 @@ public class CASecurityDomainService extends SecurityDomainService {
         try {
             // if the server creates a new security domain (instead of joining
             // an existing one) it should provide security domain services
-            String select = engineConfig.getString("securitydomain.select");
+            String select = engineConfig.getString("securitydomain.select", "");
             return "new".equals(select);
 
         } catch (EBaseException e) {

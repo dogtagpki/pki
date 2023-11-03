@@ -2420,7 +2420,11 @@ class PKIDeployer:
 
     def leave_security_domain(self, subsystem):
 
-        sd_host = subsystem.config['securitydomain.host']
+        sd_host = subsystem.config.get('securitydomain.host')
+
+        if not sd_host:
+            return
+
         sd_port = subsystem.config['securitydomain.httpsadminport']
         sd_url = 'https://%s:%s' % (sd_host, sd_port)
 
@@ -3719,7 +3723,7 @@ class PKIDeployer:
         admin_groups = subsystem.config['preop.admin.group']
         groups = [x.strip() for x in admin_groups.split(',')]
 
-        if subsystem.config['securitydomain.select'] == 'new':
+        if subsystem.config.get('securitydomain.select') == 'new':
 
             if subsystem.type == 'CA':
                 groups.extend([

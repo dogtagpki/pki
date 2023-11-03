@@ -842,7 +842,7 @@ public class CMSEngine {
         }
 
         String sd = config.getString("securitydomain.select", "");
-        if (sd.equals("existing")) {
+        if (!sd.equals("new")) {
             return;
         }
 
