@@ -2574,7 +2574,6 @@ class PKIDeployer:
                     subsystem.config['securitydomain.httpport'] = unsecurePort
                     subsystem.config['securitydomain.httpsadminport'] = securePort
                     subsystem.config['securitydomain.httpsagentport'] = securePort
-                    subsystem.config['securitydomain.httpseeport'] = securePort
 
     def pki_connect(self):
 
@@ -3188,7 +3187,7 @@ class PKIDeployer:
             elif tag == 'subsystem':
 
                 sd_hostname = subsystem.config['securitydomain.host']
-                sd_port = subsystem.config['securitydomain.httpseeport']
+                sd_port = subsystem.config['securitydomain.httpsadminport']
                 ca_url = 'https://%s:%s' % (sd_hostname, sd_port)
 
             else:
@@ -3665,7 +3664,7 @@ class PKIDeployer:
 
         else:
             ca_hostname = subsystem.config['securitydomain.host']
-            ca_port = subsystem.config['securitydomain.httpseeport']
+            ca_port = subsystem.config['securitydomain.httpsadminport']
             ca_url = 'https://%s:%s' % (ca_hostname, ca_port)
 
         logger.info('Requesting admin cert from %s', ca_url)

@@ -31,4 +31,7 @@ class RemoveUnusedParams(pki.server.upgrade.PKIServerUpgradeScriptlet):
         logger.info('Removing service.securityDomainPort')
         subsystem.config.pop('service.securityDomainPort', None)
 
+        logger.info('Removing securitydomain.httpseeport')
+        subsystem.config.pop('securitydomain.httpseeport', None)
+
         subsystem.save()
