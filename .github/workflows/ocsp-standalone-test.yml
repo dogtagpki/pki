@@ -39,119 +39,213 @@ jobs:
       - name: Connect DS container to network
         run: docker network connect example ds --alias ds.example.com
 
-      - name: Set up PKI container
+      - name: Set up CA container
         run: |
-          tests/bin/runner-init.sh pki
+          tests/bin/runner-init.sh ca
         env:
-          HOSTNAME: pki.example.com
+          HOSTNAME: ca.example.com
 
-      - name: Connect PKI container to network
-        run: docker network connect example pki --alias pki.example.com
+      - name: Connect CA container to network
+        run: docker network connect example ca --alias ca.example.com
 
-      - name: Create CA signing cert
+      - name: Install standalone CA
         run: |
-          docker exec pki pki -d nssdb nss-cert-request \
-              --subject "CN=CA Signing Certificate" \
-              --ext /usr/share/pki/server/certs/ca_signing.conf \
-              --csr ca_signing.csr
-          docker exec pki pki -d nssdb nss-cert-issue \
-              --csr ca_signing.csr \
-              --ext /usr/share/pki/server/certs/ca_signing.conf \
-              --cert ca_signing.crt
-          docker exec pki pki -d nssdb nss-cert-import \
-              --cert ca_signing.crt \
-              --trust CT,C,C \
-              ca_signing
+          docker exec ca pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_cert_id_generator=random \
+              -D pki_request_id_generator=random \
+              -D pki_security_domain_setup=False \
+              -v
 
-      - name: Install OCSP (step 1)
+          docker exec ca pki-server cert-find
+
+      - name: Check CA security domain
         run: |
-          docker exec pki pkispawn \
+          # security domain should be disabled (i.e. no securitydomain.select=new)
+          cat > expected << EOF
+          securitydomain.checkIP=false
+          securitydomain.checkinterval=300000
+          securitydomain.flushinterval=86400000
+          securitydomain.source=ldap
+          EOF
+          docker exec ca pki-server ca-config-find | grep ^securitydomain. | sort | tee actual
+          diff expected actual
+
+          docker exec ca pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
+          docker exec ca pki client-cert-import ca_signing --ca-cert ${SHARED}/ca_signing.crt
+
+          docker exec ca pki securitydomain-show \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          # REST API should not return security domain info
+          echo "PKIException: Not Found" > expected
+          diff expected stderr
+
+      - name: Check CA admin
+        run: |
+          docker exec ca pki pkcs12-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+          docker exec ca pki -n caadmin ca-user-show caadmin
+
+      - name: Set up OCSP container
+        run: |
+          tests/bin/runner-init.sh ocsp
+        env:
+          HOSTNAME: ocsp.example.com
+
+      - name: Connect OCSP container to network
+        run: docker network connect example ocsp --alias ocsp.example.com
+
+      - name: Install standalone OCSP (step 1)
+        run: |
+          docker exec ocsp pkispawn \
               -f /usr/share/pki/server/examples/installation/ocsp-standalone-step1.cfg \
               -s OCSP \
+              -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
               -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_ocsp_signing_csr_path=${SHARED}/ocsp_signing.csr \
+              -D pki_subsystem_csr_path=${SHARED}/subsystem.csr \
+              -D pki_sslserver_csr_path=${SHARED}/sslserver.csr \
+              -D pki_audit_signing_csr_path=${SHARED}/ocsp_audit_signing.csr \
+              -D pki_admin_csr_path=${SHARED}/ocsp_admin.csr \
               -v
 
       - name: Issue OCSP signing cert
         run: |
-          docker exec pki openssl req -text -noout -in ocsp_signing.csr
-          docker exec pki pki -d nssdb nss-cert-issue \
-              --issuer ca_signing \
-              --csr ocsp_signing.csr \
-              --ext /usr/share/pki/server/certs/ocsp_signing.conf \
-              --cert ocsp_signing.crt
-          docker exec pki openssl x509 -text -noout -in ocsp_signing.crt
+          docker exec ca openssl req -text -noout -in ${SHARED}/ocsp_signing.csr
+          docker exec ca pki ca-cert-request-submit --profile caOCSPCert --csr-file ${SHARED}/ocsp_signing.csr | tee output
+          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
+          docker exec ca pki -n caadmin ca-cert-request-approve $REQUEST_ID --force | tee output
+          CERT_ID=$(sed -n 's/Certificate ID: *\(.*\)/\1/p' output)
+          docker exec ca pki ca-cert-export $CERT_ID --output-file ${SHARED}/ocsp_signing.crt
+          docker exec ca openssl x509 -text -noout -in ${SHARED}/ocsp_signing.crt
 
       - name: Issue subsystem cert
         run: |
-          docker exec pki openssl req -text -noout -in subsystem.csr
-          docker exec pki pki -d nssdb nss-cert-issue \
-              --issuer ca_signing \
-              --csr subsystem.csr \
-              --ext /usr/share/pki/server/certs/subsystem.conf \
-              --cert subsystem.crt
-          docker exec pki openssl x509 -text -noout -in subsystem.crt
+          docker exec ca openssl req -text -noout -in ${SHARED}/subsystem.csr
+          docker exec ca pki ca-cert-request-submit --profile caSubsystemCert --csr-file ${SHARED}/subsystem.csr | tee output
+          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
+          docker exec ca pki -n caadmin ca-cert-request-approve $REQUEST_ID --force | tee output
+          CERT_ID=$(sed -n 's/Certificate ID: *\(.*\)/\1/p' output)
+          docker exec ca pki ca-cert-export $CERT_ID --output-file ${SHARED}/subsystem.crt
+          docker exec ca openssl x509 -text -noout -in ${SHARED}/subsystem.crt
 
       - name: Issue SSL server cert
         run: |
-          docker exec pki openssl req -text -noout -in sslserver.csr
-          docker exec pki pki -d nssdb nss-cert-issue \
-              --issuer ca_signing \
-              --csr sslserver.csr \
-              --ext /usr/share/pki/server/certs/sslserver.conf \
-              --cert sslserver.crt
-          docker exec pki openssl x509 -text -noout -in sslserver.crt
+          docker exec ca openssl req -text -noout -in ${SHARED}/sslserver.csr
+          docker exec ca pki ca-cert-request-submit --profile caServerCert --csr-file ${SHARED}/sslserver.csr | tee output
+          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
+          docker exec ca pki -n caadmin ca-cert-request-approve $REQUEST_ID --force | tee output
+          CERT_ID=$(sed -n 's/Certificate ID: *\(.*\)/\1/p' output)
+          docker exec ca pki ca-cert-export $CERT_ID --output-file ${SHARED}/sslserver.crt
+          docker exec ca openssl x509 -text -noout -in ${SHARED}/sslserver.crt
 
       - name: Issue OCSP audit signing cert
         run: |
-          docker exec pki openssl req -text -noout -in ocsp_audit_signing.csr
-          docker exec pki pki -d nssdb nss-cert-issue \
-              --issuer ca_signing \
-              --csr ocsp_audit_signing.csr \
-              --ext /usr/share/pki/server/certs/audit_signing.conf \
-              --cert ocsp_audit_signing.crt
-          docker exec pki openssl x509 -text -noout -in ocsp_audit_signing.crt
+          docker exec ca openssl req -text -noout -in ${SHARED}/ocsp_audit_signing.csr
+          docker exec ca pki ca-cert-request-submit --profile caAuditSigningCert --csr-file ${SHARED}/ocsp_audit_signing.csr | tee output
+          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
+          docker exec ca pki -n caadmin ca-cert-request-approve $REQUEST_ID --force | tee output
+          CERT_ID=$(sed -n 's/Certificate ID: *\(.*\)/\1/p' output)
+          docker exec ca pki ca-cert-export $CERT_ID --output-file ${SHARED}/ocsp_audit_signing.crt
+          docker exec ca openssl x509 -text -noout -in ${SHARED}/ocsp_audit_signing.crt
 
       - name: Issue OCSP admin cert
         run: |
-          docker exec pki openssl req -text -noout -in ocsp_admin.csr
-          docker exec pki pki -d nssdb nss-cert-issue \
-              --issuer ca_signing \
-              --csr ocsp_admin.csr \
-              --ext /usr/share/pki/server/certs/admin.conf \
-              --cert ocsp_admin.crt
-          docker exec pki openssl x509 -text -noout -in ocsp_admin.crt
+          docker exec ca openssl req -text -noout -in ${SHARED}/ocsp_admin.csr
+          docker exec ca pki ca-cert-request-submit --profile AdminCert --csr-file ${SHARED}/ocsp_admin.csr | tee output
+          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
+          docker exec ca pki -n caadmin ca-cert-request-approve $REQUEST_ID --force | tee output
+          CERT_ID=$(sed -n 's/Certificate ID: *\(.*\)/\1/p' output)
+          docker exec ca pki ca-cert-export $CERT_ID --output-file ${SHARED}/ocsp_admin.crt
+          docker exec ca openssl x509 -text -noout -in ${SHARED}/ocsp_admin.crt
 
-      - name: Install OCSP (step 2)
+      - name: Install standalone OCSP (step 2)
         run: |
-          docker exec pki pkispawn \
+          docker exec ocsp pkispawn \
               -f /usr/share/pki/server/examples/installation/ocsp-standalone-step2.cfg \
               -s OCSP \
+              -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
               -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_ocsp_signing_csr_path=${SHARED}/ocsp_signing.csr \
+              -D pki_subsystem_csr_path=${SHARED}/subsystem.csr \
+              -D pki_sslserver_csr_path=${SHARED}/sslserver.csr \
+              -D pki_audit_signing_csr_path=${SHARED}/ocsp_audit_signing.csr \
+              -D pki_admin_csr_path=${SHARED}/ocsp_admin.csr \
+              -D pki_ocsp_signing_cert_path=${SHARED}/ocsp_signing.crt \
+              -D pki_subsystem_cert_path=${SHARED}/subsystem.crt \
+              -D pki_sslserver_cert_path=${SHARED}/sslserver.crt \
+              -D pki_audit_signing_cert_path=${SHARED}/ocsp_audit_signing.crt \
+              -D pki_admin_cert_path=${SHARED}/ocsp_admin.crt \
               -v
 
-          docker exec pki pki-server cert-find
+          docker exec ocsp pki-server cert-find
 
       # TODO: Fix DogtagOCSPConnectivityCheck to work without CA
       # - name: Run PKI healthcheck
-      #   run: docker exec pki pki-healthcheck --failures-only
+      #   run: docker exec ocsp pki-healthcheck --failures-only
 
-      - name: Check admin cert
+      - name: Check OCSP security domain
         run: |
-          docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
-          docker exec pki pki pkcs12-import \
+          docker exec ocsp pki client-cert-import ca_signing --ca-cert ${SHARED}/ca_signing.crt
+          docker exec ocsp pki securitydomain-show \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          # standalone OCSP should not return security domain info
+          echo "PKIException: Not Found" > expected
+          diff expected stderr
+
+      - name: Check OCSP admin cert
+        run: |
+          docker exec ocsp pki pkcs12-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ocsp_admin_cert.p12 \
               --pkcs12-password Secret.123
-          docker exec pki pki -n ocspadmin ocsp-user-show ocspadmin
+          docker exec ocsp pki -n ocspadmin ocsp-user-show ocspadmin
+
+      - name: Check OCSP users
+        run: |
+          docker exec ocsp pki -n ocspadmin ocsp-user-find
+
+          docker exec ocsp pki -n ocspadmin ocsp-user-show CA-ca.example.com-8443 \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          # standalone OCSP should not have CA user
+          echo "UserNotFoundException: User CA-ca.example.com-8443 not found" > expected
+          diff expected stderr
+
+      - name: Check OCSP publishing in CA
+        run: |
+          # OCSP publishing should not be configured
+          docker exec ca pki-server ca-config-find | grep ^ca.publish. > output
+
+          echo -n > expected
+          sed -n '/^ca.publish.enable=/p' output | tee actual
+          diff expected actual
+
+          echo -n > expected
+          sed -n '/^ca.publish.publisher.instance.OCSPPublisher-/p' output | tee actual
+          diff expected actual
+
+          echo -n > expected
+          sed -n '/^ca.publish.rule.instance.ocsprule-/p' output | tee actual
+          diff expected actual
 
       - name: Gather artifacts
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki ds
-          tests/bin/pki-artifacts-save.sh pki
+          tests/bin/ds-artifacts-save.sh ds
+          tests/bin/pki-artifacts-save.sh ca
+          tests/bin/pki-artifacts-save.sh ocsp
         continue-on-error: true
 
       - name: Remove OCSP
-        run: docker exec pki pkidestroy -i pki-tomcat -s OCSP -v
+        run: docker exec ocsp pkidestroy -i pki-tomcat -s OCSP -v
+
+      - name: Remove CA
+        run: docker exec ca pkidestroy -i pki-tomcat -s CA -v
 
       - name: Upload artifacts
         if: always()
@@ -159,4 +253,6 @@ jobs:
         with:
           name: ocsp-standalone
           path: |
-            /tmp/artifacts/pki
+            /tmp/artifacts/ds
+            /tmp/artifacts/ca
+            /tmp/artifacts/ocsp
