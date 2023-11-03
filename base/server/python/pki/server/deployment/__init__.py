@@ -2386,16 +2386,13 @@ class PKIDeployer:
 
     def get_install_token(self):
 
-        if self.install_token:
-            return self.install_token
+        logger.info('Getting install token')
 
         hostname = self.mdict['pki_hostname']
         subsystem = self.mdict['pki_subsystem']
 
-        logger.info('Getting install token')
-
         sd_client = pki.system.SecurityDomainClient(self.sd_connection)
-        self.install_token = sd_client.get_install_token(hostname, subsystem)
+        install_token = sd_client.get_install_token(hostname, subsystem)
 
         # Sleep for a bit to allow the install token to replicate to other clones.
         # In the future this can be replaced with signed tokens.
@@ -2406,7 +2403,7 @@ class PKIDeployer:
         sd_delay = self.mdict.get('pki_security_domain_post_login_sleep_seconds', '5')
         time.sleep(int(sd_delay))
 
-        return self.install_token
+        return install_token
 
     def join_security_domain(self):
 
@@ -2419,7 +2416,7 @@ class PKIDeployer:
         sd_subsystem = self.domain_info.subsystems['CA']
         self.sd_host = sd_subsystem.get_host(sd_hostname, sd_port)
 
-        self.get_install_token()
+        self.install_token = self.get_install_token()
 
     def leave_security_domain(self, subsystem):
 
