@@ -54,6 +54,14 @@ public class EngineConfig extends ConfigStore {
         putString("instanceId", instanceID);
     }
 
+    public String getPasswordFile() throws EBaseException {
+        return getString("passwordFile", null);
+    }
+
+    public void setPasswordFile(String passwordFile) throws EBaseException {
+        putString("passwordFile", passwordFile);
+    }
+
     public String getType() throws EBaseException {
         return getString("cs.type");
     }
@@ -119,7 +127,7 @@ public class EngineConfig extends ConfigStore {
         PasswordStoreConfig config = new PasswordStoreConfig();
         config.setID(getString("instanceId"));
         config.setClassName(getString("passwordClass"));
-        config.setFileName(getString("passwordFile", null));
+        config.setFileName(getPasswordFile());
 
         return config;
     }

@@ -74,8 +74,8 @@ public class LdapAuthInfo {
         // but the problem is, other parts of the system just go directly to the file
         // so calling CMS.getPasswordStore() will give you an outdated one
         /*
-                        ConfigStore mainConfig = CMS.getConfigStore();
-                        String pwdFile = mainConfig.getString("passwordFile");
+                        EngineConfig mainConfig = engine.getConfig();
+                        String pwdFile = mainConfig.getPasswordFile();
                         FileConfigStorage pstore = new FileConfigStorage(pwdFile);
         */
         logger.debug("LdapAuthInfo: getPasswordFromStore: about to get from passwored store: " + prompt);

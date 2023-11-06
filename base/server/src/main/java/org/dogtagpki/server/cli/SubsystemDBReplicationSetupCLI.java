@@ -191,7 +191,7 @@ public class SubsystemDBReplicationSetupCLI extends SubsystemCLI {
             // remove master ldap password from password.conf (if present)
 
             if (!masterPassword.equals("")) {
-                String passwordFile = cs.getString("passwordFile");
+                String passwordFile = cs.getPasswordFile();
                 ConfigStorage storage = new FileConfigStorage(passwordFile);
                 ConfigStore passwords = new ConfigStore(storage);
                 passwords.load();
