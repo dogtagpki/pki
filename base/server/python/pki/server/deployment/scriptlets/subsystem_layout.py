@@ -74,10 +74,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             'conf',
             'CS.cfg')
 
+        # TODO: if the target already exists, merge the source
+        # into target instead of overwriting the target
         instance.copyfile(
             source_cs_cfg,
             subsystem.cs_conf,
-            params=deployer.mdict)
+            params=deployer.mdict,
+            force=True)
 
         # Copy /usr/share/pki/<subsystem>/conf/registry.cfg
         # to /etc/pki/<instance>/<subsystem>/registry.cfg

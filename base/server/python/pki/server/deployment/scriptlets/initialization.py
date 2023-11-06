@@ -156,12 +156,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.verify_subsystem_exists()
                 deployer.mdict['pki_skip_installation'] = "True"
 
-            else:
-                # verify that this type of "subsystem" does NOT yet
-                # exist for this "instance"
-                deployer.verify_subsystem_does_not_exist()
-                # detect and avoid any namespace collisions
-                deployer.namespace.collision_detection(instance)
         # verify existence of SENSITIVE configuration file data
         self.verify_sensitive_data(deployer)
         # verify existence of MUTUALLY EXCLUSIVE configuration file data

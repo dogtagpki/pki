@@ -1199,10 +1199,6 @@ grant codeBase "file:%s" {
                 # Directory does not exist
                 continue
 
-            if not os.listdir(subsystem_dir):
-                # Directory exists but it is empty
-                continue
-
             subsystem = pki.server.subsystem.PKISubsystemFactory.create(self, subsystem_name)
             subsystem.load()
 

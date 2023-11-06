@@ -124,6 +124,10 @@ jobs:
               --cert admin.crt \
               caadmin
 
+      - name: Create CA subsystem
+        run: |
+          docker exec pki pki-server ca-create -v
+
       - name: Set up DS container
         run: |
           tests/bin/ds-container-create.sh ds
@@ -134,6 +138,34 @@ jobs:
 
       - name: Connect DS container to network
         run: docker network connect example ds --alias ds.example.com
+
+      - name: Configure connection to CA database
+        run: |
+          # store DS password
+          docker exec pki pki-server password-add \
+              --password Secret.123 \
+              internaldb
+
+          # configure DS connection params
+          docker exec pki pki-server ca-db-config-mod \
+              --hostname ds.example.com \
+              --port 3389 \
+              --secure false \
+              --auth BasicAuth \
+              --bindDN "cn=Directory Manager" \
+              --bindPWPrompt internaldb \
+              --database userroot \
+              --baseDN dc=ca,dc=pki,dc=example,dc=com \
+              --multiSuffix false \
+              --maxConns 15 \
+              --minConns 3
+
+          # configure user/group subsystem to use DS
+          docker exec pki pki-server ca-config-set usrgrp.ldap internaldb
+
+      - name: Check connection to CA database
+        run: |
+          docker exec pki pki-server ca-db-info
 
       # https://github.com/dogtagpki/pki/wiki/Setting-up-CA-Database
       - name: Configure DS database
@@ -238,257 +270,61 @@ jobs:
 
       - name: Add CA VLV indexes
         run: |
-          sed \
-              -e 's/{instanceId}/pki-tomcat/g' \
-              -e 's/{database}/userroot/g' \
-              -e 's/{rootSuffix}/dc=ca,dc=pki,dc=example,dc=com/g' \
-              base/ca/database/ds/vlv.ldif \
-              | tee vlv.ldif
-          docker exec ds ldapadd \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -f $SHARED/vlv.ldif
+          docker exec pki pki-server ca-db-vlv-add -v
 
       - name: Rebuild CA VLV indexes
         run: |
-          # start rebuild task
-          sed \
-              -e 's/{database}/userroot/g' \
-              -e 's/{instanceId}/pki-tomcat/g' \
-              base/ca/database/ds/vlvtasks.ldif \
-              | tee vlvtasks.ldif
-          docker exec ds ldapadd \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -f $SHARED/vlvtasks.ldif
-
-          # wait for task to complete
-          while true; do
-              sleep 1
-
-              docker exec ds ldapsearch \
-                  -H ldap://ds.example.com:3389 \
-                  -D "cn=Directory Manager" \
-                  -w Secret.123 \
-                  -b "cn=index1160589769, cn=index, cn=tasks, cn=config" \
-                  -LLL \
-                  nsTaskExitCode \
-                  | tee output
-
-              sed -n -e 's/nsTaskExitCode:\s*\(.*\)/\1/p' output > nsTaskExitCode
-              cat nsTaskExitCode
-
-              if [ -s nsTaskExitCode ]; then
-                  break
-              fi
-          done
-
-          echo "0" > expected
-          diff expected nsTaskExitCode
+          docker exec pki pki-server ca-db-vlv-reindex -v
 
       # https://github.com/dogtagpki/pki/wiki/Setting-up-CA-Database-User
       - name: Add database user
         run: |
-          docker exec -i ds ldapadd \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 << EOF
-          dn: uid=pkidbuser,ou=people,dc=ca,dc=pki,dc=example,dc=com
-          objectClass: person
-          objectClass: organizationalPerson
-          objectClass: inetOrgPerson
-          objectClass: cmsuser
-          cn: pkidbuser
-          sn: pkidbuser
-          uid: pkidbuser
-          userState: 1
-          userType: agentType
-          nsPagedSizeLimit: 20000
-          EOF
+          docker exec pki pki-server ca-user-add \
+              --full-name pkidbuser \
+              --type agentType \
+              pkidbuser
 
       - name: Assign subsystem cert to database user
         run: |
-          # convert cert from PEM to DER
-          docker cp pki:/etc/pki/pki-tomcat/certs/subsystem.crt subsystem.crt
-          openssl x509 -outform der -in subsystem.crt -out subsystem.der
-
-          # get serial number
-          docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
-              nss-cert-show \
-              subsystem | tee output
-          sed -n 's/^ *Serial Number: *\(.*\)/\1/p' output > subsystem.serial
-
-          HEX_SERIAL=$(cat subsystem.serial)
-          echo "HEX_SERIAL: $HEX_SERIAL"
-
-          DEC_SERIAL=$(python -c "print(int('$HEX_SERIAL', 16))")
-          echo "DEC_SERIAL: $DEC_SERIAL"
-
-          docker exec -i ds ldapmodify \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 << EOF
-          dn: uid=pkidbuser,ou=people,dc=ca,dc=pki,dc=example,dc=com
-          changetype: modify
-          add: description
-          description: 2;$DEC_SERIAL;CN=CA Signing Certificate;CN=Subsystem Certificate
-          -
-          add: seeAlso
-          seeAlso: CN=Subsystem Certificate
-          -
-          add: userCertificate
-          userCertificate:< file:$SHARED/subsystem.der
-          -
-          EOF
+          docker exec pki pki-server ca-user-cert-add \
+              --cert /etc/pki/pki-tomcat/certs/subsystem.crt \
+              pkidbuser
 
       - name: Add database user into CA groups
         run: |
-          docker exec -i ds ldapmodify \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 << EOF
-          dn: cn=Subsystem Group,ou=groups,dc=ca,dc=pki,dc=example,dc=com
-          changetype: modify
-          add: uniqueMember
-          uniqueMember: uid=pkidbuser,ou=people,dc=ca,dc=pki,dc=example,dc=com
-          -
+          docker exec pki pki-server ca-user-role-add pkidbuser "Subsystem Group"
+          docker exec pki pki-server ca-user-role-add pkidbuser "Certificate Manager Agents"
 
-          dn: cn=Certificate Manager Agents,ou=groups,dc=ca,dc=pki,dc=example,dc=com
-          changetype: modify
-          add: uniqueMember
-          uniqueMember: uid=pkidbuser,ou=people,dc=ca,dc=pki,dc=example,dc=com
-          -
-          EOF
-
-      - name: Grant database user access to CA database
+      - name: Grant database access to database user
         run: |
-          sed \
-              -e 's/{rootSuffix}/dc=example,dc=com/g' \
-              -e 's/{dbuser}/uid=pkidbuser,ou=people,dc=ca,dc=pki,dc=example,dc=com/g' \
-              base/server/database/ds/db-access-grant.ldif \
-              | tee db-access-grant.ldif
-          docker exec ds ldapadd \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -f $SHARED/db-access-grant.ldif \
-              -c
+          docker exec pki pki-server ca-db-access-grant \
+              uid=pkidbuser,ou=people,dc=ca,dc=pki,dc=example,dc=com
 
       # https://github.com/dogtagpki/pki/wiki/Setting-up-CA-Admin-User
       - name: Add CA admin user
         run: |
-          docker exec -i ds ldapadd \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 << EOF
-          dn: uid=caadmin,ou=people,dc=ca,dc=pki,dc=example,dc=com
-          objectClass: person
-          objectClass: organizationalPerson
-          objectClass: inetOrgPerson
-          objectClass: cmsuser
-          cn: caadmin
-          sn: caadmin
-          uid: caadmin
-          mail: caadmin@example.com
-          userPassword: Secret.123
-          userState: 1
-          userType: adminType
-          EOF
+          docker exec pki pki-server ca-user-add \
+              --full-name Administrator \
+              --type adminType \
+              caadmin
 
       - name: Assign CA admin cert to CA admin user
         run: |
-          # convert cert from PEM to DER
-          docker cp pki:admin.crt admin.crt
-          openssl x509 -outform der -in admin.crt -out admin.der
+          docker exec pki pki-server ca-user-cert-add \
+              --cert admin.crt \
+              caadmin
 
-          # get serial number
-          docker exec pki pki nss-cert-show caadmin | tee output
-          sed -n 's/^ *Serial Number: *\(.*\)/\1/p' output > caadmin.serial
-
-          HEX_SERIAL=$(cat caadmin.serial)
-          echo "HEX_SERIAL: $HEX_SERIAL"
-
-          DEC_SERIAL=$(python -c "print(int('$HEX_SERIAL', 16))")
-          echo "DEC_SERIAL: $DEC_SERIAL"
-
-          docker exec -i ds ldapmodify \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 << EOF
-          dn: uid=caadmin,ou=people,dc=ca,dc=pki,dc=example,dc=com
-          changetype: modify
-          add: description
-          description: 2;$DEC_SERIAL;CN=CA Signing Certificate;CN=Administrator
-          -
-          add: userCertificate
-          userCertificate:< file:$SHARED/admin.der
-          -
-          EOF
-
-      - name: Add CA admin user into CA groups
+      - name: Assign roles to CA admin user
         run: |
-          docker exec -i ds ldapmodify \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 << EOF
-          dn: cn=Administrators,ou=groups,dc=ca,dc=pki,dc=example,dc=com
-          changetype: modify
-          add: uniqueMember
-          uniqueMember: uid=caadmin,ou=people,dc=ca,dc=pki,dc=example,dc=com
-          -
-
-          dn: cn=Certificate Manager Agents,ou=groups,dc=ca,dc=pki,dc=example,dc=com
-          changetype: modify
-          add: uniqueMember
-          uniqueMember: uid=caadmin,ou=people,dc=ca,dc=pki,dc=example,dc=com
-          -
-
-          dn: cn=Security Domain Administrators,ou=groups,dc=ca,dc=pki,dc=example,dc=com
-          changetype: modify
-          add: uniqueMember
-          uniqueMember: uid=caadmin,ou=people,dc=ca,dc=pki,dc=example,dc=com
-          -
-
-          dn: cn=Enterprise CA Administrators,ou=groups,dc=ca,dc=pki,dc=example,dc=com
-          changetype: modify
-          add: uniqueMember
-          uniqueMember: uid=caadmin,ou=people,dc=ca,dc=pki,dc=example,dc=com
-          -
-
-          dn: cn=Enterprise KRA Administrators,ou=groups,dc=ca,dc=pki,dc=example,dc=com
-          changetype: modify
-          add: uniqueMember
-          uniqueMember: uid=caadmin,ou=people,dc=ca,dc=pki,dc=example,dc=com
-          -
-
-          dn: cn=Enterprise RA Administrators,ou=groups,dc=ca,dc=pki,dc=example,dc=com
-          changetype: modify
-          add: uniqueMember
-          uniqueMember: uid=caadmin,ou=people,dc=ca,dc=pki,dc=example,dc=com
-          -
-
-          dn: cn=Enterprise TKS Administrators,ou=groups,dc=ca,dc=pki,dc=example,dc=com
-          changetype: modify
-          add: uniqueMember
-          uniqueMember: uid=caadmin,ou=people,dc=ca,dc=pki,dc=example,dc=com
-          -
-
-          dn: cn=Enterprise OCSP Administrators,ou=groups,dc=ca,dc=pki,dc=example,dc=com
-          changetype: modify
-          add: uniqueMember
-          uniqueMember: uid=caadmin,ou=people,dc=ca,dc=pki,dc=example,dc=com
-          -
-
-          dn: cn=Enterprise TPS Administrators,ou=groups,dc=ca,dc=pki,dc=example,dc=com
-          changetype: modify
-          add: uniqueMember
-          uniqueMember: uid=caadmin,ou=people,dc=ca,dc=pki,dc=example,dc=com
-          -
-          EOF
+          docker exec pki pki-server ca-user-role-add caadmin "Administrators"
+          docker exec pki pki-server ca-user-role-add caadmin "Certificate Manager Agents"
+          docker exec pki pki-server ca-user-role-add caadmin "Security Domain Administrators"
+          docker exec pki pki-server ca-user-role-add caadmin "Enterprise CA Administrators"
+          docker exec pki pki-server ca-user-role-add caadmin "Enterprise KRA Administrators"
+          docker exec pki pki-server ca-user-role-add caadmin "Enterprise RA Administrators"
+          docker exec pki pki-server ca-user-role-add caadmin "Enterprise TKS Administrators"
+          docker exec pki pki-server ca-user-role-add caadmin "Enterprise OCSP Administrators"
+          docker exec pki pki-server ca-user-role-add caadmin "Enterprise TPS Administrators"
 
       - name: Install CA
         run: |
