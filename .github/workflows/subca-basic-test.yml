@@ -100,29 +100,44 @@ jobs:
 
       - name: Check CA signing cert
         run: |
-          docker exec subordinate pki-server cert-export ca_signing --cert-file ca_signing.crt
+          docker exec subordinate pki-server cert-export ca_signing \
+              --cert-file ca_signing.crt
+          docker exec subordinate openssl req -text -noout \
+              -in /etc/pki/pki-tomcat/certs/ca_signing.csr
 
           # check sub CA signing cert extensions
           docker exec subordinate /usr/share/pki/tests/ca/bin/test-subca-signing-cert-ext.sh ca_signing.crt
 
       - name: Check CA OCSP signing cert
         run: |
-          docker exec subordinate pki-server cert-export ca_ocsp_signing --cert-file ca_ocsp_signing.crt
+          docker exec subordinate pki-server cert-export ca_ocsp_signing \
+              --cert-file ca_ocsp_signing.crt
+          docker exec subordinate openssl req -text -noout \
+              -in /etc/pki/pki-tomcat/certs/ca_ocsp_signing.csr
           docker exec subordinate openssl x509 -text -noout -in ca_ocsp_signing.crt
 
       - name: Check CA audit signing cert
         run: |
-          docker exec subordinate pki-server cert-export ca_audit_signing --cert-file ca_audit_signing.crt
+          docker exec subordinate pki-server cert-export ca_audit_signing \
+              --cert-file ca_audit_signing.crt
+          docker exec subordinate openssl req -text -noout \
+              -in /etc/pki/pki-tomcat/certs/ca_audit_signing.csr
           docker exec subordinate openssl x509 -text -noout -in ca_audit_signing.crt
 
       - name: Check subsystem cert
         run: |
-          docker exec subordinate pki-server cert-export subsystem --cert-file subsystem.crt
+          docker exec subordinate pki-server cert-export subsystem \
+              --cert-file subsystem.crt
+          docker exec subordinate openssl req -text -noout \
+              -in /etc/pki/pki-tomcat/certs/subsystem.csr
           docker exec subordinate openssl x509 -text -noout -in subsystem.crt
 
       - name: Check SSL server cert
         run: |
-          docker exec subordinate pki-server cert-export sslserver --cert-file sslserver.crt
+          docker exec subordinate pki-server cert-export sslserver \
+              --cert-file sslserver.crt
+          docker exec subordinate openssl req -text -noout \
+              -in /etc/pki/pki-tomcat/certs/sslserver.csr
           docker exec subordinate openssl x509 -text -noout -in sslserver.crt
 
       - name: Check CA admin cert
