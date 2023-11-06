@@ -151,6 +151,25 @@ class PKISubsystem(object):
         # Create /etc/pki/<instance>/<subsystem>
         self.instance.makedirs(self.conf_dir, exist_ok=exist_ok)
 
+        self.config['cs.type'] = self.type
+        self.config['instanceId'] = self.instance.name
+        self.config['passwordClass'] = 'com.netscape.cmsutil.password.PlainPasswordFile'
+        self.config['passwordFile'] = self.instance.password_conf
+
+        logger.info('Storing subsystem config: %s', self.cs_conf)
+        self.instance.store_properties(self.cs_conf, self.config)
+
+        # Copy /usr/share/pki/<subsystem>/conf/registry.cfg
+        # to /etc/pki/<instance>/<subsystem>/registry.cfg
+
+        registry_conf = os.path.join(
+            pki.server.PKIServer.SHARE_DIR,
+            self.name,
+            'conf',
+            'registry.cfg')
+
+        self.instance.copy(registry_conf, self.registry_conf)
+
     def create_logs(self, exist_ok=False):
 
         # Create /var/log/pki/<instance>/<subsystem>

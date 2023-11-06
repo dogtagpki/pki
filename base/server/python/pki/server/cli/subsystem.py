@@ -197,6 +197,85 @@ class SubsystemShowCLI(pki.cli.CLI):
         SubsystemCLI.print_subsystem(subsystem)
 
 
+class SubsystemCreateCLI(pki.cli.CLI):
+    '''
+    Create {subsystem} subsystem
+    '''
+
+    help = '''\
+        Usage: pki-server {subsystem}-create [OPTIONS] <subsystem ID>
+
+          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -v, --verbose                      Run in verbose mode.
+              --debug                        Run in debug mode.
+              --help                         Show help message.
+    '''  # noqa: E501
+
+    def __init__(self, parent):
+        super().__init__(
+            'create',
+            inspect.cleandoc(self.__class__.__doc__).format(
+                subsystem=parent.name.upper()))
+
+        self.parent = parent
+
+    def print_help(self):
+        print(textwrap.dedent(self.__class__.help).format(
+            subsystem=self.parent.name))
+
+    def execute(self, argv):
+
+        try:
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        subsystem_name = self.parent.name
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('Invalid option: %s', o)
+                self.print_help()
+                sys.exit(1)
+
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+
+        if not instance.exists():
+            raise Exception('Invalid instance: %s' % instance_name)
+
+        instance.load()
+
+        subsystem = instance.get_subsystem(subsystem_name)
+        if subsystem:
+            raise Exception('%s subsystem already exists' % subsystem_name.upper())
+
+        subsystem = pki.server.subsystem.PKISubsystemFactory.create(instance, subsystem_name)
+        instance.add_subsystem(subsystem)
+
+        subsystem.create(exist_ok=True)
+        subsystem.create_conf(exist_ok=True)
+        subsystem.create_logs(exist_ok=True)
+
+
 class SubsystemDeployCLI(pki.cli.CLI):
 
     def __init__(self, parent):

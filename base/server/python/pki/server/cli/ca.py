@@ -49,6 +49,7 @@ class CACLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('ca', 'CA management commands')
 
+        self.add_module(pki.server.cli.subsystem.SubsystemCreateCLI(self))
         self.add_module(pki.server.cli.subsystem.SubsystemDeployCLI(self))
         self.add_module(pki.server.cli.subsystem.SubsystemUndeployCLI(self))
         self.add_module(pki.server.cli.subsystem.SubsystemRedeployCLI(self))
