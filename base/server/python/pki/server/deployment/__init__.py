@@ -3141,7 +3141,7 @@ class PKIDeployer:
 
         # For external/existing CA case, the requests and certs might be provided
         # (i.e. already exists in NSS database), but they still need to be imported
-        # into internal database.
+        # into CA database.
         #
         # A new SSL server cert will always be created separately later.
 
@@ -3241,10 +3241,8 @@ class PKIDeployer:
         subsystem.update_system_cert(system_cert)
 
         if cert_info:
-            logger.info('Remove existing %s cert from NSS database but keep the key', tag)
-            nssdb.remove_cert(
-                nickname=request.systemCert.nickname,
-                token=request.systemCert.token)
+            logger.info('Reusing existing %s cert in NSS database', tag)
+            return
 
         logger.info('Importing %s cert into NSS database', tag)
         nssdb.add_cert(
