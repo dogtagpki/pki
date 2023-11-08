@@ -62,8 +62,6 @@ jobs:
               -D pki_subsystem_key_algorithm=SHA384withRSA \
               -D pki_sslserver_key_algorithm=SHA384withRSA \
               -D pki_admin_key_algorithm=SHA384withRSA \
-              -D pki_cert_id_generator=random \
-              -D pki_request_id_generator=random \
               -D pki_enable_access_log=False \
               -v
 

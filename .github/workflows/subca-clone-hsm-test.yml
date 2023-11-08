@@ -108,8 +108,6 @@ jobs:
               -D pki_audit_signing_token=HSM \
               -D pki_subsystem_token=HSM \
               -D pki_sslserver_token=internal \
-              -D pki_cert_id_generator=random \
-              -D pki_request_id_generator=random \
               -D pki_client_admin_cert_p12=$SHARED/caadmin.p12 \
               -v
 
@@ -139,8 +137,6 @@ jobs:
               -D pki_audit_signing_token=HSM \
               -D pki_subsystem_token=HSM \
               -D pki_sslserver_token=internal \
-              -D pki_cert_id_generator=random \
-              -D pki_request_id_generator=random \
               -D pki_client_admin_cert_p12=$SHARED/caadmin.p12 \
               -v
 
@@ -346,8 +342,6 @@ jobs:
               -D pki_audit_signing_token=HSM \
               -D pki_subsystem_token=HSM \
               -D pki_sslserver_token=internal \
-              -D pki_cert_id_generator=random \
-              -D pki_request_id_generator=random \
               -D pki_clone_uri=https://primary-subca.example.com:8443 \
               -v
 

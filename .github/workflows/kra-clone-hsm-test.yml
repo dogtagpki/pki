@@ -85,8 +85,6 @@ jobs:
               -D pki_audit_signing_token=HSM \
               -D pki_subsystem_token=HSM \
               -D pki_sslserver_token=internal \
-              -D pki_cert_id_generator=random \
-              -D pki_request_id_generator=random \
               -v
 
       - name: Install KRA in primary PKI container
@@ -103,8 +101,6 @@ jobs:
               -D pki_audit_signing_token=HSM \
               -D pki_subsystem_token=HSM \
               -D pki_sslserver_token=internal \
-              -D pki_key_id_generator=random \
-              -D pki_request_id_generator=random \
               -v
 
       - name: Check system certs in internal token
@@ -188,8 +184,6 @@ jobs:
               -D pki_audit_signing_token=HSM \
               -D pki_subsystem_token=HSM \
               -D pki_sslserver_token=internal \
-              -D pki_cert_id_generator=random \
-              -D pki_request_id_generator=random \
               -v
 
       - name: Install KRA in secondary PKI container
@@ -211,8 +205,6 @@ jobs:
               -D pki_audit_signing_token=HSM \
               -D pki_subsystem_token=HSM \
               -D pki_sslserver_token=internal \
-              -D pki_key_id_generator=random \
-              -D pki_request_id_generator=random \
               -v
 
       - name: Check system certs in internal token
@@ -384,8 +376,6 @@ jobs:
               -D pki_subsystem_token=HSM \
               -D pki_subsystem_csr_path=${SHARED}/subsystem.csr \
               -D pki_sslserver_token=internal \
-              -D pki_cert_id_generator=random \
-              -D pki_request_id_generator=random \
               -v
 
       - name: Install KRA in tertiary PKI container
@@ -424,8 +414,6 @@ jobs:
               -D pki_subsystem_token=HSM \
               -D pki_subsystem_csr_path=${SHARED}/subsystem.csr \
               -D pki_sslserver_token=internal \
-              -D pki_key_id_generator=random \
-              -D pki_request_id_generator=random \
               -v
 
       - name: Check system certs in internal token

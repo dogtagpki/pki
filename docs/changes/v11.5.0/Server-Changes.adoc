@@ -28,3 +28,29 @@ and `validityUnit` parameters to specify the certificate validity.
 The default is 3 months.
 
 The `monthsValid` parameter has been deprecated.
+
+== Enable Random Serial Numbers v3 by Default ==
+
+New CA and KRA installations will have Random Serial Numbers v3 enabled by default.
+Existing installations will not be affected.
+
+To migrate existing installations with the legacy sequential serial numbers or RandomSerial Numbers v1 to Random Serial Numbers v3 follow these instructions:
+
+* link:https://github.com/dogtagpki/pki/wiki/Configuring-CA-with-Random-Serial-Numbers-v3[Configuring CA with Random Serial Numbers v3]
+* link:https://github.com/dogtagpki/pki/wiki/Configuring-KRA-with-Random-Serial-Numbers-v3[Configuring KRA with Random Serial Numbers v3]
+
+To install a new CA with the legacy sequential serial numbers specify the following parameters:
+
+* `pki_cert_id_generator=legacy`
+* `pki_request_id_generator=legacy`
+
+To install a new CA with the legacy Random Serial Numbers v1 specify the following parameters:
+
+* `pki_cert_id_generator=legacy`
+* `pki_request_id_generator=legacy`
+* `pki_random_serial_numbers_enable=True`
+
+To install a new KRA with the legacy sequential serial numbers specify the following parameters:
+
+* `pki_key_id_generator=legacy`
+* `pki_request_id_generator=legacy`
