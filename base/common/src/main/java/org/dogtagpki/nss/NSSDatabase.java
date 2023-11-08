@@ -972,9 +972,9 @@ public class NSSDatabase {
         return CryptoUtil.generateRSAKeyPair(
                 token,
                 keySize,
-                false,
-                false,
-                false,
+                null,
+                null,
+                null,
                 usages,
                 usagesMask);
     }
@@ -989,9 +989,9 @@ public class NSSDatabase {
         return CryptoUtil.generateRSAKeyPair(
                 token,
                 keySize,
-                false,
-                false,
-                false,
+                null,
+                null,
+                null,
                 null,
                 null);
     }

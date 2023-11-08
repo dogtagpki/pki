@@ -423,9 +423,9 @@ public class CryptoUtil {
         return generateRSAKeyPair(
                 token,
                 keySize,
-                false,
-                false,
-                false,
+                null,
+                null,
+                null,
                 usages,
                 usagesMask);
     }
