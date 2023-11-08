@@ -170,6 +170,8 @@ else()
         NAMES
             jaxb-api.jar
         PATHS
+            /usr/share/java/jaxb-api4
+            /usr/share/java/jaxb-api
             /usr/share/java
     )
 endif(XMVN_RESOLVE)
