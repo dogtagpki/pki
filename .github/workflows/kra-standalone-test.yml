@@ -53,8 +53,6 @@ jobs:
               -f /usr/share/pki/server/examples/installation/ca.cfg \
               -s CA \
               -D pki_ds_url=ldap://ds.example.com:3389 \
-              -D pki_cert_id_generator=random \
-              -D pki_request_id_generator=random \
               -D pki_security_domain_setup=False \
               -v
 
@@ -111,8 +109,6 @@ jobs:
               -D pki_sslserver_csr_path=${SHARED}/sslserver.csr \
               -D pki_audit_signing_csr_path=${SHARED}/kra_audit_signing.csr \
               -D pki_admin_csr_path=${SHARED}/kra_admin.csr \
-              -D pki_key_id_generator=random \
-              -D pki_request_id_generator=random \
               -v
 
       - name: Issue KRA storage cert
@@ -194,8 +190,6 @@ jobs:
               -D pki_sslserver_cert_path=${SHARED}/sslserver.crt \
               -D pki_audit_signing_cert_path=${SHARED}/kra_audit_signing.crt \
               -D pki_admin_cert_path=${SHARED}/kra_admin.crt \
-              -D pki_key_id_generator=random \
-              -D pki_request_id_generator=random \
               -v
 
           docker exec kra pki-server cert-find

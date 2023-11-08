@@ -54,8 +54,6 @@ jobs:
               -f /usr/share/pki/server/examples/installation/ca.cfg \
               -s CA \
               -D pki_ds_url=ldap://cads.example.com:3389 \
-              -D pki_cert_id_generator=random \
-              -D pki_request_id_generator=random \
               -v
 
           docker exec ca pki-server cert-find
@@ -95,8 +93,6 @@ jobs:
               -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
               -D pki_admin_cert_file=${SHARED}/ca_admin.cert \
               -D pki_ds_url=ldap://krads.example.com:3389 \
-              -D pki_key_id_generator=random \
-              -D pki_request_id_generator=random \
               -v
 
           docker exec kra pki-server cert-find

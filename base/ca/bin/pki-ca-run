@@ -307,8 +307,6 @@ pkispawn \
     -D pki_ds_url=ldap://ds.example.com:3389 \
     -D pki_ds_setup=False \
     -D pki_share_db=True \
-    -D pki_request_id_generator=random \
-    -D pki_cert_id_generator=random \
     -D pki_existing=True \
     -D pki_import_system_certs=False \
     -D pki_ca_signing_nickname=ca_signing \

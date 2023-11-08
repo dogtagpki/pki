@@ -64,8 +64,6 @@ jobs:
               -D pki_subsystem_key_algorithm=SHA384withRSA/PSS \
               -D pki_sslserver_key_algorithm=SHA384withRSA/PSS \
               -D pki_admin_key_algorithm=SHA384withRSA/PSS \
-              -D pki_cert_id_generator=random \
-              -D pki_request_id_generator=random \
               -v
 
       - name: Check system cert keys

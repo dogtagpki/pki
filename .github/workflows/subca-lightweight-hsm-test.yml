@@ -81,8 +81,6 @@ jobs:
               -D pki_audit_signing_token=HSM \
               -D pki_subsystem_token=HSM \
               -D pki_sslserver_token=internal \
-              -D pki_cert_id_generator=random \
-              -D pki_request_id_generator=random \
               -v
 
       - name: Check admin user

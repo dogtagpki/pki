@@ -277,7 +277,7 @@ jobs:
           HEX_SERIAL=$(cat testuser.serial)
           echo "Hex serial: $HEX_SERIAL"
 
-          DEC_SERIAL=$((16#${HEX_SERIAL:2}))
+          DEC_SERIAL=$(python -c "print(int('$HEX_SERIAL', 16))")
           echo "Dec serial: $DEC_SERIAL"
 
           SHARED_TOKEN=$(cat token.txt)

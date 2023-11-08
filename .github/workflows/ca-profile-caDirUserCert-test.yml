@@ -87,8 +87,6 @@ jobs:
               -f /usr/share/pki/server/examples/installation/ca.cfg \
               -s CA \
               -D pki_ds_url=ldap://ds.example.com:3389 \
-              -D pki_cert_id_generator=random \
-              -D pki_request_id_generator=random \
               -v
 
       - name: Configure UserDirEnrollment

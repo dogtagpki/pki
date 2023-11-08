@@ -80,8 +80,6 @@ jobs:
               -s CA \
               -D pki_ds_url=ldap://primary-ds.example.com:3389 \
               -D pki_ca_signing_csr_path=$SHARED/subca_signing.csr \
-              -D pki_cert_id_generator=random \
-              -D pki_request_id_generator=random \
               -D pki_client_admin_cert_p12=$SHARED/caadmin.p12 \
               -v
 
@@ -102,8 +100,6 @@ jobs:
               -D pki_cert_chain_path=${SHARED}/root-ca_signing.crt \
               -D pki_ca_signing_csr_path=$SHARED/subca_signing.csr \
               -D pki_ca_signing_cert_path=$SHARED/subca_signing.crt \
-              -D pki_cert_id_generator=random \
-              -D pki_request_id_generator=random \
               -D pki_client_admin_cert_p12=$SHARED/caadmin.p12 \
               -v
 
@@ -161,8 +157,6 @@ jobs:
               -D pki_clone_pkcs12_path=${SHARED}/subca-certs.p12 \
               -D pki_clone_pkcs12_password=Secret.123 \
               -D pki_ds_url=ldap://secondary-ds.example.com:3389 \
-              -D pki_cert_id_generator=random \
-              -D pki_request_id_generator=random \
               -D pki_clone_uri=https://primary-subca.example.com:8443 \
               -v
 
