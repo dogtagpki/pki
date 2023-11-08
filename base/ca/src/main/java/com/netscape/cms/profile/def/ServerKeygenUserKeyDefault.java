@@ -495,6 +495,7 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
             request.setExtData(Request.SERVER_SIDE_KEYGEN_ENROLL_ENABLE_ARCHIVAL, enableArchival? "true":"false");
 
             info.set(X509CertInfo.KEY, certKey);
+            logger.debug(method + "fake key injected for SSK.");
         } catch (Exception e) {
             logger.debug("ServerKeygenUserKeyDefault: populate " + e.toString());
             throw new EProfileException(e.getMessage());
