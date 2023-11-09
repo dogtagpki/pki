@@ -1925,24 +1925,29 @@ class PKIDeployer:
 
         cert_id = self.get_cert_id(subsystem, tag)
         param = 'pki_%s_csr_path' % cert_id
-        csr_path = self.mdict.get(param)
-        certs_folder = os.path.join(self.instance.conf_dir, 'certs')
+        source_path = self.mdict.get(param)
 
-        if not csr_path:
+        if not source_path:
             # no CSR file to import
             return
-
-        logger.info('Importing CSR for %s from %s', tag, csr_path)
-
-        if not os.path.exists(csr_path):
-            raise Exception('Invalid path in %s: %s' % (param, csr_path))
 
         if tag != 'sslserver' and tag != 'subsystem':
             tag = subsystem.name + '_' + tag
 
+        logger.info('Importing CSR for %s from %s', tag, source_path)
+
+        if not os.path.exists(source_path):
+            raise Exception('Invalid path in %s: %s' % (param, source_path))
+
+        dest_path = self.instance.csr_file(tag)
+
+        if os.path.realpath(source_path) == os.path.realpath(dest_path):
+            # CSR already imported
+            return
+
         self.file.copy(
-            old_name=csr_path,
-            new_name=os.path.join(certs_folder, tag + '.csr'),
+            old_name=source_path,
+            new_name=dest_path,
             overwrite_flag=True)
 
     def import_system_cert_requests(self, subsystem):
