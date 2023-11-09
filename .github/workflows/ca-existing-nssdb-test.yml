@@ -54,16 +54,17 @@ jobs:
 
       - name: Create CA signing cert in server's NSS database
         run: |
+          docker exec pki mkdir -p /etc/pki/pki-tomcat/certs
           docker exec pki pki \
               -d /etc/pki/pki-tomcat/alias \
               nss-cert-request \
               --subject "CN=CA Signing Certificate" \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
-              --csr ca_signing.csr
+              --csr /etc/pki/pki-tomcat/certs/ca_signing.csr
           docker exec pki pki \
               -d /etc/pki/pki-tomcat/alias \
               nss-cert-issue \
-              --csr ca_signing.csr \
+              --csr /etc/pki/pki-tomcat/certs/ca_signing.csr \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --cert ca_signing.crt
           docker exec pki pki \
@@ -92,12 +93,12 @@ jobs:
               nss-cert-request \
               --subject "CN=OCSP Signing Certificate" \
               --ext /usr/share/pki/server/certs/ocsp_signing.conf \
-              --csr ca_ocsp_signing.csr
+              --csr /etc/pki/pki-tomcat/certs/ca_ocsp_signing.csr
           docker exec pki pki \
               -d /etc/pki/pki-tomcat/alias \
               nss-cert-issue \
               --issuer ca_signing \
-              --csr ca_ocsp_signing.csr \
+              --csr /etc/pki/pki-tomcat/certs/ca_ocsp_signing.csr \
               --ext /usr/share/pki/server/certs/ocsp_signing.conf \
               --cert ca_ocsp_signing.crt
           docker exec pki pki \
@@ -125,12 +126,12 @@ jobs:
               nss-cert-request \
               --subject "CN=Audit Signing Certificate" \
               --ext /usr/share/pki/server/certs/audit_signing.conf \
-              --csr ca_audit_signing.csr
+              --csr /etc/pki/pki-tomcat/certs/ca_audit_signing.csr
           docker exec pki pki \
               -d /etc/pki/pki-tomcat/alias \
               nss-cert-issue \
               --issuer ca_signing \
-              --csr ca_audit_signing.csr \
+              --csr /etc/pki/pki-tomcat/certs/ca_audit_signing.csr \
               --ext /usr/share/pki/server/certs/audit_signing.conf \
               --cert ca_audit_signing.crt
           docker exec pki pki \
@@ -159,12 +160,12 @@ jobs:
               nss-cert-request \
               --subject "CN=Subsystem Certificate" \
               --ext /usr/share/pki/server/certs/subsystem.conf \
-              --csr subsystem.csr
+              --csr /etc/pki/pki-tomcat/certs/subsystem.csr
           docker exec pki pki \
               -d /etc/pki/pki-tomcat/alias \
               nss-cert-issue \
               --issuer ca_signing \
-              --csr subsystem.csr \
+              --csr /etc/pki/pki-tomcat/certs/subsystem.csr \
               --ext /usr/share/pki/server/certs/subsystem.conf \
               --cert subsystem.crt
           docker exec pki pki \
@@ -192,12 +193,12 @@ jobs:
               nss-cert-request \
               --subject "CN=pki.example.com" \
               --ext /usr/share/pki/server/certs/sslserver.conf \
-              --csr sslserver.csr
+              --csr /etc/pki/pki-tomcat/certs/sslserver.csr
           docker exec pki pki \
               -d /etc/pki/pki-tomcat/alias \
               nss-cert-issue \
               --issuer ca_signing \
-              --csr sslserver.csr \
+              --csr /etc/pki/pki-tomcat/certs/sslserver.csr \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --cert sslserver.crt
           docker exec pki pki \
@@ -242,16 +243,12 @@ jobs:
 
       - name: Install CA with existing NSS database
         run: |
+          docker exec pki chown -R pkiuser:pkiuser /etc/pki/pki-tomcat/certs
           docker exec pki pkispawn \
               -f /usr/share/pki/server/examples/installation/ca.cfg \
               -s CA \
               -D pki_ds_url=ldap://ds.example.com:3389 \
               -D pki_existing=True \
-              -D pki_ca_signing_csr_path=ca_signing.csr \
-              -D pki_ocsp_signing_csr_path=ca_ocsp_signing.csr \
-              -D pki_audit_signing_csr_path=ca_audit_signing.csr \
-              -D pki_subsystem_csr_path=subsystem.csr \
-              -D pki_sslserver_csr_path=sslserver.csr \
               -D pki_admin_cert_path=admin.crt \
               -D pki_admin_csr_path=admin.csr \
               -v
