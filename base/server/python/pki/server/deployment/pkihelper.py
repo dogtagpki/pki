@@ -2052,55 +2052,37 @@ class TPSConnector:
         self.mdict = deployer.mdict
         self.password = deployer.password
 
-    def deregister(self, instance, subsystem, critical_failure=True):
-        tkshost = None
-        tksport = None
-        try:
-            # this is applicable to TPSs only
-            if self.mdict['pki_subsystem_type'] != "tps":
-                return
+    def deregister(self, instance, subsystem):
 
-            logger.info('Removing TPS connector from TKS subsystem')
+        # this is applicable to TPSs only
+        if self.mdict['pki_subsystem_type'] != "tps":
+            return
 
-            cs_cfg = PKIConfigParser.read_simple_configuration_file(subsystem.cs_conf)
-            tpshost = cs_cfg.get('machineName')
+        logger.info('Removing TPS connector from TKS subsystem')
 
-            server_config = instance.get_server_config()
-            tpsport = server_config.get_secure_port()
+        cs_cfg = PKIConfigParser.read_simple_configuration_file(subsystem.cs_conf)
+        tpshost = cs_cfg.get('machineName')
 
-            tkshost = cs_cfg.get('tps.connector.tks1.host')
-            tksport = cs_cfg.get('tps.connector.tks1.port')
-            if tkshost is None or tksport is None:
-                logger.warning(log.PKIHELPER_TPSCONNECTOR_UPDATE_FAILURE)
-                logger.error(log.PKIHELPER_UNDEFINED_TKS_HOST_PORT)
-                if critical_failure:
-                    raise Exception(log.PKIHELPER_UNDEFINED_TKS_HOST_PORT)
-                else:
-                    return
+        server_config = instance.get_server_config()
+        tpsport = server_config.get_secure_port()
 
-            # retrieve subsystem nickname
-            subsystemnick = cs_cfg.get('tps.cert.subsystem.nickname')
-            if subsystemnick is None:
-                logger.warning(log.PKIHELPER_TPSCONNECTOR_UPDATE_FAILURE)
-                logger.error(log.PKIHELPER_UNDEFINED_SUBSYSTEM_NICKNAME)
-                if critical_failure:
-                    raise Exception(log.PKIHELPER_UNDEFINED_SUBSYSTEM_NICKNAME)
-                else:
-                    return
+        tkshost = cs_cfg.get('tps.connector.tks1.host')
+        tksport = cs_cfg.get('tps.connector.tks1.port')
+        if tkshost is None or tksport is None:
+            logger.warning(log.PKIHELPER_TPSCONNECTOR_UPDATE_FAILURE)
+            logger.error(log.PKIHELPER_UNDEFINED_TKS_HOST_PORT)
+            raise Exception(log.PKIHELPER_UNDEFINED_TKS_HOST_PORT)
 
-            self.execute_using_pki(
-                instance, tkshost, tksport, subsystemnick,
-                tpshost, tpsport)
+        # retrieve subsystem nickname
+        subsystemnick = cs_cfg.get('tps.cert.subsystem.nickname')
+        if subsystemnick is None:
+            logger.warning(log.PKIHELPER_TPSCONNECTOR_UPDATE_FAILURE)
+            logger.error(log.PKIHELPER_UNDEFINED_SUBSYSTEM_NICKNAME)
+            raise Exception(log.PKIHELPER_UNDEFINED_SUBSYSTEM_NICKNAME)
 
-        except subprocess.CalledProcessError as exc:
-            logger.warning(
-                log.PKIHELPER_TPSCONNECTOR_UPDATE_FAILURE_2,
-                str(tkshost),
-                str(tksport))
-            logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
-            if critical_failure:
-                raise
-        return
+        self.execute_using_pki(
+            instance, tkshost, tksport, subsystemnick,
+            tpshost, tpsport)
 
     def execute_using_pki(
             self, instance, tkshost, tksport, subsystemnick,
