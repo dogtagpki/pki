@@ -1901,124 +1901,106 @@ class KRAConnector:
         self.mdict = deployer.mdict
         self.password = deployer.password
 
-    def deregister(self, instance, subsystem, critical_failure=True):
-        krahost = None
-        kraport = None
-        try:
-            # this is applicable to KRAs only
-            if self.mdict['pki_subsystem_type'] != "kra":
-                return
+    def deregister(self, instance, subsystem):
 
-            logger.info('Removing KRA connector from all CAs subsystems')
+        # this is applicable to KRAs only
+        if self.mdict['pki_subsystem_type'] != "kra":
+            return
 
-            cs_cfg = PKIConfigParser.read_simple_configuration_file(subsystem.cs_conf)
-            krahost = cs_cfg.get('machineName')
+        logger.info('Removing KRA connector from all CAs subsystems')
 
-            server_config = instance.get_server_config()
-            kraport = server_config.get_secure_port()
+        cs_cfg = PKIConfigParser.read_simple_configuration_file(subsystem.cs_conf)
+        krahost = cs_cfg.get('machineName')
 
-            proxy_secure_port = cs_cfg.get('proxy.securePort', '')
+        server_config = instance.get_server_config()
+        kraport = server_config.get_secure_port()
 
-            if proxy_secure_port != '':
-                kraport = proxy_secure_port
+        proxy_secure_port = cs_cfg.get('proxy.securePort', '')
 
-            # retrieve subsystem nickname
-            subsystemnick = cs_cfg.get('kra.cert.subsystem.nickname')
+        if proxy_secure_port != '':
+            kraport = proxy_secure_port
 
-            if subsystemnick is None:
-                logger.warning(log.PKIHELPER_KRACONNECTOR_UPDATE_FAILURE)
-                logger.error(log.PKIHELPER_UNDEFINED_SUBSYSTEM_NICKNAME)
-                if critical_failure:
-                    raise Exception(log.PKIHELPER_UNDEFINED_SUBSYSTEM_NICKNAME)
-                else:
-                    return
+        # retrieve subsystem nickname
+        subsystemnick = cs_cfg.get('kra.cert.subsystem.nickname')
 
-            # retrieve name of token based upon type (hardware/software)
-            if ':' in subsystemnick:
-                token_name = subsystemnick.split(':')[0]
-            else:
-                token_name = pki.nssdb.INTERNAL_TOKEN_NAME
+        if subsystemnick is None:
+            logger.warning(log.PKIHELPER_KRACONNECTOR_UPDATE_FAILURE)
+            logger.error(log.PKIHELPER_UNDEFINED_SUBSYSTEM_NICKNAME)
+            raise Exception(log.PKIHELPER_UNDEFINED_SUBSYSTEM_NICKNAME)
 
-            token_pwd = self.password.get_password(
-                instance.password_conf,
+        # retrieve name of token based upon type (hardware/software)
+        if ':' in subsystemnick:
+            token_name = subsystemnick.split(':')[0]
+        else:
+            token_name = pki.nssdb.INTERNAL_TOKEN_NAME
+
+        token_pwd = self.password.get_password(
+            instance.password_conf,
+            token_name)
+
+        if token_pwd is None or token_pwd == '':
+            logger.warning(log.PKIHELPER_KRACONNECTOR_UPDATE_FAILURE)
+            logger.error(
+                log.PKIHELPER_UNDEFINED_TOKEN_PASSWD_1,
                 token_name)
+            raise Exception(
+                log.PKIHELPER_UNDEFINED_TOKEN_PASSWD_1 % token_name)
 
-            if token_pwd is None or token_pwd == '':
-                logger.warning(log.PKIHELPER_KRACONNECTOR_UPDATE_FAILURE)
-                logger.error(
-                    log.PKIHELPER_UNDEFINED_TOKEN_PASSWD_1,
-                    token_name)
-                if critical_failure:
-                    raise Exception(
-                        log.PKIHELPER_UNDEFINED_TOKEN_PASSWD_1 % token_name)
-                else:
-                    return
+        # Note: this is a hack to resolve Trac Ticket 1113
+        # We need to remove the KRA connector data from all relevant clones,
+        # but we have no way of easily identifying which instances are
+        # the right ones.  Instead, We will attempt to remove the KRA
+        # connector from all CAs in the security domain.
+        # The better - and long term solution is to store the connector
+        # configuration in LDAP so that updating one clone will
+        # automatically update the rest.
+        # TODO(alee): Fix this logic once we move connector data to LDAP
 
-            # Note: this is a hack to resolve Trac Ticket 1113
-            # We need to remove the KRA connector data from all relevant clones,
-            # but we have no way of easily identifying which instances are
-            # the right ones.  Instead, We will attempt to remove the KRA
-            # connector from all CAs in the security domain.
-            # The better - and long term solution is to store the connector
-            # configuration in LDAP so that updating one clone will
-            # automatically update the rest.
-            # TODO(alee): Fix this logic once we move connector data to LDAP
+        # get a list of all the CA's in the security domain
+        # noinspection PyBroadException
+        # pylint: disable=W0703
+        sechost = cs_cfg.get('securitydomain.host')
+        secport = cs_cfg.get('securitydomain.httpsadminport')
 
-            # get a list of all the CA's in the security domain
+        logger.info('Getting security domain info from https://%s:%s', sechost, secport)
+
+        ca_cert = os.path.join(instance.nssdb_dir, 'ca.crt')
+
+        try:
+            ca_list = self.get_ca_list_from_security_domain(
+                sechost, secport, ca_cert)
+        except Exception as e:
+            logger.error(
+                "unable to access security domain. Continuing .. %s ",
+                e)
+            ca_list = []
+
+        for ca in ca_list:
+            ca_host = ca.Hostname
+            ca_port = ca.SecurePort
+
+            ca_url = 'https://%s:%s' % (ca_host, ca_port)
+            logger.info('Removing KRA connector from CA at %s', ca_url)
+
+            # catching all exceptions because we do not want to break if
+            # the auth is not successful or servers are down.  In the
+            # worst case, we will time out anyways.
             # noinspection PyBroadException
             # pylint: disable=W0703
-            sechost = cs_cfg.get('securitydomain.host')
-            secport = cs_cfg.get('securitydomain.httpsadminport')
-
-            logger.info('Getting security domain info from https://%s:%s', sechost, secport)
-
-            ca_cert = os.path.join(instance.nssdb_dir, 'ca.crt')
-
             try:
-                ca_list = self.get_ca_list_from_security_domain(
-                    sechost, secport, ca_cert)
-            except Exception as e:
-                logger.error(
-                    "unable to access security domain. Continuing .. %s ",
-                    e)
-                ca_list = []
-
-            for ca in ca_list:
-                ca_host = ca.Hostname
-                ca_port = ca.SecurePort
-
-                ca_url = 'https://%s:%s' % (ca_host, ca_port)
-                logger.info('Removing KRA connector from CA at %s', ca_url)
-
-                # catching all exceptions because we do not want to break if
-                # the auth is not successful or servers are down.  In the
-                # worst case, we will time out anyways.
-                # noinspection PyBroadException
-                # pylint: disable=W0703
-                try:
-                    result = self.execute_using_pki(
-                        instance, ca_url, subsystemnick,
-                        token_pwd, krahost, kraport)
-                    logger.debug('Output:\n%s', result.stdout.strip())
-                except subprocess.CalledProcessError as e:
-                    # ignore exceptions
-                    logger.warning('Unable to remove KRA connector: %s', e.stderr.strip())
-                    logger.warning('To remove KRA connector manually:')
-                    logger.warning(
-                        '$ pki -U %s -n <admin> ca-kraconnector-del --host %s --port %s',
-                        ca_url,
-                        krahost,
-                        kraport)
-
-        except Exception:
-            logger.error(
-                log.PKIHELPER_KRACONNECTOR_UPDATE_FAILURE_2,
-                str(krahost),
-                str(kraport),
-                exc_info=True)
-            if critical_failure:
-                raise
-        return
+                result = self.execute_using_pki(
+                    instance, ca_url, subsystemnick,
+                    token_pwd, krahost, kraport)
+                logger.debug('Output:\n%s', result.stdout.strip())
+            except subprocess.CalledProcessError as e:
+                # ignore exceptions
+                logger.warning('Unable to remove KRA connector: %s', e.stderr.strip())
+                logger.warning('To remove KRA connector manually:')
+                logger.warning(
+                    '$ pki -U %s -n <admin> ca-kraconnector-del --host %s --port %s',
+                    ca_url,
+                    krahost,
+                    kraport)
 
     @staticmethod
     def get_ca_list_from_security_domain(sechost, secport, cert_paths):
