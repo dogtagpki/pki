@@ -114,10 +114,6 @@ public class CACertRequestImportCLI extends CommandCLI {
             throw new Exception("Missing profile ID");
         }
 
-        if (!cmd.hasOption("csr")) {
-            throw new Exception("Missing certificate request");
-        }
-
         String requestPath = cmd.getOptionValue("csr");
         String requestFormat = cmd.getOptionValue("format");
 

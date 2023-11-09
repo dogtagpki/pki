@@ -2262,56 +2262,45 @@ class CASubsystem(PKISubsystem):
             dns_names=None,
             adjust_validity=None):
 
-        tmpdir = tempfile.mkdtemp()
+        if request_path and not request_data:
+            with open(request_path, 'r', encoding='utf-8') as f:
+                request_data = f.read()
 
-        try:
-            if request_data and not request_path:
-                request_path = os.path.join(tmpdir, 'cert.csr')
-                with open(request_path, 'w', encoding='utf-8') as f:
-                    f.write(request_data)
+        cmd = ['ca-cert-request-import']
 
-            cmd = ['ca-cert-request-import']
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
 
-            if logger.isEnabledFor(logging.DEBUG):
-                cmd.append('--debug')
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
 
-            elif logger.isEnabledFor(logging.INFO):
-                cmd.append('--verbose')
+        if request_format:
+            cmd.extend(['--format', request_format])
 
-            if request_path:
-                cmd.extend(['--csr', request_path])
+        if request_type:
+            cmd.extend(['--type', request_type])
 
-            if request_format:
-                cmd.extend(['--format', request_format])
+        if profile_id:
+            cmd.extend(['--profile', profile_id])
 
-            if request_type:
-                cmd.extend(['--type', request_type])
+        if dns_names:
+            cmd.extend(['--dns-names', ','.join(dns_names)])
 
-            if profile_id:
-                cmd.extend(['--profile', profile_id])
+        if adjust_validity:
+            cmd.append('--adjust-validity')
 
-            if dns_names:
-                cmd.extend(['--dns-names', ','.join(dns_names)])
+        cmd.append('--output-format')
+        cmd.append('json')
 
-            if adjust_validity:
-                cmd.append('--adjust-validity')
+        if request_id:
+            cmd.append(request_id)
 
-            cmd.append('--output-format')
-            cmd.append('json')
+        result = self.run(
+            cmd,
+            input=request_data.encode('utf-8'),
+            capture_output=True)
 
-            if request_id:
-                cmd.append(request_id)
-
-            # run as current user so it can read the input file
-            result = self.run(
-                cmd,
-                as_current_user=True,
-                capture_output=True)
-
-            return json.loads(result.stdout.decode())
-
-        finally:
-            shutil.rmtree(tmpdir)
+        return json.loads(result.stdout.decode('utf-8'))
 
     def get_cert_requests(self, request_id):
 
