@@ -38,6 +38,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         external = deployer.configuration_file.external
         standalone = deployer.configuration_file.standalone
         subordinate = deployer.configuration_file.subordinate
+        clone = deployer.configuration_file.clone
         step_one = deployer.configuration_file.external_step_one
         skip_configuration = deployer.configuration_file.skip_configuration
 
@@ -50,39 +51,23 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         instance = self.instance
         instance.load()
 
-        subsystems = instance.get_subsystems()
         subsystem = instance.get_subsystem(deployer.mdict['pki_subsystem'].lower())
 
         deployer.configure_subsystem(subsystem)
         subsystem.save()
 
-        token = pki.nssdb.normalize_token(deployer.mdict['pki_token_name'])
+        deployer.import_system_cert_requests(subsystem)
+
         nssdb = instance.open_nssdb()
-
-        clone = deployer.configuration_file.clone
-
         try:
-            deployer.import_system_cert_requests(subsystem)
             deployer.import_system_certs(nssdb, subsystem)
-            deployer.update_system_certs(subsystem)
-            subsystem.save()
-
-            deployer.update_sslserver_cert_nickname(subsystem)
-
-            if len(subsystems) == 1:
-
-                # self-signed CA
-
-                # To be implemented in ticket #1692.
-
-                # Generate CA cert request.
-                # Self sign CA cert.
-                # Import self-signed CA cert into NSS database.
-
-                pass
-
         finally:
             nssdb.close()
+
+        deployer.update_system_certs(subsystem)
+        subsystem.save()
+
+        deployer.update_sslserver_cert_nickname(subsystem)
 
         if config.str2bool(deployer.mdict['pki_security_domain_setup']):
             deployer.setup_security_domain(subsystem)
