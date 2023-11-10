@@ -278,6 +278,9 @@ class PKIServer(object):
 
         sslcert = server_config.get_sslcert(sslhost)
 
+        if sslcert is None:
+            raise Exception('Missing SSL certificate')
+
         keystore_type = sslcert.get('certificateKeystoreType')
         keystore_provider = sslcert.get('certificateKeystoreProvider')
 
@@ -1336,6 +1339,9 @@ grant codeBase "file:%s" {
 
         sslcert = server_config.get_sslcert(sslhost)
 
+        if sslcert is None:
+            raise Exception('Missing SSL certificate')
+
         return sslcert.get('certificateKeyAlias')
 
     def set_sslserver_cert_nickname(self, nickname, token=None):
@@ -1359,6 +1365,10 @@ grant codeBase "file:%s" {
             raise Exception('Missing SSL host')
 
         sslcert = server_config.get_sslcert(sslhost)
+
+        if sslcert is None:
+            raise Exception('Missing SSL certificate')
+
         sslcert.set('certificateKeyAlias', fullname)
         server_config.save()
 
@@ -1905,7 +1915,7 @@ class ServerConfig(object):
             if t == certType:
                 return sslcert
 
-        raise KeyError('SSL certificate not found: %s' % certType)
+        return None
 
     def create_sslcert(self, sslhost, certType='UNDEFINED'):
         '''
@@ -1923,6 +1933,10 @@ class ServerConfig(object):
     def remove_sslcert(self, sslhost, certType):
 
         sslcert = self.get_sslcert(sslhost, certType)
+
+        if sslcert is None:
+            raise Exception('SSL certificate not found: %s' % certType)
+
         sslhost.remove(sslcert)
 
     def get_realm(self, className):

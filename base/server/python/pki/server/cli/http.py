@@ -1274,11 +1274,10 @@ class SSLCertAddCLI(pki.cli.CLI):
         if sslhost is None:
             raise Exception('SSL host not found: %s' % hostname)
 
-        try:
-            server_config.get_sslcert(sslhost, certType)
+        sslcert = server_config.get_sslcert(sslhost, certType)
+
+        if sslcert is not None:
             raise Exception('SSL certificate already exists: %s' % certType)
-        except KeyError:
-            pass
 
         sslcert = server_config.create_sslcert(sslhost, certType)
 
