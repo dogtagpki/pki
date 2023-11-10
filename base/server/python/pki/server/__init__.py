@@ -272,6 +272,10 @@ class PKIServer(object):
             return
 
         sslhost = server_config.get_sslhost(connector)
+
+        if sslhost is None:
+            raise Exception('Missing SSL host')
+
         sslcert = server_config.get_sslcert(sslhost)
 
         keystore_type = sslcert.get('certificateKeystoreType')
@@ -1326,6 +1330,10 @@ grant codeBase "file:%s" {
             return None
 
         sslhost = server_config.get_sslhost(connector)
+
+        if sslhost is None:
+            raise Exception('Missing SSL host')
+
         sslcert = server_config.get_sslcert(sslhost)
 
         return sslcert.get('certificateKeyAlias')
@@ -1346,6 +1354,10 @@ grant codeBase "file:%s" {
             raise KeyError('Connector not found: Secure')
 
         sslhost = server_config.get_sslhost(connector)
+
+        if sslhost is None:
+            raise Exception('Missing SSL host')
+
         sslcert = server_config.get_sslcert(sslhost)
         sslcert.set('certificateKeyAlias', fullname)
         server_config.save()
@@ -1858,7 +1870,7 @@ class ServerConfig(object):
             if h == hostname:
                 return sslhost
 
-        raise KeyError('SSL host not found: %s' % hostname)
+        return None
 
     def create_sslhost(self, connector, hostname='_default_'):
         '''
@@ -1876,6 +1888,10 @@ class ServerConfig(object):
     def remove_sslhost(self, connector, hostname):
 
         sslhost = self.get_sslhost(connector, hostname)
+
+        if sslhost is None:
+            raise Exception('SSL host not found: %s' % hostname)
+
         connector.remove(sslhost)
 
     def get_sslcerts(self, sslhost):

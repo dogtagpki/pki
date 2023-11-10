@@ -751,11 +751,10 @@ class SSLHostAddCLI(pki.cli.CLI):
         if connector is None:
             raise KeyError('Connector not found: %s' % connector_name)
 
-        try:
-            server_config.get_sslhost(connector, hostname)
+        sslhost = server_config.get_sslhost(connector, hostname)
+
+        if sslhost is not None:
             raise Exception('SSL host already exists: %s' % hostname)
-        except KeyError:
-            pass
 
         sslhost = server_config.create_sslhost(connector, hostname)
 
@@ -1024,7 +1023,7 @@ class SSLHostModifyCLI(pki.cli.CLI):
 
         sslhost = server_config.get_sslhost(connector, hostname)
 
-        if connector is None:
+        if sslhost is None:
             logger.error('SSL host not found: %s', hostname)
             sys.exit(1)
 
@@ -1119,7 +1118,7 @@ class SSLHostShowCLI(pki.cli.CLI):
 
         sslhost = server_config.get_sslhost(connector, hostname)
 
-        if connector is None:
+        if sslhost is None:
             logger.error('SSL host not found: %s', hostname)
             sys.exit(1)
 
@@ -1272,6 +1271,9 @@ class SSLCertAddCLI(pki.cli.CLI):
 
         sslhost = server_config.get_sslhost(connector, hostname)
 
+        if sslhost is None:
+            raise Exception('SSL host not found: %s' % hostname)
+
         try:
             server_config.get_sslcert(sslhost, certType)
             raise Exception('SSL certificate already exists: %s' % certType)
@@ -1373,6 +1375,9 @@ class SSLCertDeleteCLI(pki.cli.CLI):
 
         sslhost = server_config.get_sslhost(connector, hostname)
 
+        if sslhost is None:
+            raise Exception('SSL host not found: %s' % hostname)
+
         server_config.remove_sslcert(sslhost, certType)
 
         server_config.save()
@@ -1452,6 +1457,9 @@ class SSLCertFindLI(pki.cli.CLI):
             raise KeyError('Connector not found: %s' % connector_name)
 
         sslhost = server_config.get_sslhost(connector, hostname)
+
+        if sslhost is None:
+            raise Exception('SSL host not found: %s' % hostname)
 
         sslcerts = server_config.get_sslcerts(sslhost)
 
