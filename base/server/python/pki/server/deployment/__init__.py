@@ -259,17 +259,16 @@ class PKIDeployer:
             subsystem_dict[0] = None
             self.mdict.update(subsystem_dict)
 
-    def create_server_xml(self):
+    def configure_server_xml(self):
 
-        # Copy /etc/tomcat/server.xml
-        # to /etc/pki/<instance>/server.xml
+        if os.path.exists(self.instance.server_xml):
+            logger.info('Updating %s', self.instance.server_xml)
+        else:
+            logger.info('Creating %s', self.instance.server_xml)
+            self.instance.copy(
+                pki.server.Tomcat.SERVER_XML,
+                self.instance.server_xml)
 
-        self.file.copy_with_slot_substitution(
-            pki.server.Tomcat.SERVER_XML,
-            self.instance.server_xml,
-            overwrite_flag=True)
-
-        # Configure /etc/pki/<instance>/server.xml
         server_config = self.instance.get_server_config()
 
         logger.info('Configuring Tomcat admin port')
@@ -279,8 +278,12 @@ class PKIDeployer:
         # It is not needed since PKI server will use JSS-based SSL connector
         server_config.remove_listener('org.apache.catalina.core.AprLifecycleListener')
 
-        logger.info('Adding PKIListener')
-        server_config.create_listener('com.netscape.cms.tomcat.PKIListener')
+        listener = server_config.get_listener('com.netscape.cms.tomcat.PKIListener')
+        if listener is None:
+            logger.info('Adding PKIListener')
+            server_config.create_listener('com.netscape.cms.tomcat.PKIListener')
+        else:
+            logger.info('Reusing PKIListener')
 
         logger.info('Removing UserDatabase')
         server_config.remove_global_naming_resource('UserDatabase')
@@ -313,8 +316,15 @@ class PKIDeployer:
             logger.info('Removing HTTP connector')
             service.remove(connector)
 
-        logger.info('Adding HTTPS connector')
-        connector = server_config.create_connector(name='Secure', index=index)
+        connector = server_config.get_connector(port=self.mdict['pki_https_port'])
+
+        if connector is None:
+            logger.info('Adding HTTPS connector')
+            connector = server_config.create_connector(name='Secure', index=index)
+        else:
+            logger.info('Updating HTTPS connector')
+            connector.set('name', 'Secure')
+
         connector.set('port', self.mdict['pki_https_port'])
         connector.set('protocol', 'org.dogtagpki.jss.tomcat.Http11NioProtocol')
         connector.set('SSLEnabled', 'true')
@@ -343,13 +353,23 @@ class PKIDeployer:
         connector.set('passwordClass', 'org.dogtagpki.jss.tomcat.PlainPasswordFile')
         connector.set('certdbDir', self.instance.nssdb_dir)
 
-        logger.info('Adding SSL host configuration')
-        sslhost = server_config.create_sslhost(connector)
+        sslhost = server_config.get_sslhost(connector)
+        if sslhost is None:
+            logger.info('Adding SSL host configuration')
+            sslhost = server_config.create_sslhost(connector)
+        else:
+            logger.info('Updating SSL host configuration')
+
         sslhost.set('sslProtocol', 'SSL')
         sslhost.set('certificateVerification', 'optional')
 
-        logger.info('Adding SSL certificate configuration')
-        sslcert = server_config.create_sslcert(sslhost)
+        sslcert = server_config.get_sslcert(sslhost)
+        if sslcert is None:
+            logger.info('Adding SSL certificate configuration')
+            sslcert = server_config.create_sslcert(sslhost)
+        else:
+            logger.info('Updating SSL certificate configuration')
+
         sslcert.set('certificateKeystoreType', 'pkcs11')
         sslcert.set('certificateKeystoreProvider', 'Mozilla-JSS')
         sslcert.set('certificateKeyAlias', 'sslserver')
@@ -383,13 +403,15 @@ class PKIDeployer:
 
         if config.str2bool(self.mdict['pki_enable_access_log']):
 
-            logger.info('Enabling access log')
             valve = server_config.get_valve('org.apache.catalina.valves.AccessLogValve')
 
             if valve is None:
+                logger.info('Adding AccessLogValve')
                 valve = etree.Element('Valve')
                 valve.set('className', 'org.apache.catalina.valves.AccessLogValve')
                 server_config.add_valve(valve)
+            else:
+                logger.info('Updating AccessLogValve')
 
             valve.set('directory', 'logs')
             valve.set('prefix', 'localhost_access_log')
@@ -401,8 +423,14 @@ class PKIDeployer:
             logger.info('Disabling access log')
             server_config.remove_valve('org.apache.catalina.valves.AccessLogValve')
 
-        logger.info('Adding RewriteValve')
-        server_config.create_valve('org.apache.catalina.valves.rewrite.RewriteValve')
+        rewrite_valve_class = 'org.apache.catalina.valves.rewrite.RewriteValve'
+        rewrite_valve = server_config.get_valve(rewrite_valve_class)
+
+        if rewrite_valve is None:
+            logger.info('Adding RewriteValve')
+            server_config.create_valve(rewrite_valve_class)
+        else:
+            logger.info('Reusing RewriteValve')
 
         server_config.save()
 
