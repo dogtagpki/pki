@@ -19,7 +19,6 @@
 
 from __future__ import absolute_import
 import logging
-from lxml import etree
 import os
 
 import pki
@@ -32,8 +31,6 @@ class RemoveUserDatabase(pki.server.upgrade.PKIServerUpgradeScriptlet):
     def __init__(self):
         super(RemoveUserDatabase, self).__init__()
         self.message = 'Remove unused UserDatabase from server.xml'
-
-        self.parser = etree.XMLParser(remove_blank_text=True)
 
     def upgrade_instance(self, instance):
 
@@ -60,13 +57,12 @@ class RemoveUserDatabase(pki.server.upgrade.PKIServerUpgradeScriptlet):
         logger.info('Upgrading %s', instance.server_xml)
         self.backup(instance.server_xml)
 
-        document = etree.parse(instance.server_xml, self.parser)
+        server_config = instance.get_server_config()
 
         logger.info('Removing LockOutRealm')
-        instance.remove_lockout_realm(document)
+        server_config.remove_realm('org.apache.catalina.realm.LockOutRealm')
 
         logger.info('Removing UserDatabase')
-        instance.remove_default_user_database(document)
+        server_config.remove_global_naming_resource('UserDatabase')
 
-        with open(instance.server_xml, 'wb') as f:
-            document.write(f, pretty_print=True, encoding='utf-8')
+        server_config.save()
