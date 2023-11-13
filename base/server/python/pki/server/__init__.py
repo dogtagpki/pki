@@ -803,37 +803,6 @@ grant codeBase "file:%s" {
 
         pki.util.chown(self.server_xml, self.uid, self.gid)
 
-    def remove_default_user_database(self, document):
-
-        server = document.getroot()
-
-        logger.info('Searching for GlobalNamingResources')
-        global_naming_resources = server.find('GlobalNamingResources')
-
-        if len(global_naming_resources) == 0:
-            logger.info('GlobalNamingResources not found')
-            return
-
-        logger.info('Searching for Resources under GlobalNamingResources')
-        resources = global_naming_resources.findall('Resource')
-
-        if len(resources) == 0:
-            logger.info('No Resources under GlobalNamingResources')
-            return
-
-        logger.info('Searching for UserDatabase Resource')
-
-        user_database = None
-        for resource in resources:
-            name = resource.get('name')
-            if name == 'UserDatabase':
-                user_database = resource
-                break
-
-        if user_database is not None:
-            logger.info('Removing UserDatabase Resource')
-            global_naming_resources.remove(user_database)
-
     @staticmethod
     def add_rewrite_valve(document):
         REWRITE_VALVE_CLASS = "org.apache.catalina.valves.rewrite.RewriteValve"
