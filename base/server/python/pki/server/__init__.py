@@ -803,30 +803,6 @@ grant codeBase "file:%s" {
 
         pki.util.chown(self.server_xml, self.uid, self.gid)
 
-    def remove_lockout_realm(self, document):
-
-        server = document.getroot()
-
-        logger.info('Searching for LockOutRealm')
-        for engine in server.findall('Service/Engine'):
-
-            for realm in engine.findall('Realm'):
-                class_name = realm.get('className')
-
-                if class_name != 'org.apache.catalina.realm.LockOutRealm':
-                    continue
-
-                logger.info('Searching for nested UserDatabase Realm')
-                nested_realm = realm.find('Realm')
-                resource_name = nested_realm.get('resourceName')
-
-                if resource_name != 'UserDatabase':
-                    logger.info('Nested UserDatabase Realm not found')
-                    continue
-
-                logger.info('Removing LockOutRealm')
-                engine.remove(realm)
-
     def remove_default_user_database(self, document):
 
         server = document.getroot()
