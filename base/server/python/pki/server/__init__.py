@@ -803,23 +803,6 @@ grant codeBase "file:%s" {
 
         pki.util.chown(self.server_xml, self.uid, self.gid)
 
-    @staticmethod
-    def add_rewrite_valve(document):
-        REWRITE_VALVE_CLASS = "org.apache.catalina.valves.rewrite.RewriteValve"
-        logger.info('Searching for RewriteValves')
-        for host in document.getroot().findall('Service/Engine/Host'):
-            logger.info('Found Host %s', host.get('name'))
-            valves = host.findall('Valve')
-            has_rewrite_valve = any(
-                valve.get('className') == REWRITE_VALVE_CLASS
-                for valve in valves
-            )
-            if not has_rewrite_valve:
-                logger.info('Adding RewriteValve')
-                valve = etree.Element('Valve')
-                valve.set('className', REWRITE_VALVE_CLASS)
-                host.append(valve)
-
     def create_libs(self, force=False):  # pylint: disable=W0613
 
         lib_dir = os.path.join(PKIServer.SHARE_DIR, 'server', 'lib')
