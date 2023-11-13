@@ -29,7 +29,6 @@ import com.netscape.certsrv.request.AgentApprovals;
 import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.PolicyResult;
-import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.request.RequestScheduler;
 import com.netscape.cmscore.dbs.DBSubsystem;
@@ -166,10 +165,6 @@ public class RequestQueue {
         clone.setExtData("dbStatus", "NOT_UPDATED");
 
         return clone;
-    }
-
-    public Request findRequest(RequestId id) throws EBaseException {
-        return requestRepository.readRequest(id);
     }
 
     /**
