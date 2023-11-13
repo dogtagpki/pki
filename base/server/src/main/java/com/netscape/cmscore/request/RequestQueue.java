@@ -424,26 +424,13 @@ public class RequestQueue {
      *  returned if the source id does not exist.
      */
     public RequestId findRequestBySourceId(String id) throws EBaseException {
-        Collection<RequestRecord> records = findRequestsBySourceId(id);
+        Collection<RequestRecord> records = requestRepository.findRequestsBySourceId(id);
 
         if (records.isEmpty())
             return null;
 
         RequestRecord record = records.iterator().next();
         return record.getRequestId();
-    }
-
-    /**
-     * Locates all requests with a particular SourceId.
-     *
-     * @param id an identifier for the record that is based on the source
-     *  of the request
-     * @return A list of requests corresponding to this source id. null is
-     *  returned if the source id does not exist.
-     */
-    public Collection<RequestRecord> findRequestsBySourceId(String id) throws EBaseException {
-        String filter = "(" + RequestRecord.ATTR_SOURCE_ID + "=" + id + ")";
-        return requestRepository.listRequestsByFilter(filter);
     }
 
     /**

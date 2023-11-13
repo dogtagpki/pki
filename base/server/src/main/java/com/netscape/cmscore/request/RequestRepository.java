@@ -601,4 +601,17 @@ public class RequestRepository extends Repository {
             }
         }
     }
+
+    /**
+     * Locates all requests with a particular SourceId.
+     *
+     * @param id an identifier for the record that is based on the source
+     *  of the request
+     * @return A list of requests corresponding to this source id. null is
+     *  returned if the source id does not exist.
+     */
+    public Collection<RequestRecord> findRequestsBySourceId(String id) throws EBaseException {
+        String filter = "(" + RequestRecord.ATTR_SOURCE_ID + "=" + id + ")";
+        return listRequestsByFilter(filter);
+    }
 }

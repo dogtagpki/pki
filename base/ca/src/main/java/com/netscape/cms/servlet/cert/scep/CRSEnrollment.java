@@ -135,6 +135,7 @@ import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestNotifier;
 import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.request.RequestRecord;
+import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.security.PWCBsdr;
 import com.netscape.cmscore.util.Debug;
@@ -1121,10 +1122,10 @@ public class CRSEnrollment extends HttpServlet {
         /* Check if certificate request has been completed */
 
         CAEngine engine = CAEngine.getInstance();
-        RequestQueue rq = engine.getRequestQueue();
+        RequestRepository requestRepository = engine.getRequestRepository();
         Request foundRequest = null;
 
-        Collection<RequestRecord> records = rq.findRequestsBySourceId(txid);
+        Collection<RequestRecord> records = requestRepository.findRequestsBySourceId(txid);
 
         for (RequestRecord record : records) {
             Request request = record.toRequest();
