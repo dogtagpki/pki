@@ -762,16 +762,44 @@ grant codeBase "file:%s" {
 
     def create_server_xml(self):
 
-        server_xml = os.path.join(Tomcat.CONF_DIR, 'server.xml')
-        document = etree.parse(server_xml, parser)
+        if os.path.exists(self.server_xml):
+            logger.info('Updating %s', self.server_xml)
+        else:
+            logger.info('Creating %s', self.server_xml)
+            self.copy(
+                pki.server.Tomcat.SERVER_XML,
+                self.server_xml)
 
-        self.remove_lockout_realm(document)
-        self.remove_default_user_database(document)
-        self.add_rewrite_valve(document)
+        server_config = self.get_server_config()
 
-        logger.info('Creating %s', self.server_xml)
-        with open(self.server_xml, 'wb') as f:
-            document.write(f, pretty_print=True, encoding='utf-8')
+        realm_class = 'org.apache.catalina.realm.LockOutRealm'
+        realm = server_config.get_realm(realm_class)
+
+        if realm is not None:
+            logger.info('Removing LockOutRealm')
+            server_config.remove_realm(realm_class)
+
+        resource_name = 'UserDatabase'
+        resource = server_config.get_global_naming_resource(resource_name)
+
+        if resource is not None:
+            logger.info('Removing UserDatabase')
+            server_config.remove_global_naming_resource(resource_name)
+
+        valve = server_config.get_valve('org.apache.catalina.valves.AccessLogValve')
+
+        if valve is not None:
+            logger.info('Updating AccessLogValve')
+            valve.set('pattern', 'common')
+
+        valve_class = 'org.apache.catalina.valves.rewrite.RewriteValve'
+        valve = server_config.get_valve(valve_class)
+
+        if valve is None:
+            logger.info('Adding RewriteValve')
+            server_config.create_valve(valve_class)
+
+        server_config.save()
 
         pki.util.chown(self.server_xml, self.uid, self.gid)
 
