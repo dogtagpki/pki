@@ -56,7 +56,6 @@ import com.netscape.cmscore.connector.HttpPKIMessage;
 import com.netscape.cmscore.connector.HttpRequestEncoder;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestQueue;
-import com.netscape.cmscore.request.RequestRepository;
 
 /**
  * Clone servlet - part of the Clone Authority (CLA)
@@ -303,14 +302,13 @@ public class CloneServlet extends CMSServlet {
             throws EBaseException {
         IPKIMessage replymsg = null;
         CMSEngine engine = getCMSEngine();
-        RequestRepository requestRepository = engine.getRequestRepository();
         RequestQueue queue = engine.getRequestQueue();
         String srcid = source + ":" + msg.getReqId();
 
         logger.info("CloneServlet: processRequest");
 
         // find request in request queue and return result.
-        RequestId thisreqid = queue.findRequestBySourceId(srcid);
+        RequestId thisreqid = requestRepository.findRequestBySourceId(srcid);
         Request thisreq = null;
 
         if (thisreqid != null) {

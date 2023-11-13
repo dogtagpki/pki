@@ -416,24 +416,6 @@ public class RequestQueue {
     }
 
     /**
-     * Locates a request from the SourceId.
-     *
-     * @param id a unique identifier for the record that is based on the source
-     *  of the request, and possibly an identify assigned by the source.
-     * @return The requestid corresponding to this source id. null is
-     *  returned if the source id does not exist.
-     */
-    public RequestId findRequestBySourceId(String id) throws EBaseException {
-        Collection<RequestRecord> records = requestRepository.findRequestsBySourceId(id);
-
-        if (records.isEmpty())
-            return null;
-
-        RequestRecord record = records.iterator().next();
-        return record.getRequestId();
-    }
-
-    /**
      * Protected access for setting the modification time of a request.
      *
      * @param request The request to be modified.
