@@ -37,6 +37,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
+import org.dogtagpki.common.CAInfo;
+import org.dogtagpki.common.KRAInfo;
+import org.dogtagpki.common.KRAInfoClient;
 import org.dogtagpki.legacy.ca.CAPolicy;
 import org.dogtagpki.legacy.ca.CAPolicyConfig;
 import org.dogtagpki.server.authentication.AuthToken;
@@ -44,6 +47,8 @@ import org.dogtagpki.server.authentication.AuthenticationConfig;
 import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.EncryptionAlgorithm;
+import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
@@ -70,14 +75,19 @@ import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.certsrv.ca.CATypeException;
 import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.ca.IssuerUnavailableException;
+import com.netscape.certsrv.client.ClientConfig;
+import com.netscape.certsrv.client.PKIClient;
+import com.netscape.certsrv.connector.ConnectorConfig;
 import com.netscape.certsrv.connector.ConnectorsConfig;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.publish.CRLPublisher;
 import com.netscape.certsrv.request.RequestListener;
+import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.cms.authentication.CAAuthSubsystem;
 import com.netscape.cms.request.RequestScheduler;
+import com.netscape.cms.servlet.admin.KRAConnectorProcessor;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.authentication.VerifiedCert;
@@ -163,6 +173,17 @@ public class CAEngine extends CMSEngine {
 
     protected AuthorityMonitor authorityMonitor;
     protected boolean enableAuthorityMonitor = true;
+
+    // is the current KRA-related info authoritative?
+    private static boolean kraInfoAuthoritative = false;
+
+    // KRA-related fields (the initial values are only used if we
+    // did not yet receive authoritative info from KRA)
+    private static String archivalMechanism = CAInfo.KEYWRAP_MECHANISM;
+    private static String encryptAlgorithm;
+    private static String keyWrapAlgorithm;
+    private static String rsaPublicKeyWrapAlgorithm;
+    private static String caRsaPublicKeyWrapAlgorithm;
 
     public CAEngine() {
         super("CA");
@@ -1815,6 +1836,161 @@ public class CAEngine extends CMSEngine {
                 cm.setThreadToken(savedToken);
             }
         }
+    }
+
+    /**
+     * This method returns CA info, including KRA-related values the CA
+     * clients may need to know (e.g. for generating a CRMF cert request
+     * that will cause keys to be archived in KRA).
+     *
+     * The KRA-related info is read from the KRAInfoService, which is
+     * queried according to the KRA Connector configuration.  After
+     * the KRAInfoService has been successfully contacted, the recorded
+     * KRA-related settings are regarded as authoritative.
+     *
+     * The KRA is contacted ONLY if the current info is NOT
+     * authoritative, otherwise the currently recorded values are used.
+     * This means that any change to relevant KRA configuration (which
+     * should occur seldom if ever) necessitates restart of the CA
+     * subsystem.
+     *
+     * If this is unsuccessful (e.g. if the KRA is down or the
+     * connector is misconfigured) we use the default values, which
+     * may be incorrect.
+     *
+     * @author Ade Lee
+     * @author M Fargetta
+     */
+    public CAInfo getInfo(Locale loc) throws Exception {
+        CAInfo info = new CAInfo();
+        addKRAInfo(info, loc);
+        info.setCaRsaPublicKeyWrapAlgorithm(caRsaPublicKeyWrapAlgorithm);
+        return info;
+    }
+
+    /**
+     * Add KRA fields if KRA is configured, querying the KRA
+     * if necessary.
+     *
+     * Apart from reading 'headers', this method doesn't access
+     * any instance data.
+     */
+    private void addKRAInfo(CAInfo info, Locale loc) throws Exception {
+
+        KRAConnectorInfo connInfo = null;
+
+        try {
+            KRAConnectorProcessor processor = new KRAConnectorProcessor(loc);
+            processor.setCMSEngine(this);
+            processor.init();
+
+            connInfo = processor.getConnectorInfo();
+        } catch (Throwable e) {
+            // connInfo remains as null
+        }
+        boolean kraEnabled =
+            connInfo != null
+            && "true".equalsIgnoreCase(connInfo.getEnable());
+
+        if (kraEnabled) {
+            if (!kraInfoAuthoritative) {
+                // KRA is enabled but we are yet to successfully
+                // query the KRA-related info.  Do it now.
+                queryKRAInfo(connInfo);
+            }
+
+            info.setArchivalMechanism(archivalMechanism);
+            info.setEncryptAlgorithm(encryptAlgorithm);
+            info.setKeyWrapAlgorithm(keyWrapAlgorithm);
+            info.setRsaPublicKeyWrapAlgorithm(rsaPublicKeyWrapAlgorithm);
+        }
+    }
+
+    private static void queryKRAInfo(KRAConnectorInfo connInfo) throws Exception {
+        CAEngine engine = CAEngine.getInstance();
+        CAEngineConfig cs = engine.getConfig();
+
+        try (PKIClient client = createPKIClient(connInfo)) {
+
+            KRAInfoClient kraInfoClient = new KRAInfoClient(client, "kra");
+            KRAInfo kraInfo = kraInfoClient.getInfo();
+
+            archivalMechanism = kraInfo.getArchivalMechanism();
+            encryptAlgorithm = kraInfo.getEncryptAlgorithm();
+            keyWrapAlgorithm = kraInfo.getWrapAlgorithm();
+            rsaPublicKeyWrapAlgorithm = kraInfo.getRsaPublicKeyWrapAlgorithm();
+            caRsaPublicKeyWrapAlgorithm =  getCaRsaPublicKeyWrapAlgorithm();
+
+            // mark info as authoritative
+            kraInfoAuthoritative = true;
+        } catch (PKIException e) {
+            if (e.getCode() == 404) {
+                // The KRAInfoResource was added in 10.4,
+                // so we are talking to a pre-10.4 KRA
+
+                encryptAlgorithm = EncryptionAlgorithm.DES3_CBC_PAD.toString();
+                keyWrapAlgorithm = KeyWrapAlgorithm.DES3_CBC_PAD.toString();
+
+                // pre-10.4 KRA does not advertise the archival
+                // mechanism; look for the old knob in CA's config
+                // or fall back to the default
+                boolean encrypt_archival;
+                try {
+                    encrypt_archival = cs.getBoolean(
+                        "kra.allowEncDecrypt.archival", false);
+                } catch (EBaseException e1) {
+                    encrypt_archival = false;
+                }
+                archivalMechanism = encrypt_archival ? CAInfo.ENCRYPT_MECHANISM : CAInfo.KEYWRAP_MECHANISM;
+
+                // mark info as authoritative
+                kraInfoAuthoritative = true;
+            } else {
+                logger.warn("Failed to retrieve archive wrapping information from the CA: " + e.getMessage(), e);
+            }
+        } catch (Throwable e) {
+            logger.warn("Failed to retrieve archive wrapping information from the CA: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Construct PKIClient given KRAConnectorInfo
+     */
+    private static PKIClient createPKIClient(KRAConnectorInfo connInfo) throws Exception {
+
+        CAEngine engine = CAEngine.getInstance();
+        CAEngineConfig cs = engine.getConfig();
+        CAConfig caConfig = cs.getCAConfig();
+        ConnectorsConfig connectorsConfig = caConfig.getConnectorsConfig();
+        ConnectorConfig kraConnectorConfig = connectorsConfig.getConnectorConfig("KRA");
+
+        ClientConfig config = new ClientConfig();
+        int port = Integer.parseInt(connInfo.getPort());
+        config.setServerURL("https", connInfo.getHost(), port);
+        config.setNSSDatabase(CMS.getInstanceDir() + "/alias");
+
+        // Use client cert specified in KRA connector
+        String nickname = kraConnectorConfig.getString("nickName", null);
+        if (nickname == null) {
+            // Use subsystem cert as client cert
+            nickname = cs.getString("ca.subsystem.nickname");
+
+            String tokenname = cs.getString("ca.subsystem.tokenname", "");
+            if (!CryptoUtil.isInternalToken(tokenname)) nickname = tokenname + ":" + nickname;
+        }
+        config.setCertNickname(nickname);
+
+        return new PKIClient(config);
+    }
+
+    private static String getCaRsaPublicKeyWrapAlgorithm() throws EBaseException {
+
+        CAEngine engine = CAEngine.getInstance();
+        CAEngineConfig cs = engine.getConfig();
+
+        boolean useOAEP = cs.getUseOAEPKeyWrap();
+
+        return useOAEP ? "RSA_OAEP" : "RSA";
     }
 
     @Override

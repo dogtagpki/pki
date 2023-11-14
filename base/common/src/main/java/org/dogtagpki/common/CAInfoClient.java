@@ -27,7 +27,7 @@ import com.netscape.certsrv.client.PKIClient;
 public class CAInfoClient extends Client {
 
     public CAInfoClient(PKIClient client, String subsystem) throws Exception {
-        super(client, subsystem, "info");
+        super(client, subsystem, "v2", "info");
     }
 
     public CAInfo getInfo() throws Exception {
