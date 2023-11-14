@@ -37,3 +37,7 @@ The `pki nss-cert-del` command has been added to delete a certificate from NSS d
 
 The `pki client-cert-del` command has been deprecated.
 Use `pki nss-cert-del` command instead.
+
+== New pki-server cert-request CLI ==
+
+The `pki-server cert-request` command has been added to generate a key pair and an enrollment request for a system certificate.
