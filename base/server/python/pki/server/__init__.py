@@ -155,6 +155,10 @@ class PKIServer(object):
         return os.path.join(self.base_dir, 'conf')
 
     @property
+    def certs_dir(self):
+        return os.path.join(self.conf_dir, 'certs')
+
+    @property
     def lib_dir(self):
         return os.path.join(self.base_dir, 'lib')
 
@@ -306,6 +310,18 @@ class PKIServer(object):
                 nssdb.close()
 
         # TODO: handle other types of HTTP connector
+
+    def cert_file(self, cert_id):
+        '''
+        Compute name of certificate under instance certs folder.
+        '''
+        return os.path.join(self.certs_dir, cert_id + '.crt')
+
+    def csr_file(self, cert_id):
+        '''
+        Compute name of CSR under instance certs folder.
+        '''
+        return os.path.join(self.certs_dir, cert_id + '.csr')
 
     def create_catalina_policy(self):
 
@@ -684,6 +700,8 @@ grant codeBase "file:%s" {
         self.symlink(bin_dir, self.bin_dir, exist_ok=True)
 
         self.create_conf_dir(exist_ok=True)
+
+        self.makedirs(self.certs_dir, exist_ok=True)
 
         catalina_policy = os.path.join(Tomcat.CONF_DIR, 'catalina.policy')
         self.copy(catalina_policy, self.catalina_policy, force=force)

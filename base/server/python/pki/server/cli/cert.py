@@ -54,6 +54,7 @@ class CertCLI(pki.cli.CLI):
         self.add_module(CertShowCLI())
         self.add_module(CertValidateCLI())
         self.add_module(CertUpdateCLI())
+        self.add_module(CertRequestCLI())
         self.add_module(CertCreateCLI())
         self.add_module(CertImportCLI())
         self.add_module(CertExportCLI())
@@ -500,6 +501,96 @@ class CertUpdateCLI(pki.cli.CLI):
         instance.cert_update_config(cert_id, subsystem_cert)
 
         self.print_message('Updated "%s" system certificate' % cert_id)
+
+
+class CertRequestCLI(pki.cli.CLI):
+    '''
+    Generate system certificate request.
+    '''
+
+    help = '''\
+        Usage: pki-server cert-request [OPTIONS] <Cert ID>
+
+          -i, --instance <instance ID>    Instance ID (default: pki-tomcat)
+              --token <name>              Token for storing the key pair
+              --subject <DN>              Subject DN
+              --ext <path>                CSR extension configuration
+          -v, --verbose                   Run in verbose mode.
+              --debug                     Run in debug mode.
+              --help                      Show help message.
+    '''  # noqa: E501
+
+    def __init__(self):
+        super().__init__('request', inspect.cleandoc(self.__class__.__doc__))
+
+    def print_help(self):
+        print(textwrap.dedent(self.__class__.help))
+
+    def execute(self, argv):
+
+        try:
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=', 'token=', 'subject=', 'ext=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        token = None
+        subject_dn = None
+        ext_conf = None
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--token':
+                token = a
+
+            elif o == '--subject':
+                subject_dn = a
+
+            elif o == '--ext':
+                ext_conf = a
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('Invalid option: %s', o)
+                self.print_help()
+                sys.exit(1)
+
+        if len(args) < 1:
+            raise Exception('Missing certificate ID')
+
+        if subject_dn is None:
+            raise Exception('Missing subject DN')
+
+        cert_id = args[0]
+
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+
+        if not instance.exists():
+            raise Exception('Invalid instance: %s' % instance_name)
+
+        instance.load()
+
+        instance.cert_request(
+            cert_id,
+            subject_dn,
+            token=token,
+            ext_conf=ext_conf)
 
 
 class CertCreateCLI(pki.cli.CLI):

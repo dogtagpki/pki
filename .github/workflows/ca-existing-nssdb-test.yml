@@ -54,13 +54,10 @@ jobs:
 
       - name: Create CA signing cert in server's NSS database
         run: |
-          docker exec pki mkdir -p /etc/pki/pki-tomcat/certs
-          docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
-              nss-cert-request \
+          docker exec pki pki-server cert-request \
               --subject "CN=CA Signing Certificate" \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
-              --csr /etc/pki/pki-tomcat/certs/ca_signing.csr
+              ca_signing
           docker exec pki pki \
               -d /etc/pki/pki-tomcat/alias \
               nss-cert-issue \
@@ -88,12 +85,10 @@ jobs:
 
       - name: Create CA OCSP signing cert in server's NSS database
         run: |
-          docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
-              nss-cert-request \
+          docker exec pki pki-server cert-request \
               --subject "CN=OCSP Signing Certificate" \
               --ext /usr/share/pki/server/certs/ocsp_signing.conf \
-              --csr /etc/pki/pki-tomcat/certs/ca_ocsp_signing.csr
+              ca_ocsp_signing
           docker exec pki pki \
               -d /etc/pki/pki-tomcat/alias \
               nss-cert-issue \
@@ -121,12 +116,10 @@ jobs:
 
       - name: Create CA audit signing cert in server's NSS database
         run: |
-          docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
-              nss-cert-request \
+          docker exec pki pki-server cert-request \
               --subject "CN=Audit Signing Certificate" \
               --ext /usr/share/pki/server/certs/audit_signing.conf \
-              --csr /etc/pki/pki-tomcat/certs/ca_audit_signing.csr
+              ca_audit_signing
           docker exec pki pki \
               -d /etc/pki/pki-tomcat/alias \
               nss-cert-issue \
@@ -155,12 +148,10 @@ jobs:
 
       - name: Create subsystem cert in server's NSS database
         run: |
-          docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
-              nss-cert-request \
+          docker exec pki pki-server cert-request \
               --subject "CN=Subsystem Certificate" \
               --ext /usr/share/pki/server/certs/subsystem.conf \
-              --csr /etc/pki/pki-tomcat/certs/subsystem.csr
+              subsystem
           docker exec pki pki \
               -d /etc/pki/pki-tomcat/alias \
               nss-cert-issue \
@@ -188,12 +179,10 @@ jobs:
 
       - name: Create SSL server cert in server's NSS database
         run: |
-          docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
-              nss-cert-request \
+          docker exec pki pki-server cert-request \
               --subject "CN=pki.example.com" \
               --ext /usr/share/pki/server/certs/sslserver.conf \
-              --csr /etc/pki/pki-tomcat/certs/sslserver.csr
+              sslserver
           docker exec pki pki \
               -d /etc/pki/pki-tomcat/alias \
               nss-cert-issue \
@@ -243,7 +232,6 @@ jobs:
 
       - name: Install CA with existing NSS database
         run: |
-          docker exec pki chown -R pkiuser:pkiuser /etc/pki/pki-tomcat/certs
           docker exec pki pkispawn \
               -f /usr/share/pki/server/examples/installation/ca.cfg \
               -s CA \

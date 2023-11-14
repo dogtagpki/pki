@@ -54,6 +54,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         logger.info('Creating %s', instance.conf_dir)
         instance.makedirs(instance.conf_dir, exist_ok=True)
 
+        instance.makedirs(instance.certs_dir, exist_ok=True)
+
         # Configuring internal token password
 
         internal_token = deployer.mdict['pki_self_signed_token']

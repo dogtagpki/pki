@@ -699,18 +699,6 @@ class PKIInstance(pki.server.PKIServer):
                 raise pki.server.PKIServerException(
                     'No subsystem can be loaded for %s in instance %s.' % (cert_id, self.name))
 
-    @property
-    def cert_folder(self):
-        return os.path.join(pki.CONF_DIR, self.name, 'certs')
-
-    def cert_file(self, cert_id):
-        """Compute name of certificate under instance cert folder."""
-        return os.path.join(self.cert_folder, cert_id + '.crt')
-
-    def csr_file(self, cert_id):
-        """Compute name of CSR under instance cert folder."""
-        return os.path.join(self.cert_folder, cert_id + '.csr')
-
     def cert_import(self, cert_id, cert_file=None):
         """
         Import cert from cert_file into NSS db with appropriate trust
@@ -774,6 +762,41 @@ class PKIInstance(pki.server.PKIServer):
 
         finally:
             nssdb.close()
+
+    def cert_request(self, cert_id, subject_dn, token=None, ext_conf=None):
+
+        token = pki.nssdb.normalize_token(token)
+        csr_file = self.csr_file(cert_id)
+
+        cmd = [
+            '/usr/sbin/runuser',
+            '-u', self.user, '--',
+            'pki',
+            '-d', self.nssdb_dir,
+            '-f', self.password_conf
+        ]
+
+        if token:
+            cmd.extend(['--token', token])
+
+        cmd.extend([
+            'nss-cert-request',
+            '--subject', subject_dn,
+            '--csr', csr_file
+        ])
+
+        if ext_conf:
+            cmd.extend(['--ext', ext_conf])
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        logger.debug('Command: %s', ' '.join(cmd))
+
+        subprocess.check_call(cmd)
 
     def cert_create(
             self, cert_id=None,
@@ -851,9 +874,6 @@ class PKIInstance(pki.server.PKIServer):
                     raise pki.server.PKIServerException(
                         "'temp_cert' must be used with 'cert_id'")
                 new_cert_file = output
-
-            if not os.path.exists(self.cert_folder):
-                os.makedirs(self.cert_folder)
 
             if temp_cert:
                 assert subsystem is not None  # temp_cert only supported with cert_id
