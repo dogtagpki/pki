@@ -594,43 +594,57 @@ class CertRequestCLI(pki.cli.CLI):
 
 
 class CertCreateCLI(pki.cli.CLI):
+    '''
+    Create system certificate.
+    '''
+
+    help = '''\
+        Usage: pki-server cert-create [OPTIONS] <Cert ID>
+
+          -i, --instance <instance ID>    Instance ID (default: pki-tomcat)
+              --token <name>              Token that stores the signing key
+              --issuer <nickname>         Issuer certificate nickname
+              --ext <path>                Certificate extension configuration
+          -p, --port <port number>        Secure port number (default: 8443)
+          -d <database>                   Security database location (default: ~/.dogtag/nssdb)
+          -c <password>                   Password for NSS database
+          -C <path>                       Password file for NSS database
+          -n <nickname>                   Client certificate nickname
+              --temp                      Create temporary certificate.
+              --serial <number>           Certificate serial number
+              --output <file>             Output file name
+              --renew                     Renew permanent certificate.
+          -u <username>                   Username for basic authentication
+                                          (mutually exclusive to -n option)
+          -w <password>                   Password for basic authentication
+                                          (mutually exclusive to -W option)
+          -W <path>                       Password file for basic authentication
+                                          (mutually exclusive to -w option)
+          -v, --verbose                   Run in verbose mode.
+              --debug                     Run in debug mode.
+              --help                      Show help message.
+
+        Cert ID:
+            ca_signing, ca_ocsp_signing, ca_audit_signing,
+            kra_storage, kra_transport, kra_audit_signing,
+            ocsp_signing, ocsp_audit_signing,
+            tks_audit_signing,
+            tps_audit_signing,
+            subsystem, sslserver
+    '''  # noqa: E501
+
     def __init__(self):
-        super().__init__('create', 'Create system certificate.')
+        super().__init__('create', inspect.cleandoc(self.__class__.__doc__))
 
     def print_help(self):
-        print('Usage: pki-server cert-create [OPTIONS] <Cert ID>')
-        # CertID:  subsystem, sslserver, kra_storage, kra_transport, ca_ocsp_signing,
-        # ca_audit_signing, kra_audit_signing
-        # ca.cert.list=signing,ocsp_signing,sslserver,subsystem,audit_signing
-        print()
-        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
-        print('  -p, --port <port number>        Secure port number (default: 8443).')
-        print('  -d <database>                   Security database location '
-              '(default: ~/.dogtag/nssdb)')
-        print('  -c <NSS DB password>            NSS database password')
-        print('  -C <path>                       Input file containing the password for the'
-              ' NSS database.')
-        print('  -n <nickname>                   Client certificate nickname')
-        print('      --temp                      Create temporary certificate.')
-        print('      --serial <number>           Provide serial number for the certificate.')
-        print('      --output <file>             Provide output file name.')
-        print('      --renew                     Renew permanent certificate.')
-        print('  -u <username>                   Username for basic authentication '
-              '(mutually exclusive to -n option).')
-        print('  -w <password>                   Password for basic authentication '
-              '(mutually exclusive to -W option).')
-        print('  -W <passwordfile>               Password file for basic authentication'
-              '(mutually exclusive to -w option).')
-        print('  -v, --verbose                   Run in verbose mode.')
-        print('      --debug                     Run in debug mode.')
-        print('      --help                      Show help message.')
-        print()
+        print(textwrap.dedent(self.__class__.help))
 
     def execute(self, argv):
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:d:c:C:n:u:w:W:p:v', [
-                'instance=', 'temp', 'serial=',
+                'instance=', 'token=', 'issuer=', 'ext=',
+                'temp', 'serial=',
                 'output=', 'renew', 'port=',
                 'verbose', 'debug', 'help'])
 
@@ -640,6 +654,9 @@ class CertCreateCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
+        token = None
+        issuer = None
+        ext_conf = None
         temp_cert = False
         serial = None
         client_nssdb = os.getenv('HOME') + '/.dogtag/nssdb'
@@ -656,6 +673,15 @@ class CertCreateCLI(pki.cli.CLI):
         for o, a in opts:
             if o in ('-i', '--instance'):
                 instance_name = a
+
+            elif o == '--token':
+                token = a
+
+            elif o == '--issuer':
+                issuer = a
+
+            elif o == '--ext':
+                ext_conf = a
 
             elif o == '-d':
                 client_nssdb = a
@@ -738,13 +764,6 @@ class CertCreateCLI(pki.cli.CLI):
             with open(agent_password_file, encoding='utf-8') as f:
                 agent_password = f.read().strip()
 
-        if not temp_cert:
-            # For permanent certificate, password of either NSS DB OR agent is required.
-            if not client_nssdb_password and not client_nssdb_pass_file and not agent_password:
-                logger.error('NSS database or agent password is required.')
-                self.print_help()
-                sys.exit(1)
-
         cert_id = args[0]
 
         instance = pki.server.instance.PKIServerFactory.create(instance_name)
@@ -753,7 +772,6 @@ class CertCreateCLI(pki.cli.CLI):
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
-        # Load the instance. Default: pki-tomcat
         instance.load()
 
         try:
@@ -763,7 +781,10 @@ class CertCreateCLI(pki.cli.CLI):
                 client_nssdb_pass=client_nssdb_password,
                 client_nssdb_pass_file=client_nssdb_pass_file,
                 serial=serial, temp_cert=temp_cert, renew=renew, output=output,
-                username=agent_username, password=agent_password, secure_port=port)
+                username=agent_username, password=agent_password, secure_port=port,
+                token=token,
+                issuer=issuer,
+                ext_conf=ext_conf)
 
         except pki.server.PKIServerException as e:
             logger.error(str(e))

@@ -58,16 +58,13 @@ jobs:
               --subject "CN=CA Signing Certificate" \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               ca_signing
-          docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
-              nss-cert-issue \
-              --csr /etc/pki/pki-tomcat/certs/ca_signing.csr \
+          docker exec pki pki-server cert-create \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
-              --cert ca_signing.crt
+              ca_signing
           docker exec pki pki \
               -d /etc/pki/pki-tomcat/alias \
               nss-cert-import \
-              --cert ca_signing.crt \
+              --cert /etc/pki/pki-tomcat/certs/ca_signing.crt \
               --trust CT,C,C \
               ca_signing
 
@@ -89,17 +86,14 @@ jobs:
               --subject "CN=OCSP Signing Certificate" \
               --ext /usr/share/pki/server/certs/ocsp_signing.conf \
               ca_ocsp_signing
-          docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
-              nss-cert-issue \
+          docker exec pki pki-server cert-create \
               --issuer ca_signing \
-              --csr /etc/pki/pki-tomcat/certs/ca_ocsp_signing.csr \
               --ext /usr/share/pki/server/certs/ocsp_signing.conf \
-              --cert ca_ocsp_signing.crt
+              ca_ocsp_signing
           docker exec pki pki \
               -d /etc/pki/pki-tomcat/alias \
               nss-cert-import \
-              --cert ca_ocsp_signing.crt \
+              --cert /etc/pki/pki-tomcat/certs/ca_ocsp_signing.crt \
               ca_ocsp_signing
 
           # check original cert
@@ -120,17 +114,14 @@ jobs:
               --subject "CN=Audit Signing Certificate" \
               --ext /usr/share/pki/server/certs/audit_signing.conf \
               ca_audit_signing
-          docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
-              nss-cert-issue \
+          docker exec pki pki-server cert-create \
               --issuer ca_signing \
-              --csr /etc/pki/pki-tomcat/certs/ca_audit_signing.csr \
               --ext /usr/share/pki/server/certs/audit_signing.conf \
-              --cert ca_audit_signing.crt
+              ca_audit_signing
           docker exec pki pki \
               -d /etc/pki/pki-tomcat/alias \
               nss-cert-import \
-              --cert ca_audit_signing.crt \
+              --cert /etc/pki/pki-tomcat/certs/ca_audit_signing.crt \
               --trust ,,P \
               ca_audit_signing
 
@@ -152,17 +143,14 @@ jobs:
               --subject "CN=Subsystem Certificate" \
               --ext /usr/share/pki/server/certs/subsystem.conf \
               subsystem
-          docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
-              nss-cert-issue \
+          docker exec pki pki-server cert-create \
               --issuer ca_signing \
-              --csr /etc/pki/pki-tomcat/certs/subsystem.csr \
               --ext /usr/share/pki/server/certs/subsystem.conf \
-              --cert subsystem.crt
+              subsystem
           docker exec pki pki \
               -d /etc/pki/pki-tomcat/alias \
               nss-cert-import \
-              --cert subsystem.crt \
+              --cert /etc/pki/pki-tomcat/certs/subsystem.crt \
               subsystem
 
           # check original cert
@@ -183,17 +171,14 @@ jobs:
               --subject "CN=pki.example.com" \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               sslserver
-          docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
-              nss-cert-issue \
+          docker exec pki pki-server cert-create \
               --issuer ca_signing \
-              --csr /etc/pki/pki-tomcat/certs/sslserver.csr \
               --ext /usr/share/pki/server/certs/sslserver.conf \
-              --cert sslserver.crt
+              sslserver
           docker exec pki pki \
               -d /etc/pki/pki-tomcat/alias \
               nss-cert-import \
-              --cert sslserver.crt \
+              --cert /etc/pki/pki-tomcat/certs/sslserver.crt \
               sslserver
 
           # check original cert
@@ -336,7 +321,9 @@ jobs:
 
       - name: Check CA admin cert
         run: |
-          docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
+          docker exec pki pki client-cert-import \
+              --ca-cert /etc/pki/pki-tomcat/certs/ca_signing.crt \
+              ca_signing
           docker exec pki pki -n caadmin ca-user-show caadmin
 
       - name: Check CA certs and requests
