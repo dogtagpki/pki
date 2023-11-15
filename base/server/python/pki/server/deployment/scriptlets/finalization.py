@@ -97,7 +97,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # Log final process messages
         logger.info(log.PKISPAWN_END_MESSAGE_2,
                     deployer.mdict['pki_subsystem'],
-                    deployer.mdict['pki_instance_name'])
+                    instance.name)
 
     def destroy(self, deployer):
 
@@ -121,4 +121,4 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         logger.info(log.PKIDESTROY_END_MESSAGE_2,
                     deployer.mdict['pki_subsystem'],
-                    deployer.mdict['pki_instance_name'])
+                    instance.name)

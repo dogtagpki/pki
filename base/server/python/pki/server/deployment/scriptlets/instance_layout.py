@@ -39,13 +39,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def spawn(self, deployer):
 
+        instance = self.instance
+
         if config.str2bool(deployer.mdict['pki_skip_installation']):
             logger.info('Skipping instance creation')
             return
 
-        logger.info('Preparing %s instance', deployer.mdict['pki_instance_name'])
+        logger.info('Preparing %s instance', instance.name)
 
-        instance = self.instance
         instance.load()
 
         # Create /var/lib/pki/<instance>
@@ -120,7 +121,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # if this is not the first subsystem, skip
         if instance.get_subsystems():
-            logger.info('Installing %s instance', deployer.mdict['pki_instance_name'])
+            logger.info('Installing %s instance', instance.name)
             return
 
         deployer.directory.create(instance.log_dir)
@@ -288,7 +289,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if instance.get_subsystems():
             return
 
-        logger.info('Removing %s instance', deployer.mdict['pki_instance_name'])
+        logger.info('Removing %s instance', instance.name)
 
         logger.info('Removing %s', deployer.systemd.systemd_link)
         pki.util.unlink(link=deployer.systemd.systemd_link,

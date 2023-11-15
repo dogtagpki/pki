@@ -48,6 +48,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def spawn(self, deployer):
 
+        instance = self.instance
+
         if config.str2bool(deployer.mdict['pki_skip_installation']):
             logger.info('Skipping fapolicy setup')
             return
@@ -58,11 +60,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         fapolicy_rule_file = os.path.join(
             fapolicy_rules_path,
-            '61-pki-{}.rules'.format(deployer.mdict['pki_instance_name'])
+            '61-pki-{}.rules'.format(instance.name)
         )
 
-        logger.info('Add fapolicy rule for the instance %s',
-                    deployer.mdict['pki_instance_name'])
+        logger.info('Add fapolicy rule for the instance %s', instance.name)
 
         template = os.path.join(
             pki.server.PKIServer.SHARE_DIR,
@@ -90,18 +91,21 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         self.restart_fapolicy_daemon()
 
     def destroy(self, deployer):
+
+        instance = self.instance
+
         fapolicy_rule_file = os.path.join(
             fapolicy_rules_path,
-            '61-pki-{}.rules'.format(deployer.mdict['pki_instance_name'])
+            '61-pki-{}.rules'.format(instance.name)
         )
 
         if not os.path.exists(fapolicy_rule_file):
             logger.info('Fapolicy custom rules for the instance %s not found.',
-                        deployer.mdict['pki_instance_name'])
+                        instance.name)
             return
 
         logger.info('Removing fapolicy rules for the instance %s.',
-                    deployer.mdict['pki_instance_name'])
+                    instance.name)
         os.remove(fapolicy_rule_file)
 
         self.restart_fapolicy_daemon()

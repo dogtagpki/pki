@@ -623,7 +623,7 @@ def main(argv):
     skip_configuration = deployer.configuration_file.skip_configuration
 
     if skip_configuration:
-        print_skip_configuration_information(parser.mdict)
+        print_skip_configuration_information(parser.mdict, deployer.instance)
 
     elif (external or standalone) and step_one:
         if deployer.subsystem_name == 'CA':
@@ -642,7 +642,7 @@ def main(argv):
             print_tps_step_one_information(parser.mdict, deployer.instance)
 
     else:
-        print_final_install_information(parser.mdict)
+        print_final_install_information(parser.mdict, deployer.instance)
 
 
 def sanitize_user_deployment_cfg(cfg):
@@ -743,7 +743,7 @@ def print_external_ca_step_one_information(mdict, instance):
 
     print(log.PKI_SPAWN_INFORMATION_HEADER)
     print("      The %s subsystem of the '%s' instance is still incomplete." %
-          (deployer.subsystem_name, mdict['pki_instance_name']))
+          (deployer.subsystem_name, instance.name))
     print()
     print("      NSS database: %s" % instance.nssdb_dir)
     print()
@@ -764,7 +764,7 @@ def print_kra_step_one_information(mdict, instance):
 
     print(log.PKI_SPAWN_INFORMATION_HEADER)
     print("      The %s subsystem of the '%s' instance is still incomplete." %
-          (deployer.subsystem_name, mdict['pki_instance_name']))
+          (deployer.subsystem_name, instance.name))
     print()
     print("      NSS database: %s" % instance.nssdb_dir)
     print()
@@ -803,7 +803,7 @@ def print_ocsp_step_one_information(mdict, instance):
 
     print(log.PKI_SPAWN_INFORMATION_HEADER)
     print("      The %s subsystem of the '%s' instance is still incomplete." %
-          (deployer.subsystem_name, mdict['pki_instance_name']))
+          (deployer.subsystem_name, instance.name))
     print()
     print("      NSS database: %s" % instance.nssdb_dir)
     print()
@@ -838,7 +838,7 @@ def print_tks_step_one_information(mdict, instance):
 
     print(log.PKI_SPAWN_INFORMATION_HEADER)
     print("      The %s subsystem of the '%s' instance is still incomplete." %
-          (deployer.subsystem_name, mdict['pki_instance_name']))
+          (deployer.subsystem_name, instance.name))
     print()
     print("      NSS database: %s" % instance.nssdb_dir)
     print()
@@ -870,7 +870,7 @@ def print_tps_step_one_information(mdict, instance):
 
     print(log.PKI_SPAWN_INFORMATION_HEADER)
     print("      The %s subsystem of the '%s' instance is still incomplete." %
-          (deployer.subsystem_name, mdict['pki_instance_name']))
+          (deployer.subsystem_name, instance.name))
     print()
     print("      NSS database: %s" % instance.nssdb_dir)
     print()
@@ -898,16 +898,16 @@ def print_tps_step_one_information(mdict, instance):
     print(log.PKI_SPAWN_INFORMATION_FOOTER)
 
 
-def print_skip_configuration_information(mdict):
+def print_skip_configuration_information(mdict, instance):
 
     print(log.PKI_SPAWN_INFORMATION_HEADER)
     print("      The %s subsystem of the '%s' instance\n"
           "      must still be configured!" %
-          (deployer.subsystem_name, mdict['pki_instance_name']))
+          (deployer.subsystem_name, instance.name))
 
     if config.str2bool(mdict['pki_systemd_service_create']):
-        print(log.PKI_CHECK_STATUS_MESSAGE % mdict['pki_instance_name'])
-        print(log.PKI_INSTANCE_RESTART_MESSAGE % mdict['pki_instance_name'])
+        print(log.PKI_CHECK_STATUS_MESSAGE % instance.name)
+        print(log.PKI_INSTANCE_RESTART_MESSAGE % instance.name)
 
     print(log.PKI_ACCESS_URL % (mdict['pki_hostname'],
                                 mdict['pki_https_port'],
@@ -919,7 +919,7 @@ def print_skip_configuration_information(mdict):
     print(log.PKI_SPAWN_INFORMATION_FOOTER)
 
 
-def print_final_install_information(mdict):
+def print_final_install_information(mdict, instance):
 
     print(log.PKI_SPAWN_INFORMATION_HEADER)
 
@@ -944,21 +944,21 @@ def print_final_install_information(mdict):
         print()
         print("      This %s subsystem of the '%s' instance\n"
               "      is a clone." %
-              (deployer.subsystem_name, mdict['pki_instance_name']))
+              (deployer.subsystem_name, instance.name))
 
     if pki.FIPS.is_enabled():
         print()
         print("      This %s subsystem of the '%s' instance\n"
               "      has FIPS mode enabled on this operating system." %
-              (deployer.subsystem_name, mdict['pki_instance_name']))
+              (deployer.subsystem_name, instance.name))
         print()
         print("      REMINDER:  Don't forget to update the appropriate FIPS\n"
               "                 algorithms in server.xml in the '%s' instance."
-              % mdict['pki_instance_name'])
+              % instance.name)
 
     if config.str2bool(mdict['pki_systemd_service_create']):
-        print(log.PKI_CHECK_STATUS_MESSAGE % mdict['pki_instance_name'])
-        print(log.PKI_INSTANCE_RESTART_MESSAGE % mdict['pki_instance_name'])
+        print(log.PKI_CHECK_STATUS_MESSAGE % instance.name)
+        print(log.PKI_INSTANCE_RESTART_MESSAGE % instance.name)
 
     print(log.PKI_ACCESS_URL % (mdict['pki_hostname'],
                                 mdict['pki_https_port'],

@@ -116,11 +116,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def spawn(self, deployer):
 
+        instance = self.instance
+
         logger.info(log.PKISPAWN_BEGIN_MESSAGE_2,
                     deployer.mdict['pki_subsystem'],
-                    deployer.mdict['pki_instance_name'])
+                    instance.name)
 
-        instance = self.instance
         instance.load()
 
         # generate random password for client database if not specified
@@ -175,13 +176,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def destroy(self, deployer):
 
+        instance = self.instance
+
         logger.info(log.PKIDESTROY_BEGIN_MESSAGE_2,
                     deployer.mdict['pki_subsystem'],
-                    deployer.mdict['pki_instance_name'])
+                    instance.name)
 
         logger.info('Initialization')
 
-        instance = self.instance
         instance.load()
 
         subsystem = instance.get_subsystem(deployer.mdict['pki_subsystem'].lower())
