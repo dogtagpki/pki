@@ -699,7 +699,12 @@ class PKIInstance(pki.server.PKIServer):
                 raise pki.server.PKIServerException(
                     'No subsystem can be loaded for %s in instance %s.' % (cert_id, self.name))
 
-    def cert_import(self, cert_id, cert_file=None):
+    def cert_import(
+            self,
+            cert_id,
+            cert_file=None,
+            token=None,
+            nickname=None):
         """
         Import cert from cert_file into NSS db with appropriate trust
 
@@ -707,6 +712,10 @@ class PKIInstance(pki.server.PKIServer):
         :type cert_id: str
         :param cert_file: Cert file to be imported into NSS db
         :type cert_file: str
+        :param token: Token to store the certificate
+        :type token: str
+        :param nickname: Certificate nickname
+        :type nickname: str
         :return: None
         :rtype: None
         """
@@ -722,13 +731,33 @@ class PKIInstance(pki.server.PKIServer):
 
         subsystem_name, cert_tag = pki.server.PKIServer.split_cert_id(cert_id)
 
-        if not subsystem_name:
-            subsystem_name = self.get_subsystems()[0].name
-
         logger.debug('- subsystem: %s', subsystem_name)
         logger.debug('- cert tag: %s', cert_tag)
 
-        subsystem = self.get_subsystem(subsystem_name)
+        if subsystem_name:
+            # if cert ID contains subsystem name, get that subsystem
+            subsystem = self.get_subsystem(subsystem_name)
+        else:
+            # if cert ID does not contain subsystem name (i.e. sslserver, subsystem),
+            # get the first available subsystem
+            subsystems = self.get_subsystems()
+            if len(subsystems) > 0:
+                subsystem = subsystems[0]
+            else:
+                subsystem = None
+
+        if subsystem:
+            # if the subsystem exists, use the nickname and token
+            # specified in CS.cfg
+            cert_info = subsystem.get_subsystem_cert(cert_tag)
+            nickname = cert_info['nickname']
+            token = cert_info['token']
+        else:
+            # if the subsystem does not exist, use the specified
+            # nickname and token
+            if not nickname:
+                # if nickname not specified, use the cert ID
+                nickname = cert_id
 
         # audit and CA signing cert require special flags set in NSSDB
         trust_attributes = None
@@ -742,21 +771,19 @@ class PKIInstance(pki.server.PKIServer):
         nssdb = self.open_nssdb()
 
         try:
-            cert = subsystem.get_subsystem_cert(cert_tag)
-
             logger.debug('Checking existing %s cert', cert_id)
 
             if nssdb.get_cert(
-                    nickname=cert['nickname'],
-                    token=cert['token']):
+                    nickname=nickname,
+                    token=token):
                 raise pki.server.PKIServerException(
                     'Certificate already exists: %s' % cert_id)
 
             logger.debug('Importing %s cert', cert_id)
 
             nssdb.add_cert(
-                nickname=cert['nickname'],
-                token=cert['token'],
+                nickname=nickname,
+                token=token,
                 cert_file=cert_file,
                 trust_attributes=trust_attributes)
 

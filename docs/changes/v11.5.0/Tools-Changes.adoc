@@ -47,3 +47,8 @@ The `pki-server cert-request` command has been added to generate a key pair and 
 The `pki-server cert-create` command has been updated to support
 creating permanent system certificate using the server's NSS database
 and RSNv3 serial numbers.
+
+== Update pki-server cert-import CLI ==
+
+The `pki-server cert-import` command has been updated to provide
+options to specify the certificate nickname and token name.
