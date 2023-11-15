@@ -317,8 +317,8 @@ class PKIConfigParser:
         self.deployer.main_config = configparser.ConfigParser({
             'application_version': application_version,
             'pki_dns_domainname': self.deployer.dns_domainname,
-            'pki_subsystem': self.deployer.subsystem_name,
-            'pki_subsystem_type': self.deployer.subsystem_name.lower(),
+            'pki_subsystem': self.deployer.subsystem_type,
+            'pki_subsystem_type': self.deployer.subsystem_type.lower(),
             'nss_default_db_type': self.deployer.nss_db_type,
             'java_home': java_home,
             'home_dir': os.path.expanduser("~"),
@@ -521,7 +521,7 @@ class PKIConfigParser:
             # Check DEFAULT first because params in DEFAULT will appear in all other sections.
 
             if not sections:
-                sections = ['DEFAULT', 'Tomcat', self.deployer.subsystem_name]
+                sections = ['DEFAULT', 'Tomcat', self.deployer.subsystem_type]
 
             # Find param in the listed sections.
 
@@ -736,7 +736,7 @@ class PKIConfigParser:
                 # Stand-alone PKI
                 self.mdict['pki_security_domain_type'] = "new"
 
-            elif self.deployer.subsystem_name != "CA" or \
+            elif self.deployer.subsystem_type != "CA" or \
                     config.str2bool(self.mdict['pki_clone']) or \
                     config.str2bool(self.mdict['pki_subordinate']) and \
                     not config.str2bool(self.mdict['pki_subordinate_create_new_security_domain']):

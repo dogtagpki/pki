@@ -149,7 +149,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # - Stand-alone PKI (Step 2)
             # - Two-step installation (Step 2)
 
-            if (deployer.subsystem_name in ['CA', 'KRA', 'OCSP', 'TKS', 'TPS'] or
+            if (deployer.subsystem_type in ['CA', 'KRA', 'OCSP', 'TKS', 'TPS'] or
                 config.str2bool(deployer.mdict['pki_standalone'])) and \
                     config.str2bool(deployer.mdict['pki_external_step_two']) or \
                config.str2bool(deployer.mdict['pki_skip_installation']):

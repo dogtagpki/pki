@@ -117,12 +117,12 @@ def main(argv):
         # -s <subsystem>
         if args.pki_subsystem is None:
             interactive = True
-            deployer.subsystem_name = parser.read_text(
+            deployer.subsystem_type = parser.read_text(
                 'Subsystem (CA/KRA/OCSP/TKS/TPS)',
                 options=['CA', 'KRA', 'OCSP', 'TKS', 'TPS'],
                 default='CA', case_sensitive=False).upper()
         else:
-            deployer.subsystem_name = str(args.pki_subsystem).strip('[\']')
+            deployer.subsystem_type = str(args.pki_subsystem).strip('[\']')
 
         # -i <instance name>
         if args.pki_deployed_instance_name is None:
@@ -179,12 +179,12 @@ def main(argv):
 
     deployer.instance.load()
 
-    subsystem_name = deployer.subsystem_name.lower()
+    subsystem_name = deployer.subsystem_type.lower()
     subsystem = deployer.instance.get_subsystem(subsystem_name)
 
     if not subsystem:
         logger.error('No %s subsystem in %s instance',
-                     subsystem_name.upper(), instance_name)
+                     deployer.subsystem_type, instance_name)
         sys.exit(1)
 
     config.default_deployment_cfg = \
@@ -194,7 +194,7 @@ def main(argv):
     config.user_deployment_cfg = os.path.join(
         subsystem.base_dir,
         "registry",
-        deployer.subsystem_name.lower(),
+        deployer.subsystem_type.lower(),
         config.USER_DEPLOYMENT_CONFIGURATION
     )
 

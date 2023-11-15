@@ -182,13 +182,13 @@ def main(argv):
             interactive = True
             parser.indent = 0
 
-            deployer.subsystem_name = parser.read_text(
+            deployer.subsystem_type = parser.read_text(
                 'Subsystem (CA/KRA/OCSP/TKS/TPS)',
                 options=['CA', 'KRA', 'OCSP', 'TKS', 'TPS'],
                 default='CA', case_sensitive=False).upper()
             print()
         else:
-            deployer.subsystem_name = str(args.pki_subsystem).strip('[\']')
+            deployer.subsystem_type = str(args.pki_subsystem).strip('[\']')
 
         parser.init_config()
 
@@ -227,10 +227,10 @@ def main(argv):
             print()
 
             print("Administrator:")
-            parser.read_text('Username', deployer.subsystem_name, 'pki_admin_uid')
+            parser.read_text('Username', deployer.subsystem_type, 'pki_admin_uid')
 
             admin_password = parser.read_password(
-                'Password', deployer.subsystem_name, 'pki_admin_password',
+                'Password', deployer.subsystem_type, 'pki_admin_password',
                 verifyMessage='Verify password')
 
             deployer.set_property('pki_backup_password', admin_password)
@@ -250,13 +250,13 @@ def main(argv):
             if import_cert == 'y' or import_cert == 'yes':
                 deployer.set_property('pki_import_admin_cert', 'True')
                 parser.read_text('Import certificate from',
-                                 deployer.subsystem_name,
+                                 deployer.subsystem_type,
                                  'pki_admin_cert_file')
             else:
                 deployer.set_property('pki_import_admin_cert', 'False')
 
                 parser.read_text('Export certificate to',
-                                 deployer.subsystem_name,
+                                 deployer.subsystem_type,
                                  'pki_client_admin_cert')
 
             # if parser.mdict['pki_hsm_enable'] == 'True':
@@ -289,7 +289,7 @@ def main(argv):
             print("Directory Server:")
             while True:
                 parser.read_text('Hostname',
-                                 deployer.subsystem_name,
+                                 deployer.subsystem_type,
                                  'pki_ds_hostname')
 
                 if parser.mdict['pki_ds_secure_connection'] == 'True':
@@ -312,7 +312,7 @@ def main(argv):
                     deployer.set_property('pki_ds_secure_connection', 'True')
                     # Prompt for secure 'ldaps' port
                     parser.read_text('Secure LDAPS Port',
-                                     deployer.subsystem_name,
+                                     deployer.subsystem_type,
                                      'pki_ds_ldaps_port')
                     # Specify complete path to a directory server
                     # CA certificate pem file
@@ -322,14 +322,14 @@ def main(argv):
                     deployer.set_property('pki_ds_secure_connection_ca_pem_file', pem_file)
                 else:
                     parser.read_text('LDAP Port',
-                                     deployer.subsystem_name,
+                                     deployer.subsystem_type,
                                      'pki_ds_ldap_port')
 
                 parser.read_text('Bind DN',
-                                 deployer.subsystem_name,
+                                 deployer.subsystem_type,
                                  'pki_ds_bind_dn')
                 parser.read_password('Password',
-                                     deployer.subsystem_name,
+                                     deployer.subsystem_type,
                                      'pki_ds_password')
 
                 try:
@@ -344,7 +344,7 @@ def main(argv):
                     continue
 
                 parser.read_text('Base DN',
-                                 deployer.subsystem_name,
+                                 deployer.subsystem_type,
                                  'pki_ds_base_dn')
                 try:
                     if not base_dn_exists():
@@ -370,9 +370,9 @@ def main(argv):
 
             print("Security Domain:")
 
-            if deployer.subsystem_name == "CA":
+            if deployer.subsystem_type == "CA":
                 parser.read_text('Name',
-                                 deployer.subsystem_name,
+                                 deployer.subsystem_type,
                                  'pki_security_domain_name')
 
             else:
@@ -382,15 +382,15 @@ def main(argv):
                     ca_cert = os.path.join(nssdb_dir, "ca.crt")
                     if not os.path.exists(ca_cert):
                         parser.read_text('Security Domain CA Root Certificate',
-                                         deployer.subsystem_name,
+                                         deployer.subsystem_type,
                                          'pki_cert_chain_path')
 
                     parser.read_text('Hostname',
-                                     deployer.subsystem_name,
+                                     deployer.subsystem_type,
                                      'pki_security_domain_hostname')
 
                     parser.read_text('Secure HTTP port',
-                                     deployer.subsystem_name,
+                                     deployer.subsystem_type,
                                      'pki_security_domain_https_port')
 
                     try:
@@ -404,10 +404,10 @@ def main(argv):
 
                 while True:
                     parser.read_text('Username',
-                                     deployer.subsystem_name,
+                                     deployer.subsystem_type,
                                      'pki_security_domain_user')
                     parser.read_password('Password',
-                                         deployer.subsystem_name,
+                                         deployer.subsystem_type,
                                          'pki_security_domain_password')
 
                     try:
@@ -419,12 +419,12 @@ def main(argv):
 
             print()
 
-            if deployer.subsystem_name == "TPS":
+            if deployer.subsystem_type == "TPS":
                 print("External Servers:")
 
                 while True:
                     parser.read_text('CA URL',
-                                     deployer.subsystem_name,
+                                     deployer.subsystem_type,
                                      'pki_ca_uri')
                     try:
                         status = parser.get_server_status('ca', 'pki_ca_uri')
@@ -436,7 +436,7 @@ def main(argv):
 
                 while True:
                     parser.read_text('TKS URL',
-                                     deployer.subsystem_name,
+                                     deployer.subsystem_type,
                                      'pki_tks_uri')
                     try:
                         status = parser.get_server_status('tks', 'pki_tks_uri')
@@ -456,7 +456,7 @@ def main(argv):
                         deployer.set_property('pki_enable_server_side_keygen', 'True')
 
                         parser.read_text('KRA URL',
-                                         deployer.subsystem_name,
+                                         deployer.subsystem_type,
                                          'pki_kra_uri')
                         try:
                             status = parser.get_server_status(
@@ -476,10 +476,10 @@ def main(argv):
 
                 while True:
                     parser.read_text('Hostname',
-                                     deployer.subsystem_name,
+                                     deployer.subsystem_type,
                                      'pki_authdb_hostname')
                     parser.read_text('Port',
-                                     deployer.subsystem_name,
+                                     deployer.subsystem_type,
                                      'pki_authdb_port')
                     basedn = parser.read_text('Base DN', allow_empty=False)
                     deployer.set_property('pki_authdb_basedn', basedn)
@@ -599,7 +599,7 @@ def main(argv):
             deployer.mdict['pki_subsystem_type'])
 
         print('Please check the %s logs in %s.' %
-              (deployer.subsystem_name, subsystem_log_dir))
+              (deployer.subsystem_type, subsystem_log_dir))
 
         sys.exit(1)
 
@@ -626,19 +626,19 @@ def main(argv):
         print_skip_configuration_information(parser.mdict, deployer.instance)
 
     elif (external or standalone) and step_one:
-        if deployer.subsystem_name == 'CA':
+        if deployer.subsystem_type == 'CA':
             print_external_ca_step_one_information(parser.mdict, deployer.instance)
 
-        elif deployer.subsystem_name == 'KRA':
+        elif deployer.subsystem_type == 'KRA':
             print_kra_step_one_information(parser.mdict, deployer.instance)
 
-        elif deployer.subsystem_name == 'OCSP':
+        elif deployer.subsystem_type == 'OCSP':
             print_ocsp_step_one_information(parser.mdict, deployer.instance)
 
-        elif deployer.subsystem_name == 'TKS':
+        elif deployer.subsystem_type == 'TKS':
             print_tks_step_one_information(parser.mdict, deployer.instance)
 
-        elif deployer.subsystem_name == 'TPS':
+        elif deployer.subsystem_type == 'TPS':
             print_tps_step_one_information(parser.mdict, deployer.instance)
 
     else:
@@ -736,14 +736,14 @@ def set_port(parser, tag, prompt, existing_data):
     if tag in existing_data:
         deployer.set_property(tag, existing_data[tag])
     else:
-        parser.read_text(prompt, deployer.subsystem_name, tag)
+        parser.read_text(prompt, deployer.subsystem_type, tag)
 
 
 def print_external_ca_step_one_information(mdict, instance):
 
     print(log.PKI_SPAWN_INFORMATION_HEADER)
     print("      The %s subsystem of the '%s' instance is still incomplete." %
-          (deployer.subsystem_name, instance.name))
+          (deployer.subsystem_type, instance.name))
     print()
     print("      NSS database: %s" % instance.nssdb_dir)
     print()
@@ -764,7 +764,7 @@ def print_kra_step_one_information(mdict, instance):
 
     print(log.PKI_SPAWN_INFORMATION_HEADER)
     print("      The %s subsystem of the '%s' instance is still incomplete." %
-          (deployer.subsystem_name, instance.name))
+          (deployer.subsystem_type, instance.name))
     print()
     print("      NSS database: %s" % instance.nssdb_dir)
     print()
@@ -803,7 +803,7 @@ def print_ocsp_step_one_information(mdict, instance):
 
     print(log.PKI_SPAWN_INFORMATION_HEADER)
     print("      The %s subsystem of the '%s' instance is still incomplete." %
-          (deployer.subsystem_name, instance.name))
+          (deployer.subsystem_type, instance.name))
     print()
     print("      NSS database: %s" % instance.nssdb_dir)
     print()
@@ -838,7 +838,7 @@ def print_tks_step_one_information(mdict, instance):
 
     print(log.PKI_SPAWN_INFORMATION_HEADER)
     print("      The %s subsystem of the '%s' instance is still incomplete." %
-          (deployer.subsystem_name, instance.name))
+          (deployer.subsystem_type, instance.name))
     print()
     print("      NSS database: %s" % instance.nssdb_dir)
     print()
@@ -870,7 +870,7 @@ def print_tps_step_one_information(mdict, instance):
 
     print(log.PKI_SPAWN_INFORMATION_HEADER)
     print("      The %s subsystem of the '%s' instance is still incomplete." %
-          (deployer.subsystem_name, instance.name))
+          (deployer.subsystem_type, instance.name))
     print()
     print("      NSS database: %s" % instance.nssdb_dir)
     print()
@@ -903,7 +903,7 @@ def print_skip_configuration_information(mdict, instance):
     print(log.PKI_SPAWN_INFORMATION_HEADER)
     print("      The %s subsystem of the '%s' instance\n"
           "      must still be configured!" %
-          (deployer.subsystem_name, instance.name))
+          (deployer.subsystem_type, instance.name))
 
     if config.str2bool(mdict['pki_systemd_service_create']):
         print(log.PKI_CHECK_STATUS_MESSAGE % instance.name)
@@ -911,7 +911,7 @@ def print_skip_configuration_information(mdict, instance):
 
     print(log.PKI_ACCESS_URL % (mdict['pki_hostname'],
                                 mdict['pki_https_port'],
-                                deployer.subsystem_name.lower()))
+                                deployer.subsystem_type.lower()))
     if not config.str2bool(mdict['pki_enable_on_system_boot']):
         print(log.PKI_SYSTEM_BOOT_STATUS_MESSAGE % "disabled")
     else:
@@ -944,13 +944,13 @@ def print_final_install_information(mdict, instance):
         print()
         print("      This %s subsystem of the '%s' instance\n"
               "      is a clone." %
-              (deployer.subsystem_name, instance.name))
+              (deployer.subsystem_type, instance.name))
 
     if pki.FIPS.is_enabled():
         print()
         print("      This %s subsystem of the '%s' instance\n"
               "      has FIPS mode enabled on this operating system." %
-              (deployer.subsystem_name, instance.name))
+              (deployer.subsystem_type, instance.name))
         print()
         print("      REMINDER:  Don't forget to update the appropriate FIPS\n"
               "                 algorithms in server.xml in the '%s' instance."
@@ -962,7 +962,7 @@ def print_final_install_information(mdict, instance):
 
     print(log.PKI_ACCESS_URL % (mdict['pki_hostname'],
                                 mdict['pki_https_port'],
-                                deployer.subsystem_name.lower()))
+                                deployer.subsystem_type.lower()))
     if not config.str2bool(mdict['pki_enable_on_system_boot']):
         print(log.PKI_SYSTEM_BOOT_STATUS_MESSAGE % "disabled")
     else:

@@ -83,7 +83,7 @@ class PKIDeployer:
     def __init__(self):
 
         # PKI Deployment "Mandatory" Command-Line Variables
-        self.subsystem_name = None
+        self.subsystem_type = None
 
         # Global dictionary variables
         self.mdict = {}
@@ -149,7 +149,7 @@ class PKIDeployer:
     def set_property(self, key, value, section=None):
 
         if not section:
-            section = self.subsystem_name
+            section = self.subsystem_type
 
         if section != "DEFAULT" and not self.main_config.has_section(section):
             self.main_config.add_section(section)
@@ -254,8 +254,8 @@ class PKIDeployer:
             web_server_dict[0] = None
             self.mdict.update(web_server_dict)
 
-        if self.main_config.has_section(self.subsystem_name):
-            subsystem_dict = dict(self.main_config.items(self.subsystem_name))
+        if self.main_config.has_section(self.subsystem_type):
+            subsystem_dict = dict(self.main_config.items(self.subsystem_type))
             subsystem_dict[0] = None
             self.mdict.update(subsystem_dict)
 
@@ -4795,7 +4795,7 @@ class PKIDeployer:
 
     def spawn(self):
 
-        print('Installing ' + self.subsystem_name + ' into ' + self.instance.base_dir + '.')
+        print('Installing ' + self.subsystem_type + ' into ' + self.instance.base_dir + '.')
 
         scriptlet = pki.server.deployment.scriptlets.initialization.PkiScriptlet()
         scriptlet.deployer = self
@@ -4849,7 +4849,7 @@ class PKIDeployer:
 
     def destroy(self):
 
-        print('Uninstalling ' + self.subsystem_name + ' from ' + self.instance.base_dir + '.')
+        print('Uninstalling ' + self.subsystem_type + ' from ' + self.instance.base_dir + '.')
 
         scriptlet = pki.server.deployment.scriptlets.initialization.PkiScriptlet()
         scriptlet.deployer = self

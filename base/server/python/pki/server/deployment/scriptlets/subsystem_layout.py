@@ -54,7 +54,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         instance = self.instance
 
-        subsystem_name = deployer.mdict['pki_subsystem'].lower()
+        subsystem_name = deployer.subsystem_type.lower()
         subsystem = pki.server.subsystem.PKISubsystemFactory.create(instance, subsystem_name)
         instance.add_subsystem(subsystem)
 
