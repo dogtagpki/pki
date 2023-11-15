@@ -792,27 +792,41 @@ class CertCreateCLI(pki.cli.CLI):
 
 
 class CertImportCLI(pki.cli.CLI):
+    '''
+    Import system certificate.
+    '''
+
+    help = '''\
+        Usage: pki-server cert-import [OPTIONS] <Cert ID>
+
+          -i, --instance <instance ID>    Instance ID (default: pki-tomcat)
+              --token <name>              Token to store the certificate
+              --nickname <nickname>       Certificate nickname
+              --input <file>              Certificate file
+          -v, --verbose                   Run in verbose mode.
+              --debug                     Run in debug mode.
+              --help                      Show help message.
+
+        Cert ID:
+            ca_signing, ca_ocsp_signing, ca_audit_signing,
+            kra_storage, kra_transport, kra_audit_signing,
+            ocsp_signing, ocsp_audit_signing,
+            tks_audit_signing,
+            tps_audit_signing,
+            subsystem, sslserver
+    '''  # noqa: E501
+
     def __init__(self):
-        super().__init__('import', 'Import system certificate.')
+        super().__init__('import', inspect.cleandoc(self.__class__.__doc__))
 
     def print_help(self):
-        print('Usage: pki-server cert-import [OPTIONS] <Cert ID>')
-        # CertID:  subsystem, sslserver, kra_storage, kra_transport, ca_ocsp_signing,
-        # ca_audit_signing, kra_audit_signing
-        # ca.cert.list=signing,ocsp_signing,sslserver,subsystem,audit_signing
-        print()
-        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
-        print('      --input <file>              Provide input file name.')
-        print('  -v, --verbose                   Run in verbose mode.')
-        print('      --debug                     Run in debug mode.')
-        print('      --help                      Show help message.')
-        print()
+        print(textwrap.dedent(self.__class__.help))
 
     def execute(self, argv):
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'input=',
+                'instance=', 'token=', 'nickname=', 'input=',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -821,11 +835,19 @@ class CertImportCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
+        token = None
+        nickname = None
         cert_file = None
 
         for o, a in opts:
             if o in ('-i', '--instance'):
                 instance_name = a
+
+            elif o == '--token':
+                token = a
+
+            elif o == '--nickname':
+                nickname = a
 
             elif o == '--input':
                 cert_file = a
@@ -858,12 +880,14 @@ class CertImportCLI(pki.cli.CLI):
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
-        # Load the instance. Default: pki-tomcat
         instance.load()
 
         try:
-            # Load the cert into NSS db and update all corresponding subsystem's CS.cfg
-            instance.cert_import(cert_id, cert_file)
+            instance.cert_import(
+                cert_id,
+                cert_file=cert_file,
+                token=token,
+                nickname=nickname)
 
         except pki.server.PKIServerException as e:
             logger.error(str(e))
