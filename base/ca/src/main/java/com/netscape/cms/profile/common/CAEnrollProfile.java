@@ -297,7 +297,7 @@ public class CAEnrollProfile extends EnrollProfile {
 
         // process certificate issuance
         X509CertInfo info = request.getExtDataInCertInfo(REQUEST_CERTINFO);
-        logger.debug(method + "cfu before: X509CertInfo info = " + info.toString());
+        // logger.debug(method + " before: X509CertInfo info = " + info.toString());
 
         if (isSSKeygen) {
             try {
@@ -305,7 +305,7 @@ public class CAEnrollProfile extends EnrollProfile {
                 if (pubKeyStr == null) {
                     throw new EProfileException("Server-Side Keygen enrollment failed to retrieve public_key from KRA");
                 }
-                logger.debug(method + "pubKeyStr = " + pubKeyStr);
+                // logger.debug(method + "pubKeyStr = " + pubKeyStr);
                 byte[] pubKeyB = CryptoUtil.base64Decode(pubKeyStr);
                 CertificateX509Key certKey = new CertificateX509Key(
                     new ByteArrayInputStream(pubKeyB));
@@ -316,17 +316,17 @@ public class CAEnrollProfile extends EnrollProfile {
                 if (infokey != null) {
                     X509Key key = (X509Key)
                             infokey.get(CertificateX509Key.KEY);
-                    logger.debug(method + "key = " + key.toString());
+                    // logger.debug(method + "key = " + key.toString());
                     // a placeholder temporary fake key was put in
                     // ServerKeygenUserKeyDefault
                     info.delete(X509CertInfo.KEY);
-                    logger.debug(method + "key deleted");
+                    // logger.debug(method + "fake key deleted");
                 }
 
                 // adding real key
                 info.set(X509CertInfo.KEY, certKey);
 
-                // fake key relaced;
+                // fake key replaced;
                 // need to compute/replace SKI as well if present
 
                 Extension ext = CertUtils.getExtension(PKIXExtensions.SubjectKey_Id.toString(), info);
@@ -344,8 +344,8 @@ public class CAEnrollProfile extends EnrollProfile {
                     CertUtils.replaceExtension(PKIXExtensions.SubjectKey_Id.toString(), skiExt, info);
                     logger.debug(method + " SubjectKey_Id replaced");
 
-                    logger.debug(method + " after replacement: X509CertInfo info = " + info.toString());
-                }/* else 
+                    // logger.debug(method + " after replacement: X509CertInfo info = " + info.toString());
+                }/* else
                     Not every cert needs an SKI
                     logger.debug(method + "did not find SubjectKey_Id");
                   */
