@@ -1,3 +1,8 @@
+//
+// Copyright Red Hat, Inc.
+//
+// SPDX-License-Identifier: GPL-2.0-or-later
+//
 package org.dogtagpki.server.ca.v2;
 
 import java.io.PrintWriter;
@@ -13,11 +18,15 @@ import org.dogtagpki.server.ca.CAServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @author Marco Fargetta <mfargett@redhat.com>
+ */
 @WebServlet("/v2/info")
 public class CAInfoServlet extends CAServlet {
     private static final long serialVersionUID = 1L;
     private static Logger logger = LoggerFactory.getLogger(CAInfoServlet.class);
 
+    @Override
     public void get(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.debug("CAInfoServlet.get(): session: " + session.getId());
