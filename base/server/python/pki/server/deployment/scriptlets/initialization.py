@@ -196,8 +196,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # that are present in the corresponding configuration file
             deployer.configuration_file.verify_command_matches_configuration_file()
             # establish 'uid' and 'gid'
-            deployer.identity.set_uid(deployer.mdict['pki_user'])
-            deployer.identity.set_gid(deployer.mdict['pki_group'])
+            deployer.identity.set_uid(instance.user)
+            deployer.identity.set_gid(instance.group)
             # get ports to remove selinux context
             deployer.configuration_file.populate_non_default_ports()
 
