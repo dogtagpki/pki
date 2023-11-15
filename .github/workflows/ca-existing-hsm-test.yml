@@ -80,22 +80,17 @@ jobs:
               --subject "CN=CA Signing Certificate" \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               ca_signing
-          docker exec pki runuser -u pkiuser -- \
-              pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+          docker exec pki pki-server cert-create \
               --token HSM \
-              nss-cert-issue \
-              --csr /etc/pki/pki-tomcat/certs/ca_signing.csr \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
-              --cert /tmp/ca_signing.crt
+              ca_signing
           docker exec pki runuser -u pkiuser -- \
               pki \
               -d /etc/pki/pki-tomcat/alias \
               -f /etc/pki/pki-tomcat/password.conf \
               --token HSM \
               nss-cert-import \
-              --cert /tmp/ca_signing.crt \
+              --cert /etc/pki/pki-tomcat/certs/ca_signing.crt \
               --trust CT,C,C \
               ca_signing
 
@@ -124,23 +119,18 @@ jobs:
               --subject "CN=OCSP Signing Certificate" \
               --ext /usr/share/pki/server/certs/ocsp_signing.conf \
               ca_ocsp_signing
-          docker exec pki runuser -u pkiuser -- \
-              pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+          docker exec pki pki-server cert-create \
               --token HSM \
-              nss-cert-issue \
               --issuer HSM:ca_signing \
-              --csr /etc/pki/pki-tomcat/certs/ca_ocsp_signing.csr \
               --ext /usr/share/pki/server/certs/ocsp_signing.conf \
-              --cert /tmp/ca_ocsp_signing.crt
+              ca_ocsp_signing
           docker exec pki runuser -u pkiuser -- \
               pki \
               -d /etc/pki/pki-tomcat/alias \
               -f /etc/pki/pki-tomcat/password.conf \
               --token HSM \
               nss-cert-import \
-              --cert /tmp/ca_ocsp_signing.crt \
+              --cert /etc/pki/pki-tomcat/certs/ca_ocsp_signing.crt \
               ca_ocsp_signing
 
           # check original cert
@@ -168,23 +158,18 @@ jobs:
               --subject "CN=Audit Signing Certificate" \
               --ext /usr/share/pki/server/certs/audit_signing.conf \
               ca_audit_signing
-          docker exec pki runuser -u pkiuser -- \
-              pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+          docker exec pki pki-server cert-create \
               --token HSM \
-              nss-cert-issue \
               --issuer HSM:ca_signing \
-              --csr /etc/pki/pki-tomcat/certs/ca_audit_signing.csr \
               --ext /usr/share/pki/server/certs/audit_signing.conf \
-              --cert /tmp/ca_audit_signing.crt
+              ca_audit_signing
           docker exec pki runuser -u pkiuser -- \
               pki \
               -d /etc/pki/pki-tomcat/alias \
               -f /etc/pki/pki-tomcat/password.conf \
               --token HSM \
               nss-cert-import \
-              --cert /tmp/ca_audit_signing.crt \
+              --cert /etc/pki/pki-tomcat/certs/ca_audit_signing.crt \
               --trust ,,P \
               ca_audit_signing
 
@@ -213,23 +198,18 @@ jobs:
               --subject "CN=Subsystem Certificate" \
               --ext /usr/share/pki/server/certs/subsystem.conf \
               subsystem
-          docker exec pki runuser -u pkiuser -- \
-              pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+          docker exec pki pki-server cert-create \
               --token HSM \
-              nss-cert-issue \
               --issuer HSM:ca_signing \
-              --csr /etc/pki/pki-tomcat/certs/subsystem.csr \
               --ext /usr/share/pki/server/certs/subsystem.conf \
-              --cert /tmp/subsystem.crt
+              subsystem
           docker exec pki runuser -u pkiuser -- \
               pki \
               -d /etc/pki/pki-tomcat/alias \
               -f /etc/pki/pki-tomcat/password.conf \
               --token HSM \
               nss-cert-import \
-              --cert /tmp/subsystem.crt \
+              --cert /etc/pki/pki-tomcat/certs/subsystem.crt \
               subsystem
 
           # check original cert
@@ -256,22 +236,17 @@ jobs:
               --subject "CN=pki.example.com" \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               sslserver
-          docker exec pki runuser -u pkiuser -- \
-              pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+          docker exec pki pki-server cert-create \
               --token HSM \
-              nss-cert-issue \
               --issuer HSM:ca_signing \
-              --csr /etc/pki/pki-tomcat/certs/sslserver.csr \
               --ext /usr/share/pki/server/certs/sslserver.conf \
-              --cert /tmp/sslserver.crt
+              sslserver
           docker exec pki runuser -u pkiuser -- \
               pki \
               -d /etc/pki/pki-tomcat/alias \
               -f /etc/pki/pki-tomcat/password.conf \
               nss-cert-import \
-              --cert /tmp/sslserver.crt \
+              --cert /etc/pki/pki-tomcat/certs/sslserver.crt \
               sslserver
 
           # check original cert
@@ -461,7 +436,9 @@ jobs:
 
       - name: Check CA admin cert
         run: |
-          docker exec pki pki client-cert-import ca_signing --ca-cert /tmp/ca_signing.crt
+          docker exec pki pki client-cert-import \
+              --ca-cert /etc/pki/pki-tomcat/certs/ca_signing.crt \
+              ca_signing
           docker exec pki pki -n caadmin ca-user-show caadmin
 
       - name: Check CA certs and requests

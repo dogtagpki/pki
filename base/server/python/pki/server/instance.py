@@ -804,7 +804,10 @@ class PKIInstance(pki.server.PKIServer):
             client_cert=None, client_nssdb=None,
             client_nssdb_pass=None, client_nssdb_pass_file=None,
             serial=None, temp_cert=False, renew=False, output=None,
-            secure_port='8443'):
+            secure_port='8443',
+            token=None,
+            issuer=None,
+            ext_conf=None):
         """
         Create a new cert for the cert_id provided
 
@@ -835,6 +838,12 @@ class PKIInstance(pki.server.PKIServer):
         :type output: str
         :param secure_port: Secure port number in case of renewing a certificate
         :type secure_port: str
+        :param token: Token that stores the signing key
+        :type token: str
+        :param issuer: Issuer certificate nickname
+        :type issuer: str
+        :param ext_conf: Configuration file for certificate extension
+        :type ext_conf: str
         :return: None
         :rtype: None
         :raises pki.server.PKIServerException
@@ -845,6 +854,54 @@ class PKIInstance(pki.server.PKIServer):
         Note that client_nssdb should be specified in either case, as it
         contains the CA Certificate.
         """
+
+        if not temp_cert and not renew:
+            # creating permanent cert
+
+            token = pki.nssdb.normalize_token(token)
+            csr_file = self.csr_file(cert_id)
+            cert_file = self.cert_file(cert_id)
+
+            cmd = [
+                '/usr/sbin/runuser',
+                '-u', self.user, '--',
+                'pki',
+                '-d', self.nssdb_dir,
+                '-f', self.password_conf
+            ]
+
+            if token:
+                cmd.extend(['--token', token])
+
+            cmd.extend([
+                'nss-cert-issue',
+                '--csr', csr_file,
+                '--cert', cert_file
+            ])
+
+            if issuer:
+                cmd.extend(['--issuer', issuer])
+
+            if ext_conf:
+                cmd.extend(['--ext', ext_conf])
+
+            if logger.isEnabledFor(logging.DEBUG):
+                cmd.append('--debug')
+
+            elif logger.isEnabledFor(logging.INFO):
+                cmd.append('--verbose')
+
+            logger.debug('Command: %s', ' '.join(cmd))
+
+            subprocess.check_call(cmd)
+
+            return
+
+        if not temp_cert:
+            # For permanent certificate, password of either NSS DB OR agent is required.
+            if not client_nssdb_pass and not client_nssdb_pass_file and not password:
+                raise Exception('NSS database or agent password is required.')
+
         nssdb = self.open_nssdb()
         tmpdir = tempfile.mkdtemp()
         subsystem = None  # used for system certs
