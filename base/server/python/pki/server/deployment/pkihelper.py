@@ -463,7 +463,7 @@ class ConfigurationFile:
         self.subordinate = config.str2bool(self.mdict['pki_subordinate'])
 
         # set useful 'string' object variables for this class
-        self.subsystem = self.mdict['pki_subsystem']
+        self.subsystem = deployer.subsystem_type
 
     def confirm_external(self):
         # ALWAYS defined via 'pkiparser.py'

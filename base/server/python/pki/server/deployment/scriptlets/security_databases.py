@@ -47,7 +47,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         instance = self.instance
         instance.load()
 
-        subsystem = instance.get_subsystem(deployer.mdict['pki_subsystem'].lower())
+        subsystem = instance.get_subsystem(deployer.subsystem_type.lower())
 
         if config.str2bool(deployer.mdict['pki_use_pss_rsa_signing_algorithm']):
             deployer.update_rsa_pss_algorithms(subsystem)

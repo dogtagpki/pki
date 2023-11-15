@@ -44,7 +44,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('Skipping subsystem creation')
             return
 
-        logger.info('Creating %s subsystem', deployer.mdict['pki_subsystem'])
+        logger.info('Creating %s subsystem', deployer.subsystem_type)
 
         # If pki_one_time_pin is not specified, generate a new one
         if 'pki_one_time_pin' not in deployer.mdict:
@@ -96,7 +96,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             pki_source_registry_cfg,
             pki_target_registry_cfg)
 
-        if deployer.mdict['pki_subsystem'] == "CA":
+        if deployer.subsystem_type == "CA":
 
             # Copy /usr/share/pki/ca/emails
             # to /etc/pki/<instance>/ca/emails
@@ -278,7 +278,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 pki_target_proxy_conf,
                 params=deployer.mdict)
 
-        elif deployer.mdict['pki_subsystem'] == "TPS":
+        elif deployer.subsystem_type == "TPS":
 
             # Copy /usr/share/pki/<subsystem>/conf/phoneHome.xml
             # to /etc/pki/<instance>/<subsystem>/phoneHome.xml
@@ -332,14 +332,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     def destroy(self, deployer):
 
         instance = self.instance
-        subsystem_name = deployer.mdict['pki_subsystem'].lower()
+        subsystem_name = deployer.subsystem_type.lower()
 
         logger.info('Undeploying /%s web application', subsystem_name)
 
         subsystem = instance.get_subsystem(subsystem_name)
         subsystem.disable(force=deployer.force)
 
-        logger.info('Removing %s subsystem', deployer.mdict['pki_subsystem'])
+        logger.info('Removing %s subsystem', deployer.subsystem_type)
 
         instance.remove_subsystem(subsystem)
 

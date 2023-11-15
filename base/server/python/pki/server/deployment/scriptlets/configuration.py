@@ -51,7 +51,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         instance = self.instance
         instance.load()
 
-        subsystem = instance.get_subsystem(deployer.mdict['pki_subsystem'].lower())
+        subsystem = instance.get_subsystem(deployer.subsystem_type.lower())
 
         deployer.configure_subsystem(subsystem)
         subsystem.save()

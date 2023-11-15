@@ -1009,12 +1009,12 @@ class PKIDeployer:
 
         logger.error(
             log.PKI_SUBSYSTEM_DOES_NOT_EXIST_2,
-            self.mdict['pki_subsystem'],
+            self.subsystem_type,
             self.mdict['pki_instance_name'])
 
         raise Exception(
             log.PKI_SUBSYSTEM_DOES_NOT_EXIST_2 % (
-                self.mdict['pki_subsystem'],
+                self.subsystem_type,
                 self.mdict['pki_instance_name']))
 
     def verify_subsystem_does_not_exist(self):
@@ -1028,7 +1028,7 @@ class PKIDeployer:
 
         raise Exception(
             log.PKI_SUBSYSTEM_ALREADY_EXISTS_2 % (
-                self.mdict['pki_subsystem'],
+                self.subsystem_type,
                 self.mdict['pki_instance_name']))
 
     def init_subsystem(self, subsystem):
@@ -2422,7 +2422,7 @@ class PKIDeployer:
         logger.info('Getting install token')
 
         hostname = self.mdict['pki_hostname']
-        subsystem = self.mdict['pki_subsystem']
+        subsystem = self.subsystem_type
 
         sd_client = pki.system.SecurityDomainClient(self.sd_connection)
         install_token = sd_client.get_install_token(hostname, subsystem)
@@ -4652,7 +4652,7 @@ class PKIDeployer:
 
     def store_config(self):
 
-        subsystem = self.instance.get_subsystem(self.mdict['pki_subsystem'].lower())
+        subsystem = self.instance.get_subsystem(self.subsystem_type.lower())
 
         # Store user's deployment.cfg into
         # /etc/sysconfig/pki/tomcat/<instance>/<subsystem>/deployment.cfg
@@ -4677,7 +4677,7 @@ class PKIDeployer:
 
     def store_manifest(self):
 
-        subsystem = self.instance.get_subsystem(self.mdict['pki_subsystem'].lower())
+        subsystem = self.instance.get_subsystem(self.subsystem_type.lower())
 
         # Store installation manifest into
         # /etc/sysconfig/pki/tomcat/<instance>/<subsystem>/manifest

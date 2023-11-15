@@ -48,7 +48,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         instance = self.instance
         instance.load()
 
-        subsystem = instance.get_subsystem(deployer.mdict['pki_subsystem'].lower())
+        subsystem = instance.get_subsystem(deployer.subsystem_type.lower())
 
         if config.str2bool(deployer.mdict['pki_backup_keys']):
 
@@ -56,7 +56,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             if not deployer.mdict['pki_backup_file']:
                 deployer.mdict['pki_backup_file'] = \
                     instance.nssdb_dir + '/' + \
-                    deployer.mdict['pki_subsystem'].lower() + '_backup_keys.p12'
+                    deployer.subsystem_type.lower() + '_backup_keys.p12'
 
             logger.info('Backing up keys into %s', deployer.mdict['pki_backup_file'])
             deployer.backup_keys(subsystem)
@@ -96,7 +96,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # Log final process messages
         logger.info(log.PKISPAWN_END_MESSAGE_2,
-                    deployer.mdict['pki_subsystem'],
+                    deployer.subsystem_type,
                     instance.name)
 
     def destroy(self, deployer):
@@ -120,5 +120,5 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             instance.disable()
 
         logger.info(log.PKIDESTROY_END_MESSAGE_2,
-                    deployer.mdict['pki_subsystem'],
+                    deployer.subsystem_type,
                     instance.name)

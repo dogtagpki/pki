@@ -119,7 +119,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         instance = self.instance
 
         logger.info(log.PKISPAWN_BEGIN_MESSAGE_2,
-                    deployer.mdict['pki_subsystem'],
+                    deployer.subsystem_type,
                     instance.name)
 
         instance.load()
@@ -179,14 +179,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         instance = self.instance
 
         logger.info(log.PKIDESTROY_BEGIN_MESSAGE_2,
-                    deployer.mdict['pki_subsystem'],
+                    deployer.subsystem_type,
                     instance.name)
 
         logger.info('Initialization')
 
         instance.load()
 
-        subsystem = instance.get_subsystem(deployer.mdict['pki_subsystem'].lower())
+        subsystem = instance.get_subsystem(deployer.subsystem_type.lower())
 
         try:
             # verify that this type of "subsystem" currently EXISTS
