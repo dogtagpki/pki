@@ -72,7 +72,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
-import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
@@ -194,7 +193,7 @@ public class CertUtils {
 
         if (certreq == null) {
             logger.error("CertUtils: Missing PKCS #10 request");
-            throw new EProfileException(CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"));
+            throw new EBaseException(CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"));
         }
 
         logger.debug(certreq);
@@ -228,7 +227,7 @@ public class CertUtils {
 
         } catch (Exception e) {
             logger.error("Unable to parse PKCS #10 request: " + e.getMessage(), e);
-            throw new EProfileException(CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"), e);
+            throw new EBaseException(CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"), e);
 
         } finally {
             if (sigver) {
@@ -244,7 +243,7 @@ public class CertUtils {
 
         if (certreq == null) {
             logger.error("CertUtils: Missing CRMF request");
-            throw new EProfileException(CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"));
+            throw new EBaseException(CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"));
         }
 
         byte[] data = CertUtil.parseCSR(certreq);
@@ -268,7 +267,7 @@ public class CertUtils {
 
         } catch (Exception e) {
             logger.error("Unable to parse CRMF request: " + e.getMessage(), e);
-            throw new EProfileException(CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"), e);
+            throw new EBaseException(CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"), e);
         }
     }
 
@@ -572,9 +571,9 @@ public class CertUtils {
     }
 
     public static void addExtension(String name, Extension ext, X509CertInfo info)
-            throws EProfileException {
+            throws EBaseException {
         if (ext == null) {
-            throw new EProfileException("addExtension: extension '" + name + "' is null");
+            throw new EBaseException("addExtension: extension '" + name + "' is null");
         }
         CertificateExtensions exts = null;
 
@@ -583,7 +582,7 @@ public class CertUtils {
         if (alreadyPresentExtension != null) {
             String eName = ext.toString();
             logger.error("Duplicate extension: " + eName);
-            throw new EProfileException(CMS.getUserMessage("CMS_PROFILE_DUPLICATE_EXTENSION", eName));
+            throw new EBaseException(CMS.getUserMessage("CMS_PROFILE_DUPLICATE_EXTENSION", eName));
         }
  
         try {
@@ -593,7 +592,7 @@ public class CertUtils {
             logger.warn("EnrollDefault: " + e.getMessage(), e);
         }
         if (exts == null) {
-            throw new EProfileException("extensions not found");
+            throw new EBaseException("extensions not found");
         }
         try {
             exts.set(name, ext);
@@ -630,11 +629,11 @@ public class CertUtils {
     }
 
     public static void replaceExtension(String name, Extension ext, X509CertInfo info)
-            throws EProfileException {
+            throws EBaseException {
         try {
             deleteExtension(name, info);
         } catch (Exception e) {
-            throw new EProfileException(e);
+            throw new EBaseException(e);
         }
 
         addExtension(name, ext, info);
