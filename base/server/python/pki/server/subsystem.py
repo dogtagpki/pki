@@ -64,7 +64,6 @@ class PKISubsystem(object):
         self.registry = {}
 
         self.type = None  # e.g. CA, KRA
-        self.prefix = None  # e.g. ca, kra
 
         self.default_doc_base = os.path.join(
             pki.SHARE_DIR,
@@ -190,7 +189,6 @@ class PKISubsystem(object):
             pki.util.load_properties(self.cs_conf, self.config)
 
             self.type = self.config['cs.type']
-            self.prefix = self.type.lower()
 
         self.registry.clear()
 
