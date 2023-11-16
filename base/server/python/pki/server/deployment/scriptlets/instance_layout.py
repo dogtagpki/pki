@@ -52,10 +52,94 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # Create /var/lib/pki/<instance>
         instance.makedirs(instance.base_dir, exist_ok=True)
 
-        logger.info('Creating %s', instance.conf_dir)
+        # Create /etc/pki/<instance>
         instance.makedirs(instance.conf_dir, exist_ok=True)
 
+        # Create /var/log/pki/<instance>
+        instance.makedirs(instance.log_dir, exist_ok=True)
+
+        # Create /var/lib/pki/<instance>/temp
+        instance.makedirs(instance.temp_dir, exist_ok=True)
+
+        # Create /var/lib/pki/<instance>/work
+        instance.makedirs(instance.work_dir, exist_ok=True)
+
+        # Create /etc/pki/<instance>/certs
         instance.makedirs(instance.certs_dir, exist_ok=True)
+
+        # Create /etc/pki/<instance>/Catalina
+        catalina_dir = os.path.join(instance.conf_dir, 'Catalina')
+        instance.makedirs(catalina_dir, exist_ok=True)
+
+        # Create /etc/pki/<instance>/Catalina/localhost
+        localhost_dir = os.path.join(catalina_dir, 'localhost')
+        instance.makedirs(localhost_dir, exist_ok=True)
+
+        shared_conf_path = os.path.join(
+            pki.server.PKIServer.SHARE_DIR,
+            'server',
+            'conf')
+
+        # Link /etc/pki/<instance>/catalina.properties
+        # to /usr/share/pki/server/conf/catalina.properties.
+        instance.symlink(
+            os.path.join(shared_conf_path, 'catalina.properties'),
+            os.path.join(instance.conf_dir, 'catalina.properties'),
+            exist_ok=True)
+
+        # Link /etc/pki/<instance>/context.xml
+        # to /usr/share/tomcat/conf/context.xml.
+        context_xml = os.path.join(pki.server.Tomcat.CONF_DIR, 'context.xml')
+        instance.symlink(
+            context_xml,
+            instance.context_xml,
+            exist_ok=True)
+
+        # Link /etc/pki/<instance>/logging.properties
+        # to /usr/share/pki/server/conf/logging.properties.
+        instance.symlink(
+            os.path.join(shared_conf_path, 'logging.properties'),
+            os.path.join(instance.conf_dir, 'logging.properties'),
+            exist_ok=True)
+
+        # Link /etc/pki/<instance>/web.xml
+        # to /usr/share/tomcat/conf/web.xml.
+        web_xml = os.path.join(pki.server.Tomcat.CONF_DIR, 'web.xml')
+        instance.symlink(
+            web_xml,
+            instance.web_xml,
+            exist_ok=True)
+
+        # Rewrite rules are subsystem-specific, but the config is server-wide.
+        # So we deploy them as part of the server config, regardless of which
+        # subsystem(s) will eventually be deployed.
+        logger.info('Deploying HTTP rewrite rules (rewrite.config)')
+        instance.symlink(
+            os.path.join(shared_conf_path, 'Catalina', 'localhost', 'rewrite.config'),
+            os.path.join(localhost_dir, 'rewrite.config'),
+            exist_ok=True,
+        )
+
+        # Link /var/lib/pki/<instance>/bin to /usr/share/tomcat/bin
+        bin_dir = os.path.join(pki.server.Tomcat.SHARE_DIR, 'bin')
+        instance.symlink(
+            bin_dir,
+            instance.bin_dir,
+            exist_ok=True)
+
+        # Link /var/lib/pki/<instance>/conf to /etc/pki/<instance>
+        conf_link = os.path.join(instance.base_dir, 'conf')
+        instance.symlink(
+            instance.conf_dir,
+            conf_link,
+            exist_ok=True)
+
+        # Link /var/lib/pki/<instance>/logs to /var/log/pki/<instance>
+        logs_link = os.path.join(instance.base_dir, 'logs')
+        instance.symlink(
+            instance.log_dir,
+            logs_link,
+            exist_ok=True)
 
         # Configuring internal token password
 
@@ -124,36 +208,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('Installing %s instance', instance.name)
             return
 
-        deployer.directory.create(instance.log_dir)
-
-        shared_conf_path = os.path.join(
-            pki.server.PKIServer.SHARE_DIR,
-            'server',
-            'conf')
-
         deployer.configure_server_xml()
-
-        # Link /etc/pki/<instance>/catalina.properties
-        # to /usr/share/pki/server/conf/catalina.properties.
-        instance.symlink(
-            os.path.join(shared_conf_path, 'catalina.properties'),
-            os.path.join(instance.conf_dir, 'catalina.properties'),
-            exist_ok=True)
-
-        # Link /etc/pki/<instance>/context.xml
-        # to /usr/share/tomcat/conf/context.xml.
-        context_xml = os.path.join(pki.server.Tomcat.CONF_DIR, 'context.xml')
-        instance.symlink(
-            context_xml,
-            instance.context_xml,
-            exist_ok=True)
-
-        # Link /etc/pki/<instance>/logging.properties
-        # to /usr/share/pki/server/conf/logging.properties.
-        instance.symlink(
-            os.path.join(shared_conf_path, 'logging.properties'),
-            os.path.join(instance.conf_dir, 'logging.properties'),
-            exist_ok=True)
 
         # Copy /usr/share/pki/server/conf/tomcat.conf
         # to /etc/sysconfig/<instance>
@@ -175,33 +230,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             os.path.join(shared_conf_path, 'tomcat.conf'),
             os.path.join(instance.conf_dir, 'tomcat.conf'),
             overwrite_flag=True)
-
-        # Link /etc/pki/<instance>/web.xml
-        # to /usr/share/tomcat/conf/web.xml.
-        web_xml = os.path.join(pki.server.Tomcat.CONF_DIR, 'web.xml')
-        instance.symlink(
-            web_xml,
-            instance.web_xml,
-            exist_ok=True)
-
-        # Create /etc/pki/<instance>/Catalina
-        catalina_dir = os.path.join(instance.conf_dir, 'Catalina')
-        instance.makedirs(catalina_dir, exist_ok=True)
-
-        # Create /etc/pki/<instance>/Catalina/localhost
-        localhost_dir = os.path.join(catalina_dir, 'localhost')
-        instance.makedirs(localhost_dir, exist_ok=True)
-
-        # Rewrite rules are subsystem-specific, but the config is server-wide.
-        # So we deploy them as part of the server config, regardless of which
-        # subsystem(s) will eventually be deployed.
-        #
-        logger.info('Deploying HTTP rewrite rules (rewrite.config)')
-        instance.symlink(
-            os.path.join(shared_conf_path, 'Catalina', 'localhost', 'rewrite.config'),
-            os.path.join(localhost_dir, 'rewrite.config'),
-            exist_ok=True,
-        )
 
         logger.info('Deploying ROOT web application')
         # Copy /usr/share/pki/server/conf/ROOT.xml
@@ -231,36 +259,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # Link /var/lib/pki/<instance>/common/lib to /usr/share/pki/server/common/lib
         instance.with_maven_deps = deployer.with_maven_deps
         instance.create_libs(force=True)
-
-        # Create /var/lib/pki/<instance>/temp
-        deployer.directory.create(instance.temp_dir)
-
-        # Create /var/lib/pki/<instance>/work
-        deployer.directory.create(instance.work_dir)
-
-        # Link /var/lib/pki/<instance>/bin to /usr/share/tomcat/bin
-        instance.symlink(
-            deployer.mdict['pki_tomcat_bin_path'],
-            instance.bin_dir,
-            exist_ok=True)
-
-        # Link /var/lib/pki/<instance>/conf to /etc/pki/<instance>
-        conf_link = os.path.join(instance.base_dir, 'conf')
-        instance.symlink(
-            instance.conf_dir,
-            conf_link,
-            exist_ok=True)
-
-        # Create /etc/pki/<instance>/certs
-        certs_path = os.path.join(instance.conf_dir, 'certs')
-        deployer.directory.create(certs_path)
-
-        # Link /var/lib/pki/<instance>/logs to /var/log/pki/<instance>
-        logs_link = os.path.join(instance.base_dir, 'logs')
-        instance.symlink(
-            instance.log_dir,
-            logs_link,
-            exist_ok=True)
 
         if config.str2bool(deployer.mdict['pki_registry_enable']):
             instance.create_registry()
