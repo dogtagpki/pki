@@ -33,6 +33,8 @@ import java.security.cert.CertificateParsingException;
 import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Locale;
@@ -567,6 +569,125 @@ public class CertUtils {
         }
         return (sb.length() > 0) ? sb.toString() : null;
     }
+
+    public static void addExtension(String name, Extension ext, X509CertInfo info)
+            throws EProfileException {
+        if (ext == null) {
+            throw new EProfileException("addExtension: extension '" + name + "' is null");
+        }
+        CertificateExtensions exts = null;
+
+        Extension alreadyPresentExtension = getExtension(name, info);
+
+        if (alreadyPresentExtension != null) {
+            String eName = ext.toString();
+            logger.error("Duplicate extension: " + eName);
+            throw new EProfileException(CMS.getUserMessage("CMS_PROFILE_DUPLICATE_EXTENSION", eName));
+        }
+
+        try {
+            exts = (CertificateExtensions)
+                    info.get(X509CertInfo.EXTENSIONS);
+        } catch (Exception e) {
+            logger.warn("EnrollDefault: " + e.getMessage(), e);
+        }
+        if (exts == null) {
+            throw new EProfileException("extensions not found");
+        }
+        try {
+            exts.set(name, ext);
+        } catch (IOException e) {
+            logger.warn("EnrollDefault: " + e.getMessage(), e);
+        }
+    }
+
+    public static void deleteExtension(String extID, X509CertInfo info) throws Exception {
+
+        CertificateExtensions exts = (CertificateExtensions) info.get(X509CertInfo.EXTENSIONS);
+
+        if (exts == null) {
+            return;
+        }
+
+        Collection<String> names = new ArrayList<>();
+        Enumeration<String> e = exts.getNames();
+
+        // get names of extensions to remove
+        while (e.hasMoreElements()) {
+            String name = e.nextElement();
+            Extension ext = (Extension) exts.get(name);
+
+            if (ext.getExtensionId().toString().equals(extID)) {
+                names.add(name);
+            }
+        }
+
+        // remove extensions in separate loop to avoid ConcurrentModificationException
+        for (String name : names) {
+            exts.delete(name);
+        }
+    }
+
+    public static void replaceExtension(String name, Extension ext, X509CertInfo info)
+            throws EProfileException {
+        try {
+            deleteExtension(name, info);
+        } catch (Exception e) {
+            throw new EProfileException(e);
+        }
+
+        addExtension(name, ext, info);
+    }
+
+    public static Extension getExtension(String name, X509CertInfo info) {
+
+        if (info == null) {
+            logger.error("Missing certificate info");
+            return null;
+        }
+
+        CertificateExtensions exts = null;
+
+        try {
+            exts = (CertificateExtensions) info.get(X509CertInfo.EXTENSIONS);
+        } catch (Exception e) {
+            logger.warn("EnrollDefault: getExtension " + e.getMessage(), e);
+        }
+
+        if (exts == null) {
+            logger.debug("EnrollDefault: Unable to find extensions");
+            return null;
+        }
+
+        return getExtension(name, exts);
+    }
+
+    public static Extension getExtension(String name, CertificateExtensions exts) {
+
+        logger.debug("EnrollDefault: Searching for " + name + " extension");
+
+        if (exts == null) {
+            logger.error("Missing certificate extensions");
+            return null;
+        }
+
+        Enumeration<Extension> e = exts.getAttributes();
+
+        logger.debug("EnrollDefault: Extensions:");
+        while (e.hasMoreElements()) {
+            Extension ext = e.nextElement();
+            logger.debug("EnrollDefault: - " + ext.getExtensionId());
+
+            if (ext.getExtensionId().toString().equals(name)) {
+                logger.debug("EnrollDefault: Found extension " + name);
+                return ext;
+            }
+        }
+
+        logger.debug("EnrollDefault: Extension " + name + " not found");
+        return null;
+    }
+
 
     public static String getNSExtensionInfo(NSCertTypeExtension nsExtn) {
         StringBuffer sb = new StringBuffer();
