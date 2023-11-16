@@ -47,6 +47,9 @@ except ImportError:
 
 import pki
 
+PRIVATE_KEY_HEADER = '-----BEGIN PRIVATE KEY-----'
+PRIVATE_KEY_FOOTER = '-----END PRIVATE KEY-----'
+
 CSR_HEADER = '-----BEGIN CERTIFICATE REQUEST-----'
 CSR_FOOTER = '-----END CERTIFICATE REQUEST-----'
 
@@ -58,6 +61,22 @@ CERT_FOOTER = '-----END CERTIFICATE-----'
 
 PKCS7_HEADER = '-----BEGIN PKCS7-----'
 PKCS7_FOOTER = '-----END PKCS7-----'
+
+PEM_HEADERS = [
+    PRIVATE_KEY_HEADER,
+    CSR_HEADER,
+    LEGACY_CSR_HEADER,
+    CERT_HEADER,
+    PKCS7_HEADER
+]
+
+PEM_FOOTERS = [
+    PRIVATE_KEY_FOOTER,
+    CSR_FOOTER,
+    LEGACY_CSR_FOOTER,
+    CERT_FOOTER,
+    PKCS7_FOOTER
+]
 
 INTERNAL_TOKEN_NAME = 'internal'
 INTERNAL_TOKEN_FULL_NAME = 'Internal Key Storage Token'
@@ -137,25 +156,53 @@ def convert_pkcs7(pkcs7_data, input_format, output_format):
                         PKCS7_HEADER, PKCS7_FOOTER)
 
 
-def get_file_type(filename):
+def get_pem_type(data):
     '''
-    This method detects the content of a PEM file. It supports
-    CSR, certificate, PKCS #7 certificate chain.
+    Get PEM data type.
     '''
 
-    with open(filename, 'r', encoding='utf-8') as f:
-        data = f.read()
+    if data.startswith(PRIVATE_KEY_HEADER):
+        return 'PRIVATE KEY'
 
     if data.startswith(CSR_HEADER) or data.startswith(LEGACY_CSR_HEADER):
-        return 'csr'
+        return 'CERTIFICATE REQUEST'
 
     if data.startswith(CERT_HEADER):
-        return 'cert'
+        return 'CERTIFICATE'
 
     if data.startswith(PKCS7_HEADER):
-        return 'pkcs7'
+        return 'PKCS7'
 
     return None
+
+
+def split_pem_data(data):
+    '''
+    Split PEM data which might contain multiple parts:
+    - private keys
+    - CSRs
+    - certs
+    - PKCS #7 cert chain
+
+    If the input contains Base64 data without headers/footers,
+    it will be returned as is.
+    '''
+
+    parts = []
+    part = ''
+
+    for line in data.splitlines():
+
+        part += line + '\n'
+
+        if line in PEM_FOOTERS:
+            parts.append(part)
+            part = ''
+
+    if part:
+        parts.append(part)
+
+    return parts
 
 
 def internal_token(token):
@@ -2209,6 +2256,40 @@ class NSSDatabase(object):
         finally:
             shutil.rmtree(tmpdir)
 
+    def __convert_certs_into_pkcs7(self, certs, pkcs7_file):
+
+        tmpdir = self.create_tmpdir()
+        try:
+            for cert in certs:
+
+                logger.info('Importing cert into PKCS #7:\n%s', cert)
+
+                # store each cert into a file
+                cert_pem = os.path.join(tmpdir, 'cert.pem')
+                with open(cert_pem, 'w', encoding='utf-8') as f:
+                    f.write(cert)
+
+                # import cert into PKCS #7 file
+                cmd = [
+                    'pki',
+                    '-d', self.directory,
+                    'pkcs7-cert-import',
+                    '--pkcs7', pkcs7_file,
+                    '--input-file', cert_pem,
+                    '--append',
+                ]
+
+                if logger.isEnabledFor(logging.DEBUG):
+                    cmd.append('--debug')
+
+                elif logger.isEnabledFor(logging.INFO):
+                    cmd.append('--verbose')
+
+                self.run(cmd, check=True)
+
+        finally:
+            shutil.rmtree(tmpdir)
+
     def import_cert_chain(
             self,
             nickname,
@@ -2218,16 +2299,29 @@ class NSSDatabase(object):
 
         logger.debug('NSSDatabase.import_cert_chain(%s) begins', nickname)
 
+        with open(cert_chain_file, 'r', encoding='utf-8') as f:
+            data = f.read()
+
+        pem_parts = split_pem_data(data)
+
         tmpdir = self.create_tmpdir()
 
         try:
-            file_type = get_file_type(cert_chain_file)
+            if len(pem_parts) > 1:  # cert bundle
+                logger.debug('Converting cert bundle into PKCS #7')
+                input_type = 'PKCS7'
+                input_file = os.path.join(tmpdir, 'cert_chain.p7b')
+                self.__convert_certs_into_pkcs7(pem_parts, input_file)
 
-            if file_type == 'cert':  # import single PEM cert
+            else:  # single cert, PKCS #7, or Base64 data
+                input_type = get_pem_type(pem_parts[0])
+                input_file = cert_chain_file
+
+            if input_type == 'CERTIFICATE':  # import single PEM cert
                 logger.debug('Importing a single cert')
                 self.add_cert(
                     nickname=nickname,
-                    cert_file=cert_chain_file,
+                    cert_file=input_file,
                     token=token,
                     trust_attributes=trust_attributes)
                 return (
@@ -2238,15 +2332,15 @@ class NSSDatabase(object):
                     [nickname]
                 )
 
-            elif file_type == 'pkcs7':  # import PKCS #7 cert chain
+            elif input_type == 'PKCS7':  # import PKCS #7 cert chain
                 logger.debug('Importing a PKCS #7 cert chain')
                 self.import_pkcs7(
-                    pkcs7_file=cert_chain_file,
+                    pkcs7_file=input_file,
                     nickname=nickname,
                     token=token,
                     trust_attributes=trust_attributes)
 
-                with open(cert_chain_file, 'r', encoding='utf-8') as f:
+                with open(input_file, 'r', encoding='utf-8') as f:
                     pkcs7_data = f.read()
 
                 base64_data = convert_pkcs7(pkcs7_data, 'pem', 'base64')
@@ -2255,14 +2349,11 @@ class NSSDatabase(object):
 
             else:  # import PKCS #7 data without header/footer
                 logger.debug('Importing a PKCS #7 data without header/footer')
-                with open(cert_chain_file, 'r', encoding='utf-8') as f:
-                    base64_data = f.read()
-
                 # TODO: fix ipaserver/install/cainstance.py in IPA
                 # to no longer remove PKCS #7 header/footer
 
                 # join base-64 data into a single line
-                base64_data = base64_data.replace('\r', '').replace('\n', '')
+                base64_data = data.replace('\r', '').replace('\n', '')
 
                 pkcs7_data = convert_pkcs7(base64_data, 'base64', 'pem')
 
