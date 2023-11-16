@@ -28,38 +28,122 @@ jobs:
       - name: Create network
         run: docker network create example
 
-      - name: Set up CA DS container
+      - name: Set up root CA DS container
         run: |
-          tests/bin/ds-container-create.sh cads
+          tests/bin/ds-container-create.sh rootcads
         env:
           IMAGE: ${{ env.DB_IMAGE }}
-          HOSTNAME: cads.example.com
+          HOSTNAME: rootcads.example.com
           PASSWORD: Secret.123
 
-      - name: Connect CA DS container to network
-        run: docker network connect example cads --alias cads.example.com
+      - name: Connect root CA DS container to network
+        run: docker network connect example rootcads --alias rootcads.example.com
 
-      - name: Set up CA container
+      - name: Set up root CA container
         run: |
-          tests/bin/runner-init.sh ca
+          tests/bin/runner-init.sh rootca
         env:
-          HOSTNAME: ca.example.com
+          HOSTNAME: rootca.example.com
 
-      - name: Connect CA container to network
-        run: docker network connect example ca --alias ca.example.com
+      - name: Connect root CA container to network
+        run: docker network connect example rootca --alias rootca.example.com
 
-      - name: Install CA in CA container
+      - name: Install root CA
         run: |
-          docker exec ca pkispawn \
+          docker exec rootca pkispawn \
               -f /usr/share/pki/server/examples/installation/ca.cfg \
               -s CA \
-              -D pki_ds_url=ldap://cads.example.com:3389 \
+              -D pki_ds_url=ldap://rootcads.example.com:3389 \
               -v
 
-          docker exec ca pki-server cert-find
+      - name: Check root CA certs
+        if: always()
+        run: |
+          docker exec rootca pki -d /etc/pki/pki-tomcat/alias nss-cert-find
 
-      - name: Install banner in CA container
-        run: docker exec ca cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
+          docker exec rootca pki-server cert-export \
+              --cert-file ${SHARED}/root-ca_signing.crt \
+              ca_signing
+
+      - name: Check root CA users
+        if: always()
+        run: |
+          docker exec rootca pki-server ca-user-find
+          docker exec rootca pki-server ca-user-show caadmin
+          docker exec rootca pki-server ca-user-role-find caadmin
+
+      - name: Set up sub CA DS container
+        run: |
+          tests/bin/ds-container-create.sh subcads
+        env:
+          IMAGE: ${{ env.DB_IMAGE }}
+          HOSTNAME: subcads.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect sub CA DS container to network
+        run: docker network connect example subcads --alias subcads.example.com
+
+      - name: Set up sub CA container
+        run: |
+          tests/bin/runner-init.sh subca
+        env:
+          HOSTNAME: subca.example.com
+
+      - name: Connect sub CA container to network
+        run: docker network connect example subca --alias subca.example.com
+
+      - name: Install sub CA
+        run: |
+          docker exec subca pkispawn \
+              -f /usr/share/pki/server/examples/installation/subca.cfg \
+              -s CA \
+              -D pki_cert_chain_path=${SHARED}/root-ca_signing.crt \
+              -D pki_ds_url=ldap://subcads.example.com:3389 \
+              -D pki_security_domain_uri=https://rootca.example.com:8443 \
+              -D pki_subordinate_create_new_security_domain=True \
+              -D pki_issuing_ca_uri=https://rootca.example.com:8443 \
+              -v
+
+      - name: Check sub CA certs
+        if: always()
+        run: |
+          docker exec subca pki -d /etc/pki/pki-tomcat/alias nss-cert-find
+
+          docker exec subca pki-server cert-export \
+              --cert-file ${SHARED}/ca_signing.crt \
+              ca_signing
+
+      - name: Check sub CA users
+        if: always()
+        run: |
+          docker exec subca pki-server ca-user-find
+          docker exec subca pki-server ca-user-show caadmin
+          docker exec subca pki-server ca-user-role-find caadmin
+
+      - name: Export subordinate CA cert bundle
+        run: |
+          cat root-ca_signing.crt > cert_chain.crt
+          cat ca_signing.crt >> cert_chain.crt
+
+          cat cert_chain.crt
+
+      - name: Install banner in sub CA container
+        run: docker exec subca cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
+
+      - name: Verify sub CA admin
+        run: |
+          docker exec subca pki nss-cert-import \
+              --cert ${SHARED}/root-ca_signing.crt \
+              --trust CT,C,C
+          docker exec subca pki nss-cert-import \
+              --cert ${SHARED}/ca_signing.crt \
+              --trust CT,C,C
+
+          docker exec subca pki pkcs12-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+
+          docker exec subca pki -n caadmin --ignore-banner ca-user-show caadmin
 
       - name: Set up KRA DS container
         run: |
@@ -81,21 +165,34 @@ jobs:
       - name: Connect KRA container to network
         run: docker network connect example kra --alias kra.example.com
 
-      - name: Install KRA in KRA container
+      - name: Install KRA
         run: |
-          docker exec ca pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
-          docker exec ca cp /root/.dogtag/pki-tomcat/ca_admin.cert ${SHARED}/ca_admin.cert
+          docker exec subca pki-server cert-export \
+              --cert-file ${SHARED}/ca_signing.crt \
+              ca_signing
+          docker exec subca cp /root/.dogtag/pki-tomcat/ca_admin.cert ${SHARED}/ca_admin.cert
           docker exec kra pkispawn \
               -f /usr/share/pki/server/examples/installation/kra.cfg \
               -s KRA \
-              -D pki_security_domain_hostname=ca.example.com \
+              -D pki_security_domain_uri=https://subca.example.com:8443 \
+              -D pki_issuing_ca_uri=https://subca.example.com:8443 \
               -D pki_cert_chain_nickname=ca_signing \
-              -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
+              -D pki_cert_chain_path=${SHARED}/cert_chain.crt \
               -D pki_admin_cert_file=${SHARED}/ca_admin.cert \
               -D pki_ds_url=ldap://krads.example.com:3389 \
               -v
 
-          docker exec kra pki-server cert-find
+      - name: Check KRA certs
+        if: always()
+        run: |
+          docker exec kra pki -d /etc/pki/pki-tomcat/alias nss-cert-find
+
+      - name: Check KRA users
+        if: always()
+        run: |
+          docker exec kra pki-server kra-user-find
+          docker exec kra pki-server kra-user-show kraadmin
+          docker exec kra pki-server kra-user-role-find kraadmin
 
       - name: Install banner in KRA container
         run: docker exec kra cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
@@ -106,57 +203,55 @@ jobs:
 
       - name: Verify KRA admin
         run: |
-          docker exec ca cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${SHARED}/ca_admin_cert.p12
-          docker exec kra pki client-cert-import ca_signing --ca-cert ${SHARED}/ca_signing.crt
+          docker exec kra pki nss-cert-import \
+              --cert ${SHARED}/root-ca_signing.crt \
+              --trust CT,C,C
+          docker exec kra pki nss-cert-import \
+              --cert ${SHARED}/ca_signing.crt \
+              --trust CT,C,C
+
+          docker exec subca cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${SHARED}/ca_admin_cert.p12
           docker exec kra pki pkcs12-import \
               --pkcs12 ${SHARED}/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
           docker exec kra pki -n caadmin --ignore-banner kra-user-show kraadmin
 
-      - name: Verify KRA connector in CA
+      - name: Verify KRA connector in sub CA
         run: |
-          docker exec ca pki client-cert-import ca_signing --ca-cert ${SHARED}/ca_signing.crt
-          docker exec ca pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
-              --pkcs12-password Secret.123
-
-          docker exec ca pki -n caadmin --ignore-banner ca-kraconnector-show | tee output
+          docker exec subca pki -n caadmin --ignore-banner ca-kraconnector-show | tee output
           sed -n 's/\s*Host:\s\+\(\S\+\):.*/\1/p' output > actual
           echo kra.example.com > expected
           diff expected actual
 
-      - name: Gather artifacts from CA containers
+      - name: Gather artifacts
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/ca cads
-          tests/bin/pki-artifacts-save.sh ca
-        continue-on-error: true
-
-      - name: Gather artifacts from KRA containers
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/kra krads
+          tests/bin/ds-artifacts-save.sh rootcads
+          tests/bin/pki-artifacts-save.sh rootca
+          tests/bin/ds-artifacts-save.sh subcads
+          tests/bin/pki-artifacts-save.sh subca
+          tests/bin/ds-artifacts-save.sh krads
           tests/bin/pki-artifacts-save.sh kra
         continue-on-error: true
 
-      - name: Remove KRA from KRA container
+      - name: Remove KRA
         run: docker exec kra pkidestroy -i pki-tomcat -s KRA -v
 
-      - name: Remove CA from CA container
-        run: docker exec ca pkidestroy -i pki-tomcat -s CA -v
+      - name: Remove sub CA
+        run: docker exec subca pkidestroy -i pki-tomcat -s CA -v
 
-      - name: Upload artifacts from CA containers
+      - name: Remove root CA
+        run: docker exec rootca pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: kra-separate-ca
+          name: kra-separate
           path: |
-            /tmp/artifacts/ca
-
-      - name: Upload artifacts from KRA containers
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: kra-separate-kra
-          path: |
+            /tmp/artifacts/rootca
+            /tmp/artifacts/rootcads
+            /tmp/artifacts/subca
+            /tmp/artifacts/subcads
             /tmp/artifacts/kra
+            /tmp/artifacts/krads

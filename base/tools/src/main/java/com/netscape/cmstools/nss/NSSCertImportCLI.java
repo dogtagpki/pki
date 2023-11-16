@@ -94,6 +94,13 @@ public class NSSCertImportCLI extends CommandCLI {
 
         ClientConfig clientConfig = mainCLI.getConfig();
 
+        NSSDatabase nssdb = mainCLI.getNSSDatabase();
+
+        if (nickname == null) {
+            nssdb.addCertificate(cert, trustFlags);
+            return;
+        }
+
         String tokenName = null;
         int i = nickname.indexOf(':');
 
@@ -106,13 +113,6 @@ public class NSSCertImportCLI extends CommandCLI {
             nickname = nickname.substring(i + 1);
         }
 
-        NSSDatabase nssdb = mainCLI.getNSSDatabase();
-
-        if (nickname == null) {
-            nssdb.addCertificate(cert, trustFlags);
-
-        } else {
-            nssdb.addCertificate(tokenName, nickname, cert, trustFlags);
-        }
+        nssdb.addCertificate(tokenName, nickname, cert, trustFlags);
     }
 }
