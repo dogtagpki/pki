@@ -43,9 +43,9 @@ public abstract class SubsystemCLI extends CommandCLI {
 
     protected EngineConfig getEngineConfig(String subsystem) throws Exception {
 
-        String instanceDir = CMS.getInstanceDir();
-        String configDir = instanceDir + File.separator + subsystem;
-        String configFile = configDir + File.separator + "conf" + File.separator + CMS.CONFIG_FILE;
+        // use subsystem conf folder: /var/lib/pki/<instance>/conf/<subsystem>
+        String confDir = CMS.getInstanceDir() + File.separator + "conf" + File.separator + subsystem;
+        String configFile = confDir + File.separator + CMS.CONFIG_FILE;
         logger.debug("{}: Loading {}", getClass().getSimpleName(), configFile);
 
         ConfigStorage storage = new FileConfigStorage(configFile);
