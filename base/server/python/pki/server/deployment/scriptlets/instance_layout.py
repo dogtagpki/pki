@@ -143,7 +143,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # Link /etc/pki/<instance>/context.xml
         # to /usr/share/tomcat/conf/context.xml.
         context_xml = os.path.join(pki.server.Tomcat.CONF_DIR, 'context.xml')
-        instance.symlink(context_xml, instance.context_xml, exist_ok=True)
+        instance.symlink(
+            context_xml,
+            instance.context_xml,
+            exist_ok=True)
 
         # Link /etc/pki/<instance>/logging.properties
         # to /usr/share/pki/server/conf/logging.properties.
@@ -176,7 +179,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # Link /etc/pki/<instance>/web.xml
         # to /usr/share/tomcat/conf/web.xml.
         web_xml = os.path.join(pki.server.Tomcat.CONF_DIR, 'web.xml')
-        instance.symlink(web_xml, instance.web_xml, exist_ok=True)
+        instance.symlink(
+            web_xml,
+            instance.web_xml,
+            exist_ok=True)
 
         # Create /etc/pki/<instance>/Catalina
         catalina_dir = os.path.join(instance.conf_dir, 'Catalina')
@@ -233,15 +239,17 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         deployer.directory.create(instance.work_dir)
 
         # Link /var/lib/pki/<instance>/bin to /usr/share/tomcat/bin
-        deployer.symlink.create(
+        instance.symlink(
             deployer.mdict['pki_tomcat_bin_path'],
-            instance.bin_dir)
+            instance.bin_dir,
+            exist_ok=True)
 
         # Link /var/lib/pki/<instance>/conf to /etc/pki/<instance>
         conf_link = os.path.join(instance.base_dir, 'conf')
-        deployer.symlink.create(
+        instance.symlink(
             instance.conf_dir,
-            conf_link)
+            conf_link,
+            exist_ok=True)
 
         # Create /etc/pki/<instance>/certs
         certs_path = os.path.join(instance.conf_dir, 'certs')
@@ -249,9 +257,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # Link /var/lib/pki/<instance>/logs to /var/log/pki/<instance>
         logs_link = os.path.join(instance.base_dir, 'logs')
-        deployer.symlink.create(
+        instance.symlink(
             instance.log_dir,
-            logs_link)
+            logs_link,
+            exist_ok=True)
 
         if config.str2bool(deployer.mdict['pki_registry_enable']):
             instance.create_registry()
@@ -277,9 +286,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 pki.server.instance.PKIInstance.TARGET_WANTS,
                 instance.service_name + '.service')
 
-            deployer.symlink.create(
+            instance.symlink(
                 pki.server.instance.PKIInstance.UNIT_FILE,
-                systemd_service_link)
+                systemd_service_link,
+                exist_ok=True)
 
     def destroy(self, deployer):
 
