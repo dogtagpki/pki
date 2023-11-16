@@ -63,7 +63,7 @@ class PKISubsystem(object):
         self.config = {}
         self.registry = {}
 
-        self.type = None  # e.g. CA, KRA
+        self.type = subsystem_name.upper()  # e.g. CA, KRA
 
         self.default_doc_base = os.path.join(
             pki.SHARE_DIR,
