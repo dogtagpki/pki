@@ -46,10 +46,11 @@ public class SubsystemDBInitCLI extends SubsystemCLI {
         option.setArgName("password config");
         options.addOption(option);
 
-        options.addOption(null, "setup-schema", false, "Set up schema");
-        options.addOption(null, "create-database", false, "Create database");
-        options.addOption(null, "create-base", false, "Create base entry");
-        options.addOption(null, "create-containers", false, "Create container entries");
+        options.addOption(null, "skip-config", false, "Skip DS server configuration");
+        options.addOption(null, "skip-schema", false, "Skip DS schema setup");
+        options.addOption(null, "create-backend", false, "Create DS backend");
+        options.addOption(null, "skip-base", false, "Skip base entry setup");
+        options.addOption(null, "skip-containers", false, "Skip container entries setup");
 
         options.addOption("v", "verbose", false, "Run in verbose mode.");
         options.addOption(null, "debug", false, "Run in debug mode.");
@@ -91,25 +92,27 @@ public class SubsystemDBInitCLI extends SubsystemCLI {
         LDAPConfigurator ldapConfigurator = new LDAPConfigurator(conn, ldapConfig);
 
         try {
-            ldapConfigurator.initDatabase();
+            if (!cmd.hasOption("skip-config")) {
+                ldapConfigurator.configureServer();
+            }
 
-            if (cmd.hasOption("setup-schema")) {
+            if (!cmd.hasOption("skip-schema")) {
                 ldapConfigurator.setupSchema();
             }
 
-            if (cmd.hasOption("create-database")) {
+            if (cmd.hasOption("create-backend")) {
                 String databaseDN = "cn=" + LDAPUtil.escapeRDNValue(database) + ",cn=ldbm database, cn=plugins, cn=config";
-                ldapConfigurator.createDatabaseEntry(databaseDN, database, baseDN);
+                ldapConfigurator.createBackendEntry(databaseDN, database, baseDN);
 
                 String mappingDN = "cn=\"" + baseDN + "\",cn=mapping tree, cn=config";
                 ldapConfigurator.createMappingEntry(mappingDN, database, baseDN);
             }
 
-            if (cmd.hasOption("create-base")) {
+            if (!cmd.hasOption("skip-base")) {
                 ldapConfigurator.createBaseEntry(baseDN);
             }
 
-            if (cmd.hasOption("create-containers")) {
+            if (!cmd.hasOption("skip-containers")) {
                 ldapConfigurator.createContainers(subsystem);
                 ldapConfigurator.setupACL(subsystem);
             }

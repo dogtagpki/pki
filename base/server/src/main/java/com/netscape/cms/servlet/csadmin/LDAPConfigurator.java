@@ -89,8 +89,8 @@ public class LDAPConfigurator {
         return params;
     }
 
-    public void initDatabase() throws Exception {
-        logger.info("Initialize database");
+    public void configureServer() throws Exception {
+        logger.info("Configuring DS server");
         importLDIF("/usr/share/pki/server/database/ds/config.ldif", true);
     }
 
@@ -333,7 +333,7 @@ public class LDAPConfigurator {
         logger.info("Task " + dn + " complete");
     }
 
-    public void createDatabaseEntry(String databaseDN, String database, String baseDN) throws Exception {
+    public void createBackendEntry(String databaseDN, String database, String baseDN) throws Exception {
 
         logger.info("Adding " + databaseDN);
 

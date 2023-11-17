@@ -1532,27 +1532,27 @@ class PKIDeployer:
         # then we are assuming that replication is already taken care of,
         # and schema has already been replicated.
 
-        setup_schema = not config.str2bool(self.mdict['pki_clone']) or \
-            not config.str2bool(self.mdict['pki_clone_setup_replication']) or \
-            not config.str2bool(self.mdict['pki_clone_replicate_schema'])
+        skip_schema = config.str2bool(self.mdict['pki_clone']) and \
+            config.str2bool(self.mdict['pki_clone_setup_replication']) and \
+            config.str2bool(self.mdict['pki_clone_replicate_schema'])
 
-        create_database = config.str2bool(self.mdict['pki_ds_create_new_db'])
+        create_backend = config.str2bool(self.mdict['pki_ds_create_new_db'])
 
         # When cloning a subsystem without setting up the replication agreements,
         # the database is a subtree of an existing tree and is already replicated,
         # so there is no need to set up the base entry.
 
-        create_base = config.str2bool(self.mdict['pki_ds_create_new_db']) or \
-            not config.str2bool(self.mdict['pki_clone']) or \
-            config.str2bool(self.mdict['pki_clone_setup_replication'])
+        skip_base = not config.str2bool(self.mdict['pki_ds_create_new_db']) and \
+            config.str2bool(self.mdict['pki_clone']) and \
+            not config.str2bool(self.mdict['pki_clone_setup_replication'])
 
-        create_containers = not config.str2bool(self.mdict['pki_clone'])
+        skip_containers = config.str2bool(self.mdict['pki_clone'])
 
         subsystem.init_database(
-            setup_schema=setup_schema,
-            create_database=create_database,
-            create_base=create_base,
-            create_containers=create_containers)
+            skip_schema=skip_schema,
+            create_backend=create_backend,
+            skip_base=skip_base,
+            skip_containers=skip_containers)
 
         # always create indexes
         subsystem.add_indexes()
