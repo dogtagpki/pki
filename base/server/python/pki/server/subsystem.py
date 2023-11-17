@@ -1154,25 +1154,29 @@ class PKISubsystem(object):
 
     def init_database(
             self,
-            setup_schema=False,
-            create_database=False,
-            create_base=False,
-            create_containers=False,
+            skip_config=False,
+            skip_schema=False,
+            create_backend=False,
+            skip_base=False,
+            skip_containers=False,
             as_current_user=False):
 
         cmd = [self.name + '-db-init']
 
-        if setup_schema:
-            cmd.append('--setup-schema')
+        if skip_config:
+            cmd.append('--skip-config')
 
-        if create_database:
-            cmd.append('--create-database')
+        if skip_schema:
+            cmd.append('--skip-schema')
 
-        if create_base:
-            cmd.append('--create-base')
+        if create_backend:
+            cmd.append('--create-backend')
 
-        if create_containers:
-            cmd.append('--create-containers')
+        if skip_base:
+            cmd.append('--skip-base')
+
+        if skip_containers:
+            cmd.append('--skip-containers')
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')

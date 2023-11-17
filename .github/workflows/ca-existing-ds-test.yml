@@ -168,56 +168,9 @@ jobs:
           docker exec pki pki-server ca-db-info
 
       # https://github.com/dogtagpki/pki/wiki/Setting-up-CA-Database
-      - name: Configure DS database
+      - name: Initialize CA database
         run: |
-          docker exec ds ldapadd \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -f $SHARED/base/server/database/ds/config.ldif
-
-      - name: Add PKI schema
-        run: |
-          docker exec ds ldapmodify \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -f $SHARED/base/server/database/ds/schema.ldif
-
-      - name: Add CA base entry
-        run: |
-          docker exec -i ds ldapadd \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 << EOF
-          dn: dc=ca,dc=pki,dc=example,dc=com
-          objectClass: dcObject
-          dc: ca
-          EOF
-
-      - name: Add CA database entries
-        run: |
-          sed \
-              -e 's/{rootSuffix}/dc=ca,dc=pki,dc=example,dc=com/g' \
-              base/ca/database/ds/create.ldif \
-              | tee create.ldif
-          docker exec ds ldapadd \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -f $SHARED/create.ldif
-
-      - name: Add CA ACL resources
-        run: |
-          sed \
-              -e 's/{rootSuffix}/dc=ca,dc=pki,dc=example,dc=com/g' \
-              base/ca/database/ds/acl.ldif \
-              | tee acl.ldif
-          docker exec ds ldapadd \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -f $SHARED/acl.ldif
+          docker exec pki pki-server ca-db-init -v
 
       - name: Add CA search indexes
         run: |

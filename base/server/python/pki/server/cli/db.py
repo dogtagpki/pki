@@ -213,6 +213,7 @@ class SubsystemDBCLI(pki.cli.CLI):
         self.parent = parent
         self.add_module(SubsystemDBConfigCLI(self))
         self.add_module(SubsystemDBInfoCLI(self))
+        self.add_module(SubsystemDBInitCLI(self))
         self.add_module(SubsystemDBEmptyCLI(self))
         self.add_module(SubsystemDBRemoveCLI(self))
         self.add_module(SubsystemDBUpgradeCLI(self))
@@ -611,6 +612,114 @@ class SubsystemDBInfoCLI(pki.cli.CLI):
             sys.exit(1)
 
         subsystem.run(cmd, as_current_user=as_current_user)
+
+
+class SubsystemDBInitCLI(pki.cli.CLI):
+    '''
+    Initialize {subsystem} database
+    '''
+
+    help = '''\
+        Usage: pki-server {subsystem}-db-init [OPTIONS]
+
+          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+              --skip-config                  Skip DS server configuration.
+              --skip-schema                  Skip DS schema setup.
+              --create-backend               Create DS backend.
+              --skip-base                    Skip base entry setup.
+              --skip-containers              Skip container entries setup.
+          -v, --verbose                      Run in verbose mode.
+              --debug                        Run in debug mode.
+              --help                         Show help message.
+    '''
+
+    def __init__(self, parent):
+        super().__init__(
+            'init',
+            inspect.cleandoc(self.__class__.__doc__).format(
+                subsystem=parent.parent.name.upper()))
+
+        self.parent = parent
+
+    def print_help(self):
+        print(textwrap.dedent(self.__class__.help).format(
+            subsystem=self.parent.parent.name))
+
+    def execute(self, argv):
+        try:
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=', 'skip-config', 'skip-schema',
+                'create-backend', 'skip-base', 'skip-containers',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        subsystem_name = self.parent.parent.name
+
+        skip_config = False
+        skip_schema = False
+        create_backend = False
+        skip_base = False
+        skip_containers = False
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--skip-config':
+                skip_config = True
+
+            elif o == '--skip-schema':
+                skip_schema = True
+
+            elif o == '--create-backend':
+                create_backend = True
+
+            elif o == '--skip-base':
+                skip_base = True
+
+            elif o == '--skip-containers':
+                skip_containers = True
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('Invalid option: %s', o)
+                self.print_help()
+                sys.exit(1)
+
+        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        if not instance.exists():
+            logger.error('Invalid instance: %s', instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem = instance.get_subsystem(subsystem_name)
+
+        if not subsystem:
+            logger.error('No %s subsystem in instance %s',
+                         subsystem_name.upper(), instance_name)
+            sys.exit(1)
+
+        subsystem.init_database(
+            skip_config=skip_config,
+            skip_schema=skip_schema,
+            create_backend=create_backend,
+            skip_base=skip_base,
+            skip_containers=skip_containers)
 
 
 class SubsystemDBEmptyCLI(pki.cli.CLI):
