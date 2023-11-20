@@ -36,6 +36,7 @@ public class CertEnrollInfo {
     private String publisherId;
     private String keyType;
     private String keyTypePrefix;
+    private String aesKeyWrapAlg;
 
     private CARetrieveCertResponse recoveredCertData;
     private KRARecoverKeyResponse  recoveredKeyData;
@@ -197,6 +198,14 @@ public class CertEnrollInfo {
 
     public int getPublicKeyNumber() {
         return publicKeyNumber;
+    }
+
+    public void setAesKeyWrapAlg(String alg) {
+        aesKeyWrapAlg = alg;
+    }
+
+    public String getAesKeyWrapAlg() {
+        return aesKeyWrapAlg;
     }
 
     public void setKeyType(String keyType) {
