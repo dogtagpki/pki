@@ -484,7 +484,6 @@ public class CRMFPopClient {
 
             if (algorithm.equals("rsa")) {
 
-                boolean sens = false;
                 boolean extract = true;
 
                 Usage[] usages = CryptoUtil.RSA_KEYPAIR_USAGES;
@@ -494,7 +493,7 @@ public class CRMFPopClient {
                         token,
                         keySize,
                         temporary,
-                        sens,
+                        null,
                         extract,
                         usages,
                         usagesMask);
