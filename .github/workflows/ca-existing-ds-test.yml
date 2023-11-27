@@ -27,6 +27,103 @@ jobs:
       - name: Create network
         run: docker network create example
 
+      - name: Set up PKI container
+        run: |
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
+
+      - name: Connect PKI container to network
+        run: docker network connect example pki --alias pki.example.com
+
+      - name: Create PKI server
+        run: |
+          docker exec pki pki-server create
+          docker exec pki pki-server nss-create --no-password
+
+      - name: Create CA signing cert in server's NSS database
+        run: |
+          docker exec pki pki-server cert-request \
+              --subject "CN=CA Signing Certificate" \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              ca_signing
+          docker exec pki pki-server cert-create \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              ca_signing
+          docker exec pki pki-server cert-import \
+              ca_signing
+
+      - name: Create CA OCSP signing cert in server's NSS database
+        run: |
+          docker exec pki pki-server cert-request \
+              --subject "CN=OCSP Signing Certificate" \
+              --ext /usr/share/pki/server/certs/ocsp_signing.conf \
+              ca_ocsp_signing
+          docker exec pki pki-server cert-create \
+              --issuer ca_signing \
+              --ext /usr/share/pki/server/certs/ocsp_signing.conf \
+              ca_ocsp_signing
+          docker exec pki pki-server cert-import \
+              ca_ocsp_signing
+
+      - name: Create CA audit signing cert in server's NSS database
+        run: |
+          docker exec pki pki-server cert-request \
+              --subject "CN=Audit Signing Certificate" \
+              --ext /usr/share/pki/server/certs/audit_signing.conf \
+              ca_audit_signing
+          docker exec pki pki-server cert-create \
+              --issuer ca_signing \
+              --ext /usr/share/pki/server/certs/audit_signing.conf \
+              ca_audit_signing
+          docker exec pki pki-server cert-import \
+              ca_audit_signing
+
+      - name: Create subsystem cert in server's NSS database
+        run: |
+          docker exec pki pki-server cert-request \
+              --subject "CN=Subsystem Certificate" \
+              --ext /usr/share/pki/server/certs/subsystem.conf \
+              subsystem
+          docker exec pki pki-server cert-create \
+              --issuer ca_signing \
+              --ext /usr/share/pki/server/certs/subsystem.conf \
+              subsystem
+          docker exec pki pki-server cert-import \
+              subsystem
+
+      - name: Create SSL server cert in server's NSS database
+        run: |
+          docker exec pki pki-server cert-request \
+              --subject "CN=pki.example.com" \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              sslserver
+          docker exec pki pki-server cert-create \
+              --issuer ca_signing \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              sslserver
+          docker exec pki pki-server cert-import \
+              sslserver
+
+      - name: Create CA admin cert in client's NSS database
+        run: |
+          docker exec pki pki \
+              nss-cert-request \
+              --subject "CN=Administrator" \
+              --ext /usr/share/pki/server/certs/admin.conf \
+              --csr admin.csr
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              nss-cert-issue \
+              --issuer ca_signing \
+              --csr admin.csr \
+              --ext /usr/share/pki/server/certs/admin.conf \
+              --cert admin.crt
+          docker exec pki pki \
+              nss-cert-import \
+              --cert admin.crt \
+              caadmin
+
       - name: Set up DS container
         run: |
           tests/bin/ds-container-create.sh ds
@@ -139,20 +236,6 @@ jobs:
           echo "0" > expected
           diff expected nsTaskExitCode
 
-      - name: Grant access to PKI database user
-        run: |
-          sed \
-              -e 's/{rootSuffix}/dc=example,dc=com/g' \
-              -e 's/{dbuser}/uid=pkidbuser,ou=people,dc=ca,dc=pki,dc=example,dc=com/g' \
-              base/server/database/ds/db-access-grant.ldif \
-              | tee db-access-grant.ldif
-          docker exec ds ldapadd \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -f $SHARED/db-access-grant.ldif \
-              -c
-
       - name: Add CA VLV indexes
         run: |
           sed \
@@ -205,14 +288,207 @@ jobs:
           echo "0" > expected
           diff expected nsTaskExitCode
 
-      - name: Set up PKI container
+      # https://github.com/dogtagpki/pki/wiki/Setting-up-CA-Database-User
+      - name: Add database user
         run: |
-          tests/bin/runner-init.sh pki
-        env:
-          HOSTNAME: pki.example.com
+          docker exec -i ds ldapadd \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 << EOF
+          dn: uid=pkidbuser,ou=people,dc=ca,dc=pki,dc=example,dc=com
+          objectClass: person
+          objectClass: organizationalPerson
+          objectClass: inetOrgPerson
+          objectClass: cmsuser
+          cn: pkidbuser
+          sn: pkidbuser
+          uid: pkidbuser
+          userState: 1
+          userType: agentType
+          nsPagedSizeLimit: 20000
+          EOF
 
-      - name: Connect PKI container to network
-        run: docker network connect example pki --alias pki.example.com
+      - name: Assign subsystem cert to database user
+        run: |
+          # convert cert from PEM to DER
+          docker cp pki:/etc/pki/pki-tomcat/certs/subsystem.crt subsystem.crt
+          openssl x509 -outform der -in subsystem.crt -out subsystem.der
+
+          # get serial number
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-cert-show \
+              subsystem | tee output
+          sed -n 's/^ *Serial Number: *\(.*\)/\1/p' output > subsystem.serial
+
+          HEX_SERIAL=$(cat subsystem.serial)
+          echo "HEX_SERIAL: $HEX_SERIAL"
+
+          DEC_SERIAL=$(python -c "print(int('$HEX_SERIAL', 16))")
+          echo "DEC_SERIAL: $DEC_SERIAL"
+
+          docker exec -i ds ldapmodify \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 << EOF
+          dn: uid=pkidbuser,ou=people,dc=ca,dc=pki,dc=example,dc=com
+          changetype: modify
+          add: description
+          description: 2;$DEC_SERIAL;CN=CA Signing Certificate;CN=Subsystem Certificate
+          -
+          add: seeAlso
+          seeAlso: CN=Subsystem Certificate
+          -
+          add: userCertificate
+          userCertificate:< file:$SHARED/subsystem.der
+          -
+          EOF
+
+      - name: Add database user into CA groups
+        run: |
+          docker exec -i ds ldapmodify \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 << EOF
+          dn: cn=Subsystem Group,ou=groups,dc=ca,dc=pki,dc=example,dc=com
+          changetype: modify
+          add: uniqueMember
+          uniqueMember: uid=pkidbuser,ou=people,dc=ca,dc=pki,dc=example,dc=com
+          -
+
+          dn: cn=Certificate Manager Agents,ou=groups,dc=ca,dc=pki,dc=example,dc=com
+          changetype: modify
+          add: uniqueMember
+          uniqueMember: uid=pkidbuser,ou=people,dc=ca,dc=pki,dc=example,dc=com
+          -
+          EOF
+
+      - name: Grant database user access to CA database
+        run: |
+          sed \
+              -e 's/{rootSuffix}/dc=example,dc=com/g' \
+              -e 's/{dbuser}/uid=pkidbuser,ou=people,dc=ca,dc=pki,dc=example,dc=com/g' \
+              base/server/database/ds/db-access-grant.ldif \
+              | tee db-access-grant.ldif
+          docker exec ds ldapadd \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -f $SHARED/db-access-grant.ldif \
+              -c
+
+      # https://github.com/dogtagpki/pki/wiki/Setting-up-CA-Admin-User
+      - name: Add CA admin user
+        run: |
+          docker exec -i ds ldapadd \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 << EOF
+          dn: uid=caadmin,ou=people,dc=ca,dc=pki,dc=example,dc=com
+          objectClass: person
+          objectClass: organizationalPerson
+          objectClass: inetOrgPerson
+          objectClass: cmsuser
+          cn: caadmin
+          sn: caadmin
+          uid: caadmin
+          mail: caadmin@example.com
+          userPassword: Secret.123
+          userState: 1
+          userType: adminType
+          EOF
+
+      - name: Assign CA admin cert to CA admin user
+        run: |
+          # convert cert from PEM to DER
+          docker cp pki:admin.crt admin.crt
+          openssl x509 -outform der -in admin.crt -out admin.der
+
+          # get serial number
+          docker exec pki pki nss-cert-show caadmin | tee output
+          sed -n 's/^ *Serial Number: *\(.*\)/\1/p' output > caadmin.serial
+
+          HEX_SERIAL=$(cat caadmin.serial)
+          echo "HEX_SERIAL: $HEX_SERIAL"
+
+          DEC_SERIAL=$(python -c "print(int('$HEX_SERIAL', 16))")
+          echo "DEC_SERIAL: $DEC_SERIAL"
+
+          docker exec -i ds ldapmodify \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 << EOF
+          dn: uid=caadmin,ou=people,dc=ca,dc=pki,dc=example,dc=com
+          changetype: modify
+          add: description
+          description: 2;$DEC_SERIAL;CN=CA Signing Certificate;CN=Administrator
+          -
+          add: userCertificate
+          userCertificate:< file:$SHARED/admin.der
+          -
+          EOF
+
+      - name: Add CA admin user into CA groups
+        run: |
+          docker exec -i ds ldapmodify \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 << EOF
+          dn: cn=Administrators,ou=groups,dc=ca,dc=pki,dc=example,dc=com
+          changetype: modify
+          add: uniqueMember
+          uniqueMember: uid=caadmin,ou=people,dc=ca,dc=pki,dc=example,dc=com
+          -
+
+          dn: cn=Certificate Manager Agents,ou=groups,dc=ca,dc=pki,dc=example,dc=com
+          changetype: modify
+          add: uniqueMember
+          uniqueMember: uid=caadmin,ou=people,dc=ca,dc=pki,dc=example,dc=com
+          -
+
+          dn: cn=Security Domain Administrators,ou=groups,dc=ca,dc=pki,dc=example,dc=com
+          changetype: modify
+          add: uniqueMember
+          uniqueMember: uid=caadmin,ou=people,dc=ca,dc=pki,dc=example,dc=com
+          -
+
+          dn: cn=Enterprise CA Administrators,ou=groups,dc=ca,dc=pki,dc=example,dc=com
+          changetype: modify
+          add: uniqueMember
+          uniqueMember: uid=caadmin,ou=people,dc=ca,dc=pki,dc=example,dc=com
+          -
+
+          dn: cn=Enterprise KRA Administrators,ou=groups,dc=ca,dc=pki,dc=example,dc=com
+          changetype: modify
+          add: uniqueMember
+          uniqueMember: uid=caadmin,ou=people,dc=ca,dc=pki,dc=example,dc=com
+          -
+
+          dn: cn=Enterprise RA Administrators,ou=groups,dc=ca,dc=pki,dc=example,dc=com
+          changetype: modify
+          add: uniqueMember
+          uniqueMember: uid=caadmin,ou=people,dc=ca,dc=pki,dc=example,dc=com
+          -
+
+          dn: cn=Enterprise TKS Administrators,ou=groups,dc=ca,dc=pki,dc=example,dc=com
+          changetype: modify
+          add: uniqueMember
+          uniqueMember: uid=caadmin,ou=people,dc=ca,dc=pki,dc=example,dc=com
+          -
+
+          dn: cn=Enterprise OCSP Administrators,ou=groups,dc=ca,dc=pki,dc=example,dc=com
+          changetype: modify
+          add: uniqueMember
+          uniqueMember: uid=caadmin,ou=people,dc=ca,dc=pki,dc=example,dc=com
+          -
+
+          dn: cn=Enterprise TPS Administrators,ou=groups,dc=ca,dc=pki,dc=example,dc=com
+          changetype: modify
+          add: uniqueMember
+          uniqueMember: uid=caadmin,ou=people,dc=ca,dc=pki,dc=example,dc=com
+          -
+          EOF
 
       - name: Install CA
         run: |
@@ -221,18 +497,17 @@ jobs:
               -s CA \
               -D pki_ds_url=ldap://ds.example.com:3389 \
               -D pki_ds_setup=False \
+              -D pki_share_db=True \
+              -D pki_admin_setup=False \
               -v
 
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --failures-only
 
-      - name: Check CA admin
+      - name: Check CA admin user
         run: |
           docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
           docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
-          docker exec pki pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
-              --pkcs12-password Secret.123
           docker exec pki pki -n caadmin ca-user-show caadmin
 
       - name: Gather artifacts
