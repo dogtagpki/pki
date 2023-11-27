@@ -203,11 +203,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         logger.info('Creating %s', instance.password_conf)
         instance.store_passwords()
 
-        # if this is not the first subsystem, skip
-        if instance.get_subsystems():
-            logger.info('Installing %s instance', instance.name)
-            return
-
         deployer.configure_server_xml()
 
         # Copy /usr/share/pki/server/conf/tomcat.conf
@@ -262,6 +257,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         if config.str2bool(deployer.mdict['pki_registry_enable']):
             instance.create_registry()
+
+        # if this is not the first subsystem, skip
+        if instance.get_subsystems():
+            logger.info('Installing %s instance', instance.name)
+            return
 
         if config.str2bool(deployer.mdict['pki_systemd_service_create']):
 
