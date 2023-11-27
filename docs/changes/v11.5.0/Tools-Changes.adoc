@@ -52,3 +52,9 @@ and RSNv3 serial numbers.
 
 The `pki-server cert-import` command has been updated to provide
 options to specify the certificate nickname and token name.
+
+== Update pki-server status CLI ==
+
+The `pki-server status` command has been updated to no longer show
+whether a subsystem is a new subsystem or a clone since there is no
+distinction between them.
