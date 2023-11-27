@@ -405,6 +405,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.import_system_cert_requests(subsystem)
                 deployer.import_system_certs(nssdb, subsystem)
 
+                # If provided, import cert chain into NSS database.
+                # Note: Cert chain must be imported after the system certs
+                # to ensure that the system certs are imported with
+                # the correct nicknames.
+                deployer.import_cert_chain(nssdb)
+
                 deployer.configure_system_certs(subsystem)
 
                 deployer.update_system_certs(nssdb, subsystem)
@@ -413,6 +419,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.validate_system_certs(nssdb, subsystem)
 
             elif len(subsystems) > 1:
+
+                # If provided, import cert chain into NSS database.
+                deployer.import_cert_chain(nssdb)
 
                 for s in subsystems:
 
@@ -443,13 +452,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             else:  # self-signed CA
 
+                # If provided, import cert chain into NSS database.
+                deployer.import_cert_chain(nssdb)
+
                 # To be implemented in ticket #1692.
 
                 # Generate CA cert request.
                 # Self sign CA cert.
                 # Import self-signed CA cert into NSS database.
-
-                pass
 
         finally:
             nssdb.close()

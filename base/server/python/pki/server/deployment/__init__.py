@@ -401,13 +401,6 @@ class PKIDeployer:
 
         self.import_certs_and_keys(nssdb)
 
-        # If provided, import cert chain into NSS database.
-        # Note: Cert chain must be imported after the system certs
-        # to ensure that the system certs are imported with
-        # the correct nicknames.
-
-        self.import_cert_chain(nssdb)
-
     def configure_system_cert(self, subsystem, tag):
 
         cert_id = self.get_cert_id(subsystem, tag)
