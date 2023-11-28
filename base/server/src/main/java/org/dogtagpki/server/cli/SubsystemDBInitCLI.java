@@ -50,7 +50,6 @@ public class SubsystemDBInitCLI extends SubsystemCLI {
         options.addOption(null, "create-database", false, "Create database");
         options.addOption(null, "create-base", false, "Create base entry");
         options.addOption(null, "create-containers", false, "Create container entries");
-        options.addOption(null, "rebuild-indexes", false, "Rebuild indexes");
 
         options.addOption("v", "verbose", false, "Run in verbose mode.");
         options.addOption(null, "debug", false, "Run in debug mode.");
@@ -113,12 +112,6 @@ public class SubsystemDBInitCLI extends SubsystemCLI {
             if (cmd.hasOption("create-containers")) {
                 ldapConfigurator.createContainers(subsystem);
                 ldapConfigurator.setupACL(subsystem);
-            }
-
-            ldapConfigurator.createIndexes(subsystem);
-
-            if (cmd.hasOption("rebuild-indexes")) {
-                ldapConfigurator.rebuildIndexes(subsystem);
             }
 
         } finally {

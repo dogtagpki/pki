@@ -35,6 +35,7 @@ public class SubsystemDBCLI extends CLI {
         addModule(new SubsystemDBUpgradeCLI(this));
 
         addModule(new SubsystemDBAccessCLI(this));
+        addModule(new SubsystemDBIndexCLI(this));
         addModule(new SubsystemDBReplicationCLI(this));
         addModule(new SubsystemDBVLVCLI(this));
     }

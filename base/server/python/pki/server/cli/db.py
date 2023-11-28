@@ -218,6 +218,7 @@ class SubsystemDBCLI(pki.cli.CLI):
         self.add_module(SubsystemDBUpgradeCLI(self))
 
         self.add_module(SubsystemDBAccessCLI(self))
+        self.add_module(SubsystemDBIndexCLI(self))
         self.add_module(SubsystemDBVLVCLI(self))
 
     @staticmethod
@@ -1043,6 +1044,176 @@ class SubsystemDBAccessRevokeCLI(pki.cli.CLI):
             sys.exit(1)
 
         subsystem.revoke_database_access(dn, as_current_user=as_current_user)
+
+
+class SubsystemDBIndexCLI(pki.cli.CLI):
+    '''
+    {subsystem} index management commands
+    '''
+
+    def __init__(self, parent):
+        super(SubsystemDBIndexCLI, self).__init__(
+            'index',
+            inspect.cleandoc(self.__class__.__doc__).format(
+                subsystem=parent.parent.name.upper()))
+
+        self.parent = parent
+        self.add_module(SubsystemDBIndexAddCLI(self))
+        self.add_module(SubsystemDBIndexRebuildCLI(self))
+
+
+class SubsystemDBIndexAddCLI(pki.cli.CLI):
+    '''
+    Add {subsystem} indexes
+    '''
+
+    help = '''\
+        Usage: pki-server {subsystem}-db-index-add [OPTIONS]
+
+          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -v, --verbose                      Run in verbose mode.
+              --debug                        Run in debug mode.
+              --help                         Show help message.
+    '''
+
+    def __init__(self, parent):
+        super(SubsystemDBIndexAddCLI, self).__init__(
+            'add',
+            inspect.cleandoc(self.__class__.__doc__).format(
+                subsystem=parent.parent.parent.name.upper()))
+
+        self.parent = parent
+
+    def print_help(self):
+        print(textwrap.dedent(self.__class__.help).format(
+            subsystem=self.parent.parent.parent.name))
+
+    def execute(self, argv):
+        try:
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        subsystem_name = self.parent.parent.parent.name
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('Invalid option: %s', o)
+                self.print_help()
+                sys.exit(1)
+
+        instance = pki.server.instance.PKIInstance(instance_name)
+
+        if not instance.exists():
+            logger.error('Invalid instance: %s', instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem = instance.get_subsystem(subsystem_name)
+
+        if not subsystem:
+            logger.error('No %s subsystem in instance %s.',
+                         subsystem_name.upper(), instance_name)
+            sys.exit(1)
+
+        subsystem.add_indexes()
+
+
+class SubsystemDBIndexRebuildCLI(pki.cli.CLI):
+    '''
+    Rebuild {subsystem} indexes
+    '''
+
+    help = '''\
+        Usage: pki-server {subsystem}-db-index-rebuild [OPTIONS]
+
+          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -v, --verbose                      Run in verbose mode.
+              --debug                        Run in debug mode.
+              --help                         Show help message.
+    '''
+
+    def __init__(self, parent):
+        super(SubsystemDBIndexRebuildCLI, self).__init__(
+            'rebuild',
+            inspect.cleandoc(self.__class__.__doc__).format(
+                subsystem=parent.parent.parent.name.upper()))
+
+        self.parent = parent
+
+    def print_help(self):
+        print(textwrap.dedent(self.__class__.help).format(
+            subsystem=self.parent.parent.parent.name))
+
+    def execute(self, argv):
+        try:
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        subsystem_name = self.parent.parent.parent.name
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('Invalid option: %s', o)
+                self.print_help()
+                sys.exit(1)
+
+        instance = pki.server.instance.PKIInstance(instance_name)
+
+        if not instance.exists():
+            logger.error('Invalid instance: %s', instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem = instance.get_subsystem(subsystem_name)
+
+        if not subsystem:
+            logger.error('No %s subsystem in instance %s.',
+                         subsystem_name.upper(), instance_name)
+            sys.exit(1)
+
+        subsystem.rebuild_indexes()
 
 
 class SubsystemDBVLVCLI(pki.cli.CLI):

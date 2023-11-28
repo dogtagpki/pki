@@ -221,52 +221,11 @@ jobs:
 
       - name: Add CA search indexes
         run: |
-          sed \
-              -e 's/{database}/userroot/g' \
-              base/ca/database/ds/index.ldif \
-              | tee index.ldif
-          docker exec ds ldapadd \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -f $SHARED/index.ldif
+          docker exec pki pki-server ca-db-index-add -v
 
       - name: Rebuild CA search indexes
         run: |
-          # start rebuild task
-          sed \
-              -e 's/{database}/userroot/g' \
-              base/ca/database/ds/indextasks.ldif \
-              | tee indextasks.ldif
-          docker exec ds ldapadd \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -f $SHARED/indextasks.ldif
-
-          # wait for task to complete
-          while true; do
-              sleep 1
-
-              docker exec ds ldapsearch \
-                  -H ldap://ds.example.com:3389 \
-                  -D "cn=Directory Manager" \
-                  -w Secret.123 \
-                  -b "cn=index1160589770, cn=index, cn=tasks, cn=config" \
-                  -LLL \
-                  nsTaskExitCode \
-                  | tee output
-
-              sed -n -e 's/nsTaskExitCode:\s*\(.*\)/\1/p' output > nsTaskExitCode
-              cat nsTaskExitCode
-
-              if [ -s nsTaskExitCode ]; then
-                  break
-              fi
-          done
-
-          echo "0" > expected
-          diff expected nsTaskExitCode
+          docker exec pki pki-server ca-db-index-rebuild -v
 
       - name: Add CA VLV indexes
         run: |
