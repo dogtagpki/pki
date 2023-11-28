@@ -274,9 +274,11 @@ class PKIDeployer:
         logger.info('Configuring Tomcat admin port')
         server_config.set_port(self.mdict['pki_tomcat_server_port'])
 
-        logger.info('Removing AprLifecycleListener')
-        # It is not needed since PKI server will use JSS-based SSL connector
-        server_config.remove_listener('org.apache.catalina.core.AprLifecycleListener')
+        listener = server_config.get_listener('org.apache.catalina.core.AprLifecycleListener')
+        if listener is not None:
+            logger.info('Removing AprLifecycleListener')
+            # It is not needed since PKI server will use JSS-based SSL connector
+            server_config.remove_listener('org.apache.catalina.core.AprLifecycleListener')
 
         listener = server_config.get_listener('com.netscape.cms.tomcat.PKIListener')
         if listener is None:
