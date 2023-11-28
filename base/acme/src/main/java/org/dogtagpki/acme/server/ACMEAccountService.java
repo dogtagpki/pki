@@ -17,6 +17,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import org.dogtagpki.acme.ACMEAccount;
 import org.dogtagpki.acme.ACMEHeader;
 import org.dogtagpki.acme.ACMENonce;
@@ -74,7 +76,12 @@ public class ACMEAccountService {
         String payload = new String(jws.getPayloadAsBytes(), "UTF-8");
         logger.info("Payload: " + payload);
 
-        ACMEAccount update = ACMEAccount.fromJSON(payload);
+        ACMEAccount update;
+        try {
+            update = ACMEAccount.fromJSON(payload);
+        } catch (JsonProcessingException e) {
+            throw engine.createMalformedException(e.toString());
+        }
 
         String newStatus = update.getStatus();
         if (newStatus != null) {
