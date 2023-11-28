@@ -728,6 +728,18 @@ public class ACMEEngine {
         return new WebApplicationException(builder.build());
     }
 
+    public Exception createMalformedException(String desc) {
+        ResponseBuilder builder = Response.status(Response.Status.BAD_REQUEST);
+        builder.type("application/problem+json");
+
+        ACMEError error = new ACMEError();
+        error.setType("urn:ietf:params:acme:error:malformed");
+        error.setDetail("Malformed request: " + desc);
+        builder.entity(error);
+
+        return new WebApplicationException(builder.build());
+    }
+
     public void updateAccount(ACMEAccount account) throws Exception {
         database.updateAccount(account);
     }
