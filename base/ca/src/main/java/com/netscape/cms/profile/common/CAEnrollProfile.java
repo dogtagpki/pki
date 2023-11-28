@@ -320,13 +320,49 @@ public class CAEnrollProfile extends EnrollProfile {
                 // fake key replaced;
                 // need to compute/replace SKI as well if present
 
-                Extension ext = CertUtils.getExtension(PKIXExtensions.SubjectKey_Id.toString(), info);
+                SubjectKeyIdentifierExtension ext = (SubjectKeyIdentifierExtension) CertUtils.getExtension(PKIXExtensions.SubjectKey_Id.toString(), info);
                 if (ext != null) {
                     logger.debug(method + "found SubjectKey_Id extension");
+                    /*
+                     * determine message digest algorithm:
+                     * the "old_ski" was generated based on the profile
+                     * from the "fake key",
+                     * so we could use it's length to determine the size
+                     * of the new hash.
+                     *
+                     * Message digest can be controlled by the messageDigest
+                     * parameter in the subjectKeyIdentifier extension in a
+                     * profile. e.g.
+                     * policyset.caCertSet.8.default.params.messageDigest=SHA-256
+                     */
+                    String messageDigest = "SHA-1"; // default; len==20
+                    KeyIdentifier old_ski = null;
+                    try {
+                        old_ski = (KeyIdentifier) ext.get(SubjectKeyIdentifierExtension.KEY_ID);
+                    } catch (IOException e) {
+                        old_ski = null;
+                    }
+                    if (old_ski != null) { 
+                        byte[] old_ski_val = old_ski.getIdentifier();
+                        if (old_ski_val != null) {
+                            int old_ski_len = old_ski_val.length;
+
+                            if (old_ski_len == 32) {
+                                messageDigest = "SHA-256";
+                            } else if (old_ski_len == 48) {
+                                messageDigest = "SHA-384";
+                            } else if (old_ski_len == 64) {
+                                messageDigest = "SHA-512";
+                            }
+                        }
+                    }
+                    logger.debug(method + "ServerSideKeygen message digest alg == " + messageDigest);
                     // compute keyId
                     X509Key realkey = (X509Key)
                             certKey.get(CertificateX509Key.KEY);
-                    byte[] hash = CryptoUtil.generateKeyIdentifier(realkey.getKey());
+                    byte[] hash = CryptoUtil.generateKeyIdentifier(realkey.getKey(), messageDigest);
+                    int new_ski_len = hash.length;
+                    logger.debug(method + "ServerSideKeygen hash len = " + new_ski_len);
                     KeyIdentifier id = new KeyIdentifier(hash);
                     SubjectKeyIdentifierExtension skiExt =
                             new SubjectKeyIdentifierExtension(id.getIdentifier());
