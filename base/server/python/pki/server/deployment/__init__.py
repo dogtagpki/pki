@@ -1019,20 +1019,6 @@ class PKIDeployer:
                 self.subsystem_type,
                 self.mdict['pki_instance_name']))
 
-    def verify_subsystem_does_not_exist(self):
-
-        subsystem_path = os.path.join(
-            self.instance.base_dir,
-            self.mdict['pki_subsystem_type'])
-
-        if not os.path.exists(subsystem_path):
-            return
-
-        raise Exception(
-            log.PKI_SUBSYSTEM_ALREADY_EXISTS_2 % (
-                self.subsystem_type,
-                self.mdict['pki_instance_name']))
-
     def init_subsystem(self, subsystem):
 
         external = self.configuration_file.external
