@@ -74,33 +74,40 @@ public class ACMEAccountService {
         engine.validateJWS(jws, header.getAlg(), account.getJWK());
 
         String payload = new String(jws.getPayloadAsBytes(), "UTF-8");
-        logger.info("Payload: " + payload);
 
-        ACMEAccount update;
-        try {
-            update = ACMEAccount.fromJSON(payload);
-        } catch (JsonProcessingException e) {
-            throw engine.createMalformedException(e.toString());
+        if (payload.isEmpty()) {
+            logger.info("Empty payload; treating as POST-as-GET");
         }
 
-        String newStatus = update.getStatus();
-        if (newStatus != null) {
-            logger.info("New status: " + newStatus);
-            account.setStatus(newStatus);
-        }
+        else {
+            logger.info("Payload: " + payload);
 
-        String[] newContact = update.getContact();
-        if (newContact != null) {
-            logger.info("New contact:");
-            for (String c : newContact) {
-                logger.info("- " + c);
+            ACMEAccount update;
+            try {
+                update = ACMEAccount.fromJSON(payload);
+            } catch (JsonProcessingException e) {
+                throw engine.createMalformedException(e.toString());
             }
-            account.setContact(newContact);
+
+            String newStatus = update.getStatus();
+            if (newStatus != null) {
+                logger.info("New status: " + newStatus);
+                account.setStatus(newStatus);
+            }
+
+            String[] newContact = update.getContact();
+            if (newContact != null) {
+                logger.info("New contact:");
+                for (String c : newContact) {
+                    logger.info("- " + c);
+                }
+                account.setContact(newContact);
+            }
+
+            engine.updateAccount(account);
+
+            // TODO: if account is deactivated, cancel all account's pending operations
         }
-
-        engine.updateAccount(account);
-
-        // TODO: if account is deactivated, cancel all account's pending operations
 
         // RFC 8555 Section 7.1.2.1 Orders List
         //
