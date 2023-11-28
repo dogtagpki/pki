@@ -1531,18 +1531,20 @@ class PKIDeployer:
 
         create_containers = not config.str2bool(self.mdict['pki_clone'])
 
-        # If the database is already replicated but not yet indexed, rebuild the indexes.
-
-        rebuild_indexes = config.str2bool(self.mdict['pki_clone']) and \
-            not config.str2bool(self.mdict['pki_clone_setup_replication']) and \
-            config.str2bool(self.mdict['pki_clone_reindex_data'])
-
         subsystem.init_database(
             setup_schema=setup_schema,
             create_database=create_database,
             create_base=create_base,
-            create_containers=create_containers,
-            rebuild_indexes=rebuild_indexes)
+            create_containers=create_containers)
+
+        # always create indexes
+        subsystem.add_indexes()
+
+        # if the database is already replicated but not yet indexed, rebuild the indexes
+        if config.str2bool(self.mdict['pki_clone']) and \
+                not config.str2bool(self.mdict['pki_clone_setup_replication']) and \
+                config.str2bool(self.mdict['pki_clone_reindex_data']):
+            subsystem.rebuild_indexes()
 
         if config.str2bool(self.mdict['pki_clone']) and \
                 config.str2bool(self.mdict['pki_clone_setup_replication']):

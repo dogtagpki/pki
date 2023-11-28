@@ -1121,7 +1121,6 @@ class PKISubsystem(object):
             create_database=False,
             create_base=False,
             create_containers=False,
-            rebuild_indexes=False,
             as_current_user=False):
 
         cmd = [self.name + '-db-init']
@@ -1138,9 +1137,6 @@ class PKISubsystem(object):
         if create_containers:
             cmd.append('--create-containers')
 
-        if rebuild_indexes:
-            cmd.append('--rebuild-indexes')
-
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
 
@@ -1148,6 +1144,30 @@ class PKISubsystem(object):
             cmd.append('--verbose')
 
         self.run(cmd, as_current_user=as_current_user)
+
+    def add_indexes(self):
+
+        cmd = [self.name + '-db-index-add']
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        self.run(cmd)
+
+    def rebuild_indexes(self):
+
+        cmd = [self.name + '-db-index-rebuild']
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        self.run(cmd)
 
     def empty_database(self, force=False, as_current_user=False):
 
