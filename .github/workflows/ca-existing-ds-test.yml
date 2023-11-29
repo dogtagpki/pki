@@ -259,6 +259,52 @@ jobs:
           docker exec pki pki-server ca-db-access-grant \
               uid=pkidbuser,ou=people,dc=ca,dc=pki,dc=example,dc=com
 
+      # https://github.com/dogtagpki/pki/wiki/Setting-up-Security-Domain
+      - name: Create security domain database
+        run: |
+          docker exec pki pki-server sd-create \
+              --name EXAMPLE
+
+      - name: Configure security domain manager
+        run: |
+          # configure CA as security domain manager
+          docker exec pki pki-server ca-config-set securitydomain.select new
+          docker exec pki pki-server ca-config-set securitydomain.name EXAMPLE
+          docker exec pki pki-server ca-config-set securitydomain.host pki.example.com
+          docker exec pki pki-server ca-config-set securitydomain.httpport 8080
+          docker exec pki pki-server ca-config-set securitydomain.httpsadminport 8443
+          docker exec pki pki-server ca-config-set securitydomain.checkIP false
+          docker exec pki pki-server ca-config-set securitydomain.checkinterval 300000
+          docker exec pki pki-server ca-config-set securitydomain.flushinterval 86400000
+          docker exec pki pki-server ca-config-set securitydomain.source ldap
+
+          # register CA as security domain manager
+          docker exec pki pki-server sd-subsystem-add \
+              --subsystem CA \
+              --hostname pki.example.com \
+              --unsecure-port 8080 \
+              --secure-port 8443 \
+              --domain-manager \
+              "CA pki.example.com 8443"
+
+      # https://github.com/dogtagpki/pki/wiki/Setting-up-Subsystem-User
+      - name: Add subsystem user
+        run: |
+          docker exec pki pki-server ca-user-add \
+              --full-name CA-pki.example.com-8443 \
+              --type agentType \
+              CA-pki.example.com-8443
+
+      - name: Assign subsystem cert to subsystem user
+        run: |
+          docker exec pki pki-server ca-user-cert-add \
+              --cert /etc/pki/pki-tomcat/certs/subsystem.crt \
+              CA-pki.example.com-8443
+
+      - name: Assign roles to subsystem user
+        run: |
+          docker exec pki pki-server ca-user-role-add CA-pki.example.com-8443 "Subsystem Group"
+
       # https://github.com/dogtagpki/pki/wiki/Setting-up-CA-Admin-User
       - name: Add CA admin user
         run: |
@@ -293,6 +339,7 @@ jobs:
               -D pki_ds_url=ldap://ds.example.com:3389 \
               -D pki_ds_setup=False \
               -D pki_share_db=True \
+              -D pki_security_domain_setup=False \
               -D pki_admin_setup=False \
               -v
 
