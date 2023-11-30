@@ -2624,6 +2624,8 @@ class PKIDeployer:
 
             subsystem.create_security_domain(name=sd_name)
 
+            domain_manager = True
+
             logger.info('Adding security domain manager')
             subsystem.add_security_domain_subsystem(
                 self.mdict['pki_subsystem_name'],
@@ -2632,6 +2634,13 @@ class PKIDeployer:
                 unsecure_port=proxyUnsecurePort,
                 secure_port=proxySecurePort,
                 domain_manager=True)
+
+        if domain_manager:
+            logger.info('Adding security domain sessions')
+            subsystem.config['securitydomain.checkIP'] = 'false'
+            subsystem.config['securitydomain.checkinterval'] = '300000'
+            subsystem.config['securitydomain.flushinterval'] = '86400000'
+            subsystem.config['securitydomain.source'] = 'ldap'
 
     def pki_connect(self):
 

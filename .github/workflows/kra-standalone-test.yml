@@ -60,15 +60,9 @@ jobs:
 
       - name: Check CA security domain
         run: |
-          # security domain should be disabled (i.e. no securitydomain.select=new)
-          cat > expected << EOF
-          securitydomain.checkIP=false
-          securitydomain.checkinterval=300000
-          securitydomain.flushinterval=86400000
-          securitydomain.source=ldap
-          EOF
+          # security domain should be disabled
           docker exec ca pki-server ca-config-find | grep ^securitydomain. | sort | tee actual
-          diff expected actual
+          diff /dev/null actual
 
           docker exec ca pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
           docker exec ca pki client-cert-import ca_signing --ca-cert ${SHARED}/ca_signing.crt
