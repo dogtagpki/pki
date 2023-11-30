@@ -58,9 +58,9 @@ jobs:
 
           docker exec pki pki-server cert-find
 
-      - name: Check CA security domain
+      - name: Check security domain config in CA
         run: |
-          # security domain should be enabled (i.e. securitydomain.select=new)
+          # CA should run security domain service
           cat > expected << EOF
           securitydomain.checkIP=false
           securitydomain.checkinterval=300000
@@ -72,6 +72,7 @@ jobs:
           securitydomain.select=new
           securitydomain.source=ldap
           EOF
+
           docker exec pki pki-server ca-config-find | grep ^securitydomain. | sort | tee actual
           diff expected actual
 
@@ -101,6 +102,20 @@ jobs:
               -s KRA \
               -D pki_ds_url=ldap://ds.example.com:3389 \
               -v
+
+      - name: Check security domain config in KRA
+        run: |
+          # KRA should join security domain in CA
+          cat > expected << EOF
+          securitydomain.host=pki.example.com
+          securitydomain.httpport=8080
+          securitydomain.httpsadminport=8443
+          securitydomain.name=EXAMPLE
+          securitydomain.select=existing
+          EOF
+
+          docker exec pki pki-server kra-config-find | grep ^securitydomain. | sort | tee actual
+          diff expected actual
 
       - name: Check KRA storage cert
         run: |
