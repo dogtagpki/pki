@@ -56,6 +56,24 @@ jobs:
               -D pki_ds_url=ldap://rootcads.example.com:3389 \
               -v
 
+      - name: Check security domain config in root CA
+        run: |
+          # root CA should run security domain service
+          cat > expected << EOF
+          securitydomain.checkIP=false
+          securitydomain.checkinterval=300000
+          securitydomain.flushinterval=86400000
+          securitydomain.host=rootca.example.com
+          securitydomain.httpport=8080
+          securitydomain.httpsadminport=8443
+          securitydomain.name=EXAMPLE
+          securitydomain.select=new
+          securitydomain.source=ldap
+          EOF
+
+          docker exec rootca pki-server ca-config-find | grep ^securitydomain. | sort | tee actual
+          diff expected actual
+
       - name: Check root CA certs
         if: always()
         run: |
@@ -101,6 +119,7 @@ jobs:
               -D pki_ds_url=ldap://subcads.example.com:3389 \
               -D pki_security_domain_uri=https://rootca.example.com:8443 \
               -D pki_subordinate_create_new_security_domain=True \
+              -D pki_subordinate_security_domain_name=SUBORDINATE \
               -D pki_issuing_ca_uri=https://rootca.example.com:8443 \
               -v
 
@@ -119,6 +138,24 @@ jobs:
           docker exec subca pki-server ca-user-find
           docker exec subca pki-server ca-user-show caadmin
           docker exec subca pki-server ca-user-role-find caadmin
+
+      - name: Check security domain config in sub CA
+        run: |
+          # sub CA should run security domain service
+          cat > expected << EOF
+          securitydomain.checkIP=false
+          securitydomain.checkinterval=300000
+          securitydomain.flushinterval=86400000
+          securitydomain.host=subca.example.com
+          securitydomain.httpport=8080
+          securitydomain.httpsadminport=8443
+          securitydomain.name=SUBORDINATE
+          securitydomain.select=new
+          securitydomain.source=ldap
+          EOF
+
+          docker exec subca pki-server ca-config-find | grep ^securitydomain. | sort | tee actual
+          diff expected actual
 
       - name: Export subordinate CA cert bundle
         run: |
@@ -181,6 +218,20 @@ jobs:
               -D pki_admin_cert_file=${SHARED}/ca_admin.cert \
               -D pki_ds_url=ldap://krads.example.com:3389 \
               -v
+
+      - name: Check security domain config in KRA
+        run: |
+          # KRA should join existing security domain in sub CA
+          cat > expected << EOF
+          securitydomain.host=subca.example.com
+          securitydomain.httpport=8080
+          securitydomain.httpsadminport=8443
+          securitydomain.name=SUBORDINATE
+          securitydomain.select=existing
+          EOF
+
+          docker exec kra pki-server kra-config-find | grep ^securitydomain. | sort | tee actual
+          diff expected actual
 
       - name: Check KRA certs
         if: always()

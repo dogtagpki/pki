@@ -57,6 +57,24 @@ jobs:
 
           docker exec ca pki-server cert-find
 
+      - name: Check security domain config in CA
+        run: |
+          # CA should run security domain service
+          cat > expected << EOF
+          securitydomain.checkIP=false
+          securitydomain.checkinterval=300000
+          securitydomain.flushinterval=86400000
+          securitydomain.host=ca.example.com
+          securitydomain.httpport=8080
+          securitydomain.httpsadminport=8443
+          securitydomain.name=EXAMPLE
+          securitydomain.select=new
+          securitydomain.source=ldap
+          EOF
+
+          docker exec ca pki-server ca-config-find | grep ^securitydomain. | sort | tee actual
+          diff expected actual
+
       - name: Install banner in CA container
         run: docker exec ca cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
 
@@ -95,6 +113,20 @@ jobs:
               -v
 
           docker exec ocsp pki-server cert-find
+
+      - name: Check security domain config in OCSP
+        run: |
+          # OCSP should join security domain in CA
+          cat > expected << EOF
+          securitydomain.host=ca.example.com
+          securitydomain.httpport=8080
+          securitydomain.httpsadminport=8443
+          securitydomain.name=EXAMPLE
+          securitydomain.select=existing
+          EOF
+
+          docker exec ocsp pki-server ocsp-config-find | grep ^securitydomain. | sort | tee actual
+          diff expected actual
 
       - name: Install banner in OCSP container
         run: docker exec ocsp cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
