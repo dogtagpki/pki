@@ -1251,7 +1251,7 @@ class PKISubsystem(object):
             master_config_file = os.path.join(tmpdir, 'master.conf')
             pki.util.store_properties(master_config_file, master_config)
 
-            cmd = [self.name + '-db-replication-setup']
+            cmd = [self.name + '-db-repl-setup']
 
             if master_replication_port:
                 cmd.extend(['--master-replication-port', master_replication_port])
