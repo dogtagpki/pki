@@ -1472,16 +1472,6 @@ class PKISubsystem(object):
 
         self.save()
 
-    def configure_security_domain(
-            self,
-            hostname,
-            port,
-            secure_port):
-
-        self.config['securitydomain.host'] = hostname
-        self.config['securitydomain.httpport'] = port
-        self.config['securitydomain.httpsadminport'] = secure_port
-
     def create_security_domain(self, name=None, as_current_user=False):
 
         cmd = [self.name + '-sd-create']

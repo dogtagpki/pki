@@ -2497,9 +2497,9 @@ class PKIDeployer:
 
             self.join_security_domain()
 
-            sd_hostname = self.sd_host.Hostname
-            sd_port = self.sd_host.Port
-            sd_secure_port = self.sd_host.SecurePort
+            subsystem.config['securitydomain.host'] = self.sd_host.Hostname
+            subsystem.config['securitydomain.httpport'] = self.sd_host.Port
+            subsystem.config['securitydomain.httpsadminport'] = self.sd_host.SecurePort
 
         else:  # self.mdict['pki_security_domain_type'] == 'new'
 
@@ -2507,25 +2507,14 @@ class PKIDeployer:
                     config.str2bool(self.mdict['pki_subordinate_create_new_security_domain']):
 
                 logger.info('Creating new subordinate security domain')
-
                 self.join_security_domain()
 
-                sd_hostname = self.mdict['pki_hostname']
-                sd_port = unsecurePort
-                sd_secure_port = securePort
-
             else:
-
                 logger.info('Creating new security domain')
 
-                sd_hostname = self.mdict['pki_hostname']
-                sd_port = unsecurePort
-                sd_secure_port = securePort
-
-        subsystem.configure_security_domain(
-            sd_hostname,
-            sd_port,
-            sd_secure_port)
+            subsystem.config['securitydomain.host'] = self.mdict['pki_hostname']
+            subsystem.config['securitydomain.httpport'] = unsecurePort
+            subsystem.config['securitydomain.httpsadminport'] = securePort
 
     def setup_security_domain_manager(self, subsystem):
 
