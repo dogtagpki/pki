@@ -169,10 +169,20 @@ class PKISubsystem(object):
             conf_link,
             exist_ok=exist_ok)
 
-        self.config['cs.type'] = self.type
-        self.config['instanceId'] = self.instance.name
-        self.config['passwordClass'] = 'com.netscape.cmsutil.password.PlainPasswordFile'
-        self.config['passwordFile'] = self.instance.password_conf
+        if os.path.exists(self.cs_conf):
+            pki.util.load_properties(self.cs_conf, self.config)
+
+        if 'cs.type' not in self.config:
+            self.config['cs.type'] = self.type
+
+        if 'instanceId' not in self.config:
+            self.config['instanceId'] = self.instance.name
+
+        if 'passwordClass' not in self.config:
+            self.config['passwordClass'] = 'com.netscape.cmsutil.password.PlainPasswordFile'
+
+        if 'passwordFile' not in self.config:
+            self.config['passwordFile'] = self.instance.password_conf
 
         logger.info('Storing subsystem config: %s', self.cs_conf)
         self.instance.store_properties(self.cs_conf, self.config)
