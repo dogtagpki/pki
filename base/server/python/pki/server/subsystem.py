@@ -146,10 +146,28 @@ class PKISubsystem(object):
         # Create /var/lib/pki/<instance>/<subsystem>
         self.instance.makedirs(self.base_dir, exist_ok=exist_ok)
 
+        # Link /var/lib/pki/<instance>/<subsystem>/registry
+        # to /etc/sysconfig/pki/tomcat/<instance>
+
+        registry_link = os.path.join(self.base_dir, 'registry')
+        self.instance.symlink(
+            self.instance.registry_dir,
+            registry_link,
+            exist_ok=True)
+
     def create_conf(self, exist_ok=False):
 
         # Create /etc/pki/<instance>/<subsystem>
         self.instance.makedirs(self.conf_dir, exist_ok=exist_ok)
+
+        # Link /var/lib/pki/<instance>/<subsystem>/conf
+        # to /etc/pki/<instance>/<subsystem>
+
+        conf_link = os.path.join(self.base_dir, 'conf')
+        self.instance.symlink(
+            self.conf_dir,
+            conf_link,
+            exist_ok=exist_ok)
 
         self.config['cs.type'] = self.type
         self.config['instanceId'] = self.instance.name
@@ -174,6 +192,15 @@ class PKISubsystem(object):
 
         # Create /var/log/pki/<instance>/<subsystem>
         self.instance.makedirs(self.log_dir, exist_ok=exist_ok)
+
+        # Link /var/lib/pki/<instance>/<subsystem>/logs
+        # to /var/log/pki/<instance>/<subsystem>
+
+        logs_link = os.path.join(self.base_dir, 'logs')
+        self.instance.symlink(
+            self.log_dir,
+            logs_link,
+            exist_ok=exist_ok)
 
         # Create /var/log/pki/<instance>/<subsystem>/archive
         self.instance.makedirs(self.log_archive_dir, exist_ok=exist_ok)

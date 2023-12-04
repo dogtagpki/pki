@@ -295,36 +295,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 pki_target_phone_home_xml,
                 params=deployer.mdict)
 
-        # Link /var/lib/pki/<instance>/<subsystem>/conf
-        # to /etc/pki/<instance>/<subsystem>
-
-        subsystem_conf_link = os.path.join(subsystem.base_dir, 'conf')
-
-        instance.symlink(
-            subsystem.conf_dir,
-            subsystem_conf_link,
-            exist_ok=True)
-
-        # Link /var/lib/pki/<instance>/<subsystem>/logs
-        # to /var/log/pki/<instance>/<subsystem>
-
-        subsystem_logs_link = os.path.join(subsystem.base_dir, 'logs')
-
-        instance.symlink(
-            subsystem.log_dir,
-            subsystem_logs_link,
-            exist_ok=True)
-
-        # Link /var/lib/pki/<instance>/<subsystem>/registry
-        # to /etc/sysconfig/pki/tomcat/<instance>
-
-        registry_link = os.path.join(subsystem.base_dir, 'registry')
-
-        instance.symlink(
-            instance.registry_dir,
-            registry_link,
-            exist_ok=True)
-
         instance.load()
 
         subsystem = instance.get_subsystem(subsystem_name)
