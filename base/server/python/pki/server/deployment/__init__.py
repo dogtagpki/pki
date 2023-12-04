@@ -2532,10 +2532,20 @@ class PKIDeployer:
         if not proxySecurePort:
             proxySecurePort = securePort
 
-        domain_manager = False
+        if self.mdict['pki_security_domain_type'] == 'existing':
 
-        if subsystem.type == 'CA':
-            if clone:
+            sd_url = self.mdict['pki_security_domain_uri']
+            logger.info('Joining security domain at %s', sd_url)
+
+            subsystem.config['securitydomain.select'] = 'existing'
+            subsystem.config['securitydomain.name'] = self.domain_info.id
+
+            domain_manager = False
+
+            if subsystem.type == 'CA' and clone:
+
+                # check whether the primary CA is a security domain manager
+
                 sd_hostname = subsystem.config['securitydomain.host']
                 sd_port = subsystem.config['securitydomain.httpsadminport']
 
@@ -2545,13 +2555,16 @@ class PKIDeployer:
                 if sd_host.DomainManager and sd_host.DomainManager.lower() == 'true':
                     domain_manager = True
 
-        if self.mdict['pki_security_domain_type'] == 'existing':
+            logger.info('Domain manager: %s', domain_manager)
 
-            sd_url = self.mdict['pki_security_domain_uri']
-            logger.info('Joining security domain at %s', sd_url)
+            if domain_manager:
 
-            subsystem.config['securitydomain.select'] = 'existing'
-            subsystem.config['securitydomain.name'] = self.domain_info.id
+                logger.info('Cloning security domain manager')
+
+                subsystem.config['securitydomain.select'] = 'new'
+                subsystem.config['securitydomain.host'] = self.mdict['pki_hostname']
+                subsystem.config['securitydomain.httpport'] = unsecurePort
+                subsystem.config['securitydomain.httpsadminport'] = securePort
 
             subsystem.join_security_domain(
                 sd_url,
@@ -2588,18 +2601,6 @@ class PKIDeployer:
                 unsecure_port=proxyUnsecurePort,
                 secure_port=proxySecurePort,
                 domain_manager=True)
-
-        if subsystem.type == 'CA':
-
-            if clone:
-                if sd_host.DomainManager and sd_host.DomainManager.lower() == 'true':
-
-                    logger.info('Cloning security domain master')
-
-                    subsystem.config['securitydomain.select'] = 'new'
-                    subsystem.config['securitydomain.host'] = self.mdict['pki_hostname']
-                    subsystem.config['securitydomain.httpport'] = unsecurePort
-                    subsystem.config['securitydomain.httpsadminport'] = securePort
 
     def pki_connect(self):
 
