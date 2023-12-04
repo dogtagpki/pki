@@ -202,7 +202,7 @@ jobs:
               --cert /etc/pki/pki-tomcat/certs/subsystem.crt \
               pkidbuser
 
-      - name: Add database user into CA groups
+      - name: Assign roles to database user
         run: |
           docker exec pki pki-server ca-user-role-add pkidbuser "Subsystem Group"
           docker exec pki pki-server ca-user-role-add pkidbuser "Certificate Manager Agents"
@@ -305,10 +305,55 @@ jobs:
           docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
           docker exec pki pki -n caadmin ca-user-show caadmin
 
+      - name: Check CA security domain
+        run: |
+          # security domain should be enabled (i.e. securitydomain.select=new)
+          cat > expected << EOF
+          securitydomain.checkIP=false
+          securitydomain.checkinterval=300000
+          securitydomain.flushinterval=86400000
+          securitydomain.host=pki.example.com
+          securitydomain.httpport=8080
+          securitydomain.httpsadminport=8443
+          securitydomain.name=EXAMPLE
+          securitydomain.select=new
+          securitydomain.source=ldap
+          EOF
+
+          docker exec pki pki-server ca-config-find | grep ^securitydomain. | sort | tee actual
+          diff expected actual
+
+          # REST API should return security domain info
+          cat > expected << EOF
+            Domain: EXAMPLE
+
+            CA Subsystem:
+
+              Host ID: CA pki.example.com 8443
+              Hostname: pki.example.com
+              Port: 8080
+              Secure Port: 8443
+              Domain Manager: TRUE
+
+          EOF
+
+          docker exec pki pki securitydomain-show | tee output
+          diff expected output
+
+      - name: Check PKI server systemd journal
+        if: always()
+        run: |
+          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check CA debug log
+        if: always()
+        run: |
+          docker exec pki find /var/log/pki/pki-tomcat/ca -name "debug.*" -exec cat {} \;
+
       - name: Gather artifacts
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki ds
+          tests/bin/ds-artifacts-save.sh ds
           tests/bin/pki-artifacts-save.sh pki
         continue-on-error: true
 
@@ -321,4 +366,5 @@ jobs:
         with:
           name: ca-existing-ds
           path: |
+            /tmp/artifacts/ds
             /tmp/artifacts/pki
