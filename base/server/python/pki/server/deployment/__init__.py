@@ -818,6 +818,37 @@ class PKIDeployer:
         finally:
             self.file.delete(pki_shared_pfile)
 
+    def create_cs_cfg(self, subsystem):
+
+        tmpdir = tempfile.mkdtemp()
+
+        try:
+            # Copy /usr/share/pki/<subsystem>/conf/CS.cfg
+            # into temporary CS.cfg with param substitution
+
+            source_cs_cfg = os.path.join(
+                pki.server.PKIServer.SHARE_DIR,
+                subsystem.name,
+                'conf',
+                'CS.cfg')
+
+            tmp_cs_cfg = os.path.join(tmpdir, 'CS.cfg')
+
+            self.instance.copyfile(
+                source_cs_cfg,
+                tmp_cs_cfg,
+                params=self.mdict,
+                force=True)
+
+            # Merge temporary CS.cfg into /etc/pki/<instance>/<subsystem>/CS.cfg
+            # to preserve params in existing CS.cfg
+
+            pki.util.load_properties(tmp_cs_cfg, subsystem.config)
+            self.instance.store_properties(subsystem.cs_conf, subsystem.config)
+
+        finally:
+            shutil.rmtree(tmpdir)
+
     def init_system_cert_params(self, subsystem):
 
         # Store system cert parameters in installation step to guarantee the
