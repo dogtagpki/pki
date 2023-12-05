@@ -46,12 +46,26 @@ public abstract class CAEnrollDefault extends EnrollDefault {
     }
 
     public KeyIdentifier getKeyIdentifier(X509CertInfo info) {
+        return getKeyIdentifier(info, "SHA-1");
+    }
+    public KeyIdentifier getKeyIdentifier(X509CertInfo info, String messageDigest) {
         String method = "CAEnrollDefault: getKeyIdentifier: ";
         try {
+            /*
+             * The SKI must be placed before the AKI in the enrollment profile
+             * for this to work properly
+             */
+            SubjectKeyIdentifierExtension ext = (SubjectKeyIdentifierExtension) getExtension(PKIXExtensions.SubjectKey_Id.toString(), info);
+            if (ext != null) {
+                logger.debug(method + "found SubjectKey_Id extension");
+                KeyIdentifier kid = (KeyIdentifier) ext.get(SubjectKeyIdentifierExtension.KEY_ID);
+                return kid;
+            }
+            // ski not found, calculate the ski
             CertificateX509Key ckey = (CertificateX509Key)
                     info.get(X509CertInfo.KEY);
             X509Key key = (X509Key) ckey.get(CertificateX509Key.KEY);
-            byte[] hash = CryptoUtil.generateKeyIdentifier(key.getKey());
+            byte[] hash = CryptoUtil.generateKeyIdentifier(key.getKey(), messageDigest);
             if (hash == null) {
                 logger.warn(method + "CryptoUtil.generateKeyIdentifier returns null");
                 return null;
@@ -83,14 +97,20 @@ public abstract class CAEnrollDefault extends EnrollDefault {
                         SubjectKeyIdentifierExtension.KEY_ID);
                 return keyId;
             } catch (IOException e) {
+                logger.warn(method + e.toString());
+                return null;
             }
         }
+        logger.warn(method + "SubjectKeyIdentifierExtension not found in CA signing cert. Returning null");
+            return null;
 
+        /* SubjectKeyIdentifierExtension has to exist in a CA signing cert
         byte[] hash = CryptoUtil.generateKeyIdentifier(key.getKey());
         if (hash == null) {
             logger.warn(method + "CryptoUtil.generateKeyIdentifier returns null");
             return null;
         }
         return new KeyIdentifier(hash);
+        */
     }
 }
