@@ -379,16 +379,24 @@ class PKISubsystem(object):
             nssdb.close()
 
     def update_system_cert(self, cert):
-        cert_id = cert['id']
-        self.config['%s.%s.nickname' % (self.name, cert_id)] = cert.get('nickname')
-        self.config['%s.%s.tokenname' % (self.name, cert_id)] = cert.get('token')
-        certs_path = os.path.join(self.instance.conf_dir, 'certs')
-        self.instance.makedirs(certs_path, exist_ok=True)
-        if cert_id != 'sslserver' and cert_id != 'subsystem':
-            cert_id = self.name + '_' + cert_id
-        csr_file = os.path.join(certs_path, cert_id + '.csr')
+        tag = cert['id']
+        self.config['%s.%s.nickname' % (self.name, tag)] = cert.get('nickname')
+        self.config['%s.%s.tokenname' % (self.name, tag)] = cert.get('token')
+
+        csr_data = cert.get('request')
+        csr_pem = pki.nssdb.convert_csr(csr_data, 'base64', 'pem')
+
+        self.instance.makedirs(self.instance.certs_dir, exist_ok=True)
+
+        if tag != 'sslserver' and tag != 'subsystem':
+            csr_name = self.name + '_' + tag
+        else:
+            csr_name = tag
+
+        csr_file = self.instance.csr_file(csr_name)
         with open(csr_file, "w", encoding='utf-8') as f:
-            f.write(pki.nssdb.convert_csr(cert.get('request'), 'base64', 'pem'))
+            f.write(csr_pem)
+
         os.chown(csr_file, self.instance.uid, self.instance.gid)
 
     def validate_system_cert(self, tag):
