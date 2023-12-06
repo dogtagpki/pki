@@ -2789,19 +2789,20 @@ class PKIDeployer:
 
         request.systemCert.keyAlgorithm = subsystem.config['preop.cert.%s.keyalgorithm' % tag]
 
-        request.systemCert.requestType = 'pkcs10'
-        try:
-            if tag != 'sslserver' and tag != 'subsystem':
-                csr_name = subsystem.name + '_' + tag + '.csr'
-            else:
-                csr_name = tag + '.csr'
-            csr_path = os.path.join(self.instance.conf_dir, 'certs', csr_name)
+        if tag != 'sslserver' and tag != 'subsystem':
+            csr_name = subsystem.name + '_' + tag
+        else:
+            csr_name = tag
+
+        csr_path = self.instance.csr_file(csr_name)
+
+        # load existing CSR if exists
+        if os.path.exists(csr_path):
             with open(csr_path, 'r', encoding='utf-8') as f:
                 csr_data = f.read()
-                request.systemCert.request = pki.nssdb.convert_csr(csr_data, 'pem', 'base64')
+            request.systemCert.request = pki.nssdb.convert_csr(csr_data, 'pem', 'base64')
 
-        except FileNotFoundError:
-            logger.debug('Certificate request for %s not provided', tag)
+        request.systemCert.requestType = 'pkcs10'
 
         request.systemCert.cert = cert.get('data')
         request.systemCert.profile = subsystem.config['preop.cert.%s.profile' % tag]
