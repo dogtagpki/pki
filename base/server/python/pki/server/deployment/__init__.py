@@ -1495,16 +1495,18 @@ class PKIDeployer:
         return master_config
 
     def store_master_cert_request(self, subsystem, key, csr):
+
+        csr_pem = pki.nssdb.convert_csr(csr, 'base64', 'pem')
+
         cert_id = key.split('.')[1]
         if cert_id != 'sslserver' and cert_id != 'subsystem':
             cert_id = subsystem.name + '_' + cert_id
-        csr_path = os.path.join(self.instance.conf_dir, 'certs', cert_id + '.csr')
-        try:
-            self.file.create(csr_path)
-            with open(csr_path, 'w', encoding='utf-8') as f:
-                f.write(pki.nssdb.convert_csr(csr, 'base64', 'pem'))
-        except OSError:
-            logger.debug('Certificate request %s not stored', key)
+
+        csr_path = self.instance.csr_file(cert_id)
+
+        self.file.create(csr_path)
+        with open(csr_path, 'w', encoding='utf-8') as f:
+            f.write(csr_pem)
 
     def setup_database(self, subsystem, master_config):
 
