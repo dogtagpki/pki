@@ -2949,15 +2949,14 @@ class PKIDeployer:
 
             shutil.move(csr_pathname, csr_path)
 
-        certs_folder = os.path.join(self.instance.conf_dir, 'certs')
         if tag != 'sslserver' and tag != 'subsystem':
-            csr_name = subsystem.name + '_' + tag + '.csr'
+            csr_name = subsystem.name + '_' + tag
         else:
-            csr_name = tag + '.csr'
+            csr_name = tag
 
         self.file.copy(
             old_name=csr_path,
-            new_name=os.path.join(certs_folder, csr_name),
+            new_name=self.instance.csr_file(csr_name),
             overwrite_flag=True)
 
     def create_cert_request(self, nssdb, tag, request):
