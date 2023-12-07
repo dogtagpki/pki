@@ -22,6 +22,7 @@ package com.netscape.certsrv.cert;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Map;
 import java.util.Objects;
 
 import javax.ws.rs.core.MultivaluedMap;
@@ -1104,4 +1105,147 @@ public class CertSearchRequest implements JSONSerializer {
         Element rootElement = document.getDocumentElement();
         return fromDOM(rootElement);
     }
+
+    public static CertSearchRequest fromMap(Map<String, String[]> elements) {
+
+        CertSearchRequest request = new CertSearchRequest();
+
+        elements.forEach((key, values) -> {
+            switch (key) {
+            case "issuerDN":
+                request.setIssuerDN(values[0]);
+                break;
+            case "serialNumberRangeInUse":
+                request.setSerialNumberRangeInUse(Boolean.parseBoolean(values[0]));
+                break;
+            case "serialTo":
+                request.setSerialTo(values[0]);
+                break;
+            case "serialFrom":
+                request.setSerialFrom(values[0]);
+                break;
+            case "subjectInUse":
+                request.setSubjectInUse(Boolean.parseBoolean(values[0]));
+                break;
+            case "eMail":
+                request.setEmail(values[0]);
+                break;
+            case "commonName":
+                request.setCommonName(values[0]);
+                break;
+            case "userID":
+                request.setUserID(values[0]);
+                break;
+            case "orgUnit":
+                request.setOrgUnit(values[0]);
+                break;
+            case "org":
+                request.setOrg(values[0]);
+                break;
+            case "locality":
+                request.setLocality(values[0]);
+                break;
+            case "state":
+                request.setState(values[0]);
+                break;
+            case "country":
+                request.setCountry(values[0]);
+                break;
+            case "matchExactly":
+                request.setMatchExactly(Boolean.parseBoolean(values[0]));
+                break;
+            case "status":
+                request.setStatus(values[0]);
+                break;
+            case "revokedBy":
+                request.setRevokedBy(values[0]);
+                break;
+            case "revokedOnFrom":
+                request.setRevokedOnFrom(values[0]);
+                break;
+            case "revokedOnTo":
+                request.setRevokedOnTo(values[0]);
+                break;
+            case "revocationReason":
+                request.setRevocationReason(values[0]);
+                break;
+            case "issuedBy":
+                request.setIssuedBy(values[0]);
+                break;
+            case "issuedOnFrom":
+                request.setIssuedOnFrom(values[0]);
+                break;
+            case "issuedOnTo":
+                request.setIssuedOnTo(values[0]);
+                break;
+            case "validNotBeforeFrom":
+                request.setValidNotBeforeFrom(values[0]);
+                break;
+            case "validNotBeforeTo":
+                request.setValidNotBeforeTo(values[0]);
+                break;
+            case "validNotAfterFrom":
+                request.setValidNotAfterFrom(values[0]);
+                break;
+            case "validNotAfterTo":
+                request.setValidNotAfterTo(values[0]);
+                break;
+            case "validityOperation":
+                request.setValidityOperation(values[0]);
+                break;
+            case "validityCount":
+                request.setValidityCount(Integer.valueOf(values[0]));
+                break;
+            case "validityUnit":
+                request.setValidityUnit(Long.valueOf(values[0]));
+                break;
+            case "certTypeSubEmailCA":
+                request.setCertTypeSubEmailCA(values[0]);
+                break;
+            case "certTypeSubSSLCA":
+                request.setCertTypeSubSSLCA(values[0]);
+                break;
+            case "certTypeSecureEmail":
+                request.setCertTypeSecureEmail(values[0]);
+                break;
+            case "certTypeSSLClient":
+                request.setCertTypeSSLClient(values[0]);
+                break;
+            case "certTypeSSLServer":
+                request.setCertTypeSSLServer(values[0]);
+                break;
+            case "revokedByInUse":
+                request.setRevokedByInUse(Boolean.parseBoolean(values[0]));
+                break;
+            case "revokedOnInUse":
+                request.setRevokedOnInUse(Boolean.parseBoolean(values[0]));
+                break;
+            case "revocationReasonInUse":
+                request.setRevocationReasonInUse(Boolean.parseBoolean(values[0]));
+                break;
+            case "issuedByInUse":
+                request.setIssuedByInUse(Boolean.parseBoolean(values[0]));
+                break;
+            case "issuedOnInUse":
+                request.setIssuedOnInUse(Boolean.parseBoolean(values[0]));
+                break;
+            case "validNotBeforeInUse":
+                request.setValidNotBeforeInUse(Boolean.parseBoolean(values[0]));
+                break;
+            case "validNotAfterInUse":
+                request.setValidNotAfterInUse(Boolean.parseBoolean(values[0]));
+                break;
+            case "validityLengthInUse":
+                request.setValidityLengthInUse(Boolean.parseBoolean(values[0]));
+                break;
+            case "certTypeInUse":
+                request.setCertTypeInUse(Boolean.parseBoolean(values[0]));
+                break;
+            default:
+            }
+        });
+
+        return request;
+    }
+
 }

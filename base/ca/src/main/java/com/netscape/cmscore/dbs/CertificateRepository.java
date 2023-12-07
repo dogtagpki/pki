@@ -19,10 +19,12 @@ package com.netscape.cmscore.dbs;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Vector;
 
 import org.mozilla.jss.netscape.security.x509.CertificateValidity;
@@ -1110,6 +1112,33 @@ public class CertificateRepository extends Repository {
         }
         return v.elements();
 
+    }
+
+    /**
+     * Finds a list of certificate records that satisfies the filter.
+     *
+     * The filter should follow RFC1558 LDAP filter syntax.
+     * For example,
+     *
+     * {@Code (&(certRecordId=5)(x509Cert.notBefore=934398398))}
+     *
+     * @param filter search filter
+     * @param maxSize max size to return
+     * @return a list of certificates
+     * @exception EBaseException failed to search
+     */
+    public Iterator<CertRecord> searchCertificates(String filter, int timeLimit, int start, int size)
+            throws EBaseException {
+
+        ArrayList<CertRecord> records = new ArrayList<>();
+        logger.debug("searchCertificates filter {filter}, start {start} and size {size}", filter, start, size);
+        try (DBSSession s = dbSubsystem.createSession()) {
+            DBSearchResults sr  = s.pagedSearch(mBaseDN, filter, start, size);
+            while (sr.hasMoreElements()) {
+                records.add((CertRecord) sr.nextElement());
+            }
+        }
+        return records.iterator();
     }
 
 

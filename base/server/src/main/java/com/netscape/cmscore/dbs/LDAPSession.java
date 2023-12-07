@@ -32,6 +32,7 @@ import com.netscape.cmscore.apps.CMS;
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
 import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPControl;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
@@ -40,6 +41,7 @@ import netscape.ldap.LDAPSearchConstraints;
 import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPSortKey;
 import netscape.ldap.LDAPv3;
+import netscape.ldap.controls.LDAPPagedResultsControl;
 import netscape.ldap.controls.LDAPPersistSearchControl;
 import netscape.ldap.controls.LDAPSortControl;
 
@@ -464,6 +466,61 @@ public class LDAPSession extends DBSSession {
 
             return new DBSearchResults(dbSubsystem.getRegistry(),
                     res);
+        } catch (LDAPException e) {
+            if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE)
+                throw new EDBNotAvailException(
+                        CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
+            // XXX error handling, should not raise exception if
+            // entry not found
+            throw new EDBException("Unable to search LDAP record: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public DBSearchResults pagedSearch(String base, String filter, int start, int size, int timeLimit)
+            throws EBaseException {
+        try {
+            String ldapfilter = dbSubsystem.getRegistry().getFilter(filter);
+            logger.info("LDAPSession.pagedSearch(): Searching {}  for {}", base, ldapfilter);
+
+            LDAPSearchConstraints cons = new LDAPSearchConstraints();
+            if (timeLimit > 0) {
+                cons.setServerTimeLimit(timeLimit);
+            }
+            LDAPPagedResultsControl pagecon;
+            LDAPSearchResults res;
+            int skipped = 0;
+            int pageSize = start > 0 ? Math.min(start, 500) : Math.min(size, 500);
+            byte[] cookie = null;
+
+            pagecon = new LDAPPagedResultsControl(false, pageSize);
+            while (start > 0 && skipped < start) {
+                cons.setServerControls(pagecon);
+                res = mConn.search(base,
+                        LDAPv3.SCOPE_ONE, ldapfilter, null, false, cons);
+                while(res.hasMoreElements())
+                        res.next();
+                skipped += pageSize;
+                for (LDAPControl c: res.getResponseControls()){
+                    if(c instanceof LDAPPagedResultsControl resC){
+                        cookie = resC.getCookie();
+                        if(cookie!=null){
+                            pageSize = start - skipped > 0 ? Math.min((start - skipped) , 500) : Math.min(size, 500);
+                            pagecon = new LDAPPagedResultsControl(false, pageSize, cookie);
+                        } else {
+                            res =  new LDAPSearchResults();
+                            return new DBSearchResults(dbSubsystem.getRegistry(),
+                                    res);
+                        }
+                    }
+                }
+            }
+            cons.setServerControls(pagecon);
+            res = mConn.search(base,
+                    LDAPv3.SCOPE_ONE, ldapfilter, null, false, cons);
+            return new DBSearchResults(dbSubsystem.getRegistry(),
+                    res);
+
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE)
                 throw new EDBNotAvailException(
