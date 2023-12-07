@@ -61,7 +61,7 @@ import com.netscape.cmscore.dbs.RevocationInfo;
 @WebServlet("/v2/certs/*")
 public class CertServlet extends CAServlet {
     public static final int DEFAULT_MAXTIME = 0;
-    public final static int DEFAULT_SIZE = 20;
+    public static final int DEFAULT_SIZE = 20;
 
     private static final long serialVersionUID = 1L;
     private static Logger logger = LoggerFactory.getLogger(CertServlet.class);
@@ -126,8 +126,8 @@ public class CertServlet extends CAServlet {
         CertificateRepository repo = engine.getCertificateRepository();
 
          //find the cert in question
-        CertRecord record = repo.readCertificateRecord(id.toBigInteger());
-        X509CertImpl cert = record.getCertificate();
+        CertRecord certRecord = repo.readCertificateRecord(id.toBigInteger());
+        X509CertImpl cert = certRecord.getCertificate();
 
         CertData certData = new CertData();
         certData.setSerialNumber(id);
@@ -165,10 +165,10 @@ public class CertServlet extends CAServlet {
         Date notAfter = cert.getNotAfter();
         if (notAfter != null) certData.setNotAfter(notAfter.toString());
 
-        certData.setRevokedOn(record.getRevokedOn());
-        certData.setRevokedBy(record.getRevokedBy());
+        certData.setRevokedOn(certRecord.getRevokedOn());
+        certData.setRevokedBy(certRecord.getRevokedBy());
 
-        RevocationInfo revInfo = record.getRevocationInfo();
+        RevocationInfo revInfo = certRecord.getRevocationInfo();
         if (revInfo != null) {
             CRLExtensions revExts = revInfo.getCRLEntryExtensions();
             if (revExts != null) {
@@ -182,7 +182,7 @@ public class CertServlet extends CAServlet {
             }
         }
 
-        certData.setStatus(record.getStatus());
+        certData.setStatus(certRecord.getStatus());
 
         return certData;
     }
@@ -228,16 +228,16 @@ public class CertServlet extends CAServlet {
         return infos;
     }
 
-    private CertDataInfo createCertDataInfo(CertRecord record) throws EBaseException, InvalidKeyException {
+    private CertDataInfo createCertDataInfo(CertRecord certRecord) throws EBaseException, InvalidKeyException {
         CertDataInfo info = new CertDataInfo();
 
-        CertId id = new CertId(record.getSerialNumber());
+        CertId id = new CertId(certRecord.getSerialNumber());
         info.setID(id);
 
-        X509Certificate cert = record.getCertificate();
+        X509Certificate cert = certRecord.getCertificate();
         info.setIssuerDN(cert.getIssuerDN().toString());
         info.setSubjectDN(cert.getSubjectDN().toString());
-        info.setStatus(record.getStatus());
+        info.setStatus(certRecord.getStatus());
         info.setVersion(cert.getVersion());
         info.setType(cert.getType());
 
@@ -255,11 +255,11 @@ public class CertServlet extends CAServlet {
         info.setNotValidBefore(cert.getNotBefore());
         info.setNotValidAfter(cert.getNotAfter());
 
-        info.setIssuedOn(record.getCreateTime());
-        info.setIssuedBy(record.getIssuedBy());
+        info.setIssuedOn(certRecord.getCreateTime());
+        info.setIssuedBy(certRecord.getIssuedBy());
 
-        info.setRevokedOn(record.getRevokedOn());
-        info.setRevokedBy(record.getRevokedBy());
+        info.setRevokedOn(certRecord.getRevokedOn());
+        info.setRevokedBy(certRecord.getRevokedBy());
 
         return info;
     }
