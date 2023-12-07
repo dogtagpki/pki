@@ -5,6 +5,7 @@
 //
 package org.dogtagpki.server.ca.v2;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.security.InvalidKeyException;
@@ -13,9 +14,10 @@ import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -45,11 +47,13 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.cert.CertDataInfo;
 import com.netscape.certsrv.cert.CertDataInfos;
+import com.netscape.certsrv.cert.CertSearchRequest;
 import com.netscape.certsrv.dbs.certdb.CertId;
+import com.netscape.certsrv.util.JSONSerializer;
+import com.netscape.cms.servlet.cert.FilterBuilder;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.RevocationInfo;
-import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**
  * @author Marco Fargetta <mfargett@redhat.com>
@@ -57,7 +61,6 @@ import com.netscape.cmsutil.ldap.LDAPUtil;
 @WebServlet("/v2/certs/*")
 public class CertServlet extends CAServlet {
     public static final int DEFAULT_MAXTIME = 0;
-    public static final int DEFAULT_MAXRESULTS = 20;
     public final static int DEFAULT_SIZE = 20;
 
     private static final long serialVersionUID = 1L;
@@ -82,15 +85,14 @@ public class CertServlet extends CAServlet {
             return;
         }
 
-        int maxResults = request.getParameter("maxResults") == null ?
-                DEFAULT_MAXRESULTS : Integer.parseInt(request.getParameter("maxResults"));
         int maxTime = request.getParameter("maxTime") == null ?
                 DEFAULT_MAXTIME : Integer.parseInt(request.getParameter("maxTime"));
         int size = request.getParameter("size") == null ?
                 DEFAULT_SIZE : Integer.parseInt(request.getParameter("size"));
         int start = request.getParameter("start") == null ? 0 : Integer.parseInt(request.getParameter("start"));
 
-        CertDataInfos infos = listCerts(request.getParameter("status"), maxResults, maxTime, start, size);
+        CertSearchRequest searchElems = CertSearchRequest.fromMap(request.getParameterMap());
+        CertDataInfos infos = listCerts(searchElems, maxTime, start, size);
         out.println(infos.toJSON());
     }
 
@@ -99,16 +101,24 @@ public class CertServlet extends CAServlet {
         HttpSession session = request.getSession();
         logger.debug("CertServlet.post(): session: {}", session.getId());
 
-        response.setContentType("application/json");
-        PrintWriter out = response.getWriter();
-
         if(request.getPathInfo() == null || !request.getPathInfo().equals("/search")) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND, request.getRequestURI());
             return;
         }
 
-        CertDataInfos infos = new CertDataInfos();
-        out.println(infos.toString());
+        BufferedReader reader = request.getReader();
+        String postMessage = reader.lines().collect(Collectors.joining());
+
+        CertSearchRequest requestFilter = JSONSerializer.fromJSON(postMessage, CertSearchRequest.class);
+        int size = request.getParameter("size") == null ?
+                DEFAULT_SIZE : Integer.parseInt(request.getParameter("size"));
+        int start = request.getParameter("start") == null ? 0 : Integer.parseInt(request.getParameter("start"));
+
+        CertDataInfos infos = listCerts(requestFilter, start, size);
+
+        response.setContentType("application/json");
+        PrintWriter out = response.getWriter();
+        out.println(infos.toJSON());
     }
 
     private CertData getCertData(CertId id, Locale loc) throws Exception {
@@ -177,32 +187,31 @@ public class CertServlet extends CAServlet {
         return certData;
     }
 
-    private CertDataInfos listCerts(String status, int maxResults, int maxTime, int start, int size) {
+    private CertDataInfos listCerts(CertSearchRequest searchReq, int start, int size) {
+        return listCerts(searchReq, -1, start, size);
+    }
+
+    private CertDataInfos listCerts(CertSearchRequest searchReq, int maxTime, int start, int size) {
         CAEngine engine = getCAEngine();
         CertificateRepository repo = engine.getCertificateRepository();
 
         logger.info("Listing certificates");
+        FilterBuilder builder = new FilterBuilder(searchReq);
+        String filter = builder.buildFilter();
 
-        String filter;
-        if (status == null) {
-            filter = "(certstatus=*)";
-
-        } else  {
-            filter = "(certStatus=" + LDAPUtil.escapeFilter(status) + ")";
-        }
         logger.info("Search filter: " + filter);
 
         CertDataInfos infos = new CertDataInfos();
         try {
-            Enumeration<CertRecord> e = repo.searchCertificates(filter, maxResults, maxTime);
+            Iterator<CertRecord> e = repo.searchCertificates(filter, maxTime, start, size);
             if (e == null) {
                 throw new EBaseException("search results are null");
             }
 
             // store non-null results in a list
             List<CertDataInfo> results = new ArrayList<>();
-            while (e.hasMoreElements()) {
-                CertRecord rec = e.nextElement();
+            while (e.hasNext()) {
+                CertRecord rec = e.next();
                 if (rec == null) continue;
                 results.add(createCertDataInfo(rec));
             }
@@ -210,11 +219,7 @@ public class CertServlet extends CAServlet {
             int total = results.size();
             logger.info("Search results: " + total);
             infos.setTotal(total);
-
-            // return entries in the requested page
-            for (int i = start; i < start + size && i < total ; i++) {
-                infos.addEntry(results.get(i));
-            }
+            infos.setEntries(results);
         } catch (Exception e) {
             logger.error("Unable to list certificates: " + e.getMessage(), e);
             throw new PKIException("Unable to list certificates: " + e.getMessage(), e);

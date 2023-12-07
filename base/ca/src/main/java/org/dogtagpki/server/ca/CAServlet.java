@@ -21,9 +21,11 @@ public class CAServlet extends HttpServlet {
 
 
     public void get(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
     }
 
     public void post(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
     }
 
     @Override

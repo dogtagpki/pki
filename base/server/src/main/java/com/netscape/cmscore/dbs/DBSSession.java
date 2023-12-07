@@ -18,9 +18,9 @@
 package com.netscape.cmscore.dbs;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.DBVirtualList;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.certsrv.dbs.DBVirtualList;
 import com.netscape.certsrv.dbs.ModificationSet;
 
 import netscape.ldap.LDAPSearchResults;
@@ -207,6 +207,48 @@ public class DBSSession implements AutoCloseable {
             String base,
             String filter,
             String[] attrs
+            ) throws EBaseException {
+        return null;
+    }
+
+    /**
+     * Retrieves a list of object that satifies the given
+     * filter.
+     *
+     * @param base starting point of the search
+     * @param filter search filter
+     * @param start index of the first element
+     * @param size max number of element in the page
+     * @return search results
+     * @exception EBaseException failed to search
+     */
+    public DBSearchResults pagedSearch(
+            String base,
+            String filter,
+            int start,
+            int size
+            ) throws EBaseException {
+        return pagedSearch(base, filter, start, size, -1);
+    }
+
+    /**
+     * Retrieves a list of object that satifies the given
+     * filter.
+     *
+     * @param base starting point of the search
+     * @param filter search filter
+     * @param start index of the first element
+     * @param size max number of element in the page
+     * @param timeLimit timeout limit
+     * @return search results
+     * @exception EBaseException failed to search
+     */
+    public DBSearchResults pagedSearch(
+            String base,
+            String filter,
+            int start,
+            int size,
+            int timeLimit
             ) throws EBaseException {
         return null;
     }
