@@ -36,6 +36,9 @@ import com.netscape.cmscore.base.SimpleProperties;
  */
 public class LDAPConfig extends ConfigStore {
 
+    public LDAPConfig() {
+    }
+
     public LDAPConfig(ConfigStorage storage) {
         super(storage);
     }
@@ -45,7 +48,7 @@ public class LDAPConfig extends ConfigStore {
     }
 
     public String getBaseDN() throws EBaseException {
-        return getString("basedn");
+        return getString("basedn", null);
     }
 
     public String getBaseDN(String defaultBaseDN) throws EBaseException {
@@ -57,7 +60,7 @@ public class LDAPConfig extends ConfigStore {
     }
 
     public String getDatabase() throws EBaseException {
-        return getString("database");
+        return getString("database", null);
     }
 
     public void setDatabase(String database) {
@@ -65,7 +68,7 @@ public class LDAPConfig extends ConfigStore {
     }
 
     public String getDBUser() throws EBaseException {
-        return getString("dbuser");
+        return getString("dbuser", null);
     }
 
     public String getDBUser(String defaultDBUser) throws EBaseException {
