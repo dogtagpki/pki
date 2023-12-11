@@ -20,7 +20,7 @@ Name:             pki
 # - development (unsupported): alpha<n> where n >= 1
 # - stabilization (unsupported): beta<n> where n >= 1
 # - GA/update (supported): <none>
-%global           phase alpha3
+%global           phase alpha4
 
 %undefine         timestamp
 %undefine         commit_id
@@ -858,6 +858,46 @@ This package provides test suite for %{product_name}.
 
 %autosetup -n pki-%{version}%{?phase:-}%{?phase} -p 1
 
+%if ! %{with base}
+%pom_disable_module common base
+%pom_disable_module tools base
+%endif
+
+%if ! %{with server}
+%pom_disable_module tomcat base
+%pom_disable_module tomcat-9.0 base
+%pom_disable_module server base
+%pom_disable_module server-webapp base
+%endif
+
+%if ! %{with ca}
+%pom_disable_module ca base
+%endif
+
+%if ! %{with kra}
+%pom_disable_module kra base
+%endif
+
+%if ! %{with ocsp}
+%pom_disable_module ocsp base
+%endif
+
+%if ! %{with tks}
+%pom_disable_module tks base
+%endif
+
+%if ! %{with tps}
+%pom_disable_module tps base
+%endif
+
+%if ! %{with acme}
+%pom_disable_module acme base
+%endif
+
+%if ! %{with est}
+%pom_disable_module est base
+%endif
+
 %if ! %{with console}
 %pom_disable_module console base
 %endif
@@ -919,19 +959,46 @@ export JAVA_HOME=%{java_home}
 # create links to Maven-built JAR files for CMake
 mkdir -p %{_vpath_builddir}/dist
 pushd %{_vpath_builddir}/dist
+
+%if %{with base}
 ln -sf ../../base/common/target/pki-common.jar
 ln -sf ../../base/tools/target/pki-tools.jar
+%endif
+
+%if %{with server}
 ln -sf ../../base/tomcat/target/pki-tomcat.jar
 ln -sf ../../base/tomcat-9.0/target/pki-tomcat-9.0.jar
 ln -sf ../../base/server/target/pki-server.jar
 ln -sf ../../base/server-webapp/target/pki-server-webapp.jar
+%endif
+
+%if %{with ca}
 ln -sf ../../base/ca/target/pki-ca.jar
+%endif
+
+%if %{with kra}
 ln -sf ../../base/kra/target/pki-kra.jar
+%endif
+
+%if %{with ocsp}
 ln -sf ../../base/ocsp/target/pki-ocsp.jar
+%endif
+
+%if %{with tks}
 ln -sf ../../base/tks/target/pki-tks.jar
+%endif
+
+%if %{with tps}
 ln -sf ../../base/tps/target/pki-tps.jar
+%endif
+
+%if %{with acme}
 ln -sf ../../base/acme/target/pki-acme.jar
+%endif
+
+%if %{with est}
 ln -sf ../../base/est/target/pki-est.jar
+%endif
 
 %if %{with console}
 ln -sf ../../base/console/target/pki-console.jar
