@@ -1598,6 +1598,41 @@ class PKIDeployer:
                 replica_replication_port=replica_replication_port,
                 replication_security=replication_security)
 
+            logger.info('Initializing replication agreement')
+
+            hostname = self.mdict['pki_hostname']
+            agreement_name = 'masterAgreement1-%s-%s' % (hostname, self.instance.name)
+
+            # get master's database config
+            ldap_config = {}
+            for name in master_config['Properties']:
+
+                match = re.match(r'internaldb\.(.*)$', name)
+
+                if not match:
+                    continue
+
+                new_name = match.group(1)  # strip internaldb prefix
+
+                if new_name == 'replication.password':  # unused
+                    continue
+
+                elif new_name == 'ldapauth.bindPWPrompt':  # unused
+                    continue
+
+                elif new_name.startswith('_'):  # comments
+                    continue
+
+                elif new_name == 'ldapauth.password':  # rename
+                    new_name = 'ldapauth.bindPassword'
+
+                value = master_config['Properties'][name]
+                ldap_config[new_name] = value
+
+            subsystem.init_replication_agreement(
+                agreement_name,
+                ldap_config)
+
         # For security a PKI subsystem can be configured to use a database user
         # that only has a limited access to the database (instead of cn=Directory
         # Manager that has a full access to the database).

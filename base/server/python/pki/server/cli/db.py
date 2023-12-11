@@ -27,6 +27,7 @@ import logging
 import subprocess
 import sys
 import textwrap
+import urllib.parse
 
 import pki.cli
 import pki.server.instance
@@ -220,6 +221,7 @@ class SubsystemDBCLI(pki.cli.CLI):
 
         self.add_module(SubsystemDBAccessCLI(self))
         self.add_module(SubsystemDBIndexCLI(self))
+        self.add_module(SubsystemDBReplicationCLI(self))
         self.add_module(SubsystemDBVLVCLI(self))
 
     @staticmethod
@@ -1323,6 +1325,159 @@ class SubsystemDBIndexRebuildCLI(pki.cli.CLI):
             sys.exit(1)
 
         subsystem.rebuild_indexes()
+
+
+class SubsystemDBReplicationCLI(pki.cli.CLI):
+    '''
+    {subsystem} replication management commands
+    '''
+
+    def __init__(self, parent):
+        super(SubsystemDBReplicationCLI, self).__init__(
+            'repl',
+            inspect.cleandoc(self.__class__.__doc__).format(
+                subsystem=parent.parent.name.upper()))
+
+        self.parent = parent
+        self.add_module(SubsystemDBReplicationAgreementCLI(self))
+
+
+class SubsystemDBReplicationAgreementCLI(pki.cli.CLI):
+    '''
+    {subsystem} replication agreement management commands
+    '''
+
+    def __init__(self, parent):
+        super(SubsystemDBReplicationAgreementCLI, self).__init__(
+            'agmt',
+            inspect.cleandoc(self.__class__.__doc__).format(
+                subsystem=parent.parent.name.upper()))
+
+        self.parent = parent
+        self.add_module(SubsystemDBReplicationAgreementInitCLI(self))
+
+
+class SubsystemDBReplicationAgreementInitCLI(pki.cli.CLI):
+    '''
+    Initialize {subsystem} replication agreement
+    '''
+
+    help = '''\
+        Usage: pki-server {subsystem}-db-repl-agmt-init [OPTIONS] <name>
+
+          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+              --url <URL>                    Database URL
+              --bind-dn <DN>                 Database bind DN
+              --bind-password <password>     Database bind password
+              --suffix <DN>                  Database suffix
+          -v, --verbose                      Run in verbose mode.
+              --debug                        Run in debug mode.
+              --help                         Show help message.
+    '''
+
+    def __init__(self, parent):
+        super(SubsystemDBReplicationAgreementInitCLI, self).__init__(
+            'init',
+            inspect.cleandoc(self.__class__.__doc__).format(
+                subsystem=parent.parent.parent.parent.name.upper()))
+
+        self.parent = parent
+
+    def print_help(self):
+        print(textwrap.dedent(self.__class__.help).format(
+            subsystem=self.parent.parent.parent.parent.name))
+
+    def execute(self, argv):
+        try:
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'url=', 'bind-dn=', 'bind-password=', 'suffix=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        subsystem_name = self.parent.parent.parent.parent.name
+        url = None
+        bind_dn = None
+        bind_password = None
+        suffix = None
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--url':
+                url = urllib.parse.urlparse(a)
+
+            elif o == '--bind-dn':
+                bind_dn = a
+
+            elif o == '--bind-password':
+                bind_password = a
+
+            elif o == '--suffix':
+                suffix = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('Invalid option: %s', o)
+                self.print_help()
+                sys.exit(1)
+
+        if len(args) < 1:
+            logger.error('Missing replication agreement name')
+            self.print_help()
+            sys.exit(1)
+
+        name = args[0]
+
+        instance = pki.server.instance.PKIInstance(instance_name)
+
+        if not instance.exists():
+            logger.error('Invalid instance: %s', instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem = instance.get_subsystem(subsystem_name)
+
+        if not subsystem:
+            logger.error('No %s subsystem in instance %s.',
+                         subsystem_name.upper(), instance_name)
+            sys.exit(1)
+
+        ldap_config = {}
+
+        if url.scheme == 'ldaps':
+            ldap_config['ldapconn.secureConn'] = 'true'
+        else:
+            ldap_config['ldapconn.secureConn'] = 'false'
+
+        ldap_config['ldapconn.host'] = url.hostname
+        ldap_config['ldapconn.port'] = str(url.port)
+
+        ldap_config['ldapauth.authtype'] = 'BasicAuth'
+        ldap_config['ldapauth.bindDN'] = bind_dn
+        ldap_config['ldapauth.bindPassword'] = bind_password
+
+        ldap_config['basedn'] = suffix
+
+        subsystem.init_replication_agreement(
+            name,
+            ldap_config)
 
 
 class SubsystemDBVLVCLI(pki.cli.CLI):

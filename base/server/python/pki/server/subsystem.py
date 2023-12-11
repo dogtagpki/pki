@@ -1326,6 +1326,35 @@ class PKISubsystem(object):
         finally:
             shutil.rmtree(tmpdir)
 
+    def init_replication_agreement(
+            self,
+            name,
+            ldap_config):
+
+        tmpdir = tempfile.mkdtemp()
+        try:
+            ldap_config_file = os.path.join(tmpdir, 'ldap.conf')
+            pki.util.store_properties(ldap_config_file, ldap_config)
+            pki.util.chown(tmpdir, self.instance.uid, self.instance.gid)
+
+            cmd = [self.name + '-db-repl-agmt-init']
+
+            if ldap_config_file:
+                cmd.extend(['--ldap-config', ldap_config_file])
+
+            if logger.isEnabledFor(logging.DEBUG):
+                cmd.append('--debug')
+
+            elif logger.isEnabledFor(logging.INFO):
+                cmd.append('--verbose')
+
+            cmd.append(name)
+
+            self.run(cmd)
+
+        finally:
+            shutil.rmtree(tmpdir)
+
     def find_vlv(self, as_current_user=False):
 
         cmd = [self.name + '-db-vlv-find']
