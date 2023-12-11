@@ -12,6 +12,7 @@ import java.security.InvalidKeyException;
 import java.security.Principal;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -26,12 +27,10 @@ import javax.servlet.http.HttpSession;
 
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAServlet;
-import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.mozilla.jss.netscape.security.pkcs.SignerInfo;
 import org.mozilla.jss.netscape.security.provider.RSAPublicKey;
-import org.mozilla.jss.netscape.security.util.CertPrettyPrint;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.CRLExtensions;
@@ -138,11 +137,9 @@ public class CertServlet extends CAServlet {
         Principal subjectDN = cert.getSubjectName();
         if (subjectDN != null) certData.setSubjectDN(subjectDN.toString());
 
-        String base64 = CertUtil.toPEM(cert);
-        certData.setEncoded(base64);
+        String base64 = Utils.base64encode(cert.getEncoded(), true);
 
-        CertPrettyPrint print = new CertPrettyPrint(cert);
-        certData.setPrettyPrint(print.toString(loc));
+        certData.setEncoded(base64);
 
         X509Certificate[] certChain = engine.getCertChain(cert);
 
@@ -159,11 +156,12 @@ public class CertServlet extends CAServlet {
         String p7Str = Utils.base64encode(p7Bytes, true);
         certData.setPkcs7CertChain(p7Str);
 
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
         Date notBefore = cert.getNotBefore();
-        if (notBefore != null) certData.setNotBefore(notBefore.toString());
+        if (notBefore != null) certData.setNotBefore(sdf.format(notBefore));
 
         Date notAfter = cert.getNotAfter();
-        if (notAfter != null) certData.setNotAfter(notAfter.toString());
+        if (notAfter != null) certData.setNotAfter(sdf.format(notAfter));
 
         certData.setRevokedOn(certRecord.getRevokedOn());
         certData.setRevokedBy(certRecord.getRevokedBy());
@@ -177,7 +175,7 @@ public class CertServlet extends CAServlet {
                         revExts.get(CRLReasonExtension.NAME);
                     certData.setRevocationReason(ext.getReason().getCode());
                 } catch (X509ExtensionException e) {
-                    // nothing to do
+                    logger.debug("CRL extension error for certificate {}", id.toHexString());
                 }
             }
         }
@@ -216,9 +214,8 @@ public class CertServlet extends CAServlet {
                 results.add(createCertDataInfo(rec));
             }
 
-            int total = results.size();
-            logger.info("Search results: " + total);
-            infos.setTotal(total);
+            infos.setTotal(results.size());
+            logger.info("Search results: " + results.size());
             infos.setEntries(results);
         } catch (Exception e) {
             logger.error("Unable to list certificates: " + e.getMessage(), e);
