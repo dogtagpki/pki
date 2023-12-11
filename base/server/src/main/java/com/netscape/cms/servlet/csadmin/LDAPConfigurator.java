@@ -950,15 +950,9 @@ public class LDAPConfigurator {
         }
     }
 
-    public boolean setupReplicationAgreement(
-            String agreementName,
+    public boolean enableReplication(
             String bindDN,
             String bindPassword,
-            String peerHostname,
-            int peerPort,
-            String peerBindDN,
-            String peerBindPassword,
-            String security,
             int replicaID)
             throws Exception {
 
@@ -966,17 +960,7 @@ public class LDAPConfigurator {
         createReplicationManager(bindDN, bindPassword);
         createChangeLog();
 
-        boolean created = createReplicaObject(bindDN, replicaID);
-
-        createReplicationAgreement(
-                agreementName,
-                peerHostname,
-                peerPort,
-                peerBindDN,
-                peerBindPassword,
-                security);
-
-        return created;
+        return createReplicaObject(bindDN, replicaID);
     }
 
     public void initializeReplicationAgreement(String agreementName) throws Exception {

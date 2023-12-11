@@ -229,16 +229,18 @@ public class SubsystemDBReplicationSetupCLI extends SubsystemCLI {
 
         logger.info("Setting up replication agreement on " + masterHostname);
 
-        boolean created = masterConfigurator.setupReplicationAgreement(
-                masterAgreementName,
+        boolean created = masterConfigurator.enableReplication(
                 masterBindDN,
                 masterReplicationPassword,
+                replicaID);
+
+        masterConfigurator.createReplicationAgreement(
+                masterAgreementName,
                 replicaHostname,
                 replicaReplicationPort,
                 replicaBindDN,
                 replicaReplicationPassword,
-                replicationSecurity,
-                replicaID);
+                replicationSecurity);
 
         if (created) {
             replicaID++;
@@ -246,16 +248,18 @@ public class SubsystemDBReplicationSetupCLI extends SubsystemCLI {
 
         logger.info("Setting up replication agreement on " + replicaHostname);
 
-        created = replicaConfigurator.setupReplicationAgreement(
-                replicaAgreementName,
+        created = replicaConfigurator.enableReplication(
                 replicaBindDN,
                 replicaReplicationPassword,
+                replicaID);
+
+        replicaConfigurator.createReplicationAgreement(
+                replicaAgreementName,
                 masterHostname,
                 masterReplicationPort,
                 masterBindDN,
                 masterReplicationPassword,
-                replicationSecurity,
-                replicaID);
+                replicationSecurity);
 
         if (created) {
             replicaID++;
