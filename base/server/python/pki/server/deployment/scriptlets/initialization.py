@@ -73,19 +73,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         if configuration_file.clone:
 
-            # Verify existence of PKCS #12 Password (ONLY for non-HSM Clones)
-            if not config.str2bool(deployer.mdict['pki_hsm_enable']):
-
-                # If system certificates are already provided via
-                # pki_server_pkcs12, there's no need to provide
-                # pki_clone_pkcs12.
-                if not deployer.mdict['pki_server_pkcs12_path']:
-                    configuration_file.confirm_data_exists('pki_clone_pkcs12_password')
-
             # Verify absence of all PKCS #12 clone parameters for HSMs
-            elif (os.path.exists(deployer.mdict['pki_clone_pkcs12_path']) or
-                    ('pki_clone_pkcs12_password' in deployer.mdict and
-                     len(deployer.mdict['pki_clone_pkcs12_password']))):
+            if config.str2bool(deployer.mdict['pki_hsm_enable']) and \
+                    (os.path.exists(deployer.mdict['pki_clone_pkcs12_path']) or
+                     ('pki_clone_pkcs12_password' in deployer.mdict and
+                      len(deployer.mdict['pki_clone_pkcs12_password']))):
                 logger.error(log.PKIHELPER_HSM_CLONES_MUST_SHARE_HSM_MASTER_PRIVATE_KEYS)
                 raise Exception(
                     log.PKIHELPER_HSM_CLONES_MUST_SHARE_HSM_MASTER_PRIVATE_KEYS)

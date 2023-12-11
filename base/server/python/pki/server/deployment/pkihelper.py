@@ -464,16 +464,6 @@ class ConfigurationFile:
             self.confirm_data_exists("pki_https_port")
             self.confirm_data_exists("pki_tomcat_server_port")
 
-            # Check clone parameters for non-HSM clone
-            if not config.str2bool(self.mdict['pki_hsm_enable']):
-
-                # If system certificates are already provided via
-                # pki_server_pkcs12, there's no need to provide
-                # pki_clone_pkcs12.
-                if not self.mdict['pki_server_pkcs12_path']:
-                    self.confirm_data_exists("pki_clone_pkcs12_path")
-                    self.confirm_file_exists("pki_clone_pkcs12_path")
-
             self.confirm_data_exists("pki_clone_replication_security")
 
         elif self.external:
