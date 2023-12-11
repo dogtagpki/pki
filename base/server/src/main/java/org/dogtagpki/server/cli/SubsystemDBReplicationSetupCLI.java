@@ -171,7 +171,19 @@ public class SubsystemDBReplicationSetupCLI extends SubsystemCLI {
                 int endReplicaNumber = dbConfig.getInteger("endReplicaNumber", 100);
                 logger.info("Current replica number range: " + beginReplicaNumber + "-" + endReplicaNumber);
 
-                beginReplicaNumber = setupReplicationAgreements(
+                beginReplicaNumber = enableReplication(
+                        masterConfigurator,
+                        ldapConfigurator,
+                        masterBindDN,
+                        replicaBindDN,
+                        masterReplicationPassword,
+                        replicaReplicationPassword,
+                        beginReplicaNumber);
+
+                logger.info("New replica number range: " + beginReplicaNumber + "-" + endReplicaNumber);
+                dbConfig.putString("beginReplicaNumber", Integer.toString(beginReplicaNumber));
+
+                createReplicationAgreements(
                         masterConfigurator,
                         ldapConfigurator,
                         masterAgreementName,
@@ -184,11 +196,7 @@ public class SubsystemDBReplicationSetupCLI extends SubsystemCLI {
                         masterBindDN,
                         replicaBindDN,
                         masterReplicationPassword,
-                        replicaReplicationPassword,
-                        beginReplicaNumber);
-
-                logger.info("New replica number range: " + beginReplicaNumber + "-" + endReplicaNumber);
-                dbConfig.putString("beginReplicaNumber", Integer.toString(beginReplicaNumber));
+                        replicaReplicationPassword);
 
             } finally {
                 if (masterConn != null) masterConn.disconnect();
@@ -210,7 +218,42 @@ public class SubsystemDBReplicationSetupCLI extends SubsystemCLI {
         }
     }
 
-    public int setupReplicationAgreements(
+    public int enableReplication(
+            LDAPConfigurator masterConfigurator,
+            LDAPConfigurator replicaConfigurator,
+            String masterBindDN,
+            String replicaBindDN,
+            String masterReplicationPassword,
+            String replicaReplicationPassword,
+            int replicaID)
+            throws Exception {
+
+        logger.info("Enabling replication on master");
+
+        boolean created = masterConfigurator.enableReplication(
+                masterBindDN,
+                masterReplicationPassword,
+                replicaID);
+
+        if (created) {
+            replicaID++;
+        }
+
+        logger.info("Enabling replication on replica");
+
+        created = replicaConfigurator.enableReplication(
+                replicaBindDN,
+                replicaReplicationPassword,
+                replicaID);
+
+        if (created) {
+            replicaID++;
+        }
+
+        return replicaID;
+    }
+
+    public void createReplicationAgreements(
             LDAPConfigurator masterConfigurator,
             LDAPConfigurator replicaConfigurator,
             String masterAgreementName,
@@ -223,16 +266,10 @@ public class SubsystemDBReplicationSetupCLI extends SubsystemCLI {
             String masterBindDN,
             String replicaBindDN,
             String masterReplicationPassword,
-            String replicaReplicationPassword,
-            int replicaID)
+            String replicaReplicationPassword)
             throws Exception {
 
-        logger.info("Setting up replication agreement on " + masterHostname);
-
-        boolean created = masterConfigurator.enableReplication(
-                masterBindDN,
-                masterReplicationPassword,
-                replicaID);
+        logger.info("Creating replication agreement on " + masterHostname);
 
         masterConfigurator.createReplicationAgreement(
                 masterAgreementName,
@@ -242,16 +279,7 @@ public class SubsystemDBReplicationSetupCLI extends SubsystemCLI {
                 replicaReplicationPassword,
                 replicationSecurity);
 
-        if (created) {
-            replicaID++;
-        }
-
-        logger.info("Setting up replication agreement on " + replicaHostname);
-
-        created = replicaConfigurator.enableReplication(
-                replicaBindDN,
-                replicaReplicationPassword,
-                replicaID);
+        logger.info("Creating replication agreement on " + replicaHostname);
 
         replicaConfigurator.createReplicationAgreement(
                 replicaAgreementName,
@@ -260,11 +288,5 @@ public class SubsystemDBReplicationSetupCLI extends SubsystemCLI {
                 masterBindDN,
                 masterReplicationPassword,
                 replicationSecurity);
-
-        if (created) {
-            replicaID++;
-        }
-
-        return replicaID;
     }
 }
