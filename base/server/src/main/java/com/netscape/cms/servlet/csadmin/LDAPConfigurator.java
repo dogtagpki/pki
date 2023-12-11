@@ -68,10 +68,14 @@ public class LDAPConfigurator {
         this.config = config;
 
         String baseDN = config.getBaseDN();
-        params.put("rootSuffix", baseDN);
+        if (baseDN != null) {
+            params.put("rootSuffix", baseDN);
+        }
 
         String database = config.getDatabase();
-        params.put("database", database);
+        if (database != null) {
+            params.put("database", database);
+        }
     }
 
     public LDAPConfigurator(LDAPConnection connection, LDAPConfig config, String instanceID) throws Exception {
@@ -972,7 +976,7 @@ public class LDAPConfigurator {
         return created;
     }
 
-    public void initializeConsumer(String agreementName) throws Exception {
+    public void initializeReplicationAgreement(String agreementName) throws Exception {
 
         String baseDN = config.getBaseDN();
         String replicaDN = "cn=replica,cn=\"" + baseDN + "\",cn=mapping tree,cn=config";
@@ -989,7 +993,7 @@ public class LDAPConfigurator {
 
         String status = getReplicationStatus(replicaDN, agreementName);
         if (!status.startsWith("Error (0) ") && !status.startsWith("0 ")) {
-            String message = "Replication consumer initialization failed " +
+            String message = "Replication agreement initialization failed " +
                 "(against " + connection.getHost() + ":" + connection.getPort() + "): " + status;
             logger.error(message);
             throw new Exception(message);
