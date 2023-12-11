@@ -103,6 +103,10 @@ jobs:
           docker exec secondary pki-server create
           docker exec secondary pki-server nss-create --no-password
 
+      - name: Create secondary CA subsystem
+        run: |
+          docker exec secondary pki-server ca-create -v
+
       - name: Import system certs and keys into secondary CA
         run: |
           docker exec secondary pki \
@@ -143,6 +147,22 @@ jobs:
               --bind-dn="cn=Replication Manager,cn=config" \
               --bind-passwd=Secret.123
 
+          # check replication manager
+          docker exec primaryds ldapsearch \
+              -H ldap://primaryds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "cn=Replication Manager,cn=config"
+
+          # check replica object
+          docker exec primaryds ldapsearch \
+              -H ldap://primaryds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "cn=replica,cn=dc\3Dca\2Cdc\3Dpki\2Cdc\3Dexample\2Cdc\3Dcom,cn=mapping tree,cn=config"
+
       - name: Enable replication on secondary DS
         run: |
           docker exec secondaryds dsconf \
@@ -156,7 +176,23 @@ jobs:
               --bind-dn="cn=Replication Manager,cn=config" \
               --bind-passwd=Secret.123
 
-      - name: Create replication manager on primary DS
+          # check replication manager
+          docker exec secondaryds ldapsearch \
+              -H ldap://secondaryds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "cn=Replication Manager,cn=config"
+
+          # check replica object
+          docker exec secondaryds ldapsearch \
+              -H ldap://secondaryds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "cn=replica,cn=dc\3Dca\2Cdc\3Dpki\2Cdc\3Dexample\2Cdc\3Dcom,cn=mapping tree,cn=config"
+
+      - name: Create replication agreement on primary DS
         run: |
           docker exec primaryds dsconf \
               -D "cn=Directory Manager" \
@@ -172,7 +208,16 @@ jobs:
               --bind-method=SIMPLE \
               primaryds-to-secondaryds
 
-      - name: Create replication manager on secondary DS
+          # check replication agreement
+          docker exec primaryds ldapsearch \
+              -H ldap://primaryds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "cn=primaryds-to-secondaryds,cn=replica,cn=dc\3Dca\2Cdc\3Dpki\2Cdc\3Dexample\2Cdc\3Dcom,cn=mapping tree,cn=config" \
+              dn
+
+      - name: Create replication agreement on secondary DS
         run: |
           docker exec secondaryds dsconf \
               -D "cn=Directory Manager" \
@@ -188,38 +233,24 @@ jobs:
               --bind-method=SIMPLE \
               secondaryds-to-primaryds
 
-      - name: Initializing replication agreement
-        run: |
-          # start initialization
-          docker exec primaryds dsconf \
+          # check replication agreement
+          docker exec secondaryds ldapsearch \
+              -H ldap://secondaryds.example.com:3389 \
               -D "cn=Directory Manager" \
               -w Secret.123 \
-              ldap://primaryds.example.com:3389 \
-              repl-agmt init \
-              --suffix=dc=ca,dc=pki,dc=example,dc=com \
+              -x \
+              -b "cn=secondaryds-to-primaryds,cn=replica,cn=dc\3Dca\2Cdc\3Dpki\2Cdc\3Dexample\2Cdc\3Dcom,cn=mapping tree,cn=config" \
+              dn
+
+      - name: Initializing replication agreement
+        run: |
+          docker exec secondary pki-server ca-db-repl-agmt-init \
+              --url ldap://primaryds.example.com:3389 \
+              --bind-dn "cn=Directory Manager" \
+              --bind-password Secret.123 \
+              --suffix dc=ca,dc=pki,dc=example,dc=com \
+              -v \
               primaryds-to-secondaryds
-
-          # wait for initialization to complete
-          counter=0
-          while [[ "$counter" -lt 30 ]]; do
-              sleep 1
-
-              docker exec primaryds dsconf \
-                  -D "cn=Directory Manager" \
-                  -w Secret.123 \
-                  ldap://primaryds.example.com:3389 \
-                  repl-agmt init-status \
-                  --suffix=dc=ca,dc=pki,dc=example,dc=com \
-                  primaryds-to-secondaryds \
-                  > >(tee stdout) 2> >(tee stderr >&2) || true
-
-              STDOUT=$(cat stdout)
-              if [ "$STDOUT" = "Agreement successfully initialized." ]; then
-                  break
-              fi
-
-              counter=$((counter+1))
-          done
 
       - name: Check entries in primary DS and secondary DS
         run: |

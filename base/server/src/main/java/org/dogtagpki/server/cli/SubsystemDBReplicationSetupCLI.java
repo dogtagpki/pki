@@ -181,9 +181,6 @@ public class SubsystemDBReplicationSetupCLI extends SubsystemCLI {
                 logger.info("New replica number range: " + beginReplicaNumber + "-" + endReplicaNumber);
                 dbConfig.putString("beginReplicaNumber", Integer.toString(beginReplicaNumber));
 
-                logger.info("Initializing replication agreement");
-                masterConfigurator.initializeReplicationAgreement(masterAgreementName);
-
             } finally {
                 if (masterConn != null) masterConn.disconnect();
             }
