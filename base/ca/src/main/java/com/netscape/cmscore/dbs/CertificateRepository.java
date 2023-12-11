@@ -1123,7 +1123,9 @@ public class CertificateRepository extends Repository {
      * {@Code (&(certRecordId=5)(x509Cert.notBefore=934398398))}
      *
      * @param filter search filter
-     * @param maxSize max size to return
+     * @param timeLimit timeout value
+     * @param start first entry to return from the list
+     * @param size max size to return
      * @return a list of certificates
      * @exception EBaseException failed to search
      */
@@ -1133,7 +1135,7 @@ public class CertificateRepository extends Repository {
         ArrayList<CertRecord> records = new ArrayList<>();
         logger.debug("searchCertificates filter {filter}, start {start} and size {size}", filter, start, size);
         try (DBSSession s = dbSubsystem.createSession()) {
-            DBSearchResults sr  = s.pagedSearch(mBaseDN, filter, start, size);
+            DBSearchResults sr  = s.pagedSearch(mBaseDN, filter, start, size, timeLimit);
             while (sr.hasMoreElements()) {
                 records.add((CertRecord) sr.nextElement());
             }
