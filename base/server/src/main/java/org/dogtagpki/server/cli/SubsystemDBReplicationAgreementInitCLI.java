@@ -28,7 +28,7 @@ import netscape.ldap.LDAPConnection;
  */
 public class SubsystemDBReplicationAgreementInitCLI extends SubsystemCLI {
 
-    public static Logger logger = LoggerFactory.getLogger(SubsystemDBReplicationAgreementInitCLI.class);
+    public static final Logger logger = LoggerFactory.getLogger(SubsystemDBReplicationAgreementInitCLI.class);
 
     public SubsystemDBReplicationAgreementInitCLI(CLI parent) {
         super(
@@ -68,7 +68,7 @@ public class SubsystemDBReplicationAgreementInitCLI extends SubsystemCLI {
         String ldapConfigFile = cmd.getOptionValue("ldap-config");
 
         if (ldapConfigFile == null) {
-            throw new Exception("Missing LDAP configuration file");
+            throw new CLIException("Missing LDAP configuration file");
         }
 
         initializeTomcatJSS();
