@@ -1314,6 +1314,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 session.getExternalRegAttrs().getCertsToRecoverCount());
         ArrayList<ExternalRegCertToRecover> erCertsToRecover = session.getExternalRegAttrs().getCertsToRecover();
 
+	String aesKeyWrapAlg = getAESKeyWrapAlgSSKeyGen();
+
         for (ExternalRegCertToRecover erCert : erCertsToRecover) {
             BigInteger keyid = erCert.getKeyid();
             BigInteger serial = erCert.getSerial();
@@ -1418,7 +1420,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
                         userid,
                         drmDesKey, drmAesKey,
                         getExternalRegRecoverByKeyID() ? null : b64cert,
-                        kraConn, keyid);
+                        kraConn, keyid, aesKeyWrapAlg);
 
                 if (keyResp == null) {
                     auditInfo = "recovering key not found";
@@ -1439,6 +1441,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
             cEnrollInfo.setTokenToBeRecovered(tokenRecord);
             cEnrollInfo.setRecoveredCertData(certResp);
             cEnrollInfo.setRecoveredKeyData(keyResp);
+            cEnrollInfo.setAesKeyWrapAlg(aesKeyWrapAlg);
             preRecoveredCerts.add(cEnrollInfo);
 
         }
@@ -1670,6 +1673,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         boolean recoverOldEncCerts = tokenPolicy.isAllowdRenewSaveOldEncCerts();
         logger.debug(method + " Recover Old Encryption Certs for Renewed Certs: " + recoverOldEncCerts);
+        String aesKeyWrapAlg = getAESKeyWrapAlgSSKeyGen();
+
         if (oldEncCertsToRecover.size() > 0 && recoverOldEncCerts == true) {
             logger.debug("About to attempt to recover old encryption certs just renewed.");
 
@@ -1694,7 +1699,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     KRARecoverKeyResponse keyResponse = TPSEngine.getInstance().recoverKey(toBeRecovered.getId(),
                             toBeRecovered.getUserID(),
                             drmDesKey, drmAesKey, 
-                            b64cert, getDRMConnectorID(toBeRecovered.getKeyType()));
+                            b64cert, getDRMConnectorID(toBeRecovered.getKeyType()), aesKeyWrapAlg);
 
                     //Try to write recovered cert to token
 
@@ -1703,6 +1708,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     cEnrollInfo.setTokenToBeRecovered(tokenRecord);
                     cEnrollInfo.setRecoveredCertData(certResponse);
                     cEnrollInfo.setRecoveredKeyData(keyResponse);
+                    cEnrollInfo.setAesKeyWrapAlg(aesKeyWrapAlg);
 
                     PKCS11Obj pkcs11obj = certsInfo.getPKCS11Obj();
                     int newCertId = pkcs11obj.getNextFreeCertIdNumber();
@@ -1959,6 +1965,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         boolean isGenerateAndRecover = false;
         int actualCertIndex = 0;
         boolean legalScheme = false;
+        String aesKeyWrapAlg = getAESKeyWrapAlgSSKeyGen();
 
         //Go through again and do the recoveries/enrollments
 
@@ -1979,6 +1986,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
             if (scheme.equals(TPSEngine.RECOVERY_GENERATE_NEW_KEY) || isGenerateAndRecover) {
                 legalScheme = true;
                 CertEnrollInfo cEnrollInfo = new CertEnrollInfo();
+                cEnrollInfo.setAesKeyWrapAlg(aesKeyWrapAlg);
                 generateCertificate(certsInfo, channel, aInfo, keyTypeValue, TPSEngine.ENROLL_MODES.MODE_ENROLL,
                         actualCertIndex, cEnrollInfo);
 
@@ -2042,7 +2050,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     KRARecoverKeyResponse keyResponse = TPSEngine.getInstance().recoverKey(toBeRecovered.getId(),
                             toBeRecovered.getUserID(),
                             drmDesKey,drmAesKey,
-                            b64cert, getDRMConnectorID(certToRecover.getKeyType()));
+                            b64cert, getDRMConnectorID(certToRecover.getKeyType()), aesKeyWrapAlg);
 
                     CertEnrollInfo cEnrollInfo = new CertEnrollInfo();
 
@@ -2456,6 +2464,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         boolean isRecovery = false;
         boolean isRenewal = false;
+        String aesKeyWrapAlg = getAESKeyWrapAlgSSKeyGen();
 
         if (mode == ENROLL_MODES.MODE_RECOVERY) {
             isRecovery = true;
@@ -2497,7 +2506,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 ssKeyGenResponse = TPSEngine.getInstance()
                         .serverSideKeyGen(cEnrollInfo.getKeySize(),
                                 aInfo.getCUIDhexStringPlain(), userid, kraConnId, drmDesKey, drmAesKey,
-                                archive, isECC);
+                                archive, isECC, aesKeyWrapAlg);
 
                 publicKeyStr = ssKeyGenResponse.getPublicKey();
                 //logger.debug(method +": public key string from server: " + publicKeyStr);
@@ -3168,7 +3177,15 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         //Give preference to AES kek wrapped key for SCP03, otherwise go with DES for SCP01
 	if(kekWrappedAESKey != null && kekWrappedAESKey.size() > 0 && channel.isSCP03()) {
-            alg = (byte) 0x88;
+            String aesKeyWrapAlg = cEnrollInfo.getAesKeyWrapAlg();
+
+            if(aesKeyWrapAlg != null && "CBC".equalsIgnoreCase(aesKeyWrapAlg)) { //CBC
+                logger.debug("TPSEnrollProcessor.importPrivateKeyPKCS8: unwrap the priv key with AES CBC ");
+                alg = (byte) 0x89;
+            } else { // KWP
+                logger.debug("TPSEnrollProcessor.importPrivateKeyPKCS8: unwrap the priv key with AES KWP ");
+                alg = (byte) 0x88;
+            }
             kekWrappedKey = kekWrappedAESKey;
         }
 
@@ -3457,6 +3474,31 @@ public class TPSEnrollProcessor extends TPSProcessor {
         logger.debug(method + ": parsedPubKey getEncoded not null");
 
         return parsedPubKey;
+    }
+
+    public String getAESKeyWrapAlgSSKeyGen() {
+
+        String aesKeyWrapAlg = "KWP";
+
+        org.dogtagpki.server.tps.TPSEngine engine = org.dogtagpki.server.tps.TPSEngine.getInstance();
+        TPSEngineConfig configStore = engine.getConfig();
+        // op.enroll.userKey.keyGen.aesKeyWrapAlg 
+        try {
+            String configValue = TPSEngine.OP_ENROLL_PREFIX + "." + selectedTokenType + "." + TPSEngine.CFG_KEYGEN +
+                   "." +  TPSEngine.CFG_AES_KEY_WRAP_ALG;
+
+            logger.debug("TPSEnrollProcessor::getAESKeyWrapAlgSSKeyGen: configValue . " + configValue);
+            aesKeyWrapAlg = configStore.getString(
+                    configValue, "KWP");
+            logger.debug("TPSEnrollProcessor::getAESKeyWrapAlgSSKeyGen: value " + aesKeyWrapAlg);
+
+        } catch (EBaseException e) {
+            //return default
+            return aesKeyWrapAlg;
+        }
+
+        return aesKeyWrapAlg;
+
     }
 
     private boolean checkForServerSideKeyGen(CertEnrollInfo cInfo) throws TPSException {

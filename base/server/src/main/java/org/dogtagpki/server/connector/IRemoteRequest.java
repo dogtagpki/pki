@@ -60,6 +60,7 @@ public interface IRemoteRequest {
 
     public static final String TKS_RESPONSE_DRM_Trans_DesKey = "drm_trans_desKey";
     public static final String TKS_RESPONSE_DRM_Trans_AesKey = "drm_trans_aesKey";
+    public static final String KRA_Aes_Wrap_Alg = "drm_aes_wrapAlg";
     public static final String TKS_RESPONSE_KeyCheck = "keycheck";
     public static final String TKS_RESPONSE_HostCryptogram = "hostCryptogram";
 
