@@ -153,7 +153,10 @@ jobs:
               -D "cn=Directory Manager" \
               -w Secret.123 \
               -x \
-              -b "cn=Replication Manager,cn=config"
+              -b "cn=Replication Manager,cn=config" \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL
 
           # check replica object
           docker exec primaryds ldapsearch \
@@ -161,7 +164,10 @@ jobs:
               -D "cn=Directory Manager" \
               -w Secret.123 \
               -x \
-              -b "cn=replica,cn=dc\3Dca\2Cdc\3Dpki\2Cdc\3Dexample\2Cdc\3Dcom,cn=mapping tree,cn=config"
+              -b "cn=replica,cn=dc\3Dca\2Cdc\3Dpki\2Cdc\3Dexample\2Cdc\3Dcom,cn=mapping tree,cn=config" \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL
 
       - name: Enable replication on secondary DS
         run: |
@@ -182,7 +188,10 @@ jobs:
               -D "cn=Directory Manager" \
               -w Secret.123 \
               -x \
-              -b "cn=Replication Manager,cn=config"
+              -b "cn=Replication Manager,cn=config" \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL
 
           # check replica object
           docker exec secondaryds ldapsearch \
@@ -190,7 +199,10 @@ jobs:
               -D "cn=Directory Manager" \
               -w Secret.123 \
               -x \
-              -b "cn=replica,cn=dc\3Dca\2Cdc\3Dpki\2Cdc\3Dexample\2Cdc\3Dcom,cn=mapping tree,cn=config"
+              -b "cn=replica,cn=dc\3Dca\2Cdc\3Dpki\2Cdc\3Dexample\2Cdc\3Dcom,cn=mapping tree,cn=config" \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL
 
       - name: Create replication agreement on primary DS
         run: |
@@ -215,7 +227,9 @@ jobs:
               -w Secret.123 \
               -x \
               -b "cn=primaryds-to-secondaryds,cn=replica,cn=dc\3Dca\2Cdc\3Dpki\2Cdc\3Dexample\2Cdc\3Dcom,cn=mapping tree,cn=config" \
-              dn
+              -s base \
+              -o ldif_wrap=no \
+              -LLL
 
       - name: Create replication agreement on secondary DS
         run: |
@@ -240,7 +254,9 @@ jobs:
               -w Secret.123 \
               -x \
               -b "cn=secondaryds-to-primaryds,cn=replica,cn=dc\3Dca\2Cdc\3Dpki\2Cdc\3Dexample\2Cdc\3Dcom,cn=mapping tree,cn=config" \
-              dn
+              -s base \
+              -o ldif_wrap=no \
+              -LLL
 
       - name: Initializing replication agreement
         run: |
