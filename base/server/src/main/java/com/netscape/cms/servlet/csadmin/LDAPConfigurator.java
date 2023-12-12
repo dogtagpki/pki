@@ -898,7 +898,6 @@ public class LDAPConfigurator {
         logger.debug("- nsDS5ReplicaHost: " + replicaHostname);
         logger.debug("- nsDS5ReplicaPort: " + replicaPort);
         logger.debug("- nsDS5ReplicaBindDN: " + replicaBindDN);
-        logger.debug("- nsDS5ReplicaTransportInfo: " + replicationSecurity);
 
         LDAPAttributeSet attrs = new LDAPAttributeSet();
         attrs.add(new LDAPAttribute("objectclass", "top"));
@@ -913,6 +912,7 @@ public class LDAPConfigurator {
         attrs.add(new LDAPAttribute("nsDS5ReplicaCredentials", replicaPassword));
 
         if (replicationSecurity != null && !replicationSecurity.equalsIgnoreCase("None")) {
+            logger.debug("- nsDS5ReplicaTransportInfo: " + replicationSecurity);
             attrs.add(new LDAPAttribute("nsDS5ReplicaTransportInfo", replicationSecurity));
         }
 

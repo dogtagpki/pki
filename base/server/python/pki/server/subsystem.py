@@ -1326,6 +1326,50 @@ class PKISubsystem(object):
         finally:
             shutil.rmtree(tmpdir)
 
+    def add_replication_agreement(
+            self,
+            name,
+            ldap_config,
+            replica_url,
+            replica_bind_dn,
+            replica_bind_password,
+            replication_security=None):
+
+        tmpdir = tempfile.mkdtemp()
+        try:
+            ldap_config_file = os.path.join(tmpdir, 'ldap.conf')
+            pki.util.store_properties(ldap_config_file, ldap_config)
+            pki.util.chown(tmpdir, self.instance.uid, self.instance.gid)
+
+            password_file = os.path.join(tmpdir, 'password.txt')
+            with open(password_file, 'w', encoding='utf-8') as f:
+                f.write(replica_bind_password)
+            pki.util.chown(password_file, self.instance.uid, self.instance.gid)
+
+            cmd = [
+                self.name + '-db-repl-agmt-add',
+                '--ldap-config', ldap_config_file,
+                '--replica-url', replica_url,
+                '--replica-bind-dn', replica_bind_dn,
+                '--replica-bind-password-file', password_file
+            ]
+
+            if replication_security:
+                cmd.extend(['--replication-security', replication_security])
+
+            if logger.isEnabledFor(logging.DEBUG):
+                cmd.append('--debug')
+
+            elif logger.isEnabledFor(logging.INFO):
+                cmd.append('--verbose')
+
+            cmd.append(name)
+
+            self.run(cmd)
+
+        finally:
+            shutil.rmtree(tmpdir)
+
     def init_replication_agreement(
             self,
             name,

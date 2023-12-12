@@ -206,18 +206,15 @@ jobs:
 
       - name: Create replication agreement on primary DS
         run: |
-          docker exec primaryds dsconf \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              ldap://primaryds.example.com:3389 \
-              repl-agmt create \
-              --suffix=dc=ca,dc=pki,dc=example,dc=com \
-              --host=secondaryds.example.com \
-              --port=3389 \
-              --conn-protocol=LDAP \
-              --bind-dn="cn=Replication Manager,cn=config" \
-              --bind-passwd=Secret.123 \
-              --bind-method=SIMPLE \
+          docker exec secondary pki-server ca-db-repl-agmt-add \
+              --url ldap://primaryds.example.com:3389 \
+              --bind-dn "cn=Directory Manager" \
+              --bind-password Secret.123 \
+              --replica-url ldap://secondaryds.example.com:3389 \
+              --replica-bind-dn "cn=Replication Manager,cn=config" \
+              --replica-bind-password Secret.123 \
+              --suffix dc=ca,dc=pki,dc=example,dc=com \
+              -v \
               primaryds-to-secondaryds
 
           # check replication agreement
@@ -233,18 +230,15 @@ jobs:
 
       - name: Create replication agreement on secondary DS
         run: |
-          docker exec secondaryds dsconf \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              ldap://secondaryds.example.com:3389 \
-              repl-agmt create \
-              --suffix=dc=ca,dc=pki,dc=example,dc=com \
-              --host=primaryds.example.com \
-              --port=3389 \
-              --conn-protocol=LDAP \
-              --bind-dn="cn=Replication Manager,cn=config" \
-              --bind-passwd=Secret.123 \
-              --bind-method=SIMPLE \
+          docker exec secondary pki-server ca-db-repl-agmt-add \
+              --url ldap://secondaryds.example.com:3389 \
+              --bind-dn "cn=Directory Manager" \
+              --bind-password Secret.123 \
+              --replica-url ldap://primaryds.example.com:3389 \
+              --replica-bind-dn "cn=Replication Manager,cn=config" \
+              --replica-bind-password Secret.123 \
+              --suffix dc=ca,dc=pki,dc=example,dc=com \
+              -v \
               secondaryds-to-primaryds
 
           # check replication agreement

@@ -18,6 +18,7 @@ public class SubsystemDBReplicationAgreementCLI extends CLI {
             parent.parent.parent.name.toUpperCase() + " replication agreement management commands",
             parent);
 
+        addModule(new SubsystemDBReplicationAgreementAddCLI(this));
         addModule(new SubsystemDBReplicationAgreementInitCLI(this));
     }
 }
