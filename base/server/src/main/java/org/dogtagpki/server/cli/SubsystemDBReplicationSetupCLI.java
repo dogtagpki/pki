@@ -23,6 +23,7 @@ import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
+import com.netscape.cmsutil.ldap.LDAPUtil;
 import com.netscape.cmsutil.password.PasswordStore;
 import com.netscape.cmsutil.password.PasswordStoreConfig;
 
@@ -159,6 +160,12 @@ public class SubsystemDBReplicationSetupCLI extends SubsystemCLI {
                 String masterAgreementName = "masterAgreement1-" + hostname + "-" + instanceID;
                 String replicaAgreementName = "cloneAgreement1-" + hostname + "-" + instanceID;
 
+                String masterBindUser = "Replication Manager " + masterAgreementName;
+                String replicaBindUser = "Replication Manager " + replicaAgreementName;
+
+                String masterBindDN = "cn=" + LDAPUtil.escapeRDNValue(masterBindUser) + ",ou=csusers,cn=config";
+                String replicaBindDN = "cn=" + LDAPUtil.escapeRDNValue(replicaBindUser) + ",ou=csusers,cn=config";
+
                 DatabaseConfig dbConfig = cs.getDatabaseConfig();
                 int beginReplicaNumber = dbConfig.getInteger("beginReplicaNumber", 1);
                 int endReplicaNumber = dbConfig.getInteger("endReplicaNumber", 100);
@@ -174,6 +181,8 @@ public class SubsystemDBReplicationSetupCLI extends SubsystemCLI {
                         replicaHostname,
                         Integer.parseInt(masterReplicationPort),
                         Integer.parseInt(replicaReplicationPort),
+                        masterBindDN,
+                        replicaBindDN,
                         masterReplicationPassword,
                         replicaReplicationPassword,
                         beginReplicaNumber);
@@ -211,23 +220,22 @@ public class SubsystemDBReplicationSetupCLI extends SubsystemCLI {
             String replicaHostname,
             int masterReplicationPort,
             int replicaReplicationPort,
+            String masterBindDN,
+            String replicaBindDN,
             String masterReplicationPassword,
             String replicaReplicationPassword,
             int replicaID)
             throws Exception {
 
-        String masterBindUser = "Replication Manager " + masterAgreementName;
-        String replicaBindUser = "Replication Manager " + replicaAgreementName;
-
         logger.info("Setting up replication agreement on " + masterHostname);
 
         boolean created = masterConfigurator.setupReplicationAgreement(
                 masterAgreementName,
-                masterBindUser,
+                masterBindDN,
                 masterReplicationPassword,
                 replicaHostname,
                 replicaReplicationPort,
-                replicaBindUser,
+                replicaBindDN,
                 replicaReplicationPassword,
                 replicationSecurity,
                 replicaID);
@@ -240,11 +248,11 @@ public class SubsystemDBReplicationSetupCLI extends SubsystemCLI {
 
         created = replicaConfigurator.setupReplicationAgreement(
                 replicaAgreementName,
-                replicaBindUser,
+                replicaBindDN,
                 replicaReplicationPassword,
                 masterHostname,
                 masterReplicationPort,
-                masterBindUser,
+                masterBindDN,
                 masterReplicationPassword,
                 replicationSecurity,
                 replicaID);

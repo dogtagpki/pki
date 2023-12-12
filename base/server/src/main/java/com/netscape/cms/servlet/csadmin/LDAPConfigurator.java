@@ -47,11 +47,13 @@ import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPSearchConstraints;
 import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPv3;
+import netscape.ldap.util.DN;
 import netscape.ldap.util.LDIF;
 import netscape.ldap.util.LDIFAttributeContent;
 import netscape.ldap.util.LDIFContent;
 import netscape.ldap.util.LDIFModifyContent;
 import netscape.ldap.util.LDIFRecord;
+import netscape.ldap.util.RDN;
 
 public class LDAPConfigurator {
 
@@ -676,10 +678,13 @@ public class LDAPConfigurator {
         }
     }
 
-    public void createReplicationManager(String bindUser, String pwd) throws Exception {
+    public void createReplicationManager(String bindDN, String pwd) throws Exception {
 
-        String dn = "cn=" + LDAPUtil.escapeRDNValue(bindUser) + ",ou=csusers,cn=config";
-        logger.info("Adding " + dn);
+        logger.info("Adding " + bindDN);
+        DN dn = new DN(bindDN);
+        List<RDN> rdns = dn.getRDNs();
+        RDN cn = rdns.get(0);
+        String bindUser = cn.getValues()[0];
 
         LDAPAttributeSet attrs = new LDAPAttributeSet();
         attrs.add(new LDAPAttribute("objectclass", "top"));
@@ -688,7 +693,7 @@ public class LDAPConfigurator {
         attrs.add(new LDAPAttribute("cn", bindUser));
         attrs.add(new LDAPAttribute("sn", "manager"));
 
-        LDAPEntry entry = new LDAPEntry(dn, attrs);
+        LDAPEntry entry = new LDAPEntry(bindDN, attrs);
 
         try {
             connection.add(entry);
@@ -697,29 +702,29 @@ public class LDAPConfigurator {
 
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() != LDAPException.ENTRY_ALREADY_EXISTS) {
-                logger.error("Unable to add " + dn + ": " + e.getMessage(), e);
+                logger.error("Unable to add " + bindDN + ": " + e.getMessage(), e);
                 throw e;
             }
-            logger.warn("Replication manager already exists: " + dn);
+            logger.warn("Replication manager already exists: " + bindDN);
         }
 
-        logger.warn("Deleting existing replication manager: " + dn);
+        logger.warn("Deleting existing replication manager: " + bindDN);
 
         try {
-            connection.delete(dn);
+            connection.delete(bindDN);
 
         } catch (LDAPException e) {
-            logger.error("Unable to delete " + dn + ": " + e.getMessage());
+            logger.error("Unable to delete " + bindDN + ": " + e.getMessage());
             throw e;
         }
 
-        logger.warn("Adding new replication manager: " + dn);
+        logger.warn("Adding new replication manager: " + bindDN);
 
         try {
             connection.add(entry);
 
         } catch (LDAPException e) {
-            logger.error("Unable to add " + dn + ": " + e.getMessage());
+            logger.error("Unable to add " + bindDN + ": " + e.getMessage());
             throw e;
         }
     }
@@ -813,11 +818,10 @@ public class LDAPConfigurator {
      * existed previously, it will add a new replica bind DN and return false. If
      * any of these operation fails, it will throw the exception.
      */
-    public boolean createReplicaObject(String bindUser, int id) throws Exception {
+    public boolean createReplicaObject(String bindDN, int id) throws Exception {
 
         String baseDN = config.getBaseDN();
         String replicaDN = "cn=replica,cn=\"" + baseDN + "\",cn=mapping tree,cn=config";
-        String bindDN = "cn=" + LDAPUtil.escapeRDNValue(bindUser) + ",ou=csusers,cn=config";
 
         logger.info("Adding " + replicaDN);
         logger.debug("- nsDS5ReplicaRoot: " + baseDN);
@@ -880,21 +884,20 @@ public class LDAPConfigurator {
             String name,
             String replicaHostname,
             int replicaPort,
-            String bindUser,
+            String replicaBindDN,
             String replicaPassword,
             String replicationSecurity) throws Exception {
 
         String baseDN = config.getBaseDN();
         String replicaDN = "cn=replica,cn=\"" + baseDN + "\",cn=mapping tree,cn=config";
         String dn = "cn=" + LDAPUtil.escapeRDNValue(name) + "," + replicaDN;
-        String bindDN = "cn=" + LDAPUtil.escapeRDNValue(bindUser) + ",ou=csusers,cn=config";
 
         logger.info("Adding " + dn);
         logger.debug("- description: " + name);
         logger.debug("- nsDS5ReplicaRoot: " + baseDN);
         logger.debug("- nsDS5ReplicaHost: " + replicaHostname);
         logger.debug("- nsDS5ReplicaPort: " + replicaPort);
-        logger.debug("- nsDS5ReplicaBindDN: " + bindDN);
+        logger.debug("- nsDS5ReplicaBindDN: " + replicaBindDN);
         logger.debug("- nsDS5ReplicaTransportInfo: " + replicationSecurity);
 
         LDAPAttributeSet attrs = new LDAPAttributeSet();
@@ -905,9 +908,9 @@ public class LDAPConfigurator {
         attrs.add(new LDAPAttribute("nsDS5ReplicaRoot", baseDN));
         attrs.add(new LDAPAttribute("nsDS5ReplicaHost", replicaHostname));
         attrs.add(new LDAPAttribute("nsDS5ReplicaPort", "" + replicaPort));
-        attrs.add(new LDAPAttribute("nsDS5ReplicaBindDN", bindDN));
+        attrs.add(new LDAPAttribute("nsDS5ReplicaBindDN", replicaBindDN));
         attrs.add(new LDAPAttribute("nsDS5ReplicaBindMethod", "Simple"));
-        attrs.add(new LDAPAttribute("nsds5replicacredentials", replicaPassword));
+        attrs.add(new LDAPAttribute("nsDS5ReplicaCredentials", replicaPassword));
 
         if (replicationSecurity != null && !replicationSecurity.equalsIgnoreCase("None")) {
             attrs.add(new LDAPAttribute("nsDS5ReplicaTransportInfo", replicationSecurity));
@@ -949,27 +952,27 @@ public class LDAPConfigurator {
 
     public boolean setupReplicationAgreement(
             String agreementName,
-            String bindUser,
+            String bindDN,
             String bindPassword,
             String peerHostname,
             int peerPort,
-            String peerBindUser,
+            String peerBindDN,
             String peerBindPassword,
             String security,
             int replicaID)
             throws Exception {
 
         createSystemContainer();
-        createReplicationManager(bindUser, bindPassword);
+        createReplicationManager(bindDN, bindPassword);
         createChangeLog();
 
-        boolean created = createReplicaObject(bindUser, replicaID);
+        boolean created = createReplicaObject(bindDN, replicaID);
 
         createReplicationAgreement(
                 agreementName,
                 peerHostname,
                 peerPort,
-                peerBindUser,
+                peerBindDN,
                 peerBindPassword,
                 security);
 
