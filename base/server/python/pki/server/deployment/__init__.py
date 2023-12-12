@@ -1598,13 +1598,9 @@ class PKIDeployer:
                 replica_replication_port=replica_replication_port,
                 replication_security=replication_security)
 
-            logger.info('Initializing replication agreement')
+            # get master database config
 
-            hostname = self.mdict['pki_hostname']
-            agreement_name = 'masterAgreement1-%s-%s' % (hostname, self.instance.name)
-
-            # get master's database config
-            ldap_config = {}
+            master_ldap_config = {}
             for name in master_config['Properties']:
 
                 match = re.match(r'internaldb\.(.*)$', name)
@@ -1627,11 +1623,82 @@ class PKIDeployer:
                     new_name = 'ldapauth.bindPassword'
 
                 value = master_config['Properties'][name]
-                ldap_config[new_name] = value
+
+                master_ldap_config[new_name] = value
+
+            # get replica database config
+
+            replica_ldap_config = {}
+            for name in subsystem.config:
+
+                match = re.match(r'internaldb\.(.*)$', name)
+
+                if not match:
+                    continue
+
+                new_name = match.group(1)  # strip internaldb prefix
+
+                if new_name.startswith('_'):  # comments
+                    continue
+
+                elif new_name == 'ldapauth.bindPWPrompt':  # replace
+                    new_name = 'ldapauth.bindPassword'
+                    value = self.instance.get_password('internaldb')
+
+                else:
+                    value = subsystem.config[name]
+
+                replica_ldap_config[new_name] = value
+
+            hostname = self.mdict['pki_hostname']
+            master_agreement_name = 'masterAgreement1-%s-%s' % (hostname, self.instance.name)
+            replica_agreement_name = 'cloneAgreement1-%s-%s' % (hostname, self.instance.name)
+
+            master_hostname = master_ldap_config['ldapconn.host']
+            if not master_replication_port:
+                master_replication_port = master_ldap_config['ldapconn.port']
+            master_url = 'ldap://%s:%s' % (master_hostname, master_replication_port)
+
+            master_bind_dn = 'cn=Replication Manager %s,ou=csusers,cn=config' % \
+                master_agreement_name
+            master_bind_password = master_config['Properties']['internaldb.replication.password']
+
+            replica_hostname = replica_ldap_config['ldapconn.host']
+            if not replica_replication_port:
+                replica_replication_port = ds_port
+            replica_url = 'ldap://%s:%s' % (replica_hostname, replica_replication_port)
+
+            replica_bind_dn = 'cn=Replication Manager %s,ou=csusers,cn=config' % \
+                replica_agreement_name
+            replica_bind_password = self.instance.get_password('replicationdb')
+
+            logger.info('Adding master replication agreement')
+            logger.info('- replica URL: %s', replica_url)
+
+            subsystem.add_replication_agreement(
+                master_agreement_name,
+                master_ldap_config,
+                replica_url,
+                replica_bind_dn,
+                replica_bind_password,
+                replication_security)
+
+            logger.info('Adding replica replication agreement')
+            logger.info('- master URL: %s', master_url)
+
+            subsystem.add_replication_agreement(
+                replica_agreement_name,
+                replica_ldap_config,
+                master_url,
+                master_bind_dn,
+                master_bind_password,
+                replication_security)
+
+            logger.info('Initializing replication agreement')
 
             subsystem.init_replication_agreement(
-                agreement_name,
-                ldap_config)
+                master_agreement_name,
+                master_ldap_config)
 
         # For security a PKI subsystem can be configured to use a database user
         # that only has a limited access to the database (instead of cn=Directory
