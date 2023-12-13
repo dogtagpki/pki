@@ -115,6 +115,27 @@ jobs:
               --pkcs12 $SHARED/ca-certs.p12 \
               --password Secret.123
 
+      - name: Configure connection to CA database
+        run: |
+          # store DS password
+          docker exec secondary pki-server password-add \
+              --password Secret.123 \
+              internaldb
+
+          # configure DS connection params
+          docker exec secondary pki-server ca-db-config-mod \
+              --hostname secondaryds.example.com \
+              --port 3389 \
+              --secure false \
+              --auth BasicAuth \
+              --bindDN "cn=Directory Manager" \
+              --bindPWPrompt internaldb \
+              --database ca \
+              --baseDN dc=ca,dc=pki,dc=example,dc=com \
+              --multiSuffix false \
+              --maxConns 15 \
+              --minConns 3
+
       # https://github.com/dogtagpki/389-ds-base/wiki/Configuring-DS-Replication-with-DS-Tools
       - name: Preparing DS backend
         run: |
@@ -126,13 +147,7 @@ jobs:
               backend suffix list
 
           # create backend for CA in secondary DS
-          docker exec secondaryds dsconf \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              ldap://secondaryds.example.com:3389 \
-              backend create \
-              --suffix=dc=ca,dc=pki,dc=example,dc=com \
-              --be-name=ca
+          docker exec secondary pki-server ca-db-create -v
 
       - name: Enable replication on primary DS
         run: |
