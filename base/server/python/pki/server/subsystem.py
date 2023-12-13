@@ -1296,31 +1296,33 @@ class PKISubsystem(object):
             as_current_user=as_current_user,
             capture_output=True)
 
-    def setup_replication(
+    def enable_replication(
             self,
-            master_config,
-            master_replication_port=None,
-            replica_replication_port=None,
-            replication_security=None):
+            ldap_config,
+            replica_bind_dn,
+            replica_bind_password,
+            replica_id):
 
         tmpdir = tempfile.mkdtemp()
         try:
-            master_config_file = os.path.join(tmpdir, 'master.conf')
-            pki.util.store_properties(master_config_file, master_config)
+            ldap_config_file = os.path.join(tmpdir, 'ldap.conf')
+            pki.util.store_properties(ldap_config_file, ldap_config)
+            pki.util.chown(tmpdir, self.instance.uid, self.instance.gid)
 
-            cmd = [self.name + '-db-repl-setup']
+            password_file = os.path.join(tmpdir, 'password.txt')
+            with open(password_file, 'w', encoding='utf-8') as f:
+                f.write(replica_bind_password)
+            pki.util.chown(password_file, self.instance.uid, self.instance.gid)
 
-            if master_replication_port:
-                cmd.extend(['--master-replication-port', master_replication_port])
+            cmd = [
+                self.name + '-db-repl-enable',
+                '--ldap-config', ldap_config_file,
+                '--replica-bind-dn', replica_bind_dn,
+                '--replica-bind-password-file', password_file
+            ]
 
-            if replica_replication_port:
-                cmd.extend(['--replica-replication-port', replica_replication_port])
-
-            if replication_security:
-                cmd.extend(['--replication-security', replication_security])
-
-            if master_config_file:
-                cmd.extend(['--master-config', master_config_file])
+            if replica_id:
+                cmd.extend(['--replica-id', replica_id])
 
             if logger.isEnabledFor(logging.DEBUG):
                 cmd.append('--debug')
@@ -1328,8 +1330,7 @@ class PKISubsystem(object):
             elif logger.isEnabledFor(logging.INFO):
                 cmd.append('--verbose')
 
-            # run as current user so it can read the input file
-            self.run(cmd, as_current_user=True)
+            self.run(cmd)
 
         finally:
             shutil.rmtree(tmpdir)
