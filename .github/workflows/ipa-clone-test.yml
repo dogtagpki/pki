@@ -197,6 +197,140 @@ jobs:
         run: |
           docker exec secondary ipa-kra-install -p Secret.123
 
+      - name: Check replication managers on primary DS
+        if: always()
+        run: |
+          docker exec primary ldapsearch \
+              -H ldap://primary.example.com:389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "cn=config" \
+              -o ldif_wrap=no \
+              -LLL \
+              "(cn=replication manager)"
+
+          docker exec primary ldapsearch \
+              -H ldap://primary.example.com:389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "cn=replication managers,cn=sysaccounts,cn=etc,dc=example,dc=com" \
+              -o ldif_wrap=no \
+              -LLL
+
+      - name: Check replication managers on secondary DS
+        if: always()
+        run: |
+          docker exec secondary ldapsearch \
+              -H ldap://secondary.example.com:389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "cn=config" \
+              -o ldif_wrap=no \
+              -LLL \
+              "(cn=replication manager)"
+
+          docker exec secondary ldapsearch \
+              -H ldap://secondary.example.com:389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "cn=replication managers,cn=sysaccounts,cn=etc,dc=example,dc=com" \
+              -o ldif_wrap=no \
+              -LLL
+
+      - name: Check replica objects on primary DS
+        if: always()
+        run: |
+          docker exec primary ldapsearch \
+              -H ldap://primary.example.com:389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "cn=replica,cn=dc\3Dexample\2Cdc\3Dcom,cn=mapping tree,cn=config" \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL
+
+          docker exec primary ldapsearch \
+              -H ldap://primary.example.com:389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "cn=replica,cn=o\3Dipaca,cn=mapping tree,cn=config" \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL
+
+      - name: Check replica objects on secondary DS
+        if: always()
+        run: |
+          docker exec secondary ldapsearch \
+              -H ldap://secondary.example.com:389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "cn=replica,cn=dc\3Dexample\2Cdc\3Dcom,cn=mapping tree,cn=config" \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL
+
+          docker exec secondary ldapsearch \
+              -H ldap://secondary.example.com:389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "cn=replica,cn=o\3Dipaca,cn=mapping tree,cn=config" \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL
+
+      - name: Check replication agreements on primary DS
+        run: |
+          docker exec primary ldapsearch \
+              -H ldap://primary.example.com:389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "cn=meTosecondary.example.com,cn=replica,cn=dc\3Dexample\2Cdc\3Dcom,cn=mapping tree,cn=config" \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL
+
+          docker exec primary ldapsearch \
+              -H ldap://primary.example.com:389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "cn=caTosecondary.example.com,cn=replica,cn=o\3Dipaca,cn=mapping tree,cn=config" \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL
+
+      - name: Check replication agreements on secondary DS
+        run: |
+          docker exec secondary ldapsearch \
+              -H ldap://secondary.example.com:389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "cn=meToprimary.example.com,cn=replica,cn=dc\3Dexample\2Cdc\3Dcom,cn=mapping tree,cn=config" \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL
+
+          docker exec secondary ldapsearch \
+              -H ldap://secondary.example.com:389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "cn=caToprimary.example.com,cn=replica,cn=o\3Dipaca,cn=mapping tree,cn=config" \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL
+
       - name: Check KRA connector config
         run: |
           # KRA connector should be enabled in primary CA
