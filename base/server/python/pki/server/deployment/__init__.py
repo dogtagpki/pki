@@ -1557,15 +1557,6 @@ class PKIDeployer:
             skip_base=skip_base,
             skip_containers=skip_containers)
 
-        # always create indexes
-        subsystem.add_indexes()
-
-        # if the database is already replicated but not yet indexed, rebuild the indexes
-        if config.str2bool(self.mdict['pki_clone']) and \
-                not config.str2bool(self.mdict['pki_clone_setup_replication']) and \
-                config.str2bool(self.mdict['pki_clone_reindex_data']):
-            subsystem.rebuild_indexes()
-
         if config.str2bool(self.mdict['pki_clone']) and \
                 config.str2bool(self.mdict['pki_clone_setup_replication']):
             self.setup_replication(subsystem, master_config)
@@ -1585,6 +1576,15 @@ class PKIDeployer:
             dbuser = 'uid=pkidbuser,ou=people,' + self.mdict['pki_ds_base_dn']
 
         subsystem.grant_database_access(dbuser)
+
+        # Always create search and VLV indexes since they will not be replicated
+        subsystem.add_indexes()
+
+        # If the database is already replicated but not yet indexed, rebuild the indexes
+        if config.str2bool(self.mdict['pki_clone']) and \
+                not config.str2bool(self.mdict['pki_clone_setup_replication']) and \
+                config.str2bool(self.mdict['pki_clone_reindex_data']):
+            subsystem.rebuild_indexes()
 
         subsystem.add_vlv()
         subsystem.reindex_vlv()

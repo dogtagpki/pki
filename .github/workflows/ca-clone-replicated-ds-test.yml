@@ -329,6 +329,16 @@ jobs:
 
           diff primaryds.dn secondaryds.dn
 
+      - name: Create search indexes
+        run: |
+          docker exec secondary pki-server ca-db-index-add -v
+          docker exec secondary pki-server ca-db-index-rebuild -v
+
+      - name: Create VLV indexes
+        run: |
+          docker exec secondary pki-server ca-db-vlv-add -v
+          docker exec secondary pki-server ca-db-vlv-reindex -v
+
       # https://github.com/dogtagpki/pki/wiki/Installing-CA-Clone-with-Existing-DS
       - name: Install secondary CA
         run: |
