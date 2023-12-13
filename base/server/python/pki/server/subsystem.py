@@ -1160,11 +1160,22 @@ class PKISubsystem(object):
         logger.debug('Command: %s', ' '.join(cmd))
         subprocess.check_call(cmd)
 
+    def create_database(self):
+
+        cmd = [self.name + '-db-create']
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        self.run(cmd)
+
     def init_database(
             self,
             skip_config=False,
             skip_schema=False,
-            create_backend=False,
             skip_base=False,
             skip_containers=False,
             as_current_user=False):
@@ -1176,9 +1187,6 @@ class PKISubsystem(object):
 
         if skip_schema:
             cmd.append('--skip-schema')
-
-        if create_backend:
-            cmd.append('--create-backend')
 
         if skip_base:
             cmd.append('--skip-base')

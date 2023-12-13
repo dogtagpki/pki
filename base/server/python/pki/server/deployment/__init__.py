@@ -1524,6 +1524,10 @@ class PKIDeployer:
             else:
                 logger.info('Reusing replicated database')
 
+        if config.str2bool(self.mdict['pki_ds_create_new_db']):
+            logger.info('Creating database')
+            subsystem.create_database()
+
         logger.info('Initializing database')
 
         # In most cases, we want to replicate the schema and therefore not add it here.
@@ -1538,8 +1542,6 @@ class PKIDeployer:
             config.str2bool(self.mdict['pki_clone_setup_replication']) and \
             config.str2bool(self.mdict['pki_clone_replicate_schema'])
 
-        create_backend = config.str2bool(self.mdict['pki_ds_create_new_db'])
-
         # When cloning a subsystem without setting up the replication agreements,
         # the database is a subtree of an existing tree and is already replicated,
         # so there is no need to set up the base entry.
@@ -1552,7 +1554,6 @@ class PKIDeployer:
 
         subsystem.init_database(
             skip_schema=skip_schema,
-            create_backend=create_backend,
             skip_base=skip_base,
             skip_containers=skip_containers)
 
