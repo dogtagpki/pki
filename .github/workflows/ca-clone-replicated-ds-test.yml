@@ -151,16 +151,15 @@ jobs:
 
       - name: Enable replication on primary DS
         run: |
-          docker exec primaryds dsconf \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              ldap://primaryds.example.com:3389 \
-              replication enable \
-              --suffix=dc=ca,dc=pki,dc=example,dc=com \
-              --role=supplier \
-              --replica-id=1 \
-              --bind-dn="cn=Replication Manager,cn=config" \
-              --bind-passwd=Secret.123
+          docker exec primary pki-server ca-db-repl-enable \
+              --url ldap://primaryds.example.com:3389 \
+              --bind-dn "cn=Directory Manager" \
+              --bind-password Secret.123 \
+              --replica-bind-dn "cn=Replication Manager,cn=config" \
+              --replica-bind-password Secret.123 \
+              --replica-id 1 \
+              --suffix dc=ca,dc=pki,dc=example,dc=com \
+              -v
 
           # check replication manager
           docker exec primaryds ldapsearch \
@@ -186,16 +185,15 @@ jobs:
 
       - name: Enable replication on secondary DS
         run: |
-          docker exec secondaryds dsconf \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              ldap://secondaryds.example.com:3389 \
-              replication enable \
-              --suffix=dc=ca,dc=pki,dc=example,dc=com \
-              --role=supplier \
-              --replica-id=2 \
-              --bind-dn="cn=Replication Manager,cn=config" \
-              --bind-passwd=Secret.123
+          docker exec secondary pki-server ca-db-repl-enable \
+              --url ldap://secondaryds.example.com:3389 \
+              --bind-dn "cn=Directory Manager" \
+              --bind-password Secret.123 \
+              --replica-bind-dn "cn=Replication Manager,cn=config" \
+              --replica-bind-password Secret.123 \
+              --replica-id 2 \
+              --suffix dc=ca,dc=pki,dc=example,dc=com \
+              -v
 
           # check replication manager
           docker exec secondaryds ldapsearch \
@@ -221,7 +219,7 @@ jobs:
 
       - name: Create replication agreement on primary DS
         run: |
-          docker exec secondary pki-server ca-db-repl-agmt-add \
+          docker exec primary pki-server ca-db-repl-agmt-add \
               --url ldap://primaryds.example.com:3389 \
               --bind-dn "cn=Directory Manager" \
               --bind-password Secret.123 \
@@ -269,7 +267,7 @@ jobs:
 
       - name: Initializing replication agreement
         run: |
-          docker exec secondary pki-server ca-db-repl-agmt-init \
+          docker exec primary pki-server ca-db-repl-agmt-init \
               --url ldap://primaryds.example.com:3389 \
               --bind-dn "cn=Directory Manager" \
               --bind-password Secret.123 \

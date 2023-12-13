@@ -1593,12 +1593,6 @@ class PKIDeployer:
 
             logger.info('- replication security: %s', replication_security)
 
-            subsystem.setup_replication(
-                master_config['Properties'],
-                master_replication_port=master_replication_port,
-                replica_replication_port=replica_replication_port,
-                replication_security=replication_security)
-
             # get master database config
 
             master_ldap_config = {}
@@ -1672,6 +1666,24 @@ class PKIDeployer:
             replica_bind_dn = 'cn=Replication Manager %s,ou=csusers,cn=config' % \
                 replica_agreement_name
             replica_bind_password = self.instance.get_password('replicationdb')
+
+            logger.info('Enable replication on master')
+
+            # TODO: provide param to specify the replica ID for the master
+            subsystem.enable_replication(
+                master_ldap_config,
+                master_bind_dn,
+                master_bind_password,
+                None)
+
+            logger.info('Enable replication on replica')
+
+            # TODO: provide param to specify the replica ID for the replica
+            subsystem.enable_replication(
+                replica_ldap_config,
+                replica_bind_dn,
+                replica_bind_password,
+                None)
 
             logger.info('Adding master replication agreement')
             logger.info('- replica URL: %s', replica_url)

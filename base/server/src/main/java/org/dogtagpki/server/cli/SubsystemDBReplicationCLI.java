@@ -15,7 +15,7 @@ public class SubsystemDBReplicationCLI extends CLI {
     public SubsystemDBReplicationCLI(CLI parent) {
         super("repl", parent.parent.name.toUpperCase() + " database replication management commands", parent);
 
-        addModule(new SubsystemDBReplicationSetupCLI(this));
+        addModule(new SubsystemDBReplicationEnableCLI(this));
         addModule(new SubsystemDBReplicationAgreementCLI(this));
     }
 }

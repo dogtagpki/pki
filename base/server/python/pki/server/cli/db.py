@@ -1410,7 +1410,151 @@ class SubsystemDBReplicationCLI(pki.cli.CLI):
                 subsystem=parent.parent.name.upper()))
 
         self.parent = parent
+        self.add_module(SubsystemDBReplicationEnableCLI(self))
         self.add_module(SubsystemDBReplicationAgreementCLI(self))
+
+
+class SubsystemDBReplicationEnableCLI(pki.cli.CLI):
+    '''
+    Enable {subsystem} database replication
+    '''
+
+    help = '''\
+        Usage: pki-server {subsystem}-db-repl-enable [OPTIONS]
+
+          -i, --instance <instance ID>            Instance ID (default: pki-tomcat)
+              --url <URL>                         Database URL
+              --bind-dn <DN>                      Database bind DN
+              --bind-password <password>          Database bind password
+              --replica-bind-dn <DN>              Replica bind DN
+              --replica-bind-password <password>  Replica bind password
+              --replica-id <ID>                   Replica ID
+              --suffix <DN>                       Database suffix
+          -v, --verbose                           Run in verbose mode.
+              --debug                             Run in debug mode.
+              --help                              Show help message.
+    '''
+
+    def __init__(self, parent):
+        super(SubsystemDBReplicationEnableCLI, self).__init__(
+            'enable',
+            inspect.cleandoc(self.__class__.__doc__).format(
+                subsystem=parent.parent.parent.name.upper()))
+
+        self.parent = parent
+
+    def print_help(self):
+        print(textwrap.dedent(self.__class__.help).format(
+            subsystem=self.parent.parent.parent.name))
+
+    def execute(self, argv):
+        try:
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'url=', 'bind-dn=', 'bind-password=',
+                'replica-bind-dn=', 'replica-bind-password=',
+                'replica-id=', 'suffix=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        subsystem_name = self.parent.parent.parent.name
+        url = None
+        bind_dn = None
+        bind_password = None
+        replica_bind_dn = None
+        replica_bind_password = None
+        replica_id = None
+        suffix = None
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--url':
+                url = urllib.parse.urlparse(a)
+
+            elif o == '--bind-dn':
+                bind_dn = a
+
+            elif o == '--bind-password':
+                bind_password = a
+
+            elif o == '--replica-bind-dn':
+                replica_bind_dn = a
+
+            elif o == '--replica-bind-password':
+                replica_bind_password = a
+
+            elif o == '--replica-id':
+                replica_id = a
+
+            elif o == '--suffix':
+                suffix = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('Invalid option: %s', o)
+                self.print_help()
+                sys.exit(1)
+
+        # user must provide the replica ID is required since
+        # in the future the auto-generated replica ID will no
+        # longer be supported
+
+        if not replica_id:
+            logger.error('Missing replica ID')
+            sys.exit(1)
+
+        instance = pki.server.instance.PKIInstance(instance_name)
+
+        if not instance.exists():
+            logger.error('Invalid instance: %s', instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem = instance.get_subsystem(subsystem_name)
+
+        if not subsystem:
+            logger.error('No %s subsystem in instance %s.',
+                         subsystem_name.upper(), instance_name)
+            sys.exit(1)
+
+        ldap_config = {}
+
+        if url.scheme == 'ldaps':
+            ldap_config['ldapconn.secureConn'] = 'true'
+        else:
+            ldap_config['ldapconn.secureConn'] = 'false'
+
+        ldap_config['ldapconn.host'] = url.hostname
+        ldap_config['ldapconn.port'] = str(url.port)
+
+        ldap_config['ldapauth.authtype'] = 'BasicAuth'
+        ldap_config['ldapauth.bindDN'] = bind_dn
+        ldap_config['ldapauth.bindPassword'] = bind_password
+
+        ldap_config['basedn'] = suffix
+
+        subsystem.enable_replication(
+            ldap_config,
+            replica_bind_dn,
+            replica_bind_password,
+            replica_id)
 
 
 class SubsystemDBReplicationAgreementCLI(pki.cli.CLI):
