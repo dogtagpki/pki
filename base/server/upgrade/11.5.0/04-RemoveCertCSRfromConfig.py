@@ -19,13 +19,9 @@ class RemoveCertCSRfromConfig(pki.server.upgrade.PKIServerUpgradeScriptlet):
         super().__init__()
         self.message = 'Removes certs data and CSR from CS.cfg'
 
-    def upgrade_instance(self, instance):
-
-        instance.makedirs(instance.certs_dir, exist_ok=True)
-
     def upgrade_subsystem(self, instance, subsystem):
-
         self.backup(subsystem.cs_conf)
+        instance.makedirs(instance.certs_dir, exist_ok=True)
 
         logger.info('Removing certs data')
         certs = subsystem.find_system_certs()
