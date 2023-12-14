@@ -8,6 +8,7 @@ mkdir -p $ARTIFACTS/var/log
 docker exec $CONTAINER ls -la /var/log
 docker cp $CONTAINER:/var/log/ipaclient-install.log $ARTIFACTS/var/log
 docker cp $CONTAINER:/var/log/ipaclient-uninstall.log $ARTIFACTS/var/log
+docker cp $CONTAINER:/var/log/ipareplica-ca-install.log $ARTIFACTS/var/log
 docker cp $CONTAINER:/var/log/ipareplica-conncheck.log $ARTIFACTS/var/log
 docker cp $CONTAINER:/var/log/ipareplica-install.log $ARTIFACTS/var/log
 docker cp $CONTAINER:/var/log/ipaserver-install.log $ARTIFACTS/var/log
