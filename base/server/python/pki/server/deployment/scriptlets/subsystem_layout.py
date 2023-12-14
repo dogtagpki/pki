@@ -25,7 +25,6 @@ import random
 import string
 
 import pki.server
-import pki.server.instance
 import pki.util
 
 # PKI Deployment Imports

@@ -37,7 +37,6 @@ import pki.server.cli.group
 import pki.server.cli.range
 import pki.server.cli.subsystem
 import pki.server.cli.user
-import pki.server.instance
 
 logger = logging.getLogger(__name__)
 
@@ -146,7 +145,7 @@ class KRAClonePrepareCLI(pki.cli.CLI):
             self.print_help()
             sys.exit(1)
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)

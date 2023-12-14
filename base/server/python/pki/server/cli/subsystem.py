@@ -35,7 +35,6 @@ import textwrap
 import pki.cli
 import pki.nssdb
 import pki.server
-import pki.server.instance
 
 logger = logging.getLogger(__name__)
 
@@ -106,7 +105,7 @@ class SubsystemFindCLI(pki.cli.CLI):
                 self.usage()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
@@ -180,7 +179,7 @@ class SubsystemShowCLI(pki.cli.CLI):
 
         subsystem_name = args[0]
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
@@ -257,7 +256,7 @@ class SubsystemCreateCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             raise Exception('Invalid instance: %s' % instance_name)
@@ -344,7 +343,7 @@ class SubsystemDeployCLI(pki.cli.CLI):
         if len(args) > 0:
             name = args[0]
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             raise Exception('Invalid instance: %s' % instance_name)
@@ -434,7 +433,7 @@ class SubsystemUndeployCLI(pki.cli.CLI):
         if len(args) > 0:
             name = args[0]
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             raise Exception('Invalid instance: %s' % instance_name)
@@ -528,7 +527,7 @@ class SubsystemRedeployCLI(pki.cli.CLI):
         if len(args) > 0:
             name = args[0]
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             raise Exception('Invalid instance: %s' % instance_name)
@@ -614,7 +613,7 @@ class SubsystemEnableCLI(pki.cli.CLI):
                 self.usage()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
@@ -710,7 +709,7 @@ class SubsystemDisableCLI(pki.cli.CLI):
                 self.usage()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
@@ -837,7 +836,7 @@ class SubsystemCertFindCLI(pki.cli.CLI):
 
         subsystem_name = args[0]
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
@@ -935,7 +934,7 @@ class SubsystemCertShowCLI(pki.cli.CLI):
         subsystem_name = args[0]
         cert_id = args[1]
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
@@ -1063,7 +1062,7 @@ class SubsystemCertExportCLI(pki.cli.CLI):
             self.print_help()
             sys.exit(1)
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
@@ -1204,7 +1203,7 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
         subsystem_name = args[0]
         cert_id = args[1]
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
@@ -1352,7 +1351,7 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
         else:
             cert_id = None
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)

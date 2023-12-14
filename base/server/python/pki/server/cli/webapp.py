@@ -26,7 +26,6 @@ import sys
 
 import pki.cli
 import pki.server
-import pki.server.instance
 
 
 class WebappCLI(pki.cli.CLI):
@@ -101,7 +100,7 @@ class WebappFindCLI(pki.cli.CLI):
         if len(args) > 0:
             instance_name = args[0]
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             raise Exception('Invalid instance: %s' % instance_name)
@@ -195,7 +194,7 @@ class WebappDeployCLI(pki.cli.CLI):
         if len(args) < 1:
             raise Exception('Missing Webapp ID')
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
 
         webapp_id = args[0]
 
@@ -279,7 +278,7 @@ class WebappUndeployCLI(pki.cli.CLI):
 
         webapp_id = args[0]
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             raise Exception('Invalid instance: %s' % instance_name)

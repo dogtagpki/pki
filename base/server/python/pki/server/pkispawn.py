@@ -32,7 +32,6 @@ import traceback
 
 import pki
 import pki.server
-import pki.server.instance
 
 from pki.server.deployment import pkiconfig as config
 from pki.server.deployment.pkiparser import PKIConfigParser
@@ -544,7 +543,7 @@ def main(argv):
     deployer.init()
 
     instance_name = deployer.mdict['pki_instance_name']
-    deployer.instance = pki.server.instance.PKIServerFactory.create(instance_name)
+    deployer.instance = pki.server.PKIServerFactory.create(instance_name)
     deployer.instance.user = deployer.mdict['pki_user']
     deployer.instance.group = deployer.mdict['pki_group']
 

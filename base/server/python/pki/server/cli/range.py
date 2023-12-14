@@ -10,7 +10,6 @@ import logging
 import sys
 
 import pki.cli
-import pki.server.instance
 
 logger = logging.getLogger(__name__)
 
@@ -77,7 +76,7 @@ class RangeShowCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
@@ -175,7 +174,7 @@ class RangeRequestCLI(pki.cli.CLI):
         if not session_id and not install_token:
             raise Exception('Missing session ID or install token')
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
@@ -244,7 +243,7 @@ class RangeUpdateCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)

@@ -23,7 +23,6 @@ import logging
 import os
 
 import pki
-import pki.server.instance
 
 # PKI Deployment Imports
 from .. import pkiconfig as config

@@ -28,7 +28,6 @@ import subprocess
 import traceback
 
 import pki.server.deployment
-import pki.server.instance
 
 from pki.server.deployment import pkiconfig as config
 from pki.server.deployment.pkiparser import PKIConfigParser
@@ -171,7 +170,7 @@ def main(argv):
     deployer.remove_logs = args.remove_logs
 
     instance_name = config.pki_deployed_instance_name
-    deployer.instance = pki.server.instance.PKIServerFactory.create(instance_name)
+    deployer.instance = pki.server.PKIServerFactory.create(instance_name)
 
     if not deployer.instance.exists():
         logger.error('No such instance: %s', instance_name)

@@ -12,7 +12,6 @@ import sys
 import textwrap
 
 import pki.cli
-import pki.server.instance
 
 logger = logging.getLogger(__name__)
 
@@ -147,7 +146,7 @@ class UserAddCLI(pki.cli.CLI):
             self.print_help()
             sys.exit(1)
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
@@ -227,7 +226,7 @@ class UserFindCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
@@ -351,7 +350,7 @@ class UserModifyCLI(pki.cli.CLI):
 
         user_id = args[0]
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
@@ -440,7 +439,7 @@ class UserRemoveCLI(pki.cli.CLI):
 
         user_id = args[0]
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
@@ -513,7 +512,7 @@ class UserShowCLI(pki.cli.CLI):
 
         user_id = args[0]
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
@@ -620,7 +619,7 @@ class UserCertFindCLI(pki.cli.CLI):
 
         user_id = args[0]
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
@@ -704,7 +703,7 @@ class UserCertAddCLI(pki.cli.CLI):
 
         user_id = args[0]
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
@@ -794,7 +793,7 @@ class UserCertRemoveCLI(pki.cli.CLI):
         user_id = args[0]
         cert_id = args[1]
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
@@ -893,7 +892,7 @@ class UserRoleFindCLI(pki.cli.CLI):
 
         user_id = args[0]
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
@@ -983,7 +982,7 @@ class UserRoleAddCLI(pki.cli.CLI):
 
         role_id = args[1]
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
@@ -1073,7 +1072,7 @@ class UserRoleRemoveCLI(pki.cli.CLI):
 
         role_id = args[1]
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)

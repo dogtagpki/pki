@@ -25,7 +25,6 @@ import logging
 import sys
 
 import pki.cli
-import pki.server.instance
 
 
 class ListenerCLI(pki.cli.CLI):
@@ -91,7 +90,7 @@ class ListenerFindCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             raise Exception('Invalid instance: %s' % instance_name)

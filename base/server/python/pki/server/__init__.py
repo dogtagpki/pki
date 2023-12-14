@@ -2056,3 +2056,52 @@ class PKIServerException(pki.PKIException):
 
         self.instance = instance
         self.subsystem = subsystem
+
+
+class PKIServerFactory(object):
+
+    @classmethod
+    def create(cls, name):
+        '''
+        This method creates PKIServer object based on the
+        optional service type specified in the service name.
+        The default type is 'pki-tomcatd'.
+
+        :param name: Server name in this format: [<type>@]<name>[.service]
+        '''
+
+        if name.endswith('.service'):
+            name = name[0:-8]
+
+        parts = name.split('@')
+
+        if len(parts) == 1:  # no type
+            instance_type = 'pki-tomcatd'
+            instance_name = name
+
+        else:  # with type
+            instance_type = parts[0]
+            instance_name = parts[1]
+
+        sysconfig_file = os.path.join('/etc/sysconfig', instance_name)
+
+        if os.path.isfile(sysconfig_file):
+
+            with open(sysconfig_file, encoding='utf-8') as f:
+                nuxwdog_status = re.search('^USE_NUXWDOG=\"(.*)\"', f.read(), re.MULTILINE)
+
+                # Check if the regex was matched and then check if nuxwdog is enabled.
+                if nuxwdog_status and nuxwdog_status.group(1) == "true":
+                    instance_type += '-nuxwdog'
+
+        logger.info('Loading instance type: %s', instance_type)
+
+        if instance_type == 'tomcat':
+            return pki.server.PKIServer(instance_name)
+
+        if instance_type.startswith('pki-tomcatd'):
+            module = __import__('pki.server.instance', fromlist=['PKIInstance'])
+            clazz = getattr(module, 'PKIInstance')
+            return clazz(instance_name, instance_type=instance_type)
+
+        raise Exception('Unsupported instance type: %s' % instance_type)

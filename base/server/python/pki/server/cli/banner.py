@@ -27,7 +27,6 @@ import io
 import sys
 
 import pki.cli
-import pki.server.instance
 
 logger = logging.getLogger(__name__)
 
@@ -88,7 +87,7 @@ class BannerShowCLI(pki.cli.CLI):
                 self.usage()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             logger.error('Invalid instance %s.', instance_name)
@@ -168,7 +167,7 @@ class BannerValidateCLI(pki.cli.CLI):
             else:
 
                 # load banner from instance
-                instance = pki.server.instance.PKIServerFactory.create(instance_name)
+                instance = pki.server.PKIServerFactory.create(instance_name)
 
                 if not instance.exists():
                     logger.error('Invalid instance %s.', instance_name)

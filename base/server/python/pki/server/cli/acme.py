@@ -15,7 +15,6 @@ import sys
 
 import pki.cli
 import pki.server
-import pki.server.instance
 import pki.server.cli.subsystem
 
 # TODO: auto-populate this map from /usr/share/pki/acme/database
@@ -124,7 +123,7 @@ class ACMECreateCLI(pki.cli.CLI):
         if len(args) > 0:
             name = args[0]
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             raise Exception('Invalid instance: %s' % instance_name)
@@ -206,7 +205,7 @@ class ACMERemoveCLI(pki.cli.CLI):
         if len(args) > 0:
             name = args[0]
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             raise Exception('Invalid instance: %s' % instance_name)
@@ -285,7 +284,7 @@ class ACMEDeployCLI(pki.cli.CLI):
         if len(args) > 0:
             name = args[0]
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             raise Exception('Invalid instance: %s' % instance_name)
@@ -374,7 +373,7 @@ class ACMEUndeployCLI(pki.cli.CLI):
         if len(args) > 0:
             name = args[0]
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             raise Exception('Invalid instance: %s' % instance_name)
@@ -445,7 +444,7 @@ class ACMEMetadataShowCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             raise Exception('Invalid instance: %s' % instance_name)
@@ -528,7 +527,7 @@ class ACMEMetadataModifyCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             raise Exception('Invalid instance: %s' % instance_name)
@@ -636,7 +635,7 @@ class ACMEDatabaseShowCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             raise Exception('Invalid instance: %s' % instance_name)
@@ -768,7 +767,7 @@ class ACMEDatabaseModifyCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             raise Exception('Invalid instance: %s' % instance_name)
@@ -972,7 +971,7 @@ class ACMEIssuerShowCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             raise Exception('Invalid instance: %s' % instance_name)
@@ -1091,7 +1090,7 @@ class ACMEIssuerModifyCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             raise Exception('Invalid instance: %s' % instance_name)
@@ -1273,7 +1272,7 @@ class ACMERealmShowCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             raise Exception('Invalid instance: %s' % instance_name)
@@ -1415,7 +1414,7 @@ class ACMERealmModifyCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             raise Exception('Invalid instance: %s' % instance_name)

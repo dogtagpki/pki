@@ -25,7 +25,6 @@ import logging
 import sys
 
 import pki.cli
-import pki.server.instance
 
 
 class JSSCLI(pki.cli.CLI):
@@ -84,7 +83,7 @@ class JSSEnableCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             print("ERROR: Invalid instance: %s" % instance_name)
@@ -149,7 +148,7 @@ class JSSDisableCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             print("ERROR: Invalid instance: %s" % instance_name)

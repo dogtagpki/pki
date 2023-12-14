@@ -25,7 +25,6 @@ import logging
 import sys
 
 import pki.cli
-import pki.server.instance
 
 
 class PasswordCLI(pki.cli.CLI):
@@ -89,7 +88,7 @@ class PasswordFindCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             raise Exception('Invalid instance: %s' % instance_name)
@@ -166,7 +165,7 @@ class PasswordAddCLI(pki.cli.CLI):
 
         name = args[0]
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             raise Exception('Invalid instance: %s' % instance_name)
@@ -232,7 +231,7 @@ class PasswordRemoveCLI(pki.cli.CLI):
 
         name = args[0]
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
             raise Exception('Invalid instance: %s' % instance_name)

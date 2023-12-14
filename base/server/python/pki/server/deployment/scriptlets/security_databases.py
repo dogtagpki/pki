@@ -25,7 +25,6 @@ import logging
 import pki.nssdb
 import pki.pkcs12
 import pki.server
-import pki.server.instance
 import pki.util
 
 # PKI Deployment Imports

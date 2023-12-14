@@ -39,7 +39,6 @@ import pki.server.cli.group
 import pki.server.cli.range
 import pki.server.cli.subsystem
 import pki.server.cli.user
-import pki.server.instance
 
 logger = logging.getLogger(__name__)
 
@@ -137,7 +136,7 @@ class CACertFindCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
@@ -260,7 +259,7 @@ class CACertCreateCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
@@ -359,7 +358,7 @@ class CACertImportCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
@@ -431,7 +430,7 @@ class CACertRemoveCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
@@ -527,7 +526,7 @@ class CACertChainExportCLI(pki.cli.CLI):
             self.print_help()
             sys.exit(1)
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
@@ -628,7 +627,7 @@ class CACertRequestFindCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
@@ -712,7 +711,7 @@ class CACertRequestShowCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
@@ -802,7 +801,7 @@ class CACertRequestImportCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
@@ -895,7 +894,7 @@ class CACRLShowCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
@@ -1016,7 +1015,7 @@ class CACRLIPFindCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
@@ -1100,7 +1099,7 @@ class CACRLIPShowCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
@@ -1195,7 +1194,7 @@ class CACRLIPModifyCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
@@ -1298,7 +1297,7 @@ class CAClonePrepareCLI(pki.cli.CLI):
             self.print_help()
             sys.exit(1)
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
@@ -1398,7 +1397,7 @@ class CAProfileImportCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.instance.PKIServerFactory.create(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
             logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
