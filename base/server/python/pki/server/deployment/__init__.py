@@ -1568,150 +1568,7 @@ class PKIDeployer:
 
         if config.str2bool(self.mdict['pki_clone']) and \
                 config.str2bool(self.mdict['pki_clone_setup_replication']):
-
-            logger.info('Setting up replication')
-
-            master_replication_port = self.mdict['pki_clone_replication_master_port']
-            logger.info('- master replication port: %s', master_replication_port)
-
-            replica_replication_port = self.mdict['pki_clone_replication_clone_port']
-            logger.info('- replica replication port: %s', replica_replication_port)
-
-            ds_port = subsystem.config['internaldb.ldapconn.port']
-            logger.info('- internaldb.ldapconn.port: %s', ds_port)
-
-            secure_conn = subsystem.config['internaldb.ldapconn.secureConn']
-            logger.info('- internaldb.ldapconn.secureConn: %s', secure_conn)
-
-            if replica_replication_port == ds_port and secure_conn == 'true':
-                replication_security = 'SSL'
-
-            else:
-                replication_security = self.mdict['pki_clone_replication_security']
-                if not replication_security:
-                    replication_security = 'None'
-
-            logger.info('- replication security: %s', replication_security)
-
-            # get master database config
-
-            master_ldap_config = {}
-            for name in master_config['Properties']:
-
-                match = re.match(r'internaldb\.(.*)$', name)
-
-                if not match:
-                    continue
-
-                new_name = match.group(1)  # strip internaldb prefix
-
-                if new_name == 'replication.password':  # unused
-                    continue
-
-                elif new_name == 'ldapauth.bindPWPrompt':  # unused
-                    continue
-
-                elif new_name.startswith('_'):  # comments
-                    continue
-
-                elif new_name == 'ldapauth.password':  # rename
-                    new_name = 'ldapauth.bindPassword'
-
-                value = master_config['Properties'][name]
-
-                master_ldap_config[new_name] = value
-
-            # get replica database config
-
-            replica_ldap_config = {}
-            for name in subsystem.config:
-
-                match = re.match(r'internaldb\.(.*)$', name)
-
-                if not match:
-                    continue
-
-                new_name = match.group(1)  # strip internaldb prefix
-
-                if new_name.startswith('_'):  # comments
-                    continue
-
-                elif new_name == 'ldapauth.bindPWPrompt':  # replace
-                    new_name = 'ldapauth.bindPassword'
-                    value = self.instance.get_password('internaldb')
-
-                else:
-                    value = subsystem.config[name]
-
-                replica_ldap_config[new_name] = value
-
-            hostname = self.mdict['pki_hostname']
-            master_agreement_name = 'masterAgreement1-%s-%s' % (hostname, self.instance.name)
-            replica_agreement_name = 'cloneAgreement1-%s-%s' % (hostname, self.instance.name)
-
-            master_hostname = master_ldap_config['ldapconn.host']
-            if not master_replication_port:
-                master_replication_port = master_ldap_config['ldapconn.port']
-            master_url = 'ldap://%s:%s' % (master_hostname, master_replication_port)
-
-            master_bind_dn = 'cn=Replication Manager %s,ou=csusers,cn=config' % \
-                master_agreement_name
-            master_bind_password = master_config['Properties']['internaldb.replication.password']
-
-            replica_hostname = replica_ldap_config['ldapconn.host']
-            if not replica_replication_port:
-                replica_replication_port = ds_port
-            replica_url = 'ldap://%s:%s' % (replica_hostname, replica_replication_port)
-
-            replica_bind_dn = 'cn=Replication Manager %s,ou=csusers,cn=config' % \
-                replica_agreement_name
-            replica_bind_password = self.instance.get_password('replicationdb')
-
-            logger.info('Enable replication on master')
-
-            # TODO: provide param to specify the replica ID for the master
-            subsystem.enable_replication(
-                master_ldap_config,
-                master_bind_dn,
-                master_bind_password,
-                None)
-
-            logger.info('Enable replication on replica')
-
-            # TODO: provide param to specify the replica ID for the replica
-            subsystem.enable_replication(
-                replica_ldap_config,
-                replica_bind_dn,
-                replica_bind_password,
-                None)
-
-            logger.info('Adding master replication agreement')
-            logger.info('- replica URL: %s', replica_url)
-
-            subsystem.add_replication_agreement(
-                master_agreement_name,
-                master_ldap_config,
-                replica_url,
-                replica_bind_dn,
-                replica_bind_password,
-                replication_security)
-
-            logger.info('Adding replica replication agreement')
-            logger.info('- master URL: %s', master_url)
-
-            subsystem.add_replication_agreement(
-                replica_agreement_name,
-                replica_ldap_config,
-                master_url,
-                master_bind_dn,
-                master_bind_password,
-                replication_security)
-
-            logger.info('Initializing replication agreement')
-
-            subsystem.init_replication_agreement(
-                master_agreement_name,
-                master_ldap_config)
+            self.setup_replication(subsystem, master_config)
 
         # For security a PKI subsystem can be configured to use a database user
         # that only has a limited access to the database (instead of cn=Directory
@@ -1731,6 +1588,152 @@ class PKIDeployer:
 
         subsystem.add_vlv()
         subsystem.reindex_vlv()
+
+    def setup_replication(self, subsystem, master_config):
+
+        logger.info('Setting up replication')
+
+        master_replication_port = self.mdict['pki_clone_replication_master_port']
+        logger.info('- master replication port: %s', master_replication_port)
+
+        replica_replication_port = self.mdict['pki_clone_replication_clone_port']
+        logger.info('- replica replication port: %s', replica_replication_port)
+
+        ds_port = subsystem.config['internaldb.ldapconn.port']
+        logger.info('- internaldb.ldapconn.port: %s', ds_port)
+
+        secure_conn = subsystem.config['internaldb.ldapconn.secureConn']
+        logger.info('- internaldb.ldapconn.secureConn: %s', secure_conn)
+
+        if replica_replication_port == ds_port and secure_conn == 'true':
+            replication_security = 'SSL'
+
+        else:
+            replication_security = self.mdict['pki_clone_replication_security']
+            if not replication_security:
+                replication_security = 'None'
+
+        logger.info('- replication security: %s', replication_security)
+
+        # get master database config
+
+        master_ldap_config = {}
+        for name in master_config['Properties']:
+
+            match = re.match(r'internaldb\.(.*)$', name)
+
+            if not match:
+                continue
+
+            new_name = match.group(1)  # strip internaldb prefix
+
+            if new_name == 'replication.password':  # unused
+                continue
+
+            elif new_name == 'ldapauth.bindPWPrompt':  # unused
+                continue
+
+            elif new_name.startswith('_'):  # ignore comments
+                continue
+
+            elif new_name == 'ldapauth.password':  # rename
+                new_name = 'ldapauth.bindPassword'
+
+            value = master_config['Properties'][name]
+
+            master_ldap_config[new_name] = value
+
+        # get replica database config
+
+        replica_ldap_config = {}
+        for name in subsystem.config:
+
+            match = re.match(r'internaldb\.(.*)$', name)
+
+            if not match:
+                continue
+
+            new_name = match.group(1)  # strip internaldb prefix
+
+            if new_name.startswith('_'):  # ignore comments
+                continue
+
+            elif new_name == 'ldapauth.bindPWPrompt':  # replace
+                new_name = 'ldapauth.bindPassword'
+                value = self.instance.get_password('internaldb')
+
+            else:
+                value = subsystem.config[name]
+
+            replica_ldap_config[new_name] = value
+
+        hostname = self.mdict['pki_hostname']
+        master_agreement_name = 'masterAgreement1-%s-%s' % (hostname, self.instance.name)
+        replica_agreement_name = 'cloneAgreement1-%s-%s' % (hostname, self.instance.name)
+
+        master_hostname = master_ldap_config['ldapconn.host']
+        if not master_replication_port:
+            master_replication_port = master_ldap_config['ldapconn.port']
+        master_url = 'ldap://%s:%s' % (master_hostname, master_replication_port)
+
+        master_bind_dn = 'cn=Replication Manager %s,ou=csusers,cn=config' % \
+            master_agreement_name
+        master_bind_password = master_config['Properties']['internaldb.replication.password']
+
+        replica_hostname = replica_ldap_config['ldapconn.host']
+        if not replica_replication_port:
+            replica_replication_port = ds_port
+        replica_url = 'ldap://%s:%s' % (replica_hostname, replica_replication_port)
+
+        replica_bind_dn = 'cn=Replication Manager %s,ou=csusers,cn=config' % \
+            replica_agreement_name
+        replica_bind_password = self.instance.get_password('replicationdb')
+
+        logger.info('Enable replication on master')
+
+        # TODO: provide param to specify the replica ID for the master
+        subsystem.enable_replication(
+            master_ldap_config,
+            master_bind_dn,
+            master_bind_password,
+            None)
+
+        logger.info('Enable replication on replica')
+
+        # TODO: provide param to specify the replica ID for the replica
+        subsystem.enable_replication(
+            replica_ldap_config,
+            replica_bind_dn,
+            replica_bind_password,
+            None)
+
+        logger.info('Adding master replication agreement')
+        logger.info('- replica URL: %s', replica_url)
+
+        subsystem.add_replication_agreement(
+            master_agreement_name,
+            master_ldap_config,
+            replica_url,
+            replica_bind_dn,
+            replica_bind_password,
+            replication_security)
+
+        logger.info('Adding replica replication agreement')
+        logger.info('- master URL: %s', master_url)
+
+        subsystem.add_replication_agreement(
+            replica_agreement_name,
+            replica_ldap_config,
+            master_url,
+            master_bind_dn,
+            master_bind_password,
+            replication_security)
+
+        logger.info('Initializing replication agreement')
+
+        subsystem.init_replication_agreement(
+            master_agreement_name,
+            master_ldap_config)
 
     def is_using_legacy_id_generator(self, subsystem):
 
