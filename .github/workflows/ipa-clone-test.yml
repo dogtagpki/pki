@@ -197,6 +197,33 @@ jobs:
         run: |
           docker exec secondary ipa-kra-install -p Secret.123
 
+      - name: Check schema in primary DS and secondary DS
+        if: always()
+        run: |
+          docker exec primary ldapsearch \
+              -H ldap://primary.example.com:389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b cn=schema \
+              -o ldif_wrap=no \
+              -LLL \
+              objectClasses attributeTypes \
+              | grep "\-oid" | sort | tee primary.schema
+
+          docker exec secondary ldapsearch \
+              -H ldap://secondary.example.com:389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b cn=schema \
+              -o ldif_wrap=no \
+              -LLL \
+              objectClasses attributeTypes \
+              | grep "\-oid" | sort | tee secondary.schema
+
+          diff primary.schema secondary.schema
+
       - name: Check replication managers on primary DS
         if: always()
         run: |

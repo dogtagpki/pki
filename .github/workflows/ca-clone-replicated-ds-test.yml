@@ -275,6 +275,32 @@ jobs:
               -v \
               primaryds-to-secondaryds
 
+      - name: Check schema in primary DS and secondary DS
+        run: |
+          docker exec primaryds ldapsearch \
+              -H ldap://primaryds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b cn=schema \
+              -o ldif_wrap=no \
+              -LLL \
+              objectClasses attributeTypes \
+              | grep "\-oid" | sort | tee primaryds.schema
+
+          docker exec secondaryds ldapsearch \
+              -H ldap://secondaryds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b cn=schema \
+              -o ldif_wrap=no \
+              -LLL \
+              objectClasses attributeTypes \
+              | grep "\-oid" | sort | tee secondaryds.schema
+
+          diff primaryds.schema secondaryds.schema
+
       - name: Check entries in primary DS and secondary DS
         run: |
           # get DNs from primary DS
