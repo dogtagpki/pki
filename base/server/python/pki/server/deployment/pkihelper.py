@@ -2890,6 +2890,7 @@ class ConfigClient:
         cert.nickname = self.mdict["pki_%s_nickname" % tag]
         cert.subjectDN = self.mdict["pki_%s_subject_dn" % tag]
         cert.token = self.mdict["pki_%s_token" % tag]
+        cert.opsFlagMask = self.mdict["pki_%s_opsFlagMask" % tag]
         return cert
 
     def retrieve_existing_server_cert(self, cfg_file):

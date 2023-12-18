@@ -69,18 +69,18 @@ import org.mozilla.jss.SecretDecoderRing.KeyManager;
 import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.ASN1Value;
 import org.mozilla.jss.asn1.BIT_STRING;
-import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.BMPString;
-import org.mozilla.jss.asn1.PrintableString;
-import org.mozilla.jss.asn1.TeletexString;
-import org.mozilla.jss.asn1.UTF8String;
-import org.mozilla.jss.asn1.UniversalString;
+import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.asn1.NULL;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.OCTET_STRING;
+import org.mozilla.jss.asn1.PrintableString;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.SET;
+import org.mozilla.jss.asn1.TeletexString;
+import org.mozilla.jss.asn1.UTF8String;
+import org.mozilla.jss.asn1.UniversalString;
 import org.mozilla.jss.crypto.Algorithm;
 import org.mozilla.jss.crypto.Cipher;
 import org.mozilla.jss.crypto.CryptoStore;
@@ -157,8 +157,8 @@ import org.mozilla.jss.pkix.crmf.CertTemplate;
 import org.mozilla.jss.pkix.crmf.EncryptedKey;
 import org.mozilla.jss.pkix.crmf.EncryptedValue;
 import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
-import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.pkix.primitive.AVA;
+import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import org.mozilla.jss.ssl.SSLCipher;
@@ -3324,6 +3324,12 @@ public class CryptoUtil {
         }
 
         return desKey;
+    }
+
+    public static KeyPairGeneratorSpi.Usage[] generateUsage(String usage) {
+        return Arrays.stream(usage.toUpperCase().split(",")).map(String::trim)
+                .map(KeyPairGeneratorSpi.Usage::valueOf).toArray(KeyPairGeneratorSpi.Usage[]::new);
+
     }
 }
 
