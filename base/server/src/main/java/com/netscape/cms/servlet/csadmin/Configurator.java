@@ -266,7 +266,7 @@ public class Configurator {
      * -TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,
      * +TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA
      */
-    public KeyPair createECCKeyPair(String tag, CryptoToken token, String curveName, String ecType)
+    public KeyPair createECCKeyPair(String tag, CryptoToken token, String curveName, String ecType, String usage)
             throws Exception {
 
         if (curveName == null) {
@@ -281,11 +281,17 @@ public class Configurator {
         logger.info("Configurator: - type: " + ecType);
 
         do {
-            if (tag.equals("sslserver") && ecType.equalsIgnoreCase("ECDH")) {
-                pair = CryptoUtil.generateECCKeyPair(token, curveName, null, CryptoUtil.ECDH_USAGES_MASK);
+            if (usage == null || usage.isEmpty()) {
+                if (tag.equals("sslserver") && ecType.equalsIgnoreCase("ECDH")) {
+                    pair = CryptoUtil.generateECCKeyPair(token, curveName, null, CryptoUtil.ECDH_USAGES_MASK);
 
+                } else {
+                    pair = CryptoUtil.generateECCKeyPair(token, curveName, null, CryptoUtil.ECDHE_USAGES_MASK);
+                }
             } else {
-                pair = CryptoUtil.generateECCKeyPair(token, curveName, null, CryptoUtil.ECDHE_USAGES_MASK);
+                pair = CryptoUtil.generateECCKeyPair(token, curveName,
+                        CryptoUtil.generateUsage(usage),
+                        CryptoUtil.generateUsage(usage));
             }
 
             // XXX - store curve , w
@@ -303,7 +309,7 @@ public class Configurator {
         return pair;
     }
 
-    public KeyPair createRSAKeyPair(String tag, CryptoToken token, String keySize)
+    public KeyPair createRSAKeyPair(String tag, CryptoToken token, String keySize, String usage)
             throws Exception {
 
         logger.debug("Configurator.createRSAKeyPair(" + token + ")");
@@ -317,15 +323,21 @@ public class Configurator {
         logger.error("Configurator.createRSAKeyPair: tag " + tag);
         KeyPair pair = null;
         do {
-            if("transport".equals(tag) || "storage".equals(tag) || "subsystem".equals(tag)) {
-                pair = CryptoUtil.generateRSAKeyPair(token,size,
-                                CryptoUtil.RSA_KEYPAIR_USAGES,
-                                CryptoUtil.RSA_KEYPAIR_USAGES_MASK);
+            if (usage == null || usage.isEmpty()) {
+                if("transport".equals(tag) || "storage".equals(tag) || "subsystem".equals(tag)) {
+                    pair = CryptoUtil.generateRSAKeyPair(token,size,
+                                    CryptoUtil.RSA_KEYPAIR_USAGES,
+                                    CryptoUtil.RSA_KEYPAIR_USAGES_MASK);
+                } else {
+                    pair = CryptoUtil.generateRSAKeyPair(token, size);
+                }
             } else {
-                pair = CryptoUtil.generateRSAKeyPair(token, size);
+                pair = CryptoUtil.generateRSAKeyPair(token, size,
+                        CryptoUtil.generateUsage(usage),
+                        CryptoUtil.generateUsage(usage));
             }
 
-            byte id[] = ((org.mozilla.jss.crypto.PrivateKey) pair.getPrivate()).getUniqueID();
+            byte[] id = ((org.mozilla.jss.crypto.PrivateKey) pair.getPrivate()).getUniqueID();
             String kid = CryptoUtil.encodeKeyID(id);
 
             // try to locate the private key
@@ -605,6 +617,9 @@ public class Configurator {
         String certType = certData.getType();
         logger.info("Configurator: - cert type: " + certType);
 
+        String usageMask = certData.getOpsFlagMask();
+        logger.info("Configurator: - cert usageMask: " + usageMask);
+
         String[] dnsNames = certData.getDNSNames();
         if (dnsNames != null) {
             logger.info("Configurator: - SAN extension: ");
@@ -645,10 +660,10 @@ public class Configurator {
                 // Note: IE only supports "ECDHE", but "ECDH" is more efficient.
                 String ecType = preopConfig.getString("cert." + tag + ".ec.type", "ECDHE");
 
-                keyPair = createECCKeyPair(tag, token, keySize, ecType);
+                keyPair = createECCKeyPair(tag, token, keySize, ecType, usageMask);
 
             } else {
-                keyPair = createRSAKeyPair(tag, token, keySize);
+                keyPair = createRSAKeyPair(tag, token, keySize, usageMask);
             }
         }
 

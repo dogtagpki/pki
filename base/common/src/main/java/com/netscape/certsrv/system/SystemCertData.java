@@ -61,6 +61,9 @@ public class SystemCertData {
     protected String subjectDN;
 
     @XmlElement
+    protected String opsFlagMask;
+
+    @XmlElement
     protected String cert;
 
     @XmlElement
@@ -237,6 +240,20 @@ public class SystemCertData {
 
     public void setDNSNames(String[] dnsNames) {
         this.dnsNames = dnsNames;
+    }
+
+    /**
+     * @return the certificate operation mask
+     */
+    public String getOpsFlagMask() {
+        return opsFlagMask;
+    }
+
+    /**
+     * @param The certificate operation mask. It is a comma separated list of usages including: encrypt, decrypt, sign, sign_recover, verify, verify_recover, wrap, unwrap and derive.
+     */
+    public void setOpsFlagMask(String opsFlagMask) {
+        this.opsFlagMask = opsFlagMask;
     }
 
     @Override
