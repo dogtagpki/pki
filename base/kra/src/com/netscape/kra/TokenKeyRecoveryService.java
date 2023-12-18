@@ -301,10 +301,11 @@ public class TokenKeyRecoveryService implements IService {
 
             // unwrap the des key
             try {
+                CMS.debug("TokenKeyRecoveryService: received DRM-trans-wrapped des key: length: " + wrapped_des_key.length);
                 sk = (PK11SymKey) mTransportUnit.unwrap_sym(wrapped_des_key, wrapParams);
                 CMS.debug("TokenKeyRecoveryService: received des key");
             } catch (Exception e) {
-                CMS.debug("TokenKeyRecoveryService: no des key");
+                CMS.debug("TokenKeyRecoveryService: no des key: " + e);
                 if(!useAesTransWrapped) {
                     request.setExtData(IRequest.RESULT, Integer.valueOf(4));
                     return false;
