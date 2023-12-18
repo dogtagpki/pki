@@ -438,6 +438,7 @@ public class NetkeyKeygenService implements IService {
                     logger.debug(method + " attemptedAesKeyWrap = true ");
                 } else {
                     algParam = desAlgParam;
+                    iv_s = org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(iv);
                     logger.debug(method + " attemptedAesKeyWrap = false ");
                 }
 

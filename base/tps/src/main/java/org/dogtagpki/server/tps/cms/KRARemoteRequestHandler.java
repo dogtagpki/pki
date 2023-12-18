@@ -295,8 +295,8 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
 
         String sendMsg = null;
         try {
-            String desPart = " ";
-            String aesPart = " ";
+            String desPart = "";
+            String aesPart = "";
 
             if(sDesKey != null) {
                 desPart = "&" + IRemoteRequest.KRA_Trans_DesKey + "=" + sDesKey;
@@ -328,6 +328,7 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
                         aesWrapAlg;
 
             }
+            //logger.debug("KRARemoteRequestHandler: recoverKey(): outgoing: " + sendMsg);
         } catch (Exception e) {
             logger.debug("KRARemoteRequestHandler: recoverKey(): uriEncode failed: " + e);
             throw new EBaseException("KRARemoteRequestHandler: recoverKey(): uriEncode failed: " + e);
