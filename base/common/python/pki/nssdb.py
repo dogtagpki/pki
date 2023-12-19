@@ -645,7 +645,8 @@ class NSSDatabase(object):
             key_size=None,
             key_wrap=False,
             curve=None,
-            ssl_ecdh=False):
+            ssl_ecdh=False,
+            opsFlagMask=None):
 
         cmd = [
             'pki',
@@ -685,6 +686,9 @@ class NSSDatabase(object):
 
         if ssl_ecdh:
             cmd.append('--ssl-ecdh')
+
+        if opsFlagMask:
+            cmd.extend(['--ops-flag-mask', opsFlagMask])
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')

@@ -3047,6 +3047,12 @@ public class CryptoUtil {
 
         return desKey;
     }
+
+    public static KeyPairGeneratorSpi.Usage[] generateUsage(String usage) {
+        return Arrays.stream(usage.toUpperCase().split(",")).map(String::trim)
+                .map(KeyPairGeneratorSpi.Usage::valueOf).toArray(KeyPairGeneratorSpi.Usage[]::new);
+
+    }
 }
 
 // START ENABLE_ECC
