@@ -61,6 +61,9 @@ public class SystemCertData {
     protected String subjectDN;
 
     @XmlElement
+    protected String opsFlag;
+
+    @XmlElement
     protected String opsFlagMask;
 
     @XmlElement
@@ -240,6 +243,20 @@ public class SystemCertData {
 
     public void setDNSNames(String[] dnsNames) {
         this.dnsNames = dnsNames;
+    }
+
+    /**
+     * @return the certificate operation flags
+     */
+    public String getOpsFlag() {
+        return opsFlag;
+    }
+
+    /**
+     * @param The certificate operation flags. It is a comma separated list of usages including: encrypt, decrypt, sign, sign_recover, verify, verify_recover, wrap, unwrap and derive.
+     */
+    public void setOpsFlag(String opsFlag) {
+        this.opsFlag = opsFlag;
     }
 
     /**

@@ -32,6 +32,7 @@ import javax.ws.rs.core.Response;
 import org.dogtag.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.KeyPairGeneratorSpi;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
@@ -266,7 +267,7 @@ public class Configurator {
      * -TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,
      * +TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA
      */
-    public KeyPair createECCKeyPair(String tag, CryptoToken token, String curveName, String ecType, String usage)
+    public KeyPair createECCKeyPair(String tag, CryptoToken token, String curveName, String ecType, String usage, String usageMask)
             throws Exception {
 
         if (curveName == null) {
@@ -281,18 +282,23 @@ public class Configurator {
         logger.info("Configurator: - type: " + ecType);
 
         do {
-            if (usage == null || usage.isEmpty()) {
-                if (tag.equals("sslserver") && ecType.equalsIgnoreCase("ECDH")) {
-                    pair = CryptoUtil.generateECCKeyPair(token, curveName, null, CryptoUtil.ECDH_USAGES_MASK);
-
-                } else {
-                    pair = CryptoUtil.generateECCKeyPair(token, curveName, null, CryptoUtil.ECDHE_USAGES_MASK);
-                }
-            } else {
-                pair = CryptoUtil.generateECCKeyPair(token, curveName,
-                        CryptoUtil.generateUsage(usage),
-                        CryptoUtil.generateUsage(usage));
+            KeyPairGeneratorSpi.Usage[] eccUsage = null;
+            KeyPairGeneratorSpi.Usage[] eccUsageMask = null;
+            if (usage != null && !usage.isEmpty()) {
+                eccUsage = CryptoUtil.generateUsage(usage);
             }
+            if (usageMask != null && !usageMask.isEmpty()) {
+                eccUsageMask = CryptoUtil.generateUsage(usageMask);
+            } else {
+                if (tag.equals("sslserver") && ecType.equalsIgnoreCase("ECDH")) {
+                    eccUsageMask = CryptoUtil.ECDH_USAGES_MASK;
+                } else {
+                    eccUsageMask = CryptoUtil.ECDHE_USAGES_MASK;
+                }
+            }
+            pair = CryptoUtil.generateECCKeyPair(token, curveName,
+                    eccUsage,
+                    eccUsageMask);
 
             // XXX - store curve , w
             byte id[] = ((org.mozilla.jss.crypto.PrivateKey) pair.getPrivate()).getUniqueID();
@@ -309,7 +315,7 @@ public class Configurator {
         return pair;
     }
 
-    public KeyPair createRSAKeyPair(String tag, CryptoToken token, String keySize, String usage)
+    public KeyPair createRSAKeyPair(String tag, CryptoToken token, String keySize, String usage, String usageMask)
             throws Exception {
 
         logger.debug("Configurator.createRSAKeyPair(" + token + ")");
@@ -323,18 +329,28 @@ public class Configurator {
         logger.error("Configurator.createRSAKeyPair: tag " + tag);
         KeyPair pair = null;
         do {
-            if (usage == null || usage.isEmpty()) {
+            KeyPairGeneratorSpi.Usage[] rsaUsage = null;
+            KeyPairGeneratorSpi.Usage[] rsaUsageMask = null;
+            if (usage != null && !usage.isEmpty()) {
+                rsaUsage = CryptoUtil.generateUsage(usage);
+            } else {
                 if("transport".equals(tag) || "storage".equals(tag) || "subsystem".equals(tag)) {
-                    pair = CryptoUtil.generateRSAKeyPair(token,size,
-                                    CryptoUtil.RSA_KEYPAIR_USAGES,
-                                    CryptoUtil.RSA_KEYPAIR_USAGES_MASK);
-                } else {
-                    pair = CryptoUtil.generateRSAKeyPair(token, size);
+                    rsaUsage = CryptoUtil.RSA_KEYPAIR_USAGES;
                 }
+            }
+            if (usageMask != null && !usageMask.isEmpty()) {
+                rsaUsageMask = CryptoUtil.generateUsage(usageMask);
+            } else {
+                if("transport".equals(tag) || "storage".equals(tag) || "subsystem".equals(tag)) {
+                    rsaUsageMask = CryptoUtil.RSA_KEYPAIR_USAGES_MASK;
+                }
+            }
+
+            if (rsaUsage == null && rsaUsageMask == null) {
+                pair = CryptoUtil.generateRSAKeyPair(token, size);
             } else {
                 pair = CryptoUtil.generateRSAKeyPair(token, size,
-                        CryptoUtil.generateUsage(usage),
-                        CryptoUtil.generateUsage(usage));
+                        rsaUsage, rsaUsageMask);
             }
 
             byte[] id = ((org.mozilla.jss.crypto.PrivateKey) pair.getPrivate()).getUniqueID();
@@ -617,6 +633,9 @@ public class Configurator {
         String certType = certData.getType();
         logger.info("Configurator: - cert type: " + certType);
 
+        String usage = certData.getOpsFlag();
+        logger.info("Configurator: - cert usage: " + usage);
+
         String usageMask = certData.getOpsFlagMask();
         logger.info("Configurator: - cert usageMask: " + usageMask);
 
@@ -660,10 +679,10 @@ public class Configurator {
                 // Note: IE only supports "ECDHE", but "ECDH" is more efficient.
                 String ecType = preopConfig.getString("cert." + tag + ".ec.type", "ECDHE");
 
-                keyPair = createECCKeyPair(tag, token, keySize, ecType, usageMask);
+                keyPair = createECCKeyPair(tag, token, keySize, ecType, usage, usageMask);
 
             } else {
-                keyPair = createRSAKeyPair(tag, token, keySize, usageMask);
+                keyPair = createRSAKeyPair(tag, token, keySize, usage, usageMask);
             }
         }
 
