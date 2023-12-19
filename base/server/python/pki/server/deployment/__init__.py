@@ -2839,6 +2839,7 @@ class PKIDeployer:
         system_cert.nickname = self.mdict['pki_%s_nickname' % cert_id]
         system_cert.subjectDN = self.mdict['pki_%s_subject_dn' % cert_id]
         system_cert.token = self.mdict['pki_%s_token' % cert_id]
+        system_cert.opsFlagMask = self.mdict['pki_%s_opsFlagMask' % cert_id]
 
         if not system_cert.token:
             if config.str2bool(self.mdict['pki_hsm_enable']):

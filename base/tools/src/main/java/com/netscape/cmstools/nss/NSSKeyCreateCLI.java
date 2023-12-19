@@ -86,6 +86,10 @@ public class NSSKeyCreateCLI extends CommandCLI {
         option.setArgName("boolean");
         options.addOption(option);
 
+        option = new Option(null, "ops-flag-mask", true, "Custom flags mask for key usage (empty for HSM default)");
+        option.setArgName("usage list");
+        options.addOption(option);
+
         option = new Option(null, "output-format", true, "Output format: text (default), json.");
         option.setArgName("format");
         options.addOption(option);
@@ -129,6 +133,8 @@ public class NSSKeyCreateCLI extends CommandCLI {
             extractable = Boolean.valueOf(extractableStr);
         }
 
+        String opsFlagMask = cmd.getOptionValue("extractable");
+
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
@@ -141,11 +147,19 @@ public class NSSKeyCreateCLI extends CommandCLI {
 
         logger.info("Creating " + keyType + " in token " + tokenName);
 
+        Usage[] usages;
+        Usage[] usagesMask;
         if ("RSA".equalsIgnoreCase(keyType)) {
 
             if (keySize == null) keySize = "2048";
-            Usage[] usages = keyWrap ? CryptoUtil.RSA_KEYPAIR_USAGES : null;
-            Usage[] usagesMask = keyWrap ? CryptoUtil.RSA_KEYPAIR_USAGES_MASK : null;
+            if (opsFlagMask != null && !opsFlagMask.isEmpty()) {
+                usages = CryptoUtil.generateUsage(opsFlagMask);
+                usagesMask = CryptoUtil.generateUsage(opsFlagMask);
+
+            } else {
+                usages = keyWrap ? CryptoUtil.RSA_KEYPAIR_USAGES : null;
+                usagesMask = keyWrap ? CryptoUtil.RSA_KEYPAIR_USAGES_MASK : null;
+            }
 
             KeyPair keyPair = nssdb.createRSAKeyPair(
                     token,
@@ -165,8 +179,14 @@ public class NSSKeyCreateCLI extends CommandCLI {
 
         } else if ("EC".equalsIgnoreCase(keyType)) {
 
-            Usage[] usages = null;
-            Usage[] usagesMask = sslECDH ? CryptoUtil.ECDH_USAGES_MASK : CryptoUtil.ECDHE_USAGES_MASK;
+            if (opsFlagMask != null && !opsFlagMask.isEmpty()) {
+                usages = CryptoUtil.generateUsage(opsFlagMask);
+                usagesMask = CryptoUtil.generateUsage(opsFlagMask);
+
+            } else {
+                usages = null;
+                usagesMask = sslECDH ? CryptoUtil.ECDH_USAGES_MASK : CryptoUtil.ECDHE_USAGES_MASK;
+            }
 
             KeyPair keyPair = nssdb.createECKeyPair(
                     token,
