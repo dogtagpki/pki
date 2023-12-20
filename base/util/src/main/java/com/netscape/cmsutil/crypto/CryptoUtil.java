@@ -666,10 +666,7 @@ public class CryptoUtil {
             org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage usages_mask[]) throws Exception {
         KeyPairGenerator kg = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
 
-        if(usages != null) {
-            System.out.println("CryptoUtil: generateRSAKeyPair: calling kg.setKeyPairUsages");
-            kg.setKeyPairUsages(usages, usages_mask);
-        }
+        kg.setKeyPairUsages(usages, usages_mask);
 
         if(extractable == true)
             kg.extractablePairs(true);
