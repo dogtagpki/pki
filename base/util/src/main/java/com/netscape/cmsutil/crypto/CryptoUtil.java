@@ -51,6 +51,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.Vector;
+import java.util.stream.Stream;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.SecretKeyFactory;
@@ -665,11 +666,15 @@ public class CryptoUtil {
             org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage usages[],
             org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage usages_mask[]) throws Exception {
         KeyPairGenerator kg = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
-
-        if(usages != null) {
-            System.out.println("CryptoUtil: generateRSAKeyPair: calling kg.setKeyPairUsages");
-            kg.setKeyPairUsages(usages, usages_mask);
+        if(usages!=null) {
+            String usageList = String.join(",", Stream.of(usages).map(org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage::name).toArray(String[]::new));
+            logger.info("CryptoUtil: generateRSAKeyPair with key usage {}", usageList);
         }
+        if(usages_mask!=null) {
+            String usageMaskList = String.join(",", Stream.of(usages_mask).map(org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage::name).toArray(String[]::new));
+            logger.info("CryptoUtil: generateRSAKeyPair with key usage {}", usageMaskList);
+        }
+        kg.setKeyPairUsages(usages, usages_mask);
 
         if(extractable == true)
             kg.extractablePairs(true);
@@ -733,7 +738,14 @@ public class CryptoUtil {
 
         KeyPairAlgorithm alg = KeyPairAlgorithm.EC;
         KeyPairGenerator keygen = token.getKeyPairGenerator(alg);
-
+        if(usage_ops!=null) {
+            String usageList = String.join(",", Stream.of(usage_ops).map(org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage::name).toArray(String[]::new));
+            logger.info("CryptoUtil: generateECCKeyPair with key usage {}", usageList);
+        }
+        if(usage_mask!=null) {
+            String usageMaskList = String.join(",", Stream.of(usage_mask).map(org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage::name).toArray(String[]::new));
+            logger.info("CryptoUtil: generateECCKeyPair with key usage {}", usageMaskList);
+        }
         keygen.setKeyPairUsages(usage_ops, usage_mask);
         keygen.initialize(keysize);
         keygen.setKeyPairUsages(usage_ops, usage_mask);

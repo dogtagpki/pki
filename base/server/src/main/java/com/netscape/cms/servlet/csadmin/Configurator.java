@@ -326,7 +326,7 @@ public class Configurator {
 
         int size = Integer.parseInt(keySize);
 
-        logger.error("Configurator.createRSAKeyPair: tag " + tag);
+        logger.info("Configurator.createRSAKeyPair: tag " + tag);
         KeyPair pair = null;
         do {
             KeyPairGeneratorSpi.Usage[] rsaUsage = null;
