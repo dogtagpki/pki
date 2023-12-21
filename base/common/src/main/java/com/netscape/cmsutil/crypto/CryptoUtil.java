@@ -51,6 +51,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
+import java.util.stream.Stream;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.SecretKeyFactory;
@@ -461,6 +462,10 @@ public class CryptoUtil {
             keygen.extractablePairs(extractable);
         }
 
+        String usageList = usages != null ? String.join(",", Stream.of(usages).map(org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage::name).toArray(String[]::new)) : "";
+        logger.debug("CryptoUtil: generateRSAKeyPair with key usage {}", usageList);
+        String usageMaskList = usagesMask != null ? String.join(",", Stream.of(usagesMask).map(org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage::name).toArray(String[]::new)) : "";
+        logger.debug("CryptoUtil: generateRSAKeyPair with key usage mask {}", usageMaskList);
         keygen.setKeyPairUsages(usages, usagesMask);
 
         logger.debug("CryptoUtil: - key size: " + keySize);
@@ -561,6 +566,10 @@ public class CryptoUtil {
             keygen.extractablePairs(extractable);
         }
 
+        String usageList = usages != null ? String.join(",", Stream.of(usages).map(org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage::name).toArray(String[]::new)) : "";
+        logger.debug("CryptoUtil: generateRSAKeyPair with key usage {}", usageList);
+        String usageMaskList = usagesMask != null ? String.join(",", Stream.of(usagesMask).map(org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage::name).toArray(String[]::new)) : "";
+        logger.debug("CryptoUtil: generateRSAKeyPair with key usage mask {}", usageMaskList);
         keygen.setKeyPairUsages(usages, usagesMask);
 
         keygen.initialize(curveCode);
