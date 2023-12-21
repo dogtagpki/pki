@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Wait for build
-        uses: lewagon/wait-on-check-action@v1.2.0
+        uses: lewagon/wait-on-check-action@v1.3.1
         with:
           ref: ${{ github.sha }}
           check-name: 'Building PKI'
@@ -18,7 +18,7 @@ jobs:
         if: github.event_name == 'push'
 
       - name: Wait for build
-        uses: lewagon/wait-on-check-action@v1.2.0
+        uses: lewagon/wait-on-check-action@v1.3.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           check-name: 'Building PKI'
