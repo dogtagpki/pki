@@ -672,7 +672,7 @@ public class CryptoUtil {
         }
         if(usages_mask!=null) {
             String usageMaskList = String.join(",", Stream.of(usages_mask).map(org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage::name).toArray(String[]::new));
-            logger.info("CryptoUtil: generateRSAKeyPair with key usage {}", usageMaskList);
+            logger.info("CryptoUtil: generateRSAKeyPair with key usage mask {}", usageMaskList);
         }
         kg.setKeyPairUsages(usages, usages_mask);
 
@@ -744,7 +744,7 @@ public class CryptoUtil {
         }
         if(usage_mask!=null) {
             String usageMaskList = String.join(",", Stream.of(usage_mask).map(org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage::name).toArray(String[]::new));
-            logger.info("CryptoUtil: generateECCKeyPair with key usage {}", usageMaskList);
+            logger.info("CryptoUtil: generateECCKeyPair with key usage mask {}", usageMaskList);
         }
         keygen.setKeyPairUsages(usage_ops, usage_mask);
         keygen.initialize(keysize);
