@@ -18,6 +18,7 @@
 package com.netscape.cmscore.dbs;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.DBPagedSearch;
 import com.netscape.certsrv.dbs.DBVirtualList;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBObj;
@@ -350,6 +351,22 @@ public class DBSSession implements AutoCloseable {
             String sortKey,
             int pageSize
             ) throws EBaseException {
+        return null;
+    }
+
+    /**
+     * Retrieves a paged search of objects.
+     *
+     * @param base starting point of the search
+     * @param filter search filter
+     * @param attrs selected attributes
+     * @param startFrom starting point
+     * @param sortKey key used to sort the list
+     * @return search results in virtual list
+     * @exception EBaseException failed to search
+     */
+    public <T extends IDBObj> DBPagedSearch<T> createPagedSearch(String base, String filter, String[] attrs,
+            String sortKey)  throws EBaseException {
         return null;
     }
 

@@ -55,7 +55,7 @@ import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.RevocationInfo;
 
 /**
- * @author Marco Fargetta <mfargett@redhat.com>
+ * @author Marco Fargetta {@literal <mfargett@redhat.com>}
  */
 @WebServlet("/v2/certs/*")
 public class CertServlet extends CAServlet {
