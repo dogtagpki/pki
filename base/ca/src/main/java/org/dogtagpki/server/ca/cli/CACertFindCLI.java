@@ -15,7 +15,6 @@ import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.jss.tomcat.TomcatJSS;
-import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngineConfig;
 import org.dogtagpki.util.logging.PKILogger;
 import org.dogtagpki.util.logging.PKILogger.LogLevel;
@@ -30,7 +29,7 @@ import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.FileConfigStorage;
 import com.netscape.cmscore.dbs.CertRecord;
-import com.netscape.cmscore.dbs.CertRecordList;
+import com.netscape.cmscore.dbs.CertRecordPagedList;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
@@ -82,8 +81,6 @@ public class CACertFindCLI extends CommandCLI {
         String filter = builder.buildFilter();
         logger.info("- filter: " + filter);
 
-        int size = 20;
-
         String instanceDir = CMS.getInstanceDir();
 
         TomcatJSS tomcatjss = TomcatJSS.getInstance();
@@ -115,48 +112,40 @@ public class CACertFindCLI extends CommandCLI {
         dbSubsystem.setEngineConfig(cs);
         dbSubsystem.init(dbConfig, ldapConfig, socketConfig, passwordStore);
 
-        CAConfig caConfig = cs.getCAConfig();
-
         logger.info("Initializing cert repository");
-
-        int increment = caConfig.getInteger(CertificateRepository.PROP_INCREMENT, 5);
-        logger.info("- increment: " + increment);
 
         try {
             CertificateRepository certificateRepository = new CertificateRepository(secureRandom, dbSubsystem);
             certificateRepository.init();
 
-            CertRecordList list = certificateRepository.findCertRecordsInList(filter, null, "serialno", size);
-            int total = list.getSize();
-
-            for (int i = 0; i < total; i++) {
-
-                if (i > 0) {
+            CertRecordPagedList certPages = certificateRepository.findPagedCertRecords(filter, null, "serialno");
+            boolean follow = false;
+            for (CertRecord cRec: certPages) {
+                CertId id = new CertId(cRec.getSerialNumber());
+                X509Certificate cert = cRec.getCertificate();
+                if(follow) {
                     System.out.println();
+                } else {
+                    follow = true;
                 }
-
-                CertRecord record = list.getCertRecord(i);
-                CertId id = new CertId(record.getSerialNumber());
-                X509Certificate cert = record.getCertificate();
-
                 System.out.println("  Serial Number: " + id.toHexString());
                 System.out.println("  Subject DN: " + cert.getSubjectDN());
                 System.out.println("  Issuer DN: " + cert.getIssuerDN());
 
-                System.out.println("  Status: " + record.getStatus());
+                System.out.println("  Status: " + cRec.getStatus());
 
                 System.out.println("  Not Valid Before: " + cert.getNotBefore());
                 System.out.println("  Not Valid After: " + cert.getNotAfter());
 
-                System.out.println("  Issued On: " + record.getCreateTime());
-                System.out.println("  Issued By: " + record.getIssuedBy());
+                System.out.println("  Issued On: " + cRec.getCreateTime());
+                System.out.println("  Issued By: " + cRec.getIssuedBy());
 
-                Date revokedOn = record.getRevokedOn();
+                Date revokedOn = cRec.getRevokedOn();
                 if (revokedOn != null) {
                     System.out.println("  Revoked On: " + revokedOn);
                 }
 
-                String revokedBy = record.getRevokedBy();
+                String revokedBy = cRec.getRevokedBy();
                 if (revokedBy != null) {
                     System.out.println("  Revoked By: " + revokedBy);
                 }

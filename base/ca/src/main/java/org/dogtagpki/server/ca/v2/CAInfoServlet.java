@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author Marco Fargetta <mfargett@redhat.com>
+ * @author Marco Fargetta {@literal <mfargett@redhat.com>}
  */
 @WebServlet("/v2/info")
 public class CAInfoServlet extends CAServlet {

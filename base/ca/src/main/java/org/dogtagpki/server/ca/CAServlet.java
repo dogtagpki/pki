@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * @author Marco Fargetta <mfargett@redhat.com>
+ * @author Marco Fargetta {@literal <mfargett@redhat.com>}
  */
 public class CAServlet extends HttpServlet {
     public static final long serialVersionUID = 1L;

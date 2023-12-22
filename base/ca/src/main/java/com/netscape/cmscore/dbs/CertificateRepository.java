@@ -35,6 +35,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.dbs.DBPagedSearch;
 import com.netscape.certsrv.dbs.DBVirtualList;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.Modification;
@@ -1216,6 +1217,33 @@ public class CertificateRepository extends Repository {
 
         e = list.getCertRecords(0, size - 1);
         return e;
+    }
+
+    /**
+     * Finds a list of certificate records that satisifies
+     * the filter.
+     *
+     * @param filter search filter
+     * @param attrs selected attribute
+     * @param sortKey key to use for sorting the returned elements
+     * @return a list of certificates
+     * @exception EBaseException failed to search
+     */
+    public CertRecordPagedList findPagedCertRecords(String filter,
+            String[] attrs, String sortKey)
+            throws EBaseException {
+
+        logger.debug("CertificateRepository.findCertRecordsInList()");
+
+        try (DBSSession session = dbSubsystem.createSession()) {
+            DBPagedSearch<CertRecord> page = session.<CertRecord>createPagedSearch(
+                    mBaseDN,
+                    filter,
+                    attrs,
+                    sortKey);
+
+            return new CertRecordPagedList(page);
+        }
     }
 
     /**

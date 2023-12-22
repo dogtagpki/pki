@@ -20,6 +20,7 @@ package com.netscape.cmscore.dbs;
 import java.util.Enumeration;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.DBPagedSearch;
 import com.netscape.certsrv.dbs.DBVirtualList;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.EDBNotAvailException;
@@ -57,7 +58,9 @@ import netscape.ldap.controls.LDAPSortControl;
  */
 public class LDAPSession extends DBSSession {
 
-    public final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LDAPSession.class);
+    public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LDAPSession.class);
+
+    public static final int MAX_PAGED_SEARCH_SIZE = 500;
 
     private DBSubsystem dbSubsystem;
     private LDAPConnection mConn = null;
@@ -447,7 +450,7 @@ public class LDAPSession extends DBSSession {
             String ldapfilter = dbSubsystem.getRegistry().getFilter(filter);
             logger.info("LDAPSession: Searching " + base + " for " + ldapfilter);
 
-            String ldapattrs[] = null;
+            String[] ldapattrs = null;
             if (attrs != null) {
                 ldapattrs = dbSubsystem.getRegistry().getLDAPAttributes(attrs);
             }
@@ -490,7 +493,7 @@ public class LDAPSession extends DBSSession {
             LDAPPagedResultsControl pagecon;
             LDAPSearchResults res;
             int skipped = 0;
-            int pageSize = start > 0 ? Math.min(start, 500) : Math.min(size, 500);
+            int pageSize = start > 0 ? Math.min(start, MAX_PAGED_SEARCH_SIZE) : Math.min(size, MAX_PAGED_SEARCH_SIZE);
             byte[] cookie = null;
 
             pagecon = new LDAPPagedResultsControl(false, pageSize);
@@ -505,7 +508,7 @@ public class LDAPSession extends DBSSession {
                     if(c instanceof LDAPPagedResultsControl resC){
                         cookie = resC.getCookie();
                         if(cookie!=null){
-                            pageSize = start - skipped > 0 ? Math.min((start - skipped) , 500) : Math.min(size, 500);
+                            pageSize = start - skipped > 0 ? Math.min((start - skipped) , 500) : Math.min(size, MAX_PAGED_SEARCH_SIZE);
                             pagecon = new LDAPPagedResultsControl(false, pageSize, cookie);
                         } else {
                             res =  new LDAPSearchResults();
@@ -668,6 +671,15 @@ public class LDAPSession extends DBSSession {
         return new LDAPVirtualList<>(dbSubsystem.getRegistry(), mConn, base,
                 filter, attrs, startFrom, sortKey, pageSize);
 
+    }
+
+    @Override
+    public <T extends IDBObj> DBPagedSearch<T> createPagedSearch(String base, String filter,
+            String attrs[], String sortKey) throws EBaseException {
+        logger.debug("LDAPSession: createPagedSearch({}, {})", base, filter);
+
+        return new LDAPPagedSearch<>(dbSubsystem.getRegistry(),mConn, base,
+                filter, attrs, sortKey);
     }
 
     /**
