@@ -59,7 +59,7 @@ The `pki-server status` command has been updated to no longer show
 whether a subsystem is a new subsystem or a clone since there is no
 distinction between them.
 
-== New ops-flag and ops-flag-mask options for pki nss-key-create CLI ==
+== New op-flags and op-flags-mask options for pki nss-key-create CLI ==
 
-The `pki nss-key-create` command has been modified to support the option `--ops-flag` and `--ops-flag-mask`
+The `pki nss-key-create` command has been modified to support the option `--op-flags` and `--op-flags-mask`
 to specify a list of flags or masks to set for the new key.

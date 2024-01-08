@@ -2839,8 +2839,8 @@ class PKIDeployer:
         system_cert.nickname = self.mdict['pki_%s_nickname' % cert_id]
         system_cert.subjectDN = self.mdict['pki_%s_subject_dn' % cert_id]
         system_cert.token = self.mdict['pki_%s_token' % cert_id]
-        system_cert.ops_flag = self.mdict['pki_%s_opsFlag' % cert_id]
-        system_cert.ops_flag_mask = self.mdict['pki_%s_opsFlagMask' % cert_id]
+        system_cert.op_flags = self.mdict['pki_%s_opFlags' % cert_id]
+        system_cert.op_flags_mask = self.mdict['pki_%s_opFlagsMask' % cert_id]
 
         if not system_cert.token:
             if config.str2bool(self.mdict['pki_hsm_enable']):
@@ -2973,8 +2973,8 @@ class PKIDeployer:
 
         token = request.systemCert.token
         key_type = request.systemCert.keyType
-        ops_flag = request.systemCert.ops_flag
-        ops_flag_mask = request.systemCert.ops_flag_mask
+        op_flags = request.systemCert.op_flags
+        op_flags_mask = request.systemCert.op_flags_mask
         key_size = None
         key_wrap = False
         curve = None
@@ -3000,8 +3000,8 @@ class PKIDeployer:
                 key_wrap=key_wrap,
                 curve=curve,
                 ssl_ecdh=ssl_ecdh,
-                ops_flag=ops_flag,
-                ops_flag_mask=ops_flag_mask)
+                op_flags=op_flags,
+                op_flags_mask=op_flags_mask)
         finally:
             nssdb.close()
 

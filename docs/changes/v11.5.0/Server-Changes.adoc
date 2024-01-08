@@ -56,11 +56,11 @@ To install a new KRA with the legacy sequential serial numbers specify the follo
 * `pki_request_id_generator=legacy`
 
 
-== Add pki_<cert_id>_opsFlag and pki_<cert_id>_opsFlagMask parameters ==
+== Add pki_<cert_id>_opFlags and pki_<cert_id>_opFlagsMask parameters ==
 
 Two new parameters are added to pkispawn configuration for setting the key flags in HSM.
 The new parameters are available for all certificates created during the subsystem installation
-and their value is a comma separated list of the following flags: encrypt, decrypt, sign,
-sign_recover, verify, verify_recover, wrap, unwrap and derive. The first parameter add flags to
-the list identified by underneath module while the second remove them.
+and their value is a comma separated list of the following flags: `encrypt`, `decrypt`, `sign`,
+`sign_recover`, `verify`, `verify_recover`, `wrap`, `unwrap` and `derive`. The first parameter add
+flags to the list identified by underneath module while the second remove them.
 Default values are empty lists to get the HSM default key flags.

@@ -86,11 +86,11 @@ public class NSSKeyCreateCLI extends CommandCLI {
         option.setArgName("boolean");
         options.addOption(option);
 
-        option = new Option(null, "ops-flag", true, "Custom flags for key usage (empty for HSM default)");
+        option = new Option(null, "op-flags", true, "Custom flags for key usage");
         option.setArgName("usage list");
         options.addOption(option);
 
-        option = new Option(null, "ops-flag-mask", true, "Custom flags mask for key usage (empty for HSM default)");
+        option = new Option(null, "op-flags-mask", true, "Custom flags mask for key usage");
         option.setArgName("usage list");
         options.addOption(option);
 
@@ -137,8 +137,8 @@ public class NSSKeyCreateCLI extends CommandCLI {
             extractable = Boolean.valueOf(extractableStr);
         }
 
-        String opsFlag = cmd.getOptionValue("ops-flag");
-        String opsFlagMask = cmd.getOptionValue("ops-flag-mask");
+        String opFlags = cmd.getOptionValue("op-flags");
+        String opFlagsMask = cmd.getOptionValue("op-flags-mask");
 
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
@@ -157,13 +157,13 @@ public class NSSKeyCreateCLI extends CommandCLI {
 
         if ("RSA".equalsIgnoreCase(keyType)) {
             if (keySize == null) keySize = "2048";
-            if (opsFlag != null && !opsFlag.isEmpty()) {
-                usages = CryptoUtil.generateUsage(opsFlag);
+            if (opFlags != null && !opFlags.isEmpty()) {
+                usages = CryptoUtil.generateUsage(opFlags);
             } else {
                 usages = keyWrap ? CryptoUtil.RSA_KEYPAIR_USAGES : null;
             }
-            if (opsFlagMask != null && !opsFlagMask.isEmpty()) {
-                usagesMask = CryptoUtil.generateUsage(opsFlagMask);
+            if (opFlagsMask != null && !opFlagsMask.isEmpty()) {
+                usagesMask = CryptoUtil.generateUsage(opFlagsMask);
             } else {
                 usagesMask = keyWrap ? CryptoUtil.RSA_KEYPAIR_USAGES_MASK : null;
             }
@@ -185,11 +185,11 @@ public class NSSKeyCreateCLI extends CommandCLI {
             keyInfo.setAlgorithm(privateKey.getAlgorithm());
 
         } else if ("EC".equalsIgnoreCase(keyType)) {
-            if (opsFlag != null && !opsFlag.isEmpty()) {
-                usages = CryptoUtil.generateUsage(opsFlagMask);
+            if (opFlags != null && !opFlags.isEmpty()) {
+                usages = CryptoUtil.generateUsage(opFlagsMask);
             }
-            if (opsFlagMask != null && !opsFlagMask.isEmpty()) {
-                usagesMask = CryptoUtil.generateUsage(opsFlagMask);
+            if (opFlagsMask != null && !opFlagsMask.isEmpty()) {
+                usagesMask = CryptoUtil.generateUsage(opFlagsMask);
             } else {
                 usagesMask = sslECDH ? CryptoUtil.ECDH_USAGES_MASK : CryptoUtil.ECDHE_USAGES_MASK;
             }
