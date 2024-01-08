@@ -84,7 +84,7 @@ jobs:
               -D pki_audit_signing_token=HSM \
               -D pki_subsystem_token=HSM \
               -D pki_sslserver_token=internal \
-              -D pki_ca_signing_opsFlagMask=sign \
+              -D pki_ca_signing_opFlagsMask=sign \
               -v
         continue-on-error: true
         id: hsm_no_sign
@@ -108,8 +108,8 @@ jobs:
               -D pki_audit_signing_token=HSM \
               -D pki_subsystem_token=HSM \
               -D pki_sslserver_token=internal \
-              -D pki_ca_signing_opsFlag=sign \
-              -D pki_ca_signing_opsFlagMask=sign \
+              -D pki_ca_signing_opFlags=sign \
+              -D pki_ca_signing_opFlagsMask=sign \
               -v
 
       - name: Gather artifacts
