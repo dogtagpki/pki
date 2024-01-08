@@ -69,15 +69,6 @@ jobs:
               --pkcs12-password Secret.123
           docker exec primary pki -n caadmin ca-user-show caadmin
 
-      - name: Export system certs and keys from primary CA
-        run: |
-          docker exec primary pki-server ca-clone-prepare \
-              --pkcs12-file $SHARED/ca-certs.p12 \
-              --pkcs12-password Secret.123
-
-          docker exec primary pki-server cert-export ca_signing \
-              --cert-file $SHARED/ca_signing.crt
-
       - name: Set up secondary DS container
         run: |
           tests/bin/ds-container-create.sh secondaryds
@@ -106,6 +97,12 @@ jobs:
       - name: Create secondary CA subsystem
         run: |
           docker exec secondary pki-server ca-create -v
+
+      - name: Export system certs and keys from primary CA
+        run: |
+          docker exec primary pki-server ca-clone-prepare \
+              --pkcs12-file $SHARED/ca-certs.p12 \
+              --pkcs12-password Secret.123
 
       - name: Import system certs and keys into secondary CA
         run: |
@@ -136,7 +133,7 @@ jobs:
               --maxConns 15 \
               --minConns 3
 
-      # https://github.com/dogtagpki/389-ds-base/wiki/Configuring-DS-Replication-with-DS-Tools
+      # https://github.com/dogtagpki/389-ds-base/wiki/Configuring-DS-Replication-with-PKI-Tools
       - name: Preparing DS backend
         run: |
           # check backends in primary DS
@@ -339,7 +336,6 @@ jobs:
           docker exec secondary pki-server ca-db-vlv-add -v
           docker exec secondary pki-server ca-db-vlv-reindex -v
 
-      # https://github.com/dogtagpki/pki/wiki/Installing-CA-Clone-with-Existing-DS
       - name: Install secondary CA
         run: |
           # get CS.cfg from primary CA before cloning
