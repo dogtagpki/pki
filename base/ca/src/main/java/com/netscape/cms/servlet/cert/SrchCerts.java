@@ -22,6 +22,7 @@ import java.security.PublicKey;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
@@ -620,12 +621,12 @@ public class SrchCerts extends CMSServlet {
                     + "filter=" + filter + " maxreturns=" + maxResults + " timelimit=" + timeLimit);
 
             // Do the search with the optional sortAtribute field, giving an assured list of certs sorted by serialno
-            Enumeration<CertRecord> e = mCertDB.searchCertificates(filter, maxResults, timeLimit, "serialno");
+            Iterator<CertRecord> e = mCertDB.searchCertificates(filter, timeLimit, 0, maxResults);
 
             int count = 0;
 
-            while (e != null && e.hasMoreElements()) {
-                CertRecord rec = e.nextElement();
+            while (e != null && e.hasNext()) {
+                CertRecord rec = e.next();
 
                 if (rec != null) {
                     count++;
@@ -652,7 +653,6 @@ public class SrchCerts extends CMSServlet {
             CMS.getLogMessage("CMSGW_ERROR_LISTCERTS", e.toString());
             throw e;
         }
-        return;
     }
 
     private String insertCurrentTime(String filter) {
