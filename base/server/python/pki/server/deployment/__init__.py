@@ -3904,8 +3904,23 @@ class PKIDeployer:
             tps_profiles=tps_profiles,
             as_current_user=True)
 
-        admin_groups = subsystem.config['preop.admin.group']
-        groups = [x.strip() for x in admin_groups.split(',')]
+        groups = ['Administrators']
+
+        if subsystem.type == 'CA':
+            groups.append('Certificate Manager Agents')
+
+        elif subsystem.type == 'KRA':
+            groups.append('Data Recovery Manager Agents')
+
+        elif subsystem.type == 'OCSP':
+            groups.append('Online Certificate Status Manager Agents')
+
+        elif subsystem.type == 'TKS':
+            groups.append('Token Key Service Manager Agents')
+
+        elif subsystem.type == 'TPS':
+            groups.append('TPS Agents')
+            groups.append('TPS Operators')
 
         if subsystem.config.get('securitydomain.select') == 'new':
 
