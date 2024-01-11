@@ -421,18 +421,12 @@ function doNext(element)
         form.direction.value= "down";
                                                                                      
         if (element.name == "begin") {
-          form.querySentinelDown.value = 0;
           form.direction.value = "begin";
         } else if (element.name == "end") {
-          form.querySentinelDown.value = result.header.totalRecordCount - result.header.maxCount+1;
           form.direction.value = "end";
         } else if (element.name == "down") {
-          form.querySentinelDown.value = result.header.querySentinelDown;
-          form.querySentinelUp.value = result.header.querySentinelUp;
           form.direction.value = "down";
         } else if (element.name == "up") {
-          form.querySentinelUp.value = result.header.querySentinelUp;
-          form.querySentinelDown.value = result.header.querySentinelDown;
           form.direction.value = "up";
         }
                                                                                      
@@ -464,14 +458,14 @@ function displayNextForm()
         nextForm.appendChild(renderHiddenElement("queryFilterHash"));
     }
 
-    var disabledDown = ((result.header.querySentinelDown == null) ||
-                        (result.fixed.maxCount+1 >= result.header.currentRecordCount));
-    var disabledUp = (result.header.querySentinelUp != null && result.header.querySentinelUp <= 1);
+    var disabledUp = ((result.header.previousStart == null) ||
+                        (result.header.previousStart <= 0));
+    var disabledDown = (result.header.previousCount + result.header.previousStart >= result.header.totalRecordCount);
 
     nextForm.appendChild(renderNextButtonElement("begin", "|<<"));
     nextForm.appendChild(renderNextButtonElement("up", "<", disabledUp));
 
-    for (let element of ["totalRecordCount", "queryCertFilter", "skipRevoked", "skipNonValid", "querySentinelDown", "querySentinelUp", "serialTo", "direction"]) {
+    for (let element of ["totalRecordCount", "queryCertFilter", "skipRevoked", "skipNonValid", "previousCount", "previousStart", "direction", "serialFrom", "serialTo"]) {
         nextForm.appendChild(renderHiddenElement(element, result.header[element]));
     }
 

@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.PublicKey;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
@@ -55,7 +56,6 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CertRecord;
-import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.RevocationInfo;
 
@@ -91,6 +91,7 @@ public class ListCerts extends CMSServlet {
     private X500Name mAuthName = null;
     private String mFormPath = null;
     private boolean mUseClientFilter = false;
+    private boolean mUseClientFilterRegexp = false;
     private Vector<String> mAllowedClientFilters = new Vector<>();
     private int mMaxReturns = 2000;
 
@@ -141,10 +142,8 @@ public class ListCerts extends CMSServlet {
         }
         if (sc.getInitParameter(ALLOWED_CLIENT_FILTERS) == null
                 || sc.getInitParameter(ALLOWED_CLIENT_FILTERS).equals("")) {
-            mAllowedClientFilters.addElement("(certStatus=*)");
-            mAllowedClientFilters.addElement("(certStatus=VALID)");
-            mAllowedClientFilters.addElement("(|(certStatus=VALID)(certStatus=INVALID)(certStatus=EXPIRED))");
-            mAllowedClientFilters.addElement("(|(certStatus=VALID)(certStatus=REVOKED))");
+            mAllowedClientFilters.addElement("(\\\\(\\\\&)?(\\\\(\\\\|)?(\\\\(certStatus=(\\\\*|VALID|INVALID|EXPIRED)\\\\))*(\\\\))?(\\\\(certRecordId(<|>)=(0x)?\\\\d+\\\\))*(\\\\))?");
+            mUseClientFilterRegexp = true;
         } else {
             StringTokenizer st = new StringTokenizer(sc.getInitParameter(ALLOWED_CLIENT_FILTERS), ",");
             while (st.hasMoreTokens()) {
@@ -164,8 +163,14 @@ public class ListCerts extends CMSServlet {
             while (filters.hasMoreElements()) {
                 String filter = filters.nextElement();
                 logger.debug("ListCerts: Comparing with filter " + filter);
-                if (filter.equals(queryCertFilter)) {
-                    return queryCertFilter;
+                if (mUseClientFilterRegexp) {
+                    if (queryCertFilter.matches(filter)) {
+                        return queryCertFilter;
+                    }
+                } else {
+                    if (queryCertFilter.equals(filter)) {
+                        return queryCertFilter;
+                    }
                 }
             }
             logger.debug("ListCerts: Requested filter '"
@@ -175,6 +180,7 @@ public class ListCerts extends CMSServlet {
 
         boolean skipRevoked = false;
         boolean skipNonValid = false;
+        StringBuilder filter = new StringBuilder();
         if (req.getParameter("skipRevoked") != null &&
                 req.getParameter("skipRevoked").equals("on")) {
             skipRevoked = true;
@@ -185,14 +191,24 @@ public class ListCerts extends CMSServlet {
         }
 
         if (!skipRevoked && !skipNonValid) {
-            queryCertFilter = "(certStatus=*)";
+            filter.append("(certStatus=*)");
         } else if (skipRevoked && skipNonValid) {
-            queryCertFilter = "(certStatus=VALID)";
+            filter.append("(certStatus=VALID)");
         } else if (skipRevoked) {
-            queryCertFilter = "(|(certStatus=VALID)(certStatus=INVALID)(certStatus=EXPIRED))";
+            filter.append("(|(certStatus=VALID)(certStatus=INVALID)(certStatus=EXPIRED))");
         } else if (skipNonValid) {
-            queryCertFilter = "(|(certStatus=VALID)(certStatus=REVOKED))";
+            filter.append("(|(certStatus=VALID)(certStatus=REVOKED))");
         }
+        String serialFrom = req.getParameter("serialFrom");
+        if (serialFrom != null && !serialFrom.equals("")) {
+            filter.append("(certRecordId>=" + serialFrom + ")");
+        }
+        String serialTo = req.getParameter("serialTo");
+        if (serialTo != null && !serialTo.equals("")) {
+            filter.append("(certRecordId<=" + serialTo + ")");
+        }
+
+        queryCertFilter = "(&" + filter.toString() + ")";
         return queryCertFilter;
     }
 
@@ -249,15 +265,12 @@ public class ListCerts extends CMSServlet {
         }
 
         String direction = null;
-        boolean reverse = false;
         boolean hardJumpTo = false; //jump to the end
-        try {
+        int previousCount = -1;
+        int previousStart = 0;
+        int start = 0;
 
-            if (req.getParameter("direction") != null) {
-                direction = req.getParameter("direction").trim();
-                reverse = direction.equals("up");
-                logger.debug("ListCerts: reverse: " + reverse);
-            }
+        try {
 
             if (req.getParameter("maxCount") != null) {
                 maxCount = Integer.parseInt(req.getParameter("maxCount"));
@@ -266,27 +279,11 @@ public class ListCerts extends CMSServlet {
                 logger.debug("ListCerts: Resetting page size from " + maxCount + " to " + mMaxReturns);
                 maxCount = mMaxReturns;
             }
-
-            String sentinelStr = "";
-            if (reverse) {
-                sentinelStr = req.getParameter("querySentinelUp");
-            } else if (direction.equals("end")) {
-                // this servlet will figure out the end
-                sentinelStr = "0";
-                reverse = true;
-                hardJumpTo = true;
-            } else if (direction.equals("down")) {
-                sentinelStr = req.getParameter("querySentinelDown");
-            } else
-                sentinelStr = "0";
-            //begin and non-specified have sentinel default "0"
-
-            if (sentinelStr != null) {
-                if (sentinelStr.trim().startsWith("0x")) {
-                    sentinel = new BigInteger(sentinelStr.trim().substring(2), 16);
-                } else {
-                    sentinel = new BigInteger(sentinelStr, 10);
-                }
+            if (req.getParameter("previousCount") != null && !req.getParameter("previousCount").isEmpty()) {
+                previousCount = Integer.parseInt(req.getParameter("previousCount"));
+            }
+            if (req.getParameter("previousStart") != null && !req.getParameter("previousStart").isEmpty()) {
+                previousStart = Integer.parseInt(req.getParameter("previousStart"));
             }
 
             revokeAll = req.getParameter("revokeAll");
@@ -316,12 +313,29 @@ public class ListCerts extends CMSServlet {
             } catch (Exception e) {
             }
 
+            if (req.getParameter("direction") != null) {
+                direction = req.getParameter("direction").trim();
+                logger.debug("ListCerts: direction: " + direction);
+                switch(direction) {
+                    case "up":
+                        start = Math.max(0, previousStart - maxCount);
+                        break;
+                    case "down":
+                        start = previousStart + previousCount;
+                        break;
+                    case "end":
+                        start = Math.max(0, totalRecordCount - maxCount);
+                        break;
+                    default:
+                        start = 0;
+                }
+            }
+
             processCertFilter(argSet, header, maxCount,
-                    sentinel,
+                    start,
                     totalRecordCount,
                     req.getParameter("serialTo"),
                     queryCertFilter,
-                    reverse,
                     hardJumpTo,
                     req, resp, revokeAll, locale[0]);
 
@@ -360,11 +374,10 @@ public class ListCerts extends CMSServlet {
             CMSTemplateParams argSet,
             ArgBlock header,
             int maxCount,
-            BigInteger sentinel,
+            int start,
             int totalRecordCount,
             String serialTo,
             String filter,
-            boolean reverse,
             boolean hardJumpTo,
             HttpServletRequest req,
             HttpServletResponse resp,
@@ -374,177 +387,25 @@ public class ListCerts extends CMSServlet {
 
         logger.debug("ListCerts.processCertFilter()");
         logger.debug("ListCerts: max count: " + maxCount);
-        logger.debug("ListCerts: sentinel: " + sentinel);
+        logger.debug("ListCerts: start: " + start);
         logger.debug("ListCerts: total record count: " + totalRecordCount);
         logger.debug("ListCerts: serialTo: " + serialTo);
         logger.debug("ListCerts: filter: " + filter);
 
         BigInteger serialToVal = MINUS_ONE;
 
-        try {
-            if (serialTo != null) {
-                serialTo = serialTo.trim();
-                if (serialTo.startsWith("0x")) {
-                    serialToVal = new BigInteger
-                            (serialTo.substring(2), 16);
-                    serialTo = serialToVal.toString();
-                } else {
-                    serialToVal = new BigInteger(serialTo);
-                }
-            }
-        } catch (Exception e) {
-        }
 
-        logger.debug("ListCerts: serialToVal: " + serialToVal);
-        logger.debug("ListCerts: reverse: " + reverse);
-        logger.debug("ListCerts: hardJumpTo: " + hardJumpTo);
 
-        String jumpTo = sentinel.toString();
-        int pSize = 0;
-        if (reverse) {
-            if (!hardJumpTo) //reverse gets one more
-                pSize = -1 * maxCount - 1;
-            else
-                pSize = -1 * maxCount;
-        } else
-            pSize = maxCount;
 
-        logger.debug("ListCerts: pSize: " + pSize);
-
-        logger.debug("ListCerts: calling findCertRecordsInList() with jumpTo");
-        CertRecordList list = mCertDB.findCertRecordsInList(
-                filter, (String[]) null, jumpTo, hardJumpTo, "serialno",
-                pSize);
-        // retrive maxCount + 1 entries
-        logger.debug("ListCerts: list size: " + list.getSize());
-
-        Enumeration<CertRecord> e = list.getCertRecords(0, maxCount);
-
-        CertRecordList tolist = null;
-        int toCurIndex = 0;
-
-        if (!serialToVal.equals(MINUS_ONE)) {
-            // if user specify a range, we need to
-            // calculate the totalRecordCount
-            logger.debug("ListCerts: calling findCertRecordsInList() with serialTo");
-            tolist = mCertDB.findCertRecordsInList(
-                        filter,
-                        (String[]) null, serialTo,
-                        "serialno", maxCount);
-            logger.debug("ListCerts: tolist size: " + tolist.getSize());
-
-            Enumeration<CertRecord> en = tolist.getCertRecords(0, 0);
-
-            if (en == null || (!en.hasMoreElements())) {
-                logger.debug("ListCerts: no results");
-                toCurIndex = list.getSize() - 1;
-
-            } else {
-                toCurIndex = tolist.getCurrentIndex();
-                CertRecord rx = en.nextElement();
-                BigInteger curToSerial = rx.getSerialNumber();
-                logger.debug("ListCerts: curToSerial: " + curToSerial);
-
-                if (curToSerial.compareTo(serialToVal) == -1) {
-                    toCurIndex = list.getSize() - 1;
-                } else {
-                    if (!rx.getSerialNumber().toString().equals(serialTo.trim())) {
-                        toCurIndex = toCurIndex - 1;
-                    }
-                }
-            }
-            logger.debug("ListCerts: toCurIndex: " + toCurIndex);
-        }
-
-        int curIndex = list.getCurrentIndex();
-        logger.debug("ListCerts: curIndex: " + curIndex);
-
-        BigInteger firstSerial = new BigInteger("0");
-        BigInteger curSerial = new BigInteger("0");
-        CertRecord[] recs = new CertRecord[maxCount];
-        int rcount = 0;
-
-        if (e != null) {
-            /* in reverse (page up), because the sentinel is the one after the
-             * last item to be displayed, we need to skip it
-             */
-            logger.debug("ListCerts: records:");
-            int count = 0;
-            while ((count < ((reverse && !hardJumpTo) ? (maxCount + 1) : maxCount)) && e.hasMoreElements()) {
-                CertRecord rec = e.nextElement();
-
-                if (rec == null) {
-                    //logger.debug("ListCerts: * record " + count + " is null");
-                    break;
-                }
-                curSerial = rec.getSerialNumber();
-                //logger.debug("ListCerts: * record " + count + ": " + curSerial);
-
-                if (count == 0) {
-                    firstSerial = curSerial;
-                    if (reverse && !hardJumpTo) {//reverse got one more, skip
-                        logger.debug("ListCerts:   skipping record");
-                        count++;
-                        continue;
-                    }
-                }
-
-                // DS has a problem where last record will be returned
-                // even though the filter is not matched.
-                /*cfu -  is this necessary?  it breaks when paging up
-                if (curSerial.compareTo(sentinel) == -1) {
-                        logger.debug("curSerial compare sentinel -1 break...");
-                        break;
-                    }
-                */
-                if (!serialToVal.equals(MINUS_ONE)) {
-                    // check if we go over the limit
-                    if (curSerial.compareTo(serialToVal) == 1) {
-                        logger.debug("ListCerts: curSerial compare serialToVal 1 breaking...");
-                        break;
-                    }
-                }
-
-                if (reverse) {
-                    //logger.debug("ListCerts: returning with rcount: " + rcount);
-                    recs[rcount++] = rec;
-
-                } else {
-                    //logger.debug("ListCerts: returning with arg block");
-                    ArgBlock rarg = new ArgBlock();
-                    fillRecordIntoArg(rec, rarg);
-                    argSet.addRepeatRecord(rarg);
-                }
-
-                count++;
-            }
-        } else {
-            logger.debug("ListCerts: no records found");
-            return;
-        }
-
-        if (reverse) {
-            logger.debug("ListCerts: fill records into arg block and argSet");
-            for (int ii = rcount - 1; ii >= 0; ii--) {
-                if (recs[ii] != null) {
-                    //logger.debug("ListCerts: processing recs[" + ii + "]");
-                    ArgBlock rarg = new ArgBlock();
-                    // logger.debug("item " + ii + " is serial #" + recs[ii].getSerialNumber());
-                    fillRecordIntoArg(recs[ii], rarg);
-                    argSet.addRepeatRecord(rarg);
-                }
-            }
-        }
-
-        // peek ahead
-        CertRecord nextRec = null;
-
-        if (e.hasMoreElements()) {
-            nextRec = e.nextElement();
-            logger.debug("ListCerts: next record: " + nextRec.getSerialNumber());
-
-        } else {
-            logger.debug("ListCerts: no next record");
+        logger.debug("ListCerts: calling searchCertificates");
+        Iterator<CertRecord> list = mCertDB.searchCertificates(
+                filter, -1, start, maxCount);
+        int currentRecordCount = 0;
+        while (list.hasNext()) {
+            ArgBlock rarg = new ArgBlock();
+            fillRecordIntoArg(list.next(), rarg);
+            argSet.addRepeatRecord(rarg);
+            currentRecordCount++;
         }
 
         header.addStringValue("op", CMSTemplate.escapeJavaScriptString(req.getParameter("op")));
@@ -569,68 +430,21 @@ public class ListCerts extends CMSServlet {
         header.addStringValue("templateName", "queryCert");
         header.addStringValue("queryFilter", filter);
         header.addIntegerValue("maxCount", maxCount);
+        header.addIntegerValue("previousCount", currentRecordCount);
+        header.addIntegerValue("previousStart", start);
+        String serialStart = req.getParameter("serialFrom");
+        header.addStringValue("serialFrom", serialStart == null ? "" : serialStart);
+        String serialEnd = req.getParameter("serialTo");
+        header.addStringValue("skipRevoked", serialEnd == null ? "" : serialEnd);
 
         if (totalRecordCount == -1) {
-            if (!serialToVal.equals(MINUS_ONE)) {
-                totalRecordCount = toCurIndex - curIndex + 1;
-                logger.debug("ListCerts: totalRecordCount: " + totalRecordCount);
-            } else {
-                totalRecordCount = list.getSize() -
-                        list.getCurrentIndex();
-                logger.debug("ListCerts: totalRecordCount: " + totalRecordCount);
-            }
+            totalRecordCount = mCertDB.countCertificates(filter, -1);
         }
 
-        int currentRecordCount = list.getSize() - list.getCurrentIndex();
         logger.debug("ListCerts: totalRecordCount: " + totalRecordCount);
-        logger.debug("ListCerts: currentRecordCount: " + currentRecordCount);
 
         header.addIntegerValue("totalRecordCount", totalRecordCount);
         header.addIntegerValue("currentRecordCount", currentRecordCount);
-
-        String qs = "";
-        if (reverse)
-            qs = "querySentinelUp";
-        else
-            qs = "querySentinelDown";
-        logger.debug("ListCerts: qs: " + qs);
-
-        if (hardJumpTo) {
-            logger.debug("ListCerts: curSerial added to querySentinelUp: " + curSerial);
-            header.addStringValue("querySentinelUp", curSerial.toString());
-
-        } else {
-            if (nextRec == null) {
-                header.addStringValue(qs, null);
-                logger.debug("ListCerts: nextRec is null");
-
-                if (reverse) {
-                    logger.debug("ListCerts: curSerial added to querySentinelUp: " + curSerial);
-                    header.addStringValue("querySentinelUp", curSerial.toString());
-                }
-
-            } else {
-                BigInteger nextRecNo = nextRec.getSerialNumber();
-                logger.debug("ListCerts: nextRecNo: " + nextRecNo);
-
-                if (serialToVal.equals(MINUS_ONE)) {
-                    header.addStringValue(
-                            qs, nextRecNo.toString());
-                } else {
-                    if (nextRecNo.compareTo(serialToVal) <= 0) {
-                        header.addStringValue(
-                                qs, nextRecNo.toString());
-                    } else {
-                        header.addStringValue(qs,
-                                null);
-                    }
-                }
-                logger.debug("ListCerts: querySentinel " + qs + ": " + nextRecNo);
-            }
-        } // !hardJumpto
-
-        header.addStringValue(!reverse ? "querySentinelUp" : "querySentinelDown",
-                  firstSerial.toString());
 
     }
 
