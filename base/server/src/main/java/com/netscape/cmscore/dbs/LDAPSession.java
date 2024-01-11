@@ -535,6 +535,20 @@ public class LDAPSession extends DBSSession {
     }
 
     @Override
+    public int countCertificates(String base, String filter, int timeLimit)
+            throws EBaseException {
+        String[] attrs = {"objectclass"};
+        DBPagedSearch<CertRecord> search = createPagedSearch(base, filter, attrs, null);
+        CertRecordPagedList list = new CertRecordPagedList(search);
+        int count = 0;
+        for(CertRecord c: list) {
+            count++;
+        }
+
+        return count;
+    }
+
+    @Override
     public LDAPSearchResults persistentSearch(String base, String filter, String attrs[])
             throws EBaseException {
 

@@ -255,6 +255,24 @@ public class DBSSession implements AutoCloseable {
     }
 
     /**
+     * Retrieves a list of object that satisfies the given
+     * filter.
+     *
+     * @param base starting point of the search
+     * @param filter search filter
+     * @param timeLimit timeout limit
+     * @return the number of certificates
+     * @exception EBaseException failed to search
+     */
+    public int countCertificates(
+            String base,
+            String filter,
+            int timeLimit
+            ) throws EBaseException {
+        return -1;
+    }
+
+    /**
      * Sets persistent search to retrieve modified
      * certificate records.
      *

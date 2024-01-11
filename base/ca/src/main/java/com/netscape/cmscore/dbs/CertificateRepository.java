@@ -1144,6 +1144,28 @@ public class CertificateRepository extends Repository {
         return records.iterator();
     }
 
+    /**
+     * Counts certificate records that satisfies the filter.
+     *
+     * The filter should follow RFC1558 LDAP filter syntax.
+     * For example,
+     *
+     * {@Code (&(certRecordId=5)(x509Cert.notBefore=934398398))}
+     *
+     * @param filter search filter
+     * @param timeLimit timeout value
+     * @return the number of certificates
+     * @exception EBaseException failed to search
+     */
+    public int countCertificates(String filter, int timeLimit)
+            throws EBaseException {
+
+        logger.debug("countCertificates filter {}", filter);
+
+        try (DBSSession s = dbSubsystem.createSession()) {
+            return s.countCertificates(mBaseDN, filter, timeLimit);
+        }
+    }
 
     /**
      * Finds certificate records.
