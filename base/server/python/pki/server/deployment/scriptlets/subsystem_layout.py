@@ -294,6 +294,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         subsystem = instance.get_subsystem(subsystem_name)
 
         deployer.init_subsystem(subsystem)
+
+        if config.str2bool(deployer.mdict['pki_use_pss_rsa_signing_algorithm']):
+            deployer.update_rsa_pss_algorithms(subsystem)
+
+        deployer.init_system_cert_params(subsystem)
+
         subsystem.save()
 
     def destroy(self, deployer):

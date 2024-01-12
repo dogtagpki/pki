@@ -43,22 +43,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('Skipping NSS database creation')
             return
 
-        instance = self.instance
-        instance.load()
-
-        subsystem = instance.get_subsystem(deployer.subsystem_type.lower())
-
-        if config.str2bool(deployer.mdict['pki_use_pss_rsa_signing_algorithm']):
-            deployer.update_rsa_pss_algorithms(subsystem)
-
         deployer.import_server_pkcs12()
         deployer.import_clone_pkcs12()
         deployer.install_cert_chain()
         deployer.import_ds_ca_cert()
-
-        deployer.init_system_cert_params(subsystem)
-        subsystem.save()
-
         deployer.init_client_nssdb()
 
     def destroy(self, deployer):
