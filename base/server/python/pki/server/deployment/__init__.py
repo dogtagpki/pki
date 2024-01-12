@@ -3331,6 +3331,10 @@ class PKIDeployer:
 
         if request.systemCert.type == 'remote':
 
+            if cert_info:
+                logger.info('Reusing existing %s cert in NSS database', tag)
+                return
+
             # Issue subordinate CA signing cert using remote CA signing cert.
 
             if subsystem.type == 'CA' and \
@@ -3361,7 +3365,7 @@ class PKIDeployer:
 
             logger.info('Requesting %s cert from %s', tag, ca_url)
 
-            pem_cert = self.request_cert(
+            cert_pem = self.request_cert(
                 ca_url,
                 request.systemCert.requestType,
                 request.systemCert.request,
@@ -3370,29 +3374,46 @@ class PKIDeployer:
                 dns_names=request.systemCert.dnsNames,
                 requestor=requestor)
 
-            system_cert['data'] = pki.nssdb.convert_cert(pem_cert, 'pem', 'base64')
+            system_cert['data'] = pki.nssdb.convert_cert(cert_pem, 'pem', 'base64')
 
-        else:  # selfsign or local
+            cert_obj = x509.load_pem_x509_certificate(
+                bytes(cert_pem, 'utf-8'),
+                backend=default_backend())
+            logger.info('- serial: %s', hex(cert_obj.serial_number))
 
-            self.import_cert_request(subsystem, tag, request)
+            logger.info('Importing %s cert into NSS database', tag)
+            nssdb.add_cert(
+                nickname=request.systemCert.nickname,
+                cert_data=system_cert['data'],
+                cert_format='base64',
+                token=request.systemCert.token)
 
-            system_cert['data'] = self.create_cert(subsystem, tag, request)
-            self.import_cert(subsystem, tag, request, system_cert['data'])
+            return
 
-        cert_pem = pki.nssdb.convert_cert(system_cert['data'], 'base64', 'pem').encode()
-        cert_obj = x509.load_pem_x509_certificate(cert_pem, backend=default_backend())
-        logger.info('- serial: %s', hex(cert_obj.serial_number))
+        # selfsign or local
+
+        # import request into CA database and get a request ID
+        self.import_cert_request(subsystem, tag, request)
 
         if cert_info:
             logger.info('Reusing existing %s cert in NSS database', tag)
-            return
 
-        logger.info('Importing %s cert into NSS database', tag)
-        nssdb.add_cert(
-            nickname=request.systemCert.nickname,
-            cert_data=system_cert['data'],
-            cert_format='base64',
-            token=request.systemCert.token)
+        else:
+            system_cert['data'] = self.create_cert(subsystem, tag, request)
+
+            cert_pem = pki.nssdb.convert_cert(system_cert['data'], 'base64', 'pem').encode()
+            cert_obj = x509.load_pem_x509_certificate(cert_pem, backend=default_backend())
+            logger.info('- serial: %s', hex(cert_obj.serial_number))
+
+            logger.info('Importing %s cert into NSS database', tag)
+            nssdb.add_cert(
+                nickname=request.systemCert.nickname,
+                cert_data=system_cert['data'],
+                cert_format='base64',
+                token=request.systemCert.token)
+
+        # import cert into CA database
+        self.import_cert(subsystem, tag, request, system_cert['data'])
 
     def setup_system_certs(self, nssdb, subsystem):
 
