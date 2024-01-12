@@ -378,10 +378,8 @@ class PKISubsystem(object):
         finally:
             nssdb.close()
 
-    def update_system_cert(self, cert):
+    def store_system_cert_request(self, cert):
         tag = cert['id']
-        self.config['%s.%s.nickname' % (self.name, tag)] = cert.get('nickname')
-        self.config['%s.%s.tokenname' % (self.name, tag)] = cert.get('token')
 
         csr_data = cert.get('request')
         csr_pem = pki.nssdb.convert_csr(csr_data, 'base64', 'pem')

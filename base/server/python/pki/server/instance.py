@@ -679,11 +679,11 @@ class PKIInstance(pki.server.PKIServer):
         :rtype: None
         :raises pki.server.PKIServerException
         """
-        # store cert data and request in CS.cfg
+        # store cert request
         if cert_id == 'sslserver' or cert_id == 'subsystem':
             # Update for all subsystems
             for subsystem in self.get_subsystems():
-                subsystem.update_system_cert(cert)
+                subsystem.store_system_cert_request(cert)
                 subsystem.save()
         else:
             # Extract subsystem_name from cert_id
@@ -693,7 +693,7 @@ class PKIInstance(pki.server.PKIServer):
             subsystem = self.get_subsystem(subsystem_name)
 
             if subsystem:
-                subsystem.update_system_cert(cert)
+                subsystem.store_system_cert_request(cert)
                 subsystem.save()
             else:
                 raise pki.server.PKIServerException(

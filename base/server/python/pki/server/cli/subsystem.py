@@ -1281,8 +1281,8 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
         else:
             logger.warning('Certificate request not found')
 
-        # store cert data and request in CS.cfg
-        subsystem.update_system_cert(system_cert)
+        # store cert request
+        subsystem.store_system_cert_request(system_cert)
         subsystem.save()
 
         self.print_message('Updated "%s" subsystem certificate' % cert_id)

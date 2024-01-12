@@ -3326,6 +3326,9 @@ class PKIDeployer:
         system_cert['token'] = request.systemCert.token
         system_cert['request'] = request.systemCert.request
 
+        logger.info('Storing cert request for %s', tag)
+        subsystem.store_system_cert_request(system_cert)
+
         if request.systemCert.type == 'remote':
 
             # Issue subordinate CA signing cert using remote CA signing cert.
@@ -3379,9 +3382,6 @@ class PKIDeployer:
         cert_pem = pki.nssdb.convert_cert(system_cert['data'], 'base64', 'pem').encode()
         cert_obj = x509.load_pem_x509_certificate(cert_pem, backend=default_backend())
         logger.info('- serial: %s', hex(cert_obj.serial_number))
-
-        logger.info('Storing cert and request for %s', tag)
-        subsystem.update_system_cert(system_cert)
 
         if cert_info:
             logger.info('Reusing existing %s cert in NSS database', tag)
