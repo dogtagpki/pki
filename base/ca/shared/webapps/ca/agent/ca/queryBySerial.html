@@ -104,13 +104,6 @@ function doSubmit(form)
         form.queryCertFilter.value = "(|(certStatus=VALID)(certStatus=REVOKED))";
     }
 
-    if (form.serialFrom.value == "") {
-    	form.querySentinelDown.value = "0";
-    } else {
-    	form.querySentinelDown.value = form.serialFrom.value;
-    	form.querySentinelUp.value = form.serialFrom.value;
-    	form.direction.value = "down";
-    }
     form.op.value = "listCerts";
     form.submit();
 }
@@ -177,8 +170,6 @@ Do not show certificates that have expired or are not yet valid</font>
     <td ALIGN=RIGHT BGCOLOR="#E5E5E5">
 	  <input TYPE="button" VALUE="Find" width="72" onClick="doSubmit(this.form);">&nbsp;&nbsp;
         <font size=-1 face="PrimaSans BT, Verdana, sans-serif">first</font>&nbsp;
-      <INPUT TYPE="hidden" NAME="querySentinelDown" VALUE="">
-      <INPUT TYPE="hidden" NAME="querySentinelUp" VALUE="">
       <INPUT TYPE="hidden" NAME="direction" VALUE="begin">
       <INPUT TYPE="TEXT" NAME="maxCount" SIZE=4 MAXLENGTH=99 VALUE="20">
         <font size=-1 face="PrimaSans BT, Verdana, sans-serif">records</font>&nbsp;&nbsp;&nbsp;
