@@ -18,7 +18,6 @@
 package com.netscape.cms.servlet.cert;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.security.PublicKey;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -81,11 +80,10 @@ public class ListCerts extends CMSServlet {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ListCerts.class);
 
     private static final long serialVersionUID = -3568155814023099576L;
-    private final static String TPL_FILE = "queryCert.template";
-    private final static BigInteger MINUS_ONE = new BigInteger("-1");
+    private static final String TPL_FILE = "queryCert.template";
 
-    private final static String USE_CLIENT_FILTER = "useClientFilter";
-    private final static String ALLOWED_CLIENT_FILTERS = "allowedClientFilters";
+    private static final String USE_CLIENT_FILTER = "useClientFilter";
+    private static final String ALLOWED_CLIENT_FILTERS = "allowedClientFilters";
 
     private CertificateRepository mCertDB;
     private X500Name mAuthName = null;
@@ -142,6 +140,18 @@ public class ListCerts extends CMSServlet {
         }
         if (sc.getInitParameter(ALLOWED_CLIENT_FILTERS) == null
                 || sc.getInitParameter(ALLOWED_CLIENT_FILTERS).equals("")) {
+            /* This following regexp
+             *
+             * (\(\&)?(\(\|)?(\(certStatus=(\*|VALID|INVALID|EXPIRED)\))*(\))?(\(certRecordId(<|>)=(0x)?\d+\))*(\))?
+             *
+             *  will capture the following filter:
+             *  - "(certStatus=*)"
+             *  - "(certStatus=VALID)"
+             *  - "(|(certStatus=VALID)(certStatus=INVALID)(certStatus=EXPIRED))"
+             *  - "(|(certStatus=VALID)(certStatus=REVOKED))"
+             *  - One of the above and a filters for serial number in hex or decimal (can be >=, <= or both), such as.
+             *     "(& (|(certStatus=VALID)(certStatus=REVOKED))(certRecordId>=0x1) )"
+            */
             mAllowedClientFilters.addElement("(\\\\(\\\\&)?(\\\\(\\\\|)?(\\\\(certStatus=(\\\\*|VALID|INVALID|EXPIRED)\\\\))*(\\\\))?(\\\\(certRecordId(<|>)=(0x)?\\\\d+\\\\))*(\\\\))?");
             mUseClientFilterRegexp = true;
         } else {
@@ -152,17 +162,17 @@ public class ListCerts extends CMSServlet {
         }
     }
 
-    public String buildFilter(HttpServletRequest req) {
+    private String buildFilter(HttpServletRequest req) {
         String queryCertFilter = req.getParameter("queryCertFilter");
-        logger.debug("ListCerts: queryCertFilter: " + queryCertFilter);
+        logger.debug("ListCerts: queryCertFilter: {}", queryCertFilter);
 
-        logger.debug("ListCerts: useClientFilter: " + mUseClientFilter);
+        logger.debug("ListCerts: useClientFilter: {}", mUseClientFilter);
         if (mUseClientFilter) {
             Enumeration<String> filters = mAllowedClientFilters.elements();
             // check to see if the filter is allowed
             while (filters.hasMoreElements()) {
                 String filter = filters.nextElement();
-                logger.debug("ListCerts: Comparing with filter " + filter);
+                logger.debug("ListCerts: Comparing with filter {}", filter);
                 if (mUseClientFilterRegexp) {
                     if (queryCertFilter.matches(filter)) {
                         return queryCertFilter;
@@ -173,8 +183,7 @@ public class ListCerts extends CMSServlet {
                     }
                 }
             }
-            logger.debug("ListCerts: Requested filter '"
-                    + queryCertFilter + "' is not allowed. Please check the " + ALLOWED_CLIENT_FILTERS + "parameter");
+            logger.debug("ListCerts: Requested filter '{}' is not allowed. Please check the {} parameter", queryCertFilter, ALLOWED_CLIENT_FILTERS);
             return null;
         }
 
@@ -196,15 +205,15 @@ public class ListCerts extends CMSServlet {
             filter.append("(certStatus=VALID)");
         } else if (skipRevoked) {
             filter.append("(|(certStatus=VALID)(certStatus=INVALID)(certStatus=EXPIRED))");
-        } else if (skipNonValid) {
+        } else {
             filter.append("(|(certStatus=VALID)(certStatus=REVOKED))");
         }
         String serialFrom = req.getParameter("serialFrom");
-        if (serialFrom != null && !serialFrom.equals("")) {
+        if (serialFrom != null && !serialFrom.isEmpty()) {
             filter.append("(certRecordId>=" + serialFrom + ")");
         }
         String serialTo = req.getParameter("serialTo");
-        if (serialTo != null && !serialTo.equals("")) {
+        if (serialTo != null && !serialTo.isEmpty()) {
             filter.append("(certRecordId<=" + serialTo + ")");
         }
 
@@ -217,11 +226,8 @@ public class ListCerts extends CMSServlet {
      * <ul>
      * <li>http.param maxCount Number of certificates to show
      * <li>http.param queryFilter and ldap style filter specifying the certificates to show
-     * <li>http.param querySentinelDown the serial number of the first certificate to show (default decimal, or hex if
-     * prefixed with 0x) when paging down
-     * <li>http.param querySentinelUp the serial number of the first certificate to show (default decimal, or hex if
-     * prefixed with 0x) when paging up
      * <li>http.param direction "up", "down", "begin", or "end"
+     * <li>http.param serialFrom and serialTo
      * </ul>
      */
     @Override
@@ -244,12 +250,9 @@ public class ListCerts extends CMSServlet {
             return;
         }
 
-        String revokeAll = null;
         EBaseException error = null;
 
         int maxCount = -1;
-        BigInteger sentinel = new BigInteger("0");
-
         ArgBlock header = new ArgBlock();
         ArgBlock ctx = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, ctx);
@@ -265,7 +268,6 @@ public class ListCerts extends CMSServlet {
         }
 
         String direction = null;
-        boolean hardJumpTo = false; //jump to the end
         int previousCount = -1;
         int previousStart = 0;
         int start = 0;
@@ -276,7 +278,7 @@ public class ListCerts extends CMSServlet {
                 maxCount = Integer.parseInt(req.getParameter("maxCount"));
             }
             if (maxCount == -1 || maxCount > mMaxReturns) {
-                logger.debug("ListCerts: Resetting page size from " + maxCount + " to " + mMaxReturns);
+                logger.debug("ListCerts: Resetting page size from {} to {}", maxCount, mMaxReturns);
                 maxCount = mMaxReturns;
             }
             if (req.getParameter("previousCount") != null && !req.getParameter("previousCount").isEmpty()) {
@@ -286,13 +288,10 @@ public class ListCerts extends CMSServlet {
                 previousStart = Integer.parseInt(req.getParameter("previousStart"));
             }
 
-            revokeAll = req.getParameter("revokeAll");
-
             CAEngine engine = CAEngine.getInstance();
             CertificateAuthority ca = engine.getCA();
             X509CertImpl caCert = ca.getSigningUnit().getCertImpl();
 
-            //if (isCertFromCA(caCert))
             header.addStringValue("caSerialNumber",
                     caCert.getSerialNumber().toString(16));
 
@@ -304,7 +303,7 @@ public class ListCerts extends CMSServlet {
                 return;
             }
 
-            logger.debug("ListCerts: queryCertFilter: " + queryCertFilter);
+            logger.debug("ListCerts: queryCertFilter: {}", queryCertFilter);
 
             int totalRecordCount = -1;
 
@@ -315,7 +314,7 @@ public class ListCerts extends CMSServlet {
 
             if (req.getParameter("direction") != null) {
                 direction = req.getParameter("direction").trim();
-                logger.debug("ListCerts: direction: " + direction);
+                logger.debug("ListCerts: direction: {}", direction);
                 switch(direction) {
                     case "up":
                         start = Math.max(0, previousStart - maxCount);
@@ -334,10 +333,8 @@ public class ListCerts extends CMSServlet {
             processCertFilter(argSet, header, maxCount,
                     start,
                     totalRecordCount,
-                    req.getParameter("serialTo"),
                     queryCertFilter,
-                    hardJumpTo,
-                    req, resp, revokeAll, locale[0]);
+                    req);
 
         } catch (NumberFormatException e) {
             logger.error(CMS.getLogMessage("BASE_INVALID_NUMBER_FORMAT"), e);
@@ -376,26 +373,15 @@ public class ListCerts extends CMSServlet {
             int maxCount,
             int start,
             int totalRecordCount,
-            String serialTo,
             String filter,
-            boolean hardJumpTo,
-            HttpServletRequest req,
-            HttpServletResponse resp,
-            String revokeAll,
-            Locale locale
+            HttpServletRequest req
             ) throws EBaseException {
 
         logger.debug("ListCerts.processCertFilter()");
-        logger.debug("ListCerts: max count: " + maxCount);
-        logger.debug("ListCerts: start: " + start);
-        logger.debug("ListCerts: total record count: " + totalRecordCount);
-        logger.debug("ListCerts: serialTo: " + serialTo);
-        logger.debug("ListCerts: filter: " + filter);
-
-        BigInteger serialToVal = MINUS_ONE;
-
-
-
+        logger.debug("ListCerts: max count: {}", maxCount);
+        logger.debug("ListCerts: start: {}", start);
+        logger.debug("ListCerts: total record count: {}", totalRecordCount);
+        logger.debug("ListCerts: filter: {}", filter);
 
         logger.debug("ListCerts: calling searchCertificates");
         Iterator<CertRecord> list = mCertDB.searchCertificates(
@@ -409,14 +395,11 @@ public class ListCerts extends CMSServlet {
         }
 
         header.addStringValue("op", CMSTemplate.escapeJavaScriptString(req.getParameter("op")));
+        String revokeAll = req.getParameter("revokeAll");
         if (revokeAll != null)
             header.addStringValue("revokeAll", CMSTemplate.escapeJavaScriptString(revokeAll));
-
         if (mAuthName != null)
             header.addStringValue("issuerName", mAuthName.toString());
-
-        if (!serialToVal.equals(MINUS_ONE))
-            header.addStringValue("serialTo", serialToVal.toString());
 
         header.addStringValue("serviceURL", req.getRequestURI());
         header.addStringValue("queryCertFilter", filter);
@@ -441,10 +424,9 @@ public class ListCerts extends CMSServlet {
             totalRecordCount = mCertDB.countCertificates(filter, -1);
         }
 
-        logger.debug("ListCerts: totalRecordCount: " + totalRecordCount);
+        logger.debug("ListCerts: totalRecordCount: {}", totalRecordCount);
 
         header.addIntegerValue("totalRecordCount", totalRecordCount);
-        header.addIntegerValue("currentRecordCount", currentRecordCount);
 
     }
 

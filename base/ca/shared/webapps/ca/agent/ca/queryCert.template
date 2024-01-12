@@ -431,18 +431,12 @@ function doNext(element)
         form.direction.value= "down";
 
 	if (element.name == "begin") {
-	  form.querySentinelDown.value = 0;
 	  form.direction.value = "begin";
         } else if (element.name == "end") {
-	  form.querySentinelDown.value = result.header.totalRecordCount - result.header.maxCount+1;
 	  form.direction.value = "end";
         } else if (element.name == "down") {
-	  form.querySentinelDown.value = result.header.querySentinelDown;
-	  form.querySentinelUp.value = result.header.querySentinelUp;
 	  form.direction.value = "down";
         } else if (element.name == "up") {
-	  form.querySentinelUp.value = result.header.querySentinelUp;
-	  form.querySentinelDown.value = result.header.querySentinelDown;
 	  form.direction.value = "up";
         }
 
@@ -470,9 +464,9 @@ if (result.header.revokeAll != null) {
 if (result.header.queryFilterHash != null) {
     document.write(renderHidden("queryFilterHash"));
 }
-var disabledDown = ((result.header.querySentinelDown == null) ||
-                    (result.fixed.maxCount+1 >= result.header.currentRecordCount)) ? "disabled='true'" : "";
-var disabledUp = (result.header.querySentinelUp != null && result.header.querySentinelUp <= 1) ? "disabled='true'" : "";
+    var disabledUp = ((result.header.previousStart == null) ||
+                        (result.header.previousStart <= 0)) ? "disabled='true'" : "";
+    var disabledDown = (result.header.previousCount + result.header.previousStart >= result.header.totalRecordCount) ? "disabled='true'" : "";
 
 document.write(
 "<button NAME=begin onClick='doNext(this)' VALUE='|<<' width='72'>|&lt;&lt;</button>\n"+
@@ -485,14 +479,16 @@ result.header.queryCertFilter+ "'>\n"+
 (result.header.skipRevoked ? result.header.skipRevoked : "") + "'>\n"+
 "<INPUT TYPE=hidden NAME=skipNonValid VALUE='"+
 (result.header.skipNonValid ? result.header.skipNonValid : "") + "'>\n"+
-"<INPUT TYPE=hidden NAME=querySentinelDown VALUE='"+
-result.header.querySentinelDown+ "'>\n"+
-"<INPUT TYPE=hidden NAME=querySentinelUp VALUE='"+
-result.header.querySentinelUp+ "'>\n"+
+"<INPUT TYPE=hidden NAME=serialFrom VALUE='"+
+(result.header.serialFrom ? result.header.serialFrom : '')+ "'>\n"+
 "<INPUT TYPE=hidden NAME=serialTo VALUE='"+
-result.header.serialTo+ "'>\n"+
+(result.header.serialTo ? result.header.serialTo : '')+ "'>\n"+
 "<INPUT TYPE=hidden NAME=direction VALUE='"+
 result.header.direction+ "'>\n"+
+"<INPUT TYPE=hidden NAME=previousCount VALUE='"+
+result.header.previousCount+ "'>\n"+
+"<INPUT TYPE=hidden NAME=previousStart VALUE='"+
+result.header.previousStart+ "'>\n"+
 "<INPUT style='padding-left: 2px;' TYPE=text SIZE=16 NAME=maxCount VALUE='"+
 result.header.maxCount+ "'>\n"+
 
