@@ -531,7 +531,7 @@ class PKIDeployer:
         for cert in external_certs:
             self.instance.add_external_cert(cert.nickname, cert.token)
 
-    def init_server_nssdb(self, subsystem):
+    def create_server_nssdb(self):
 
         # Since 'certutil' does NOT strip the 'token=' portion of
         # the 'token=password' entries, create a temporary server 'pfile'
@@ -565,16 +565,6 @@ class PKIDeployer:
                 self.instance.nssdb_dir,
                 self.instance.nssdb_link,
                 exist_ok=True)
-
-        # Link /var/lib/pki/<instance>/<subsystem>/alias
-        # to /var/lib/pki/<instance>/alias
-
-        subsystem_nssdb_link = os.path.join(subsystem.base_dir, 'alias')
-
-        self.instance.symlink(
-            self.instance.nssdb_link,
-            subsystem_nssdb_link,
-            exist_ok=True)
 
         if config.str2bool(self.mdict['pki_hsm_enable']) and \
                 self.mdict['pki_hsm_modulename'] and \

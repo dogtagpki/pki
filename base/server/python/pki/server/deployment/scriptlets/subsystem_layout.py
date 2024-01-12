@@ -61,6 +61,16 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         subsystem.create_conf(exist_ok=True)
         subsystem.create_logs(exist_ok=True)
 
+        # Link /var/lib/pki/<instance>/<subsystem>/alias
+        # to /var/lib/pki/<instance>/alias
+
+        nssdb_link = os.path.join(subsystem.base_dir, 'alias')
+
+        instance.symlink(
+            instance.nssdb_link,
+            nssdb_link,
+            exist_ok=True)
+
         if config.str2bool(deployer.mdict['pki_registry_enable']):
             subsystem.create_registry(exist_ok=True)
 

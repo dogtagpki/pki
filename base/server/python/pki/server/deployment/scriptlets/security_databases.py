@@ -51,7 +51,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if config.str2bool(deployer.mdict['pki_use_pss_rsa_signing_algorithm']):
             deployer.update_rsa_pss_algorithms(subsystem)
 
-        deployer.init_server_nssdb(subsystem)
         deployer.import_server_pkcs12()
         deployer.import_clone_pkcs12()
         deployer.install_cert_chain()

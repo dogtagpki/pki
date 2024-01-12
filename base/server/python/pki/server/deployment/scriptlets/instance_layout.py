@@ -203,6 +203,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         logger.info('Creating %s', instance.password_conf)
         instance.store_passwords()
 
+        deployer.create_server_nssdb()
+
         deployer.configure_server_xml()
 
         # Copy /usr/share/pki/server/conf/tomcat.conf
