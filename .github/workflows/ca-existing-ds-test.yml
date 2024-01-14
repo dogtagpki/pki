@@ -160,8 +160,16 @@ jobs:
               --maxConns 15 \
               --minConns 3
 
-          # configure user/group subsystem to use DS
+          # configure CA user/group subsystem
           docker exec pki pki-server ca-config-set usrgrp.ldap internaldb
+
+          # configure CA database subsystem
+          docker exec pki pki-server ca-config-set dbs.ldap internaldb
+          docker exec pki pki-server ca-config-set dbs.newSchemaEntryAdded true
+          docker exec pki pki-server ca-config-set dbs.requestDN ou=ca,ou=requests
+          docker exec pki pki-server ca-config-set dbs.request.id.generator random
+          docker exec pki pki-server ca-config-set dbs.serialDN ou=certificateRepository,ou=ca
+          docker exec pki pki-server ca-config-set dbs.cert.id.generator random
 
       - name: Check connection to CA database
         run: |
@@ -187,6 +195,78 @@ jobs:
       - name: Rebuild CA VLV indexes
         run: |
           docker exec pki pki-server ca-db-vlv-reindex -v
+
+      - name: Import CA signing cert into CA database
+        run: |
+          docker exec pki pki-server ca-cert-request-import \
+              --csr /etc/pki/pki-tomcat/certs/ca_signing.csr \
+              --profile /usr/share/pki/ca/conf/caCert.profile | tee output
+          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
+
+          docker exec pki pki-server ca-cert-import \
+              --cert /etc/pki/pki-tomcat/certs/ca_signing.crt \
+              --profile /usr/share/pki/ca/conf/caCert.profile \
+              --request $REQUEST_ID
+
+      - name: Import CA OCSP signing cert into CA database
+        run: |
+          docker exec pki pki-server ca-cert-request-import \
+              --csr /etc/pki/pki-tomcat/certs/ca_ocsp_signing.csr \
+              --profile /usr/share/pki/ca/conf/caOCSPCert.profile | tee output
+          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
+
+          docker exec pki pki-server ca-cert-import \
+              --cert /etc/pki/pki-tomcat/certs/ca_ocsp_signing.crt \
+              --profile /usr/share/pki/ca/conf/caOCSPCert.profile \
+              --request $REQUEST_ID
+
+      - name: Import CA audit signing cert into CA database
+        run: |
+          docker exec pki pki-server ca-cert-request-import \
+              --csr /etc/pki/pki-tomcat/certs/ca_audit_signing.csr \
+              --profile /usr/share/pki/ca/conf/caAuditSigningCert.profile | tee output
+          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
+
+          docker exec pki pki-server ca-cert-import \
+              --cert /etc/pki/pki-tomcat/certs/ca_audit_signing.crt \
+              --profile /usr/share/pki/ca/conf/caAuditSigningCert.profile \
+              --request $REQUEST_ID
+
+      - name: Import subsystem cert into CA database
+        run: |
+          docker exec pki pki-server ca-cert-request-import \
+              --csr /etc/pki/pki-tomcat/certs/subsystem.csr \
+              --profile /usr/share/pki/ca/conf/rsaSubsystemCert.profile | tee output
+          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
+
+          docker exec pki pki-server ca-cert-import \
+              --cert /etc/pki/pki-tomcat/certs/subsystem.crt \
+              --profile /usr/share/pki/ca/conf/rsaSubsystemCert.profile \
+              --request $REQUEST_ID
+
+      - name: Import SSL server cert into CA database
+        run: |
+          docker exec pki pki-server ca-cert-request-import \
+              --csr /etc/pki/pki-tomcat/certs/sslserver.csr \
+              --profile /usr/share/pki/ca/conf/rsaServerCert.profile | tee output
+          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
+
+          docker exec pki pki-server ca-cert-import \
+              --cert /etc/pki/pki-tomcat/certs/sslserver.crt \
+              --profile /usr/share/pki/ca/conf/rsaServerCert.profile \
+              --request $REQUEST_ID
+
+      - name: Import admin cert into CA database
+        run: |
+          docker exec pki pki-server ca-cert-request-import \
+              --csr admin.csr \
+              --profile /usr/share/pki/ca/conf/rsaAdminCert.profile | tee output
+          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
+
+          docker exec pki pki-server ca-cert-import \
+              --cert admin.crt \
+              --profile /usr/share/pki/ca/conf/rsaAdminCert.profile \
+              --request $REQUEST_ID
 
       # https://github.com/dogtagpki/pki/wiki/Setting-up-CA-Database-User
       - name: Add database user
@@ -365,6 +445,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ca-existing-ds
-          path: |
-            /tmp/artifacts/ds
-            /tmp/artifacts/pki
+          path: /tmp/artifacts
