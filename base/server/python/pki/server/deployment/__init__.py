@@ -3289,7 +3289,8 @@ class PKIDeployer:
             # might conflict with system certificates to be created later.
             # Also create the certificate request record for renewals.
 
-            if config.str2bool(self.mdict['pki_import_system_certs']):
+            if config.str2bool(self.mdict['pki_import_system_certs']) and \
+                    config.str2bool(self.mdict['pki_ds_setup']):
                 self.import_cert_request(subsystem, tag, request)
                 self.import_cert(subsystem, tag, request, system_cert['data'])
 
@@ -3382,8 +3383,9 @@ class PKIDeployer:
 
         # selfsign or local
 
-        # import request into CA database and get a request ID
-        self.import_cert_request(subsystem, tag, request)
+        if config.str2bool(self.mdict['pki_ds_setup']):
+            # import request into CA database and get a request ID
+            self.import_cert_request(subsystem, tag, request)
 
         if cert_info:
             logger.info('Reusing %s cert in NSS database', tag)
@@ -3402,8 +3404,9 @@ class PKIDeployer:
                 cert_format='base64',
                 token=request.systemCert.token)
 
-        # import cert into CA database
-        self.import_cert(subsystem, tag, request, system_cert['data'])
+        if config.str2bool(self.mdict['pki_ds_setup']):
+            # import cert into CA database
+            self.import_cert(subsystem, tag, request, system_cert['data'])
 
     def setup_system_certs(self, nssdb, subsystem):
 
@@ -3759,10 +3762,13 @@ class PKIDeployer:
         request.systemCert.keyAlgorithm = self.get_signing_algorithm(subsystem, profile)
         logger.info('Signing algorithm: %s', request.systemCert.keyAlgorithm)
 
-        self.import_cert_request(subsystem, 'admin', request)
+        if config.str2bool(self.mdict['pki_ds_setup']):
+            self.import_cert_request(subsystem, 'admin', request)
 
         cert_data = self.create_cert(subsystem, 'admin', request)
-        self.import_cert(subsystem, 'admin', request, cert_data)
+
+        if config.str2bool(self.mdict['pki_ds_setup']):
+            self.import_cert(subsystem, 'admin', request, cert_data)
 
         cert_pem = pki.nssdb.convert_cert(cert_data, 'base64', 'pem')
         cert_obj = x509.load_pem_x509_certificate(cert_pem.encode(), backend=default_backend())
