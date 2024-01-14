@@ -33,8 +33,9 @@ echo "##########################################################################
 rc=0
 pki \
     -d /etc/pki/pki-tomcat/alias \
-    nss-cert-show \
-    ca_signing > /dev/null 2>&1 || rc=$?
+    nss-cert-export \
+    --output-file /certs/ca_signing.crt \
+    ca_signing || rc=$?
 
 if [ $rc -ne 0 ]
 then
@@ -76,8 +77,9 @@ echo "##########################################################################
 rc=0
 pki \
     -d /etc/pki/pki-tomcat/alias \
-    nss-cert-show \
-    ocsp_signing > /dev/null 2>&1 || rc=$?
+    nss-cert-export \
+    --output-file /certs/ocsp_signing.crt \
+    ocsp_signing || rc=$?
 
 if [ $rc -ne 0 ]
 then
@@ -117,8 +119,9 @@ echo "##########################################################################
 rc=0
 pki \
     -d /etc/pki/pki-tomcat/alias \
-    nss-cert-show \
-    audit_signing > /dev/null 2>&1 || rc=$?
+    nss-cert-export \
+    --output-file /certs/audit_signing.crt \
+    audit_signing || rc=$?
 
 if [ $rc -ne 0 ]
 then
@@ -159,8 +162,9 @@ echo "##########################################################################
 rc=0
 pki \
     -d /etc/pki/pki-tomcat/alias \
-    nss-cert-show \
-    subsystem > /dev/null 2>&1 || rc=$?
+    nss-cert-export \
+    --output-file /certs/subsystem.crt \
+    subsystem || rc=$?
 
 if [ $rc -ne 0 ]
 then
@@ -200,7 +204,8 @@ rc=0
 pki \
     -d /etc/pki/pki-tomcat/alias \
     nss-cert-show \
-    sslserver > /dev/null 2>&1 || rc=$?
+    --output-file /certs/sslserver.crt \
+    sslserver || rc=$?
 
 if [ $rc -ne 0 ]
 then
@@ -238,7 +243,9 @@ echo "##########################################################################
 
 # check if admin cert exists
 rc=0
-pki nss-cert-show admin > /dev/null 2>&1 || rc=$?
+pki nss-cert-export \
+    --output-file /certs/admin.crt \
+    admin || rc=$?
 
 if [ $rc -ne 0 ]
 then
