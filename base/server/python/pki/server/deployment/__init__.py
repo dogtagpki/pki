@@ -3295,19 +3295,22 @@ class PKIDeployer:
 
             return
 
-        if cert_info:
-            request.systemCert.keyID = self.find_cert_key(tag, request)
-
-        if not request.systemCert.keyID:
-            request.systemCert.keyID = self.create_cert_key(tag, request)
-
-        logger.info('- key ID: %s', request.systemCert.keyID)
-
         csr_file = subsystem.csr_file(tag)
         if os.path.exists(csr_file):
             logger.info('Reusing %s cert request in %s', tag, csr_file)
 
         else:
+            if cert_info:
+                request.systemCert.keyID = self.find_cert_key(tag, request)
+
+            if request.systemCert.keyID:
+                logger.info('Reusing %s key in NSS database', tag)
+            else:
+                logger.info('Creating new %s key in NSS database', tag)
+                request.systemCert.keyID = self.create_cert_key(tag, request)
+
+            logger.info('- key ID: %s', request.systemCert.keyID)
+
             request.systemCert.request = self.create_cert_request(nssdb, tag, request)
             logger.debug('- request: %s', request.systemCert.request)
 
