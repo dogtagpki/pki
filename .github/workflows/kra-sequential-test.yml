@@ -103,7 +103,6 @@ jobs:
           docker exec pki pki-server ca-config-unset dbs.requestRangeDN
 
           docker exec pki pki-server ca-config-set dbs.request.id.generator random
-          docker exec pki pki-server ca-config-set dbs.request.id.length 128
 
           # switch cert ID generator to RSNv3
           docker exec pki pki-server ca-config-unset dbs.beginSerialNumber
@@ -114,7 +113,6 @@ jobs:
           docker exec pki pki-server ca-config-unset dbs.serialRangeDN
 
           docker exec pki pki-server ca-config-set dbs.cert.id.generator random
-          docker exec pki pki-server ca-config-set dbs.cert.id.length 128
 
           # switch key request ID generator to RSNv3
           docker exec pki pki-server kra-config-unset dbs.beginRequestNumber
@@ -125,7 +123,6 @@ jobs:
           docker exec pki pki-server kra-config-unset dbs.requestRangeDN
 
           docker exec pki pki-server kra-config-set dbs.request.id.generator random
-          docker exec pki pki-server kra-config-set dbs.request.id.length 128
 
           # switch key ID generator to RSNv3
           docker exec pki pki-server kra-config-unset dbs.beginSerialNumber
@@ -136,7 +133,6 @@ jobs:
           docker exec pki pki-server kra-config-unset dbs.serialRangeDN
 
           docker exec pki pki-server kra-config-set dbs.key.id.generator random
-          docker exec pki pki-server kra-config-set dbs.key.id.length 128
 
           # restart PKI server
           docker exec pki pki-server start --wait

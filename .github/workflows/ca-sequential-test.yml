@@ -86,7 +86,6 @@ jobs:
           docker exec pki pki-server ca-config-unset dbs.requestRangeDN
 
           docker exec pki pki-server ca-config-set dbs.request.id.generator random
-          docker exec pki pki-server ca-config-set dbs.request.id.length 128
 
           # switch cert ID generator to RSNv3
           docker exec pki pki-server ca-config-unset dbs.beginSerialNumber
@@ -97,7 +96,6 @@ jobs:
           docker exec pki pki-server ca-config-unset dbs.serialRangeDN
 
           docker exec pki pki-server ca-config-set dbs.cert.id.generator random
-          docker exec pki pki-server ca-config-set dbs.cert.id.length 128
 
           # restart CA subsystem
           docker exec pki pki-server ca-redeploy --wait

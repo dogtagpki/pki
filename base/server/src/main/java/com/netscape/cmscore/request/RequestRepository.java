@@ -58,6 +58,7 @@ public class RequestRepository extends Repository {
     public static final String DEFAULT_REQUEST_ID_GENERATOR = "legacy";
 
     public static final String PROP_REQUEST_ID_LENGTH = "request.id.length";
+    public static final int DEFAULT_REQUEST_ID_LENGTH = 128;
 
     protected String filter;
 
@@ -96,7 +97,7 @@ public class RequestRepository extends Repository {
 
         if (idGenerator == IDGenerator.RANDOM) {
 
-            idLength = dbConfig.getInteger(PROP_REQUEST_ID_LENGTH);
+            idLength = dbConfig.getInteger(PROP_REQUEST_ID_LENGTH, DEFAULT_REQUEST_ID_LENGTH);
             logger.debug("RequestRepository: - request ID length: " + idLength);
 
         } else {

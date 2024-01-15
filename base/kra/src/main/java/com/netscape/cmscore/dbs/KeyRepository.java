@@ -45,6 +45,7 @@ public class KeyRepository extends Repository {
     public static final String DEFAULT_KEY_ID_GENERATOR = "legacy";
 
     public static final String PROP_KEY_ID_LENGTH = "key.id.length";
+    public static final int DEFAULT_KEY_ID_LENGTH = 128;
 
     /**
      * Constructs a key repository. It checks if the key repository
@@ -79,7 +80,7 @@ public class KeyRepository extends Repository {
 
         if (idGenerator == IDGenerator.RANDOM) {
 
-            idLength = dbConfig.getInteger(PROP_KEY_ID_LENGTH);
+            idLength = dbConfig.getInteger(PROP_KEY_ID_LENGTH, DEFAULT_KEY_ID_LENGTH);
             logger.info("KeyRepository: - key ID length: " + idLength);
 
         } else {

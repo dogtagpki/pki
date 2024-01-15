@@ -83,6 +83,7 @@ public class CertificateRepository extends Repository {
     public static final String DEFAULT_CERT_ID_GENERATOR = "legacy";
 
     public static final String PROP_CERT_ID_LENGTH = "cert.id.length";
+    public static final int DEFAULT_CERT_ID_LENGTH = 128;
 
     private boolean mConsistencyCheck = false;
 
@@ -123,7 +124,7 @@ public class CertificateRepository extends Repository {
 
         if (idGenerator == IDGenerator.RANDOM) {
 
-            idLength = mDBConfig.getInteger(PROP_CERT_ID_LENGTH);
+            idLength = mDBConfig.getInteger(PROP_CERT_ID_LENGTH, DEFAULT_CERT_ID_LENGTH);
             logger.debug("CertificateRepository: - cert ID length: " + idLength);
 
         } else {
