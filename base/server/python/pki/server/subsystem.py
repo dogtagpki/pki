@@ -141,6 +141,15 @@ class PKISubsystem(object):
     def default_cfg(self):
         return os.path.join(self.registry_dir, 'default.cfg')
 
+    def csr_file(self, tag):
+
+        if tag != 'sslserver' and tag != 'subsystem':
+            cert_id = self.name + '_' + tag
+        else:
+            cert_id = tag
+
+        return self.instance.csr_file(cert_id)
+
     def create(self, exist_ok=False):
 
         # Create /var/lib/pki/<instance>/<subsystem>
@@ -386,12 +395,7 @@ class PKISubsystem(object):
 
         self.instance.makedirs(self.instance.certs_dir, exist_ok=True)
 
-        if tag != 'sslserver' and tag != 'subsystem':
-            csr_name = self.name + '_' + tag
-        else:
-            csr_name = tag
-
-        csr_file = self.instance.csr_file(csr_name)
+        csr_file = self.csr_file(tag)
         with open(csr_file, "w", encoding='utf-8') as f:
             f.write(csr_pem)
 
@@ -1073,7 +1077,7 @@ class PKISubsystem(object):
 
         logger.debug('CA signing cert nickname: %s', nickname)
 
-        csr_file = self.instance.csr_file(cert_tag)
+        csr_file = self.csr_file(cert_tag)
         logger.debug('Reusing existing CSR in %s', csr_file)
 
         # --keyUsage

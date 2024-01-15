@@ -1487,12 +1487,8 @@ class PKIDeployer:
     def store_master_cert_request(self, subsystem, key, csr):
 
         csr_pem = pki.nssdb.convert_csr(csr, 'base64', 'pem')
-
-        cert_id = key.split('.')[1]
-        if cert_id != 'sslserver' and cert_id != 'subsystem':
-            cert_id = subsystem.name + '_' + cert_id
-
-        csr_path = self.instance.csr_file(cert_id)
+        tag = key.split('.')[1]
+        csr_path = subsystem.csr_file(tag)
 
         self.file.create(csr_path)
         with open(csr_path, 'w', encoding='utf-8') as f:
@@ -2090,15 +2086,12 @@ class PKIDeployer:
             # no CSR file to import
             return
 
-        if tag != 'sslserver' and tag != 'subsystem':
-            tag = subsystem.name + '_' + tag
-
         logger.info('Importing CSR for %s from %s', tag, source_path)
 
         if not os.path.exists(source_path):
             raise Exception('Invalid path in %s: %s' % (param, source_path))
 
-        dest_path = self.instance.csr_file(tag)
+        dest_path = subsystem.csr_file(tag)
 
         if os.path.realpath(source_path) == os.path.realpath(dest_path):
             # CSR already imported
@@ -2876,12 +2869,7 @@ class PKIDeployer:
 
         request.systemCert.keyAlgorithm = subsystem.config['preop.cert.%s.keyalgorithm' % tag]
 
-        if tag != 'sslserver' and tag != 'subsystem':
-            csr_name = subsystem.name + '_' + tag
-        else:
-            csr_name = tag
-
-        csr_path = self.instance.csr_file(csr_name)
+        csr_path = subsystem.csr_file(tag)
 
         # load existing CSR if exists
         if os.path.exists(csr_path):
@@ -3037,14 +3025,9 @@ class PKIDeployer:
 
             shutil.move(csr_pathname, csr_path)
 
-        if tag != 'sslserver' and tag != 'subsystem':
-            csr_name = subsystem.name + '_' + tag
-        else:
-            csr_name = tag
-
         self.file.copy(
             old_name=csr_path,
-            new_name=self.instance.csr_file(csr_name),
+            new_name=subsystem.csr_file(tag),
             overwrite_flag=True)
 
     def create_cert_request(self, nssdb, tag, request):
