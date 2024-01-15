@@ -3303,19 +3303,23 @@ class PKIDeployer:
 
         logger.info('- key ID: %s', request.systemCert.keyID)
 
-        request.systemCert.request = self.create_cert_request(nssdb, tag, request)
-        logger.debug('- request: %s', request.systemCert.request)
+        csr_file = subsystem.csr_file(tag)
+        if os.path.exists(csr_file):
+            logger.info('Reusing %s cert request in %s', tag, csr_file)
 
-        system_cert['token'] = request.systemCert.token
-        system_cert['request'] = request.systemCert.request
+        else:
+            request.systemCert.request = self.create_cert_request(nssdb, tag, request)
+            logger.debug('- request: %s', request.systemCert.request)
 
-        logger.info('Storing cert request for %s', tag)
-        subsystem.store_system_cert_request(system_cert)
+            system_cert['request'] = request.systemCert.request
+
+            logger.info('Storing cert request for %s', tag)
+            subsystem.store_system_cert_request(system_cert)
 
         if request.systemCert.type == 'remote':
 
             if cert_info:
-                logger.info('Reusing existing %s cert in NSS database', tag)
+                logger.info('Reusing %s cert in NSS database', tag)
                 return
 
             # Issue subordinate CA signing cert using remote CA signing cert.
@@ -3379,7 +3383,7 @@ class PKIDeployer:
         self.import_cert_request(subsystem, tag, request)
 
         if cert_info:
-            logger.info('Reusing existing %s cert in NSS database', tag)
+            logger.info('Reusing %s cert in NSS database', tag)
 
         else:
             system_cert['data'] = self.create_cert(subsystem, tag, request)
