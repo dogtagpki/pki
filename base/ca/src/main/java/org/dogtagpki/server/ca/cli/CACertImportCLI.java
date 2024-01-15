@@ -7,6 +7,7 @@ package org.dogtagpki.server.ca.cli;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.SecureRandom;
 
@@ -65,11 +66,11 @@ public class CACertImportCLI extends CommandCLI {
         option.setArgName("format");
         options.addOption(option);
 
-        option = new Option(null, "request", true, "Request ID");
-        option.setArgName("ID");
+        option = new Option(null, "profile", true, "Bootstrap profile path");
+        option.setArgName("path");
         options.addOption(option);
 
-        option = new Option(null, "profile", true, "Profile ID");
+        option = new Option(null, "request", true, "Request ID");
         option.setArgName("ID");
         options.addOption(option);
 
@@ -95,17 +96,13 @@ public class CACertImportCLI extends CommandCLI {
         String certPath = cmd.getOptionValue("cert");
         String certFormat = cmd.getOptionValue("format");
 
+        if (!cmd.hasOption("profile")) {
+            throw new Exception("Missing bootstrap profile path");
+        }
+
         if (!cmd.hasOption("request")) {
             throw new Exception("Missing request ID");
         }
-
-        RequestId requestID = new RequestId(cmd.getOptionValue("request"));
-
-        if (!cmd.hasOption("profile")) {
-            throw new Exception("Missing profile ID");
-        }
-
-        String profileID = cmd.getOptionValue("profile");
 
         // initialize JSS in pki-server CLI
         TomcatJSS tomcatjss = TomcatJSS.getInstance();
@@ -147,10 +144,14 @@ public class CACertImportCLI extends CommandCLI {
         CAEngineConfig cs = new CAEngineConfig(storage);
         cs.load();
 
-        String profilePath = confDir + File.separator + profileID;
+        // If the bootstrap profile path is relative (e.g. caCert.profile),
+        // convert it to /var/lib/pki/pki-tomcat/ca/conf/<profile>.
+        // If the bootstrap profile path is absolute, use it as is.
+        String profile = cmd.getOptionValue("profile");
+        Path profilePath = Paths.get(confDir).resolve(profile);
 
         logger.info("Loading " + profilePath);
-        ConfigStorage profileStorage = new FileConfigStorage(profilePath);
+        ConfigStorage profileStorage = new FileConfigStorage(profilePath.toString());
         ConfigStore profileConfig = new ConfigStore(profileStorage);
         profileConfig.load();
 
@@ -171,6 +172,8 @@ public class CACertImportCLI extends CommandCLI {
         DBSubsystem dbSubsystem = new DBSubsystem();
         dbSubsystem.setEngineConfig(cs);
         dbSubsystem.init(dbConfig, ldapConfig, socketConfig, passwordStore);
+
+        RequestId requestID = new RequestId(cmd.getOptionValue("request"));
 
         try {
             CertificateRepository certificateRepository = new CertificateRepository(secureRandom, dbSubsystem);

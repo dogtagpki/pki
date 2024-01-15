@@ -3242,8 +3242,8 @@ class PKIDeployer:
         subsystem.import_cert(
             cert_data=pem_cert,
             cert_format='PEM',
-            request_id=request.systemCert.requestID,
-            profile_id=request.systemCert.profile)
+            profile_path=request.systemCert.profile,
+            request_id=request.systemCert.requestID)
 
     def setup_system_cert(self, nssdb, subsystem, tag, system_cert, request):
 
