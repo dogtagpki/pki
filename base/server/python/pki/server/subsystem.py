@@ -2418,7 +2418,7 @@ class CASubsystem(PKISubsystem):
             request_path=None,
             request_format=None,
             request_type=None,
-            profile_id=None,
+            profile_path=None,
             dns_names=None,
             adjust_validity=None):
 
@@ -2440,8 +2440,8 @@ class CASubsystem(PKISubsystem):
         if request_type:
             cmd.extend(['--type', request_type])
 
-        if profile_id:
-            cmd.extend(['--profile', profile_id])
+        if profile_path:
+            cmd.extend(['--profile', profile_path])
 
         if dns_names:
             cmd.extend(['--dns-names', ','.join(dns_names)])

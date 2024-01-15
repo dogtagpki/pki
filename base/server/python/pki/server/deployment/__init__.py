@@ -2754,7 +2754,7 @@ class PKIDeployer:
             request_id=request.systemCert.requestID,
             request_data=request_pem,
             request_type=request.systemCert.requestType,
-            profile_id=request.systemCert.profile,
+            profile_path=request.systemCert.profile,
             dns_names=request.systemCert.dnsNames,
             adjust_validity=request.systemCert.adjustValidity)
 

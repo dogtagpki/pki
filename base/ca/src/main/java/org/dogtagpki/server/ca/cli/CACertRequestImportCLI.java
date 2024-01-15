@@ -7,6 +7,7 @@ package org.dogtagpki.server.ca.cli;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.SecureRandom;
 
@@ -68,8 +69,8 @@ public class CACertRequestImportCLI extends CommandCLI {
         option.setArgName("type");
         options.addOption(option);
 
-        option = new Option(null, "profile", true, "Profile ID");
-        option.setArgName("ID");
+        option = new Option(null, "profile", true, "Bootstrap profile path");
+        option.setArgName("path");
         options.addOption(option);
 
         option = new Option(null, "dns-names", true, "Comma-separated list of DNS names");
@@ -111,7 +112,7 @@ public class CACertRequestImportCLI extends CommandCLI {
         }
 
         if (!cmd.hasOption("profile")) {
-            throw new Exception("Missing profile ID");
+            throw new Exception("Missing bootstrap profile path");
         }
 
         String requestPath = cmd.getOptionValue("csr");
@@ -146,11 +147,14 @@ public class CACertRequestImportCLI extends CommandCLI {
         CAEngineConfig cs = new CAEngineConfig(storage);
         cs.load();
 
-        String profileID = cmd.getOptionValue("profile");
-        String profilePath = confDir + File.separator + profileID;
+        // If the bootstrap profile path is relative (e.g. caCert.profile),
+        // convert it to /var/lib/pki/pki-tomcat/ca/conf/<profile>.
+        // If the bootstrap profile path is absolute, use it as is.
+        String profile = cmd.getOptionValue("profile");
+        Path profilePath = Paths.get(confDir).resolve(profile);
 
         logger.info("Loading " + profilePath);
-        ConfigStorage profileStorage = new FileConfigStorage(profilePath);
+        ConfigStorage profileStorage = new FileConfigStorage(profilePath.toString());
         ConfigStore profileConfig = new ConfigStore(profileStorage);
         profileConfig.load();
 

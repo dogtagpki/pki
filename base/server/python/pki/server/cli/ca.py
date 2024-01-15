@@ -744,7 +744,7 @@ class CACertRequestImportCLI(pki.cli.CLI):
         print('  -i, --instance <instance ID>     Instance ID (default: pki-tomcat)')
         print('      --csr <path>                 Certificate request path')
         print('      --format <format>            Certificate request format: PEM (default), DER')
-        print('      --profile <filename>         Bootstrap profile filename')
+        print('      --profile <path>             Bootstrap profile path')
         print('      --request <ID>               Certificate request ID')
         print('  -v, --verbose                    Run in verbose mode.')
         print('      --debug                      Run in debug mode.')
@@ -767,7 +767,7 @@ class CACertRequestImportCLI(pki.cli.CLI):
         instance_name = 'pki-tomcat'
         request_path = None
         request_format = None
-        profile_id = None
+        profile_path = None
         request_id = None
 
         for o, a in opts:
@@ -781,7 +781,7 @@ class CACertRequestImportCLI(pki.cli.CLI):
                 request_format = a
 
             elif o == '--profile':
-                profile_id = a
+                profile_path = a
 
             elif o == '--request':
                 request_id = a
@@ -816,7 +816,7 @@ class CACertRequestImportCLI(pki.cli.CLI):
         result = subsystem.import_cert_request(
             request_path=request_path,
             request_format=request_format,
-            profile_id=profile_id,
+            profile_path=profile_path,
             request_id=request_id)
 
         request_id = result['requestID']
