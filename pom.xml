@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.dogtagpki</groupId>
     <artifactId>pki</artifactId>
-    <version>10.8-SNAPSHOT</version>
+    <version>10.15-SNAPSHOT</version>
 
     <dependencies>
 
