@@ -1235,7 +1235,7 @@ public class ArgParser
 	 * <td><code>%o</code></td><td>an octal integer</td>
 	 * <tr valign=top>
 	 * <td><code>%h</code></td><td>a hex integer (without the
-	 * preceeding <code>0x</code>)</td>
+	 * preceding <code>0x</code>)</td>
 	 * <tr valign=top>
 	 * <td><code>%c</code></td><td>a single character, including
 	 * escape sequences (such as <code>\n</code> or <code>\007</code>),

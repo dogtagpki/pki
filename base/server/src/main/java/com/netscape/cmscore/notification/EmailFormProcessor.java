@@ -26,7 +26,7 @@ import com.netscape.cmscore.apps.CMS;
 
 /**
  * formulates the final email. Escape character '\' is understood.
- * '$' is used preceeding a token name. A token name should not be a
+ * '$' is used preceding a token name. A token name should not be a
  * substring of any other token name
  *
  * @author cfu
