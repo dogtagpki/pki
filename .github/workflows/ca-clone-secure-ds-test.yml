@@ -260,10 +260,18 @@ jobs:
 
       - name: Re-install CA in secondary PKI container
         run: |
+          # create cert bundle containing CA and DS signing certs
+          docker exec secondary sed \
+              -n wcert_bundle.pem \
+              $SHARED/ca_signing.crt \
+              ds_signing.crt
+          docker exec secondary cat cert_bundle.pem
+
+          # install secondary CA with cert bundle
           docker exec secondary pkispawn \
               -f /usr/share/pki/server/examples/installation/ca-secure-ds-secondary.cfg \
               -s CA \
-              -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
+              -D pki_cert_chain_path=cert_bundle.pem \
               -D pki_clone_pkcs12_path=${SHARED}/ca-certs.p12 \
               -D pki_ds_url=ldaps://secondaryds.example.com:3636 \
               -v
