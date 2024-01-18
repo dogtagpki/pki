@@ -2264,40 +2264,6 @@ class NSSDatabase(object):
         finally:
             shutil.rmtree(tmpdir)
 
-    def __convert_certs_into_pkcs7(self, certs, pkcs7_file):
-
-        tmpdir = self.create_tmpdir()
-        try:
-            for cert in certs:
-
-                logger.info('Importing cert into PKCS #7:\n%s', cert)
-
-                # store each cert into a file
-                cert_pem = os.path.join(tmpdir, 'cert.pem')
-                with open(cert_pem, 'w', encoding='utf-8') as f:
-                    f.write(cert)
-
-                # import cert into PKCS #7 file
-                cmd = [
-                    'pki',
-                    '-d', self.directory,
-                    'pkcs7-cert-import',
-                    '--pkcs7', pkcs7_file,
-                    '--input-file', cert_pem,
-                    '--append',
-                ]
-
-                if logger.isEnabledFor(logging.DEBUG):
-                    cmd.append('--debug')
-
-                elif logger.isEnabledFor(logging.INFO):
-                    cmd.append('--verbose')
-
-                self.run(cmd, check=True)
-
-        finally:
-            shutil.rmtree(tmpdir)
-
     def import_cert_chain(
             self,
             nickname,
@@ -2316,14 +2282,20 @@ class NSSDatabase(object):
 
         try:
             if len(pem_parts) > 1:  # cert bundle
-                logger.debug('Converting cert bundle into PKCS #7')
-                input_type = 'PKCS7'
-                input_file = os.path.join(tmpdir, 'cert_chain.p7b')
-                self.__convert_certs_into_pkcs7(pem_parts, input_file)
 
-            else:  # single cert, PKCS #7, or Base64 data
-                input_type = get_pem_type(pem_parts[0])
-                input_file = cert_chain_file
+                logger.debug('Importing CA cert bundle')
+
+                cert_file = os.path.join(tmpdir, 'cert.pem')
+                for pem_part in pem_parts:
+                    with open(cert_file, 'w', encoding='utf-8') as f:
+                        f.write(pem_part)
+                    self.add_ca_cert(cert_file)
+
+                return
+
+            # single cert, PKCS #7, or Base64 data
+            input_type = get_pem_type(pem_parts[0])
+            input_file = cert_chain_file
 
             if input_type == 'CERTIFICATE':  # import single PEM cert
                 logger.debug('Importing a single cert')
