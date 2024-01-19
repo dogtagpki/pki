@@ -208,12 +208,9 @@ jobs:
               "(objectClass=*)" | tee output
 
           # check authorityKeyNickname
-          echo "ca_signing $LWCA_ID" > expected
+          echo "HSM:ca_signing $LWCA_ID" > expected
           sed -n 's/^authorityKeyNickname:\s*\(.*\)$/\1/p' output > actual
           diff expected actual
-        # TODO: remove continue-on-error once this issue is fixed:
-        # https://github.com/dogtagpki/pki/issues/2412
-        continue-on-error: true
 
       - name: Check certs and keys in internal token
         run: |
@@ -222,8 +219,8 @@ jobs:
               -f /etc/pki/pki-tomcat/password.conf \
               nss-cert-find | tee output
 
-          # there should be 6 certs now
-          echo "6" > expected
+          # there should still be 5 certs
+          echo "5" > expected
           sed -n 's/^\s*Nickname:\s*\(.*\)$/\1/p' output | wc -l > actual
           diff expected actual
 
@@ -232,8 +229,8 @@ jobs:
               -f /etc/pki/pki-tomcat/password.conf \
               nss-key-find | tee output
 
-          # there should be 2 keys now
-          echo "2" > expected
+          # there should still be 1 key
+          echo "1" > expected
           sed -n 's/^\s*Key ID:\s*\(.*\)$/\1/p' output | wc -l > actual
           diff expected actual
 
@@ -245,8 +242,8 @@ jobs:
               --token HSM \
               nss-cert-find | tee output
 
-          # there should be 4 certs now
-          echo "4" > expected
+          # there should be 5 certs now
+          echo "5" > expected
           sed -n 's/^\s*Nickname:\s*\(.*\)$/\1/p' output | wc -l > actual
           diff expected actual
 
@@ -256,8 +253,8 @@ jobs:
               --token HSM \
               nss-key-find | tee output
 
-          # there should be 4 keys now
-          echo "4" > expected
+          # there should be 5 keys now
+          echo "5" > expected
           sed -n 's/^\s*Key ID:\s*\(.*\)$/\1/p' output | wc -l > actual
           diff expected actual
 
@@ -293,10 +290,15 @@ jobs:
         # https://github.com/dogtagpki/pki/issues/2412
         continue-on-error: true
 
+      - name: Check CA debug logs
+        if: always()
+        run: |
+          docker exec pki bash -c "cat /var/log/pki/pki-tomcat/ca/debug.*"
+
       - name: Gather artifacts
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki ds
+          tests/bin/ds-artifacts-save.sh ds
           tests/bin/pki-artifacts-save.sh pki
         continue-on-error: true
 
@@ -313,5 +315,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ca-lightweight-hsm
-          path: |
-            /tmp/artifacts/pki
+          path: /tmp/artifacts

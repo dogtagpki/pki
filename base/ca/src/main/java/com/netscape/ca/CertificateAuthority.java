@@ -1703,13 +1703,9 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
 
     public X509CertImpl generateSigningCert(
             X500Name subjectX500Name,
-            AuthToken authToken)
+            AuthToken authToken,
+            CryptoToken token)
             throws Exception {
-
-        CryptoManager cryptoManager = CryptoManager.getInstance();
-
-        // TODO: read PROP_TOKEN_NAME config
-        CryptoToken token = cryptoManager.getInternalKeyStorageToken();
 
         logger.info("CertificateAuthority: generating RSA key");
 
