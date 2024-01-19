@@ -2332,13 +2332,6 @@ class NSSDatabase(object):
                     cert_file=input_file,
                     token=token,
                     trust_attributes=trust_attributes)
-                return (
-                    self.get_cert(
-                        nickname=nickname,
-                        token=token,
-                        output_format='base64'),
-                    [nickname]
-                )
 
             elif input_type == 'PKCS7':  # import PKCS #7 cert chain
                 logger.debug('Importing a PKCS #7 cert chain')
@@ -2347,13 +2340,6 @@ class NSSDatabase(object):
                     nickname=nickname,
                     token=token,
                     trust_attributes=trust_attributes)
-
-                with open(input_file, 'r', encoding='utf-8') as f:
-                    pkcs7_data = f.read()
-
-                base64_data = convert_pkcs7(pkcs7_data, 'pem', 'base64')
-
-                return base64_data, [nickname]
 
             else:  # import PKCS #7 data without header/footer
                 logger.debug('Importing a PKCS #7 data without header/footer')
@@ -2374,8 +2360,6 @@ class NSSDatabase(object):
                     nickname=nickname,
                     token=token,
                     trust_attributes=trust_attributes)
-
-                return base64_data, [nickname]
 
         finally:
             shutil.rmtree(tmpdir)

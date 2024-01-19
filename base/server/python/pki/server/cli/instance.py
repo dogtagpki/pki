@@ -736,11 +736,11 @@ class InstanceExternalCertAddCLI(pki.cli.CLI):
             directory=instance.nssdb_dir,
             password=password,
             token=token)
-        _chain, nicks = certdb.import_cert_chain(
+        certdb.import_cert_chain(
             nickname=nickname,
             cert_chain_file=cert_file,
             trust_attributes=trust_args)
-        return nicks
+        return [nickname]
 
     def update_instance_config(self, instance, nicks, token):
         for nickname in nicks:
