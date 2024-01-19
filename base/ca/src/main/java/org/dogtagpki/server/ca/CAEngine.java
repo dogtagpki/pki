@@ -46,6 +46,7 @@ import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
 import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
@@ -1165,12 +1166,26 @@ public class CAEngine extends CMSEngine {
         X509CertImpl cert = null;
 
         try {
-            logger.info("CAEngine: Generating signing certificate");
-            cert = parentCA.generateSigningCert(subjectX500Name, authToken);
+            int i = keyNickname.indexOf(':');
+            String tokenname;
+            String nickname;
 
-            logger.info("CAEngine: Importing signing certificate into NSS database");
-            CryptoManager cryptoManager = CryptoManager.getInstance();
-            cryptoManager.importCertPackage(cert.getEncoded(), keyNickname);
+            if (i >= 0) {
+                tokenname = keyNickname.substring(0, i);
+                nickname = keyNickname.substring(i + 1);
+            } else {
+                tokenname = null;
+                nickname = keyNickname;
+            }
+
+            CryptoToken token = CryptoUtil.getKeyStorageToken(tokenname);
+
+            logger.info("CAEngine: Generating signing certificate");
+            cert = parentCA.generateSigningCert(subjectX500Name, authToken, token);
+
+            logger.info("CAEngine: Importing " + nickname + " cert into " + token.getName());
+            CryptoStore store = token.getCryptoStore();
+            store.importCert(cert.getEncoded(), nickname);
 
         } catch (Exception e) {
             logger.error("Unable to generate signing certificate: " + e.getMessage(), e);

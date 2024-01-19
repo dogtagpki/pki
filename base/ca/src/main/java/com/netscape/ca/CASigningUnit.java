@@ -70,19 +70,33 @@ public final class CASigningUnit extends SigningUnit {
             mManager = CryptoManager.getInstance();
 
             if (nickname == null) {
+                // use nickname from config
                 try {
                     mNickname = mConfig.getCertNickname();
                 } catch (EPropertyNotFound e) {
                     mNickname = mConfig.getCACertNickname();
                 }
-            } else {
-                mNickname = nickname;
-            }
 
-            tokenname = config.getTokenName();
-            mToken = CryptoUtil.getKeyStorageToken(tokenname);
-            if (!CryptoUtil.isInternalToken(tokenname)) {
-                mNickname = tokenname + ":" + mNickname;
+                // use token name from config
+                tokenname = config.getTokenName();
+                mToken = CryptoUtil.getKeyStorageToken(tokenname);
+
+                // prepend token name to nickname
+                if (!CryptoUtil.isInternalToken(tokenname)) {
+                    mNickname = tokenname + ":" + mNickname;
+                }
+
+            } else {
+                // use specified nickname (which might contain token name)
+                mNickname = nickname;
+
+                // get token name from nickname
+                int i = mNickname.indexOf(':');
+                if (i >= 0) {
+                    tokenname = mNickname.substring(0, i);
+                }
+
+                mToken = CryptoUtil.getKeyStorageToken(tokenname);
             }
 
             try {

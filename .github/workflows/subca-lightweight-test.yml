@@ -212,10 +212,15 @@ jobs:
           sed -n -e 's/^\s*Issuer DN:\s*\(.*\)$/\1/p' output > actual
           diff expected actual
 
+      - name: Check CA debug logs
+        if: always()
+        run: |
+          docker exec pki bash -c "cat /var/log/pki/pki-tomcat/ca/debug.*"
+
       - name: Gather artifacts
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki ds
+          tests/bin/ds-artifacts-save.sh ds
           tests/bin/pki-artifacts-save.sh pki
         continue-on-error: true
 
@@ -227,5 +232,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ca-lightweight
-          path: |
-            /tmp/artifacts/pki
+          path: /tmp/artifacts
