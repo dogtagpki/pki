@@ -45,7 +45,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.CAEngineConfig;
 import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NotInitializedException;
@@ -88,7 +87,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CADisabledException;
-import com.netscape.certsrv.ca.CAMissingCertException;
 import com.netscape.certsrv.ca.CAMissingKeyException;
 import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
@@ -108,7 +106,6 @@ import com.netscape.cms.servlet.cert.RevocationProcessor;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
-import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.logging.Auditor;
@@ -340,40 +337,6 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
 
     public void setSigningUnitException(ECAException e) {
         signingUnitException = e;
-    }
-
-    /**
-     * Initializes this CA subsystem.
-     *
-     * @param config Subsystem configuration
-     * @exception Exception Unable to initialize subsystem
-     */
-    @Override
-    public void init(ConfigStore config) throws Exception {
-
-        logger.info("CertificateAuthority: Initializing " +
-                (authorityID == null ? "host CA" : "authority " + authorityID));
-
-        CAEngine caEngine = (CAEngine) engine;
-        CAEngineConfig cs = caEngine.getConfig();
-
-        mConfig = cs.getCAConfig();
-
-        // init signing unit & CA cert.
-
-        try {
-            initCertSigningUnit();
-            initCRLSigningUnit();
-            initOCSPSigningUnit();
-
-        } catch (CAMissingCertException | CAMissingKeyException e) {
-            logger.warn("CertificateAuthority: CA signing key and cert not (yet) present in NSS database");
-            signingUnitException = e;
-            caEngine.startKeyRetriever(this);
-
-        } catch (Exception e) {
-            throw new EBaseException(e);
-        }
     }
 
     /**

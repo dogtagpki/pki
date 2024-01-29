@@ -1111,6 +1111,9 @@ public class CAEngine extends CMSEngine {
 
         if (subsystem instanceof CertificateAuthority ca) {
 
+            // initialize host CA
+            initCA(ca);
+
             // try to update the cert once we have the cert and key
             checkForNewerCert(ca);
 
@@ -1417,6 +1420,7 @@ public class CAEngine extends CMSEngine {
         CAConfig caConfig = engineConfig.getCAConfig();
         ca.setCMSEngine(this);
         ca.init(caConfig);
+        initCA(ca);
         checkForNewerCert(ca);
 
         updateAuthoritySerialNumber(authorityID, cert.getSerialNumber());
@@ -1469,6 +1473,7 @@ public class CAEngine extends CMSEngine {
         CAConfig caConfig = engineConfig.getCAConfig();
         ca.setCMSEngine(this);
         ca.init(caConfig);
+        initCA(ca);
         checkForNewerCert(ca);
 
         return ca;
@@ -1807,6 +1812,36 @@ public class CAEngine extends CMSEngine {
         modifyAuthorityEntry(ca.getAuthorityID(), mods);
 
         ca.getAuthorityKeyHosts().add(host);
+    }
+
+    /**
+     * Initialize CA.
+     *
+     * @param ca CA to initialize
+     * @exception Exception Unable to initialize CA
+     */
+    public void initCA(CertificateAuthority ca) throws Exception {
+
+        AuthorityID aid = ca.getAuthorityID();
+        logger.info("CAEngine: Initializing " + (aid == null ? "host CA" : "authority " + aid));
+
+        CAEngineConfig caEngineConfig = getConfig();
+        CAConfig caConfig = caEngineConfig.getCAConfig();
+        ca.setConfig(caConfig);
+
+        try {
+            ca.initCertSigningUnit();
+            ca.initCRLSigningUnit();
+            ca.initOCSPSigningUnit();
+
+        } catch (CAMissingCertException | CAMissingKeyException e) {
+            logger.warn("CAEngine: CA signing key and cert not (yet) present in NSS database");
+            ca.setSigningUnitException(e);
+            startKeyRetriever(ca);
+
+        } catch (Exception e) {
+            throw new EBaseException(e);
+        }
     }
 
     public void checkForNewerCert(CertificateAuthority ca) throws EBaseException {
