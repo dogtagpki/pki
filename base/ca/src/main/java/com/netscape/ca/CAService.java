@@ -259,7 +259,7 @@ public class CAService implements IService {
                 logger.error(CMS.getLogMessage("CMSCORE_CA_AUTHORITY_NOT_FOUND", id));
                 throw new EBaseException(msg);
             }
-            connector = new LocalConnector(mCA, authority);
+            connector = new LocalConnector(authority);
             connector.setCMSEngine(engine);
             connector.init();
             // logger.info("local Connector to "+id+" inited");

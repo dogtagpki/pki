@@ -40,12 +40,10 @@ public class LocalConnector extends Connector {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LocalConnector.class);
 
-    CertificateAuthority mSource;
     IAuthority mDest = null;
     Hashtable<String, Request> mSourceReqs = new Hashtable<>();
 
-    public LocalConnector(CertificateAuthority source, IAuthority dest) {
-        mSource = source;
+    public LocalConnector(IAuthority dest) {
         // logger.debug("Local connector setup for source " + mSource.getId());
         mDest = dest;
 
@@ -69,14 +67,14 @@ public class LocalConnector extends Connector {
         CAEngine caEngine = (CAEngine) engine;
         CertRequestRepository requestRepository = caEngine.getCertRequestRepository();
         Request destreq = requestRepository.createRequest(r.getRequestType());
+        CertificateAuthority ca = caEngine.getCA();
 
         logger.debug("local connector dest req " +
                 destreq.getRequestId() + " created for source rId " + r.getRequestId());
         //  logger.debug("setting connector dest " + mDest.getId() + " source id to " + r.getRequestId());
 
         // XXX set context to the real identity later.
-        destreq.setSourceId(
-                mSource.getX500Name().toString() + ":" + r.getRequestId().toString());
+        destreq.setSourceId(ca.getX500Name() + ":" + r.getRequestId());
         //destreq.copyContents(r);  // copy meta attributes in request.
         transferRequest(r, destreq);
         // XXX requestor type is not transferred on return.
@@ -93,7 +91,7 @@ public class LocalConnector extends Connector {
         if (s.get(SessionContext.USER_ID) == null) {
             // use $local$ to represent it is not a user who
             // submit the request, but it is a local subsystem
-            s.put(SessionContext.USER_ID, "$local$" + mSource.getId());
+            s.put(SessionContext.USER_ID, "$local$" + ca.getId());
         }
 
         // Locally cache the source request so that we
@@ -154,11 +152,13 @@ public class LocalConnector extends Connector {
 
             CAEngine engine = CAEngine.getInstance();
             RequestQueue sourceQ = engine.getRequestQueue();
+            CertificateAuthority ca = engine.getCA();
+
             // accept requests that only belong to us.
             // XXX review death scenarios here. - If system dies anywhere
             // here need to check all requests at next server startup.
             String sourceNameAndId = destreq.getSourceId();
-            String sourceName = mSource.getX500Name().toString();
+            String sourceName = ca.getX500Name().toString();
 
             if (sourceNameAndId == null ||
                     !sourceNameAndId.toString().regionMatches(0,
