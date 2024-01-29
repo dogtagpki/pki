@@ -149,7 +149,7 @@ public class CAService implements IService {
                 new ServiceUnCert4Crl(this));
         mServants.put(
                 Request.GETCERT_STATUS_REQUEST,
-                new GetCertStatus(this));
+                new GetCertStatus());
     }
 
     public void init(ConnectorsConfig connectorsConfig) throws EBaseException {

@@ -32,12 +32,7 @@ class GetCertStatus implements IServant {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GetCertStatus.class);
 
-    private CertificateAuthority mCA;
-    private CAService mService;
-
-    public GetCertStatus(CAService service) {
-        mService = service;
-        mCA = mService.getCA();
+    public GetCertStatus() {
     }
 
     @Override
@@ -47,6 +42,7 @@ class GetCertStatus implements IServant {
 
         CAEngine engine = CAEngine.getInstance();
         CertificateRepository certDB = engine.getCertificateRepository();
+        CertificateAuthority ca = engine.getCA();
 
         String status = null;
 
@@ -62,7 +58,7 @@ class GetCertStatus implements IServant {
             if (record != null) {
                 status = record.getStatus();
                 if (status.equals("VALID")) {
-                    X509CertImpl cacert = mCA.getCACert();
+                    X509CertImpl cacert = ca.getCACert();
                     Principal p = cacert.getSubjectName();
 
                     if (!p.toString().equals(issuerDN)) {
