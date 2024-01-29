@@ -95,7 +95,6 @@ import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CRLSigningInfoEvent;
 import com.netscape.certsrv.logging.event.CertSigningInfoEvent;
-import com.netscape.certsrv.logging.event.OCSPSigningInfoEvent;
 import com.netscape.certsrv.ocsp.IOCSPService;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.security.SigningUnitConfig;
@@ -479,6 +478,10 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
      */
     public CASigningUnit getOCSPSigningUnit() {
         return mOCSPSigningUnit;
+    }
+
+    public synchronized void setOCSPSigningUnit(CASigningUnit ocspSigningUnit) {
+        mOCSPSigningUnit = ocspSigningUnit;
     }
 
     /**
@@ -900,36 +903,6 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
 
         } else {
             // don't generate CRL signing info since LWCA doesn't support CRL
-        }
-    }
-
-    public synchronized void initOCSPSigningUnit() throws Exception {
-
-        logger.info("CertificateAuthority: Initializing OCSP signing unit");
-
-        SigningUnitConfig ocspSigningConfig = mConfig.getOCSPSigningUnitConfig();
-
-        if (hostCA && ocspSigningConfig != null && ocspSigningConfig.size() > 0) {
-            mOCSPSigningUnit = new CASigningUnit();
-            mOCSPSigningUnit.init(ocspSigningConfig, null);
-        } else {
-            mOCSPSigningUnit = mSigningUnit;
-        }
-
-        X509Certificate ocspCert = mOCSPSigningUnit.getCert();
-        logger.info("CertificateAuthority: - nickname: " + ocspCert.getNickname());
-
-        X509CertImpl ocspCertImpl = mOCSPSigningUnit.getCertImpl();
-        String ocspSigningSKI = CryptoUtil.getSKIString(ocspCertImpl);
-
-        Auditor auditor = engine.getAuditor();
-
-        if (hostCA) {
-            // generate OCSP signing info without authority ID
-            auditor.log(OCSPSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, ocspSigningSKI));
-        } else {
-            // generate OCSP signing info with authority ID
-            auditor.log(OCSPSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, ocspSigningSKI, authorityID));
         }
     }
 
