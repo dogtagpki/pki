@@ -45,6 +45,7 @@ import netscape.ldap.controls.LDAPSortControl;
 public class LDAPPagedSearch<E extends IDBObj>  extends DBPagedSearch<E> {
     public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LDAPPagedSearch.class);
 
+    private Class<E> contentClassType;
     private DBRegistry registry;
     private LDAPConnection conn = null;
     private String base = null;
@@ -53,8 +54,9 @@ public class LDAPPagedSearch<E extends IDBObj>  extends DBPagedSearch<E> {
     private String sortKey = null;
     private LDAPSearchResults res = null;
 
-    public LDAPPagedSearch(DBRegistry registry, LDAPConnection conn, String base, String filter, String[] attrs,
+    public LDAPPagedSearch(Class<E> contentClassType, DBRegistry registry, LDAPConnection conn, String base, String filter, String[] attrs,
             String sortKey) throws EBaseException {
+        this.contentClassType = contentClassType;
         this.registry = registry;
         this.base = base;
         this.filter = filter;
@@ -69,13 +71,13 @@ public class LDAPPagedSearch<E extends IDBObj>  extends DBPagedSearch<E> {
     }
 
     @Override
-    public List<CertRecord> getPage()
+    public List<E> getPage()
         throws EBaseException {
         return getPage(LDAPSession.MAX_PAGED_SEARCH_SIZE);
     }
 
     @Override
-    public List<CertRecord> getPage(int size)
+    public List<E> getPage(int size)
             throws EBaseException {
         try {
             logger.info("LDAPSession.continuousPagedSearch(): Searching {}  for {}", base, filter);
@@ -95,7 +97,7 @@ public class LDAPPagedSearch<E extends IDBObj>  extends DBPagedSearch<E> {
             String ldapfilter = registry.getFilter(filter);
 
             byte[] cookie = null;
-            ArrayList<CertRecord> entries = new ArrayList<>();
+            ArrayList<E> entries = new ArrayList<>();
             if (res != null) {
                 for (LDAPControl c: res.getResponseControls()){
                     if(c instanceof LDAPPagedResultsControl resC){
@@ -117,7 +119,7 @@ public class LDAPPagedSearch<E extends IDBObj>  extends DBPagedSearch<E> {
                     LDAPv3.SCOPE_ONE, ldapfilter, ldapattrs, false, cons);
             DBSearchResults sr = new DBSearchResults(registry, res);
             while (sr.hasMoreElements()) {
-                entries.add((CertRecord) sr.nextElement());
+                entries.add(contentClassType.cast(sr.nextElement()));
             }
             return entries;
         } catch (LDAPException e) {

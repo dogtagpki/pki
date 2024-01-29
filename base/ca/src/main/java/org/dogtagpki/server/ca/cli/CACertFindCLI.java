@@ -29,9 +29,9 @@ import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.FileConfigStorage;
 import com.netscape.cmscore.dbs.CertRecord;
-import com.netscape.cmscore.dbs.CertRecordPagedList;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.DBSubsystem;
+import com.netscape.cmscore.dbs.RecordPagedList;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.security.SecureRandomConfig;
@@ -118,7 +118,7 @@ public class CACertFindCLI extends CommandCLI {
             CertificateRepository certificateRepository = new CertificateRepository(secureRandom, dbSubsystem);
             certificateRepository.init();
 
-            CertRecordPagedList certPages = certificateRepository.findPagedCertRecords(filter, null, "serialno");
+            RecordPagedList<CertRecord> certPages = certificateRepository.findPagedCertRecords(filter, null, "serialno");
             boolean follow = false;
             for (CertRecord cRec: certPages) {
                 CertId id = new CertId(cRec.getSerialNumber());

@@ -1164,7 +1164,7 @@ public class CertificateRepository extends Repository {
         logger.debug("countCertificates filter {}", filter);
 
         try (DBSSession s = dbSubsystem.createSession()) {
-            return s.countCertificates(mBaseDN, filter, timeLimit);
+            return s.countEntries(CertRecord.class, mBaseDN, filter, timeLimit);
         }
     }
 
@@ -1252,7 +1252,7 @@ public class CertificateRepository extends Repository {
      * @return a list of certificates
      * @exception EBaseException failed to search
      */
-    public CertRecordPagedList findPagedCertRecords(String filter,
+    public RecordPagedList<CertRecord> findPagedCertRecords(String filter,
             String[] attrs, String sortKey)
             throws EBaseException {
 
@@ -1260,12 +1260,13 @@ public class CertificateRepository extends Repository {
 
         try (DBSSession session = dbSubsystem.createSession()) {
             DBPagedSearch<CertRecord> page = session.<CertRecord>createPagedSearch(
+                    CertRecord.class,
                     mBaseDN,
                     filter,
                     attrs,
                     sortKey);
 
-            return new CertRecordPagedList(page);
+            return new RecordPagedList<>(page);
         }
     }
 
