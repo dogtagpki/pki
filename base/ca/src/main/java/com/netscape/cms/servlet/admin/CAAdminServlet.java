@@ -535,7 +535,7 @@ public class CAAdminServlet extends AdminServlet {
             HttpServletResponse resp)
             throws ServletException, IOException, EBaseException {
 
-        CMSEngine engine = getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         Auditor auditor = engine.getAuditor();
 
         String auditMessage = null;
@@ -612,7 +612,7 @@ public class CAAdminServlet extends AdminServlet {
                     return;
                 }
             }
-            if (!mCA.addCRLIssuingPoint(crlConfig, ipId, enable, desc)) {
+            if (!engine.addCRLIssuingPoint(mCA, crlConfig, ipId, enable, desc)) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
                             AuditEvent.CONFIG_CRL_PROFILE,
