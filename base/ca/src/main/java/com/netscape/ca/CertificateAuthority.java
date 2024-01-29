@@ -90,11 +90,8 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CADisabledException;
-import com.netscape.certsrv.ca.CAEnabledException;
 import com.netscape.certsrv.ca.CAMissingCertException;
 import com.netscape.certsrv.ca.CAMissingKeyException;
-import com.netscape.certsrv.ca.CANotLeafException;
-import com.netscape.certsrv.ca.CATypeException;
 import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
@@ -1834,41 +1831,11 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
         checkForNewerCert();
     }
 
-    /**
-     * Delete this lightweight CA.
-     */
-    public synchronized void deleteAuthority(HttpServletRequest httpReq)
-            throws EBaseException {
-        if (hostCA)
-            throw new CATypeException("Cannot delete the host CA");
-
-        if (authorityEnabled)
-            throw new CAEnabledException("Must disable CA before deletion");
-
-        CAEngine engine = CAEngine.getInstance();
-        boolean hasSubCAs = false;
-
-        for (CertificateAuthority ca : engine.getCAs()) {
-            AuthorityID parentAID = ca.getAuthorityParentID();
-            if (parentAID != null && parentAID.equals(this.authorityID)) {
-                hasSubCAs = true;
-                break;
-            }
-        }
-
-        if (hasSubCAs)
-            throw new CANotLeafException("CA with sub-CAs cannot be deleted (delete sub-CAs first)");
-
-        revokeAuthority(httpReq);
-        engine.deleteAuthorityEntry(authorityID);
-        deleteAuthorityNSSDB();
-    }
-
     /** Revoke the authority's certificate
      *
      * TODO: revocation reason, invalidity date parameters
      */
-    private void revokeAuthority(HttpServletRequest httpReq)
+    public void revokeAuthority(HttpServletRequest httpReq)
             throws EBaseException {
 
         logger.debug("revokeAuthority: checking serial " + authoritySerial);
@@ -1910,7 +1877,7 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
 
     /** Delete keys and certs of this authority from NSSDB.
      */
-    void deleteAuthorityNSSDB() throws ECAException {
+    public void deleteAuthorityNSSDB() throws ECAException {
         if (hostCA) {
             String msg = "Attempt to delete host authority signing key; not proceeding";
             logger.warn(msg);

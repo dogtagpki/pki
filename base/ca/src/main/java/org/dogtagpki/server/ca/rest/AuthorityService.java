@@ -421,7 +421,7 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
         Map<String, String> auditParams = new LinkedHashMap<>();
 
         try {
-            ca.deleteAuthority(servletRequest);
+            engine.deleteAuthority(servletRequest, ca);
             audit(ILogger.SUCCESS, OpDef.OP_DELETE, aidString, null);
             return createNoContentResponse();
         } catch (CATypeException e) {

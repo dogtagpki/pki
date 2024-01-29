@@ -72,7 +72,9 @@ import com.netscape.certsrv.base.Nonces;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.ca.AuthorityID;
+import com.netscape.certsrv.ca.CAEnabledException;
 import com.netscape.certsrv.ca.CANotFoundException;
+import com.netscape.certsrv.ca.CANotLeafException;
 import com.netscape.certsrv.ca.CATypeException;
 import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.ca.IssuerUnavailableException;
@@ -1598,6 +1600,40 @@ public class CAEngine extends CMSEngine {
         modifyAuthorityEntry(ca.getAuthorityID(), mods);
 
         ca.getAuthorityKeyHosts().add(host);
+    }
+
+    /**
+     * Delete lightweight CA.
+     */
+    public void deleteAuthority(
+            HttpServletRequest httpReq,
+            CertificateAuthority ca)
+            throws EBaseException {
+
+        if (ca.isHostAuthority())
+            throw new CATypeException("Cannot delete the host CA");
+
+        if (ca.getAuthorityEnabled())
+            throw new CAEnabledException("Must disable CA before deletion");
+
+        boolean hasSubCAs = false;
+
+        for (CertificateAuthority auth : getCAs()) {
+            AuthorityID parentAID = auth.getAuthorityParentID();
+            if (parentAID != null && parentAID.equals(ca.getAuthorityID())) {
+                hasSubCAs = true;
+                break;
+            }
+        }
+
+        if (hasSubCAs)
+            throw new CANotLeafException("CA with sub-CAs cannot be deleted (delete sub-CAs first)");
+
+        synchronized (ca) {
+            ca.revokeAuthority(httpReq);
+            deleteAuthorityEntry(ca.getAuthorityID());
+            ca.deleteAuthorityNSSDB();
+        }
     }
 
     public ProfileSubsystem getProfileSubsystem() {
