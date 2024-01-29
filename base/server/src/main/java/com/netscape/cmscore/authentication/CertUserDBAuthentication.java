@@ -64,10 +64,7 @@ public class CertUserDBAuthentication extends AuthManager {
     public final static String TOKEN_UID = "uid";
 
     /* required credentials */
-    public final static String CRED_CERT = AuthManager.CRED_SSL_CLIENT_CERT;
-
-    /* required credentials */
-    protected String[] mRequiredCreds = { CRED_CERT };
+    protected String[] mRequiredCreds = { AuthManager.CRED_SSL_CLIENT_CERT };
 
     private CertUserLocator mCULocator = null;
 
@@ -166,11 +163,12 @@ public class CertUserDBAuthentication extends AuthManager {
         AuthToken authToken = new AuthToken(this);
         logger.debug("CertUserDBAuth: Retrieving client certificate");
         X509Certificate[] x509Certs =
-                (X509Certificate[]) authCred.get(CRED_CERT);
+                (X509Certificate[]) authCred.get(AuthManager.CRED_SSL_CLIENT_CERT);
 
         if (x509Certs == null) {
             logger.error("CertUserDBAuthentication: " + CMS.getLogMessage("CMSCORE_AUTH_MISSING_CERT"));
-            throw new EMissingCredential(CMS.getUserMessage("CMS_AUTHENTICATION_NULL_CREDENTIAL", CRED_CERT));
+            throw new EMissingCredential(
+                    CMS.getUserMessage("CMS_AUTHENTICATION_NULL_CREDENTIAL", AuthManager.CRED_SSL_CLIENT_CERT));
         }
         logger.debug("CertUserDBAuth: Got client certificate");
 
@@ -219,7 +217,7 @@ public class CertUserDBAuthentication extends AuthManager {
         authToken.set(TOKEN_USER_DN, user.getUserDN());
         authToken.set(TOKEN_USERID, user.getUserID());
         authToken.set(TOKEN_UID, user.getUserID());
-        authToken.set(CRED_CERT, certs);
+        authToken.set(AuthManager.CRED_SSL_CLIENT_CERT, certs);
 
         logger.info("CertUserDBAuthentication: " + CMS.getLogMessage("CMS_AUTH_AUTHENTICATED", user.getUserID()));
 

@@ -135,7 +135,7 @@ public class PKIRealm extends RealmBase {
             AuthManager authMgr = authSub.getAuthManager(AuthSubsystem.CERTUSERDB_AUTHMGR_ID);
 
             AuthCredentials creds = new AuthCredentials();
-            creds.set(CertUserDBAuthentication.CRED_CERT, certImpls);
+            creds.set(AuthManager.CRED_SSL_CLIENT_CERT, certImpls);
 
             AuthToken authToken = authMgr.authenticate(creds); // throws exception if authentication fails
             authToken.set(SessionContext.AUTH_MANAGER_ID,AuthSubsystem.CERTUSERDB_AUTHMGR_ID);
