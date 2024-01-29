@@ -171,7 +171,7 @@ public class CMSEngine {
     protected CMSGateway gateway;
     protected JobsScheduler jobsScheduler;
 
-    public final Map<String, SubsystemInfo> subsystemInfos = new LinkedHashMap<>();
+    public final Map<String, SubsystemInfoConfig> subsystemInfos = new LinkedHashMap<>();
     public final Map<String, Subsystem> subsystems = new LinkedHashMap<>();
 
     public String unsecurePort;
@@ -963,11 +963,6 @@ public class CMSEngine {
         return subsystems.get(name);
     }
 
-    public void setSubsystemEnabled(String id, boolean enabled) {
-        SubsystemInfo si = subsystemInfos.get(id);
-        si.enabled = enabled;
-    }
-
     /**
      * load subsystems
      */
@@ -984,17 +979,12 @@ public class CMSEngine {
             logger.info("CMSEngine: Loading " + id + " subsystem");
 
             String className = subsystemInfoConfig.getClassName();
-            boolean enabled = subsystemInfoConfig.isEnabled();
 
             Subsystem subsystem = (Subsystem) Class.forName(className).getDeclaredConstructor().newInstance();
             subsystem.setCMSEngine(this);
 
-            SubsystemInfo subsystemInfo = new SubsystemInfo(id);
-            subsystemInfo.setEnabled(enabled);
-            subsystemInfo.setUpdateIdOnInit(true);
-
             subsystems.put(id, subsystem);
-            subsystemInfos.put(id, subsystemInfo);
+            subsystemInfos.put(id, subsystemInfoConfig);
         }
     }
 
@@ -1014,13 +1004,11 @@ public class CMSEngine {
             logger.info("CMSEngine: Initializing " + id + " subsystem");
 
             Subsystem subsystem = subsystems.get(id);
-            SubsystemInfo subsystemInfo = subsystemInfos.get(id);
+            SubsystemInfoConfig subsystemInfo = subsystemInfos.get(id);
 
-            if (subsystemInfo.updateIdOnInit) {
-                subsystem.setId(id);
-            }
+            subsystem.setId(id);
 
-            if (!subsystemInfo.enabled) {
+            if (!subsystemInfo.isEnabled()) {
                 logger.info("CMSEngine: " + id + " subsystem is disabled");
                 continue;
             }
