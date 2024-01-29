@@ -54,7 +54,7 @@ public class SubsystemsConfig extends ConfigStore {
         return names;
     }
 
-    public SubsystemConfig getSubsystemConfig(String name) {
-        return getSubStore(name, SubsystemConfig.class);
+    public SubsystemInfoConfig getSubsystemInfoConfig(String name) {
+        return getSubStore(name, SubsystemInfoConfig.class);
     }
 }

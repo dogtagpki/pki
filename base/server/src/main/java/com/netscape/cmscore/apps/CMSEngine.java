@@ -979,12 +979,12 @@ public class CMSEngine {
         SubsystemsConfig subsystemsConfig = mConfig.getSubsystemsConfig();
 
         for (String subsystemNumber : subsystemsConfig.getSubsystemNames()) {
-            SubsystemConfig subsystemConfig = subsystemsConfig.getSubsystemConfig(subsystemNumber);
-            String id = subsystemConfig.getID();
+            SubsystemInfoConfig subsystemInfoConfig = subsystemsConfig.getSubsystemInfoConfig(subsystemNumber);
+            String id = subsystemInfoConfig.getID();
             logger.info("CMSEngine: Loading " + id + " subsystem");
 
-            String className = subsystemConfig.getClassName();
-            boolean enabled = subsystemConfig.isEnabled();
+            String className = subsystemInfoConfig.getClassName();
+            boolean enabled = subsystemInfoConfig.isEnabled();
 
             Subsystem subsystem = (Subsystem) Class.forName(className).getDeclaredConstructor().newInstance();
             subsystem.setCMSEngine(this);

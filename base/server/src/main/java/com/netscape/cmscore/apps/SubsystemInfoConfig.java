@@ -22,13 +22,13 @@ import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
 
-public class SubsystemConfig extends ConfigStore {
+public class SubsystemInfoConfig extends ConfigStore {
 
-    public SubsystemConfig(ConfigStorage storage) {
+    public SubsystemInfoConfig(ConfigStorage storage) {
         super(storage);
     }
 
-    public SubsystemConfig(String name, SimpleProperties source) {
+    public SubsystemInfoConfig(String name, SimpleProperties source) {
         super(name, source);
     }
 

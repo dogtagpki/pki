@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.SubsystemConfig;
+import com.netscape.cmscore.apps.SubsystemInfoConfig;
 import com.netscape.cmscore.apps.SubsystemsConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
@@ -128,9 +128,9 @@ public class CAProfileImportCLI extends CommandCLI {
         try {
             SubsystemsConfig subsystemsConfig = cs.getSubsystemsConfig();
             for (String subsystemNumber : subsystemsConfig.getSubsystemNames()) {
-                SubsystemConfig subsystemConfig = subsystemsConfig.getSubsystemConfig(subsystemNumber);
+                SubsystemInfoConfig subsystemInfoConfig = subsystemsConfig.getSubsystemInfoConfig(subsystemNumber);
 
-                String className = subsystemConfig.getClassName();
+                String className = subsystemInfoConfig.getClassName();
                 Class<?> clazz = Class.forName(className);
                 if (! LDAPProfileSubsystem.class.isAssignableFrom(clazz)) continue;
 
