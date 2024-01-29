@@ -131,7 +131,7 @@ public class CAService implements IService {
                 new ServiceUnrevoke(this));
         mServants.put(
                 Request.GETCACHAIN_REQUEST,
-                new ServiceGetCAChain(this));
+                new ServiceGetCAChain());
         mServants.put(
                 Request.GETCRL_REQUEST,
                 new ServiceGetCRL(this));

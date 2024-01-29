@@ -20,6 +20,7 @@ package com.netscape.ca;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -29,17 +30,14 @@ class ServiceGetCAChain implements IServant {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ServiceGetCAChain.class);
 
-    private CertificateAuthority mCA;
-    private CAService mService;
-
-    public ServiceGetCAChain(CAService service) {
-        mService = service;
-        mCA = mService.getCA();
+    public ServiceGetCAChain() {
     }
 
     @Override
     public boolean service(Request request) throws EBaseException {
-        CertificateChain certChain = mCA.getCACertChain();
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA();
+        CertificateChain certChain = ca.getCACertChain();
         ByteArrayOutputStream certChainOut = new ByteArrayOutputStream();
         try {
             certChain.encode(certChainOut);
