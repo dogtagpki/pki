@@ -48,9 +48,7 @@ import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
 import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.NicknameConflictException;
 import org.mozilla.jss.NotInitializedException;
-import org.mozilla.jss.UserCertConflictException;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.GeneralizedTime;
 import org.mozilla.jss.asn1.INTEGER;
@@ -336,6 +334,14 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
         mId = id;
     }
 
+    public ECAException getSigningUnitException() {
+        return signingUnitException;
+    }
+
+    public void setSigningUnitException(ECAException e) {
+        signingUnitException = e;
+    }
+
     /**
      * Initializes this CA subsystem.
      *
@@ -360,81 +366,10 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
             initCRLSigningUnit();
             initOCSPSigningUnit();
 
-            // try to update the cert once we have the cert and key
-            checkForNewerCert();
-
         } catch (CAMissingCertException | CAMissingKeyException e) {
             logger.warn("CertificateAuthority: CA signing key and cert not (yet) present in NSS database");
             signingUnitException = e;
             caEngine.startKeyRetriever(this);
-
-        } catch (Exception e) {
-            throw new EBaseException(e);
-        }
-    }
-
-    public void checkForNewerCert() throws EBaseException {
-
-        logger.info("CertificateAuthority: Checking for newer CA cert");
-        logger.info("CertificateAuthority: serial number: " + authoritySerial);
-
-        if (authoritySerial == null) {
-            return;
-        }
-
-        X509CertImpl caCertImpl = mSigningUnit.getCertImpl();
-        if (authoritySerial.equals(caCertImpl.getSerialNumber())) {
-            return;
-        }
-
-        // The authoritySerial recorded in LDAP differs from the
-        // certificate in NSSDB.  Import the newer cert.
-        //
-        // Note that the new serial number need not be greater,
-        // e.g. if random serial numbers are enabled.
-        //
-        logger.info("CertificateAuthority: Updating CA cert");
-        logger.info("CertificateAuthority: serial number: " + authoritySerial);
-
-        CAEngine engine = CAEngine.getInstance();
-        CertificateRepository certificateRepository = engine.getCertificateRepository();
-
-        try {
-            X509Certificate oldCert = mSigningUnit.getCert();
-            CryptoManager manager = CryptoManager.getInstance();
-
-            // add new cert
-            X509CertImpl newCert = certificateRepository.getX509Certificate(authoritySerial);
-            manager.importUserCACertPackage(newCert.getEncoded(), mNickname);
-
-            // delete old cert
-            manager.getInternalKeyStorageToken().getCryptoStore()
-                .deleteCert(oldCert);
-
-            logger.info("CertificateAuthority: Reinitializing signing units after new certificate");
-            initCertSigningUnit();
-            initCRLSigningUnit();
-            initOCSPSigningUnit();
-
-        } catch (CAMissingCertException e) {
-            logger.warn("CertificateAuthority: CA signing cert not (yet) present in NSS database");
-            signingUnitException = e;
-
-        } catch (CAMissingKeyException e) {
-            logger.warn("CertificateAuthority: CA signing key not (yet) present in NSS database");
-            signingUnitException = e;
-
-        } catch (CertificateException e) {
-            throw new ECAException("Failed to update certificate", e);
-        } catch (NotInitializedException e) {
-            throw new ECAException("CryptoManager not initialized", e);
-        } catch (NicknameConflictException e) {
-            throw new ECAException("Failed to update certificate; nickname conflict", e);
-        } catch (UserCertConflictException e) {
-            throw new ECAException("Failed to update certificate; user cert conflict", e);
-        } catch (TokenException | NoSuchItemOnTokenException e) {
-            // really shouldn't happen
-            throw new ECAException("Failed to update certificate", e);
 
         } catch (Exception e) {
             throw new EBaseException(e);
