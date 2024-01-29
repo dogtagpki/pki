@@ -54,7 +54,6 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.RequestListener;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.DBSubsystem;
@@ -861,7 +860,7 @@ public class CAAdminServlet extends AdminServlet {
             HttpServletResponse resp)
             throws ServletException, IOException, EBaseException {
 
-        CMSEngine engine = getCMSEngine();
+        CAEngine engine = CAEngine.getInstance();
         Auditor auditor = engine.getAuditor();
 
         String auditMessage = null;
@@ -884,7 +883,7 @@ public class CAAdminServlet extends AdminServlet {
                     String name = crlNames.nextElement();
 
                     if (id.equals(name)) {
-                        mCA.deleteCRLIssuingPoint(crlConfig, id);
+                        engine.deleteCRLIssuingPoint(mCA, crlConfig, id);
                         done = true;
                         break;
                     }

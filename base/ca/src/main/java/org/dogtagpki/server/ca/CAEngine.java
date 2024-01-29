@@ -540,8 +540,29 @@ public class CAEngine extends CMSEngine {
         return true;
     }
 
-    public CRLIssuingPoint removeCRLIssuingPoint(String id) {
-        return crlIssuingPoints.remove(id);
+    /**
+     * Deletes CRL issuing point with the given identifier.
+     *
+     * @param crlConfig sub-store with all CRL issuing points
+     * @param id CRL issuing point id
+     */
+    public void deleteCRLIssuingPoint(
+            CertificateAuthority ca,
+            CRLConfig crlConfig,
+            String id) {
+
+        CRLIssuingPoint ip = crlIssuingPoints.remove(id);
+
+        if (ip != null) {
+            ip.shutdown();
+            ip = null;
+            crlConfig.removeSubStore(id);
+            try {
+                crlRepository.deleteCRLIssuingPointRecord(id);
+            } catch (EBaseException e) {
+                logger.warn(CMS.getLogMessage("FAILED_REMOVING_CRL_IP_2", id, e.toString()), e);
+            }
+        }
     }
 
     /**

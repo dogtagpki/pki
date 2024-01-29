@@ -446,29 +446,6 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
     }
 
     /**
-     * Deletes CRL issuing point with the given identifier.
-     *
-     * @param crlConfig sub-store with all CRL issuing points
-     * @param id CRL issuing point id
-     */
-    public void deleteCRLIssuingPoint(CRLConfig crlConfig, String id) {
-
-        CAEngine engine = CAEngine.getInstance();
-        CRLIssuingPoint ip = engine.removeCRLIssuingPoint(id);
-
-        if (ip != null) {
-            ip.shutdown();
-            ip = null;
-            crlConfig.removeSubStore(id);
-            try {
-                engine.getCRLRepository().deleteCRLIssuingPointRecord(id);
-            } catch (EBaseException e) {
-                logger.warn(CMS.getLogMessage("FAILED_REMOVING_CRL_IP_2", id, e.toString()), e);
-            }
-        }
-    }
-
-    /**
      * Retrieves the issuer name of this certificate authority.
      *
      * @return the issuer name of this certificate authority
