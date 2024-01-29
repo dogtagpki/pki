@@ -535,13 +535,13 @@ public class LDAPSession extends DBSSession {
     }
 
     @Override
-    public int countCertificates(String base, String filter, int timeLimit)
+    public <T extends IDBObj> int countEntries(Class<T> classResults, String base, String filter, int timeLimit)
             throws EBaseException {
         String[] attrs = {"objectclass"};
-        DBPagedSearch<CertRecord> search = createPagedSearch(base, filter, attrs, null);
-        CertRecordPagedList list = new CertRecordPagedList(search);
+        DBPagedSearch<T> search = createPagedSearch(classResults,  base, filter, attrs, null);
+        RecordPagedList<T> list = new RecordPagedList<>(search);
         int count = 0;
-        for(CertRecord c: list) {
+        for(T c: list) {
             count++;
         }
 
@@ -688,11 +688,11 @@ public class LDAPSession extends DBSSession {
     }
 
     @Override
-    public <T extends IDBObj> DBPagedSearch<T> createPagedSearch(String base, String filter,
-            String attrs[], String sortKey) throws EBaseException {
+    public <T extends IDBObj> DBPagedSearch<T> createPagedSearch(Class<T> classResults, String base, String filter,
+            String[] attrs, String sortKey) throws EBaseException {
         logger.debug("LDAPSession: createPagedSearch({}, {})", base, filter);
 
-        return new LDAPPagedSearch<>(dbSubsystem.getRegistry(),mConn, base,
+        return new LDAPPagedSearch<>(classResults, dbSubsystem.getRegistry(),mConn, base,
                 filter, attrs, sortKey);
     }
 

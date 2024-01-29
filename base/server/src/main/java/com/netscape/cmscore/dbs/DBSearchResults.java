@@ -58,13 +58,11 @@ public class DBSearchResults implements Enumeration<Object> {
      */
     @Override
     public Object nextElement() {
-        LDAPEntry entry = null;
 
         try {
             Object o = mRes.nextElement();
 
-            if (o instanceof LDAPEntry) {
-                entry = (LDAPEntry) o;
+            if (o instanceof LDAPEntry entry) {
                 return mRegistry.createObject(entry.getAttributeSet());
             }
             if (o instanceof LDAPException)
@@ -72,7 +70,7 @@ public class DBSearchResults implements Enumeration<Object> {
             // doing nothing because the last object in the search
             // results is always LDAPException
             else
-                logger.warn("DBSearchResults: result format error class=" + o.getClass().getName());
+                logger.warn("DBSearchResults: result format error class={}", o.getClass().getName());
         } catch (Exception e) {
 
             /*LogDoc

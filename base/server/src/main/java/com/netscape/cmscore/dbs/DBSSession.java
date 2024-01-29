@@ -258,13 +258,15 @@ public class DBSSession implements AutoCloseable {
      * Retrieves a list of object that satisfies the given
      * filter.
      *
+     * @param classResults the class representing the entries in the paged list
      * @param base starting point of the search
      * @param filter search filter
      * @param timeLimit timeout limit
      * @return the number of certificates
      * @exception EBaseException failed to search
      */
-    public int countCertificates(
+    public <T extends IDBObj> int countEntries(
+            Class<T> classResults,
             String base,
             String filter,
             int timeLimit
@@ -375,15 +377,15 @@ public class DBSSession implements AutoCloseable {
     /**
      * Retrieves a paged search of objects.
      *
+     * @param classResults the class representing the entries in the paged list
      * @param base starting point of the search
      * @param filter search filter
      * @param attrs selected attributes
-     * @param startFrom starting point
      * @param sortKey key used to sort the list
      * @return search results in virtual list
      * @exception EBaseException failed to search
      */
-    public <T extends IDBObj> DBPagedSearch<T> createPagedSearch(String base, String filter, String[] attrs,
+    public <T extends IDBObj> DBPagedSearch<T> createPagedSearch(Class<T> classResults, String base, String filter, String[] attrs,
             String sortKey)  throws EBaseException {
         return null;
     }

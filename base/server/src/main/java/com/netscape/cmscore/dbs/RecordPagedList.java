@@ -22,21 +22,22 @@ import java.util.List;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.DBPagedSearch;
+import com.netscape.certsrv.dbs.IDBObj;
 
 /**
 * Contain all records in a page for a paged search.
 *
 * @author Marco Fargetta {@literal <mfargett@redhat.com>}
 */
-public class CertRecordPagedList implements Iterable<CertRecord> {
-    public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertRecordPagedList.class);
+public class RecordPagedList<T extends IDBObj> implements Iterable<T> {
+    public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RecordPagedList.class);
 
-    private DBPagedSearch<CertRecord> pages;
-    private Iterator<CertRecord> pageEntries;
+    private DBPagedSearch<T> pages;
+    private Iterator<T> pageEntries;
     /**
      * Constructs a request paged.
      */
-    public CertRecordPagedList(DBPagedSearch<CertRecord> pages) {
+    public RecordPagedList(DBPagedSearch<T> pages) {
         this.pages = pages;
         try {
             pageEntries = pages.getPage().iterator();
@@ -46,17 +47,17 @@ public class CertRecordPagedList implements Iterable<CertRecord> {
     }
 
     @Override
-    public Iterator<CertRecord> iterator() {
-        return new CertRecordPageIterator();
+    public Iterator<T> iterator() {
+        return new RecordPageIterator();
     }
 
-    class CertRecordPageIterator implements Iterator<CertRecord> {
+    class RecordPageIterator implements Iterator<T> {
 
         @Override
         public boolean hasNext() {
             if (!pageEntries.hasNext()) {
                 try {
-                    List<CertRecord> newPage = pages.getPage();
+                    List<T> newPage = pages.getPage();
                     pageEntries = newPage.iterator();
                 } catch (EBaseException e) {
                     throw new RuntimeException("CertRecordPagedList: Error to get a new page", e);
@@ -66,7 +67,7 @@ public class CertRecordPagedList implements Iterable<CertRecord> {
         }
 
         @Override
-        public CertRecord next() {
+        public T next() {
             if (hasNext()) {
                 return pageEntries.next();
             }

@@ -20,7 +20,6 @@ package com.netscape.certsrv.dbs;
 import java.util.List;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.cmscore.dbs.CertRecord;
 
 /**
  * A class represents a paged search.
@@ -29,8 +28,8 @@ import com.netscape.cmscore.dbs.CertRecord;
  */
 public abstract class DBPagedSearch<E extends IDBObj> {
 
-    public abstract List<CertRecord> getPage() throws EBaseException;
+    public abstract List<E> getPage() throws EBaseException;
 
-    public abstract List<CertRecord> getPage(int size) throws EBaseException;
+    public abstract List<E> getPage(int size) throws EBaseException;
 
 }
