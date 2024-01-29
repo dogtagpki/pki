@@ -1602,6 +1602,19 @@ public class CAEngine extends CMSEngine {
         ca.getAuthorityKeyHosts().add(host);
     }
 
+    /** Delete keys and certs of this authority from NSSDB.
+     */
+    public void deleteAuthorityNSSDB(CertificateAuthority ca) throws ECAException {
+
+        if (ca.isHostAuthority()) {
+            String msg = "Attempt to delete host authority signing key; not proceeding";
+            logger.warn(msg);
+            return;
+        }
+
+        ca.deleteAuthorityNSSDB();
+    }
+
     /**
      * Delete lightweight CA.
      */
@@ -1632,7 +1645,7 @@ public class CAEngine extends CMSEngine {
         synchronized (ca) {
             ca.revokeAuthority(httpReq);
             deleteAuthorityEntry(ca.getAuthorityID());
-            ca.deleteAuthorityNSSDB();
+            deleteAuthorityNSSDB(ca);
         }
     }
 

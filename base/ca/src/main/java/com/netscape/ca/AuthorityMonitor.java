@@ -270,7 +270,7 @@ public class AuthorityMonitor implements Runnable {
                 return;  // shouldn't happen
 
             try {
-                ca.deleteAuthorityNSSDB();
+                engine.deleteAuthorityNSSDB(ca);
             } catch (ECAException e) {
                 // log and carry on
                 logger.warn("Caught exception attempting to delete NSSDB material "

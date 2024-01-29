@@ -1878,12 +1878,6 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
     /** Delete keys and certs of this authority from NSSDB.
      */
     public void deleteAuthorityNSSDB() throws ECAException {
-        if (hostCA) {
-            String msg = "Attempt to delete host authority signing key; not proceeding";
-            logger.warn(msg);
-            return;
-        }
-
         CryptoManager cryptoManager;
         try {
             cryptoManager = CryptoManager.getInstance();
