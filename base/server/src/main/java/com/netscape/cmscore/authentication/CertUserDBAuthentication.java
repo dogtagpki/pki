@@ -60,7 +60,6 @@ public class CertUserDBAuthentication extends AuthManager {
     /* result auth token attributes */
     public final static String TOKEN_USERDN = "user";
     public final static String TOKEN_USER_DN = "userdn";
-    public final static String TOKEN_USERID = "userid";
     public final static String TOKEN_UID = "uid";
 
     /* required credentials */
@@ -215,7 +214,7 @@ public class CertUserDBAuthentication extends AuthManager {
 
         authToken.set(TOKEN_USERDN, user.getUserDN());
         authToken.set(TOKEN_USER_DN, user.getUserDN());
-        authToken.set(TOKEN_USERID, user.getUserID());
+        authToken.set(AuthToken.USER_ID, user.getUserID());
         authToken.set(TOKEN_UID, user.getUserID());
         authToken.set(AuthManager.CRED_SSL_CLIENT_CERT, certs);
 

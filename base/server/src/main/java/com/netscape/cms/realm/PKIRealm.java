@@ -22,7 +22,6 @@ import com.netscape.certsrv.logging.event.AuthEvent;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.authentication.AuthSubsystem;
-import com.netscape.cmscore.authentication.CertUserDBAuthentication;
 import com.netscape.cmscore.authentication.PasswdUserDBAuthentication;
 import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.usrgrp.Group;
@@ -140,9 +139,9 @@ public class PKIRealm extends RealmBase {
             AuthToken authToken = authMgr.authenticate(creds); // throws exception if authentication fails
             authToken.set(SessionContext.AUTH_MANAGER_ID,AuthSubsystem.CERTUSERDB_AUTHMGR_ID);
 
-            String username = authToken.getInString(CertUserDBAuthentication.TOKEN_USERID);
+            String username = authToken.getInString(AuthToken.USER_ID);
             // reset it to the one authenticated with authManager
-            auditSubjectID = authToken.getInString(AuthToken.USER_ID);
+            auditSubjectID = username;
 
             logger.info("PKIRealm: User " + username + " authenticated");
 
