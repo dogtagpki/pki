@@ -384,7 +384,7 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
         Map<String, String> auditParams = new LinkedHashMap<>();
 
         try {
-            ca.renewAuthority(servletRequest);
+            engine.renewAuthority(servletRequest, ca);
             audit(ILogger.SUCCESS, OpDef.OP_MODIFY, aidString, null);
             return createNoContentResponse();
         } catch (CADisabledException e) {

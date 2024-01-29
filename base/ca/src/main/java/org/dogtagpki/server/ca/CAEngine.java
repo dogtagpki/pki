@@ -60,6 +60,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.ca.AuthorityMonitor;
 import com.netscape.ca.CANotify;
 import com.netscape.ca.CAService;
+import com.netscape.ca.CASigningUnit;
 import com.netscape.ca.CRLConfig;
 import com.netscape.ca.CRLIssuingPoint;
 import com.netscape.ca.CRLIssuingPointConfig;
@@ -78,6 +79,7 @@ import com.netscape.certsrv.ca.CANotLeafException;
 import com.netscape.certsrv.ca.CATypeException;
 import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.ca.IssuerUnavailableException;
+import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.connector.ConnectorConfig;
@@ -87,13 +89,19 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.publish.CRLPublisher;
 import com.netscape.certsrv.request.RequestListener;
+import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.cms.authentication.CAAuthSubsystem;
+import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.request.RequestScheduler;
 import com.netscape.cms.servlet.admin.KRAConnectorProcessor;
+import com.netscape.cms.servlet.cert.CertEnrollmentRequestFactory;
+import com.netscape.cms.servlet.cert.RenewalProcessor;
+import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.authentication.VerifiedCert;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.cert.CertUtils;
@@ -1600,6 +1608,68 @@ public class CAEngine extends CMSEngine {
         modifyAuthorityEntry(ca.getAuthorityID(), mods);
 
         ca.getAuthorityKeyHosts().add(host);
+    }
+
+    /**
+     * Renew certificate of this CA.
+     */
+    public void renewAuthority(
+            HttpServletRequest httpReq,
+            CertificateAuthority ca) throws Exception {
+
+        AuthorityID authorityID = ca.getAuthorityID();
+        AuthorityID authorityParentID = ca.getAuthorityParentID();
+
+        if (authorityParentID != null
+            && !authorityParentID.equals(authorityID)
+        ) {
+            CertificateAuthority issuer = getCA(authorityParentID);
+            issuer.ensureReady();
+        }
+
+        ProfileSubsystem ps = getProfileSubsystem();
+        /* NOTE: hard-coding the profile to use for Lightweight CA renewal
+         * might be OK, but caManualRenewal was not the right one to use.
+         * As a consequence, we have an undesirable special case in
+         * RenewalProcessor.processRenewal().
+         *
+         * We should introduce a new profile specifically for LWCA renewal,
+         * with an authenticator and ACLs to match the authz requirements
+         * for the renewAuthority REST resource itself.  Then we can use
+         * it here, and remove the workaround from RenewalProcessor.
+         */
+        Profile profile = ps.getProfile("caManualRenewal");
+        CertEnrollmentRequest req = CertEnrollmentRequestFactory.create(
+            new ArgBlock(), profile, httpReq.getLocale());
+
+        CASigningUnit signingUnit = ca.getSigningUnit();
+        X509CertImpl caCertImpl = signingUnit.getCertImpl();
+        req.setSerialNum(new CertId(caCertImpl.getSerialNumber()));
+
+        RenewalProcessor processor = new RenewalProcessor("renewAuthority", httpReq.getLocale());
+        processor.setCMSEngine(this);
+        processor.init();
+
+        Map<String, Object> resultMap = processor.processRenewal(req, httpReq, null);
+        com.netscape.cmscore.request.Request requests[] = (com.netscape.cmscore.request.Request[]) resultMap.get(CAProcessor.ARG_REQUESTS);
+        com.netscape.cmscore.request.Request request = requests[0];
+
+        Integer result = request.getExtDataInInteger(com.netscape.cmscore.request.Request.RESULT);
+        if (result != null && !result.equals(com.netscape.cmscore.request.Request.RES_SUCCESS))
+            throw new EBaseException("Certificate renewal submission resulted in error: " + result);
+
+        RequestStatus requestStatus = request.getRequestStatus();
+        if (requestStatus != RequestStatus.COMPLETE)
+            throw new EBaseException("Certificate renewal did not complete; status: " + requestStatus);
+
+        X509CertImpl cert = request.getExtDataInCert(com.netscape.cmscore.request.Request.REQUEST_ISSUED_CERT);
+        BigInteger authoritySerial = cert.getSerialNumber();
+
+        ca.setAuthoritySerial(authoritySerial);
+        updateAuthoritySerialNumber(authorityID, authoritySerial);
+
+        // update cert in NSSDB
+        ca.checkForNewerCert();
     }
 
     /** Delete keys and certs of this authority from NSSDB.

@@ -106,7 +106,6 @@ import com.netscape.certsrv.security.SigningUnitConfig;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.cert.CertEnrollmentRequestFactory;
 import com.netscape.cms.servlet.cert.EnrollmentProcessor;
-import com.netscape.cms.servlet.cert.RenewalProcessor;
 import com.netscape.cms.servlet.cert.RevocationProcessor;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cmscore.apps.CMS;
@@ -374,7 +373,7 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
         }
     }
 
-    private void checkForNewerCert() throws EBaseException {
+    public void checkForNewerCert() throws EBaseException {
 
         logger.info("CertificateAuthority: Checking for newer CA cert");
         logger.info("CertificateAuthority: serial number: " + authoritySerial);
@@ -1683,6 +1682,14 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
         return authorityParentID;
     }
 
+    public BigInteger getAuthoritySerial() {
+        return authoritySerial;
+    }
+
+    public void setAuthoritySerial(BigInteger serial) {
+        authoritySerial = serial;
+    }
+
     /**
      * Return CA description.  May be null.
      */
@@ -1773,62 +1780,6 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
         }
 
         return request.getExtDataInCert(com.netscape.cmscore.request.Request.REQUEST_ISSUED_CERT);
-    }
-
-    /**
-     * Renew certificate of this CA.
-     */
-    public void renewAuthority(HttpServletRequest httpReq) throws Exception {
-
-        CAEngine engine = CAEngine.getInstance();
-
-        if (
-            authorityParentID != null
-            && !authorityParentID.equals(authorityID)
-        ) {
-            CertificateAuthority issuer = engine.getCA(authorityParentID);
-            issuer.ensureReady();
-        }
-
-        ProfileSubsystem ps = engine.getProfileSubsystem();
-        /* NOTE: hard-coding the profile to use for Lightweight CA renewal
-         * might be OK, but caManualRenewal was not the right one to use.
-         * As a consequence, we have an undesirable special case in
-         * RenewalProcessor.processRenewal().
-         *
-         * We should introduce a new profile specifically for LWCA renewal,
-         * with an authenticator and ACLs to match the authz requirements
-         * for the renewAuthority REST resource itself.  Then we can use
-         * it here, and remove the workaround from RenewalProcessor.
-         */
-        Profile profile = ps.getProfile("caManualRenewal");
-        CertEnrollmentRequest req = CertEnrollmentRequestFactory.create(
-            new ArgBlock(), profile, httpReq.getLocale());
-
-        X509CertImpl caCertImpl = mSigningUnit.getCertImpl();
-        req.setSerialNum(new CertId(caCertImpl.getSerialNumber()));
-
-        RenewalProcessor processor = new RenewalProcessor("renewAuthority", httpReq.getLocale());
-        processor.setCMSEngine(engine);
-        processor.init();
-
-        Map<String, Object> resultMap =
-            processor.processRenewal(req, httpReq, null);
-        com.netscape.cmscore.request.Request requests[] = (com.netscape.cmscore.request.Request[]) resultMap.get(CAProcessor.ARG_REQUESTS);
-        com.netscape.cmscore.request.Request request = requests[0];
-        Integer result = request.getExtDataInInteger(com.netscape.cmscore.request.Request.RESULT);
-        if (result != null && !result.equals(com.netscape.cmscore.request.Request.RES_SUCCESS))
-            throw new EBaseException("renewAuthority: certificate renewal submission resulted in error: " + result);
-        RequestStatus requestStatus = request.getRequestStatus();
-        if (requestStatus != RequestStatus.COMPLETE)
-            throw new EBaseException("renewAuthority: certificate renewal did not complete; status: " + requestStatus);
-        X509CertImpl cert = request.getExtDataInCert(com.netscape.cmscore.request.Request.REQUEST_ISSUED_CERT);
-        authoritySerial = cert.getSerialNumber();
-
-        engine.updateAuthoritySerialNumber(authorityID, authoritySerial);
-
-        // update cert in NSSDB
-        checkForNewerCert();
     }
 
     /** Revoke the authority's certificate
