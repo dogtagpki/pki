@@ -1030,7 +1030,7 @@ public class CAEngine extends CMSEngine {
         caPolicy.init(hostCA, caPolicyConfig);
 
         logger.info("CAEngine: Initializing CA service");
-        caService = new CAService(hostCA);
+        caService = new CAService();
 
         logger.info("CAEngine: Initializing CA request notifier");
         requestNotifier = new CANotify();

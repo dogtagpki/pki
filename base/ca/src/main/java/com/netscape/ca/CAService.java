@@ -98,14 +98,12 @@ public class CAService implements IService {
     // CCA->CLA connector
     protected static Connector mCLAConnector = null;
 
-    private CertificateAuthority mCA = null;
     private Hashtable<String, IServant> mServants = new Hashtable<>();
     private Connector mKRAConnector = null;
     private ConnectorsConfig connectorsConfig;
     private boolean mArchivalRequired = true;
 
-    public CAService(CertificateAuthority ca) {
-        mCA = ca;
+    public CAService() {
 
         // init services.
         mServants.put(
@@ -197,10 +195,6 @@ public class CAService implements IService {
                 mCLAConnector.start();
             }
         }
-    }
-
-    protected CertificateAuthority getCA() {
-        return mCA;
     }
 
     /**
@@ -605,6 +599,7 @@ public class CAService implements IService {
         CAEngine engine = CAEngine.getInstance();
         CertificateRepository cr = engine.getCertificateRepository();
 
+        CertificateAuthority hostCA = engine.getCA();
         CertificateAuthority ca = engine.getCA(aid);
 
         if (ca == null)
@@ -863,7 +858,7 @@ public class CAService implements IService {
          * handle possible Certificate Transparency processing
          */
         CTEngine ctEngine = new CTEngine();
-        ctEngine.process(certi, mCA, aid, algname);
+        ctEngine.process(certi, hostCA, aid, algname);
 
         logger.debug("CAService: issueX509Cert: About to ca.sign cert.");
         cert = ca.sign(certi, algname);
