@@ -93,7 +93,6 @@ import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.event.CRLSigningInfoEvent;
 import com.netscape.certsrv.logging.event.CertSigningInfoEvent;
 import com.netscape.certsrv.ocsp.IOCSPService;
 import com.netscape.certsrv.request.RequestStatus;
@@ -468,6 +467,10 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
      */
     public CASigningUnit getCRLSigningUnit() {
         return mCRLSigningUnit;
+    }
+
+    public synchronized void setCRLSigningUnit(CASigningUnit crlSigningUnit) {
+        mCRLSigningUnit = crlSigningUnit;
     }
 
     /**
@@ -872,37 +875,6 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
         } else {
             // generate cert signing info with authority ID
             auditor.log(CertSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, certSigningSKI, authorityID));
-        }
-    }
-
-
-    public synchronized void initCRLSigningUnit() throws Exception {
-
-        logger.info("CertificateAuthority: Initializing CRL signing unit");
-
-        SigningUnitConfig crlSigningConfig = mConfig.getCRLSigningUnitConfig();
-
-        if (hostCA && crlSigningConfig != null && crlSigningConfig.size() > 0) {
-            mCRLSigningUnit = new CASigningUnit();
-            mCRLSigningUnit.init(crlSigningConfig, null);
-        } else {
-            mCRLSigningUnit = mSigningUnit;
-        }
-
-        X509Certificate crlCert = mCRLSigningUnit.getCert();
-        logger.info("CertificateAuthority: - nickname: " + crlCert.getNickname());
-
-        X509CertImpl crlCertImpl = mCRLSigningUnit.getCertImpl();
-        String crlSigningSKI = CryptoUtil.getSKIString(crlCertImpl);
-
-        Auditor auditor = engine.getAuditor();
-
-        if (hostCA) {
-            // generate CRL signing info without authority ID
-            auditor.log(CRLSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, crlSigningSKI));
-
-        } else {
-            // don't generate CRL signing info since LWCA doesn't support CRL
         }
     }
 
