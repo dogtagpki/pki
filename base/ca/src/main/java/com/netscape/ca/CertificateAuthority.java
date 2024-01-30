@@ -199,6 +199,8 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
     protected int fastSigning;
     protected boolean ocspResponderByName;
 
+    protected CertificateRepository certRepository;
+
     protected CASigningUnit mSigningUnit;
     protected CASigningUnit mOCSPSigningUnit;
     protected CASigningUnit mCRLSigningUnit;
@@ -388,6 +390,14 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
 
     public void setOCSPResponderByName(boolean ocspResponderByName) {
         this.ocspResponderByName = ocspResponderByName;
+    }
+
+    public CertificateRepository getCertRepository() {
+        return certRepository;
+    }
+
+    public void setCertRepository(CertificateRepository certRepository) {
+        this.certRepository = certRepository;
     }
 
     /**
@@ -1007,7 +1017,6 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
 
         String name = "CertificateAuthority: processRequest: ";
         CAEngine engine = CAEngine.getInstance();
-        CertificateRepository certificateRepository = engine.getCertificateRepository();
 
         X509CertImpl caCert = mSigningUnit.getCertImpl();
         X509Key key = (X509Key) caCert.getPublicKey();
@@ -1070,7 +1079,7 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
         }
 
         try {
-            CertRecord rec = certificateRepository.readCertificateRecord(serialNo);
+            CertRecord rec = certRepository.readCertificateRecord(serialNo);
             String status = rec.getStatus();
 
             if (status == null) {

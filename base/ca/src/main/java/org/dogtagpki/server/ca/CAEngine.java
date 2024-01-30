@@ -1951,6 +1951,8 @@ public class CAEngine extends CMSEngine {
         ca.setFastSigning(fastSigning);
         ca.setOCSPResponderByName(ocspResponderByName);
 
+        ca.setCertRepository(certificateRepository);
+
         try {
             initCertSigningUnit(ca);
             initCRLSigningUnit(ca);
