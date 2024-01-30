@@ -1456,6 +1456,10 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
     /** Delete keys and certs of this authority from NSSDB.
      */
     public void deleteAuthorityNSSDB() throws ECAException {
+
+        X509Certificate cert = mSigningUnit.getCert();
+        logger.info("CertificateAuthority: Removing cert " + cert.getNickname());
+
         CryptoManager cryptoManager;
         try {
             cryptoManager = CryptoManager.getInstance();
@@ -1472,7 +1476,7 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
         CryptoStore cryptoStore =
             cryptoManager.getInternalKeyStorageToken().getCryptoStore();
         try {
-            cryptoStore.deleteCert(mSigningUnit.getCert());
+            cryptoStore.deleteCert(cert);
         } catch (NoSuchItemOnTokenException e) {
             logger.warn("deleteAuthority: cert is not on token: " + e);
             // if the cert isn't there, never mind

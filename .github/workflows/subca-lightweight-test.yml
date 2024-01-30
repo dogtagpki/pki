@@ -134,12 +134,13 @@ jobs:
 
           # store LWCA ID
           sed -n 's/^\s*ID:\s*\(.*\)$/\1/p' output > lwca-id
+          LWCA_ID=$(cat lwca-id)
 
           docker exec pki pki -n caadmin ca-authority-find | tee output
 
           # there should be 2 authorities now
-          echo "2" > expected
-          sed -n 's/^\s*ID:\s*\(.*\)$/\1/p' output | wc -l > actual
+          echo -e "$HOSTCA_ID\n$LWCA_ID" | sort > expected
+          sed -n 's/^\s*ID:\s*\(.*\)$/\1/p' output | sort > actual
           diff expected actual
 
       - name: Check lightweight CA's LDAP entry
@@ -151,14 +152,15 @@ jobs:
               -x \
               -D "cn=Directory Manager" \
               -w Secret.123 \
-              -b "cn=$LWCA_ID,ou=authorities,ou=ca,dc=ca,dc=pki,dc=example,dc=com" \
+              -b "ou=authorities,ou=ca,dc=ca,dc=pki,dc=example,dc=com" \
+              -s one \
               -o ldif_wrap=no \
               -LLL \
               "(objectClass=*)" | tee output
 
           # check authorityKeyNickname
-          echo "ca_signing $LWCA_ID" > expected
-          sed -n 's/^authorityKeyNickname:\s*\(.*\)$/\1/p' output > actual
+          echo -e "ca_signing\nca_signing $LWCA_ID" | sort > expected
+          sed -n 's/^authorityKeyNickname:\s*\(.*\)$/\1/p' output | sort > actual
           diff expected actual
 
       - name: Check certs and keys in NSS database
@@ -210,6 +212,66 @@ jobs:
           # verify that it's signed by LWCA
           echo "CN=Lightweight CA" > expected
           sed -n -e 's/^\s*Issuer DN:\s*\(.*\)$/\1/p' output > actual
+          diff expected actual
+
+      - name: Remove lightweight CA
+        run: |
+          HOSTCA_ID=$(cat hostca-id)
+          LWCA_ID=$(cat lwca-id)
+
+          docker exec pki pki -n caadmin ca-authority-disable $LWCA_ID
+
+          docker exec pki pki -n caadmin ca-authority-del \
+              --force \
+              $LWCA_ID | tee output
+
+          docker exec pki pki -n caadmin ca-authority-find | tee output
+
+          # there should be 1 authority now
+          echo "$HOSTCA_ID" > expected
+          sed -n 's/^\s*ID:\s*\(.*\)$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check lightweight CA's LDAP entry
+        run: |
+          HOSTCA_ID=$(cat hostca-id)
+
+          docker exec pki ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -x \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b "ou=authorities,ou=ca,dc=ca,dc=pki,dc=example,dc=com" \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL \
+              "(objectClass=*)" | tee output
+
+          # there should be 1 entry now
+          echo "$HOSTCA_ID" > expected
+          sed -n 's/^\s*cn:\s*\(.*\)$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check certs and keys in NSS database
+        run: |
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-cert-find | tee output
+
+          # there should be 5 certs now
+          echo "5" > expected
+          sed -n 's/^\s*Nickname:\s*\(.*\)$/\1/p' output | wc -l > actual
+          diff expected actual
+
+          docker exec pki pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-key-find | tee output
+
+          # there should be 5 keys now
+          echo "5" > expected
+          sed -n 's/^\s*Key ID:\s*\(.*\)$/\1/p' output | wc -l > actual
           diff expected actual
 
       - name: Check CA debug logs
