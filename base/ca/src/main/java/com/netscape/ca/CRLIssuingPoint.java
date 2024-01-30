@@ -3104,7 +3104,7 @@ public class CRLIssuingPoint implements Runnable {
                     thisUpdate, nextDeltaUpdate, deltaCRLCerts, ext);
 
             logger.info("CRLIssuingPoint: Signing delta CRL with " + signingAlgorithm);
-            newX509DeltaCRL = mCA.sign(crl, signingAlgorithm);
+            newX509DeltaCRL = engine.sign(mCA, crl, signingAlgorithm);
 
             logger.info("CRLIssuingPoint: Encoding delta CRL");
             byte[] newDeltaCRL = newX509DeltaCRL.getEncoded();
@@ -3229,7 +3229,7 @@ public class CRLIssuingPoint implements Runnable {
                     thisUpdate, nextUpdate, mCRLCerts, ext);
 
             logger.info("CRLIssuingPoint: Signing full CRL with " + signingAlgorithm);
-            newX509CRL = mCA.sign(crl, signingAlgorithm);
+            newX509CRL = engine.sign(mCA, crl, signingAlgorithm);
 
             logger.info("CRLIssuingPoint: Encoding full CRL");
             byte[] newCRL = newX509CRL.getEncoded();

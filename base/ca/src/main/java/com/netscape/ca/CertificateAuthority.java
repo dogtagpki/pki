@@ -29,7 +29,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
-import java.security.cert.CRLException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
 import java.security.interfaces.RSAKey;
@@ -76,7 +75,6 @@ import org.mozilla.jss.netscape.security.x509.X500Signer;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
-import org.mozilla.jss.netscape.security.x509.X509ExtensionException;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkix.cert.Extension;
 import org.mozilla.jss.pkix.primitive.Name;
@@ -517,32 +515,12 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
         mConfig.putString("Policy.rule.BasicConstraintsExt.maxPathLen", "" + num);
     }
 
-    /**
-     * Signs CRL using the specified signature algorithm.
-     * If no algorithm is specified the CA's default signing algorithm
-     * is used.
-     *
-     * @param crl the CRL to be signed.
-     * @param algname the algorithm name to use. This is a JCA name such
-     *            as MD5withRSA, etc. If set to null the default signing algorithm
-     *            is used.
-     * @return the signed CRL
-     * @exception EBaseException failed to sign CRL
-     */
-    public X509CRLImpl sign(X509CRLImpl crl, String algname)
-            throws EBaseException {
+    public X509CRLImpl sign(X509CRLImpl crl, String algname) throws Exception {
 
-        CAEngine engine = CAEngine.getInstance();
-        ensureReady();
         X509CRLImpl signedcrl = null;
 
-        StatsSubsystem statsSub = (StatsSubsystem) engine.getSubsystem(StatsSubsystem.ID);
-        if (statsSub != null) {
-            statsSub.startTiming("signing");
-        }
-
-        try (DerOutputStream out = new DerOutputStream()) {
-            DerOutputStream tmp = new DerOutputStream();
+        try (DerOutputStream out = new DerOutputStream();
+                DerOutputStream tmp = new DerOutputStream()) {
 
             if (algname == null) {
                 algname = mSigningUnit.getDefaultAlgorithm();
@@ -568,75 +546,20 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
             } else {
                 logger.warn("Failed to add signature to CRL object.");
             }
-
-        } catch (CRLException e) {
-            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CRL", e.toString(), e.getMessage()), e);
-            throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_SIGNING_CRL_FAILED", e.getMessage()), e);
-
-        } catch (X509ExtensionException e) {
-            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CRL", e.toString(), e.getMessage()), e);
-            throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_SIGNING_CRL_FAILED", e.getMessage()), e);
-
-        } catch (NoSuchAlgorithmException e) {
-            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CRL", e.toString(), e.getMessage()), e);
-            throw new ECAException(CMS.getUserMessage("CMS_CA_SIGNING_CRL_FAILED", e.getMessage()), e);
-
-        } catch (IOException e) {
-            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CRL", e.toString(), e.getMessage()), e);
-            throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_SIGNING_CRL_FAILED", e.getMessage()), e);
-
-        } catch (SignatureException e) {
-            logger.error(CMS.getUserMessage("CMS_CA_SIGNING_OPERATION_FAILED", e.toString()), e);
-            engine.checkForAndAutoShutdown();
-            throw new EBaseException(e);
-
-        } catch (Exception e) {
-            logger.error("Unable to sign data: " + e.getMessage(), e);
-            throw new EBaseException(e);
-
-        } finally {
-            if (statsSub != null) {
-                statsSub.endTiming("signing");
-            }
         }
 
         return signedcrl;
     }
 
-    /**
-     * Signs the given certificate info using specified signing algorithm
-     * If no algorithm is specified the CA's default algorithm is used.
-     *
-     * @param certInfo the certificate info to be signed.
-     * @param algname the signing algorithm to use. These are names defined
-     *            in JCA, such as MD5withRSA, etc. If null the CA's default
-     *            signing algorithm will be used.
-     * @return signed certificate
-     * @exception EBaseException failed to sign certificate
-     */
-    public X509CertImpl sign(X509CertInfo certInfo, String algname)
-            throws EBaseException {
-
-        CAEngine engine = CAEngine.getInstance();
-        ensureReady();
+    public X509CertImpl sign(
+            X509CertInfo certInfo,
+            String algname,
+            int fastSigning) throws Exception {
 
         X509CertImpl signedcert = null;
 
-        StatsSubsystem statsSub = (StatsSubsystem) engine.getSubsystem(StatsSubsystem.ID);
-        if (statsSub != null) {
-            statsSub.startTiming("signing");
-        }
-
         try (DerOutputStream out = new DerOutputStream();
                 DerOutputStream tmp = new DerOutputStream()) {
-
-            if (certInfo == null) {
-                logger.warn(CMS.getLogMessage("CMSCORE_CA_CA_NO_CERTINFO"));
-                return null;
-            }
 
             if (algname == null) {
                 algname = mSigningUnit.getDefaultAlgorithm();
@@ -663,7 +586,7 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
             out.write(DerValue.tag_Sequence, tmp);
             //logger.info("CertificateAuthority: done signing");
 
-            switch (engine.getFastSigning()) {
+            switch (fastSigning) {
             case FASTSIGNING_DISABLED:
                 signedcert = new X509CertImpl(out.toByteArray());
                 break;
@@ -675,70 +598,13 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
             default:
                 break;
             }
-
-        } catch (NoSuchAlgorithmException e) {
-            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CERT", e.toString(), e.getMessage()), e);
-            throw new ECAException(CMS.getUserMessage("CMS_CA_SIGNING_CERT_FAILED", e.getMessage()), e);
-
-        } catch (IOException e) {
-            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CERT", e.toString(), e.getMessage()), e);
-            throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_SIGNING_CERT_FAILED", e.getMessage()), e);
-
-        } catch (CertificateException e) {
-            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CERT", e.toString(), e.getMessage()), e);
-            throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_SIGNING_CERT_FAILED", e.getMessage()), e);
-
-
-        } catch (SignatureException e) {
-            logger.error(CMS.getUserMessage("CMS_CA_SIGNING_OPERATION_FAILED", e.toString()), e);
-            engine.checkForAndAutoShutdown();
-            throw new EBaseException(e);
-
-        } catch (Exception e) {
-            logger.error("Unable to sign data: " + e.getMessage(), e);
-            throw new EBaseException(e);
-
-        } finally {
-            if (statsSub != null) {
-                statsSub.endTiming("signing");
-            }
         }
+
         return signedcert;
     }
 
-    /**
-     * Sign a byte array using the specified algorithm.
-     * If algorithm is null the CA's default algorithm is used.
-     * <p>
-     *
-     * @param data the data to be signed in a byte array.
-     * @param algname the algorithm to use.
-     * @return the signature in a byte array.
-     */
-    public byte[] sign(byte[] data, String algname)
-            throws EBaseException {
-
-        CAEngine engine = CAEngine.getInstance();
-        ensureReady();
-
-        try {
-            return mSigningUnit.sign(data, algname);
-
-        } catch (NoSuchAlgorithmException e) {
-            logger.error(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
-            throw new ECAException(CMS.getUserMessage("CMS_CA_SIGNING_ALGOR_NOT_SUPPORTED", algname), e);
-
-        } catch (SignatureException e) {
-            logger.error(CMS.getUserMessage("CMS_CA_SIGNING_OPERATION_FAILED", e.toString()), e);
-            engine.checkForAndAutoShutdown();
-            throw new EBaseException(e);
-
-        } catch (Exception e) {
-            logger.error("Unable to sign data: " + e.getMessage(), e);
-            throw new EBaseException(e);
-        }
+    public byte[] sign(byte[] data, String algname) throws Exception {
+        return mSigningUnit.sign(data, algname);
     }
 
     /**

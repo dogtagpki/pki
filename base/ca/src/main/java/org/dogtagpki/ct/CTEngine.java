@@ -145,7 +145,7 @@ public class CTEngine {
             CertUtils.printExtensions(exts);
 
             logger.debug(method + " About to ca.sign CT pre-cert.");
-            X509CertImpl cert = ca.sign(certi, algname);
+            X509CertImpl cert = engine.sign(ca, certi, algname);
             // compose CTRequest
             CTRequest ctRequest = createCTRequest(cert, ctCA);
 

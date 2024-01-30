@@ -861,7 +861,7 @@ public class CAService implements IService {
         ctEngine.process(certi, hostCA, aid, algname);
 
         logger.debug("CAService: issueX509Cert: About to ca.sign cert.");
-        cert = ca.sign(certi, algname);
+        cert = engine.sign(ca, certi, algname);
         return cert;
     }
 

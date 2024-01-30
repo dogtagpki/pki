@@ -18,9 +18,13 @@
 
 package org.dogtagpki.server.ca;
 
+import java.io.IOException;
 import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.SecureRandom;
+import java.security.SignatureException;
+import java.security.cert.CRLException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -61,7 +65,10 @@ import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.CertificateVersion;
 import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509ExtensionException;
 
 import com.netscape.ca.AuthorityMonitor;
 import com.netscape.ca.CANotify;
@@ -137,6 +144,7 @@ import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.request.CertRequestRepository;
 import com.netscape.cmscore.request.RequestNotifier;
 import com.netscape.cmscore.request.RequestQueue;
+import com.netscape.cmscore.util.StatsSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ldap.LDAPPostReadControl;
 
@@ -2383,6 +2391,163 @@ public class CAEngine extends CMSEngine {
                 logger.debug("CAEngine: restoring thread token");
                 cm.setThreadToken(savedToken);
             }
+        }
+    }
+
+    /**
+     * Signs the given certificate info using specified signing algorithm
+     * If no algorithm is specified the CA's default algorithm is used.
+     *
+     * @param ca CA to sign the certificate.
+     * @param certInfo the certificate info to be signed.
+     * @param algname the signing algorithm to use. These are names defined
+     *            in JCA, such as MD5withRSA, etc. If null the CA's default
+     *            signing algorithm will be used.
+     * @return signed certificate
+     * @exception EBaseException failed to sign certificate
+     */
+    public X509CertImpl sign(
+            CertificateAuthority ca,
+            X509CertInfo certInfo,
+            String algname)
+            throws EBaseException {
+
+        ca.ensureReady();
+
+        StatsSubsystem statsSub = (StatsSubsystem) subsystems.get(StatsSubsystem.ID);
+        if (statsSub != null) {
+            statsSub.startTiming("signing");
+        }
+
+        try {
+            if (certInfo == null) {
+                logger.warn(CMS.getLogMessage("CMSCORE_CA_CA_NO_CERTINFO"));
+                return null;
+            }
+
+            return ca.sign(certInfo, algname, fastSigning);
+
+        } catch (NoSuchAlgorithmException e) {
+            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CERT", e.toString(), e.getMessage()), e);
+            throw new ECAException(CMS.getUserMessage("CMS_CA_SIGNING_CERT_FAILED", e.getMessage()), e);
+
+        } catch (IOException e) {
+            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CERT", e.toString(), e.getMessage()), e);
+            throw new ECAException(CMS.getUserMessage("CMS_CA_SIGNING_CERT_FAILED", e.getMessage()), e);
+
+        } catch (CertificateException e) {
+            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CERT", e.toString(), e.getMessage()), e);
+            throw new ECAException(CMS.getUserMessage("CMS_CA_SIGNING_CERT_FAILED", e.getMessage()), e);
+
+        } catch (SignatureException e) {
+            logger.error(CMS.getUserMessage("CMS_CA_SIGNING_OPERATION_FAILED", e.toString()), e);
+            checkForAndAutoShutdown();
+            throw new EBaseException(e);
+
+        } catch (Exception e) {
+            logger.error("Unable to sign data: " + e.getMessage(), e);
+            throw new EBaseException(e);
+
+        } finally {
+            if (statsSub != null) {
+                statsSub.endTiming("signing");
+            }
+        }
+    }
+
+    /**
+     * Signs CRL using the specified signature algorithm.
+     * If no algorithm is specified the CA's default signing algorithm
+     * is used.
+     *
+     * @param ca CA to sign the CRL.
+     * @param crl the CRL to be signed.
+     * @param algname the algorithm name to use. This is a JCA name such
+     *            as MD5withRSA, etc. If set to null the default signing algorithm
+     *            is used.
+     * @return the signed CRL
+     * @exception EBaseException failed to sign CRL
+     */
+    public X509CRLImpl sign(
+            CertificateAuthority ca,
+            X509CRLImpl crl,
+            String algname)
+            throws EBaseException {
+
+        ca.ensureReady();
+
+        StatsSubsystem statsSub = (StatsSubsystem) subsystems.get(StatsSubsystem.ID);
+        if (statsSub != null) {
+            statsSub.startTiming("signing");
+        }
+
+        try {
+            return ca.sign(crl, algname);
+
+        } catch (CRLException e) {
+            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CRL", e.toString(), e.getMessage()), e);
+            throw new ECAException(CMS.getUserMessage("CMS_CA_SIGNING_CRL_FAILED", e.getMessage()), e);
+
+        } catch (X509ExtensionException e) {
+            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CRL", e.toString(), e.getMessage()), e);
+            throw new ECAException(CMS.getUserMessage("CMS_CA_SIGNING_CRL_FAILED", e.getMessage()), e);
+
+        } catch (NoSuchAlgorithmException e) {
+            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CRL", e.toString(), e.getMessage()), e);
+            throw new ECAException(CMS.getUserMessage("CMS_CA_SIGNING_CRL_FAILED", e.getMessage()), e);
+
+        } catch (IOException e) {
+            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CRL", e.toString(), e.getMessage()), e);
+            throw new ECAException(CMS.getUserMessage("CMS_CA_SIGNING_CRL_FAILED", e.getMessage()), e);
+
+        } catch (SignatureException e) {
+            logger.error(CMS.getUserMessage("CMS_CA_SIGNING_OPERATION_FAILED", e.toString()), e);
+            checkForAndAutoShutdown();
+            throw new EBaseException(e);
+
+        } catch (Exception e) {
+            logger.error("Unable to sign data: " + e.getMessage(), e);
+            throw new EBaseException(e);
+
+        } finally {
+            if (statsSub != null) {
+                statsSub.endTiming("signing");
+            }
+        }
+    }
+
+    /**
+     * Sign a byte array using the specified algorithm.
+     * If algorithm is null the CA's default algorithm is used.
+     *
+     * @param ca CA to sign the data.
+     * @param data the data to be signed in a byte array.
+     * @param algname the algorithm to use.
+     * @return the signature in a byte array.
+     */
+    public byte[] sign(
+            CertificateAuthority ca,
+            byte[] data,
+            String algname)
+            throws EBaseException {
+
+        ca.ensureReady();
+
+        try {
+            return ca.sign(data, algname);
+
+        } catch (NoSuchAlgorithmException e) {
+            logger.error(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
+            throw new ECAException(CMS.getUserMessage("CMS_CA_SIGNING_ALGOR_NOT_SUPPORTED", algname), e);
+
+        } catch (SignatureException e) {
+            logger.error(CMS.getUserMessage("CMS_CA_SIGNING_OPERATION_FAILED", e.toString()), e);
+            checkForAndAutoShutdown();
+            throw new EBaseException(e);
+
+        } catch (Exception e) {
+            logger.error("Unable to sign data: " + e.getMessage(), e);
+            throw new EBaseException(e);
         }
     }
 
