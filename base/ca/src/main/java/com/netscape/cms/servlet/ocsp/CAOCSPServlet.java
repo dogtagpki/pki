@@ -22,6 +22,8 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebInitParam;
 import javax.servlet.annotation.WebServlet;
 
+import org.dogtagpki.server.ca.CAEngine;
+
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmsutil.ocsp.OCSPRequest;
@@ -55,6 +57,7 @@ public class CAOCSPServlet extends OCSPServlet {
     }
 
     public OCSPResponse validate(OCSPRequest ocspRequest) throws EBaseException {
-        return ca.validate(ocspRequest);
+        CAEngine engine = (CAEngine) getCMSEngine();
+        return engine.validate(ca, ocspRequest);
     }
 }

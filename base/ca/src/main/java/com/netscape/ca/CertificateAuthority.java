@@ -111,7 +111,6 @@ import com.netscape.cmsutil.ocsp.CertStatus;
 import com.netscape.cmsutil.ocsp.GoodInfo;
 import com.netscape.cmsutil.ocsp.KeyHashID;
 import com.netscape.cmsutil.ocsp.NameID;
-import com.netscape.cmsutil.ocsp.OCSPRequest;
 import com.netscape.cmsutil.ocsp.OCSPResponse;
 import com.netscape.cmsutil.ocsp.OCSPResponseStatus;
 import com.netscape.cmsutil.ocsp.Request;
@@ -845,71 +844,7 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
         return new KeyHashID(new OCTET_STRING(digested));
     }
 
-    /**
-     * Process OCSPRequest.
-     */
-    public OCSPResponse validate(OCSPRequest request)
-            throws EBaseException {
-
-        CAEngine engine = CAEngine.getInstance();
-        if (!engine.getEnableOCSP()) {
-            logger.debug("CertificateAuthority: OCSP service disabled");
-            throw new EBaseException("OCSP service disabled");
-        }
-
-        TBSRequest tbsReq = request.getTBSRequest();
-        if (tbsReq.getRequestCount() == 0) {
-            logger.error(CMS.getLogMessage("OCSP_REQUEST_FAILURE", "No Request Found"));
-            throw new EBaseException("OCSP request is empty");
-        }
-
-        /* An OCSP request can contain CertIDs for certificates
-         * issued by different CAs, but each SingleResponse is valid
-         * only if the combined response was signed by its issuer or
-         * an authorised OCSP signing delegate.
-         *
-         * Even though it is silly to send an OCSP request
-         * asking about certs issued by different CAs, we must
-         * employ some heuristic to deal with this case. Our
-         * heuristic is:
-         *
-         * 0. If CAEngine has no CAs, then lightweight CAs are not
-         *    enabled.  There is only one CA, and 'this' is it.  Go
-         *    straight to validation.
-         *
-         * 1. Find the issuer of the cert identified by the first
-         *    CertID in the request.
-         *
-         * 2. If this CA is *not* the issuer, look up the issuer
-         *    by its DN in CAEngine. If found, dispatch to its 'validate'
-         *    method. Otherwise continue.
-         *
-         * 3. If this CA is NOT the issuing CA, we locate the
-         *    issuing CA and dispatch to its 'validate' method.
-         *    Otherwise, we move forward to generate and sign the
-         *    aggregate OCSP response.
-         */
-        for (CertificateAuthority ocspCA: engine.getCAs()) {
-            Request req = tbsReq.getRequestAt(0);
-            CertID cid = req.getCertID();
-            byte[] nameHash = null;
-            String digestName = cid.getDigestName();
-            if (digestName != null) {
-                try {
-                    MessageDigest md = MessageDigest.getInstance(digestName);
-                    nameHash = md.digest(ocspCA.getSubjectObj().getX500Name().getEncoded());
-                } catch (NoSuchAlgorithmException | IOException e) {
-                    logger.warn("CertificateAuthority: OCSP request hash algorithm " + digestName + " not recognised: " + e.getMessage(), e);
-                }
-            }
-            if(Arrays.equals(nameHash, cid.getIssuerNameHash().toByteArray())) {
-                if(ocspCA != this) {
-                    return ocspCA.validate(request);
-                }
-                break;
-            }
-        }
-
+    public OCSPResponse validate(TBSRequest tbsReq)throws EBaseException {
 
         logger.debug("CertificateAuthority: validating OCSP request");
 

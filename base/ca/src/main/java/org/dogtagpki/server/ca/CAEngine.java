@@ -20,6 +20,7 @@ package org.dogtagpki.server.ca;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.SecureRandom;
@@ -147,6 +148,11 @@ import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.util.StatsSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ldap.LDAPPostReadControl;
+import com.netscape.cmsutil.ocsp.CertID;
+import com.netscape.cmsutil.ocsp.OCSPRequest;
+import com.netscape.cmsutil.ocsp.OCSPResponse;
+import com.netscape.cmsutil.ocsp.Request;
+import com.netscape.cmsutil.ocsp.TBSRequest;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
@@ -2551,6 +2557,77 @@ public class CAEngine extends CMSEngine {
             logger.error("Unable to sign data: " + e.getMessage(), e);
             throw new EBaseException(e);
         }
+    }
+
+    /**
+     * Process OCSPRequest.
+     */
+    public OCSPResponse validate(
+            CertificateAuthority ca,
+            OCSPRequest ocspRequest)
+            throws EBaseException {
+
+        if (!getEnableOCSP()) {
+            logger.debug("CAEngine: OCSP service disabled");
+            throw new EBaseException("OCSP service disabled");
+        }
+
+        TBSRequest tbsRequest = ocspRequest.getTBSRequest();
+        if (tbsRequest.getRequestCount() == 0) {
+            logger.error(CMS.getLogMessage("OCSP_REQUEST_FAILURE", "No Request Found"));
+            throw new EBaseException("OCSP request is empty");
+        }
+
+        /* An OCSP request can contain CertIDs for certificates
+         * issued by different CAs, but each SingleResponse is valid
+         * only if the combined response was signed by its issuer or
+         * an authorised OCSP signing delegate.
+         *
+         * Even though it is silly to send an OCSP request
+         * asking about certs issued by different CAs, we must
+         * employ some heuristic to deal with this case. Our
+         * heuristic is:
+         *
+         * 0. If CAEngine has no CAs, then lightweight CAs are not
+         *    enabled.  There is only one CA, and that is it.  Go
+         *    straight to validation.
+         *
+         * 1. Find the issuer of the cert identified by the first
+         *    CertID in the request.
+         *
+         * 2. If this CA is *not* the issuer, look up the issuer
+         *    by its DN in CAEngine. If found, dispatch to its 'validate'
+         *    method. Otherwise continue.
+         *
+         * 3. If this CA is NOT the issuing CA, we locate the
+         *    issuing CA and dispatch to its 'validate' method.
+         *    Otherwise, we move forward to generate and sign the
+         *    aggregate OCSP response.
+         */
+        for (CertificateAuthority ocspCA : getCAs()) {
+            Request request = tbsRequest.getRequestAt(0);
+            CertID certID = request.getCertID();
+            byte[] nameHash = null;
+            String digestName = certID.getDigestName();
+
+            if (digestName != null) {
+                try {
+                    MessageDigest md = MessageDigest.getInstance(digestName);
+                    nameHash = md.digest(ocspCA.getSubjectObj().getX500Name().getEncoded());
+                } catch (NoSuchAlgorithmException | IOException e) {
+                    logger.warn("CAEngine: OCSP request hash algorithm " + digestName + " not recognised: " + e.getMessage(), e);
+                }
+            }
+
+            if (Arrays.equals(nameHash, certID.getIssuerNameHash().toByteArray())) {
+                if (ocspCA != ca) {
+                    return validate(ocspCA, ocspRequest);
+                }
+                break;
+            }
+        }
+
+        return ca.validate(tbsRequest);
     }
 
     /**
