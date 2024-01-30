@@ -1689,6 +1689,8 @@ public class CAEngine extends CMSEngine {
     public synchronized void deleteAuthorityEntry(AuthorityID aid) throws EBaseException {
 
         String dn = "cn=" + aid + "," + getAuthorityBaseDN();
+        logger.info("CAEngine: Removing " + dn);
+
         LDAPConnection conn = connectionFactory.getConn();
 
         try {
