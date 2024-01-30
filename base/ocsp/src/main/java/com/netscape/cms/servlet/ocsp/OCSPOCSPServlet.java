@@ -17,8 +17,15 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.ocsp;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
 import javax.servlet.annotation.WebInitParam;
 import javax.servlet.annotation.WebServlet;
+
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.cmsutil.ocsp.OCSPRequest;
+import com.netscape.cmsutil.ocsp.OCSPResponse;
+import com.netscape.ocsp.OCSPAuthority;
 
 @WebServlet(
         name = "ocspOCSP",
@@ -35,5 +42,18 @@ import javax.servlet.annotation.WebServlet;
         }
 )
 public class OCSPOCSPServlet extends OCSPServlet {
+
     private static final long serialVersionUID = 1L;
+
+    OCSPAuthority ocsp;
+
+    @Override
+    public void init(ServletConfig sc) throws ServletException {
+        super.init(sc);
+        ocsp = (OCSPAuthority) mAuthority;
+    }
+
+    public OCSPResponse validate(OCSPRequest ocspRequest) throws EBaseException {
+        return ocsp.validate(ocspRequest);
+    }
 }

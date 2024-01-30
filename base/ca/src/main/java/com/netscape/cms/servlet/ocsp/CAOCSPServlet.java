@@ -17,8 +17,15 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.ocsp;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
 import javax.servlet.annotation.WebInitParam;
 import javax.servlet.annotation.WebServlet;
+
+import com.netscape.ca.CertificateAuthority;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.cmsutil.ocsp.OCSPRequest;
+import com.netscape.cmsutil.ocsp.OCSPResponse;
 
 @WebServlet(
         name = "caOCSP",
@@ -36,5 +43,18 @@ import javax.servlet.annotation.WebServlet;
         }
 )
 public class CAOCSPServlet extends OCSPServlet {
+
     private static final long serialVersionUID = 1L;
+
+    CertificateAuthority ca;
+
+    @Override
+    public void init(ServletConfig sc) throws ServletException {
+        super.init(sc);
+        ca = (CertificateAuthority) mAuthority;
+    }
+
+    public OCSPResponse validate(OCSPRequest ocspRequest) throws EBaseException {
+        return ca.validate(ocspRequest);
+    }
 }

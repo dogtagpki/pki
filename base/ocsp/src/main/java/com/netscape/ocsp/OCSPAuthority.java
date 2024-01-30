@@ -365,7 +365,6 @@ public class OCSPAuthority extends Subsystem implements IAuthority, IOCSPService
      * @exception EBaseException an error associated with the inability to
      *                process the supplied OCSP request
      */
-    @Override
     public OCSPResponse validate(OCSPRequest request) throws EBaseException {
 
         logger.info("OCSPAuthority: Validating OCSP request");

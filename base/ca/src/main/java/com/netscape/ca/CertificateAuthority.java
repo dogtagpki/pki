@@ -848,7 +848,6 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
     /**
      * Process OCSPRequest.
      */
-    @Override
     public OCSPResponse validate(OCSPRequest request)
             throws EBaseException {
 
@@ -905,7 +904,7 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
             }
             if(Arrays.equals(nameHash, cid.getIssuerNameHash().toByteArray())) {
                 if(ocspCA != this) {
-                    return ((IOCSPService) ocspCA).validate(request);
+                    return ocspCA.validate(request);
                 }
                 break;
             }

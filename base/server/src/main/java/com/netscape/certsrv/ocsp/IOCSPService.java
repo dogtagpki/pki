@@ -17,10 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.ocsp;
 
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.cmsutil.ocsp.OCSPRequest;
-import com.netscape.cmsutil.ocsp.OCSPResponse;
-
 /**
  * This class represents the servlet that serves the Online Certificate
  * Status Protocol (OCSP) requests.
@@ -28,19 +24,6 @@ import com.netscape.cmsutil.ocsp.OCSPResponse;
  * @version $Revision$ $Date$
  */
 public interface IOCSPService {
-    /**
-     * This method validates the information associated with the specified
-     * OCSP request and returns an OCSP response.
-     * <P>
-     *
-     * @param r an OCSP request
-     * @return OCSPResponse the OCSP response associated with the specified
-     *         OCSP request
-     * @exception EBaseException an error associated with the inability to
-     *                process the supplied OCSP request
-     */
-    public OCSPResponse validate(OCSPRequest r)
-            throws EBaseException;
 
     /**
      * Returns the in-memory count of the processed OCSP requests.

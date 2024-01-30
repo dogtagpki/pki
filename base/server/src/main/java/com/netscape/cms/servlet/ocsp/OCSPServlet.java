@@ -37,7 +37,6 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.logging.event.OCSPGenerationEvent;
-import com.netscape.certsrv.ocsp.IOCSPService;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -90,6 +89,10 @@ public class OCSPServlet extends CMSServlet {
             }
         }
 
+    }
+
+    public OCSPResponse validate(OCSPRequest ocspRequest) throws EBaseException {
+        return null;
     }
 
     /**
@@ -237,7 +240,7 @@ public class OCSPServlet extends CMSServlet {
                 }
 
                 logger.debug("OCSPServlet: validating request");
-                response = ((IOCSPService) mAuthority).validate(ocspReq);
+                response = validate(ocspReq);
 
                 if (response == null) {
                     auditor.log(OCSPGenerationEvent.createFailureEvent(auditSubjectID(), "Missing OCSP response"));
