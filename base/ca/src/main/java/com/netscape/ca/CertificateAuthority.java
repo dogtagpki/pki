@@ -93,10 +93,8 @@ import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.event.CertSigningInfoEvent;
 import com.netscape.certsrv.ocsp.IOCSPService;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.certsrv.security.SigningUnitConfig;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.cert.CertEnrollmentRequestFactory;
 import com.netscape.cms.servlet.cert.EnrollmentProcessor;
@@ -106,7 +104,6 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
-import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.util.StatsSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -457,6 +454,30 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
      */
     public CASigningUnit getSigningUnit() {
         return mSigningUnit;
+    }
+
+    public synchronized void setCertSigningUnit(CASigningUnit certSigningUnit) throws Exception {
+
+        mSigningUnit = certSigningUnit;
+
+        hasKeys = true;
+        signingUnitException = null;
+
+        mNickname = certSigningUnit.getNickname();
+
+        X509CertImpl caCertImpl = certSigningUnit.getCertImpl();
+        mName = caCertImpl.getSubjectName();
+
+        getCASigningAlgorithms();
+
+        // This ensures the isserDN and subjectDN have the same encoding
+        // as that of the CA signing cert.
+        mSubjectObj = caCertImpl.getSubjectObj();
+
+        // The mIssuerObj is the "issuerDN" object for the certs issued by this CA,
+        // not the isserDN object of the CA signing cert unless the it is self-signed.
+        X500Name issuerName = (X500Name) mSubjectObj.get(CertificateIssuerName.DN_NAME);
+        mIssuerObj = new CertificateIssuerName(issuerName);
     }
 
     /**
@@ -825,57 +846,6 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
         }
 
         return mCASigningAlgorithms;
-    }
-
-    //////////
-    // Initialization routines.
-    //
-
-    public synchronized void initCertSigningUnit() throws Exception {
-
-        logger.info("CertificateAuthority: Initializing cert signing unit");
-
-        SigningUnitConfig caSigningCfg = mConfig.getSigningUnitConfig();
-
-        mSigningUnit = new CASigningUnit();
-        mSigningUnit.init(caSigningCfg, mNickname);
-
-        hasKeys = true;
-        signingUnitException = null;
-
-        mNickname = mSigningUnit.getNickname();
-
-        X509Certificate caCert = mSigningUnit.getCert();
-        logger.info("CertificateAuthority: - nickname: " + caCert.getNickname());
-
-        X509CertImpl caCertImpl = mSigningUnit.getCertImpl();
-        mName = caCertImpl.getSubjectName();
-
-        getCASigningAlgorithms();
-
-        // This ensures the isserDN and subjectDN have the same encoding
-        // as that of the CA signing cert.
-        mSubjectObj = caCertImpl.getSubjectObj();
-        logger.debug("CertificateAuthority: - subject DN: " + mSubjectObj);
-
-        // The mIssuerObj is the "issuerDN" object for the certs issued by this CA,
-        // not the isserDN object of the CA signing cert unless the it is self-signed.
-        X500Name issuerName = (X500Name) mSubjectObj.get(CertificateIssuerName.DN_NAME);
-        mIssuerObj = new CertificateIssuerName(issuerName);
-        logger.debug("CertificateAuthority: - issuer DN: " + mIssuerObj);
-
-        String certSigningSKI = CryptoUtil.getSKIString(caCertImpl);
-
-        Auditor auditor = engine.getAuditor();
-
-        if (hostCA) {
-            // generate cert info without authority ID
-            auditor.log(CertSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, certSigningSKI));
-
-        } else {
-            // generate cert signing info with authority ID
-            auditor.log(CertSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, certSigningSKI, authorityID));
-        }
     }
 
     /**
