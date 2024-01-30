@@ -14,13 +14,13 @@ Name:             pki
 # Downstream release number:
 # - development/stabilization (unsupported): 0.<n> where n >= 1
 # - GA/update (supported): <n> where n >= 1
-%global           release_number 0.3
+%global           release_number 0.4
 
 # Development phase:
 # - development (unsupported): alpha<n> where n >= 1
 # - stabilization (unsupported): beta<n> where n >= 1
 # - GA/update (supported): <none>
-%global           phase alpha6
+%global           phase alpha7
 
 %undefine         timestamp
 %undefine         commit_id
