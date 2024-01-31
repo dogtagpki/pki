@@ -244,7 +244,7 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
     @Override
     public Response createCA(AuthorityData data) {
 
-        logger.info("AuthorityService: creating authority " + data.getDN());
+        logger.info("AuthorityService: Creating authority " + data.getDN());
 
         String parentAIDString = data.getParentID();
         AuthorityID parentAID = null;

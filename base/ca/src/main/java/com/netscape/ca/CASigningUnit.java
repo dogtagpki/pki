@@ -100,9 +100,9 @@ public final class CASigningUnit extends SigningUnit {
             }
 
             try {
-                logger.debug("SigningUnit: Loading certificate " + mNickname);
+                logger.info("CASigningUnit: Loading cert " + mNickname);
                 mCert = mManager.findCertByNickname(mNickname);
-                logger.debug("SigningUnit: certificate serial number: " + mCert.getSerialNumber());
+                logger.debug("CASigningUnit: - serial number: " + mCert.getSerialNumber());
 
             } catch (ObjectNotFoundException e) {
                 throw new CAMissingCertException("Certificate not found: " + mNickname + ": " + e.getMessage(), e);
@@ -112,7 +112,7 @@ public final class CASigningUnit extends SigningUnit {
             mCertImpl = new X509CertImpl(mCert.getEncoded());
 
             try {
-                logger.debug("SigningUnit: Loading private key");
+                logger.info("CASigningUnit: Loading private key");
                 mPrivk = mManager.findPrivKeyByCert(mCert);
 
             } catch (ObjectNotFoundException e) {
@@ -120,14 +120,14 @@ public final class CASigningUnit extends SigningUnit {
             }
 
             String privateKeyID = "0x" + Utils.HexEncode(mPrivk.getUniqueID());
-            logger.debug("SigningUnit: private key ID: " + privateKeyID);
+            logger.debug("CASigningUnit: - key ID: " + privateKeyID);
 
             mPubk = mCert.getPublicKey();
 
             // get def alg and check if def sign alg is valid for token.
             mDefSigningAlgname = config.getDefaultSigningAlgorithm();
             mDefSigningAlgorithm = checkSigningAlgorithmFromName(mDefSigningAlgname);
-            logger.debug("SigningUnit: signing algorithm: " + mDefSigningAlgorithm);
+            logger.debug("CASigningUnit: signing algorithm: " + mDefSigningAlgorithm);
 
             mInited = true;
 
