@@ -198,6 +198,7 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
 
     protected CAConfig mConfig;
     protected int fastSigning;
+    protected boolean ocspResponderByName;
 
     protected CASigningUnit mSigningUnit;
     protected CASigningUnit mOCSPSigningUnit;
@@ -380,6 +381,14 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
 
     public void setFastSigning(int fastSigning) {
         this.fastSigning = fastSigning;
+    }
+
+    public boolean getOCSPResponderByName() {
+        return ocspResponderByName;
+    }
+
+    public void setOCSPResponderByName(boolean ocspResponderByName) {
+        this.ocspResponderByName = ocspResponderByName;
     }
 
     /**
@@ -944,7 +953,7 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
 
             ResponderID rid = null;
 
-            if (engine.getOCSPResponderByName()) {
+            if (ocspResponderByName) {
                 if (mResponderIDByName == null) {
                     mResponderIDByName = getResponderIDByName();
                 }

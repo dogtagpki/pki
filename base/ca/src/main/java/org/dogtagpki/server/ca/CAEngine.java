@@ -1943,6 +1943,7 @@ public class CAEngine extends CMSEngine {
         CAConfig caConfig = caEngineConfig.getCAConfig();
         ca.setConfig(caConfig);
         ca.setFastSigning(fastSigning);
+        ca.setOCSPResponderByName(ocspResponderByName);
 
         try {
             initCertSigningUnit(ca);
