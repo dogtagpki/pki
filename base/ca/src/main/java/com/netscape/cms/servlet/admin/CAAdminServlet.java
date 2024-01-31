@@ -83,7 +83,6 @@ public class CAAdminServlet extends AdminServlet {
 
     private final static String INFO = "CAAdminServlet";
 
-    private CertificateAuthority mCA;
     protected static final String PROP_ENABLED = "enabled";
 
     /**
@@ -99,8 +98,6 @@ public class CAAdminServlet extends AdminServlet {
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        CAEngine engine = CAEngine.getInstance();
-        mCA = engine.getCA();
     }
 
     /**
@@ -274,8 +271,11 @@ public class CAAdminServlet extends AdminServlet {
     private void getNotificationRevCompConfig(HttpServletRequest req, HttpServletResponse resp)
             throws IOException, EBaseException {
 
-        CAConfig config = mCA.getConfigStore();
-        ConfigStore nc = config.getSubStore(CertificateAuthority.PROP_NOTIFY_SUBSTORE, ConfigStore.class);
+        CAEngine engine = (CAEngine) getCMSEngine();
+        CAEngineConfig engineConfig = engine.getConfig();
+        CAConfig caConfig = engineConfig.getCAConfig();
+
+        ConfigStore nc = caConfig.getSubStore(CertificateAuthority.PROP_NOTIFY_SUBSTORE, ConfigStore.class);
         ConfigStore rc = nc.getSubStore(CertificateAuthority.PROP_CERT_REVOKED_SUBSTORE, ConfigStore.class);
 
         getNotificationCompConfig(req, resp, rc);
@@ -284,8 +284,11 @@ public class CAAdminServlet extends AdminServlet {
     private void getNotificationReqCompConfig(HttpServletRequest req, HttpServletResponse resp)
             throws IOException, EBaseException {
 
-        CAConfig config = mCA.getConfigStore();
-        ConfigStore nc = config.getSubStore(CertificateAuthority.PROP_NOTIFY_SUBSTORE, ConfigStore.class);
+        CAEngine engine = (CAEngine) getCMSEngine();
+        CAEngineConfig engineConfig = engine.getConfig();
+        CAConfig caConfig = engineConfig.getCAConfig();
+
+        ConfigStore nc = caConfig.getSubStore(CertificateAuthority.PROP_NOTIFY_SUBSTORE, ConfigStore.class);
         ConfigStore rc = nc.getSubStore(CertificateAuthority.PROP_CERT_ISSUED_SUBSTORE, ConfigStore.class);
 
         getNotificationCompConfig(req, resp, rc);
@@ -299,8 +302,10 @@ public class CAAdminServlet extends AdminServlet {
 
         NameValuePairs params = new NameValuePairs();
 
-        CAConfig config = mCA.getConfigStore();
-        ConfigStore nc = config.getSubStore(CertificateAuthority.PROP_NOTIFY_SUBSTORE, ConfigStore.class);
+        CAEngine engine = (CAEngine) getCMSEngine();
+        CAEngineConfig engineConfig = engine.getConfig();
+        CAConfig caConfig = engineConfig.getCAConfig();
+        ConfigStore nc = caConfig.getSubStore(CertificateAuthority.PROP_NOTIFY_SUBSTORE, ConfigStore.class);
         ConfigStore riq = nc.getSubStore(CertificateAuthority.PROP_REQ_IN_Q_SUBSTORE, ConfigStore.class);
 
         Enumeration<String> e = req.getParameterNames();
@@ -330,7 +335,7 @@ public class CAAdminServlet extends AdminServlet {
     private void setNotificationRIQConfig(HttpServletRequest req, HttpServletResponse resp)
             throws IOException, EBaseException {
 
-        CAEngine engine = CAEngine.getInstance();
+        CAEngine engine = (CAEngine) getCMSEngine();
         CAEngineConfig engineConfig = engine.getConfig();
         CAConfig config = engineConfig.getCAConfig();
         ConfigStore nc = config.getSubStore(CertificateAuthority.PROP_NOTIFY_SUBSTORE, ConfigStore.class);
@@ -435,7 +440,7 @@ public class CAAdminServlet extends AdminServlet {
     private void setNotificationRevCompConfig(HttpServletRequest req, HttpServletResponse resp)
             throws IOException, EBaseException {
 
-        CAEngine engine = CAEngine.getInstance();
+        CAEngine engine = (CAEngine) getCMSEngine();
         CAEngineConfig engineConfig = engine.getConfig();
         CAConfig config = engineConfig.getCAConfig();
         ConfigStore nc = config.getSubStore(CertificateAuthority.PROP_NOTIFY_SUBSTORE, ConfigStore.class);
@@ -447,7 +452,7 @@ public class CAAdminServlet extends AdminServlet {
     private void setNotificationReqCompConfig(HttpServletRequest req, HttpServletResponse resp)
             throws IOException, EBaseException {
 
-        CAEngine engine = CAEngine.getInstance();
+        CAEngine engine = (CAEngine) getCMSEngine();
         CAEngineConfig engineConfig = engine.getConfig();
         CAConfig config = engineConfig.getCAConfig();
         ConfigStore nc = config.getSubStore(CertificateAuthority.PROP_NOTIFY_SUBSTORE, ConfigStore.class);
@@ -460,7 +465,7 @@ public class CAAdminServlet extends AdminServlet {
     private void listCRLIPsConfig(HttpServletResponse resp) throws IOException {
         NameValuePairs params = new NameValuePairs();
 
-        CAEngine engine = CAEngine.getInstance();
+        CAEngine engine = (CAEngine) getCMSEngine();
 
         for (CRLIssuingPoint ip : engine.getCRLIssuingPoints()) {
             if (ip != null) {
@@ -478,7 +483,7 @@ public class CAAdminServlet extends AdminServlet {
 
     private void getCRLIPsConfig(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
-        CAEngine engine = CAEngine.getInstance();
+        CAEngine engine = (CAEngine) getCMSEngine();
         NameValuePairs params = new NameValuePairs();
 
         String id = req.getParameter(Constants.RS_ID);
@@ -534,7 +539,8 @@ public class CAAdminServlet extends AdminServlet {
             HttpServletResponse resp)
             throws ServletException, IOException, EBaseException {
 
-        CAEngine engine = CAEngine.getInstance();
+        CAEngine engine = (CAEngine) getCMSEngine();
+        CertificateAuthority ca = engine.getCA();
         Auditor auditor = engine.getAuditor();
 
         String auditMessage = null;
@@ -590,7 +596,7 @@ public class CAAdminServlet extends AdminServlet {
                 params.put(Constants.PR_ENABLED, Constants.TRUE);
             }
 
-            CAConfig caConfig = mCA.getConfigStore();
+            CAConfig caConfig = ca.getConfigStore();
             CRLConfig crlConfig = caConfig.getCRLConfig();
             Enumeration<String> crlNames = crlConfig.getSubStoreNames().elements();
 
@@ -611,7 +617,7 @@ public class CAAdminServlet extends AdminServlet {
                     return;
                 }
             }
-            if (!engine.addCRLIssuingPoint(mCA, crlConfig, ipId, enable, desc)) {
+            if (!engine.addCRLIssuingPoint(ca, crlConfig, ipId, enable, desc)) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
                             AuditEvent.CONFIG_CRL_PROFILE,
@@ -694,7 +700,9 @@ public class CAAdminServlet extends AdminServlet {
             HttpServletResponse resp)
             throws ServletException, IOException, EBaseException {
 
-        CAEngine engine = CAEngine.getInstance();
+        CAEngine engine = (CAEngine) getCMSEngine();
+        CAEngineConfig engineConfig = engine.getConfig();
+        CAConfig caConfig = engineConfig.getCAConfig();
         Auditor auditor = engine.getAuditor();
 
         String auditMessage = null;
@@ -750,7 +758,6 @@ public class CAAdminServlet extends AdminServlet {
                 params.put(Constants.PR_ENABLED, Constants.TRUE);
             }
 
-            CAConfig caConfig = mCA.getConfigStore();
             CRLConfig crlConfig = caConfig.getCRLConfig();
             boolean done = false;
             Enumeration<String> crlNames = crlConfig.getSubStoreNames().elements();
@@ -860,7 +867,8 @@ public class CAAdminServlet extends AdminServlet {
             HttpServletResponse resp)
             throws ServletException, IOException, EBaseException {
 
-        CAEngine engine = CAEngine.getInstance();
+        CAEngine engine = (CAEngine) getCMSEngine();
+        CertificateAuthority ca = engine.getCA();
         Auditor auditor = engine.getAuditor();
 
         String auditMessage = null;
@@ -874,7 +882,7 @@ public class CAAdminServlet extends AdminServlet {
             String id = req.getParameter(Constants.RS_ID);
 
             if (id != null && id.length() > 0) {
-                CAConfig caConfig = mCA.getConfigStore();
+                CAConfig caConfig = ca.getConfigStore();
                 CRLConfig crlConfig = caConfig.getCRLConfig();
                 boolean done = false;
                 Enumeration<String> crlNames = crlConfig.getSubStoreNames().elements();
@@ -883,7 +891,7 @@ public class CAAdminServlet extends AdminServlet {
                     String name = crlNames.nextElement();
 
                     if (id.equals(name)) {
-                        engine.deleteCRLIssuingPoint(mCA, crlConfig, id);
+                        engine.deleteCRLIssuingPoint(ca, crlConfig, id);
                         done = true;
                         break;
                     }
@@ -955,7 +963,7 @@ public class CAAdminServlet extends AdminServlet {
 
     private void getCRLExtsConfig(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
-        CAEngine engine = CAEngine.getInstance();
+        CAEngine engine = (CAEngine) getCMSEngine();
 
         NameValuePairs params = new NameValuePairs();
 
@@ -1007,7 +1015,9 @@ public class CAAdminServlet extends AdminServlet {
             HttpServletResponse resp)
             throws ServletException, IOException, EBaseException {
 
-        CAEngine engine = CAEngine.getInstance();
+        CAEngine engine = (CAEngine) getCMSEngine();
+        CAEngineConfig engineConfig = engine.getConfig();
+        CAConfig caConfig = engineConfig.getCAConfig();
         Auditor auditor = engine.getAuditor();
 
         String auditMessage = null;
@@ -1027,7 +1037,6 @@ public class CAAdminServlet extends AdminServlet {
             CRLIssuingPoint ip = engine.getCRLIssuingPoint(ipId);
             CMSCRLExtensions crlExts = ip.getCRLExtensions();
 
-            CAConfig caConfig = mCA.getConfigStore();
             CRLConfig crlConfig = caConfig.getCRLConfig();
             CRLIssuingPointConfig ipConfig = crlConfig.getCRLIssuingPointConfig(ipId);
             CRLExtensionsConfig crlExtsConfig = ipConfig.getExtensionsConfig();
@@ -1121,7 +1130,9 @@ public class CAAdminServlet extends AdminServlet {
             id = CertificateAuthority.PROP_MASTER_CRL;
         }
 
-        CAConfig caConfig = mCA.getConfigStore();
+        CAEngine engine = (CAEngine) getCMSEngine();
+        CAEngineConfig engineConfig = engine.getConfig();
+        CAConfig caConfig = engineConfig.getCAConfig();
         CRLConfig crlConfig = caConfig.getCRLConfig();
         CRLIssuingPointConfig ipConfig = crlConfig.getCRLIssuingPointConfig(id);
         CRLExtensionsConfig crlExtsConfig = ipConfig.getExtensionsConfig();
@@ -1172,7 +1183,7 @@ public class CAAdminServlet extends AdminServlet {
         String ipId = null;
         String name = null;
 
-        CAEngine engine = CAEngine.getInstance();
+        CAEngine engine = (CAEngine) getCMSEngine();
         Enumeration<CRLIssuingPoint> ips = Collections.enumeration(engine.getCRLIssuingPoints());
 
         if (ips.hasMoreElements()) {
@@ -1224,7 +1235,9 @@ public class CAAdminServlet extends AdminServlet {
     private void setCRLConfig(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException, EBaseException {
 
-        CAEngine engine = CAEngine.getInstance();
+        CAEngine engine = (CAEngine) getCMSEngine();
+        CAEngineConfig engineConfig = engine.getConfig();
+        CAConfig caConfig = engineConfig.getCAConfig();
         Auditor auditor = engine.getAuditor();
 
         String auditMessage = null;
@@ -1244,7 +1257,6 @@ public class CAAdminServlet extends AdminServlet {
             CRLIssuingPoint ip = engine.getCRLIssuingPoint(id);
 
             //Save New Settings to the config file
-            CAConfig caConfig = mCA.getConfigStore();
             CRLConfig crlConfig = caConfig.getCRLConfig();
             CRLIssuingPointConfig ipConfig = crlConfig.getCRLIssuingPointConfig(id);
 
@@ -1333,7 +1345,10 @@ public class CAAdminServlet extends AdminServlet {
                 id.equals(Constants.RS_ID_CONFIG)) {
             id = CertificateAuthority.PROP_MASTER_CRL;
         }
-        CAConfig caConfig = mCA.getConfigStore();
+
+        CAEngine engine = (CAEngine) getCMSEngine();
+        CAEngineConfig engineConfig = engine.getConfig();
+        CAConfig caConfig = engineConfig.getCAConfig();
         CRLConfig crlConfig = caConfig.getCRLConfig();
         CRLIssuingPointConfig ipConfig = crlConfig.getCRLIssuingPointConfig(id);
 
@@ -1359,7 +1374,9 @@ public class CAAdminServlet extends AdminServlet {
 
     private void getConnectorConfig(HttpServletRequest req, HttpServletResponse resp)
             throws IOException, EBaseException {
-        CAConfig caConfig = mCA.getConfigStore();
+        CAEngine engine = (CAEngine) getCMSEngine();
+        CAEngineConfig engineConfig = engine.getConfig();
+        CAConfig caConfig = engineConfig.getCAConfig();
         ConnectorsConfig connectorsConfig = caConfig.getConnectorsConfig();
         ConnectorConfig caConnectorConfig = null;
 
@@ -1392,7 +1409,9 @@ public class CAAdminServlet extends AdminServlet {
     private void setConnectorConfig(HttpServletRequest req, HttpServletResponse resp)
             throws IOException, EBaseException {
 
-        CAConfig caConfig = mCA.getConfigStore();
+        CAEngine engine = (CAEngine) getCMSEngine();
+        CAEngineConfig engineConfig = engine.getConfig();
+        CAConfig caConfig = engineConfig.getCAConfig();
         ConnectorsConfig connectorsConfig = caConfig.getConnectorsConfig();
         ConnectorConfig caConnectorConfig = null;
 
@@ -1487,11 +1506,12 @@ public class CAAdminServlet extends AdminServlet {
          params.add(Constants.PR_EE_ENABLED, value);
          */
 
-        CAEngine engine = CAEngine.getInstance();
+        CAEngine engine = (CAEngine) getCMSEngine();
+        CAEngineConfig engineConfig = engine.getConfig();
+        CAConfig caConfig = engineConfig.getCAConfig();
+
         DBSubsystem dbSubsystem = engine.getDBSubsystem();
         CertificateRepository cr = engine.getCertificateRepository();
-
-        CAConfig caConfig = mCA.getConfigStore();
 
         value = caConfig.getString(CertificateAuthority.PROP_ENABLE_PAST_CATIME, "false");
         params.put(Constants.PR_VALIDITY, value);
@@ -1507,9 +1527,13 @@ public class CAAdminServlet extends AdminServlet {
     }
 
     private void getSigningAlgConfig(NameValuePairs params) {
+
+        CAEngine engine = (CAEngine) getCMSEngine();
+        CertificateAuthority ca = engine.getCA();
+
         params.put(Constants.PR_DEFAULT_ALGORITHM,
-                mCA.getDefaultAlgorithm());
-        String[] algorithms = mCA.getCASigningAlgorithms();
+                ca.getDefaultAlgorithm());
+        String[] algorithms = ca.getCASigningAlgorithms();
         StringBuffer algorStr = new StringBuffer();
 
         for (int i = 0; i < algorithms.length; i++) {
@@ -1524,12 +1548,12 @@ public class CAAdminServlet extends AdminServlet {
     }
 
     private void getSerialConfig(NameValuePairs params) {
-        CAEngine engine = CAEngine.getInstance();
+        CAEngine engine = (CAEngine) getCMSEngine();
         params.put(Constants.PR_SERIAL, engine.getStartSerial());
     }
 
     private void getMaxSerialConfig(NameValuePairs params) {
-        CAEngine engine = CAEngine.getInstance();
+        CAEngine engine = (CAEngine) getCMSEngine();
         params.put(Constants.PR_MAXSERIAL, engine.getMaxSerial());
     }
 
@@ -1541,7 +1565,7 @@ public class CAAdminServlet extends AdminServlet {
          SubsystemRegistry.getInstance().get("eeGateway");
          */
 
-        CAEngine engine = CAEngine.getInstance();
+        CAEngine engine = (CAEngine) getCMSEngine();
         CAEngineConfig engineConfig = engine.getConfig();
         CAConfig caConfig = engineConfig.getCAConfig();
 
@@ -1574,7 +1598,8 @@ public class CAAdminServlet extends AdminServlet {
                 caConfig.putString(CertificateAuthority.PROP_ENABLE_PAST_CATIME, value);
 
             } else if (key.equals(Constants.PR_DEFAULT_ALGORITHM)) {
-                mCA.setDefaultAlgorithm(value);
+                CertificateAuthority ca = engine.getCA();
+                ca.setDefaultAlgorithm(value);
 
             } else if (key.equals(Constants.PR_SERIAL)) {
                 engine.setStartSerial(value);
