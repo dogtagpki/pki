@@ -425,17 +425,20 @@ jobs:
           echo "RequestNotFoundException: Request ID $REQUEST_ID not found" > expected
           diff expected stderr
 
-      - name: Check debug log
+      - name: Check PKI server systemd journal
         if: always()
         run: |
-          docker exec pki ls /var/log/pki/pki-tomcat/ca | tee output
-          FILENAME=$(sed -n "/^debug\./p" output | sort | tail -1)
-          docker exec pki cat /var/log/pki/pki-tomcat/ca/$FILENAME
+          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check CA debug log
+        if: always()
+        run: |
+          docker exec pki find /var/log/pki/pki-tomcat/ca -name "debug.*" -exec cat {} \;
 
       - name: Gather artifacts
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki ds
+          tests/bin/ds-artifacts-save.sh ds
           tests/bin/pki-artifacts-save.sh pki
         continue-on-error: true
 
@@ -447,5 +450,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ca-pruning
-          path: |
-            /tmp/artifacts/pki
+          path: /tmp/artifacts

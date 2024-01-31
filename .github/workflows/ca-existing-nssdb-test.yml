@@ -309,10 +309,20 @@ jobs:
           docker exec pki pki ca-cert-find
           docker exec pki pki -n caadmin ca-cert-request-find
 
+      - name: Check PKI server systemd journal
+        if: always()
+        run: |
+          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check CA debug log
+        if: always()
+        run: |
+          docker exec pki find /var/log/pki/pki-tomcat/ca -name "debug.*" -exec cat {} \;
+
       - name: Gather artifacts
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki ds
+          tests/bin/ds-artifacts-save.sh ds
           tests/bin/pki-artifacts-save.sh pki
         continue-on-error: true
 
@@ -324,5 +334,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ca-existing-nssdb
-          path: |
-            /tmp/artifacts/pki
+          path: /tmp/artifacts
