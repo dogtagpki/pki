@@ -1004,10 +1004,11 @@ public class CAEngine extends CMSEngine {
     @Override
     public void initSubsystems() throws Exception {
 
-        CertificateAuthority hostCA = getCA();
-
         CAEngineConfig engineConfig = getConfig();
         CAConfig caConfig = engineConfig.getCAConfig();
+
+        CertificateAuthority hostCA = getCA();
+        hostCA.init(caConfig);
 
         logger.info("CAEngine: Loading CA configuration");
 
@@ -1119,6 +1120,16 @@ public class CAEngine extends CMSEngine {
 
             initCRLPublisher();
             initPublisherProcessor();
+
+            // initialize host CA
+            initCA(hostCA);
+
+            // try to update the cert once we have the cert and key
+            checkForNewerCert(hostCA);
+
+            initCRLIssuingPoints();
+            initIssuanceProtectionCert();
+            initAuthorityMonitor();
         }
 
         super.initSubsystems();
@@ -1127,26 +1138,16 @@ public class CAEngine extends CMSEngine {
     @Override
     public void initSubsystem(Subsystem subsystem, ConfigStore subsystemConfig) throws Exception {
 
-        if (subsystem instanceof CertificateAuthority || subsystem instanceof CrossCertPairSubsystem) {
+        if (subsystem instanceof CertificateAuthority) {
+            // already initialized in initSubsystems()
+            return;
+
+        } else if (subsystem instanceof CrossCertPairSubsystem) {
             // skip initialization during installation
             if (isPreOpMode()) return;
         }
 
         super.initSubsystem(subsystem, subsystemConfig);
-
-        if (subsystem instanceof CertificateAuthority ca) {
-
-            // initialize host CA
-            initCA(ca);
-
-            // try to update the cert once we have the cert and key
-            checkForNewerCert(ca);
-
-            initCRLIssuingPoints();
-            initIssuanceProtectionCert();
-            initAuthorityMonitor();
-
-        }
     }
 
     public X509Certificate[] getCertChain(X509Certificate cert) throws Exception {
