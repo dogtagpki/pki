@@ -20,6 +20,7 @@ package org.dogtagpki.server.ca;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
@@ -85,6 +86,7 @@ import com.netscape.ca.CertificateAuthority;
 import com.netscape.ca.KeyRetriever;
 import com.netscape.ca.KeyRetrieverRunner;
 import com.netscape.certsrv.authentication.ISharedToken;
+import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.Nonces;
 import com.netscape.certsrv.base.PKIException;
@@ -120,6 +122,7 @@ import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.request.RequestScheduler;
 import com.netscape.cms.servlet.admin.KRAConnectorProcessor;
 import com.netscape.cms.servlet.cert.CertEnrollmentRequestFactory;
+import com.netscape.cms.servlet.cert.EnrollmentProcessor;
 import com.netscape.cms.servlet.cert.RenewalProcessor;
 import com.netscape.cms.servlet.cert.RevocationProcessor;
 import com.netscape.cms.servlet.processors.CAProcessor;
@@ -1349,6 +1352,63 @@ public class CAEngine extends CMSEngine {
         return null;
     }
 
+    public X509CertImpl generateSigningCert(
+            CertificateAuthority ca,
+            X500Name subjectX500Name,
+            AuthToken authToken,
+            CryptoToken token)
+            throws Exception {
+
+        KeyPair keypair = ca.generateKeyPair(token);
+        PKCS10 pkcs10 = ca.generateCertRequest(keypair, subjectX500Name);
+
+        logger.info("CAEngine: signing certificate");
+
+        ProfileSubsystem ps = getProfileSubsystem();
+        String profileId = "caCACert";
+        Profile profile = ps.getProfile(profileId);
+
+        ArgBlock argBlock = new ArgBlock();
+        argBlock.set("cert_request_type", "pkcs10");
+        String pkcs10String = CertUtil.toPEM(pkcs10);
+        argBlock.set("cert_request", pkcs10String);
+
+        Locale locale = Locale.getDefault();
+        CertEnrollmentRequest certRequest =
+            CertEnrollmentRequestFactory.create(argBlock, profile, locale);
+
+        EnrollmentProcessor processor = new EnrollmentProcessor("createSubCA", locale);
+        processor.setCMSEngine(this);
+        processor.init();
+
+        Map<String, Object> resultMap = processor.processEnrollment(
+            certRequest, null, ca.getAuthorityID(), null, authToken);
+
+        com.netscape.cmscore.request.Request[] requests =
+                (com.netscape.cmscore.request.Request[]) resultMap.get(CAProcessor.ARG_REQUESTS);
+        com.netscape.cmscore.request.Request request = requests[0];
+
+        Integer result = request.getExtDataInInteger(com.netscape.cmscore.request.Request.RESULT);
+        if (result != null && !result.equals(com.netscape.cmscore.request.Request.RES_SUCCESS)) {
+            throw new EBaseException("Unable to generate signing certificate: " + result);
+        }
+
+        RequestStatus requestStatus = request.getRequestStatus();
+        if (requestStatus != RequestStatus.COMPLETE) {
+            // The request did not complete.  Inference: something
+            // incorrect in the request (e.g. profile constraint
+            // violated).
+            String msg = "Unable to generate signing certificate: " + requestStatus;
+            String errorMsg = request.getExtDataInString(com.netscape.cmscore.request.Request.ERROR);
+            if (errorMsg != null) {
+                msg += ": " + errorMsg;
+            }
+            throw new BadRequestDataException(msg);
+        }
+
+        return request.getExtDataInCert(com.netscape.cmscore.request.Request.REQUEST_ISSUED_CERT);
+    }
+
     /**
      * Create a CA signed by a parent CA.
      *
@@ -1413,7 +1473,7 @@ public class CAEngine extends CMSEngine {
             CryptoToken token = CryptoUtil.getKeyStorageToken(tokenname);
 
             logger.info("CAEngine: Generating signing certificate");
-            cert = parentCA.generateSigningCert(subjectX500Name, authToken, token);
+            cert = generateSigningCert(parentCA, subjectX500Name, authToken, token);
 
             logger.info("CAEngine: Importing " + nickname + " cert into " + token.getName());
             CryptoStore store = token.getCryptoStore();

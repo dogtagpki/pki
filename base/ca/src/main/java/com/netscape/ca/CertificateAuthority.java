@@ -35,14 +35,10 @@ import java.security.interfaces.RSAKey;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Locale;
-import java.util.Map;
 import java.util.Vector;
 
-import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -77,26 +73,17 @@ import org.mozilla.jss.pkix.cert.Extension;
 import org.mozilla.jss.pkix.primitive.Name;
 
 import com.netscape.certsrv.authority.IAuthority;
-import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CADisabledException;
 import com.netscape.certsrv.ca.CAMissingKeyException;
 import com.netscape.certsrv.ca.ECAException;
-import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.ocsp.IOCSPService;
-import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.profile.common.Profile;
-import com.netscape.cms.servlet.cert.CertEnrollmentRequestFactory;
-import com.netscape.cms.servlet.cert.EnrollmentProcessor;
-import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
-import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.util.StatsSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
@@ -1150,11 +1137,7 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
         return authorityKeyHosts;
     }
 
-    public X509CertImpl generateSigningCert(
-            X500Name subjectX500Name,
-            AuthToken authToken,
-            CryptoToken token)
-            throws Exception {
+    public KeyPair generateKeyPair(CryptoToken token) throws Exception {
 
         logger.info("CertificateAuthority: generating RSA key");
 
@@ -1169,62 +1152,24 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
         }
         gen.initialize(keySize);
 
-        KeyPair keypair = gen.genKeyPair();
-        PublicKey pub = keypair.getPublic();
-        X509Key x509key = CryptoUtil.createX509Key(pub);
+        return gen.genKeyPair();
+    }
+
+    public PKCS10 generateCertRequest(
+            KeyPair keypair,
+            X500Name subjectX500Name) throws Exception {
 
         logger.info("CertificateAuthority: creating PKCS #10 request");
+
+        PublicKey pub = keypair.getPublic();
+        X509Key x509key = CryptoUtil.createX509Key(pub);
 
         PKCS10 pkcs10 = new PKCS10(x509key);
         Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(keypair.getPrivate());
         pkcs10.encodeAndSign(new X500Signer(signature, subjectX500Name));
-        String pkcs10String = CertUtil.toPEM(pkcs10);
 
-        logger.info("CertificateAuthority: signing certificate");
-
-        CAEngine engine = CAEngine.getInstance();
-        ProfileSubsystem ps = engine.getProfileSubsystem();
-        String profileId = "caCACert";
-        Profile profile = ps.getProfile(profileId);
-
-        ArgBlock argBlock = new ArgBlock();
-        argBlock.set("cert_request_type", "pkcs10");
-        argBlock.set("cert_request", pkcs10String);
-
-        Locale locale = Locale.getDefault();
-        CertEnrollmentRequest certRequest =
-            CertEnrollmentRequestFactory.create(argBlock, profile, locale);
-
-        EnrollmentProcessor processor = new EnrollmentProcessor("createSubCA", locale);
-        processor.setCMSEngine(engine);
-        processor.init();
-
-        Map<String, Object> resultMap = processor.processEnrollment(
-            certRequest, null, authorityID, null, authToken);
-
-        com.netscape.cmscore.request.Request[] requests = (com.netscape.cmscore.request.Request[]) resultMap.get(CAProcessor.ARG_REQUESTS);
-        com.netscape.cmscore.request.Request request = requests[0];
-
-        Integer result = request.getExtDataInInteger(com.netscape.cmscore.request.Request.RESULT);
-        if (result != null && !result.equals(com.netscape.cmscore.request.Request.RES_SUCCESS)) {
-            throw new EBaseException("Unable to generate signing certificate: " + result);
-        }
-
-        RequestStatus requestStatus = request.getRequestStatus();
-        if (requestStatus != RequestStatus.COMPLETE) {
-            // The request did not complete.  Inference: something
-            // incorrect in the request (e.g. profile constraint
-            // violated).
-            String msg = "Unable to generate signing certificate: " + requestStatus;
-            String errorMsg = request.getExtDataInString(com.netscape.cmscore.request.Request.ERROR);
-            if (errorMsg != null) {
-                msg += ": " + errorMsg;
-            }
-            throw new BadRequestDataException(msg);
-        }
-
-        return request.getExtDataInCert(com.netscape.cmscore.request.Request.REQUEST_ISSUED_CERT);
+        return pkcs10;
     }
 
     /** Delete keys and certs of this authority from NSSDB.
