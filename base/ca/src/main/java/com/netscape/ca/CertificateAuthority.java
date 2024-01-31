@@ -39,8 +39,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
@@ -69,7 +67,6 @@ import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
-import org.mozilla.jss.netscape.security.x509.RevocationReason;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X500Signer;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
@@ -89,14 +86,11 @@ import com.netscape.certsrv.ca.CAMissingKeyException;
 import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
-import com.netscape.certsrv.dbs.certdb.CertId;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ocsp.IOCSPService;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.cert.CertEnrollmentRequestFactory;
 import com.netscape.cms.servlet.cert.EnrollmentProcessor;
-import com.netscape.cms.servlet.cert.RevocationProcessor;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
@@ -1231,50 +1225,6 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
         }
 
         return request.getExtDataInCert(com.netscape.cmscore.request.Request.REQUEST_ISSUED_CERT);
-    }
-
-    /** Revoke the authority's certificate
-     *
-     * TODO: revocation reason, invalidity date parameters
-     */
-    public void revokeAuthority(HttpServletRequest httpReq)
-            throws EBaseException {
-
-        logger.debug("revokeAuthority: checking serial " + authoritySerial);
-
-        CAEngine engine = CAEngine.getInstance();
-        CertificateRepository certificateRepository = engine.getCertificateRepository();
-
-        CertRecord certRecord = certificateRepository.readCertificateRecord(authoritySerial);
-        String curStatus = certRecord.getStatus();
-        logger.debug("revokeAuthority: current cert status: " + curStatus);
-        if (curStatus.equals(CertRecord.STATUS_REVOKED)
-                || curStatus.equals(CertRecord.STATUS_REVOKED_EXPIRED)) {
-            return;  // already revoked
-        }
-
-        logger.debug("revokeAuthority: revoking cert");
-        RevocationProcessor processor = new RevocationProcessor(
-                "CertificateAuthority.revokeAuthority", httpReq.getLocale());
-        processor.setCMSEngine(engine);
-        processor.init();
-
-        processor.setSerialNumber(new CertId(authoritySerial));
-        processor.setRevocationReason(RevocationReason.UNSPECIFIED);
-        processor.setAuthority(this);
-        try {
-            processor.createCRLExtension();
-        } catch (IOException e) {
-            throw new ECAException("Unable to create CRL extensions", e);
-        }
-
-        X509CertImpl caCertImpl = mSigningUnit.getCertImpl();
-        processor.addCertificateToRevoke(caCertImpl);
-
-        processor.createRevocationRequest();
-        processor.auditChangeRequest(ILogger.SUCCESS);
-        processor.processRevocationRequest();
-        processor.auditChangeRequestProcessed(ILogger.SUCCESS);
     }
 
     /** Delete keys and certs of this authority from NSSDB.

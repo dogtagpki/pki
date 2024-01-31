@@ -65,6 +65,7 @@ import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.CertificateVersion;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
@@ -120,6 +121,7 @@ import com.netscape.cms.request.RequestScheduler;
 import com.netscape.cms.servlet.admin.KRAConnectorProcessor;
 import com.netscape.cms.servlet.cert.CertEnrollmentRequestFactory;
 import com.netscape.cms.servlet.cert.RenewalProcessor;
+import com.netscape.cms.servlet.cert.RevocationProcessor;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -130,6 +132,7 @@ import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.cert.CrossCertPairSubsystem;
 import com.netscape.cmscore.dbs.CRLRepository;
+import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertStatusUpdateTask;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.ReplicaIDRepository;
@@ -2106,6 +2109,51 @@ public class CAEngine extends CMSEngine {
         checkForNewerCert(ca);
     }
 
+    /** Revoke the authority's certificate
+     *
+     * TODO: revocation reason, invalidity date parameters
+     */
+    public void revokeAuthority(
+            CertificateAuthority ca,
+            HttpServletRequest httpReq)
+            throws EBaseException {
+
+        logger.debug("CAEngine: checking serial " + ca.getAuthoritySerial());
+
+        CAEngine engine = CAEngine.getInstance();
+        CertificateRepository certificateRepository = engine.getCertificateRepository();
+
+        CertRecord certRecord = certificateRepository.readCertificateRecord(ca.getAuthoritySerial());
+        String curStatus = certRecord.getStatus();
+        logger.debug("CAEngine: current cert status: " + curStatus);
+        if (curStatus.equals(CertRecord.STATUS_REVOKED)
+                || curStatus.equals(CertRecord.STATUS_REVOKED_EXPIRED)) {
+            return;  // already revoked
+        }
+
+        logger.debug("CAEngine: revoking cert");
+        RevocationProcessor processor = new RevocationProcessor("CAEngine.revokeAuthority", httpReq.getLocale());
+        processor.setCMSEngine(engine);
+        processor.init();
+
+        processor.setSerialNumber(new CertId(ca.getAuthoritySerial()));
+        processor.setRevocationReason(RevocationReason.UNSPECIFIED);
+        processor.setAuthority(ca);
+        try {
+            processor.createCRLExtension();
+        } catch (IOException e) {
+            throw new ECAException("Unable to create CRL extensions", e);
+        }
+
+        X509CertImpl caCertImpl = ca.getSigningUnit().getCertImpl();
+        processor.addCertificateToRevoke(caCertImpl);
+
+        processor.createRevocationRequest();
+        processor.auditChangeRequest(ILogger.SUCCESS);
+        processor.processRevocationRequest();
+        processor.auditChangeRequestProcessed(ILogger.SUCCESS);
+    }
+
     /** Delete keys and certs of this authority from NSSDB.
      */
     public void deleteAuthorityNSSDB(CertificateAuthority ca) throws ECAException {
@@ -2147,7 +2195,7 @@ public class CAEngine extends CMSEngine {
             throw new CANotLeafException("CA with sub-CAs cannot be deleted (delete sub-CAs first)");
 
         synchronized (ca) {
-            ca.revokeAuthority(httpReq);
+            revokeAuthority(ca, httpReq);
             deleteAuthorityEntry(ca.getAuthorityID());
             deleteAuthorityNSSDB(ca);
         }
