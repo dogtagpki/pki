@@ -197,6 +197,7 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
     ECAException signingUnitException = null;
 
     protected CAConfig mConfig;
+    protected int fastSigning;
 
     protected CASigningUnit mSigningUnit;
     protected CASigningUnit mOCSPSigningUnit;
@@ -371,6 +372,14 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
 
     public void setConfig(CAConfig config) {
         mConfig = config;
+    }
+
+    public int getFastSigning() {
+        return fastSigning;
+    }
+
+    public void setFastSigning(int fastSigning) {
+        this.fastSigning = fastSigning;
     }
 
     /**
@@ -551,10 +560,7 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
         return signedcrl;
     }
 
-    public X509CertImpl sign(
-            X509CertInfo certInfo,
-            String algname,
-            int fastSigning) throws Exception {
+    public X509CertImpl sign(X509CertInfo certInfo, String algname) throws Exception {
 
         X509CertImpl signedcert = null;
 

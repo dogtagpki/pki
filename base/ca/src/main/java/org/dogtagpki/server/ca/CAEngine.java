@@ -1942,6 +1942,7 @@ public class CAEngine extends CMSEngine {
         CAEngineConfig caEngineConfig = getConfig();
         CAConfig caConfig = caEngineConfig.getCAConfig();
         ca.setConfig(caConfig);
+        ca.setFastSigning(fastSigning);
 
         try {
             initCertSigningUnit(ca);
@@ -2425,7 +2426,7 @@ public class CAEngine extends CMSEngine {
                 return null;
             }
 
-            return ca.sign(certInfo, algname, fastSigning);
+            return ca.sign(certInfo, algname);
 
         } catch (NoSuchAlgorithmException e) {
             logger.error(CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CERT", e.toString(), e.getMessage()), e);
