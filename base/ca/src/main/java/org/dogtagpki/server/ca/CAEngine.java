@@ -413,8 +413,6 @@ public class CAEngine extends CMSEngine {
             boolean enable,
             String description) {
 
-        CertificateAuthority ca = getCA();
-
         crlConfig.makeSubStore(id);
         CRLIssuingPointConfig ipConfig = crlConfig.getCRLIssuingPointConfig(id);
 
@@ -552,7 +550,7 @@ public class CAEngine extends CMSEngine {
                 issuingPointClassName = ipConfig.getClassName();
                 issuingPointClass = (Class<CRLIssuingPoint>) Class.forName(issuingPointClassName);
                 issuingPoint = issuingPointClass.getDeclaredConstructor().newInstance();
-                issuingPoint.init(ca, id, ipConfig);
+                issuingPoint.init(id, ipConfig);
 
                 crlIssuingPoints.put(id, issuingPoint);
 
@@ -782,8 +780,6 @@ public class CAEngine extends CMSEngine {
             return;
         }
 
-        CertificateAuthority hostCA = getCA();
-
         while (ipIDs.hasMoreElements()) {
             String id = ipIDs.nextElement();
 
@@ -792,7 +788,7 @@ public class CAEngine extends CMSEngine {
             Class<CRLIssuingPoint> clazz = (Class<CRLIssuingPoint>) Class.forName(className);
 
             CRLIssuingPoint issuingPoint = clazz.getDeclaredConstructor().newInstance();
-            issuingPoint.init(hostCA, id, ipConfig);
+            issuingPoint.init(id, ipConfig);
 
             crlIssuingPoints.put(id, issuingPoint);
         }

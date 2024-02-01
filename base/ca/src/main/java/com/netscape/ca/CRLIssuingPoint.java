@@ -144,12 +144,6 @@ public class CRLIssuingPoint implements Runnable {
     protected String mId = null;
 
     /**
-     * Reference to the CertificateAuthority instance which owns this
-     * issuing point.
-     */
-    protected CertificateAuthority mCA;
-
-    /**
      * Reference to the CRL repository maintained in CA.
      */
     protected CRLRepository mCRLRepository;
@@ -394,7 +388,7 @@ public class CRLIssuingPoint implements Runnable {
 
     /**
      * Constructs a CRL issuing point from instantiating from class name.
-     * CRL Issuing point must be followed by method call init(CA, id, config);
+     * CRL Issuing point must be followed by method call init(id, config);
      */
     public CRLIssuingPoint() {
     }
@@ -567,19 +561,15 @@ public class CRLIssuingPoint implements Runnable {
 
     /**
      * Initializes a CRL issuing point config.
-     * <P>
      *
-     * @param ca reference to CertificateAuthority instance which
-     *            owns this issuing point.
      * @param id string id of this CRL issuing point.
      * @param config configuration of this CRL issuing point.
      * @exception EBaseException if initialization failed
      */
-    public void init(CertificateAuthority ca, String id, CRLIssuingPointConfig config) throws EBaseException {
+    public void init(String id, CRLIssuingPointConfig config) throws EBaseException {
 
         logger.info("CRLIssuingPoint: Initializing " + id);
 
-        mCA = ca;
         mId = id;
 
         if (mId.equals(CertificateAuthority.PROP_MASTER_CRL)) {
@@ -596,7 +586,9 @@ public class CRLIssuingPoint implements Runnable {
 
         mConfigStore = config;
 
-        CAConfig caConfig = mCA.getConfigStore();
+        CAEngine engine = CAEngine.getInstance();
+        CAEngineConfig engineConfig = engine.getConfig();
+        CAConfig caConfig = engineConfig.getCAConfig();
         CRLConfig crlConfig = caConfig.getCRLConfig();
 
         mPageSize = crlConfig.getPageSize();
@@ -604,7 +596,6 @@ public class CRLIssuingPoint implements Runnable {
 
         mCountMod = mConfigStore.getCountMod();
 
-        CAEngine engine = CAEngine.getInstance();
         mCRLRepository = engine.getCRLRepository();
         mPublisherProcessor = engine.getPublisherProcessor();
 
@@ -877,12 +868,14 @@ public class CRLIssuingPoint implements Runnable {
 
         // Get default signing algorithm.
         // check if algorithm is supported.
-        mSigningAlgorithm = mCA.getCRLSigningUnit().getDefaultAlgorithm();
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA();
+        mSigningAlgorithm = ca.getCRLSigningUnit().getDefaultAlgorithm();
         String algorithm = config.getSigningAlgorithm();
 
         if (algorithm != null) {
             // make sure this algorithm is acceptable to CA.
-            mCA.getCRLSigningUnit().checkSigningAlgorithmFromName(algorithm);
+            ca.getCRLSigningUnit().checkSigningAlgorithmFromName(algorithm);
             mSigningAlgorithm = algorithm;
         }
 
@@ -1075,7 +1068,9 @@ public class CRLIssuingPoint implements Runnable {
             // no crl was ever created, or crl in db is corrupted.
             logger.info("CRLIssuingPoint: Creating new CRL issuing point: " + mId);
 
-            CAConfig caConfig = mCA.getConfigStore();
+            CAEngine engine = CAEngine.getInstance();
+            CAEngineConfig engineConfig = engine.getConfig();
+            CAConfig caConfig = engineConfig.getCAConfig();
             CRLConfig crlConfig = caConfig.getCRLConfig();
             CRLIssuingPointConfig ipConfig = crlConfig.getCRLIssuingPointConfig(mId);
 
@@ -1380,7 +1375,9 @@ public class CRLIssuingPoint implements Runnable {
                     if (issuingDistributionPoint != null && params.size() > 1) {
                         boolean onlyContainsCACerts = issuingDistributionPoint.getOnlyContainsCACerts();
                         if (onlyContainsCACerts != mCACertsOnly) {
-                            CAConfig caConfig = mCA.getConfigStore();
+                            CAEngine engine = CAEngine.getInstance();
+                            CAEngineConfig engineConfig = engine.getConfig();
+                            CAConfig caConfig = engineConfig.getCAConfig();
                             CRLConfig crlConfig = caConfig.getCRLConfig();
                             CRLIssuingPointConfig ipConfig = crlConfig.getCRLIssuingPointConfig(mId);
                             CRLExtensionsConfig crlExtsConfig = ipConfig.getExtensionsConfig();
@@ -2100,6 +2097,10 @@ public class CRLIssuingPoint implements Runnable {
      * @return filter used to search local directory
      */
     public String getFilter() {
+
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA();
+
         // PLEASE DONT CHANGE THE FILTER. It is indexed.
         // Changing it will degrade performance. See
         // also com.netscape.certsetup.LDAPUtil.java
@@ -2140,9 +2141,9 @@ public class CRLIssuingPoint implements Runnable {
 
         String issuerFilter =
             "(" + CertRecord.ATTR_X509CERT_ISSUER
-            + "=" + mCA.getX500Name().toString() + ")";
+            + "=" + ca.getX500Name().toString() + ")";
         // host authority may be absent issuer attribute
-        if (mCA.isHostAuthority()) {
+        if (ca.isHostAuthority()) {
             issuerFilter =
                 "(|"
                 + "(!(" + CertRecord.ATTR_X509CERT_ISSUER + "=*))"
@@ -3044,6 +3045,7 @@ public class CRLIssuingPoint implements Runnable {
         mSplits[1] -= System.currentTimeMillis();
 
         CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA();
         Auditor auditor = engine.getAuditor();
 
         @SuppressWarnings("unchecked")
@@ -3090,12 +3092,12 @@ public class CRLIssuingPoint implements Runnable {
             }
 
             logger.info("CRLIssuingPoint: Generating delta CRL with " + deltaCRLCerts.size() + " cert(s)");
-            X509CRLImpl crl = new X509CRLImpl(mCA.getCRLX500Name(),
+            X509CRLImpl crl = new X509CRLImpl(ca.getCRLX500Name(),
                     AlgorithmId.get(signingAlgorithm),
                     thisUpdate, nextDeltaUpdate, deltaCRLCerts, ext);
 
             logger.info("CRLIssuingPoint: Signing delta CRL with " + signingAlgorithm);
-            newX509DeltaCRL = engine.sign(mCA, crl, signingAlgorithm);
+            newX509DeltaCRL = engine.sign(ca, crl, signingAlgorithm);
 
             logger.info("CRLIssuingPoint: Encoding delta CRL");
             byte[] newDeltaCRL = newX509DeltaCRL.getEncoded();
@@ -3179,6 +3181,7 @@ public class CRLIssuingPoint implements Runnable {
         mSplits[6] -= System.currentTimeMillis();
 
         CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA();
         Auditor auditor = engine.getAuditor();
 
         if (mNextDeltaCRLNumber.compareTo(mNextCRLNumber) > 0) {
@@ -3215,12 +3218,12 @@ public class CRLIssuingPoint implements Runnable {
             }
 
             logger.info("CRLIssuingPoint: Generating full CRL with " + mCRLCerts.size() + " cert(s)");
-            X509CRLImpl crl = new X509CRLImpl(mCA.getCRLX500Name(),
+            X509CRLImpl crl = new X509CRLImpl(ca.getCRLX500Name(),
                     AlgorithmId.get(signingAlgorithm),
                     thisUpdate, nextUpdate, mCRLCerts, ext);
 
             logger.info("CRLIssuingPoint: Signing full CRL with " + signingAlgorithm);
-            newX509CRL = engine.sign(mCA, crl, signingAlgorithm);
+            newX509CRL = engine.sign(ca, crl, signingAlgorithm);
 
             logger.info("CRLIssuingPoint: Encoding full CRL");
             byte[] newCRL = newX509CRL.getEncoded();
