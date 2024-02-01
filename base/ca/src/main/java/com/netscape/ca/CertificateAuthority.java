@@ -994,10 +994,104 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
         }
     }
 
+    public SingleResponse getCertStatusFromDB(Request request) {
+
+        CertID certID = request.getCertID();
+        INTEGER serialNumber = certID.getSerialNumber();
+        CertStatus certStatus = null;
+
+        try {
+            CertRecord rec = certRepository.readCertificateRecord(serialNumber);
+            String status = rec.getStatus();
+
+            if (status == null) {
+                certStatus = new UnknownInfo();
+
+            } else if (status.equals(CertRecord.STATUS_VALID)) {
+                certStatus = new GoodInfo();
+
+            } else if (status.equals(CertRecord.STATUS_INVALID)) {  // not yet valid
+                certStatus = new UnknownInfo();
+
+            } else if (status.equals(CertRecord.STATUS_REVOKED)) {
+                certStatus = new RevokedInfo(new GeneralizedTime(rec.getRevokedOn()));
+
+            } else if (status.equals(CertRecord.STATUS_EXPIRED)) {
+                certStatus = new UnknownInfo();
+
+            } else if (status.equals(CertRecord.STATUS_REVOKED_EXPIRED)) {
+                certStatus = new RevokedInfo(new GeneralizedTime(rec.getRevokedOn()));
+
+            } else {
+                certStatus = new UnknownInfo();
+            }
+
+        } catch (EDBRecordNotFoundException e) {
+            logger.info("CertificateAuthority: Cert record {} not found", serialNumber);
+            certStatus = new UnknownInfo(); // not issued by this CA
+
+        } catch (Exception e) {
+            // internal error
+            logger.error("CertificateAuthority: Unable to retrieve cert record: " + e.getMessage(), e);
+            certStatus = new UnknownInfo();
+        }
+
+        GeneralizedTime thisUpdate = new GeneralizedTime(new Date());
+        // We are not using a CRL cache for generating OCSP
+        // responses, so there is no reasonable value for nextUpdate.
+        return new SingleResponse(certID, certStatus, thisUpdate, null);
+    }
+
+    public SingleResponse getCertStatusFromCRL(Request request) throws EBaseException {
+
+        boolean ocspUseCache = mConfig.getOCSPUseCache();
+
+        if (!ocspUseCache) {
+            return null;
+        }
+
+        CAEngine engine = CAEngine.getInstance();
+        String issuingPointId = mConfig.getOCSPUseCacheIssuingPointId();
+        CRLIssuingPoint crlIssuingPoint = engine.getCRLIssuingPoint(issuingPointId);
+
+        if (!crlIssuingPoint.isCRLCacheEnabled()) {
+            return null;
+        }
+
+        // only do this if cache is enabled
+
+        CertID certID = request.getCertID();
+        INTEGER serialNumber = certID.getSerialNumber();
+        CertStatus certStatus = null;
+
+        BigInteger sno = new BigInteger(serialNumber.toString());
+        boolean checkDeltaCache = mConfig.getOSPUseCacheCheckDeltaCache();
+        boolean includeExpiredCerts = mConfig.getOCSPUseCacheIncludeExpiredCerts();
+
+        Date revokedOn = crlIssuingPoint.getRevocationDateFromCache(
+                sno, checkDeltaCache, includeExpiredCerts);
+
+        if (revokedOn == null) {
+            certStatus = new GoodInfo();
+        } else {
+            certStatus = new RevokedInfo(new GeneralizedTime(revokedOn));
+        }
+
+        GeneralizedTime thisUpdate = new GeneralizedTime(new Date());
+
+        /* set nextUpdate to the nextUpdate time of the CRL */
+        GeneralizedTime nextUpdate = null;
+        Date crlNextUpdate = crlIssuingPoint.getNextUpdate();
+        if (crlNextUpdate != null) {
+            nextUpdate = new GeneralizedTime(crlNextUpdate);
+        }
+
+        return new SingleResponse(certID, certStatus, thisUpdate, nextUpdate);
+    }
+
     public SingleResponse processRequest(Request req) throws EBaseException {
 
         String name = "CertificateAuthority: processRequest: ";
-        CAEngine engine = CAEngine.getInstance();
 
         X509CertImpl caCert = mSigningUnit.getCertImpl();
         X509Key key = (X509Key) caCert.getPublicKey();
@@ -1005,9 +1099,6 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
         CertID cid = req.getCertID();
         INTEGER serialNo = cid.getSerialNumber();
         logger.debug( name + "for cert 0x" + serialNo.toString(16));
-
-        CertStatus certStatus = null;
-        GeneralizedTime thisUpdate = new GeneralizedTime(new Date());
 
         byte[] nameHash = null;
         byte[] keyHash = null;
@@ -1026,74 +1117,18 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
             // issuer of cert is not this CA (or we couldn't work
             // out whether it is or not due to unknown hash alg);
             // do not return status information for this cert
+
+            GeneralizedTime thisUpdate = new GeneralizedTime(new Date());
             return new SingleResponse(cid, new UnknownInfo(), thisUpdate, null);
         }
 
-        boolean ocspUseCache = mConfig.getOCSPUseCache();
+        SingleResponse response = getCertStatusFromCRL(req);
 
-        if (ocspUseCache) {
-            String issuingPointId = mConfig.getOCSPUseCacheIssuingPointId();
-            CRLIssuingPoint point = engine.getCRLIssuingPoint(issuingPointId);
-
-            /* set nextUpdate to the nextUpdate time of the CRL */
-            GeneralizedTime nextUpdate = null;
-            Date crlNextUpdate = point.getNextUpdate();
-            if (crlNextUpdate != null)
-                nextUpdate = new GeneralizedTime(crlNextUpdate);
-
-            if (point.isCRLCacheEnabled()) {
-                // only do this if cache is enabled
-                BigInteger sno = new BigInteger(serialNo.toString());
-                boolean checkDeltaCache = mConfig.getOSPUseCacheCheckDeltaCache();
-                boolean includeExpiredCerts = mConfig.getOCSPUseCacheIncludeExpiredCerts();
-
-                Date revokedOn = point.getRevocationDateFromCache(
-                        sno, checkDeltaCache, includeExpiredCerts);
-
-                if (revokedOn == null) {
-                    certStatus = new GoodInfo();
-                } else {
-                    certStatus = new RevokedInfo(new GeneralizedTime(revokedOn));
-                }
-                return new SingleResponse(cid, certStatus, thisUpdate, nextUpdate);
-            }
+        if (response != null) {
+            return response;
         }
 
-        try {
-            CertRecord rec = certRepository.readCertificateRecord(serialNo);
-            String status = rec.getStatus();
-
-            if (status == null) {
-                certStatus = new UnknownInfo();
-            } else if (status.equals(CertRecord.STATUS_VALID)) {
-                certStatus = new GoodInfo();
-            } else if (status.equals(CertRecord.STATUS_INVALID)) {
-                // not yet valid
-                certStatus = new UnknownInfo();
-            } else if (status.equals(CertRecord.STATUS_REVOKED)) {
-                certStatus = new RevokedInfo(new GeneralizedTime(rec.getRevokedOn()));
-            } else if (status.equals(CertRecord.STATUS_EXPIRED)) {
-                certStatus = new UnknownInfo();
-            } else if (status.equals(CertRecord.STATUS_REVOKED_EXPIRED)) {
-                certStatus = new RevokedInfo(new GeneralizedTime(rec.getRevokedOn()));
-            } else {
-                certStatus = new UnknownInfo();
-            }
-        } catch (EDBRecordNotFoundException e) {
-            logger.debug("{} cert record not found", name);
-            certStatus = new UnknownInfo(); // not issued by this CA
-        } catch (Exception e) {
-            // internal error
-            logger.error(name + " Unable to retrieve certificate record: " + e.getMessage(), e);
-            certStatus = new UnknownInfo();
-        }
-
-        return new SingleResponse(
-            cid, certStatus, thisUpdate,
-            /* We are not using a CRL cache for generating OCSP
-             * responses, so there is no reasonable value for
-             * nextUpdate. */
-            null /* nextUpdate */);
+        return getCertStatusFromDB(req);
     }
 
     /**
