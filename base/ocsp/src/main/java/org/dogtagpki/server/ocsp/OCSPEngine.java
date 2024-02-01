@@ -82,20 +82,33 @@ public class OCSPEngine extends CMSEngine {
         dbSubsystem.setCMSEngine(this);
         dbSubsystem.setEngineConfig(config);
     }
+
+    @Override
+    public void initSubsystems() throws Exception {
+
+        OCSPEngineConfig engineConfig = getConfig();
+        OCSPConfig ocspConfig = engineConfig.getOCSPConfig();
+
+        OCSPAuthority authority = (OCSPAuthority) subsystems.get(OCSPAuthority.ID);
+        authority.init(ocspConfig);
+
+        if (!isPreOpMode()) {
+            authority.startup();
+        }
+
+        super.initSubsystems();
+    }
+
     @Override
     public void initSubsystem(Subsystem subsystem, ConfigStore subsystemConfig) throws Exception {
 
         if (subsystem instanceof OCSPAuthority) {
-            // skip initialization during installation
-            if (isPreOpMode()) return;
+            // already initialized in initSubsystems()
+            return;
         }
 
         super.initSubsystem(subsystem, subsystemConfig);
-        if (subsystem instanceof OCSPAuthority) {
-            subsystem.startup();
-        }
     }
-
 
     @Override
     protected void startupSubsystems() throws Exception {
