@@ -408,11 +408,12 @@ public class CAEngine extends CMSEngine {
      * @return true if CRL issuing point was successfully added
      */
     public boolean addCRLIssuingPoint(
-            CertificateAuthority ca,
             CRLConfig crlConfig,
             String id,
             boolean enable,
             String description) {
+
+        CertificateAuthority ca = getCA();
 
         crlConfig.makeSubStore(id);
         CRLIssuingPointConfig ipConfig = crlConfig.getCRLIssuingPointConfig(id);

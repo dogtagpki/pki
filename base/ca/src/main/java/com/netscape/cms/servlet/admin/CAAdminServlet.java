@@ -540,7 +540,7 @@ public class CAAdminServlet extends AdminServlet {
             throws ServletException, IOException, EBaseException {
 
         CAEngine engine = (CAEngine) getCMSEngine();
-        CertificateAuthority ca = engine.getCA();
+        CAEngineConfig engineConfig = engine.getConfig();
         Auditor auditor = engine.getAuditor();
 
         String auditMessage = null;
@@ -596,7 +596,7 @@ public class CAAdminServlet extends AdminServlet {
                 params.put(Constants.PR_ENABLED, Constants.TRUE);
             }
 
-            CAConfig caConfig = ca.getConfigStore();
+            CAConfig caConfig = engineConfig.getCAConfig();
             CRLConfig crlConfig = caConfig.getCRLConfig();
             Enumeration<String> crlNames = crlConfig.getSubStoreNames().elements();
 
@@ -617,7 +617,7 @@ public class CAAdminServlet extends AdminServlet {
                     return;
                 }
             }
-            if (!engine.addCRLIssuingPoint(ca, crlConfig, ipId, enable, desc)) {
+            if (!engine.addCRLIssuingPoint(crlConfig, ipId, enable, desc)) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
                             AuditEvent.CONFIG_CRL_PROFILE,
