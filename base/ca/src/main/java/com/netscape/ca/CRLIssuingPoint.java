@@ -1604,15 +1604,6 @@ public class CRLIssuingPoint implements Runnable {
     }
 
     /**
-     * Returns certificate authority.
-     *
-     * @return certificate authority
-     */
-    public CertificateAuthority getCertificateAuthority() {
-        return mCA;
-    }
-
-    /**
      * Sets CRL auto updates
      */
 

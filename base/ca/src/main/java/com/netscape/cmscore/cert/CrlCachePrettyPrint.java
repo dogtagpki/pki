@@ -24,6 +24,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TimeZone;
 
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.util.CrlPrettyPrint;
 import org.mozilla.jss.netscape.security.util.ExtPrettyPrint;
 import org.mozilla.jss.netscape.security.util.PrettyPrintFormat;
@@ -32,6 +33,7 @@ import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
 
 import com.netscape.ca.CRLIssuingPoint;
+import com.netscape.ca.CertificateAuthority;
 
 /**
  * This class will display the certificate content in predefined
@@ -85,6 +87,9 @@ public class CrlCachePrettyPrint extends CrlPrettyPrint {
     @Override
     public String toString(Locale clientLocale, long crlSize, long pageStart, long pageSize) {
 
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA();
+
         //get I18N resources
         ResourceBundle resource = ResourceBundle.getBundle(
                 PrettyPrintResources.class.getName());
@@ -108,10 +113,9 @@ public class CrlCachePrettyPrint extends CrlPrettyPrint {
                           PrettyPrintResources.TOKEN_SIGALG) +
                           signingAlgorithm + "\n");
             }
-            sb.append(pp.indent(12) + resource.getString(
-                      PrettyPrintResources.TOKEN_ISSUER) +
-                      mIP.getCertificateAuthority()
-                              .getCRLX500Name().toString() + "\n");
+            sb.append(
+                    pp.indent(12) + resource.getString(PrettyPrintResources.TOKEN_ISSUER) +
+                    ca.getCRLX500Name().toString() + "\n");
             // Format thisUpdate
             String thisUpdate = dateFormater.format(mIP.getLastUpdate());
 

@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
 
+import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CMSCRLExtension;
 import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
@@ -34,6 +35,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.ca.CRLIssuingPoint;
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.cmscore.apps.CMS;
@@ -77,6 +79,9 @@ public class CMSAuthorityKeyIdentifierExtension
 
     @Override
     public Extension getCRLExtension(ConfigStore config, Object ip, boolean critical) {
+
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA();
         AuthorityKeyIdentifierExtension authKeyIdExt = null;
         CRLIssuingPoint crlIssuingPoint = (CRLIssuingPoint) ip;
 
@@ -84,8 +89,7 @@ public class CMSAuthorityKeyIdentifierExtension
             KeyIdentifier keyId = null;
 
             try {
-                X509CertInfo info = (X509CertInfo) crlIssuingPoint.getCertificateAuthority().getCACert().get(
-                                X509CertImpl.NAME + "." + X509CertImpl.INFO);
+                X509CertInfo info = (X509CertInfo) ca.getCACert().get(X509CertImpl.NAME + "." + X509CertImpl.INFO);
 
                 if (info != null) {
                     CertificateExtensions caCertExtensions = (CertificateExtensions)
@@ -114,11 +118,13 @@ public class CMSAuthorityKeyIdentifierExtension
             } else {
                 GeneralNames gNames = new GeneralNames();
 
-                gNames.addElement(crlIssuingPoint.getCertificateAuthority().getX500Name());
+                gNames.addElement(ca.getX500Name());
 
-                authKeyIdExt =
-                        new AuthorityKeyIdentifierExtension(critical, null, gNames,
-                                new SerialNumber(crlIssuingPoint.getCertificateAuthority().getCACert().getSerialNumber()));
+                authKeyIdExt = new AuthorityKeyIdentifierExtension(
+                        critical,
+                        null,
+                        gNames,
+                        new SerialNumber(ca.getCACert().getSerialNumber()));
             }
 
         } catch (Exception e) {
