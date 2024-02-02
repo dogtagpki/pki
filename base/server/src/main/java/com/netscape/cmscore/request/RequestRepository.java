@@ -27,6 +27,7 @@ import java.util.Set;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.dbs.DBPagedSearch;
 import com.netscape.certsrv.dbs.DBVirtualList;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.IDBObj;
@@ -39,6 +40,7 @@ import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.dbs.DBSSession;
 import com.netscape.cmscore.dbs.DBSearchResults;
 import com.netscape.cmscore.dbs.DBSubsystem;
+import com.netscape.cmscore.dbs.RecordPagedList;
 import com.netscape.cmscore.dbs.Repository;
 import com.netscape.cmscore.dbs.RepositoryRecord;
 
@@ -418,6 +420,48 @@ public class RequestRepository extends Repository {
         }
 
         return records;
+    }
+
+    /**
+     * Gets a paginated list of Request entries in this queue.
+     *
+     * @param fromID request id to start with
+     * @param filter search filter
+     * @param pageSize page size
+     * @param sortKey the attributes to sort by
+     * @return request list
+     */
+    public RecordPagedList<RequestRecord> getPagedRequestsByFilter(
+            RequestId fromID,
+            String filter,
+            int pageSize,
+            String sortKey) throws EBaseException {
+        if (fromID != null) {
+            if(!filter.startsWith("(")) {
+                filter = "(" + filter + ")";
+            }
+            filter = "(& (requestID >= " + fromID.toString() + ")" + filter +")";
+        }
+        return getPagedRequestsByFilter(filter, pageSize, sortKey);
+    }
+
+    /**
+     * Gets a paginated list of Request entries in this queue.
+     *
+     * @param filter search filter
+     * @param pageSize page size
+     * @param sortKey the attributes to sort by
+     * @return request list
+     */
+    public RecordPagedList<RequestRecord> getPagedRequestsByFilter(
+            String filter,
+            int pageSize,
+            String sortKey) throws EBaseException {
+        try(DBSSession session = dbSubsystem.createSession()){
+            DBPagedSearch<RequestRecord> pages;
+            pages = session.createPagedSearch(RequestRecord.class, mBaseDN, filter, null, sortKey);
+            return new RecordPagedList<>(pages);
+        }
     }
 
     /**
