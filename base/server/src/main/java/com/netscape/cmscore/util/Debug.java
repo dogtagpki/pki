@@ -102,5 +102,15 @@ public class Debug {
         logger.debug("============================================");
         logger.debug("=====  DEBUG SUBSYSTEM INITIALIZED   =======");
         logger.debug("============================================");
+
+        logger.info("OS name: " + System.getProperty("os.name"));
+        logger.info("OS version: " + System.getProperty("os.version"));
+        logger.info("OS arch: " + System.getProperty("os.arch"));
+
+        logger.info("Java vendor: " + System.getProperty("java.vendor"));
+        logger.info("Java version: " + System.getProperty("java.version"));
+        logger.info("Java home: " + System.getProperty("java.home"));
+
+        logger.info("Catalina base: " + System.getProperty("catalina.base"));
     }
 }

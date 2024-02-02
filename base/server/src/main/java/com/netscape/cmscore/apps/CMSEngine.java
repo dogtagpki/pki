@@ -685,13 +685,11 @@ public class CMSEngine {
 
     public void initSecurityProvider() {
 
-        logger.info("CMSEngine: Java version: " + System.getProperty("java.version"));
-
         Security.addProvider(new org.mozilla.jss.netscape.security.provider.CMS());
 
         logger.info("CMSEngine: security providers:");
         for (Provider provider : Security.getProviders()) {
-            logger.debug("CMSEngine: - " + provider);
+            logger.info("CMSEngine: - " + provider);
         }
     }
 
