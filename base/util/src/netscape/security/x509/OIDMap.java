@@ -25,6 +25,8 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Properties;
 
+import netscape.security.extensions.AuthInfoAccessExtension;
+import netscape.security.extensions.SubjectInfoAccessExtension;
 import netscape.security.util.ObjectIdentifier;
 
 /**
@@ -61,6 +63,10 @@ public class OIDMap {
                                           AuthorityKeyIdentifierExtension.NAME;
     private static final String SUB_KEY_IDENTIFIER = ROOT + "." +
                                           SubjectKeyIdentifierExtension.NAME;
+    private static final String AUTHORITY_INFORMATION_ACCESS_IDENTIFIER = ROOT + "." +
+                                          AuthInfoAccessExtension.NAME;
+    private static final String SUBJECT_INFORMATION_ACCESS_IDENTIFIER = ROOT + "." +
+                                          SubjectInfoAccessExtension.NAME;
     private static final String KEY_USAGE = ROOT + "." +
                                           KeyUsageExtension.NAME;
     private static final String PRIVATE_KEY_USAGE = ROOT + "." +
@@ -105,6 +111,8 @@ public class OIDMap {
     // Load the default name to oid map (EXTENSIONS_OIDS)
     private static void loadNamesDefault(Properties props) {
         props.put(SUB_KEY_IDENTIFIER, "2.5.29.14");
+        props.put(AUTHORITY_INFORMATION_ACCESS_IDENTIFIER, "1.3.6.1.5.5.7.1.1");
+        props.put(SUBJECT_INFORMATION_ACCESS_IDENTIFIER, "1.3.6.1.5.5.7.1.11");
         props.put(KEY_USAGE, "2.5.29.15");
         props.put(PRIVATE_KEY_USAGE, "2.5.29.16");
         props.put(SUB_ALT_NAME, "2.5.29.17");
@@ -126,7 +134,11 @@ public class OIDMap {
         props.put(AUTH_KEY_IDENTIFIER,
                    "netscape.security.x509.AuthorityKeyIdentifierExtension");
         props.put(SUB_KEY_IDENTIFIER,
-                  "netscape.security.x509.SubjectKeyIdentifierExtension");
+                  "org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension");
+        props.put(AUTHORITY_INFORMATION_ACCESS_IDENTIFIER,
+                 "netscape.security.extensions.AuthInfoAccessExtension");
+        props.put(SUBJECT_INFORMATION_ACCESS_IDENTIFIER,
+                "netscape.security.extensions.SubjectInfoAccessExtension");
         props.put(KEY_USAGE,
                   "netscape.security.x509.KeyUsageExtension");
         props.put(PRIVATE_KEY_USAGE,
