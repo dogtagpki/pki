@@ -18,6 +18,7 @@
 package com.netscape.cms.servlet.request;
 
 import java.util.Collection;
+import java.util.Iterator;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
@@ -28,6 +29,7 @@ import com.netscape.certsrv.request.CMSRequestInfo;
 import com.netscape.certsrv.request.CMSRequestInfos;
 import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.cmscore.dbs.RecordPagedList;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.request.RequestRecord;
@@ -62,6 +64,65 @@ public abstract class CMSRequestDAO {
 
     public CMSRequestDAO() {
     }
+
+    /**
+     * Finds list of requests matching the specified search filter.
+     *
+     * If the filter corresponds to a VLV search, then that search is executed and the pageSize
+     * and start parameters are used. Otherwise, the maxResults and maxTime parameters are
+     * used in the regularly indexed search.
+     *
+     * @param filter - ldap search filter
+     * @param start - start position
+     * @param pageSize - page size for search
+     * @param maxTime - max time for normal search
+     * @param uriInfo - uri context of request
+     * @return collection of key request info
+     * @throws EBaseException
+     */
+    public CMSRequestInfos listCMSRequests(String filter, RequestId start, int pageSize, int maxTime,
+            UriInfo uriInfo) throws EBaseException {
+
+    logger.info("CMSRequestDAO: Searching for requests with filter " + filter);
+
+    CMSRequestInfos ret = new CMSRequestInfos();
+
+        logger.debug("CMSRequestDAO: performing paged search");
+
+        RecordPagedList<RequestRecord> pagedList = requestRepository.getPagedRequestsByFilter(
+                start,
+                filter,
+                pageSize + 1,
+                "requestId");
+
+
+        Iterator<RequestRecord> reqs = pagedList.getCurrentPageEntries();
+        while(reqs.hasNext()) {
+            Request request = reqs.next().toRequest();
+            logger.debug("- " + request.getRequestId().toHexString());
+            ret.addEntry(createCMSRequestInfo(request, uriInfo));
+        }
+        ret.setTotal(requestRepository.getTotlaRequestsByFilter(filter));
+
+
+        // builder for search links
+        MultivaluedMap<String, String> params = uriInfo.getQueryParameters();
+        UriBuilder builder = uriInfo.getAbsolutePathBuilder();
+        if (params.containsKey("requestState")) {
+            builder.queryParam("requestState", params.getFirst("requestState"));
+        }
+        if (params.containsKey("requestType")) {
+            builder.queryParam("requestType", params.getFirst("requestType"));
+        }
+        if (params.containsKey("realm")) {
+            builder.queryParam("realm", params.getFirst("realm"));
+        }
+        builder.queryParam("start", "{start}");
+        builder.queryParam("pageSize", "{pageSize}");
+
+        return ret;
+    }
+
 
     /**
      * Finds list of requests matching the specified search filter.

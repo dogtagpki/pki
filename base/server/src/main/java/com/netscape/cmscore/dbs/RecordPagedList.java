@@ -34,6 +34,7 @@ public class RecordPagedList<T extends IDBObj> implements Iterable<T> {
 
     private DBPagedSearch<T> pages;
     private Iterator<T> pageEntries;
+
     /**
      * Constructs a request paged.
      */
@@ -44,6 +45,10 @@ public class RecordPagedList<T extends IDBObj> implements Iterable<T> {
         } catch (EBaseException e) {
             throw new RuntimeException("CertRecordPagedList: Error to get a new page", e);
         }
+    }
+
+    public Iterator<T> getCurrentPageEntries() {
+        return pageEntries;
     }
 
     @Override

@@ -465,6 +465,18 @@ public class RequestRepository extends Repository {
     }
 
     /**
+     * Gets the total number of request entries.
+     *
+     * @param filter search filter
+     * @return number of entries
+     */
+    public int getTotlaRequestsByFilter(
+            String filter) throws EBaseException {
+        try(DBSSession session = dbSubsystem.createSession()){
+            return session.countEntries(RequestRecord.class, mBaseDN, filter, -1);
+        }
+    }
+    /**
      * Gets a pageable list of Request entries in this queue. This
      * jumps right to the end of the list.
      *
