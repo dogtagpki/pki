@@ -68,9 +68,7 @@ public abstract class CMSRequestDAO {
     /**
      * Finds list of requests matching the specified search filter.
      *
-     * If the filter corresponds to a VLV search, then that search is executed and the pageSize
-     * and start parameters are used. Otherwise, the maxResults and maxTime parameters are
-     * used in the regularly indexed search.
+     * The list is paginated and only the page matching the start and pageSize is returned.
      *
      * @param filter - ldap search filter
      * @param start - start position
@@ -83,9 +81,9 @@ public abstract class CMSRequestDAO {
     public CMSRequestInfos listCMSRequests(String filter, RequestId start, int pageSize, int maxTime,
             UriInfo uriInfo) throws EBaseException {
 
-    logger.info("CMSRequestDAO: Searching for requests with filter " + filter);
+        logger.info("CMSRequestDAO: Searching for requests with filter " + filter);
 
-    CMSRequestInfos ret = new CMSRequestInfos();
+        CMSRequestInfos ret = new CMSRequestInfos();
 
         logger.debug("CMSRequestDAO: performing paged search");
 
@@ -102,7 +100,7 @@ public abstract class CMSRequestDAO {
             logger.debug("- " + request.getRequestId().toHexString());
             ret.addEntry(createCMSRequestInfo(request, uriInfo));
         }
-        ret.setTotal(requestRepository.getTotlaRequestsByFilter(filter));
+        ret.setTotal(requestRepository.getTotalRequestsByFilter(filter));
 
 
         // builder for search links

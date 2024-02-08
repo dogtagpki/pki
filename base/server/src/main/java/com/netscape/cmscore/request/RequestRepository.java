@@ -440,7 +440,7 @@ public class RequestRepository extends Repository {
             if(!filter.startsWith("(")) {
                 filter = "(" + filter + ")";
             }
-            filter = "(& (requestID >= " + fromID.toString() + ")" + filter +")";
+            filter = "(& (requestID >= " + fromID + ")" + filter +")";
         }
         return getPagedRequestsByFilter(filter, pageSize, sortKey);
     }
@@ -470,7 +470,7 @@ public class RequestRepository extends Repository {
      * @param filter search filter
      * @return number of entries
      */
-    public int getTotlaRequestsByFilter(
+    public int getTotalRequestsByFilter(
             String filter) throws EBaseException {
         try(DBSSession session = dbSubsystem.createSession()){
             return session.countEntries(RequestRecord.class, mBaseDN, filter, -1);
