@@ -207,7 +207,7 @@ BuildRequires:    tomcat
 
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
-BuildRequires:    jss >= 4.10.0, jss < 5.0.0
+BuildRequires:    jss >= 4.11.0, jss < 5.0.0
 BuildRequires:    tomcatjss >= 7.8.0, tomcatjss < 8.0.0
 
 BuildRequires:    systemd-units
@@ -327,7 +327,7 @@ Provides:         pki-symkey = %{version}-%{release}
 
 Requires:         %{java_headless}
 Requires:         jpackage-utils >= 0:1.7.5-10
-Requires:         jss >= 4.10.0, jss < 5.0.0
+Requires:         jss >= 4.11.0, jss < 5.0.0
 Requires:         nss >= 3.38.0
 
 # Ensure we end up with a useful installation
@@ -415,7 +415,7 @@ Requires:         glassfish-jaxb-api
 Requires:         slf4j
 Requires:         slf4j-jdk14
 Requires:         jpackage-utils >= 0:1.7.5-10
-Requires:         jss >= 4.10.0, jss < 5.0.0
+Requires:         jss >= 4.11.0, jss < 5.0.0
 Requires:         ldapjdk >= 4.24.0, ldapjdk < 5.0.0
 Requires:         %{product_id}-base = %{version}-%{release}
 
