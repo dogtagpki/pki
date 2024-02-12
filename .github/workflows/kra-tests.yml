@@ -18,6 +18,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/kra-oaep-test.yml
 
+  kra-ecc-test:
+    name: KRA with ECC
+    needs: build
+    uses: ./.github/workflows/kra-ecc-test.yml
+
   kra-separate-test:
     name: KRA on separate instance
     needs: build
