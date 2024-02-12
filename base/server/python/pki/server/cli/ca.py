@@ -1338,6 +1338,7 @@ class CAProfileCLI(pki.cli.CLI):
 
         self.add_module(CAProfileFindCLI())
         self.add_module(CAProfileImportCLI())
+        self.add_module(CAProfileModifyCLI())
 
     @staticmethod
     def print_profile(profile):
@@ -1498,3 +1499,115 @@ class CAProfileImportCLI(pki.cli.CLI):
         subsystem.import_profiles(
             input_folder=input_folder,
             as_current_user=as_current_user)
+
+
+class CAProfileModifyCLI(pki.cli.CLI):
+    '''
+    Modify profile in CA
+    '''
+
+    help = '''\
+        Usage: pki-server ca-profile-mod [OPTIONS] <profile ID>
+
+          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+              --name <name>                  Profile name')
+              --desc <description>           Profile description')
+              --visible <boolean>            Profile visibile')
+              --enable <boolean>             Profile enabled')
+          -v, --verbose                      Run in verbose mode.
+              --debug                        Run in debug mode.
+              --help                         Show help message.
+    '''  # noqa: E501
+
+    def __init__(self):
+        super().__init__('mod', inspect.cleandoc(self.__class__.__doc__))
+
+    def print_help(self):
+        print(textwrap.dedent(self.__class__.help))
+
+    def execute(self, argv):
+
+        try:
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'name=', 'desc=', 'visible=', 'enabled=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        if len(args) < 1:
+            logger.error('Missing profile ID')
+            self.print_help()
+            sys.exit(1)
+
+        profile_id = args[0]
+
+        instance_name = 'pki-tomcat'
+        profile_name = None
+        profile_description = None
+        profile_visible = None
+        profile_enabled = None
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--name':
+                profile_name = a
+
+            elif o == '--desc':
+                profile_description = a
+
+            elif o == '--visible':
+                profile_visible = a
+
+            elif o == '--enabled':
+                profile_enabled = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('Invalid option: %s', o)
+                self.print_help()
+                sys.exit(1)
+
+        instance = pki.server.PKIServerFactory.create(instance_name)
+        if not instance.exists():
+            logger.error('Invalid instance: %s', instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem = instance.get_subsystem('ca')
+        if not subsystem:
+            logger.error('No CA subsystem in instance %s', instance_name)
+            sys.exit(1)
+
+        profile = subsystem.get_profile(profile_id)
+
+        if profile_name is not None:
+            profile['name'] = profile_name
+
+        if profile_description is not None:
+            profile['desc'] = profile_description
+
+        if profile_visible is not None:
+            profile['visible'] = profile_visible
+
+        if profile_enabled is not None:
+            profile['enable'] = profile_enabled
+
+        subsystem.update_profile(profile_id, profile)
+
+        CAProfileCLI.print_profile(profile)

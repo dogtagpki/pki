@@ -2245,6 +2245,22 @@ class CASubsystem(PKISubsystem):
 
         return profile
 
+    def update_profile(self, profile_id, profile):
+        '''
+        Update a profile in profile database.
+
+        Currently it only works with file-based profile database.
+        TODO: It should also work with LDAP-based profile database.
+        '''
+
+        # remove profile ID
+        profile = profile.copy()
+        profile.pop('id', None)
+
+        # store profile into file
+        profile_path = os.path.join(self.profiles_dir, profile_id + '.cfg')
+        pki.util.store_properties(profile_path, profile)
+
     def get_profiles(self):
         '''
         Get all profiles from profile database.
