@@ -2222,21 +2222,64 @@ class CASubsystem(PKISubsystem):
     def __init__(self, instance):
         super().__init__(instance, 'ca')
 
-    def get_profile_configs(self):
+    @property
+    def profiles_dir(self):
+        return os.path.join(self.conf_dir, 'profiles', 'ca')
 
-        profiles_dir = os.path.join(self.base_dir, 'profiles')
+    def get_profile(self, profile_id):
+        '''
+        Get a profile from profile database.
 
-        profile_configs = []
-        for root, _, files in os.walk(profiles_dir):
-            for filename in files:
-                profile_configs.append(os.path.join(root, filename))
+        Currently it only works with file-based profile database.
+        TODO: It should also work with LDAP-based profile database.
+        '''
 
-        return profile_configs
+        profile = {}
+
+        # load profile from file
+        profile_path = os.path.join(self.profiles_dir, profile_id + '.cfg')
+        pki.util.load_properties(profile_path, profile)
+
+        # add profile ID
+        profile['id'] = profile_id
+
+        return profile
+
+    def get_profiles(self):
+        '''
+        Get all profiles from profile database.
+
+        Currently it only works with file-based profile database.
+        TODO: It should also work with LDAP-based profile database.
+        '''
+
+        profiles = []
+
+        for filename in os.listdir(self.profiles_dir):
+
+            path = os.path.join(self.profiles_dir, filename)
+            if os.path.isfile(path):
+                continue
+
+            # remove .cfg extension
+            profile_id = os.path.splitext(filename)[0]
+
+            profile = self.get_profile(profile_id)
+
+            profiles.append(profile)
+
+        return profiles
 
     def import_profiles(
             self,
             input_folder=None,
             as_current_user=False):
+        '''
+        Import all profiles from a folder into profile database.
+
+        Currently it only works with LDAP-based profile database.
+        TODO: It should also work with file-based profile database.
+        '''
 
         cmd = [self.name + '-profile-import']
 
