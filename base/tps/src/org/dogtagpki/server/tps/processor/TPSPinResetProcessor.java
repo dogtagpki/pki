@@ -103,8 +103,6 @@ public class TPSPinResetProcessor extends TPSProcessor {
 
             throw e;
         }
-        appletInfo.setAid(getCardManagerAID());
-
         CMS.debug(method + " token cuid: " + appletInfo.getCUIDhexStringPlain());
 
         tokenRecord = isTokenRecordPresent(appletInfo);

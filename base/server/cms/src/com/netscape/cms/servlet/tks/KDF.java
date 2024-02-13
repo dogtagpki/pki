@@ -154,11 +154,14 @@ public class KDF {
 
     static public byte[] getDesParity(byte[] key) throws EBaseException {
         String method = "KDF.getDesParity";
-        if (key == null || (key.length != SecureChannelProtocol.DES2_LENGTH &&
-                key.length != SecureChannelProtocol.EIGHT_BYTES && key.length != SecureChannelProtocol.DES3_LENGTH)) {
-            throw new EBaseException(method + " Incorrect input key !");
-        }
 
+        // Add AES-256
+        if (key == null || (key.length != SecureChannelProtocol.DES2_LENGTH &&
+                key.length != SecureChannelProtocol.EIGHT_BYTES && key.length != SecureChannelProtocol.DES3_LENGTH
+                && key.length != SecureChannelProtocol.DEF_AES_256_KEYLENGTH)) {
+            throw new EBaseException(method + " Incorrect input key !");
+        }        
+        
         byte[] desKey = new byte[key.length];
 
         for (int i = 0; i < key.length; i++) {

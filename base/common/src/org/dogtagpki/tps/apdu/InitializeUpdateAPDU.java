@@ -56,6 +56,8 @@ public class InitializeUpdateAPDU extends APDU {
         theData.add(p2);
         theData.add((byte) data.size());
         theData.add(data);
+        // Add Le byte 
+        theData.add((byte) 0x00);
 
         return theData;
     } /* Encode */

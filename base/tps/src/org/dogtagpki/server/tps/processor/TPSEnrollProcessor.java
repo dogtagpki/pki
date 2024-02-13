@@ -120,8 +120,6 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
             throw e;
         }
-        appletInfo.setAid(getCardManagerAID());
-
         CMS.debug(method + " token cuid: " + appletInfo.getCUIDhexStringPlain());
         boolean isTokenPresent = false;
 
@@ -1020,11 +1018,6 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 long objectLenVal = objectLen.getLongFrom4Bytes(0);
 
                 TPSBuffer obj = channel.readObject(objectID, 0, (int) objectLenVal);
-
-                if (obj != null) {
-                    //CMS.debug("PKCS11Obj.getCurrentObjectsOnToken: obj: " + obj.toHexString());
-                    CMS.debug("PKCS11Obj.getCurrentObjectsOnToken: obj exists");
-                }
 
                 if ((char) objectID.at(0) == (byte) 'z' && objectID.at(1) == (byte) '0') {
                     lastFormatVersion = obj.getIntFrom2Bytes(0);

@@ -58,7 +58,7 @@ public class GetDataAPDU extends APDU {
         encoding.add(ins);
         encoding.add(p1);
         encoding.add(p2);
-        encoding.add((byte) 0x2D);
+        encoding.add((byte) 0x00);
 
         return encoding;
     } /* Encode */

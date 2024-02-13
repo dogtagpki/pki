@@ -13,8 +13,7 @@ public class InstallLoadGP211APDU extends APDU {
         setP1((byte) 0x02);
         setP2((byte) 0x00);
 
-
-        CMS.debug("InstlalLoadGP211APDU: packageAID " + packageAID.toHexString() + " aid size: " + packageAID.size() + " fileLen: " + fileLen);
+        CMS.debug("InstallLoadGP211APDU: packageAID " + packageAID.toHexString() + " aid size: " + packageAID.size() + " fileLen: " + fileLen);
 
         TPSBuffer inputData = new TPSBuffer();
 
@@ -43,9 +42,6 @@ public class InstallLoadGP211APDU extends APDU {
         inputData.add((byte) 0x0);
 
         setData(inputData);
-
-        trailer = new TPSBuffer();
-        trailer.add((byte)0x0);
     }
 
 }

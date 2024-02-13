@@ -32,6 +32,8 @@ import org.dogtagpki.tps.msg.TPSMessage;
 
 import com.netscape.certsrv.apps.CMS;
 
+import org.dogtagpki.tps.main.TPSBuffer;
+
 public class TPSSession {
 
     private TPSConnection connection;
@@ -39,6 +41,9 @@ public class TPSSession {
     private TokenRecord tokenRecord;
 
     private ExternalRegAttrs extRegAttrs;
+
+    // Store card mgr in session so we only have to query it once per session
+    private TPSBuffer selectedCardMgr;
 
     public TPSSession(TPSConnection conn, String ip) {
 
@@ -181,5 +186,13 @@ public class TPSSession {
 
     public ExternalRegAttrs getExternalRegAttrs() {
         return extRegAttrs;
+    }
+
+    public TPSBuffer getSelectedCardMgr() {
+        return selectedCardMgr;
+    }
+
+    public void setSelectedCardMgr(TPSBuffer cardMgrBuffer) {
+        this.selectedCardMgr = cardMgrBuffer;
     }
 }

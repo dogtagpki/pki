@@ -73,7 +73,6 @@ public class NistSP800_108KDF extends KDF {
        * Bytes 16 - 31 : mac key
        * Bytes 32 - 47 : kek key
        We chose this order to conform with the key order used by the PUT KEY command.
-
     *******************************************************************************/
 
     public Map<String, SymmetricKey> computeCardKeys(SymmetricKey masterKey, byte[] context, CryptoToken token)
@@ -90,7 +89,7 @@ public class NistSP800_108KDF extends KDF {
         byte[] kdf_output = null;
 
         kdf_output = kdf_CM_SHA256_HMAC_L384(masterKey, context, KDF_LABEL, KDF_OUTPUT_SIZE_BYTES, token);
-
+        
         //Now create the 3 keys from only 48 of the 64 bytes...
 
         byte[] enc = new byte[16];
@@ -113,7 +112,7 @@ public class NistSP800_108KDF extends KDF {
 
             SecureChannelProtocol.debugByteArray(mac, " Nist mac before parity: ");
             SecureChannelProtocol.debugByteArray(enc, " Nist enc before parity: ");
-            SecureChannelProtocol.debugByteArray(kek, " Nist kek before parityl: ");
+            SecureChannelProtocol.debugByteArray(kek, " Nist kek before parity: ");
 
 
             SecureChannelProtocol.debugByteArray(macFinal, " Nist macFinal: ");
@@ -162,7 +161,7 @@ public class NistSP800_108KDF extends KDF {
 
         //output size of cmac PRF
         final int h = 128;
-
+        
         int remainder = outputBits % h;
 
         //calculate counter size
@@ -198,6 +197,10 @@ public class NistSP800_108KDF extends KDF {
         for (int i = 1; i <= n; i++) {
 
             try {
+                // Need to flush and reset buffer before using it
+                input.reset();
+                input.flush();
+
                 input.write(headerBytes);
                 input.write((byte) i);
                 input.write(context);
@@ -253,7 +256,6 @@ public class NistSP800_108KDF extends KDF {
         ByteArrayOutputStream cmacOutput = new ByteArrayOutputStream(AES_CMAC_BLOCK_SIZE * iterations);
         for(int i = 0; i < iterations; i++) {
             byte[] cmacInput = new byte[16];
-
             cmacInput[0] = (byte)(i + 1);       // Counter/iteration variable "i"
             cmacInput[1] = 0;
             cmacInput[2] = 0;
@@ -377,7 +379,7 @@ public class NistSP800_108KDF extends KDF {
     // Input an aes key of 128, 192, or 256 bits
     // For now calling code only using 128
     // Will move later to common class used by both tks and tps
-
+    
     public static byte[] computeAES_CMAC(SymmetricKey aesKey, byte[] input) throws EBaseException {
 
         String method = "NistSP800_108KDF.computeAES_CMAC:";
@@ -411,7 +413,17 @@ public class NistSP800_108KDF extends KDF {
         Cipher encryptor = null;
 
         try {
-            encryptor = token.getCipherContext(EncryptionAlgorithm.AES_128_CBC);
+            // Base size on key length
+            if (aesKey.getLength() == AES_CMAC_BLOCK_SIZE)
+            {
+                //CMS.debug(method + " encryptor context set to AES_128_CBC");
+                encryptor = token.getCipherContext(EncryptionAlgorithm.AES_128_CBC);
+            }
+            else
+            {
+                //CMS.debug(method + " encryptor context set to AES_256_CBC");
+                encryptor = token.getCipherContext(EncryptionAlgorithm.AES_256_CBC);
+            }
             encryptor.initEncrypt(aesKey, new IVParameterSpec(iv));
             k0 = encryptor.doFinal(k0);
 
@@ -451,11 +463,11 @@ public class NistSP800_108KDF extends KDF {
                 index = messageSize - AES_CMAC_BLOCK_SIZE + j;
                 inb = data[index];
                 data[index] = (byte) (inb ^ k1[j]);
-            }
+            } 
             try {
                 outputStream.write(data);
             } catch (IOException e) {
-                throw new EBaseException(method + " internal buffer erro!");
+                throw new EBaseException(method + " internal buffer error!");
             }
             finalData = outputStream.toByteArray();
         }
