@@ -45,6 +45,14 @@ jobs:
         run: |
           docker exec pki pki-server start
 
+      - name: Check webapps
+        run: |
+          docker exec pki pki-server webapp-find | tee output
+
+          # basic PKI server should have no webapps
+          sed -n 's/^ *Webapp ID: *\(.*\)$/\1/p' output > actual
+          diff /dev/null actual
+
       - name: Set up client container
         run: |
           tests/bin/runner-init.sh client

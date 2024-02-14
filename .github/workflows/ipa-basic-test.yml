@@ -47,6 +47,18 @@ jobs:
 
           docker exec ipa pki-server cert-export ca_signing --cert-file ca_signing.crt
 
+      - name: Check webapps
+        run: |
+          docker exec ipa pki-server webapp-find | tee output
+
+          # IPA server should have ROOT, acme, ca, and pki webapps
+          echo "ROOT" > expected
+          echo "acme" >> expected
+          echo "ca" >> expected
+          echo "pki" >> expected
+          sed -n 's/^ *Webapp ID: *\(.*\)$/\1/p' output > actual
+          diff expected actual
+
       - name: Check DS certs and keys
         run: |
           docker exec ipa ls -la /etc/dirsrv/slapd-EXAMPLE-COM
@@ -130,6 +142,19 @@ jobs:
           docker exec ipa ipa-kra-install -p Secret.123
           docker exec ipa pki-server ca-config-find | grep ca.connector.KRA
 
+      - name: Check webapps
+        run: |
+          docker exec ipa pki-server webapp-find | tee output
+
+          # IPA server should now have ROOT, acme, ca, kra, and pki webapps
+          echo "ROOT" > expected
+          echo "acme" >> expected
+          echo "ca" >> expected
+          echo "kra" >> expected
+          echo "pki" >> expected
+          sed -n 's/^ *Webapp ID: *\(.*\)$/\1/p' output > actual
+          diff expected actual
+
       - name: Run PKI healthcheck
         run: docker exec ipa pki-healthcheck --failures-only
 
@@ -169,6 +194,16 @@ jobs:
           docker exec ipa ipa-run-tests -x --verbose \
               test_xmlrpc/test_vault_plugin.py
 
+      - name: Check IPA CA install log
+        if: always()
+        run: |
+          docker exec ipa cat /var/log/ipaserver-install.log
+
+      - name: Check IPA KRA install log
+        if: always()
+        run: |
+          docker exec ipa cat /var/log/ipaserver-kra-install.log
+
       - name: Gather artifacts
         if: always()
         run: |
@@ -185,5 +220,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ipa-basic-test
-          path: |
-            /tmp/artifacts/ipa
+          path: /tmp/artifacts

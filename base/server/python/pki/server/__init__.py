@@ -867,7 +867,55 @@ grant codeBase "file:%s" {
             user=self.user,
             group=self.group)
 
+    def get_webapp(self, webapp_id):
+        '''
+        Get a webapp in the instance.
+
+        https://tomcat.apache.org/tomcat-9.0-doc/config/context.html
+        '''
+
+        webapp = {}
+        webapp['id'] = webapp_id
+
+        parts = webapp_id.split('##')
+
+        # get context name
+        context_name = parts[0]
+
+        # get context version
+        if len(parts) > 1:
+            webapp['version'] = parts[1]
+
+        # get context path
+        if context_name == 'ROOT':
+            webapp['path'] = '/'
+        else:
+            webapp['path'] = '/' + context_name.replace('#', '/')
+
+        # get context descriptor
+        context_dir = os.path.join(
+            self.conf_dir,
+            'Catalina',
+            'localhost')
+        context_descriptor = os.path.join(context_dir, webapp_id + '.xml')
+
+        if not os.path.exists(context_descriptor):
+            return None
+
+        webapp['descriptor'] = context_descriptor
+
+        # get doc base
+        document = etree.parse(context_descriptor, parser)
+        context = document.getroot()
+        doc_base = context.get('docBase')
+        webapp['docBase'] = doc_base
+
+        return webapp
+
     def get_webapps(self):
+        '''
+        Get all webapps in the instance.
+        '''
 
         webapps = []
 
@@ -881,31 +929,10 @@ grant codeBase "file:%s" {
             if not filename.endswith('.xml'):
                 continue
 
-            webapp = {}
-
+            # remove .xml extension to get the webapp ID
             webapp_id = filename[:-4]
-            webapp['id'] = webapp_id
 
-            parts = webapp_id.split('##')
-
-            name = parts[0]
-            if name == 'ROOT':
-                webapp['path'] = '/'
-            else:
-                webapp['path'] = '/' + name.replace('#', '/')
-
-            if len(parts) > 1:
-                webapp['version'] = parts[1]
-
-            context_xml = os.path.join(context_dir, filename)
-            webapp['descriptor'] = context_xml
-
-            document = etree.parse(context_xml, parser)
-            context = document.getroot()
-
-            doc_base = context.get('docBase')
-            webapp['docBase'] = doc_base
-
+            webapp = self.get_webapp(webapp_id)
             webapps.append(webapp)
 
         return sorted(webapps, key=lambda webapp: webapp['id'])

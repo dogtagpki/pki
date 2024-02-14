@@ -56,6 +56,17 @@ jobs:
               -D pki_ds_url=ldap://ds.example.com:3389 \
               -v
 
+      - name: Check webapps
+        run: |
+          docker exec pki pki-server webapp-find | tee output
+
+          # CA instance should have ROOT, ca, and pki webapps
+          echo "ROOT" > expected
+          echo "ca" >> expected
+          echo "pki" >> expected
+          sed -n 's/^ *Webapp ID: *\(.*\)$/\1/p' output > actual
+          diff expected actual
+
       - name: Check CA certs and keys
         run: |
           # check certs
