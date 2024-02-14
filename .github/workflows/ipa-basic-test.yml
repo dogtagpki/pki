@@ -64,6 +64,22 @@ jobs:
           docker exec ipa pki-server webapp-show ca
           docker exec ipa pki-server webapp-show pki
 
+      - name: Check subsystems
+        run: |
+          docker exec ipa pki-server subsystem-find | tee output
+
+          # IPA server should have CA subsystem
+          echo "ca" > expected
+          sed -n 's/^ *Subsystem ID: *\(.*\)$/\1/p' output > actual
+          diff expected actual
+
+          docker exec ipa pki-server subsystem-show ca | tee output
+
+          # CA subsystem should be enabled
+          echo "True" > expected
+          sed -n 's/^ *Enabled: *\(.*\)$/\1/p' output > actual
+          diff expected actual
+
       - name: Check DS certs and keys
         run: |
           docker exec ipa ls -la /etc/dirsrv/slapd-EXAMPLE-COM
@@ -161,6 +177,23 @@ jobs:
           diff expected actual
 
           docker exec ipa pki-server webapp-show kra
+
+      - name: Check subsystems
+        run: |
+          docker exec ipa pki-server subsystem-find | tee output
+
+          # IPA server should now have CA and KRA subsystems
+          echo "ca" > expected
+          echo "kra" >> expected
+          sed -n 's/^ *Subsystem ID: *\(.*\)$/\1/p' output > actual
+          diff expected actual
+
+          docker exec ipa pki-server subsystem-show kra | tee output
+
+          # KRA subsystem should be enabled
+          echo "True" > expected
+          sed -n 's/^ *Enabled: *\(.*\)$/\1/p' output > actual
+          diff expected actual
 
       - name: Run PKI healthcheck
         run: docker exec ipa pki-healthcheck --failures-only

@@ -71,6 +71,22 @@ jobs:
           docker exec pki pki-server webapp-show ca
           docker exec pki pki-server webapp-show pki
 
+      - name: Check subsystems
+        run: |
+          docker exec pki pki-server subsystem-find | tee output
+
+          # CA instance should have CA subsystem
+          echo "ca" > expected
+          sed -n 's/^ *Subsystem ID: *\(.*\)$/\1/p' output > actual
+          diff expected actual
+
+          docker exec pki pki-server subsystem-show ca | tee output
+
+          # CA subsystem should be enabled
+          echo "True" > expected
+          sed -n 's/^ *Enabled: *\(.*\)$/\1/p' output > actual
+          diff expected actual
+
       - name: Check CA certs and keys
         run: |
           # check certs

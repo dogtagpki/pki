@@ -1222,8 +1222,15 @@ grant codeBase "file:%s" {
         for subsystem_name in SUBSYSTEM_TYPES:
 
             subsystem_dir = os.path.join(self.base_dir, subsystem_name)
+
+            # ensure /var/lib/pki/<instance>/<subsystem> exists
             if not os.path.exists(subsystem_dir):
-                # Directory does not exist
+                continue
+
+            # ensure /var/lib/pki/<instance>/<subsystem> is not empty
+            # https://issues.redhat.com/browse/RHEL-21568
+            if not os.listdir(subsystem_dir):
+                # Directory exists but it is empty
                 continue
 
             subsystem = pki.server.subsystem.PKISubsystemFactory.create(self, subsystem_name)
