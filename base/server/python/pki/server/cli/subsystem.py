@@ -189,7 +189,7 @@ class SubsystemShowCLI(pki.cli.CLI):
 
         subsystem = instance.get_subsystem(subsystem_name)
         if not subsystem:
-            logger.error('ERROR: No %s subsystem in instance %s.',
+            logger.error('No %s subsystem in instance %s.',
                          subsystem_name, instance_name)
             sys.exit(1)
 
@@ -944,7 +944,7 @@ class SubsystemCertShowCLI(pki.cli.CLI):
 
         subsystem = instance.get_subsystem(subsystem_name)
         if not subsystem:
-            logger.error('ERROR: No %s subsystem in instance %s.',
+            logger.error('No %s subsystem in instance %s.',
                          subsystem_name, instance_name)
             sys.exit(1)
         cert = subsystem.get_subsystem_cert(cert_id)

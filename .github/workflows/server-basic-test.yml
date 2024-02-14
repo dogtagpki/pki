@@ -53,6 +53,34 @@ jobs:
           sed -n 's/^ *Webapp ID: *\(.*\)$/\1/p' output > actual
           diff /dev/null actual
 
+      - name: Check subsystems
+        run: |
+          docker exec pki pki-server subsystem-find | tee output
+
+          # basic PKI server should have no subsystems
+          sed -n 's/^ *Subsystem ID: *\(.*\)$/\1/p' output > actual
+          diff /dev/null actual
+
+          # CA subsystem should not exist
+          docker exec pki pki-server subsystem-show ca \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          echo "ERROR: No ca subsystem in instance pki-tomcat." > expected
+          diff expected stderr
+
+          # create empty CA subsystem folder
+          docker exec pki mkdir -p /var/lib/pki/pki-tomcat/ca
+
+          # CA subsystem should not exist
+          docker exec pki pki-server subsystem-show ca \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          echo "ERROR: No ca subsystem in instance pki-tomcat." > expected
+          diff expected stderr
+
+          # remove CA subsystem folder
+          docker exec pki rm -rf /var/lib/pki/pki-tomcat/ca
+
       - name: Set up client container
         run: |
           tests/bin/runner-init.sh client
