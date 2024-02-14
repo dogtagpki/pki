@@ -59,6 +59,11 @@ jobs:
           sed -n 's/^ *Webapp ID: *\(.*\)$/\1/p' output > actual
           diff expected actual
 
+          docker exec ipa pki-server webapp-show ROOT
+          docker exec ipa pki-server webapp-show acme
+          docker exec ipa pki-server webapp-show ca
+          docker exec ipa pki-server webapp-show pki
+
       - name: Check DS certs and keys
         run: |
           docker exec ipa ls -la /etc/dirsrv/slapd-EXAMPLE-COM
@@ -154,6 +159,8 @@ jobs:
           echo "pki" >> expected
           sed -n 's/^ *Webapp ID: *\(.*\)$/\1/p' output > actual
           diff expected actual
+
+          docker exec ipa pki-server webapp-show kra
 
       - name: Run PKI healthcheck
         run: docker exec ipa pki-healthcheck --failures-only

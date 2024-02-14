@@ -67,6 +67,10 @@ jobs:
           sed -n 's/^ *Webapp ID: *\(.*\)$/\1/p' output > actual
           diff expected actual
 
+          docker exec pki pki-server webapp-show ROOT
+          docker exec pki pki-server webapp-show ca
+          docker exec pki pki-server webapp-show pki
+
       - name: Check CA certs and keys
         run: |
           # check certs
