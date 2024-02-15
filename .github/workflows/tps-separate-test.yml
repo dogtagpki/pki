@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Retrieve PKI images
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           key: pki-images-${{ github.sha }}
           path: pki-images.tar

@@ -20,7 +20,7 @@ jobs:
 
       - name: Cache Docker layers
         id: cache-buildx
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           key: buildx-${{ hashFiles('pki.spec') }}
           path: /tmp/.buildx-cache
@@ -81,7 +81,7 @@ jobs:
           docker save -o acme-images.tar pki-runner pki-acme
 
       - name: Store ACME images
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           key: acme-images-${{ github.sha }}
           path: acme-images.tar
@@ -129,7 +129,7 @@ jobs:
         if: vars.REGISTRY != 'ghcr.io'
 
       - name: Retrieve ACME images
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           key: acme-images-${{ github.sha }}
           path: acme-images.tar

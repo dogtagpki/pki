@@ -19,7 +19,7 @@ jobs:
 
       - name: Cache Docker layers
         id: cache-buildx
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           key: buildx-${{ hashFiles('pki.spec') }}
           path: /tmp/.buildx-cache
@@ -67,7 +67,7 @@ jobs:
           docker save -o ipa-images.tar ipa-runner
 
       - name: Store IPA images
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           key: ipa-images-${{ github.sha }}
           path: ipa-images.tar

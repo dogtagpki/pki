@@ -20,7 +20,7 @@ jobs:
 
       - name: Cache Docker layers
         id: cache-buildx
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           key: buildx-${{ hashFiles('pki.spec') }}
           path: /tmp/.buildx-cache
@@ -115,7 +115,7 @@ jobs:
           docker save -o pki-images.tar pki-dist pki-runner pki-server pki-ca
 
       - name: Store PKI images
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           key: pki-images-${{ github.sha }}
           path: pki-images.tar

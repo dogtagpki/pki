@@ -29,7 +29,7 @@ jobs:
           pip3 install -e tests/dogtag/pytest-ansible
 
       - name: Retrieve PKI images
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           key: pki-images-${{ github.sha }}
           path: pki-images.tar
