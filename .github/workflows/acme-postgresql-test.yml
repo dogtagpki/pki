@@ -108,7 +108,7 @@ jobs:
           EOF
 
       - name: Build postgrsql image with certificates
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           context: .
           tags: postgres-ssl
