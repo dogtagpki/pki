@@ -92,11 +92,27 @@ jobs:
         run: |
           sleep 60
 
+          MAILX_PROVIDER=$(docker exec pki rpm -q --whatprovides mailx)
+          echo "mailx provider: $MAILX_PROVIDER"
+
+          # check mailbox
           echo -ne "q\n" | docker exec -i pki mail \
               > >(tee stdout) 2> >(tee stderr >&2) || true
 
           # there should be no messages
-          echo "No mail for root" > expected
+
+          if [[ "$MAILX_PROVIDER" =~ ^mailx- ]]; then
+              echo "No mail for root" > expected
+
+          elif [[ "$MAILX_PROVIDER" =~ ^s-nail- ]]; then
+              echo "s-nail: No mail for root at /var/mail/root" > expected
+              echo "s-nail: /var/mail/root: No such entry, file or directory" >> expected
+
+          else
+              echo "ERROR: Unknown mailx provider: $MAILX_PROVIDER"
+              exit 1
+          fi
+
           diff expected stderr
 
       - name: Submit enrollment request
@@ -111,15 +127,31 @@ jobs:
         run: |
           sleep 60
 
+          MAILX_PROVIDER=$(docker exec pki rpm -q --whatprovides mailx)
+          echo "mailx provider: $MAILX_PROVIDER"
+
+          # check mailbox
           echo -ne "q\n" | docker exec -i pki mail \
               > >(tee stdout) 2> >(tee stderr >&2) || true
 
           # there should be 1 message
-          echo "Held 1 message in /var/mail/root" > expected
+
+          if [[ "$MAILX_PROVIDER" =~ ^mailx- ]]; then
+              echo "Held 1 message in /var/mail/root" > expected
+
+          elif [[ "$MAILX_PROVIDER" =~ ^s-nail- ]]; then
+              echo "Held 1 message in /var/spool/mail/root" > expected
+
+          else
+              echo "ERROR: Unknown mailx provider: $MAILX_PROVIDER"
+              exit 1
+          fi
+
           tail -1 stdout > actual
           diff expected actual
 
-          echo -ne "1\nq\n" | docker exec -i pki mail | tee output
+          # print first email
+          echo -ne "p\nq\n" | docker exec -i pki mail | tee output
 
           # check email subject
           REQUEST_ID=$(cat request.id)
