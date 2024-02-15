@@ -59,9 +59,6 @@ import com.netscape.cmscore.dbs.RevocationInfo;
  */
 @WebServlet("/v2/certs/*")
 public class CertServlet extends CAServlet {
-    public static final int DEFAULT_MAXTIME = 0;
-    public static final int DEFAULT_SIZE = 20;
-
     private static final long serialVersionUID = 1L;
     private static Logger logger = LoggerFactory.getLogger(CertServlet.class);
 

@@ -18,6 +18,8 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class CAServlet extends HttpServlet {
     public static final long serialVersionUID = 1L;
+    public static final int DEFAULT_MAXTIME = 0;
+    public static final int DEFAULT_SIZE = 20;
 
 
     public void get(HttpServletRequest request, HttpServletResponse response) throws Exception {
