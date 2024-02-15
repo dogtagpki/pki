@@ -1971,7 +1971,7 @@ class KRAConnector:
                         krahost,
                         kraport)
 
-        except Exception:
+        except Exception:  # pylint: disable=W0718
             logger.error(
                 log.PKIHELPER_KRACONNECTOR_UPDATE_FAILURE_2,
                 str(krahost),
