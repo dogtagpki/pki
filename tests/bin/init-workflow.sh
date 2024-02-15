@@ -7,7 +7,7 @@ if [ "$BASE64_OS" != "" ]
 then
     OS_VERSION=$(echo "$BASE64_OS" | base64 -d)
 else
-    OS_VERSION=latest
+    OS_VERSION=39
 fi
 
 BASE_IMAGE=registry.fedoraproject.org/fedora:$OS_VERSION
