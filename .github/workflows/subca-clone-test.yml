@@ -282,7 +282,7 @@ jobs:
 
       - name: Upload artifacts from primary sub-CA
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: subca-clone-primary
           path: |
@@ -290,7 +290,7 @@ jobs:
 
       - name: Upload artifacts from secondary sub-CA
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: subca-clone-secondary
           path: |

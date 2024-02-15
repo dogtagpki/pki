@@ -133,7 +133,7 @@ jobs:
 
       - name: Upload artifacts from CA containers
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: tks-separate-ca
           path: |
@@ -141,7 +141,7 @@ jobs:
 
       - name: Upload artifacts from TKS containers
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: tks-separate-tks
           path: |

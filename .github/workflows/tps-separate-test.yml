@@ -277,7 +277,7 @@ jobs:
 
       - name: Upload artifacts from CA containers
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: tps-separate-ca
           path: |
@@ -285,7 +285,7 @@ jobs:
 
       - name: Upload artifacts from KRA containers
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: tps-separate-kra
           path: |
@@ -293,7 +293,7 @@ jobs:
 
       - name: Upload artifacts from TKS containers
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: tps-separate-tks
           path: |
@@ -301,7 +301,7 @@ jobs:
 
       - name: Upload artifacts from TPS containers
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: tps-separate-tps
           path: |

@@ -191,7 +191,7 @@ jobs:
 
       - name: Upload artifacts from server containers
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: acme-switchover-server
           path: |
@@ -199,7 +199,7 @@ jobs:
 
       - name: Upload artifacts from client container
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: acme-switchover-client
           path: /tmp/artifacts/client

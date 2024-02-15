@@ -153,7 +153,7 @@ jobs:
 
       - name: Upload artifacts from IPA container
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ipa-acme
           path: |

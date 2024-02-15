@@ -204,7 +204,7 @@ jobs:
 
       - name: Upload artifacts from CA containers
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ocsp-external-certs-ca
           path: |
@@ -212,7 +212,7 @@ jobs:
 
       - name: Upload artifacts from OCSP containers
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ocsp-external-certs-ocsp
           path: |

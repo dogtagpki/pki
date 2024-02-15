@@ -121,14 +121,14 @@ jobs:
 
       - name: Upload artifacts from server container
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: acme-container-server
           path: /tmp/artifacts/server
 
       - name: Upload artifacts from client container
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: acme-container-client
           path: /tmp/artifacts/client

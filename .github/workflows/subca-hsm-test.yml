@@ -290,7 +290,7 @@ jobs:
 
       - name: Upload artifacts from container
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: subca-hsm
           path: |

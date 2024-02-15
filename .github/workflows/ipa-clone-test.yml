@@ -621,7 +621,7 @@ jobs:
 
       - name: Upload artifacts from primary container
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ipa-clone-primary
           path: |
@@ -629,7 +629,7 @@ jobs:
 
       - name: Upload artifacts from secondary container
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ipa-clone-secondary
           path: |

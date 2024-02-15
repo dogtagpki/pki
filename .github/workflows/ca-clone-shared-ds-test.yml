@@ -250,7 +250,7 @@ jobs:
 
       - name: Upload artifacts from primary CA
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ca-clone-shared-ds-primary-ca
           path: |
@@ -258,7 +258,7 @@ jobs:
 
       - name: Upload artifacts from secondary CA
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ca-clone-shared-ds-secondary-ca
           path: |
@@ -266,7 +266,7 @@ jobs:
 
       - name: Upload artifacts from DS
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ca-clone-shared-ds
           path: |

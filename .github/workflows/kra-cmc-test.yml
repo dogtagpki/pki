@@ -311,7 +311,7 @@ jobs:
 
       - name: Upload artifacts from CA containers
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: kra-cmc-ca
           path: |
@@ -319,7 +319,7 @@ jobs:
 
       - name: Upload artifacts from KRA containers
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: kra-cmc-kra
           path: |
