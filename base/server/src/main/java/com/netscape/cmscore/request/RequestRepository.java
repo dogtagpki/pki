@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Set;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -360,6 +361,34 @@ public class RequestRepository extends Repository {
             if (s != null)
                 s.close();
         }
+    }
+    /**
+     * Finds a list of request records that satisfies the filter.
+     *
+     * The filter should follow RFC1558 LDAP filter syntax.
+     * For example,
+     *
+     * {@Code (&(certRecordId=5)(x509Cert.notBefore=934398398))}
+     *
+     * @param filter search filter
+     * @param timeLimit timeout value
+     * @param start first entry to return from the list
+     * @param size max size to return
+     * @return a list of certificates
+     * @exception EBaseException failed to search
+     */
+    public Iterator<RequestRecord> searchRequest(String filter, int timeLimit, int start, int size)
+            throws EBaseException {
+
+        ArrayList<RequestRecord> records = new ArrayList<>();
+        logger.debug("searchRequest: filter {filter}, start {start} and size {size}", filter, start, size);
+        try (DBSSession s = dbSubsystem.createSession()) {
+            DBSearchResults sr  = s.pagedSearch(mBaseDN, filter, start, size, timeLimit);
+            while (sr.hasMoreElements()) {
+                records.add((RequestRecord) sr.nextElement());
+            }
+        }
+        return records.iterator();
     }
 
     public Collection<RequestRecord> listRequestsByFilter(String filter) throws EBaseException {
