@@ -5,29 +5,52 @@
 //
 package org.dogtagpki.server.ca.v2;
 
+import java.io.BufferedReader;
 import java.io.PrintWriter;
+import java.security.Principal;
 import java.security.SecureRandom;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
+import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.netscape.certsrv.base.BadRequestDataException;
+import com.netscape.certsrv.base.BadRequestException;
+import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.HTTPGoneException;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.base.ServiceUnavailableException;
+import com.netscape.certsrv.ca.CADisabledException;
+import com.netscape.certsrv.ca.CAMissingCertException;
+import com.netscape.certsrv.ca.CAMissingKeyException;
+import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.certsrv.cert.CertRequestInfos;
 import com.netscape.certsrv.cert.CertReviewResponse;
+import com.netscape.certsrv.profile.EDeferException;
+import com.netscape.certsrv.profile.EProfileException;
+import com.netscape.certsrv.profile.ERejectException;
+import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestNotFoundException;
+import com.netscape.certsrv.util.JSONSerializer;
 import com.netscape.cms.profile.common.Profile;
+import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.cert.CertRequestInfoFactory;
 import com.netscape.cms.servlet.cert.CertReviewResponseFactory;
+import com.netscape.cms.servlet.cert.RequestProcessor;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestRecord;
@@ -35,6 +58,9 @@ import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
+/**
+ * @author Marco Fargetta {@literal <mfargett@redhat.com>}
+ */
 @WebServlet(
         name = "caCertRequest-agent",
         urlPatterns = "/v2/agent/certrequests/*")
@@ -73,6 +99,87 @@ public class AgentCertRequestServlet extends CAServlet {
             String message = "Unable to list cert requests: " + e.getMessage();
             logger.error(message, e);
             throw new PKIException(message, e);
+        }
+    }
+
+    @Override
+    public void post(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        HttpSession session = request.getSession();
+        logger.debug("CertServlet.post(): session: {}", session.getId());
+
+        if (request.getPathInfo() == null || !request.getPathInfo().isEmpty()) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, request.getRequestURI());
+            return;
+        }
+        String[] pathElement = request.getPathInfo().split("/");
+        if (pathElement.length != 2) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, request.getRequestURI());
+            return;
+        }
+        RequestId id = new RequestId(pathElement[0]);
+
+        if (pathElement[1].matches("approve|reject|cancel|update|validate|unassign|assign")) {
+            logger.info("AgentCertRequestServlet: operation {} on certificate request {}",pathElement[1], id.toHexString());
+            BufferedReader reader = request.getReader();
+            String postMessage = reader.lines().collect(Collectors.joining());
+
+            CertReviewResponse data = JSONSerializer.fromJSON(postMessage, CertReviewResponse.class);
+
+            try {
+                changeRequestState(id, request, data, request.getLocale(), pathElement[1]);
+
+            } catch (ERejectException e) {
+                String message = CMS.getUserMessage(request.getLocale(), "CMS_PROFILE_REJECTED", e.getMessage());
+                logger.error(message, e);
+                throw new BadRequestException(message, e);
+
+            } catch (EDeferException e) {
+                String message = CMS.getUserMessage(request.getLocale(), "CMS_PROFILE_DEFERRED", e.toString());
+                logger.error(message, e);
+                throw new BadRequestException(message, e);
+
+            } catch (BadRequestDataException e) {
+                String message = "Bad request data: " + e.getMessage();
+                logger.error(message, e);
+                throw new BadRequestException(message, e);
+
+            } catch (CANotFoundException e) {
+                // The target CA does not exist (deleted between
+                // request submission and approval).
+                String message = "CA not found: " + e.getMessage();
+                logger.error(message, e);
+                throw new HTTPGoneException(message, e);
+
+            } catch (CADisabledException e) {
+                String message = "CA disabled: " + e.getMessage();
+                logger.error(message, e);
+                throw new ConflictingOperationException(message, e);
+
+            } catch (CAMissingCertException | CAMissingKeyException e) {
+                throw new ServiceUnavailableException(e.toString(), e);
+
+            } catch (EPropertyException e) {
+                logger.error("AgentCertRequestServlet: Unable to change request state: " + e.getMessage(), e);
+                throw new PKIException("Unable to change request state: " + e.getMessage(), e);
+
+            } catch (EProfileException e) {
+                String message = CMS.getUserMessage(request.getLocale(), "CMS_INTERNAL_ERROR") + ": " + e.getMessage();
+                logger.error(message, e);
+                throw new PKIException(message, e);
+
+            } catch (EBaseException e) {
+                String message = "Unable to change request state: " + e.getMessage();
+                logger.error(message, e);
+                throw new PKIException(message, e);
+
+            } catch (RequestNotFoundException e) {
+                String message = "Unable to change request state: " + e.getMessage();
+                logger.error(message, e);
+                throw e;
+            }
+
+        } else {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, request.getRequestURI());
         }
     }
 
@@ -178,4 +285,35 @@ public class AgentCertRequestServlet extends CAServlet {
         return filter;
     }
 
+    private void changeRequestState(RequestId id, HttpServletRequest request, CertReviewResponse data,
+            Locale locale, String op) throws EBaseException {
+        CAEngine engine = getCAEngine();
+        RequestRepository requestRepository = engine.getRequestRepository();
+        Request ireq = requestRepository.readRequest(id);
+        if (ireq == null) {
+            throw new RequestNotFoundException(id);
+        }
+
+        RequestProcessor processor = new RequestProcessor("caProfileProcess", locale);
+        processor.setCMSEngine(engine);
+        processor.init();
+
+        AuthToken authToken = null;
+
+        Principal principal = request.getUserPrincipal();
+        if (principal instanceof PKIPrincipal) {
+            logger.debug("AgentCertRequestServlet: getting auth token from user principal");
+            authToken = ((PKIPrincipal) principal).getAuthToken();
+        }
+
+        String authMgr = processor.getAuthenticationManager();
+        if (authToken == null && authMgr != null) {
+            logger.debug("AgentCertRequestServlet: getting auth token from " + authMgr);
+            authToken = processor.authenticate(request);
+        }
+
+        logger.debug("AgentCertRequestServlet: auth token: " + authToken);
+
+        processor.processRequest(request, authToken, data, ireq, op);
+    }
 }

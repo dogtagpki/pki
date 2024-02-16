@@ -362,6 +362,7 @@ public class RequestRepository extends Repository {
                 s.close();
         }
     }
+
     /**
      * Finds a list of request records that satisfies the filter.
      *

@@ -150,5 +150,4 @@ public abstract class AuthMethodFilter extends GenericFilter {
     public void setAuthMethod(String authMethod) {
         this.authMethod = authMethod;
     }
-
 }
