@@ -41,12 +41,6 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.logging.Auditor;
 
-/**
- *
- */
-/**
- *
- */
 public abstract class ACLFilter extends GenericFilter {
 
     private static final long serialVersionUID = 1L;
@@ -325,5 +319,4 @@ public abstract class ACLFilter extends GenericFilter {
     public void setAcl(String acl) {
         this.acl = acl;
     }
-
 }
