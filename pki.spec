@@ -155,7 +155,7 @@ BuildRequires:    policycoreutils
 
 # Java build dependencies
 BuildRequires:    %{java_devel}
-BuildRequires:    maven-local
+BuildRequires:    maven-local-openjdk17
 %if 0%{?fedora}
 BuildRequires:    xmvn-tools
 %endif

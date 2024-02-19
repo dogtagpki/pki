@@ -3,8 +3,20 @@ jobs:
   pool:
     vmImage: ubuntu-latest
   steps:
+  - task: PythonScript@0
+    displayName: Set environment variables
+    inputs:
+      scriptSource: inline
+      script: |
+        import os
+
+        value = os.getenv('BASE_IMAGE', 'registry.fedoraproject.org/fedora:latest')
+        print('BASE_IMAGE: {value}'.format(value=value))
+        print('##vso[task.setvariable variable=BASE_IMAGE]{value}'.format(value=value))
+
   - script: |
       docker build \
+          --build-arg BASE_IMAGE=$BASE_IMAGE \
           --target pki-base \
           --tag pki-base:latest \
           .
@@ -27,8 +39,9 @@ jobs:
     displayName: Create runner container
 
   - script: |
-      docker exec runner dnf install -y dnf-plugins-core rpm-build maven
-      docker exec runner dnf copr enable -y ${COPR_REPO:-@pki/master}
+      docker exec runner dnf install -y dnf-plugins-core rpm-build
+      if [ -n "$COPR_REPO" ]; then docker exec runner dnf copr enable -y $COPR_REPO; fi
+
       docker exec runner dnf builddep -y --spec /root/src/pki.spec
       docker exec runner dnf install -y dogtag-console-framework
     displayName: Install PKI dependencies
