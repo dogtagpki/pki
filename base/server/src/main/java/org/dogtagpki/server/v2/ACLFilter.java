@@ -14,11 +14,11 @@ import java.security.Principal;
 import java.util.Properties;
 
 import javax.servlet.FilterChain;
-import javax.servlet.GenericFilter;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -41,7 +41,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.logging.Auditor;
 
-public abstract class ACLFilter extends GenericFilter {
+public abstract class ACLFilter extends HttpFilter {
 
     private static final long serialVersionUID = 1L;
     public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ACLFilter.class);

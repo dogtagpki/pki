@@ -38,7 +38,7 @@ import com.netscape.cmscore.request.Request;
 
 public class CertRequestInfoFactory {
 
-    public static CertRequestInfo create(Request request) throws SecurityException, NoSuchMethodException {
+    public static CertRequestInfo create(Request request) throws SecurityException {
 
         CertRequestInfo info = new CertRequestInfo();
 

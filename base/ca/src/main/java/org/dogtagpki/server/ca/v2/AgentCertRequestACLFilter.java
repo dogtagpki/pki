@@ -17,7 +17,6 @@ public class AgentCertRequestACLFilter extends ACLFilter {
 
     @Override
     public void init() throws ServletException {
-        super.init();
         setAcl("certrequests");
     }
 

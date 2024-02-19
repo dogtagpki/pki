@@ -17,7 +17,6 @@ public class AgentCertRequestAuthMethodFilter extends AuthMethodFilter {
 
     @Override
     public void init() throws ServletException {
-        super.init();
         setAuthMethod("certrequests");
     }
 

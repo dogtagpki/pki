@@ -16,10 +16,10 @@ import java.util.HashSet;
 import java.util.Properties;
 
 import javax.servlet.FilterChain;
-import javax.servlet.GenericFilter;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -32,7 +32,7 @@ import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cmscore.apps.CMS;
 
-public abstract class AuthMethodFilter extends GenericFilter {
+public abstract class AuthMethodFilter extends HttpFilter {
 
     private static final long serialVersionUID = 1L;
     public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuthMethodFilter.class);
