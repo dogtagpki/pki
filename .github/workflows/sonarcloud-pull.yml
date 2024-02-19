@@ -8,6 +8,7 @@ on:
 env:
   BASE_IMAGE: ${{ vars.BASE_IMAGE || 'registry.fedoraproject.org/fedora:latest' }}
   COPR_REPO: ${{ vars.COPR_REPO || '@pki/master' }}
+  NAMESPACE: ${{ vars.REGISTRY_NAMESPACE || 'dogtagpki' }}
 
 jobs:
   retrieve-pr:
@@ -91,6 +92,11 @@ jobs:
           git remote add pki ${{ github.event.repository.clone_url }} 
           git fetch pki
           git rebase pki/${{ needs.retrieve-pr.outputs.pr-base }}
+
+      - name: Update Dockerfile
+        run: |
+          # update registry namespace
+          sed -i "s/quay.io\/dogtagpki\//quay.io\/$NAMESPACE\//g" Dockerfile
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3

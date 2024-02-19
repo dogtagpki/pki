@@ -5,14 +5,34 @@ jobs:
   steps:
   - task: PythonScript@0
     displayName: Set environment variables
+    env:
+      REPOSITORY_URI: $(Build.Repository.Uri)
     inputs:
       scriptSource: inline
       script: |
         import os
+        import re
 
         value = os.getenv('BASE_IMAGE', 'registry.fedoraproject.org/fedora:latest')
         print('BASE_IMAGE: {value}'.format(value=value))
         print('##vso[task.setvariable variable=BASE_IMAGE]{value}'.format(value=value))
+
+        value = os.getenv('REGISTRY_NAMESPACE')
+
+        if not value:
+            value = os.getenv('REPOSITORY_URI')
+            print('REPOSITORY_URI: {value}'.format(value=value))
+
+            # get repository owner
+            value = re.sub(r'^.*://.*/(.*)/.*$', r'\1', value)
+
+        print('NAMESPACE: {value}'.format(value=value))
+        print('##vso[task.setvariable variable=NAMESPACE]{value}'.format(value=value))
+
+  - script: |
+      # replace registry namespace
+      sed -i "s/quay.io\/dogtagpki\//quay.io\/$NAMESPACE\//g" Dockerfile
+    displayName: Update Dockerfile
 
   - script: |
       docker build \
