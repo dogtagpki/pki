@@ -76,9 +76,10 @@ public class AgentCertRequestServlet extends CAServlet {
             try {
                 RequestId id = new RequestId(request.getPathInfo().substring(1));
                 CertReviewResponse req = getRequestData(request, id);
-                if(req != null) {
-                    out.println(req.toJSON());
+                if(req == null) {
+                    throw new RequestNotFoundException(id);
                 }
+                out.println(req.toJSON());
             } catch (Exception e) {
                     response.sendError(HttpServletResponse.SC_NOT_FOUND, request.getRequestURI());
             }
@@ -218,11 +219,6 @@ public class AgentCertRequestServlet extends CAServlet {
             // return nonce to client
             info.setNonce(Long.toString(n));
         }
-        if (info == null) {
-            // request does not exist
-            throw new RequestNotFoundException(id);
-        }
-
         logger.info("AgentCertRequestServlet: - profile: {}", info.getProfileName());
         logger.info("AgentCertRequestServlet: - type: {}", info.getRequestType());
         logger.info("AgentCertRequestServlet: - status: {}", info.getRequestStatus());
@@ -250,11 +246,7 @@ public class AgentCertRequestServlet extends CAServlet {
         while(reqs.hasNext()) {
             Request request = reqs.next().toRequest();
             logger.debug("- {}", request.getRequestId().toHexString());
-            try {
-                reqInfos.addEntry(CertRequestInfoFactory.create(request));
-            } catch (NoSuchMethodException e) {
-                logger.warn("Error in creating certrequestinfo - no such method: " + e.getMessage(), e);
-            }
+            reqInfos.addEntry(CertRequestInfoFactory.create(request));
         }
         reqInfos.setTotal(requestRepository.getTotalRequestsByFilter(filter));
 
@@ -301,18 +293,18 @@ public class AgentCertRequestServlet extends CAServlet {
         AuthToken authToken = null;
 
         Principal principal = request.getUserPrincipal();
-        if (principal instanceof PKIPrincipal) {
+        if (principal instanceof PKIPrincipal pkiPrincipal) {
             logger.debug("AgentCertRequestServlet: getting auth token from user principal");
-            authToken = ((PKIPrincipal) principal).getAuthToken();
+            authToken = pkiPrincipal.getAuthToken();
         }
 
         String authMgr = processor.getAuthenticationManager();
         if (authToken == null && authMgr != null) {
-            logger.debug("AgentCertRequestServlet: getting auth token from " + authMgr);
+            logger.debug("AgentCertRequestServlet: getting auth token from {}", authMgr);
             authToken = processor.authenticate(request);
         }
 
-        logger.debug("AgentCertRequestServlet: auth token: " + authToken);
+        logger.debug("AgentCertRequestServlet: auth token: {}", authToken);
 
         processor.processRequest(request, authToken, data, ireq, op);
     }
