@@ -17,15 +17,7 @@ jobs:
         print('BASE_IMAGE: {value}'.format(value=value))
         print('##vso[task.setvariable variable=BASE_IMAGE]{value}'.format(value=value))
 
-        value = os.getenv('REGISTRY_NAMESPACE')
-
-        if not value:
-            value = os.getenv('REPOSITORY_URI')
-            print('REPOSITORY_URI: {value}'.format(value=value))
-
-            # get repository owner
-            value = re.sub(r'^.*://.*/(.*)/.*$', r'\1', value)
-
+        value = os.getenv('REGISTRY_NAMESPACE', 'dogtagpki')
         print('NAMESPACE: {value}'.format(value=value))
         print('##vso[task.setvariable variable=NAMESPACE]{value}'.format(value=value))
 
@@ -62,8 +54,23 @@ jobs:
       docker exec runner dnf install -y dnf-plugins-core rpm-build
       if [ -n "$COPR_REPO" ]; then docker exec runner dnf copr enable -y $COPR_REPO; fi
 
+      docker create --name=jss-dist quay.io/$NAMESPACE/jss-dist:latest
+      docker cp jss-dist:/root/RPMS/. /tmp/RPMS
+      docker rm -f jss-dist
+
+      docker create --name=ldapjdk-dist quay.io/$NAMESPACE/ldapjdk-dist:latest
+      docker cp ldapjdk-dist:/root/RPMS/. /tmp/RPMS
+      docker rm -f ldapjdk-dist
+
+      docker create --name=idm-console-framework-dist quay.io/$NAMESPACE/idm-console-framework-dist:latest
+      docker cp idm-console-framework-dist:/root/RPMS/. /tmp/RPMS
+      docker rm -f idm-console-framework-dist
+
+      docker exec runner mkdir -p RPMS
+      docker cp /tmp/RPMS/. runner:RPMS
+      docker exec runner bash -c "dnf install -y RPMS/*"
+
       docker exec runner dnf builddep -y --spec /root/src/pki.spec
-      docker exec runner dnf install -y dogtag-console-framework
     displayName: Install PKI dependencies
 
   - script: |
