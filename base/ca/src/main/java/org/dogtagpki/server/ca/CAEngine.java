@@ -1723,8 +1723,6 @@ public class CAEngine extends CMSEngine {
         } finally {
             connectionFactory.returnConn(conn);
         }
-
-        authorityMonitor.trackUpdate(authorityID, responseControls);
     }
 
     public synchronized void modifyAuthorityEntry(AuthorityID aid, LDAPModificationSet mods) throws EBaseException {
@@ -1743,8 +1741,6 @@ public class CAEngine extends CMSEngine {
         } finally {
             connectionFactory.returnConn(conn);
         }
-
-        authorityMonitor.trackUpdate(aid, responseControls);
     }
 
     public synchronized void deleteAuthorityEntry(AuthorityID aid) throws EBaseException {

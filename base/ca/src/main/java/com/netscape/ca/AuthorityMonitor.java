@@ -378,28 +378,6 @@ public class AuthorityMonitor implements Runnable {
         nsUniqueIds.remove(aid);
     }
 
-    public synchronized void trackUpdate(AuthorityID aid, LDAPControl[] responseControls) {
-
-        LDAPPostReadControl control = (LDAPPostReadControl)
-            LDAPUtil.getControl(LDAPPostReadControl.class, responseControls);
-
-        LDAPEntry entry = control.getEntry();
-
-        LDAPAttribute attr = entry.getAttribute("entryUSN");
-        if (attr != null) {
-            BigInteger entryUSN = new BigInteger(attr.getStringValueArray()[0]);
-            logger.debug("AuthorityMonitor: tracking entryUSN: " + entryUSN);
-            entryUSNs.put(aid, entryUSN);
-        }
-
-        attr = entry.getAttribute("nsUniqueId");
-        if (attr != null) {
-            String nsUniqueId = attr.getStringValueArray()[0];
-            logger.info("AuthorityMonitor: tracking nsUniqueId: " + nsUniqueId);
-            nsUniqueIds.put(aid, nsUniqueId);
-        }
-    }
-
     /**
      * Stop the activityMonitor thread
      *
