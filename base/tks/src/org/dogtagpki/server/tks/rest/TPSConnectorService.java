@@ -50,6 +50,7 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
     IConfigStore cs = CMS.getConfigStore();
     
     public static final int AES_SESS_KEYSIZE = 128;
+    public static final int AES_SESS_KEYSIZE_256 = 256;
     public IUGSubsystem userGroupManager = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
 
     @Override
@@ -314,14 +315,14 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             }
 
 //            CryptoUtil.createSharedSecret(nickname);
-            CryptoUtil.createSharedSecret(nickname,KeyGenAlgorithm.AES,AES_SESS_KEYSIZE);
+            CryptoUtil.createSharedSecret(nickname,KeyGenAlgorithm.AES,AES_SESS_KEYSIZE_256);
 
             cs.putString("tps." + id + ".nickname", nickname);
             cs.commit(true);
 
             //Create aes session sym key to wrap the shared secret.
 //            SymmetricKey tempKey = createDes3SessionKeyOnInternal();
-            SymmetricKey tempKey = CryptoUtil.createAESSessionKeyOnInternal(AES_SESS_KEYSIZE);
+            SymmetricKey tempKey = CryptoUtil.createAESSessionKeyOnInternal(AES_SESS_KEYSIZE_256);
 
             if (tempKey == null) {
                 return createNoContentResponse();
@@ -392,11 +393,11 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             X509Certificate[] certs = user.getX509Certificates();
 
             CryptoUtil.deleteSharedSecret(nickname);
-            CryptoUtil.createSharedSecret(nickname,KeyGenAlgorithm.AES,AES_SESS_KEYSIZE);
+            CryptoUtil.createSharedSecret(nickname,KeyGenAlgorithm.AES,AES_SESS_KEYSIZE_256);
 //            CryptoUtil.createSharedSecret(nickname);
 
             // Create aes session sym key to wrap the shared secret.
-            SymmetricKey tempKey = CryptoUtil.createAESSessionKeyOnInternal(AES_SESS_KEYSIZE);
+            SymmetricKey tempKey = CryptoUtil.createAESSessionKeyOnInternal(AES_SESS_KEYSIZE_256);
 
             //Create des3 session sym key to wrap the shared secret.
             //SymmetricKey tempKey = createDes3SessionKeyOnInternal();

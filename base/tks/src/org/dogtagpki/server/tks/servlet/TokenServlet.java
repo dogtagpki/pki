@@ -1226,10 +1226,9 @@ public class TokenServlet extends CMSServlet {
                         // get keycheck
 
                         byte[] keycheck = protocol.computeKeyCheck(desKey, selectedToken);
-                        /*
-                        CMS.debug("computeSessionKey:keycheck size = "+keycheck.length);
-                        CMS.debug(keycheck);
-                        */
+                        //CMS.debug("computeSessionKey:keycheck size = "+keycheck.length);
+                        //CMS.debug(keycheck);
+                    
                         keycheck_s =
                                 com.netscape.cmsutil.util.Utils.SpecialEncode(keycheck);
 
@@ -2227,7 +2226,7 @@ CMS.debug("4");
 
                 }
 
-//                SecureChannelProtocol.debugByteArray(encryptedData, "New Encrypt Data: ");
+                //SecureChannelProtocol.debugByteArray(encryptedData, "New Encrypt Data: ");
 
                 // AC: KDF SPEC CHANGE - Log both CUID and KDD
 
@@ -2533,6 +2532,7 @@ CMS.debug("4");
         String errorMsg = "";
         String badParams = "";
         String transportKeyName = "";
+
         String rCUID = req.getParameter(IRemoteRequest.TOKEN_CUID);
 
         String rKDD = req.getParameter("KDD");
@@ -2739,6 +2739,11 @@ CMS.debug("4");
                     CMS.debug("TokenServlet about to try ComputeSessionKey selectedToken="
                             + selectedToken + " keyNickName=" + keyNickName);
 
+                    //SecureChannelProtocol.debugByteArray(macKeyArray, method + " macKeyArray: " + macKeyArray.length);
+                    //SecureChannelProtocol.debugByteArray(xKDD, method + " xKDD: " + xKDD.length);
+                    //SecureChannelProtocol.debugByteArray(xhost_challenge, method + " xhost_challenge: " + xhost_challenge.length);
+                    //SecureChannelProtocol.debugByteArray(xcard_challenge, method + " xcard_challenge: " + xcard_challenge.length);
+
                     SecureChannelProtocol protocol = new SecureChannelProtocol(SecureChannelProtocol.PROTOCOL_THREE);
 
                     macSessionKey = protocol.computeSessionKey_SCP03(selectedToken, keyNickName,xkeyInfo,
@@ -2780,7 +2785,6 @@ CMS.debug("4");
 
                     kek_session_key = protocol.wrapSessionKey(selectedToken, kekSessionKey, null);
 
-
                     //Offload some of the tedious params gathering to another method
                     //ToDo, create a method that reads all this stuff at once for all major methods
                     if (serversideKeygen) {
@@ -2789,7 +2793,7 @@ CMS.debug("4");
                                     kekSessionKey, protocol);
                         } catch (EBaseException e) {
 
-                            CMS.debug(method + " Can't calcualte server side keygen required values...");
+                            CMS.debug(method + " Can't calculate server side keygen required values...");
 
                         }
                     }
@@ -2808,8 +2812,8 @@ CMS.debug("4");
                     }
 
                     host_cryptogram = protocol.computeCryptogram_SCP03(macSessionKey, selectedToken, contextStream.toByteArray(),NistSP800_108KDF.HOST_CRYPTO_KDF_CONSTANT);
-//                    SecureChannelProtocol.debugByteArray(host_cryptogram, method + " calculated host crypto: " + host_cryptogram.length);
-
+                    //CMS.debug("TokenServlet: NistSP800_108KDF.HOST_CRYPTO_KDF_CONSTANT = " + NistSP800_108KDF.HOST_CRYPTO_KDF_CONSTANT);
+                    //SecureChannelProtocol.debugByteArray(host_cryptogram, method + " calculated host crypto: " + host_cryptogram.length);
 
                    if( isCryptoValidate) {
                        if (rcard_cryptogram == null) {
@@ -2818,9 +2822,10 @@ CMS.debug("4");
                        }
                        input_card_crypto =
                                com.netscape.cmsutil.util.Utils.SpecialDecode(rcard_cryptogram);
+
                        card_crypto = protocol.computeCryptogram_SCP03(macSessionKey, selectedToken, contextStream.toByteArray(),NistSP800_108KDF.CARD_CRYPTO_KDF_CONSTANT);
-//                       SecureChannelProtocol.debugByteArray(card_crypto, method + " calculated card crypto: ");
-//                       SecureChannelProtocol.debugByteArray(input_card_crypto, method + " original card crypto: ");
+                       //SecureChannelProtocol.debugByteArray(card_crypto, method + " calculated card crypto: ");
+                       //SecureChannelProtocol.debugByteArray(input_card_crypto, method + " original card crypto: ");
 
                        if(!cryptoGramsAreEqual(input_card_crypto, card_crypto)) {
                            throw new Exception(method + "Card cryptogram mismatch!");
@@ -3004,6 +3009,7 @@ CMS.debug("4");
                 sb.append("&" + IRemoteRequest.TKS_RESPONSE_EncSessionKey + "=");
                 sb.append(encSessionKeyString);
                 sb.append("&" + IRemoteRequest.TKS_RESPONSE_KekSessionKey + "=");
+                sb.append(kekSessionKeyString);
                 value = sb.toString();
             }
 
@@ -3283,7 +3289,7 @@ CMS.debug("4");
             String drmWrappedDesStr =
                     com.netscape.cmsutil.util.Utils.SpecialEncode(drm_trans_wrapped_desKey);
 
-//            CMS.debug(method + " drmWrappedDesStr: " + drmWrappedDesStr);
+            //CMS.debug(method + " drmWrappedDesStr: " + drmWrappedDesStr);
             values.add(drmWrappedDesStr);
 
             byte[] drm_trans_wrapped_aesKey = keyWrapper.wrap(aesKey);

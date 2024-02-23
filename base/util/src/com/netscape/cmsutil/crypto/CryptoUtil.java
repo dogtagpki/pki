@@ -3155,8 +3155,8 @@ public class CryptoUtil {
         String method = "CryptoUtil.unwrapAESKeyFromBytes: ";
 
         logger.debug(method + "begins:  isPerm: " + isPerm);
-       //for now assume 128 bits aes
-        if(inputKeyArray.length > 16) {
+        //support 128 or 256 bits aes
+        if(inputKeyArray.length > 32) {
             throw new Exception(method + "invalid input data size.");
         }
 
