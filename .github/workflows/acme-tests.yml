@@ -147,5 +147,5 @@ jobs:
 
       - name: Publish pki-acme image
         run: |
-          docker tag pki-acme ${{ vars.REGISTRY }}/$NAMESPACE/pki-acme:latest
-          docker push ${{ vars.REGISTRY }}/$NAMESPACE/pki-acme:latest
+          docker tag pki-acme ${{ vars.REGISTRY }}/$NAMESPACE/pki-acme:11.5
+          docker push ${{ vars.REGISTRY }}/$NAMESPACE/pki-acme:11.5
