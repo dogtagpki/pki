@@ -30,7 +30,7 @@ jobs:
       docker build \
           --build-arg BASE_IMAGE=$BASE_IMAGE \
           --target pki-base \
-          --tag pki-base:latest \
+          --tag pki-base:11.5 \
           .
 
       docker run \
@@ -38,7 +38,7 @@ jobs:
           -v $BUILD_SOURCESDIRECTORY:/root/src \
           --privileged \
           --detach \
-          pki-base:latest
+          pki-base:11.5
 
       while :
       do
