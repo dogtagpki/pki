@@ -3,7 +3,7 @@ name: Publish PKI
 on:
   push:
     branches:
-      - master
+      - v11.5
 
 env:
   NAMESPACE: ${{ vars.REGISTRY_NAMESPACE || github.repository_owner }}
