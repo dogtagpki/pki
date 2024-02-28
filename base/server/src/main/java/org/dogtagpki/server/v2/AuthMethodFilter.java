@@ -80,7 +80,9 @@ public abstract class AuthMethodFilter extends HttpFilter {
         }
     }
 
-    protected void checkAuthenticationMethod(HttpServletRequest request, String name) throws ForbiddenException {
+    protected void checkAuthenticationMethod(HttpServletRequest request, String authMethName) throws ForbiddenException {
+        String name = authMethName == null ? "" : authMethName;
+
         logger.debug("AuthMethodFilter: mapping: {}", name);
 
         try {
