@@ -98,6 +98,16 @@ jobs:
               --pkcs12-password Secret.123
           docker exec ipa pki -n ipa-ca-agent ca-user-show admin
 
+      - name: Check PKI server systemd journal
+        if: always()
+        run: |
+          docker exec ipa journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check CA debug log
+        if: always()
+        run: |
+          docker exec ipa find /var/log/pki/pki-tomcat/ca -name "debug.*" -exec cat {} \;
+
       - name: Gather artifacts
         if: always()
         run: |
@@ -113,6 +123,5 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ipa-subca
-          path: |
-            /tmp/artifacts/ipa
+          name: ipa-subca-test
+          path: /tmp/artifacts
