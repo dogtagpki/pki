@@ -123,30 +123,30 @@ jobs:
           sed -n 's/^\s*Key ID:\s*\(.*\)$/\1/p' output | wc -l > actual
           diff expected actual
 
-      - name: Create lightweight CA
+      - name: Create lightweight CAs
         run: |
           HOSTCA_ID=$(cat hostca-id)
 
-          # create a LWCA under the host CA
-          docker exec pki pki -n caadmin ca-authority-create \
-              --parent $HOSTCA_ID \
-              CN="Lightweight CA" | tee output
+          # create 20 LWCAs under the host CA
+          for i in {1..20}
+          do
+              docker exec pki pki -n caadmin ca-authority-create \
+                  --parent $HOSTCA_ID \
+                  CN="Lightweight CA $i" | tee output
 
-          # store LWCA ID
-          sed -n 's/^\s*ID:\s*\(.*\)$/\1/p' output > lwca-id
-          LWCA_ID=$(cat lwca-id)
+              # store LWCA ID
+              sed -n 's/^\s*ID:\s*\(.*\)$/\1/p' output >> lwca-id
+          done
 
           docker exec pki pki -n caadmin ca-authority-find | tee output
 
-          # there should be 2 authorities now
-          echo -e "$HOSTCA_ID\n$LWCA_ID" | sort > expected
+          # there should be 21 authorities now
+          echo -e "$HOSTCA_ID\n$(cat lwca-id)" | sort > expected
           sed -n 's/^\s*ID:\s*\(.*\)$/\1/p' output | sort > actual
           diff expected actual
 
-      - name: Check lightweight CA's LDAP entry
+      - name: Check authority LDAP entries
         run: |
-          LWCA_ID=$(cat lwca-id)
-
           docker exec pki ldapsearch \
               -H ldap://ds.example.com:3389 \
               -x \
@@ -158,8 +158,14 @@ jobs:
               -LLL \
               "(objectClass=*)" | tee output
 
-          # check authorityKeyNickname
-          echo -e "ca_signing\nca_signing $LWCA_ID" | sort > expected
+          # check authorityKeyNicknames
+          echo "ca_signing" > expected
+          for LWCA_ID in $(cat lwca-id)
+          do
+              echo -e "ca_signing $LWCA_ID" >> expected
+          done
+          sort -o expected expected
+
           sed -n 's/^authorityKeyNickname:\s*\(.*\)$/\1/p' output | sort > actual
           diff expected actual
 
@@ -170,8 +176,8 @@ jobs:
               -f /etc/pki/pki-tomcat/password.conf \
               nss-cert-find | tee output
 
-          # there should be 6 certs now
-          echo "6" > expected
+          # there should be 25 certs now
+          echo "25" > expected
           sed -n 's/^\s*Nickname:\s*\(.*\)$/\1/p' output | wc -l > actual
           diff expected actual
 
@@ -180,14 +186,19 @@ jobs:
               -f /etc/pki/pki-tomcat/password.conf \
               nss-key-find | tee output
 
-          # there should be 6 keys now
-          echo "6" > expected
+          # there should be 25 keys now
+          echo "25" > expected
           sed -n 's/^\s*Key ID:\s*\(.*\)$/\1/p' output | wc -l > actual
           diff expected actual
 
       - name: Check enrollment against lightweight CA
         run: |
-          LWCA_ID=$(cat lwca-id)
+          # use the first LWCA
+          LWCA_ID=$(head -1 lwca-id)
+
+          # get LWCA's DN
+          docker exec pki pki -n caadmin ca-authority-show $LWCA_ID | tee output
+          sed -n -e 's/^\s*Authority DN:\s*\(.*\)$/\1/p' output > expected
 
           # submit enrollment request against LWCA
           docker exec pki pki client-cert-request \
@@ -210,20 +221,21 @@ jobs:
           docker exec pki pki ca-cert-show $CERT_ID | tee output
 
           # verify that it's signed by LWCA
-          echo "CN=Lightweight CA" > expected
           sed -n -e 's/^\s*Issuer DN:\s*\(.*\)$/\1/p' output > actual
           diff expected actual
 
-      - name: Remove lightweight CA
+      - name: Remove lightweight CAs
         run: |
           HOSTCA_ID=$(cat hostca-id)
-          LWCA_ID=$(cat lwca-id)
 
-          docker exec pki pki -n caadmin ca-authority-disable $LWCA_ID
+          for LWCA_ID in $(cat lwca-id)
+          do
+              docker exec pki pki -n caadmin ca-authority-disable $LWCA_ID
 
-          docker exec pki pki -n caadmin ca-authority-del \
-              --force \
-              $LWCA_ID | tee output
+              docker exec pki pki -n caadmin ca-authority-del \
+                  --force \
+                  $LWCA_ID
+          done
 
           docker exec pki pki -n caadmin ca-authority-find | tee output
 
@@ -232,7 +244,7 @@ jobs:
           sed -n 's/^\s*ID:\s*\(.*\)$/\1/p' output > actual
           diff expected actual
 
-      - name: Check lightweight CA's LDAP entry
+      - name: Check authority LDAP entries
         run: |
           HOSTCA_ID=$(cat hostca-id)
 
