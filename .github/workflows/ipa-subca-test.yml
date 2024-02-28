@@ -98,6 +98,43 @@ jobs:
               --pkcs12-password Secret.123
           docker exec ipa pki -n ipa-ca-agent ca-user-show admin
 
+      - name: Check lightweight CAs
+        run: |
+          # there should be 1 authority initially
+          docker exec ipa pki -n ipa-ca-agent ca-authority-find | tee output
+          echo "1" > expected
+          sed -n 's/^\s*ID:\s*\(.*\)$/\1/p' output | wc -l > actual
+          diff expected actual
+
+      - name: Create lightweight CAs
+        run: |
+          for i in {1..20}
+          do
+              docker exec ipa ipa ca-add "lwca$i" \
+                  --subject "cn=Lightweight CA $i" \
+                  --desc "Lightweight CA $i"
+          done
+
+          # there should be 21 authorities now
+          docker exec ipa pki -n ipa-ca-agent ca-authority-find | tee output
+          echo "21" > expected
+          sed -n 's/^\s*ID:\s*\(.*\)$/\1/p' output | wc -l > actual
+          diff expected actual
+
+      - name: Remove lightweight CAs
+        run: |
+          for i in {1..20}
+          do
+              docker exec ipa ipa ca-disable "lwca$i"
+              docker exec ipa ipa ca-del "lwca$i"
+          done
+
+          # there should be 1 authority now
+          docker exec ipa pki -n ipa-ca-agent ca-authority-find | tee output
+          echo "1" > expected
+          sed -n 's/^\s*ID:\s*\(.*\)$/\1/p' output | wc -l > actual
+          diff expected actual
+
       - name: Check PKI server systemd journal
         if: always()
         run: |

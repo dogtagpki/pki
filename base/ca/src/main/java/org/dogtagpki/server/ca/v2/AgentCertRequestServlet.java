@@ -157,6 +157,7 @@ public class AgentCertRequestServlet extends CAServlet {
                 throw new ConflictingOperationException(message, e);
 
             } catch (CAMissingCertException | CAMissingKeyException e) {
+                logger.error(CMS.getLogMessage("CMSCORE_CA_SIGNING_CERT_NOT_FOUND", e.toString()), e);
                 throw new ServiceUnavailableException(e.toString(), e);
 
             } catch (EPropertyException e) {
