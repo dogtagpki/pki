@@ -102,7 +102,7 @@ public abstract class ACLFilter extends HttpFilter {
         }
     }
 
-    protected void checkACL(HttpServletRequest request, String name) throws ForbiddenException {
+    protected void checkACL(HttpServletRequest request, String aclName) throws ForbiddenException {
         String auditInfo =  request.getMethod() + ":" + request.getPathInfo();
 
         logger.debug("ACLFilter: {}", auditInfo);
@@ -115,9 +115,11 @@ public abstract class ACLFilter extends HttpFilter {
          * use authzRequired to track when aclMapping is not null for ease of following the code
          */
         boolean authzRequired = true;
+        String name = aclName;
         if (name == null || name.isEmpty()) {
             logger.debug("ACLFilter: no authorization required");
             authzRequired = false;
+            name = "";
         }
 
         Principal principal = request.getUserPrincipal();
