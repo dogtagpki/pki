@@ -214,6 +214,9 @@ jobs:
           docker exec pki pki --debug -n caadmin ca-profile-add ${SHARED}/profile.xml
           docker exec pki pki -n caadmin ca-profile-show caCustomUser
 
+      - name: Remove CA
+        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
+
       - name: Check PKI server systemd journal
         if: always()
         run: |
@@ -230,9 +233,6 @@ jobs:
           tests/bin/ds-artifacts-save.sh ds
           tests/bin/pki-artifacts-save.sh pki
         continue-on-error: true
-
-      - name: Remove CA
-        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
 
       - name: Upload artifacts
         if: always()

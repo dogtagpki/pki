@@ -90,6 +90,9 @@ jobs:
               --pkcs12-password Secret.123
           docker exec pki pki -n caadmin ca-user-show caadmin
 
+      - name: Remove CA
+        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
+
       - name: Check PKI server systemd journal
         if: always()
         run: |
@@ -106,9 +109,6 @@ jobs:
           tests/bin/ds-artifacts-save.sh ds
           tests/bin/pki-artifacts-save.sh pki
         continue-on-error: true
-
-      - name: Remove CA
-        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
 
       - name: Upload artifacts
         if: always()
