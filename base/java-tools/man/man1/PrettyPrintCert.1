@@ -117,14 +117,11 @@ The certificate in pretty-print format in the \fBcert.out\fP file looks like the
                     Key Identifier:
                         BB:36:98:5D:65:CB:88:E0:87:23:37:6F:5B:F7:AF:8B:
                         8A:EB:BA:B5
-                Identifier: 1.3.6.1.5.5.7.1.1
-                    Critical: no
-                    Value:
-                        30:40:30:3E:06:08:2B:06:01:05:05:07:30:01:86:32:
-                        68:74:74:70:3A:2F:2F:70:6B:69:2D:64:65:73:6B:74:
-                        6F:70:2E:75:73:65:72:73:79:73:2E:72:65:64:68:61:
-                        74:2E:63:6F:6D:3A:38:30:38:30:2F:63:61:2F:6F:63:
-                        73:70
+                Identifier: Authority Info Access: - 1.3.6.1.5.5.7.1.1
+                    Critical: no 
+                    Access Description: 
+                        Method #0: ocsp
+                        Location #0: URIName: http://pki-desktop.usersys.redhat.com:8080/ca/ocsp
                 Identifier: Key Usage: - 2.5.29.15
                     Critical: yes
                     Key Usage:
@@ -134,8 +131,8 @@ The certificate in pretty-print format in the \fBcert.out\fP file looks like the
                 Identifier: Extended Key Usage: - 2.5.29.37
                     Critical: no
                     Extended Key Usage:
-                        1.3.6.1.5.5.7.3.2
-                        1.3.6.1.5.5.7.3.4
+                        clientAuth
+                        emailProtection
         Signature:
             Algorithm: SHA256withRSA - 1.2.840.113549.1.1.11
             Signature:

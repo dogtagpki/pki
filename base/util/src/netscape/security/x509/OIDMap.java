@@ -26,6 +26,8 @@ import java.util.Iterator;
 import java.util.Properties;
 
 import netscape.security.extensions.AuthInfoAccessExtension;
+import netscape.security.extensions.InhibitAnyPolicyExtension;
+import netscape.security.extensions.OCSPNoCheckExtension;
 import netscape.security.extensions.SubjectInfoAccessExtension;
 import netscape.security.util.ObjectIdentifier;
 
@@ -89,9 +91,10 @@ public class OIDMap {
             SubjectDirAttributesExtension.NAME;
     public static final String EXT_KEY_USAGE_NAME = "ExtendedKeyUsageExtension";
     public static final String EXT_INHIBIT_ANY_POLICY_NAME = "InhibitAnyPolicyExtension";
+    private static final String EXT_INHIBIT_ANY_POLICY = ROOT + "." + InhibitAnyPolicyExtension.NAME;
     private static final String EXT_KEY_USAGE = //ROOT + "." +
             EXT_KEY_USAGE_NAME;
-
+    private static final String OCSP_NO_CHECK = ROOT + "." + OCSPNoCheckExtension.NAME;
     private static final String CRL_NUMBER = ROOT + "." +
                                           CRLNumberExtension.NAME;
     private static final String CRL_REASON = ROOT + "." +
@@ -127,6 +130,8 @@ public class OIDMap {
         props.put(AUTH_KEY_IDENTIFIER, "2.5.29.35");
         props.put(SUBJ_DIR_ATTR, "2.5.29.9");
         props.put(EXT_KEY_USAGE, "2.5.29.37");
+        props.put(EXT_INHIBIT_ANY_POLICY, "2.5.29.54");
+        props.put(OCSP_NO_CHECK, "1.3.6.1.5.5.7.48.1.5");
     }
 
     // Load the default name to class map (EXTENSIONS_CLASSES)
@@ -134,7 +139,7 @@ public class OIDMap {
         props.put(AUTH_KEY_IDENTIFIER,
                    "netscape.security.x509.AuthorityKeyIdentifierExtension");
         props.put(SUB_KEY_IDENTIFIER,
-                  "org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension");
+                  "netscape.security.x509.SubjectKeyIdentifierExtension");
         props.put(AUTHORITY_INFORMATION_ACCESS_IDENTIFIER,
                  "netscape.security.extensions.AuthInfoAccessExtension");
         props.put(SUBJECT_INFORMATION_ACCESS_IDENTIFIER,
@@ -161,6 +166,10 @@ public class OIDMap {
                   "netscape.security.x509.SubjectDirAttributesExtension");
         props.put(EXT_KEY_USAGE,
                   "netscape.security.extensions.ExtendedKeyUsageExtension");
+        props.put(EXT_INHIBIT_ANY_POLICY,
+                  "netscape.security.extensions.InhibitAnyPolicyExtension");
+        props.put(OCSP_NO_CHECK,
+                  "netscape.security.extensions.OCSPNoCheckExtension");
         props.put(CRL_NUMBER, "netscape.security.x509.CRLNumberExtension");
         props.put(CRL_REASON, "netscape.security.x509.CRLReasonExtension");
     }

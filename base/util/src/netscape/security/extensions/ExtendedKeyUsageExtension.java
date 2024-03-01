@@ -43,17 +43,35 @@ public class ExtendedKeyUsageExtension extends Extension implements CertAttrSet 
     public static final String OID = "2.5.29.37";
     public static final String NAME = OIDMap.EXT_KEY_USAGE_NAME;
     public static final String OID_OCSPSigning = "1.3.6.1.5.5.7.3.9";
+    public static final String OID_EMailProtection = "1.3.6.1.5.5.7.3.4";
     public static final String OID_CODESigning = "1.3.6.1.5.5.7.3.3";
+    public static final String OID_ClientAuth = "1.3.6.1.5.5.7.3.2";
+    public static final String OID_ServerAuth = "1.3.6.1.5.5.7.3.1";
 
     public static final int OID_OCSP_SIGNING_STR[] =
         { 1, 3, 6, 1, 5, 5, 7, 3, 9 };
     public static final ObjectIdentifier OID_OCSP_SIGNING = new
             ObjectIdentifier(OID_OCSP_SIGNING_STR);
 
+    public static final int OID_EMAIL_PROTECTION_STR[] =
+        { 1, 3, 6, 1, 5, 5, 7, 3, 4 };
+    public static final ObjectIdentifier OID_EMAIL_PROTECTION = new
+            ObjectIdentifier(OID_EMAIL_PROTECTION_STR);
+
     public static final int OID_CODE_SIGNING_STR[] =
         { 1, 3, 6, 1, 5, 5, 7, 3, 3 };
     public static final ObjectIdentifier OID_CODE_SIGNING = new
             ObjectIdentifier(OID_OCSP_SIGNING_STR);
+
+    public static final int OID_CLIENT_AUTH_STR[] =
+        { 1, 3, 6, 1, 5, 5, 7, 3, 2 };
+    public static final ObjectIdentifier OID_CLIENT_AUTH = new
+            ObjectIdentifier(OID_CLIENT_AUTH_STR);
+
+    public static final int OID_SERVER_AUTH_STR[] =
+        { 1, 3, 6, 1, 5, 5, 7, 3, 1 };
+    public static final ObjectIdentifier OID_SERVER_AUTH = new
+            ObjectIdentifier(OID_SERVER_AUTH_STR);
 
     private Vector<ObjectIdentifier> oidSet = null;
     private byte mCached[] = null;
