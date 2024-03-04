@@ -62,10 +62,6 @@ jobs:
       docker cp ldapjdk-dist:/root/RPMS/. /tmp/RPMS
       docker rm -f ldapjdk-dist
 
-      docker create --name=idm-console-framework-dist quay.io/$NAMESPACE/idm-console-framework-dist:latest
-      docker cp idm-console-framework-dist:/root/RPMS/. /tmp/RPMS
-      docker rm -f idm-console-framework-dist
-
       docker exec runner mkdir -p RPMS
       docker cp /tmp/RPMS/. runner:RPMS
       docker exec runner bash -c "dnf install -y RPMS/*"
@@ -169,21 +165,6 @@ jobs:
           -Dpackaging=jar \
           -DgeneratePom=true
     displayName: Install LDAP JDK into local Maven repo
-
-  - script: |
-      # get IDM Console Framework <major>.<minor>.<update> version
-      IDM_CONSOLE_FRAMEWORK_VERSION=$(docker exec runner rpm -q --qf "%{version}" dogtag-console-framework)
-
-      docker exec runner \
-          mvn install:install-file \
-          -f /root/src \
-          -Dfile=/usr/share/java/idm-console-framework.jar \
-          -DgroupId=org.dogtagpki.console-framework \
-          -DartifactId=console-framework \
-          -Dversion=$IDM_CONSOLE_FRAMEWORK_VERSION-SNAPSHOT \
-          -Dpackaging=jar \
-          -DgeneratePom=true
-    displayName: Install IDM Console Framework into local Maven repo
 
   - script: |
       docker exec runner \
