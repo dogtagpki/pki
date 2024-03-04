@@ -27,7 +27,6 @@
 	<classpathentry kind="lib" path="/usr/share/java/apache-commons-cli.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/apache-commons-logging.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/commons-codec.jar"/>
-	<classpathentry kind="lib" path="/usr/share/java/idm-console-framework.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/ldapjdk.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/jaxb-api/jakarta.xml.bind-api.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/jakarta-activation/jakarta.activation-api.jar"/>

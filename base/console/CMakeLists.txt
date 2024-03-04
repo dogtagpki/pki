@@ -11,7 +11,6 @@ javac(pki-console-classes
         ${COMMONS_CODEC_JAR}
         ${JSS_JAR}
         ${LDAPJDK_JAR}
-        ${IDM_CONSOLE_FRAMEWORK_JAR}
         ${PKI_COMMON_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes

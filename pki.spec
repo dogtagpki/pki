@@ -252,7 +252,6 @@ Obsoletes:        pki-symkey < %{version}
 Obsoletes:        %{product_id}-symkey < %{version}
 Obsoletes:        pki-console < %{version}
 Obsoletes:        pki-console-theme < %{version}
-Obsoletes:        idm-console-framework < 2.0
 
 %if %{with base}
 Requires:         %{product_id}-base = %{version}-%{release}
@@ -762,14 +761,16 @@ This package provides %{product_name} API documentation.
 Summary:          %{product_name} Console Package
 BuildArch:        noarch
 
-BuildRequires:    mvn(org.dogtagpki.console-framework:console-framework) >= 2.1.0
-
 Obsoletes:        pki-console < %{version}-%{release}
 Provides:         pki-console = %{version}-%{release}
 
-Requires:         mvn(org.dogtagpki.console-framework:console-framework) >= 2.1.0
 Requires:         %{product_id}-java = %{version}-%{release}
 Requires:         %{product_id}-console-theme = %{version}-%{release}
+
+# IDM Console Framework has been merged into PKI Console.
+# This will remove installed IDM Console Framework packages.
+Obsoletes:        idm-console-framework <= 2.1
+Conflicts:        idm-console-framework <= 2.1
 
 %description -n   %{product_id}-console
 %{product_name} Console is a Java application used to administer %{product_name} Server.
