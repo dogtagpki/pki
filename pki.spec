@@ -63,9 +63,27 @@ ExcludeArch: i686
 # Java
 ################################################################################
 
-%global java_devel java-17-openjdk-devel
-%global java_headless java-17-openjdk-headless
-%global java_home %{_jvmdir}/jre-17-openjdk
+%if 0%{?rhel}
+
+%define java_devel java-17-openjdk-devel
+%define java_headless java-17-openjdk-headless
+%define java_home %{_jvmdir}/jre-17-openjdk
+
+%else
+
+# Use Java 21 on Fedora 40+, otherwise use Java 17.
+%global java_devel java-devel >= 1:17
+%global java_headless java-headless >= 1:17
+
+# Don't use find since it might not work well with local builds.
+#   find {_jvmdir} -maxdepth 1 | grep "jre-[0-9]\+$"
+%global java_home %(
+   source /usr/share/java-utils/java-functions;
+   _prefer_jre=true;
+   set_jvm;
+   echo $JAVA_HOME)
+
+%endif
 
 ################################################################################
 # Application Server
