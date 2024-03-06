@@ -358,6 +358,12 @@ jobs:
           sed -n 's/^metaInfo: payloadWrapAlgorithm:\(.*\)$/\1/p' output > actual
           diff expected actual
 
+      - name: Remove KRA
+        run: docker exec pki pkidestroy -i pki-tomcat -s KRA -v
+
+      - name: Remove CA
+        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
+
       - name: Check PKI server systemd journal
         if: always()
         run: |
@@ -379,12 +385,6 @@ jobs:
           tests/bin/ds-artifacts-save.sh ds
           tests/bin/pki-artifacts-save.sh pki
         continue-on-error: true
-
-      - name: Remove KRA
-        run: docker exec pki pkidestroy -i pki-tomcat -s KRA -v
-
-      - name: Remove CA
-        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
 
       - name: Upload artifacts
         if: always()

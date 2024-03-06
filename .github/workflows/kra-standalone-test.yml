@@ -233,6 +233,32 @@ jobs:
               > >(tee stdout) 2> >(tee stderr >&2) || true
           diff expected stderr
 
+      - name: Remove KRA
+        run: docker exec kra pkidestroy -i pki-tomcat -s KRA -v
+
+      - name: Remove CA
+        run: docker exec ca pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Check PKI server systemd journal in CA container
+        if: always()
+        run: |
+          docker exec ca journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check CA debug log
+        if: always()
+        run: |
+          docker exec ca find /var/log/pki/pki-tomcat/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check PKI server systemd journal in KRA container
+        if: always()
+        run: |
+          docker exec kra journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check KRA debug log
+        if: always()
+        run: |
+          docker exec kra find /var/log/pki/pki-tomcat/kra -name "debug.*" -exec cat {} \;
+
       - name: Gather artifacts
         if: always()
         run: |
@@ -241,18 +267,9 @@ jobs:
           tests/bin/pki-artifacts-save.sh kra
         continue-on-error: true
 
-      - name: Remove KRA
-        run: docker exec kra pkidestroy -i pki-tomcat -s KRA -v
-
-      - name: Remove CA
-        run: docker exec ca pkidestroy -i pki-tomcat -s CA -v
-
       - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: kra-standalone
-          path: |
-            /tmp/artifacts/ds
-            /tmp/artifacts/ca
-            /tmp/artifacts/kra
+          path: /tmp/artifacts

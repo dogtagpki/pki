@@ -274,6 +274,45 @@ jobs:
           echo kra.example.com > expected
           diff expected actual
 
+      - name: Remove KRA
+        run: docker exec kra pkidestroy -i pki-tomcat -s KRA -v
+
+      - name: Remove sub CA
+        run: docker exec subca pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Remove root CA
+        run: docker exec rootca pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Check PKI server systemd journal in root CA container
+        if: always()
+        run: |
+          docker exec rootca journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check root CA debug log
+        if: always()
+        run: |
+          docker exec rootca find /var/log/pki/pki-tomcat/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check PKI server systemd journal in sub CA container
+        if: always()
+        run: |
+          docker exec subca journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check sub CA debug log
+        if: always()
+        run: |
+          docker exec subca find /var/log/pki/pki-tomcat/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check PKI server systemd journal in KRA container
+        if: always()
+        run: |
+          docker exec kra journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check KRA debug log
+        if: always()
+        run: |
+          docker exec kra find /var/log/pki/pki-tomcat/kra -name "debug.*" -exec cat {} \;
+
       - name: Gather artifacts
         if: always()
         run: |
@@ -285,24 +324,9 @@ jobs:
           tests/bin/pki-artifacts-save.sh kra
         continue-on-error: true
 
-      - name: Remove KRA
-        run: docker exec kra pkidestroy -i pki-tomcat -s KRA -v
-
-      - name: Remove sub CA
-        run: docker exec subca pkidestroy -i pki-tomcat -s CA -v
-
-      - name: Remove root CA
-        run: docker exec rootca pkidestroy -i pki-tomcat -s CA -v
-
       - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: kra-separate
-          path: |
-            /tmp/artifacts/rootca
-            /tmp/artifacts/rootcads
-            /tmp/artifacts/subca
-            /tmp/artifacts/subcads
-            /tmp/artifacts/kra
-            /tmp/artifacts/krads
+          path: /tmp/artifacts
