@@ -3732,11 +3732,20 @@ class PKIDeployer:
 
         try:
             logger.info('Checking admin cert: %s', nickname)
-            pem_cert = client_nssdb.get_cert(
-                nickname=nickname,
-                output_format='pem',
-                output_text=True,  # JSON encoder needs text
-            )
+            cert_info = client_nssdb.get_cert_info(nickname)
+
+            if cert_info:
+                logger.info('admin cert already exists in NSS database')
+                logger.info('- serial: %s', hex(cert_info['serial_number']))
+                logger.info('- subject: %s', cert_info['subject'])
+                logger.info('- issuer: %s', cert_info['issuer'])
+                logger.info('- trust flags: %s', cert_info['trust_flags'])
+
+                pem_cert = pki.nssdb.convert_cert(cert_info['data'], 'base64', 'pem')
+
+            else:
+                logger.info('admin cert does not exist in NSS database')
+                pem_cert = None
 
         finally:
             client_nssdb.close()
