@@ -3561,48 +3561,32 @@ class PKIDeployer:
         finally:
             shutil.rmtree(tmpdir)
 
-    def create_admin_csr(self):
+    def create_admin_csr(self, subsystem):
 
         if self.mdict['pki_admin_cert_request_type'] != 'pkcs10':
             raise Exception(log.PKI_CONFIG_PKCS10_SUPPORT_ONLY)
 
-        noise_file = os.path.join(self.mdict['pki_client_database_dir'], 'noise')
-        output_file = os.path.join(self.mdict['pki_client_database_dir'], 'admin_pkcs10.bin')
-        output_ascii_file = output_file + '.asc'
+        csr_path = os.path.join(self.mdict['pki_client_database_dir'], 'admin.csr')
 
-        # note: in the function below, certutil is used to generate
-        # the request for the admin cert.  The keys are generated
-        # by NSS, which does not actually use the data in the noise
-        # file, so it does not matter what is in this file.  Certutil
-        # still requires it though, otherwise it waits for keyboard
-        # input.
-        with open(noise_file, 'w', encoding='utf-8') as f:
-            f.write('not_so_random_data')
+        client_nssdb = pki.nssdb.NSSDatabase(
+            directory=self.mdict['pki_client_database_dir'],
+            password_file=self.mdict['pki_client_password_conf'])
 
-        self.certutil.generate_certificate_request(
-            self.mdict['pki_admin_subject_dn'],
-            self.mdict['pki_admin_key_type'],
-            self.mdict['pki_admin_key_size'],
-            self.mdict['pki_client_password_conf'],
-            noise_file,
-            output_file,
-            self.mdict['pki_client_database_dir'],
-            None,
-            None,
-            True)
+        try:
+            self.generate_csr(
+                client_nssdb,
+                subsystem,
+                'admin',
+                csr_path
+            )
 
-        self.file.delete(noise_file)
+        finally:
+            client_nssdb.close()
 
-        # convert output to ASCII
-        command = ['BtoA', output_file, output_ascii_file]
-        logger.debug('Command: %s', ' '.join(command))
+        with open(csr_path, encoding='utf-8') as f:
+            pem_csr = f.read()
 
-        subprocess.check_call(command)
-
-        with open(output_ascii_file, 'r', encoding='utf-8') as f:
-            b64csr = f.read().replace('\r', '').replace('\n', '')
-
-        return b64csr
+        return pki.nssdb.convert_csr(pem_csr, 'pem', 'base64')
 
     def valid_algorithm(self, key_type, algorithm):
 

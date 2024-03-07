@@ -194,7 +194,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             else:
                 logger.info('Creating admin cert request')
-                admin_csr = deployer.create_admin_csr()
+                admin_csr = deployer.create_admin_csr(subsystem)
 
             logger.info('Setting up admin cert')
             admin_cert = deployer.setup_admin_cert(subsystem, admin_csr)
