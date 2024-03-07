@@ -3602,29 +3602,6 @@ class PKIDeployer:
         with open(output_ascii_file, 'r', encoding='utf-8') as f:
             b64csr = f.read().replace('\r', '').replace('\n', '')
 
-        standalone = config.str2bool(self.mdict['pki_standalone'])
-        external_step_one = not config.str2bool(self.mdict['pki_external_step_two'])
-
-        if standalone and external_step_one:
-            # For convenience and consistency, save a copy of
-            # the Stand-alone PKI 'Admin Certificate' CSR to the
-            # specified "pki_admin_csr_path" location
-            # (Step 1)
-
-            pem_csr = pki.nssdb.convert_data(b64csr, 'base64', 'pem')
-            logger.info('Admin CSR:\n%s', pem_csr)
-
-            csr_file = self.mdict['pki_admin_csr_path']
-            logger.info('Storing admin CSR into %s', csr_file)
-
-            self.directory.create(os.path.dirname(csr_file))
-
-            with open(csr_file, 'w', encoding='utf-8') as f:
-                f.write(pem_csr)
-
-            # Save the client database for stand-alone PKI (Step 1)
-            self.mdict['pki_client_database_purge'] = 'False'
-
         return b64csr
 
     def valid_algorithm(self, key_type, algorithm):
