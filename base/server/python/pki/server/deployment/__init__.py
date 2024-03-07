@@ -3488,26 +3488,6 @@ class PKIDeployer:
 
         logger.debug('PKIDeployer.load_admin_cert()')
 
-        nickname = self.mdict['pki_admin_nickname']
-        logger.info('Loading admin cert from client database: %s', nickname)
-
-        client_nssdb = pki.nssdb.NSSDatabase(
-            directory=self.mdict['pki_client_database_dir'],
-            password=self.mdict['pki_client_database_password'])
-
-        try:
-            pem_cert = client_nssdb.get_cert(
-                nickname=nickname,
-                output_format='pem',
-                output_text=True,  # JSON encoder needs text
-            )
-
-        finally:
-            client_nssdb.close()
-
-        if pem_cert:
-            return pem_cert
-
         cert_file = self.mdict.get('pki_admin_cert_file')
         if cert_file and os.path.exists(cert_file):
 
@@ -3782,6 +3762,32 @@ class PKIDeployer:
 
         external = config.str2bool(self.mdict['pki_external'])
         standalone = config.str2bool(self.mdict['pki_standalone'])
+
+        nickname = self.mdict['pki_admin_nickname']
+
+        client_nssdb = pki.nssdb.NSSDatabase(
+            directory=self.mdict['pki_client_database_dir'],
+            password=self.mdict['pki_client_database_password'])
+
+        try:
+            logger.info('Checking admin cert: %s', nickname)
+            pem_cert = client_nssdb.get_cert(
+                nickname=nickname,
+                output_format='pem',
+                output_text=True,  # JSON encoder needs text
+            )
+
+        finally:
+            client_nssdb.close()
+
+        if pem_cert:
+            logger.debug('Admin cert:\n%s', pem_cert)
+
+            if external and subsystem.type != 'CA' or standalone:
+                self.store_admin_cert(pem_cert)
+                self.export_admin_pkcs12()
+
+            return pem_cert
 
         cert_path = self.mdict.get('pki_admin_cert_path')
         if cert_path:
