@@ -2060,7 +2060,7 @@ class NSSDatabase(object):
         cert = {}
         cert['object'] = cert_obj
 
-        cert['data'] = self.get_cert(nickname=nickname, token=token, output_format='base64')
+        cert['data'] = convert_cert(cert_pem.decode('utf-8'), 'pem', 'base64')
 
         cert['serial_number'] = cert_obj.serial_number
 
