@@ -1,0 +1,6 @@
+= Server Changes =
+
+== Remove <subsystem>.admin.cert from CS.cfg ==
+
+The `<subsystem>.admin.cert` parameter in `CS.cfg` is no longer used
+so it has been removed.

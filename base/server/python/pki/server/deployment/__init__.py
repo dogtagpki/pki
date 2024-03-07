@@ -2350,27 +2350,6 @@ class PKIDeployer:
 
         self.import_cert_chain(nssdb)
 
-    def update_admin_cert(self, subsystem):
-
-        logger.info('Updating admin certificate')
-
-        client_nssdb = pki.nssdb.NSSDatabase(
-            directory=self.mdict['pki_client_database_dir'],
-            password=self.mdict['pki_client_database_password'])
-
-        try:
-            nickname = self.mdict['pki_admin_nickname']
-            cert_data = client_nssdb.get_cert(
-                nickname=nickname,
-                output_format='base64',
-                output_text=True,
-            )
-
-            subsystem.config['%s.admin.cert' % subsystem.name] = cert_data
-
-        finally:
-            client_nssdb.close()
-
     def update_system_certs(self, subsystem):
 
         logger.info('Updating system certs')
@@ -2385,14 +2364,9 @@ class PKIDeployer:
             subsystem.config['ca.ocsp_signing.defaultSigningAlgorithm'] = \
                 self.mdict['pki_ocsp_signing_signing_algorithm']
 
-        if subsystem.name == 'kra':
-            self.update_admin_cert(subsystem)
-
         if subsystem.name == 'ocsp':
             subsystem.config['ocsp.signing.defaultSigningAlgorithm'] = \
                 self.mdict['pki_ocsp_signing_signing_algorithm']
-
-            self.update_admin_cert(subsystem)
 
         subsystem.config['%s.audit_signing.defaultSigningAlgorithm' % subsystem.name] = \
             self.mdict['pki_audit_signing_signing_algorithm']
