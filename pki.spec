@@ -1042,6 +1042,9 @@ C_FLAGS="$C_FLAGS -D_GLIBCXX_ASSERTIONS"
 
 # https://sourceware.org/annobin/annobin.html/Test-lto.html
 C_FLAGS="$C_FLAGS -fno-lto"
+
+# https://sourceware.org/annobin/annobin.html/Test-fortify.html
+C_FLAGS="$C_FLAGS -D_FORTIFY_SOURCE=3"
 %endif
 
 pkgs=base\
