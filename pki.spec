@@ -221,8 +221,6 @@ BuildRequires:    apr-util-devel
 BuildRequires:    cyrus-sasl-devel
 BuildRequires:    httpd-devel >= 2.4.2
 BuildRequires:    systemd
-BuildRequires:    zlib
-BuildRequires:    zlib-devel
 
 # build dependency to build man pages
 BuildRequires:    golang-github-cpuguy83-md2man
