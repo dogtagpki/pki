@@ -77,8 +77,8 @@ import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.dbs.CertRecord;
-import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.dbs.RecordPagedList;
 import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.request.CertRequestRepository;
 import com.netscape.cmscore.request.Request;
@@ -480,73 +480,59 @@ public class EnrollServlet extends CAServlet {
                 "(&(x509cert.subject="
                         + certBasedOldSubjectDN + ")(!(x509cert.serialNumber=" + certBasedOldSerialNum
                         + "))(certStatus=VALID))";
-        CertRecordList list = cr.findCertRecordsInList(filter, null, 10);
-        int size = list.getSize();
-        Enumeration<CertRecord> en = list.getCertRecords(0, size - 1);
+        RecordPagedList<CertRecord> list = cr.findPagedCertRecords(filter, null, null);
 
-        logger.debug("EnrollServlet: signing cert filter " + filter);
+        logger.debug("EnrollServlet: signing cert filter {}", filter);
 
-        if (en.hasMoreElements()) {
-            X509CertInfo encCertInfo = new CertInfo();
-            X509CertInfo[] cInfoArray = new X509CertInfo[] { certInfo,
+        X509CertInfo encCertInfo;
+        X509CertInfo[] cInfoArray;
+
+        for (CertRecord rec: list) {
+            X509CertImpl cert = rec.getCertificate();
+
+            // if not encryption cert only, try next one
+            if (!CertUtils.isEncryptionCert(cert) ||
+                    CertUtils.isEncryptionCert(cert) &&
+                    CertUtils.isSigningCert(cert)) {
+
+                logger.debug("EnrollServlet: Not encryption only cert, will try next one.");
+                continue;
+            }
+
+            key = (X509Key) cert.getPublicKey();
+            logger.debug("EnrollServlet: Found key for encryption cert.");
+
+            try {
+                encCertInfo = (X509CertInfo)
+                        cert.get(
+                                X509CertImpl.NAME + "." + X509CertImpl.INFO);
+
+            } catch (CertificateParsingException ex) {
+                logger.error(CMS.getLogMessage("CMSGW_MISSING_CERTINFO_ENCRYPT_CERT"), ex);
+                throw new ECMSGWException(CMS.getUserMessage("CMS_GW_MISSING_CERTINFO"), ex);
+            }
+
+            try {
+                encCertInfo.set(X509CertInfo.KEY, new CertificateX509Key(key));
+
+            } catch (CertificateException e) {
+                logger.error(CMS.getLogMessage("CMSGW_FAILED_SET_KEY_FROM_CERT_AUTH_ENROLL_1", e.toString()), e);
+                throw new ECMSGWException(CMS.getUserMessage("CMS_GW_SET_KEY_FROM_CERT_AUTH_ENROLL_FAILED", e.toString()), e);
+
+            } catch (IOException e) {
+                logger.error(CMS.getLogMessage("CMSGW_FAILED_SET_KEY_FROM_CERT_AUTH_ENROLL_1", e.toString()), e);
+                throw new ECMSGWException(CMS.getUserMessage("CMS_GW_SET_KEY_FROM_CERT_AUTH_ENROLL_FAILED", e.toString()), e);
+            }
+
+            logger.debug("EnrollServlet: About to fillCertInfoFromAuthToken!");
+            PKIProcessor.fillCertInfoFromAuthToken(encCertInfo, authToken);
+
+            cInfoArray = new X509CertInfo[] { certInfo,
                     encCertInfo };
-            int i = 1;
 
-            boolean encCertFound = false;
-
-            while (en.hasMoreElements()) {
-                CertRecord record = en.nextElement();
-                X509CertImpl cert = record.getCertificate();
-
-                // if not encryption cert only, try next one
-                if (!CertUtils.isEncryptionCert(cert) ||
-                        CertUtils.isEncryptionCert(cert) &&
-                        CertUtils.isSigningCert(cert)) {
-
-                    logger.debug("EnrollServlet: Not encryption only cert, will try next one.");
-                    continue;
-                }
-
-                key = (X509Key) cert.getPublicKey();
-                logger.debug("EnrollServlet: Found key for encryption cert.");
-                encCertFound = true;
-
-                try {
-                    encCertInfo = (X509CertInfo)
-                            cert.get(
-                                    X509CertImpl.NAME + "." + X509CertImpl.INFO);
-
-                } catch (CertificateParsingException ex) {
-                    logger.error(CMS.getLogMessage("CMSGW_MISSING_CERTINFO_ENCRYPT_CERT"), ex);
-                    throw new ECMSGWException(CMS.getUserMessage("CMS_GW_MISSING_CERTINFO"), ex);
-                }
-
-                try {
-                    encCertInfo.set(X509CertInfo.KEY, new CertificateX509Key(key));
-
-                } catch (CertificateException e) {
-                    logger.error(CMS.getLogMessage("CMSGW_FAILED_SET_KEY_FROM_CERT_AUTH_ENROLL_1", e.toString()), e);
-                    throw new ECMSGWException(CMS.getUserMessage("CMS_GW_SET_KEY_FROM_CERT_AUTH_ENROLL_FAILED", e.toString()), e);
-
-                } catch (IOException e) {
-                    logger.error(CMS.getLogMessage("CMSGW_FAILED_SET_KEY_FROM_CERT_AUTH_ENROLL_1", e.toString()), e);
-                    throw new ECMSGWException(CMS.getUserMessage("CMS_GW_SET_KEY_FROM_CERT_AUTH_ENROLL_FAILED", e.toString()), e);
-                }
-
-                logger.debug("EnrollServlet: About to fillCertInfoFromAuthToken!");
-                PKIProcessor.fillCertInfoFromAuthToken(encCertInfo, authToken);
-
-                cInfoArray[i++] = encCertInfo;
-                break;
-
-            }
-            if (encCertFound == false) {
-                logger.warn("EnrollServlet: Leaving because Enc Cert not found.");
-                return null;
-            }
-
-            logger.debug("EnrollServlet: returning cInfoArray of length " + cInfoArray.length);
+            logger.debug("EnrollServlet: returning cInfoArray of length {}", cInfoArray.length);
             return cInfoArray;
+
         }
         logger.warn("EnrollServlet: pairing encryption cert not found!");
         return null;
