@@ -1250,7 +1250,6 @@ fi
 %{_bindir}/pki
 %{_bindir}/revoker
 %{_bindir}/setpin
-%{_bindir}/sslget
 %{_bindir}/tkstool
 %{_bindir}/tpsclient
 %{_bindir}/AtoB
