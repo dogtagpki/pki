@@ -1,0 +1,5 @@
+= Tools Changes =
+
+== Drop sslget ==
+
+The `sslget` command has been moved from `pki-tools` into `jss-tools`.
