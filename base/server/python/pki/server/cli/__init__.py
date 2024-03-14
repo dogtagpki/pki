@@ -173,11 +173,8 @@ class PKIServerCLI(pki.cli.CLI):
             print()
             print('  CA Subsystem:')
 
-            subsystem_type = 'CA'
-            if ca.config['securitydomain.select'] == 'new':
-                subsystem_type += ' (Security Domain)'
-            print('    Type:                %s' % subsystem_type)
-
+            domain_manager = ca.config.get('securitydomain.select') == 'new'
+            print('    SD Manager:          %s' % domain_manager)
             print('    SD Name:             %s' % ca.config['securitydomain.name'])
             url = 'https://%s:%s' % (
                 ca.config['securitydomain.host'],
@@ -202,11 +199,8 @@ class PKIServerCLI(pki.cli.CLI):
             print()
             print('  KRA Subsystem:')
 
-            subsystem_type = 'KRA'
-            if kra.config['kra.standalone'] == 'true':
-                subsystem_type += ' (Standalone)'
-            print('    Type:                %s' % subsystem_type)
-
+            domain_manager = kra.config.get('securitydomain.select') == 'new'
+            print('    SD Manager:          %s' % domain_manager)
             print('    SD Name:             %s' % kra.config['securitydomain.name'])
             url = 'https://%s:%s' % (
                 kra.config['securitydomain.host'],
@@ -227,11 +221,8 @@ class PKIServerCLI(pki.cli.CLI):
             print()
             print('  OCSP Subsystem:')
 
-            subsystem_type = 'OCSP'
-            if ocsp.config['ocsp.standalone'] == 'true':
-                subsystem_type += ' (Standalone)'
-            print('    Type:                %s' % subsystem_type)
-
+            domain_manager = ocsp.config.get('securitydomain.select') == 'new'
+            print('    SD Manager:          %s' % domain_manager)
             print('    SD Name:             %s' % ocsp.config['securitydomain.name'])
             url = 'https://%s:%s' % (
                 ocsp.config['securitydomain.host'],
@@ -256,9 +247,8 @@ class PKIServerCLI(pki.cli.CLI):
             print()
             print('  TKS Subsystem:')
 
-            subsystem_type = 'TKS'
-            print('    Type:                %s' % subsystem_type)
-
+            domain_manager = tks.config.get('securitydomain.select') == 'new'
+            print('    SD Manager:          %s' % domain_manager)
             print('    SD Name:             %s' % tks.config['securitydomain.name'])
             url = 'https://%s:%s' % (
                 tks.config['securitydomain.host'],
@@ -279,9 +269,8 @@ class PKIServerCLI(pki.cli.CLI):
             print()
             print('  TPS Subsystem:')
 
-            subsystem_type = 'TPS'
-            print('    Type:                %s' % subsystem_type)
-
+            domain_manager = tps.config.get('securitydomain.select') == 'new'
+            print('    SD Manager:          %s' % domain_manager)
             print('    SD Name:             %s' % tps.config['securitydomain.name'])
             url = 'https://%s:%s' % (
                 tps.config['securitydomain.host'],

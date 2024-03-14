@@ -56,6 +56,17 @@ jobs:
               -D pki_ds_url=ldap://primaryds.example.com:3389 \
               -v
 
+      - name: Check primary CA server status
+        run: |
+          docker exec primary pki-server status | tee output
+
+          # primary CA should be a domain manager
+          echo "True" > expected
+          sed -n 's/^ *SD Manager: *\(.*\)$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check primary CA system certs
+        run: |
           docker exec primary pki-server cert-find
 
       - name: Verify users and SD hosts in primary PKI container
@@ -107,6 +118,17 @@ jobs:
               -D pki_ds_url=ldap://secondaryds.example.com:3389 \
               -v
 
+      - name: Check secondary CA server status
+        run: |
+          docker exec secondary pki-server status | tee output
+
+          # secondary CA should be a domain manager
+          echo "True" > expected
+          sed -n 's/^ *SD Manager: *\(.*\)$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check secondary CA system certs
+        run: |
           docker exec secondary pki-server cert-find
 
       - name: Check schema in primary DS and secondary DS

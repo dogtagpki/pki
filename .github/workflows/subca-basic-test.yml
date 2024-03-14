@@ -56,6 +56,17 @@ jobs:
               -D pki_ds_url=ldap://rootds.example.com:3389 \
               -v
 
+      - name: Check root CA server status
+        run: |
+          docker exec root pki-server status | tee output
+
+          # root CA should be a domain manager
+          echo "True" > expected
+          sed -n 's/^ *SD Manager: *\(.*\)$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check root CA system certs
+        run: |
           docker exec root pki-server cert-find
 
       - name: Install banner in root container
@@ -90,6 +101,19 @@ jobs:
               -D pki_cert_chain_path=${SHARED}/root-ca_signing.crt \
               -D pki_ds_url=ldap://subds.example.com:3389 \
               -v
+
+      - name: Check sub CA server status
+        run: |
+          docker exec subordinate pki-server status | tee output
+
+          # sub CA should not be a domain manager
+          echo "False" > expected
+          sed -n 's/^ *SD Manager: *\(.*\)$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check sub CA system certs
+        run: |
+          docker exec subordinate pki-server cert-find
 
       - name: Install banner in subordinate container
         run: docker exec subordinate cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat

@@ -3,3 +3,11 @@
 == Drop sslget ==
 
 The `sslget` command has been moved from `pki-tools` into `jss-tools`.
+
+== Update pki-server status ==
+
+The `pki-server status` command has been updated to no longer show
+the subsystem `Type` field since it's redundant.
+
+Instead, it will show an `SD Manager` field which will indicate whether
+the subsystem is a security domain manager.
