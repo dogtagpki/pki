@@ -1,0 +1,441 @@
+name: KRA migration
+
+on: workflow_call
+
+env:
+  DB_IMAGE: ${{ vars.DB_IMAGE || 'quay.io/389ds/dirsrv' }}
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Retrieve PKI images
+        uses: actions/cache@v4
+        with:
+          key: pki-images-${{ github.sha }}
+          path: pki-images.tar
+
+      - name: Load PKI images
+        run: docker load --input pki-images.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up first DS container
+        run: |
+          tests/bin/ds-container-create.sh \
+              --base-dn="dc=pki1,dc=example,dc=com" \
+              ds1
+        env:
+          IMAGE: ${{ env.DB_IMAGE }}
+          HOSTNAME: ds1.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect first DS container to network
+        run: docker network connect example ds1 --alias ds1.example.com
+
+      - name: Set up first PKI container
+        run: |
+          tests/bin/runner-init.sh pki1
+        env:
+          HOSTNAME: pki1.example.com
+
+      - name: Connect first PKI container to network
+        run: docker network connect example pki1 --alias pki1.example.com
+
+      - name: Install first CA
+        run: |
+          docker exec pki1 pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_url=ldap://ds1.example.com:3389 \
+              -D pki_ds_base_dn=dc=ca,dc=pki1,dc=example,dc=com \
+              -v
+
+      - name: Check first CA admin
+        run: |
+          docker exec pki1 pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-cert-export \
+              --output-file cert_chain.pem \
+              --with-chain \
+              ca_signing
+          docker exec pki1 pki nss-cert-import \
+              --cert cert_chain.pem \
+              --trust CT,C,C
+          docker exec pki1 pki pkcs12-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+          docker exec pki1 pki -n caadmin ca-user-show caadmin
+
+      - name: Install first KRA
+        run: |
+          docker exec pki1 pkispawn \
+              -f /usr/share/pki/server/examples/installation/kra.cfg \
+              -s KRA \
+              -D pki_ds_url=ldap://ds1.example.com:3389 \
+              -D pki_ds_base_dn=dc=kra,dc=pki1,dc=example,dc=com \
+              -v
+
+      - name: Check first KRA admin
+        run: |
+          docker exec pki1 pki -n caadmin kra-user-show kraadmin
+
+      - name: Check cert enrollment with key archival
+        run: |
+          # generate key and submit cert request
+          # https://github.com/dogtagpki/pki/wiki/Submitting-Certificate-Request-with-Key-Archival
+          docker exec pki1 pki \
+              -U http://pki1.example.com:8080 \
+              client-cert-request \
+              --profile caUserCert \
+              --type crmf \
+              --algorithm rsa \
+              --permanent \
+              UID=testuser | tee output
+
+          REQUEST_ID=$(sed -n "s/^\s*Request ID:\s*\(\S*\)\s*$/\1/p" output)
+          echo "Request ID: $REQUEST_ID"
+
+          # issue cert
+          docker exec pki1 pki \
+              -u caadmin \
+              -w Secret.123 \
+              ca-cert-request-approve \
+              --force \
+              $REQUEST_ID | tee output
+
+          CERT_ID=$(sed -n "s/^\s*Certificate ID:\s*\(\S*\)\s*$/\1/p" output)
+          echo "Cert ID: $CERT_ID"
+
+          # import cert into NSS database
+          docker exec pki1 pki ca-cert-export --output-file $SHARED/testuser.crt $CERT_ID
+          docker exec pki1 pki nss-cert-import --cert $SHARED/testuser.crt testuser
+
+          # the cert should match the key (trust flags must be u,u,u)
+          echo "u,u,u" > expected
+          docker exec pki1 pki nss-cert-show testuser | tee output
+          sed -n "s/^\s*Trust Flags:\s*\(\S*\)\s*$/\1/p" output > actual
+          diff expected actual
+
+      - name: Check archived key in first KRA
+        run: |
+          # find archived key by owner
+          docker exec pki1 pki \
+              -u kraadmin \
+              -w Secret.123 \
+              kra-key-find \
+              --owner UID=testuser | tee output
+
+          KEY_ID=$(sed -n "s/^\s*Key ID:\s*\(\S*\)$/\1/p" output)
+          echo "Key ID: $KEY_ID"
+          echo $KEY_ID > key.id
+
+          DEC_KEY_ID=$(python -c "print(int('$KEY_ID', 16))")
+          echo "Dec Key ID: $DEC_KEY_ID"
+
+          # get key record
+          docker exec ds1 ldapsearch \
+              -H ldap://ds1.example.com:3389 \
+              -x \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b "cn=$DEC_KEY_ID,ou=keyRepository,ou=kra,dc=kra,dc=pki1,dc=example,dc=com" \
+              -o ldif_wrap=no \
+              -LLL | tee kra1.ldif
+
+          # encryption mode should be "false" by default
+          echo "false" > expected
+          sed -n 's/^metaInfo: payloadEncrypted:\(.*\)$/\1/p' kra1.ldif > actual
+          diff expected actual
+
+          # key wrap algorithm should be "AES KeyWrap/Padding" by default
+          echo "AES KeyWrap/Padding" > expected
+          sed -n 's/^metaInfo: payloadWrapAlgorithm:\(.*\)$/\1/p' kra1.ldif > actual
+          diff expected actual
+
+      - name: Check key retrieval from first KRA
+        run: |
+          KEY_ID=$(cat key.id)
+          echo "Key ID: $KEY_ID"
+
+          BASE64_CERT=$(docker exec pki1 pki nss-cert-export --format DER testuser | base64 --wrap=0)
+          echo "Cert: $BASE64_CERT"
+
+          cat > request.json <<EOF
+          {
+            "ClassName" : "com.netscape.certsrv.key.KeyRecoveryRequest",
+            "Attributes" : {
+              "Attribute" : [ {
+                "name" : "keyId",
+                "value" : "$KEY_ID"
+              }, {
+                "name" : "certificate",
+                "value" : "$BASE64_CERT"
+              }, {
+                "name" : "passphrase",
+                "value" : "Secret.123"
+              } ]
+            }
+          }
+          EOF
+
+          # retrieve archived cert and key into PKCS #12 file
+          # https://github.com/dogtagpki/pki/wiki/Retrieving-Archived-Key
+          docker exec pki1 pki \
+              -n caadmin \
+              kra-key-retrieve \
+              --input $SHARED/request.json \
+              --output-data archived.p12
+
+          # import PKCS #12 file into NSS database
+          docker exec pki1 pki \
+              -d nssdb \
+              pkcs12-import \
+              --pkcs12 archived.p12 \
+              --password Secret.123
+
+          # remove archived cert from NSS database
+          docker exec pki1 pki -d nssdb nss-cert-del UID=testuser
+
+          # import original cert into NSS database
+          docker exec pki1 pki -d nssdb nss-cert-import --cert $SHARED/testuser.crt testuser
+
+          # the original cert should match the archived key (trust flags must be u,u,u)
+          echo "u,u,u" > expected
+          docker exec pki1 pki -d nssdb nss-cert-show testuser | tee output
+          sed -n "s/^\s*Trust Flags:\s*\(\S*\)$/\1/p" output > actual
+          diff expected actual
+
+      - name: Set up second DS container
+        run: |
+          tests/bin/ds-container-create.sh \
+              --base-dn="dc=pki2,dc=example,dc=com" \
+              ds2
+        env:
+          IMAGE: ${{ env.DB_IMAGE }}
+          HOSTNAME: ds2.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect second DS container to network
+        run: docker network connect example ds2 --alias ds2.example.com
+
+      - name: Set up second PKI container
+        run: |
+          tests/bin/runner-init.sh pki2
+        env:
+          HOSTNAME: pki2.example.com
+
+      - name: Connect second PKI container to network
+        run: docker network connect example pki2 --alias pki2.example.com
+
+      - name: Install second CA
+        run: |
+          docker exec pki2 pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_url=ldap://ds2.example.com:3389 \
+              -D pki_ds_base_dn=dc=ca,dc=pki2,dc=example,dc=com \
+              -v
+
+      - name: Check second CA admin
+        run: |
+          docker exec pki2 pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-cert-export \
+              --output-file cert_chain.pem \
+              --with-chain \
+              ca_signing
+          docker exec pki2 pki nss-cert-import \
+              --cert cert_chain.pem \
+              --trust CT,C,C
+          docker exec pki2 pki pkcs12-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+          docker exec pki2 pki -n caadmin ca-user-show caadmin
+
+      - name: Install second KRA
+        run: |
+          docker exec pki2 pkispawn \
+              -f /usr/share/pki/server/examples/installation/kra.cfg \
+              -s KRA \
+              -D pki_ds_url=ldap://ds2.example.com:3389 \
+              -D pki_ds_base_dn=dc=kra,dc=pki2,dc=example,dc=com \
+              -v
+
+      - name: Check second KRA admin
+        run: |
+          docker exec pki2 pki -n caadmin kra-user-show kraadmin
+
+      - name: Rewrap archived keys
+        run: |
+          echo "Secret.123" > password.txt
+
+          # export second KRA storage cert
+          docker exec pki2 pki-server cert-export kra_storage \
+              --cert-file $SHARED/kra2_storage.crt
+
+          # rewrap archived keys using second KRA storage cert
+          docker exec pki1 KRATool \
+              -kratool_config_file /usr/share/pki/tools/KRATool.cfg \
+              -source_kra_naming_context dc=kra,dc=pki1,dc=example,dc=com \
+              -source_pki_security_database_path /etc/pki/pki-tomcat/alias \
+              -source_pki_security_database_pwdfile $SHARED/password.txt \
+              -source_storage_token_name "Internal Key Storage Token" \
+              -source_storage_certificate_nickname kra_storage \
+              -source_ldif_file $SHARED/kra1.ldif \
+              -process_requests_and_key_records_only \
+              -unwrap_algorithm AES \
+              -target_ldif_file $SHARED/keys.ldif \
+              -target_kra_naming_context dc=kra,dc=pki2,dc=example,dc=com \
+              -target_storage_certificate_file $SHARED/kra2_storage.crt \
+              -log_file $SHARED/kratool.log
+
+          cat kratool.log
+          cat keys.ldif
+
+      - name: Import keys into second KRA
+        run: |
+          docker exec ds2 ldapadd \
+              -H ldap://ds2.example.com:3389 \
+              -x \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -f $SHARED/keys.ldif
+
+      - name: Check archived key in second KRA
+        run: |
+          KEY_ID=$(cat key.id)
+          echo "Key ID: $KEY_ID"
+
+          DEC_KEY_ID=$(python -c "print(int('$KEY_ID', 16))")
+          echo "Dec Key ID: $DEC_KEY_ID"
+
+          # get key record
+          docker exec ds2 ldapsearch \
+              -H ldap://ds2.example.com:3389 \
+              -x \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b "cn=$DEC_KEY_ID,ou=keyRepository,ou=kra,dc=kra,dc=pki2,dc=example,dc=com" \
+              -o ldif_wrap=no \
+              -LLL | tee kra2.ldif
+
+          # encryption mode should be "false" by default
+          echo "false" > expected
+          sed -n 's/^metaInfo: payloadEncrypted:\(.*\)$/\1/p' kra2.ldif > actual
+          diff expected actual
+
+          # key wrap algorithm should be "AES KeyWrap/Padding" by default
+          echo "AES KeyWrap/Padding" > expected
+          sed -n 's/^metaInfo: payloadWrapAlgorithm:\(.*\)$/\1/p' kra2.ldif > actual
+          diff expected actual
+
+      - name: Check key retrieval from second KRA
+        run: |
+          KEY_ID=$(cat key.id)
+          echo "Key ID: $KEY_ID"
+
+          BASE64_CERT=$(docker exec pki1 pki nss-cert-export --format DER testuser | base64 --wrap=0)
+          echo "Cert: $BASE64_CERT"
+
+          cat > request.json <<EOF
+          {
+            "ClassName" : "com.netscape.certsrv.key.KeyRecoveryRequest",
+            "Attributes" : {
+              "Attribute" : [ {
+                "name" : "keyId",
+                "value" : "$KEY_ID"
+              }, {
+                "name" : "certificate",
+                "value" : "$BASE64_CERT"
+              }, {
+                "name" : "passphrase",
+                "value" : "Secret.123"
+              } ]
+            }
+          }
+          EOF
+
+          # retrieve archived cert and key into PKCS #12 file
+          # https://github.com/dogtagpki/pki/wiki/Retrieving-Archived-Key
+          docker exec pki2 pki \
+              -n caadmin \
+              kra-key-retrieve \
+              --input $SHARED/request.json \
+              --output-data archived.p12
+
+          # import PKCS #12 file into NSS database
+          docker exec pki2 pki \
+              -d nssdb \
+              pkcs12-import \
+              --pkcs12 archived.p12 \
+              --password Secret.123
+
+          # remove archived cert from NSS database
+          docker exec pki2 pki -d nssdb nss-cert-del UID=testuser
+
+          # import original cert into NSS database
+          docker exec pki2 pki -d nssdb nss-cert-import --cert $SHARED/testuser.crt testuser
+
+          # the original cert should match the archived key (trust flags must be u,u,u)
+          echo "u,u,u" > expected
+          docker exec pki2 pki -d nssdb nss-cert-show testuser | tee output
+          sed -n "s/^\s*Trust Flags:\s*\(\S*\)$/\1/p" output > actual
+          diff expected actual
+
+      - name: Remove first KRA
+        run: docker exec pki1 pkidestroy -i pki-tomcat -s KRA -v
+
+      - name: Remove first CA
+        run: docker exec pki1 pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Remove second KRA
+        run: docker exec pki2 pkidestroy -i pki-tomcat -s KRA -v
+
+      - name: Remove second CA
+        run: docker exec pki2 pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Check first CA debug log
+        if: always()
+        run: |
+          docker exec pki1 find /var/log/pki/pki-tomcat/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check first KRA debug log
+        if: always()
+        run: |
+          docker exec pki1 find /var/log/pki/pki-tomcat/kra -name "debug.*" -exec cat {} \;
+
+      - name: Check second CA debug log
+        if: always()
+        run: |
+          docker exec pki2 find /var/log/pki/pki-tomcat/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check second KRA debug log
+        if: always()
+        run: |
+          docker exec pki2 find /var/log/pki/pki-tomcat/kra -name "debug.*" -exec cat {} \;
+
+      - name: Gather artifacts
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh ds1
+          tests/bin/ds-artifacts-save.sh ds2
+          tests/bin/pki-artifacts-save.sh pki1
+          tests/bin/pki-artifacts-save.sh pki2
+        continue-on-error: true
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kra-migration-test
+          path: /tmp/artifacts
