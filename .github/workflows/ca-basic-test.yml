@@ -56,6 +56,15 @@ jobs:
               -D pki_ds_url=ldap://ds.example.com:3389 \
               -v
 
+      - name: Check CA server status
+        run: |
+          docker exec pki pki-server status | tee output
+
+          # CA should be a domain manager
+          echo "True" > expected
+          sed -n 's/^ *SD Manager: *\(.*\)$/\1/p' output > actual
+          diff expected actual
+
       - name: Check webapps
         run: |
           docker exec pki pki-server webapp-find | tee output

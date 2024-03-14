@@ -89,6 +89,22 @@ jobs:
               -D pki_enable_server_side_keygen=True \
               -v
 
+      - name: Check TPS server status
+        run: |
+          docker exec pki pki-server status | tee output
+
+          # CA should be a domain manager, but KRA, TKS, TPS should not
+          echo "True" > expected
+          echo "False" >> expected
+          echo "False" >> expected
+          echo "False" >> expected
+          sed -n 's/^ *SD Manager: *\(.*\)$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check TPS system certs
+        run: |
+          docker exec pki pki-server cert-find
+
       - name: Check TPS audit signing cert
         run: |
           docker exec pki pki-server cert-export tps_audit_signing \

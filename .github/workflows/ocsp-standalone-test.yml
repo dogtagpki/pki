@@ -174,24 +174,26 @@ jobs:
               -D pki_admin_cert_path=${SHARED}/ocsp_admin.crt \
               -v
 
+      - name: Check OCSP server status
+        run: |
+          docker exec ocsp pki-server status | tee output
+
+          # standalone OCSP should be a domain manager
+          echo "True" > expected
+          sed -n 's/^ *SD Manager: *\(.*\)$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check OCSP system certs
+        run: |
           docker exec ocsp pki-server cert-find
 
       # TODO: Fix DogtagOCSPConnectivityCheck to work without CA
       # - name: Run PKI healthcheck
       #   run: docker exec ocsp pki-healthcheck --failures-only
 
-      - name: Check OCSP security domain
-        run: |
-          docker exec ocsp pki client-cert-import ca_signing --ca-cert ${SHARED}/ca_signing.crt
-          docker exec ocsp pki securitydomain-show \
-              > >(tee stdout) 2> >(tee stderr >&2) || true
-
-          # standalone OCSP should not return security domain info
-          echo "PKIException: Not Found" > expected
-          diff expected stderr
-
       - name: Check OCSP admin cert
         run: |
+          docker exec ocsp pki client-cert-import ca_signing --ca-cert ${SHARED}/ca_signing.crt
           docker exec ocsp pki pkcs12-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ocsp_admin_cert.p12 \
               --pkcs12-password Secret.123
@@ -207,6 +209,30 @@ jobs:
           # standalone OCSP should not have CA user
           echo "UserNotFoundException: User CA-ca.example.com-8443 not found" > expected
           diff expected stderr
+
+      - name: Check OCSP security domain
+        run: |
+          # security domain should be enabled (i.e. securitydomain.select=new)
+          cat > expected << EOF
+          securitydomain.checkIP=false
+          securitydomain.checkinterval=300000
+          securitydomain.flushinterval=86400000
+          securitydomain.host=ocsp.example.com
+          securitydomain.httpport=8080
+          securitydomain.httpsadminport=8443
+          securitydomain.name=example.com Security Domain
+          securitydomain.select=new
+          securitydomain.source=ldap
+          EOF
+
+          docker exec ocsp pki-server ocsp-config-find | grep ^securitydomain. | sort | tee actual
+          diff expected actual
+
+          # TODO: Fix pki securitydomain-show to work with standalone OCSP
+          # docker exec ocsp pki securitydomain-show \
+          #     > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          # standalone OCSP should return security domain info
 
       - name: Check OCSP publishing in CA
         run: |
