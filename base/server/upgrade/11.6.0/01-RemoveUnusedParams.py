@@ -25,4 +25,7 @@ class RemoveUnusedParams(pki.server.upgrade.PKIServerUpgradeScriptlet):
         logger.info('Removing %s.admin.cert', subsystem.name)
         subsystem.config.pop('%s.admin.cert' % subsystem.name, None)
 
+        logger.info('Removing %s.standalone', subsystem.name)
+        subsystem.config.pop('%s.standalone' % subsystem.name, None)
+
         subsystem.save()

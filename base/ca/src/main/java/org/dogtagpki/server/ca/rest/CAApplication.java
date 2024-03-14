@@ -16,6 +16,7 @@ import org.dogtagpki.server.rest.GroupService;
 import org.dogtagpki.server.rest.JobService;
 import org.dogtagpki.server.rest.MessageFormatInterceptor;
 import org.dogtagpki.server.rest.PKIExceptionMapper;
+import org.dogtagpki.server.rest.SecurityDomainService;
 import org.dogtagpki.server.rest.SelfTestService;
 import org.dogtagpki.server.rest.SessionContextInterceptor;
 import org.dogtagpki.server.rest.UserService;
@@ -74,7 +75,7 @@ public class CAApplication extends Application {
         classes.add(CAInfoService.class);
 
         // security domain
-        classes.add(CASecurityDomainService.class);
+        classes.add(SecurityDomainService.class);
 
         // exception mapper
         classes.add(PKIExceptionMapper.class);
