@@ -43,6 +43,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/kra-existing-nssdb-test.yml
 
+  kra-existing-hsm-test:
+    name: KRA with existing HSM
+    needs: build
+    uses: ./.github/workflows/kra-existing-hsm-test.yml
+
   kra-existing-ds-test:
     name: KRA with existing DS database
     needs: build
