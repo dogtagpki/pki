@@ -1,8 +1,11 @@
 = Tools Changes =
 
-== Drop sslget ==
+== Move PKI tools into jss-tools ==
 
-The `sslget` command has been moved from `pki-tools` into `jss-tools`.
+The following tools have been moved into `jss-tools`:
+
+* `p12tool`
+* `sslget`
 
 == Update pki-server status ==
 
