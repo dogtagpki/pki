@@ -315,7 +315,6 @@ pkispawn \
     -D pki_ds_setup=False \
     -D pki_skip_ds_verify=True \
     -D pki_share_db=True \
-    -D pki_existing=True \
     -D pki_import_system_certs=False \
     -D pki_ca_signing_nickname=ca_signing \
     -D pki_ca_signing_csr_path=/certs/ca_signing.csr \

@@ -272,7 +272,6 @@ jobs:
               -f /usr/share/pki/server/examples/installation/ca.cfg \
               -s CA \
               -D pki_ds_url=ldap://ds.example.com:3389 \
-              -D pki_existing=True \
               -D pki_hsm_enable=True \
               -D pki_token_name=HSM \
               -D pki_token_password=Secret.HSM \
