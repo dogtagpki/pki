@@ -3245,8 +3245,7 @@ class PKIDeployer:
         #
         # A new SSL server cert will always be created separately later.
 
-        external = config.str2bool(self.mdict['pki_external']) or \
-            config.str2bool(self.mdict['pki_existing'])
+        external = config.str2bool(self.mdict['pki_external'])
 
         if subsystem.type == 'CA' and external and cert_info:
 
@@ -3391,7 +3390,6 @@ class PKIDeployer:
         num_subsystems = len(self.instance.get_subsystems())
 
         external = config.str2bool(self.mdict['pki_external']) or \
-            config.str2bool(self.mdict['pki_existing']) or \
             config.str2bool(self.mdict['pki_standalone'])
 
         tags = subsystem.config['%s.cert.list' % subsystem.name].split(',')

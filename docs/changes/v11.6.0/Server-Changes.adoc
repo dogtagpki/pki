@@ -4,3 +4,8 @@
 
 The `<subsystem>.admin.cert` parameter in `CS.cfg` is no longer used
 so it has been removed.
+
+== Remove pki_existing parameter ==
+
+The `pki_existing` parameter is no longer used by `pkispawn`
+so it has been removed.
