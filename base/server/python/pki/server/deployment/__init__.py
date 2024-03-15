@@ -3458,24 +3458,6 @@ class PKIDeployer:
 
         return system_certs
 
-    def load_admin_cert(self):
-
-        logger.debug('PKIDeployer.load_admin_cert()')
-
-        cert_file = self.mdict.get('pki_admin_cert_file')
-        if cert_file and os.path.exists(cert_file):
-
-            # admin cert was in 'pki_admin_cert_file' but not yet in client
-            # nssdb
-
-            logger.info('Loading admin cert from %s', cert_file)
-            with open(cert_file, 'r', encoding='utf-8') as f:
-                pem_cert = f.read()
-
-            return pem_cert
-
-        return None
-
     def request_cert(
             self,
             url,
@@ -3751,8 +3733,17 @@ class PKIDeployer:
         if config.str2bool(self.mdict['pki_import_admin_cert']) \
                 or external and subsystem.type != 'CA' \
                 or standalone:
-            logger.info('Importing admin cert')
-            pem_cert = self.load_admin_cert()
+
+            cert_file = self.mdict.get('pki_admin_cert_file')
+            logger.info('Checking admin cert in %s', cert_file)
+
+            if not os.path.exists(cert_file):
+                raise Exception('Missing admin certificate: %s' % cert_file)
+
+            logger.info('Loading admin cert from %s', cert_file)
+            with open(cert_file, 'r', encoding='utf-8') as f:
+                pem_cert = f.read()
+
             logger.debug('Admin cert:\n%s', pem_cert)
 
             if external and subsystem.type != 'CA' or standalone:
