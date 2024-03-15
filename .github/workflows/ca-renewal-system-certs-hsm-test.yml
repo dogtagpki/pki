@@ -490,7 +490,12 @@ jobs:
           # client should not fail
           docker exec pki pki -n caadmin ca-user-show caadmin
 
-      - name: Check systemd journal
+      - name: Remove CA
+        run: |
+          # pkidestroy should not fail
+          docker exec pki pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Check PKI server systemd journal
         if: always()
         run: |
           docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
@@ -504,8 +509,3 @@ jobs:
         if: always()
         run: |
           docker exec pki cat /var/log/pki/pki-tomcat/ca/selftests.log
-
-      - name: Remove CA
-        run: |
-          # pkidestroy should not fail
-          docker exec pki pkidestroy -i pki-tomcat -s CA -v

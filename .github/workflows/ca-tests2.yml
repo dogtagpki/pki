@@ -63,12 +63,12 @@ jobs:
     needs: build
     uses: ./.github/workflows/ca-notification-request-test.yml
 
+  ca-hsm-operation-test:
+    name: CA with HSM and custom operation key flags
+    needs: build
+    uses: ./.github/workflows/ca-hsm-operation-test.yml
+
   scep-test:
     name: SCEP responder
     needs: build
     uses: ./.github/workflows/scep-test.yml
-
-  hsm-operation-test:
-    name: CA with HSM and custom operation key flags
-    needs: build
-    uses: ./.github/workflows/ca-hsm-operation-test.yml

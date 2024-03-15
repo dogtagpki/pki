@@ -52,7 +52,7 @@ jobs:
           docker exec pki pki-server create
           docker exec pki pki-server nss-create --no-password
 
-      - name: Create CA signing cert in server's NSS database
+      - name: Create CA signing cert
         run: |
           docker exec pki pki-server cert-request \
               --subject "CN=CA Signing Certificate" \
@@ -75,7 +75,7 @@ jobs:
               nss-key-find \
               --nickname ca_signing | tee ca_signing.key.before
 
-      - name: Create CA OCSP signing cert in server's NSS database
+      - name: Create CA OCSP signing cert
         run: |
           docker exec pki pki-server cert-request \
               --subject "CN=OCSP Signing Certificate" \
@@ -99,7 +99,7 @@ jobs:
               nss-key-find \
               --nickname ca_ocsp_signing | tee ca_ocsp_signing.key.before
 
-      - name: Create CA audit signing cert in server's NSS database
+      - name: Create CA audit signing cert
         run: |
           docker exec pki pki-server cert-request \
               --subject "CN=Audit Signing Certificate" \
@@ -123,7 +123,7 @@ jobs:
               nss-key-find \
               --nickname ca_audit_signing | tee ca_audit_signing.key.before
 
-      - name: Create subsystem cert in server's NSS database
+      - name: Create subsystem cert
         run: |
           docker exec pki pki-server cert-request \
               --subject "CN=Subsystem Certificate" \
@@ -147,7 +147,7 @@ jobs:
               nss-key-find \
               --nickname subsystem | tee subsystem.key.before
 
-      - name: Create SSL server cert in server's NSS database
+      - name: Create SSL server cert
         run: |
           docker exec pki pki-server cert-request \
               --subject "CN=pki.example.com" \
@@ -171,7 +171,7 @@ jobs:
               nss-key-find \
               --nickname sslserver | tee sslserver.key.before
 
-      - name: Create admin cert in client's NSS database
+      - name: Create admin cert
         run: |
           docker exec pki pki \
               nss-cert-request \
@@ -207,7 +207,7 @@ jobs:
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --failures-only
 
-      - name: Check CA signing cert in server's NSS database
+      - name: Check CA signing cert
         run: |
           docker exec pki pki \
               -d /etc/pki/pki-tomcat/alias \
@@ -225,7 +225,7 @@ jobs:
           # key should not change
           diff ca_signing.key.before ca_signing.key.after
 
-      - name: Check CA OCSP signing cert in server's NSS database
+      - name: Check CA OCSP signing cert
         run: |
           docker exec pki pki \
               -d /etc/pki/pki-tomcat/alias \
@@ -243,7 +243,7 @@ jobs:
           # key should not change
           diff ca_ocsp_signing.key.before ca_ocsp_signing.key.after
 
-      - name: Check CA audit signing cert in server's NSS database
+      - name: Check CA audit signing cert
         run: |
           docker exec pki pki \
               -d /etc/pki/pki-tomcat/alias \
@@ -261,7 +261,7 @@ jobs:
           # key should not change
           diff ca_audit_signing.key.before ca_audit_signing.key.after
 
-      - name: Check subsystem cert in server's NSS database
+      - name: Check subsystem cert
         run: |
           docker exec pki pki \
               -d /etc/pki/pki-tomcat/alias \
@@ -279,7 +279,7 @@ jobs:
           # key should not change
           diff subsystem.key.before subsystem.key.after
 
-      - name: Check SSL server cert in server's NSS database
+      - name: Check SSL server cert
         run: |
           docker exec pki pki \
               -d /etc/pki/pki-tomcat/alias \
