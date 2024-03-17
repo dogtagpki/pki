@@ -9,6 +9,8 @@ import javax.ws.rs.core.Response.ResponseBuilder;
  */
 
 public enum ACMEAlgorithm {
+    // RFC 7518 Appendix A.1
+    // Digital Signature/MAC Algorithm Identifier Cross-Reference
     HS256("HS256", "HmacSHA256"),
     HS384("HS384", "HmacSHA384"),
     HS512("HS512", "HmacSHA512"),
@@ -26,12 +28,10 @@ public enum ACMEAlgorithm {
     private String jca;
 
     private ACMEAlgorithm(String alg, String jca) {
-            this.alg = alg;
-            this.jca = jca;
-        }
+        this.alg = alg;
+        this.jca = jca;
+    }
 
-    // RFC 7518 Appendix A.1
-    // Digital Signature/MAC Algorithm Identifier Cross-Reference
     public String getJCA() {
         return jca;
     }
