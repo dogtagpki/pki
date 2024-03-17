@@ -1,42 +1,53 @@
 package org.dogtagpki.acme;
 
-public class ACMEAlgorithm {
-    public enum Algorithm {
-        HS256("HS256","HmacSHA256"),
-        HS384("HS384", "HmacSHA384"),
-        HS512("HS512", "HmacSHA512"),
-        RS256("RS256", "SHA256withRSA"),
-        RS384("RS384", "SHA384withRSA"),
-        RS512("RS512", "SHA512withRSA"),
-        ES256("ES256", "SHA256withECDSA"),
-        ES384("ES384", "SHA384withECDSA"),
-        ES512("ES512", "SHA512withECDSA"),
-        PS256("PS256", "SHA256withRSAandMGF1"),
-        PS384("PS384", "SHA384withRSAandMGF1"),
-        PS512("PS512", "SHA512withRSAandMGF1");
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 
-        private String alg;
-        private String jca;
+public enum ACMEAlgorithm {
+    HS256("HS256", "HmacSHA256"),
+    HS384("HS384", "HmacSHA384"),
+    HS512("HS512", "HmacSHA512"),
+    RS256("RS256", "SHA256withRSA"),
+    RS384("RS384", "SHA384withRSA"),
+    RS512("RS512", "SHA512withRSA"),
+    ES256("ES256", "SHA256withECDSA"),
+    ES384("ES384", "SHA384withECDSA"),
+    ES512("ES512", "SHA512withECDSA"),
+    PS256("PS256", "SHA256withRSAandMGF1"),
+    PS384("PS384", "SHA384withRSAandMGF1"),
+    PS512("PS512", "SHA512withRSAandMGF1");
 
-        // RFC 7518 Appendix A.1
-        // Digital Signature/MAC Algorithm Identifier Cross-Reference
-        public String getJCA() {
-            return jca;
-        }
+    private String alg;
+    private String jca;
 
-        private Algorithm (String alg, String jca) {
+    private ACMEAlgorithm(String alg, String jca) {
             this.alg = alg;
             this.jca = jca;
         }
+
+    // RFC 7518 Appendix A.1
+    // Digital Signature/MAC Algorithm Identifier Cross-Reference
+    public String getJCA() {
+        return jca;
     }
 
-    public boolean isSupported(String alg) {
-        for (Algorithm a : Algorithm.values()) {
+    public static ACMEAlgorithm fromString(String alg) throws Exception {
+        for (ACMEAlgorithm a : ACMEAlgorithm.values()) {
             if (a.alg == alg) {
-                return true;
+                return a;
             }
         }
 
-        return false;
+        ResponseBuilder builder = Response.status(Response.Status.BAD_REQUEST);
+        builder.type("application/problem+json");
+
+        ACMEError error = new ACMEError();
+        error.setType("urn:ietf:params:acme:error:badSignatureAlgorithm");
+        error.setDetail("Signature of type " + alg + " not supported\n" +
+                "Try again with RS256.");
+        builder.entity(error);
+
+        throw new WebApplicationException(builder.build());
     }
 }
