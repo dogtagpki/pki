@@ -43,15 +43,6 @@ public enum ACMEAlgorithm {
             }
         }
 
-        ResponseBuilder builder = Response.status(Response.Status.BAD_REQUEST);
-        builder.type("application/problem+json");
-
-        ACMEError error = new ACMEError();
-        error.setType("urn:ietf:params:acme:error:badSignatureAlgorithm");
-        error.setDetail("Signature of type " + alg + " not supported\n" +
-                "Try again with RS256.");
-        builder.entity(error);
-
-        throw new WebApplicationException(builder.build());
+        throw new Exception("unsupported algorithm " + alg);
     }
 }
