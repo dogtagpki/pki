@@ -37,6 +37,7 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.acme.ACMEAccount;
+import org.dogtagpki.acme.ACMEAlgorithm;
 import org.dogtagpki.acme.ACMEAuthorization;
 import org.dogtagpki.acme.ACMEError;
 import org.dogtagpki.acme.ACMEIdentifier;
@@ -604,39 +605,23 @@ public class ACMEEngine {
 
     public void validateJWS(JWS jws, String alg, JWK jwk) throws Exception {
 
-        // TODO: support other algorithms
-
         Signature signer;
         PublicKey publicKey;
+        ACMEAlgorithm acmeAlgo = ACMEAlgorithm.fromString(alg);
 
-        if ("RS256".equals(alg)) {
+        signer = Signature.getInstance(acmeAlgo.getJCA(), "Mozilla-JSS");
 
-            signer = Signature.getInstance("SHA256withRSA", "Mozilla-JSS");
+        String kty = jwk.getKty();
+        KeyFactory keyFactory = KeyFactory.getInstance(kty, "Mozilla-JSS");
 
-            String kty = jwk.getKty();
-            KeyFactory keyFactory = KeyFactory.getInstance(kty, "Mozilla-JSS");
+        String n = jwk.getN();
+        BigInteger modulus = new BigInteger(1, Base64.decodeBase64(n));
 
-            String n = jwk.getN();
-            BigInteger modulus = new BigInteger(1, Base64.decodeBase64(n));
+        String e = jwk.getE();
+        BigInteger publicExponent = new BigInteger(1, Base64.decodeBase64(e));
 
-            String e = jwk.getE();
-            BigInteger publicExponent = new BigInteger(1, Base64.decodeBase64(e));
-
-            RSAPublicKeySpec keySpec = new RSAPublicKeySpec(modulus, publicExponent);
-            publicKey = keyFactory.generatePublic(keySpec);
-
-        } else {
-            ResponseBuilder builder = Response.status(Response.Status.BAD_REQUEST);
-            builder.type("application/problem+json");
-
-            ACMEError error = new ACMEError();
-            error.setType("urn:ietf:params:acme:error:badSignatureAlgorithm");
-            error.setDetail("Signature of type " + alg + " not supported\n" +
-                    "Try again with RS256.");
-            builder.entity(error);
-
-            throw new WebApplicationException(builder.build());
-        }
+        RSAPublicKeySpec keySpec = new RSAPublicKeySpec(modulus, publicExponent);
+        publicKey = keyFactory.generatePublic(keySpec);
 
         validateJWS(jws, signer, publicKey);
     }
