@@ -4,6 +4,10 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
+/**
+ * @author Minsu Park
+ */
+
 public enum ACMEAlgorithm {
     HS256("HS256", "HmacSHA256"),
     HS384("HS384", "HmacSHA384"),
