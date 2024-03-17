@@ -155,6 +155,9 @@ jobs:
           echo "0" > expected
           diff expected actual
 
+      - name: Remove CA
+        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
+
       - name: Check PKI server systemd journal
         if: always()
         run: |

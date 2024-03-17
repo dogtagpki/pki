@@ -143,10 +143,6 @@ public final class CASigningUnit extends SigningUnit {
             logger.error(CMS.getLogMessage("CMSCORE_CA_SIGNING_TOKEN_NOT_FOUND", tokenname, e.toString()), e);
             throw new ECAException(CMS.getUserMessage("CMS_CA_TOKEN_NOT_FOUND", tokenname), e);
 
-        } catch (CAMissingCertException | CAMissingKeyException e) {
-            logger.error(CMS.getLogMessage("CMSCORE_CA_SIGNING_CERT_NOT_FOUND", e.toString()), e);
-            throw e;  // re-throw
-
         } catch (TokenException e) {
             logger.error(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
             throw new ECAException(CMS.getUserMessage("CMS_CA_TOKEN_ERROR"), e);

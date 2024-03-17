@@ -129,20 +129,29 @@ jobs:
               -S sha256
           docker exec client openssl x509 -text -noout -in local.crt
 
+      - name: Remove CA from PKI container
+        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Check PKI server systemd journal
+        if: always()
+        run: |
+          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check CA debug log
+        if: always()
+        run: |
+          docker exec pki find /var/log/pki/pki-tomcat/ca -name "debug.*" -exec cat {} \;
+
       - name: Gather artifacts
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki ds
+          tests/bin/ds-artifacts-save.sh ds
           tests/bin/pki-artifacts-save.sh pki
         continue-on-error: true
-
-      - name: Remove CA from PKI container
-        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
 
       - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: scep
-          path: |
-            /tmp/artifacts/pki
+          path: /tmp/artifacts

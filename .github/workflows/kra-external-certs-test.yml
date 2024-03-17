@@ -203,38 +203,44 @@ jobs:
           echo kra.example.com > expected
           diff expected actual
 
-      - name: Gather artifacts from CA containers
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/ca cads
-          tests/bin/pki-artifacts-save.sh ca
-        continue-on-error: true
-
-      - name: Gather artifacts from KRA containers
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/kra krads
-          tests/bin/pki-artifacts-save.sh kra
-        continue-on-error: true
-
       - name: Remove KRA from KRA container
         run: docker exec kra pkidestroy -i pki-tomcat -s KRA -v
 
       - name: Remove CA from CA container
         run: docker exec ca pkidestroy -i pki-tomcat -s CA -v
 
-      - name: Upload artifacts from CA containers
+      - name: Check PKI server systemd journal in CA container
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: kra-external-certs-ca
-          path: |
-            /tmp/artifacts/ca
+        run: |
+          docker exec ca journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
 
-      - name: Upload artifacts from KRA containers
+      - name: Check CA debug log
+        if: always()
+        run: |
+          docker exec ca find /var/log/pki/pki-tomcat/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check PKI server systemd journal in KRA container
+        if: always()
+        run: |
+          docker exec kra journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check KRA debug log
+        if: always()
+        run: |
+          docker exec kra find /var/log/pki/pki-tomcat/kra -name "debug.*" -exec cat {} \;
+
+      - name: Gather artifacts
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh cads
+          tests/bin/pki-artifacts-save.sh ca
+          tests/bin/ds-artifacts-save.sh krads
+          tests/bin/pki-artifacts-save.sh kra
+        continue-on-error: true
+
+      - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: kra-external-certs-kra
-          path: |
-            /tmp/artifacts/kra
+          name: kra-external-certs
+          path: /tmp/artifacts

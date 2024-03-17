@@ -6,7 +6,7 @@ pkispawn - Sets up a PKI subsystem.
 
 ## SYNOPSIS
 
-**pkispawn** **-s** *subsystem* **-f** *config_file* [**-h**] [**-v**]
+**pkispawn** [*OPTIONS*]
 
 ## DESCRIPTION
 

@@ -103,6 +103,16 @@ jobs:
               -D pki_ds_url=ldap://ds.example.com:3389 \
               -v
 
+      - name: Check PKI server status
+        run: |
+          docker exec pki pki-server status | tee output
+
+          # CA should be a domain manager, but OCSP should not
+          echo "True" > expected
+          echo "False" >> expected
+          sed -n 's/^ *SD Manager: *\(.*\)$/\1/p' output > actual
+          diff expected actual
+
       - name: Check security domain config in OCSP
         run: |
           # OCSP should join security domain in CA

@@ -1,0 +1,6 @@
+= Packaging Changes =
+
+== Merge IDM Console Framework ==
+
+The IDM Console Framework has been merged into PKI Console.
+Dependencies on IDM Console Framework have been removed.

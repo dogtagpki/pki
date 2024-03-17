@@ -57,7 +57,9 @@ import com.netscape.cmscore.dbs.RevocationInfo;
 /**
  * @author Marco Fargetta {@literal <mfargett@redhat.com>}
  */
-@WebServlet("/v2/certs/*")
+@WebServlet(
+        name = "caCert",
+        urlPatterns = "/v2/certs/*")
 public class CertServlet extends CAServlet {
     private static final long serialVersionUID = 1L;
     private static Logger logger = LoggerFactory.getLogger(CertServlet.class);

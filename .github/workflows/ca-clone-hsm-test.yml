@@ -429,27 +429,6 @@ jobs:
 
           diff expected actual
 
-      - name: Gather artifacts from primary containers
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/primary primaryds
-          tests/bin/pki-artifacts-save.sh primary
-        continue-on-error: true
-
-      - name: Gather artifacts from secondary containers
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/secondary secondaryds
-          tests/bin/pki-artifacts-save.sh secondary
-        continue-on-error: true
-
-      - name: Gather artifacts from tertiary containers
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/tertiary tertiaryds
-          tests/bin/pki-artifacts-save.sh tertiary
-        continue-on-error: true
-
       - name: Remove CA from tertiary PKI container
         run: docker exec tertiary pkidestroy -i pki-tomcat -s CA -v
 
@@ -459,26 +438,20 @@ jobs:
       - name: Remove CA from primary PKI container
         run: docker exec primary pkidestroy -i pki-tomcat -s CA -v
 
-      - name: Upload artifacts from primary containers
+      - name: Gather artifacts
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ca-clone-hsm-primary
-          path: |
-            /tmp/artifacts/primary
+        run: |
+          tests/bin/ds-artifacts-save.sh primaryds
+          tests/bin/pki-artifacts-save.sh primary
+          tests/bin/ds-artifacts-save.sh secondaryds
+          tests/bin/pki-artifacts-save.sh secondary
+          tests/bin/ds-artifacts-save.sh tertiaryds
+          tests/bin/pki-artifacts-save.sh tertiary
+        continue-on-error: true
 
-      - name: Upload artifacts from secondary containers
+      - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ca-clone-hsm-secondary
-          path: |
-            /tmp/artifacts/secondary
-
-      - name: Upload artifacts from tertiary containers
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ca-clone-hsm-tertiary
-          path: |
-            /tmp/artifacts/tertiary
+          name: ca-clone-hsm
+          path: /tmp/artifacts

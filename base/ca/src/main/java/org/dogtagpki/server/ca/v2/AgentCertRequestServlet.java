@@ -106,13 +106,14 @@ public class AgentCertRequestServlet extends CAServlet {
     @Override
     public void post(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
-        logger.debug("CertServlet.post(): session: {}", session.getId());
+        logger.debug("AgentCertRequestServlet.post(): session: {}", session.getId());
 
-        if (request.getPathInfo() == null || !request.getPathInfo().isEmpty()) {
+        if (request.getPathInfo() == null || request.getPathInfo().isEmpty()) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND, request.getRequestURI());
             return;
         }
-        String[] pathElement = request.getPathInfo().split("/");
+        String[] pathElement = request.getPathInfo().substring(1).split("/");
+
         if (pathElement.length != 2) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND, request.getRequestURI());
             return;
@@ -157,6 +158,7 @@ public class AgentCertRequestServlet extends CAServlet {
                 throw new ConflictingOperationException(message, e);
 
             } catch (CAMissingCertException | CAMissingKeyException e) {
+                logger.error(CMS.getLogMessage("CMSCORE_CA_SIGNING_CERT_NOT_FOUND", e.toString()), e);
                 throw new ServiceUnavailableException(e.toString(), e);
 
             } catch (EPropertyException e) {

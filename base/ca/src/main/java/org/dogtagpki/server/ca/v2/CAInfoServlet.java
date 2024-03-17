@@ -21,7 +21,9 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Marco Fargetta {@literal <mfargett@redhat.com>}
  */
-@WebServlet("/v2/info")
+@WebServlet(
+        name = "caInfo",
+        urlPatterns = "/v2/info")
 public class CAInfoServlet extends CAServlet {
     private static final long serialVersionUID = 1L;
     private static Logger logger = LoggerFactory.getLogger(CAInfoServlet.class);

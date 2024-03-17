@@ -56,6 +56,15 @@ jobs:
               -D pki_ds_url=ldap://rootcads.example.com:3389 \
               -v
 
+      - name: Check root CA server status
+        run: |
+          docker exec rootca pki-server status | tee output
+
+          # root CA should be a domain manager
+          echo "True" > expected
+          sed -n 's/^ *SD Manager: *\(.*\)$/\1/p' output > actual
+          diff expected actual
+
       - name: Check security domain config in root CA
         run: |
           # root CA should run security domain service
@@ -122,6 +131,16 @@ jobs:
               -D pki_subordinate_security_domain_name=SUBORDINATE \
               -D pki_issuing_ca_uri=https://rootca.example.com:8443 \
               -v
+
+      - name: Check sub CA server status
+        run: |
+          docker exec subca pki-server status | tee output
+
+          # this sub CA should be a domain manager since it's created with
+          # pki_subordinate_create_new_security_domain=True
+          echo "True" > expected
+          sed -n 's/^ *SD Manager: *\(.*\)$/\1/p' output > actual
+          diff expected actual
 
       - name: Check sub CA certs
         if: always()
@@ -219,6 +238,15 @@ jobs:
               -D pki_ds_url=ldap://krads.example.com:3389 \
               -v
 
+      - name: Check KRA server status
+        run: |
+          docker exec kra pki-server status | tee output
+
+          # KRA should not be a domain manager
+          echo "False" > expected
+          sed -n 's/^ *SD Manager: *\(.*\)$/\1/p' output > actual
+          diff expected actual
+
       - name: Check security domain config in KRA
         run: |
           # KRA should join existing security domain in sub CA
@@ -274,6 +302,45 @@ jobs:
           echo kra.example.com > expected
           diff expected actual
 
+      - name: Remove KRA
+        run: docker exec kra pkidestroy -i pki-tomcat -s KRA -v
+
+      - name: Remove sub CA
+        run: docker exec subca pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Remove root CA
+        run: docker exec rootca pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Check PKI server systemd journal in root CA container
+        if: always()
+        run: |
+          docker exec rootca journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check root CA debug log
+        if: always()
+        run: |
+          docker exec rootca find /var/log/pki/pki-tomcat/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check PKI server systemd journal in sub CA container
+        if: always()
+        run: |
+          docker exec subca journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check sub CA debug log
+        if: always()
+        run: |
+          docker exec subca find /var/log/pki/pki-tomcat/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check PKI server systemd journal in KRA container
+        if: always()
+        run: |
+          docker exec kra journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check KRA debug log
+        if: always()
+        run: |
+          docker exec kra find /var/log/pki/pki-tomcat/kra -name "debug.*" -exec cat {} \;
+
       - name: Gather artifacts
         if: always()
         run: |
@@ -285,24 +352,9 @@ jobs:
           tests/bin/pki-artifacts-save.sh kra
         continue-on-error: true
 
-      - name: Remove KRA
-        run: docker exec kra pkidestroy -i pki-tomcat -s KRA -v
-
-      - name: Remove sub CA
-        run: docker exec subca pkidestroy -i pki-tomcat -s CA -v
-
-      - name: Remove root CA
-        run: docker exec rootca pkidestroy -i pki-tomcat -s CA -v
-
       - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: kra-separate
-          path: |
-            /tmp/artifacts/rootca
-            /tmp/artifacts/rootcads
-            /tmp/artifacts/subca
-            /tmp/artifacts/subcads
-            /tmp/artifacts/kra
-            /tmp/artifacts/krads
+          path: /tmp/artifacts

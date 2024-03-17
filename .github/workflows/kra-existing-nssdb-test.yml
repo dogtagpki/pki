@@ -1,0 +1,485 @@
+name: KRA with existing NSS database
+# https://github.com/dogtagpki/pki/wiki/Installing-KRA-with-Existing-NSS-Database
+
+on: workflow_call
+
+env:
+  DB_IMAGE: ${{ vars.DB_IMAGE || 'quay.io/389ds/dirsrv' }}
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Retrieve PKI images
+        uses: actions/cache@v4
+        with:
+          key: pki-images-${{ github.sha }}
+          path: pki-images.tar
+
+      - name: Load PKI images
+        run: docker load --input pki-images.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-container-create.sh ds
+        env:
+          IMAGE: ${{ env.DB_IMAGE }}
+          HOSTNAME: ds.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect DS container to network
+        run: docker network connect example ds --alias ds.example.com
+
+      - name: Set up CA container
+        run: |
+          tests/bin/runner-init.sh ca
+        env:
+          HOSTNAME: ca.example.com
+
+      - name: Connect CA container to network
+        run: docker network connect example ca --alias ca.example.com
+
+      - name: Install CA
+        run: |
+          docker exec ca pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -v
+
+          docker exec ca pki-server cert-find
+
+      - name: Install CA admin cert
+        run: |
+          docker exec ca pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-cert-export \
+              --output-file $SHARED/cert_chain.pem \
+              --with-chain \
+              ca_signing
+          docker exec ca pki nss-cert-import \
+              --cert $SHARED/cert_chain.pem \
+              --trust CT,C,C
+          docker exec ca pki pkcs12-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+          docker exec ca pki nss-cert-find
+
+      - name: Set up KRA container
+        run: |
+          tests/bin/runner-init.sh kra
+        env:
+          HOSTNAME: kra.example.com
+
+      - name: Connect KRA container to network
+        run: docker network connect example kra --alias kra.example.com
+
+      - name: Create PKI server
+        run: |
+          docker exec kra pki-server create
+          docker exec kra pki-server nss-create --password Secret.123
+
+      - name: Issue KRA storage cert
+        run: |
+          docker exec kra pki-server cert-request \
+              --subject "CN=DRM Storage Certificate" \
+              --ext /usr/share/pki/server/certs/kra_storage.conf \
+              kra_storage
+          docker exec kra cp /etc/pki/pki-tomcat/certs/kra_storage.csr $SHARED
+          docker exec kra openssl req -text -noout -in $SHARED/kra_storage.csr
+
+          docker exec ca pki ca-cert-request-submit \
+              --profile caStorageCert \
+              --csr-file $SHARED/kra_storage.csr | tee output
+          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
+
+          docker exec ca pki -n caadmin ca-cert-request-approve $REQUEST_ID --force | tee output
+          CERT_ID=$(sed -n 's/Certificate ID: *\(.*\)/\1/p' output)
+
+          docker exec ca pki ca-cert-export $CERT_ID --output-file $SHARED/kra_storage.crt
+          docker exec ca openssl x509 -text -noout -in $SHARED/kra_storage.crt
+          docker exec kra cp $SHARED/kra_storage.crt /etc/pki/pki-tomcat/certs
+
+          docker exec kra pki-server cert-import \
+              kra_storage
+
+          # check original cert
+          docker exec kra pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-cert-show \
+              kra_storage | tee kra_storage.crt.before
+
+          # check original key
+          docker exec kra pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-key-find \
+              --nickname kra_storage | tee kra_storage.key.before
+
+      - name: Issue KRA transport cert
+        run: |
+          docker exec kra pki-server cert-request \
+              --subject "CN=DRM Transport Certificate" \
+              --ext /usr/share/pki/server/certs/kra_transport.conf \
+              kra_transport
+          docker exec kra cp /etc/pki/pki-tomcat/certs/kra_transport.csr $SHARED
+          docker exec ca openssl req -text -noout -in $SHARED/kra_transport.csr
+
+          docker exec ca pki ca-cert-request-submit \
+              --profile caTransportCert \
+              --csr-file $SHARED/kra_transport.csr | tee output
+          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
+
+          docker exec ca pki -n caadmin ca-cert-request-approve $REQUEST_ID --force | tee output
+          CERT_ID=$(sed -n 's/Certificate ID: *\(.*\)/\1/p' output)
+
+          docker exec ca pki ca-cert-export $CERT_ID --output-file $SHARED/kra_transport.crt
+          docker exec ca openssl x509 -text -noout -in $SHARED/kra_transport.crt
+          docker exec kra cp $SHARED/kra_transport.crt /etc/pki/pki-tomcat/certs
+
+          docker exec kra pki-server cert-import \
+              kra_transport
+
+          # check original cert
+          docker exec kra pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-cert-show \
+              kra_transport | tee kra_transport.crt.before
+
+          # check original key
+          docker exec kra pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-key-find \
+              --nickname kra_transport | tee kra_transport.key.before
+
+      - name: Issue KRA audit signing cert
+        run: |
+          docker exec kra pki-server cert-request \
+              --subject "CN=Audit Signing Certificate" \
+              --ext /usr/share/pki/server/certs/audit_signing.conf \
+              kra_audit_signing
+          docker exec kra cp /etc/pki/pki-tomcat/certs/kra_audit_signing.csr $SHARED
+          docker exec ca openssl req -text -noout -in $SHARED/kra_audit_signing.csr
+
+          docker exec ca pki ca-cert-request-submit \
+              --profile caAuditSigningCert \
+              --csr-file $SHARED/kra_audit_signing.csr | tee output
+          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
+
+          docker exec ca pki -n caadmin ca-cert-request-approve $REQUEST_ID --force | tee output
+          CERT_ID=$(sed -n 's/Certificate ID: *\(.*\)/\1/p' output)
+
+          docker exec ca pki ca-cert-export $CERT_ID --output-file $SHARED/kra_audit_signing.crt
+          docker exec ca openssl x509 -text -noout -in $SHARED/kra_audit_signing.crt
+          docker exec kra cp $SHARED/kra_audit_signing.crt /etc/pki/pki-tomcat/certs
+
+          docker exec kra pki-server cert-import \
+              kra_audit_signing
+
+          # check original cert
+          docker exec kra pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-cert-show \
+              kra_audit_signing | tee kra_audit_signing.crt.before
+
+          # check original key
+          docker exec kra pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-key-find \
+              --nickname kra_audit_signing | tee kra_audit_signing.key.before
+
+      - name: Issue subsystem cert
+        run: |
+          docker exec kra pki-server cert-request \
+              --subject "CN=Subsystem Certificate" \
+              --ext /usr/share/pki/server/certs/subsystem.conf \
+              subsystem
+          docker exec kra cp /etc/pki/pki-tomcat/certs/subsystem.csr $SHARED
+          docker exec ca openssl req -text -noout -in $SHARED/subsystem.csr
+
+          docker exec ca pki ca-cert-request-submit \
+              --profile caSubsystemCert \
+              --csr-file $SHARED/subsystem.csr | tee output
+          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
+
+          docker exec ca pki -n caadmin ca-cert-request-approve $REQUEST_ID --force | tee output
+          CERT_ID=$(sed -n 's/Certificate ID: *\(.*\)/\1/p' output)
+
+          docker exec ca pki ca-cert-export $CERT_ID --output-file $SHARED/subsystem.crt
+          docker exec ca openssl x509 -text -noout -in $SHARED/subsystem.crt
+          docker exec kra cp $SHARED/subsystem.crt /etc/pki/pki-tomcat/certs
+
+          docker exec kra pki-server cert-import \
+              subsystem
+
+          # check original cert
+          docker exec kra pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-cert-show \
+              subsystem | tee subsystem.crt.before
+
+          # check original key
+          docker exec kra pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-key-find \
+              --nickname subsystem | tee subsystem.key.before
+
+      - name: Issue SSL server cert
+        run: |
+          docker exec kra pki-server cert-request \
+              --subject "CN=kra.example.com" \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              sslserver
+          docker exec kra cp /etc/pki/pki-tomcat/certs/sslserver.csr $SHARED
+          docker exec ca openssl req -text -noout -in $SHARED/sslserver.csr
+
+          docker exec ca pki ca-cert-request-submit \
+              --profile caServerCert \
+              --csr-file $SHARED/sslserver.csr | tee output
+          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
+
+          docker exec ca pki -n caadmin ca-cert-request-approve $REQUEST_ID --force | tee output
+          CERT_ID=$(sed -n 's/Certificate ID: *\(.*\)/\1/p' output)
+
+          docker exec ca pki ca-cert-export $CERT_ID --output-file $SHARED/sslserver.crt
+          docker exec ca openssl x509 -text -noout -in $SHARED/sslserver.crt
+          docker exec kra cp $SHARED/sslserver.crt /etc/pki/pki-tomcat/certs
+
+          docker exec kra pki-server cert-import \
+              sslserver
+
+          # check original cert
+          docker exec kra pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-cert-show \
+              sslserver | tee sslserver.crt.before
+
+          # check original key
+          docker exec kra pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-key-find \
+              --nickname sslserver | tee sslserver.key.before
+
+      - name: Issue KRA admin cert
+        run: |
+          docker exec kra pki nss-cert-request \
+              --subject "CN=Administrator" \
+              --ext /usr/share/pki/server/certs/admin.conf \
+              --csr $SHARED/kra_admin.csr
+          docker exec ca openssl req -text -noout -in $SHARED/kra_admin.csr
+
+          docker exec ca pki ca-cert-request-submit \
+              --profile AdminCert \
+              --csr-file $SHARED/kra_admin.csr | tee output
+          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
+
+          docker exec ca pki -n caadmin ca-cert-request-approve $REQUEST_ID --force | tee output
+          CERT_ID=$(sed -n 's/Certificate ID: *\(.*\)/\1/p' output)
+
+          docker exec ca pki ca-cert-export $CERT_ID --output-file $SHARED/kra_admin.crt
+          docker exec ca openssl x509 -text -noout -in $SHARED/kra_admin.crt
+
+          docker exec kra pki nss-cert-import \
+              --cert $SHARED/kra_admin.crt \
+              kraadmin
+
+          # check original cert
+          docker exec kra pki nss-cert-show \
+              kraadmin | tee kraadmin.crt.before
+
+          # check original key
+          docker exec kra pki nss-key-find \
+              --nickname kraadmin | tee kraadmin.key.before
+
+      - name: Install KRA with existing NSS database
+        run: |
+          docker exec kra pkispawn \
+              -f /usr/share/pki/server/examples/installation/kra.cfg \
+              -s KRA \
+              -D pki_cert_chain_path=$SHARED/cert_chain.pem \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_security_domain_uri=https://ca.example.com:8443 \
+              -D pki_issuing_ca_uri=https://ca.example.com:8443 \
+              -D pki_admin_cert_path=$SHARED/kra_admin.crt \
+              -v
+
+          docker exec kra pki-server cert-find
+
+      # TODO: Fix DogtagKRAConnectivityCheck to work without CA
+      # - name: Run PKI healthcheck
+      #   run: docker exec kra pki-healthcheck --failures-only
+
+      - name: Check KRA storage cert
+        run: |
+          docker exec kra pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-cert-show \
+              kra_storage | tee kra_storage.crt.after
+
+          # cert should not change
+          diff kra_storage.crt.before kra_storage.crt.after
+
+          docker exec kra pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-key-find \
+              --nickname kra_storage | tee kra_storage.key.after
+
+          # key should not change
+          diff kra_storage.key.before kra_storage.key.after
+
+      - name: Check KRA transport cert
+        run: |
+          docker exec kra pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-cert-show \
+              kra_transport | tee kra_transport.crt.after
+
+          # cert should not change
+          diff kra_transport.crt.before kra_transport.crt.after
+
+          docker exec kra pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-key-find \
+              --nickname kra_transport | tee kra_transport.key.after
+
+          # key should not change
+          diff kra_transport.key.before kra_transport.key.after
+
+      - name: Check KRA audit signing cert
+        run: |
+          docker exec kra pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-cert-show \
+              kra_audit_signing | tee kra_audit_signing.crt.after
+
+          # cert should not change
+          diff kra_audit_signing.crt.before kra_audit_signing.crt.after
+
+          docker exec kra pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-key-find \
+              --nickname kra_audit_signing | tee kra_audit_signing.key.after
+
+          # key should not change
+          diff kra_audit_signing.key.before kra_audit_signing.key.after
+
+      - name: Check subsystem cert
+        run: |
+          docker exec kra pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-cert-show \
+              subsystem | tee subsystem.crt.after
+
+          # cert should not change
+          diff subsystem.crt.before subsystem.crt.after
+
+          docker exec kra pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-key-find \
+              --nickname subsystem | tee subsystem.key.after
+
+          # key should not change
+          diff subsystem.key.before subsystem.key.after
+
+      - name: Check SSL server cert
+        run: |
+          docker exec kra pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-cert-show \
+              sslserver | tee sslserver.crt.after
+
+          # cert should not change
+          diff sslserver.crt.before sslserver.crt.after
+
+          docker exec kra pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-key-find \
+              --nickname sslserver | tee sslserver.key.after
+
+          # key should not change
+          diff sslserver.key.before sslserver.key.after
+
+      - name: Check KRA admin cert
+        run: |
+          docker exec kra pki nss-cert-import \
+              --cert $SHARED/cert_chain.pem \
+              --trust CT,C,C
+          docker exec kra pki nss-cert-find
+          docker exec kra pki -n kraadmin kra-user-show kraadmin
+
+      - name: Verify KRA connector in CA
+        run: |
+          docker exec ca pki -n caadmin ca-kraconnector-show | tee output
+          sed -n 's/\s*Host:\s\+\(\S\+\):.*/\1/p' output > actual
+          echo kra.example.com > expected
+          diff expected actual
+
+      - name: Remove KRA from KRA container
+        run: docker exec kra pkidestroy -i pki-tomcat -s KRA -v
+
+      - name: Remove CA from CA container
+        run: docker exec ca pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Check PKI server systemd journal in CA container
+        if: always()
+        run: |
+          docker exec ca journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check CA debug log
+        if: always()
+        run: |
+          docker exec ca find /var/log/pki/pki-tomcat/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check PKI server systemd journal in KRA container
+        if: always()
+        run: |
+          docker exec kra journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check KRA debug log
+        if: always()
+        run: |
+          docker exec kra find /var/log/pki/pki-tomcat/kra -name "debug.*" -exec cat {} \;
+
+      - name: Gather artifacts
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh ds
+          tests/bin/pki-artifacts-save.sh ca
+          tests/bin/pki-artifacts-save.sh kra
+        continue-on-error: true
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kra-existing-nssdb
+          path: /tmp/artifacts

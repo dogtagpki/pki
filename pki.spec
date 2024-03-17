@@ -8,19 +8,19 @@ Name:             pki
 
 # Upstream version number:
 %global           major_version 11
-%global           minor_version 5
+%global           minor_version 6
 %global           update_version 0
 
 # Downstream release number:
 # - development/stabilization (unsupported): 0.<n> where n >= 1
 # - GA/update (supported): <n> where n >= 1
-%global           release_number 1
+%global           release_number 0.1
 
 # Development phase:
 # - development (unsupported): alpha<n> where n >= 1
 # - stabilization (unsupported): beta<n> where n >= 1
 # - GA/update (supported): <none>
-#global           phase
+%global           phase alpha1
 
 %undefine         timestamp
 %undefine         commit_id
@@ -63,9 +63,27 @@ ExcludeArch: i686
 # Java
 ################################################################################
 
-%global java_devel java-17-openjdk-devel
-%global java_headless java-17-openjdk-headless
-%global java_home %{_jvmdir}/jre-17-openjdk
+%if 0%{?rhel}
+
+%define java_devel java-17-openjdk-devel
+%define java_headless java-17-openjdk-headless
+%define java_home %{_jvmdir}/jre-17-openjdk
+
+%else
+
+# Use Java 21 on Fedora 40+, otherwise use Java 17.
+%global java_devel java-devel >= 1:17
+%global java_headless java-headless >= 1:17
+
+# Don't use find since it might not work well with local builds.
+#   find {_jvmdir} -maxdepth 1 | grep "jre-[0-9]\+$"
+%global java_home %(
+   source /usr/share/java-utils/java-functions;
+   _prefer_jre=true;
+   set_jvm;
+   echo $JAVA_HOME)
+
+%endif
 
 ################################################################################
 # Application Server
@@ -203,8 +221,6 @@ BuildRequires:    apr-util-devel
 BuildRequires:    cyrus-sasl-devel
 BuildRequires:    httpd-devel >= 2.4.2
 BuildRequires:    systemd
-BuildRequires:    zlib
-BuildRequires:    zlib-devel
 
 # build dependency to build man pages
 BuildRequires:    golang-github-cpuguy83-md2man
@@ -252,7 +268,6 @@ Obsoletes:        pki-symkey < %{version}
 Obsoletes:        %{product_id}-symkey < %{version}
 Obsoletes:        pki-console < %{version}
 Obsoletes:        pki-console-theme < %{version}
-Obsoletes:        idm-console-framework < 2.0
 
 %if %{with base}
 Requires:         %{product_id}-base = %{version}-%{release}
@@ -762,14 +777,16 @@ This package provides %{product_name} API documentation.
 Summary:          %{product_name} Console Package
 BuildArch:        noarch
 
-BuildRequires:    mvn(org.dogtagpki.console-framework:console-framework) >= 2.1.0
-
 Obsoletes:        pki-console < %{version}-%{release}
 Provides:         pki-console = %{version}-%{release}
 
-Requires:         mvn(org.dogtagpki.console-framework:console-framework) >= 2.1.0
 Requires:         %{product_id}-java = %{version}-%{release}
 Requires:         %{product_id}-console-theme = %{version}-%{release}
+
+# IDM Console Framework has been merged into PKI Console.
+# This will remove installed IDM Console Framework packages.
+Obsoletes:        idm-console-framework <= 2.1
+Conflicts:        idm-console-framework <= 2.1
 
 %description -n   %{product_id}-console
 %{product_name} Console is a Java application used to administer %{product_name} Server.
@@ -1024,6 +1041,9 @@ C_FLAGS="$C_FLAGS -D_GLIBCXX_ASSERTIONS"
 
 # https://sourceware.org/annobin/annobin.html/Test-lto.html
 C_FLAGS="$C_FLAGS -fno-lto"
+
+# https://sourceware.org/annobin/annobin.html/Test-fortify.html
+C_FLAGS="$C_FLAGS -D_FORTIFY_SOURCE=3"
 %endif
 
 pkgs=base\
@@ -1230,7 +1250,6 @@ fi
 %{_bindir}/pki
 %{_bindir}/revoker
 %{_bindir}/setpin
-%{_bindir}/sslget
 %{_bindir}/tkstool
 %{_bindir}/tpsclient
 %{_bindir}/AtoB

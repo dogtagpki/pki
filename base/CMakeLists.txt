@@ -377,14 +377,6 @@ find_file(JSS_TOMCAT_9_0_JAR
         /usr/share/java/jss
 )
 
-find_file(IDM_CONSOLE_FRAMEWORK_JAR
-    NAMES
-        idm-console-framework.jar
-    PATHS
-        ${JAVA_LIB_INSTALL_DIR}
-        /usr/share/java
-)
-
 find_file(FONTAWESOME_WEBFONT
     NAMES
         fontawesome-webfont.woff

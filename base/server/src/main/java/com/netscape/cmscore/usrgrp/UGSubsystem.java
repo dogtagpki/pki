@@ -31,6 +31,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.LDAPExceptionConverter;
 import com.netscape.certsrv.logging.AuditFormat;
@@ -529,7 +530,7 @@ public class UGSubsystem {
             String pwd = pwdAttr.getStringValues().nextElement();
 
             if (pwd != null) {
-                logger.info("UGSubsystem: - userPassword: ********");
+                logger.info("UGSubsystem: - password: ********");
                 user.setPassword(pwd);
             }
         }
@@ -542,7 +543,7 @@ public class UGSubsystem {
                 String phone = en.nextElement();
 
                 if (phone != null) {
-                    logger.info("UGSubsystem: - telephoneNumber: " + phone);
+                    logger.info("UGSubsystem: - phone: " + phone);
                     user.setPhone(phone);
                 }
             }
@@ -563,7 +564,7 @@ public class UGSubsystem {
                 String userType = en.nextElement();
 
                 if ((userType != null) && (!userType.equals("undefined"))) {
-                    logger.info("UGSubsystem: - usertype: " + userType);
+                    logger.info("UGSubsystem: - type: " + userType);
                     user.setUserType(userType);
                 } else {
                     user.setUserType("");
@@ -581,7 +582,7 @@ public class UGSubsystem {
                 String userState = en.nextElement();
 
                 if (userState != null) {
-                    logger.info("UGSubsystem: - userstate: " + userState);
+                    logger.info("UGSubsystem: - state: " + userState);
                     user.setState(userState);
                 } else {
                     user.setState("");
@@ -598,8 +599,10 @@ public class UGSubsystem {
                 for (; e != null && e.hasMoreElements();) {
                     X509Certificate cert = new X509CertImpl(e.nextElement());
 
-                    String certID = getCertificateString(cert);
-                    logger.info("UGSubsystem: - user cert: " + certID);
+                    logger.info("UGSubsystem: - cert:");
+                    logger.info("UGSubsystem:   - serial: " + new CertId(cert.getSerialNumber()).toHexString());
+                    logger.info("UGSubsystem:   - subject: " + cert.getSubjectDN());
+                    logger.info("UGSubsystem:   - issuer: " + cert.getIssuerDN());
 
                     certVector.addElement(cert);
                 }

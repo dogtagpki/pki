@@ -66,6 +66,20 @@ jobs:
               -D pki_ds_url=ldap://ds.example.com:3389 \
               -v
 
+      - name: Check TKS server status
+        run: |
+          docker exec pki pki-server status | tee output
+
+          # CA should be a domain manager, but TKS should not
+          echo "True" > expected
+          echo "False" >> expected
+          sed -n 's/^ *SD Manager: *\(.*\)$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check TKS system certs
+        run: |
+          docker exec pki pki-server cert-find
+
       - name: Check TKS audit signing cert
         run: |
           docker exec pki pki-server cert-export tks_audit_signing \

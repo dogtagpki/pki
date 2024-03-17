@@ -184,8 +184,20 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.setup_security_domain_manager(subsystem)
 
         if config.str2bool(deployer.mdict['pki_admin_setup']) and not clone:
+
+            if deployer.mdict.get('pki_admin_cert_path') \
+                    or config.str2bool(deployer.mdict['pki_import_admin_cert']) \
+                    or external and subsystem.type != 'CA' \
+                    or standalone:
+                logger.info('Reusing admin cert request')
+                admin_csr = None
+
+            else:
+                logger.info('Creating admin cert request')
+                admin_csr = deployer.create_admin_csr(subsystem)
+
             logger.info('Setting up admin cert')
-            admin_cert = deployer.setup_admin_cert(subsystem)
+            admin_cert = deployer.setup_admin_cert(subsystem, admin_csr)
 
             logger.info('Setting up admin user')
             deployer.setup_admin_user(subsystem, admin_cert)

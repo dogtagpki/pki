@@ -217,6 +217,14 @@ jobs:
               --pkcs12-password Secret.123
           docker exec pki pki -n caadmin ca-user-show caadmin
 
+      - name: Remove CA
+        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Remove SoftHSM token
+        run: |
+          docker exec pki ls -laR /var/lib/softhsm/tokens
+          docker exec pki runuser -u pkiuser -- softhsm2-util --delete-token --token HSM
+
       - name: Check PKI server systemd journal
         if: always()
         run: |
@@ -233,14 +241,6 @@ jobs:
           tests/bin/ds-artifacts-save.sh ds
           tests/bin/pki-artifacts-save.sh pki
         continue-on-error: true
-
-      - name: Remove CA
-        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
-
-      - name: Remove SoftHSM token
-        run: |
-          docker exec pki ls -laR /var/lib/softhsm/tokens
-          docker exec pki runuser -u pkiuser -- softhsm2-util --delete-token --token HSM
 
       - name: Upload artifacts
         if: always()

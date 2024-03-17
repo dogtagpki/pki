@@ -150,3 +150,18 @@ jobs:
       - name: Remove CA
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
 
+      - name: Check PKI server systemd journal
+        if: always()
+        run: |
+          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check CA debug log
+        if: always()
+        run: |
+          docker exec pki find /var/log/pki/pki-tomcat/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check KRA debug log
+        if: always()
+        run: |
+          docker exec pki find /var/log/pki/pki-tomcat/kra -name "debug.*" -exec cat {} \;
+

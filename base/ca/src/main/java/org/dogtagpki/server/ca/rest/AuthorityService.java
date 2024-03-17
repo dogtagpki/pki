@@ -286,6 +286,7 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
             audit(ILogger.FAILURE, OpDef.OP_ADD, "<unknown>", auditParams);
             throw new ConflictingOperationException(e.toString());
         } catch (CAMissingCertException | CAMissingKeyException e) {
+            logger.error(CMS.getLogMessage("CMSCORE_CA_SIGNING_CERT_NOT_FOUND", e.toString()), e);
             throw new ServiceUnavailableException(e.toString());
         } catch (Exception e) {
             String message = "Error creating CA: " + e.getMessage();

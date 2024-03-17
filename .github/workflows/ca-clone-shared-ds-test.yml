@@ -218,24 +218,6 @@ jobs:
 
           diff sd.primary sd.secondary
 
-      - name: Gather artifacts from primary CA
-        if: always()
-        run: |
-          tests/bin/pki-artifacts-save.sh primary
-        continue-on-error: true
-
-      - name: Gather artifacts from secondary CA
-        if: always()
-        run: |
-          tests/bin/pki-artifacts-save.sh secondary
-        continue-on-error: true
-
-      - name: Gather artifacts from DS
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh ds
-        continue-on-error: true
-
       - name: Remove secondary CA
         run: |
           docker exec secondary pki -n caadmin ca-user-find
@@ -248,26 +230,17 @@ jobs:
           docker exec primary pki securitydomain-host-find
           docker exec primary pkidestroy -i pki-tomcat -s CA -v
 
-      - name: Upload artifacts from primary CA
+      - name: Gather artifacts
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ca-clone-shared-ds-primary-ca
-          path: |
-            /tmp/artifacts/primary
+        run: |
+          tests/bin/pki-artifacts-save.sh primary
+          tests/bin/pki-artifacts-save.sh secondary
+          tests/bin/ds-artifacts-save.sh ds
+        continue-on-error: true
 
-      - name: Upload artifacts from secondary CA
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ca-clone-shared-ds-secondary-ca
-          path: |
-            /tmp/artifacts/secondary
-
-      - name: Upload artifacts from DS
+      - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ca-clone-shared-ds
-          path: |
-            /tmp/artifacts/ds
+          path: /tmp/artifacts

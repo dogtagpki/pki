@@ -36,17 +36,6 @@ SET(CMAKE_INSTALL_RPATH "${LIB_INSTALL_DIR}/tps")
 # which point to directories outside the build tree to the install RPATH
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-find_library(ZLIB_LIBRARY
-    NAMES
-        z
-    PATHS
-        /usr/lib
-        /usr/lib64
-        /usr/local/lib
-        /opt/local/lib
-        /sw/lib
-)
-
 set(TPS_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/include)
 
 set(TPS_PUBLIC_INCLUDE_DIRS
@@ -134,7 +123,6 @@ set(TPS_LINK_LIBRARIES
     ${NSS_LIBRARIES}
     ${APR_LIBRARIES}
     ${LDAP_LIBRARIES}
-    ${ZLIB_LIBRARY}
 )
 
 include_directories(${TPS_PRIVATE_INCLUDE_DIRS})

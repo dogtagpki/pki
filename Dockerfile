@@ -34,7 +34,7 @@ RUN if [ -n "$COPR_REPO" ]; then dnf copr enable -y $COPR_REPO; fi
 
 # Install PKI runtime dependencies
 RUN dnf install -y dogtag-pki \
-    && dnf remove -y dogtag-* --noautoremove \
+    && rpm -e --nodeps $(rpm -qa | grep -E "^java-|^dogtag-|^python3-dogtag-") \
     && dnf clean all \
     && rm -rf /var/cache/dnf
 
@@ -71,7 +71,7 @@ RUN dnf localinstall -y /tmp/RPMS/* \
 # Import PKI sources
 COPY . /root/pki/
 
-# Build and install PKI packages
+# Build PKI packages
 RUN ./build.sh --work-dir=build $BUILD_OPTS rpm
 
 ################################################################################

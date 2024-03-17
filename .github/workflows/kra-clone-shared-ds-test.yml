@@ -231,14 +231,6 @@ jobs:
       - name: Run PKI healthcheck in secondary container
         run: docker exec secondary pki-healthcheck --failures-only
 
-      - name: Gather artifacts
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh ds
-          tests/bin/pki-artifacts-save.sh primary
-          tests/bin/pki-artifacts-save.sh secondary
-        continue-on-error: true
-
       - name: Remove KRA from secondary PKI container
         run: docker exec secondary pkidestroy -i pki-tomcat -s KRA -v
 
@@ -251,12 +243,47 @@ jobs:
       - name: Remove CA from primary PKI container
         run: docker exec primary pkidestroy -i pki-tomcat -s CA -v
 
+      - name: Check PKI server systemd journal in primary container
+        if: always()
+        run: |
+          docker exec primary journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check primary CA debug log
+        if: always()
+        run: |
+          docker exec primary find /var/log/pki/pki-tomcat/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check primary KRA debug log
+        if: always()
+        run: |
+          docker exec primary find /var/log/pki/pki-tomcat/kra -name "debug.*" -exec cat {} \;
+
+      - name: Check PKI server systemd journal in secondary container
+        if: always()
+        run: |
+          docker exec secondary journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check secondary CA debug log
+        if: always()
+        run: |
+          docker exec secondary find /var/log/pki/pki-tomcat/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check secondary KRA debug log
+        if: always()
+        run: |
+          docker exec secondary find /var/log/pki/pki-tomcat/kra -name "debug.*" -exec cat {} \;
+
+      - name: Gather artifacts
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh ds
+          tests/bin/pki-artifacts-save.sh primary
+          tests/bin/pki-artifacts-save.sh secondary
+        continue-on-error: true
+
       - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: kra-clone-shared-ds
-          path: |
-            /tmp/artifacts/ds
-            /tmp/artifacts/primary
-            /tmp/artifacts/secondary
+          path: /tmp/artifacts

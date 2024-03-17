@@ -2350,27 +2350,6 @@ class PKIDeployer:
 
         self.import_cert_chain(nssdb)
 
-    def update_admin_cert(self, subsystem):
-
-        logger.info('Updating admin certificate')
-
-        client_nssdb = pki.nssdb.NSSDatabase(
-            directory=self.mdict['pki_client_database_dir'],
-            password=self.mdict['pki_client_database_password'])
-
-        try:
-            nickname = self.mdict['pki_admin_nickname']
-            cert_data = client_nssdb.get_cert(
-                nickname=nickname,
-                output_format='base64',
-                output_text=True,
-            )
-
-            subsystem.config['%s.admin.cert' % subsystem.name] = cert_data
-
-        finally:
-            client_nssdb.close()
-
     def update_system_certs(self, subsystem):
 
         logger.info('Updating system certs')
@@ -2385,14 +2364,9 @@ class PKIDeployer:
             subsystem.config['ca.ocsp_signing.defaultSigningAlgorithm'] = \
                 self.mdict['pki_ocsp_signing_signing_algorithm']
 
-        if subsystem.name == 'kra':
-            self.update_admin_cert(subsystem)
-
         if subsystem.name == 'ocsp':
             subsystem.config['ocsp.signing.defaultSigningAlgorithm'] = \
                 self.mdict['pki_ocsp_signing_signing_algorithm']
-
-            self.update_admin_cert(subsystem)
 
         subsystem.config['%s.audit_signing.defaultSigningAlgorithm' % subsystem.name] = \
             self.mdict['pki_audit_signing_signing_algorithm']
@@ -3484,44 +3458,6 @@ class PKIDeployer:
 
         return system_certs
 
-    def load_admin_cert(self):
-
-        logger.debug('PKIDeployer.load_admin_cert()')
-
-        nickname = self.mdict['pki_admin_nickname']
-        logger.info('Loading admin cert from client database: %s', nickname)
-
-        client_nssdb = pki.nssdb.NSSDatabase(
-            directory=self.mdict['pki_client_database_dir'],
-            password=self.mdict['pki_client_database_password'])
-
-        try:
-            pem_cert = client_nssdb.get_cert(
-                nickname=nickname,
-                output_format='pem',
-                output_text=True,  # JSON encoder needs text
-            )
-
-        finally:
-            client_nssdb.close()
-
-        if pem_cert:
-            return pem_cert
-
-        cert_file = self.mdict.get('pki_admin_cert_file')
-        if cert_file and os.path.exists(cert_file):
-
-            # admin cert was in 'pki_admin_cert_file' but not yet in client
-            # nssdb
-
-            logger.info('Loading admin cert from %s', cert_file)
-            with open(cert_file, 'r', encoding='utf-8') as f:
-                pem_cert = f.read()
-
-            return pem_cert
-
-        return None
-
     def request_cert(
             self,
             url,
@@ -3581,71 +3517,32 @@ class PKIDeployer:
         finally:
             shutil.rmtree(tmpdir)
 
-    def create_admin_csr(self):
+    def create_admin_csr(self, subsystem):
 
         if self.mdict['pki_admin_cert_request_type'] != 'pkcs10':
             raise Exception(log.PKI_CONFIG_PKCS10_SUPPORT_ONLY)
 
-        noise_file = os.path.join(self.mdict['pki_client_database_dir'], 'noise')
-        output_file = os.path.join(self.mdict['pki_client_database_dir'], 'admin_pkcs10.bin')
-        output_ascii_file = output_file + '.asc'
+        csr_path = os.path.join(self.mdict['pki_client_database_dir'], 'admin.csr')
 
-        # note: in the function below, certutil is used to generate
-        # the request for the admin cert.  The keys are generated
-        # by NSS, which does not actually use the data in the noise
-        # file, so it does not matter what is in this file.  Certutil
-        # still requires it though, otherwise it waits for keyboard
-        # input.
-        with open(noise_file, 'w', encoding='utf-8') as f:
-            f.write('not_so_random_data')
+        client_nssdb = pki.nssdb.NSSDatabase(
+            directory=self.mdict['pki_client_database_dir'],
+            password_file=self.mdict['pki_client_password_conf'])
 
-        self.certutil.generate_certificate_request(
-            self.mdict['pki_admin_subject_dn'],
-            self.mdict['pki_admin_key_type'],
-            self.mdict['pki_admin_key_size'],
-            self.mdict['pki_client_password_conf'],
-            noise_file,
-            output_file,
-            self.mdict['pki_client_database_dir'],
-            None,
-            None,
-            True)
+        try:
+            self.generate_csr(
+                client_nssdb,
+                subsystem,
+                'admin',
+                csr_path
+            )
 
-        self.file.delete(noise_file)
+        finally:
+            client_nssdb.close()
 
-        # convert output to ASCII
-        command = ['BtoA', output_file, output_ascii_file]
-        logger.debug('Command: %s', ' '.join(command))
+        with open(csr_path, encoding='utf-8') as f:
+            pem_csr = f.read()
 
-        subprocess.check_call(command)
-
-        with open(output_ascii_file, 'r', encoding='utf-8') as f:
-            b64csr = f.read().replace('\r', '').replace('\n', '')
-
-        standalone = config.str2bool(self.mdict['pki_standalone'])
-        external_step_one = not config.str2bool(self.mdict['pki_external_step_two'])
-
-        if standalone and external_step_one:
-            # For convenience and consistency, save a copy of
-            # the Stand-alone PKI 'Admin Certificate' CSR to the
-            # specified "pki_admin_csr_path" location
-            # (Step 1)
-
-            pem_csr = pki.nssdb.convert_data(b64csr, 'base64', 'pem')
-            logger.info('Admin CSR:\n%s', pem_csr)
-
-            csr_file = self.mdict['pki_admin_csr_path']
-            logger.info('Storing admin CSR into %s', csr_file)
-
-            self.directory.create(os.path.dirname(csr_file))
-
-            with open(csr_file, 'w', encoding='utf-8') as f:
-                f.write(pem_csr)
-
-            # Save the client database for stand-alone PKI (Step 1)
-            self.mdict['pki_client_database_purge'] = 'False'
-
-        return b64csr
+        return pki.nssdb.convert_csr(pem_csr, 'pem', 'base64')
 
     def valid_algorithm(self, key_type, algorithm):
 
@@ -3776,12 +3673,47 @@ class PKIDeployer:
 
         return cert_pem
 
-    def setup_admin_cert(self, subsystem):
+    def setup_admin_cert(self, subsystem, base64_csr=None):
 
         logger.debug('PKIDeployer.setup_admin_cert()')
 
         external = config.str2bool(self.mdict['pki_external'])
         standalone = config.str2bool(self.mdict['pki_standalone'])
+
+        nickname = self.mdict['pki_admin_nickname']
+
+        client_nssdb = pki.nssdb.NSSDatabase(
+            directory=self.mdict['pki_client_database_dir'],
+            password=self.mdict['pki_client_database_password'])
+
+        try:
+            logger.info('Checking admin cert: %s', nickname)
+            cert_info = client_nssdb.get_cert_info(nickname)
+
+            if cert_info:
+                logger.info('admin cert already exists in NSS database')
+                logger.info('- serial: %s', hex(cert_info['serial_number']))
+                logger.info('- subject: %s', cert_info['subject'])
+                logger.info('- issuer: %s', cert_info['issuer'])
+                logger.info('- trust flags: %s', cert_info['trust_flags'])
+
+                pem_cert = pki.nssdb.convert_cert(cert_info['data'], 'base64', 'pem')
+
+            else:
+                logger.info('admin cert does not exist in NSS database')
+                pem_cert = None
+
+        finally:
+            client_nssdb.close()
+
+        if pem_cert:
+            logger.debug('Admin cert:\n%s', pem_cert)
+
+            if external and subsystem.type != 'CA' or standalone:
+                self.store_admin_cert(pem_cert)
+                self.export_admin_pkcs12()
+
+            return pem_cert
 
         cert_path = self.mdict.get('pki_admin_cert_path')
         if cert_path:
@@ -3790,20 +3722,28 @@ class PKIDeployer:
             with open(cert_path, 'r', encoding='utf-8') as f:
                 pem_cert = f.read()
 
-            if pem_cert:
-                logger.debug('Admin cert:\n%s', pem_cert)
+            logger.debug('Admin cert:\n%s', pem_cert)
 
-                if external and subsystem.type != 'CA' or standalone:
-                    self.store_admin_cert(pem_cert)
-                    self.export_admin_pkcs12()
+            if external and subsystem.type != 'CA' or standalone:
+                self.store_admin_cert(pem_cert)
+                self.export_admin_pkcs12()
 
-                return pem_cert
+            return pem_cert
 
         if config.str2bool(self.mdict['pki_import_admin_cert']) \
                 or external and subsystem.type != 'CA' \
                 or standalone:
-            logger.info('Importing admin cert')
-            pem_cert = self.load_admin_cert()
+
+            cert_file = self.mdict.get('pki_admin_cert_file')
+            logger.info('Checking admin cert in %s', cert_file)
+
+            if not os.path.exists(cert_file):
+                raise Exception('Missing admin certificate: %s' % cert_file)
+
+            logger.info('Loading admin cert from %s', cert_file)
+            with open(cert_file, 'r', encoding='utf-8') as f:
+                pem_cert = f.read()
+
             logger.debug('Admin cert:\n%s', pem_cert)
 
             if external and subsystem.type != 'CA' or standalone:
@@ -3814,17 +3754,13 @@ class PKIDeployer:
 
         if subsystem.type == 'CA':
             logger.info('Creating admin cert')
-            b64csr = self.create_admin_csr()
-            pem_cert = self.create_admin_cert(subsystem, b64csr)
+            pem_cert = self.create_admin_cert(subsystem, base64_csr)
             logger.debug('Admin cert:\n%s', pem_cert)
 
             self.store_admin_cert(pem_cert)
             self.export_admin_pkcs12()
 
             return pem_cert
-
-        logger.info('Creating admin cert request')
-        b64csr = self.create_admin_csr()
 
         ca_type = subsystem.config['preop.ca.type']
 
@@ -3852,7 +3788,7 @@ class PKIDeployer:
         pem_cert = self.request_cert(
             ca_url,
             request_type,
-            b64csr,
+            base64_csr,
             profile,
             subject)
 
