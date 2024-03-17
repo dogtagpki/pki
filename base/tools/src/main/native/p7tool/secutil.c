@@ -2438,15 +2438,6 @@ SECU_PrintFingerprints(FILE *out, SECItem *derCert, const char *m, int level)
     if (rv != SECSuccess && !err)
 	err = PORT_GetError();
 
-    /* print SHA1 fingerprint */
-    memset(fingerprint, 0, sizeof fingerprint);
-    rv = PK11_HashBuf(SEC_OID_SHA1,fingerprint, derCert->data, derCert->len);
-    fpItem.data = fingerprint;
-    fpItem.len = SHA1_LENGTH;
-    fpStr = CERT_Hexify(&fpItem, 1);
-    SECU_Indent(out, level);  fprintf(out, "%s (SHA1):\n", m);
-    SECU_Indent(out, level+1); fprintf(out, "%s\n", fpStr);
-    PORT_Free(fpStr);
     fprintf(out, "\n");
 
     if (err) 
