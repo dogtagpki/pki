@@ -73,7 +73,6 @@ public class CertRequestServlet extends CAServlet {
         HttpSession session = request.getSession();
         logger.debug("CertRequestServlet.get(): session: {}", session.getId());
 
-        response.setContentType("application/json");
         PrintWriter out = response.getWriter();
         if(request.getPathInfo() == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND, request.getRequestURI());
@@ -90,16 +89,15 @@ public class CertRequestServlet extends CAServlet {
                 out.println(infos.toJSON());
                 return;
             }
-            RequestId id = new RequestId(pathElement[0]);
+            RequestId id;
             try {
-                CertRequestInfo info = getRequestInfo(id);
-                out.println(info.toJSON());
-                return;
-            } catch (RequestNotFoundException e) {
-                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                out.println(e.getData().toJSON());
-                return;
+                id = new RequestId(pathElement[0]);
+            } catch(NumberFormatException e) {
+                throw new BadRequestException("Id not valid: " + pathElement[0]);
             }
+            CertRequestInfo info = getRequestInfo(id);
+            out.println(info.toJSON());
+            return;
         }
         if (pathElement.length == 2 && pathElement[0].equals("profiles")) {
             CertEnrollmentRequest req = getEnrollmentTemplate(pathElement[1], request.getLocale());
@@ -135,7 +133,6 @@ public class CertRequestServlet extends CAServlet {
 
         CertRequestInfos infos = enrollCert(request, enrollmentRequest, caIDString, caDNString);
 
-        response.setContentType("application/json");
         PrintWriter out = response.getWriter();
         out.println(infos.toJSON());
     }

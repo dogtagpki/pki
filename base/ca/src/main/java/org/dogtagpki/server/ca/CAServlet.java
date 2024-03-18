@@ -6,6 +6,7 @@
 package org.dogtagpki.server.ca;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.security.Principal;
 import java.util.Locale;
 
@@ -21,7 +22,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.authentication.ExternalAuthToken;
+import com.netscape.certsrv.base.BadRequestDataException;
+import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ForbiddenException;
+import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.cms.realm.PKIPrincipal;
 
@@ -45,25 +50,75 @@ public class CAServlet extends HttpServlet {
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.setContentType("application/json");
         try {
             setSessionContext(request);
             get(request, response);
-        } catch (ServletException | IOException e) {
-            throw e;
+        } catch (ResourceNotFoundException re) {
+            try {
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                PrintWriter out = response.getWriter();
+                out.print(re.getData().toJSON());
+            } catch(Exception ex) {
+                logger.error("CAServlet: error setting error response {}", ex.getMessage());
+            }
+        } catch (BadRequestException bre) {
+            try {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                PrintWriter out = response.getWriter();
+                out.print(bre.getData().toJSON());
+            } catch(Exception ex) {
+                logger.error("CAServlet: error setting error response {}", ex.getMessage());
+            }
+        } catch (PKIException bre) {
+            try {
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                PrintWriter out = response.getWriter();
+                out.print(bre.getData().toJSON());
+            } catch(Exception ex) {
+                logger.error("CAServlet: error setting error response {}", ex.getMessage());
+            }
         } catch (Exception e) {
-            throw new ServletException(e);
+            try {
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+            } catch(Exception ex) {
+                logger.error("CAServlet: error setting error response {}", ex.getMessage());
+            }
         }
     }
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.setContentType("application/json");
         try {
             setSessionContext(request);
             post(request, response);
-        } catch (ServletException | IOException e) {
-            throw e;
+        } catch (ResourceNotFoundException re) {
+            try {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, re.getData().toJSON());
+            } catch(Exception ex) {
+                logger.error("CAServlet: error setting error response {}", ex.getMessage());
+            }
+        } catch (BadRequestDataException bre) {
+            try {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, bre.getMessage());
+            } catch(Exception ex) {
+                logger.error("CAServlet: error setting error response {}", ex.getMessage());
+            }
+        } catch (PKIException bre) {
+            try {
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                PrintWriter out = response.getWriter();
+                out.print(bre.getData().toJSON());
+            } catch(Exception ex) {
+                logger.error("CAServlet: error setting error response {}", ex.getMessage());
+            }
         } catch (Exception e) {
-            throw new ServletException(e);
+            try {
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+            } catch(Exception ex) {
+                logger.error("CAServlet: error setting error response {}", ex.getMessage());
+            }
         }
     }
 
