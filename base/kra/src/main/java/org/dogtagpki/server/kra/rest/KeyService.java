@@ -789,7 +789,7 @@ public class KeyService extends SubsystemService implements KeyResource {
         }
 
         String passphrase = data.getPassphrase();
-        byte[] pkcs12 = service.doKeyRecovery(reqId.toString(), passphrase);
+        byte[] pkcs12 = service.doKeyRecovery(request, passphrase);
 
         if (pkcs12 == null) {
             throw new HTTPGoneException("Unable to generate PKCS #12 file");

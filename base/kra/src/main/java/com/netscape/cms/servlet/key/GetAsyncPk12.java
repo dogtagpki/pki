@@ -47,6 +47,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.logging.Auditor;
+import com.netscape.cmscore.request.Request;
 import com.netscape.kra.KeyRecoveryAuthority;
 
 /**
@@ -214,8 +215,10 @@ public class GetAsyncPk12 extends CMSServlet {
                 throw new EBaseException("PKCS12 password not matched");
             }
 
+            Request request = requestRepository.readRequest(new RequestId(reqID));
+
             // got all approval, return pk12
-            byte pkcs12[] = mService.doKeyRecovery(reqID, password);
+            byte pkcs12[] = mService.doKeyRecovery(request, password);
 
             if (pkcs12 != null) {
                 try {
