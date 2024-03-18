@@ -36,8 +36,6 @@ public class CAInfoServlet extends CAServlet {
         CAEngine engine = getCAEngine();
         CAInfo info = engine.getInfo(request.getLocale());
 
-        response.setContentType("application/json");
-
         PrintWriter out = response.getWriter();
         out.println(info.toJSON());
     }

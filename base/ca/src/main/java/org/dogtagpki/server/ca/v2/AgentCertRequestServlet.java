@@ -70,11 +70,15 @@ public class AgentCertRequestServlet extends CAServlet {
 
     @Override
     public void get(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        response.setContentType("application/json");
         PrintWriter out = response.getWriter();
         if(request.getPathInfo() != null) {
+            RequestId id;
             try {
-                RequestId id = new RequestId(request.getPathInfo().substring(1));
+                id = new RequestId(request.getPathInfo().substring(1));
+            } catch(NumberFormatException e) {
+                throw new BadRequestException("Id not valid: " + request.getPathInfo().substring(1));
+            }
+            try {
                 CertReviewResponse req = getRequestData(request, id);
                 if(req == null) {
                     throw new RequestNotFoundException(id);
@@ -118,7 +122,13 @@ public class AgentCertRequestServlet extends CAServlet {
             response.sendError(HttpServletResponse.SC_NOT_FOUND, request.getRequestURI());
             return;
         }
-        RequestId id = new RequestId(pathElement[0]);
+
+        RequestId id;
+        try {
+            id = new RequestId(pathElement[0]);
+        } catch(NumberFormatException e) {
+            throw new BadRequestException("Id not valid: " + pathElement[0]);
+        }
 
         if (pathElement[1].matches("approve|reject|cancel|update|validate|unassign|assign")) {
             logger.info("AgentCertRequestServlet: operation {} on certificate request {}",pathElement[1], id.toHexString());
