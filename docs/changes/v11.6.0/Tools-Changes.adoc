@@ -5,6 +5,7 @@
 The following tools have been moved into `jss-tools`:
 
 * `p12tool`
+* `p7tool`
 * `sslget`
 
 == Update pki-server status ==
