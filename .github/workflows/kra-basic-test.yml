@@ -206,9 +206,131 @@ jobs:
           echo pki.example.com > expected
           diff expected actual
 
-      - name: Verify cert key archival
+      - name: Check cert enrollment with key archival
         run: |
-          docker exec pki /usr/share/pki/tests/kra/bin/test-cert-key-archival.sh
+          # generate key and submit cert request
+          # https://github.com/dogtagpki/pki/wiki/Submitting-Certificate-Request-with-Key-Archival
+          docker exec pki pki \
+              -U http://pki.example.com:8080 \
+              client-cert-request \
+              --profile caUserCert \
+              --type crmf \
+              --algorithm rsa \
+              --permanent \
+              --transport kra_transport.crt \
+              UID=testuser | tee output
+
+          REQUEST_ID=$(sed -n "s/^\s*Request ID:\s*\(\S*\)$/\1/p" output)
+          echo "Request ID: $REQUEST_ID"
+
+          # issue cert
+          docker exec pki pki \
+              -u caadmin \
+              -w Secret.123 \
+              ca-cert-request-approve \
+              --force \
+              $REQUEST_ID | tee output
+
+          CERT_ID=$(sed -n "s/^\s*Certificate ID:\s*\(\S*\)$/\1/p" output)
+          echo "Cert ID: $CERT_ID"
+
+          # import cert into NSS database
+          docker exec pki pki ca-cert-export --output-file testuser.crt $CERT_ID
+          docker exec pki pki nss-cert-import --cert testuser.crt testuser
+
+          # the cert should match the key (trust flags must be u,u,u)
+          echo "u,u,u" > expected
+          docker exec pki pki nss-cert-show testuser | tee output
+          sed -n "s/^\s*Trust Flags:\s*\(\S*\)$/\1/p" output > actual
+          diff expected actual
+
+      - name: Check archived key
+        run: |
+          # find archived key by owner
+          docker exec pki pki \
+              -u kraadmin \
+              -w Secret.123 \
+              kra-key-find --owner UID=testuser | tee output
+
+          KEY_ID=$(sed -n "s/^\s*Key ID:\s*\(\S*\)$/\1/p" output)
+          echo "Key ID: $KEY_ID"
+          echo $KEY_ID > key.id
+
+          DEC_KEY_ID=$(python -c "print(int('$KEY_ID', 16))")
+          echo "Dec Key ID: $DEC_KEY_ID"
+
+          # get key record
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -x \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b "cn=$DEC_KEY_ID,ou=keyRepository,ou=kra,dc=kra,dc=pki,dc=example,dc=com" \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          # encryption mode should be "false" by default
+          echo "false" > expected
+          sed -n 's/^metaInfo:\s*payloadEncrypted:\(.*\)$/\1/p' output > actual
+          diff expected actual
+
+          # key wrap algorithm should be "AES KeyWrap/Padding" by default
+          echo "AES KeyWrap/Padding" > expected
+          sed -n 's/^metaInfo:\s*payloadWrapAlgorithm:\(.*\)$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check key retrieval
+        run: |
+          KEY_ID=$(cat key.id)
+          echo "Key ID: $KEY_ID"
+
+          BASE64_CERT=$(docker exec pki pki nss-cert-export --format DER testuser | base64 --wrap=0)
+          echo "Cert: $BASE64_CERT"
+
+          cat > request.json <<EOF
+          {
+            "ClassName" : "com.netscape.certsrv.key.KeyRecoveryRequest",
+            "Attributes" : {
+              "Attribute" : [ {
+                "name" : "keyId",
+                "value" : "$KEY_ID"
+              }, {
+                "name" : "certificate",
+                "value" : "$BASE64_CERT"
+              }, {
+                "name" : "passphrase",
+                "value" : "Secret.123"
+              } ]
+            }
+          }
+          EOF
+
+          # retrieve archived cert and key into PKCS #12 file
+          # https://github.com/dogtagpki/pki/wiki/Retrieving-Archived-Key
+          docker exec pki pki \
+              -n caadmin \
+              kra-key-retrieve \
+              --input $SHARED/request.json \
+              --output-data archived.p12
+
+          # import PKCS #12 file into NSS database
+          docker exec pki pki \
+              -d nssdb \
+              pkcs12-import \
+              --pkcs12 archived.p12 \
+              --password Secret.123
+
+          # remove archived cert from NSS database
+          docker exec pki pki -d nssdb nss-cert-del UID=testuser
+
+          # import original cert into NSS database
+          docker exec pki pki -d nssdb nss-cert-import --cert testuser.crt testuser
+
+          # the original cert should match the archived key (trust flags must be u,u,u)
+          echo "u,u,u" > expected
+          docker exec pki pki -d nssdb nss-cert-show testuser | tee output
+          sed -n "s/^\s*Trust Flags:\s*\(\S*\)$/\1/p" output > actual
+          diff expected actual
 
       - name: Remove KRA
         run: docker exec pki pkidestroy -i pki-tomcat -s KRA -v
@@ -243,4 +365,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: kra-basic
-          path: /tmp/artifacts/pki
+          path: /tmp/artifacts

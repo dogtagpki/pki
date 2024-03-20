@@ -179,7 +179,12 @@ public class KRAKeyRetrieveCLI extends CommandCLI {
             if (outputDataFile != null) {
 
                 byte[] data;
-                if (clientEncryption) { // store encrypted data
+
+                String base64pkcs12Data = key.getP12Data();
+                if (base64pkcs12Data != null) {
+                    data = Utils.base64decode(base64pkcs12Data);
+
+                } else if (clientEncryption) { // store encrypted data
                     data = key.getEncryptedData();
 
                 } else { // store unencrypted data
@@ -228,16 +233,15 @@ public class KRAKeyRetrieveCLI extends CommandCLI {
     }
 
     public void printKeyData(Key key) {
-        if (clientEncryption) {
+        String base64pkcs12Data = key.getP12Data();
+        if (base64pkcs12Data != null) {
+            System.out.println("  Key data in PKCS12 format: " + base64pkcs12Data);
+        } else if (clientEncryption) {
             if (key.getEncryptedData() != null)
                 System.out.println("  Encrypted Data:" + Utils.base64encode(key.getEncryptedData(), false));
         } else {
             if (key.getData() !=  null)
                 System.out.println("  Actual archived data: " + Utils.base64encode(key.getData(), false));
-        }
-
-        if (key.getP12Data() != null) {
-            System.out.println("  Key data in PKCS12 format: " + key.getP12Data());
         }
     }
 }
