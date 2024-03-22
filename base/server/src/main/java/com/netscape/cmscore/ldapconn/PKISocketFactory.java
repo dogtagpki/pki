@@ -201,7 +201,7 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
         s.enableV2CompatibleHello(false);
 
         for (SSLSocketListener socketListener : socketListeners) {
-            logger.error("Add listener!!! " + socketListener.toString());
+            logger.debug("PKISocketFactory: add socket listener");
             s.addSocketListener(socketListener);
         }
 
