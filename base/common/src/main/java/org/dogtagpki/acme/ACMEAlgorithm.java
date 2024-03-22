@@ -32,7 +32,7 @@ public enum ACMEAlgorithm {
         return jca;
     }
 
-    public static ACMEAlgorithm fromString(String alg) throws Exception {
+    public static ACMEAlgorithm fromString(String alg) throws IllegalArgumentException {
         return ACMEAlgorithm.valueOf(alg.toUpperCase());
     }
 }
