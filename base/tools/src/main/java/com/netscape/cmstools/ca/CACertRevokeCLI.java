@@ -23,6 +23,7 @@ import java.io.InputStreamReader;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.netscape.security.x509.RevocationReason;
 
@@ -36,6 +37,8 @@ import com.netscape.cmstools.cli.MainCLI;
 
 /**
  * @author Endi S. Dewata
+ *
+ * TODO: Add support for invalidity date
  */
 public class CACertRevokeCLI extends CommandCLI {
 
@@ -50,7 +53,7 @@ public class CACertRevokeCLI extends CommandCLI {
 
     @Override
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <Serial Number> [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " [OPTIONS] <serial numbers>", options);
     }
 
     @Override
@@ -79,31 +82,17 @@ public class CACertRevokeCLI extends CommandCLI {
         options.addOption(null, "force", false, "Force");
     }
 
-    @Override
-    public void execute(CommandLine cmd) throws Exception {
+    public void revokeCert(
+            CACertClient certClient,
+            CertId certID,
+            RevocationReason reason,
+            String comments,
+            boolean isCA,
+            boolean force) throws Exception {
 
-        String[] cmdArgs = cmd.getArgs();
-
-        if (cmdArgs.length != 1) {
-            throw new Exception("Missing Serial Number.");
-        }
-
-        CertId certID = new CertId(cmdArgs[0]);
-
-        String string = cmd.getOptionValue("reason", RevocationReason.UNSPECIFIED.toString());
-        RevocationReason reason = RevocationReason.valueOf(string);
-
-        if (reason == null) {
-            throw new Exception("Invalid revocation reason: " + string);
-        }
-
-        MainCLI mainCLI = (MainCLI) getRoot();
-        mainCLI.init();
-
-        CACertClient certClient = certCLI.getCertClient();
         CertData certData = certClient.reviewCert(certID);
 
-        if (!cmd.hasOption("force")) {
+        if (!force) {
 
             if (reason == RevocationReason.CERTIFICATE_HOLD) {
                 System.out.println("Placing certificate on-hold:");
@@ -128,12 +117,12 @@ public class CACertRevokeCLI extends CommandCLI {
 
         CertRevokeRequest request = new CertRevokeRequest();
         request.setReason(reason.getLabel());
-        request.setComments(cmd.getOptionValue("comments"));
+        request.setComments(comments);
         request.setNonce(certData.getNonce());
 
         CertRequestInfo certRequestInfo;
 
-        if (cmd.hasOption("ca")) {
+        if (isCA) {
             certRequestInfo = certClient.revokeCACert(certID, request);
         } else {
             certRequestInfo = certClient.revokeCert(certID, request);
@@ -165,6 +154,42 @@ public class CACertRevokeCLI extends CommandCLI {
         } else {
             MainCLI.printMessage("Request \"" + certRequestInfo.getRequestID().toHexString() + "\": "
                     + certRequestInfo.getRequestStatus());
+        }
+    }
+
+    @Override
+    public void execute(CommandLine cmd) throws Exception {
+
+        String[] cmdArgs = cmd.getArgs();
+
+        if (cmdArgs.length == 0) {
+            throw new CLIException("Missing serial numbers");
+        }
+
+        String string = cmd.getOptionValue("reason", RevocationReason.UNSPECIFIED.toString());
+        RevocationReason reason = RevocationReason.valueOf(string);
+
+        if (reason == null) {
+            throw new CLIException("Invalid revocation reason: " + string);
+        }
+
+        String comments = cmd.getOptionValue("comments");
+        boolean isCA = cmd.hasOption("ca");
+        boolean force = cmd.hasOption("force");
+
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
+        CACertClient certClient = certCLI.getCertClient();
+
+        for (String cmdArg : cmdArgs) {
+            CertId certID = new CertId(cmdArg);
+            try {
+                revokeCert(certClient, certID, reason, comments, isCA, force);
+            } catch (Exception e) {
+                logger.error("Unable to revoke certificate " + certID + ": " + e.getMessage(), e);
+                // continue to the next cert
+            }
         }
     }
 }

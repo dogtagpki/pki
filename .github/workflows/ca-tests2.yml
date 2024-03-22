@@ -28,6 +28,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/ca-renewal-system-certs-hsm-test.yml
 
+  ca-cert-revocation-test:
+    name: CA cert revocation
+    needs: build
+    uses: ./.github/workflows/ca-cert-revocation-test.yml
+
   ca-secure-ds-test:
     name: CA with secure DS
     needs: build
