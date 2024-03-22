@@ -33,12 +33,6 @@ public enum ACMEAlgorithm {
     }
 
     public static ACMEAlgorithm fromString(String alg) throws Exception {
-        for (ACMEAlgorithm a : ACMEAlgorithm.values()) {
-            if (a.alg == alg) {
-                return a;
-            }
-        }
-
-        throw new Exception("unsupported algorithm " + alg);
+        return ACMEAlgorithm.valueOf(alg.toUpperCase());
     }
 }
