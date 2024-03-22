@@ -1,0 +1,209 @@
+name: CA cert revocation
+
+on: workflow_call
+
+env:
+  DB_IMAGE: ${{ vars.DB_IMAGE || 'quay.io/389ds/dirsrv' }}
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Retrieve PKI images
+        uses: actions/cache@v4
+        with:
+          key: pki-images-${{ github.sha }}
+          path: pki-images.tar
+
+      - name: Load PKI images
+        run: docker load --input pki-images.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-container-create.sh ds
+        env:
+          IMAGE: ${{ env.DB_IMAGE }}
+          HOSTNAME: ds.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect DS container to network
+        run: docker network connect example ds --alias ds.example.com
+
+      - name: Set up PKI container
+        run: |
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
+
+      - name: Connect PKI container to network
+        run: docker network connect example pki --alias pki.example.com
+
+      - name: Install CA
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -v
+
+      - name: Update CA configuration
+        run: |
+          # set buffer size to 0 so that revocation takes effect immediately
+          docker exec pki pki-server ca-config-set auths.revocationChecking.bufferSize 0
+
+          # restart CA subsystem
+          docker exec pki pki-server ca-redeploy --wait
+
+      - name: Check CA admin
+        run: |
+          docker exec pki pki-server cert-export \
+              --cert-file ca_signing.crt \
+               ca_signing
+          docker exec pki pki client-cert-import \
+              --ca-cert ca_signing.crt \
+               ca_signing
+          docker exec pki pki pkcs12-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+          docker exec pki pki -n caadmin ca-user-show caadmin
+
+      - name: Create test certs
+        run: |
+          docker exec pki pki client-cert-request uid=testuser1 | tee output
+
+          CERT1_REQUEST_ID=$(sed -n "s/^\s*Request ID:\s*\(\S*\)$/\1/p" output)
+          echo "Cert 1 request ID: $CERT1_REQUEST_ID"
+
+          docker exec pki pki \
+              -n caadmin \
+              ca-cert-request-approve \
+              --force \
+              $CERT1_REQUEST_ID | tee output
+
+          CERT1_ID=$(sed -n "s/^\s*Certificate ID:\s*\(\S*\)$/\1/p" output)
+          echo "Cert 1 ID: $CERT1_ID"
+          echo "$CERT1_ID" > cert1.id
+
+          docker exec pki pki client-cert-request uid=testuser2 | tee output
+
+          CERT2_REQUEST_ID=$(sed -n "s/^\s*Request ID:\s*\(\S*\)$/\1/p" output)
+          echo "Cert 2 request ID: $CERT2_REQUEST_ID"
+
+          docker exec pki pki \
+              -n caadmin \
+              ca-cert-request-approve \
+              --force \
+              $CERT2_REQUEST_ID | tee output
+
+          CERT2_ID=$(sed -n "s/^\s*Certificate ID:\s*\(\S*\)$/\1/p" output)
+          echo "Cert 2 ID: $CERT2_ID"
+          echo "$CERT2_ID" > cert2.id
+
+      - name: Check cert revocation using pki ca-cert commands
+        run: |
+          CERT1_ID=$(cat cert1.id)
+          CERT2_ID=$(cat cert2.id)
+
+          # place certs on-hold
+          docker exec pki pki \
+              -n caadmin \
+              ca-cert-hold \
+              --force \
+              $CERT1_ID $CERT2_ID | tee output
+
+          # both certs should be revoked
+          echo "REVOKED" > expected
+          echo "REVOKED" >> expected
+          sed -n "s/^\s*Status:\s*\(\S*\)$/\1/p" output > actual
+          diff expected actual
+
+          # place certs off-hold
+          docker exec pki pki \
+              -n caadmin \
+              ca-cert-release-hold \
+              --force \
+              $CERT1_ID $CERT2_ID | tee output
+
+          # both certs should be valid
+          echo "VALID" > expected
+          echo "VALID" >> expected
+          sed -n "s/^\s*Status:\s*\(\S*\)$/\1/p" output > actual
+          diff expected actual
+
+      - name: Check cert revocation using revoker tool
+        run: |
+          CERT1_ID=$(cat cert1.id)
+          CERT2_ID=$(cat cert2.id)
+
+          docker exec pki revoker -V
+
+          # place certs on-hold
+          docker exec pki revoker \
+              -d /root/.dogtag/nssdb \
+              -n caadmin \
+              -r 6 \
+              -s $CERT1_ID,$CERT2_ID \
+              pki.example.com:8443 | tee output
+
+          # both certs should be revoked
+          echo "REVOKED" > expected
+          echo "REVOKED" >> expected
+          sed -n "s/^\s*Status:\s*\(\S*\)$/\1/p" output > actual
+          diff expected actual
+
+          # place certs off-hold
+          docker exec pki revoker \
+              -d /root/.dogtag/nssdb \
+              -n caadmin \
+              -u \
+              -s $CERT1_ID,$CERT2_ID \
+              pki.example.com:8443 | tee output
+
+          # both certs should be valid
+          echo "VALID" > expected
+          echo "VALID" >> expected
+          sed -n "s/^\s*Status:\s*\(\S*\)$/\1/p" output > actual
+          diff expected actual
+
+      - name: Check CA agent cert revocation
+        run: |
+          docker exec pki /usr/share/pki/tests/ca/bin/ca-agent-create.sh
+          docker exec pki /usr/share/pki/tests/ca/bin/ca-agent-cert-create.sh
+          docker exec pki /usr/share/pki/tests/ca/bin/ca-agent-cert-revoke.sh
+          docker exec pki /usr/share/pki/tests/ca/bin/ca-agent-cert-unrevoke.sh
+
+      - name: Remove CA
+        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Check PKI server systemd journal
+        if: always()
+        run: |
+          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check CA debug log
+        if: always()
+        run: |
+          docker exec pki find /var/log/pki/pki-tomcat/ca -name "debug.*" -exec cat {} \;
+
+      - name: Gather artifacts
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh ds
+          tests/bin/pki-artifacts-save.sh pki
+        continue-on-error: true
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ca-cert-revocation-test
+          path: /tmp/artifacts

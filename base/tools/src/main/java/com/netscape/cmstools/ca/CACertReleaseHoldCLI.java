@@ -22,6 +22,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 import org.apache.commons.cli.CommandLine;
+import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.ca.CACertClient;
@@ -47,7 +48,7 @@ public class CACertReleaseHoldCLI extends CommandCLI {
 
     @Override
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <Serial Number> [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " [OPTIONS] <serial numbers>", options);
     }
 
     @Override
@@ -55,23 +56,12 @@ public class CACertReleaseHoldCLI extends CommandCLI {
         options.addOption(null, "force", false, "Force");
     }
 
-    @Override
-    public void execute(CommandLine cmd) throws Exception {
+    public void releaseCert(
+            CACertClient certClient,
+            CertId certID,
+            boolean force) throws Exception {
 
-        String[] cmdArgs = cmd.getArgs();
-
-        if (cmdArgs.length != 1) {
-            throw new Exception("Missing Serial Number.");
-        }
-
-        CertId certID = new CertId(cmdArgs[0]);
-
-        MainCLI mainCLI = (MainCLI) getRoot();
-        mainCLI.init();
-
-        CACertClient certClient = certCLI.getCertClient();
-
-        if (!cmd.hasOption("force")) {
+        if (!force) {
 
             CertData certData = certClient.getCert(certID);
 
@@ -110,6 +100,33 @@ public class CACertReleaseHoldCLI extends CommandCLI {
         } else {
             MainCLI.printMessage("Request \"" + certRequestInfo.getRequestID().toHexString() + "\": "
                     + certRequestInfo.getRequestStatus());
+        }
+    }
+
+    @Override
+    public void execute(CommandLine cmd) throws Exception {
+
+        String[] cmdArgs = cmd.getArgs();
+
+        if (cmdArgs.length == 0) {
+            throw new CLIException("Missing serial numbers");
+        }
+
+        boolean force = cmd.hasOption("force");
+
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
+        CACertClient certClient = certCLI.getCertClient();
+
+        for (String cmdArg : cmdArgs) {
+            CertId certID = new CertId(cmdArg);
+            try {
+                releaseCert(certClient, certID, force);
+            } catch (Exception e) {
+                logger.error("Unable to release certificate " + certID + ": " + e.getMessage(), e);
+                // continue to the next cert
+            }
         }
     }
 }

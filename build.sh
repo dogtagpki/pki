@@ -770,7 +770,6 @@ if [ "$BUILD_TARGET" = "dist" ] ; then
 
     echo "- native binaries:"
     echo "    $WORK_DIR/base/tools/src/main/native/pistool/src/pistool"
-    echo "    $WORK_DIR/base/tools/src/main/native/revoker/revoker"
     echo "    $WORK_DIR/base/tools/src/main/native/setpin/setpin"
     echo "    $WORK_DIR/base/tools/src/main/native/tkstool/tkstool"
     echo "    $WORK_DIR/base/tools/src/main/native/tpsclient/tpsclient"
