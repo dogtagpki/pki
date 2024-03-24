@@ -212,6 +212,15 @@ jobs:
       - name: Install certbot in client container
         run: docker exec client dnf install -y certbot
 
+      - name: Create CSR for ES256 Test
+        run: docker exec client openssl req \
+              --outform PEM \
+              --out ES256.csr \
+              --newkey ec \
+              --keyout ES256.key \
+              --sha256 \
+              --subj '/CN=es256.example.com'
+
       - name: Register ACME account
         run: |
           docker exec client certbot register \
@@ -350,6 +359,64 @@ jobs:
           # subject should be CN=client.example.com
           echo "CN=client.example.com" > expected
           sed -n 's/^ *Subject DN: *\(.*\)/\1/p' output > actual
+          diff expected actual
+
+      - name: Enroll using ES256 CSR
+        run: |
+          docker exec client certbot certonly \
+              --server http://pki.example.com:8080/acme/directory \
+              --key-path ES256.key \
+              --csr ES256.csr \
+              --standalone \
+              --non-interactive
+
+      - name: Check ES256 client locally
+        run: |
+          docker exec client pki client-cert-import \
+              --cert /etc/letsencrypt/live/es256.example.com/fullchain.pem \
+              es256
+
+          # store serial number
+          docker exec client pki nss-cert-show es256 | tee output
+          sed -n 's/^ *Serial Number: *\(.*\)/\1/p' output > es256.txt
+
+          # subject should be CN=es256.example.com
+          echo "CN=es256.example.com" > expected
+          sed -n 's/^ *Subject DN: *\(.*\)/\1/p' output > actual
+          diff expected actual
+
+      - name: Check ES256 Registration
+        run: |
+          docker exec pki pki ca-cert-find | tee output
+
+          # there should be 8 certs
+          echo "8" > expected
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+          # check client cert
+          SERIAL=$(cat serial1.txt)
+          docker exec pki pki ca-cert-show $SERIAL | tee output
+
+          # subject should be CN=client.example.com
+          echo "CN=client.example.com" > expected
+          sed -n 's/^ *Subject DN: *\(.*\)/\1/p' output > actual
+          diff expected actual      
+
+      - name: Check ACME certs after enrollment
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=certificates,dc=acme,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          # there should be no certs (they are stored in CA)
+          echo "0" > expected
+          grep "^dn:" output | wc -l > actual
           diff expected actual
 
       - name: Renew client cert
