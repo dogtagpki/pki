@@ -395,7 +395,7 @@ jobs:
           diff expected actual
 
           # check client cert
-          SERIAL=$(cat serial1.txt)
+          SERIAL=$(cat rs256.txt)
           docker exec pki pki ca-cert-show $SERIAL | tee output
 
           # subject should be CN=client.example.com
