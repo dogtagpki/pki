@@ -765,10 +765,10 @@ public class CertificateRepository extends Repository {
         }
     }
 
-    public void updateStatus(Vector<CertId> list, String status) throws EBaseException {
+    public void updateStatus(ArrayList<CertId> list, String status) throws EBaseException {
 
         for (int i = 0; i < list.size(); i++) {
-            CertId certID = list.elementAt(i);
+            CertId certID = list.get(i);
             updateStatus(certID, status);
         }
     }
@@ -1877,97 +1877,97 @@ public class CertificateRepository extends Repository {
     }
 
     /**
-     * Gets Invalid certs orderes by noAfter date, jumps to records
-     * where notAfter date is greater than current.
+     * Gets Invalid certs by notBefore date
+     *
+     * The certificate are still invalid but the notBefore date has been reached.
      *
      * @param date reference date
-     * @param pageSize page size
      * @return a list of certificate records
      * @exception EBaseException failed to retrieve
      */
-    public CertRecordList getInvalidCertsByNotBeforeDate(Date date, int pageSize)
+    public RecordPagedList<CertRecord> getInvalidCertsByNotBeforeDate(Date date)
             throws EBaseException {
 
-        CertRecordList list = null;
+        RecordPagedList<CertRecord>  list = null;
 
-        String ldapfilter = "(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_INVALID + ")";
-
+        StringBuilder ldapfilter = new StringBuilder();
+        ldapfilter.append("(&");
+        ldapfilter.append("(").append(CertRecord.ATTR_CERT_STATUS).append("=").append(CertRecord.STATUS_INVALID).append(")");
+        ldapfilter.append("(").append(CertificateValidity.NOT_BEFORE).append("<=").append(DateMapper.dateToDB(date)).append(")");
+        ldapfilter.append(")");
         String[] attrs = null;
 
-        if (mConsistencyCheck == false) {
+        if (!mConsistencyCheck) {
             attrs = new String[] { "objectclass", CertRecord.ATTR_ID, CertRecord.ATTR_X509CERT };
         }
 
-        logger.debug("getInvalidCertificatesByNotBeforeDate filter " + ldapfilter);
+        logger.debug("getInvalidCertificatesByNotBeforeDate filter {}", ldapfilter);
 
         logger.debug("getInvalidCertificatesByNotBeforeDate: about to call findCertRecordsInList");
 
-        list = findCertRecordsInListRawJumpto(ldapfilter, attrs,
-                    DateMapper.dateToDB(date), "notBefore", pageSize);
-
-
+        list = findPagedCertRecords(ldapfilter.toString(), attrs, null);
         return list;
 
     }
 
     /**
-     * Gets valid certs orderes by noAfter date, jumps to records
-     * where notAfter date is greater than current.
+     * Gets valid certs orderes where notAfter date has been reached.
      *
      * @param date reference date
-     * @param pageSize page size
      * @return a list of certificate records
      * @exception EBaseException failed to retrieve
      */
-    public CertRecordList getValidCertsByNotAfterDate(Date date, int pageSize)
+    public RecordPagedList<CertRecord> getValidCertsByNotAfterDate(Date date)
             throws EBaseException {
 
-        CertRecordList list = null;
-
-        String ldapfilter = "(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_VALID + ")";
+        RecordPagedList<CertRecord>  list = null;
+        StringBuilder ldapfilter = new StringBuilder();
+        ldapfilter.append("(&");
+        ldapfilter.append("(").append(CertRecord.ATTR_CERT_STATUS).append("=").append(CertRecord.STATUS_VALID).append(")");
+        ldapfilter.append("(").append(CertificateValidity.NOT_AFTER).append("<=").append(DateMapper.dateToDB(date)).append(")");
+        ldapfilter.append(")");
 
         String[] attrs = null;
 
-        if (mConsistencyCheck == false) {
+        if (!mConsistencyCheck) {
             attrs = new String[] { "objectclass", CertRecord.ATTR_ID, CertRecord.ATTR_X509CERT };
         }
 
-        logger.debug("getValidCertsByNotAfterDate filter " + ldapfilter);
+        logger.debug("getValidCertsByNotAfterDate filter {}", ldapfilter);
 
-        list = findCertRecordsInListRawJumpto(ldapfilter, attrs, DateMapper.dateToDB(date), "notAfter", pageSize);
+        list = findPagedCertRecords(ldapfilter.toString(), attrs, null);
 
         return list;
     }
 
     /**
-     * Gets Revoked certs orderes by noAfter date, jumps to records
-     * where notAfter date is greater than current.
+     * Gets Revoked certs orderes by noAfter date has been reached.
      *
      * @param date reference date
-     * @param pageSize page size
      * @return a list of certificate records
      * @exception EBaseException failed to retrieve
      */
-    public CertRecordList getRevokedCertsByNotAfterDate(Date date, int pageSize)
+    public RecordPagedList<CertRecord> getRevokedCertsByNotAfterDate(Date date)
             throws EBaseException {
 
-        CertRecordList list = null;
-
-        String ldapfilter = "(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED + ")";
+        RecordPagedList<CertRecord> list = null;
+        StringBuilder ldapfilter = new StringBuilder();
+        ldapfilter.append("(&");
+        ldapfilter.append("(").append(CertRecord.ATTR_CERT_STATUS).append("=").append(CertRecord.STATUS_REVOKED).append(")");
+        ldapfilter.append("(").append(CertificateValidity.NOT_AFTER).append("<=").append(DateMapper.dateToDB(date)).append(")");
+        ldapfilter.append(")");
 
         String[] attrs = null;
 
-        if (mConsistencyCheck == false) {
+        if (!mConsistencyCheck) {
             attrs = new String[] { "objectclass", CertRecord.ATTR_REVOKED_ON, CertRecord.ATTR_ID,
                         CertRecord.ATTR_REVO_INFO, CertificateValidity.NOT_AFTER, CertRecord.ATTR_X509CERT };
         }
 
-        logger.debug("getRevokedCertificatesByNotAfterDate filter " + ldapfilter);
+        logger.debug("getRevokedCertificatesByNotAfterDate filter {}", ldapfilter);
 
         logger.debug("getRevokedCertificatesByNotAfterDate: about to call findCertRecordsInList");
-
-        list = findCertRecordsInListRawJumpto(ldapfilter, attrs,
-                    DateMapper.dateToDB(date), "notafter", pageSize);
+        list = findPagedCertRecords(ldapfilter.toString(), attrs, null);
 
         return list;
 
