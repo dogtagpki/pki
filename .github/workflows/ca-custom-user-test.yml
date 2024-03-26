@@ -1,4 +1,4 @@
-name: CA with non-default user
+name: CA with custom user
 
 on: workflow_call
 
@@ -47,7 +47,7 @@ jobs:
       - name: Connect PKI container to network
         run: docker network connect example pki --alias pki.example.com
 
-      - name: Create non-default user and group
+      - name: Create custom user and group
         run: |
           docker exec pki groupadd pki
           docker exec pki getent group pki
@@ -55,7 +55,7 @@ jobs:
           docker exec pki useradd -g pki pki
           docker exec pki getent passwd pki
 
-      - name: Install CA with non-default user and group
+      - name: Install CA with custom user and group
         run: |
           docker exec pki pkispawn \
               -f /usr/share/pki/server/examples/installation/ca.cfg \
@@ -124,5 +124,5 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ca-systemd
+          name: ca-custom-user-test
           path: /tmp/artifacts

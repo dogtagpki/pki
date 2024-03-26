@@ -88,10 +88,10 @@ jobs:
     needs: build
     uses: ./.github/workflows/ca-admin-user-test.yml
 
-  ca-non-default-user-test:
-    name: CA with non-default user
+  ca-custom-user-test:
+    name: CA with custom user
     needs: build
-    uses: ./.github/workflows/ca-non-default-user-test.yml
+    uses: ./.github/workflows/ca-custom-user-test.yml
 
   ca-container-test:
     name: CA container
