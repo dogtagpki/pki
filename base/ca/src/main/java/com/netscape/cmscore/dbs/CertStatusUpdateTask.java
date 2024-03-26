@@ -17,8 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.Vector;
+import java.util.Iterator;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
@@ -34,7 +35,7 @@ import com.netscape.cmscore.apps.CMS;
 
 public class CertStatusUpdateTask implements Runnable {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertStatusUpdateTask.class);
+    public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertStatusUpdateTask.class);
 
     CertificateRepository repository;
 
@@ -76,36 +77,31 @@ public class CertStatusUpdateTask implements Runnable {
         logger.info("CertStatusUpdateTask: Updating invalid certs to valid");
         Date now = new Date();
 
-        CertRecordList recordList = repository.getInvalidCertsByNotBeforeDate(now, -1 * pageSize);
+        RecordPagedList<CertRecord> recordList = repository.getInvalidCertsByNotBeforeDate(now);
+        Iterator<CertRecord> certRecIterator = recordList.iterator();
 
-        int totalSize = recordList.getSize();
-        logger.debug("CertStatusUpdateTask: - total size: " + totalSize);
-
-        if (totalSize <= 0) {
+        if (!certRecIterator.hasNext()) {
             logger.debug("CertStatusUpdateTask: No invalid certs");
             return;
         }
 
-        int listSize = recordList.getSizeBeforeJumpTo();
-        listSize = Math.min(listSize, maxRecords);
-        logger.debug("CertStatusUpdateTask: - list size: " + listSize);
-
-        Vector<CertId> list = new Vector<>(listSize);
-
-        for (int i = 0; i < listSize; i++) {
-            CertRecord certRecord = recordList.getCertRecord(i);
+        ArrayList<CertId> list = new ArrayList<>();
+        int recs = 0;
+        while (certRecIterator.hasNext() && recs < maxRecords) {
+            CertRecord certRecord = certRecIterator.next();
             CertId certID = new CertId(certRecord.getSerialNumber());
 
             Date notBefore = certRecord.getNotBefore();
             if (notBefore.after(now)) {
-                logger.debug("CertStatusUpdateTask: Cert " + certID.toHexString() + " not yet valid");
+                logger.debug("CertStatusUpdateTask: Cert {} not yet valid", certID.toHexString());
                 continue;
             }
 
-            logger.debug("CertStatusUpdateTask: Cert " + certID.toHexString() + " has become valid");
+            logger.debug("CertStatusUpdateTask: Cert {} has become valid", certID.toHexString());
             list.add(certID);
+            recs++;
         }
-
+        logger.debug("CertStatusUpdateTask: - invalid list size: {}", list.size());
         repository.updateStatus(list, CertRecord.STATUS_VALID);
     }
 
@@ -118,36 +114,31 @@ public class CertStatusUpdateTask implements Runnable {
         logger.info("CertStatusUpdateTask: Updating valid certs to expired");
         Date now = new Date();
 
-        CertRecordList recordList = repository.getValidCertsByNotAfterDate(now, -1 * pageSize);
+        RecordPagedList<CertRecord> recordList = repository.getValidCertsByNotAfterDate(now);
+        Iterator<CertRecord> certRecIterator = recordList.iterator();
 
-        int totalSize = recordList.getSize();
-        logger.debug("CertStatusUpdateTask: - total size: " + totalSize);
-
-        if (totalSize <= 0) {
+        if (!certRecIterator.hasNext()) {
             logger.debug("CertStatusUpdateTask: No invalid certs");
             return;
         }
 
-        int listSize = recordList.getSizeBeforeJumpTo();
-        listSize = Math.min(listSize, maxRecords);
-        logger.debug("CertStatusUpdateTask: - list size: " + listSize);
-
-        Vector<CertId> list = new Vector<>(listSize);
-
-        for (int i = 0; i < listSize; i++) {
-            CertRecord certRecord = recordList.getCertRecord(i);
+        ArrayList<CertId> list = new ArrayList<>();
+        int recs = 0;
+        while (certRecIterator.hasNext() && recs < maxRecords) {
+            CertRecord certRecord = certRecIterator.next();
             CertId certID = new CertId(certRecord.getSerialNumber());
 
             Date notAfter = certRecord.getNotAfter();
             if (notAfter.after(now)) {
-                logger.debug("CertStatusUpdateTask: Cert " + certID.toHexString() + " not yet expired");
+                logger.debug("CertStatusUpdateTask: Cert {} not yet expired", certID.toHexString());
                 continue;
             }
 
-            logger.debug("CertStatusUpdateTask: Cert " + certID.toHexString() + " has become expired");
+            logger.debug("CertStatusUpdateTask: Cert {} has become expired", certID.toHexString());
             list.add(certID);
+            recs++;
         }
-
+        logger.debug("CertStatusUpdateTask: - valid list size: {}", list.size());
         repository.updateStatus(list, CertRecord.STATUS_EXPIRED);
     }
     /**
@@ -160,42 +151,38 @@ public class CertStatusUpdateTask implements Runnable {
         CAEngine engine = CAEngine.getInstance();
         Date now = new Date();
 
-        CertRecordList recordList = repository.getRevokedCertsByNotAfterDate(now, -1 * pageSize);
+        RecordPagedList<CertRecord> recordList = repository.getRevokedCertsByNotAfterDate(now);
+        Iterator<CertRecord> certRecIterator = recordList.iterator();
 
-        int totalSize = recordList.getSize();
-        logger.debug("CertStatusUpdateTask: - total size: " + totalSize);
 
-        if (totalSize <= 0) {
+        if (!certRecIterator.hasNext()) {
             logger.debug("CertStatusUpdateTask: No invalid certs");
             return;
         }
 
-        int listSize = recordList.getSizeBeforeJumpTo();
-        listSize = Math.min(listSize, maxRecords);
-        logger.debug("CertStatusUpdateTask: - list size: " + listSize);
-
-        Vector<CertId> list = new Vector<>(listSize);
-
-        for (int i = 0; i < listSize; i++) {
-            CertRecord certRecord = recordList.getCertRecord(i);
+        ArrayList<CertId> list = new ArrayList<>();
+        int recs = 0;
+        while (certRecIterator.hasNext() && recs < maxRecords) {
+            CertRecord certRecord = certRecIterator.next();
             CertId certID = new CertId(certRecord.getSerialNumber());
 
             Date notAfter = certRecord.getNotAfter();
             if (notAfter.after(now)) {
-                logger.debug("CertStatusUpdateTask: Cert " + certID.toHexString() + " not yet expired");
+                logger.debug("CertStatusUpdateTask: Cert {} not yet expired", certID.toHexString());
                 continue;
             }
 
-            logger.debug("CertStatusUpdateTask: Cert " + certID.toHexString() + " has become expired");
+            logger.debug("CertStatusUpdateTask: Cert {} has become expired", certID.toHexString());
             list.add(certID);
+            recs++;
         }
-
+        logger.debug("CertStatusUpdateTask: - valid list size: {}", list.size());
         repository.updateStatus(list, CertRecord.STATUS_REVOKED_EXPIRED);
 
         // notify all CRL issuing points about revoked and expired certificates
 
         for (int i = 0; i < list.size(); i++) {
-            CertId certID = list.elementAt(i);
+            CertId certID = list.get(i);
 
             for (CRLIssuingPoint issuingPoint : engine.getCRLIssuingPoints()) {
                 issuingPoint.addExpiredCert(certID.toBigInteger());
@@ -239,17 +226,15 @@ public class CertStatusUpdateTask implements Runnable {
 
         logger.info("CertStatusUpdateTask: Processing revoked certs");
 
-        CertRecordList list = repository.findCertRecordsInList(
+        RecordPagedList<CertRecord> list = repository.findPagedCertRecords(
                 filter,
                 new String[] {
                         CertRecord.ATTR_ID, CertRecord.ATTR_REVO_INFO, "objectclass"
                 },
-                "serialno",
-                pageSize);
-
-        int totalSize = list.getSize();
-        list.processCertRecords(0, totalSize - 1, cp);
-
+                null);
+        for (CertRecord certRecord: list) {
+            cp.process(certRecord);
+        }
         logger.info("CertStatusUpdateTask: Done processing revoked certs");
     }
 

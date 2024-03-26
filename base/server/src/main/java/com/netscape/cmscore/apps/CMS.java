@@ -35,7 +35,7 @@ import com.netscape.certsrv.base.SessionContext;
  */
 public final class CMS {
 
-    public static Logger logger = LoggerFactory.getLogger(CMS.class);
+    public static final Logger logger = LoggerFactory.getLogger(CMS.class);
 
     // product name is provided by the server theme package
     private static final String PRODUCT_NAME_FILE = "/usr/share/pki/CS_SERVER_VERSION";
@@ -146,12 +146,12 @@ public final class CMS {
 
         MessageFormat mf = new MessageFormat(msg);
 
-        Object escapedParams[] = new Object[params.length];
+        Object[] escapedParams = new Object[params.length];
         for (int i = 0; i < params.length; i++) {
             Object param = params[i];
 
-            if (param instanceof String) {
-                escapedParams[i] = escapeLogMessageParam((String) param);
+            if (param instanceof String p) {
+                escapedParams[i] = escapeLogMessageParam(p);
             } else {
                 escapedParams[i] = param;
             }
@@ -166,7 +166,7 @@ public final class CMS {
         if (s == null)
             return null;
         if (s.contains("{") || s.contains("}"))
-            return "'" + s.replaceAll("'", "''") + "'";
+            return "'" + s.replace("'", "''") + "'";
         return s;
     }
 
