@@ -220,7 +220,7 @@ jobs:
               -pkeyopt ec_paramgen_curve:P-256 \
               -keyout ES256.key \
               -sha256 \
-              -subj '/CN=es256.example.com'
+              -subj '/CN=es256.example.com' \
               -nodes
 
       - name: Register ACME account
