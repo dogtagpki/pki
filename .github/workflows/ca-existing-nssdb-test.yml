@@ -65,13 +65,13 @@ jobs:
 
           # check original cert
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               nss-cert-show \
               ca_signing | tee ca_signing.crt.before
 
           # check original key
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               nss-key-find \
               --nickname ca_signing | tee ca_signing.key.before
 
@@ -89,13 +89,13 @@ jobs:
 
           # check original cert
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               nss-cert-show \
               ca_ocsp_signing | tee ca_ocsp_signing.crt.before
 
           # check original key
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               nss-key-find \
               --nickname ca_ocsp_signing | tee ca_ocsp_signing.key.before
 
@@ -113,13 +113,13 @@ jobs:
 
           # check original cert
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               nss-cert-show \
               ca_audit_signing | tee ca_audit_signing.crt.before
 
           # check original key
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               nss-key-find \
               --nickname ca_audit_signing | tee ca_audit_signing.key.before
 
@@ -137,13 +137,13 @@ jobs:
 
           # check original cert
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               nss-cert-show \
               subsystem | tee subsystem.crt.before
 
           # check original key
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               nss-key-find \
               --nickname subsystem | tee subsystem.key.before
 
@@ -161,13 +161,13 @@ jobs:
 
           # check original cert
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               nss-cert-show \
               sslserver | tee sslserver.crt.before
 
           # check original key
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               nss-key-find \
               --nickname sslserver | tee sslserver.key.before
 
@@ -179,7 +179,7 @@ jobs:
               --ext /usr/share/pki/server/certs/admin.conf \
               --csr admin.csr
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               nss-cert-issue \
               --issuer ca_signing \
               --csr admin.csr \
@@ -210,7 +210,7 @@ jobs:
       - name: Check CA signing cert in server's NSS database
         run: |
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               nss-cert-show \
               ca_signing | tee ca_signing.crt.after
 
@@ -218,7 +218,7 @@ jobs:
           diff ca_signing.crt.before ca_signing.crt.after
 
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               nss-key-find \
               --nickname ca_signing | tee ca_signing.key.after
 
@@ -228,7 +228,7 @@ jobs:
       - name: Check CA OCSP signing cert in server's NSS database
         run: |
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               nss-cert-show \
               ca_ocsp_signing | tee ca_ocsp_signing.crt.after
 
@@ -236,7 +236,7 @@ jobs:
           diff ca_ocsp_signing.crt.before ca_ocsp_signing.crt.after
 
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               nss-key-find \
               --nickname ca_ocsp_signing | tee ca_ocsp_signing.key.after
 
@@ -246,7 +246,7 @@ jobs:
       - name: Check CA audit signing cert in server's NSS database
         run: |
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               nss-cert-show \
               ca_audit_signing | tee ca_audit_signing.crt.after
 
@@ -254,7 +254,7 @@ jobs:
           diff ca_audit_signing.crt.before ca_audit_signing.crt.after
 
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               nss-key-find \
               --nickname ca_audit_signing | tee ca_audit_signing.key.after
 
@@ -264,7 +264,7 @@ jobs:
       - name: Check subsystem cert in server's NSS database
         run: |
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               nss-cert-show \
               subsystem | tee subsystem.crt.after
 
@@ -272,7 +272,7 @@ jobs:
           diff subsystem.crt.before subsystem.crt.after
 
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               nss-key-find \
               --nickname subsystem | tee subsystem.key.after
 
@@ -282,7 +282,7 @@ jobs:
       - name: Check SSL server cert in server's NSS database
         run: |
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               nss-cert-show \
               sslserver | tee sslserver.crt.after
 
@@ -290,7 +290,7 @@ jobs:
           diff sslserver.crt.before sslserver.crt.after
 
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               nss-key-find \
               --nickname sslserver | tee sslserver.key.after
 
@@ -300,7 +300,7 @@ jobs:
       - name: Check CA admin cert
         run: |
           docker exec pki pki client-cert-import \
-              --ca-cert /etc/pki/pki-tomcat/certs/ca_signing.crt \
+              --ca-cert /var/lib/pki/pki-tomcat/conf/certs/ca_signing.crt \
               ca_signing
           docker exec pki pki -n caadmin ca-user-show caadmin
 

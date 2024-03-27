@@ -68,7 +68,7 @@ jobs:
           echo "Secret.123" > password.txt
           docker cp password.txt pki:password.txt
           docker exec pki certutil -K \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               -f password.txt | tee output
 
           # there should be no orphaned keys

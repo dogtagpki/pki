@@ -78,8 +78,8 @@ jobs:
         run: |
           docker exec pki pki-server ca-config-set ca.scep.enable true
 
-          docker exec pki bash -c "echo UID:$(cat client.ip) > /etc/pki/pki-tomcat/ca/flatfile.txt"
-          docker exec pki bash -c "echo PWD:Secret.123 >> /etc/pki/pki-tomcat/ca/flatfile.txt"
+          docker exec pki bash -c "echo UID:$(cat client.ip) > /var/lib/pki/pki-tomcat/conf/ca/flatfile.txt"
+          docker exec pki bash -c "echo PWD:Secret.123 >> /var/lib/pki/pki-tomcat/conf/ca/flatfile.txt"
 
           # restart CA subsystem
           docker exec pki pki-server ca-redeploy --wait
@@ -110,8 +110,8 @@ jobs:
         run: |
           docker exec pki pki-server ca-config-set ca.scep.encryptionAlgorithm AES 
           docker exec pki pki-server ca-config-set ca.scep.allowedEncryptionAlgorithms DES3,AES 
-          docker exec pki bash -c "echo UID:$(cat client.ip) > /etc/pki/pki-tomcat/ca/flatfile.txt"
-          docker exec pki bash -c "echo PWD:Secret.123 >> /etc/pki/pki-tomcat/ca/flatfile.txt"
+          docker exec pki bash -c "echo UID:$(cat client.ip) > /var/lib/pki/pki-tomcat/conf/ca/flatfile.txt"
+          docker exec pki bash -c "echo PWD:Secret.123 >> /var/lib/pki/pki-tomcat/conf/ca/flatfile.txt"
           # restart CA subsystem
           docker exec pki pki-server ca-redeploy --wait
 

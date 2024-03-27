@@ -122,7 +122,7 @@ jobs:
           docker exec pki pki-server cert-export kra_storage \
               --cert-file kra_storage.crt
           docker exec pki openssl req -text -noout \
-              -in /etc/pki/pki-tomcat/certs/kra_storage.csr
+              -in /var/lib/pki/pki-tomcat/conf/certs/kra_storage.csr
           docker exec pki openssl x509 -text -noout -in kra_storage.crt
 
       - name: Check KRA transport cert
@@ -130,7 +130,7 @@ jobs:
           docker exec pki pki-server cert-export kra_transport \
               --cert-file kra_transport.crt
           docker exec pki openssl req -text -noout \
-              -in /etc/pki/pki-tomcat/certs/kra_transport.csr
+              -in /var/lib/pki/pki-tomcat/conf/certs/kra_transport.csr
           docker exec pki openssl x509 -text -noout -in kra_transport.crt
 
       - name: Check KRA audit signing cert
@@ -138,7 +138,7 @@ jobs:
           docker exec pki pki-server cert-export kra_audit_signing \
               --cert-file kra_audit_signing.crt
           docker exec pki openssl req -text -noout \
-              -in /etc/pki/pki-tomcat/certs/kra_audit_signing.csr
+              -in /var/lib/pki/pki-tomcat/conf/certs/kra_audit_signing.csr
           docker exec pki openssl x509 -text -noout -in kra_audit_signing.crt
 
       - name: Check subsystem cert
@@ -146,7 +146,7 @@ jobs:
           docker exec pki pki-server cert-export subsystem \
               --cert-file subsystem.crt
           docker exec pki openssl req -text -noout \
-              -in /etc/pki/pki-tomcat/certs/subsystem.csr
+              -in /var/lib/pki/pki-tomcat/conf/certs/subsystem.csr
           docker exec pki openssl x509 -text -noout -in subsystem.crt
 
       - name: Check SSL server cert
@@ -154,7 +154,7 @@ jobs:
           docker exec pki pki-server cert-export sslserver \
               --cert-file sslserver.crt
           docker exec pki openssl req -text -noout \
-              -in /etc/pki/pki-tomcat/certs/sslserver.csr
+              -in /var/lib/pki/pki-tomcat/conf/certs/sslserver.csr
           docker exec pki openssl x509 -text -noout -in sslserver.crt
 
       - name: Check KRA admin cert

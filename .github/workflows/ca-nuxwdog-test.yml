@@ -76,24 +76,24 @@ jobs:
       - name: Enable Nuxwdog
         run: |
           # add internal password into keyring
-          PASSWORD=$(docker exec pki grep '^internal=' /etc/pki/pki-tomcat/password.conf | cut -d= -f2)
+          PASSWORD=$(docker exec pki grep '^internal=' /var/lib/pki/pki-tomcat/conf/password.conf | cut -d= -f2)
           docker exec pki runuser -u pkiuser -- \
               keyctl add user pki-tomcat/internal $PASSWORD @u
 
           # add internal database password into keyring
-          PASSWORD=$(docker exec pki grep '^internaldb=' /etc/pki/pki-tomcat/password.conf | cut -d= -f2)
+          PASSWORD=$(docker exec pki grep '^internaldb=' /var/lib/pki/pki-tomcat/conf/password.conf | cut -d= -f2)
           docker exec pki runuser -u pkiuser -- \
               keyctl add user pki-tomcat/internaldb $PASSWORD @u
 
           # add replication database password into keyring
-          PASSWORD=$(docker exec pki grep '^replicationdb=' /etc/pki/pki-tomcat/password.conf | cut -d= -f2)
+          PASSWORD=$(docker exec pki grep '^replicationdb=' /var/lib/pki/pki-tomcat/conf/password.conf | cut -d= -f2)
           docker exec pki runuser -u pkiuser -- \
               keyctl add user pki-tomcat/replicationdb $PASSWORD @u
 
           docker exec pki runuser -u pkiuser -- keyctl show @u
 
           # remove password.conf temporarily
-          docker exec pki mv /etc/pki/pki-tomcat/password.conf /tmp
+          docker exec pki mv /var/lib/pki/pki-tomcat/conf/password.conf /tmp
 
           # install setfacl tool needed for Nuxwdog
           docker exec pki dnf install -y acl
@@ -134,7 +134,7 @@ jobs:
           docker exec pki pki-server nuxwdog-disable
 
           # restore password.conf
-          docker exec pki mv /tmp/password.conf /etc/pki/pki-tomcat
+          docker exec pki mv /tmp/password.conf /var/lib/pki/pki-tomcat/conf
 
           # remove all passwords from keyring
           docker exec pki runuser -u pkiuser -- keyctl clear @u

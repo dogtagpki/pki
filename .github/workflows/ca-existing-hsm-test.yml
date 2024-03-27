@@ -71,7 +71,7 @@ jobs:
           docker exec pki pki-server nss-create --no-password
 
           docker exec pki pki-server password-add "hardware-HSM" --password "Secret.HSM"
-          docker exec pki cat /etc/pki/pki-tomcat/password.conf
+          docker exec pki cat /var/lib/pki/pki-tomcat/conf/password.conf
 
       - name: Create CA signing cert in HSM
         run: |
@@ -91,8 +91,8 @@ jobs:
           # check original cert
           docker exec pki runuser -u pkiuser -- \
               pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               --token HSM \
               nss-cert-show \
               HSM:ca_signing | tee ca_signing.crt.before
@@ -100,8 +100,8 @@ jobs:
           # check original key
           docker exec pki runuser -u pkiuser -- \
               pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               --token HSM \
               nss-key-find \
               --nickname HSM:ca_signing | tee ca_signing.key.before
@@ -125,8 +125,8 @@ jobs:
           # check original cert
           docker exec pki runuser -u pkiuser -- \
               pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               --token HSM \
               nss-cert-show \
               HSM:ca_ocsp_signing | tee ca_ocsp_signing.crt.before
@@ -134,8 +134,8 @@ jobs:
           # check original key
           docker exec pki runuser -u pkiuser -- \
               pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               --token HSM \
               nss-key-find \
               --nickname HSM:ca_ocsp_signing | tee ca_ocsp_signing.key.before
@@ -159,8 +159,8 @@ jobs:
           # check original cert
           docker exec pki runuser -u pkiuser -- \
               pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               --token HSM \
               nss-cert-show \
               HSM:ca_audit_signing | tee ca_audit_signing.crt.before
@@ -168,8 +168,8 @@ jobs:
           # check original key
           docker exec pki runuser -u pkiuser -- \
               pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               --token HSM \
               nss-key-find \
               --nickname HSM:ca_audit_signing | tee ca_audit_signing.key.before
@@ -193,8 +193,8 @@ jobs:
           # check original cert
           docker exec pki runuser -u pkiuser -- \
               pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               --token HSM \
               nss-cert-show \
               HSM:subsystem | tee subsystem.crt.before
@@ -202,8 +202,8 @@ jobs:
           # check original key
           docker exec pki runuser -u pkiuser -- \
               pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               --token HSM \
               nss-key-find \
               --nickname HSM:subsystem | tee subsystem.key.before
@@ -224,16 +224,16 @@ jobs:
           # check original cert
           docker exec pki runuser -u pkiuser -- \
               pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-cert-show \
               sslserver | tee sslserver.crt.before
 
           # check original key
           docker exec pki runuser -u pkiuser -- \
               pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-key-find \
               --nickname sslserver | tee sslserver.key.before
 
@@ -246,8 +246,8 @@ jobs:
               --csr /tmp/admin.csr
           docker exec pki runuser -u pkiuser -- \
               pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               --token HSM \
               nss-cert-issue \
               --issuer HSM:ca_signing \
@@ -292,8 +292,8 @@ jobs:
         run: |
           docker exec pki runuser -u pkiuser -- \
               pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               --token HSM \
               nss-cert-show \
               HSM:ca_signing | tee ca_signing.crt.after
@@ -303,8 +303,8 @@ jobs:
 
           docker exec pki runuser -u pkiuser -- \
               pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               --token HSM \
               nss-key-find \
               --nickname HSM:ca_signing | tee ca_signing.key.after
@@ -316,8 +316,8 @@ jobs:
         run: |
           docker exec pki runuser -u pkiuser -- \
               pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               --token HSM \
               nss-cert-show \
               HSM:ca_ocsp_signing | tee ca_ocsp_signing.crt.after
@@ -327,8 +327,8 @@ jobs:
 
           docker exec pki runuser -u pkiuser -- \
               pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               --token HSM \
               nss-key-find \
               --nickname HSM:ca_ocsp_signing | tee ca_ocsp_signing.key.after
@@ -340,8 +340,8 @@ jobs:
         run: |
           docker exec pki runuser -u pkiuser -- \
               pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               --token HSM \
               nss-cert-show \
               HSM:ca_audit_signing | tee ca_audit_signing.crt.after
@@ -351,8 +351,8 @@ jobs:
 
           docker exec pki runuser -u pkiuser -- \
               pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               --token HSM \
               nss-key-find \
               --nickname HSM:ca_audit_signing | tee ca_audit_signing.key.after
@@ -364,8 +364,8 @@ jobs:
         run: |
           docker exec pki runuser -u pkiuser -- \
               pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               --token HSM \
               nss-cert-show \
               HSM:subsystem | tee subsystem.cert.actual
@@ -375,8 +375,8 @@ jobs:
 
           docker exec pki runuser -u pkiuser -- \
               pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               --token HSM \
               nss-key-find \
               --nickname HSM:subsystem | tee subsystem.key.after
@@ -388,8 +388,8 @@ jobs:
         run: |
           docker exec pki runuser -u pkiuser -- \
               pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-cert-show \
               sslserver | tee sslserver.crt.after
 
@@ -398,8 +398,8 @@ jobs:
 
           docker exec pki runuser -u pkiuser -- \
               pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-key-find \
               --nickname sslserver | tee sslserver.key.after
 
@@ -409,7 +409,7 @@ jobs:
       - name: Check CA admin cert
         run: |
           docker exec pki pki client-cert-import \
-              --ca-cert /etc/pki/pki-tomcat/certs/ca_signing.crt \
+              --ca-cert /var/lib/pki/pki-tomcat/conf/certs/ca_signing.crt \
               ca_signing
           docker exec pki pki -n caadmin ca-user-show caadmin
 

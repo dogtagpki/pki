@@ -77,7 +77,7 @@ jobs:
       - name: Check root CA certs
         if: always()
         run: |
-          docker exec rootca pki -d /etc/pki/pki-tomcat/alias nss-cert-find
+          docker exec rootca pki -d /var/lib/pki/pki-tomcat/conf/alias nss-cert-find
 
           docker exec rootca pki-server cert-export \
               --cert-file ${SHARED}/root-ca_signing.crt \
@@ -126,7 +126,7 @@ jobs:
       - name: Check sub CA certs
         if: always()
         run: |
-          docker exec subca pki -d /etc/pki/pki-tomcat/alias nss-cert-find
+          docker exec subca pki -d /var/lib/pki/pki-tomcat/conf/alias nss-cert-find
 
           docker exec subca pki-server cert-export \
               --cert-file ${SHARED}/ca_signing.crt \
@@ -165,7 +165,7 @@ jobs:
           cat cert_chain.crt
 
       - name: Install banner in sub CA container
-        run: docker exec subca cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
+        run: docker exec subca cp /usr/share/pki/server/examples/banner/banner.txt /var/lib/pki/pki-tomcat/conf
 
       - name: Verify sub CA admin
         run: |
@@ -236,7 +236,7 @@ jobs:
       - name: Check KRA certs
         if: always()
         run: |
-          docker exec kra pki -d /etc/pki/pki-tomcat/alias nss-cert-find
+          docker exec kra pki -d /var/lib/pki/pki-tomcat/conf/alias nss-cert-find
 
       - name: Check KRA users
         if: always()
@@ -246,7 +246,7 @@ jobs:
           docker exec kra pki-server kra-user-role-find kraadmin
 
       - name: Install banner in KRA container
-        run: docker exec kra cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
+        run: docker exec kra cp /usr/share/pki/server/examples/banner/banner.txt /var/lib/pki/pki-tomcat/conf
 
       # TODO: Fix DogtagKRAConnectivityCheck to work without CA
       # - name: Run PKI healthcheck

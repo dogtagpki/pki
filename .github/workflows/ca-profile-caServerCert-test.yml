@@ -65,7 +65,7 @@ jobs:
               -e '$ a policyset.serverCertSet.13.default.class_id=userExtensionDefaultImpl' \
               -e '$ a policyset.serverCertSet.13.default.name=User supplied extension in CSR' \
               -e '$ a policyset.serverCertSet.13.default.params.userExtOID=2.5.29.17' \
-              /etc/pki/pki-tomcat/ca/profiles/ca/caServerCert.cfg
+              /var/lib/pki/pki-tomcat/conf/ca/profiles/ca/caServerCert.cfg
 
           # require unique subject name
           docker exec pki sed -i \
@@ -74,10 +74,10 @@ jobs:
               -e '$ a policyset.serverCertSet.14.constraint.name=Unique Subject Name Constraint' \
               -e '$ a policyset.serverCertSet.14.default.class_id=noDefaultImpl' \
               -e '$ a policyset.serverCertSet.14.default.name=No Default' \
-              /etc/pki/pki-tomcat/ca/profiles/ca/caServerCert.cfg
+              /var/lib/pki/pki-tomcat/conf/ca/profiles/ca/caServerCert.cfg
 
           # check updated profile
-          docker exec pki cat /etc/pki/pki-tomcat/ca/profiles/ca/caServerCert.cfg
+          docker exec pki cat /var/lib/pki/pki-tomcat/conf/ca/profiles/ca/caServerCert.cfg
 
           docker exec pki pki-server ca-redeploy --wait
 

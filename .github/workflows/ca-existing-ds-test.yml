@@ -113,7 +113,7 @@ jobs:
               --ext /usr/share/pki/server/certs/admin.conf \
               --csr admin.csr
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               nss-cert-issue \
               --issuer ca_signing \
               --csr admin.csr \
@@ -199,60 +199,60 @@ jobs:
       - name: Import CA signing cert into CA database
         run: |
           docker exec pki pki-server ca-cert-request-import \
-              --csr /etc/pki/pki-tomcat/certs/ca_signing.csr \
+              --csr /var/lib/pki/pki-tomcat/conf/certs/ca_signing.csr \
               --profile /usr/share/pki/ca/conf/caCert.profile | tee output
           REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
 
           docker exec pki pki-server ca-cert-import \
-              --cert /etc/pki/pki-tomcat/certs/ca_signing.crt \
+              --cert /var/lib/pki/pki-tomcat/conf/certs/ca_signing.crt \
               --profile /usr/share/pki/ca/conf/caCert.profile \
               --request $REQUEST_ID
 
       - name: Import CA OCSP signing cert into CA database
         run: |
           docker exec pki pki-server ca-cert-request-import \
-              --csr /etc/pki/pki-tomcat/certs/ca_ocsp_signing.csr \
+              --csr /var/lib/pki/pki-tomcat/conf/certs/ca_ocsp_signing.csr \
               --profile /usr/share/pki/ca/conf/caOCSPCert.profile | tee output
           REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
 
           docker exec pki pki-server ca-cert-import \
-              --cert /etc/pki/pki-tomcat/certs/ca_ocsp_signing.crt \
+              --cert /var/lib/pki/pki-tomcat/conf/certs/ca_ocsp_signing.crt \
               --profile /usr/share/pki/ca/conf/caOCSPCert.profile \
               --request $REQUEST_ID
 
       - name: Import CA audit signing cert into CA database
         run: |
           docker exec pki pki-server ca-cert-request-import \
-              --csr /etc/pki/pki-tomcat/certs/ca_audit_signing.csr \
+              --csr /var/lib/pki/pki-tomcat/conf/certs/ca_audit_signing.csr \
               --profile /usr/share/pki/ca/conf/caAuditSigningCert.profile | tee output
           REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
 
           docker exec pki pki-server ca-cert-import \
-              --cert /etc/pki/pki-tomcat/certs/ca_audit_signing.crt \
+              --cert /var/lib/pki/pki-tomcat/conf/certs/ca_audit_signing.crt \
               --profile /usr/share/pki/ca/conf/caAuditSigningCert.profile \
               --request $REQUEST_ID
 
       - name: Import subsystem cert into CA database
         run: |
           docker exec pki pki-server ca-cert-request-import \
-              --csr /etc/pki/pki-tomcat/certs/subsystem.csr \
+              --csr /var/lib/pki/pki-tomcat/conf/certs/subsystem.csr \
               --profile /usr/share/pki/ca/conf/rsaSubsystemCert.profile | tee output
           REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
 
           docker exec pki pki-server ca-cert-import \
-              --cert /etc/pki/pki-tomcat/certs/subsystem.crt \
+              --cert /var/lib/pki/pki-tomcat/conf/certs/subsystem.crt \
               --profile /usr/share/pki/ca/conf/rsaSubsystemCert.profile \
               --request $REQUEST_ID
 
       - name: Import SSL server cert into CA database
         run: |
           docker exec pki pki-server ca-cert-request-import \
-              --csr /etc/pki/pki-tomcat/certs/sslserver.csr \
+              --csr /var/lib/pki/pki-tomcat/conf/certs/sslserver.csr \
               --profile /usr/share/pki/ca/conf/rsaServerCert.profile | tee output
           REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
 
           docker exec pki pki-server ca-cert-import \
-              --cert /etc/pki/pki-tomcat/certs/sslserver.crt \
+              --cert /var/lib/pki/pki-tomcat/conf/certs/sslserver.crt \
               --profile /usr/share/pki/ca/conf/rsaServerCert.profile \
               --request $REQUEST_ID
 
@@ -279,7 +279,7 @@ jobs:
       - name: Assign subsystem cert to database user
         run: |
           docker exec pki pki-server ca-user-cert-add \
-              --cert /etc/pki/pki-tomcat/certs/subsystem.crt \
+              --cert /var/lib/pki/pki-tomcat/conf/certs/subsystem.crt \
               pkidbuser
 
       - name: Assign roles to database user
@@ -331,7 +331,7 @@ jobs:
       - name: Assign subsystem cert to subsystem user
         run: |
           docker exec pki pki-server ca-user-cert-add \
-              --cert /etc/pki/pki-tomcat/certs/subsystem.crt \
+              --cert /var/lib/pki/pki-tomcat/conf/certs/subsystem.crt \
               CA-pki.example.com-8443
 
       - name: Assign roles to subsystem user

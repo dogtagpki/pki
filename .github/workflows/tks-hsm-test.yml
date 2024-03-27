@@ -90,7 +90,7 @@ jobs:
           # CA should create 5 certs in internal token
           echo "5" > expected
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               nss-cert-find | tee output
           grep "Serial Number:" output | wc -l > actual
           diff expected actual
@@ -100,8 +100,8 @@ jobs:
           # CA should create 4 certs in HSM
           echo "4" > expected
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               --token HSM \
               nss-cert-find | tee output
           grep "Serial Number:" output | wc -l > actual
@@ -127,7 +127,7 @@ jobs:
           # TKS should create 1 additional cert in internal token
           echo "6" > expected
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               nss-cert-find | tee output
           grep "Serial Number:" output | wc -l > actual
           diff expected actual
@@ -136,7 +136,7 @@ jobs:
         run: |
           echo ",,P" > expected
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               nss-cert-show \
               tks_audit_signing | tee output
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
@@ -147,8 +147,8 @@ jobs:
           # TKS should create 1 additional certs in HSM
           echo "5" > expected
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               --token HSM \
               nss-cert-find | tee output
           grep "Serial Number:" output | wc -l > actual
@@ -158,8 +158,8 @@ jobs:
         run: |
           echo "u,u,Pu" > expected
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               --token HSM \
               nss-cert-show \
               HSM:tks_audit_signing | tee output
