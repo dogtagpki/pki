@@ -387,25 +387,55 @@ jobs:
           sed -n 's/^ *Subject DN: *\(.*\)/\1/p' output > actual
           diff expected actual
 
-      - name: Check ES256 Registration
+      - name: Check ACME orders after ES256 enrollment
         run: |
-          docker exec pki pki ca-cert-find | tee output
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=orders,dc=acme,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
 
-          # there should be 8 certs
-          echo "8" > expected
-          grep "Serial Number:" output | wc -l > actual
+          # there should be two orders
+          echo "2" > expected
+          grep "^dn:" output | wc -l > actual
           diff expected actual
 
-          # check client cert
-          SERIAL=$(cat rs256.txt)
-          docker exec pki pki ca-cert-show $SERIAL | tee output
+      - name: Check ACME authorizations after ES256 enrollment
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=authorizations,dc=acme,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
 
-          # subject should be CN=client.example.com
-          echo "CN=client.example.com" > expected
-          sed -n 's/^ *Subject DN: *\(.*\)/\1/p' output > actual
-          diff expected actual      
+          # there should be two authorizations
+          echo "2" > expected
+          grep "^dn:" output | wc -l > actual
+          diff expected actual
 
-      - name: Check ACME certs after enrollment
+      - name: Check ACME challenges after ES256 enrollment
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=challenges,dc=acme,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          # there should be two challenges
+          echo "2" > expected
+          grep "^dn:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check ACME certs after ES256 enrollment
         run: |
           docker exec ds ldapsearch \
               -H ldap://ds.example.com:3389 \
@@ -421,6 +451,24 @@ jobs:
           grep "^dn:" output | wc -l > actual
           diff expected actual
 
+      - name: Check CA certs after ES256 enrollment
+        run: |
+          docker exec pki pki ca-cert-find | tee output
+
+          # there should be 8 certs
+          echo "8" > expected
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+          # check client cert
+          SERIAL=$(cat es256.txt)
+          docker exec pki pki ca-cert-show $SERIAL | tee output
+
+          # subject should be CN=es256.example.com
+          echo "CN=es256.example.com" > expected
+          sed -n 's/^ *Subject DN: *\(.*\)/\1/p' output > actual
+          diff expected actual
+          
       - name: Renew client cert
         run: |
           docker exec client certbot renew \
