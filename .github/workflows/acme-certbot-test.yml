@@ -212,6 +212,9 @@ jobs:
       - name: Install certbot in client container
         run: docker exec client dnf install -y certbot
 
+      - name: Install certbot in client container
+        run: docker exec client dnf install -y openssl
+
       - name: Create CSR for ES256 Test
         run: docker exec client openssl req \
               -outform PEM \
