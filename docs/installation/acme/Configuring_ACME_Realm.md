@@ -4,7 +4,7 @@ Configuring ACME Realm
 ## Overview
 
 This document describes the process to configure a realm for ACME responder.
-The realm configuration is located at /etc/pki/pki-tomcat/acme/realm.conf.
+The realm configuration is located at /var/lib/pki/pki-tomcat/conf/acme/realm.conf.
 
 The `pki-server acme-realm-mod` can be used to configure the realm via command-line.
 If the command is invoked without any parameters, it will enter an interactive mode, for example:

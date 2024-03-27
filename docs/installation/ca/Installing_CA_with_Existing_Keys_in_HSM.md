@@ -57,7 +57,7 @@ $ pkispawn -f ca-step1.cfg -s CA
 ```
 
 It will install CA subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
-* server NSS database: /etc/pki/pki-tomcat/alias
+* server NSS database: /var/lib/pki/pki-tomcat/conf/alias
 * admin NSS database: ~/.dogtag/pki-tomcat/ca/alias
 
 Since there are no CSR path parameters specified, it will not generate CA system and admin keys.
@@ -68,24 +68,24 @@ Exporting Existing System Certificates and CSRs
 Export the system certificates from the existing CA with the following commands:
 
 ```
-$ certutil -L -d /etc/pki/pki-tomcat/alias -h HSM -f HSM.pwd -n "HSM:ca_signing" -a > ca_signing.crt
-$ certutil -L -d /etc/pki/pki-tomcat/alias -h HSM -f HSM.pwd -n "HSM:ca_ocsp_signing" -a > ca_ocsp_signing.crt
-$ certutil -L -d /etc/pki/pki-tomcat/alias -h HSM -f HSM.pwd -n "HSM:ca_audit_signing" -a > ca_audit_signing.crt
+$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -h HSM -f HSM.pwd -n "HSM:ca_signing" -a > ca_signing.crt
+$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -h HSM -f HSM.pwd -n "HSM:ca_ocsp_signing" -a > ca_ocsp_signing.crt
+$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -h HSM -f HSM.pwd -n "HSM:ca_audit_signing" -a > ca_audit_signing.crt
 ```
 
 Export the CSRs from the existing CA with the following commands:
 
 ```
 $ echo "-----BEGIN CERTIFICATE REQUEST-----" > ca_signing.csr
-$ sed -n "/^ca.signing.certreq=/ s/^[^=]*=// p" < /etc/pki/pki-tomcat/ca/CS.cfg >> ca_signing.csr
+$ sed -n "/^ca.signing.certreq=/ s/^[^=]*=// p" < /var/lib/pki/pki-tomcat/conf/ca/CS.cfg >> ca_signing.csr
 $ echo "-----END CERTIFICATE REQUEST-----" >> ca_signing.csr
 
 $ echo "-----BEGIN CERTIFICATE REQUEST-----" > ca_ocsp_signing.csr
-$ sed -n "/^ca.ocsp_signing.certreq=/ s/^[^=]*=// p" < /etc/pki/pki-tomcat/ca/CS.cfg >> ca_ocsp_signing.csr
+$ sed -n "/^ca.ocsp_signing.certreq=/ s/^[^=]*=// p" < /var/lib/pki/pki-tomcat/conf/ca/CS.cfg >> ca_ocsp_signing.csr
 $ echo "-----END CERTIFICATE REQUEST-----" >> ca_ocsp_signing.csr
 
 $ echo "-----BEGIN CERTIFICATE REQUEST-----" > ca_audit_signing.csr
-$ sed -n "/^ca.audit_signing.certreq=/ s/^[^=]*=// p" < /etc/pki/pki-tomcat/ca/CS.cfg >> ca_audit_signing.csr
+$ sed -n "/^ca.audit_signing.certreq=/ s/^[^=]*=// p" < /var/lib/pki/pki-tomcat/conf/ca/CS.cfg >> ca_audit_signing.csr
 $ echo "-----END CERTIFICATE REQUEST-----" >> ca_audit_signing.csr
 ```
 
@@ -135,7 +135,7 @@ Verifying System Certificates
 Verify that the internal token contains the following certificates:
 
 ```
-$ certutil -L -d /etc/pki/pki-tomcat/alias
+$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
 
 Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI
@@ -147,7 +147,7 @@ ca_audit_signing                                             ,,P
 Verify that the HSM contains the following certificates:
 
 ```
-$ certutil -L -d /etc/pki/pki-tomcat/alias -h HSM -f HSM.pwd
+$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -h HSM -f HSM.pwd
 
 Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI

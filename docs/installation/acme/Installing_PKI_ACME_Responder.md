@@ -20,7 +20,7 @@ To create PKI ACME responder in a PKI server instance, execute the following com
 $ pki-server acme-create
 ```
 
-The command will create the initial configuration files in `/etc/pki/pki-tomcat/acme` folder.
+The command will create the initial configuration files in `/var/lib/pki/pki-tomcat/conf/acme` folder.
 
 ## Configuring ACME Responder
 
@@ -39,7 +39,7 @@ Once everything is ready, deploy the ACME responder with the following command:
 $ pki-server acme-deploy
 ```
 
-The command will create a deployment descriptor at `/etc/pki/pki-tomcat/Catalina/localhost/acme.xml`.
+The command will create a deployment descriptor at `/var/lib/pki/pki-tomcat/conf/Catalina/localhost/acme.xml`.
 
 The server will start the ACME responder automatically in a few seconds.
 It is not necessary to restart PKI server.
@@ -72,7 +72,7 @@ To undeploy the ACME responder, execute the following command:
 $ pki-server acme-undeploy
 ```
 
-The command will remove the deployment descriptor at `/etc/pki/pki-tomcat/Catalina/localhost/acme.xml`.
+The command will remove the deployment descriptor at `/var/lib/pki/pki-tomcat/conf/Catalina/localhost/acme.xml`.
 
 The server will stop the ACME responder automatically in a few seconds.
 It is not necessary to restart PKI server.

@@ -24,7 +24,7 @@ If the connection is successfully created, the server will generate an ACCESS_SE
 If the connection fails to be created, the server will generate an ACCESS_SESSION_ESTABLISH audit event with Outcome=Failure.
 When the connection is closed, the server will generate an ACCESS_SESSION_TERMINATED audit event.
 
-TLS session timeout (i.e. TLS connection timeout) can be configured in the **keepAliveTimeout** parameter in the **Secure** &lt;Connector&gt; element in /etc/pki/&lt;instance&gt;/server.xml:
+TLS session timeout (i.e. TLS connection timeout) can be configured in the **keepAliveTimeout** parameter in the **Secure** &lt;Connector&gt; element in /var/lib/pki/&lt;instance&gt;/conf/server.xml:
 
 <pre>
 &lt;Server&gt;
@@ -54,7 +54,7 @@ See also [Tomcat HTTP Connector](https://tomcat.apache.org/tomcat-9.0-doc/config
 HTTP session is a mechanism to track a user across multiple HTTP requests using HTTP cookies.
 PKI server does not generate audit events for HTTP sessions.
 
-HTTP session timeout can be configured in the **&lt;session-timeout&gt;** element in /etc/pki/&lt;instance&gt;/web.xml:
+HTTP session timeout can be configured in the **&lt;session-timeout&gt;** element in /var/lib/pki/&lt;instance&gt;/conf/web.xml:
 
 <pre>
 &lt;web-app&gt;

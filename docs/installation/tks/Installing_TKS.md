@@ -19,7 +19,7 @@ $ pkispawn -f tks.cfg -s TKS
 ```
 
 It will install TKS subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
-* server NSS database: /etc/pki/pki-tomcat/alias
+* server NSS database: /var/lib/pki/pki-tomcat/conf/alias
 * admin NSS database: ~/.dogtag/pki-tomcat/tks/alias
 
 **Note**: When TKS is installed on a new system without any other subsystems,
@@ -35,7 +35,7 @@ Verifying System Certificates
 Verify that the server NSS database contains the following certificates:
 
 ```
-$ certutil -L -d /etc/pki/pki-tomcat/alias
+$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
 
 Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI

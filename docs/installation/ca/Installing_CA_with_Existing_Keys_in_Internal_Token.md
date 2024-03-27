@@ -24,7 +24,7 @@ $ pkispawn -f ca-existing-certs-step1.cfg -s CA
 ```
 
 It will install CA subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
-* server NSS database: /etc/pki/pki-tomcat/alias
+* server NSS database: /var/lib/pki/pki-tomcat/conf/alias
 * admin NSS database: ~/.dogtag/pki-tomcat/ca/alias
 
 Since there are no CSR path parameters specified, it will not generate CA system and admin keys.
@@ -35,7 +35,7 @@ Exporting Existing System Keys, CSRs, Certificates
 Export the system keys and certificates from the existing CA into a PKCS #12 file with the following command:
 
 ```
-$ pki -d /etc/pki/pki-tomcat/alias -c Secret.123 pkcs12-export \
+$ pki -d /var/lib/pki/pki-tomcat/conf/alias -c Secret.123 pkcs12-export \
   --pkcs12 ca-certs.p12 \
   --password Secret.123
 $ pki pkcs12-cert-del --pkcs12-file ca-certs.p12 --pkcs12-password Secret.123 sslserver
@@ -46,15 +46,15 @@ Export the CSRs from the existing CA with the following commands:
 
 ```
 $ echo "-----BEGIN CERTIFICATE REQUEST-----" > ca_signing.csr
-$ sed -n "/^ca.signing.certreq=/ s/^[^=]*=// p" < /etc/pki/pki-tomcat/ca/CS.cfg >> ca_signing.csr
+$ sed -n "/^ca.signing.certreq=/ s/^[^=]*=// p" < /var/lib/pki/pki-tomcat/conf/ca/CS.cfg >> ca_signing.csr
 $ echo "-----END CERTIFICATE REQUEST-----" >> ca_signing.csr
 
 $ echo "-----BEGIN CERTIFICATE REQUEST-----" > ca_ocsp_signing.csr
-$ sed -n "/^ca.ocsp_signing.certreq=/ s/^[^=]*=// p" < /etc/pki/pki-tomcat/ca/CS.cfg >> ca_ocsp_signing.csr
+$ sed -n "/^ca.ocsp_signing.certreq=/ s/^[^=]*=// p" < /var/lib/pki/pki-tomcat/conf/ca/CS.cfg >> ca_ocsp_signing.csr
 $ echo "-----END CERTIFICATE REQUEST-----" >> ca_ocsp_signing.csr
 
 $ echo "-----BEGIN CERTIFICATE REQUEST-----" > ca_audit_signing.csr
-$ sed -n "/^ca.audit_signing.certreq=/ s/^[^=]*=// p" < /etc/pki/pki-tomcat/ca/CS.cfg >> ca_audit_signing.csr
+$ sed -n "/^ca.audit_signing.certreq=/ s/^[^=]*=// p" < /var/lib/pki/pki-tomcat/conf/ca/CS.cfg >> ca_audit_signing.csr
 $ echo "-----END CERTIFICATE REQUEST-----" >> ca_audit_signing.csr
 ```
 
@@ -103,7 +103,7 @@ Verifying System Certificates
 Verify that the server NSS database contains the following certificates:
 
 ```
-$ certutil -L -d /etc/pki/pki-tomcat/alias
+$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
 
 Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI

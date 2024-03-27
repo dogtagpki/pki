@@ -35,7 +35,7 @@ Note that the existing SSL server certificate will not be exported.
 If necessary, third-party certificates (e.g. trust anchors) can be added into the same PKCS #12 file with the following command:
 
 ```
-$ pki -d /etc/pki/pki-tomcat/alias -f /etc/pki/pki-tomcat/password.conf \
+$ pki -d /var/lib/pki/pki-tomcat/conf/alias -f /var/lib/pki/pki-tomcat/conf/password.conf \
     pkcs12-cert-import <nickname> \
     --pkcs12-file kra-certs.p12 \
     --pkcs12-password Secret.123 \
@@ -65,11 +65,11 @@ KRA System Certificates
 -----------------------
 
 After installation the existing KRA system certificates (including the certificate chain)
-and their keys will be stored in the server NSS database (i.e. `/etc/pki/pki-tomcat/alias`),
+and their keys will be stored in the server NSS database (i.e. `/var/lib/pki/pki-tomcat/conf/alias`),
 and a new SSL server certificate will be created for the new instance:
 
 ```
-$ certutil -L -d /etc/pki/pki-tomcat/alias
+$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
 
 Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI

@@ -6,7 +6,7 @@ pki-server-logging - PKI Server Logging Configuration
 
 ## LOCATION
 
-/etc/pki/*instance*/logging.properties, /etc/pki/*instance*/*subsystem*/CS.cfg
+/var/lib/pki/*instance*/conf/logging.properties, /var/lib/pki/*instance*/conf/*subsystem*/CS.cfg
 
 ## DESCRIPTION
 
@@ -21,7 +21,7 @@ Tomcat uses java.util.logging (JUL) as the default logging framework.
 The configuration is described in [Tomcat Logging](http://tomcat.apache.org/tomcat-9.0-doc/logging.html).
 
 The default configuration is located at /usr/share/pki/server/conf/logging.properties.
-During server deployment a link will be created at /etc/pki/*instance*/logging.properties.
+During server deployment a link will be created at /var/lib/pki/*instance*/conf/logging.properties.
 
 By default only log messages with level WARNING or higher will be logged on the console (i.e. systemd journal).
 
@@ -52,7 +52,7 @@ For more information see the following documents:
 
 Each PKI subsystem uses an internal logging framework for debugging purposes.
 
-The logging configuration is stored in /etc/pki/*instance*/*subsystem*/CS.cfg.
+The logging configuration is stored in /var/lib/pki/*instance*/conf/*subsystem*/CS.cfg.
 
 ```
 debug.level=10
@@ -69,9 +69,9 @@ The default value is 10.
 To customize JUL configuration, replace the link with a copy of the default configuration:
 
 ```
-$ rm -f /etc/pki/<instance>/logging.properties
-$ cp /usr/share/pki/server/conf/logging.properties /etc/pki/<instance>
-$ chown pkiuser.pkiuser /etc/pki/<instance>/logging.properties
+$ rm -f /var/lib/pki/<instance>/conf/logging.properties
+$ cp /usr/share/pki/server/conf/logging.properties /var/lib/pki/<instance>/conf
+$ chown pkiuser.pkiuser /var/lib/pki/<instance>/conf/logging.properties
 ```
 
 Then edit the file as needed.

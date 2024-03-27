@@ -224,7 +224,7 @@ For a CA, this defaults to **ca_admin_cert.p12** in the **pki_client_dir** direc
 
 **pki_backup_keys**, **pki_backup_file**, **pki_backup_password**  
 Set **pki_backup_keys** to True to back up the subsystem certificates and keys to a PKCS #12 file
-specified in **pki_backup_file** (default is /etc/pki/*instance_name*/alias/*subsystem*_backup_keys.p12).
+specified in **pki_backup_file** (default is /var/lib/pki/*instance_name*/conf/alias/*subsystem*_backup_keys.p12).
 **pki_backup_password** is the password of the PKCS#12 file.
 
 **Important:**
@@ -533,7 +533,7 @@ Defaults to False.
 **pki_cert_chain_path**  
 Required for the second step of a stand-alone PKI process.
 This is the location of the file containing the external CA signing certificate (as issued by the external CA).
-Defaults to /etc/pki/*instance_name*/external_ca.cert.
+Defaults to /var/lib/pki/*instance_name*/conf/external_ca.cert.
 
 **pki_ca_signing_cert_path**  
 Required for the second step of a stand-alone PKI process.

@@ -36,13 +36,13 @@ $ pki-server instance-nuxwdog-enable <instance>
 ```
 
 If any of the system certificates reside on a cryptographic token other than the
-internal NSS database, you will see entries like this in `/etc/pki/<instance>/password.conf`:
+internal NSS database, you will see entries like this in `/var/lib/pki/<instance>/conf/password.conf`:
 
 ```
 hardware-<token>=<password>
 ```
 
-In that case, add the following parameter to `/etc/pki/<instance>/<subsystem>/CS.cfg`:
+In that case, add the following parameter to `/var/lib/pki/<instance>/conf/<subsystem>/CS.cfg`:
 
 ```
 cms.tokenList=<token>
@@ -51,7 +51,7 @@ cms.tokenList=<token>
 Remove the password file or move it somewhere else:
 
 ```
-$ mv /etc/pki/<instance>/password.conf /path/to/password.conf
+$ mv /var/lib/pki/<instance>/conf/password.conf /path/to/password.conf
 ```
 
 Restart the server with the following command:
@@ -88,7 +88,7 @@ $ pki-server instance-nuxwdog-disable <instance>
 Finally, restart the instance:
 
 ```
-$ mv /path/to/password.conf /etc/pki/<instance>/password.conf
+$ mv /path/to/password.conf /var/lib/pki/<instance>/conf/password.conf
 $ systemctl start pki-tomcatd@<instance>.service
 ```
 

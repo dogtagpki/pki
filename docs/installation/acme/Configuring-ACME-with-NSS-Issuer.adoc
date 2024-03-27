@@ -10,7 +10,7 @@ to issue certificates using a local NSS database.
 A sample NSS issuer configuration is available at
 link:../../../base/acme/issuer/nss/issuer.conf[/usr/share/pki/acme/issuer/nss/issuer.conf].
 
-To configure an NSS issuer, copy the sample `issuer.conf` into the `/etc/pki/pki-tomcat/acme` folder,
+To configure an NSS issuer, copy the sample `issuer.conf` into the `/var/lib/pki/pki-tomcat/conf/acme` folder,
 or execute the following command to customize some of the parameters:
 
 ----

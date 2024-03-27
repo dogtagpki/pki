@@ -4,7 +4,7 @@ Configuring ACME Database
 ## Overview
 
 This document describes the process to configure a database for ACME responder.
-The database configuration is located at /etc/pki/pki-tomcat/acme/database.conf.
+The database configuration is located at /var/lib/pki/pki-tomcat/conf/acme/database.conf.
 
 The `pki-server acme-database-mod` can be used to configure the database via command-line.
 If the command is invoked without any parameters, it will enter an interactive mode, for example:

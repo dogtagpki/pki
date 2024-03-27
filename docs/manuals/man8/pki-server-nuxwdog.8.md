@@ -13,7 +13,7 @@ pki-server-nuxwdog - Command-line interface for enabling PKI server instances to
 ## DESCRIPTION
 
 When a PKI server instance starts, it reads a plain text configuration file
-(i.e. /etc/pki/*instance_name*/password.conf) to obtain passwords needed to initialize the server.
+(i.e. /var/lib/pki/*instance_name*/conf/password.conf) to obtain passwords needed to initialize the server.
 This could include passwords needed to access server keys in hardware or software cryptographic modules,
 or passwords to establish database connections.
 

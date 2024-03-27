@@ -22,7 +22,7 @@ In TPS Web UI the token states will be displayed by their labels.
 
 Token state can be changed via PKI CLI or TPS Web UI.
 The transitions that can be done via PKI CLI or TPS Web UI are defined in the following property in
-/etc/pki/&lt;instance&gt;/tps/CS.cfg:
+/var/lib/pki/&lt;instance&gt;/conf/tps/CS.cfg:
 
 ```
 tokendb.allowedTransitions=0:1,0:2,0:3,0:6,3:2,3:6,4:1,4:2,4:3,4:6,6:7
@@ -57,14 +57,14 @@ If a token was originally ACTIVE then became SUSPENDED, it can only return to th
 | 3:2        | SUSPENDED     | FORMATTED  | This suspended (temporarily lost) token has been found. |
 | 3:4        | SUSPENDED     | ACTIVE     | This suspended (temporarily lost) token has been found. |
 
-To customize the tokendb.allowedTransitions property, edit the property in /etc/pki/&lt;instance&gt;/tps/CS.cfg,
+To customize the tokendb.allowedTransitions property, edit the property in /var/lib/pki/&lt;instance&gt;/conf/tps/CS.cfg,
 then restart the server.
 
 ## Token State Transitions via Token Operations
 
 Token states can also be changed via token operations (e.g. format, enroll).
 The transitions that can be done via token operations are defined in the following property in
-/etc/pki/&lt;instance&gt;/tps/CS.cfg:
+/var/lib/pki/&lt;instance&gt;/conf/tps/CS.cfg:
 
 ```
 tps.operations.allowedTransitions=0:0,0:4,4:4,4:0,7:0
@@ -85,7 +85,7 @@ The above list represents the following transitions:
 | 4:0        | ACTIVE        | FORMATTED  | This allows formatting an active token.                               |
 | 7:0        | UNFORMATTED   | FORMATTED  | This allows formatting a blank or previously used token.              |
 
-To customize the tps.operations.allowedTransitions property, edit the property in /etc/pki/&lt;instance&gt;/tps/CS.cfg,
+To customize the tps.operations.allowedTransitions property, edit the property in /var/lib/pki/&lt;instance&gt;/conf/tps/CS.cfg,
 then restart the server.
 
 This property can only be customized to remove transitions from the original list.

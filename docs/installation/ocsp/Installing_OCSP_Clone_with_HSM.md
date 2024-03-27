@@ -59,7 +59,7 @@ $ pkispawn -f ocsp.cfg -s OCSP
 ```
 
 It will install OCSP subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
-* server NSS database: /etc/pki/pki-tomcat/alias
+* server NSS database: /var/lib/pki/pki-tomcat/conf/alias
 * admin NSS database: ~/.dogtag/pki-tomcat/ocsp/alias
 
 Verifying System Certificates
@@ -68,7 +68,7 @@ Verifying System Certificates
 Verify that the internal token contains the following certificates:
 
 ```
-$ certutil -L -d /etc/pki/pki-tomcat/alias
+$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
 
 Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI
@@ -80,7 +80,7 @@ ocsp_audit_signing                                           ,,P
 Verify that the HSM contains the following certificates:
 
 ```
-$ certutil -L -d /etc/pki/pki-tomcat/alias -h HSM -f HSM.pwd
+$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -h HSM -f HSM.pwd
 
 Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI
@@ -142,7 +142,7 @@ Verify that the OCSPClient can be used to validate a certificate:
 
 ```
 $ OCSPClient \
- -d /etc/pki/pki-tomcat/alias \
+ -d /var/lib/pki/pki-tomcat/conf/alias \
  -h pki.example.com \
  -p 8080 \
  -t /ocsp/ee/ocsp \

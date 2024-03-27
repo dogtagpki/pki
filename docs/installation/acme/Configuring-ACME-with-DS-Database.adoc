@@ -56,7 +56,7 @@ $ ldapadd -H ldap://$HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 \
 A sample database configuration is available at
 link:../../../base/acme/database/ds/database.conf[/usr/share/pki/acme/database/ds/database.conf].
 
-To use the DS database, copy the sample `database.conf` into the `/etc/pki/pki-tomcat/acme` folder,
+To use the DS database, copy the sample `database.conf` into the `/var/lib/pki/pki-tomcat/conf/acme` folder,
 or execute the following command to customize some of the parameters:
 
 ----

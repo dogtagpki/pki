@@ -67,7 +67,7 @@ Configure the issuance backend. The class `org.dogtagpki.est.DogtagRABackend` is
 
 
 ```
-# cat >/etc/pki/pki-tomcat/est/backend.conf <<EOF
+# cat >/var/lib/pki/pki-tomcat/conf/est/backend.conf <<EOF
 class=org.dogtagpki.est.DogtagRABackend
 url=https://$(hostname):8443
 profile=estServiceCert
@@ -79,7 +79,7 @@ EOF
 Configure request authorization. The class `org.dogtagpki.est.ExternalProcessRequestAuthorizer` allows to delegate the authorization to an external process configured with the paramter **executable**:
 
 ```
-# cat >/etc/pki/pki-tomcat/est/authorizer.conf <<EOF
+# cat >/var/lib/pki/pki-tomcat/conf/est/authorizer.conf <<EOF
 class=org.dogtagpki.est.ExternalProcessRequestAuthorizer
 executable=/usr/local/libexec/estauthz
 EOF
@@ -110,7 +110,7 @@ Deploy the EST application:
 Configure the authentication. The authentication is build on `com.netscape.cms.tomcat.ProxyRealm` class which allows to use realms from *tomcat* or developed for dogtag. As an example we use an in memory realm:
 
 ```
-# cat >/etc/pki/pki-tomcat/est/realm.conf <<EOF
+# cat >/var/lib/pki/pki-tomcat/conf/est/realm.conf <<EOF
 class=com.netscape.cms.realm.PKIInMemoryRealm
 username=alice
 password=4me2Test
