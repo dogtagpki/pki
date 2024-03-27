@@ -209,22 +209,8 @@ jobs:
       - name: Connect client container to network
         run: docker network connect example client --alias client.example.com
 
-      - name: Install certbot in client container
-        run: docker exec client dnf install -y certbot
-
-      - name: Install certbot in client container
-        run: docker exec client dnf install -y openssl
-
-      - name: Create CSR for ES256 Test
-        run: docker exec client openssl req \
-              -outform PEM \
-              -out ES256.csr \
-              -newkey ec \
-              -pkeyopt ec_paramgen_curve:P-256 \
-              -keyout ES256.key \
-              -sha256 \
-              -subj '/CN=es256.example.com' \
-              -nodes
+      - name: Install certbot and openssl in client container
+        run: docker exec client dnf install -y certbot openssl
 
       - name: Register ACME account
         run: |
@@ -365,6 +351,17 @@ jobs:
           echo "CN=client.example.com" > expected
           sed -n 's/^ *Subject DN: *\(.*\)/\1/p' output > actual
           diff expected actual
+
+      - name: Create CSR for ES256 Test
+        run: docker exec client openssl req \
+              -outform PEM \
+              -out ES256.csr \
+              -newkey ec \
+              -pkeyopt ec_paramgen_curve:P-256 \
+              -keyout ES256.key \
+              -sha256 \
+              -subj '/CN=es256.example.com' \
+              -nodes
 
       - name: Enroll using ES256 CSR
         run: |
