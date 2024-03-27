@@ -76,7 +76,7 @@ jobs:
           diff expected actual
 
       - name: Install banner in CA container
-        run: docker exec ca cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
+        run: docker exec ca cp /usr/share/pki/server/examples/banner/banner.txt /var/lib/pki/pki-tomcat/conf
 
       - name: Set up OCSP DS container
         run: |
@@ -129,7 +129,7 @@ jobs:
           diff expected actual
 
       - name: Install banner in OCSP container
-        run: docker exec ocsp cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
+        run: docker exec ocsp cp /usr/share/pki/server/examples/banner/banner.txt /var/lib/pki/pki-tomcat/conf
 
       - name: Run PKI healthcheck
         run: docker exec ocsp pki-healthcheck --failures-only

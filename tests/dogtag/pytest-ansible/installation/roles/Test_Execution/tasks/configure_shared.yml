@@ -19,7 +19,7 @@
   - INC_CONSTANTS
 
 - name: Enable SignedAudit for ca and kra subsystem
-  replace: dest=/etc/pki/pki-tomcat/{{ item }}/CS.cfg regexp="log.instance.SignedAudit.logSigning=false" replace="log.instance.SignedAudit.logSigning=true"
+  replace: dest=/var/lib/pki/pki-tomcat/conf/{{ item }}/CS.cfg regexp="log.instance.SignedAudit.logSigning=false" replace="log.instance.SignedAudit.logSigning=true"
   with_items:
     - ca
     - kra

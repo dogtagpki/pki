@@ -107,7 +107,7 @@ jobs:
       - name: Import system certs and keys into secondary CA
         run: |
           docker exec secondary pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               pkcs12-import \
               --pkcs12 $SHARED/ca-certs.p12 \
               --password Secret.123
@@ -339,7 +339,7 @@ jobs:
       - name: Install secondary CA
         run: |
           # get CS.cfg from primary CA before cloning
-          docker cp primary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.primary
+          docker cp primary:/var/lib/pki/pki-tomcat/conf/ca/CS.cfg CS.cfg.primary
 
           docker exec secondary pkispawn \
               -f /usr/share/pki/server/examples/installation/ca-clone.cfg \
@@ -375,14 +375,14 @@ jobs:
       - name: Check CS.cfg in primary CA after cloning
         run: |
           # get CS.cfg from primary CA after cloning
-          docker cp primary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.primary.after
+          docker cp primary:/var/lib/pki/pki-tomcat/conf/ca/CS.cfg CS.cfg.primary.after
 
           diff CS.cfg.primary CS.cfg.primary.after
 
       - name: Check CS.cfg in secondary CA
         run: |
           # get CS.cfg from secondary CA
-          docker cp secondary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.secondary
+          docker cp secondary:/var/lib/pki/pki-tomcat/conf/ca/CS.cfg CS.cfg.secondary
 
           # normalize expected result:
           # - remove params that cannot be compared

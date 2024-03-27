@@ -106,7 +106,7 @@ jobs:
       - name: Install CA in secondary PKI container
         run: |
           # get CS.cfg from primary CA before cloning
-          docker cp primary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.primary
+          docker cp primary:/var/lib/pki/pki-tomcat/conf/ca/CS.cfg CS.cfg.primary
 
           docker exec primary pki-server ca-clone-prepare --pkcs12-file ${SHARED}/ca-certs.p12 --pkcs12-password Secret.123
           docker exec secondary pkispawn \
@@ -239,7 +239,7 @@ jobs:
       - name: Check CS.cfg in primary CA after cloning
         run: |
           # get CS.cfg from primary CA after cloning
-          docker cp primary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.primary.after
+          docker cp primary:/var/lib/pki/pki-tomcat/conf/ca/CS.cfg CS.cfg.primary.after
 
           docker exec primary pki-server ca-config-find | grep ca.crl.MasterCRL
 
@@ -268,7 +268,7 @@ jobs:
       - name: Check CS.cfg in secondary CA
         run: |
           # get CS.cfg from secondary CA
-          docker cp secondary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.secondary
+          docker cp secondary:/var/lib/pki/pki-tomcat/conf/ca/CS.cfg CS.cfg.secondary
 
           docker exec secondary pki-server ca-config-find | grep ca.crl.MasterCRL
 
@@ -386,7 +386,7 @@ jobs:
       - name: Check CS.cfg in secondary CA after cloning
         run: |
           # get CS.cfg from secondary CA after cloning
-          docker cp secondary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.secondary.after
+          docker cp secondary:/var/lib/pki/pki-tomcat/conf/ca/CS.cfg CS.cfg.secondary.after
 
           docker exec secondary pki-server ca-config-find | grep ca.crl.MasterCRL
 
@@ -413,7 +413,7 @@ jobs:
       - name: Check CS.cfg in tertiary CA
         run: |
           # get CS.cfg from tertiary CA
-          docker cp tertiary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.tertiary
+          docker cp tertiary:/var/lib/pki/pki-tomcat/conf/ca/CS.cfg CS.cfg.tertiary
 
           docker exec tertiary pki-server ca-config-find | grep ca.crl.MasterCRL
 

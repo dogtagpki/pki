@@ -1,7 +1,7 @@
 #!/bin/bash -ex
 
 # get CA signing cert using certutil
-certutil -L -d /etc/pki/pki-tomcat/alias -n ca_signing -r > /tmp/ca_signing.crt
+certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -n ca_signing -r > /tmp/ca_signing.crt
 
 # get CA signing cert using pki ca-cert-signing-export
 pki ca-cert-signing-export > /tmp/ca_signing.pem

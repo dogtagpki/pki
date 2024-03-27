@@ -90,7 +90,7 @@ jobs:
           # there should be 5 certs
           echo "5" > expected
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               nss-cert-find | tee output
           grep "Serial Number:" output | wc -l > actual
           diff expected actual
@@ -99,7 +99,7 @@ jobs:
         run: |
           echo "CT,C,C" > expected
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               nss-cert-show \
               ca_signing | tee output
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
@@ -109,7 +109,7 @@ jobs:
         run: |
           echo ",," > expected
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               nss-cert-show \
               ca_ocsp_signing | tee output
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
@@ -119,7 +119,7 @@ jobs:
         run: |
           echo ",,P" > expected
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               nss-cert-show \
               ca_audit_signing | tee output
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
@@ -129,7 +129,7 @@ jobs:
         run: |
           echo ",," > expected
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               nss-cert-show \
               subsystem | tee output
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
@@ -139,7 +139,7 @@ jobs:
         run: |
           echo "u,u,u" > expected
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               nss-cert-show \
               sslserver | tee output
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
@@ -150,7 +150,7 @@ jobs:
           echo Secret.HSM > password.txt
           echo "4" > expected
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               -C ${SHARED}/password.txt \
               --token HSM \
               nss-cert-find | tee output
@@ -161,7 +161,7 @@ jobs:
         run: |
           echo "CTu,Cu,Cu" > expected
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               -C ${SHARED}/password.txt \
               --token HSM \
               nss-cert-show \
@@ -173,7 +173,7 @@ jobs:
         run: |
           echo "u,u,u" > expected
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               -C ${SHARED}/password.txt \
               --token HSM \
               nss-cert-show \
@@ -185,7 +185,7 @@ jobs:
         run: |
           echo "u,u,Pu" > expected
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               -C ${SHARED}/password.txt \
               --token HSM \
               nss-cert-show \
@@ -197,7 +197,7 @@ jobs:
         run: |
           echo "u,u,u" > expected
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               -C ${SHARED}/password.txt \
               --token HSM \
               nss-cert-show \

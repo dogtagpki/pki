@@ -101,8 +101,8 @@ jobs:
 
           # check keys
           docker exec ipa certutil -K \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/alias/pwdfile.txt | tee output
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/alias/pwdfile.txt | tee output
 
           # there should be no orphaned keys
           echo "0" > expected
@@ -193,8 +193,8 @@ jobs:
 
           # check keys
           docker exec ipa certutil -K \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/alias/pwdfile.txt | tee output
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/alias/pwdfile.txt | tee output
 
           # there should be no orphaned keys
           echo "0" > expected

@@ -78,16 +78,33 @@ jobs:
         if: always()
         run: |
           tests/bin/ds-artifacts-save.sh pki1 --instance topology-02-testingmaster
-          mkdir -p /tmp/artifacts/pki1/etc/pki
-          mkdir -p /tmp/artifacts/pki1/var/log
+
           docker exec pki1 ls -la /etc/pki
+          mkdir -p /tmp/artifacts/pki1/etc/pki
           docker cp pki1:/etc/pki/pki.conf /tmp/artifacts/pki1/etc/pki
-          docker cp pki1:/etc/pki/topology-02-CA /tmp/artifacts/pki1/etc/pki
-          docker cp pki1:/etc/pki/topology-02-KRA /tmp/artifacts/pki1/etc/pki
-          docker cp pki1:/etc/pki/topology-02-OCSP /tmp/artifacts/pki1/etc/pki
-          docker cp pki1:/etc/pki/topology-02-TKS /tmp/artifacts/pki1/etc/pki
-          docker cp pki1:/etc/pki/topology-02-TPS /tmp/artifacts/pki1/etc/pki
+
+          docker exec pki1 ls -la /var/lib/pki/topology-02-CA/conf
+          mkdir -p /tmp/artifacts/pki1/var/lib/pki/conf
+          docker cp pki1:/var/lib/pki/topology-02-CA/conf/. /tmp/artifacts/pki1/var/lib/pki/conf
+
+          docker exec pki1 ls -la /var/lib/pki/topology-02-KRA/conf
+          mkdir -p /tmp/artifacts/pki1/var/lib/pki/conf
+          docker cp pki1:/var/lib/pki/topology-02-KRA/conf/. /tmp/artifacts/pki1/var/lib/pki/conf
+
+          docker exec pki1 ls -la /var/lib/pki/topology-02-OCSP/conf
+          mkdir -p /tmp/artifacts/pki1/var/lib/pki/conf
+          docker cp pki1:/var/lib/pki/topology-02-OCSP/conf/. /tmp/artifacts/pki1/var/lib/pki/conf
+
+          docker exec pki1 ls -la /var/lib/pki/topology-02-TKS/conf
+          mkdir -p /tmp/artifacts/pki1/var/lib/pki/conf
+          docker cp pki1:/var/lib/pki/topology-02-TKS/conf/. /tmp/artifacts/pki1/var/lib/pki/conf
+
+          docker exec pki1 ls -la /var/lib/pki/topology-02-TPS/conf
+          mkdir -p /tmp/artifacts/pki1/var/lib/pki/conf
+          docker cp pki1:/var/lib/pki/topology-02-TPS/conf/. /tmp/artifacts/pki1/var/lib/pki/conf
+
           docker exec pki1 ls -la /var/log/pki
+          mkdir -p /tmp/artifacts/pki1/var/log
           docker cp pki1:/var/log/pki /tmp/artifacts/pki1/var/log
           docker exec pki1 journalctl -u pki-tomcatd@topology-02-CA > /tmp/artifacts/pki1/var/log/pki/topology-02-CA/systemd.log
           docker exec pki1 journalctl -u pki-tomcatd@topology-02-KRA > /tmp/artifacts/pki1/var/log/pki/topology-02-KRA/systemd.log
