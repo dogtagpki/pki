@@ -410,8 +410,8 @@ jobs:
       - name: Change renewal master
         run: |
           # get CS.cfg before renewal update
-          docker cp primary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.primary.orig
-          docker cp secondary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.secondary.orig
+          docker cp primary:/var/lib/pki/pki-tomcat/conf/ca/CS.cfg CS.cfg.primary.orig
+          docker cp secondary:/var/lib/pki/pki-tomcat/conf/ca/CS.cfg CS.cfg.secondary.orig
 
           # move renewal master to secondary server
           docker exec primary ipa config-mod \
@@ -426,22 +426,22 @@ jobs:
 
       - name: Check primary CA config
         run: |
-          docker cp primary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.primary.after-renewal-update
+          docker cp primary:/var/lib/pki/pki-tomcat/conf/ca/CS.cfg CS.cfg.primary.after-renewal-update
 
           # renewal config is maintained by IPA, so there should be no change in PKI
           diff CS.cfg.primary.orig CS.cfg.primary.after-renewal-update
 
       - name: Check secondary CA config
         run: |
-          docker cp secondary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.secondary.after-renewal-update
+          docker cp secondary:/var/lib/pki/pki-tomcat/conf/ca/CS.cfg CS.cfg.secondary.after-renewal-update
 
           # renewal config is maintained by IPA, so there should be no change in PKI
           diff CS.cfg.secondary.orig CS.cfg.secondary.after-renewal-update
 
       - name: Check CA CSR copied correctly 
         run: |
-          docker cp primary:/etc/pki/pki-tomcat/certs primary-certs
-          docker cp secondary:/etc/pki/pki-tomcat/certs secondary-certs
+          docker cp primary:/var/lib/pki/pki-tomcat/conf/certs primary-certs
+          docker cp secondary:/var/lib/pki/pki-tomcat/conf/certs secondary-certs
 
           diff primary-certs/ca_audit_signing.csr secondary-certs/ca_audit_signing.csr
           diff primary-certs/ca_ocsp_signing.csr secondary-certs/ca_ocsp_signing.csr
@@ -486,7 +486,7 @@ jobs:
       - name: Check CRL generation config in primary CA
         run: |
           # get CS.cfg from primary CA after CRL generation update
-          docker cp primary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.primary.after-crl-update
+          docker cp primary:/var/lib/pki/pki-tomcat/conf/ca/CS.cfg CS.cfg.primary.after-crl-update
 
           docker exec primary pki-server ca-config-find | grep ca.crl.MasterCRL
 
@@ -511,7 +511,7 @@ jobs:
       - name: Check CRL generation config in secondary CA
         run: |
           # get CS.cfg from secondary CA after CRL generation update
-          docker cp secondary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.secondary.after-crl-update
+          docker cp secondary:/var/lib/pki/pki-tomcat/conf/ca/CS.cfg CS.cfg.secondary.after-crl-update
 
           docker exec secondary pki-server ca-config-find | grep ca.crl.MasterCRL
 

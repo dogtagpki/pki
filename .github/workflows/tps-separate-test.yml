@@ -67,7 +67,7 @@ jobs:
           diff expected actual
 
       - name: Install banner in CA container
-        run: docker exec ca cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
+        run: docker exec ca cp /usr/share/pki/server/examples/banner/banner.txt /var/lib/pki/pki-tomcat/conf
 
       - name: Set up KRA DS container
         run: |
@@ -115,7 +115,7 @@ jobs:
           diff expected actual
 
       - name: Install banner in KRA container
-        run: docker exec kra cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
+        run: docker exec kra cp /usr/share/pki/server/examples/banner/banner.txt /var/lib/pki/pki-tomcat/conf
 
       - name: Set up TKS DS container
         run: |
@@ -161,7 +161,7 @@ jobs:
           diff expected actual
 
       - name: Install banner in TKS container
-        run: docker exec tks cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
+        run: docker exec tks cp /usr/share/pki/server/examples/banner/banner.txt /var/lib/pki/pki-tomcat/conf
 
       - name: Set up TPS DS container
         run: |
@@ -221,7 +221,7 @@ jobs:
           diff expected actual
 
       - name: Install banner in TPS container
-        run: docker exec tps cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
+        run: docker exec tps cp /usr/share/pki/server/examples/banner/banner.txt /var/lib/pki/pki-tomcat/conf
 
       - name: Run PKI healthcheck
         run: docker exec tps pki-healthcheck --failures-only

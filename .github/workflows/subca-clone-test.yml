@@ -147,7 +147,7 @@ jobs:
       - name: Install secondary sub-CA
         run: |
           # get CS.cfg from primary sub-CA before cloning
-          docker cp primary-subca:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.primary
+          docker cp primary-subca:/var/lib/pki/pki-tomcat/conf/ca/CS.cfg CS.cfg.primary
 
           docker exec secondary-subca pkispawn \
               -f /usr/share/pki/server/examples/installation/ca-clone.cfg \
@@ -165,7 +165,7 @@ jobs:
       - name: Check CS.cfg in primary sub-CA after cloning
         run: |
           # get CS.cfg from primary sub-CA after cloning
-          docker cp primary-subca:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.primary.after
+          docker cp primary-subca:/var/lib/pki/pki-tomcat/conf/ca/CS.cfg CS.cfg.primary.after
 
           # normalize expected result:
           # - remove params that cannot be compared
@@ -192,7 +192,7 @@ jobs:
       - name: Check CS.cfg in secondary sub-CA
         run: |
           # get CS.cfg from secondary sub-CA
-          docker cp secondary-subca:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.secondary
+          docker cp secondary-subca:/var/lib/pki/pki-tomcat/conf/ca/CS.cfg CS.cfg.secondary
 
           # normalize expected result:
           # - remove params that cannot be compared

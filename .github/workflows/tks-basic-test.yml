@@ -85,7 +85,7 @@ jobs:
           docker exec pki pki-server cert-export tks_audit_signing \
               --cert-file tks_audit_signing.crt
           docker exec pki openssl req -text -noout \
-              -in /etc/pki/pki-tomcat/certs/tks_audit_signing.csr
+              -in /var/lib/pki/pki-tomcat/conf/certs/tks_audit_signing.csr
           docker exec pki openssl x509 -text -noout -in tks_audit_signing.crt
 
       - name: Check subsystem cert
@@ -93,7 +93,7 @@ jobs:
           docker exec pki pki-server cert-export subsystem \
               --cert-file subsystem.crt
           docker exec pki openssl req -text -noout \
-              -in /etc/pki/pki-tomcat/certs/subsystem.csr
+              -in /var/lib/pki/pki-tomcat/conf/certs/subsystem.csr
           docker exec pki openssl x509 -text -noout -in subsystem.crt
 
       - name: Check SSL server cert
@@ -101,7 +101,7 @@ jobs:
           docker exec pki pki-server cert-export sslserver \
               --cert-file sslserver.crt
           docker exec pki openssl req -text -noout \
-              -in /etc/pki/pki-tomcat/certs/sslserver.csr
+              -in /var/lib/pki/pki-tomcat/conf/certs/sslserver.csr
           docker exec pki openssl x509 -text -noout -in sslserver.crt
 
       - name: Check TKS admin cert
