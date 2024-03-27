@@ -58,7 +58,7 @@ jobs:
           docker exec ca pki-server cert-find
 
       - name: Install banner in CA container
-        run: docker exec ca cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
+        run: docker exec ca cp /usr/share/pki/server/examples/banner/banner.txt /var/lib/pki/pki-tomcat/conf
 
       - name: Set up TKS DS container
         run: |
@@ -97,7 +97,7 @@ jobs:
           docker exec tks pki-server cert-find
 
       - name: Install banner in TKS container
-        run: docker exec tks cp /usr/share/pki/server/examples/banner/banner.txt /etc/pki/pki-tomcat
+        run: docker exec tks cp /usr/share/pki/server/examples/banner/banner.txt /var/lib/pki/pki-tomcat/conf
 
       - name: Run PKI healthcheck
         run: docker exec tks pki-healthcheck --failures-only

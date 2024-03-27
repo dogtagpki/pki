@@ -62,10 +62,10 @@ jobs:
           docker exec pki sed -i \
               -e "s/^$VALIDITY_DEFAULT.range=.*$/$VALIDITY_DEFAULT.range=1/" \
               -e "/^$VALIDITY_DEFAULT.range=.*$/a $VALIDITY_DEFAULT.rangeUnit=minute" \
-              /etc/pki/pki-tomcat/ca/profiles/ca/caServerCert.cfg
+              /var/lib/pki/pki-tomcat/conf/ca/profiles/ca/caServerCert.cfg
 
           # check updated profile
-          docker exec pki cat /etc/pki/pki-tomcat/ca/profiles/ca/caServerCert.cfg
+          docker exec pki cat /var/lib/pki/pki-tomcat/conf/ca/profiles/ca/caServerCert.cfg
 
       - name: Configure user cert profile
         run: |
@@ -74,10 +74,10 @@ jobs:
           docker exec pki sed -i \
               -e "s/^$VALIDITY_DEFAULT.range=.*$/$VALIDITY_DEFAULT.range=4/" \
               -e "/^$VALIDITY_DEFAULT.range=.*$/a $VALIDITY_DEFAULT.rangeUnit=minute" \
-              /etc/pki/pki-tomcat/ca/profiles/ca/caUserCert.cfg
+              /var/lib/pki/pki-tomcat/conf/ca/profiles/ca/caUserCert.cfg
 
           # check updated profile
-          docker exec pki cat /etc/pki/pki-tomcat/ca/profiles/ca/caUserCert.cfg
+          docker exec pki cat /var/lib/pki/pki-tomcat/conf/ca/profiles/ca/caUserCert.cfg
 
       - name: Configure cert status update task
         run: |

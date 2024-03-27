@@ -259,8 +259,8 @@ jobs:
       - name: Check CA signing cert
         run: |
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-cert-show \
               ca_signing | tee ca_signing.crt.after
 
@@ -268,8 +268,8 @@ jobs:
           diff ca_signing.crt.before ca_signing.crt.after
 
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-key-find \
               --nickname ca_signing | tee ca_signing.key.after
 
@@ -279,8 +279,8 @@ jobs:
       - name: Check CA OCSP signing cert
         run: |
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-cert-show \
               ca_ocsp_signing | tee ca_ocsp_signing.crt.after
 
@@ -288,8 +288,8 @@ jobs:
           diff ca_ocsp_signing.crt.before ca_ocsp_signing.crt.after
 
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-key-find \
               --nickname ca_ocsp_signing | tee ca_ocsp_signing.key.after
 
@@ -299,8 +299,8 @@ jobs:
       - name: Check CA audit signing cert
         run: |
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-cert-show \
               ca_audit_signing | tee ca_audit_signing.crt.after
 
@@ -308,8 +308,8 @@ jobs:
           diff ca_audit_signing.crt.before ca_audit_signing.crt.after
 
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-key-find \
               --nickname ca_audit_signing | tee ca_audit_signing.key.after
 
@@ -319,8 +319,8 @@ jobs:
       - name: Check subsystem cert
         run: |
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-cert-show \
               subsystem | tee subsystem.crt.after
 
@@ -328,8 +328,8 @@ jobs:
           diff subsystem.crt.before subsystem.crt.after
 
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-key-find \
               --nickname subsystem | tee subsystem.key.after
 
@@ -339,8 +339,8 @@ jobs:
       - name: Check SSL server cert
         run: |
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-cert-show \
               sslserver | tee sslserver.crt.after
 
@@ -348,8 +348,8 @@ jobs:
           diff sslserver.crt.before sslserver.crt.after
 
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-key-find \
               --nickname sslserver | tee sslserver.key.after
 

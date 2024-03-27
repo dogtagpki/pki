@@ -113,7 +113,7 @@ jobs:
       - name: Install KRA in secondary PKI container
         run: |
           # get CS.cfg from primary KRA before cloning
-          docker cp primary:/etc/pki/pki-tomcat/kra/CS.cfg CS.cfg.primary
+          docker cp primary:/var/lib/pki/pki-tomcat/conf/kra/CS.cfg CS.cfg.primary
 
           docker exec secondary pkispawn \
               -f /usr/share/pki/server/examples/installation/kra-clone.cfg \
@@ -151,7 +151,7 @@ jobs:
       - name: Check CS.cfg in primary KRA after cloning
         run: |
           # get CS.cfg from primary KRA after cloning
-          docker cp primary:/etc/pki/pki-tomcat/kra/CS.cfg CS.cfg.primary.after
+          docker cp primary:/var/lib/pki/pki-tomcat/conf/kra/CS.cfg CS.cfg.primary.after
 
           # normalize expected result:
           # - remove params that cannot be compared
@@ -176,7 +176,7 @@ jobs:
       - name: Check CS.cfg in secondary KRA
         run: |
           # get CS.cfg from secondary KRA
-          docker cp secondary:/etc/pki/pki-tomcat/kra/CS.cfg CS.cfg.secondary
+          docker cp secondary:/var/lib/pki/pki-tomcat/conf/kra/CS.cfg CS.cfg.secondary
 
           # normalize expected result:
           # - remove params that cannot be compared

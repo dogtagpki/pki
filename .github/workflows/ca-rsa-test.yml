@@ -69,7 +69,7 @@ jobs:
         run: |
           # all keys should be "rsa"
           echo Secret.123 > password.txt
-          docker exec pki certutil -K -d /etc/pki/pki-tomcat/alias -f ${SHARED}/password.txt | tee output
+          docker exec pki certutil -K -d /var/lib/pki/pki-tomcat/conf/alias -f ${SHARED}/password.txt | tee output
           echo "rsa" > expected
 
           grep ca_signing output | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > actual
@@ -90,7 +90,7 @@ jobs:
       - name: Check CA signing cert
         run: |
           # inspect cert with certutil
-          docker exec pki certutil -L -d /etc/pki/pki-tomcat/alias -f ${SHARED}/password.txt -n ca_signing | tee output
+          docker exec pki certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -f ${SHARED}/password.txt -n ca_signing | tee output
 
           # signing algorithm should be "PKCS #1 SHA-384 With RSA Encryption"
           echo "PKCS #1 SHA-384 With RSA Encryption" > expected
@@ -114,7 +114,7 @@ jobs:
       - name: Check CA OCSP signing cert
         run: |
           # inspect cert with certutil
-          docker exec pki certutil -L -d /etc/pki/pki-tomcat/alias -f ${SHARED}/password.txt -n ca_ocsp_signing | tee output
+          docker exec pki certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -f ${SHARED}/password.txt -n ca_ocsp_signing | tee output
 
           # signing algorithm should be "PKCS #1 SHA-512 With RSA Encryption"
           echo "PKCS #1 SHA-512 With RSA Encryption" > expected
@@ -138,7 +138,7 @@ jobs:
       - name: Check CA audit signing cert
         run: |
           # inspect cert with certutil
-          docker exec pki certutil -L -d /etc/pki/pki-tomcat/alias -f ${SHARED}/password.txt -n ca_audit_signing | tee output
+          docker exec pki certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -f ${SHARED}/password.txt -n ca_audit_signing | tee output
 
           # signing algorithm should be "PKCS #1 SHA-512 With RSA Encryption"
           echo "PKCS #1 SHA-512 With RSA Encryption" > expected
@@ -162,7 +162,7 @@ jobs:
       - name: Check subsystem cert
         run: |
           # inspect cert with certutil
-          docker exec pki certutil -L -d /etc/pki/pki-tomcat/alias -f ${SHARED}/password.txt -n subsystem | tee output
+          docker exec pki certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -f ${SHARED}/password.txt -n subsystem | tee output
 
           # signing algorithm should be "PKCS #1 SHA-512 With RSA Encryption"
           echo "PKCS #1 SHA-512 With RSA Encryption" > expected
@@ -187,7 +187,7 @@ jobs:
       - name: Check SSL server cert
         run: |
           # inspect cert with certutil
-          docker exec pki certutil -L -d /etc/pki/pki-tomcat/alias -f ${SHARED}/password.txt -n sslserver | tee output
+          docker exec pki certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -f ${SHARED}/password.txt -n sslserver | tee output
 
           # signing algorithm should be "PKCS #1 SHA-512 With RSA Encryption"
           echo "PKCS #1 SHA-512 With RSA Encryption" > expected

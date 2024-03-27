@@ -149,13 +149,13 @@ jobs:
           echo "Secret.123" > password.internal
           docker exec pki certutil \
               -K \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               -f $SHARED/password.internal | tee keys.internal.orig
 
           echo "Secret.HSM" > password.HSM
           docker exec pki certutil \
               -K \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               -f $SHARED/password.HSM \
               -h HSM | tee keys.HSM.orig
 
@@ -469,13 +469,13 @@ jobs:
 
           # the keys should not change
           docker exec pki certutil \
-              -K -d /etc/pki/pki-tomcat/alias \
+              -K -d /var/lib/pki/pki-tomcat/conf/alias \
               -f $SHARED/password.internal | tee keys.internal.after
           diff keys.internal.orig keys.internal.after
 
           # the keys should not change
           docker exec pki certutil \
-              -K -d /etc/pki/pki-tomcat/alias \
+              -K -d /var/lib/pki/pki-tomcat/conf/alias \
               -f $SHARED/password.HSM \
               -h HSM | tee keys.HSM.after
           diff keys.HSM.orig keys.HSM.after

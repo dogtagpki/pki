@@ -104,8 +104,8 @@ jobs:
       - name: Check certs and keys in NSS database
         run: |
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-cert-find | tee output
 
           # there should be 5 certs
@@ -114,8 +114,8 @@ jobs:
           diff expected actual
 
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-key-find | tee output
 
           # there should be 5 keys
@@ -172,8 +172,8 @@ jobs:
       - name: Check certs and keys in NSS database
         run: |
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-cert-find | tee output
 
           # there should be 25 certs now
@@ -182,8 +182,8 @@ jobs:
           diff expected actual
 
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-key-find | tee output
 
           # there should be 25 keys now
@@ -267,8 +267,8 @@ jobs:
       - name: Check certs and keys in NSS database
         run: |
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-cert-find | tee output
 
           # there should be 5 certs now
@@ -277,8 +277,8 @@ jobs:
           diff expected actual
 
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-key-find | tee output
 
           # there should be 5 keys now

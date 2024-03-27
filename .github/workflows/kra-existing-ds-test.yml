@@ -87,7 +87,7 @@ jobs:
               --subject "CN=DRM Storage Certificate" \
               --ext /usr/share/pki/server/certs/kra_storage.conf \
               kra_storage
-          docker exec kra cp /etc/pki/pki-tomcat/certs/kra_storage.csr $SHARED
+          docker exec kra cp /var/lib/pki/pki-tomcat/conf/certs/kra_storage.csr $SHARED
           docker exec kra openssl req -text -noout -in $SHARED/kra_storage.csr
 
           # submit cert request
@@ -103,22 +103,22 @@ jobs:
           # retrieve cert
           docker exec ca pki ca-cert-export $CERT_ID --output-file $SHARED/kra_storage.crt
           docker exec ca openssl x509 -text -noout -in $SHARED/kra_storage.crt
-          docker exec kra cp $SHARED/kra_storage.crt /etc/pki/pki-tomcat/certs
+          docker exec kra cp $SHARED/kra_storage.crt /var/lib/pki/pki-tomcat/conf/certs
 
           # import cert
           docker exec kra pki-server cert-import kra_storage
 
           # check original cert
           docker exec kra pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-cert-show \
               kra_storage | tee kra_storage.crt.before
 
           # check original key
           docker exec kra pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-key-find \
               --nickname kra_storage | tee kra_storage.key.before
 
@@ -129,7 +129,7 @@ jobs:
               --subject "CN=DRM Transport Certificate" \
               --ext /usr/share/pki/server/certs/kra_transport.conf \
               kra_transport
-          docker exec kra cp /etc/pki/pki-tomcat/certs/kra_transport.csr $SHARED
+          docker exec kra cp /var/lib/pki/pki-tomcat/conf/certs/kra_transport.csr $SHARED
           docker exec ca openssl req -text -noout -in $SHARED/kra_transport.csr
 
           # submit cert request
@@ -145,22 +145,22 @@ jobs:
           # retrieve cert
           docker exec ca pki ca-cert-export $CERT_ID --output-file $SHARED/kra_transport.crt
           docker exec ca openssl x509 -text -noout -in $SHARED/kra_transport.crt
-          docker exec kra cp $SHARED/kra_transport.crt /etc/pki/pki-tomcat/certs
+          docker exec kra cp $SHARED/kra_transport.crt /var/lib/pki/pki-tomcat/conf/certs
 
           # import cert
           docker exec kra pki-server cert-import kra_transport
 
           # check original cert
           docker exec kra pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-cert-show \
               kra_transport | tee kra_transport.crt.before
 
           # check original key
           docker exec kra pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-key-find \
               --nickname kra_transport | tee kra_transport.key.before
 
@@ -171,7 +171,7 @@ jobs:
               --subject "CN=Audit Signing Certificate" \
               --ext /usr/share/pki/server/certs/audit_signing.conf \
               kra_audit_signing
-          docker exec kra cp /etc/pki/pki-tomcat/certs/kra_audit_signing.csr $SHARED
+          docker exec kra cp /var/lib/pki/pki-tomcat/conf/certs/kra_audit_signing.csr $SHARED
           docker exec ca openssl req -text -noout -in $SHARED/kra_audit_signing.csr
 
           # submit cert request
@@ -187,22 +187,22 @@ jobs:
           # retrieve cert
           docker exec ca pki ca-cert-export $CERT_ID --output-file $SHARED/kra_audit_signing.crt
           docker exec ca openssl x509 -text -noout -in $SHARED/kra_audit_signing.crt
-          docker exec kra cp $SHARED/kra_audit_signing.crt /etc/pki/pki-tomcat/certs
+          docker exec kra cp $SHARED/kra_audit_signing.crt /var/lib/pki/pki-tomcat/conf/certs
 
           # import cert
           docker exec kra pki-server cert-import kra_audit_signing
 
           # check original cert
           docker exec kra pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-cert-show \
               kra_audit_signing | tee kra_audit_signing.crt.before
 
           # check original key
           docker exec kra pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-key-find \
               --nickname kra_audit_signing | tee kra_audit_signing.key.before
 
@@ -213,7 +213,7 @@ jobs:
               --subject "CN=Subsystem Certificate" \
               --ext /usr/share/pki/server/certs/subsystem.conf \
               subsystem
-          docker exec kra cp /etc/pki/pki-tomcat/certs/subsystem.csr $SHARED
+          docker exec kra cp /var/lib/pki/pki-tomcat/conf/certs/subsystem.csr $SHARED
           docker exec ca openssl req -text -noout -in $SHARED/subsystem.csr
 
           # submit cert request
@@ -229,22 +229,22 @@ jobs:
           # retrieve cert
           docker exec ca pki ca-cert-export $CERT_ID --output-file $SHARED/subsystem.crt
           docker exec ca openssl x509 -text -noout -in $SHARED/subsystem.crt
-          docker exec kra cp $SHARED/subsystem.crt /etc/pki/pki-tomcat/certs
+          docker exec kra cp $SHARED/subsystem.crt /var/lib/pki/pki-tomcat/conf/certs
 
           # import cert
           docker exec kra pki-server cert-import subsystem
 
           # check original cert
           docker exec kra pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-cert-show \
               subsystem | tee subsystem.crt.before
 
           # check original key
           docker exec kra pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-key-find \
               --nickname subsystem | tee subsystem.key.before
 
@@ -255,7 +255,7 @@ jobs:
               --subject "CN=kra.example.com" \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               sslserver
-          docker exec kra cp /etc/pki/pki-tomcat/certs/sslserver.csr $SHARED
+          docker exec kra cp /var/lib/pki/pki-tomcat/conf/certs/sslserver.csr $SHARED
           docker exec ca openssl req -text -noout -in $SHARED/sslserver.csr
 
           # submit cert request
@@ -271,22 +271,22 @@ jobs:
           # retrieve cert
           docker exec ca pki ca-cert-export $CERT_ID --output-file $SHARED/sslserver.crt
           docker exec ca openssl x509 -text -noout -in $SHARED/sslserver.crt
-          docker exec kra cp $SHARED/sslserver.crt /etc/pki/pki-tomcat/certs
+          docker exec kra cp $SHARED/sslserver.crt /var/lib/pki/pki-tomcat/conf/certs
 
           # import cert
           docker exec kra pki-server cert-import sslserver
 
           # check original cert
           docker exec kra pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-cert-show \
               sslserver | tee sslserver.crt.before
 
           # check original key
           docker exec kra pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-key-find \
               --nickname sslserver | tee sslserver.key.before
 
@@ -446,15 +446,15 @@ jobs:
         if: always()
         run: |
           docker exec kra pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-cert-find
 
       - name: Check KRA storage cert in server's NSS database
         run: |
           docker exec kra pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-cert-show \
               kra_storage | tee kra_storage.crt.after
 
@@ -462,8 +462,8 @@ jobs:
           diff kra_storage.crt.before kra_storage.crt.after
 
           docker exec kra pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-key-find \
               --nickname kra_storage | tee kra_storage.key.after
 
@@ -473,8 +473,8 @@ jobs:
       - name: Check KRA transport cert in server's NSS database
         run: |
           docker exec kra pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-cert-show \
               kra_transport | tee kra_transport.crt.after
 
@@ -482,8 +482,8 @@ jobs:
           diff kra_transport.crt.before kra_transport.crt.after
 
           docker exec kra pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-key-find \
               --nickname kra_transport | tee kra_transport.key.after
 
@@ -493,8 +493,8 @@ jobs:
       - name: Check KRA audit signing cert in server's NSS database
         run: |
           docker exec kra pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-cert-show \
               kra_audit_signing | tee kra_audit_signing.crt.after
 
@@ -502,8 +502,8 @@ jobs:
           diff kra_audit_signing.crt.before kra_audit_signing.crt.after
 
           docker exec kra pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-key-find \
               --nickname kra_audit_signing | tee kra_audit_signing.key.after
 
@@ -513,8 +513,8 @@ jobs:
       - name: Check subsystem cert in server's NSS database
         run: |
           docker exec kra pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-cert-show \
               subsystem | tee subsystem.crt.after
 
@@ -522,8 +522,8 @@ jobs:
           diff subsystem.crt.before subsystem.crt.after
 
           docker exec kra pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-key-find \
               --nickname subsystem | tee subsystem.key.after
 
@@ -533,8 +533,8 @@ jobs:
       - name: Check SSL server cert in server's NSS database
         run: |
           docker exec kra pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-cert-show \
               sslserver | tee sslserver.crt.after
 
@@ -542,8 +542,8 @@ jobs:
           diff sslserver.crt.before sslserver.crt.after
 
           docker exec kra pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-key-find \
               --nickname sslserver | tee sslserver.key.after
 

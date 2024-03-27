@@ -739,7 +739,10 @@ jobs:
           docker exec ca ls -la /etc/pki
           mkdir -p /tmp/artifacts/ca/etc/pki
           docker cp ca:/etc/pki/pki.conf /tmp/artifacts/ca/etc/pki
-          docker cp ca:/etc/pki/pki-tomcat /tmp/artifacts/ca/etc/pki
+
+          docker exec ca ls -la /var/lib/pki/pki-tomcat/conf/
+          mkdir -p /tmp/artifacts/ca/var/lib/pki/pki-tomcat/conf
+          docker cp ca:/var/lib/pki/pki-tomcat/conf/. /tmp/artifacts/ca/var/lib/pki/pki-tomcat/conf
 
           docker exec ca ls -la /var/log/pki
           mkdir -p /tmp/artifacts/ca/var/log

@@ -120,7 +120,7 @@
 - name: Configure EST backend
   community.docker.docker_container_copy_into:
     container: "{{ pki_container }}"
-    container_path: /etc/pki/pki-tomcat/est/backend.conf
+    container_path: /var/lib/pki/pki-tomcat/conf/est/backend.conf
     content: |
       class=org.dogtagpki.est.DogtagRABackend
       url=https://{{ pki_hostname }}:8443
@@ -133,7 +133,7 @@
 - name: Configurte EST authorization exec
   community.docker.docker_container_copy_into:
     container: "{{ pki_container }}"
-    container_path: /etc/pki/pki-tomcat/est/authorizer.conf
+    container_path: /var/lib/pki/pki-tomcat/conf/est/authorizer.conf
     content: |
       class=org.dogtagpki.est.ExternalProcessRequestAuthorizer
       executable=/usr/local/libexec/estauthz
@@ -156,7 +156,7 @@
 - name: Configurte EST authentication
   community.docker.docker_container_copy_into:
     container: "{{ pki_container }}"
-    container_path: /etc/pki/pki-tomcat/est/realm.conf
+    container_path: /var/lib/pki/pki-tomcat/conf/est/realm.conf
     content: |
       class=com.netscape.cms.realm.PKIInMemoryRealm
       username=alice

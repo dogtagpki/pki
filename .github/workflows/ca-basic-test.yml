@@ -105,7 +105,7 @@ jobs:
           echo "Secret.123" > password.txt
           docker cp password.txt pki:password.txt
           docker exec pki certutil -K \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               -f password.txt | tee output
 
           # there should be no orphaned keys
@@ -118,7 +118,7 @@ jobs:
           docker exec pki pki-server cert-export ca_signing \
               --cert-file ca_signing.crt
           docker exec pki openssl req -text -noout \
-              -in /etc/pki/pki-tomcat/certs/ca_signing.csr
+              -in /var/lib/pki/pki-tomcat/conf/certs/ca_signing.csr
 
           # check CA signing cert extensions
           docker exec pki /usr/share/pki/tests/ca/bin/test-ca-signing-cert-ext.sh
@@ -128,7 +128,7 @@ jobs:
           docker exec pki pki-server cert-export ca_ocsp_signing \
               --cert-file ca_ocsp_signing.crt
           docker exec pki openssl req -text -noout \
-              -in /etc/pki/pki-tomcat/certs/ca_ocsp_signing.csr
+              -in /var/lib/pki/pki-tomcat/conf/certs/ca_ocsp_signing.csr
           docker exec pki openssl x509 -text -noout -in ca_ocsp_signing.crt
 
       - name: Check CA audit signing cert
@@ -136,7 +136,7 @@ jobs:
           docker exec pki pki-server cert-export ca_audit_signing \
               --cert-file ca_audit_signing.crt
           docker exec pki openssl req -text -noout \
-              -in /etc/pki/pki-tomcat/certs/ca_audit_signing.csr
+              -in /var/lib/pki/pki-tomcat/conf/certs/ca_audit_signing.csr
           docker exec pki openssl x509 -text -noout -in ca_audit_signing.crt
 
       - name: Check subsystem cert
@@ -144,7 +144,7 @@ jobs:
           docker exec pki pki-server cert-export subsystem \
               --cert-file subsystem.crt
           docker exec pki openssl req -text -noout \
-              -in /etc/pki/pki-tomcat/certs/subsystem.csr
+              -in /var/lib/pki/pki-tomcat/conf/certs/subsystem.csr
           docker exec pki openssl x509 -text -noout -in subsystem.crt
 
       - name: Check SSL server cert
@@ -152,7 +152,7 @@ jobs:
           docker exec pki pki-server cert-export sslserver \
               --cert-file sslserver.crt
           docker exec pki openssl req -text -noout \
-              -in /etc/pki/pki-tomcat/certs/sslserver.csr
+              -in /var/lib/pki/pki-tomcat/conf/certs/sslserver.csr
           docker exec pki openssl x509 -text -noout -in sslserver.crt
 
       - name: Check CA admin cert

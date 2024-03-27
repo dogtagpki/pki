@@ -72,8 +72,8 @@ jobs:
         run: |
           # generate cert request
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-cert-request \
               --subject "CN=CA Issuance Protection" \
               --csr ca_issuance_protection.csr
@@ -91,7 +91,7 @@ jobs:
 
           # convert CMC response (DER PKCS #7) into PEM PKCS #7 cert chain
           docker exec pki CMCResponse \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               -i ca_issuance_protection.cmc-response \
               -o ca_issuance_protection.p7b | tee output
 
@@ -106,16 +106,16 @@ jobs:
 
           # import cert chain
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               pkcs7-import \
               --pkcs7 ca_issuance_protection.p7b \
               ca_issuance_protection
 
           # check imported cert chain
           docker exec pki pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-cert-find
 
           # configure issuance protection nickname
@@ -177,7 +177,7 @@ jobs:
         run: |
           # generate shared token
           docker exec pki CMCSharedToken \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               -p Secret.123 \
               -n ca_issuance_protection \
               -s Secret.123 \

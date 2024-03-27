@@ -119,7 +119,7 @@ jobs:
         run: |
           echo "Secret.123" > password.txt
           docker exec pki certutil \
-              -K -d /etc/pki/pki-tomcat/alias \
+              -K -d /var/lib/pki/pki-tomcat/conf/alias \
               -f $SHARED/password.txt | tee keys.orig
 
       - name: Run PKI healthcheck
@@ -430,7 +430,7 @@ jobs:
         run: |
           # the keys should not change
           docker exec pki certutil \
-              -K -d /etc/pki/pki-tomcat/alias \
+              -K -d /var/lib/pki/pki-tomcat/conf/alias \
               -f $SHARED/password.txt | tee keys.after
           diff keys.orig keys.after
 
