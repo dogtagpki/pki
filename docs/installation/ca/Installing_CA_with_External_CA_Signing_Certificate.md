@@ -20,7 +20,7 @@ $ pkispawn -f ca-external-cert-step1.cfg -s CA
 ```
 
 It will install CA subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
-* server NSS database: /etc/pki/pki-tomcat/alias
+* server NSS database: /var/lib/pki/pki-tomcat/conf/alias
 * admin NSS database: ~/.dogtag/pki-tomcat/ca/alias
 
 It will also generate the CA signing key in the server NSS database and the CSR in the specified path.
@@ -80,7 +80,7 @@ Verifying System Certificates
 Verify that the server NSS database contains the following certificates:
 
 ```
-$ certutil -L -d /etc/pki/pki-tomcat/alias
+$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
 
 Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI

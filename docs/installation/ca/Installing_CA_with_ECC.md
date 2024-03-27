@@ -42,10 +42,10 @@ CA System Certificates
 ----------------------
 
 After installation the CA system certificates and keys will be stored
-in the server NSS database (i.e. `/etc/pki/pki-tomcat/alias`):
+in the server NSS database (i.e. `/var/lib/pki/pki-tomcat/conf/alias`):
 
 ```
-$ certutil -L -d /etc/pki/pki-tomcat/alias
+$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
 
 Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI

@@ -52,7 +52,7 @@ $ pkispawn -f tps.cfg -s TPS
 ```
 
 It will install TPS subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
-* server NSS database: /etc/pki/pki-tomcat/alias
+* server NSS database: /var/lib/pki/pki-tomcat/conf/alias
 * admin NSS database: ~/.dogtag/pki-tomcat/tps/alias
 
 Verifying System Certificates
@@ -61,7 +61,7 @@ Verifying System Certificates
 Verify that the internal token contains the following certificates:
 
 ```
-$ certutil -L -d /etc/pki/pki-tomcat/alias
+$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
 
 Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI
@@ -73,7 +73,7 @@ tps_audit_signing                                            ,,P
 Verify that the HSM contains the following certificates:
 
 ```
-$ certutil -L -d /etc/pki/pki-tomcat/alias -h HSM -f HSM.pwd
+$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -h HSM -f HSM.pwd
 
 Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI

@@ -61,11 +61,11 @@ due to expired system certificates. In an IPA environment, LDAPI is used for the
     --extra-cert $HTTPD_SERIAL
     ````
 
-4. Verify that there is no `internaldb` field in `/etc/pki/pki-tomcat/password.conf`
+4. Verify that there is no `internaldb` field in `/var/lib/pki/pki-tomcat/conf/password.conf`
 
 5. Verify that `CS.cfg` has `internaldb.ldapauth.authtype=SslClientAuth`
 
-6. Copy `/etc/pki/pki-tomcat/certs/$IPA_RA_SERIAL-renewed.crt` to `/var/lib/ipa/ra-agent.pem`
+6. Copy `/var/lib/pki/pki-tomcat/conf/certs/$IPA_RA_SERIAL-renewed.crt` to `/var/lib/ipa/ra-agent.pem`
 
 7. Remove old DS cert and import DS renewed cert into DS NSSDB and provide the pin from `/etc/dirsrv/slapd-REALM/pin.txt`
     ````
@@ -75,9 +75,9 @@ due to expired system certificates. In an IPA environment, LDAPI is used for the
     # certutil -A -n Server-Cert \
     -d /etc/dirsrv/slapd-REALM/ \
     -t ',,' \
-    -a -i /etc/pki/pki-tomcat/certs/${DS_SERIAL}-renewed.crt
+    -a -i /var/lib/pki/pki-tomcat/conf/certs/${DS_SERIAL}-renewed.crt
     ````
-8. Copy `/etc/pki/pki-tomcat/certs/$HTTPD_SERIAL` to `/var/lib/ipa/certs/httpd.crt`
+8. Copy `/var/lib/pki/pki-tomcat/conf/certs/$HTTPD_SERIAL` to `/var/lib/ipa/certs/httpd.crt`
 
 9. `ipactl restart` should succeed
 
@@ -157,12 +157,12 @@ There are 2 different scenarios based on value of `internaldb.ldapauth.authtype`
 
 3. Set the LDAP password in `password.conf`:
     ````
-    # echo internaldb=<LDAP password> >> /etc/pki/pki-tomcat/password.conf
+    # echo internaldb=<LDAP password> >> /var/lib/pki/pki-tomcat/conf/password.conf
     ````
 
 ### Bringing up the PKI server
 
-1. Create temp SSL certificate. The temp cert will be created in `/etc/pki/<instance>/certs/sslserver.crt`
+1. Create temp SSL certificate. The temp cert will be created in `/var/lib/pki/<instance>/conf/certs/sslserver.crt`
     ````
     # pki-server cert-create sslserver --temp
     ````

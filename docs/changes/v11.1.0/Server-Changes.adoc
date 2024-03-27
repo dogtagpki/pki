@@ -4,8 +4,8 @@
 
 The following folders have been relocated:
 
-* `/var/lib/pki/<instance>/ca/emails` -> `/etc/pki/<instance>/ca/emails`
-* `/var/lib/pki/<instance>/ca/profiles` -> `/etc/pki/<instance>/ca/profiles`
+* `/var/lib/pki/<instance>/ca/emails` -> `/var/lib/pki/<instance>/conf/ca/emails`
+* `/var/lib/pki/<instance>/ca/profiles` -> `/var/lib/pki/<instance>/conf/ca/profiles`
 
 The following folders have been removed:
 

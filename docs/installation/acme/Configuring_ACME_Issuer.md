@@ -4,7 +4,7 @@ Configuring ACME Issuer
 ## Overview
 
 This document describes the process to configure an issuer for ACME responder.
-The issuer configuration is located at /etc/pki/pki-tomcat/acme/issuer.conf.
+The issuer configuration is located at /var/lib/pki/pki-tomcat/conf/acme/issuer.conf.
 
 The `pki-server acme-issuer-mod` can be used to configure the issuer via command-line.
 If the command is invoked without any parameters, it will enter an interactive mode, for example:

@@ -990,7 +990,7 @@ and setting the relevant SELinux and file permissions is shown below.
 **pkcs12_password_file** is a text file containing the password selected for the generated PKCS12 file.
 
 ```
-master# PKCS12Export -d /etc/pki/pki-tomcat/alias -p pwfile \
+master# PKCS12Export -d /var/lib/pki/pki-tomcat/conf/alias -p pwfile \
         -w pkcs12_password_file -o backup_keys.p12
 master# scp backup_keys.p12 clone:/backup_keys.p12
 
@@ -1014,7 +1014,7 @@ master# pki-server ca-clone-prepare -i pki-tomcat \
         --pkcs12-password Secret123
 
 master# scp backup_keys.p12 clone:/backup_keys.p12
-master# scp /etc/pki/pki-tomcat/external_certs.conf \
+master# scp /var/lib/pki/pki-tomcat/conf/external_certs.conf \
          clone:/external_certs.conf
 ```
 

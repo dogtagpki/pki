@@ -22,7 +22,7 @@ $ pkispawn -f kra-external-certs-step1.cfg -s KRA
 ```
 
 It will install KRA subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
-* server NSS database: /etc/pki/pki-tomcat/alias
+* server NSS database: /var/lib/pki/pki-tomcat/conf/alias
 * admin NSS database: ~/dogtag/pki-tomcat/kra/alias
 
 It will also generate the system keys in the server NSS database and the CSRs in the specified paths.
@@ -84,7 +84,7 @@ Verifying System Certificates
 Verify that the server NSS database contains the following certificates:
 
 ```
-$ certutil -L -d /etc/pki/pki-tomcat/alias
+$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
 
 Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI
