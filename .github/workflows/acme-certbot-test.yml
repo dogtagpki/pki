@@ -353,7 +353,8 @@ jobs:
           diff expected actual
 
       - name: Create CSR for ES256 Test
-        run: docker exec client openssl req \
+        run: |
+          docker exec client openssl req \
               -outform PEM \
               -out ES256.csr \
               -newkey ec \
