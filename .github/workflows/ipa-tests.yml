@@ -10,9 +10,16 @@ jobs:
   build:
     name: Building IPA images
     runs-on: ubuntu-latest
+    env:
+      NAMESPACE: ${{ vars.REGISTRY_NAMESPACE || 'dogtagpki' }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
+
+      - name: Update Dockerfile
+        run: |
+          # update registry namespace
+          sed -i "s/quay.io\/dogtagpki\//quay.io\/$NAMESPACE\//g" Dockerfile
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3

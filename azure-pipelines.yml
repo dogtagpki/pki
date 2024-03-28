@@ -54,15 +54,15 @@ jobs:
       docker exec runner dnf install -y dnf-plugins-core rpm-build
       if [ -n "$COPR_REPO" ]; then docker exec runner dnf copr enable -y $COPR_REPO; fi
 
-      docker create --name=jss-dist quay.io/$NAMESPACE/jss-dist:latest
+      docker create --name=jss-dist quay.io/$NAMESPACE/jss-dist:5.5
       docker cp jss-dist:/root/RPMS/. /tmp/RPMS
       docker rm -f jss-dist
 
-      docker create --name=ldapjdk-dist quay.io/$NAMESPACE/ldapjdk-dist:latest
+      docker create --name=ldapjdk-dist quay.io/$NAMESPACE/ldapjdk-dist:5.5
       docker cp ldapjdk-dist:/root/RPMS/. /tmp/RPMS
       docker rm -f ldapjdk-dist
 
-      docker create --name=idm-console-framework-dist quay.io/$NAMESPACE/idm-console-framework-dist:latest
+      docker create --name=idm-console-framework-dist quay.io/$NAMESPACE/idm-console-framework-dist:2.1
       docker cp idm-console-framework-dist:/root/RPMS/. /tmp/RPMS
       docker rm -f idm-console-framework-dist
 
