@@ -10,6 +10,9 @@ public enum ACMEAlgorithm {
 
     // Dogtag's JSS has slightly different algorithm names
     // than what is in RFC 7518
+
+    // TODO: Implement HS256, HS384, HS512 once JSS provider
+    // implements those algorithms
     RS256("RS256", "SHA256withRSA"),
     RS384("RS384", "SHA384withRSA"),
     RS512("RS512", "SHA512withRSA"),
