@@ -112,6 +112,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/acme-postgresql-test.yml
 
+  acme-algorithm-test:
+    name: ACME CSRs with different signatures
+    needs: build
+    uses: ./.github/workflows/acme-algorithm-test.yml
+
   publish:
     if: github.event_name == 'push' && github.ref_name == 'master'
     name: Publishing ACME images

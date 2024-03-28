@@ -1,5 +1,5 @@
 # Required cmake version
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.5)
 
 project(pki)
 
@@ -35,9 +35,9 @@ if (NOT DEFINED THEME)
     set(THEME "dogtag")
 endif(NOT DEFINED THEME)
 
-string(REGEX REPLACE "^([0-9]+).*" "\\1" APPLICATION_VERSION_MAJOR ${VERSION})
-string(REGEX REPLACE "^[0-9]+\\.([0-9]+).*" "\\1" APPLICATION_VERSION_MINOR ${VERSION})
-string(REGEX REPLACE "^[0-9]+\\.[0-9]+\\.([0-9]+).*" "\\1" APPLICATION_VERSION_PATCH ${VERSION})
+string(REGEX REPLACE "^([0-9]+).*" "\\1" "APPLICATION_VERSION_MAJOR" "${VERSION}")
+string(REGEX REPLACE "^[0-9]+\\.([0-9]+).*" "\\1" "APPLICATION_VERSION_MINOR" "${VERSION}")
+string(REGEX REPLACE "^[0-9]+\\.[0-9]+\\.([0-9]+).*" "\\1" "APPLICATION_VERSION_PATCH" "${VERSION}")
 
 set(APP_SERVER "tomcat-9.0" CACHE STRING "Application server")
 

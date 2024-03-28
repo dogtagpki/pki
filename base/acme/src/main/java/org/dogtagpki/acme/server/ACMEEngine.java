@@ -37,6 +37,7 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.acme.ACMEAccount;
+import org.dogtagpki.acme.ACMEAlgorithm;
 import org.dogtagpki.acme.ACMEAuthorization;
 import org.dogtagpki.acme.ACMEError;
 import org.dogtagpki.acme.ACMEIdentifier;
@@ -375,39 +376,37 @@ public class ACMEEngine {
         }
 
         // the default class just sends the default config values
-        Class<? extends ACMEEngineConfigSource> configSourceClass
-            = ACMEEngineConfigDefaultSource.class;
+        Class<? extends ACMEEngineConfigSource> configSourceClass = ACMEEngineConfigDefaultSource.class;
 
         String className = monitorsConfig.getProperty("engine.class");
         if (className != null && !className.isEmpty()) {
-            configSourceClass =
-                (Class<ACMEEngineConfigSource>) Class.forName(className);
+            configSourceClass = (Class<ACMEEngineConfigSource>) Class.forName(className);
         }
         engineConfigSource = configSourceClass.getDeclaredConstructor().newInstance();
 
         // We pass to the ConfigSource only the callbacks needed to set
-        // the configuration (Consumer<T>).  This abstraction ensures the
+        // the configuration (Consumer<T>). This abstraction ensures the
         // ConfigSource has no direct access to the ACMEEngine instance.
 
         engineConfigSource.setEnabledConsumer(new Consumer<Boolean>() {
-            @Override public void accept(Boolean b) {
+            @Override
+            public void accept(Boolean b) {
                 config.setEnabled(b);
                 logger.info(
-                    "ACME service is "
-                    + (b ? "enabled" : "DISABLED")
-                    + " by configuration"
-                );
+                        "ACME service is "
+                                + (b ? "enabled" : "DISABLED")
+                                + " by configuration");
             }
         });
 
         engineConfigSource.setWildcardConsumer(new Consumer<Boolean>() {
-            @Override public void accept(Boolean b) {
+            @Override
+            public void accept(Boolean b) {
                 config.getPolicyConfig().setEnableWildcards(b);
                 logger.info(
-                    "ACME wildcard issuance is "
-                    + (b ? "enabled" : "DISABLED")
-                    + " by configuration"
-                );
+                        "ACME wildcard issuance is "
+                                + (b ? "enabled" : "DISABLED")
+                                + " by configuration");
             }
         });
 
@@ -455,7 +454,7 @@ public class ACMEEngine {
         loadConfig(acmeConfDir + File.separator + "engine.conf");
 
         Boolean noncePersistent = config.getNoncesPersistent();
-        this.noncesPersistent =  noncePersistent != null ? noncePersistent : false;
+        this.noncesPersistent = noncePersistent != null ? noncePersistent : false;
 
         initRandomGenerator();
         initMetadata(acmeConfDir + File.separator + "metadata.conf");
@@ -470,7 +469,8 @@ public class ACMEEngine {
     }
 
     public void shutdownDatabase() throws Exception {
-        if (database == null) return;
+        if (database == null)
+            return;
 
         database.close();
         database = null;
@@ -486,28 +486,32 @@ public class ACMEEngine {
     }
 
     public void shutdownIssuer() throws Exception {
-        if (issuer == null) return;
+        if (issuer == null)
+            return;
 
         issuer.close();
         issuer = null;
     }
 
     public void shutdownScheduler() throws Exception {
-        if (scheduler == null) return;
+        if (scheduler == null)
+            return;
 
         scheduler.shutdown();
         scheduler = null;
     }
 
     public void shutdownMonitors() throws Exception {
-        if (engineConfigSource == null) return;
+        if (engineConfigSource == null)
+            return;
 
         engineConfigSource.shutdown();
         engineConfigSource = null;
     }
 
     public void shutdownRealm() throws Exception {
-        if (realm == null) return;
+        if (realm == null)
+            return;
 
         realm.stop();
         realm = null;
@@ -604,39 +608,37 @@ public class ACMEEngine {
 
     public void validateJWS(JWS jws, String alg, JWK jwk) throws Exception {
 
-        // TODO: support other algorithms
-
         Signature signer;
         PublicKey publicKey;
+        ACMEAlgorithm acmeAlgo;
 
-        if ("RS256".equals(alg)) {
-
-            signer = Signature.getInstance("SHA256withRSA", "Mozilla-JSS");
-
-            String kty = jwk.getKty();
-            KeyFactory keyFactory = KeyFactory.getInstance(kty, "Mozilla-JSS");
-
-            String n = jwk.getN();
-            BigInteger modulus = new BigInteger(1, Base64.decodeBase64(n));
-
-            String e = jwk.getE();
-            BigInteger publicExponent = new BigInteger(1, Base64.decodeBase64(e));
-
-            RSAPublicKeySpec keySpec = new RSAPublicKeySpec(modulus, publicExponent);
-            publicKey = keyFactory.generatePublic(keySpec);
-
-        } else {
+        try {
+            acmeAlgo = ACMEAlgorithm.fromString(alg);
+        } catch(Exception e) {
             ResponseBuilder builder = Response.status(Response.Status.BAD_REQUEST);
             builder.type("application/problem+json");
 
             ACMEError error = new ACMEError();
             error.setType("urn:ietf:params:acme:error:badSignatureAlgorithm");
-            error.setDetail("Signature of type " + alg + " not supported\n" +
-                    "Try again with RS256.");
+            error.setDetail("Signature of type " + alg + " not supported");
             builder.entity(error);
 
             throw new WebApplicationException(builder.build());
         }
+
+        signer = Signature.getInstance(acmeAlgo.getJCA(), "Mozilla-JSS");
+
+        String kty = jwk.getKty();
+        KeyFactory keyFactory = KeyFactory.getInstance(kty, "Mozilla-JSS");
+
+        String n = jwk.getN();
+        BigInteger modulus = new BigInteger(1, Base64.decodeBase64(n));
+
+        String e = jwk.getE();
+        BigInteger publicExponent = new BigInteger(1, Base64.decodeBase64(e));
+
+        RSAPublicKeySpec keySpec = new RSAPublicKeySpec(modulus, publicExponent);
+        publicKey = keyFactory.generatePublic(keySpec);
 
         validateJWS(jws, signer, publicKey);
     }
@@ -791,7 +793,9 @@ public class ACMEEngine {
         database.addOrder(order);
     }
 
-    enum CheckOrderResult { ORDER_ACCOUNT_MISMATCH , ORDER_EXPIRED , ORDER_ACCESS_OK, ORDER_NULL}
+    enum CheckOrderResult {
+        ORDER_ACCOUNT_MISMATCH, ORDER_EXPIRED, ORDER_ACCESS_OK, ORDER_NULL
+    }
 
     public CheckOrderResult checkOrder(ACMEAccount account, ACMEOrder order) {
 
@@ -900,8 +904,8 @@ public class ACMEEngine {
         if (!unauthorizedDNSNames.isEmpty()) {
             // TODO: generate proper exception
             throw new Exception(
-                "Unauthorized DNS names: "
-                + StringUtils.join(unauthorizedDNSNames, ", "));
+                    "Unauthorized DNS names: "
+                            + StringUtils.join(unauthorizedDNSNames, ", "));
         }
 
         // check for authorized names missing from CSR
@@ -910,8 +914,8 @@ public class ACMEEngine {
         if (!extraAuthorizedDNSNames.isEmpty()) {
             // TODO: generate proper exception
             throw new Exception(
-                "Missing DNS names from order: "
-                + StringUtils.join(extraAuthorizedDNSNames, ", "));
+                    "Missing DNS names from order: "
+                            + StringUtils.join(extraAuthorizedDNSNames, ", "));
         }
 
         // TODO: validate other things in CSR
@@ -925,9 +929,9 @@ public class ACMEEngine {
         //
         // The server MUST consider at least the following accounts authorized
         // for a given certificate:
-        // -  the account that issued the certificate.
-        // -  an account that holds authorizations for all of the identifiers in
-        //    the certificate.
+        // - the account that issued the certificate.
+        // - an account that holds authorizations for all of the identifiers in
+        // the certificate.
 
         Date now = new Date();
         String certBase64 = revocation.getCertificate();
@@ -961,11 +965,13 @@ public class ACMEEngine {
         Collection<ACMEIdentifier> identifiers = getCertIdentifiers(cert);
 
         if (identifiers.isEmpty()) {
-            /* Protect against vacuous authorisation.  If there are no
+            /*
+             * Protect against vacuous authorisation. If there are no
              * identifiers, it could be e.g. a user or CA certificate.
              * Without this check that there are at least /some/ identifiers
              * to authorise, every account would be vacuously authorised
-             * to revoke it.  */
+             * to revoke it.
+             */
             throw new Exception("Certificate has no ACME identifiers.");
         }
 
@@ -1010,7 +1016,7 @@ public class ACMEEngine {
                 logger.info("Account has no authorizations for:");
                 for (ACMEIdentifier identifier : identifiers) {
                     logger.info("- " + identifier.getType() + ": " + identifier.getValue());
-                 }
+                }
 
                 // TODO: generate proper exception
                 throw new Exception("Account has no authorizations for " + identifiers);
