@@ -209,8 +209,8 @@ jobs:
       - name: Connect client container to network
         run: docker network connect example client --alias client.example.com
 
-      - name: Install certbot and openssl in client container
-        run: docker exec client dnf install -y certbot openssl
+      - name: Install certbot in client container
+        run: docker exec client dnf install -y certbot
 
       - name: Register ACME account
         run: |
