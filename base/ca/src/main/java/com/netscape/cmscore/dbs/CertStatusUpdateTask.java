@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.concurrent.Executors;
@@ -80,29 +79,16 @@ public class CertStatusUpdateTask implements Runnable {
         RecordPagedList<CertRecord> recordList = repository.getInvalidCertsByNotBeforeDate(now);
         Iterator<CertRecord> certRecIterator = recordList.iterator();
 
-        if (!certRecIterator.hasNext()) {
-            logger.debug("CertStatusUpdateTask: No invalid certs");
-            return;
-        }
-
-        ArrayList<CertId> list = new ArrayList<>();
         int recs = 0;
         while (certRecIterator.hasNext() && recs < maxRecords) {
             CertRecord certRecord = certRecIterator.next();
             CertId certID = new CertId(certRecord.getSerialNumber());
 
-            Date notBefore = certRecord.getNotBefore();
-            if (notBefore.after(now)) {
-                logger.debug("CertStatusUpdateTask: Cert {} not yet valid", certID.toHexString());
-                continue;
-            }
-
             logger.debug("CertStatusUpdateTask: Cert {} has become valid", certID.toHexString());
-            list.add(certID);
+            repository.updateStatus(certID, CertRecord.STATUS_VALID);
             recs++;
         }
-        logger.debug("CertStatusUpdateTask: - invalid list size: {}", list.size());
-        repository.updateStatus(list, CertRecord.STATUS_VALID);
+        logger.debug("CertStatusUpdateTask: - invalid list size: {}", recs);
     }
 
     /**
@@ -117,30 +103,18 @@ public class CertStatusUpdateTask implements Runnable {
         RecordPagedList<CertRecord> recordList = repository.getValidCertsByNotAfterDate(now);
         Iterator<CertRecord> certRecIterator = recordList.iterator();
 
-        if (!certRecIterator.hasNext()) {
-            logger.debug("CertStatusUpdateTask: No invalid certs");
-            return;
-        }
-
-        ArrayList<CertId> list = new ArrayList<>();
         int recs = 0;
         while (certRecIterator.hasNext() && recs < maxRecords) {
             CertRecord certRecord = certRecIterator.next();
             CertId certID = new CertId(certRecord.getSerialNumber());
 
-            Date notAfter = certRecord.getNotAfter();
-            if (notAfter.after(now)) {
-                logger.debug("CertStatusUpdateTask: Cert {} not yet expired", certID.toHexString());
-                continue;
-            }
-
             logger.debug("CertStatusUpdateTask: Cert {} has become expired", certID.toHexString());
-            list.add(certID);
+            repository.updateStatus(certID, CertRecord.STATUS_EXPIRED);
             recs++;
         }
-        logger.debug("CertStatusUpdateTask: - valid list size: {}", list.size());
-        repository.updateStatus(list, CertRecord.STATUS_EXPIRED);
+        logger.debug("CertStatusUpdateTask: - valid list size: {}", recs);
     }
+
     /**
      * Updates a certificate status from REVOKED to REVOKED_EXPIRED
      * if a revoked certificate becomes expired.
@@ -154,40 +128,20 @@ public class CertStatusUpdateTask implements Runnable {
         RecordPagedList<CertRecord> recordList = repository.getRevokedCertsByNotAfterDate(now);
         Iterator<CertRecord> certRecIterator = recordList.iterator();
 
-
-        if (!certRecIterator.hasNext()) {
-            logger.debug("CertStatusUpdateTask: No invalid certs");
-            return;
-        }
-
-        ArrayList<CertId> list = new ArrayList<>();
         int recs = 0;
         while (certRecIterator.hasNext() && recs < maxRecords) {
             CertRecord certRecord = certRecIterator.next();
             CertId certID = new CertId(certRecord.getSerialNumber());
 
-            Date notAfter = certRecord.getNotAfter();
-            if (notAfter.after(now)) {
-                logger.debug("CertStatusUpdateTask: Cert {} not yet expired", certID.toHexString());
-                continue;
-            }
-
             logger.debug("CertStatusUpdateTask: Cert {} has become expired", certID.toHexString());
-            list.add(certID);
-            recs++;
-        }
-        logger.debug("CertStatusUpdateTask: - valid list size: {}", list.size());
-        repository.updateStatus(list, CertRecord.STATUS_REVOKED_EXPIRED);
-
-        // notify all CRL issuing points about revoked and expired certificates
-
-        for (int i = 0; i < list.size(); i++) {
-            CertId certID = list.get(i);
-
+            repository.updateStatus(certID, CertRecord.STATUS_REVOKED_EXPIRED);
+            // notify all CRL issuing points about revoked and expired certificate
             for (CRLIssuingPoint issuingPoint : engine.getCRLIssuingPoints()) {
                 issuingPoint.addExpiredCert(certID.toBigInteger());
             }
+            recs++;
         }
+        logger.debug("CertStatusUpdateTask: - valid list size: {}", recs);
     }
 
     /**
