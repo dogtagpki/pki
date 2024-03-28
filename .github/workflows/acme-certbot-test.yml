@@ -506,8 +506,8 @@ jobs:
               -o ldif_wrap=no \
               -LLL | tee output
 
-          # there should be two orders
-          echo "2" > expected
+          # there should be three orders
+          echo "3" > expected
           grep "^dn:" output | wc -l > actual
           diff expected actual
 
@@ -522,8 +522,8 @@ jobs:
               -o ldif_wrap=no \
               -LLL | tee output
 
-          # there should be two authorizations
-          echo "2" > expected
+          # there should be three authorizations
+          echo "3" > expected
           grep "^dn:" output | wc -l > actual
           diff expected actual
 
@@ -538,8 +538,8 @@ jobs:
               -o ldif_wrap=no \
               -LLL | tee output
 
-          # there should be two challenges
-          echo "2" > expected
+          # there should be three challenges
+          echo "3" > expected
           grep "^dn:" output | wc -l > actual
           diff expected actual
 
@@ -563,8 +563,8 @@ jobs:
         run: |
           docker exec pki pki ca-cert-find | tee output
 
-          # there should be 8 certs
-          echo "8" > expected
+          # there should be 9 certs
+          echo "9" > expected
           grep "Serial Number:" output | wc -l > actual
           diff expected actual
 
@@ -588,8 +588,8 @@ jobs:
         run: |
           docker exec pki pki ca-cert-find | tee output
 
-          # there should be 8 certs
-          echo "8" > expected
+          # there should be 9 certs
+          echo "9" > expected
           grep "Serial Number:" output | wc -l > actual
           diff expected actual
 
