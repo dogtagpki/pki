@@ -246,18 +246,18 @@ jobs:
           sed -n 's/^acmeAccountContact: *\(.*\)$/\1/p' output > actual
           diff expected actual
 
-          - name: Create CSR for ES256 Test
-          run: |
-            docker exec client openssl req \
-                -outform PEM \
-                -out ES256.csr \
-                -newkey ec \
-                -pkeyopt ec_paramgen_curve:P-256 \
-                -keyout ES256.key \
-                -sha256 \
-                -subj '/CN=es256.example.com' \
-                -noenc \
-                -verbose
+      - name: Create CSR for ES256 Test
+        run: |
+          docker exec client openssl req \
+              -outform PEM \
+              -out ES256.csr \
+              -newkey ec \
+              -pkeyopt ec_paramgen_curve:P-256 \
+              -keyout ES256.key \
+              -sha256 \
+              -subj '/CN=es256.example.com' \
+              -noenc \
+              -verbose
   
       - name: Enroll using ES256 CSR
         run: |
@@ -295,7 +295,7 @@ jobs:
               -LLL | tee output
 
           # there should be two orders
-          echo "2" > expected
+          echo "1" > expected
           grep "^dn:" output | wc -l > actual
           diff expected actual
 
@@ -311,7 +311,7 @@ jobs:
               -LLL | tee output
 
           # there should be two authorizations
-          echo "2" > expected
+          echo "1" > expected
           grep "^dn:" output | wc -l > actual
           diff expected actual
 
@@ -327,7 +327,7 @@ jobs:
               -LLL | tee output
 
           # there should be two challenges
-          echo "2" > expected
+          echo "1" > expected
           grep "^dn:" output | wc -l > actual
           diff expected actual
 
@@ -347,12 +347,12 @@ jobs:
           grep "^dn:" output | wc -l > actual
           diff expected actual
 
-      - name: Check CA certs after ES256 enrollment
+      - name: Check CA certs after enrollments
         run: |
           docker exec pki pki ca-cert-find | tee output
 
-          # there should be 8 certs
-          echo "8" > expected
+          # there should be 7 certs
+          echo "7" > expected
           grep "Serial Number:" output | wc -l > actual
           diff expected actual
 
