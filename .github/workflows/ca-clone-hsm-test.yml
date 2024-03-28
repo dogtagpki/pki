@@ -92,7 +92,7 @@ jobs:
           # there should be 5 certs
           echo "5" > expected
           docker exec primary pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               nss-cert-find | tee output
           grep "Serial Number:" output | wc -l > actual
           diff expected actual
@@ -102,8 +102,8 @@ jobs:
           # there should be 4 certs
           echo "4" > expected
           docker exec primary pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               --token HSM \
               nss-cert-find | tee output
           grep "Serial Number:" output | wc -l > actual
@@ -154,7 +154,7 @@ jobs:
       - name: Install CA in secondary PKI container
         run: |
           # get CS.cfg from primary CA before cloning
-          docker cp primary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.primary
+          docker cp primary:/var/lib/pki/pki-tomcat/conf/ca/CS.cfg CS.cfg.primary
 
           docker exec primary pki-server cert-export ca_signing \
               --cert-file ${SHARED}/ca_signing.crt
@@ -181,7 +181,7 @@ jobs:
           # TODO: investigate the discrepancy
           echo "3" > expected
           docker exec secondary pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               nss-cert-find | tee output
           grep "Serial Number:" output | wc -l > actual
           diff expected actual
@@ -191,8 +191,8 @@ jobs:
           # there should be 4 certs
           echo "4" > expected
           docker exec secondary pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               --token HSM \
               nss-cert-find | tee output
           grep "Serial Number:" output | wc -l > actual
@@ -201,7 +201,7 @@ jobs:
       - name: Check CS.cfg in primary CA after cloning
         run: |
           # get CS.cfg from primary CA after cloning
-          docker cp primary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.primary.after
+          docker cp primary:/var/lib/pki/pki-tomcat/conf/ca/CS.cfg CS.cfg.primary.after
 
           # normalize expected result:
           # - remove params that cannot be compared
@@ -228,7 +228,7 @@ jobs:
       - name: Check CS.cfg in secondary CA
         run: |
           # get CS.cfg from secondary CA
-          docker cp secondary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.secondary
+          docker cp secondary:/var/lib/pki/pki-tomcat/conf/ca/CS.cfg CS.cfg.secondary
 
           # normalize expected result:
           # - remove params that cannot be compared
@@ -350,7 +350,7 @@ jobs:
           # TODO: investigate the discrepancy
           echo "3" > expected
           docker exec tertiary pki \
-              -d /etc/pki/pki-tomcat/alias \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               nss-cert-find | tee output
           grep "Serial Number:" output | wc -l > actual
           diff expected actual
@@ -360,8 +360,8 @@ jobs:
           # there should be 4 certs
           echo "4" > expected
           docker exec tertiary pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
               --token HSM \
               nss-cert-find | tee output
           grep "Serial Number:" output | wc -l > actual
@@ -370,7 +370,7 @@ jobs:
       - name: Check CS.cfg in secondary CA after cloning
         run: |
           # get CS.cfg from secondary CA after cloning
-          docker cp secondary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.secondary.after
+          docker cp secondary:/var/lib/pki/pki-tomcat/conf/ca/CS.cfg CS.cfg.secondary.after
 
           # normalize expected result:
           # - remove params that cannot be compared
@@ -395,7 +395,7 @@ jobs:
       - name: Check CS.cfg in tertiary CA
         run: |
           # get CS.cfg from tertiary CA
-          docker cp tertiary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.tertiary
+          docker cp tertiary:/var/lib/pki/pki-tomcat/conf/ca/CS.cfg CS.cfg.tertiary
 
           # normalize expected result:
           # - remove params that cannot be compared

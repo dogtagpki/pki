@@ -1263,23 +1263,21 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
      * @return a byte array containing the key
      */
     public byte[] doKeyRecovery(
-            String reqID,
+            Request r,
             String password)
             throws EBaseException {
 
         Auditor auditor = engine.getAuditor();
         String auditSubjectID = auditSubjectID();
-        RequestId auditRecoveryID = new RequestId(reqID);
+        RequestId auditRecoveryID = r.getRequestId();
         String auditAgents = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
         KeyId keyID = null;
 
-        RequestRepository requestRepository = engine.getRequestRepository();
         RequestQueue queue = engine.getRequestQueue();
 
         Hashtable<String, Object> params = null;
 
         logger.debug("KeyRecoveryAuthority: in asynchronous doKeyRecovery()");
-        Request r = requestRepository.readRequest(new RequestId(reqID));
 
         auditAgents = r.getExtDataInString(Request.ATTR_APPROVE_AGENTS);
         BigInteger serialNumber = r.getExtDataInBigInteger("serialNumber");

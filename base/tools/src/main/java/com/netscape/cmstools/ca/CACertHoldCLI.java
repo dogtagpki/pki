@@ -23,6 +23,7 @@ import java.io.InputStreamReader;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.netscape.security.x509.RevocationReason;
 
@@ -36,6 +37,8 @@ import com.netscape.cmstools.cli.MainCLI;
 
 /**
  * @author Endi S. Dewata
+ *
+ * TODO: Add support for invalidity date
  */
 public class CACertHoldCLI extends CommandCLI {
 
@@ -50,7 +53,7 @@ public class CACertHoldCLI extends CommandCLI {
 
     @Override
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <Serial Number> [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " [OPTIONS] <serial numbers>", options);
     }
 
     @Override
@@ -62,24 +65,18 @@ public class CACertHoldCLI extends CommandCLI {
         options.addOption(null, "force", false, "Force");
     }
 
-    @Override
-    public void execute(CommandLine cmd) throws Exception {
-
-        String[] cmdArgs = cmd.getArgs();
-
-        if (cmdArgs.length != 1) {
-            throw new Exception("Missing Serial Number.");
-        }
-
-        CertId certID = new CertId(cmdArgs[0]);
+    public void holdCert(
+            CACertClient certClient,
+            CertId certID,
+            String comments,
+            boolean force) throws Exception {
 
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        CACertClient certClient = certCLI.getCertClient();
         CertData certData = certClient.reviewCert(certID);
 
-        if (!cmd.hasOption("force")) {
+        if (!force) {
 
             System.out.println("Placing certificate on-hold:");
 
@@ -98,7 +95,7 @@ public class CACertHoldCLI extends CommandCLI {
 
         CertRevokeRequest request = new CertRevokeRequest();
         request.setReason(RevocationReason.CERTIFICATE_HOLD.getLabel());
-        request.setComments(cmd.getOptionValue("comments"));
+        request.setComments(comments);
         request.setNonce(certData.getNonce());
 
         CertRequestInfo certRequestInfo = certClient.revokeCert(certID, request);
@@ -122,6 +119,34 @@ public class CACertHoldCLI extends CommandCLI {
         } else {
             MainCLI.printMessage("Request \"" + certRequestInfo.getRequestID().toHexString() + "\": "
                     + certRequestInfo.getRequestStatus());
+        }
+    }
+
+    @Override
+    public void execute(CommandLine cmd) throws Exception {
+
+        String[] cmdArgs = cmd.getArgs();
+
+        if (cmdArgs.length == 0) {
+            throw new CLIException("Missing serial numbers");
+        }
+
+        String comments = cmd.getOptionValue("comments");
+        boolean force = cmd.hasOption("force");
+
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
+        CACertClient certClient = certCLI.getCertClient();
+
+        for (String cmdArg : cmdArgs) {
+            CertId certID = new CertId(cmdArg);
+            try {
+                holdCert(certClient, certID, comments, force);
+            } catch (Exception e) {
+                logger.error("Unable to hold certificate " + certID + ": " + e.getMessage(), e);
+                // continue to the next cert
+            }
         }
     }
 }

@@ -1,8 +1,12 @@
 = Tools Changes =
 
-== Drop sslget ==
+== Move PKI tools into jss-tools ==
 
-The `sslget` command has been moved from `pki-tools` into `jss-tools`.
+The following tools have been moved into `jss-tools`:
+
+* `p12tool`
+* `p7tool`
+* `sslget`
 
 == Update pki-server status ==
 
@@ -11,3 +15,16 @@ the subsystem `Type` field since it's redundant.
 
 Instead, it will show an `SD Manager` field which will indicate whether
 the subsystem is a security domain manager.
+
+== Update certifcate revocation commands ==
+
+The `pki ca-cert-revoke`, `pki ca-cert-hold`, and `pki ca-cert-release-hold` commands
+have been updated to accept multiple serial numbers.
+
+== Deprecate revoker tool ==
+
+The `revoker` tool has been deprecated. Use the following commands instead:
+
+* `pki ca-cert-revoke`
+* `pki ca-cert-hold`
+* `pki ca-cert-release-hold`

@@ -15,6 +15,7 @@ import org.dogtagpki.server.rest.JobService;
 import org.dogtagpki.server.rest.KRAInfoService;
 import org.dogtagpki.server.rest.MessageFormatInterceptor;
 import org.dogtagpki.server.rest.PKIExceptionMapper;
+import org.dogtagpki.server.rest.SecurityDomainService;
 import org.dogtagpki.server.rest.SelfTestService;
 import org.dogtagpki.server.rest.SessionContextInterceptor;
 import org.dogtagpki.server.rest.UserService;
@@ -36,7 +37,7 @@ public class KRAApplication extends Application {
         classes.add(AuditService.class);
 
         // security domain
-        classes.add(KRASecurityDomainService.class);
+        classes.add(SecurityDomainService.class);
 
         // keys and keyrequests
         classes.add(KeyService.class);

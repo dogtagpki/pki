@@ -298,7 +298,6 @@ class ConfigurationFile:
         # include SKI extension in CSR - for external CA
         self.req_ski = self.mdict.get('pki_req_ski')
 
-        self.existing = config.str2bool(self.mdict['pki_existing'])
         self.external = config.str2bool(self.mdict['pki_external'])
         self.external_step_one = not config.str2bool(
             self.mdict['pki_external_step_two'])

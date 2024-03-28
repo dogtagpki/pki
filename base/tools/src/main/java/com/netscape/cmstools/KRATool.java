@@ -41,11 +41,18 @@ import java.util.Calendar;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Vector;
+import java.util.logging.FileHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 import java.util.regex.PatternSyntaxException;
 
 import javax.crypto.spec.OAEPParameterSpec;
 import javax.crypto.spec.PSource;
 
+import org.dogtagpki.util.logging.PKILogger;
+import org.dogtagpki.util.logging.PKILogger.LogLevel;
 import org.mozilla.jss.CertDatabaseException;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.KeyDatabaseException;
@@ -499,6 +506,9 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  * @version $Revision$, $Date$
  */
 public class KRATool {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRATool.class);
+
     /*************/
     /* Constants */
     /*************/
@@ -519,7 +529,6 @@ public class KRATool {
 
     // Constants:  Calendar
     private static final String DATE_OF_MODIFY_PATTERN = "yyyyMMddHHmmss'Z'";
-    private static final String LOGGING_DATE_PATTERN = "dd/MMM/yyyy:HH:mm:ss z";
 
     // Constants:  Command-line Options
     private static final int ID_OFFSET_NAME_VALUE_PAIRS = 1;
@@ -958,7 +967,7 @@ public class KRATool {
     private static final String KRA_LDIF_TARGET_NAME_CONTEXT_MESSAGE =
                                     "' to target KRA naming context '";
     private static final String KRA_LDIF_PROCESS_REQUESTS_AND_KEY_RECORDS_ONLY_MESSAGE =
-            "PROCESSED requests and key records ONLY!";
+            "PROCESSED requests and key records ONLY";
 
     /*************/
     /* Variables */
@@ -1014,8 +1023,6 @@ public class KRATool {
 
     // Variables:  Logging
     private static boolean mDebug = false; // set 'true' for debug messages
-    private static PrintWriter logger = null;
-    private static String current_date_and_time = null;
 
     // Variables:  PKCS #11 Information
     private static CryptoToken mSourceToken = null;
@@ -1372,55 +1379,21 @@ public class KRATool {
     /*******************/
 
     /**
-     * This method opens a new log file for writing.
-     * <P>
+     * Configure logger.
      *
      * @param logfile string containing the name of the log file to be opened
      */
-    private static void open_log(String logfile) {
-        try {
-            logger = new PrintWriter(
-                         new BufferedWriter(
-                                 new FileWriter(logfile)));
-        } catch (IOException eFile) {
-            System.err.println("ERROR:  Unable to open file '"
-                              + logfile
-                              + "' for writing: '"
-                              + eFile.toString()
-                              + "'"
-                              + NEWLINE);
-            System.exit(0);
-        }
-    }
+    private static void configureLogger(String logfile) throws IOException {
 
-    /**
-     * This method closes the specified log file.
-     * <P>
-     *
-     * @param logfile string containing the name of the log file to be closed
-     */
-    private static void close_log(String logfile) {
-        logger.close();
-    }
+        PKILogger.setLevel(LogLevel.INFO);
 
-    /**
-     * This method writes the specified message to the log file, and also
-     * to 'stderr' if the boolean flag is set to 'true'.
-     * <P>
-     *
-     * @param msg string containing the message to be written to the log file
-     * @param stderr boolean which also writes the message to 'stderr' if 'true'
-     */
-    private static void log(String msg, boolean stderr) {
-        current_date_and_time = now(LOGGING_DATE_PATTERN);
-        if (stderr) {
-            System.err.println(msg);
-        }
-        logger.write("["
-                    + current_date_and_time
-                    + "]:  "
-                    + msg);
-        logger.flush();
+        // log everything to file
+        Handler handler = new FileHandler(logfile);
+        handler.setLevel(Level.ALL);
+        handler.setFormatter(new SimpleFormatter());
+
+        Logger rootLogger = Logger.getLogger("");
+        rootLogger.addHandler(handler);
     }
 
     /*********************************************/
@@ -1476,11 +1449,9 @@ public class KRATool {
                 }
             }
         } catch (TokenException exToken) {
-            log("ERROR:  Getting private key - "
-                    + "TokenException: '"
-                    + exToken.toString()
-                    + "'"
-                    + NEWLINE, true);
+            logger.error("Unable to get private key: "
+                    + exToken.getMessage(),
+                    exToken);
             System.exit(0);
         }
 
@@ -1518,13 +1489,12 @@ public class KRATool {
                                                     mTargetStorageCertificateFilename
                                             ))));
         } catch (FileNotFoundException exWrapFileNotFound) {
-            log("ERROR:  No target storage "
+            logger.error("No target storage "
                     + "certificate file named '"
                     + mTargetStorageCertificateFilename
-                    + "' exists!  FileNotFoundException: '"
-                    + exWrapFileNotFound.toString()
-                    + "'"
-                    + NEWLINE, true);
+                    + "' exists: "
+                    + exWrapFileNotFound.getMessage(),
+                    exWrapFileNotFound);
             System.exit(0);
         }
 
@@ -1540,13 +1510,12 @@ public class KRATool {
                 }
             }
         } catch (IOException exWrapReadLineIO) {
-            log("ERROR:  Unexpected BASE64 "
+            logger.error("Unexpected BASE64 "
                     + "encoded error encountered while reading '"
                     + mTargetStorageCertificateFilename
-                    + "'!  IOException: '"
-                    + exWrapReadLineIO.toString()
-                    + "'"
-                    + NEWLINE, true);
+                    + "': "
+                    + exWrapReadLineIO.getMessage(),
+                    exWrapReadLineIO);
             System.exit(0);
         }
 
@@ -1554,13 +1523,12 @@ public class KRATool {
         try {
             inputCert.close();
         } catch (IOException exWrapCloseIO) {
-            log("ERROR:  Unexpected BASE64 "
+            logger.error("Unexpected BASE64 "
                     + "encoded error encountered in closing '"
                     + mTargetStorageCertificateFilename
-                    + "'!  IOException: '"
-                    + exWrapCloseIO.toString()
-                    + "'"
-                    + NEWLINE, true);
+                    + "': "
+                    + exWrapCloseIO.getMessage(),
+                    exWrapCloseIO);
             System.exit(0);
         }
 
@@ -1574,24 +1542,21 @@ public class KRATool {
         try {
             cert = new X509CertImpl(decodedBASE64Cert);
         } catch (CertificateException exWrapCertificate) {
-            log("ERROR:  Error encountered "
+            logger.error("Error encountered "
                     + "in parsing certificate in '"
                     + mTargetStorageCertificateFilename
-                    + "'  CertificateException: '"
-                    + exWrapCertificate.toString()
-                    + "'"
-                    + NEWLINE, true);
+                    + "': "
+                    + exWrapCertificate.getMessage(),
+                    exWrapCertificate);
             System.exit(0);
         }
 
         // Extract the Public Key
         key = cert.getPublicKey();
         if (key == null) {
-            log("ERROR:  Unable to extract public key "
-                    + "from certificate that was stored in '"
-                    + mTargetStorageCertificateFilename
-                    + "'."
-                    + NEWLINE, true);
+            logger.error("Unable to extract public key "
+                    + "from certificate that was stored in "
+                    + mTargetStorageCertificateFilename);
             System.exit(0);
         }
 
@@ -1599,11 +1564,9 @@ public class KRATool {
         try {
             rsakey = new RSAPublicKey(key.getEncoded());
         } catch (InvalidKeyException exInvalidKey) {
-            log("ERROR:  Converting X.509 public key --> RSA public key - "
-                    + "InvalidKeyException: '"
-                    + exInvalidKey.toString()
-                    + "'"
-                    + NEWLINE, true);
+            logger.error("Converting X.509 public key --> RSA public key: "
+                    + exInvalidKey.getMessage(),
+                    exInvalidKey);
             System.exit(0);
         }
 
@@ -1627,55 +1590,46 @@ public class KRATool {
 
         // Initialize the source security databases
         try {
-            log("Initializing source PKI security databases in '"
-                    + mSourcePKISecurityDatabasePath + "'."
-                    + NEWLINE, true);
+            logger.info("Initializing source PKI security databases in "
+                    + mSourcePKISecurityDatabasePath);
 
             CryptoManager.initialize(mSourcePKISecurityDatabasePath);
         } catch (KeyDatabaseException exKey) {
-            log("ERROR:  source_pki_security_database_path='"
+            logger.error("source_pki_security_database_path='"
                     + mSourcePKISecurityDatabasePath
-                    + "' KeyDatabaseException: '"
-                    + exKey.toString()
-                    + "'"
-                    + NEWLINE, true);
+                    + "': "
+                    + exKey.getMessage(),
+                    exKey);
             System.exit(0);
         } catch (CertDatabaseException exCert) {
-            log("ERROR:  source_pki_security_database_path='"
+            logger.error("source_pki_security_database_path='"
                     + mSourcePKISecurityDatabasePath
-                    + "' CertDatabaseException: '"
-                    + exCert.toString()
-                    + "'"
-                    + NEWLINE, true);
+                    + "': "
+                    + exCert.getMessage(),
+                    exCert);
             System.exit(0);
         } catch (AlreadyInitializedException exAlreadyInitialized) {
-            log("ERROR:  source_pki_security_database_path='"
+            logger.error("source_pki_security_database_path='"
                     + mSourcePKISecurityDatabasePath
-                    + "' AlreadyInitializedException: '"
-                    + exAlreadyInitialized.toString()
-                    + "'"
-                    + NEWLINE, true);
+                    + "': "
+                    + exAlreadyInitialized.getMessage(),
+                    exAlreadyInitialized);
             System.exit(0);
         } catch (GeneralSecurityException exSecurity) {
-            log("ERROR:  source_pki_security_database_path='"
+            logger.error("source_pki_security_database_path='"
                     + mSourcePKISecurityDatabasePath
-                    + "' GeneralSecurityException: '"
-                    + exSecurity.toString()
-                    + "'"
-                    + NEWLINE, true);
+                    + "': "
+                    + exSecurity.getMessage(),
+                    exSecurity);
             System.exit(0);
         }
 
         // Retrieve the source storage token by its name
         try {
-            log("Retrieving token from CryptoManager."
-                    + NEWLINE, true);
+            logger.info("Retrieving token from CryptoManager");
             cm = CryptoManager.getInstance();
 
-            log("Retrieving source storage token called '"
-                    + mSourceStorageTokenName
-                    + "'."
-                    + NEWLINE, true);
+            logger.info("Retrieving source storage token called " + mSourceStorageTokenName);
 
             mSourceToken = CryptoUtil.getKeyStorageToken(mSourceStorageTokenName);
 
@@ -1703,13 +1657,12 @@ public class KRATool {
                         mPwd.clear();
                     }
                 } catch (Exception exReadPwd) {
-                    log("ERROR:  Failed to read the keydb password from "
+                    logger.error("Failed to read the keydb password from "
                             + "the file '"
                             + mSourcePKISecurityDatabasePwdfile
-                            + "'.  Exception: '"
-                            + exReadPwd.toString()
-                            + "'"
-                            + NEWLINE, true);
+                            + "': "
+                            + exReadPwd.getMessage(),
+                            exReadPwd);
                     System.exit(0);
                 } finally {
                     if (in != null) {
@@ -1722,30 +1675,24 @@ public class KRATool {
                 }
             }
         } catch (Exception exUninitialized) {
-            log("ERROR:  Uninitialized CryptoManager - '"
-                    + exUninitialized.toString()
-                    + "'"
-                    + NEWLINE, true);
+            logger.error("Uninitialized CryptoManager: "
+                    + exUninitialized.getMessage(),
+                    exUninitialized);
             System.exit(0);
         }
 
         // Retrieve the source storage cert by its nickname
         try {
             if (mSourceStorageTokenName.equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME)) {
-                log("Retrieving source storage cert with nickname of '"
-                        + mSourceStorageCertNickname
-                        + "'."
-                        + NEWLINE, true);
+                logger.info("Retrieving source storage cert with nickname of "
+                        + mSourceStorageCertNickname);
 
-                mUnwrapCert = cm.findCertByNickname(mSourceStorageCertNickname
-                                                   );
+                mUnwrapCert = cm.findCertByNickname(mSourceStorageCertNickname);
             } else {
-                log("Retrieving source storage cert with nickname of '"
+                logger.info("Retrieving source storage cert with nickname of "
                         + mSourceStorageTokenName
                         + ":"
-                        + mSourceStorageCertNickname
-                        + "'. "
-                        + NEWLINE, true);
+                        + mSourceStorageCertNickname);
                 mUnwrapCert = cm.findCertByNickname(mSourceStorageTokenName
                                                    + ":"
                                                    + mSourceStorageCertNickname
@@ -1757,95 +1704,78 @@ public class KRATool {
             }
         } catch (ObjectNotFoundException exUnwrapObjectNotFound) {
             if (mSourceStorageTokenName.equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME)) {
-                log("ERROR:  No internal "
+                logger.error("No internal "
                         + "source storage cert named '"
                         + mSourceStorageCertNickname
-                        + "' exists!  ObjectNotFoundException: '"
-                        + exUnwrapObjectNotFound.toString()
-                        + "'"
-                        + NEWLINE, true);
+                        + "' exists: "
+                        + exUnwrapObjectNotFound.getMessage(),
+                        exUnwrapObjectNotFound);
             } else {
-                log("ERROR:  No "
+                logger.error("No "
                         + "source storage cert named '"
                         + mSourceStorageTokenName
                         + ":"
                         + mSourceStorageCertNickname
-                        + "' exists!  ObjectNotFoundException: '"
-                        + exUnwrapObjectNotFound
-                        + "'"
-                        + NEWLINE, true);
+                        + "' exists: "
+                        + exUnwrapObjectNotFound.getMessage(),
+                        exUnwrapObjectNotFound);
             }
             System.exit(0);
         } catch (TokenException exUnwrapToken) {
             if (mSourceStorageTokenName.equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME)) {
-                log("ERROR:  No internal "
+                logger.error("No internal "
                         + "source storage cert named '"
                         + mSourceStorageCertNickname
-                        + "' exists!  TokenException: '"
-                        + exUnwrapToken.toString()
-                        + "'"
-                        + NEWLINE, true);
+                        + "' exists: "
+                        + exUnwrapToken.getMessage(),
+                        exUnwrapToken);
             } else {
-                log("ERROR:  No "
+                logger.error("No "
                         + "source storage cert named '"
                         + mSourceStorageTokenName
                         + ":"
                         + mSourceStorageCertNickname
-                        + "' exists!  TokenException: '"
-                        + exUnwrapToken
-                        + "'"
-                        + NEWLINE, true);
+                        + "' exists: "
+                        + exUnwrapToken.getMessage(),
+                        exUnwrapToken);
             }
             System.exit(0);
         }
 
         // Extract the private key from the source storage token
-        log("BEGIN: Obtaining the private key from "
-                + "the source storage token . . ."
-                + NEWLINE, true);
+        logger.info("BEGIN: Obtaining the private key from the source storage token");
 
         mUnwrapPrivateKey = getPrivateKey();
 
         if (mUnwrapPrivateKey == null) {
-            log("ERROR:  Failed extracting "
-                    + "private key from the source storage token."
-                    + NEWLINE, true);
+            logger.error("Failed extracting private key from the source storage token");
             System.exit(0);
         }
 
-        log("FINISHED: Obtaining the private key from "
-                + "the source storage token."
-                + NEWLINE, true);
+        logger.info("FINISHED: Obtaining the private key from the source storage token");
 
         // Extract the public key from the target storage certificate
         try {
-            log("BEGIN: Obtaining the public key from "
-                    + "the target storage certificate . . ."
-                    + NEWLINE, true);
+            logger.info("BEGIN: Obtaining the public key from the target storage certificate");
 
             mWrapPublicKey = PK11PubKey.fromSPKI(
                      getPublicKey().getEncoded());
 
             if (mWrapPublicKey == null) {
-                log("ERROR:  Failed extracting "
-                        + "public key from target storage certificate stored in '"
-                        + mTargetStorageCertificateFilename
-                        + "'"
-                        + NEWLINE, true);
+                logger.error("Failed extracting "
+                        + "public key from target storage certificate stored in "
+                        + mTargetStorageCertificateFilename);
                 System.exit(0);
             }
 
-            log("FINISHED: Obtaining the public key from "
-                    + "the target storage certificate."
-                    + NEWLINE, true);
+            logger.info("FINISHED: Obtaining the public key from the target storage certificate");
         } catch (InvalidKeyFormatException exInvalidPublicKey) {
-            log("ERROR:  Failed extracting "
+            logger.error("Failed extracting "
                     + "public key from target storage certificate stored in '"
                     + mTargetStorageCertificateFilename
-                    + "' InvalidKeyFormatException '"
-                    + exInvalidPublicKey.toString()
-                    + "'"
-                    + NEWLINE, true);
+                    + "': "
+                    + exInvalidPublicKey.getMessage(),
+                    exInvalidPublicKey);
             System.exit(0);
         }
 
@@ -1913,60 +1843,46 @@ public class KRATool {
                                                  SymmetricKey.Usage.DECRYPT,
                                                  0);
             if (mDebug) {
-                log("DEBUG: sk = '"
+                logger.debug("sk = '"
                         + Utils.base64encode(sk.getEncoded(), true)
                         + "' length = '"
                         + sk.getEncoded().length
-                        + "'"
-                        + NEWLINE, false);
-                log("DEBUG: pri = '"
+                        + "'");
+                logger.debug("pri = '"
                         + Utils.base64encode(pri, true)
                         + "' length = '"
                         + pri.length
-                        + "'"
-                        + NEWLINE, false);
+                        + "'");
             }
         } catch (IOException exUnwrapIO) {
-            log("ERROR:  Unwrapping key data - "
-                    + "IOException: '"
-                    + exUnwrapIO.toString()
-                    + "'"
-                    + NEWLINE, true);
+            logger.error("Unwrapping key data: "
+                    + exUnwrapIO.getMessage(),
+                    exUnwrapIO);
             System.exit(0);
         } catch (NoSuchAlgorithmException exUnwrapAlgorithm) {
-            log("ERROR:  Unwrapping key data - "
-                    + "NoSuchAlgorithmException: '"
-                    + exUnwrapAlgorithm.toString()
-                    + "'"
-                    + NEWLINE, true);
+            logger.error("Unwrapping key data: "
+                    + exUnwrapAlgorithm.getMessage(),
+                    exUnwrapAlgorithm);
             System.exit(0);
         } catch (TokenException exUnwrapToken) {
-            log("ERROR:  Unwrapping key data - "
-                    + "TokenException: '"
-                    + exUnwrapToken.toString()
-                    + "'"
-                    + NEWLINE, true);
+            logger.error("Unwrapping key data: "
+                    + exUnwrapToken.getMessage(),
+                    exUnwrapToken);
             System.exit(0);
         } catch (InvalidKeyException exUnwrapInvalidKey) {
-            log("ERROR:  Unwrapping key data - "
-                    + "InvalidKeyException: '"
-                    + exUnwrapInvalidKey.toString()
-                    + "'"
-                    + NEWLINE, true);
+            logger.error("Unwrapping key data: "
+                    + exUnwrapInvalidKey.getMessage(),
+                    exUnwrapInvalidKey);
             System.exit(0);
         } catch (InvalidAlgorithmParameterException exUnwrapInvalidAlgorithm) {
-            log("ERROR:  Unwrapping key data - "
-                    + "InvalidAlgorithmParameterException: '"
-                    + exUnwrapInvalidAlgorithm.toString()
-                    + "'"
-                    + NEWLINE, true);
+            logger.error("Unwrapping key data: "
+                    + exUnwrapInvalidAlgorithm.getMessage(),
+                    exUnwrapInvalidAlgorithm);
             System.exit(0);
         } catch (IllegalStateException exUnwrapState) {
-            log("ERROR:  Unwrapping key data - "
-                    + "InvalidStateException: '"
-                    + exUnwrapState.toString()
-                    + "'"
-                    + NEWLINE, true);
+            logger.error("Unwrapping key data: "
+                    + exUnwrapState.getMessage(),
+                    exUnwrapState);
             System.exit(0);
         }
 
@@ -1996,46 +1912,34 @@ public class KRATool {
 
             rewrappedKeyData = out.toByteArray();
         } catch (NoSuchAlgorithmException exWrapAlgorithm) {
-            log("ERROR:  Wrapping key data - "
-                    + "NoSuchAlgorithmException: '"
-                    + exWrapAlgorithm.toString()
-                    + "'"
-                    + NEWLINE, true);
+            logger.error("Wrapping key data: "
+                    + exWrapAlgorithm.getMessage(),
+                    exWrapAlgorithm);
             System.exit(0);
         } catch (TokenException exWrapToken) {
-            log("ERROR:  Wrapping key data - "
-                    + "TokenException: '"
-                    + exWrapToken.toString()
-                    + "'"
-                    + NEWLINE, true);
+            logger.error("Wrapping key data: "
+                    + exWrapToken.getMessage(),
+                    exWrapToken);
             System.exit(0);
         } catch (InvalidKeyException exWrapInvalidKey) {
-            log("ERROR:  Wrapping key data - "
-                    + "InvalidKeyException: '"
-                    + exWrapInvalidKey.toString()
-                    + "'"
-                    + NEWLINE, true);
+            logger.error("Wrapping key data: "
+                    + exWrapInvalidKey.getMessage(),
+                    exWrapInvalidKey);
             System.exit(0);
         } catch (InvalidAlgorithmParameterException exWrapInvalidAlgorithm) {
-            log("ERROR:  Wrapping key data - "
-                    + "InvalidAlgorithmParameterException: '"
-                    + exWrapInvalidAlgorithm.toString()
-                    + "'"
-                    + NEWLINE, true);
+            logger.error("Wrapping key data: "
+                    + exWrapInvalidAlgorithm.getMessage(),
+                    exWrapInvalidAlgorithm);
             System.exit(0);
         } catch (IllegalStateException exWrapState) {
-            log("ERROR:  Wrapping key data - "
-                    + "InvalidStateException: '"
-                    + exWrapState.toString()
-                    + "'"
-                    + NEWLINE, true);
+            logger.error("Wrapping key data: "
+                    + exWrapState.getMessage(),
+                    exWrapState);
             System.exit(0);
         } catch (IOException exWrapIO) {
-            log("ERROR:  Wrapping key data - "
-                    + "IOException: '"
-                    + exWrapIO.toString()
-                    + "'"
-                    + NEWLINE, true);
+            logger.error("Wrapping key data: "
+                    + exWrapIO.getMessage(),
+                    exWrapIO);
             System.exit(0);
         }
 
@@ -2241,10 +2145,7 @@ public class KRATool {
                 target_line = source_line;
 
                 // log this information
-                log("Skipped changing non-numeric line '"
-                        + source_line
-                        + "'."
-                        + NEWLINE, false);
+                logger.info("Skipped changing non-numeric line " + source_line);
             } else {
                 // if indexed, first strip the index from the data
                 if (indexed) {
@@ -2275,13 +2176,11 @@ public class KRATool {
                                                mAppendIdOffset).toString();
                         }
                     } else {
-                        log("ERROR:  attribute='"
+                        logger.error("attribute='"
                                 + attribute
                                 + "' is greater than the specified "
-                                + "append_id_offset='"
-                                + mAppendIdOffset.toString()
-                                + "'!"
-                                + NEWLINE, true);
+                                + "append_id_offset="
+                                + mAppendIdOffset);
                         System.exit(0);
                     }
                 } else if (mRemoveIdOffsetFlag) {
@@ -2296,13 +2195,11 @@ public class KRATool {
                                                ).toString();
                         }
                     } else {
-                        log("ERROR:  attribute='"
+                        logger.error("attribute='"
                                 + attribute
                                 + "' is less than the specified "
-                                + "remove_id_offset='"
-                                + mRemoveIdOffset.toString()
-                                + "'!"
-                                + NEWLINE, true);
+                                + "remove_id_offset="
+                                + mRemoveIdOffset);
                         System.exit(0);
                     }
                 }
@@ -2311,28 +2208,24 @@ public class KRATool {
                 target_line = attribute + delimiter + revised_data;
 
                 // log this information
-                log("Changed numeric data '"
+                logger.info("Changed numeric data "
                         + data
-                        + "' to '"
-                        + revised_data
-                        + "'."
-                        + NEWLINE, false);
+                        + " to "
+                        + revised_data);
             }
         } catch (IndexOutOfBoundsException exBounds) {
-            log("ERROR:  source_line='"
+            logger.error("source_line='"
                     + source_line
-                    + "' IndexOutOfBoundsException: '"
-                    + exBounds.toString()
-                    + "'"
-                    + NEWLINE, true);
+                    + "': "
+                    + exBounds.getMessage(),
+                    exBounds);
             System.exit(0);
         } catch (PatternSyntaxException exPattern) {
-            log("ERROR:  data='"
+            logger.error("data='"
                     + data
-                    + "' PatternSyntaxException: '"
-                    + exPattern.toString()
-                    + "'"
-                    + NEWLINE, true);
+                    + "': "
+                    + exPattern.getMessage(),
+                    exPattern);
             System.exit(0);
         }
 
@@ -2416,12 +2309,10 @@ public class KRATool {
             //     so that it is ALWAYS written
             output = line;
         } else {
-            log("ERROR:  Mismatched record field='"
+            logger.error("Mismatched record field='"
                     + KRA_LDIF_CN
-                    + "' for record type='"
-                    + record_type
-                    + "'!"
-                    + NEWLINE, true);
+                    + "' for record type="
+                    + record_type);
         }
 
         return output;
@@ -2445,12 +2336,10 @@ public class KRATool {
                         + SPACE
                         + mDateOfModify;
 
-                log("Changed '"
+                logger.info("Changed "
                         + line
-                        + "' to '"
-                        + output
-                        + "'."
-                        + NEWLINE, false);
+                        + " to "
+                        + output);
             } else {
                 output = line;
             }
@@ -2460,12 +2349,10 @@ public class KRATool {
                         + SPACE
                         + mDateOfModify;
 
-                log("Changed '"
+                logger.info("Changed "
                         + line
-                        + "' to '"
-                        + output
-                        + "'."
-                        + NEWLINE, false);
+                        + " to "
+                        + output);
             } else {
                 output = line;
             }
@@ -2475,12 +2362,10 @@ public class KRATool {
                         + SPACE
                         + mDateOfModify;
 
-                log("Changed '"
+                logger.info("Changed "
                         + line
-                        + "' to '"
-                        + output
-                        + "'."
-                        + NEWLINE, false);
+                        + " to "
+                        + output);
             } else {
                 output = line;
             }
@@ -2490,12 +2375,10 @@ public class KRATool {
                         + SPACE
                         + mDateOfModify;
 
-                log("Changed '"
+                logger.info("Changed "
                         + line
-                        + "' to '"
-                        + output
-                        + "'."
-                        + NEWLINE, false);
+                        + " to "
+                        + output);
             } else {
                 output = line;
             }
@@ -2505,12 +2388,10 @@ public class KRATool {
                         + SPACE
                         + mDateOfModify;
 
-                log("Changed '"
+                logger.info("Changed "
                         + line
-                        + "' to '"
-                        + output
-                        + "'."
-                        + NEWLINE, false);
+                        + " to "
+                        + output);
             } else {
                 output = line;
             }
@@ -2520,22 +2401,18 @@ public class KRATool {
                         + SPACE
                         + mDateOfModify;
 
-                 log( "Changed '"
+                 logger.info("Changed "
                     + line
-                    + "' to '"
-                    + output
-                    + "'."
-                    + NEWLINE, false );
+                    + " to "
+                    + output);
             } else {
                     output = line;
             }
         } else {
-            log("ERROR:  Mismatched record field='"
+            logger.error("Mismatched record field='"
                     + KRA_LDIF_DATE_OF_MODIFY
-                    + "' for record type='"
-                    + record_type
-                    + "'!"
-                    + NEWLINE, true);
+                    + "' for record type="
+                    + record_type);
         }
 
         return output;
@@ -2792,29 +2669,25 @@ public class KRATool {
                 //     so that it is ALWAYS written
                 output = line;
             } else {
-                log("ERROR:  Mismatched record field='"
+                logger.error("Mismatched record field='"
                         + KRA_LDIF_DN
-                        + "' for record type='"
-                        + record_type
-                        + "'!"
-                        + NEWLINE, true);
+                        + "' for record type="
+                        + record_type);
             }
         } catch (PatternSyntaxException exDnEmbeddedCnNameValuePattern) {
-            log("ERROR:  line='"
+            logger.error("line='"
                     + line
-                    + "' PatternSyntaxException: '"
-                    + exDnEmbeddedCnNameValuePattern.toString()
-                    + "'"
-                    + NEWLINE, true);
+                    + "': "
+                    + exDnEmbeddedCnNameValuePattern.getMessage(),
+                    exDnEmbeddedCnNameValuePattern);
         } catch (NullPointerException exNullPointerException) {
-            log("ERROR:  Unable to replace source KRA naming context '"
+            logger.error("Unable to replace source KRA naming context '"
                     + mSourceKraNamingContext
                     + "' with target KRA naming context '"
                     + mTargetKraNamingContext
-                    + "' NullPointerException: '"
-                    + exNullPointerException.toString()
-                    + "'"
-                    + NEWLINE, true);
+                    + "': "
+                    + exNullPointerException.getMessage(),
+                    exNullPointerException);
         }
 
         return output;
@@ -2852,12 +2725,10 @@ public class KRATool {
                 output = line;
             }
         } else {
-            log("ERROR:  Mismatched record field='"
+            logger.error("Mismatched record field='"
                     + KRA_LDIF_EXTDATA_KEY_RECORD
-                    + "' for record type='"
-                    + record_type
-                    + "'!"
-                    + NEWLINE, true);
+                    + "' for record type="
+                    + record_type);
         }
 
         return output;
@@ -2909,12 +2780,10 @@ public class KRATool {
                 output = line;
             }
         } else {
-            log("ERROR:  Mismatched record field='"
+            logger.error("Mismatched record field='"
                     + KRA_LDIF_EXTDATA_REQUEST_ID
-                    + "' for record type='"
-                    + record_type
-                    + "'!"
-                    + NEWLINE, true);
+                    + "' for record type="
+                    + record_type);
         }
 
         return output;
@@ -3103,7 +2972,7 @@ public class KRATool {
                 }
 
                 // log this information
-                log("Changed:"
+                logger.info("Changed:"
                         + NEWLINE
                         + TIC
                         + KRA_LDIF_EXTDATA_REQUEST_NOTES
@@ -3117,8 +2986,7 @@ public class KRATool {
                         + NEWLINE
                         + TIC
                         + output
-                        + TIC
-                        + NEWLINE, false);
+                        + TIC);
             } else {
                 output = line;
             }
@@ -3264,7 +3132,7 @@ public class KRATool {
                 }
 
                 // log this information
-                log("Changed:"
+                logger.info("Changed:"
                         + NEWLINE
                         + TIC
                         + KRA_LDIF_EXTDATA_REQUEST_NOTES
@@ -3278,8 +3146,7 @@ public class KRATool {
                         + NEWLINE
                         + TIC
                         + output
-                        + TIC
-                        + NEWLINE, false);
+                        + TIC);
             } else {
                 output = line;
             }
@@ -3425,7 +3292,7 @@ public class KRATool {
                 }
 
                 // log this information
-                log("Changed:"
+                logger.info("Changed:"
                         + NEWLINE
                         + TIC
                         + KRA_LDIF_EXTDATA_REQUEST_NOTES
@@ -3439,8 +3306,7 @@ public class KRATool {
                         + NEWLINE
                         + TIC
                         + output
-                        + TIC
-                        + NEWLINE, false);
+                        + TIC);
             } else {
                 output = line;
             }
@@ -3586,7 +3452,7 @@ public class KRATool {
                 }
 
                 // log this information
-                log( "Changed:"
+                logger.info( "Changed:"
                    + NEWLINE
                    + TIC
                    + KRA_LDIF_EXTDATA_REQUEST_NOTES
@@ -3600,18 +3466,15 @@ public class KRATool {
                    + NEWLINE
                    + TIC
                    + output
-                   + TIC
-                   + NEWLINE, false );
+                   + TIC);
             } else {
                 output = line;
             }
         } else {
-            log("ERROR:  Mismatched record field='"
+            logger.error("Mismatched record field='"
                     + KRA_LDIF_EXTDATA_REQUEST_NOTES
-                    + "' for record type='"
-                    + record_type
-                    + "'!"
-                    + NEWLINE, true);
+                    + "' for record type="
+                    + record_type);
         }
 
         if (output != null) {
@@ -3771,18 +3634,16 @@ public class KRATool {
                     }
 
                     // log this information
-                    log("Created:"
+                    logger.info("Created:"
                             + NEWLINE
                             + TIC
                             + output
-                            + TIC
-                            + NEWLINE, false);
+                            + TIC);
 
                     // Write out this revised line
                     // and flush the buffer
                     writer.write(output + NEWLINE);
                     writer.flush();
-                    System.out.print(".");
                 }
             }
         } else if (record_type.equals(KRA_LDIF_KEYGEN)) {
@@ -3918,18 +3779,16 @@ public class KRATool {
                     }
 
                     // log this information
-                    log("Created:"
+                    logger.info("Created:"
                             + NEWLINE
                             + TIC
                             + output
-                            + TIC
-                            + NEWLINE, false);
+                            + TIC);
 
                     // Write out this revised line
                     // and flush the buffer
                     writer.write(output + NEWLINE);
                     writer.flush();
-                    System.out.print(".");
                 }
             }
         } else if (record_type.equals(KRA_LDIF_KEYRECOVERY)) {
@@ -4065,18 +3924,16 @@ public class KRATool {
                     }
 
                     // log this information
-                    log( "Created:"
+                    logger.info("Created:"
                        + NEWLINE
                        + TIC
                        + output
-                       + TIC
-                       + NEWLINE, false );
+                       + TIC);
 
                     // Write out this revised line
                     // and flush the buffer
                     writer.write( output + NEWLINE );
                     writer.flush();
-                    System.out.print( "." );
                 }
             }
         }
@@ -4105,12 +3962,10 @@ public class KRATool {
                 output = line;
             }
         } else {
-            log("ERROR:  Mismatched record field='"
+            logger.error("Mismatched record field='"
                     + KRA_LDIF_EXTDATA_SERIAL_NUMBER
-                    + "' for record type='"
-                    + record_type
-                    + "'!"
-                    + NEWLINE, true);
+                    + "' for record type="
+                    + record_type);
         }
 
         return output;
@@ -4192,18 +4047,7 @@ public class KRATool {
                                 + line;
 
                         // log this information
-                        log("Changed 'privateKeyData' from:"
-                                + NEWLINE
-                                + TIC
-                                + data.toString()
-                                + TIC
-                                + NEWLINE
-                                + " to:"
-                                + NEWLINE
-                                + TIC
-                                + unformatted_data
-                                + TIC
-                                + NEWLINE, false);
+                        logger.info("Changed privateKeyData");
                     } else {
                         output = line;
                     }
@@ -4266,18 +4110,7 @@ public class KRATool {
                                 + line;
 
                         // log this information
-                        log("Changed 'privateKeyData' from:"
-                                + NEWLINE
-                                + TIC
-                                + data.toString()
-                                + TIC
-                                + NEWLINE
-                                + " to:"
-                                + NEWLINE
-                                + TIC
-                                + unformatted_data
-                                + TIC
-                                + NEWLINE, false);
+                        logger.info("Changed privateKeyData");
                     } else {
                         output = line;
                     }
@@ -4285,19 +4118,15 @@ public class KRATool {
                     output = line;
                 }
             } else {
-                log("ERROR:  Mismatched record field='"
+                logger.error("Mismatched record field='"
                         + KRA_LDIF_PRIVATE_KEY_DATA
-                        + "' for record type='"
-                        + record_type
-                        + "'!"
-                        + NEWLINE, true);
+                        + "' for record type="
+                        + record_type);
             }
         } catch (Exception exRewrap) {
-            log("ERROR:  Unable to rewrap BINARY BASE 64 data. "
-                    + "Exception: '"
-                    + exRewrap.toString()
-                    + "'"
-                    + NEWLINE, true);
+            logger.error("Unable to rewrap BINARY BASE 64 data: "
+                    + exRewrap.getMessage(),
+                    exRewrap);
         }
 
         return output;
@@ -4352,12 +4181,10 @@ public class KRATool {
                     output = line;
             }
         } else {
-            log("ERROR:  Mismatched record field='"
+            logger.error("Mismatched record field='"
                     + KRA_LDIF_REQUEST_ID
-                    + "' for record type='"
-                    + record_type
-                    + "'!"
-                    + NEWLINE, true);
+                    + "' for record type="
+                    + record_type);
         }
 
         return output;
@@ -4400,12 +4227,10 @@ public class KRATool {
             //     so that it is ALWAYS written
             output = line;
         } else {
-            log("ERROR:  Mismatched record field='"
+            logger.error("Mismatched record field='"
                     + KRA_LDIF_SERIAL_NO
-                    + "' for record type='"
-                    + record_type
-                    + "'!"
-                    + NEWLINE, true);
+                    + "' for record type="
+                    + record_type);
         }
 
         return output;
@@ -4437,22 +4262,19 @@ public class KRATool {
                     output = line;
                 }
             } else {
-                log("ERROR:  Mismatched record field='"
+                logger.error("Mismatched record field='"
                         + KRA_LDIF_EXTDATA_AUTH_TOKEN_USER
-                        + "' for record type='"
-                        + record_type
-                        + "'!"
-                        + NEWLINE, true);
+                        + "' for record type="
+                        + record_type);
             }
         } catch (NullPointerException exNullPointerException) {
-            log("ERROR:  Unable to replace source KRA naming context '"
+            logger.error("Unable to replace source KRA naming context '"
                     + mSourceKraNamingContext
                     + "' with target KRA naming context '"
                     + mTargetKraNamingContext
-                    + "' NullPointerException: '"
-                    + exNullPointerException.toString()
-                    + "'"
-                    + NEWLINE, true);
+                    + "': "
+                    + exNullPointerException.getMessage(),
+                    exNullPointerException);
         }
 
         return output;
@@ -4484,22 +4306,19 @@ public class KRATool {
                     output = line;
                 }
             } else {
-                log("ERROR:  Mismatched record field='"
+                logger.error("Mismatched record field='"
                         + KRA_LDIF_EXTDATA_AUTH_TOKEN_USER_DN
-                        + "' for record type='"
-                        + record_type
-                        + "'!"
-                        + NEWLINE, true);
+                        + "' for record type="
+                        + record_type);
             }
         } catch (NullPointerException exNullPointerException) {
-            log("ERROR:  Unable to replace source KRA naming context '"
+            logger.error("Unable to replace source KRA naming context '"
                     + mSourceKraNamingContext
                     + "' with target KRA naming context '"
                     + mTargetKraNamingContext
-                    + "' NullPointerException: '"
-                    + exNullPointerException.toString()
-                    + "'"
-                    + NEWLINE, true);
+                    + "': "
+                    + exNullPointerException.getMessage(),
+                    exNullPointerException);
         }
 
         return output;
@@ -4545,7 +4364,7 @@ public class KRATool {
                          new BufferedWriter(
                                  new FileWriter(mTargetLdifFilename)));
 
-            System.out.print("PROCESSING: ");
+            logger.info("PROCESSING: ");
             while ((input = reader.readLine()) != null) {
                 // Read in a record from the source LDIF file and
                 // add this line of input into the record vector
@@ -4571,10 +4390,7 @@ public class KRATool {
                                 !record_type.equals(KRA_LDIF_KEYGEN) &&
                                 !record_type.equals(KRA_LDIF_RECOVERY) &&
                                 !record_type.equals( KRA_LDIF_KEYRECOVERY)) {
-                            log("ERROR:  Unknown LDIF record type='"
-                                    + record_type
-                                    + "'!"
-                                    + NEWLINE, true);
+                            logger.error("Unknown LDIF record type=" + record_type);
                             return FAILURE;
                         }
                     } else if (input.startsWith(KRA_LDIF_ARCHIVED_BY)) {
@@ -4593,11 +4409,9 @@ public class KRATool {
                         } else if (data.startsWith(KRA_LDIF_CA_KEY_RECORD)) {
                             record_type = KRA_LDIF_CA_KEY_RECORD;
                         } else {
-                            log("ERROR:  Unable to determine LDIF record type "
-                                    + "from data='"
-                                    + data
-                                    + "'!"
-                                    + NEWLINE, true);
+                            logger.error("Unable to determine LDIF record type "
+                                    + "from data="
+                                    + data);
                             return FAILURE;
                         }
                     }
@@ -4612,13 +4426,10 @@ public class KRATool {
                 // LDIF file or thrown away.
                 if ((record_type == null) &&
                         mProcessRequestsAndKeyRecordsOnlyFlag) {
-                    // Mark each removed record with an 'x'
-                    System.out.print("x");
 
                     // log this information
-                    log("INFO:  Throwing away an LDIF record which is "
-                            + "neither a Request nor a Key Record!"
-                            + NEWLINE, false);
+                    logger.info("Throwing away an LDIF record which is "
+                            + "neither a Request nor a Key Record");
 
                     // clear this LDIF record from the record vector
                     record.clear();
@@ -4661,6 +4472,7 @@ public class KRATool {
                         if (output == null) {
                             return FAILURE;
                         }
+                        logger.info(output);
                     } else if (line.startsWith(KRA_LDIF_EXTDATA_KEY_RECORD)) {
                         output = output_extdata_key_record(record_type,
                                                             line);
@@ -4744,24 +4556,20 @@ public class KRATool {
                     // Always write out the output line and flush the buffer
                     writer.write(output + NEWLINE);
                     writer.flush();
-                    System.out.print(".");
                 }
-                // Mark the end of the LDIF record
-                System.out.print("!");
 
                 // clear this LDIF record from the record vector
                 record.clear();
             }
-            System.out.println(" FINISHED." + NEWLINE);
+            logger.info("FINISHED");
         } catch (IOException exIO) {
-            log("ERROR:  line='"
+            logger.error("line='"
                     + line
                     + "' OR output='"
                     + output
-                    + "' IOException: '"
-                    + exIO.toString()
-                    + "'"
-                    + NEWLINE, true);
+                    + "': "
+                    + exIO.getMessage(),
+                    exIO);
             return FAILURE;
         } finally {
             if (reader != null) {
@@ -4801,13 +4609,13 @@ public class KRATool {
         // in the KRATOOL config file
         try {
             // Open KRATOOL config file for reading
+            logger.info("Loading {}", mKratoolCfgFilename);
             reader = new BufferedReader(
                          new FileReader(mKratoolCfgFilename));
 
             // Create a hashtable for relevant name/value pairs
             kratoolCfg = new Hashtable<>();
 
-            System.out.print("PROCESSING KRATOOL CONFIG FILE: ");
             while ((line = reader.readLine()) != null) {
                 if (line.startsWith(KRATOOL_CFG_PREFIX)) {
                     // obtain "name=value" pair
@@ -4861,34 +4669,30 @@ public class KRATool {
                             || name.equals(KRATOOL_CFG_KEYRECOVERY_CN)
                             || name.equals(KRATOOL_CFG_KEYRECOVERY_EXTDATA_REQUEST_NOTES) ) {
                         kratoolCfg.put(name, value);
-                        System.out.print(".");
                     }
                 }
             }
-            System.out.println(" FINISHED." + NEWLINE);
+
         } catch (FileNotFoundException exKratoolCfgFileNotFound) {
-            log("ERROR:  No KRATOOL config file named '"
+            logger.error("No KRATOOL config file named '"
                     + mKratoolCfgFilename
-                    + "' exists!  FileNotFoundException: '"
-                    + exKratoolCfgFileNotFound.toString()
-                    + "'"
-                    + NEWLINE, true);
+                    + "' exists: "
+                    + exKratoolCfgFileNotFound.getMessage(),
+                    exKratoolCfgFileNotFound);
             return FAILURE;
         } catch (IOException exKratoolCfgIO) {
-            log("ERROR:  line='"
+            logger.error("line='"
                     + line
-                    + "' IOException: '"
-                    + exKratoolCfgIO.toString()
-                    + "'"
-                    + NEWLINE, true);
+                    + "': "
+                    + exKratoolCfgIO.getMessage(),
+                    exKratoolCfgIO);
             return FAILURE;
         } catch (PatternSyntaxException exKratoolCfgNameValuePattern) {
-            log("ERROR:  line='"
+            logger.error("line='"
                     + line
-                    + "' PatternSyntaxException: '"
-                    + exKratoolCfgNameValuePattern.toString()
-                    + "'"
-                    + NEWLINE, true);
+                    + "': "
+                    + exKratoolCfgNameValuePattern.getMessage(),
+                    exKratoolCfgNameValuePattern);
             return FAILURE;
         } finally {
             if (reader != null) {
@@ -4913,7 +4717,7 @@ public class KRATool {
      *
      * @param args KRATool options
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         // Variables
         String append_id_offset = null;
         String remove_id_offset = null;
@@ -4927,7 +4731,6 @@ public class KRATool {
         File sourceDBPwdfile = null;
         File targetStorageCertFile = null;
         File targetFile = null;
-        File logFile = null;
         boolean success = false;
 
         // Get current date and time
@@ -4959,8 +4762,7 @@ public class KRATool {
                 (args.length != (REWRAP_AND_ID_OFFSET_ARGS + 7)) &&
                 (args.length != (REWRAP_AND_ID_OFFSET_ARGS + 8)) &&
                 (args.length != (REWRAP_AND_ID_OFFSET_ARGS + 9))) {
-            System.err.println("ERROR:  Incorrect number of arguments!"
-                              + NEWLINE);
+            logger.error("Incorrect number of arguments");
             printUsage();
             System.exit(0);
         }
@@ -5014,14 +4816,13 @@ public class KRATool {
             } else if (args[i].contentEquals(USE_OAEP_RSA_KEY_WRAP)) {
                 mUseOAEPKeyWrapAlg = true;
             } else {
-                System.err.println("ERROR:  Unknown argument '"
-                                  + args[i]
-                                  + "'!"
-                                  + NEWLINE);
+                logger.error("Unknown argument: " + args[i]);
                 printUsage();
                 System.exit(0);
             }
         }
+
+        configureLogger(mLogFilename);
 
         // Verify that correct number of valid mandatory
         // arguments were submitted to the program
@@ -5034,8 +4835,7 @@ public class KRATool {
                 mTargetLdifFilename.length() == 0 ||
                 mLogFilename == null ||
                 mLogFilename.length() == 0) {
-            System.err.println("ERROR:  Missing mandatory arguments!"
-                              + NEWLINE);
+            logger.error("Missing mandatory arguments");
             printUsage();
             System.exit(0);
         } else {
@@ -5044,11 +4844,9 @@ public class KRATool {
             if (!cfgFile.exists() ||
                     !cfgFile.isFile() ||
                     (cfgFile.length() == 0)) {
-                System.err.println("ERROR:  '"
-                                  + mKratoolCfgFilename
-                                  + "' does NOT exist, is NOT a file, "
-                                  + "or is empty!"
-                                  + NEWLINE);
+                logger.error(mKratoolCfgFilename
+                                  + " does NOT exist, is NOT a file, "
+                                  + "or is empty");
                 printUsage();
                 System.exit(0);
             }
@@ -5058,11 +4856,9 @@ public class KRATool {
             if (!sourceFile.exists() ||
                     !sourceFile.isFile() ||
                     (sourceFile.length() == 0)) {
-                System.err.println("ERROR:  '"
-                                  + mSourceLdifFilename
-                                  + "' does NOT exist, is NOT a file, "
-                                  + "or is empty!"
-                                  + NEWLINE);
+                logger.error(mSourceLdifFilename
+                                  + " does NOT exist, is NOT a file, "
+                                  + "or is empty");
                 printUsage();
                 System.exit(0);
             }
@@ -5070,21 +4866,7 @@ public class KRATool {
             // Check that the target LDIF file does NOT exist
             targetFile = new File(mTargetLdifFilename);
             if (targetFile.exists()) {
-                System.err.println("ERROR:  '"
-                                  + mTargetLdifFilename
-                                  + "' ALREADY exists!"
-                                  + NEWLINE);
-                printUsage();
-                System.exit(0);
-            }
-
-            // Check that the log file does NOT exist
-            logFile = new File(mLogFilename);
-            if (logFile.exists()) {
-                System.err.println("ERROR:  '"
-                                  + mLogFilename
-                                  + "' ALREADY exists!"
-                                  + NEWLINE);
+                logger.error(mTargetLdifFilename + " ALREADY exists");
                 printUsage();
                 System.exit(0);
             }
@@ -5102,8 +4884,7 @@ public class KRATool {
                     mSourceStorageCertNickname.length() == 0 ||
                     mTargetStorageCertificateFilename == null ||
                     mTargetStorageCertificateFilename.length() == 0) {
-                System.err.println("ERROR:  Missing 'Rewrap' arguments!"
-                                  + NEWLINE);
+                logger.error("Missing 'Rewrap' arguments");
                 printUsage();
                 System.exit(0);
             } else {
@@ -5111,11 +4892,9 @@ public class KRATool {
                 sourceDBPath = new File(mSourcePKISecurityDatabasePath);
                 if (!sourceDBPath.exists() ||
                         !sourceDBPath.isDirectory()) {
-                    System.err.println("ERROR:  '"
-                                      + mSourcePKISecurityDatabasePath
-                                      + "' does NOT exist or "
-                                      + "'is NOT a directory!"
-                                      + NEWLINE);
+                    logger.error(mSourcePKISecurityDatabasePath
+                                      + " does NOT exist or "
+                                      + "is NOT a directory");
                     printUsage();
                     System.exit(0);
                 }
@@ -5126,11 +4905,9 @@ public class KRATool {
                 if (!targetStorageCertFile.exists() ||
                         !targetStorageCertFile.isFile() ||
                         (targetStorageCertFile.length() == 0)) {
-                    System.err.println("ERROR:  '"
-                                      + mTargetStorageCertificateFilename
-                                      + "' does NOT exist, is NOT a file, "
-                                      + "or is empty!"
-                                      + NEWLINE);
+                    logger.error(mTargetStorageCertificateFilename
+                                      + " does NOT exist, is NOT a file, "
+                                      + "or is empty");
                     printUsage();
                     System.exit(0);
                 }
@@ -5145,10 +4922,9 @@ public class KRATool {
         // since these two command-line options are mutually exclusive!
         if ((mAppendIdOffsetNameValuePairs > 0) &&
                 (mRemoveIdOffsetNameValuePairs > 0)) {
-            System.err.println("ERROR:  The 'append ID Offset' option "
+            logger.error("The 'append ID Offset' option "
                                   + "and the 'remove ID Offset' option are "
-                                  + "mutually exclusive!"
-                                  + NEWLINE);
+                                  + "mutually exclusive");
             printUsage();
             System.exit(0);
         }
@@ -5161,11 +4937,9 @@ public class KRATool {
                     append_id_offset.length() != 0) {
                 try {
                     if (!append_id_offset.matches("[0-9]++")) {
-                        System.err.println("ERROR:  '"
-                                          + append_id_offset
-                                          + "' contains non-numeric "
-                                          + "characters!"
-                                          + NEWLINE);
+                        logger.error(append_id_offset
+                                          + " contains non-numeric "
+                                          + "characters");
                         printUsage();
                         System.exit(0);
                     } else {
@@ -5176,18 +4950,15 @@ public class KRATool {
                         mAppendIdOffsetFlag = true;
                     }
                 } catch (PatternSyntaxException exAppendPattern) {
-                    System.err.println("ERROR:  append_id_offset='"
+                    logger.error("append_id_offset='"
                                       + append_id_offset
-                                      + "' PatternSyntaxException: '"
-                                      + exAppendPattern.toString()
-                                      + "'"
-                                      + NEWLINE);
+                                      + "': "
+                                      + exAppendPattern.getMessage(),
+                                      exAppendPattern);
                     System.exit(0);
                 }
             } else {
-                System.err.println("ERROR:  Missing "
-                                  + "'append ID Offset' arguments!"
-                                  + NEWLINE);
+                logger.error("Missing 'append ID Offset' arguments");
                 printUsage();
                 System.exit(0);
             }
@@ -5201,11 +4972,9 @@ public class KRATool {
                     remove_id_offset.length() != 0) {
                 try {
                     if (!remove_id_offset.matches("[0-9]++")) {
-                        System.err.println("ERROR:  '"
-                                          + remove_id_offset
-                                          + "' contains non-numeric "
-                                          + "characters!"
-                                          + NEWLINE);
+                        logger.error(remove_id_offset
+                                          + " contains non-numeric "
+                                          + "characters");
                         printUsage();
                         System.exit(0);
                     } else {
@@ -5216,18 +4985,15 @@ public class KRATool {
                         mRemoveIdOffsetFlag = true;
                     }
                 } catch (PatternSyntaxException exRemovePattern) {
-                    System.err.println("ERROR:  remove_id_offset='"
+                    logger.error("remove_id_offset='"
                                       + remove_id_offset
-                                      + "' PatternSyntaxException: '"
-                                      + exRemovePattern.toString()
-                                      + "'"
-                                      + NEWLINE);
+                                      + "': "
+                                      + exRemovePattern.getMessage(),
+                                      exRemovePattern);
                     System.exit(0);
                 }
             } else {
-                System.err.println("ERROR:  Missing "
-                                  + "'remove ID Offset' arguments!"
-                                  + NEWLINE);
+                logger.error("Missing 'remove ID Offset' arguments");
                 printUsage();
                 System.exit(0);
             }
@@ -5238,10 +5004,9 @@ public class KRATool {
         if (!mRewrapFlag &&
                 !mAppendIdOffsetFlag &&
                 !mRemoveIdOffsetFlag) {
-            System.err.println("ERROR:  At least one of the 'rewrap', "
+            logger.error("At least one of the 'rewrap', "
                               + "'append ID Offset', or 'remove ID Offset' "
-                              + "options MUST be specified!"
-                              + NEWLINE);
+                              + "options MUST be specified");
             printUsage();
             System.exit(0);
         }
@@ -5255,9 +5020,7 @@ public class KRATool {
                     PWDFILE_NAME_VALUE_PAIRS ||
                     mSourcePKISecurityDatabasePwdfile == null ||
                     mSourcePKISecurityDatabasePwdfile.length() == 0) {
-                System.err.println("ERROR:  Missing 'Password File' "
-                                  + "arguments!"
-                                  + NEWLINE);
+                logger.error("Missing 'Password File' arguments");
                 printUsage();
                 System.exit(0);
             } else {
@@ -5269,11 +5032,9 @@ public class KRATool {
                     if (!sourceDBPwdfile.exists() ||
                             !sourceDBPwdfile.isFile() ||
                             (sourceDBPwdfile.length() == 0)) {
-                        System.err.println("ERROR:  '"
-                                          + mSourcePKISecurityDatabasePwdfile
-                                          + "' does NOT exist, is NOT a file, "
-                                          + "or is empty!"
-                                          + NEWLINE);
+                        logger.error(mSourcePKISecurityDatabasePwdfile
+                                          + " does NOT exist, is NOT a file, "
+                                          + "or is empty");
                         printUsage();
                         System.exit(0);
                     }
@@ -5293,13 +5054,12 @@ public class KRATool {
                     // Mark the 'Password File' flag true
                     mPwdfileFlag = true;
                 } else {
-                    System.err.println("ERROR:  The "
+                    logger.error("The "
                                       + TIC
                                       + SOURCE_NSS_DB_PWDFILE
                                       + TIC
                                       + " option is ONLY valid when "
-                                      + "performing rewrapping."
-                                      + NEWLINE);
+                                      + "performing rewrapping");
                     printUsage();
                     System.exit(0);
                 }
@@ -5318,10 +5078,9 @@ public class KRATool {
                     mSourceKraNamingContext.length() == 0 ||
                     mTargetKraNamingContext == null ||
                     mTargetKraNamingContext.length() == 0) {
-                System.err.println("ERROR:  Both 'source KRA naming context' "
+                logger.error("Both 'source KRA naming context' "
                                   + "and 'target KRA naming context' "
-                                  + "options MUST be specified!"
-                                  + NEWLINE);
+                                  + "options MUST be specified");
                 printUsage();
                 System.exit(0);
             } else {
@@ -5363,9 +5122,7 @@ public class KRATool {
             } else if (keyUnwrapAlgorithmName.equalsIgnoreCase("AES")) {
                 keyUnwrapAlgorithm = SymmetricKey.AES;
             } else {
-                System.err.println("ERROR:  Unsupported key unwrap algorithm '"
-                        + keyUnwrapAlgorithmName + "'"
-                        + NEWLINE);
+                logger.error("Unsupported key unwrap algorithm: " + keyUnwrapAlgorithmName);
                 System.exit(1);
             }
         }
@@ -5381,12 +5138,9 @@ public class KRATool {
             mProcessRequestsAndKeyRecordsOnlyMessage = "";
         }
 
-        // Enable logging process . . .
-        open_log(mLogFilename);
-
         // Begin logging progress . . .
         if (mRewrapFlag && mAppendIdOffsetFlag) {
-            log("BEGIN \""
+            logger.info("BEGIN "
                     + KRA_TOOL + SPACE
                     + KRATOOL_CFG_FILE + SPACE
                     + mKratoolCfgFilename + SPACE
@@ -5409,12 +5163,10 @@ public class KRATool {
                     + append_id_offset
                     + process_kra_naming_context_fields
                     + process_requests_and_key_records_only
-                    + KEY_UNWRAP_ALGORITHM + SPACE
-                    + keyUnwrapAlgorithmName
-                    + "\" . . ."
-                    + NEWLINE, true);
+                    + SPACE + KEY_UNWRAP_ALGORITHM + SPACE
+                    + keyUnwrapAlgorithmName);
         } else if (mRewrapFlag && mRemoveIdOffsetFlag) {
-            log("BEGIN \""
+            logger.info("BEGIN "
                     + KRA_TOOL + SPACE
                     + KRATOOL_CFG_FILE + SPACE
                     + mKratoolCfgFilename + SPACE
@@ -5437,12 +5189,10 @@ public class KRATool {
                     + remove_id_offset
                     + process_kra_naming_context_fields
                     + process_requests_and_key_records_only
-                    + KEY_UNWRAP_ALGORITHM + SPACE
-                    + keyUnwrapAlgorithmName
-                    + "\" . . ."
-                    + NEWLINE, true);
+                    + SPACE + KEY_UNWRAP_ALGORITHM + SPACE
+                    + keyUnwrapAlgorithmName);
         } else if (mRewrapFlag) {
-            log("BEGIN \""
+            logger.info("BEGIN "
                     + KRA_TOOL + SPACE
                     + KRATOOL_CFG_FILE + SPACE
                     + mKratoolCfgFilename + SPACE
@@ -5463,12 +5213,10 @@ public class KRATool {
                     + use_PKI_security_database_pwdfile
                     + process_kra_naming_context_fields
                     + process_requests_and_key_records_only
-                    + KEY_UNWRAP_ALGORITHM + SPACE
-                    + keyUnwrapAlgorithmName
-                    + "\" . . ."
-                    + NEWLINE, true);
+                    + SPACE + KEY_UNWRAP_ALGORITHM + SPACE
+                    + keyUnwrapAlgorithmName);
         } else if (mAppendIdOffsetFlag) {
-            log("BEGIN \""
+            logger.info("BEGIN "
                     + KRA_TOOL + SPACE
                     + KRATOOL_CFG_FILE + SPACE
                     + mKratoolCfgFilename + SPACE
@@ -5481,11 +5229,9 @@ public class KRATool {
                     + APPEND_ID_OFFSET + SPACE
                     + append_id_offset
                     + process_kra_naming_context_fields
-                    + process_requests_and_key_records_only
-                    + "\" . . ."
-                    + NEWLINE, true);
+                    + process_requests_and_key_records_only);
         } else if (mRemoveIdOffsetFlag) {
-            log("BEGIN \""
+            logger.info("BEGIN "
                     + KRA_TOOL + SPACE
                     + KRATOOL_CFG_FILE + SPACE
                     + mKratoolCfgFilename + SPACE
@@ -5498,35 +5244,28 @@ public class KRATool {
                     + REMOVE_ID_OFFSET + SPACE
                     + remove_id_offset
                     + process_kra_naming_context_fields
-                    + process_requests_and_key_records_only
-                    + "\" . . ."
-                    + NEWLINE, true);
+                    + process_requests_and_key_records_only);
         }
 
         // Process the KRATOOL config file
         success = process_kratool_config_file();
         if (!success) {
-            log("FAILED processing kratool config file!"
-                    + NEWLINE, true);
+            logger.error("Unable to process kratool config file");
         } else {
-            log("SUCCESSFULLY processed kratool config file!"
-                    + NEWLINE, true);
+            logger.info("Successfully processed kratool config file");
 
             // Convert the source LDIF file to a target LDIF file
             success = convert_source_ldif_to_target_ldif();
             if (!success) {
-                log("FAILED converting source LDIF file --> target LDIF file!"
-                        + NEWLINE, true);
+                logger.error("Unable to convert source LDIF file into target LDIF file");
             } else {
-                log("SUCCESSFULLY converted source LDIF file --> "
-                        + "target LDIF file!"
-                        + NEWLINE, true);
+                logger.info("Successfully converted source LDIF file into target LDIF file");
             }
         }
 
         // Finish logging progress
         if (mRewrapFlag && mAppendIdOffsetFlag) {
-            log("FINISHED \""
+            logger.info("FINISHED "
                     + KRA_TOOL + SPACE
                     + KRATOOL_CFG_FILE + SPACE
                     + mKratoolCfgFilename + SPACE
@@ -5549,12 +5288,10 @@ public class KRATool {
                     + append_id_offset
                     + process_kra_naming_context_fields
                     + process_requests_and_key_records_only
-                    + KEY_UNWRAP_ALGORITHM + SPACE
-                    + keyUnwrapAlgorithmName
-                    + "\"."
-                    + NEWLINE, true);
+                    + SPACE + KEY_UNWRAP_ALGORITHM + SPACE
+                    + keyUnwrapAlgorithmName);
         } else if (mRewrapFlag && mRemoveIdOffsetFlag) {
-            log("FINISHED \""
+            logger.info("FINISHED "
                     + KRA_TOOL + SPACE
                     + KRATOOL_CFG_FILE + SPACE
                     + mKratoolCfgFilename + SPACE
@@ -5577,12 +5314,10 @@ public class KRATool {
                     + remove_id_offset
                     + process_kra_naming_context_fields
                     + process_requests_and_key_records_only
-                    + KEY_UNWRAP_ALGORITHM + SPACE
-                    + keyUnwrapAlgorithmName
-                    + "\"."
-                    + NEWLINE, true);
+                    + SPACE + KEY_UNWRAP_ALGORITHM + SPACE
+                    + keyUnwrapAlgorithmName);
         } else if (mRewrapFlag) {
-            log("FINISHED \""
+            logger.info("FINISHED "
                     + KRA_TOOL + SPACE
                     + KRATOOL_CFG_FILE + SPACE
                     + mKratoolCfgFilename + SPACE
@@ -5603,12 +5338,10 @@ public class KRATool {
                     + use_PKI_security_database_pwdfile
                     + process_kra_naming_context_fields
                     + process_requests_and_key_records_only
-                    + KEY_UNWRAP_ALGORITHM + SPACE
-                    + keyUnwrapAlgorithmName
-                    + "\"."
-                    + NEWLINE, true);
+                    + SPACE + KEY_UNWRAP_ALGORITHM + SPACE
+                    + keyUnwrapAlgorithmName);
         } else if (mAppendIdOffsetFlag) {
-            log("FINISHED \""
+            logger.info("FINISHED "
                     + KRA_TOOL + SPACE
                     + KRATOOL_CFG_FILE + SPACE
                     + mKratoolCfgFilename + SPACE
@@ -5621,11 +5354,9 @@ public class KRATool {
                     + APPEND_ID_OFFSET + SPACE
                     + append_id_offset
                     + process_kra_naming_context_fields
-                    + process_requests_and_key_records_only
-                    + "\"."
-                    + NEWLINE, true);
+                    + process_requests_and_key_records_only);
         } else if (mRemoveIdOffsetFlag) {
-            log("FINISHED \""
+            logger.info("FINISHED "
                     + KRA_TOOL + SPACE
                     + KRATOOL_CFG_FILE + SPACE
                     + mKratoolCfgFilename + SPACE
@@ -5638,12 +5369,7 @@ public class KRATool {
                     + REMOVE_ID_OFFSET + SPACE
                     + remove_id_offset
                     + process_kra_naming_context_fields
-                    + process_requests_and_key_records_only
-                    + "\"."
-                    + NEWLINE, true);
+                    + process_requests_and_key_records_only);
         }
-
-        // Shutdown logging process
-        close_log(mLogFilename);
     }
 }

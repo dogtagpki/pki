@@ -60,11 +60,11 @@ public abstract class ACLFilter extends HttpFilter {
                 response instanceof HttpServletResponse resp) {
             try {
                 checkACL(req, acl);
+                chain.doFilter(request, response);
             } catch (ForbiddenException fe) {
                 resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             }
         }
-        chain.doFilter(request, response);
     }
 
     private CMSEngine getCMSEngine() {
@@ -85,7 +85,7 @@ public abstract class ACLFilter extends HttpFilter {
         // load default mapping
         Path defaultMappingACL = Paths.get("/usr/share/pki", subsystem, "conf", "acl.properties");
         File defaultMapping = defaultMappingACL.toFile();
-        logger.debug("AgentCertRequestACLFilter: loading {}", defaultMappingACL);
+        logger.debug("ACLFilter: loading {}", defaultMappingACL);
         try (FileReader in = new FileReader(defaultMapping)) {
             aclProperties.load(in);
         }
@@ -93,9 +93,9 @@ public abstract class ACLFilter extends HttpFilter {
         // load custom mapping
         Path customMappingACL = Paths.get(CMS.getInstanceDir(), subsystem, "conf", "acl.properties");
         File customMapping = customMappingACL.toFile();
-        logger.debug("AgentCertRequestACLFilter: checking {}", customMapping);
+        logger.debug("ACLFilter: checking {}", customMapping);
         if (customMapping.exists()) {
-            logger.debug("AgentCertRequestACLFilter: loading {}",   customMappingACL);
+            logger.debug("ACLFilter: loading {}",   customMappingACL);
             try (FileReader in = new FileReader(customMapping)) {
                 aclProperties.load(in);
             }

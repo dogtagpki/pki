@@ -92,3 +92,8 @@ jobs:
     name: KRA with HSM
     needs: build
     uses: ./.github/workflows/kra-hsm-test.yml
+
+  kra-migration-test:
+    name: KRA migration
+    needs: build
+    uses: ./.github/workflows/kra-migration-test.yml

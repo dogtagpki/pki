@@ -1,0 +1,195 @@
+#!/bin/bash -e
+#
+# Copyright Red Hat, Inc.
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+
+SCRIPT_PATH=$(readlink -f "$0")
+SCRIPT_NAME=$(basename "$SCRIPT_PATH")
+
+OP="revoke"
+
+DATABASE="."
+PASSWORD=
+PASSWORD_FILE=
+NICKNAME=
+
+SERIALS=
+REASON="0"
+
+# TODO: Add support for invalidity date
+
+usage() {
+    echo "Usage: $SCRIPT_NAME [OPTIONS] <server URL>"
+    echo
+    echo "Options:"
+    echo " -d <database>             NSS database location"
+    echo " -p <password>             NSS database password"
+    echo " -w <password file>        NSS database password file"
+    echo " -n <nickname>             Nickname"
+    echo " -s <serials>              Comma-separated list of serial numbers"
+    echo " -r <revocation reason>    Revocation reason"
+    echo "                             0 = Unspecified (default)"
+    echo "                             1 = Key compromised"
+    echo "                             2 = CA key compromised"
+    echo "                             3 = Affiliation changed"
+    echo "                             4 = Certificate superseded"
+    echo "                             5 = Cessation of operation"
+    echo "                             6 = Certificate is on hold"
+    echo " -u                        Unrevoke certificate"
+    echo " -v,--verbose              Run in verbose mode."
+    echo "    --help                 Show help message."
+    echo " -V                        Show version."
+}
+
+while getopts Vd:p:w:s:n:r:uv-: arg ; do
+    case $arg in
+    V)
+        OP="version"
+        ;;
+    d)
+        DATABASE=$(readlink -f "$OPTARG")
+        ;;
+    p)
+        PASSWORD="$OPTARG"
+        ;;
+    w)
+        PASSWORD_FILE="$OPTARG"
+        ;;
+    n)
+        NICKNAME="$OPTARG"
+        ;;
+    s)
+        SERIALS="$OPTARG"
+        ;;
+    r)
+        REASON="$OPTARG"
+        OP="revoke"
+        ;;
+    u)
+        OP="unrevoke"
+        ;;
+    v)
+        VERBOSE=true
+        ;;
+    -)
+        case $OPTARG in
+        verbose)
+            VERBOSE=true
+            ;;
+        help)
+            usage
+            exit
+            ;;
+        '')
+            break # "--" terminates argument processing
+            ;;
+        *)
+            echo "ERROR: Illegal option --$OPTARG" >&2
+            exit 1
+            ;;
+        esac
+        ;;
+    \?)
+        exit 1 # getopts already reported the illegal option
+        ;;
+    esac
+done
+
+# remove parsed options and args from $@ list
+shift $((OPTIND-1))
+
+if [ "$OP" = "version" ] ; then
+
+    echo "WARNING: This command has been deprecated. Use pki --version instead." >&2
+
+    pki --version
+    exit
+fi
+
+if [ "$#" -lt 1 ] ; then
+    echo "ERROR: Missing server URL" >&2
+    usage
+    exit 1
+fi
+
+URL="$1"
+
+if [[ $URL != https://* ]] ; then
+    URL="https://$URL"
+fi
+
+if [ "$SERIALS" = "" ] ; then
+    echo "ERROR: Missing serial numbers" >&2
+    usage
+    exit 1
+fi
+
+IFS=',' read -ra SERIAL_LIST <<< "$SERIALS"
+
+CMD="pki -U \"$URL\" -d \"$DATABASE\""
+
+if [ "$PASSWORD" != "" ] ; then
+    CMD="$CMD -c \"$PASSWORD\""
+
+elif [ "$PASSWORD_FILE" != "" ] ; then
+    CMD="$CMD -C \"$PASSWORD_FILE\""
+fi
+
+if [ "$NICKNAME" != "" ] ; then
+    CMD="$CMD -n \"$NICKNAME\""
+fi
+
+if [ "$OP" = "revoke" ] ; then
+
+    echo "WARNING: This command has been deprecated. Use pki ca-cert-revoke instead." >&2
+
+    case $REASON in
+    0)
+        REASON="Unspecified"
+        ;;
+    1)
+        REASON="Key_Compromise"
+        ;;
+    2)
+        REASON="CA_Compromise"
+        ;;
+    3)
+        REASON="Affiliation_Changed"
+        ;;
+    4)
+        REASON="Superseded"
+        ;;
+    5)
+        REASON="Cessation_of_Operation"
+        ;;
+    6)
+        REASON="Certificate_Hold"
+        ;;
+    *)
+        echo "ERROR: Invalid revocation reason: $REASON" >&2
+        exit 1
+        ;;
+    esac
+
+    CMD="$CMD ca-cert-revoke --reason \"$REASON\" --force"
+    for SERIAL in "${SERIAL_LIST[@]}"; do
+        CMD="$CMD \"$SERIAL\""
+    done
+
+else  # OP = "unrevoke"
+
+    echo "WARNING: This command has been deprecated. Use pki ca-cert-release-hold instead." >&2
+
+    CMD="$CMD ca-cert-release-hold --force"
+    for SERIAL in "${SERIAL_LIST[@]}"; do
+        CMD="$CMD \"$SERIAL\""
+    done
+fi
+
+if [ "$VERBOSE" = true ] ; then
+    echo "Command: $CMD"
+fi
+
+eval "$CMD"

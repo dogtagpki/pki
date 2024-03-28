@@ -1,6 +1,14 @@
 = Server Changes =
 
-== Remove <subsystem>.admin.cert from CS.cfg ==
+== Remove unused parameters in CS.cfg ==
 
-The `<subsystem>.admin.cert` parameter in `CS.cfg` is no longer used
+The following parameters in `CS.cfg` are no longer used
+so they have been removed:
+
+* `<subsystem>.admin.cert`
+* `<subsystem>.standalone`
+
+== Remove pki_existing parameter ==
+
+The `pki_existing` parameter is no longer used by `pkispawn`
 so it has been removed.

@@ -45,11 +45,11 @@ public abstract class AuthMethodFilter extends HttpFilter {
                 response instanceof HttpServletResponse resp) {
             try {
                 checkAuthenticationMethod(req, authMethod);
-            } catch (ForbiddenException fe) {
+                chain.doFilter(request, response);
+             } catch (ForbiddenException fe) {
                 resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             }
         }
-        chain.doFilter(request, response);
     }
 
     private synchronized void loadAuthProperties() throws IOException {

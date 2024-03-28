@@ -14,6 +14,7 @@ import org.dogtagpki.server.rest.GroupService;
 import org.dogtagpki.server.rest.JobService;
 import org.dogtagpki.server.rest.MessageFormatInterceptor;
 import org.dogtagpki.server.rest.PKIExceptionMapper;
+import org.dogtagpki.server.rest.SecurityDomainService;
 import org.dogtagpki.server.rest.SelfTestService;
 import org.dogtagpki.server.rest.SessionContextInterceptor;
 import org.dogtagpki.server.rest.UserService;
@@ -35,7 +36,7 @@ public class OCSPApplication extends Application {
         classes.add(AuditService.class);
 
         // security domain
-        classes.add(OCSPSecurityDomainService.class);
+        classes.add(SecurityDomainService.class);
 
         // job management
         classes.add(JobService.class);

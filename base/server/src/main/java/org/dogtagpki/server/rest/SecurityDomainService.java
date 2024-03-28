@@ -27,6 +27,7 @@ import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.base.BadRequestException;
+import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.system.DomainInfo;
@@ -36,6 +37,8 @@ import com.netscape.certsrv.system.SecurityDomainResource;
 import com.netscape.certsrv.system.SecurityDomainSubsystem;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.csadmin.SecurityDomainProcessor;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 
 /**
  * @author alee
@@ -45,7 +48,20 @@ public class SecurityDomainService extends PKIService implements SecurityDomainR
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SecurityDomainService.class);
 
     public boolean isEnabled() {
-        return true;
+
+        CMSEngine engine = getCMSEngine();
+        EngineConfig engineConfig = engine.getConfig();
+
+        try {
+            // if the server creates a new security domain (instead of joining
+            // an existing one) it should provide security domain services
+            String select = engineConfig.getString("securitydomain.select", "");
+            return "new".equals(select);
+
+        } catch (EBaseException e) {
+            logger.error("SecurityDomainService: " + e.getMessage(), e);
+            throw new PKIException(e.getMessage(), e);
+        }
     }
 
     @Override

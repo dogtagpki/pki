@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 import javax.servlet.annotation.WebServlet;
@@ -27,6 +26,7 @@ import javax.servlet.http.HttpSession;
 
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAServlet;
+import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.mozilla.jss.netscape.security.pkcs.SignerInfo;
@@ -41,12 +41,15 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.cert.CertDataInfo;
 import com.netscape.certsrv.cert.CertDataInfos;
+import com.netscape.certsrv.cert.CertNotFoundException;
 import com.netscape.certsrv.cert.CertSearchRequest;
+import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.util.JSONSerializer;
 import com.netscape.cms.servlet.cert.FilterBuilder;
@@ -69,16 +72,24 @@ public class CertServlet extends CAServlet {
         HttpSession session = request.getSession();
         logger.debug("CertServlet.get(): session: {}", session.getId());
 
-        response.setContentType("application/json");
         PrintWriter out = response.getWriter();
         if(request.getPathInfo() != null) {
-            CertId id = new CertId(request.getPathInfo().substring(1));
-            CertData cert;
+            CertId id;
             try {
-                cert = getCertData(id, request.getLocale());
+                id = new CertId(request.getPathInfo().substring(1));
+            } catch(NumberFormatException e) {
+                throw new BadRequestException("Id not valid: " + request.getPathInfo().substring(1));
+            }
+            CertData cert;
+
+            try {
+                cert = getCertData(id);
                 out.println(cert.toJSON());
+            } catch (EDBRecordNotFoundException e) {
+                throw new CertNotFoundException(id);
+
             } catch (Exception e) {
-                    response.sendError(HttpServletResponse.SC_NOT_FOUND, request.getRequestURI());
+                throw new PKIException(e.getMessage(), e);
             }
             return;
         }
@@ -100,8 +111,7 @@ public class CertServlet extends CAServlet {
         logger.debug("CertServlet.post(): session: {}", session.getId());
 
         if(request.getPathInfo() == null || !request.getPathInfo().equals("/search")) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, request.getRequestURI());
-            return;
+            throw new BadRequestException("Id not valid: " + request.getPathInfo().substring(1));
         }
 
         BufferedReader reader = request.getReader();
@@ -114,12 +124,11 @@ public class CertServlet extends CAServlet {
 
         CertDataInfos infos = listCerts(requestFilter, start, size);
 
-        response.setContentType("application/json");
         PrintWriter out = response.getWriter();
         out.println(infos.toJSON());
     }
 
-    private CertData getCertData(CertId id, Locale loc) throws Exception {
+    private CertData getCertData(CertId id) throws Exception {
         CAEngine engine = getCAEngine();
         CertificateRepository repo = engine.getCertificateRepository();
 
@@ -136,7 +145,7 @@ public class CertServlet extends CAServlet {
         Principal subjectDN = cert.getSubjectName();
         if (subjectDN != null) certData.setSubjectDN(subjectDN.toString());
 
-        String base64 = Utils.base64encode(cert.getEncoded(), true);
+        String base64 = CertUtil.toPEM(cert);
 
         certData.setEncoded(base64);
 

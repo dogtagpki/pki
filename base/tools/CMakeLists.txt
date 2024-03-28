@@ -1,9 +1,6 @@
 project(tools)
 
-add_subdirectory(src/main/native/p7tool)
 add_subdirectory(src/main/native/pistool)
-add_subdirectory(src/main/native/p12tool)
-add_subdirectory(src/main/native/revoker)
 add_subdirectory(src/main/native/setpin)
 add_subdirectory(src/main/native/tkstool)
 add_subdirectory(src/main/native/tpsclient)
@@ -127,11 +124,11 @@ install(
 )
 
 install(
-    FILES
-        ${CMAKE_CURRENT_SOURCE_DIR}/bin/pki
+    DIRECTORY
+        ${CMAKE_CURRENT_SOURCE_DIR}/bin/
     DESTINATION
         ${BIN_INSTALL_DIR}
-    PERMISSIONS
+    FILE_PERMISSIONS
         OWNER_EXECUTE OWNER_WRITE OWNER_READ
         GROUP_EXECUTE GROUP_READ
         WORLD_EXECUTE WORLD_READ

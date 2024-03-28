@@ -1244,8 +1244,6 @@ fi
 
 %license base/tools/LICENSE
 %doc base/tools/doc/README
-%{_bindir}/p12tool
-%{_bindir}/p7tool
 %{_bindir}/pistool
 %{_bindir}/pki
 %{_bindir}/revoker
