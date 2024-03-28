@@ -246,31 +246,44 @@ jobs:
           sed -n 's/^acmeAccountContact: *\(.*\)$/\1/p' output > actual
           diff expected actual
 
-      - name: Enroll client cert
+          - name: Create CSR for ES256 Test
+          run: |
+            docker exec client openssl req \
+                -outform PEM \
+                -out ES256.csr \
+                -newkey ec \
+                -pkeyopt ec_paramgen_curve:P-256 \
+                -keyout ES256.key \
+                -sha256 \
+                -subj '/CN=es256.example.com' \
+                -noenc \
+                -verbose
+  
+      - name: Enroll using ES256 CSR
         run: |
           docker exec client certbot certonly \
               --server http://pki.example.com:8080/acme/directory \
-              -d client.example.com \
-              --key-type rsa \
+              --key-path ES256.key \
+              --csr ES256.csr \
               --standalone \
               --non-interactive
 
-      - name: Check client cert
+      - name: Check ES256 client locally
         run: |
           docker exec client pki client-cert-import \
-              --cert /etc/letsencrypt/live/client.example.com/fullchain.pem \
-              client1
+              --cert /etc/letsencrypt/live/es256.example.com/fullchain.pem \
+              es256
 
           # store serial number
-          docker exec client pki nss-cert-show client1 | tee output
-          sed -n 's/^ *Serial Number: *\(.*\)/\1/p' output > serial1.txt
+          docker exec client pki nss-cert-show es256 | tee output
+          sed -n 's/^ *Serial Number: *\(.*\)/\1/p' output > es256.txt
 
-          # subject should be CN=client.example.com
-          echo "CN=client.example.com" > expected
+          # subject should be CN=es256.example.com
+          echo "CN=es256.example.com" > expected
           sed -n 's/^ *Subject DN: *\(.*\)/\1/p' output > actual
           diff expected actual
 
-      - name: Check ACME orders after enrollment
+      - name: Check ACME orders after ES256 enrollment
         run: |
           docker exec ds ldapsearch \
               -H ldap://ds.example.com:3389 \
@@ -281,12 +294,12 @@ jobs:
               -o ldif_wrap=no \
               -LLL | tee output
 
-          # there should be one order
-          echo "1" > expected
+          # there should be two orders
+          echo "2" > expected
           grep "^dn:" output | wc -l > actual
           diff expected actual
 
-      - name: Check ACME authorizations after enrollment
+      - name: Check ACME authorizations after ES256 enrollment
         run: |
           docker exec ds ldapsearch \
               -H ldap://ds.example.com:3389 \
@@ -297,12 +310,12 @@ jobs:
               -o ldif_wrap=no \
               -LLL | tee output
 
-          # there should be one authorization
-          echo "1" > expected
+          # there should be two authorizations
+          echo "2" > expected
           grep "^dn:" output | wc -l > actual
           diff expected actual
 
-      - name: Check ACME challenges after enrollment
+      - name: Check ACME challenges after ES256 enrollment
         run: |
           docker exec ds ldapsearch \
               -H ldap://ds.example.com:3389 \
@@ -313,12 +326,12 @@ jobs:
               -o ldif_wrap=no \
               -LLL | tee output
 
-          # there should be one challenge
-          echo "1" > expected
+          # there should be two challenges
+          echo "2" > expected
           grep "^dn:" output | wc -l > actual
           diff expected actual
 
-      - name: Check ACME certs after enrollment
+      - name: Check ACME certs after ES256 enrollment
         run: |
           docker exec ds ldapsearch \
               -H ldap://ds.example.com:3389 \
@@ -334,245 +347,24 @@ jobs:
           grep "^dn:" output | wc -l > actual
           diff expected actual
 
-      - name: Check CA certs after enrollment
+      - name: Check CA certs after ES256 enrollment
         run: |
           docker exec pki pki ca-cert-find | tee output
 
-          # there should be 7 certs
-          echo "7" > expected
+          # there should be 8 certs
+          echo "8" > expected
           grep "Serial Number:" output | wc -l > actual
           diff expected actual
 
           # check client cert
-          SERIAL=$(cat serial1.txt)
+          SERIAL=$(cat es256.txt)
           docker exec pki pki ca-cert-show $SERIAL | tee output
 
-          # subject should be CN=client.example.com
-          echo "CN=client.example.com" > expected
+          # subject should be CN=es256.example.com
+          echo "CN=es256.example.com" > expected
           sed -n 's/^ *Subject DN: *\(.*\)/\1/p' output > actual
           diff expected actual
-
-      - name: Renew client cert
-        run: |
-          docker exec client certbot renew \
-              --server http://pki.example.com:8080/acme/directory \
-              --cert-name client.example.com \
-              --force-renewal \
-              --no-random-sleep-on-renew \
-              --non-interactive
-
-      - name: Check renewed client cert
-        run: |
-          docker exec client pki client-cert-import \
-              --cert /etc/letsencrypt/live/client.example.com/fullchain.pem \
-              client2
-
-          # store serial number
-          docker exec client pki nss-cert-show client2 | tee output
-          sed -n 's/^ *Serial Number: *\(.*\)/\1/p' output > serial2.txt
-
-          # subject should be CN=client.example.com
-          echo "CN=client.example.com" > expected
-          sed -n 's/^ *Subject DN: *\(.*\)/\1/p' output > actual
-          diff expected actual
-
-      - name: Check ACME orders after renewal
-        run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=orders,dc=acme,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          # there should be three orders
-          echo "3" > expected
-          grep "^dn:" output | wc -l > actual
-          diff expected actual
-
-      - name: Check ACME authorizations after renewal
-        run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=authorizations,dc=acme,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          # there should be three authorizations
-          echo "3" > expected
-          grep "^dn:" output | wc -l > actual
-          diff expected actual
-
-      - name: Check ACME challenges after renewal
-        run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=challenges,dc=acme,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          # there should be three challenges
-          echo "3" > expected
-          grep "^dn:" output | wc -l > actual
-          diff expected actual
-
-      - name: Check ACME certs after renewal
-        run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=certificates,dc=acme,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          # there should be no certs (they are stored in CA)
-          echo "0" > expected
-          grep "^dn:" output | wc -l > actual
-          diff expected actual
-
-      - name: Check CA certs after renewal
-        run: |
-          docker exec pki pki ca-cert-find | tee output
-
-          # there should be 9 certs
-          echo "9" > expected
-          grep "Serial Number:" output | wc -l > actual
-          diff expected actual
-
-          # check renewed client cert
-          SERIAL=$(cat serial2.txt)
-          docker exec pki pki ca-cert-show $SERIAL | tee output
-
-          # subject should be CN=client.example.com
-          echo "CN=client.example.com" > expected
-          sed -n 's/^ *Subject DN: *\(.*\)/\1/p' output > actual
-          diff expected actual
-
-      - name: Revoke client cert
-        run: |
-          docker exec client certbot revoke \
-              --server http://pki.example.com:8080/acme/directory \
-              --cert-name client.example.com \
-              --non-interactive
-
-      - name: Check CA certs after revocation
-        run: |
-          docker exec pki pki ca-cert-find | tee output
-
-          # there should be 9 certs
-          echo "9" > expected
-          grep "Serial Number:" output | wc -l > actual
-          diff expected actual
-
-          # check original client cert
-          SERIAL=$(cat serial1.txt)
-          docker exec pki pki ca-cert-show $SERIAL | tee output
-
-          # status should be valid
-          echo "VALID" > expected
-          sed -n 's/^ *Status: *\(.*\)/\1/p' output > actual
-          diff expected actual
-
-          # check renewed-then-revoked client cert
-          SERIAL=$(cat serial2.txt)
-          docker exec pki pki ca-cert-show $SERIAL | tee output
-
-          # status should be revoked
-          echo "REVOKED" > expected
-          sed -n 's/^ *Status: *\(.*\)/\1/p' output > actual
-          diff expected actual
-
-      - name: Update ACME account
-        run: |
-          docker exec client certbot update_account \
-              --server http://pki.example.com:8080/acme/directory \
-              --email newuser@example.com \
-              --non-interactive
-
-      - name: Check ACME accounts after update
-        run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=accounts,dc=acme,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          # there should be one account
-          echo "1" > expected
-          grep "^dn:" output | wc -l > actual
-          diff expected actual
-
-          # email should be newuser@example.com
-          echo "mailto:newuser@example.com" > expected
-          sed -n 's/^acmeAccountContact: *\(.*\)$/\1/p' output > actual
-          diff expected actual
-
-      - name: Remove ACME account
-        run: |
-          docker exec client certbot unregister \
-              --server http://pki.example.com:8080/acme/directory \
-              --non-interactive
-
-      - name: Check ACME accounts after unregistration
-        run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=accounts,dc=acme,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          # there should be one account
-          echo "1" > expected
-          grep "^dn:" output | wc -l > actual
-          diff expected actual
-
-          # status should be deactivated
-          echo "deactivated" > expected
-          sed -n 's/^acmeStatus: *\(.*\)$/\1/p' output > actual
-          diff expected actual
-
-      - name: Gather artifacts from server containers
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki ds
-          tests/bin/pki-artifacts-save.sh pki
-        continue-on-error: true
-
-      - name: Gather artifacts from client container
-        if: always()
-        run: |
-          mkdir -p /tmp/artifacts/client
-          docker logs client > /tmp/artifacts/client/container.out 2> /tmp/artifacts/client/container.err
-          mkdir -p /tmp/artifacts/client/etc/letsencrypt
-          docker cp client:/etc/letsencrypt/live /tmp/artifacts/client/etc/letsencrypt
-          mkdir -p /tmp/artifacts/client/var/log/letsencrypt
-          docker cp client:/var/log/letsencrypt/letsencrypt.log /tmp/artifacts/client/var/log/letsencrypt
-        continue-on-error: true
-
-      - name: Remove ACME from PKI container
-        run: |
-          docker exec pki pki-server acme-undeploy --wait
-          docker exec pki pki-server acme-remove
-
-      - name: Remove CA from PKI container
-        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
-
+        
       - name: Upload artifacts from server containers
         if: always()
         uses: actions/upload-artifact@v4
