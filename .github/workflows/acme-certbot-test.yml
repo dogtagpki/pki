@@ -361,7 +361,8 @@ jobs:
               -keyout ES256.key \
               -sha256 \
               -subj '/CN=es256.example.com' \
-              -nodes
+              -nodes \
+              -verbose
 
       - name: Enroll using ES256 CSR
         run: |
