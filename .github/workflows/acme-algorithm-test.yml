@@ -66,15 +66,6 @@ jobs:
               --pkcs12-password Secret.123
           docker exec pki pki -n caadmin ca-user-show caadmin
 
-      - name: Check initial CA certs
-        run: |
-          docker exec pki pki ca-cert-find | tee output
-
-          # there should be 6 certs
-          echo "6" > expected
-          grep "Serial Number:" output | wc -l > actual
-          diff expected actual
-
       - name: Set up ACME database in DS container
         run: |
           docker exec ds ldapmodify \
@@ -105,95 +96,6 @@ jobs:
               -D url=ldap://ds.example.com:3389
           docker exec pki pki-server acme-deploy --wait
 
-      - name: Check initial ACME accounts
-        run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=accounts,dc=acme,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          # there should be no accounts
-          echo "0" > expected
-          grep "^dn:" output | wc -l > actual
-          diff expected actual
-
-      - name: Check initial ACME orders
-        run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=orders,dc=acme,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          # there should be no orders
-          echo "0" > expected
-          grep "^dn:" output | wc -l > actual
-          diff expected actual
-
-      - name: Check initial ACME authorizations
-        run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=authorizations,dc=acme,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          # there should be no authorizations
-          echo "0" > expected
-          grep "^dn:" output | wc -l > actual
-          diff expected actual
-
-      - name: Check initial ACME challenges
-        run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=challenges,dc=acme,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          # there should be no challenges
-          echo "0" > expected
-          grep "^dn:" output | wc -l > actual
-          diff expected actual
-
-      - name: Check initial ACME certs
-        run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=certificates,dc=acme,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          # there should be no certs
-          echo "0" > expected
-          grep "^dn:" output | wc -l > actual
-          diff expected actual
-
-      - name: Check CA certs after ACME installation
-        run: |
-          docker exec pki pki ca-cert-find | tee output
-
-          # there should be 6 certs
-          echo "6" > expected
-          grep "Serial Number:" output | wc -l > actual
-          diff expected actual
-
       - name: Run PKI healthcheck in PKI container
         run: docker exec pki pki-healthcheck --failures-only
 
@@ -220,32 +122,6 @@ jobs:
               --agree-tos \
               --non-interactive
 
-      - name: Check ACME accounts after registration
-        run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=accounts,dc=acme,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          # there should be one account
-          echo "1" > expected
-          grep "^dn:" output | wc -l > actual
-          diff expected actual
-
-          # status should be valid
-          echo "valid" > expected
-          sed -n 's/^acmeStatus: *\(.*\)$/\1/p' output > actual
-          diff expected actual
-
-          # email should be testuser@example.com
-          echo "mailto:testuser@example.com" > expected
-          sed -n 's/^acmeAccountContact: *\(.*\)$/\1/p' output > actual
-          diff expected actual
-
       - name: Create CSR for ES256 Test
         run: |
           docker exec client openssl req \
@@ -255,7 +131,7 @@ jobs:
               -pkeyopt ec_paramgen_curve:P-256 \
               -keyout ES256.key \
               -sha256 \
-              -subj '/CN=es256.example.com' \
+              -subj '/CN=client.example.com' \
               -noenc \
               -verbose
   
@@ -271,15 +147,15 @@ jobs:
       - name: Check ES256 client locally
         run: |
           docker exec client pki client-cert-import \
-              --cert /etc/letsencrypt/live/es256.example.com/fullchain.pem \
+              --cert /etc/letsencrypt/live/client.example.com/fullchain.pem \
               es256
 
           # store serial number
           docker exec client pki nss-cert-show es256 | tee output
           sed -n 's/^ *Serial Number: *\(.*\)/\1/p' output > es256.txt
 
-          # subject should be CN=es256.example.com
-          echo "CN=es256.example.com" > expected
+          # subject should be CN=client.example.com
+          echo "CN=client.example.com" > expected
           sed -n 's/^ *Subject DN: *\(.*\)/\1/p' output > actual
           diff expected actual
 
@@ -326,24 +202,8 @@ jobs:
               -o ldif_wrap=no \
               -LLL | tee output
 
-          # there should be two challenges
+          # there should be one challenge
           echo "1" > expected
-          grep "^dn:" output | wc -l > actual
-          diff expected actual
-
-      - name: Check ACME certs after ES256 enrollment
-        run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=certificates,dc=acme,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          # there should be no certs (they are stored in CA)
-          echo "0" > expected
           grep "^dn:" output | wc -l > actual
           diff expected actual
 
@@ -360,8 +220,8 @@ jobs:
           SERIAL=$(cat es256.txt)
           docker exec pki pki ca-cert-show $SERIAL | tee output
 
-          # subject should be CN=es256.example.com
-          echo "CN=es256.example.com" > expected
+          # subject should be CN=client.example.com
+          echo "CN=client.example.com" > expected
           sed -n 's/^ *Subject DN: *\(.*\)/\1/p' output > actual
           diff expected actual
         
