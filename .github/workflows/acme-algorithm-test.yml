@@ -143,6 +143,7 @@ jobs:
               --csr ES256.csr \
               --standalone \
               --non-interactive
+              --verbose
 
       - name: Check ES256 client locally
         run: |
