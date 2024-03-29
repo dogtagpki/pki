@@ -130,7 +130,7 @@ jobs:
               --elliptic-curve secp256r1 \
               --domain client.example.com \
               --standalone \
-              --non-interactive
+              --non-interactive \
               --verbose
 
       - name: Check ES256 client locally
