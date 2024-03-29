@@ -31,6 +31,7 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
+import com.netscape.cmsutil.ldap.LDAPUtil;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
@@ -179,7 +180,11 @@ public class LDAPSecurityDomainSessionTable
         try {
             String basedn = ldapConfig.getBaseDN();
             String sessionsdn = "ou=sessions,ou=Security Domain," + basedn;
-            String filter = "(cn=" + sessionId + ")";
+
+            // CVE-2023-4727
+            // escape session ID in LDAP search filter
+            String filter = "(cn=" + LDAPUtil.escapeFilter(sessionId) + ")";
+
             String[] attrs = { "cn" };
 
             conn = mLdapConnFactory.getConn();
@@ -262,7 +267,11 @@ public class LDAPSecurityDomainSessionTable
         try {
             String basedn = ldapConfig.getBaseDN();
             String sessionsdn = "ou=sessions,ou=Security Domain," + basedn;
-            String filter = "(cn=" + sessionId + ")";
+
+            // CVE-2023-4727
+            // escape session ID in LDAP search filter
+            String filter = "(cn=" + LDAPUtil.escapeFilter(sessionId) + ")";
+
             String[] attrs = { attr };
 
             conn = mLdapConnFactory.getConn();
