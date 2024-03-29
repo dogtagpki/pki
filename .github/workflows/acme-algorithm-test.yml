@@ -121,7 +121,99 @@ jobs:
               --email testuser@example.com \
               --agree-tos \
               --non-interactive
-  
+
+      - name: Enroll using RS256 CSR
+        run: |
+          docker exec client certbot certonly \
+              --server http://pki.example.com:8080/acme/directory \
+              --key-type rsa \
+              --rsa-key-size 2048 \
+              --domain client.example.com \
+              --standalone \
+              --non-interactive \
+              --verbose
+
+      - name: Check RS256 client locally
+        run: |
+          docker exec client pki client-cert-import \
+              --cert /etc/letsencrypt/live/client.example.com/fullchain.pem \
+              rs256
+
+          # store serial number
+          docker exec client pki nss-cert-show rs256 | tee output
+          sed -n 's/^ *Serial Number: *\(.*\)/\1/p' output > rs256.txt
+
+          # subject should be CN=client.example.com
+          echo "CN=client.example.com" > expected
+          sed -n 's/^ *Subject DN: *\(.*\)/\1/p' output > actual
+          diff expected actual
+
+      - name: Check ACME orders after RS256 enrollment
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=orders,dc=acme,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          # there should be one order
+          echo "1" > expected
+          grep "^dn:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check ACME authorizations after RS256 enrollment
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=authorizations,dc=acme,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          # there should be one authorization
+          echo "1" > expected
+          grep "^dn:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check ACME challenges after RS256 enrollment
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=challenges,dc=acme,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          # there should be one challenge
+          echo "1" > expected
+          grep "^dn:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check CA certs after RS256 enrollments
+        run: |
+          docker exec pki pki ca-cert-find | tee output
+
+          # there should be 7 certs
+          echo "7" > expected
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+          # check client cert
+          SERIAL=$(cat rs256.txt)
+          docker exec pki pki ca-cert-show $SERIAL | tee output
+
+          # subject should be CN=client.example.com
+          echo "CN=client.example.com" > expected
+          sed -n 's/^ *Subject DN: *\(.*\)/\1/p' output > actual
+          diff expected actual      
+
       - name: Enroll using ES256 CSR
         run: |
           docker exec client certbot certonly \
@@ -160,7 +252,7 @@ jobs:
               -LLL | tee output
 
           # there should be two orders
-          echo "1" > expected
+          echo "2" > expected
           grep "^dn:" output | wc -l > actual
           diff expected actual
 
@@ -176,7 +268,7 @@ jobs:
               -LLL | tee output
 
           # there should be two authorizations
-          echo "1" > expected
+          echo "2" > expected
           grep "^dn:" output | wc -l > actual
           diff expected actual
 
@@ -191,8 +283,8 @@ jobs:
               -o ldif_wrap=no \
               -LLL | tee output
 
-          # there should be one challenge
-          echo "1" > expected
+          # there should be two challenges
+          echo "2" > expected
           grep "^dn:" output | wc -l > actual
           diff expected actual
 
@@ -200,8 +292,8 @@ jobs:
         run: |
           docker exec pki pki ca-cert-find | tee output
 
-          # there should be 7 certs
-          echo "7" > expected
+          # there should be 8 certs
+          echo "8" > expected
           grep "Serial Number:" output | wc -l > actual
           diff expected actual
 
@@ -213,18 +305,3 @@ jobs:
           echo "CN=client.example.com" > expected
           sed -n 's/^ *Subject DN: *\(.*\)/\1/p' output > actual
           diff expected actual
-        
-      - name: Upload artifacts from server containers
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: acme-certbot-server
-          path: |
-            /tmp/artifacts/pki
-
-      - name: Upload artifacts from client container
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: acme-certbot-client
-          path: /tmp/artifacts/client
