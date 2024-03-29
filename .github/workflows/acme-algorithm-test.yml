@@ -128,6 +128,7 @@ jobs:
               --server http://pki.example.com:8080/acme/directory \
               --key-type ecdsa \
               --elliptic-curve secp256r1 \
+              --domain client.example.com \
               --standalone \
               --non-interactive
               --verbose
