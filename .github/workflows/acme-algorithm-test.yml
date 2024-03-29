@@ -214,6 +214,13 @@ jobs:
           sed -n 's/^ *Subject DN: *\(.*\)/\1/p' output > actual
           diff expected actual      
 
+      - name: Revoke RS256 client cert
+        run: |
+          docker exec client certbot revoke \
+              --server http://pki.example.com:8080/acme/directory \
+              --cert-name client.example.com \
+              --non-interactive
+
       - name: Enroll using ES256 CSR
         run: |
           docker exec client certbot certonly \
