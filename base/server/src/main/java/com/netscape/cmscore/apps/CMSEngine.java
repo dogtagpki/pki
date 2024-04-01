@@ -53,6 +53,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.SecurityDomainSessionTable;
 import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.logging.AuditEvent;
@@ -492,7 +493,6 @@ public class CMSEngine {
         String pwList = config.getString("cms.passwordlist", "internaldb,replicationdb");
         String tags[] = StringUtils.split(pwList, ",");
         LDAPConfig ldapConfig = config.getInternalDBConfig();
-        LDAPConnectionConfig connConfig = ldapConfig.getConnectionConfig();
         LDAPAuthenticationConfig authConfig = ldapConfig.getAuthenticationConfig();
 
         for (String tag : tags) {
@@ -501,37 +501,31 @@ public class CMSEngine {
 
             String binddn;
             String authType;
-            LdapConnInfo connInfo = null;
+            LDAPConnectionConfig connConfig;
 
             if (tag.equals("internaldb")) {
 
-                authType = authConfig.getString("authtype", "BasicAuth");
+                authType = authConfig.getAuthType();
                 logger.debug("CMSEngine: auth type: " + authType);
 
-                if (!authType.equals("BasicAuth")) {
+                if (!authType.equals(LdapAuthInfo.LDAP_BASICAUTH_STR)) {
                     continue;
                 }
 
-                connInfo = new LdapConnInfo(
-                        connConfig.getString("host"),
-                        connConfig.getInteger("port"),
-                        connConfig.getBoolean("secureConn"));
+                connConfig = ldapConfig.getConnectionConfig();
 
-                binddn = authConfig.getString("bindDN");
+                binddn = authConfig.getBindDN();
 
             } else if (tag.equals("replicationdb")) {
 
-                authType = authConfig.getString("authtype", "BasicAuth");
+                authType = authConfig.getAuthType();
                 logger.debug("CMSEngine: auth type: " + authType);
 
-                if (!authType.equals("BasicAuth")) {
+                if (!authType.equals(LdapAuthInfo.LDAP_BASICAUTH_STR)) {
                     continue;
                 }
 
-                connInfo = new LdapConnInfo(
-                        connConfig.getString("host"),
-                        connConfig.getInteger("port"),
-                        connConfig.getBoolean("secureConn"));
+                connConfig = ldapConfig.getConnectionConfig();
 
                 binddn = "cn=Replication Manager masterAgreement1-" + config.getHostname() + "-" +
                         config.getInstanceID() + ",cn=config";
@@ -541,21 +535,16 @@ public class CMSEngine {
                 LDAPConfig publishConfig = config.getSubStore("ca.publish.ldappublish.ldap", LDAPConfig.class);
                 LDAPAuthenticationConfig publishAuthConfig = publishConfig.getAuthenticationConfig();
 
-                authType = publishAuthConfig.getString("authtype", "BasicAuth");
+                authType = publishAuthConfig.getAuthType();
                 logger.debug("CMSEngine: auth type: " + authType);
 
-                if (!authType.equals("BasicAuth")) {
+                if (!authType.equals(LdapAuthInfo.LDAP_BASICAUTH_STR)) {
                     continue;
                 }
 
-                LDAPConnectionConfig publishConnConfig = publishConfig.getConnectionConfig();
+                connConfig = publishConfig.getConnectionConfig();
 
-                connInfo = new LdapConnInfo(
-                        publishConnConfig.getString("host"),
-                        publishConnConfig.getInteger("port"),
-                        publishConnConfig.getBoolean("secureConn"));
-
-                binddn = publishAuthConfig.getString("bindDN");
+                binddn = publishAuthConfig.getBindDN();
 
             } else {
                 /*
@@ -584,22 +573,18 @@ public class CMSEngine {
                 LDAPConfig prefixConfig = config.getSubStore(authPrefix + ".ldap", LDAPConfig.class);
                 LDAPAuthenticationConfig prefixAuthConfig = prefixConfig.getAuthenticationConfig();
 
-                authType = prefixAuthConfig.getString("authtype", "BasicAuth");
+                authType = prefixAuthConfig.getAuthType();
                 logger.debug("CMSEngine: auth type: " + authType);
 
-                if (!authType.equals("BasicAuth")) {
+                if (!authType.equals(LdapAuthInfo.LDAP_BASICAUTH_STR)) {
                     continue;
                 }
 
-                LDAPConnectionConfig prefixConnConfig = prefixConfig.getConnectionConfig();
+                connConfig = prefixConfig.getConnectionConfig();
 
-                connInfo = new LdapConnInfo(
-                        prefixConnConfig.getString("host"),
-                        prefixConnConfig.getInteger("port"),
-                        prefixConnConfig.getBoolean("secureConn"));
-
-                binddn = prefixAuthConfig.getString("bindDN", null);
-                if (binddn == null) {
+                try {
+                    binddn = prefixAuthConfig.getBindDN();
+                } catch (EPropertyNotFound e) {
                     logger.debug("CMSEngine.initializePasswordStore(): binddn not found...skipping");
                     continue;
                 }
@@ -610,7 +595,7 @@ public class CMSEngine {
 
             do {
                 String passwd = mPasswordStore.getPassword(tag, iteration);
-                result = testLDAPConnection(tag, connInfo, binddn, passwd);
+                result = testLDAPConnection(tag, connConfig, binddn, passwd);
                 iteration++;
             } while ((result == PW_INVALID_CREDENTIALS) && (iteration < PW_MAX_ATTEMPTS));
 
@@ -633,7 +618,7 @@ public class CMSEngine {
         }
     }
 
-    public int testLDAPConnection(String name, LdapConnInfo info, String binddn, String pwd) {
+    public int testLDAPConnection(String name, LDAPConnectionConfig connConfig, String binddn, String pwd) throws EBaseException {
 
         int ret = PW_OK;
 
@@ -641,15 +626,15 @@ public class CMSEngine {
             return PW_INVALID_CREDENTIALS;
         }
 
-        String host = info.getHost();
-        int port = info.getPort();
+        String host = connConfig.getHostname();
+        int port = connConfig.getPort();
 
         PKISocketConfig socketConfig = mConfig.getSocketConfig();
 
         PKISocketFactory socketFactory = new PKISocketFactory();
         socketFactory.setAuditor(auditor);
         socketFactory.addSocketListener(clientSocketListener);
-        socketFactory.setSecure(info.getSecure());
+        socketFactory.setSecure(connConfig.isSecure());
         socketFactory.init(socketConfig);
 
         LDAPConnection conn = new LDAPConnection(socketFactory);

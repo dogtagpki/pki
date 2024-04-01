@@ -32,7 +32,6 @@ import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
-import com.netscape.cmscore.ldapconn.LdapConnInfo;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmscore.profile.LDAPProfileSubsystem;
@@ -101,22 +100,12 @@ public class CAProfileImportCLI extends CommandCLI {
         LDAPConnectionConfig connConfig = ldapConfig.getConnectionConfig();
         LDAPAuthenticationConfig authConfig = ldapConfig.getAuthenticationConfig();
 
-        LdapConnInfo connInfo = new LdapConnInfo(connConfig);
-
-        LdapAuthInfo authInfo = new LdapAuthInfo();
-        authInfo.setPasswordStore(passwordStore);
-        authInfo.init(
-                authConfig,
-                connInfo.getHost(),
-                connInfo.getPort(),
-                connInfo.getSecure());
-
         PKISocketConfig socketConfig = cs.getSocketConfig();
 
         PKISocketFactory socketFactory = new PKISocketFactory();
-        socketFactory.setSecure(connInfo.getSecure());
-        if (authInfo.getAuthType() == LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH) {
-            socketFactory.setClientCertNickname(authInfo.getClientCertNickname());
+        socketFactory.setSecure(connConfig.isSecure());
+        if (LdapAuthInfo.LDAP_SSLCLIENTAUTH_STR.equals(authConfig.getAuthType())) {
+            socketFactory.setClientCertNickname(authConfig.getClientCertNickname());
         }
         socketFactory.init(socketConfig);
 

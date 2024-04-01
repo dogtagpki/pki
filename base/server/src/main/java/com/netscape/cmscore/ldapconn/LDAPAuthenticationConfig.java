@@ -27,7 +27,7 @@ public class LDAPAuthenticationConfig extends ConfigStore {
      * Returns <LDAP>.ldapauth.authtype parameter.
      */
     public String getAuthType() throws EBaseException {
-        return getString(LdapAuthInfo.PROP_LDAPAUTHTYPE);
+        return getString(LdapAuthInfo.PROP_LDAPAUTHTYPE, LdapAuthInfo.LDAP_BASICAUTH_STR);
     }
 
     public void setAuthType(String authType) throws EBaseException {

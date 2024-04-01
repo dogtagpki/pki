@@ -168,9 +168,9 @@ public class LdapBoundConnFactory extends LdapConnFactory {
 
         this.mAuthInfo.init(
                 authConfig,
-                this.mConnInfo.getHost(),
-                this.mConnInfo.getPort(),
-                this.mConnInfo.getSecure());
+                connConfig.getHostname(),
+                connConfig.getPort(),
+                connConfig.isSecure());
 
         mErrorIfDown = dbConfig.getBoolean(PROP_ERROR_IF_DOWN, mDefErrorIfDown);
 

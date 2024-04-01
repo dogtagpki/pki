@@ -72,6 +72,7 @@ import com.netscape.cmscore.ldap.PublishingPublisherPluginsConfig;
 import com.netscape.cmscore.ldap.PublishingRuleConfig;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
+import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
@@ -717,15 +718,14 @@ public class PublisherAdminServlet extends AdminServlet {
                             " to a LDAP directory. The connection status is" +
                             " as follows:\n \n");
             LDAPConnection conn = null;
-            LdapConnInfo connInfo = new LdapConnInfo(ldap.getConnectionConfig());
+            LDAPConnectionConfig connConfig = ldap.getConnectionConfig();
             //LdapAuthInfo authInfo =
             //new LdapAuthInfo(ldap.getSubStore(LdapBoundConnFactory.PROP_LDAPAUTHINFO));
-            String host = connInfo.getHost();
-            int port = connInfo.getPort();
-            boolean secure = connInfo.getSecure();
-            //int authType = authInfo.getAuthType();
+            String host = connConfig.getHostname();
+            int port = connConfig.getPort();
+            boolean secure = connConfig.isSecure();
             String authType = authConfig.getAuthType();
-            int version = connInfo.getVersion();
+            int version = connConfig.getVersion();
             String bindAs = null;
             String certNickName = null;
 
