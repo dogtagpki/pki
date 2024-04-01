@@ -727,10 +727,25 @@ public class CMSEngine {
         PKISocketConfig socketConfig = config.getSocketConfig();
         PasswordStore passwordStore = getPasswordStore();
 
+        LDAPConnectionConfig connConfig = ldapConfig.getConnectionConfig();
+        LDAPAuthenticationConfig authConfig = ldapConfig.getAuthenticationConfig();
+
+        PKISocketFactory socketFactory = new PKISocketFactory();
+        socketFactory.setAuditor(auditor);
+        socketFactory.addSocketListener(clientSocketListener);
+        socketFactory.setApprovalCallback(approvalCallback);
+
+        socketFactory.setSecure(connConfig.isSecure());
+        if (LdapAuthInfo.LDAP_SSLCLIENTAUTH_STR.equals(authConfig.getAuthType())) {
+            socketFactory.setClientCertNickname(authConfig.getClientCertNickname());
+        }
+
+        socketFactory.init(socketConfig);
+
         dbSubsystem = new DBSubsystem();
-        dbSubsystem.setCMSEngine(this);
         dbSubsystem.setEngineConfig(config);
-        dbSubsystem.init(dbConfig, ldapConfig, socketConfig, passwordStore);
+        dbSubsystem.setSocketFactory(socketFactory);
+        dbSubsystem.init(dbConfig, ldapConfig, passwordStore);
     }
 
     public void initUGSubsystem() throws Exception {

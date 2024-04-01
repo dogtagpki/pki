@@ -35,8 +35,12 @@ import com.netscape.cmscore.base.FileConfigStorage;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.DBSubsystem;
+import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
+import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
+import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
+import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmscore.request.CertRequestRepository;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.security.SecureRandomConfig;
@@ -169,9 +173,20 @@ public class CACertImportCLI extends CommandCLI {
         SecureRandomConfig secureRandomConfig = cs.getJssSubsystemConfig().getSecureRandomConfig();
         SecureRandom secureRandom = SecureRandomFactory.create(secureRandomConfig);
 
+        LDAPConnectionConfig connConfig = ldapConfig.getConnectionConfig();
+        LDAPAuthenticationConfig authConfig = ldapConfig.getAuthenticationConfig();
+
+        PKISocketFactory socketFactory = new PKISocketFactory();
+        socketFactory.setSecure(connConfig.isSecure());
+        if (LdapAuthInfo.LDAP_SSLCLIENTAUTH_STR.equals(authConfig.getAuthType())) {
+            socketFactory.setClientCertNickname(authConfig.getClientCertNickname());
+        }
+        socketFactory.init(socketConfig);
+
         DBSubsystem dbSubsystem = new DBSubsystem();
         dbSubsystem.setEngineConfig(cs);
-        dbSubsystem.init(dbConfig, ldapConfig, socketConfig, passwordStore);
+        dbSubsystem.setSocketFactory(socketFactory);
+        dbSubsystem.init(dbConfig, ldapConfig, passwordStore);
 
         RequestId requestID = new RequestId(cmd.getOptionValue("request"));
 

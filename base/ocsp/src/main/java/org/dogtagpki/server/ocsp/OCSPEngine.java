@@ -43,8 +43,12 @@ import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.cmscore.dbs.DBSubsystem;
+import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
+import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
+import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
+import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmsutil.password.PasswordStore;
 import com.netscape.ocsp.OCSPAuthority;
 
@@ -79,7 +83,6 @@ public class OCSPEngine extends CMSEngine {
     public void initDBSubsystem() throws Exception {
 
         dbSubsystem = new DBSubsystem();
-        dbSubsystem.setCMSEngine(this);
         dbSubsystem.setEngineConfig(config);
     }
 
@@ -114,15 +117,34 @@ public class OCSPEngine extends CMSEngine {
     protected void startupSubsystems() throws Exception {
 
         for (Subsystem subsystem : subsystems.values()) {
+
+            if (subsystem instanceof OCSPAuthority) continue;
+
             logger.info("CMSEngine: Starting " + subsystem.getId() + " subsystem");
-            if (!(subsystem instanceof OCSPAuthority)) {
-                DatabaseConfig dbConfig = config.getDatabaseConfig();
-                LDAPConfig ldapConfig = dbConfig.getLDAPConfig();
-                PKISocketConfig socketConfig = config.getSocketConfig();
-                PasswordStore passwordStore = getPasswordStore();
-                dbSubsystem.init(dbConfig, ldapConfig, socketConfig, passwordStore);
-                subsystem.startup();
+            DatabaseConfig dbConfig = config.getDatabaseConfig();
+            LDAPConfig ldapConfig = dbConfig.getLDAPConfig();
+            PKISocketConfig socketConfig = config.getSocketConfig();
+            PasswordStore passwordStore = getPasswordStore();
+
+            LDAPConnectionConfig connConfig = ldapConfig.getConnectionConfig();
+            LDAPAuthenticationConfig authConfig = ldapConfig.getAuthenticationConfig();
+
+            PKISocketFactory socketFactory = new PKISocketFactory();
+            socketFactory.setAuditor(auditor);
+            socketFactory.addSocketListener(clientSocketListener);
+            socketFactory.setApprovalCallback(approvalCallback);
+
+            socketFactory.setSecure(connConfig.isSecure());
+            if (LdapAuthInfo.LDAP_SSLCLIENTAUTH_STR.equals(authConfig.getAuthType())) {
+                socketFactory.setClientCertNickname(authConfig.getClientCertNickname());
             }
+
+            socketFactory.init(socketConfig);
+
+            dbSubsystem.setSocketFactory(socketFactory);
+            dbSubsystem.init(dbConfig, ldapConfig, passwordStore);
+
+            subsystem.startup();
         }
 
         // global admin servlet. (anywhere else more fit for this ?)

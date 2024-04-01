@@ -29,17 +29,12 @@ import com.netscape.certsrv.dbs.EDBNotAvailException;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
-import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
-import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
-import com.netscape.cmscore.ldapconn.PKISocketConfig;
-import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmsutil.password.PasswordStore;
 
 import netscape.ldap.LDAPAttribute;
@@ -49,6 +44,7 @@ import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPObjectClassSchema;
 import netscape.ldap.LDAPSchema;
+import netscape.ldap.LDAPSocketFactory;
 
 /**
  * A class represents the database subsystem that manages
@@ -59,7 +55,6 @@ import netscape.ldap.LDAPSchema;
  * where all the schema information is stored.
  *
  * @author thomask
- * @version $Revision$, $Date$
  */
 public class DBSubsystem {
 
@@ -77,10 +72,9 @@ public class DBSubsystem {
             "req_key"
     );
 
-    protected CMSEngine engine;
     protected EngineConfig engineConfig;
     private DatabaseConfig mDBConfig;
-    private LDAPConfig ldapConfig;
+    private LDAPSocketFactory socketFactory;
     private LdapBoundConnFactory mLdapConnFactory;
     private DBRegistry mRegistry;
     private String mBaseDN;
@@ -93,14 +87,6 @@ public class DBSubsystem {
      * Constructs database subsystem.
      */
     public DBSubsystem() {
-    }
-
-    public CMSEngine getCMSEngine() {
-        return engine;
-    }
-
-    public void setCMSEngine(CMSEngine engine) {
-        this.engine = engine;
     }
 
     public EngineConfig getEngineConfig() {
@@ -123,6 +109,14 @@ public class DBSubsystem {
      */
     public void setId(String id) throws EBaseException {
         throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_OPERATION"));
+    }
+
+    public LDAPSocketFactory getSocketFactory() {
+        return socketFactory;
+    }
+
+    public void setSocketFactory(LDAPSocketFactory socketFactory) {
+        this.socketFactory = socketFactory;
     }
 
     public boolean enableSerialNumberRecovery() {
@@ -206,12 +200,10 @@ public class DBSubsystem {
     public void init(
             DatabaseConfig dbConfig,
             LDAPConfig ldapConfig,
-            PKISocketConfig socketConfig,
             PasswordStore passwordStore)
             throws EBaseException {
 
         this.mDBConfig = dbConfig;
-        this.ldapConfig = ldapConfig;
 
         try {
             mBaseDN = ldapConfig.getBaseDN();
@@ -222,23 +214,6 @@ public class DBSubsystem {
             // initialize registry
             mRegistry = new LDAPRegistry();
             mRegistry.init(null);
-
-            LDAPConnectionConfig connConfig = ldapConfig.getConnectionConfig();
-            LDAPAuthenticationConfig authConfig = ldapConfig.getAuthenticationConfig();
-
-            PKISocketFactory socketFactory = new PKISocketFactory();
-            if (engine != null) {
-                socketFactory.setAuditor(engine.getAuditor());
-                socketFactory.addSocketListener(engine.getClientSocketListener());
-                socketFactory.setApprovalCallback(engine.getApprovalCallback());
-            }
-
-            socketFactory.setSecure(connConfig.isSecure());
-            if (LdapAuthInfo.LDAP_SSLCLIENTAUTH_STR.equals(authConfig.getAuthType())) {
-                socketFactory.setClientCertNickname(authConfig.getClientCertNickname());
-            }
-
-            socketFactory.init(socketConfig);
 
             // initialize LDAP connection factory
             // by default return error if server is down at startup time.
@@ -440,13 +415,6 @@ public class DBSubsystem {
         logger.debug("DBSubsystem: getEntryAttribute:  dn="+dn+"  attr="+attrName+":"+attrValue+";");
 
         return attrValue;
-    }
-
-    /**
-     * Retrieves internal DB configuration store.
-     */
-    public LDAPConfig getLDAPConfig() {
-        return ldapConfig;
     }
 
     /**
