@@ -1330,7 +1330,21 @@ public class CMSEngine {
 
         PKISocketConfig socketConfig = mConfig.getSocketConfig();
 
+        LDAPConnectionConfig connConfig = ldapConfig.getConnectionConfig();
+        LDAPAuthenticationConfig authConfig = ldapConfig.getAuthenticationConfig();
+
+        PKISocketFactory socketFactory = new PKISocketFactory();
+        socketFactory.setAuditor(auditor);
+        socketFactory.addSocketListener(clientSocketListener);
+        socketFactory.setApprovalCallback(approvalCallback);
+        socketFactory.setSecure(connConfig.isSecure());
+        if (LdapAuthInfo.LDAP_SSLCLIENTAUTH_STR.equals(authConfig.getAuthType())) {
+            socketFactory.setClientCertNickname(authConfig.getClientCertNickname());
+        }
+        socketFactory.init(socketConfig);
+
         LdapBoundConnFactory connFactory = new LdapBoundConnFactory(id);
+        connFactory.setSocketFactory(socketFactory);
         connFactory.setAuditor(auditor);
         connFactory.setSocketListener(clientSocketListener);
         connFactory.setApprovalCallback(approvalCallback);
@@ -1349,12 +1363,23 @@ public class CMSEngine {
 
         PKISocketConfig socketConfig = mConfig.getSocketConfig();
 
+        PKISocketFactory socketFactory = new PKISocketFactory();
+        socketFactory.setAuditor(auditor);
+        socketFactory.addSocketListener(clientSocketListener);
+        socketFactory.setApprovalCallback(approvalCallback);
+        socketFactory.setSecure(connInfo.getSecure());
+        if (authInfo.getAuthType() == LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH) {
+            socketFactory.setClientCertNickname(authInfo.getClientCertNickname());
+        }
+        socketFactory.init(socketConfig);
+
         LdapBoundConnFactory connFactory = new LdapBoundConnFactory(
                 id,
                 minConns,
                 maxConns,
                 connInfo,
                 authInfo);
+        connFactory.setSocketFactory(socketFactory);
         connFactory.setAuditor(auditor);
         connFactory.setSocketListener(clientSocketListener);
         connFactory.setApprovalCallback(approvalCallback);

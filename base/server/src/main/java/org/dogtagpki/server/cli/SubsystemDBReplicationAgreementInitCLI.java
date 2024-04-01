@@ -17,9 +17,13 @@ import com.netscape.cms.servlet.csadmin.LDAPConfigurator;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.FileConfigStorage;
+import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
+import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
+import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
+import com.netscape.cmscore.ldapconn.PKISocketFactory;
 
 import netscape.ldap.LDAPConnection;
 
@@ -83,7 +87,18 @@ public class SubsystemDBReplicationAgreementInitCLI extends SubsystemCLI {
         LDAPConfig ldapConfig = new LDAPConfig(configStorage);
         ldapConfig.load();
 
+        LDAPConnectionConfig ldapConnConfig = ldapConfig.getConnectionConfig();
+        LDAPAuthenticationConfig ldapAuthConfig = ldapConfig.getAuthenticationConfig();
+
+        PKISocketFactory socketFactory = new PKISocketFactory();
+        socketFactory.setSecure(ldapConnConfig.isSecure());
+        if (LdapAuthInfo.LDAP_SSLCLIENTAUTH_STR.equals(ldapAuthConfig.getAuthType())) {
+            socketFactory.setClientCertNickname(ldapAuthConfig.getClientCertNickname());
+        }
+        socketFactory.init(socketConfig);
+
         LdapBoundConnFactory connFactory = new LdapBoundConnFactory("LDAPConfigurator");
+        connFactory.setSocketFactory(socketFactory);
         connFactory.init(socketConfig, ldapConfig);
         LDAPConnection conn = connFactory.getConn();
 

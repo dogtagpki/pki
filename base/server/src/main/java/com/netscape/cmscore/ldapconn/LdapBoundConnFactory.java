@@ -248,18 +248,6 @@ public class LdapBoundConnFactory extends LdapConnFactory {
 
         LdapBoundConnection conn = null;
         try {
-            PKISocketFactory socketFactory = new PKISocketFactory();
-            socketFactory.setAuditor(auditor);
-            if (socketListener != null) {
-                socketFactory.addSocketListener(socketListener);
-            }
-            socketFactory.setApprovalCallback(approvalCallback);
-            socketFactory.setSecure(mConnInfo.getSecure());
-            if (mAuthInfo.getAuthType() == LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH) {
-                socketFactory.setClientCertNickname(mAuthInfo.getClientCertNickname());
-            }
-            socketFactory.init(config);
-
             conn = new LdapBoundConnection(socketFactory, mConnInfo, mAuthInfo);
             conn.connectionFactory = this;
 

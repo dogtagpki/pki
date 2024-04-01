@@ -37,9 +37,13 @@ import com.netscape.certsrv.ldap.LDAPExceptionConverter;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
+import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
+import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
+import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 import com.netscape.cmsutil.password.PasswordStore;
 
@@ -104,12 +108,30 @@ public class UGSubsystem {
 
         mBaseDN = ldapConfig.getBaseDN();
 
+        LDAPConnectionConfig connConfig = ldapConfig.getConnectionConfig();
+        LDAPAuthenticationConfig authConfig = ldapConfig.getAuthenticationConfig();
+
+        PKISocketFactory socketFactory = new PKISocketFactory();
+        if (engine != null) {
+            socketFactory.setAuditor(engine.getAuditor());
+            socketFactory.addSocketListener(engine.getClientSocketListener());
+            socketFactory.setApprovalCallback(engine.getApprovalCallback());
+        }
+        socketFactory.setSecure(connConfig.isSecure());
+        if (LdapAuthInfo.LDAP_SSLCLIENTAUTH_STR.equals(authConfig.getAuthType())) {
+            socketFactory.setClientCertNickname(authConfig.getClientCertNickname());
+        }
+        socketFactory.init(socketConfig);
+
         mLdapConnFactory = new LdapBoundConnFactory("UGSubsystem");
+        mLdapConnFactory.setSocketFactory(socketFactory);
+
         if (engine != null) {
             mLdapConnFactory.setAuditor(engine.getAuditor());
             mLdapConnFactory.setSocketListener(engine.getClientSocketListener());
             mLdapConnFactory.setApprovalCallback(engine.getApprovalCallback());
         }
+
         mLdapConnFactory.init(socketConfig, ldapConfig, passwordStore);
     }
 

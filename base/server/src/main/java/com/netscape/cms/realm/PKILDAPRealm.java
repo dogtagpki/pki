@@ -22,6 +22,7 @@ import com.netscape.cmscore.base.FileConfigStorage;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
+import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
@@ -154,11 +155,20 @@ public class PKILDAPRealm extends RealmCommon {
         groupsDN = config.getParameter("groupsDN");
         logger.info("- groups DN: " + groupsDN);
 
-        connFactory = new LdapBoundConnFactory("LDAPRealm");
         try {
+            PKISocketFactory socketFactory = new PKISocketFactory();
+            socketFactory.setSecure(connConfig.isSecure());
+            if (LdapAuthInfo.LDAP_SSLCLIENTAUTH_STR.equals(authConfig.getAuthType())) {
+                socketFactory.setClientCertNickname(authConfig.getClientCertNickname());
+            }
+            socketFactory.init(socketConfig);
+
+            connFactory = new LdapBoundConnFactory("LDAPRealm");
+            connFactory.setSocketFactory(socketFactory);
             connFactory.init(socketConfig, ldapConfig, ps);
+
         } catch (Exception e) {
-            throw new LifecycleException("LDAP connection problem:" + e.getMessage(), e);
+            throw new LifecycleException("Unable to create LDAP connection:" + e.getMessage(), e);
         }
     }
 

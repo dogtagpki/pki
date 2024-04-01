@@ -110,6 +110,7 @@ public class CAProfileImportCLI extends CommandCLI {
         socketFactory.init(socketConfig);
 
         LdapBoundConnFactory connFactory = new LdapBoundConnFactory("CAProfileImportCLI");
+        connFactory.setSocketFactory(socketFactory);
         connFactory.init(socketConfig, ldapConfig, passwordStore);
 
         ProfileSubsystemConfig profileSubsystemConfig = cs.getProfileSubsystemConfig();

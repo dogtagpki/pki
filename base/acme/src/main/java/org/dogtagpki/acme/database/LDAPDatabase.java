@@ -28,9 +28,13 @@ import org.dogtagpki.acme.JWK;
 
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.FileConfigStorage;
+import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
+import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
+import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
+import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmsutil.password.PasswordStore;
 import com.netscape.cmsutil.password.PlainPasswordFile;
 
@@ -228,7 +232,18 @@ public class LDAPDatabase extends ACMEDatabase {
 
         PKISocketConfig socketConfig = cs.getSocketConfig();
 
+        LDAPConnectionConfig connConfig = ldapConfig.getConnectionConfig();
+        LDAPAuthenticationConfig authConfig = ldapConfig.getAuthenticationConfig();
+
+        PKISocketFactory socketFactory = new PKISocketFactory();
+        socketFactory.setSecure(connConfig.isSecure());
+        if (LdapAuthInfo.LDAP_SSLCLIENTAUTH_STR.equals(authConfig.getAuthType())) {
+            socketFactory.setClientCertNickname(authConfig.getClientCertNickname());
+        }
+        socketFactory.init(socketConfig);
+
         connFactory = new LdapBoundConnFactory("acme");
+        connFactory.setSocketFactory(socketFactory);
         connFactory.init(socketConfig, ldapConfig, ps);
 
         String monitorEnabled = config.getParameter("monitor.enabled");
