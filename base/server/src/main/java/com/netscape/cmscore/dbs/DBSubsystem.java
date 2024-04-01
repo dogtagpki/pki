@@ -244,7 +244,7 @@ public class DBSubsystem {
             // by default return error if server is down at startup time.
             mLdapConnFactory = new LdapBoundConnFactory("DBSubsystem", true);
             mLdapConnFactory.setSocketFactory(socketFactory);
-            mLdapConnFactory.init(socketConfig, ldapConfig, passwordStore);
+            mLdapConnFactory.init(ldapConfig, passwordStore);
 
         } catch (EPropertyNotDefined e) {
             logger.error("DBSubsystem: initialization failed: " + e.getMessage(), e);

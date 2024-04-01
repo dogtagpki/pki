@@ -125,10 +125,7 @@ public class LdapBoundConnFactory extends LdapConnFactory {
         this.mAuthInfo = authInfo;
     }
 
-    public void init(
-            PKISocketConfig config,
-            PasswordStore passwordStore
-            ) throws ELdapException {
+    public void init(PasswordStore passwordStore) throws ELdapException {
 
         logger.debug("LdapBoundConnFactory: initialization");
 
@@ -138,17 +135,16 @@ public class LdapBoundConnFactory extends LdapConnFactory {
     }
 
     public void init(
-            PKISocketConfig config,
             LDAPConfig dbConfig,
             PasswordStore passwordStore
             ) throws EBaseException, ELdapException {
 
         this.passwordStore = passwordStore;
 
-        init(config, dbConfig);
+        init(dbConfig);
     }
 
-    public void init(PKISocketConfig config, LDAPConfig dbConfig) throws EBaseException, ELdapException {
+    public void init(LDAPConfig dbConfig) throws EBaseException, ELdapException {
 
         logger.debug("LdapBoundConnFactory: initialization");
 

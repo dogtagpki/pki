@@ -105,7 +105,7 @@ public class SubsystemDBReplicationEnableCLI extends SubsystemCLI {
 
         LdapBoundConnFactory connFactory = new LdapBoundConnFactory("LDAPConfigurator");
         connFactory.setSocketFactory(socketFactory);
-        connFactory.init(socketConfig, ldapConfig);
+        connFactory.init(ldapConfig);
         LDAPConnection conn = connFactory.getConn();
 
         DatabaseConfig dbConfig = cs.getDatabaseConfig();

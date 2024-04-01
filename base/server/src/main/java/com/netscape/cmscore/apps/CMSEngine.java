@@ -1339,7 +1339,7 @@ public class CMSEngine {
 
         LdapBoundConnFactory connFactory = new LdapBoundConnFactory(id);
         connFactory.setSocketFactory(socketFactory);
-        connFactory.init(socketConfig, ldapConfig, getPasswordStore());
+        connFactory.init(ldapConfig, getPasswordStore());
 
         return connFactory;
     }
@@ -1371,7 +1371,7 @@ public class CMSEngine {
                 connInfo,
                 authInfo);
         connFactory.setSocketFactory(socketFactory);
-        connFactory.init(socketConfig, getPasswordStore());
+        connFactory.init(getPasswordStore());
 
         return connFactory;
     }

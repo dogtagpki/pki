@@ -125,7 +125,7 @@ public class UGSubsystem {
 
         mLdapConnFactory = new LdapBoundConnFactory("UGSubsystem");
         mLdapConnFactory.setSocketFactory(socketFactory);
-        mLdapConnFactory.init(socketConfig, ldapConfig, passwordStore);
+        mLdapConnFactory.init(ldapConfig, passwordStore);
     }
 
     /**

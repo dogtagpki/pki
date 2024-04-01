@@ -99,7 +99,7 @@ public class SubsystemDBReplicationAgreementInitCLI extends SubsystemCLI {
 
         LdapBoundConnFactory connFactory = new LdapBoundConnFactory("LDAPConfigurator");
         connFactory.setSocketFactory(socketFactory);
-        connFactory.init(socketConfig, ldapConfig);
+        connFactory.init(ldapConfig);
         LDAPConnection conn = connFactory.getConn();
 
         try {
