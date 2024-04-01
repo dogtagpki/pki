@@ -1286,9 +1286,6 @@ public class CMSEngine {
 
         LdapAnonConnFactory connFactory = new LdapAnonConnFactory(id);
         connFactory.setSocketFactory(socketFactory);
-        connFactory.setAuditor(auditor);
-        connFactory.setSocketListener(clientSocketListener);
-        connFactory.setApprovalCallback(approvalCallback);
         connFactory.init(socketConfig, ldapConfig);
 
         return connFactory;
@@ -1315,9 +1312,6 @@ public class CMSEngine {
                 maxConns,
                 connInfo);
         connFactory.setSocketFactory(socketFactory);
-        connFactory.setAuditor(auditor);
-        connFactory.setSocketListener(clientSocketListener);
-        connFactory.setApprovalCallback(approvalCallback);
         connFactory.init(socketConfig);
 
         return connFactory;
@@ -1345,9 +1339,6 @@ public class CMSEngine {
 
         LdapBoundConnFactory connFactory = new LdapBoundConnFactory(id);
         connFactory.setSocketFactory(socketFactory);
-        connFactory.setAuditor(auditor);
-        connFactory.setSocketListener(clientSocketListener);
-        connFactory.setApprovalCallback(approvalCallback);
         connFactory.init(socketConfig, ldapConfig, getPasswordStore());
 
         return connFactory;
@@ -1380,9 +1371,6 @@ public class CMSEngine {
                 connInfo,
                 authInfo);
         connFactory.setSocketFactory(socketFactory);
-        connFactory.setAuditor(auditor);
-        connFactory.setSocketListener(clientSocketListener);
-        connFactory.setApprovalCallback(approvalCallback);
         connFactory.init(socketConfig, getPasswordStore());
 
         return connFactory;

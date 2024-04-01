@@ -132,7 +132,6 @@ public class LdapBoundConnFactory extends LdapConnFactory {
 
         logger.debug("LdapBoundConnFactory: initialization");
 
-        this.config = config;
         this.passwordStore = passwordStore;
 
         init();
@@ -152,8 +151,6 @@ public class LdapBoundConnFactory extends LdapConnFactory {
     public void init(PKISocketConfig config, LDAPConfig dbConfig) throws EBaseException, ELdapException {
 
         logger.debug("LdapBoundConnFactory: initialization");
-
-        this.config = config;
 
         this.mMinConns = dbConfig.getInteger(PROP_MINCONNS, mMinConns);
         this.mMaxConns = dbConfig.getInteger(PROP_MAXCONNS, mMaxConns);

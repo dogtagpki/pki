@@ -125,13 +125,6 @@ public class UGSubsystem {
 
         mLdapConnFactory = new LdapBoundConnFactory("UGSubsystem");
         mLdapConnFactory.setSocketFactory(socketFactory);
-
-        if (engine != null) {
-            mLdapConnFactory.setAuditor(engine.getAuditor());
-            mLdapConnFactory.setSocketListener(engine.getClientSocketListener());
-            mLdapConnFactory.setApprovalCallback(engine.getApprovalCallback());
-        }
-
         mLdapConnFactory.init(socketConfig, ldapConfig, passwordStore);
     }
 

@@ -244,13 +244,6 @@ public class DBSubsystem {
             // by default return error if server is down at startup time.
             mLdapConnFactory = new LdapBoundConnFactory("DBSubsystem", true);
             mLdapConnFactory.setSocketFactory(socketFactory);
-
-            if (engine != null) {
-                mLdapConnFactory.setAuditor(engine.getAuditor());
-                mLdapConnFactory.setSocketListener(engine.getClientSocketListener());
-                mLdapConnFactory.setApprovalCallback(engine.getApprovalCallback());
-            }
-
             mLdapConnFactory.init(socketConfig, ldapConfig, passwordStore);
 
         } catch (EPropertyNotDefined e) {

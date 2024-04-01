@@ -109,16 +109,12 @@ public class LdapAnonConnFactory extends LdapConnFactory {
 
         logger.debug("LdapAnonConnFactory: initialization");
 
-        this.config = config;
-
         init();
     }
 
     public void init(PKISocketConfig config, LDAPConfig dbConfig) throws EBaseException, ELdapException {
 
         logger.debug("LdapAnonConnFactory: initialization");
-
-        this.config = config;
 
         this.mMinConns = dbConfig.getInteger(PROP_MINCONNS, mMinConns);
         this.mMaxConns = dbConfig.getInteger(PROP_MAXCONNS, mMaxConns);

@@ -17,12 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.ldap;
 
-import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
-import org.mozilla.jss.ssl.SSLSocketListener;
-
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
-import com.netscape.cmscore.ldapconn.PKISocketConfig;
-import com.netscape.cmscore.logging.Auditor;
 
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPSocketFactory;
@@ -43,7 +38,6 @@ public abstract class LdapConnFactory {
 
     protected String id;
 
-    protected PKISocketConfig config;
     protected LDAPSocketFactory socketFactory;
     protected LdapConnInfo mConnInfo;
 
@@ -71,10 +65,6 @@ public abstract class LdapConnFactory {
      */
     protected boolean mDefErrorIfDown;
 
-    protected Auditor auditor;
-    protected SSLSocketListener socketListener;
-    protected SSLCertificateApprovalCallback approvalCallback;
-
     public LDAPSocketFactory getSocketFactory() {
         return socketFactory;
     }
@@ -88,30 +78,6 @@ public abstract class LdapConnFactory {
      */
     public LdapConnInfo getConnInfo() {
         return mConnInfo;
-    }
-
-    public Auditor getAuditor() {
-        return auditor;
-    }
-
-    public void setAuditor(Auditor auditor) {
-        this.auditor = auditor;
-    }
-
-    public SSLSocketListener getSocketListener() {
-        return socketListener;
-    }
-
-    public void setSocketListener(SSLSocketListener socketListener) {
-        this.socketListener = socketListener;
-    }
-
-    public SSLCertificateApprovalCallback getApprovalCallback() {
-        return approvalCallback;
-    }
-
-    public void setApprovalCallback(SSLCertificateApprovalCallback approvalCallback) {
-        this.approvalCallback = approvalCallback;
     }
 
     /**
