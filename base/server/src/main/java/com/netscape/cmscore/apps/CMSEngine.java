@@ -1286,7 +1286,7 @@ public class CMSEngine {
 
         LdapAnonConnFactory connFactory = new LdapAnonConnFactory(id);
         connFactory.setSocketFactory(socketFactory);
-        connFactory.init(socketConfig, ldapConfig);
+        connFactory.init(ldapConfig);
 
         return connFactory;
     }
@@ -1312,7 +1312,7 @@ public class CMSEngine {
                 maxConns,
                 connInfo);
         connFactory.setSocketFactory(socketFactory);
-        connFactory.init(socketConfig);
+        connFactory.init();
 
         return connFactory;
     }

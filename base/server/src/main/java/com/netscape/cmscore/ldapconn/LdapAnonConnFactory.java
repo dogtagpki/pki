@@ -105,14 +105,7 @@ public class LdapAnonConnFactory extends LdapConnFactory {
         this.mConnInfo = connInfo;
     }
 
-    public void init(PKISocketConfig config) throws ELdapException {
-
-        logger.debug("LdapAnonConnFactory: initialization");
-
-        init();
-    }
-
-    public void init(PKISocketConfig config, LDAPConfig dbConfig) throws EBaseException, ELdapException {
+    public void init(LDAPConfig dbConfig) throws EBaseException, ELdapException {
 
         logger.debug("LdapAnonConnFactory: initialization");
 
@@ -130,7 +123,7 @@ public class LdapAnonConnFactory extends LdapConnFactory {
     /**
      * initialize routine from parameters.
      */
-    protected void init() throws ELdapException {
+    public void init() throws ELdapException {
         if (mInited)
             return; // XXX should throw exception here ?
 
