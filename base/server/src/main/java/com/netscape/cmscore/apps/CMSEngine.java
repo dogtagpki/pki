@@ -1275,9 +1275,17 @@ public class CMSEngine {
             LDAPConfig ldapConfig
             ) throws EBaseException {
 
+        LDAPConnectionConfig ldapConnConfig = ldapConfig.getConnectionConfig();
         PKISocketConfig socketConfig = mConfig.getSocketConfig();
 
+        PKISocketFactory socketFactory = new PKISocketFactory();
+        socketFactory.setAuditor(auditor);
+        socketFactory.addSocketListener(clientSocketListener);
+        socketFactory.setSecure(ldapConnConfig.isSecure());
+        socketFactory.init(socketConfig);
+
         LdapAnonConnFactory connFactory = new LdapAnonConnFactory(id);
+        connFactory.setSocketFactory(socketFactory);
         connFactory.setAuditor(auditor);
         connFactory.setSocketListener(clientSocketListener);
         connFactory.setApprovalCallback(approvalCallback);
@@ -1295,11 +1303,18 @@ public class CMSEngine {
 
         PKISocketConfig socketConfig = mConfig.getSocketConfig();
 
+        PKISocketFactory socketFactory = new PKISocketFactory();
+        socketFactory.setAuditor(auditor);
+        socketFactory.addSocketListener(clientSocketListener);
+        socketFactory.setSecure(connInfo.getSecure());
+        socketFactory.init(socketConfig);
+
         LdapAnonConnFactory connFactory = new LdapAnonConnFactory(
                 id,
                 minConns,
                 maxConns,
                 connInfo);
+        connFactory.setSocketFactory(socketFactory);
         connFactory.setAuditor(auditor);
         connFactory.setSocketListener(clientSocketListener);
         connFactory.setApprovalCallback(approvalCallback);

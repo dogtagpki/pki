@@ -178,14 +178,6 @@ public class LdapAnonConnFactory extends LdapConnFactory {
                 int increment = Math.min(realMin - mNumConns, mMaxConns - mTotal);
                 logger.debug("LdapAnonConnFactory: increasing minimum connections by " + increment);
 
-                PKISocketFactory socketFactory = new PKISocketFactory();
-                socketFactory.setAuditor(auditor);
-                if (socketListener != null) {
-                    socketFactory.addSocketListener(socketListener);
-                }
-                socketFactory.setSecure(mConnInfo.getSecure());
-                socketFactory.init(config);
-
                 for (int i = increment - 1; i >= 0; i--) {
                     mConns[i] = new AnonConnection(socketFactory, mConnInfo);
                 }
@@ -308,14 +300,6 @@ public class LdapAnonConnFactory extends LdapConnFactory {
 
             conn = null;
             try {
-                PKISocketFactory socketFactory = new PKISocketFactory();
-                socketFactory.setAuditor(auditor);
-                if (socketListener != null) {
-                    socketFactory.addSocketListener(socketListener);
-                }
-                socketFactory.setSecure(mConnInfo.getSecure());
-                socketFactory.init(config);
-
                 conn = new AnonConnection(socketFactory, mConnInfo);
 
             } catch (LDAPException e) {

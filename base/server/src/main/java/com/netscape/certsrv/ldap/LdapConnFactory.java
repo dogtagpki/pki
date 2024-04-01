@@ -25,6 +25,7 @@ import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.logging.Auditor;
 
 import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPSocketFactory;
 
 /**
  * Maintains a pool of connections to the LDAP server.
@@ -43,6 +44,7 @@ public abstract class LdapConnFactory {
     protected String id;
 
     protected PKISocketConfig config;
+    protected LDAPSocketFactory socketFactory;
     protected LdapConnInfo mConnInfo;
 
     protected int mMinConns = 5;
@@ -72,6 +74,14 @@ public abstract class LdapConnFactory {
     protected Auditor auditor;
     protected SSLSocketListener socketListener;
     protected SSLCertificateApprovalCallback approvalCallback;
+
+    public LDAPSocketFactory getSocketFactory() {
+        return socketFactory;
+    }
+
+    public void setSocketFactory(LDAPSocketFactory socketFactory) {
+        this.socketFactory = socketFactory;
+    }
 
     /**
      * returns connection info.
