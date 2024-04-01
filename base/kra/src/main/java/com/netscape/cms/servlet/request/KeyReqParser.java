@@ -26,8 +26,8 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.key.KeyRecordParser;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmscore.request.Request;
-import com.netscape.kra.KeyRecoveryAuthority;
 
 /**
  * Output a 'pretty print' of a Key Archival request
@@ -59,14 +59,10 @@ public class KeyReqParser extends ReqParser {
 
         if (type.equals(Request.ENROLLMENT_REQUEST)) {
             BigInteger recSerialNo = req.getExtDataInBigInteger("keyRecord");
-            KeyRecoveryAuthority kra = (KeyRecoveryAuthority) engine.getSubsystem(KeyRecoveryAuthority.ID);
-            if (kra != null) {
-                KeyRecordParser.fillRecordIntoArg(
-                        kra.getKeyRepository().readKeyRecord(recSerialNo),
-                        arg);
-            } else {
-                throw new EBaseException("KRA is not available");
-            }
+            KeyRepository keyRepository = engine.getKeyRepository();
+            KeyRecordParser.fillRecordIntoArg(
+                    keyRepository.readKeyRecord(recSerialNo),
+                    arg);
 
         } else if (type.equals(Request.KEYRECOVERY_REQUEST)) {
             BigInteger kid = req.getExtDataInBigInteger("serialNumber");

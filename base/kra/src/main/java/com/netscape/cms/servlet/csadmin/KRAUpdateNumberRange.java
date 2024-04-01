@@ -53,7 +53,7 @@ public class KRAUpdateNumberRange extends UpdateNumberRange {
             return engine.getKeyRequestRepository();
 
         } else if (type.equals("serialNo")) {
-            return kra.getKeyRepository();
+            return engine.getKeyRepository();
 
         } else if (type.equals("replicaId")) {
             return kra.getReplicaRepository();

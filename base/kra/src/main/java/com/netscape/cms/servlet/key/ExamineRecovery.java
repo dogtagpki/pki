@@ -227,7 +227,7 @@ public class ExamineRecovery extends CMSServlet {
             header.addStringValue("serialNumber", keyID);
             header.addStringValue("recoveryID", recoveryID);
 
-            KeyRepository mKeyDB = mService.getKeyRepository();
+            KeyRepository mKeyDB = engine.getKeyRepository();
             KeyRecord rec = mKeyDB.readKeyRecord(new
                     BigInteger(keyID));
             KeyRecordParser.fillRecordIntoArg(rec, header);

@@ -73,7 +73,8 @@ public class SecurityDataProcessor {
         this.kra = kra;
         transportUnit = kra.getTransportKeyUnit();
         storageUnit = kra.getStorageKeyUnit();
-        keyRepository = kra.getKeyRepository();
+        KRAEngine engine = KRAEngine.getInstance();
+        keyRepository = engine.getKeyRepository();
     }
 
     public boolean archive(Request request)

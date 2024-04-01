@@ -141,7 +141,6 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
     protected StorageKeyUnit mStorageKeyUnit = null;
     protected Hashtable<String, Credential[]> mAutoRecovery = new Hashtable<>();
     protected boolean mAutoRecoveryOn = false;
-    protected KeyRepository mKeyDB = null;
     protected ReplicaIDRepository mReplicaRepot = null;
     protected int mRecoveryIDCounter = 0;
     protected Hashtable<String, Hashtable<String, Object>> mRecoveryParams =
@@ -288,8 +287,10 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
 
         logger.info("KeyRecoveryAuthority: Starting key status update task");
 
+        KeyRepository keyRepository = engine.getKeyRepository();
         KeyRequestRepository requestRepository = engine.getKeyRequestRepository();
-        keyStatusUpdateTask = new KeyStatusUpdateTask(mKeyDB, requestRepository, interval);
+
+        keyStatusUpdateTask = new KeyStatusUpdateTask(keyRepository, requestRepository, interval);
         keyStatusUpdateTask.start();
     }
 
@@ -320,15 +321,8 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
         mPolicy = new KRAPolicy();
         mPolicy.init(this, kraPolicyConfig);
 
-        // create key repository
-        int keydb_inc = mConfig.getInteger(PROP_KEYDB_INC, 5);
-
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         SecureRandom secureRandom = jssSubsystem.getRandomNumberGenerator();
-
-        mKeyDB = new KeyRepository(secureRandom, dbSubsystem);
-        mKeyDB.setCMSEngine(engine);
-        mKeyDB.init();
 
         // read transport key from internal database
         mTransportKeyUnit = new TransportKeyUnit();
@@ -536,10 +530,6 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
 
         if (keyStatusUpdateTask != null) {
             keyStatusUpdateTask.stop();
-        }
-
-        if (mKeyDB != null) {
-            mKeyDB.shutdown();
         }
 
         logger.info(mName + " is stopped");
@@ -1537,14 +1527,6 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
 
     public IPolicy getPolicy() {
         return mPolicy;
-    }
-
-    /**
-     * Retrieves the key repository. The key repository
-     * stores archived keys.
-     */
-    public KeyRepository getKeyRepository() {
-        return mKeyDB;
     }
 
     /**

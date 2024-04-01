@@ -18,16 +18,21 @@
 
 package org.dogtagpki.server.kra;
 
+import java.security.SecureRandom;
+
 import com.netscape.certsrv.base.Subsystem;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
+import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmscore.request.KeyRequestRepository;
 import com.netscape.kra.KeyRecoveryAuthority;
 
 public class KRAEngine extends CMSEngine {
 
     static KRAEngine instance;
+
+    protected KeyRepository keyRepository;
 
     public KRAEngine() {
         super("KRA");
@@ -56,6 +61,31 @@ public class KRAEngine extends CMSEngine {
         return (KeyRequestRepository) requestRepository;
     }
 
+    public KeyRepository getKeyRepository() {
+        return keyRepository;
+    }
+
+    public void initKeyRepository() throws Exception {
+
+        logger.info("KRAEngine: Initializing key repository");
+
+        KRAConfig kraConfig = getConfig().getKRAConfig();
+        int increment = kraConfig.getInteger(KeyRecoveryAuthority.PROP_KEYDB_INC, 5);
+        logger.info("KRAEngine: - increment: " + increment);
+
+        SecureRandom secureRandom = jssSubsystem.getRandomNumberGenerator();
+
+        keyRepository = new KeyRepository(secureRandom, dbSubsystem);
+        keyRepository.setCMSEngine(this);
+        keyRepository.init();
+    }
+
+    @Override
+    public void init() throws Exception {
+        initKeyRepository();
+        super.init();
+    }
+
     @Override
     public void initSubsystem(Subsystem subsystem, ConfigStore subsystemConfig) throws Exception {
 
@@ -72,13 +102,22 @@ public class KRAEngine extends CMSEngine {
 
         super.startupSubsystems();
 
-        KeyRecoveryAuthority kra = (KeyRecoveryAuthority) getSubsystem(KeyRecoveryAuthority.ID);
         if (!isPreOpMode()) {
             logger.debug("KRAEngine: checking request serial number ranges for the KRA");
             requestRepository.checkRanges();
 
             logger.debug("KRAEngine: checking key serial number ranges");
-            kra.getKeyRepository().checkRanges();
+            keyRepository.checkRanges();
+        }
+    }
+
+    @Override
+    protected void shutdownSubsystems() {
+
+        super.shutdownSubsystems();
+
+        if (keyRepository != null) {
+            keyRepository.shutdown();
         }
     }
 }

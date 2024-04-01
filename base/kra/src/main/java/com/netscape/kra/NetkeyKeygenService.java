@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.kra;
 
-import java.util.Arrays;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FilterOutputStream;
@@ -44,7 +43,6 @@ import org.mozilla.jss.netscape.security.util.WrappingParams;
 import org.mozilla.jss.pkcs11.PK11SymKey;
 import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
 import org.mozilla.jss.util.Base64OutputStream;
-import org.mozilla.jss.crypto.KeyPairAlgorithm;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
@@ -170,7 +168,7 @@ public class NetkeyKeygenService implements IService {
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         byte[] wrapped_des_key;
-        byte[] wrapped_aes_key = null; 
+        byte[] wrapped_aes_key = null;
         String method = "NetkeyKeygenService: serviceRequest: ";
 
         byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
@@ -401,7 +399,7 @@ public class NetkeyKeygenService implements IService {
                  }
 
                 // 3 wrapping should be done in HSM
-                // wrap private key with session key 
+                // wrap private key with session key
                 logger.debug("NetkeyKeygenService: wrapper token=" + keygenToken.getName());
                 logger.debug("NetkeyKeygenService: key transport key is on slot: " + sk.getOwningToken().getName());
 
@@ -570,7 +568,7 @@ public class NetkeyKeygenService implements IService {
                     }
 
                     //??
-                    KeyRepository storage = mKRA.getKeyRepository();
+                    KeyRepository storage = engine.getKeyRepository();
                     BigInteger serialNo = storage.getNextSerialNumber();
 
                     if (serialNo == null) {

@@ -99,7 +99,7 @@ public class DisplayBySerialForRecovery extends CMSServlet {
         mFormPath = "/agent/kra/" + TPL_FILE;
         KRAEngine engine = KRAEngine.getInstance();
         KeyRecoveryAuthority kra = engine.getKRA();
-        mKeyDB = kra.getKeyRepository();
+        mKeyDB = engine.getKeyRepository();
         mService = kra;
 
         mTemplates.remove(CMSRequest.SUCCESS);

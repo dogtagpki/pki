@@ -287,7 +287,7 @@ public class AsymKeyGenService implements IService {
         KeyRecord record = new KeyRecord(null, kp.getPublic().getEncoded(), privateSecurityData,
                 isSSKeygen? clientKeyId:owner, algorithm, owner);
 
-        KeyRepository storage = kra.getKeyRepository();
+        KeyRepository storage = engine.getKeyRepository();
         BigInteger serialNo = storage.getNextSerialNumber();
 
         if (serialNo == null) {

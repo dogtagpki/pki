@@ -548,7 +548,7 @@ public class EnrollmentService implements IService {
                         CMS.getUserMessage("CMS_KRA_INVALID_STATE") + ": " + e, e);
             }
 
-            KeyRepository storage = mKRA.getKeyRepository();
+            KeyRepository storage = engine.getKeyRepository();
             BigInteger serialNo = storage.getNextSerialNumber();
 
             if (serialNo == null) {

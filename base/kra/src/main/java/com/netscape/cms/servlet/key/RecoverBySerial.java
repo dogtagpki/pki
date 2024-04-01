@@ -119,7 +119,7 @@ public class RecoverBySerial extends CMSServlet {
         mFormPath = "/kra/" + TPL_FILE;
         KRAEngine engine = KRAEngine.getInstance();
         mService = engine.getKRA();
-        repo = mService.getKeyRepository();
+        repo = engine.getKeyRepository();
 
         mTemplates.remove(CMSRequest.SUCCESS);
         if (mOutputTemplatePath != null)

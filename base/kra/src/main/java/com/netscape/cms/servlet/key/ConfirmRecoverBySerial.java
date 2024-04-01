@@ -86,7 +86,7 @@ public class ConfirmRecoverBySerial extends CMSServlet {
         mFormPath = "/kra/" + TPL_FILE;
         KRAEngine engine = KRAEngine.getInstance();
         mRecoveryService = engine.getKRA();
-        mKeyDB = mRecoveryService.getKeyRepository();
+        mKeyDB = engine.getKeyRepository();
 
         mTemplates.remove(CMSRequest.SUCCESS);
     }

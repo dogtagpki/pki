@@ -45,7 +45,6 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
-import com.netscape.kra.KeyRecoveryAuthority;
 
 /**
  * Display a specific Key Archival Request
@@ -95,8 +94,7 @@ public class DisplayBySerial extends CMSServlet {
         super.init(sc);
         mFormPath = "/kra/" + TPL_FILE;
         KRAEngine engine = KRAEngine.getInstance();
-        KeyRecoveryAuthority kra = engine.getKRA();
-        mKeyDB = kra.getKeyRepository();
+        mKeyDB = engine.getKeyRepository();
 
         mTemplates.remove(CMSRequest.SUCCESS);
         if (mOutputTemplatePath != null)

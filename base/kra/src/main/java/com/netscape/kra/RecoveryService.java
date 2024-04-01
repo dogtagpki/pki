@@ -119,7 +119,8 @@ public class RecoveryService implements IService {
      */
     public RecoveryService(KeyRecoveryAuthority kra) {
         mKRA = kra;
-        mStorage = mKRA.getKeyRepository();
+        KRAEngine engine = KRAEngine.getInstance();
+        mStorage = engine.getKeyRepository();
         mStorageUnit = mKRA.getStorageKeyUnit();
     }
 

@@ -130,7 +130,7 @@ public class SrchKey extends CMSServlet {
 
         KRAEngine engine = KRAEngine.getInstance();
         KeyRecoveryAuthority kra = engine.getKRA();
-        mKeyDB = kra.getKeyRepository();
+        mKeyDB = engine.getKeyRepository();
         mAuthName = kra.getX500Name();
 
         mTemplates.remove(CMSRequest.SUCCESS);

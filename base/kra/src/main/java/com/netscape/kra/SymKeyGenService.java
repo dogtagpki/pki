@@ -249,7 +249,7 @@ public class SymKeyGenService implements IService {
             throw new EBaseException(message);
         }
 
-        KeyRepository storage = mKRA.getKeyRepository();
+        KeyRepository storage = engine.getKeyRepository();
         BigInteger serialNo = storage.getNextSerialNumber();
 
         if (serialNo == null) {

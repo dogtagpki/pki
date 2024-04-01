@@ -103,7 +103,7 @@ public class KeyService extends SubsystemService implements KeyResource {
     public KeyService() {
         KRAEngine engine = KRAEngine.getInstance();
         kra = (KeyRecoveryAuthority) engine.getSubsystem(KeyRecoveryAuthority.ID);
-        repo = kra.getKeyRepository();
+        repo = engine.getKeyRepository();
         requestRepository = engine.getRequestRepository();
         queue = engine.getRequestQueue();
         service = kra;

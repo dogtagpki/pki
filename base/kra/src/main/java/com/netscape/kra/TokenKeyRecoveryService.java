@@ -99,7 +99,8 @@ public class TokenKeyRecoveryService implements IService {
      */
     public TokenKeyRecoveryService(KeyRecoveryAuthority kra) {
         mKRA = kra;
-        mStorage = mKRA.getKeyRepository();
+        KRAEngine engine = KRAEngine.getInstance();
+        mStorage = engine.getKeyRepository();
         mStorageUnit = mKRA.getStorageKeyUnit();
         mTransportUnit = kra.getTransportKeyUnit();
     }
@@ -243,7 +244,7 @@ public class TokenKeyRecoveryService implements IService {
         String rUserid = request.getExtDataInString(Request.NETKEY_ATTR_USERID);
         String rWrappedDesKeyString = request.getExtDataInString(Request.NETKEY_ATTR_DRMTRANS_DES_KEY);
         String rWrappedAesKeyString = request.getExtDataInString(Request.NETKEY_ATTR_DRMTRANS_AES_KEY);
-        
+
         // the request record field delayLDAPCommit == "true" will cause
         // updateRequest() to delay actual write to ldap
         request.setExtData("delayLDAPCommit", "true");
