@@ -65,10 +65,7 @@ public class UserPwdDirAuthentication extends DirBasedAuthentication {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UserPwdDirAuthentication.class);
     /* required credentials to authenticate. uid and pwd are strings. */
-    public static final String CRED_UID = "uid";
-    public static final String CRED_PWD = "pwd";
     public String mAttr = CRED_UID;
-
     protected String[] mRequiredCreds = { mAttr, CRED_PWD };
 
     protected String mAttrName = null;

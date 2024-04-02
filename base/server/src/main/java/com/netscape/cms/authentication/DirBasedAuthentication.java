@@ -75,6 +75,12 @@ public abstract class DirBasedAuthentication extends AuthManager implements IExt
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DirBasedAuthentication.class);
 
+    public static final String CRED_UID = "uid";
+    public static final String CRED_PWD = "pwd";
+    public static final String CRED_USER_PASSWORD = "userPassword";
+    public static final String CRED_PIN = "pin";
+    public static final String CRED_ShrTok = "shrTok";
+
     protected static final String USER_DN = "userDN";
 
     /* configuration parameter keys */

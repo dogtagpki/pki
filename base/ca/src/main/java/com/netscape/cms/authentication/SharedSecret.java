@@ -76,8 +76,7 @@ public class SharedSecret extends DirBasedAuthentication
      * required credentials to authenticate. Though for this
      * special impl it will be unused.
      */
-    public static final String CRED_ShrTok = "shrTok";
-    protected static String[] mRequiredCreds = { CRED_ShrTok};
+    protected static String[] mRequiredCreds = { CRED_ShrTok };
 
     protected static final String PROP_DNPATTERN = "dnpattern";
     protected static final String PROP_LDAPSTRINGATTRS = "ldapStringAttributes";

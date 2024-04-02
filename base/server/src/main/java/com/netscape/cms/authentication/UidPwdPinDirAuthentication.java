@@ -55,18 +55,12 @@ import netscape.ldap.LDAPv3;
 
 /**
  * uid/pwd/pin directory based authentication manager
- * <P>
- *
- * @version $Revision$, $Date$
  */
 public class UidPwdPinDirAuthentication extends DirBasedAuthentication {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UidPwdPinDirAuthentication.class);
 
     /* required credentials to authenticate. uid and pwd are strings. */
-    public static final String CRED_UID = "uid";
-    public static final String CRED_PWD = "pwd";
-    public static final String CRED_PIN = "pin";
     protected static String[] mRequiredCreds = { CRED_UID, CRED_PWD, CRED_PIN };
 
     public static final String PROP_REMOVE_PIN = "removePin";

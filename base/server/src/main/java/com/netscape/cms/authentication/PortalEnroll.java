@@ -72,9 +72,7 @@ public class PortalEnroll extends DirBasedAuthentication {
     protected static final String PROP_OBJECTCLASS = "objectclass";
 
     /* required credentials to authenticate. uid and pwd are strings. */
-    public static final String CRED_UID = "uid";
-    public static final String CRED_PWD = "userPassword";
-    protected static String[] mRequiredCreds = { CRED_UID, CRED_PWD };
+    protected static String[] mRequiredCreds = { CRED_UID, CRED_USER_PASSWORD };
 
     /* ldap configuration sub-store */
     private ArgBlock argblk;
@@ -197,9 +195,9 @@ public class PortalEnroll extends DirBasedAuthentication {
             }
 
             // get the password.
-            pwd = (String) authCreds.get(CRED_PWD);
+            pwd = (String) authCreds.get(CRED_USER_PASSWORD);
             if (pwd == null) {
-                throw new EMissingCredential(CMS.getUserMessage("CMS_AUTHENTICATION_NULL_CREDENTIAL", CRED_PWD));
+                throw new EMissingCredential(CMS.getUserMessage("CMS_AUTHENTICATION_NULL_CREDENTIAL", CRED_USER_PASSWORD));
             }
             if (pwd.equals("")) {
                 // anonymous binding not allowed
