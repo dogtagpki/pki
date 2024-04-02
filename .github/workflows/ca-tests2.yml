@@ -13,6 +13,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/ca-profile-caDirUserCert-test.yml
 
+  ca-profile-caDirPinUserCert-test:
+    name: CA with caDirPinUserCert profile
+    needs: build
+    uses: ./.github/workflows/ca-profile-caDirPinUserCert-test.yml
+
   ca-profile-caServerCert-test:
     name: CA with caServerCert profile
     needs: build

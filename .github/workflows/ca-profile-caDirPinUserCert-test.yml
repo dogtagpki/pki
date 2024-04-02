@@ -1,0 +1,324 @@
+name: CA with caDirPinUserCert profile
+# https://github.com/dogtagpki/pki/wiki/Certificate-Enrollment-with-PIN-Authenticated-Profile
+
+on: workflow_call
+
+env:
+  DB_IMAGE: ${{ vars.DB_IMAGE || 'quay.io/389ds/dirsrv' }}
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install jq moreutils
+
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Retrieve PKI images
+        uses: actions/cache@v4
+        with:
+          key: pki-images-${{ github.sha }}
+          path: pki-images.tar
+
+      - name: Load PKI images
+        run: docker load --input pki-images.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-container-create.sh ds
+        env:
+          IMAGE: ${{ env.DB_IMAGE }}
+          HOSTNAME: ds.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect DS container to network
+        run: docker network connect example ds --alias ds.example.com
+
+      - name: Add LDAP users and PIN manager
+        run: |
+          docker exec -i ds ldapadd \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 << EOF
+          dn: uid=pinmanager,dc=example,dc=com
+          objectClass: person
+          objectClass: organizationalPerson
+          objectClass: inetOrgPerson
+          uid: pinmanager
+          cn: PIN Manager
+          sn: Manager
+          userPassword: Secret.123
+
+          dn: ou=people,dc=example,dc=com
+          objectclass: top
+          objectclass: organizationalUnit
+          ou: people
+          aci: (target="ldap:///ou=people,dc=example,dc=com")
+           (targetattr=objectClass||dc||ou||uid||cn||sn||givenName)
+           (version 3.0; acl "Allow anyone to read and search basic attributes"; allow (search, read) userdn = "ldap:///anyone";)
+          aci: (target="ldap:///ou=people,dc=example,dc=com")
+           (targetattr=*)
+           (version 3.0; acl "Allow anyone to read and search itself"; allow (search, read) userdn = "ldap:///self";)
+
+          dn: uid=testuser1,ou=people,dc=example,dc=com
+          objectClass: person
+          objectClass: organizationalPerson
+          objectClass: inetOrgPerson
+          uid: testuser1
+          cn: Test User 1
+          sn: User
+          userPassword: Secret.123
+
+          dn: uid=testuser2,ou=people,dc=example,dc=com
+          objectClass: person
+          objectClass: organizationalPerson
+          objectClass: inetOrgPerson
+          uid: testuser2
+          cn: Test User 2
+          sn: User
+          userPassword: Secret.123
+          EOF
+
+      - name: Set up PKI container
+        run: |
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
+
+      - name: Connect PKI container to network
+        run: docker network connect example pki --alias pki.example.com
+
+      - name: Set up LDAP schema and ACI attrs
+        run: |
+          # configure setpin.conf
+          docker exec pki sed \
+              -e "s/^host=.*$/host=ds.example.com/" \
+              -e "s/^port=.*$/port=3389/" \
+              -e "s/^binddn=.*$/binddn=cn=Directory Manager/" \
+              -e "s/^bindpw=.*$/bindpw=Secret.123/" \
+              -e "s/^pinmanager=.*$/pinmanager=uid=pinmanager,dc=example,dc=com/" \
+              -e "s/^pinmanagerpwd=.*$/pinmanagerpwd=Secret.123/" \
+              -e "s/^basedn=.*$/basedn=ou=people,dc=example,dc=com/" \
+              /usr/share/pki/tools/setpin.conf | tee setpin.conf
+
+          # run setpin to set up LDAP schema and ACI attrs
+          docker exec pki setpin optfile=$SHARED/setpin.conf
+
+          # get ACI attrs
+          docker exec pki ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b "ou=people,dc=example,dc=com" \
+              -s base \
+              -t \
+              -o ldif_wrap=no \
+              -LLL \
+              aci | tee output
+
+          # there should be 2 old ACI attrs and 2 new ones
+          cat > expected << EOF
+          aci: (target="ldap:///ou=people,dc=example,dc=com")(targetattr=objectClass||dc||ou||uid||cn||sn||givenName)(version 3.0; acl "Allow anyone to read and search basic attributes"; allow (search, read) userdn = "ldap:///anyone";)
+          aci: (target="ldap:///ou=people,dc=example,dc=com")(targetattr=*)(version 3.0; acl "Allow anyone to read and search itself"; allow (search, read) userdn = "ldap:///self";)
+          aci: (target="ldap:///ou=people,dc=example,dc=com")(targetattr="pin")(version 3.0; acl "Pin attribute"; allow (all) userdn = "ldap:///uid=pinmanager,dc=example,dc=com"; deny(proxy,selfwrite,compare,add,write,delete,search) userdn = "ldap:///self";)
+          aci: (target="ldap:///ou=people,dc=example,dc=com")(targetattr="objectclass")(version 3.0; acl "Pin Objectclass"; allow (all) userdn = "ldap:///uid=pinmanager,dc=example,dc=com";)
+          EOF
+
+          grep '^aci:' output > actual
+          diff expected actual
+
+      - name: Generate user PINs
+        run: |
+          # disable setup mode
+          sed -i "/^setup=/d" setpin.conf
+
+          # run setpin to generate PINs for all users
+          docker exec pki setpin \
+              filter="(objectClass=person)" \
+              optfile=$SHARED/setpin.conf \
+              output=$SHARED/setpin.out \
+              write
+
+          cat setpin.out
+
+          # check users
+          docker exec pki ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b "ou=people,dc=example,dc=com" \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL
+
+      - name: Install CA
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -v
+
+      - name: Configure caDirPinUserCert profile
+        run: |
+          # configure PIN-based authentication
+          docker exec pki pki-server ca-config-set auths.instance.PinDirEnrollment.pluginName UidPwdPinDirAuth
+          docker exec pki pki-server ca-config-set auths.instance.PinDirEnrollment.ldap.basedn ou=people,dc=example,dc=com
+          docker exec pki pki-server ca-config-set auths.instance.PinDirEnrollment.ldap.ldapauth.authtype BasicAuth
+          docker exec pki pki-server ca-config-set auths.instance.PinDirEnrollment.ldap.ldapconn.host ds.example.com
+          docker exec pki pki-server ca-config-set auths.instance.PinDirEnrollment.ldap.ldapconn.port 3389
+
+          # enable caDirPinUserCert profile
+          docker exec pki sed -i \
+              -e "s/^\(enable\)=.*/\1=true/" \
+              /var/lib/pki/pki-tomcat/ca/profiles/ca/caDirPinUserCert.cfg
+
+          # restart CA subsystem
+          docker exec pki pki-server ca-redeploy --wait
+
+      - name: Check CA admin
+        run: |
+          docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
+          docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
+          docker exec pki pki pkcs12-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+          docker exec pki pki -n caadmin ca-user-show caadmin
+
+      - name: Check enrollment with pki ca-cert-request-submit
+        run: |
+          PIN=$(sed -En 'N; s/^dn:uid=testuser1,.*\npin:(.*)$/\1/p; D' setpin.out)
+          echo "PIN: $PIN"
+
+          # generate cert request
+          docker exec pki pki nss-cert-request \
+              --subject "UID=testuser1" \
+              --csr $SHARED/testuser1.csr
+
+          echo "Secret.123" > password.txt
+          echo "$PIN" > pin.txt
+          docker exec pki \
+              pki ca-cert-request-submit \
+              --profile caDirPinUserCert \
+              --username testuser1 \
+              --password-file $SHARED/password.txt \
+              --pin-file $SHARED/pin.txt \
+              --csr-file $SHARED/testuser1.csr \
+              | tee output
+
+          CERT_ID=$(sed -n "s/^\s*Certificate ID:\s*\(\S*\)$/\1/p" output)
+
+          # retrieve cert
+          docker exec pki pki ca-cert-export $CERT_ID --output-file testuser1.crt
+          docker exec pki pki nss-cert-import testuser1 --cert testuser1.crt
+
+          # install cert
+          docker exec pki pki nss-cert-show testuser1 | tee output
+
+          # the cert should match the key (trust flags must be u,u,u)
+          echo "u,u,u" > expected
+          sed -n "s/^\s*Trust Flags:\s*\(\S*\)$/\1/p" output > actual
+          diff expected actual
+
+      - name: Check enrollment with curl
+        run: |
+          PIN=$(sed -En 'N; s/^dn:uid=testuser2,.*\npin:(.*)$/\1/p; D' setpin.out)
+          echo "PIN: $PIN"
+
+          # generate cert request
+          docker exec pki pki nss-cert-request \
+              --subject "UID=testuser2" \
+              --csr $SHARED/testuser2.csr
+
+          # retrieve request template
+          docker exec pki curl \
+              -k \
+              -s \
+              -H "Content-Type: application/json" \
+              -H "Accept: application/json" \
+              https://pki.example.com:8443/ca/rest/certrequests/profiles/caDirPinUserCert \
+              | python -m json.tool > request.json
+
+          cat request.json
+
+          # insert username
+          jq '.Attributes.Attribute[.Attributes.Attribute|length] |= . + { "name": "uid", "value": "testuser2" }' \
+              request.json | sponge request.json
+
+          # insert password
+          jq '.Attributes.Attribute[.Attributes.Attribute|length] |= . + { "name": "pwd", "value": "Secret.123" }' \
+              request.json | sponge request.json
+
+          # insert PIN
+          jq --arg PIN "$PIN" '.Attributes.Attribute[.Attributes.Attribute|length] |= . + { "name": "pin", "value": $PIN }' \
+              request.json | sponge request.json
+
+          # insert request type
+          jq '( .Input[].Attribute[] | select(.name=="cert_request_type") ).Value |= "pkcs10"' \
+              request.json | sponge request.json
+
+          # insert CSR
+          jq --rawfile cert_request testuser2.csr '( .Input[].Attribute[] | select(.name=="cert_request") ).Value |= $cert_request' \
+              request.json | sponge request.json
+
+          cat request.json
+
+          # submit request
+          docker exec pki curl \
+              -k \
+              -s \
+              -X POST \
+              -d @$SHARED/request.json \
+              -H "Content-Type: application/json" \
+              -H "Accept: application/json" \
+              https://pki.example.com:8443/ca/rest/certrequests | python -m json.tool | tee output
+          CERT_ID=$(jq -r '.entries[].certId' output)
+
+          # retrieve cert
+          docker exec pki pki ca-cert-export $CERT_ID --output-file testuser2.crt
+          docker exec pki pki nss-cert-import testuser2 --cert testuser2.crt
+
+          # install cert
+          docker exec pki pki nss-cert-show testuser2 | tee output
+
+          # the cert should match the key (trust flags must be u,u,u)
+          echo "u,u,u" > expected
+          sed -n "s/^\s*Trust Flags:\s*\(\S*\)$/\1/p" output > actual
+          diff expected actual
+
+      - name: Remove CA
+        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Check PKI server systemd journal
+        if: always()
+        run: |
+          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check CA debug log
+        if: always()
+        run: |
+          docker exec pki find /var/log/pki/pki-tomcat/ca -name "debug.*" -exec cat {} \;
+
+      - name: Gather artifacts
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh ds
+          tests/bin/pki-artifacts-save.sh pki
+        continue-on-error: true
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ca-profile-caDirPinUserCert-test
+          path: /tmp/artifacts

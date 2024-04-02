@@ -16,6 +16,11 @@ the subsystem `Type` field since it's redundant.
 Instead, it will show an `SD Manager` field which will indicate whether
 the subsystem is a security domain manager.
 
+== Update certifcate enrollment commands ==
+
+The `pki ca-cert-request-submit` command has been updated to provide options
+to specify the enrollment password and PIN.
+
 == Update certifcate revocation commands ==
 
 The `pki ca-cert-revoke`, `pki ca-cert-hold`, and `pki ca-cert-release-hold` commands

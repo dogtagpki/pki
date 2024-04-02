@@ -488,7 +488,7 @@ void do_setup() {
                    "(version 3.0; acl \"Pin attribute\"; "
                    "allow (all) userdn = \"ldap:///%s\"; "
                    "deny(proxy,selfwrite,compare,add,write,delete,search) "
-                   "userdn = \"ldap:///self\"; ) ",
+                   "userdn = \"ldap:///self\";)",
                 o_basedn,
                 o_pinmanager);
 
@@ -497,8 +497,7 @@ void do_setup() {
         sprintf(x_values[1],"(target=\"ldap:///%s\")"
                    "(targetattr=\"objectclass\")"
                    "(version 3.0; acl \"Pin Objectclass\"; "
-                   "allow (all) userdn = \"ldap:///%s\"; "
-                   " ) ",
+                   "allow (all) userdn = \"ldap:///%s\";)",
                 o_basedn,
                 o_pinmanager);
 
