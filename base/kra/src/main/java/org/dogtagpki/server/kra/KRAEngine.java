@@ -25,6 +25,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.KeyRepository;
+import com.netscape.cmscore.dbs.ReplicaIDRepository;
 import com.netscape.cmscore.request.KeyRequestRepository;
 import com.netscape.kra.KeyRecoveryAuthority;
 
@@ -33,6 +34,7 @@ public class KRAEngine extends CMSEngine {
     static KRAEngine instance;
 
     protected KeyRepository keyRepository;
+    protected ReplicaIDRepository replicaIDRepository;
 
     public KRAEngine() {
         super("KRA");
@@ -65,6 +67,10 @@ public class KRAEngine extends CMSEngine {
         return keyRepository;
     }
 
+    public ReplicaIDRepository getReplicaIDRepository() {
+        return replicaIDRepository;
+    }
+
     public void initKeyRepository() throws Exception {
 
         logger.info("KRAEngine: Initializing key repository");
@@ -80,9 +86,19 @@ public class KRAEngine extends CMSEngine {
         keyRepository.init();
     }
 
+    public void initReplicaIDRepository() throws Exception {
+
+        logger.info("KRAEngine: Initializing replica ID repository");
+
+        replicaIDRepository = new ReplicaIDRepository(dbSubsystem);
+        replicaIDRepository.setCMSEngine(this);
+        replicaIDRepository.init();
+    }
+
     @Override
     public void init() throws Exception {
         initKeyRepository();
+        initReplicaIDRepository();
         super.init();
     }
 

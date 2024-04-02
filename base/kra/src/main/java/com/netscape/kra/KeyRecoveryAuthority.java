@@ -79,7 +79,6 @@ import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmscore.dbs.KeyStatusUpdateTask;
-import com.netscape.cmscore.dbs.ReplicaIDRepository;
 import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.request.KeyRequestRepository;
 import com.netscape.cmscore.request.Request;
@@ -141,7 +140,6 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
     protected StorageKeyUnit mStorageKeyUnit = null;
     protected Hashtable<String, Credential[]> mAutoRecovery = new Hashtable<>();
     protected boolean mAutoRecoveryOn = false;
-    protected ReplicaIDRepository mReplicaRepot = null;
     protected int mRecoveryIDCounter = 0;
     protected Hashtable<String, Hashtable<String, Object>> mRecoveryParams =
             new Hashtable<>();
@@ -444,13 +442,6 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
             }
         }
         initNotificationListeners();
-
-        mReplicaRepot = new ReplicaIDRepository(dbSubsystem);
-        mReplicaRepot.setCMSEngine(engine);
-        mReplicaRepot.init();
-
-        logger.debug("Replica Repot inited");
-
     }
 
     /**
@@ -1527,15 +1518,6 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
 
     public IPolicy getPolicy() {
         return mPolicy;
-    }
-
-    /**
-     * Retrieves replica ID repository.
-     *
-     * @return replica ID repository
-     */
-    public ReplicaIDRepository getReplicaRepository() {
-        return mReplicaRepot;
     }
 
     /**

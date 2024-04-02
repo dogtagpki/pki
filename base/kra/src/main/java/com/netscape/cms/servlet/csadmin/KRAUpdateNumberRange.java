@@ -24,7 +24,6 @@ import org.dogtagpki.server.kra.KRAEngine;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.dbs.Repository;
-import com.netscape.kra.KeyRecoveryAuthority;
 
 @WebServlet(
         name = "kraUpdateNumberRange",
@@ -47,7 +46,6 @@ public class KRAUpdateNumberRange extends UpdateNumberRange {
     public Repository getRepository(String type) throws EBaseException {
 
         KRAEngine engine = KRAEngine.getInstance();
-        KeyRecoveryAuthority kra = (KeyRecoveryAuthority) engine.getSubsystem(KeyRecoveryAuthority.ID);
 
         if (type.equals("request")) {
             return engine.getKeyRequestRepository();
@@ -56,7 +54,7 @@ public class KRAUpdateNumberRange extends UpdateNumberRange {
             return engine.getKeyRepository();
 
         } else if (type.equals("replicaId")) {
-            return kra.getReplicaRepository();
+            return engine.getReplicaIDRepository();
         }
 
         throw new EBaseException("Unsupported repository: " + type);
