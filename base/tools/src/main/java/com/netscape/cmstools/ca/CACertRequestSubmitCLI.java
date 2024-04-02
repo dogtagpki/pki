@@ -58,11 +58,20 @@ public class CACertRequestSubmitCLI extends CommandCLI {
         option.setArgName("DN");
         options.addOption(option);
 
-        option = new Option(null, "username", true, "Username for request authentication");
+        option = new Option(null, "username", true, "Username for enrollment");
         option.setArgName("username");
         options.addOption(option);
 
-        option = new Option(null, "password", false, "Prompt password for request authentication");
+        option = new Option(null, "password-file", true, "File containing enrollment password");
+        options.addOption(option);
+
+        option = new Option(null, "password", false, "Prompt for enrollment password");
+        options.addOption(option);
+
+        option = new Option(null, "pin-file", true, "File containing enrollment PIN");
+        options.addOption(option);
+
+        option = new Option(null, "pin", false, "Prompt for enrollment PIN");
         options.addOption(option);
 
         option = new Option(null, "profile", true, "Certificate profile");
@@ -282,15 +291,31 @@ public class CACertRequestSubmitCLI extends CommandCLI {
             }
         }
 
-        String certRequestUsername = cmd.getOptionValue("username");
-        if (certRequestUsername != null) {
-            request.setAttribute("uid", certRequestUsername);
+        String enrollmentUsername = cmd.getOptionValue("username");
+        if (enrollmentUsername != null) {
+            request.setAttribute("uid", enrollmentUsername);
         }
 
-        if (cmd.hasOption("password")) {
+        String passwordFile = cmd.getOptionValue("password-file");
+        if (passwordFile != null) {
+            String enrollmentPassword = Files.readString(Paths.get(passwordFile)).trim();
+            request.setAttribute("pwd", enrollmentPassword);
+
+        } else if (cmd.hasOption("password")) {
             Console console = System.console();
-            String certRequestPassword = new String(console.readPassword("Password: "));
-            request.setAttribute("pwd", certRequestPassword);
+            String enrollmentPassword = new String(console.readPassword("Password: "));
+            request.setAttribute("pwd", enrollmentPassword);
+        }
+
+        String pinFile = cmd.getOptionValue("pin-file");
+        if (pinFile != null) {
+            String enrollmentPIN = Files.readString(Paths.get(pinFile)).trim();
+            request.setAttribute("pin", enrollmentPIN);
+
+        } else if (cmd.hasOption("pin")) {
+            Console console = System.console();
+            String enrollmentPIN = new String(console.readPassword("PIN: "));
+            request.setAttribute("pin", enrollmentPIN);
         }
 
         logger.info("Request:\n" + request);

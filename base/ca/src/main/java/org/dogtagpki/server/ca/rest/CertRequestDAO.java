@@ -202,6 +202,10 @@ public class CertRequestDAO extends CMSRequestDAO {
         if (password != null) {
             credentials.set(DirBasedAuthentication.CRED_PWD, password);
         }
+        String pin = data.getAttribute(DirBasedAuthentication.CRED_PIN);
+        if (pin != null) {
+            credentials.set(DirBasedAuthentication.CRED_PIN, pin);
+        }
 
         CAEngine engine = CAEngine.getInstance();
 
