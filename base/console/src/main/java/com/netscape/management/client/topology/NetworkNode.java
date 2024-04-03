@@ -7,20 +7,23 @@
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation version
  * 2.1 of the License.
- *                                                                                 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- *                                                                                 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  * END COPYRIGHT BLOCK **/
 package com.netscape.management.client.topology;
 
-import com.netscape.management.client.util.*;
-import netscape.ldap.*;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.RemoteImage;
+
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPSearchResults;
 
 public class NetworkNode extends ServerLocNode {
     public static String _imageSource = "com/netscape/management/client/topology/images/";
@@ -38,8 +41,7 @@ public class NetworkNode extends ServerLocNode {
         super.reload();
 
         removeAllChildren();
-        LDAPSearchResults result =
-                (LDAPSearchResults) getServiceLocator().getDomains();
+        LDAPSearchResults result = getServiceLocator().getDomains();
         Debug.println("after get result:");
         Object o = null;
         LDAPEntry entry = null;

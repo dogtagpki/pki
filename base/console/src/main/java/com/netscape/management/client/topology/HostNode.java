@@ -7,25 +7,42 @@
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation version
  * 2.1 of the License.
- *                                                                                 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- *                                                                                 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  * END COPYRIGHT BLOCK **/
 package com.netscape.management.client.topology;
 
-import java.util.*;
-import java.awt.*;
-import javax.swing.event.*;
-import javax.swing.tree.*;
-import com.netscape.management.client.*;
-import com.netscape.management.client.util.*;
-import netscape.ldap.*;
+import java.awt.Component;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
+
+import javax.swing.event.ChangeListener;
+import javax.swing.tree.MutableTreeNode;
+
+import com.netscape.management.client.IPage;
+import com.netscape.management.client.IResourceObject;
+import com.netscape.management.client.ResourceModel;
+import com.netscape.management.client.ResourcePage;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.LDAPUtil;
+import com.netscape.management.client.util.RemoteImage;
+import com.netscape.management.client.util.ResourceSet;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
+import netscape.ldap.LDAPSearchResults;
 
 /**
  * Machine (host) tree node in the topology view.
@@ -153,13 +170,12 @@ public class HostNode extends ServerLocNode implements INodeInfo {
         // get the children information
         removeAllChildren();
         super.reload();
-        LDAPSearchResults result =
-                (LDAPSearchResults) getServiceLocator().getAdminGroup(
+        LDAPSearchResults result = getServiceLocator().getAdminGroup(
                 getDN());
         if (result != null) {
             try {
                 while (result.hasMoreElements()) {
-                    LDAPEntry findEntry = (LDAPEntry) result.next();
+                    LDAPEntry findEntry = result.next();
                     AdminGroupNode agn = new AdminGroupNode(_sl, findEntry);
                     agn.setAdminOS(_os);
                     if (searchChildByName(agn.getName()) == null)
@@ -182,7 +198,7 @@ public class HostNode extends ServerLocNode implements INodeInfo {
                             (ITopologyPlugin) hTopologyPlugins.get(
                             sKeyName);
                     Vector vProducts = plugin.getAdditionalChildren(
-                            (ResourceObject) this);
+                            this);
                     if (vProducts != null) {
                         Enumeration eProducts = vProducts.elements();
                         while (eProducts.hasMoreElements()) {
@@ -259,7 +275,7 @@ public class HostNode extends ServerLocNode implements INodeInfo {
       */
     public void actionNodeDataChanged(NodeData data) {
         String dn = getDN();
-        LDAPAttribute attr = new LDAPAttribute((String) data.getID(),
+        LDAPAttribute attr = new LDAPAttribute(data.getID(),
                 (String) data.getValue());
         LDAPModification modification =
                 new LDAPModification(LDAPModification.REPLACE, attr);

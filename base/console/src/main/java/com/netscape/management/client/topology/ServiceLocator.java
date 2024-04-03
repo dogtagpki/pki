@@ -7,23 +7,34 @@
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation version
  * 2.1 of the License.
- *                                                                                 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- *                                                                                 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  * END COPYRIGHT BLOCK **/
 package com.netscape.management.client.topology;
 
-import java.util.*;
-import netscape.ldap.*;
-import netscape.ldap.controls.*;
-import com.netscape.management.client.console.*;
-import com.netscape.management.client.util.*;
+import com.netscape.management.client.console.ConsoleInfo;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.LDAPUtil;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPControl;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPSearchConstraints;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPSortKey;
+import netscape.ldap.controls.LDAPSortControl;
+import netscape.ldap.controls.LDAPVirtualListControl;
+import netscape.ldap.controls.LDAPVirtualListResponse;
 
 /**
  * The service locator is used to search through the directory server to find all the netscape
@@ -119,7 +130,7 @@ public class ServiceLocator {
       *
       * @return a list of available domains
       */
-    public Enumeration getDomains() {
+    public LDAPSearchResults getDomains() {
         String[] cnAttr = {"ou"};
         LDAPSearchResults result = null;
 
@@ -149,7 +160,7 @@ public class ServiceLocator {
      * @param sDN dn of hosts
      * @return a list of available hosts
      */
-    public Enumeration getHosts(String sDN) {
+    public LDAPSearchResults getHosts(String sDN) {
         LDAPSearchResults result = null;
 
         try {
@@ -175,7 +186,7 @@ public class ServiceLocator {
       * @param sDN dn of the admin group
       * @return a list of available admin group
       */
-    public Enumeration getAdminGroup(String sDN) {
+    public LDAPSearchResults getAdminGroup(String sDN) {
         LDAPSearchResults result = null;
 
         try {
@@ -227,7 +238,7 @@ public class ServiceLocator {
       * @param sDN DN of the admin group
       * @return list of product type
       */
-    public Enumeration getProductType(String sDN) {
+    public LDAPSearchResults getProductType(String sDN) {
         LDAPSearchResults result = null;
 
         try {

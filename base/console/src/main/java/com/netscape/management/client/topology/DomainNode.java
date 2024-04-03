@@ -235,8 +235,7 @@ INodeInfo {
                     new Object[]{ Integer.valueOf(hostCount), getName()}));
         }
 
-        LDAPSearchResults result =
-                (LDAPSearchResults) getServiceLocator().getHosts(getDN());
+        LDAPSearchResults result = getServiceLocator().getHosts(getDN());
         if (result != null) {
             // load all the hosts object
             long t4, t3 = t0;

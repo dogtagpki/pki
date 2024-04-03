@@ -17,10 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
-import java.util.Enumeration;
-
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPSearchResults;
 
 /**
  * A class represents the search results. A search
@@ -34,12 +33,12 @@ public class DBSearchResults {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DBSearchResults.class);
 
     private DBRegistry mRegistry = null;
-    private Enumeration<Object> mRes = null;
+    private LDAPSearchResults mRes;
 
     /**
      * Constructs search results.
      */
-    public DBSearchResults(DBRegistry registry, Enumeration<Object> res) {
+    public DBSearchResults(DBRegistry registry, LDAPSearchResults res) {
         mRegistry = registry;
         mRes = res;
     }

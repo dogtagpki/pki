@@ -262,8 +262,7 @@ INodeInfo {
         Vector serverIDs = new Vector();
         ServiceLocator sl = getServiceLocator();
 
-        LDAPSearchResults result =
-                (LDAPSearchResults) sl.getProductType(getDN());
+        LDAPSearchResults result = sl.getProductType(getDN());
         try {
             while (result.hasMoreElements()) {
                 LDAPEntry ldapEntry = result.next();
@@ -347,7 +346,7 @@ INodeInfo {
             _consoleInfo.setAdminOS(_adminOS);
 
         LDAPSearchResults result =
-                (LDAPSearchResults) sl.getProductType(getDN());
+                sl.getProductType(getDN());
         try {
             while (result.hasMoreElements()) {
                 LDAPEntry ldapEntry = result.next();

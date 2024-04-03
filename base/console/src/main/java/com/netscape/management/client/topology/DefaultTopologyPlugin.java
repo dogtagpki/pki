@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation version
  * 2.1 of the License.
- *                                                                                 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- *                                                                                 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -20,11 +20,21 @@
 
 package com.netscape.management.client.topology;
 
-import java.util.*;
-import com.netscape.management.client.console.*;
-import com.netscape.management.client.*;
-import com.netscape.management.client.util.*;
-import netscape.ldap.*;
+import java.util.Enumeration;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
+import com.netscape.management.client.ResourceObject;
+import com.netscape.management.client.console.ConsoleInfo;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.LDAPUtil;
+import com.netscape.management.client.util.ResourceSet;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPSearchResults;
 
 /**
 	* Allows customization of topology tree data.
@@ -56,12 +66,12 @@ public class DefaultTopologyPlugin implements ITopologyPlugin {
         // reload
         Vector v = new Vector();
 
-        LDAPSearchResults result = (LDAPSearchResults)_sl.getDomains();
+        LDAPSearchResults result = _sl.getDomains();
         if (result != null) {
             while (result.hasMoreElements()) {
                 LDAPEntry entry = null;
                 try {
-                    entry = (LDAPEntry) result.next();
+                    entry = result.next();
                 } catch (Exception e) {
                     // ldap exception
                     continue;
@@ -106,7 +116,7 @@ public class DefaultTopologyPlugin implements ITopologyPlugin {
 
         return sReturn;
     }
-    
+
     /**
      * get resource object by the given ID
      *
