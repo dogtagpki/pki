@@ -615,6 +615,26 @@ jobs:
       - name: Remove IPA server from secondary container
         run: docker exec secondary ipa-server-install --uninstall -U --ignore-last-of-role
 
+      - name: Check DS server systemd journal in primary container
+        if: always()
+        run: |
+          docker exec primary journalctl -x --no-pager -u dirsrv@EXAMPLE-COM.service
+
+      - name: Check DS access logs in primary container
+        if: always()
+        run: |
+          docker exec primary cat /var/log/dirsrv/slapd-EXAMPLE-COM/access
+
+      - name: Check DS error logs in primary container
+        if: always()
+        run: |
+          docker exec primary cat /var/log/dirsrv/slapd-EXAMPLE-COM/errors
+
+      - name: Check DS security logs in primary container
+        if: always()
+        run: |
+          docker exec primary cat /var/log/dirsrv/slapd-EXAMPLE-COM/security
+
       - name: Check PKI server systemd journal in primary container
         if: always()
         run: |
@@ -624,6 +644,26 @@ jobs:
         if: always()
         run: |
           docker exec primary find /var/log/pki/pki-tomcat/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check DS server systemd journal in secondary container
+        if: always()
+        run: |
+          docker exec secondary journalctl -x --no-pager -u dirsrv@EXAMPLE-COM.service
+
+      - name: Check DS access logs in secondary container
+        if: always()
+        run: |
+          docker exec secondary cat /var/log/dirsrv/slapd-EXAMPLE-COM/access
+
+      - name: Check DS error logs in secondary container
+        if: always()
+        run: |
+          docker exec secondary cat /var/log/dirsrv/slapd-EXAMPLE-COM/errors
+
+      - name: Check DS security logs in secondary container
+        if: always()
+        run: |
+          docker exec secondary cat /var/log/dirsrv/slapd-EXAMPLE-COM/security
 
       - name: Check PKI server systemd journal in secondary container
         if: always()
@@ -651,18 +691,9 @@ jobs:
           tests/bin/ipa-artifacts-save.sh secondary
         continue-on-error: true
 
-      - name: Disconnect secondary container from network
-        run: docker network disconnect example secondary
-
-      - name: Disconnect primary container from network
-        run: docker network disconnect example primary
-
-      - name: Remove network
-        run: docker network rm example
-
       - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ipa-clone-test
-          path: /tmp/artifacts/secondary
+          path: /tmp/artifacts

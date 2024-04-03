@@ -135,6 +135,29 @@ jobs:
           sed -n 's/^\s*ID:\s*\(.*\)$/\1/p' output | wc -l > actual
           diff expected actual
 
+      - name: Remove IPA server
+        run: docker exec ipa ipa-server-install --uninstall -U
+
+      - name: Check DS server systemd journal
+        if: always()
+        run: |
+          docker exec ipa journalctl -x --no-pager -u dirsrv@EXAMPLE-COM.service
+
+      - name: Check DS access logs
+        if: always()
+        run: |
+          docker exec ipa cat /var/log/dirsrv/slapd-EXAMPLE-COM/access
+
+      - name: Check DS error logs
+        if: always()
+        run: |
+          docker exec ipa cat /var/log/dirsrv/slapd-EXAMPLE-COM/errors
+
+      - name: Check DS security logs
+        if: always()
+        run: |
+          docker exec ipa cat /var/log/dirsrv/slapd-EXAMPLE-COM/security
+
       - name: Check PKI server systemd journal
         if: always()
         run: |
@@ -152,9 +175,6 @@ jobs:
           tests/bin/pki-artifacts-save.sh ipa
           tests/bin/ipa-artifacts-save.sh ipa
         continue-on-error: true
-
-      - name: Remove IPA server
-        run: docker exec ipa ipa-server-install --uninstall -U
 
       - name: Upload artifacts
         if: always()

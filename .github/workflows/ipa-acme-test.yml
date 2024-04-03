@@ -140,6 +140,29 @@ jobs:
           docker exec ipa bash -c "pki acme-info | sed -n 's/\s*Status:\s\+\(\S\+\).*/\1/p' > ${SHARED}/actual"
           diff expected actual
 
+      - name: Remove IPA server from IPA container
+        run: docker exec ipa ipa-server-install --uninstall -U
+
+      - name: Check DS server systemd journal
+        if: always()
+        run: |
+          docker exec ipa journalctl -x --no-pager -u dirsrv@EXAMPLE-COM.service
+
+      - name: Check DS access logs
+        if: always()
+        run: |
+          docker exec ipa cat /var/log/dirsrv/slapd-EXAMPLE-COM/access
+
+      - name: Check DS error logs
+        if: always()
+        run: |
+          docker exec ipa cat /var/log/dirsrv/slapd-EXAMPLE-COM/errors
+
+      - name: Check DS security logs
+        if: always()
+        run: |
+          docker exec ipa cat /var/log/dirsrv/slapd-EXAMPLE-COM/security
+
       - name: Check PKI server systemd journal
         if: always()
         run: |
@@ -150,7 +173,7 @@ jobs:
         run: |
           docker exec ipa find /var/log/pki/pki-tomcat/ca -name "debug.*" -exec cat {} \;
 
-      - name: Gather artifacts from IPA container
+      - name: Gather artifacts
         if: always()
         run: |
           tests/bin/ds-artifacts-save.sh ipa --instance EXAMPLE-COM
@@ -158,12 +181,9 @@ jobs:
           tests/bin/ipa-artifacts-save.sh ipa
         continue-on-error: true
 
-      - name: Remove IPA server from IPA container
-        run: docker exec ipa ipa-server-install --uninstall -U
-
-      - name: Upload artifacts from IPA container
+      - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ipa-acme-test
-          path: /tmp/artifacts/ipa
+          path: /tmp/artifacts
