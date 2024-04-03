@@ -61,15 +61,71 @@ jobs:
               -D pki_ds_url=ldap://ds.example.com:3389 \
               -v
 
-      - name: Configure file-based CRL publishing
+      - name: Configure caUserCert profile
+        run: |
+          # remove AIA extension
+          docker exec pki sed -i \
+              -e "s/^\(policyset.userCertSet.list\)=.*$/\1=1,10,2,3,4,6,7,8,9/" \
+              -e "/^policyset.userCertSet.5/d" \
+              /var/lib/pki/pki-tomcat/conf/ca/profiles/ca/caUserCert.cfg
+
+          # add CDP extension
+          URI="http://pki.example.com:8080/crl/MasterCRL.crl"
+          docker exec pki sed -i \
+              -e "s/^\(policyset.userCertSet.list\)=\(.*\)$/\1=\2,11/" \
+              -e "$ a policyset.userCertSet.11.constraint.class_id=noConstraintImpl" \
+              -e "$ a policyset.userCertSet.11.constraint.name=No Constraint" \
+              -e "$ a policyset.userCertSet.11.default.class_id=crlDistributionPointsExtDefaultImpl" \
+              -e "$ a policyset.userCertSet.11.default.name=CRL Distribution Points Extension Default" \
+              -e "$ a policyset.userCertSet.11.default.params.crlDistPointsCritical=false" \
+              -e "$ a policyset.userCertSet.11.default.params.crlDistPointsNum=1" \
+              -e "$ a policyset.userCertSet.11.default.params.crlDistPointsEnable_0=true" \
+              -e "$ a policyset.userCertSet.11.default.params.crlDistPointsIssuerName_0=cn=CA Signing Certificate,ou=pki-tomcat,o=EXAMPLE" \
+              -e "$ a policyset.userCertSet.11.default.params.crlDistPointsIssuerType_0=DirectoryName" \
+              -e "$ a policyset.userCertSet.11.default.params.crlDistPointsPointName_0=$URI" \
+              -e "$ a policyset.userCertSet.11.default.params.crlDistPointsPointType_0=URIName" \
+              -e "$ a policyset.userCertSet.11.default.params.crlDistPointsReasons_0=" \
+              /var/lib/pki/pki-tomcat/conf/ca/profiles/ca/caUserCert.cfg
+
+          # check updated profile
+          docker exec pki cat /var/lib/pki/pki-tomcat/conf/ca/profiles/ca/caUserCert.cfg
+
+      - name: Configure caServerCert profile
+        run: |
+          # remove AIA extension
+          docker exec pki sed -i \
+              -e "s/^\(policyset.serverCertSet.list\)=.*$/\1=1,2,3,4,6,7,8,12/" \
+              -e "/^policyset.serverCertSet.5/d" \
+              /var/lib/pki/pki-tomcat/conf/ca/profiles/ca/caServerCert.cfg
+
+          # check updated profile
+          docker exec pki cat /var/lib/pki/pki-tomcat/conf/ca/profiles/ca/caServerCert.cfg
+
+      - name: Prepare CRL publishing location
         run: |
           # create CRL folder
           docker exec pki mkdir -p /var/lib/pki/pki-tomcat/crl
-          docker exec pki chown pkiuser.pkiuser /var/lib/pki/pki-tomcat/crl
+          docker exec pki chown -R pkiuser:pkiuser /var/lib/pki/pki-tomcat/crl
 
+          # create CRL webapp config
+          # use allowLinking=true since MasterCRL.crl is a link
+          # use cachingAllowed=false since MasterCRL.crl is not static
+          cat > crl.xml << EOF
+          <Context docBase="/var/lib/pki/pki-tomcat/crl">
+              <Resources allowLinking="true" cachingAllowed="false" />
+          </Context>
+          EOF
+
+          # deploy CRL webapp
+          docker cp crl.xml pki:/var/lib/pki/pki-tomcat/conf/Catalina/localhost
+          docker exec pki chown -R pkiuser:pkiuser /var/lib/pki/pki-tomcat/conf/Catalina/localhost/crl.xml
+          docker exec pki ls -l /var/lib/pki/pki-tomcat/conf/Catalina/localhost
+
+      - name: Configure file-based CRL publishing
+        run: |
           # configure file-based CRL publisher
           docker exec pki pki-server ca-config-set ca.publish.publisher.instance.FileBasedPublisher.pluginName FileBasedPublisher
-          docker exec pki pki-server ca-config-set ca.publish.publisher.instance.FileBasedPublisher.crlLinkExt bin
+          docker exec pki pki-server ca-config-set ca.publish.publisher.instance.FileBasedPublisher.crlLinkExt crl
           docker exec pki pki-server ca-config-set ca.publish.publisher.instance.FileBasedPublisher.directory /var/lib/pki/pki-tomcat/crl
           docker exec pki pki-server ca-config-set ca.publish.publisher.instance.FileBasedPublisher.latestCrlLink true
           docker exec pki pki-server ca-config-set ca.publish.publisher.instance.FileBasedPublisher.timeStamp LocalTime
@@ -130,26 +186,86 @@ jobs:
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --failures-only
 
-      - name: Initialize PKI client
+      - name: Check CA admin
         run: |
-          docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
           docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
           docker exec pki pki pkcs12-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
+          docker exec pki pki -n caadmin ca-user-show caadmin
 
-          docker exec pki /usr/share/pki/tests/ca/bin/ca-agent-create.sh
-          docker exec pki /usr/share/pki/tests/ca/bin/ca-agent-cert-create.sh
+      - name: Create user cert
+        run: |
+          # request user cert
+          docker exec pki pki client-cert-request uid=testuser | tee output
+
+          USER_REQUEST_ID=$(sed -n -e 's/^ *Request ID: *\(.*\)$/\1/p' output)
+          echo "USER_REQUEST_ID: $USER_REQUEST_ID"
+
+          # issue user cert
+          docker exec pki pki -n caadmin ca-cert-request-approve $USER_REQUEST_ID --force | tee output
+
+          USER_CERT_ID=$(sed -n -e 's/^ *Certificate ID: *\(.*\)$/\1/p' output)
+          echo "USER_CERT_ID: $USER_CERT_ID"
+          echo $USER_CERT_ID > user-cert.id
+
+          # check user cert status
+          docker exec pki pki ca-cert-show $USER_CERT_ID | tee output
+
+          # user cert should be valid
+          sed -n "s/^ *Status: \(.*\)$/\1/p" output > actual
+          echo "VALID" > expected
+          diff expected actual
+
+          # check user cert extensions
+          docker exec pki pki ca-cert-export $USER_CERT_ID --output-file testuser.crt
+          docker exec pki openssl x509 -text -noout -in testuser.crt | tee output
+
+          # user cert should have a CDP extension
+          echo "X509v3 CRL Distribution Points: " > expected
+          echo "URI:http://pki.example.com:8080/crl/MasterCRL.crl" >> expected
+          sed -En '1N;$!N;s/^ *(X509v3 CRL Distribution Points:.*)\n.*\n *(\S*).*$/\1\n\2/p;D' output > actual
+          diff expected actual
+
+      - name: Create server cert
+        run: |
+          # request server cert
+          docker exec pki pki client-cert-request --profile caServerCert cn=test.example.com | tee output
+
+          SERVER_REQUEST_ID=$(sed -n -e 's/^ *Request ID: *\(.*\)$/\1/p' output)
+          echo "SERVER_REQUEST_ID: $SERVER_REQUEST_ID"
+
+          # issue server cert
+          docker exec pki pki -n caadmin ca-cert-request-approve $SERVER_REQUEST_ID --force | tee output
+
+          SERVER_CERT_ID=$(sed -n -e 's/^ *Certificate ID: *\(.*\)$/\1/p' output)
+          echo "SERVER_CERT_ID: $SERVER_CERT_ID"
+          echo $SERVER_CERT_ID > server-cert.id
+
+          # check server cert status
+          docker exec pki pki ca-cert-show $SERVER_CERT_ID | tee output
+
+          # server cert should be valid
+          sed -n "s/^ *Status: \(.*\)$/\1/p" output > actual
+          echo "VALID" > expected
+          diff expected actual
+
+          # check server cert extensions
+          docker exec pki pki ca-cert-export $SERVER_CERT_ID --output-file test.example.com.crt
+          docker exec pki openssl x509 -text -noout -in test.example.com.crt | tee output
+
+          # server cert should not have a CDP extension
+          sed -En 's/^ *(X509v3 CRL Distribution Points:.*)$/\1/p' output > actual
+          diff /dev/null actual
 
       - name: Check initial CRL
         run: |
           # check CRL files
-          docker exec pki find /var/lib/pki/pki-tomcat/crl -name "MasterCRL-*" | tee output
+          docker exec pki ls -l /var/lib/pki/pki-tomcat/crl | tee output
 
-          # there should be no CRL files
-          cat output | wc -l > actual
-          echo "0" > expected
-          diff expected actual
+          # there should be no CRL files initially
+          echo "total 0" > expected
+          diff expected output
 
       - name: Check CRL after update
         run: |
@@ -166,81 +282,349 @@ jobs:
           sleep 10
 
           # check CRL files
-          docker exec pki find /var/lib/pki/pki-tomcat/crl -name "MasterCRL-*" | tee output
+          docker exec pki find /var/lib/pki/pki-tomcat/crl -name "MasterCRL-*.der" | tee output
 
-          # there should be one CRL file
+          # there should be one timestamped CRL file
           cat output | wc -l > actual
           echo "1" > expected
           diff expected actual
 
-          FILENAME=$(cat output)
-          echo "FILENAME: $FILENAME"
-
           # check the latest CRL
           docker exec pki openssl crl \
-              -in $FILENAME \
+              -in /var/lib/pki/pki-tomcat/crl/MasterCRL.crl \
               -inform DER \
               -text \
               -noout | tee output
 
-          # there should be no certs in the latest CRL
+          # CRL should contain no certs
           sed -n "s/^\s*\(Serial Number:.*\)\s*$/\1/p" output | wc -l > actual
           echo "0" > expected
           diff expected actual
 
-      - name: Check CRL after cert revocation
+      - name: Check user cert after update
         run: |
-          docker exec pki /usr/share/pki/tests/ca/bin/ca-agent-cert-revoke.sh
+          # check user cert using OpenSSL
+          docker exec pki openssl verify \
+              -crl_check \
+              -crl_download \
+              -CAfile ca_signing.crt \
+              testuser.crt \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
 
-          # check CRL files
-          docker exec pki find /var/lib/pki/pki-tomcat/crl -name "MasterCRL-*" | sort | tee output
+          # user cert should be valid
+          echo "testuser.crt: OK" > expected
+          diff expected stdout
 
-          # there should be two CRL files
-          cat output | wc -l > actual
-          echo "2" > expected
-          diff expected actual
+          # check user cert using NSS
+          docker exec pki /usr/lib64/nss/unsupported-tools/vfychain \
+              -d /root/.dogtag/nssdb \
+              -a \
+              -u 0 \
+              -pp \
+              -g leaf \
+              -m crl \
+              testuser.crt \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
 
-          FILENAME=$(tail -1 output)
-          echo "FILENAME: $FILENAME"
+          # user cert should be valid
+          echo "Chain is good!" > expected
+          diff expected stderr
 
-          # check the latest CRL
+      - name: Check server cert after update
+        run: |
+          # download the latest CRL
+          docker exec pki curl -sJO http://pki.example.com:8080/crl/MasterCRL.crl
+
+          # convert CRL to PEM
           docker exec pki openssl crl \
-              -in $FILENAME \
+              -in MasterCRL.crl \
               -inform DER \
-              -text \
-              -noout | tee output
+              -out MasterCRL.pem \
+              -outform PEM
 
-          # there should be one cert in the latest CRL
-          sed -n "s/^\s*\(Serial Number:.*\)\s*$/\1/p" output | wc -l > actual
-          echo "1" > expected
+          # check server cert using OpenSSL
+          docker exec pki openssl verify \
+              -crl_check \
+              -CRLfile MasterCRL.pem \
+              -CAfile ca_signing.crt \
+              test.example.com.crt \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          # server cert should be valid
+          echo "test.example.com.crt: OK" > expected
+          diff expected stdout
+
+          # import CRL into NSS
+          docker exec pki crlutil -I -d /root/.dogtag/nssdb -i MasterCRL.crl
+          docker exec pki crlutil -L -d /root/.dogtag/nssdb -n ca_signing
+
+          # check server cert using NSS
+          docker exec pki /usr/lib64/nss/unsupported-tools/vfychain \
+              -d /root/.dogtag/nssdb \
+              -a \
+              -u 1 \
+              -p \
+              -g leaf \
+              -m crl \
+              test.example.com.crt \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          # server cert should be valid
+          echo "Chain is good!" > expected
+          diff expected stderr
+
+          # remove CRL from NSS
+          docker exec pki crlutil -D -d /root/.dogtag/nssdb -n ca_signing
+
+      - name: Revoke user cert
+        run: |
+          USER_CERT_ID=$(cat user-cert.id)
+          docker exec pki pki -n caadmin ca-cert-hold $USER_CERT_ID --force
+
+          docker exec pki pki ca-cert-show $USER_CERT_ID | tee output
+
+          # user cert should be revoked
+          sed -n "s/^ *Status: \(.*\)$/\1/p" output > actual
+          echo "REVOKED" > expected
           diff expected actual
 
-      - name: Check CRL after cert unrevocation
+      - name: Revoke server cert
         run: |
-          docker exec pki /usr/share/pki/tests/ca/bin/ca-agent-cert-unrevoke.sh
+          SERVER_CERT_ID=$(cat server-cert.id)
+          docker exec pki pki -n caadmin ca-cert-hold $SERVER_CERT_ID --force
 
+          docker exec pki pki ca-cert-show $SERVER_CERT_ID | tee output
+
+          # server cert should be revoked
+          sed -n "s/^ *Status: \(.*\)$/\1/p" output > actual
+          echo "REVOKED" > expected
+          diff expected actual
+
+      - name: Check CRL after revocation
+        run: |
           # check CRL files
-          docker exec pki find /var/lib/pki/pki-tomcat/crl -name "MasterCRL-*" | sort | tee output
+          docker exec pki find /var/lib/pki/pki-tomcat/crl -name "MasterCRL-*.der" | sort | tee output
 
-          # there should be three CRL files
+          # there should be two timestamped CRL files
           cat output | wc -l > actual
           echo "3" > expected
           diff expected actual
 
-          FILENAME=$(tail -1 output)
-          echo "FILENAME: $FILENAME"
-
           # check the latest CRL
           docker exec pki openssl crl \
-              -in $FILENAME \
+              -in /var/lib/pki/pki-tomcat/crl/MasterCRL.crl \
               -inform DER \
               -text \
               -noout | tee output
 
-          # there should be no certs in the latest CRL
+          # CRL should contain two certs
+          sed -n "s/^\s*\(Serial Number:.*\)\s*$/\1/p" output | wc -l > actual
+          echo "2" > expected
+          diff expected actual
+
+      - name: Check user cert after revocation
+        run: |
+          # check user cert using OpenSSL
+          docker exec pki openssl verify \
+              -crl_check \
+              -crl_download \
+              -CAfile ca_signing.crt \
+              testuser.crt \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          # user cert should be invalid
+          echo "UID = testuser" > expected
+          echo "error 23 at 0 depth lookup: certificate revoked" >> expected
+          echo "error testuser.crt: verification failed" >> expected
+          diff expected stderr
+
+          # check user cert using NSS
+          docker exec pki /usr/lib64/nss/unsupported-tools/vfychain \
+              -d /root/.dogtag/nssdb \
+              -a \
+              -u 0 \
+              -pp \
+              -g leaf \
+              -m crl \
+              testuser.crt \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          # user cert should be invalid
+          echo "Chain is bad!" > expected
+          head -1 stderr > actual
+          diff expected actual
+
+      - name: Check server cert after revocation
+        run: |
+          # download the latest CRL
+          docker exec pki curl -sJO http://pki.example.com:8080/crl/MasterCRL.crl
+
+          # convert CRL to PEM
+          docker exec pki openssl crl \
+              -in MasterCRL.crl \
+              -inform DER \
+              -out MasterCRL.pem \
+              -outform PEM
+
+          # check server cert using OpenSSL
+          docker exec pki openssl verify \
+              -crl_check \
+              -CRLfile MasterCRL.pem \
+              -CAfile ca_signing.crt \
+              test.example.com.crt \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          # server cert should be invalid
+          echo "CN = test.example.com" > expected
+          echo "error 23 at 0 depth lookup: certificate revoked" >> expected
+          echo "error test.example.com.crt: verification failed" >> expected
+          diff expected stderr
+
+          # import CRL into NSS
+          docker exec pki crlutil -I -d /root/.dogtag/nssdb -i MasterCRL.crl
+          docker exec pki crlutil -L -d /root/.dogtag/nssdb -n ca_signing
+
+          # check server cert using NSS
+          docker exec pki /usr/lib64/nss/unsupported-tools/vfychain \
+              -d /root/.dogtag/nssdb \
+              -a \
+              -u 1 \
+              -p \
+              -g leaf \
+              -m crl \
+              test.example.com.crt \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          # server cert should be invalid
+          echo "Chain is bad!" > expected
+          head -1 stderr > actual
+          diff expected actual
+
+          # remove CRL from NSS
+          docker exec pki crlutil -D -d /root/.dogtag/nssdb -n ca_signing
+
+      - name: Unrevoke user cert
+        run: |
+          # unrevoke user cert
+          USER_CERT_ID=$(cat user-cert.id)
+          docker exec pki pki -n caadmin ca-cert-release-hold $USER_CERT_ID --force
+
+          docker exec pki pki ca-cert-show $USER_CERT_ID | tee output
+
+          # user cert should be valid
+          sed -n "s/^ *Status: \(.*\)$/\1/p" output > actual
+          echo "VALID" > expected
+          diff expected actual
+
+      - name: Unrevoke server cert
+        run: |
+          # unrevoke server cert
+          SERVER_CERT_ID=$(cat server-cert.id)
+          docker exec pki pki -n caadmin ca-cert-release-hold $SERVER_CERT_ID --force
+
+          docker exec pki pki ca-cert-show $SERVER_CERT_ID | tee output
+
+          # server cert should be valid
+          sed -n "s/^ *Status: \(.*\)$/\1/p" output > actual
+          echo "VALID" > expected
+          diff expected actual
+
+      - name: Check CRL after unrevocation
+        run: |
+          # check CRL files
+          docker exec pki find /var/lib/pki/pki-tomcat/crl -name "MasterCRL-*.der" | sort | tee output
+
+          # there should be three timestamped CRL files
+          cat output | wc -l > actual
+          echo "5" > expected
+          diff expected actual
+
+          # check the latest CRL
+          docker exec pki openssl crl \
+              -in /var/lib/pki/pki-tomcat/crl/MasterCRL.crl \
+              -inform DER \
+              -text \
+              -noout | tee output
+
+          # CRL should contain no certs
           sed -n "s/^\s*\(Serial Number:.*\)\s*$/\1/p" output | wc -l > actual
           echo "0" > expected
           diff expected actual
+
+      - name: Check user cert after unrevocation
+        run: |
+          # check user cert using OpenSSL
+          docker exec pki openssl verify \
+              -crl_check \
+              -crl_download \
+              -CAfile ca_signing.crt \
+              testuser.crt \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          # user cert should be valid
+          echo "testuser.crt: OK" > expected
+          diff expected stdout
+
+          # check user cert using NSS
+          docker exec pki /usr/lib64/nss/unsupported-tools/vfychain \
+              -d /root/.dogtag/nssdb \
+              -a \
+              -u 0 \
+              -pp \
+              -g leaf \
+              -m crl \
+              testuser.crt \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          # user cert should be valid
+          echo "Chain is good!" > expected
+          diff expected stderr
+
+      - name: Check server cert after unrevocation
+        run: |
+          # download the latest CRL
+          docker exec pki curl -sJO http://pki.example.com:8080/crl/MasterCRL.crl
+
+          # convert CRL to PEM
+          docker exec pki openssl crl \
+              -in MasterCRL.crl \
+              -inform DER \
+              -out MasterCRL.pem \
+              -outform PEM
+
+          # check server cert using OpenSSL
+          docker exec pki openssl verify \
+              -crl_check \
+              -CRLfile MasterCRL.pem \
+              -CAfile ca_signing.crt \
+              test.example.com.crt \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          # server cert should be valid
+          echo "test.example.com.crt: OK" > expected
+          diff expected stdout
+
+          # import CRL into NSS
+          docker exec pki crlutil -I -d /root/.dogtag/nssdb -i MasterCRL.crl
+          docker exec pki crlutil -L -d /root/.dogtag/nssdb -n ca_signing
+
+          # check server cert using NSS
+          docker exec pki /usr/lib64/nss/unsupported-tools/vfychain \
+              -d /root/.dogtag/nssdb \
+              -a \
+              -u 1 \
+              -p \
+              -g leaf \
+              -m crl \
+              test.example.com.crt \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          # server cert should be valid
+          echo "Chain is good!" > expected
+          diff expected stderr
+
+          # remove CRL from NSS
+          docker exec pki crlutil -D -d /root/.dogtag/nssdb -n ca_signing
 
       - name: Remove CA
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
