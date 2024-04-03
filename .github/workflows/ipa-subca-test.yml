@@ -135,9 +135,6 @@ jobs:
           sed -n 's/^\s*ID:\s*\(.*\)$/\1/p' output | wc -l > actual
           diff expected actual
 
-      - name: Remove IPA server
-        run: docker exec ipa ipa-server-install --uninstall -U
-
       - name: Check DS server systemd journal
         if: always()
         run: |
@@ -175,6 +172,9 @@ jobs:
           tests/bin/pki-artifacts-save.sh ipa
           tests/bin/ipa-artifacts-save.sh ipa
         continue-on-error: true
+
+      - name: Remove IPA server
+        run: docker exec ipa ipa-server-install --uninstall -U
 
       - name: Upload artifacts
         if: always()

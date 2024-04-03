@@ -140,9 +140,6 @@ jobs:
           docker exec ipa bash -c "pki acme-info | sed -n 's/\s*Status:\s\+\(\S\+\).*/\1/p' > ${SHARED}/actual"
           diff expected actual
 
-      - name: Remove IPA server from IPA container
-        run: docker exec ipa ipa-server-install --uninstall -U
-
       - name: Check DS server systemd journal
         if: always()
         run: |
@@ -180,6 +177,9 @@ jobs:
           tests/bin/pki-artifacts-save.sh ipa
           tests/bin/ipa-artifacts-save.sh ipa
         continue-on-error: true
+
+      - name: Remove IPA server from IPA container
+        run: docker exec ipa ipa-server-install --uninstall -U
 
       - name: Upload artifacts
         if: always()
