@@ -20,7 +20,6 @@ package com.netscape.cms.jobs;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.StringTokenizer;
 
 import org.dogtagpki.server.ca.CAEngine;
@@ -38,6 +37,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.dbs.DBSearchResults;
 import com.netscape.cmscore.dbs.ElementProcessor;
 import com.netscape.cmscore.jobs.JobConfig;
 import com.netscape.cmscore.jobs.JobsScheduler;
@@ -398,7 +398,7 @@ public class RenewalNotificationJob
                 //CertRecordList list = mCertDB.findCertRecordsInList(filter, null, "serialno", 5);
                 //list.processCertRecords(0, list.getSize() - 1, cp);
 
-                Enumeration<Object> en = mCertDB.findCertRecs(filter);
+                DBSearchResults en = mCertDB.findCertRecs(filter);
 
                 while (en.hasMoreElements()) {
                     Object element = en.nextElement();

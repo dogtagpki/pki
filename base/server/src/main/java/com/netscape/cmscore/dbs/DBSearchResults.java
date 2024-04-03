@@ -28,9 +28,8 @@ import netscape.ldap.LDAPException;
  * Java objects that are just read from the database.
  *
  * @author thomask
- * @version $Revision$, $Date$
  */
-public class DBSearchResults implements Enumeration<Object> {
+public class DBSearchResults {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DBSearchResults.class);
 
@@ -48,7 +47,6 @@ public class DBSearchResults implements Enumeration<Object> {
     /**
      * Checks if any element is available.
      */
-    @Override
     public boolean hasMoreElements() {
         return mRes.hasMoreElements();
     }
@@ -56,7 +54,6 @@ public class DBSearchResults implements Enumeration<Object> {
     /**
      * Retrieves next element.
      */
-    @Override
     public Object nextElement() {
 
         try {

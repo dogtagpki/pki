@@ -459,7 +459,7 @@ public class CertificateRepository extends Repository {
         logger.debug("CertificateRepository: getInRangeCount  filter="+filter+
                   "  minSerialNo="+minSerialNo+"  maxSerialNo="+maxSerialNo);
 
-        Enumeration<Object> e = findCertRecs(filter, new String[] {CertRecord.ATTR_ID, "objectclass"});
+        DBSearchResults e = findCertRecs(filter, new String[] {CertRecord.ATTR_ID, "objectclass"});
         while (e != null && e.hasMoreElements()) {
             CertRecord rec = (CertRecord) e.nextElement();
             if (rec != null) {
@@ -1014,10 +1014,10 @@ public class CertificateRepository extends Repository {
      * @return a list of certificates
      * @exception EBaseException failed to search
      */
-    public Enumeration<Object> searchCertificates(String filter, int maxSize,String sortAttribute)
+    public DBSearchResults searchCertificates(String filter, int maxSize,String sortAttribute)
             throws EBaseException {
 
-        Enumeration<Object> e = null;
+        DBSearchResults e = null;
 
         logger.debug("searchCertificates filter " + filter + " maxSize " + maxSize);
         try (DBSSession s = dbSubsystem.createSession()) {
@@ -1053,9 +1053,9 @@ public class CertificateRepository extends Repository {
      * @return a list of certificates
      * @exception EBaseException failed to search
      */
-    public Enumeration<Object> searchCertificates(String filter, int maxSize)
+    public DBSearchResults searchCertificates(String filter, int maxSize)
             throws EBaseException {
-        Enumeration<Object> e = null;
+        DBSearchResults e = null;
 
         logger.debug("searchCertificates filter " + filter + " maxSize " + maxSize);
         try (DBSSession s = dbSubsystem.createSession()) {
@@ -1178,22 +1178,22 @@ public class CertificateRepository extends Repository {
      * @exception EBaseException failed to retrieve cert records
      */
     @Deprecated
-    public Enumeration<Object> findCertRecs(String filter)
+    public DBSearchResults findCertRecs(String filter)
             throws EBaseException {
         logger.debug("findCertRecs " + filter);
-        Enumeration<Object> e = null;
+        DBSearchResults e = null;
         try (DBSSession s = dbSubsystem.createSession()) {
             e = s.search(mBaseDN, filter);
         }
         return e;
     }
 
-    public Enumeration<Object> findCertRecs(String filter, String[] attrs)
+    public DBSearchResults findCertRecs(String filter, String[] attrs)
             throws EBaseException {
 
         logger.debug("findCertRecs " + filter
                  + "attrs " + Arrays.toString(attrs));
-        Enumeration<Object> e = null;
+        DBSearchResults e = null;
         try (DBSSession s = dbSubsystem.createSession()) {
             e = s.search(mBaseDN, filter, attrs);
         }

@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.Locale;
 
 import javax.servlet.ServletConfig;
@@ -49,6 +48,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.dbs.DBSearchResults;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestRecord;
 import com.netscape.cmscore.request.RequestRepository;
@@ -301,7 +301,7 @@ public class Monitor extends CMSServlet {
             if (mCertDB != null) {
                 filter = Filter(CertRecord.ATTR_CREATE_TIME, startTime, endTime);
 
-                Enumeration<Object> e = mCertDB.findCertRecs(filter);
+                DBSearchResults e = mCertDB.findCertRecs(filter);
 
                 int count = 0;
 

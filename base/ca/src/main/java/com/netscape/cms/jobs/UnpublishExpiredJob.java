@@ -19,7 +19,6 @@ package com.netscape.cms.jobs;
 
 import java.text.DateFormat;
 import java.util.Date;
-import java.util.Enumeration;
 
 import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
@@ -32,6 +31,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.dbs.DBSearchResults;
 import com.netscape.cmscore.jobs.JobConfig;
 import com.netscape.cmscore.jobs.JobsScheduler;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
@@ -164,7 +164,7 @@ public class UnpublishExpiredJob extends Job
         // a test for without CertRecord.META_LDAPPUBLISH
         //String filter = "(x509Cert.notAfter<="+ now +")";
 
-        Enumeration<Object> expired = null;
+        DBSearchResults expired = null;
 
         try {
             expired = mRepository.findCertRecs(filter);
