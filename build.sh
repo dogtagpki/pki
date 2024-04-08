@@ -30,6 +30,7 @@ SHARE_DIR="/usr/share"
 
 CMAKE="cmake"
 C_FLAGS=
+CXX_FLAGS=
 
 JNI_DIR="/usr/lib/java"
 UNIT_DIR="/usr/lib/systemd/system"
@@ -275,6 +276,9 @@ while getopts v-: arg ; do
         c-flags=?*)
             C_FLAGS="$LONG_OPTARG"
             ;;
+        cxx-flags=?*)
+            CXX_FLAGS="$LONG_OPTARG"
+            ;;
         java-home=?*)
             # Don't convert Java home into an absolute path since that
             # will prevent PKI from running with other OpenJDK releases.
@@ -416,6 +420,7 @@ if [ "$DEBUG" = true ] ; then
     echo "SHARE_DIR: $SHARE_DIR"
     echo "CMAKE: $CMAKE"
     echo "C_FLAGS: $C_FLAGS"
+    echo "CXX_FLAGS: $CXX_FLAGS"
     echo "JAVA_HOME: $JAVA_HOME"
     echo "JNI_DIR: $JNI_DIR"
     echo "PYTHON: $PYTHON"
@@ -638,6 +643,7 @@ if [ "$BUILD_TARGET" = "dist" ] ; then
     OPTIONS+=(-DLIB_SUFFIX=64)
     OPTIONS+=(-DBUILD_SHARED_LIBS:BOOL=ON)
     OPTIONS+=(-DCMAKE_C_FLAGS:STRING="$C_FLAGS")
+    OPTIONS+=(-DCMAKE_CXX_FLAGS:STRING="$CXX_FLAGS")
 
     if [ "$VERBOSE" = true ] ; then
         OPTIONS+=(-DCMAKE_JAVA_COMPILE_FLAGS:STRING="-Xlint:deprecation")
