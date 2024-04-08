@@ -38,5 +38,8 @@ public abstract class BaseMappingResolver {
 
     public abstract String getResolvedMapping(FilterMappingParams mappingParams, String nameToMap)
             throws TPSException;
-
+    
+    // ** G&D 256 Key Rollover Support **
+    public abstract String getResolvedMapping(FilterMappingParams mappingParams, String nameToMap, Integer symKeySize)
+            throws TPSException;
 }

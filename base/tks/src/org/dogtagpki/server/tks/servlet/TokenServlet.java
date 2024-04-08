@@ -37,6 +37,7 @@ import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapper;
 import org.mozilla.jss.crypto.SymmetricKey;
+import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.pkcs11.PK11SymKey;
 import org.mozilla.jss.crypto.IVParameterSpec;
@@ -1664,6 +1665,11 @@ CMS.debug("4");
             keySet = "defKeySet";
         }
         CMS.debug("keySet selected: " + keySet);
+        
+        // ** G&D 256 Key Rollover Support **
+        String oldKeySet = req.getParameter(IRemoteRequest.TOKEN_OLD_KEYSET);
+        CMS.debug("oldKeySet: " + oldKeySet);
+        
 
         SessionContext sContext = SessionContext.getContext();
 
@@ -1817,6 +1823,11 @@ CMS.debug("4");
             // Get the first 6 characters, since scp03 gives us extra characters.
             tokKeyInfo = tokKeyInfo.substring(0,6);
             String oldKeyInfoMap = "tks." + keySet + ".mk_mappings." + tokKeyInfo; //#xx#xx
+            
+            // ** G&D 256 Key Rollover Support **
+            if (oldKeySet != null)
+                oldKeyInfoMap = "tks." + oldKeySet + ".mk_mappings." + tokKeyInfo; //#xx#xx
+            
             CMS.debug(method + " oldKeyInfoMap: " + oldKeyInfoMap);
             String oldMappingValue = CMS.getConfigStore().getString(oldKeyInfoMap, null);
             String oldSelectedToken = null;
@@ -1858,6 +1869,13 @@ CMS.debug("4");
             // passed down to the SecureChannelProtocol functions that deal with SCP03
 
             GPParams gp3Params = readGPSettings(keySet);
+            
+            // ** G&D 256 Key Rollover Support **
+            // need to use setting associated with the oldKeySet if provided
+            GPParams oldGp3Params = gp3Params;
+            if (oldKeySet != null) {
+                oldGp3Params = readGPSettings(oldKeySet);
+            }
 
             SecureChannelProtocol secProtocol = new SecureChannelProtocol(protocol);
             // AC: KDF SPEC CHANGE - check for error reading settings
@@ -1872,7 +1890,8 @@ CMS.debug("4");
                             nistSP800_108KdfUseCuidAsKdd, // AC: KDF SPEC CHANGE - pass in configuration file value
                             xCUID, // AC: KDF SPEC CHANGE - removed duplicative 'CUID' variable and replaced with 'xCUID'
                             xKDD, // AC: KDF SPEC CHANGE - pass in KDD so symkey can make decision about which value (KDD,CUID) to use
-                            kekKeyArray,encKeyArray,macKeyArray, useSoftToken_s, keySet, (byte) protocol,gp3Params);
+                            kekKeyArray,encKeyArray,macKeyArray, useSoftToken_s, keySet, (byte) protocol,gp3Params, 
+                            oldGp3Params);  // ** G&D 256 Key Rollover Support **  add oldGp3Params parameter to the method call
 
                 } else if (protocol == 2) {
                     KeySetData = SessionKey.DiversifyKey(oldSelectedToken, newSelectedToken, oldKeyNickName,
@@ -1908,7 +1927,6 @@ CMS.debug("4");
         if (KeySetData != null && KeySetData.length > 1) {
             value = IRemoteRequest.RESPONSE_STATUS + "=0&" + IRemoteRequest.TKS_RESPONSE_KeySetData + "=" +
                     com.netscape.cmsutil.util.Utils.SpecialEncode(KeySetData);
-            //CMS.debug("TokenServlet:process DiversifyKey.encode " + value);
             CMS.debug("TokenServlet:process DiversifyKey.encode returning KeySetData");
             // AC: KDF SPEC CHANGE - check for settings file issue (flag)
         } else if (missingSetting_exception != null) {
@@ -2993,6 +3011,8 @@ CMS.debug("4");
                 sb.append(kek_wrapped_aesKeyString);
                 sb.append("&" + IRemoteRequest.TKS_RESPONSE_KeyCheck + "=");
                 sb.append(keycheck_aes_s);
+                sb.append("&" + IRemoteRequest.TKS_RESPONSE_KeyCheck_Des + "=");    // Applet and Alg Selection by Token Range Support
+                sb.append(keycheck_s);                                              // Applet and Alg Selection by Token Range Support
                 sb.append("&" + IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey + "=");
                 sb.append(drm_trans_wrapped_desKeyString);
                 sb.append("&" + IRemoteRequest.TKS_RESPONSE_DRM_Trans_AesKey + "=");

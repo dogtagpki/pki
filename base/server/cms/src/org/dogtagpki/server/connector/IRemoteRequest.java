@@ -48,6 +48,7 @@ public interface IRemoteRequest {
     public static final String TOKEN_NEW_KEYINFO = "newKeyInfo";
     public static final String TOKEN_DATA = "data";
     public static final String WRAPPED_DEK_SESSION_KEY = "wrappedDekKey";
+    public static final String TOKEN_OLD_KEYSET = "oldKeySet";  // ** G&D 256 Key Rollover Support **
 
     // TKS response params
     /* computeSessionKey responses */
@@ -60,6 +61,7 @@ public interface IRemoteRequest {
     public static final String TKS_RESPONSE_DRM_Trans_DesKey = "drm_trans_desKey";
     public static final String TKS_RESPONSE_DRM_Trans_AesKey = "drm_trans_aesKey";
     public static final String TKS_RESPONSE_KeyCheck = "keycheck";
+    public static final String TKS_RESPONSE_KeyCheck_Des = "keycheck_des";          // Applet and Alg Selection by Token Range Support
     public static final String TKS_RESPONSE_HostCryptogram = "hostCryptogram";
 
     /* createKeySetData response */

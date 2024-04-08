@@ -27,6 +27,7 @@ import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.SecureRandom;
 
+import org.dogtagpki.tps.main.TPSBuffer;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
