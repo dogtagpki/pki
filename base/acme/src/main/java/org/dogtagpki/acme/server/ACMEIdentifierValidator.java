@@ -93,7 +93,12 @@ public class ACMEIdentifierValidator {
 
         /* Extra check that URI class is happy with it */
         try {
-            new URI("http", value, null, null);
+            if (value.startsWith("*.")) {
+                String domain = value.substring(2); // Remove the leading "*."
+                new URI("http", domain, null, null);
+            } else {
+                new URI("http", value, null, null);
+            }
         } catch (URISyntaxException e) {
             ACMEError error = new ACMEError();
             error.setType("urn:ietf:params:acme:error:malformed");
