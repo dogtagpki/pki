@@ -1025,6 +1025,7 @@ popd
 
 # Remove all symbol table and relocation information from the executable.
 C_FLAGS="-s"
+CXX_FLAGS="$CXX_FLAGS -g -fPIE -pie"
 
 %if 0%{?fedora}
 # https://sourceware.org/annobin/annobin.html/Test-gaps.html
@@ -1035,15 +1036,19 @@ C_FLAGS="$C_FLAGS -fcf-protection=full"
 
 # https://sourceware.org/annobin/annobin.html/Test-optimization.html
 C_FLAGS="$C_FLAGS -O2"
+CXX_FLAGS="$CXX_FLAGS -O2"
 
 # https://sourceware.org/annobin/annobin.html/Test-glibcxx-assertions.html
 C_FLAGS="$C_FLAGS -D_GLIBCXX_ASSERTIONS"
+CXX_FLAGS="$CXX_FLAGS -D_GLIBCXX_ASSERTIONS"
 
 # https://sourceware.org/annobin/annobin.html/Test-lto.html
 C_FLAGS="$C_FLAGS -fno-lto"
 
 # https://sourceware.org/annobin/annobin.html/Test-fortify.html
 C_FLAGS="$C_FLAGS -D_FORTIFY_SOURCE=3"
+CXX_FLAGS="$CXX_FLAGS -D_FORTIFY_SOURCE=3"
+
 %endif
 
 pkgs=base\
@@ -1077,6 +1082,7 @@ pkgs=base\
     --share-dir=%{_datadir} \
     --cmake=%{__cmake} \
     --c-flags="$C_FLAGS" \
+    --cxx-flags="$CXX_FLAGS" \
     --java-home=%{java_home} \
     --jni-dir=%{_jnidir} \
     --unit-dir=%{_unitdir} \
