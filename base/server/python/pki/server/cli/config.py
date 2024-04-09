@@ -268,7 +268,7 @@ class SubsystemConfigSetCLI(pki.cli.CLI):
             logger.error('No such subsystem: %s', subsystem_name.upper())
             sys.exit(1)
 
-        subsystem.config[name] = value
+        subsystem.set_config(name, value)
         subsystem.save()
 
 

@@ -150,6 +150,10 @@ class PKISubsystem(object):
 
         return self.instance.csr_file(cert_id)
 
+    def set_config(self, name, value):
+        logger.info('Setting %s to %s', name, value)
+        self.config[name] = value
+
     def create(self, exist_ok=False):
 
         # Create /var/lib/pki/<instance>/<subsystem>
@@ -182,16 +186,16 @@ class PKISubsystem(object):
             pki.util.load_properties(self.cs_conf, self.config)
 
         if 'cs.type' not in self.config:
-            self.config['cs.type'] = self.type
+            self.set_config('cs.type', self.type)
 
         if 'instanceId' not in self.config:
-            self.config['instanceId'] = self.instance.name
+            self.set_config('instanceId', self.instance.name)
 
         if 'passwordClass' not in self.config:
-            self.config['passwordClass'] = 'com.netscape.cmsutil.password.PlainPasswordFile'
+            self.set_config('passwordClass', 'com.netscape.cmsutil.password.PlainPasswordFile')
 
         if 'passwordFile' not in self.config:
-            self.config['passwordFile'] = self.instance.password_conf
+            self.set_config('passwordFile', self.instance.password_conf)
 
         logger.info('Storing subsystem config: %s', self.cs_conf)
         self.instance.store_properties(self.cs_conf, self.config)
@@ -777,7 +781,7 @@ class PKISubsystem(object):
 
         events.add(event_name)
         event_list = ','.join(sorted(events))
-        self.config['log.instance.SignedAudit.events'] = event_list
+        self.set_config('log.instance.SignedAudit.events', event_list)
 
         return True
 
@@ -792,7 +796,7 @@ class PKISubsystem(object):
         name = 'log.instance.SignedAudit.filters.%s' % event_name
 
         if event_filter:
-            self.config[name] = event_filter
+            self.set_config(name, event_filter)
         else:
             self.config.pop(name, None)
 
@@ -812,7 +816,7 @@ class PKISubsystem(object):
 
         events.remove(event_name)
         event_list = ','.join(sorted(events))
-        self.config['log.instance.SignedAudit.events'] = event_list
+        self.set_config('log.instance.SignedAudit.events', event_list)
 
         return True
 
@@ -978,9 +982,12 @@ class PKISubsystem(object):
 
     def set_startup_tests(self, target_tests):
         # Remove unnecessary space, curly braces
-        self.config['selftests.container.order.startup'] = ", " \
-            .join([(key + ':' + SELFTEST_CRITICAL if val else key)
-                   for key, val in target_tests.items()])
+        self.set_config(
+            'selftests.container.order.startup',
+            ', '.join([
+                (key + ':' + SELFTEST_CRITICAL if val else key)
+                for key, val in target_tests.items()
+            ]))
 
     def set_startup_test_criticality(self, critical, test=None):
         # Assume action to be taken on ALL available startup tests
@@ -1504,8 +1511,8 @@ class PKISubsystem(object):
             request_range = self.request_range(
                 master_url, 'request', session_id=session_id, install_token=install_token)
 
-            self.config['dbs.beginRequestNumber'] = request_range['begin']
-            self.config['dbs.endRequestNumber'] = request_range['end']
+            self.set_config('dbs.beginRequestNumber', request_range['begin'])
+            self.set_config('dbs.endRequestNumber', request_range['end'])
 
         # request cert/key ID range if it uses legacy generator
         if self.type == 'CA' and \
@@ -1518,18 +1525,18 @@ class PKISubsystem(object):
             serial_range = self.request_range(
                 master_url, 'serialNo', session_id=session_id, install_token=install_token)
 
-            self.config['dbs.beginSerialNumber'] = serial_range['begin']
-            self.config['dbs.endSerialNumber'] = serial_range['end']
+            self.set_config('dbs.beginSerialNumber', serial_range['begin'])
+            self.set_config('dbs.endSerialNumber', serial_range['end'])
 
         # always request replica ID range since it doesn't support random generator
         logger.info('Requesting replica ID range')
 
         replica_range = self.request_range(
             master_url, 'replicaId', session_id=session_id, install_token=install_token)
-        self.config['dbs.beginReplicaNumber'] = replica_range['begin']
-        self.config['dbs.endReplicaNumber'] = replica_range['end']
+        self.set_config('dbs.beginReplicaNumber', replica_range['begin'])
+        self.set_config('dbs.endReplicaNumber', replica_range['end'])
 
-        self.config['dbs.enableSerialManagement'] = 'true'
+        self.set_config('dbs.enableSerialManagement', 'true')
 
         self.save()
 
@@ -1599,9 +1606,9 @@ class PKISubsystem(object):
                 new_name = name
 
             value = properties.get(name)
-            self.config[new_name] = value
+            self.set_config(new_name, value)
 
-        self.config['preop.clone.configuration'] = 'true'
+        self.set_config('preop.clone.configuration', 'true')
 
         self.save()
 
@@ -2566,7 +2573,7 @@ class CASubsystem(PKISubsystem):
                 continue
 
             subsystem_number = m.group(1)
-            self.config['subsystem.%s.enabled' % subsystem_number] = 'true'
+            self.set_config('subsystem.%s.enabled' % subsystem_number, 'true')
 
     def disable_subsystem(self, subsystem_id):
 
@@ -2583,7 +2590,7 @@ class CASubsystem(PKISubsystem):
                 continue
 
             subsystem_number = m.group(1)
-            self.config['subsystem.%s.enabled' % subsystem_number] = 'false'
+            self.set_config('subsystem.%s.enabled' % subsystem_number, 'false')
 
     def get_crl_config(self):
 

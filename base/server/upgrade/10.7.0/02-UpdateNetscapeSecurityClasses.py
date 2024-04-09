@@ -51,6 +51,6 @@ class UpdateNetscapeSecurityClasses(
             if not value or value.startswith(self.NEW_PREFIX):
                 continue
 
-            subsystem.config[prop_name] = self.NEW_PREFIX + value
+            subsystem.set_config(prop_name, self.NEW_PREFIX + value)
 
         subsystem.save()

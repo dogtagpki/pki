@@ -54,13 +54,13 @@ class AddProfileCaAuditSigningCert(pki.server.upgrade.PKIServerUpgradeScriptlet)
         if 'caAuditSigningCert' not in profile_list:
             profile_list.append('caAuditSigningCert')
             profile_list.sort()
-            subsystem.config['profile.list'] = ','.join(profile_list)
+            subsystem.set_config('profile.list', ','.join(profile_list))
 
         logger.info('Adding profile.caAuditSigningCert.class_id')
-        subsystem.config['profile.caAuditSigningCert.class_id'] = 'caEnrollImpl'
+        subsystem.set_config('profile.caAuditSigningCert.class_id', 'caEnrollImpl')
 
         logger.info('Adding profile.caAuditSigningCert.config')
-        subsystem.config['profile.caAuditSigningCert.config'] = path
+        subsystem.set_config('profile.caAuditSigningCert.config', path)
 
         self.backup(subsystem.cs_conf)
         subsystem.save()

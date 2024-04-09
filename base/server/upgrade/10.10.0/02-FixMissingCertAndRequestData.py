@@ -39,17 +39,21 @@ class FixMissingCertAndRequestData(pki.server.upgrade.PKIServerUpgradeScriptlet)
             logger.info('Importing cert/request data into %s subsystem', subsystem.name)
             self.backup(subsystem.cs_conf)
 
-            subsystem.config['%s.sslserver.cert' % subsystem.name] = \
-                source.config['%s.sslserver.cert' % source.name]
+            subsystem.set_config(
+                '%s.sslserver.cert' % subsystem.name,
+                source.config['%s.sslserver.cert' % source.name])
 
-            subsystem.config['%s.subsystem.cert' % subsystem.name] = \
-                source.config['%s.subsystem.cert' % source.name]
+            subsystem.set_config(
+                '%s.subsystem.cert' % subsystem.name,
+                source.config['%s.subsystem.cert' % source.name])
 
-            subsystem.config['%s.sslserver.certreq' % subsystem.name] = \
-                source.config['%s.sslserver.certreq' % source.name]
+            subsystem.set_config(
+                '%s.sslserver.certreq' % subsystem.name,
+                source.config['%s.sslserver.certreq' % source.name])
 
-            subsystem.config['%s.subsystem.certreq' % subsystem.name] = \
-                source.config['%s.subsystem.certreq' % source.name]
+            subsystem.set_config(
+                '%s.subsystem.certreq' % subsystem.name,
+                source.config['%s.subsystem.certreq' % source.name])
 
             subsystem.save()
 

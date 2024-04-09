@@ -42,14 +42,14 @@ class FixECAdminCertProfile(pki.server.upgrade.PKIServerUpgradeScriptlet):
             path = os.path.join(dirname, 'caECAdminCert.cfg')
 
         logger.info('New path: %s', path)
-        subsystem.config['profile.caECAdminCert.config'] = path
+        subsystem.set_config('profile.caECAdminCert.config', path)
 
-        subsystem.config['profile.caECAdminCert.class_id'] = 'caEnrollImpl'
+        subsystem.set_config('profile.caECAdminCert.class_id', 'caEnrollImpl')
 
         # check if caECAdminCert is part of profile.list
         profile_list = subsystem.config['profile.list'].split(',')
         if 'caECAdminCert' not in profile_list:
             profile_list.append('caECAdminCert')
-            subsystem.config['profile.list'] = ','.join(profile_list)
+            subsystem.set_config('profile.list', ','.join(profile_list))
 
         subsystem.save()

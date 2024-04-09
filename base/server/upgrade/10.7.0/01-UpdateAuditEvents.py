@@ -72,18 +72,24 @@ class UpdateAuditEvents(
         self.backup(subsystem.cs_conf)
 
         # update documentation
-        subsystem.config['log.instance.SignedAudit._003'] = \
-            '## To list available audit events:'
-        subsystem.config['log.instance.SignedAudit._004'] = \
-            '## $ pki-server %s-audit-event-find' % subsystem.name
-        subsystem.config['log.instance.SignedAudit._005'] = \
-            '##'
-        subsystem.config['log.instance.SignedAudit._006'] = \
-            '## To enable/disable audit event:'
-        subsystem.config['log.instance.SignedAudit._007'] = \
-            '## $ pki-server %s-audit-event-enable/disable <event name>' % subsystem.name
-        subsystem.config['log.instance.SignedAudit._008'] = \
-            '##'
+        subsystem.set_config(
+            'log.instance.SignedAudit._003',
+            '## To list available audit events:')
+        subsystem.set_config(
+            'log.instance.SignedAudit._004',
+            '## $ pki-server %s-audit-event-find' % subsystem.name)
+        subsystem.set_config(
+            'log.instance.SignedAudit._005',
+            '##')
+        subsystem.set_config(
+            'log.instance.SignedAudit._006',
+            '## To enable/disable audit event:')
+        subsystem.set_config(
+            'log.instance.SignedAudit._007',
+            '## $ pki-server %s-audit-event-enable/disable <event name>' % subsystem.name)
+        subsystem.set_config(
+            'log.instance.SignedAudit._008',
+            '##')
 
         # update selected audit events
         self.update_audit_events(subsystem, 'log.instance.SignedAudit.events')
@@ -117,7 +123,7 @@ class UpdateAuditEvents(
                 events.add(new_event)
 
         event_list = ','.join(sorted(events))
-        subsystem.config[prop_name] = event_list
+        subsystem.set_config(prop_name, event_list)
 
     def update_audit_event_filters(self, subsystem, prefix):
 
@@ -143,4 +149,4 @@ class UpdateAuditEvents(
 
                 # add filter for new event
                 prop_name = prefix + new_event
-                subsystem.config[prop_name] = event_filter
+                subsystem.set_config(prop_name, event_filter)

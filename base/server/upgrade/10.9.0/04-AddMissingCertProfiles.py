@@ -68,13 +68,13 @@ class AddMissingCertProfiles(pki.server.upgrade.PKIServerUpgradeScriptlet):
                 profile_list.append(profile)
 
             logger.info('Adding profile.%s.class_id', profile)
-            subsystem.config['profile.{}.class_id'.format(profile)] = 'caEnrollImpl'
+            subsystem.set_config('profile.{}.class_id'.format(profile), 'caEnrollImpl')
 
             logger.info('Adding profile.%s.config', profile)
-            subsystem.config['profile.{}.config'.format(profile)] = path
+            subsystem.set_config('profile.{}.config'.format(profile), path)
 
         profile_list.sort()
-        subsystem.config['profile.list'] = ','.join(profile_list)
+        subsystem.set_config('profile.list', ','.join(profile_list))
 
         # Make a backup of existing CS.cfg before writing modified values
         self.backup(subsystem.cs_conf)

@@ -37,13 +37,13 @@ class AddACMEServerCertProfile(pki.server.upgrade.PKIServerUpgradeScriptlet):
         if 'acmeServerCert' not in profile_list:
             profile_list.append('acmeServerCert')
             profile_list.sort()
-            subsystem.config['profile.list'] = ','.join(profile_list)
+            subsystem.set_config('profile.list', ','.join(profile_list))
 
         logger.info('Adding profile.acmeServerCert.class_id')
-        subsystem.config['profile.acmeServerCert.class_id'] = 'caEnrollImpl'
+        subsystem.set_config('profile.acmeServerCert.class_id', 'caEnrollImpl')
 
         logger.info('Adding profile.acmeServerCert.config')
-        subsystem.config['profile.acmeServerCert.config'] = path
+        subsystem.set_config('profile.acmeServerCert.config', path)
 
         self.backup(subsystem.cs_conf)
         subsystem.save()

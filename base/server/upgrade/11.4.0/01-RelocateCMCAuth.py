@@ -26,7 +26,7 @@ class RelocateCMCAuth(pki.server.upgrade.PKIServerUpgradeScriptlet):
             # create CMCAuth instance in CA
             param = 'auths.instance.CMCAuth.pluginName'
             logger.info('Adding %s', param)
-            subsystem.config[param] = 'CMCAuth'
+            subsystem.set_config(param, 'CMCAuth')
 
         else:
             # don't register CMCAuth plugin in other subsystems

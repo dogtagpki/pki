@@ -83,7 +83,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # the cert chain since it's already imported from a local file by
             # PKIDeployer.import_cert_chain().
 
-            subsystem.config['preop.ca.pkcs7'] = ''
+            subsystem.set_config('preop.ca.pkcs7', '')
 
         elif (subsystem.type == 'CA' and subordinate or subsystem.type != 'CA') and \
                 not clone and not system_certs_imported:
@@ -96,7 +96,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             pem_chain = deployer.retrieve_cert_chain(issuing_ca)
 
             base64_chain = pki.nssdb.convert_pkcs7(pem_chain, 'pem', 'base64')
-            subsystem.config['preop.ca.pkcs7'] = base64_chain
+            subsystem.set_config('preop.ca.pkcs7', base64_chain)
 
         elif subsystem.type == 'CA' and clone and not system_certs_imported:
 

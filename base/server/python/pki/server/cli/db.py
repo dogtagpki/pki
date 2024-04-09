@@ -495,46 +495,46 @@ class SubsystemDBConfigModifyCLI(pki.cli.CLI):
         name = 'internaldb.%s'
 
         if hostname:
-            subsystem.config[name % 'ldapconn.host'] = hostname
+            subsystem.set_config(name % 'ldapconn.host', hostname)
 
         if port:
-            subsystem.config[name % 'ldapconn.port'] = port
+            subsystem.set_config(name % 'ldapconn.port', port)
 
         if secure is not None:
             if secure:
-                subsystem.config[name % 'ldapconn.secureConn'] = 'true'
+                subsystem.set_config(name % 'ldapconn.secureConn', 'true')
             else:
-                subsystem.config[name % 'ldapconn.secureConn'] = 'false'
+                subsystem.set_config(name % 'ldapconn.secureConn', 'false')
 
         if auth:
-            subsystem.config[name % 'ldapauth.authtype'] = auth
+            subsystem.set_config(name % 'ldapauth.authtype', auth)
 
         if bindDN:
-            subsystem.config[name % 'ldapauth.bindDN'] = bindDN
+            subsystem.set_config(name % 'ldapauth.bindDN', bindDN)
 
         if bindPWPrompt:
-            subsystem.config[name % 'ldapauth.bindPWPrompt'] = bindPWPrompt
+            subsystem.set_config(name % 'ldapauth.bindPWPrompt', bindPWPrompt)
 
         if nickname:
-            subsystem.config[name % 'ldapauth.clientCertNickname'] = nickname
+            subsystem.set_config(name % 'ldapauth.clientCertNickname', nickname)
 
         if database:
-            subsystem.config[name % 'database'] = database
+            subsystem.set_config(name % 'database', database)
 
         if baseDN:
-            subsystem.config[name % 'basedn'] = baseDN
+            subsystem.set_config(name % 'basedn', baseDN)
 
         if multiSuffix is not None:
             if multiSuffix:
-                subsystem.config[name % 'multipleSuffix.enable'] = 'true'
+                subsystem.set_config(name % 'multipleSuffix.enable', 'true')
             else:
-                subsystem.config[name % 'multipleSuffix.enable'] = 'false'
+                subsystem.set_config(name % 'multipleSuffix.enable', 'false')
 
         if maxConns:
-            subsystem.config[name % 'maxConns'] = maxConns
+            subsystem.set_config(name % 'maxConns', maxConns)
 
         if minConns:
-            subsystem.config[name % 'minConns'] = minConns
+            subsystem.set_config(name % 'minConns', minConns)
 
         subsystem.save()
 

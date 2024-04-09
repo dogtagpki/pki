@@ -864,42 +864,44 @@ class PKIDeployer:
             else:
                 fullname = tokenname + ':' + nickname
 
-            subsystem.config['preop.cert.%s.nickname' % config_tag] = nickname
-            subsystem.config['%s.%s.nickname' % (subsystem.name, config_tag)] = nickname
-            subsystem.config['%s.%s.tokenname' % (subsystem.name, config_tag)] = tokenname
-            subsystem.config['%s.cert.%s.nickname' % (subsystem.name, config_tag)] = fullname
+            subsystem.set_config('preop.cert.%s.nickname' % config_tag, nickname)
+            subsystem.set_config('%s.%s.nickname' % (subsystem.name, config_tag), nickname)
+            subsystem.set_config('%s.%s.tokenname' % (subsystem.name, config_tag), tokenname)
+            subsystem.set_config('%s.cert.%s.nickname' % (subsystem.name, config_tag), fullname)
 
             # store subject DN
             subject_dn = self.mdict['pki_%s_subject_dn' % deploy_tag]
-            subsystem.config['preop.cert.%s.dn' % config_tag] = subject_dn
+            subsystem.set_config('preop.cert.%s.dn' % config_tag, subject_dn)
 
             keyalgorithm = self.mdict['pki_%s_key_algorithm' % deploy_tag]
-            subsystem.config['preop.cert.%s.keyalgorithm' % config_tag] = keyalgorithm
+            subsystem.set_config('preop.cert.%s.keyalgorithm' % config_tag, keyalgorithm)
 
             signingalgorithm = self.mdict.get(
                 'pki_%s_signing_algorithm' % deploy_tag, keyalgorithm)
-            subsystem.config['preop.cert.%s.signingalgorithm' % config_tag] = signingalgorithm
+            subsystem.set_config('preop.cert.%s.signingalgorithm' % config_tag, signingalgorithm)
 
             if subsystem.name == 'ca':
                 if config_tag == 'signing':
-                    subsystem.config['ca.signing.defaultSigningAlgorithm'] = signingalgorithm
-                    subsystem.config['ca.crl.MasterCRL.signingAlgorithm'] = signingalgorithm
+                    subsystem.set_config('ca.signing.defaultSigningAlgorithm', signingalgorithm)
+                    subsystem.set_config('ca.crl.MasterCRL.signingAlgorithm', signingalgorithm)
 
                 elif config_tag == 'ocsp_signing':
-                    subsystem.config['ca.ocsp_signing.defaultSigningAlgorithm'] = signingalgorithm
+                    subsystem.set_config(
+                        'ca.ocsp_signing.defaultSigningAlgorithm',
+                        signingalgorithm)
 
             elif subsystem.name == 'ocsp':
                 if config_tag == 'signing':
-                    subsystem.config['ocsp.signing.defaultSigningAlgorithm'] = signingalgorithm
+                    subsystem.set_config('ocsp.signing.defaultSigningAlgorithm', signingalgorithm)
 
             elif subsystem.name == 'kra':
                 if config_tag == 'transport':
-                    subsystem.config['kra.transportUnit.signingAlgorithm'] = signingalgorithm
+                    subsystem.set_config('kra.transportUnit.signingAlgorithm', signingalgorithm)
 
             # TODO: move more system cert params here
 
         admin_dn = self.mdict['pki_admin_subject_dn']
-        subsystem.config['preop.cert.admin.dn'] = admin_dn
+        subsystem.set_config('preop.cert.admin.dn', admin_dn)
 
         # If specified in the deployment parameter, add generic CA signing cert
         # extension parameters into the CS.cfg. Generic extension for other
@@ -909,21 +911,24 @@ class PKIDeployer:
         if subsystem.type == 'CA':
 
             signing_nickname = subsystem.config['ca.signing.nickname']
-            subsystem.config['ca.signing.certnickname'] = signing_nickname
-            subsystem.config['ca.signing.cacertnickname'] = signing_nickname
+            subsystem.set_config('ca.signing.certnickname', signing_nickname)
+            subsystem.set_config('ca.signing.cacertnickname', signing_nickname)
 
             ocsp_signing_nickname = subsystem.config['ca.ocsp_signing.nickname']
-            subsystem.config['ca.ocsp_signing.certnickname'] = ocsp_signing_nickname
-            subsystem.config['ca.ocsp_signing.cacertnickname'] = ocsp_signing_nickname
+            subsystem.set_config('ca.ocsp_signing.certnickname', ocsp_signing_nickname)
+            subsystem.set_config('ca.ocsp_signing.cacertnickname', ocsp_signing_nickname)
 
             if self.configuration_file.add_req_ext:
 
-                subsystem.config['preop.cert.signing.ext.oid'] = \
-                    self.configuration_file.req_ext_oid
-                subsystem.config['preop.cert.signing.ext.data'] = \
-                    self.configuration_file.req_ext_data
-                subsystem.config['preop.cert.signing.ext.critical'] = \
-                    self.configuration_file.req_ext_critical.lower()
+                subsystem.set_config(
+                    'preop.cert.signing.ext.oid',
+                    self.configuration_file.req_ext_oid)
+                subsystem.set_config(
+                    'preop.cert.signing.ext.data',
+                    self.configuration_file.req_ext_data)
+                subsystem.set_config(
+                    'preop.cert.signing.ext.critical',
+                    self.configuration_file.req_ext_critical.lower())
 
         if subsystem.type == 'KRA':
 
@@ -931,26 +936,28 @@ class PKIDeployer:
             storage_token = subsystem.config['kra.storage.tokenname']
 
             if pki.nssdb.internal_token(storage_token):
-                subsystem.config['kra.storageUnit.nickName'] = storage_nickname
+                subsystem.set_config('kra.storageUnit.nickName', storage_nickname)
             else:
-                subsystem.config['kra.storageUnit.hardware'] = storage_token
-                subsystem.config['kra.storageUnit.nickName'] = \
-                    storage_token + ':' + storage_nickname
+                subsystem.set_config('kra.storageUnit.hardware', storage_token)
+                subsystem.set_config(
+                    'kra.storageUnit.nickName',
+                    storage_token + ':' + storage_nickname)
 
             transport_nickname = subsystem.config['kra.transport.nickname']
             transport_token = subsystem.config['kra.transport.tokenname']
 
             if pki.nssdb.internal_token(transport_token):
-                subsystem.config['kra.transportUnit.nickName'] = transport_nickname
+                subsystem.set_config('kra.transportUnit.nickName', transport_nickname)
             else:
-                subsystem.config['kra.transportUnit.nickName'] = \
-                    transport_token + ':' + transport_nickname
+                subsystem.set_config(
+                    'kra.transportUnit.nickName',
+                    transport_token + ':' + transport_nickname)
 
         if subsystem.type == 'OCSP':
 
             signing_nickname = subsystem.config['ocsp.signing.nickname']
-            subsystem.config['ocsp.signing.certnickname'] = signing_nickname
-            subsystem.config['ocsp.signing.cacertnickname'] = signing_nickname
+            subsystem.set_config('ocsp.signing.certnickname', signing_nickname)
+            subsystem.set_config('ocsp.signing.cacertnickname', signing_nickname)
 
         audit_nickname = subsystem.config['%s.audit_signing.nickname' % subsystem.name]
         audit_token = subsystem.config['%s.audit_signing.tokenname' % subsystem.name]
@@ -958,7 +965,7 @@ class PKIDeployer:
         if not pki.nssdb.internal_token(audit_token):
             audit_nickname = audit_token + ':' + audit_nickname
 
-        subsystem.config['log.instance.SignedAudit.signedAuditCertNickname'] = audit_nickname
+        subsystem.set_config('log.instance.SignedAudit.signedAuditCertNickname', audit_nickname)
 
         san_inject = config.str2bool(self.mdict['pki_san_inject'])
         logger.info('Injecting SAN: %s', san_inject)
@@ -967,8 +974,8 @@ class PKIDeployer:
         logger.info('SSL server cert SAN: %s', san_for_server_cert)
 
         if san_inject and san_for_server_cert:
-            subsystem.config['service.injectSAN'] = 'true'
-            subsystem.config['service.sslserver.san'] = san_for_server_cert
+            subsystem.set_config('service.injectSAN', 'true')
+            subsystem.set_config('service.sslserver.san', san_for_server_cert)
 
     def init_client_nssdb(self):
 
@@ -1051,8 +1058,8 @@ class PKIDeployer:
 
             logger.info('Enabling HTTP proxy')
 
-            subsystem.config['proxy.securePort'] = self.mdict['pki_proxy_https_port']
-            subsystem.config['proxy.unsecurePort'] = self.mdict['pki_proxy_http_port']
+            subsystem.set_config('proxy.securePort', self.mdict['pki_proxy_https_port'])
+            subsystem.set_config('proxy.unsecurePort', self.mdict['pki_proxy_http_port'])
 
         certs = subsystem.find_system_certs()
         for cert in certs:
@@ -1072,185 +1079,194 @@ class PKIDeployer:
             if key_type not in ['RSA', 'EC']:
                 raise Exception('Unsupported key type: %s' % key_type)
 
-            subsystem.config['preop.cert.%s.keytype' % config_tag] = key_type
+            subsystem.set_config('preop.cert.%s.keytype' % config_tag, key_type)
 
         # configure SSL server cert
         if subsystem.type == 'CA' and clone or subsystem.type != 'CA':
 
-            subsystem.config['preop.cert.sslserver.type'] = 'remote'
+            subsystem.set_config('preop.cert.sslserver.type', 'remote')
             key_type = subsystem.config['preop.cert.sslserver.keytype']
 
             if key_type == 'RSA':
-                subsystem.config['preop.cert.sslserver.profile'] = 'caInternalAuthServerCert'
+                profile = 'caInternalAuthServerCert'
 
             elif key_type == 'EC':
-                subsystem.config['preop.cert.sslserver.profile'] = 'caECInternalAuthServerCert'
+                profile = 'caECInternalAuthServerCert'
+
+            subsystem.set_config('preop.cert.sslserver.profile', profile)
 
         # configure subsystem cert
         if self.mdict['pki_security_domain_type'] == 'new':
 
-            subsystem.config['preop.cert.subsystem.type'] = 'local'
-            subsystem.config['preop.cert.subsystem.profile'] = 'subsystemCert.profile'
+            subsystem.set_config('preop.cert.subsystem.type', 'local')
+            subsystem.set_config('preop.cert.subsystem.profile', 'subsystemCert.profile')
 
         else:  # self.mdict['pki_security_domain_type'] == 'existing':
 
-            subsystem.config['preop.cert.subsystem.type'] = 'remote'
+            subsystem.set_config('preop.cert.subsystem.type', 'remote')
             key_type = subsystem.config['preop.cert.subsystem.keytype']
 
             if key_type == 'RSA':
-                subsystem.config['preop.cert.subsystem.profile'] = 'caInternalAuthSubsystemCert'
+                profile = 'caInternalAuthSubsystemCert'
 
             elif key_type == 'EC':
-                subsystem.config['preop.cert.subsystem.profile'] = 'caECInternalAuthSubsystemCert'
+                profile = 'caECInternalAuthSubsystemCert'
+
+            subsystem.set_config('preop.cert.subsystem.profile', profile)
 
         if external or standalone:
 
             # This is needed by IPA to detect step 1 completion.
             # See is_step_one_done() in ipaserver/install/cainstance.py.
 
-            subsystem.config['preop.ca.type'] = 'otherca'
+            subsystem.set_config('preop.ca.type', 'otherca')
 
         elif subsystem.type != 'CA' or subordinate:
 
-            subsystem.config['preop.ca.type'] = 'sdca'
+            subsystem.set_config('preop.ca.type', 'sdca')
 
         # configure CA
         if subsystem.type == 'CA':
 
             if subordinate:
-                subsystem.config['preop.cert.signing.type'] = 'remote'
-                subsystem.config['preop.cert.signing.profile'] = 'caInstallCACert'
+                subsystem.set_config('preop.cert.signing.type', 'remote')
+                subsystem.set_config('preop.cert.signing.profile', 'caInstallCACert')
 
             if config.str2bool(self.mdict['pki_profiles_in_ldap']):
                 index = subsystem.get_subsystem_index('profile')
-                subsystem.config['subsystem.%d.class' % index] = \
-                    'com.netscape.cmscore.profile.LDAPProfileSubsystem'
+                subsystem.set_config(
+                    'subsystem.%d.class' % index,
+                    'com.netscape.cmscore.profile.LDAPProfileSubsystem')
 
         # configure OCSP
         if subsystem.type == 'OCSP':
             if clone:
-                subsystem.config['ocsp.store.defStore.refreshInSec'] = '14400'
+                subsystem.set_config('ocsp.store.defStore.refreshInSec', '14400')
 
         # configure TPS
         if subsystem.type == 'TPS':
-            subsystem.config['auths.instance.ldap1.ldap.basedn'] = \
-                self.mdict['pki_authdb_basedn']
-            subsystem.config['auths.instance.ldap1.ldap.ldapconn.host'] = \
-                self.mdict['pki_authdb_hostname']
-            subsystem.config['auths.instance.ldap1.ldap.ldapconn.port'] = \
-                self.mdict['pki_authdb_port']
-            subsystem.config['auths.instance.ldap1.ldap.ldapconn.secureConn'] = \
-                self.mdict['pki_authdb_secure_conn']
+            subsystem.set_config(
+                'auths.instance.ldap1.ldap.basedn',
+                self.mdict['pki_authdb_basedn'])
+            subsystem.set_config(
+                'auths.instance.ldap1.ldap.ldapconn.host',
+                self.mdict['pki_authdb_hostname'])
+            subsystem.set_config(
+                'auths.instance.ldap1.ldap.ldapconn.port',
+                self.mdict['pki_authdb_port'])
+            subsystem.set_config(
+                'auths.instance.ldap1.ldap.ldapconn.secureConn',
+                self.mdict['pki_authdb_secure_conn'])
 
     def configure_ca(self, subsystem):
 
         if config.str2bool(self.mdict['pki_use_oaep_rsa_keywrap']):
-            subsystem.config['keyWrap.useOAEP'] = 'true'
+            subsystem.set_config('keyWrap.useOAEP', 'true')
 
         request_id_generator = self.mdict['pki_request_id_generator']
 
         if request_id_generator == 'random':
-            subsystem.config['dbs.request.id.generator'] = request_id_generator
-            subsystem.config['dbs.request.id.length'] = self.mdict['pki_request_id_length']
+            subsystem.set_config('dbs.request.id.generator', request_id_generator)
+            subsystem.set_config('dbs.request.id.length', self.mdict['pki_request_id_length'])
 
         else:  # legacy
-            subsystem.config['dbs.beginRequestNumber'] = '1'
-            subsystem.config['dbs.endRequestNumber'] = '10000000'
-            subsystem.config['dbs.requestIncrement'] = '10000000'
-            subsystem.config['dbs.requestLowWaterMark'] = '2000000'
-            subsystem.config['dbs.requestCloneTransferNumber'] = '10000'
-            subsystem.config['dbs.requestRangeDN'] = 'ou=requests,ou=ranges'
+            subsystem.set_config('dbs.beginRequestNumber', '1')
+            subsystem.set_config('dbs.endRequestNumber', '10000000')
+            subsystem.set_config('dbs.requestIncrement', '10000000')
+            subsystem.set_config('dbs.requestLowWaterMark', '2000000')
+            subsystem.set_config('dbs.requestCloneTransferNumber', '10000')
+            subsystem.set_config('dbs.requestRangeDN', 'ou=requests,ou=ranges')
 
             request_number_range_start = self.mdict.get('pki_request_number_range_start')
             if request_number_range_start:
-                subsystem.config['dbs.beginRequestNumber'] = request_number_range_start
+                subsystem.set_config('dbs.beginRequestNumber', request_number_range_start)
 
             request_number_range_end = self.mdict.get('pki_request_number_range_end')
             if request_number_range_end:
-                subsystem.config['dbs.endRequestNumber'] = request_number_range_end
+                subsystem.set_config('dbs.endRequestNumber', request_number_range_end)
 
         cert_id_generator = self.mdict['pki_cert_id_generator']
 
         if cert_id_generator == 'random':
-            subsystem.config['dbs.cert.id.generator'] = cert_id_generator
-            subsystem.config['dbs.cert.id.length'] = self.mdict['pki_cert_id_length']
+            subsystem.set_config('dbs.cert.id.generator', cert_id_generator)
+            subsystem.set_config('dbs.cert.id.length', self.mdict['pki_cert_id_length'])
 
         else:  # legacy
-            subsystem.config['dbs.beginSerialNumber'] = '1'
-            subsystem.config['dbs.endSerialNumber'] = '10000000'
-            subsystem.config['dbs.serialIncrement'] = '10000000'
-            subsystem.config['dbs.serialLowWaterMark'] = '2000000'
-            subsystem.config['dbs.serialCloneTransferNumber'] = '10000'
-            subsystem.config['dbs.serialRangeDN'] = 'ou=certificateRepository,ou=ranges'
+            subsystem.set_config('dbs.beginSerialNumber', '1')
+            subsystem.set_config('dbs.endSerialNumber', '10000000')
+            subsystem.set_config('dbs.serialIncrement', '10000000')
+            subsystem.set_config('dbs.serialLowWaterMark', '2000000')
+            subsystem.set_config('dbs.serialCloneTransferNumber', '10000')
+            subsystem.set_config('dbs.serialRangeDN', 'ou=certificateRepository,ou=ranges')
             if config.str2bool(self.mdict['pki_random_serial_numbers_enable']):
-                subsystem.config['dbs.enableRandomSerialNumbers'] = 'true'
-            subsystem.config['dbs.randomSerialNumberCounter'] = '0'
+                subsystem.set_config('dbs.enableRandomSerialNumbers', 'true')
+            subsystem.set_config('dbs.randomSerialNumberCounter', '0')
 
             serial_number_range_start = self.mdict.get('pki_serial_number_range_start')
             if serial_number_range_start:
-                subsystem.config['dbs.beginSerialNumber'] = serial_number_range_start
+                subsystem.set_config('dbs.beginSerialNumber', serial_number_range_start)
 
             serial_number_range_end = self.mdict.get('pki_serial_number_range_end')
             if serial_number_range_end:
-                subsystem.config['dbs.endSerialNumber'] = serial_number_range_end
+                subsystem.set_config('dbs.endSerialNumber', serial_number_range_end)
 
         replica_number_range_start = self.mdict.get('pki_replica_number_range_start')
         if replica_number_range_start:
-            subsystem.config['dbs.beginReplicaNumber'] = replica_number_range_start
+            subsystem.set_config('dbs.beginReplicaNumber', replica_number_range_start)
 
         replica_number_range_end = self.mdict.get('pki_replica_number_range_end')
         if replica_number_range_end:
-            subsystem.config['dbs.endReplicaNumber'] = replica_number_range_end
+            subsystem.set_config('dbs.endReplicaNumber', replica_number_range_end)
 
         ocsp_uri = self.mdict.get('pki_default_ocsp_uri')
         if ocsp_uri:
-            subsystem.config['ca.defaultOcspUri'] = ocsp_uri
+            subsystem.set_config('ca.defaultOcspUri', ocsp_uri)
 
     def configure_kra(self, subsystem):
 
         if config.str2bool(self.mdict['pki_use_oaep_rsa_keywrap']):
-            subsystem.config['keyWrap.useOAEP'] = 'true'
+            subsystem.set_config('keyWrap.useOAEP', 'true')
 
         request_id_generator = self.mdict['pki_request_id_generator']
 
         if request_id_generator == 'random':
-            subsystem.config['dbs.request.id.generator'] = request_id_generator
-            subsystem.config['dbs.request.id.length'] = self.mdict['pki_request_id_length']
+            subsystem.set_config('dbs.request.id.generator', request_id_generator)
+            subsystem.set_config('dbs.request.id.length', self.mdict['pki_request_id_length'])
 
         else:  # legacy
-            subsystem.config['dbs.beginRequestNumber'] = '1'
-            subsystem.config['dbs.endRequestNumber'] = '10000000'
-            subsystem.config['dbs.requestIncrement'] = '10000000'
-            subsystem.config['dbs.requestLowWaterMark'] = '2000000'
-            subsystem.config['dbs.requestCloneTransferNumber'] = '10000'
-            subsystem.config['dbs.requestRangeDN'] = 'ou=requests,ou=ranges'
+            subsystem.set_config('dbs.beginRequestNumber', '1')
+            subsystem.set_config('dbs.endRequestNumber', '10000000')
+            subsystem.set_config('dbs.requestIncrement', '10000000')
+            subsystem.set_config('dbs.requestLowWaterMark', '2000000')
+            subsystem.set_config('dbs.requestCloneTransferNumber', '10000')
+            subsystem.set_config('dbs.requestRangeDN', 'ou=requests,ou=ranges')
 
         key_id_generator = self.mdict['pki_key_id_generator']
 
         if key_id_generator == 'random':
-            subsystem.config['dbs.key.id.generator'] = key_id_generator
-            subsystem.config['dbs.key.id.length'] = self.mdict['pki_key_id_length']
+            subsystem.set_config('dbs.key.id.generator', key_id_generator)
+            subsystem.set_config('dbs.key.id.length', self.mdict['pki_key_id_length'])
 
         else:  # legacy
-            subsystem.config['dbs.beginSerialNumber'] = '1'
-            subsystem.config['dbs.endSerialNumber'] = '10000000'
-            subsystem.config['dbs.serialIncrement'] = '10000000'
-            subsystem.config['dbs.serialLowWaterMark'] = '2000000'
-            subsystem.config['dbs.serialCloneTransferNumber'] = '10000'
-            subsystem.config['dbs.serialRangeDN'] = 'ou=keyRepository,ou=ranges'
+            subsystem.set_config('dbs.beginSerialNumber', '1')
+            subsystem.set_config('dbs.endSerialNumber', '10000000')
+            subsystem.set_config('dbs.serialIncrement', '10000000')
+            subsystem.set_config('dbs.serialLowWaterMark', '2000000')
+            subsystem.set_config('dbs.serialCloneTransferNumber', '10000')
+            subsystem.set_config('dbs.serialRangeDN', 'ou=keyRepository,ou=ranges')
 
         if config.str2bool(self.mdict['pki_kra_ephemeral_requests']):
             logger.debug('Setting ephemeral requests to true')
-            subsystem.config['kra.ephemeralRequests'] = 'true'
+            subsystem.set_config('kra.ephemeralRequests', 'true')
 
     def configure_tps(self, subsystem):
 
         baseDN = subsystem.config['internaldb.basedn']
 
-        subsystem.config['tokendb.activityBaseDN'] = 'ou=Activities,' + baseDN
-        subsystem.config['tokendb.baseDN'] = 'ou=Tokens,' + baseDN
-        subsystem.config['tokendb.certBaseDN'] = 'ou=Certificates,' + baseDN
-        subsystem.config['tokendb.userBaseDN'] = baseDN
+        subsystem.set_config('tokendb.activityBaseDN', 'ou=Activities,' + baseDN)
+        subsystem.set_config('tokendb.baseDN', 'ou=Tokens,' + baseDN)
+        subsystem.set_config('tokendb.certBaseDN', 'ou=Certificates,' + baseDN)
+        subsystem.set_config('tokendb.userBaseDN', baseDN)
 
         nickname = subsystem.config['tps.subsystem.nickname']
         token = subsystem.config['tps.subsystem.tokenname']
@@ -1265,54 +1281,63 @@ class PKIDeployer:
         logger.info('Configuring CA connector')
 
         ca_url = urllib.parse.urlparse(self.mdict['pki_ca_uri'])
-        subsystem.config['tps.connector.ca1.enable'] = 'true'
-        subsystem.config['tps.connector.ca1.host'] = ca_url.hostname
-        subsystem.config['tps.connector.ca1.port'] = str(ca_url.port)
-        subsystem.config['tps.connector.ca1.minHttpConns'] = '1'
-        subsystem.config['tps.connector.ca1.maxHttpConns'] = '15'
-        subsystem.config['tps.connector.ca1.nickName'] = fullname
-        subsystem.config['tps.connector.ca1.timeout'] = '30'
-        subsystem.config['tps.connector.ca1.uri.enrollment'] = \
-            '/ca/ee/ca/profileSubmitSSLClient'
-        subsystem.config['tps.connector.ca1.uri.getcert'] = \
-            '/ca/ee/ca/displayBySerial'
-        subsystem.config['tps.connector.ca1.uri.renewal'] = \
-            '/ca/ee/ca/profileSubmitSSLClient'
-        subsystem.config['tps.connector.ca1.uri.revoke'] = \
-            '/ca/ee/subsystem/ca/doRevoke'
-        subsystem.config['tps.connector.ca1.uri.unrevoke'] = \
-            '/ca/ee/subsystem/ca/doUnrevoke'
+        subsystem.set_config('tps.connector.ca1.enable', 'true')
+        subsystem.set_config('tps.connector.ca1.host', ca_url.hostname)
+        subsystem.set_config('tps.connector.ca1.port', str(ca_url.port))
+        subsystem.set_config('tps.connector.ca1.minHttpConns', '1')
+        subsystem.set_config('tps.connector.ca1.maxHttpConns', '15')
+        subsystem.set_config('tps.connector.ca1.nickName', fullname)
+        subsystem.set_config('tps.connector.ca1.timeout', '30')
+        subsystem.set_config(
+            'tps.connector.ca1.uri.enrollment',
+            '/ca/ee/ca/profileSubmitSSLClient')
+        subsystem.set_config(
+            'tps.connector.ca1.uri.getcert',
+            '/ca/ee/ca/displayBySerial')
+        subsystem.set_config(
+            'tps.connector.ca1.uri.renewal',
+            '/ca/ee/ca/profileSubmitSSLClient')
+        subsystem.set_config(
+            'tps.connector.ca1.uri.revoke',
+            '/ca/ee/subsystem/ca/doRevoke')
+        subsystem.set_config(
+            'tps.connector.ca1.uri.unrevoke',
+            '/ca/ee/subsystem/ca/doUnrevoke')
 
-        subsystem.config['config.Subsystem_Connections.ca1.state'] = 'Enabled'
-        subsystem.config['config.Subsystem_Connections.ca1.timestamp'] = timestamp
+        subsystem.set_config('config.Subsystem_Connections.ca1.state', 'Enabled')
+        subsystem.set_config('config.Subsystem_Connections.ca1.timestamp', timestamp)
 
         logger.info('Configuring TKS connector')
 
         tks_url = urllib.parse.urlparse(self.mdict['pki_tks_uri'])
-        subsystem.config['tps.connector.tks1.enable'] = 'true'
-        subsystem.config['tps.connector.tks1.host'] = tks_url.hostname
-        subsystem.config['tps.connector.tks1.port'] = str(tks_url.port)
-        subsystem.config['tps.connector.tks1.minHttpConns'] = '1'
-        subsystem.config['tps.connector.tks1.maxHttpConns'] = '15'
-        subsystem.config['tps.connector.tks1.nickName'] = fullname
-        subsystem.config['tps.connector.tks1.timeout'] = '30'
-        subsystem.config['tps.connector.tks1.generateHostChallenge'] = 'true'
-        subsystem.config['tps.connector.tks1.serverKeygen'] = 'false'
-        subsystem.config['tps.connector.tks1.keySet'] = 'defKeySet'
-        subsystem.config['tps.connector.tks1.tksSharedSymKeyName'] = 'sharedSecret'
-        subsystem.config['tps.connector.tks1.uri.computeRandomData'] = \
-            '/tks/agent/tks/computeRandomData'
-        subsystem.config['tps.connector.tks1.uri.computeSessionKey'] = \
-            '/tks/agent/tks/computeSessionKey'
-        subsystem.config['tps.connector.tks1.uri.createKeySetData'] = \
-            '/tks/agent/tks/createKeySetData'
-        subsystem.config['tps.connector.tks1.uri.encryptData'] = \
-            '/tks/agent/tks/encryptData'
+        subsystem.set_config('tps.connector.tks1.enable', 'true')
+        subsystem.set_config('tps.connector.tks1.host', tks_url.hostname)
+        subsystem.set_config('tps.connector.tks1.port', str(tks_url.port))
+        subsystem.set_config('tps.connector.tks1.minHttpConns', '1')
+        subsystem.set_config('tps.connector.tks1.maxHttpConns', '15')
+        subsystem.set_config('tps.connector.tks1.nickName', fullname)
+        subsystem.set_config('tps.connector.tks1.timeout', '30')
+        subsystem.set_config('tps.connector.tks1.generateHostChallenge', 'true')
+        subsystem.set_config('tps.connector.tks1.serverKeygen', 'false')
+        subsystem.set_config('tps.connector.tks1.keySet', 'defKeySet')
+        subsystem.set_config('tps.connector.tks1.tksSharedSymKeyName', 'sharedSecret')
+        subsystem.set_config(
+            'tps.connector.tks1.uri.computeRandomData',
+            '/tks/agent/tks/computeRandomData')
+        subsystem.set_config(
+            'tps.connector.tks1.uri.computeSessionKey',
+            '/tks/agent/tks/computeSessionKey')
+        subsystem.set_config(
+            'tps.connector.tks1.uri.createKeySetData',
+            '/tks/agent/tks/createKeySetData')
+        subsystem.set_config(
+            'tps.connector.tks1.uri.encryptData',
+            '/tks/agent/tks/encryptData')
 
-        subsystem.config['config.Subsystem_Connections.tks1.state'] = 'Enabled'
-        subsystem.config['config.Subsystem_Connections.tks1.timestamp'] = timestamp
+        subsystem.set_config('config.Subsystem_Connections.tks1.state', 'Enabled')
+        subsystem.set_config('config.Subsystem_Connections.tks1.timestamp', timestamp)
 
-        subsystem.config['target.Subsystem_Connections.list'] = 'ca1,tks1'
+        subsystem.set_config('target.Subsystem_Connections.list', 'ca1,tks1')
 
         keygen = config.str2bool(self.mdict['pki_enable_server_side_keygen'])
 
@@ -1320,24 +1345,26 @@ class PKIDeployer:
             logger.info('Configuring KRA connector')
 
             kra_url = urllib.parse.urlparse(self.mdict['pki_kra_uri'])
-            subsystem.config['tps.connector.kra1.enable'] = 'true'
-            subsystem.config['tps.connector.kra1.host'] = kra_url.hostname
-            subsystem.config['tps.connector.kra1.port'] = str(kra_url.port)
-            subsystem.config['tps.connector.kra1.minHttpConns'] = '1'
-            subsystem.config['tps.connector.kra1.maxHttpConns'] = '15'
-            subsystem.config['tps.connector.kra1.nickName'] = fullname
-            subsystem.config['tps.connector.kra1.timeout'] = '30'
-            subsystem.config['tps.connector.kra1.uri.GenerateKeyPair'] = \
-                '/kra/agent/kra/GenerateKeyPair'
-            subsystem.config['tps.connector.kra1.uri.TokenKeyRecovery'] = \
-                '/kra/agent/kra/TokenKeyRecovery'
+            subsystem.set_config('tps.connector.kra1.enable', 'true')
+            subsystem.set_config('tps.connector.kra1.host', kra_url.hostname)
+            subsystem.set_config('tps.connector.kra1.port', str(kra_url.port))
+            subsystem.set_config('tps.connector.kra1.minHttpConns', '1')
+            subsystem.set_config('tps.connector.kra1.maxHttpConns', '15')
+            subsystem.set_config('tps.connector.kra1.nickName', fullname)
+            subsystem.set_config('tps.connector.kra1.timeout', '30')
+            subsystem.set_config(
+                'tps.connector.kra1.uri.GenerateKeyPair',
+                '/kra/agent/kra/GenerateKeyPair')
+            subsystem.set_config(
+                'tps.connector.kra1.uri.TokenKeyRecovery',
+                '/kra/agent/kra/TokenKeyRecovery')
 
-            subsystem.config['config.Subsystem_Connections.kra1.state'] = 'Enabled'
-            subsystem.config['config.Subsystem_Connections.kra1.timestamp'] = timestamp
+            subsystem.set_config('config.Subsystem_Connections.kra1.state', 'Enabled')
+            subsystem.set_config('config.Subsystem_Connections.kra1.timestamp', timestamp)
 
-            subsystem.config['target.Subsystem_Connections.list'] = 'ca1,tks1,kra1'
+            subsystem.set_config('target.Subsystem_Connections.list', 'ca1,tks1,kra1')
 
-            subsystem.config['tps.connector.tks1.serverKeygen'] = 'true'
+            subsystem.set_config('tps.connector.tks1.serverKeygen', 'true')
 
             # TODO: see if there are other profiles need to be configured
             subsystem.config[
@@ -1376,20 +1403,20 @@ class PKIDeployer:
 
         # configure internal database
         if self.ds_url.scheme == 'ldaps':
-            subsystem.config['internaldb.ldapconn.secureConn'] = 'true'
+            subsystem.set_config('internaldb.ldapconn.secureConn', 'true')
 
         elif self.ds_url.scheme == 'ldap':
-            subsystem.config['internaldb.ldapconn.secureConn'] = 'false'
+            subsystem.set_config('internaldb.ldapconn.secureConn', 'false')
 
         else:
             raise Exception('Unsupported protocol: %s' % self.ds_url.scheme)
 
-        subsystem.config['internaldb.ldapconn.host'] = self.ds_url.hostname
-        subsystem.config['internaldb.ldapconn.port'] = self.ds_url.port
+        subsystem.set_config('internaldb.ldapconn.host', self.ds_url.hostname)
+        subsystem.set_config('internaldb.ldapconn.port', self.ds_url.port)
 
-        subsystem.config['internaldb.ldapauth.bindDN'] = self.mdict['pki_ds_bind_dn']
-        subsystem.config['internaldb.basedn'] = self.mdict['pki_ds_base_dn']
-        subsystem.config['internaldb.database'] = self.mdict['pki_ds_database']
+        subsystem.set_config('internaldb.ldapauth.bindDN', self.mdict['pki_ds_bind_dn'])
+        subsystem.set_config('internaldb.basedn', self.mdict['pki_ds_base_dn'])
+        subsystem.set_config('internaldb.database', self.mdict['pki_ds_database'])
 
         if subsystem.type == 'CA':
             self.configure_ca(subsystem)
@@ -2356,20 +2383,24 @@ class PKIDeployer:
 
         if subsystem.name == 'ca':
             nickname = self.mdict['pki_ca_signing_nickname']
-            subsystem.config['ca.signing.cacertnickname'] = nickname
+            subsystem.set_config('ca.signing.cacertnickname', nickname)
 
-            subsystem.config['ca.signing.defaultSigningAlgorithm'] = \
-                self.mdict['pki_ca_signing_signing_algorithm']
+            subsystem.set_config(
+                'ca.signing.defaultSigningAlgorithm',
+                self.mdict['pki_ca_signing_signing_algorithm'])
 
-            subsystem.config['ca.ocsp_signing.defaultSigningAlgorithm'] = \
-                self.mdict['pki_ocsp_signing_signing_algorithm']
+            subsystem.set_config(
+                'ca.ocsp_signing.defaultSigningAlgorithm',
+                self.mdict['pki_ocsp_signing_signing_algorithm'])
 
         if subsystem.name == 'ocsp':
-            subsystem.config['ocsp.signing.defaultSigningAlgorithm'] = \
-                self.mdict['pki_ocsp_signing_signing_algorithm']
+            subsystem.set_config(
+                'ocsp.signing.defaultSigningAlgorithm',
+                self.mdict['pki_ocsp_signing_signing_algorithm'])
 
-        subsystem.config['%s.audit_signing.defaultSigningAlgorithm' % subsystem.name] = \
-            self.mdict['pki_audit_signing_signing_algorithm']
+        subsystem.set_config(
+            '%s.audit_signing.defaultSigningAlgorithm' % subsystem.name,
+            self.mdict['pki_audit_signing_signing_algorithm'])
 
     def validate_system_certs(self, subsystem):
 
@@ -2580,9 +2611,9 @@ class PKIDeployer:
 
             self.join_security_domain()
 
-            subsystem.config['securitydomain.host'] = self.sd_host.Hostname
-            subsystem.config['securitydomain.httpport'] = self.sd_host.Port
-            subsystem.config['securitydomain.httpsadminport'] = self.sd_host.SecurePort
+            subsystem.set_config('securitydomain.host', self.sd_host.Hostname)
+            subsystem.set_config('securitydomain.httpport', self.sd_host.Port)
+            subsystem.set_config('securitydomain.httpsadminport', self.sd_host.SecurePort)
 
         else:  # self.mdict['pki_security_domain_type'] == 'new'
 
@@ -2595,9 +2626,9 @@ class PKIDeployer:
             else:
                 logger.info('Creating new security domain')
 
-            subsystem.config['securitydomain.host'] = self.mdict['pki_hostname']
-            subsystem.config['securitydomain.httpport'] = unsecurePort
-            subsystem.config['securitydomain.httpsadminport'] = securePort
+            subsystem.set_config('securitydomain.host', self.mdict['pki_hostname'])
+            subsystem.set_config('securitydomain.httpport', unsecurePort)
+            subsystem.set_config('securitydomain.httpsadminport', securePort)
 
     def setup_security_domain_manager(self, subsystem):
 
@@ -2620,8 +2651,8 @@ class PKIDeployer:
             sd_url = self.mdict['pki_security_domain_uri']
             logger.info('Joining security domain at %s', sd_url)
 
-            subsystem.config['securitydomain.select'] = 'existing'
-            subsystem.config['securitydomain.name'] = self.domain_info.id
+            subsystem.set_config('securitydomain.select', 'existing')
+            subsystem.set_config('securitydomain.name', self.domain_info.id)
 
             domain_manager = False
 
@@ -2644,10 +2675,10 @@ class PKIDeployer:
 
                 logger.info('Cloning security domain manager')
 
-                subsystem.config['securitydomain.select'] = 'new'
-                subsystem.config['securitydomain.host'] = self.mdict['pki_hostname']
-                subsystem.config['securitydomain.httpport'] = unsecurePort
-                subsystem.config['securitydomain.httpsadminport'] = securePort
+                subsystem.set_config('securitydomain.select', 'new')
+                subsystem.set_config('securitydomain.host', self.mdict['pki_hostname'])
+                subsystem.set_config('securitydomain.httpport', unsecurePort)
+                subsystem.set_config('securitydomain.httpsadminport', securePort)
 
             subsystem.join_security_domain(
                 sd_url,
@@ -2671,8 +2702,8 @@ class PKIDeployer:
                 logger.info('Creating new security domain')
                 sd_name = self.mdict['pki_security_domain_name']
 
-            subsystem.config['securitydomain.select'] = 'new'
-            subsystem.config['securitydomain.name'] = sd_name
+            subsystem.set_config('securitydomain.select', 'new')
+            subsystem.set_config('securitydomain.name', sd_name)
 
             subsystem.create_security_domain(name=sd_name)
 
@@ -2689,10 +2720,10 @@ class PKIDeployer:
 
         if domain_manager:
             logger.info('Adding security domain sessions')
-            subsystem.config['securitydomain.checkIP'] = 'false'
-            subsystem.config['securitydomain.checkinterval'] = '300000'
-            subsystem.config['securitydomain.flushinterval'] = '86400000'
-            subsystem.config['securitydomain.source'] = 'ldap'
+            subsystem.set_config('securitydomain.checkIP', 'false')
+            subsystem.set_config('securitydomain.checkinterval', '300000')
+            subsystem.set_config('securitydomain.flushinterval', '86400000')
+            subsystem.set_config('securitydomain.source', 'ldap')
 
     def pki_connect(self):
 
@@ -4494,33 +4525,33 @@ class PKIDeployer:
             logger.info('Importing shared secret')
             self.import_shared_secret(subsystem, secret_nickname, shared_secret)
 
-        subsystem.config['conn.tks1.tksSharedSymKeyName'] = secret_nickname
+        subsystem.set_config('conn.tks1.tksSharedSymKeyName', secret_nickname)
         subsystem.save()
 
     def finalize_ca(self, subsystem):
 
         if config.str2bool(self.mdict['pki_master_crl_enable']):
             logger.info('Enabling CRL')
-            subsystem.config['ca.crl.MasterCRL.enable'] = 'true'
+            subsystem.set_config('ca.crl.MasterCRL.enable', 'true')
         else:
             logger.info('Disabling CRL')
-            subsystem.config['ca.crl.MasterCRL.enable'] = 'false'
+            subsystem.set_config('ca.crl.MasterCRL.enable', 'false')
 
         clone = self.configuration_file.clone
 
         if clone:
             logger.info('Disabling CRL caching and generation on clone')
 
-            subsystem.config['ca.certStatusUpdateInterval'] = '0'
-            subsystem.config['ca.listenToCloneModifications'] = 'false'
-            subsystem.config['ca.crl.MasterCRL.enableCRLCache'] = 'false'
-            subsystem.config['ca.crl.MasterCRL.enableCRLUpdates'] = 'false'
+            subsystem.set_config('ca.certStatusUpdateInterval', '0')
+            subsystem.set_config('ca.listenToCloneModifications', 'false')
+            subsystem.set_config('ca.crl.MasterCRL.enableCRLCache', 'false')
+            subsystem.set_config('ca.crl.MasterCRL.enableCRLUpdates', 'false')
 
             master_url = self.mdict['pki_clone_uri']
             url = urllib.parse.urlparse(master_url)
 
-            subsystem.config['master.ca.agent.host'] = url.hostname
-            subsystem.config['master.ca.agent.port'] = str(url.port)
+            subsystem.set_config('master.ca.agent.host', url.hostname)
+            subsystem.set_config('master.ca.agent.port', str(url.port))
 
         else:
             logger.info('Updating CA ranges')
@@ -4528,7 +4559,7 @@ class PKIDeployer:
 
         crl_number = self.mdict['pki_ca_starting_crl_number']
         logger.info('Starting CRL number: %s', crl_number)
-        subsystem.config['ca.crl.MasterCRL.startingCrlNumber'] = crl_number
+        subsystem.set_config('ca.crl.MasterCRL.startingCrlNumber', crl_number)
 
         logger.info('Enabling profile subsystem')
         subsystem.enable_subsystem('profile')
@@ -4544,7 +4575,7 @@ class PKIDeployer:
         ca_type = subsystem.config.get('preop.ca.type')
 
         if ca_type:
-            subsystem.config['cloning.ca.type'] = ca_type
+            subsystem.set_config('cloning.ca.type', ca_type)
 
         clone = self.configuration_file.clone
         standalone = self.configuration_file.standalone
@@ -4592,7 +4623,7 @@ class PKIDeployer:
         ca_type = subsystem.config.get('preop.ca.type')
 
         if ca_type:
-            subsystem.config['cloning.ca.type'] = ca_type
+            subsystem.set_config('cloning.ca.type', ca_type)
 
         clone = self.configuration_file.clone
         standalone = self.configuration_file.standalone
@@ -4643,14 +4674,14 @@ class PKIDeployer:
         ca_type = subsystem.config.get('preop.ca.type')
 
         if ca_type:
-            subsystem.config['cloning.ca.type'] = ca_type
+            subsystem.set_config('cloning.ca.type', ca_type)
 
     def finalize_tps(self, subsystem):
 
         ca_type = subsystem.config.get('preop.ca.type')
 
         if ca_type:
-            subsystem.config['cloning.ca.type'] = ca_type
+            subsystem.set_config('cloning.ca.type', ca_type)
 
         tps_uid = 'TPS-%s-%s' % (self.mdict['pki_hostname'], self.mdict['pki_https_port'])
         full_name = self.mdict['pki_subsystem_name']
@@ -4716,13 +4747,13 @@ class PKIDeployer:
 
         # save EC type for sslserver cert (if present)
         ec_type = subsystem.config.get('preop.cert.sslserver.ec.type', 'ECDHE')
-        subsystem.config['jss.ssl.sslserver.ectype'] = ec_type
+        subsystem.set_config('jss.ssl.sslserver.ectype', ec_type)
 
         for key in list(subsystem.config.keys()):
             if key.startswith('preop.'):
                 del subsystem.config[key]
 
-        subsystem.config['cs.state'] = '1'
+        subsystem.set_config('cs.state', '1')
 
         subsystem.save()
 

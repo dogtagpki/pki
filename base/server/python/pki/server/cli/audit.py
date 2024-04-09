@@ -283,37 +283,37 @@ class AuditConfigModifyCLI(pki.cli.CLI):
         if enabled is None:
             pass
         elif enabled:
-            subsystem.config[name % 'enable'] = 'true'
+            subsystem.set_config(name % 'enable', 'true')
         else:
-            subsystem.config[name % 'enable'] = 'false'
+            subsystem.set_config(name % 'enable', 'false')
 
         if logFile:
-            subsystem.config[name % 'fileName'] = logFile
+            subsystem.set_config(name % 'fileName', logFile)
 
         if bufferSize:
-            subsystem.config[name % 'bufferSize'] = bufferSize
+            subsystem.set_config(name % 'bufferSize', bufferSize)
 
         if flushInterval:
-            subsystem.config[name % 'flushInterval'] = flushInterval
+            subsystem.set_config(name % 'flushInterval', flushInterval)
 
         if maxFileSize:
-            subsystem.config[name % 'maxFileSize'] = maxFileSize
+            subsystem.set_config(name % 'maxFileSize', maxFileSize)
 
         if rolloverInterval:
-            subsystem.config[name % 'rolloverInterval'] = rolloverInterval
+            subsystem.set_config(name % 'rolloverInterval', rolloverInterval)
 
         if expirationTime:
-            subsystem.config[name % 'expirationTime'] = expirationTime
+            subsystem.set_config(name % 'expirationTime', expirationTime)
 
         if logSigning is None:
             pass
         elif logSigning:
-            subsystem.config[name % 'logSigning'] = 'true'
+            subsystem.set_config(name % 'logSigning', 'true')
         else:
-            subsystem.config[name % 'logSigning'] = 'false'
+            subsystem.set_config(name % 'logSigning', 'false')
 
         if signingCert:
-            subsystem.config[name % 'signedAuditCertNickname'] = signingCert
+            subsystem.set_config(name % 'signedAuditCertNickname', signingCert)
 
         subsystem.save()
 

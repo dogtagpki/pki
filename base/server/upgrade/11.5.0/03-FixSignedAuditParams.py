@@ -29,10 +29,11 @@ class FixSignedAuditParams(pki.server.upgrade.PKIServerUpgradeScriptlet):
         subsystem.config.pop('log.instance.SignedAudit.signedAudit', None)
 
         logger.info('Add correct signed audit params')
-        subsystem.config['log.instance.SignedAudit.signedAudit._000'] = '##'
-        subsystem.config['log.instance.SignedAudit.signedAudit._001'] = \
-            '## Fill in the nickname of a trusted signing certificate to allow ' \
-            '%s audit logs to be signed' % subsystem.type
-        subsystem.config['log.instance.SignedAudit.signedAudit._002'] = '##'
+        subsystem.set_config('log.instance.SignedAudit.signedAudit._000', '##')
+        subsystem.set_config(
+            'log.instance.SignedAudit.signedAudit._001',
+            '## Fill in the nickname of a trusted signing certificate to allow '
+            '%s audit logs to be signed' % subsystem.type)
+        subsystem.set_config('log.instance.SignedAudit.signedAudit._002', '##')
 
         subsystem.save()
