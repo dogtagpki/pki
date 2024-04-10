@@ -830,7 +830,7 @@ class PKIDeployer:
                 params=self.mdict,
                 force=True)
 
-            # Merge temporary CS.cfg into /etc/pki/<instance>/<subsystem>/CS.cfg
+            # Merge temporary CS.cfg into /var/lib/pki/<instance>/conf/<subsystem>/CS.cfg
             # to preserve params in existing CS.cfg
 
             pki.util.load_properties(tmp_cs_cfg, subsystem.config)
@@ -4809,10 +4809,11 @@ class PKIDeployer:
         self.file.copy(manifest_file, manifest_archive)
 
     def restore_selinux_contexts(self):
+
         selinux.restorecon(self.instance.base_dir, True)
         selinux.restorecon(config.PKI_DEPLOYMENT_LOG_ROOT, True)
         selinux.restorecon(self.instance.log_dir, True)
-        selinux.restorecon(self.instance.conf_dir, True)
+        selinux.restorecon(self.instance.actual_conf_dir, True)
 
     def selinux_context_exists(self, records, context_value):
         '''
@@ -4834,9 +4835,9 @@ class PKIDeployer:
 
         fcon = seobject.fcontextRecords(trans)
 
-        logger.info('Adding SELinux fcontext "%s"', self.instance.conf_dir + suffix)
+        logger.info('Adding SELinux fcontext "%s"', self.instance.actual_conf_dir + suffix)
         fcon.add(
-            self.instance.conf_dir + suffix,
+            self.instance.actual_conf_dir + suffix,
             config.PKI_CFG_SELINUX_CONTEXT, '', 's0', '')
 
         logger.info('Adding SELinux fcontext "%s"', self.instance.nssdb_dir + suffix)
@@ -4894,9 +4895,9 @@ class PKIDeployer:
             logger.info('Removing SELinux fcontext "%s"', self.instance.nssdb_dir + suffix)
             fcon.delete(self.instance.nssdb_dir + suffix, '')
 
-        if self.selinux_context_exists(file_records, self.instance.conf_dir + suffix):
-            logger.info('Removing SELinux fcontext "%s"', self.instance.conf_dir + suffix)
-            fcon.delete(self.instance.conf_dir + suffix, '')
+        if self.selinux_context_exists(file_records, self.instance.actual_conf_dir + suffix):
+            logger.info('Removing SELinux fcontext "%s"', self.instance.actual_conf_dir + suffix)
+            fcon.delete(self.instance.actual_conf_dir + suffix, '')
 
         trans.finish()
 

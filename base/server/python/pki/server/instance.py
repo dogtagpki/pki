@@ -67,6 +67,10 @@ class PKIInstance(pki.server.PKIServer):
 
         self.external_certs = []
 
+        # The standard conf dir at /var/lib/pki/<instance>/conf
+        # will be a link to the actual folder at /etc/pki/<instance>.
+        self.actual_conf_dir = os.path.join(pki.server.PKIServer.CONFIG_DIR, self.name)
+
         self.default_root_doc_base = os.path.join(
             pki.SHARE_DIR,
             'server',
@@ -138,14 +142,6 @@ class PKIInstance(pki.server.PKIServer):
         if self.version < 10:
             return os.path.join(pki.BASE_DIR, self.name)
         return os.path.join(pki.server.PKIServer.BASE_DIR, self.name)
-
-    @property
-    def conf_dir(self):
-        return os.path.join(pki.server.PKIServer.CONFIG_DIR, self.name)
-
-    @property
-    def logging_properties(self):
-        return os.path.join(self.base_dir, 'conf', 'logging.properties')
 
     @property
     def log_dir(self):
@@ -261,13 +257,6 @@ class PKIInstance(pki.server.PKIServer):
         self.create_registry()
 
         self.symlink(PKIInstance.UNIT_FILE, self.unit_file, exist_ok=True)
-
-    def create_conf_dir(self, exist_ok=False):
-
-        super().create_conf_dir(exist_ok=exist_ok)
-
-        conf_link = os.path.join(self.base_dir, 'conf')
-        self.symlink(self.conf_dir, conf_link, exist_ok=exist_ok)
 
     def create_logging_properties(self, force=False):
 
@@ -428,14 +417,6 @@ class PKIInstance(pki.server.PKIServer):
             pki.util.unlink(self.lib_dir, force=force)
         else:
             pki.util.rmtree(self.lib_dir, force=force)
-
-    def remove_conf_dir(self, force=False):
-
-        conf_link = os.path.join(self.base_dir, 'conf')
-        logger.info('Removing %s', conf_link)
-        pki.util.unlink(conf_link, force=force)
-
-        super().remove_conf_dir(force=force)
 
     def remove_registry(self, force=False):
 
@@ -720,7 +701,8 @@ class PKIInstance(pki.server.PKIServer):
         :rtype: None
         """
 
-        # If cert_file is not provided, load the cert from /etc/pki/certs/<cert_id>.crt
+        # If cert_file is not provided, load the cert from
+        # /var/lib/pki/<instance>/conf/certs/<cert_id>.crt
         if not cert_file:
             cert_file = self.cert_file(cert_id)
 

@@ -170,11 +170,11 @@ class PKISubsystem(object):
 
     def create_conf(self, exist_ok=False):
 
-        # Create /etc/pki/<instance>/<subsystem>
+        # Create /var/lib/pki/<instance>/conf/<subsystem>
         self.instance.makedirs(self.conf_dir, exist_ok=exist_ok)
 
         # Link /var/lib/pki/<instance>/<subsystem>/conf
-        # to /etc/pki/<instance>/<subsystem>
+        # to /var/lib/pki/<instance>/conf/<subsystem>
 
         conf_link = os.path.join(self.base_dir, 'conf')
         self.instance.symlink(
@@ -201,7 +201,7 @@ class PKISubsystem(object):
         self.instance.store_properties(self.cs_conf, self.config)
 
         # Copy /usr/share/pki/<subsystem>/conf/registry.cfg
-        # to /etc/pki/<instance>/<subsystem>/registry.cfg
+        # to /var/lib/pki/<instance>/conf/<subsystem>/registry.cfg
 
         registry_conf = os.path.join(
             pki.server.PKIServer.SHARE_DIR,
@@ -295,7 +295,7 @@ class PKISubsystem(object):
 
     def remove_conf(self, force=False):
 
-        # Remove /etc/pki/<instance>/<subsystem>
+        # Remove /var/lib/pki/<instance>/conf/<subsystem>
         logger.info('Removing %s', self.conf_dir)
         pki.util.rmtree(self.conf_dir, force=force)
 

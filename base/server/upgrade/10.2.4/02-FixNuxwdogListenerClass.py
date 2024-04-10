@@ -32,5 +32,5 @@ class FixNuxwdogListenerClass(pki.server.upgrade.PKIServerUpgradeScriptlet):
     def upgrade_instance(self, instance):
         subprocess.check_call([
             'sed', '-i', 's/NuxwdogPasswordStoreInitializer/PKIListener/',
-            '/etc/pki/{0}/server.xml'.format(instance.name)
+            instance.server_xml
         ])

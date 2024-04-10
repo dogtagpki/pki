@@ -39,5 +39,5 @@ class RemoveInaccessableURLsFromServerXML(
             '-e', '\\|^.*Secure EE URL.*kra/ee/kra.*$|d',
             '-e', '\\|^.*Unsecure URL.*tks/ee/tks.*$|d',
             '-e', '\\|^.*Secure EE URL.*tks/ee/tks.*$|d',
-            '/etc/pki/{0}/server.xml'.format(instance.name)
+            instance.server_xml
         ])

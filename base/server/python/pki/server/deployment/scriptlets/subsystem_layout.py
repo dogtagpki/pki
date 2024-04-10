@@ -77,7 +77,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         deployer.create_cs_cfg(subsystem)
 
         # Copy /usr/share/pki/<subsystem>/conf/registry.cfg
-        # to /etc/pki/<instance>/<subsystem>/registry.cfg
+        # to /var/lib/pki/<instance>/conf/<subsystem>/registry.cfg
 
         pki_source_registry_cfg = os.path.join(
             pki.server.PKIServer.SHARE_DIR,
@@ -96,7 +96,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if deployer.subsystem_type == "CA":
 
             # Copy /usr/share/pki/ca/emails
-            # to /etc/pki/<instance>/ca/emails
+            # to /var/lib/pki/<instance>/conf/ca/emails
 
             pki_source_emails = os.path.join(
                 pki.server.PKIServer.SHARE_DIR,
@@ -108,14 +108,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 subsystem.conf_dir + '/emails')
 
             # Link /var/lib/pki/<instance>/ca/emails
-            # to /etc/pki/<instance>/ca/emails
+            # to /var/lib/pki/<instance>/conf/ca/emails
 
             emails_path = os.path.join(instance.conf_dir, 'ca', 'emails')
             emails_link = os.path.join(instance.base_dir, 'ca', 'emails')
             instance.symlink(emails_path, emails_link, exist_ok=True)
 
             # Copy /usr/share/pki/ca/profiles
-            # to /etc/pki/<instance>/ca/profiles
+            # to /var/lib/pki/<instance>/conf/ca/profiles
 
             pki_source_profiles = os.path.join(
                 pki.server.PKIServer.SHARE_DIR,
@@ -127,13 +127,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 subsystem.conf_dir + '/profiles')
 
             # Link /var/lib/pki/<instance>/ca/profiles
-            # to /etc/pki/<instance>/ca/profiles
+            # to /var/lib/pki/<instance>/conf/ca/profiles
             profiles_path = os.path.join(instance.conf_dir, 'ca', 'profiles')
             profiles_link = os.path.join(instance.base_dir, 'ca', 'profiles')
             instance.symlink(profiles_path, profiles_link, exist_ok=True)
 
             # Copy /usr/share/pki/<subsystem>/conf/flatfile.txt
-            # to /etc/pki/<instance>/<subsystem>/flatfile.txt
+            # to /var/lib/pki/<instance>/conf/<subsystem>/flatfile.txt
 
             pki_source_flatfile_txt = os.path.join(
                 pki.server.PKIServer.SHARE_DIR,
@@ -150,7 +150,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 pki_target_flatfile_txt)
 
             # Copy /usr/share/pki/<subsystem>/conf/<type>AdminCert.profile
-            # to /etc/pki/<instance>/<subsystem>/adminCert.profile
+            # to /var/lib/pki/<instance>/conf/<subsystem>/adminCert.profile
 
             admin_key_type = deployer.mdict['pki_admin_key_type']
 
@@ -169,7 +169,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 pki_target_admincert_profile)
 
             # Copy /usr/share/pki/<subsystem>/conf/caAuditSigningCert.profile
-            # to /etc/pki/<instance>/<subsystem>/caAuditSigningCert.profile
+            # to /var/lib/pki/<instance>/conf/<subsystem>/caAuditSigningCert.profile
 
             pki_source_caauditsigningcert_profile = os.path.join(
                 pki.server.PKIServer.SHARE_DIR,
@@ -186,7 +186,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 pki_target_caauditsigningcert_profile)
 
             # Copy /usr/share/pki/<subsystem>/conf/caCert.profile
-            # to /etc/pki/<instance>/<subsystem>/caCert.profile
+            # to /var/lib/pki/<instance>/conf/<subsystem>/caCert.profile
 
             pki_source_cacert_profile = os.path.join(
                 pki.server.PKIServer.SHARE_DIR,
@@ -203,7 +203,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 pki_target_cacert_profile)
 
             # Copy /usr/share/pki/<subsystem>/conf/caOCSPCert.profile
-            # to /etc/pki/<instance>/<subsystem>/caOCSPCert.profile
+            # to /var/lib/pki/<instance>/conf/<subsystem>/caOCSPCert.profile
 
             pki_source_caocspcert_profile = os.path.join(
                 pki.server.PKIServer.SHARE_DIR,
@@ -220,7 +220,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 pki_target_caocspcert_profile)
 
             # Copy /usr/share/pki/<subsystem>/conf/<type>ServerCert.profile
-            # to /etc/pki/<instance>/<subsystem>/serverCert.profile
+            # to /var/lib/pki/<instance>/conf/<subsystem>/serverCert.profile
 
             sslserver_key_type = deployer.mdict['pki_sslserver_key_type']
 
@@ -239,7 +239,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 pki_target_servercert_profile)
 
             # Copy /usr/share/pki/<subsystem>/conf/<type>SubsystemCert.profile
-            # to /etc/pki/<instance>/<subsystem>/subsystemCert.profile
+            # to /var/lib/pki/<instance>/conf/<subsystem>/subsystemCert.profile
 
             subsystem_key_type = deployer.mdict['pki_subsystem_key_type']
 
@@ -258,7 +258,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 pki_target_subsystemcert_profile)
 
             # Copy /usr/share/pki/<subsystem>/conf/proxy.conf
-            # to /etc/pki/<instance>/<subsystem>/proxy.conf
+            # to /var/lib/pki/<instance>/conf/<subsystem>/proxy.conf
 
             pki_source_proxy_conf = os.path.join(
                 pki.server.PKIServer.SHARE_DIR,
@@ -278,7 +278,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         elif deployer.subsystem_type == "TPS":
 
             # Copy /usr/share/pki/<subsystem>/conf/phoneHome.xml
-            # to /etc/pki/<instance>/<subsystem>/phoneHome.xml
+            # to /var/lib/pki/<instance>/conf/<subsystem>/phoneHome.xml
 
             pki_target_phone_home_xml = os.path.join(
                 subsystem.conf_dir,
