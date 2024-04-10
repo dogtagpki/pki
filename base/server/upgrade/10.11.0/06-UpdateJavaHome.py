@@ -36,7 +36,7 @@ class UpdateJavaHome(pki.server.upgrade.PKIServerUpgradeScriptlet):
         result = self.update_java_home(instance.service_conf, java_home)
         self.store_config(instance.service_conf, result)
 
-        # Updating /etc/pki/<instance>/tomcat.conf
+        # Updating /var/lib/pki/<instance>/conf/tomcat.conf
         logger.info('Updating %s', instance.tomcat_conf)
         self.backup(instance.tomcat_conf)
 

@@ -122,6 +122,10 @@ class PKIServer(object):
         self.user = user
         self.group = group
 
+        # The standard conf dir at /var/lib/pki/<instance>/conf
+        # will be an actual folder (i.e. not a link).
+        self.actual_conf_dir = None
+
         self.config = {}
         self.passwords = {}
         self.subsystems = {}
@@ -641,7 +645,7 @@ grant codeBase "file:%s" {
 
     def symlink(self, source, dest, exist_ok=False):
 
-        logger.info('Creating %s', dest)
+        logger.info('Linking %s to %s', dest, source)
 
         pki.util.symlink(
             source,
@@ -771,6 +775,17 @@ grant codeBase "file:%s" {
 
     def create_conf_dir(self, exist_ok=False):
 
+        if self.actual_conf_dir:
+
+            # Create /etc/pki/<instance>
+            self.makedirs(self.actual_conf_dir, exist_ok=exist_ok)
+
+            # Link /var/lib/pki/<instance>/conf to /etc/pki/<instance>
+            self.symlink(self.actual_conf_dir, self.conf_dir, exist_ok=exist_ok)
+
+            return
+
+        # Create /var/lib/pki/<instance>/conf
         self.makedirs(self.conf_dir, exist_ok=exist_ok)
 
     def create_logging_properties(self, force=False):
@@ -1166,6 +1181,22 @@ grant codeBase "file:%s" {
 
     def remove_conf_dir(self, force=False):
 
+        if os.path.islink(self.conf_dir):
+
+            # Get the actual folder in case it has changed
+            actual_conf_dir = os.readlink(self.conf_dir)
+
+            # Remove /var/lib/pki/<instance>/conf
+            logger.info('Removing %s', self.conf_dir)
+            pki.util.unlink(self.conf_dir, force=force)
+
+            # Remove /etc/pki/<instance>
+            logger.info('Removing %s', actual_conf_dir)
+            pki.util.rmtree(actual_conf_dir, force=force)
+
+            return
+
+        # Remove /var/lib/pki/<instance>/conf
         logger.info('Removing %s', self.conf_dir)
         pki.util.rmtree(self.conf_dir, force=force)
 

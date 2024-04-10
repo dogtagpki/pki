@@ -52,8 +52,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # Create /var/lib/pki/<instance>
         instance.makedirs(instance.base_dir, exist_ok=True)
 
-        # Create /etc/pki/<instance>
-        instance.makedirs(instance.conf_dir, exist_ok=True)
+        # Create /etc/pki/<instance> and /var/lib/pki/<instance>/conf
+        instance.create_conf_dir(exist_ok=True)
 
         # Create /var/log/pki/<instance>
         instance.makedirs(instance.log_dir, exist_ok=True)
@@ -64,14 +64,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # Create /var/lib/pki/<instance>/work
         instance.makedirs(instance.work_dir, exist_ok=True)
 
-        # Create /etc/pki/<instance>/certs
+        # Create /var/lib/pki/<instance>/conf/certs
         instance.makedirs(instance.certs_dir, exist_ok=True)
 
-        # Create /etc/pki/<instance>/Catalina
+        # Create /var/lib/pki/<instance>/conf/Catalina
         catalina_dir = os.path.join(instance.conf_dir, 'Catalina')
         instance.makedirs(catalina_dir, exist_ok=True)
 
-        # Create /etc/pki/<instance>/Catalina/localhost
+        # Create /var/lib/pki/<instance>/conf/Catalina/localhost
         localhost_dir = os.path.join(catalina_dir, 'localhost')
         instance.makedirs(localhost_dir, exist_ok=True)
 
@@ -80,14 +80,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             'server',
             'conf')
 
-        # Link /etc/pki/<instance>/catalina.properties
+        # Link /var/lib/pki/<instance>/conf/catalina.properties
         # to /usr/share/pki/server/conf/catalina.properties.
         instance.symlink(
             os.path.join(shared_conf_path, 'catalina.properties'),
             os.path.join(instance.conf_dir, 'catalina.properties'),
             exist_ok=True)
 
-        # Link /etc/pki/<instance>/context.xml
+        # Link /var/lib/pki/<instance>/conf/context.xml
         # to /usr/share/tomcat/conf/context.xml.
         context_xml = os.path.join(pki.server.Tomcat.CONF_DIR, 'context.xml')
         instance.symlink(
@@ -95,14 +95,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             instance.context_xml,
             exist_ok=True)
 
-        # Link /etc/pki/<instance>/logging.properties
+        # Link /var/lib/pki/<instance>/conf/logging.properties
         # to /usr/share/pki/server/conf/logging.properties.
         instance.symlink(
             os.path.join(shared_conf_path, 'logging.properties'),
             os.path.join(instance.conf_dir, 'logging.properties'),
             exist_ok=True)
 
-        # Link /etc/pki/<instance>/web.xml
+        # Link /var/lib/pki/<instance>/conf/web.xml
         # to /usr/share/tomcat/conf/web.xml.
         web_xml = os.path.join(pki.server.Tomcat.CONF_DIR, 'web.xml')
         instance.symlink(
@@ -125,13 +125,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         instance.symlink(
             bin_dir,
             instance.bin_dir,
-            exist_ok=True)
-
-        # Link /var/lib/pki/<instance>/conf to /etc/pki/<instance>
-        conf_link = os.path.join(instance.base_dir, 'conf')
-        instance.symlink(
-            instance.conf_dir,
-            conf_link,
             exist_ok=True)
 
         # Link /var/lib/pki/<instance>/logs to /var/log/pki/<instance>
@@ -230,7 +223,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         logger.info('Deploying ROOT web application')
         # Copy /usr/share/pki/server/conf/ROOT.xml
-        # to /etc/pki/<instance>/Catalina/localhost/ROOT.xml
+        # to /var/lib/pki/<instance>/conf/Catalina/localhost/ROOT.xml
         instance.deploy_webapp(
             "ROOT",
             os.path.join(
@@ -243,7 +236,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # Deploy pki web application which includes themes,
         # admin templates, and JS libraries
         # Copy /usr/share/pki/server/conf/pki.xml
-        # to /etc/pki/<instance>/Catalina/localhost/pki.xml
+        # to /var/lib/pki/<instance>/conf/Catalina/localhost/pki.xml
         instance.deploy_webapp(
             "pki",
             os.path.join(
@@ -320,6 +313,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if config.str2bool(deployer.mdict['pki_registry_enable']):
             instance.remove_registry(force=deployer.force)
 
+        # Remove /etc/pki/<instance> and /var/lib/pki/<instance>/conf
+        instance.remove_conf_dir(force=deployer.force)
+
         logger.info('Removing %s', instance.base_dir)
         pki.util.rmtree(path=instance.base_dir,
                         force=deployer.force)
@@ -329,11 +325,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('Removing %s', instance.log_dir)
             pki.util.rmtree(path=instance.log_dir,
                             force=deployer.force)
-
-        logger.info('Removing %s', instance.conf_dir)
-        pki.util.rmtree(
-            path=instance.conf_dir,
-            force=deployer.force)
 
         logger.info('Removing %s', instance.service_conf)
         pki.util.remove(

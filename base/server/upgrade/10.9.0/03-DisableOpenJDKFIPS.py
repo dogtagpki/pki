@@ -20,7 +20,7 @@ class DisableOpenJDKFIPS(pki.server.upgrade.PKIServerUpgradeScriptlet):
         self.message = 'Set -Dcom.redhat.fips=false in Tomcat configuration'
 
     def upgrade_instance(self, instance):
-        self.fix_tomcat_config('/etc/pki/%s/tomcat.conf' % instance.name)
+        self.fix_tomcat_config(instance.tomcat_conf)
         self.fix_tomcat_config('/etc/sysconfig/%s' % instance.name)
 
     def fix_tomcat_config(self, filename):
