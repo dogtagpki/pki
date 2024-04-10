@@ -37,27 +37,97 @@ jobs:
       - name: Connect server container to network
         run: docker network connect example pki --alias pki.example.com
 
-      - name: Create PKI server
+      - name: Create pki-tomcat server
         run: |
           docker exec pki pki-server create -v
 
-      - name: Start PKI server
+      - name: Start pki-tomcat server
         run: |
-          docker exec pki pki-server start
+          docker exec pki pki-server start --wait -v
 
-      - name: Check webapps
+      - name: Check pki-tomcat server base dir after installation
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /var/lib/pki/pki-tomcat \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          # TODO: review permissions
+          cat > expected << EOF
+          lrwxrwxrwx pkiuser pkiuser bin -> /usr/share/tomcat/bin
+          drwxr-x--- pkiuser pkiuser common
+          lrwxrwxrwx pkiuser pkiuser conf -> /etc/pki/pki-tomcat
+          lrwxrwxrwx pkiuser pkiuser lib -> /usr/share/pki/server/lib
+          lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-tomcat
+          drwxr-x--- pkiuser pkiuser temp
+          drwxr-x--- pkiuser pkiuser webapps
+          drwxr-x--- pkiuser pkiuser work
+          EOF
+
+          diff expected output
+
+      - name: Check pki-tomcat server conf dir after installation
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /etc/pki/pki-tomcat \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          # TODO: review permissions
+          cat > expected << EOF
+          drwxr-x--- pkiuser pkiuser Catalina
+          -rw-rw---- pkiuser pkiuser catalina.policy
+          lrwxrwxrwx pkiuser pkiuser catalina.properties -> /usr/share/pki/server/conf/catalina.properties
+          drwxr-x--- pkiuser pkiuser certs
+          lrwxrwxrwx pkiuser pkiuser context.xml -> /etc/tomcat/context.xml
+          lrwxrwxrwx pkiuser pkiuser logging.properties -> /usr/share/pki/server/conf/logging.properties
+          -rw-rw---- pkiuser pkiuser server.xml
+          -rw-rw---- pkiuser pkiuser tomcat.conf
+          lrwxrwxrwx pkiuser pkiuser web.xml -> /etc/tomcat/web.xml
+          EOF
+
+          diff expected output
+
+      - name: Check pki-tomcat server logs dir after installation
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /var/log/pki/pki-tomcat \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          DATE=$(date +'%Y-%m-%d')
+
+          # TODO: review permissions
+          cat > expected << EOF
+          drwxr-x--- pkiuser pkiuser backup
+          -rw-r--r-- pkiuser pkiuser catalina.$DATE.log
+          -rw-r--r-- pkiuser pkiuser host-manager.$DATE.log
+          -rw-r--r-- pkiuser pkiuser localhost.$DATE.log
+          -rw-r--r-- pkiuser pkiuser localhost_access_log.$DATE.txt
+          -rw-r--r-- pkiuser pkiuser manager.$DATE.log
+          EOF
+
+          diff expected output
+
+      - name: Check pki-tomcat webapps
         run: |
           docker exec pki pki-server webapp-find | tee output
 
-          # basic PKI server should have no webapps
+          # there should be no webapps
           sed -n 's/^ *Webapp ID: *\(.*\)$/\1/p' output > actual
           diff /dev/null actual
 
-      - name: Check subsystems
+      - name: Check pki-tomcat subsystems
         run: |
           docker exec pki pki-server subsystem-find | tee output
 
-          # basic PKI server should have no subsystems
+          # there should be no subsystems
           sed -n 's/^ *Subsystem ID: *\(.*\)$/\1/p' output > actual
           diff /dev/null actual
 
@@ -81,18 +151,9 @@ jobs:
           # remove CA subsystem folder
           docker exec pki rm -rf /var/lib/pki/pki-tomcat/ca
 
-      - name: Set up client container
+      - name: Check HTTP connection to pki-tomcat server
         run: |
-          tests/bin/runner-init.sh client
-        env:
-          HOSTNAME: client.example.com
-
-      - name: Connect client container to network
-        run: docker network connect example client --alias client.example.com
-
-      - name: Wait for PKI server to start
-        run: |
-          docker exec client curl \
+          docker exec pki curl \
               --retry 60 \
               --retry-delay 0 \
               --retry-connrefused \
@@ -101,18 +162,122 @@ jobs:
               -o /dev/null \
               http://pki.example.com:8080
 
-      - name: Stop PKI server
+      - name: Stop pki-tomcat server
         run: |
           docker exec pki pki-server stop --wait -v
 
-      - name: Remove PKI server
+      - name: Remove pki-tomcat server
         run: |
           docker exec pki pki-server remove -v
+
+      - name: Create tomcat@pki server
+        run: |
+          docker exec pki pki-server create tomcat@pki -v
+
+      - name: Start tomcat@pki server
+        run: |
+          docker exec pki pki-server start tomcat@pki --wait -v
+
+      - name: Check tomcat@pki server base dir after installation
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /var/lib/tomcats/pki \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          # TODO: review permissions
+          cat > expected << EOF
+          lrwxrwxrwx tomcat tomcat bin -> /usr/share/tomcat/bin
+          drwxr-x--- tomcat tomcat common
+          drwxr-x--- tomcat tomcat conf
+          lrwxrwxrwx tomcat tomcat lib -> /usr/share/pki/server/lib
+          drwxr-x--- tomcat tomcat logs
+          drwxr-x--- tomcat tomcat temp
+          drwxr-x--- tomcat tomcat webapps
+          drwxr-x--- tomcat tomcat work
+          EOF
+
+          diff expected output
+
+      - name: Check tomcat@pki server conf dir after installation
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /var/lib/tomcats/pki/conf \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          # TODO: review permissions
+          cat > expected << EOF
+          drwxr-x--- tomcat tomcat Catalina
+          -rw-rw---- tomcat tomcat catalina.policy
+          lrwxrwxrwx tomcat tomcat catalina.properties -> /usr/share/pki/server/conf/catalina.properties
+          drwxr-x--- tomcat tomcat certs
+          lrwxrwxrwx tomcat tomcat context.xml -> /etc/tomcat/context.xml
+          -rw-rw---- tomcat tomcat logging.properties
+          -rw-rw---- tomcat tomcat server.xml
+          -rw-rw---- tomcat tomcat tomcat.conf
+          lrwxrwxrwx tomcat tomcat web.xml -> /etc/tomcat/web.xml
+          EOF
+
+          diff expected output
+
+      - name: Check tomcat@pki server logs dir after installation
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /var/lib/tomcats/pki/logs \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          DATE=$(date +'%Y-%m-%d')
+
+          # TODO: review permissions
+          cat > expected << EOF
+          -rw-r--r-- tomcat tomcat catalina.$DATE.log
+          -rw-r--r-- tomcat tomcat host-manager.$DATE.log
+          -rw-r--r-- tomcat tomcat localhost.$DATE.log
+          -rw-r--r-- tomcat tomcat localhost_access_log.$DATE.txt
+          -rw-r--r-- tomcat tomcat manager.$DATE.log
+          EOF
+
+          diff expected output
+
+      - name: Check HTTP connection to tomcat@pki server
+        run: |
+          docker exec pki curl \
+              --retry 60 \
+              --retry-delay 0 \
+              --retry-connrefused \
+              -s \
+              -k \
+              -o /dev/null \
+              http://pki.example.com:8080
+
+      - name: Stop tomcat@pki server
+        run: |
+          docker exec pki pki-server stop tomcat@pki --wait -v
+
+      - name: Remove tomcat@pki server
+        run: |
+          docker exec pki pki-server remove tomcat@pki -v
 
       - name: Gather artifacts from server container
         if: always()
         run: |
           tests/bin/pki-artifacts-save.sh pki
+
+          docker exec pki ls -la /var/lib/tomcats/pki/conf
+          mkdir -p /tmp/artifacts/pki/var/lib/tomcats/pki/conf
+          docker cp pki:/var/lib/tomcats/pki/conf/* /tmp/artifacts/var/lib/tomcats/pki/conf
+
+          docker exec pki ls -la /var/lib/tomcats/pki/logs
+          mkdir -p /tmp/artifacts/pki/var/lib/tomcats/pki/logs
+          docker cp pki:/var/lib/tomcats/pki/logs/* /tmp/artifacts/var/lib/tomcats/pki/logs
         continue-on-error: true
 
       - name: Upload artifacts from server container
@@ -120,5 +285,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: server-basic-test
-          path: |
-            /tmp/artifacts/pki
+          path: /tmp/artifacts
