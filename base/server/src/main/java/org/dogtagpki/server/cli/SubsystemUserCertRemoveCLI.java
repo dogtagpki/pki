@@ -54,7 +54,7 @@ public class SubsystemUserCertRemoveCLI extends SubsystemCLI {
 
         UGSubsystemConfig ugConfig = cs.getUGSubsystemConfig();
         LDAPConfig ldapConfig = ugConfig.getLDAPConfig();
-        ldapConfig.putInteger("minConns", 1);
+        ldapConfig.setMinConnections(0);
 
         PKISocketConfig socketConfig = cs.getSocketConfig();
 

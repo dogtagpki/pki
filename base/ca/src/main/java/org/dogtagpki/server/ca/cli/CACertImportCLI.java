@@ -163,7 +163,7 @@ public class CACertImportCLI extends CommandCLI {
 
         DatabaseConfig dbConfig = cs.getDatabaseConfig();
         LDAPConfig ldapConfig = dbConfig.getLDAPConfig();
-        ldapConfig.putInteger("minConns", 1);
+        ldapConfig.setMinConnections(0);
 
         PKISocketConfig socketConfig = cs.getSocketConfig();
 

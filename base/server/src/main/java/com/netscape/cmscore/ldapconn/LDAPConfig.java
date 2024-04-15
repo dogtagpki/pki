@@ -79,6 +79,14 @@ public class LDAPConfig extends ConfigStore {
         putString("dbuser", dbuser);
     }
 
+    public int getMinConnections() throws EBaseException {
+        return getInteger("minConns");
+    }
+
+    public void setMinConnections(int minConns) {
+        putInteger("minConns", minConns);
+    }
+
     /**
      * Returns <LDAP>.ldapconn.* parameters.
      */
