@@ -58,7 +58,8 @@ public abstract class APDU {
         APDU_GET_ISSUERINFO,
         APDU_GENERATE_KEY_ECC,
         APDU_GET_LIFECYCLE,
-        APDU_CLEAR_KEY_SLOTS
+        APDU_CLEAR_KEY_SLOTS,
+        APDU_DELETE_KEYS   // ** G&D 256 Key Rollover Support **
     }
 
     protected byte cla;

@@ -315,6 +315,9 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
                 + Util.specialURLEncode(card_cryptogram.toBytesArray()) +
                 "&" + IRemoteRequest.TOKEN_KEYSET + "=" + keySet;
 
+        //CMS.debug(method + " request to TKS: " + requestString);
+        CMS.debug(method + " sending request to TKS...");
+        
         HttpResponse resp =
                 conn.send("computeSessionKey",
                         requestString
@@ -420,6 +423,19 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
                 CMS.debug(method + " got IRemoteRequest.TKS_RESPONSE_KeyCheck");
                 response.put(IRemoteRequest.TKS_RESPONSE_KeyCheck, Util.specialDecode(value));
             }
+            
+            // Applet and Alg Selection by Token Range Support - begin
+            value = (String) response.get(IRemoteRequest.TKS_RESPONSE_KeyCheck_Des);
+
+            if (value == null) {
+                CMS.debug(method + "response missing name-value pair for: " +
+                        IRemoteRequest.TKS_RESPONSE_KeyCheck_Des);
+
+            } else {
+                CMS.debug(method + " got IRemoteRequest.TKS_RESPONSE_KeyCheck_Des");
+                response.put(IRemoteRequest.TKS_RESPONSE_KeyCheck_Des, Util.specialDecode(value));
+            }
+            // Applet and Alg Selection by Token Range Support - end
 
             value = (String) response.get(IRemoteRequest.TKS_RESPONSE_HostCryptogram);
             if ( value == null ) {
@@ -618,7 +634,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
     public TKSCreateKeySetDataResponse createKeySetData (
             TPSBuffer NewMasterVer,
             TPSBuffer version,
-            TPSBuffer cuid, TPSBuffer kdd, int protocol, TPSBuffer wrappedDekSessionKey)
+            TPSBuffer cuid, TPSBuffer kdd, int protocol, TPSBuffer wrappedDekSessionKey, String oldKeySet)  // ** G&D 256 Key Rollover Support ** add oldKeySet parameter
             throws EBaseException {
         CMS.debug("TKSRemoteRequestHandler: createKeySetData(): begins.");
         if (cuid == null || NewMasterVer == null || version == null) {
@@ -645,7 +661,14 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
         if (wrappedDekSessionKey != null) { // We have secure channel protocol 02 trying to upgrade the key set.
             command += "&" + IRemoteRequest.WRAPPED_DEK_SESSION_KEY + "=" + Util.specialURLEncode(wrappedDekSessionKey);
         }
-
+        
+        // ** G&D 256 Key Rollover Support **
+        // include oldKeySet name in the request TKS if provided
+        if (oldKeySet != null) {
+            command += "&" + IRemoteRequest.TOKEN_OLD_KEYSET + "=" + oldKeySet;
+        }
+        CMS.debug("TKSRemoteRequestHandler: createKeySetData(): request to TKS: " + command); 
+        
         HttpResponse resp =
                 conn.send("createKeySetData",
                         command);

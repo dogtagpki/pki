@@ -1818,14 +1818,15 @@ public class SecureChannelProtocol {
             byte[] CUIDValue,
             byte[] KDD,
             byte[] kekKeyArray, byte[] encKeyArray, byte[] macKeyArray,
-            String useSoftToken, String keySet, byte protocol, GPParams params) throws EBaseException {
+            String useSoftToken, String keySet, byte protocol, GPParams params, 
+            GPParams oldParams) throws EBaseException { // ** G&D 256 Key Rollover Support ** add oldParams parameter
 
         String method = "SecureChannelProtocol.diversifyKey:";
 
         CMS.debug(method + " Entering ... newTokenName: " + newTokenName + " protocol: " + protocol);
         CMS.debug(method + " oldMasterKeyName: " + oldMasterKeyName);
         CMS.debug(method + " newMasterKeyName: " + newMasterKeyName);
-
+        
         //SecureChannelProtocol.debugByteArray(encKeyArray, " Developer enc key array: ");
         //SecureChannelProtocol.debugByteArray(macKeyArray, " Developer mac key array: ");
         //SecureChannelProtocol.debugByteArray(kekKeyArray, " Developer kek key array: ");
@@ -1965,11 +1966,12 @@ public class SecureChannelProtocol {
                 }
 
             } else { // Protocol 3
-
+                // ** G&D 256 Key Rollover Support **
+                // use the oldParams to compute the old_kek_sym_key
                 old_kek_sym_key = this.computeSessionKey_SCP03(tokenName, oldMasterKeyName,
-                        oldKeyInfo, SecureChannelProtocol.kekType, kekKeyArray, keySet,
-                        CUIDValue, KDD, null, null, transportKeyName, params);
-
+                      oldKeyInfo, SecureChannelProtocol.kekType, kekKeyArray, keySet,
+                      CUIDValue, KDD, null, null, transportKeyName, oldParams);
+                
                 CMS.debug(method + " Moving back to the developer key set case, protocol 3");
             }
         }
@@ -2042,10 +2044,11 @@ public class SecureChannelProtocol {
 
                 // Generate an old kek key to do the encrypting of the new static keys
 
+                // ** G&D 256 Key Rollover Support **
+                // use the oldParams to compute the old_kek_sym_key
                 old_kek_sym_key = this.computeSessionKey_SCP03(tokenName, oldMasterKeyName, oldKeyInfo,
                         SecureChannelProtocol.kekType, kekKeyArray,
-                        keySet, CUIDValue, KDD, null, null, transportKeyName, params);
-
+                        keySet, CUIDValue, KDD, null, null, transportKeyName, oldParams);
             }
 
             if (encKey == null || macKey == null || kekKey == null) {

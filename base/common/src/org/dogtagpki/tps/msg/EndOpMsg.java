@@ -68,7 +68,8 @@ public class EndOpMsg extends TPSMessage {
         STATUS_ERROR_NOT_TOKEN_OWNER,
         STATUS_RENEWAL_IS_PROCESSED,
         STATUS_ERROR_RENEWAL_FAILED,
-        STATUS_ERROR_CANNOT_ESTABLISH_COMMUNICATION
+        STATUS_ERROR_CANNOT_ESTABLISH_COMMUNICATION,
+        STATUS_ERROR_SYMKEY_256_UPGRADE // ** G&D 256 Key Rollover Support **
     };
 
 
@@ -226,6 +227,9 @@ public class EndOpMsg extends TPSMessage {
             break;
         case STATUS_ERROR_CANNOT_ESTABLISH_COMMUNICATION:
             result = 45;
+            break;
+        case STATUS_ERROR_SYMKEY_256_UPGRADE: // ** G&D 256 Key Rollover Support **
+            result = 46;
             break;
         default:
             break;

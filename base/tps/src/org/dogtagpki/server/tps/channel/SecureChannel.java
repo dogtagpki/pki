@@ -28,6 +28,7 @@ import org.dogtagpki.tps.apdu.CreateObjectAPDU;
 import org.dogtagpki.tps.apdu.CreatePinAPDU;
 import org.dogtagpki.tps.apdu.DeleteFileAPDU;
 import org.dogtagpki.tps.apdu.DeleteFileGP211APDU;
+import org.dogtagpki.tps.apdu.DeleteKeysAPDU;
 import org.dogtagpki.tps.apdu.ExternalAuthenticateAPDU;
 import org.dogtagpki.tps.apdu.ExternalAuthenticateAPDU.SecurityLevel;
 import org.dogtagpki.tps.apdu.ExternalAuthenticateAPDUGP211;
@@ -1803,4 +1804,39 @@ public class SecureChannel {
         this.rmacSessionKey = rmacSessionKey;
     }
 
+    /**
+     * ** G&D 256 Key Rollover Support **
+     * This method constructs the APDU for key deletion and sends the request to the card to 
+     * delete keys with the given version.
+     *  
+     * @param keyVersion the key version to be deleted
+     * @throws TPSException
+     * @throws IOException 
+     *
+     */
+    public void deleteKeys(byte keyVersion) throws TPSException, IOException {
+        String method = "SecureChannel.deleteKeys: keyVersion: " + keyVersion + ": ";
+
+        CMS.debug(method + " entering ...");
+
+        APDUResponse response;
+        try {
+            TPSBuffer data = new TPSBuffer(keyVersion);
+            DeleteKeysAPDU  deleteKeyApdu = new DeleteKeysAPDU(data);
+            computeAPDU(deleteKeyApdu);
+            response = processor.handleAPDURequest(deleteKeyApdu);
+        } catch (TPSException | IOException e) {
+            CMS.debug(method + " bad apdu return!");
+            CMS.debug(e);
+            throw e;
+        }
+
+        if (!response.checkResult()) {
+            CMS.debug(method + " response with unsuccess result");
+            throw new TPSException(method + " failed to delete key set!",
+                        TPSStatus.STATUS_ERROR_KEY_CHANGE_OVER);
+        }
+
+        CMS.debug(method + " Successful delete key data operation completed.");
+    }
 }

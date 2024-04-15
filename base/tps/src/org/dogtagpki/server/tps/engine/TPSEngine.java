@@ -429,7 +429,9 @@ public class TPSEngine {
 
     }
 
-    public TPSBuffer createKeySetData(TPSBuffer newMasterVersion, TPSBuffer oldVersion, int protocol, TPSBuffer cuid, TPSBuffer kdd, TPSBuffer wrappedDekSessionKey, String connId, String inKeyset)
+    // ** G&D 256 Key Rollover Support **
+    // Add oldKeySet parameter
+    public TPSBuffer createKeySetData(TPSBuffer newMasterVersion, TPSBuffer oldVersion, int protocol, TPSBuffer cuid, TPSBuffer kdd, TPSBuffer wrappedDekSessionKey, String connId, String inKeyset, String oldKeySet)
             throws TPSException {
 
         String method = "TPSEngine.createKeySetData:";
@@ -440,13 +442,17 @@ public class TPSEngine {
                     TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
         }
 
+        CMS.debug(method + " cuid: " + cuid.toHexStringPlain() + " newMasterVersion: " + newMasterVersion.toHexString()
+                + "  oldVersion: " + oldVersion.toHexString() + "  protocol: " + protocol + " inKeyset: " + inKeyset
+                + "  oldKeySet: " + oldKeySet);
+        
         TKSRemoteRequestHandler tks = null;
 
         TKSCreateKeySetDataResponse resp = null;
 
         try {
             tks = new TKSRemoteRequestHandler(connId, inKeyset);
-            resp = tks.createKeySetData(newMasterVersion, oldVersion, cuid, kdd, protocol,wrappedDekSessionKey);
+            resp = tks.createKeySetData(newMasterVersion, oldVersion, cuid, kdd, protocol,wrappedDekSessionKey, oldKeySet);  // ** G&D 256 Key Rollover Support ** pass oldKeySet to TKS
         } catch (EBaseException e) {
 
             throw new TPSException(method + " failure to get key set data from TKS",
