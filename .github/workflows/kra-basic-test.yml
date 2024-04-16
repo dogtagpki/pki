@@ -330,6 +330,78 @@ jobs:
       - name: Remove CA
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
 
+      - name: Check PKI server base dir after removal
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /var/lib/pki/pki-tomcat \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          cat > expected << EOF
+          ls: cannot access '/var/lib/pki/pki-tomcat': No such file or directory
+          EOF
+
+          diff expected stderr
+
+      - name: Check PKI server conf dir after removal
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /etc/pki/pki-tomcat \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          cat > expected << EOF
+          ls: cannot access '/etc/pki/pki-tomcat': No such file or directory
+          EOF
+
+          diff expected stderr
+
+      - name: Check PKI server logs dir after removal
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /var/log/pki/pki-tomcat \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          DATE=$(date +'%Y-%m-%d')
+
+          # TODO: review permissions
+          cat > expected << EOF
+          drwxr-x--- pkiuser pkiuser backup
+          drwxrwx--- pkiuser pkiuser ca
+          -rw-rw-r-- pkiuser pkiuser catalina.$DATE.log
+          -rw-rw-r-- pkiuser pkiuser host-manager.$DATE.log
+          drwxrwx--- pkiuser pkiuser kra
+          -rw-rw-r-- pkiuser pkiuser localhost.$DATE.log
+          -rw-r--r-- pkiuser pkiuser localhost_access_log.$DATE.txt
+          -rw-rw-r-- pkiuser pkiuser manager.$DATE.log
+          drwxr-xr-x pkiuser pkiuser pki
+          EOF
+
+          diff expected output
+
+      - name: Check PKI server systemd journal
+        if: always()
+        run: |
+          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check CA debug log
+        if: always()
+        run: |
+          docker exec pki find /var/log/pki/pki-tomcat/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check KRA debug log
+        if: always()
+        run: |
+          docker exec pki find /var/log/pki/pki-tomcat/kra -name "debug.*" -exec cat {} \;
+
+      - name: Gather artifacts
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh ds
+          tests/bin/pki-artifacts-save.sh pki
+        continue-on-error: true
+
       - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4
