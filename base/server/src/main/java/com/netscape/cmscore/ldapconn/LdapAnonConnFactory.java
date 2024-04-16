@@ -348,10 +348,6 @@ public class LdapAnonConnFactory extends LdapConnFactory {
             return;
         }
 
-        if (anon.getFacId() != mConns) {
-            logger.warn("LdapAnonConnFactory: Unknown connection");
-        }
-
         for (int i = 0; i < mNumConns; i++) {
             if (mConns[i] == anon) {
                 logger.warn("LdapAnonConnFactory: Connection already returned");
@@ -447,14 +443,6 @@ public class LdapAnonConnFactory extends LdapConnFactory {
         public AnonConnection(String host, int port, int version)
                 throws LDAPException {
             super(host, port, version);
-        }
-
-        /**
-         * used only to identify the factory from which this came.
-         * mConns to identify factory.
-         */
-        public AnonConnection[] getFacId() {
-            return mConns;
         }
     }
 }
