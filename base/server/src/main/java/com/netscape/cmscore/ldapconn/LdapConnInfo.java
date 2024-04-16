@@ -20,7 +20,6 @@ package com.netscape.cmscore.ldapconn;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.cmscore.apps.CMS;
 
 import netscape.ldap.LDAPv3;
 
@@ -67,13 +66,13 @@ public class LdapConnInfo {
         mFollowReferrals = config.getFollowReferrals();
 
         if (mVersion != LDAP_VERSION_2 && mVersion != LDAP_VERSION_3) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_PROPERTY", PROP_VERSION));
+            throw new EBaseException("Unsupported LDAP version: " + mVersion);
         }
         if (mHost == null || mHost.trim().isEmpty()) {
-            throw new EPropertyNotFound(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED", PROP_HOST));
+            throw new EPropertyNotFound("Missing LDAP hostname");
         }
         if (mPort <= 0) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_PROPERTY", PROP_PORT));
+            throw new EBaseException("Invalid LDAP port: " + mPort);
         }
     }
 
