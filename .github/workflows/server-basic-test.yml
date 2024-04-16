@@ -41,7 +41,11 @@ jobs:
         run: |
           docker exec pki pki-server create -v
 
-      - name: Check pki-tomcat server base dir
+      - name: Start pki-tomcat server
+        run: |
+          docker exec pki pki-server start --wait -v
+
+      - name: Check pki-tomcat server base dir after installation
         run: |
           # check file types, owners, and permissions
           docker exec pki ls -l /var/lib/pki/pki-tomcat \
@@ -64,7 +68,7 @@ jobs:
 
           diff expected output
 
-      - name: Check pki-tomcat server conf dir
+      - name: Check pki-tomcat server conf dir after installation
         run: |
           # check file types, owners, and permissions
           docker exec pki ls -l /etc/pki/pki-tomcat \
@@ -88,9 +92,28 @@ jobs:
 
           diff expected output
 
-      - name: Start pki-tomcat server
+      - name: Check pki-tomcat server logs dir after installation
         run: |
-          docker exec pki pki-server start --wait -v
+          # check file types, owners, and permissions
+          docker exec pki ls -l /var/log/pki/pki-tomcat \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          DATE=$(date +'%Y-%m-%d')
+
+          # TODO: review permissions
+          cat > expected << EOF
+          drwxr-x--- pkiuser pkiuser backup
+          -rw-r--r-- pkiuser pkiuser catalina.$DATE.log
+          -rw-r--r-- pkiuser pkiuser host-manager.$DATE.log
+          -rw-r--r-- pkiuser pkiuser localhost.$DATE.log
+          -rw-r--r-- pkiuser pkiuser localhost_access_log.$DATE.txt
+          -rw-r--r-- pkiuser pkiuser manager.$DATE.log
+          EOF
+
+          diff expected output
 
       - name: Check pki-tomcat webapps
         run: |
@@ -147,11 +170,51 @@ jobs:
         run: |
           docker exec pki pki-server remove -v
 
+      - name: Check pki-tomcat server base dir after removal
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /var/lib/pki/pki-tomcat \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          cat > expected << EOF
+          ls: cannot access '/var/lib/pki/pki-tomcat': No such file or directory
+          EOF
+
+          diff expected stderr
+
+      - name: Check pki-tomcat server conf dir after removal
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /etc/pki/pki-tomcat \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          cat > expected << EOF
+          ls: cannot access '/etc/pki/pki-tomcat': No such file or directory
+          EOF
+
+          diff expected stderr
+
+      - name: Check pki-tomcat server logs dir after removal
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /var/log/pki/pki-tomcat \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          cat > expected << EOF
+          ls: cannot access '/var/log/pki/pki-tomcat': No such file or directory
+          EOF
+
+          diff expected stderr
+
       - name: Create tomcat@pki server
         run: |
           docker exec pki pki-server create tomcat@pki -v
 
-      - name: Check tomcat@pki server base dir
+      - name: Start tomcat@pki server
+        run: |
+          docker exec pki pki-server start tomcat@pki --wait -v
+
+      - name: Check tomcat@pki server base dir after installation
         run: |
           # check file types, owners, and permissions
           docker exec pki ls -l /var/lib/tomcats/pki \
@@ -174,7 +237,7 @@ jobs:
 
           diff expected output
 
-      - name: Check tomcat@pki server conf dir
+      - name: Check tomcat@pki server conf dir after installation
         run: |
           # check file types, owners, and permissions
           docker exec pki ls -l /var/lib/tomcats/pki/conf \
@@ -198,9 +261,27 @@ jobs:
 
           diff expected output
 
-      - name: Start tomcat@pki server
+      - name: Check tomcat@pki server logs dir after installation
         run: |
-          docker exec pki pki-server start tomcat@pki --wait -v
+          # check file types, owners, and permissions
+          docker exec pki ls -l /var/lib/tomcats/pki/logs \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          DATE=$(date +'%Y-%m-%d')
+
+          # TODO: review permissions
+          cat > expected << EOF
+          -rw-r--r-- tomcat tomcat catalina.$DATE.log
+          -rw-r--r-- tomcat tomcat host-manager.$DATE.log
+          -rw-r--r-- tomcat tomcat localhost.$DATE.log
+          -rw-r--r-- tomcat tomcat localhost_access_log.$DATE.txt
+          -rw-r--r-- tomcat tomcat manager.$DATE.log
+          EOF
+
+          diff expected output
 
       - name: Check HTTP connection to tomcat@pki server
         run: |
@@ -220,6 +301,18 @@ jobs:
       - name: Remove tomcat@pki server
         run: |
           docker exec pki pki-server remove tomcat@pki -v
+
+      - name: Check tomcat@pki server base dir after removal
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /var/lib/tomcats/pki \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          cat > expected << EOF
+          ls: cannot access '/var/lib/tomcats/pki': No such file or directory
+          EOF
+
+          diff expected stderr
 
       - name: Gather artifacts from server container
         if: always()
