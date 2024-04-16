@@ -225,9 +225,6 @@ public class LdapBoundConnFactory extends LdapConnFactory {
         logger.debug("LdapBoundConnFactory: makeConnection(" + errorIfDown + ")");
 
        mMasterConn = makeNewConnection(errorIfDown);
-       if (mMasterConn != null) {
-           mMasterConn.connectionFactory = this;
-       }
     }
 
     /**
@@ -242,7 +239,6 @@ public class LdapBoundConnFactory extends LdapConnFactory {
         LdapBoundConnection conn = null;
         try {
             conn = new LdapBoundConnection(socketFactory, mConnInfo, mAuthInfo);
-            conn.connectionFactory = this;
 
         } catch (EBaseException e) {
             throw new ELdapException("Unable to create socket factory: " + e.getMessage(), e);
@@ -462,17 +458,6 @@ public class LdapBoundConnFactory extends LdapConnFactory {
         } else {
             logger.warn("LdapBoundConnFactory: Unable to return connection: not a bound connection");
             return;
-        }
-
-        if (boundconn.connectionFactory != this) {
-            logger.warn("LdapBoundConnFactory: Unknown connection");
-            try {
-                boundconn.disconnect();
-            } catch(LDAPException e) {
-                logger.warn("LdapBoundConnFactory: Unable to disconnect: " + e.getMessage(), e);
-            }
-            return;
-
         }
 
         for (int i = 0; i < mNumConns; i++) {
