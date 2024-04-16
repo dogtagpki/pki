@@ -24,7 +24,6 @@ import com.netscape.certsrv.ldap.LdapConnFactory;
 
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPSocketFactory;
 import netscape.ldap.LDAPv3;
 
 /**
@@ -34,7 +33,7 @@ import netscape.ldap.LDAPv3;
  */
 public class LdapAnonConnFactory extends LdapConnFactory {
 
-    AnonConnection[] mConns;
+    LdapAnonConnection[] mConns;
     boolean mInited;
 
     /**
@@ -142,7 +141,7 @@ public class LdapAnonConnFactory extends LdapConnFactory {
         if (mConnInfo == null)
             throw new IllegalArgumentException("Missing connection info");
 
-        mConns = new AnonConnection[mMaxConns];
+        mConns = new LdapAnonConnection[mMaxConns];
 
         logger.debug("LdapAnonConnFactory: mininum: " + mMinConns);
         logger.debug("LdapAnonConnFactory: maximum: " + mMaxConns);
@@ -168,7 +167,7 @@ public class LdapAnonConnFactory extends LdapConnFactory {
                 logger.debug("LdapAnonConnFactory: increasing minimum connections by " + increment);
 
                 for (int i = increment - 1; i >= 0; i--) {
-                    mConns[i] = new AnonConnection(socketFactory, mConnInfo);
+                    mConns[i] = new LdapAnonConnection(socketFactory, mConnInfo);
                 }
 
                 mTotal += increment;
@@ -251,7 +250,7 @@ public class LdapAnonConnFactory extends LdapConnFactory {
      */
     public synchronized LDAPConnection getConn(boolean waitForConn)
             throws ELdapException {
-        AnonConnection conn = null;
+        LdapAnonConnection conn = null;
         String method = "LdapAnonConnFactory (" + id + ").getConn: ";
         logger.debug(method + "initial values. Total: " + mTotal + ", pool: " + mNumConns);
 
@@ -289,7 +288,7 @@ public class LdapAnonConnFactory extends LdapConnFactory {
 
             conn = null;
             try {
-                conn = new AnonConnection(socketFactory, mConnInfo);
+                conn = new LdapAnonConnection(socketFactory, mConnInfo);
 
             } catch (LDAPException e) {
                 mTotal--;
@@ -338,11 +337,11 @@ public class LdapAnonConnFactory extends LdapConnFactory {
         if (conn == null) {
             return;
         }
-        AnonConnection anon = null;
+        LdapAnonConnection anon = null;
 
         // check if conn is valid and from this factory.
-        if (conn instanceof AnonConnection) {
-            anon = (AnonConnection) conn;
+        if (conn instanceof LdapAnonConnection) {
+            anon = (LdapAnonConnection) conn;
         } else {
             logger.warn("LdapAnonConnFactory: Unable to return connection: not an anonymous connection");
             return;
@@ -407,42 +406,11 @@ public class LdapAnonConnFactory extends LdapConnFactory {
             }
             mTotal = 0;
             mNumConns = 0;
-            mConns = new AnonConnection[mMaxConns];
+            mConns = new LdapAnonConnection[mMaxConns];
         } else {
             String message = "Unable to reset LDAP connection factory due to outstanding connections";
             logger.error("LdapAnonConnFactory: " + message);
             throw new ELdapException(message);
-        }
-    }
-
-    /**
-     * used to keep track of connections from this factory.
-     */
-    public class AnonConnection extends LdapAnonConnection {
-        /**
-         *
-         */
-        private static final long serialVersionUID = 4813780131074412404L;
-
-        public AnonConnection(
-                LDAPSocketFactory socketFactory,
-                LdapConnInfo connInfo)
-                throws LDAPException {
-            super(socketFactory, connInfo);
-        }
-
-        public AnonConnection(String host, int port, int version,
-                LDAPSocketFactory fac)
-                throws LDAPException {
-            super(host, port, version, fac);
-        }
-
-        /**
-         * instantiates a non-secure connection to a ldap server
-         */
-        public AnonConnection(String host, int port, int version)
-                throws LDAPException {
-            super(host, port, version);
         }
     }
 }
