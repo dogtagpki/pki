@@ -593,7 +593,7 @@ jobs:
       - name: Check CA debug log in primary container
         if: always()
         run: |
-          docker exec primary find /var/log/pki/pki-tomcat/ca -name "debug.*" -exec cat {} \;
+          docker exec primary find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Gather artifacts from primary container
         if: always()
@@ -678,7 +678,7 @@ jobs:
       - name: Check CA debug log in secondary container
         if: always()
         run: |
-          docker exec secondary find /var/log/pki/pki-tomcat/ca -name "debug.*" -exec cat {} \;
+          docker exec secondary find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Gather artifacts from secondary container
         if: always()

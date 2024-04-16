@@ -739,7 +739,7 @@ jobs:
       - name: Check CA debug logs
         if: always()
         run: |
-          docker exec ca bash -c "cat /var/log/pki/pki-tomcat/ca/debug.*"
+          docker exec ca find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Gather artifacts
         if: always()

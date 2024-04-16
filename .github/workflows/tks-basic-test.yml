@@ -160,7 +160,7 @@ jobs:
           cat > expected << EOF
           lrwxrwxrwx pkiuser pkiuser alias -> /var/lib/pki/pki-tomcat/alias
           lrwxrwxrwx pkiuser pkiuser conf -> /var/lib/pki/pki-tomcat/conf/tks
-          lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-tomcat/tks
+          lrwxrwxrwx pkiuser pkiuser logs -> /var/lib/pki/pki-tomcat/logs/tks
           lrwxrwxrwx pkiuser pkiuser registry -> /etc/sysconfig/pki/tomcat/pki-tomcat
           EOF
 

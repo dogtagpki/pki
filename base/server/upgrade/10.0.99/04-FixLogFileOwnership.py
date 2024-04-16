@@ -19,7 +19,6 @@
 #
 
 from __future__ import absolute_import
-import os
 import pki.server.upgrade
 
 
@@ -31,5 +30,4 @@ class FixLogFileOwnership(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     def upgrade_instance(self, instance):
 
-        log_dir = os.path.join('/var/log/pki', instance.name)
-        pki.util.chown(log_dir, instance.uid, instance.gid)
+        pki.util.chown(instance.actual_logs_dir, instance.uid, instance.gid)

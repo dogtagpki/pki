@@ -407,22 +407,22 @@ jobs:
       - name: Check first CA debug log
         if: always()
         run: |
-          docker exec pki1 find /var/log/pki/pki-tomcat/ca -name "debug.*" -exec cat {} \;
+          docker exec pki1 find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check first KRA debug log
         if: always()
         run: |
-          docker exec pki1 find /var/log/pki/pki-tomcat/kra -name "debug.*" -exec cat {} \;
+          docker exec pki1 find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
 
       - name: Check second CA debug log
         if: always()
         run: |
-          docker exec pki2 find /var/log/pki/pki-tomcat/ca -name "debug.*" -exec cat {} \;
+          docker exec pki2 find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check second KRA debug log
         if: always()
         run: |
-          docker exec pki2 find /var/log/pki/pki-tomcat/kra -name "debug.*" -exec cat {} \;
+          docker exec pki2 find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
 
       - name: Gather artifacts
         if: always()

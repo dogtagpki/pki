@@ -337,7 +337,7 @@ jobs:
         run: |
           docker exec pki grep \
               "\[AuditEvent=CMC_USER_SIGNED_REQUEST_SIG_VERIFY\]" \
-              /var/log/pki/pki-tomcat/ca/signedAudit/ca_audit | tee output
+              /var/lib/pki/pki-tomcat/logs/ca/signedAudit/ca_audit | tee output
 
           # there should be 1 event from user cert enrollment
           echo "1" > expected
@@ -349,7 +349,7 @@ jobs:
         run: |
           docker exec pki grep \
               "\[AuditEvent=CERT_STATUS_CHANGE_REQUEST_PROCESSED\]" \
-              /var/log/pki/pki-tomcat/ca/signedAudit/ca_audit | tee output
+              /var/lib/pki/pki-tomcat/logs/ca/signedAudit/ca_audit | tee output
 
           # there should be 1 event from user cert revocation
           echo "1" > expected
@@ -361,7 +361,7 @@ jobs:
         run: |
           docker exec pki grep \
               "\[AuditEvent=CMC_REQUEST_RECEIVED\]" \
-              /var/log/pki/pki-tomcat/ca/signedAudit/ca_audit | tee output
+              /var/lib/pki/pki-tomcat/logs/ca/signedAudit/ca_audit | tee output
 
           # there should be 3 events from issuance protection cert enrollment,
           # user cert enrollment, user cert revocation
@@ -374,7 +374,7 @@ jobs:
         run: |
           docker exec pki grep \
               "\[AuditEvent=CMC_RESPONSE_SENT\]" \
-              /var/log/pki/pki-tomcat/ca/signedAudit/ca_audit | tee output
+              /var/lib/pki/pki-tomcat/logs/ca/signedAudit/ca_audit | tee output
 
           # there should be 3 events from issuance protection cert enrollment,
           # user cert enrollment, user cert revocation
@@ -403,7 +403,7 @@ jobs:
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec pki find /var/log/pki/pki-tomcat/ca -name "debug.*" -exec cat {} \;
+          docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Gather artifacts
         if: always()

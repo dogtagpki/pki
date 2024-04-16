@@ -521,7 +521,7 @@ jobs:
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec ca find /var/log/pki/pki-tomcat/ca -name "debug.*" -exec cat {} \;
+          docker exec ca find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check PKI server systemd journal in KRA container
         if: always()
@@ -531,7 +531,7 @@ jobs:
       - name: Check KRA debug log
         if: always()
         run: |
-          docker exec kra find /var/log/pki/pki-tomcat/kra -name "debug.*" -exec cat {} \;
+          docker exec kra find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
 
       - name: Gather artifacts
         if: always()

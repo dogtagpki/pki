@@ -312,7 +312,7 @@ To access this CA, simply point a browser to https://*hostname*:8443.
 
 The instance name (defined by **pki_instance_name**) is pki-tomcat, and it is
 located at /var/lib/pki/pki-tomcat. Logs for the instance are located
-at /var/log/pki/pki-tomcat, and an installation log is written to
+at /var/lib/pki/pki-tomcat/logs, and an installation log is written to
 /var/log/pki/pki-*subsystem*-spawn.*timestamp*.log.
 
 A PKCS #12 file containing the administrator certificate is created in
