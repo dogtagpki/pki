@@ -17,6 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.ldapconn;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
@@ -52,7 +56,7 @@ public class LdapBoundConnFactory extends LdapConnFactory {
 
     boolean doCloning = true;
     LdapBoundConnection mMasterConn; // master connection object.
-    LdapBoundConnection[] mConns;
+    List<LdapBoundConnection> mConns;
 
     /**
      * Constructor for initializing from the config store.
@@ -185,7 +189,7 @@ public class LdapBoundConnFactory extends LdapConnFactory {
         logger.debug("LdapBoundConnFactory: secure: " + mConnInfo.getSecure());
         logger.debug("LdapBoundConnFactory: authentication: " + mAuthInfo.getAuthType());
 
-        mConns = new LdapBoundConnection[mMaxConns];
+        mConns = new ArrayList<>(Arrays.asList(new LdapBoundConnection[mMaxConns]));
 
         if (mMinConns > 0) {
             // Create connection handle and make initial connection
@@ -266,7 +270,11 @@ public class LdapBoundConnFactory extends LdapConnFactory {
             logger.debug(method + "increasing minimum connections by " + increment);
 
             for (int i = increment - 1; i >= 0; i--) {
-                mConns[i] = cloning ? (LdapBoundConnection) mMasterConn.clone() : makeNewConnection(true);
+                if (cloning) {
+                    mConns.set(i, (LdapBoundConnection) mMasterConn.clone());
+                } else {
+                    mConns.set(i, makeNewConnection(true));
+                }
             }
 
             mTotal += increment;
@@ -367,8 +375,8 @@ public class LdapBoundConnFactory extends LdapConnFactory {
         }
 
         mNumConns--;
-        conn = mConns[mNumConns];
-        mConns[mNumConns] = null;
+        conn = mConns.get(mNumConns);
+        mConns.set(mNumConns, null);
         logger.debug("LdapBoundConnFactory: number of connections: " + mNumConns);
 
 
@@ -441,17 +449,15 @@ public class LdapBoundConnFactory extends LdapConnFactory {
             return;
         }
 
-        for (int i = 0; i < mNumConns; i++) {
-            if (mConns[i] == conn) {
-                logger.warn("LdapBoundConnFactory: Connection already returned");
-                --mTotal;
-                notifyAll();
-                return;
-            }
+        if (mConns.contains(conn)) {
+            logger.warn("LdapBoundConnFactory: Connection already returned");
+            --mTotal;
+            notifyAll();
+            return;
         }
 
         if (mNumConns < mMinConns) {
-            mConns[mNumConns++] = boundconn;
+            mConns.set(mNumConns++, boundconn);
         } else {
             try {
                 boundconn.disconnect();
@@ -478,11 +484,11 @@ public class LdapBoundConnFactory extends LdapConnFactory {
         if (mNumConns == mTotal) {
             for (int i = 0; i < mNumConns; i++) {
                 try {
-                    mConns[i].disconnect();
+                    mConns.get(i).disconnect();
                 } catch (LDAPException e) {
                     logger.warn("LdapBoundConnFactory: Unable to disconnect: " + e.getMessage(), e);
                 }
-                mConns[i] = null;
+                mConns.set(i, null);
             }
             if (mMasterConn != null) {
                 try {
@@ -496,7 +502,7 @@ public class LdapBoundConnFactory extends LdapConnFactory {
             mMasterConn = null;
             mTotal = 0;
             mNumConns = 0;
-            mConns = new LdapBoundConnection[mMaxConns];
+            mConns = new ArrayList<>(Arrays.asList(new LdapBoundConnection[mMaxConns]));
         } else {
             String message = "Unable to reset LDAP connection factory due to outstanding connections";
             logger.error("LdapBoundConnFactory: " + message);
@@ -513,9 +519,9 @@ public class LdapBoundConnFactory extends LdapConnFactory {
         logger.debug("Destroying LdapBoundConnFactory(" + id + ")");
 
         for (int i = 0; i < mNumConns; i++) {
-            if (mConns[i] != null) {
-                mConns[i].close();
-                mConns[i] = null;
+            if (mConns.get(i) != null) {
+                mConns.get(i).close();
+                mConns.set(i, null);
             }
         }
 
