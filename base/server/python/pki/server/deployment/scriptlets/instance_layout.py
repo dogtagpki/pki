@@ -64,18 +64,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         instance.with_maven_deps = deployer.with_maven_deps
         instance.create_libs(force=True)
 
-        # Create /var/log/pki/<instance>
-        instance.makedirs(instance.log_dir, exist_ok=True)
+        # Create /var/log/pki/<instance> and /var/lib/pki/<instance>/logs
+        instance.create_logs_dir(exist_ok=True)
 
         # Create /var/lib/pki/<instance>/temp
         instance.makedirs(instance.temp_dir, exist_ok=True)
 
         # Create /var/lib/pki/<instance>/work
         instance.makedirs(instance.work_dir, exist_ok=True)
-
-        # Link /var/lib/pki/<instance>/logs to /var/log/pki/<instance>
-        logs_link = os.path.join(instance.base_dir, 'logs')
-        instance.symlink(instance.log_dir, logs_link, exist_ok=True)
 
         # Create /var/lib/pki/<instance>/conf/certs
         instance.makedirs(instance.certs_dir, exist_ok=True)

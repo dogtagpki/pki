@@ -251,12 +251,12 @@ jobs:
       - name: Check primary CA debug log
         if: always()
         run: |
-          docker exec primary find /var/log/pki/pki-tomcat/ca -name "debug.*" -exec cat {} \;
+          docker exec primary find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check primary KRA debug log
         if: always()
         run: |
-          docker exec primary find /var/log/pki/pki-tomcat/kra -name "debug.*" -exec cat {} \;
+          docker exec primary find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
 
       - name: Check PKI server systemd journal in secondary container
         if: always()
@@ -266,12 +266,12 @@ jobs:
       - name: Check secondary CA debug log
         if: always()
         run: |
-          docker exec secondary find /var/log/pki/pki-tomcat/ca -name "debug.*" -exec cat {} \;
+          docker exec secondary find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check secondary KRA debug log
         if: always()
         run: |
-          docker exec secondary find /var/log/pki/pki-tomcat/kra -name "debug.*" -exec cat {} \;
+          docker exec secondary find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
 
       - name: Gather artifacts
         if: always()

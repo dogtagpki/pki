@@ -122,16 +122,16 @@ class PKISubsystem(object):
         return os.path.join(self.instance.conf_dir, self.name)
 
     @property
-    def log_dir(self):
-        return os.path.join(self.instance.log_dir, self.name)
+    def logs_dir(self):
+        return os.path.join(self.instance.logs_dir, self.name)
 
     @property
     def log_archive_dir(self):
-        return os.path.join(self.log_dir, 'archive')
+        return os.path.join(self.logs_dir, 'archive')
 
     @property
     def log_signed_audit_dir(self):
-        return os.path.join(self.log_dir, 'signedAudit')
+        return os.path.join(self.logs_dir, 'signedAudit')
 
     @property
     def registry_dir(self):
@@ -213,22 +213,22 @@ class PKISubsystem(object):
 
     def create_logs(self, exist_ok=False):
 
-        # Create /var/log/pki/<instance>/<subsystem>
-        self.instance.makedirs(self.log_dir, exist_ok=exist_ok)
+        # Create /var/lib/pki/<instance>/logs/<subsystem>
+        self.instance.makedirs(self.logs_dir, exist_ok=exist_ok)
 
         # Link /var/lib/pki/<instance>/<subsystem>/logs
-        # to /var/log/pki/<instance>/<subsystem>
+        # to /var/lib/pki/<instance>/logs/<subsystem>
 
         logs_link = os.path.join(self.base_dir, 'logs')
         self.instance.symlink(
-            self.log_dir,
+            self.logs_dir,
             logs_link,
             exist_ok=exist_ok)
 
-        # Create /var/log/pki/<instance>/<subsystem>/archive
+        # Create /var/lib/pki/<instance>/logs/<subsystem>/archive
         self.instance.makedirs(self.log_archive_dir, exist_ok=exist_ok)
 
-        # Create /var/log/pki/<instance>/<subsystem>/signedAudit
+        # Create /var/lib/pki/<instance>/logs/<subsystem>/signedAudit
         self.instance.makedirs(self.log_signed_audit_dir, exist_ok=exist_ok)
 
     def create_registry(self, exist_ok=False):
@@ -281,17 +281,17 @@ class PKISubsystem(object):
 
     def remove_logs(self, force=False):
 
-        # Remove /var/log/pki/<instance>/<subsystem>/signedAudit
+        # Remove /var/lib/pki/<instance>/logs/<subsystem>/signedAudit
         logger.info('Removing %s', self.log_signed_audit_dir)
         pki.util.rmtree(self.log_signed_audit_dir, force=force)
 
-        # Remove /var/log/pki/<instance>/<subsystem>/archive
+        # Remove /var/lib/pki/<instance>/logs/<subsystem>/archive
         logger.info('Removing %s', self.log_archive_dir)
         pki.util.rmtree(self.log_archive_dir, force=force)
 
-        # Remove /var/log/pki/<instance>/<subsystem>
-        logger.info('Removing %s', self.log_dir)
-        pki.util.rmtree(self.log_dir, force=force)
+        # Remove /var/lib/pki/<instance>/logs/<subsystem>
+        logger.info('Removing %s', self.logs_dir)
+        pki.util.rmtree(self.logs_dir, force=force)
 
     def remove_conf(self, force=False):
 

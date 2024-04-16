@@ -4781,7 +4781,7 @@ class PKIDeployer:
             self.user_config.write(f)
 
         # For debugging/auditing purposes, store user's deployment.cfg into
-        # /var/log/pki/<instance>/<subsystem>/archive/spawn_deployment.cfg.<timestamp>
+        # /var/lib/pki/<instance>/logs/<subsystem>/archive/spawn_deployment.cfg.<timestamp>
 
         deployment_cfg_archive = os.path.join(
             subsystem.log_archive_dir,
@@ -4807,7 +4807,7 @@ class PKIDeployer:
         self.file.modify(manifest_file, silent=True)
 
         # For debugging/auditing purposes, store installation manifest into
-        # /var/log/pki/<instance>/<subsystem>/archive/spawn_manifest.<timestamp>
+        # /var/lib/pki/<instance>/logs/<subsystem>/archive/spawn_manifest.<timestamp>
 
         manifest_archive = os.path.join(
             subsystem.log_archive_dir,
@@ -4820,7 +4820,7 @@ class PKIDeployer:
 
         selinux.restorecon(self.instance.base_dir, True)
         selinux.restorecon(config.PKI_DEPLOYMENT_LOG_ROOT, True)
-        selinux.restorecon(self.instance.log_dir, True)
+        selinux.restorecon(self.instance.actual_logs_dir, True)
         selinux.restorecon(self.instance.actual_conf_dir, True)
 
     def selinux_context_exists(self, records, context_value):
@@ -4858,9 +4858,9 @@ class PKIDeployer:
             self.instance.base_dir + suffix,
             config.PKI_INSTANCE_SELINUX_CONTEXT, '', 's0', '')
 
-        logger.info('Adding SELinux fcontext "%s"', self.instance.log_dir + suffix)
+        logger.info('Adding SELinux fcontext "%s"', self.instance.actual_logs_dir + suffix)
         fcon.add(
-            self.instance.log_dir + suffix,
+            self.instance.actual_logs_dir + suffix,
             config.PKI_LOG_SELINUX_CONTEXT, '', 's0', '')
 
         port_records = seobject.portRecords(trans)
@@ -4891,9 +4891,9 @@ class PKIDeployer:
         fcon = seobject.fcontextRecords(trans)
         file_records = fcon.get_all()
 
-        if self.selinux_context_exists(file_records, self.instance.log_dir + suffix):
-            logger.info('Removing SELinux fcontext "%s"', self.instance.log_dir + suffix)
-            fcon.delete(self.instance.log_dir + suffix, '')
+        if self.selinux_context_exists(file_records, self.instance.actual_logs_dir + suffix):
+            logger.info('Removing SELinux fcontext "%s"', self.instance.actual_logs_dir + suffix)
+            fcon.delete(self.instance.actual_logs_dir + suffix, '')
 
         if self.selinux_context_exists(file_records, self.instance.base_dir + suffix):
             logger.info('Removing SELinux fcontext "%s"', self.instance.base_dir + suffix)

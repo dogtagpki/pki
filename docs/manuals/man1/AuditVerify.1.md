@@ -94,9 +94,9 @@ The name of this file is referenced in the **AuditVerify** command.
 For example, this file could be logListFile.txt:
 
 ```
-/var/log/pki/pki-tomcat/ca/signedAudit/ca_audit.20030227102711
-/var/log/pki/pki-tomcat/ca/signedAudit/ca_audit.20030226094015
-/var/log/pki/pki-tomcat/ca/signedAudit/ca_audit
+/var/lib/pki/pki-tomcat/logs/ca/signedAudit/ca_audit.20030227102711
+/var/lib/pki/pki-tomcat/logs/ca/signedAudit/ca_audit.20030226094015
+/var/lib/pki/pki-tomcat/logs/ca/signedAudit/ca_audit
 ```
 
 Assuming the audit databases do not contain prefixes and are located in the user home directory,

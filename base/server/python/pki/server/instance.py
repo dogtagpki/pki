@@ -71,6 +71,10 @@ class PKIInstance(pki.server.PKIServer):
         # will be a link to the actual folder at /etc/pki/<instance>.
         self.actual_conf_dir = os.path.join(pki.server.PKIServer.CONFIG_DIR, self.name)
 
+        # The standard conf dir at /var/lib/pki/<instance>/logs
+        # will be a link to the actual folder at /var/log/pki/<instance>.
+        self.actual_logs_dir = os.path.join(pki.server.PKIServer.LOG_DIR, self.name)
+
         self.default_root_doc_base = os.path.join(
             pki.SHARE_DIR,
             'server',
@@ -142,10 +146,6 @@ class PKIInstance(pki.server.PKIServer):
         if self.version < 10:
             return os.path.join(pki.BASE_DIR, self.name)
         return os.path.join(pki.server.PKIServer.BASE_DIR, self.name)
-
-    @property
-    def log_dir(self):
-        return os.path.join(pki.server.PKIServer.LOG_DIR, self.name)
 
     @property
     def service_conf(self):
@@ -252,7 +252,7 @@ class PKIInstance(pki.server.PKIServer):
         super().create(force=force)
 
         logs_link = os.path.join(self.base_dir, 'logs')
-        self.symlink(self.log_dir, logs_link, exist_ok=True)
+        self.symlink(self.logs_dir, logs_link, exist_ok=True)
 
         self.create_registry()
 
@@ -400,11 +400,6 @@ class PKIInstance(pki.server.PKIServer):
         pki.util.unlink(self.unit_file, force=force)
 
         self.remove_registry(force=force)
-
-        if remove_logs:
-            logs_link = os.path.join(self.base_dir, 'logs')
-            logger.info('Removing %s', logs_link)
-            pki.util.unlink(logs_link, force=force)
 
         super().remove(remove_logs=remove_logs, force=force)
 

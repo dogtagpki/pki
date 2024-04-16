@@ -457,9 +457,9 @@ jobs:
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec pki find /var/log/pki/pki-tomcat/ca -name "debug.*" -exec cat {} \;
+          docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check CA selftests log
         if: always()
         run: |
-          docker exec pki cat /var/log/pki/pki-tomcat/ca/selftests.log
+          docker exec pki cat /var/lib/pki/pki-tomcat/logs/ca/selftests.log

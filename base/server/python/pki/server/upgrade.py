@@ -40,7 +40,7 @@ class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
         self.instance = None
 
     def get_backup_dir(self):
-        return self.instance.log_dir + '/backup/' + str(self.version) + '/' + str(self.index)
+        return self.instance.logs_dir + '/backup/' + str(self.version) + '/' + str(self.index)
 
     def upgrade_subsystem(self, instance, subsystem):
         # Callback method to upgrade a subsystem.
