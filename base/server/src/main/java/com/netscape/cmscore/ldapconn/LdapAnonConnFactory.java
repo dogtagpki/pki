@@ -17,6 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.ldapconn;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
@@ -33,7 +37,7 @@ import netscape.ldap.LDAPv3;
  */
 public class LdapAnonConnFactory extends LdapConnFactory {
 
-    LdapAnonConnection[] mConns;
+    List<LdapAnonConnection> mConns;
     boolean mInited;
 
     /**
@@ -141,7 +145,7 @@ public class LdapAnonConnFactory extends LdapConnFactory {
         if (mConnInfo == null)
             throw new IllegalArgumentException("Missing connection info");
 
-        mConns = new LdapAnonConnection[mMaxConns];
+        mConns = new ArrayList<>(Arrays.asList(new LdapAnonConnection[mMaxConns]));
 
         logger.debug("LdapAnonConnFactory: mininum: " + mMinConns);
         logger.debug("LdapAnonConnFactory: maximum: " + mMaxConns);
@@ -167,7 +171,7 @@ public class LdapAnonConnFactory extends LdapConnFactory {
                 logger.debug("LdapAnonConnFactory: increasing minimum connections by " + increment);
 
                 for (int i = increment - 1; i >= 0; i--) {
-                    mConns[i] = new LdapAnonConnection(socketFactory, mConnInfo);
+                    mConns.set(i, new LdapAnonConnection(socketFactory, mConnInfo));
                 }
 
                 mTotal += increment;
@@ -277,9 +281,9 @@ public class LdapAnonConnFactory extends LdapConnFactory {
         }
 
         mNumConns--;
-        conn = mConns[mNumConns];
+        conn = mConns.get(mNumConns);
 
-        mConns[mNumConns] = null;
+        mConns.set(mNumConns, null);
         logger.debug("LdapAnonConnFactory: number of connections: " + mNumConns);
 
 
@@ -347,13 +351,11 @@ public class LdapAnonConnFactory extends LdapConnFactory {
             return;
         }
 
-        for (int i = 0; i < mNumConns; i++) {
-            if (mConns[i] == anon) {
-                logger.warn("LdapAnonConnFactory: Connection already returned");
-                --mTotal;
-                notifyAll();
-                return;
-            }
+        if (mConns.contains(anon)) {
+            logger.warn("LdapAnonConnFactory: Connection already returned");
+            --mTotal;
+            notifyAll();
+            return;
         }
 
         if(mNumConns < mMinConns) {
@@ -369,7 +371,7 @@ public class LdapAnonConnFactory extends LdapConnFactory {
 
             // return the connection even if can't reauthentication anon.
             // most likely server was down.
-            mConns[mNumConns++] = anon;
+            mConns.set(mNumConns++, anon);
         } else {
             try {
                 anon.disconnect();
@@ -398,15 +400,15 @@ public class LdapAnonConnFactory extends LdapConnFactory {
         if (mNumConns == mTotal) {
             for (int i = 0; i < mNumConns; i++) {
                 try {
-                    mConns[i].disconnect();
+                    mConns.get(i).disconnect();
                 } catch (LDAPException e) {
                     logger.warn("LdapAnonConnFactory: Unable to disconnect: " + e.getMessage(), e);
                 }
-                mConns[i] = null;
+                mConns.set(i, null);
             }
             mTotal = 0;
             mNumConns = 0;
-            mConns = new LdapAnonConnection[mMaxConns];
+            mConns = new ArrayList<>(Arrays.asList(new LdapAnonConnection[mMaxConns]));
         } else {
             String message = "Unable to reset LDAP connection factory due to outstanding connections";
             logger.error("LdapAnonConnFactory: " + message);
