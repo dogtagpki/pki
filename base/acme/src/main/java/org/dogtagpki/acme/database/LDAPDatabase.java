@@ -244,7 +244,8 @@ public class LDAPDatabase extends ACMEDatabase {
 
         connFactory = new LdapBoundConnFactory("acme");
         connFactory.setSocketFactory(socketFactory);
-        connFactory.init(ldapConfig, ps);
+        connFactory.setPasswordStore(ps);
+        connFactory.init(ldapConfig);
 
         String monitorEnabled = config.getParameter("monitor.enabled");
         logger.info("- monitor enabled: " + monitorEnabled);

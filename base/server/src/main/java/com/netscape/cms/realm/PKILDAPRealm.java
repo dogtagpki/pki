@@ -165,7 +165,8 @@ public class PKILDAPRealm extends RealmCommon {
 
             connFactory = new LdapBoundConnFactory("LDAPRealm");
             connFactory.setSocketFactory(socketFactory);
-            connFactory.init(ldapConfig, ps);
+            connFactory.setPasswordStore(ps);
+            connFactory.init(ldapConfig);
 
         } catch (Exception e) {
             throw new LifecycleException("Unable to create LDAP connection:" + e.getMessage(), e);

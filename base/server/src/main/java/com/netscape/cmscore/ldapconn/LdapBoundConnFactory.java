@@ -125,25 +125,6 @@ public class LdapBoundConnFactory extends LdapConnFactory {
         this.mAuthInfo = authInfo;
     }
 
-    public void init(PasswordStore passwordStore) throws ELdapException {
-
-        logger.debug("LdapBoundConnFactory: initialization");
-
-        this.passwordStore = passwordStore;
-
-        init();
-    }
-
-    public void init(
-            LDAPConfig dbConfig,
-            PasswordStore passwordStore
-            ) throws EBaseException, ELdapException {
-
-        this.passwordStore = passwordStore;
-
-        init(dbConfig);
-    }
-
     public void init(LDAPConfig dbConfig) throws EBaseException, ELdapException {
 
         logger.debug("LdapBoundConnFactory: initialization");
@@ -177,7 +158,7 @@ public class LdapBoundConnFactory extends LdapConnFactory {
      * initialize parameters obtained from either constructor or
      * config store
      */
-    private void init() throws ELdapException {
+    public void init() throws ELdapException {
 
         if (mMinConns < 0)
             throw new ELdapException("Invalid minimum number of connections: " + mMinConns);
