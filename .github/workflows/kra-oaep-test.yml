@@ -74,11 +74,12 @@ jobs:
         run: |
           [[ -z `docker exec pki pki-server kra-config-show keyWrap.useOAEP` ]]
 
-      - name: Remove pki instance
-        run: |
-          docker exec pki pki-server stop --wait
-          docker exec pki pki-server remove
-          
+      - name: Remove KRA
+        run: docker exec pki pkidestroy -i pki-tomcat -s KRA -v
+
+      - name: Remove CA
+        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
+
       - name: Install CA with RSA_OAEP
         run: |
           docker exec pki pkispawn \
