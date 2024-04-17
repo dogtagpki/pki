@@ -704,6 +704,13 @@ grant codeBase "file:%s" {
         self.symlink(bin_dir, self.bin_dir, exist_ok=True)
 
         self.create_conf_dir(exist_ok=True)
+        self.create_libs(force=force)
+
+        self.makedirs(self.log_dir, exist_ok=True)
+
+        self.makedirs(self.temp_dir, exist_ok=True)
+        self.makedirs(self.webapps_dir, exist_ok=True)
+        self.makedirs(self.work_dir, exist_ok=True)
 
         self.makedirs(self.certs_dir, exist_ok=True)
 
@@ -737,13 +744,6 @@ grant codeBase "file:%s" {
 
         web_xml = os.path.join(Tomcat.CONF_DIR, 'web.xml')
         self.symlink(web_xml, self.web_xml, exist_ok=True)
-
-        self.create_libs(force=force)
-
-        self.makedirs(self.temp_dir, exist_ok=True)
-        self.makedirs(self.webapps_dir, exist_ok=True)
-        self.makedirs(self.work_dir, exist_ok=True)
-        self.makedirs(self.log_dir, exist_ok=True)
 
         document = etree.parse(self.server_xml, parser)
         server = document.getroot()
@@ -1147,9 +1147,6 @@ grant codeBase "file:%s" {
         logger.info('Removing %s', self.service_conf)
         pki.util.remove(self.service_conf, force=force)
 
-        logger.info('Removing %s', self.log_dir)
-        pki.util.rmtree(self.log_dir, force=force)
-
         logger.info('Removing %s', self.work_dir)
         pki.util.rmtree(self.work_dir, force=force)
 
@@ -1158,6 +1155,9 @@ grant codeBase "file:%s" {
 
         logger.info('Removing %s', self.temp_dir)
         pki.util.rmtree(self.temp_dir, force=force)
+
+        logger.info('Removing %s', self.log_dir)
+        pki.util.rmtree(self.log_dir, force=force)
 
         self.remove_libs(force=force)
         self.remove_conf_dir(force=force)

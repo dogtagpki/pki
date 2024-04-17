@@ -52,8 +52,17 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # Create /var/lib/pki/<instance>
         instance.makedirs(instance.base_dir, exist_ok=True)
 
+        # Link /var/lib/pki/<instance>/bin to /usr/share/tomcat/bin
+        bin_dir = os.path.join(pki.server.Tomcat.SHARE_DIR, 'bin')
+        instance.symlink(bin_dir, instance.bin_dir, exist_ok=True)
+
         # Create /etc/pki/<instance> and /var/lib/pki/<instance>/conf
         instance.create_conf_dir(exist_ok=True)
+
+        # Link /var/lib/pki/<instance>/lib to /usr/share/pki/server/lib
+        # Link /var/lib/pki/<instance>/common/lib to /usr/share/pki/server/common/lib
+        instance.with_maven_deps = deployer.with_maven_deps
+        instance.create_libs(force=True)
 
         # Create /var/log/pki/<instance>
         instance.makedirs(instance.log_dir, exist_ok=True)
@@ -63,6 +72,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # Create /var/lib/pki/<instance>/work
         instance.makedirs(instance.work_dir, exist_ok=True)
+
+        # Link /var/lib/pki/<instance>/logs to /var/log/pki/<instance>
+        logs_link = os.path.join(instance.base_dir, 'logs')
+        instance.symlink(instance.log_dir, logs_link, exist_ok=True)
 
         # Create /var/lib/pki/<instance>/conf/certs
         instance.makedirs(instance.certs_dir, exist_ok=True)
@@ -119,20 +132,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             os.path.join(localhost_dir, 'rewrite.config'),
             exist_ok=True,
         )
-
-        # Link /var/lib/pki/<instance>/bin to /usr/share/tomcat/bin
-        bin_dir = os.path.join(pki.server.Tomcat.SHARE_DIR, 'bin')
-        instance.symlink(
-            bin_dir,
-            instance.bin_dir,
-            exist_ok=True)
-
-        # Link /var/lib/pki/<instance>/logs to /var/log/pki/<instance>
-        logs_link = os.path.join(instance.base_dir, 'logs')
-        instance.symlink(
-            instance.log_dir,
-            logs_link,
-            exist_ok=True)
 
         # Configuring internal token password
 
@@ -245,11 +244,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 "localhost",
                 "pki.xml"))
 
-        # Link /var/lib/pki/<instance>/lib to /usr/share/pki/server/lib
-        # Link /var/lib/pki/<instance>/common/lib to /usr/share/pki/server/common/lib
-        instance.with_maven_deps = deployer.with_maven_deps
-        instance.create_libs(force=True)
-
         if config.str2bool(deployer.mdict['pki_registry_enable']):
             instance.create_registry()
 
@@ -313,12 +307,17 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if config.str2bool(deployer.mdict['pki_registry_enable']):
             instance.remove_registry(force=deployer.force)
 
-        # Remove /etc/pki/<instance> and /var/lib/pki/<instance>/conf
-        instance.remove_conf_dir(force=deployer.force)
+        logger.info('Removing %s', instance.service_conf)
+        pki.util.remove(instance.service_conf, force=deployer.force)
 
-        logger.info('Removing %s', instance.base_dir)
-        pki.util.rmtree(path=instance.base_dir,
-                        force=deployer.force)
+        logger.info('Removing %s', instance.work_dir)
+        pki.util.rmtree(instance.work_dir, force=deployer.force)
+
+        logger.info('Removing %s', instance.webapps_dir)
+        pki.util.rmtree(instance.webapps_dir, force=deployer.force)
+
+        logger.info('Removing %s', instance.temp_dir)
+        pki.util.rmtree(instance.temp_dir, force=deployer.force)
 
         if deployer.remove_logs:
 
@@ -326,7 +325,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             pki.util.rmtree(path=instance.log_dir,
                             force=deployer.force)
 
-        logger.info('Removing %s', instance.service_conf)
-        pki.util.remove(
-            path=instance.service_conf,
-            force=deployer.force)
+        instance.remove_libs(force=deployer.force)
+
+        # Remove /etc/pki/<instance> and /var/lib/pki/<instance>/conf
+        instance.remove_conf_dir(force=deployer.force)
+
+        logger.info('Removing %s', instance.bin_dir)
+        pki.util.unlink(instance.bin_dir, force=deployer.force)
+
+        logger.info('Removing %s', instance.base_dir)
+        pki.util.rmtree(instance.base_dir, force=deployer.force)
