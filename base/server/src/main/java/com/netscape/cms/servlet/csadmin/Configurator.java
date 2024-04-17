@@ -633,10 +633,10 @@ public class Configurator {
         String certType = certData.getType();
         logger.info("Configurator: - cert type: " + certType);
 
-        String usage = certData.getOpsFlag();
+        String usage = certData.getOpFlags();
         logger.info("Configurator: - cert usage: " + usage);
 
-        String usageMask = certData.getOpsFlagMask();
+        String usageMask = certData.getOpFlagsMask();
         logger.info("Configurator: - cert usageMask: " + usageMask);
 
         String[] dnsNames = certData.getDNSNames();

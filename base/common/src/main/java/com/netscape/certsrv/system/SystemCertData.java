@@ -61,10 +61,10 @@ public class SystemCertData {
     protected String subjectDN;
 
     @XmlElement
-    protected String opsFlag;
+    protected String opFlags;
 
     @XmlElement
-    protected String opsFlagMask;
+    protected String opFlagsMask;
 
     @XmlElement
     protected String cert;
@@ -248,29 +248,29 @@ public class SystemCertData {
     /**
      * @return the certificate operation flags
      */
-    public String getOpsFlag() {
-        return opsFlag;
+    public String getOpFlags() {
+        return opFlags;
     }
 
     /**
      * @param The certificate operation flags. It is a comma separated list of usages including: encrypt, decrypt, sign, sign_recover, verify, verify_recover, wrap, unwrap and derive.
      */
-    public void setOpsFlag(String opsFlag) {
-        this.opsFlag = opsFlag;
+    public void setOpFlags(String opFlags) {
+        this.opFlags = opFlags;
     }
 
     /**
      * @return the certificate operation mask
      */
-    public String getOpsFlagMask() {
-        return opsFlagMask;
+    public String getOpFlagsMask() {
+        return opFlagsMask;
     }
 
     /**
      * @param The certificate operation mask. It is a comma separated list of usages including: encrypt, decrypt, sign, sign_recover, verify, verify_recover, wrap, unwrap and derive.
      */
-    public void setOpsFlagMask(String opsFlagMask) {
-        this.opsFlagMask = opsFlagMask;
+    public void setOpFlagsMask(String opFlagsMask) {
+        this.opFlagsMask = opFlagsMask;
     }
 
     @Override
