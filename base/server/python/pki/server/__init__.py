@@ -1248,6 +1248,10 @@ grant codeBase "file:%s" {
     def store_passwords(self):
         self.store_properties(self.password_conf, self.passwords)
 
+    def remove_passwords(self, force=False):
+        logger.info('Removing %s', self.password_conf)
+        pki.util.remove(self.password_conf, force=force)
+
     def load_subsystems(self):
 
         for subsystem_name in SUBSYSTEM_TYPES:

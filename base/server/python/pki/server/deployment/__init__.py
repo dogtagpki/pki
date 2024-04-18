@@ -590,6 +590,14 @@ class PKIDeployer:
         # Always delete the temporary 'pfile'
         self.file.delete(pki_shared_pfile)
 
+    def remove_server_nssdb(self):
+
+        logger.info('Removing %s', self.instance.nssdb_link)
+        pki.util.unlink(self.instance.nssdb_link, self.force)
+
+        logger.info('Removing %s', self.instance.nssdb_dir)
+        pki.util.rmtree(self.instance.nssdb_dir, self.force)
+
     def import_server_pkcs12(self):
         '''
         Import system certificates from PKCS #12 file.

@@ -307,6 +307,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if config.str2bool(deployer.mdict['pki_registry_enable']):
             instance.remove_registry(force=deployer.force)
 
+        deployer.remove_server_nssdb()
+        instance.remove_passwords(force=deployer.force)
+
         logger.info('Removing %s', instance.service_conf)
         pki.util.remove(instance.service_conf, force=deployer.force)
 

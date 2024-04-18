@@ -61,9 +61,3 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('Removing %s', deployer.mdict['pki_client_dir'])
             pki.util.rmtree(deployer.mdict['pki_client_dir'],
                             deployer.force)
-
-        logger.info('Removing %s', instance.nssdb_dir)
-        pki.util.rmtree(instance.nssdb_dir, deployer.force)
-
-        logger.info('Removing %s', instance.password_conf)
-        pki.util.remove(instance.password_conf, deployer.force)
