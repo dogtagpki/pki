@@ -394,18 +394,19 @@ class PKIInstance(pki.server.PKIServer):
         for external_cert in PKIInstance.read_external_certs(conf_file):
             self.external_certs.append(external_cert)
 
-    def remove(self, force=False):
+    def remove(self, remove_logs=False, force=False):
 
         logger.info('Removing %s', self.unit_file)
         pki.util.unlink(self.unit_file, force=force)
 
         self.remove_registry(force=force)
 
-        logs_link = os.path.join(self.base_dir, 'logs')
-        logger.info('Removing %s', logs_link)
-        pki.util.unlink(logs_link, force=force)
+        if remove_logs:
+            logs_link = os.path.join(self.base_dir, 'logs')
+            logger.info('Removing %s', logs_link)
+            pki.util.unlink(logs_link, force=force)
 
-        super().remove(force=force)
+        super().remove(remove_logs=remove_logs, force=force)
 
     def remove_libs(self, force=False):
 

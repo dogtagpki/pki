@@ -324,9 +324,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         if deployer.remove_logs:
 
-            logger.info('Removing %s', instance.log_dir)
-            pki.util.rmtree(path=instance.log_dir,
-                            force=deployer.force)
+            # Remove /var/log/pki/<instance> and /var/lib/pki/<instance>/logs
+            # if requested
+            instance.remove_logs_dir(force=deployer.force)
 
         instance.remove_libs(force=deployer.force)
 
@@ -336,5 +336,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         logger.info('Removing %s', instance.bin_dir)
         pki.util.unlink(instance.bin_dir, force=deployer.force)
 
-        logger.info('Removing %s', instance.base_dir)
-        pki.util.rmtree(instance.base_dir, force=deployer.force)
+        if os.path.isdir(instance.base_dir) and not os.listdir(instance.base_dir):
+
+            # Remove /var/lib/pki/<instance> if empty
+            logger.info('Removing %s', instance.base_dir)
+            pki.util.rmtree(path=instance.base_dir, force=deployer.force)
