@@ -1142,7 +1142,7 @@ grant codeBase "file:%s" {
 
         logger.info('Web application stopped')
 
-    def remove(self, force=False):
+    def remove(self, remove_logs=False, force=False):
 
         logger.info('Removing %s', self.service_conf)
         pki.util.remove(self.service_conf, force=force)
@@ -1156,17 +1156,22 @@ grant codeBase "file:%s" {
         logger.info('Removing %s', self.temp_dir)
         pki.util.rmtree(self.temp_dir, force=force)
 
-        logger.info('Removing %s', self.log_dir)
-        pki.util.rmtree(self.log_dir, force=force)
+        if remove_logs:
+            logger.info('Removing %s', self.log_dir)
+            pki.util.rmtree(self.log_dir, force=force)
 
         self.remove_libs(force=force)
+
         self.remove_conf_dir(force=force)
 
         logger.info('Removing %s', self.bin_dir)
         pki.util.unlink(self.bin_dir, force=force)
 
-        logger.info('Removing %s', self.base_dir)
-        pki.util.rmtree(self.base_dir, force=force)
+        if os.path.isdir(self.base_dir) and not os.listdir(self.base_dir):
+
+            # Remove instance base dir if empty
+            logger.info('Removing %s', self.base_dir)
+            pki.util.rmtree(self.base_dir, force=force)
 
     def remove_libs(self, force=False):
 

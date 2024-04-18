@@ -254,13 +254,17 @@ jobs:
         run: |
           # check file types, owners, and permissions
           docker exec pki ls -l /var/lib/pki/pki-tomcat \
-              > >(tee stdout) 2> >(tee stderr >&2) || true
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
 
+          # TODO: review permissions
           cat > expected << EOF
-          ls: cannot access '/var/lib/pki/pki-tomcat': No such file or directory
+          lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-tomcat
           EOF
 
-          diff expected stderr
+          diff expected output
 
       - name: Check PKI server conf dir after removal
         run: |
