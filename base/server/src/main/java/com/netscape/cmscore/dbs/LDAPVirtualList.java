@@ -478,7 +478,7 @@ public class LDAPVirtualList<E extends IDBObj> extends DBVirtualList<E> {
             int damageCounter = 0;
 
             while (result.hasMoreElements()) {
-                LDAPEntry entry = (LDAPEntry) result.nextElement();
+                LDAPEntry entry = result.next();
                 logger.info("LDAPVirtualList: dn: " + entry.getDN());
 
                 try {

@@ -205,7 +205,7 @@ public class CMSTaskModel extends TaskModel implements IMenuInfo {
 
 			while ( result.hasMoreElements() ) {
 				String sJavaClassName = null;
-				LDAPEntry findEntry = (LDAPEntry)result.nextElement();
+				LDAPEntry findEntry = result.next();
 				Debug.println( "Found task " + findEntry.getDN() );
 				LDAPAttribute anAttr =
 					findEntry.getAttribute( attrs[0] );

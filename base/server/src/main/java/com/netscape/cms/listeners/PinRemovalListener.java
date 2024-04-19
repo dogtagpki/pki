@@ -143,7 +143,7 @@ public class PinRemovalListener extends RequestListener {
                     return;
                 }
 
-                LDAPEntry entry = (LDAPEntry) res.nextElement();
+                LDAPEntry entry = res.next();
 
                 userdn = entry.getDN();
 

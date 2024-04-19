@@ -209,7 +209,7 @@ public class PortalEnroll extends DirBasedAuthentication {
                     LDAPv3.SCOPE_SUB, "(uid=" + uid + ")", null, false);
 
             if (res.hasMoreElements()) {
-                res.nextElement(); // consume the entry
+                res.next(); // consume the entry
 
                 throw new EAuthUserError(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_ATTRIBUTE_VALUE",
                         "UID already exists."));

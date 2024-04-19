@@ -296,7 +296,7 @@ public class SharedSecret extends DirBasedAuthentication
             }
 
             if (res.hasMoreElements()) {
-                entry = (LDAPEntry) res.nextElement();
+                entry = res.next();
 
                 userdn = entry.getDN();
             } else {
@@ -317,7 +317,7 @@ public class SharedSecret extends DirBasedAuthentication
             res = shrTokLdapConnection.search(userdn, LDAPv3.SCOPE_BASE,
                     "(objectclass=*)", new String[] { mShrTokAttr }, false);
             if (res != null && res.hasMoreElements()) {
-                entry = (LDAPEntry) res.nextElement();
+                entry = res.next();
             } else {
                 msg = method + "no entry returned for " + identification;
                 logger.error(msg);

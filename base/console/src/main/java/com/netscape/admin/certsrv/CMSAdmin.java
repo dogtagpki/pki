@@ -825,7 +825,7 @@ public class CMSAdmin extends AbstractServerObject
 
             while (search_results.hasMoreElements()) {
                 /* Get the next child */
-                LDAPEntry child_entry = (LDAPEntry) search_results.nextElement();
+                LDAPEntry child_entry = search_results.next();
                 delete_sieTree(child_entry);
 
             }
@@ -872,7 +872,11 @@ public class CMSAdmin extends AbstractServerObject
             // need to remove the reference to the sieDN from
             // this entry.
 
-            entry = (LDAPEntry) search_results.nextElement();
+            try {
+                entry = search_results.next();
+            } catch (LDAPException e) {
+                throw new RuntimeException(e);
+            }
             String eDN = entry.getDN();
             // Now we need to modify the entry to delete the
             // reference to the serevr.

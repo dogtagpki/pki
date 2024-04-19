@@ -192,7 +192,7 @@ public class CrossCertPairSubsystem extends Subsystem {
             if (res.hasMoreElements()) {
                 logger.info("CrossCertPairSubsystem: ldap search found " + DN_XCERTS);
 
-                LDAPEntry entry = (LDAPEntry) res.nextElement();
+                LDAPEntry entry = res.next();
                 LDAPAttribute caCerts = entry.getAttribute(LDAP_ATTR_CA_CERT);
                 LDAPAttribute certPairs = entry.getAttribute(LDAP_ATTR_XCERT_PAIR);
 
@@ -416,7 +416,7 @@ public class CrossCertPairSubsystem extends Subsystem {
             if (res.hasMoreElements()) {
                 logger.info("CrossCertPairSubsystem: ldap search found " + DN_XCERTS);
 
-                LDAPEntry entry = (LDAPEntry) res.nextElement();
+                LDAPEntry entry = res.next();
                 LDAPAttribute xcerts = entry.getAttribute(LDAP_ATTR_XCERT_PAIR);
 
                 if (xcerts == null) {

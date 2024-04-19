@@ -7,24 +7,43 @@
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation version
  * 2.1 of the License.
- *                                                                                 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- *                                                                                 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  * END COPYRIGHT BLOCK **/
 package com.netscape.management.client.topology;
 
-import java.awt.event.*;
-import javax.swing.*;
-import com.netscape.management.client.*;
-import com.netscape.management.client.console.*;
-import com.netscape.management.client.util.*;
-import netscape.ldap.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
+
+import com.netscape.management.client.Framework;
+import com.netscape.management.client.IMenuInfo;
+import com.netscape.management.client.IMenuItem;
+import com.netscape.management.client.IPage;
+import com.netscape.management.client.IResourceModelListener;
+import com.netscape.management.client.IResourceObject;
+import com.netscape.management.client.MenuItemSeparator;
+import com.netscape.management.client.MenuItemText;
+import com.netscape.management.client.ResourceModel;
+import com.netscape.management.client.ResourceObject;
+import com.netscape.management.client.console.ConsoleInfo;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.ResourceSet;
+
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPSearchResults;
 
 /**
  * TopologyModel defined the topology view tree model.
@@ -143,18 +162,18 @@ public class TopologyModel extends ResourceModel implements IMenuInfo {
             {
                 iReturn = new IMenuItem[]{ new MenuItemText(MENU_NEW_DOMAIN,
                         _resource.getString("menu", "newDomain"),
-                         "TODO: description"), 
+                         "TODO: description"),
                  new MenuItemText(MENU_REMOVE_DOMAIN,
                          _resource.getString("menu", "RemoveDomain"),
-                         "TODO: description"), 
+                         "TODO: description"),
                  new MenuItemSeparator()};
             }
         } else if (category.equals(Framework.MENU_VIEW)) {
-            MenuItemText menuItemText = new MenuItemText(MENU_REFRESH, 
-                     _resource.getString("menu", "refresh"), "TODO: description"); 
-                     menuItemText.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, 
-                               ActionEvent.CTRL_MASK)); 
-             iReturn = new IMenuItem[]{ new MenuItemSeparator(), menuItemText}; 
+            MenuItemText menuItemText = new MenuItemText(MENU_REFRESH,
+                     _resource.getString("menu", "refresh"), "TODO: description");
+                     menuItemText.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R,
+                               ActionEvent.CTRL_MASK));
+             iReturn = new IMenuItem[]{ new MenuItemSeparator(), menuItemText};
         }
         return iReturn;
     }
@@ -217,7 +236,7 @@ public class TopologyModel extends ResourceModel implements IMenuInfo {
             refreshTree(viewInstance);
             ((TopologyResourcePage) viewInstance).refresh();
         }
-		
+
     }
 
     /**
@@ -246,12 +265,12 @@ public class TopologyModel extends ResourceModel implements IMenuInfo {
             ResourceObject firstChild = (ResourceObject) getChild(root, 0);
             if (firstChild instanceof DomainNode)
                 fireExpandTreeNode(viewInstance,
-                        (ResourceObject) firstChild);
+                        firstChild);
         }
     }
-    
+
     /**
-     * Removes domain node.  It it contains children, 
+     * Removes domain node.  It it contains children,
      * an error message is displayed.
      */
     private void removeDomain(IPage viewInstance, DomainNode node)
@@ -270,7 +289,7 @@ public class TopologyModel extends ResourceModel implements IMenuInfo {
             JOptionPane.showMessageDialog(frame, message, title, JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
+
         messageTemplate = _resource.getString("RemoveDomain", "message");
         message = java.text.MessageFormat.format(messageTemplate, new Object[] { node.getName() });
         title = _resource.getString("RemoveDomain", "title");
@@ -290,7 +309,7 @@ public class TopologyModel extends ResourceModel implements IMenuInfo {
             }
         }
     }
-     
+
     /**
      * Deletes the specified DN including any sub-entries.
      *
@@ -304,14 +323,14 @@ public class TopologyModel extends ResourceModel implements IMenuInfo {
         search_results = ldc.search(dn, LDAPConnection.SCOPE_ONE, "(objectClass=*)", attrs, false);
         while(search_results.hasMoreElements())  // recursively delete children
         {
-            LDAPEntry entry = (LDAPEntry)search_results.nextElement();
+            LDAPEntry entry = search_results.next();
             deleteTree(ldc, entry.getDN());
         }
         Debug.println("Deleting entry " + dn);
         ldc.delete(dn);
     }
 
- 
+
     /**
      * Returns true if this entry contains nsHosts attributes.
      *
@@ -331,6 +350,6 @@ public class TopologyModel extends ResourceModel implements IMenuInfo {
             return true;
         }
     }
-    
-    
+
+
 }

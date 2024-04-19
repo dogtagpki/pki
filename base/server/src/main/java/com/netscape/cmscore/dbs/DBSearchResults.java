@@ -18,7 +18,6 @@
 package com.netscape.cmscore.dbs;
 
 import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSearchResults;
 
 /**
@@ -56,17 +55,9 @@ public class DBSearchResults {
     public Object nextElement() {
 
         try {
-            Object o = mRes.nextElement();
+            LDAPEntry entry = mRes.next();
+            return mRegistry.createObject(entry.getAttributeSet());
 
-            if (o instanceof LDAPEntry entry) {
-                return mRegistry.createObject(entry.getAttributeSet());
-            }
-            if (o instanceof LDAPException)
-                ;
-            // doing nothing because the last object in the search
-            // results is always LDAPException
-            else
-                logger.warn("DBSearchResults: result format error class={}", o.getClass().getName());
         } catch (Exception e) {
 
             /*LogDoc

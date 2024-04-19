@@ -299,7 +299,7 @@ public class AttributePresentConstraints extends APolicyRule
                     return PolicyResult.REJECTED;
                 }
 
-                LDAPEntry entry = (LDAPEntry) searchResult.nextElement();
+                LDAPEntry entry = searchResult.next();
 
                 userdn = entry.getDN();
 

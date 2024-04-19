@@ -23,6 +23,7 @@ import com.netscape.management.client.util.Debug;
 import com.netscape.management.client.util.RemoteImage;
 
 import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSearchResults;
 
 public class NetworkNode extends ServerLocNode {
@@ -43,17 +44,15 @@ public class NetworkNode extends ServerLocNode {
         removeAllChildren();
         LDAPSearchResults result = getServiceLocator().getDomains();
         Debug.println("after get result:");
-        Object o = null;
         LDAPEntry entry = null;
         DomainNode dn = null;
         while (result.hasMoreElements()) {
             Debug.println("inside result:");
-            o = result.nextElement();
-            if ((o instanceof LDAPEntry) == false) {
-                continue;
+            try {
+                entry = result.next();
+            } catch (LDAPException e) {
+                throw new RuntimeException(e);
             }
-
-            entry = (LDAPEntry) o;
             dn = new DomainNode(getServiceLocator(), entry);
             Debug.println("adding :"+dn.getName());
             if (searchChildByName(dn.getName()) == null) {

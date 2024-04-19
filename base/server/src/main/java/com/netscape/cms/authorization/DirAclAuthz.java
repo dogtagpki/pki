@@ -172,7 +172,7 @@ public class DirAclAuthz extends AAclAuthz
                 return;
             }
 
-            LDAPEntry entry = (LDAPEntry) res.nextElement();
+            LDAPEntry entry = res.next();
             logger.info("DirAclAuthz: ACL resources found: " + entry.getDN());
 
             LDAPAttribute aclRes = entry.getAttribute("resourceACLS");

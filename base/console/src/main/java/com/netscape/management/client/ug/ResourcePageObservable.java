@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation version
  * 2.1 of the License.
- *                                                                                 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- *                                                                                 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -20,7 +20,10 @@
 
 package com.netscape.management.client.ug;
 
-import java.util.*;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Observable;
+import java.util.Vector;
 
 import com.netscape.management.client.console.ConsoleInfo;
 import com.netscape.management.client.util.Debug;
@@ -28,8 +31,16 @@ import com.netscape.management.client.util.KingpinLDAPConnection;
 import com.netscape.management.client.util.LDAPUtil;
 import com.netscape.management.client.util.ResourceSet;
 
-import netscape.ldap.*;
-import netscape.ldap.util.*;
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPDN;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
+import netscape.ldap.LDAPModificationSet;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.util.RDN;
 
 
 /**
@@ -77,7 +88,7 @@ public class ResourcePageObservable extends Observable {
     public String _sBaseDN;
 
     static final int NEW_ENTRY_TIMEOUT = 0xff;
-    
+
     /**
     * Constructor
     *
@@ -430,7 +441,7 @@ public class ResourcePageObservable extends Observable {
             }
             catch (LDAPException e) {
                 Debug.println(0,
-                        "ResourcePageObservable.java:ADD LDAP ENTRY:"+ 
+                        "ResourcePageObservable.java:ADD LDAP ENTRY:"+
                         e.getLDAPErrorMessage() + " for "+newRDN);
                 throw e;
             }
@@ -463,7 +474,7 @@ public class ResourcePageObservable extends Observable {
                 modificationSet.add(LDAPModification.ADD,
                                     attr.getLDAPAttribute());
             }
-            
+
             for (int i = 0; i < attrReplace.size(); i++) {
                 String attr = (String)(attrReplace.elementAt(i));
                 attr = attr.toLowerCase();
@@ -503,7 +514,7 @@ public class ResourcePageObservable extends Observable {
                 }
                 String newRDN = _sIndexAttribute + "=" + newRdnValue;
                 String newRDNEsc = _sIndexAttribute + "=" + LDAPUtil.escapeDNVal(newRdnValue);
-                
+
                 //for a group there is no ou so we have to check
                 String[] rdns = LDAPDN.explodeDN(DN, false);
                 String sDN = "";
@@ -611,9 +622,8 @@ public class ResourcePageObservable extends Observable {
             LDAPSearchResults result = ldc.search(_info.getUserBaseDN(),
                     LDAPConnection.SCOPE_SUB, filter, null, false);
             if (result.hasMoreElements()) {
-                if (result.nextElement() instanceof LDAPEntry) {
-                    return true;
-                }
+                result.next();
+                return true;
             }
         } catch (LDAPException e) {
             Debug.println(0,
@@ -924,17 +934,17 @@ public class ResourcePageObservable extends Observable {
     boolean compareAttrValues(LDAPAttribute attr1, LDAPAttribute attr2) {
         String[] val1 = attr1.getStringValueArray();
         String[] val2 = attr2.getStringValueArray();
-        
+
         if (val1.length != val2.length) {
             return false;
         }
-        
+
         for (int i=0; i < val1.length; i++) {
             if (!val1[i].equals(val2[i])) {
                 return false;
             }
         }
-        
+
         return true;
     }
 
@@ -1184,36 +1194,36 @@ public class ResourcePageObservable extends Observable {
         sb.append(_fNewUser);
         sb.append("\n\tsBaseDN=");
         sb.append(_sBaseDN);
-        
+
         sb.append("\n\tobjectClassList=");
         for (int i=0; _objectClassList != null && i <_objectClassList.size(); i++) {
             sb.append(_objectClassList.elementAt(i));
             sb.append(" ");
         }
-        
+
         sb.append("\n\tattributes=");
         sb.append(attributes.toString());
-        
+
         sb.append("\n\tattrAdd=");
         for (int i=0; attrAdd != null && i <attrAdd.size(); i++) {
             sb.append(attrAdd.elementAt(i));
             sb.append(" ");
-        }        
+        }
         sb.append("\n\tattrReplace=");
         for (int i=0; attrReplace != null && i <attrReplace.size(); i++) {
             sb.append(attrReplace.elementAt(i));
-            sb.append(" ");            
+            sb.append(" ");
         }
         sb.append("\n\tattrDelete=");
         for (int i=0; attrDelete != null && i <attrDelete.size(); i++) {
             sb.append(attrDelete.elementAt(i));
-            sb.append(" ");            
+            sb.append(" ");
         }
-        
+
         sb.append("\n\tentry=");
         sb.append(_entry);
         sb.append("\n");
-        
+
         return sb.toString();
     }
 }
@@ -1283,7 +1293,7 @@ class AttributeValuePair {
     /**
      * Returns a string representation of the object.
      * @return a string representation of the object.
-     */    
+     */
     public String toString() {
         return "AttributeValuePair: " + attribute + " " + attributeValue;
     }

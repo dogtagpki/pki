@@ -229,7 +229,7 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication {
                     LDAPv3.SCOPE_SUB, "(uid=" + uid + ")", null, false);
 
             if (res.hasMoreElements()) {
-                LDAPEntry entry = (LDAPEntry) res.nextElement();
+                LDAPEntry entry = res.next();
 
                 userdn = entry.getDN();
             } else {
@@ -301,7 +301,7 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication {
         res = conn.search(userdn, LDAPv3.SCOPE_BASE,
                     "(objectclass=*)", new String[] { mPinAttr }, false);
         if (res.hasMoreElements()) {
-            entry = (LDAPEntry) res.nextElement();
+            entry = res.next();
         } else {
             logger.error("UidPwdPinDirAuthentication: " + CMS.getLogMessage("CMS_AUTH_NO_ENTRY_RETURNED", uid, userdn));
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));

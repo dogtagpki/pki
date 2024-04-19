@@ -131,11 +131,11 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication {
         return buildGroups(res);
     }
 
-    private ArrayList<String> buildGroups(LDAPSearchResults res) {
+    private ArrayList<String> buildGroups(LDAPSearchResults res) throws LDAPException {
         ArrayList<String> v = new ArrayList<>();
 
         while (res.hasMoreElements()) {
-            LDAPEntry entry = (LDAPEntry) res.nextElement();
+            LDAPEntry entry = res.next();
             String groupDN = entry.getDN();
             logger.debug("UidPwdDirAuthentication: Authenticate: Found group membership: " + groupDN);
             v.add(groupDN);

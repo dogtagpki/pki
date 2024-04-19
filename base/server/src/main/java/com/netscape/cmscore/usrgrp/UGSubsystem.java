@@ -389,11 +389,11 @@ public class UGSubsystem {
     }
 
     protected Enumeration<User> lbuildUsers(LDAPSearchResults res) throws
-            EUsrGrpException {
+            LDAPException, EUsrGrpException {
         Vector<User> v = new Vector<>();
 
         while (res.hasMoreElements()) {
-            LDAPEntry entry = (LDAPEntry) res.nextElement();
+            LDAPEntry entry = res.next();
             User user = lbuildUser(entry);
 
             v.addElement(user);
@@ -402,12 +402,12 @@ public class UGSubsystem {
     }
 
     protected Enumeration<User> buildUsers(LDAPSearchResults res) throws
-            EUsrGrpException {
+            LDAPException, EUsrGrpException {
         Vector<User> v = new Vector<>();
 
         if (res != null) {
             while (res.hasMoreElements()) {
-                LDAPEntry entry = (LDAPEntry) res.nextElement();
+                LDAPEntry entry = res.next();
                 User user = buildUser(entry);
 
                 v.addElement(user);
@@ -1264,11 +1264,12 @@ public class UGSubsystem {
         }
     }
 
-    protected Enumeration<Group> buildGroups(LDAPSearchResults res) throws EUsrGrpException {
+    protected Enumeration<Group> buildGroups(LDAPSearchResults res)
+            throws LDAPException, EUsrGrpException {
         Vector<Group> v = new Vector<>();
 
         while (res.hasMoreElements()) {
-            LDAPEntry entry = (LDAPEntry) res.nextElement();
+            LDAPEntry entry = res.next();
 
             v.addElement(buildGroup(entry));
         }
@@ -1633,7 +1634,7 @@ public class UGSubsystem {
             // that the filter matched, and so the user correctly
             // authenticated.
             if (res.hasMoreElements()) {
-                res.nextElement(); // consume the entry
+                res.next(); // consume the entry
                 founduser = true;
             }
             logger.trace("authorization result: " + founduser);
@@ -1846,7 +1847,7 @@ public class UGSubsystem {
                     LDAPv3.SCOPE_SUB, "(uid=" + LDAPUtil.escapeFilter(u) + ")", null, false);
 
             if (res.hasMoreElements()) {
-                LDAPEntry entry = (LDAPEntry) res.nextElement();
+                LDAPEntry entry = res.next();
 
                 return entry.getDN();
             }

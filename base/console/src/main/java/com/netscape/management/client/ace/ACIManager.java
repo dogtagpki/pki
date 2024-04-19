@@ -7,43 +7,73 @@
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation version
  * 2.1 of the License.
- *                                                                                 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- *                                                                                 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  * END COPYRIGHT BLOCK **/
 package com.netscape.management.client.ace;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import netscape.ldap.*;
-import com.netscape.management.client.components.*;
-import com.netscape.management.client.util.*;
-import com.netscape.management.client.console.*;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Enumeration;
+import java.util.Vector;
+
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JFrame;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.ListModel;
+import javax.swing.ListSelectionModel;
+import javax.swing.UIManager;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+
+import com.netscape.management.client.components.ButtonFactory;
+import com.netscape.management.client.components.ErrorDialog;
+import com.netscape.management.client.components.GenericDialog;
+import com.netscape.management.client.console.Console;
+import com.netscape.management.client.console.ConsoleHelp;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.ResourceSet;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
+import netscape.ldap.LDAPSearchResults;
 
 /**
- * Access Control Manager dialog.  This is the entry point for 
+ * Access Control Manager dialog.  This is the entry point for
  * creating/editing/removing access control on a directory entry.
- * 
+ *
  * Example usage:
- * 
+ *
  * ACIManager acm = new ACIManager(parentFrame, "Task Name", aciDN);
  * acm.show();
- * 
+ *
  * The above syntax will display a modal dialog
  * and edit the acis at the specified aciDN.
- * 
+ *
  * @see com.netscape.management.client.util.UtilConsoleGlobals.getActivatedFrame()
  * @see com.netscape.management.client.util.Console.getConsoleInfo().getLDAPConnection()
- * 
+ *
  */
 public class ACIManager extends GenericDialog
 {
@@ -63,18 +93,18 @@ public class ACIManager extends GenericDialog
     private LDAPConnection ugLdc;
     private Vector extraACITabs = new Vector();
     private static final String ACL_PLUGIN_DN = "cn=ACL Plugin,cn=plugins,cn=config";
-    
-    private static String i18n(String id) 
+
+    private static String i18n(String id)
     {
         return i18n.getString("mgr", id);
     }
-    
+
     /**
      * Creates an ACIManager object with specified parameters.
      * The config ldap connection is obtained from ConsoleInfo.getLDAPConnection().
      * The user/group ldap connection is obtained from ConsoleInfo.getUserLdapConnection().
      * The user/group DN is obtained from ConsoleInfo.getUserGroupDN().
-     * 
+     *
      * @param parentFrame   a JFrame object that will be the parent for this dialog.
      * @param title         a short, localized name describing this ACI
      * @param aciDN         a DN where ACIs reside
@@ -86,7 +116,7 @@ public class ACIManager extends GenericDialog
 
     /**
      * Creates an ACIManager object with specified parameters.
-     * 
+     *
      * @param parentFrame   a JFrame object that will be the parent for this dialog.
      * @param title         a short, localized name describing this ACI
      * @param aciLdc        a LDAP connection to server where ACIs reside
@@ -116,27 +146,27 @@ public class ACIManager extends GenericDialog
         getContentPane().add(createContentPanel());
         super.show();
     }
-    
+
     /**
      * Adds a tab to the list of tabs in the ACI Editor dialog.
-     * 
+     *
      * @param tab the tab to add in the ACI Editor
      */
     public void addACIEditorTab(IACITab tab)
     {
         extraACITabs.addElement(tab);
     }
-    
+
     /**
      * Removes a tab from the list of tabs in the ACI Editor dialog.
-     * 
+     *
      * @param tab the tab to remove in the ACI Editor
      */
     public void removeACIEditorTab(IACITab tab)
     {
         extraACITabs.removeElement(tab);
     }
-    
+
     private JPanel createContentPanel()
     {
         JPanel p = new JPanel(new GridBagLayout());
@@ -157,7 +187,7 @@ public class ACIManager extends GenericDialog
         infoLabel.setEditable(false);
         infoLabel.setWrapStyleWord(true);
         p.add(infoLabel, gbc);
-        
+
         gbc.gridx = 0;       gbc.gridy = 1;
         gbc.gridwidth = 1;   gbc.gridheight = 1;
         gbc.weightx = 1.0;   gbc.weighty = 1.0;
@@ -183,7 +213,7 @@ public class ACIManager extends GenericDialog
         gbc.insets = new Insets(0, SEPARATED_COMPONENT_SPACE, 0, 0);
         JPanel buttonPanel = createButtonPanel();
         p.add(buttonPanel, gbc);
-        
+
         JCheckBox cb = new JCheckBox(i18n("inherited"), showInheritedACIs);
         cb.addActionListener(new ActionListener()
             {
@@ -208,10 +238,10 @@ public class ACIManager extends GenericDialog
             }
         }
         updateACIList(aciVector);
-		
+
         return p;
     }
-    
+
     private void loadACIs(Vector aciVector, String aciDN, boolean isInherited)
     {
         Enumeration e = readACIsFromDN(aciDN);
@@ -248,7 +278,7 @@ public class ACIManager extends GenericDialog
             }
         }
     }
-    
+
     private JPanel createButtonPanel()
     {
         JPanel p = new JPanel(new GridBagLayout());
@@ -260,38 +290,38 @@ public class ACIManager extends GenericDialog
         gbc.anchor = GridBagConstraints.NORTH;
         gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(0, 0, COMPONENT_SPACE, 0);
-        
+
         ActionListener buttonListener = new ButtonActionListener();
-        
+
         newButton = ButtonFactory.createPredefinedButton(ButtonFactory.NEW, buttonListener);
         newButton.setToolTipText(i18n("new_tt"));
         p.add(newButton, gbc);
-            
+
         editButton = ButtonFactory.createPredefinedButton(ButtonFactory.EDIT, buttonListener);
         editButton.setToolTipText(i18n("edit_tt"));
         p.add(editButton, gbc);
-            
+
         removeButton = ButtonFactory.createPredefinedButton(ButtonFactory.REMOVE, buttonListener);
         removeButton.setToolTipText(i18n("remove_tt"));
         p.add(removeButton, gbc);
 
         ButtonFactory.resizeButtons(newButton, editButton, removeButton);
         enableButtons();
-        
-        return p;            
+
+        return p;
     }
 
-    private void enableButtons() 
+    private void enableButtons()
     {
         ListModel lm = aciList.getModel();
         boolean enable = lm.getSize() > 0;
-        
+
         ListSelectionModel lsm = aciList.getSelectionModel();
-        if(enable && lsm.isSelectionEmpty()) 
+        if(enable && lsm.isSelectionEmpty())
         {
             lsm.setSelectionInterval(0, 0);
         }
-        
+
 	Object aci = aciList.getSelectedValue();
 	if ((aci != null) && ((ACI)(aci)).isInherited()) {
 	    enable = false;
@@ -316,7 +346,7 @@ public class ACIManager extends GenericDialog
         }
         enableButtons();
     }
-    
+
     private void newACI()
     {
         ACIEditor ace = new ACIEditor(parentFrame, title, aciLdc, aciDN, ugLdc, ugDN, "");
@@ -338,7 +368,7 @@ public class ACIManager extends GenericDialog
             lsm.setLeadSelectionIndex(lm.getSize()-1);
         }
     }
-    
+
     private void editACI()
     {
         ListSelectionModel lsm = aciList.getSelectionModel();
@@ -392,7 +422,7 @@ public class ACIManager extends GenericDialog
         public void actionPerformed(ActionEvent e)
         {
             try {
-                setBusyCursor(true);                
+                setBusyCursor(true);
                 String actionCommand = e.getActionCommand();
                 if(actionCommand.equals(ButtonFactory.NEW))
                     newACI();
@@ -408,7 +438,7 @@ public class ACIManager extends GenericDialog
             }
         }
     }
-    
+
 	/**
 	 * Called when the Help button is pressed.
 	 */
@@ -417,7 +447,7 @@ public class ACIManager extends GenericDialog
 		ConsoleHelp.showContextHelp("ace-manager");
 	}
 
-    protected void okInvoked() 
+    protected void okInvoked()
 	{
         try
         {
@@ -428,7 +458,7 @@ public class ACIManager extends GenericDialog
         {
             String title = i18n("errorTitle");
             String errorText = i18n("errorMsg");
-            String tipText = i18n("errorTip"); 
+            String tipText = i18n("errorTip");
             String extraInfo = e.getMatchedDN();
             String detailText = "LDAPException: " + e.errorCodeToString() +
                                 " (" + e.getLDAPResultCode() +  ")\n" +
@@ -442,12 +472,12 @@ public class ACIManager extends GenericDialog
     private Enumeration readACIsFromDN(String dn)
     {
         LDAPSearchResults results = null;
-        try 
+        try
         {
             results = aciLdc.search(dn, LDAPConnection.SCOPE_BASE, "(objectclass=*)", new String[] { "aci" }, false);
             while(results.hasMoreElements()) // should only be one entry because of SCOPE_BASE
             {
-                LDAPEntry entry = (LDAPEntry)results.nextElement();
+                LDAPEntry entry = results.next();
                 LDAPAttributeSet attrSet = entry.getAttributeSet();
                 Enumeration attributes = attrSet.getAttributes();
                 while(attributes.hasMoreElements()) // should be only one attribute because of attr filter
@@ -469,7 +499,7 @@ public class ACIManager extends GenericDialog
     private void writeACIsFromDN(String dn, Enumeration aciVector) throws LDAPException
     {
         ACI aci = null;
-        try 
+        try
         {
             LDAPAttribute attr = new LDAPAttribute("aci");
             while(aciVector.hasMoreElements())
@@ -523,7 +553,7 @@ public class ACIManager extends GenericDialog
             throw e;
         }
     }
-    
+
     class ACI
     {
         String dn;
@@ -534,7 +564,7 @@ public class ACIManager extends GenericDialog
         boolean isModified = false;
         boolean isDeleted = false;
         boolean isAdded = false;
-    
+
         ACI(String data, String dn, boolean isInherited, boolean isModified)
         {
             this.dn = dn;
@@ -543,24 +573,24 @@ public class ACIManager extends GenericDialog
             this.orig_data = new String(data);
             setModified(isModified);
         }
-        
+
         public void setName(String name)
         {
             this.name = name;
         }
-        
+
         public String getName()
         {
             if(name == null || name.length() == 0)
                 return i18n("nonameACI");
             return name;
         }
-        
+
         public String getData()
         {
             return data;
         }
-        
+
         public String getOrigData()
         {
             return orig_data;
@@ -571,7 +601,7 @@ public class ACIManager extends GenericDialog
             this.data = data;
 
             ACIAttribute a = ACIAttribute.getAttribute("acl", ACIAttribute.toArray(ACIParser.getACIAttributes(data)));
-            
+
             //bug 516529 : need to accept either acl or aci for the name
             if (a==null) {
                 a = ACIAttribute.getAttribute("aci", ACIAttribute.toArray(ACIParser.getACIAttributes(data)));
@@ -582,32 +612,32 @@ public class ACIManager extends GenericDialog
                 setName(a.getValue());
             }
         }
-        
+
         public String getDN()
         {
             return dn;
         }
-        
+
         public boolean isInherited()
         {
             return isInherited;
         }
-        
+
         public boolean isModified()
         {
             return isModified;
         }
-        
+
         public void setModified(boolean isModified)
         {
             this.isModified = isModified;
         }
-        
+
         public boolean isDeleted()
         {
             return isDeleted;
         }
-        
+
         public boolean isAdded()
         {
             return isAdded;

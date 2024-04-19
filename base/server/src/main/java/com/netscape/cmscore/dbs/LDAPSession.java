@@ -178,7 +178,7 @@ public class LDAPSession extends DBSSession {
             LDAPSearchResults res = mConn.search(name,
                     LDAPv3.SCOPE_BASE, "(objectclass=*)",
                     ldapattrs, false);
-            LDAPEntry entry = (LDAPEntry) res.nextElement();
+            LDAPEntry entry = res.next();
             LDAPAttributeSet attrSet = entry.getAttributeSet();
 
             for (Enumeration<LDAPAttribute> e = attrSet.getAttributes(); e.hasMoreElements(); ) {

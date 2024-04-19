@@ -334,7 +334,12 @@ public class CMSMigrateCreate extends CGITask
 
 		if (results != null && results.hasMoreElements()) {
 			values = new String[attrs.length];
-			LDAPEntry entry = (LDAPEntry)results.nextElement();
+                        LDAPEntry entry;
+                        try {
+                            entry = results.next();
+                        } catch (LDAPException e) {
+                            throw new RuntimeException(e);
+                        }
 			for (int ii = 0; entry != null && ii < attrs.length; ++ii) {
 				values[ii] = LDAPUtil.flatting(entry.getAttribute(attrs[ii]));
 			}
