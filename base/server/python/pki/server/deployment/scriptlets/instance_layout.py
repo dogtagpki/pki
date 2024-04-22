@@ -122,12 +122,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # Rewrite rules are subsystem-specific, but the config is server-wide.
         # So we deploy them as part of the server config, regardless of which
         # subsystem(s) will eventually be deployed.
-        logger.info('Deploying HTTP rewrite rules (rewrite.config)')
+
         instance.symlink(
             os.path.join(shared_conf_path, 'Catalina', 'localhost', 'rewrite.config'),
             os.path.join(localhost_dir, 'rewrite.config'),
-            exist_ok=True,
-        )
+            exist_ok=True)
 
         # Configuring internal token password
 

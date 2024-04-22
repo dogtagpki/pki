@@ -342,7 +342,6 @@ class PKIInstance(pki.server.PKIServer):
             source = os.path.join(common_lib_dir, filename)
             dest = os.path.join(self.common_lib_dir, filename)
 
-            logger.info('Linking %s to %s', dest, source)
             self.symlink(source, dest, exist_ok=True)
 
     def create_registry(self):

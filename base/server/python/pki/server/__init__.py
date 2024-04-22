@@ -653,6 +653,10 @@ grant codeBase "file:%s" {
 
     def symlink(self, source, dest, exist_ok=False):
 
+        if os.path.islink(dest) and exist_ok:
+            logger.info('Reusing %s', dest)
+            return
+
         logger.info('Linking %s to %s', dest, source)
 
         pki.util.symlink(

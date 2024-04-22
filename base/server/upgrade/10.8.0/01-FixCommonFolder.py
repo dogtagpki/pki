@@ -46,6 +46,5 @@ class FixCommonFolder(pki.server.upgrade.PKIServerUpgradeScriptlet):
         pki.util.unlink(instance.common_dir)
         instance.makedirs(instance.common_dir)
 
-        logger.info('Linking %s to /usr/share/pki/server/common/lib', instance.common_dir)
         common_lib_dir = os.path.join(pki.server.PKIServer.SHARE_DIR, 'server', 'common', 'lib')
         instance.symlink(common_lib_dir, instance.common_lib_dir)

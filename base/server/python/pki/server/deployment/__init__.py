@@ -559,11 +559,10 @@ class PKIDeployer:
         finally:
             nssdb.close()
 
-        if not os.path.islink(self.instance.nssdb_link):
-            self.instance.symlink(
-                self.instance.nssdb_dir,
-                self.instance.nssdb_link,
-                exist_ok=True)
+        self.instance.symlink(
+            self.instance.nssdb_dir,
+            self.instance.nssdb_link,
+            exist_ok=True)
 
         if config.str2bool(self.mdict['pki_hsm_enable']) and \
                 self.mdict['pki_hsm_modulename'] and \
