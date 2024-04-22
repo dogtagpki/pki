@@ -29,7 +29,7 @@ import org.dogtagpki.server.ca.CAEngine;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.Subsystem;
-import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
@@ -255,7 +255,7 @@ public class CrossCertPairSubsystem extends Subsystem {
             logger.error("CrossCertPairSubsystem: " + e.getMessage(), e);
             throw new EBaseException("CrossCertPairSubsystem: importCert() failed:" + e.toString(), e);
 
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             logger.error("CrossCertPairSubsystem: " + e.getMessage(), e);
             throw new EBaseException("CrossCertPairSubsystem: importCert() failed:" + e.toString(), e);
 
@@ -264,12 +264,7 @@ public class CrossCertPairSubsystem extends Subsystem {
             throw new EBaseException("CrossCertPairSubsystem: importCert() failed:" + e.toString(), e);
 
         } finally {
-            try {
-                returnConn(conn);
-            } catch (ELdapException e) {
-                logger.error("CrossCertPairSubsystem: " + e.getMessage(), e);
-                throw new EBaseException("CrossCertPairSubsystem: importCert() failed:" + e.toString());
-            }
+            returnConn(conn);
         }
         logger.debug("CrossCertPairSubsystem: importCert(Object) completed");
     }
@@ -451,19 +446,19 @@ public class CrossCertPairSubsystem extends Subsystem {
         }
     }
 
-    protected LDAPConnection getConn() throws ELdapException {
+    protected LDAPConnection getConn() throws DBException {
         if (mLdapConnFactory != null) {
             LDAPConnection conn = mLdapConnFactory.getConn();
             if (conn == null) {
-                throw new ELdapException("No Ldap Connection Available");
+                throw new DBException("No Ldap Connection Available");
             }
             return conn;
         }
 
-        throw new ELdapException("Ldap Connection Factory is null");
+        throw new DBException("Ldap Connection Factory is null");
     }
 
-    protected void returnConn(LDAPConnection conn) throws ELdapException {
+    protected void returnConn(LDAPConnection conn) {
         if (mLdapConnFactory != null)
             mLdapConnFactory.returnConn(conn);
     }
@@ -480,7 +475,7 @@ public class CrossCertPairSubsystem extends Subsystem {
         if (mLdapConnFactory != null) {
             try {
                 mLdapConnFactory.reset();
-            } catch (ELdapException e) {
+            } catch (DBException e) {
                 logger.warn("CrossCertPairSubsystem shutdown exception: " + e.getMessage(), e);
             }
         }
