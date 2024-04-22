@@ -24,7 +24,7 @@ import java.util.Vector;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.SecurityDomainSessionTable;
-import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
@@ -62,7 +62,7 @@ public class LDAPSecurityDomainSessionTable
         this.engine = engine;
     }
 
-    public void init() throws ELdapException, EBaseException {
+    public void init() throws EBaseException {
 
         EngineConfig cs = engine.getConfig();
         LDAPConfig internaldb = cs.getInternalDBConfig();
@@ -338,8 +338,8 @@ public class LDAPSecurityDomainSessionTable
     public void shutdown() {
         try {
             mLdapConnFactory.reset();
-        } catch (ELdapException e) {
-            logger.warn("Unable to reset connection factory");
+        } catch (DBException e) {
+            logger.warn("Unable to reset connection factory: " + e.getMessage(), e);
         }
     }
 }
