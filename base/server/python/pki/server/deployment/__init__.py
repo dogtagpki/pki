@@ -261,13 +261,10 @@ class PKIDeployer:
 
     def configure_server_xml(self):
 
-        if os.path.exists(self.instance.server_xml):
-            logger.info('Updating %s', self.instance.server_xml)
-        else:
-            logger.info('Creating %s', self.instance.server_xml)
-            self.instance.copy(
-                pki.server.Tomcat.SERVER_XML,
-                self.instance.server_xml)
+        self.instance.copy(
+            pki.server.Tomcat.SERVER_XML,
+            self.instance.server_xml,
+            exist_ok=True)
 
         server_config = self.instance.get_server_config()
 

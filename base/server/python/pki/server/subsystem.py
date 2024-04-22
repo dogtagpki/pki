@@ -209,7 +209,10 @@ class PKISubsystem(object):
             'conf',
             'registry.cfg')
 
-        self.instance.copy(registry_conf, self.registry_conf)
+        self.instance.copy(
+            registry_conf,
+            self.registry_conf,
+            exist_ok=True)
 
     def create_logs(self, exist_ok=False):
 
@@ -247,7 +250,10 @@ class PKISubsystem(object):
             'etc',
             'default.cfg')
 
-        self.instance.copy(default_cfg, self.default_cfg)
+        self.instance.copy(
+            default_cfg,
+            self.default_cfg,
+            exist_ok=True)
 
     def load(self):
 

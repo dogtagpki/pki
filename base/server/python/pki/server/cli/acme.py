@@ -137,15 +137,27 @@ class ACMECreateCLI(pki.cli.CLI):
 
         database_template = os.path.join(acme_share_dir, 'conf', 'database.conf')
         database_conf = os.path.join(acme_conf_dir, 'database.conf')
-        instance.copy(database_template, database_conf, force=force)
+        instance.copy(
+            database_template,
+            database_conf,
+            exist_ok=True,
+            force=force)
 
         issuer_template = os.path.join(acme_share_dir, 'conf', 'issuer.conf')
         issuer_conf = os.path.join(acme_conf_dir, 'issuer.conf')
-        instance.copy(issuer_template, issuer_conf, force=force)
+        instance.copy(
+            issuer_template,
+            issuer_conf,
+            exist_ok=True,
+            force=force)
 
         realm_template = os.path.join(acme_share_dir, 'conf', 'realm.conf')
         realm_conf = os.path.join(acme_conf_dir, 'realm.conf')
-        instance.copy(realm_template, realm_conf, force=force)
+        instance.copy(
+            realm_template,
+            realm_conf,
+            exist_ok=True,
+            force=force)
 
 
 class ACMERemoveCLI(pki.cli.CLI):

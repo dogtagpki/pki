@@ -325,7 +325,7 @@ class PKIInstance(pki.server.PKIServer):
                 dest = os.path.join(self.common_lib_dir, filename)
 
             logger.info('Copying %s to %s', source, dest)
-            self.copy(source, dest, force=force)
+            self.copy(source, dest, exist_ok=True, force=force)
 
         common_lib_dir = os.path.join(pki.server.PKIServer.SHARE_DIR, 'server', 'common', 'lib')
 

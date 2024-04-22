@@ -666,9 +666,13 @@ grant codeBase "file:%s" {
             gid=self.gid,
             exist_ok=exist_ok)
 
-    def copy(self, source, dest, force=False):
+    def copy(self, source, dest, exist_ok=False, force=False):
 
-        logger.info('Creating %s', dest)
+        if os.path.exists(dest) and exist_ok:
+            logger.info('Reusing %s', dest)
+            return
+
+        logger.info('Copying %s to %s', source, dest)
 
         pki.util.copy(
             source,
@@ -727,7 +731,11 @@ grant codeBase "file:%s" {
         self.makedirs(self.certs_dir, exist_ok=True)
 
         catalina_policy = os.path.join(Tomcat.CONF_DIR, 'catalina.policy')
-        self.copy(catalina_policy, self.catalina_policy, force=force)
+        self.copy(
+            catalina_policy,
+            self.catalina_policy,
+            exist_ok=True,
+            force=force)
 
         catalina_properties = os.path.join(
             PKIServer.SHARE_DIR, 'server', 'conf', 'catalina.properties')
@@ -740,7 +748,11 @@ grant codeBase "file:%s" {
         self.create_server_xml()
 
         # copy /etc/tomcat/tomcat.conf
-        self.copy(Tomcat.TOMCAT_CONF, self.tomcat_conf, force=force)
+        self.copy(
+            Tomcat.TOMCAT_CONF,
+            self.tomcat_conf,
+            exist_ok=True,
+            force=force)
 
         tomcat_conf = pki.PropertyFile(self.tomcat_conf, quote='"')
         tomcat_conf.read()
@@ -780,7 +792,11 @@ grant codeBase "file:%s" {
                 self.symlink(target, link, exist_ok=True)
 
         service_conf = os.path.join(SYSCONFIG_DIR, 'tomcat')
-        self.copy(service_conf, self.service_conf, force=force)
+        self.copy(
+            service_conf,
+            self.service_conf,
+            exist_ok=True,
+            force=force)
 
         with open(self.service_conf, 'a', encoding='utf-8') as f:
             print('CATALINA_BASE="%s"' % self.base_dir, file=f)
@@ -818,17 +834,18 @@ grant codeBase "file:%s" {
     def create_logging_properties(self, force=False):
 
         logging_properties = os.path.join(Tomcat.CONF_DIR, 'logging.properties')
-        self.copy(logging_properties, self.logging_properties, force=force)
+        self.copy(
+            logging_properties,
+            self.logging_properties,
+            exist_ok=True,
+            force=force)
 
     def create_server_xml(self):
 
-        if os.path.exists(self.server_xml):
-            logger.info('Updating %s', self.server_xml)
-        else:
-            logger.info('Creating %s', self.server_xml)
-            self.copy(
-                pki.server.Tomcat.SERVER_XML,
-                self.server_xml)
+        self.copy(
+            pki.server.Tomcat.SERVER_XML,
+            self.server_xml,
+            exist_ok=True)
 
         server_config = self.get_server_config()
 

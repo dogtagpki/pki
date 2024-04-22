@@ -91,7 +91,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         instance.copy(
             pki_source_registry_cfg,
-            pki_target_registry_cfg)
+            pki_target_registry_cfg,
+            exist_ok=True)
 
         if deployer.subsystem_type == "CA":
 
@@ -103,9 +104,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 subsystem_name,
                 'emails')
 
+            pki_dest_emails = os.path.join(subsystem.conf_dir, 'emails')
+
             instance.copy(
                 pki_source_emails,
-                subsystem.conf_dir + '/emails')
+                pki_dest_emails,
+                exist_ok=True)
 
             # Link /var/lib/pki/<instance>/ca/emails
             # to /var/lib/pki/<instance>/conf/ca/emails
@@ -122,9 +126,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 subsystem_name,
                 'profiles')
 
+            pki_dest_profiles = os.path.join(subsystem.conf_dir, 'profiles')
+
             instance.copy(
                 pki_source_profiles,
-                subsystem.conf_dir + '/profiles')
+                pki_dest_profiles,
+                exist_ok=True)
 
             # Link /var/lib/pki/<instance>/ca/profiles
             # to /var/lib/pki/<instance>/conf/ca/profiles
@@ -147,7 +154,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             instance.copy(
                 pki_source_flatfile_txt,
-                pki_target_flatfile_txt)
+                pki_target_flatfile_txt,
+                exist_ok=True)
 
             # Copy /usr/share/pki/<subsystem>/conf/<type>AdminCert.profile
             # to /var/lib/pki/<instance>/conf/<subsystem>/adminCert.profile
@@ -166,7 +174,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             instance.copy(
                 pki_source_admincert_profile,
-                pki_target_admincert_profile)
+                pki_target_admincert_profile,
+                exist_ok=True)
 
             # Copy /usr/share/pki/<subsystem>/conf/caAuditSigningCert.profile
             # to /var/lib/pki/<instance>/conf/<subsystem>/caAuditSigningCert.profile
@@ -183,7 +192,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             instance.copy(
                 pki_source_caauditsigningcert_profile,
-                pki_target_caauditsigningcert_profile)
+                pki_target_caauditsigningcert_profile,
+                exist_ok=True)
 
             # Copy /usr/share/pki/<subsystem>/conf/caCert.profile
             # to /var/lib/pki/<instance>/conf/<subsystem>/caCert.profile
@@ -200,7 +210,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             instance.copy(
                 pki_source_cacert_profile,
-                pki_target_cacert_profile)
+                pki_target_cacert_profile,
+                exist_ok=True)
 
             # Copy /usr/share/pki/<subsystem>/conf/caOCSPCert.profile
             # to /var/lib/pki/<instance>/conf/<subsystem>/caOCSPCert.profile
@@ -217,7 +228,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             instance.copy(
                 pki_source_caocspcert_profile,
-                pki_target_caocspcert_profile)
+                pki_target_caocspcert_profile,
+                exist_ok=True)
 
             # Copy /usr/share/pki/<subsystem>/conf/<type>ServerCert.profile
             # to /var/lib/pki/<instance>/conf/<subsystem>/serverCert.profile
@@ -236,7 +248,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             instance.copy(
                 pki_source_servercert_profile,
-                pki_target_servercert_profile)
+                pki_target_servercert_profile,
+                exist_ok=True)
 
             # Copy /usr/share/pki/<subsystem>/conf/<type>SubsystemCert.profile
             # to /var/lib/pki/<instance>/conf/<subsystem>/subsystemCert.profile
@@ -255,7 +268,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             instance.copy(
                 pki_source_subsystemcert_profile,
-                pki_target_subsystemcert_profile)
+                pki_target_subsystemcert_profile,
+                exist_ok=True)
 
             # Copy /usr/share/pki/<subsystem>/conf/proxy.conf
             # to /var/lib/pki/<instance>/conf/<subsystem>/proxy.conf
