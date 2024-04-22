@@ -637,6 +637,10 @@ grant codeBase "file:%s" {
 
     def makedirs(self, path, exist_ok=None, force=False):
 
+        if os.path.isdir(path) and exist_ok:
+            logger.info('Reusing %s', path)
+            return
+
         logger.info('Creating %s', path)
 
         pki.util.makedirs(

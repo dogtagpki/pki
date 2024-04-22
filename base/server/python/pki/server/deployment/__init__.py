@@ -546,8 +546,7 @@ class PKIDeployer:
             self.mdict['pki_server_database_password'], pin_sans_token=True)
         self.file.modify(self.instance.password_conf)
 
-        if not os.path.isdir(self.instance.nssdb_dir):
-            self.instance.makedirs(self.instance.nssdb_dir, exist_ok=True)
+        self.instance.makedirs(self.instance.nssdb_dir, exist_ok=True)
 
         nssdb = pki.nssdb.NSSDatabase(
             directory=self.instance.nssdb_dir,
