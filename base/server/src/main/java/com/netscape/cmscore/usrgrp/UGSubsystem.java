@@ -31,8 +31,8 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.dbs.certdb.CertId;
-import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.LDAPExceptionConverter;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
@@ -137,7 +137,7 @@ public class UGSubsystem {
             if (mLdapConnFactory != null) {
                 mLdapConnFactory.reset();
             }
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             logger.warn("Unable to shutdown connection: " + e.getMessage(), e);
         }
     }
@@ -191,7 +191,7 @@ public class UGSubsystem {
             // user found
             return e.nextElement();
 
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             throw new EUsrGrpException("Unable to retrieve user: " + userID + ": " + e.getMessage(), e);
 
         } catch (LDAPException e) {
@@ -229,7 +229,7 @@ public class UGSubsystem {
         } catch (LDAPException e) {
             logger.warn("Unable to find user: " + e.getMessage(), e);
 
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             logger.warn("Unable to connect to internal database: " + e.getMessage(), e);
 
         } finally {
@@ -281,7 +281,7 @@ public class UGSubsystem {
         } catch (LDAPException e) {
             logger.warn("Unable to find user by certificate: " + e.getMessage(), e);
 
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             logger.warn("Unable to find user by certificate: " + e.getMessage(), e);
 
         } finally {
@@ -336,7 +336,7 @@ public class UGSubsystem {
         } catch (LDAPException e) {
             logger.warn("Unable to find user: " + e.getMessage(), e);
 
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             logger.warn("Unable to find user: " + e.getMessage(), e);
 
         } finally {
@@ -781,7 +781,7 @@ public class UGSubsystem {
         } catch (LDAPException e) {
             throw LDAPExceptionConverter.toPKIException(e);
 
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             throw new EUsrGrpException("Unable to add user: " + e.getMessage(), e);
 
         } finally {
@@ -874,7 +874,7 @@ public class UGSubsystem {
         } catch (LDAPException e) {
             throw LDAPExceptionConverter.toPKIException(e);
 
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             throw new EUsrGrpException("Unable to add seeAlso: " + e.getMessage(), e);
 
         } finally {
@@ -916,7 +916,7 @@ public class UGSubsystem {
         } catch (LDAPException e) {
             throw LDAPExceptionConverter.toPKIException(e);
 
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             throw new EUsrGrpException("Unable to remove seeAlso: " + e.getMessage(), e);
 
         } finally {
@@ -1020,7 +1020,7 @@ public class UGSubsystem {
             } catch (LDAPException e) {
                 throw LDAPExceptionConverter.toPKIException(e);
 
-            } catch (ELdapException e) {
+            } catch (DBException e) {
                 throw new EUsrGrpException("Unable to remove user certificate: " + e.getMessage(), e);
 
             } finally {
@@ -1053,7 +1053,7 @@ public class UGSubsystem {
         } catch (LDAPException e) {
             throw LDAPExceptionConverter.toPKIException(e);
 
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             throw new EUsrGrpException("Unable to add user to group: " + e.getMessage(), e);
 
         } finally {
@@ -1081,7 +1081,7 @@ public class UGSubsystem {
         } catch (LDAPException e) {
             throw LDAPExceptionConverter.toPKIException(e);
 
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             throw new EUsrGrpException("Unable to remove user from group: " + e.getMessage(), e);
 
         } finally {
@@ -1116,7 +1116,7 @@ public class UGSubsystem {
         } catch (LDAPException e) {
             throw LDAPExceptionConverter.toPKIException(e);
 
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             logger.error("Unable to remove user: " + e.getMessage(), e);
 
         } finally {
@@ -1255,7 +1255,7 @@ public class UGSubsystem {
         } catch (LDAPException e) {
             throw LDAPExceptionConverter.toPKIException(e);
 
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             throw new EUsrGrpException("Unable to modify user: " + e.getMessage(), e);
 
         } finally {
@@ -1306,7 +1306,7 @@ public class UGSubsystem {
             logger.error("Unable to find groups: " + e, e);
             return null;
 
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             logger.error("Unable to find groups: " + e, e);
             return null;
 
@@ -1361,7 +1361,7 @@ public class UGSubsystem {
         } catch (LDAPException e) {
             logger.warn("Unable to list groups: " + e.getMessage(), e);
 
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             logger.warn("Unable to list groups: " + e.getMessage(), e);
 
         } finally {
@@ -1410,7 +1410,7 @@ public class UGSubsystem {
         } catch (LDAPException e) {
             logger.warn("Unable to find groups by user: " + e.getMessage(), e);
 
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             logger.warn("Unable to find groups by user: " + e.getMessage(), e);
 
         } finally {
@@ -1646,7 +1646,7 @@ public class UGSubsystem {
             }
             logger.warn("UGSubsystem: authorization exception: " + errMsg);
 
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             String errMsg =
                     "isMemberOfLdapGroup: Could not get connection to internaldb. Error " + e;
             logger.warn("UGSubsystem: authorization exception: " + errMsg);
@@ -1713,7 +1713,7 @@ public class UGSubsystem {
         } catch (LDAPException e) {
             throw LDAPExceptionConverter.toPKIException(e);
 
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             throw new EUsrGrpException("Unable to add group: " + e.getMessage(), e);
 
         } finally {
@@ -1741,7 +1741,7 @@ public class UGSubsystem {
         } catch (LDAPException e) {
             throw LDAPExceptionConverter.toPKIException(e);
 
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             throw new EUsrGrpException("Unable to remove group: " + e.getMessage(), e);
 
         } finally {
@@ -1801,7 +1801,7 @@ public class UGSubsystem {
         } catch (LDAPException e) {
             throw LDAPExceptionConverter.toPKIException(e);
 
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             throw new EUsrGrpException("Unable to modify group: " + e.getMessage(), e);
 
         } finally {
@@ -1852,7 +1852,7 @@ public class UGSubsystem {
                 return entry.getDN();
             }
 
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             logger.warn("Unable to convert UID to DN: " + e.getMessage(), e);
 
         } finally {
@@ -1928,16 +1928,16 @@ public class UGSubsystem {
         return "ou=Groups," + mBaseDN;
     }
 
-    protected LDAPConnection getConn() throws ELdapException {
+    protected LDAPConnection getConn() throws DBException {
         if (mLdapConnFactory != null) {
             LDAPConnection conn = mLdapConnFactory.getConn();
             if (conn == null) {
-                throw new ELdapException("No Ldap Connection Available");
+                throw new DBException("No Ldap Connection Available");
             }
             return conn;
         }
 
-        throw new ELdapException("Ldap Connection Factory is Unavailable");
+        throw new DBException("Ldap Connection Factory is Unavailable");
     }
 
     protected void returnConn(LDAPConnection conn) {
