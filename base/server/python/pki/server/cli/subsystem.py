@@ -439,7 +439,6 @@ class SubsystemUndeployCLI(pki.cli.CLI):
 
         instance.load()
 
-        logger.info('Undeploying %s webapp', name)
         instance.undeploy_webapp(
             name,
             wait=wait,
@@ -538,7 +537,6 @@ class SubsystemRedeployCLI(pki.cli.CLI):
         doc_base = os.path.join(pki.server.PKIServer.SHARE_DIR,
                                 '%s/webapps/%s' % (name, name))
 
-        logger.info('Undeploying %s webapp', name)
         instance.undeploy_webapp(
             name,
             wait=True,

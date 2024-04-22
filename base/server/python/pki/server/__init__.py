@@ -1119,6 +1119,8 @@ grant codeBase "file:%s" {
             max_wait=60,
             timeout=None):
 
+        logger.info('Undeploying %s web application', webapp_id)
+
         context_xml = os.path.join(
             self.conf_dir,
             'Catalina',
@@ -1131,7 +1133,7 @@ grant codeBase "file:%s" {
         if not wait:
             return
 
-        logger.info('Waiting for web application to stop')
+        logger.info('Waiting for %s web application to stop', webapp_id)
 
         if webapp_id == 'ROOT':
             path = '/'
@@ -1165,11 +1167,15 @@ grant codeBase "file:%s" {
             counter = (stop_time - start_time).total_seconds()
 
             if max_wait is not None and counter >= max_wait:
-                raise Exception('Web application did not stop after %ds' % max_wait)
+                raise Exception(
+                    '%s web application did not stop after %ds' % (webapp_id, max_wait))
 
-            logger.info('Waiting for web application to stop (%ds)', round(counter))
+            logger.info(
+                'Waiting for %s web application to stop (%ds)',
+                webapp_id,
+                round(counter))
 
-        logger.info('Web application stopped')
+        logger.info('%s web application stopped', webapp_id)
 
     def remove(self, remove_logs=False, force=False):
 

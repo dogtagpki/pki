@@ -379,7 +379,6 @@ class ACMEUndeployCLI(pki.cli.CLI):
 
         instance.load()
 
-        logger.info('Undeploying %s webapp', name)
         instance.undeploy_webapp(
             name,
             wait=wait,
