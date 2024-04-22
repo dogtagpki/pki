@@ -17,21 +17,16 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.ldap;
 
-import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.DBException;
 
 /**
  * A class that represents a Ldap exception. Various
  * errors can occur when interacting with a Ldap directory server.
- * <P>
- *
- * @version $Revision$, $Date$
  */
-public class ELdapException extends EBaseException {
+public class ELdapException extends DBException {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -4345538974758823452L;
+
     /**
      * Ldap resource class name.
      */
@@ -41,7 +36,6 @@ public class ELdapException extends EBaseException {
      * Constructs a Ldap exception.
      *
      * @param msgFormat Resource Key, if key not present, serves as the message.
-     *            <P>
      */
     public ELdapException(String msgFormat) {
         super(msgFormat);
@@ -62,7 +56,6 @@ public class ELdapException extends EBaseException {
      *
      * @param msgFormat Resource Key, if key not present, serves as the message.
      * @param params Array of Message string parameters.
-     *            <P>
      */
     public ELdapException(String msgFormat, Object params[]) {
         super(msgFormat, params);
@@ -72,7 +65,6 @@ public class ELdapException extends EBaseException {
      * Gets the resource bundle name
      *
      * @return Name of the Ldap Exception resource bundle name.
-     *         <p>
      */
     @Override
     protected String getBundleName() {
