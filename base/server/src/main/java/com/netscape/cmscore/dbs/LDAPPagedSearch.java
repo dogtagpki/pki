@@ -22,9 +22,8 @@ import java.util.List;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.DBPagedSearch;
-import com.netscape.certsrv.dbs.DBException;
-import com.netscape.certsrv.dbs.DBNotAvailableException;
 import com.netscape.certsrv.dbs.IDBObj;
+import com.netscape.certsrv.ldap.LDAPExceptionConverter;
 import com.netscape.cmscore.apps.CMS;
 
 import netscape.ldap.LDAPConnection;
@@ -122,11 +121,9 @@ public class LDAPPagedSearch<E extends IDBObj>  extends DBPagedSearch<E> {
                 entries.add(contentClassType.cast(sr.nextElement()));
             }
             return entries;
+
         } catch (LDAPException e) {
-            if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE)
-                throw new DBNotAvailableException(
-                        CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"), e);
-            throw new DBException("Unable to search LDAP record: " + e.getMessage(), e);
+            throw LDAPExceptionConverter.toDBException(e);
         }
     }
 }

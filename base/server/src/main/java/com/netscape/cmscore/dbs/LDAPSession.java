@@ -20,14 +20,15 @@ package com.netscape.cmscore.dbs;
 import java.util.Enumeration;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.DBPagedSearch;
-import com.netscape.certsrv.dbs.DBVirtualList;
 import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.dbs.DBNotAvailableException;
+import com.netscape.certsrv.dbs.DBPagedSearch;
 import com.netscape.certsrv.dbs.DBRecordNotFoundException;
+import com.netscape.certsrv.dbs.DBVirtualList;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
+import com.netscape.certsrv.ldap.LDAPExceptionConverter;
 import com.netscape.cmscore.apps.CMS;
 
 import netscape.ldap.LDAPAttribute;
@@ -131,10 +132,7 @@ public class LDAPSession extends DBSSession {
             mConn.add(e);
 
         } catch (LDAPException e) {
-            if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
-                throw new DBNotAvailableException(CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"), e);
-            }
-            throw new DBException("Unable to add LDAP entry: " + e.getMessage(), e);
+            throw LDAPExceptionConverter.toDBException(e);
         }
     }
 
@@ -191,16 +189,7 @@ public class LDAPSession extends DBSSession {
             return dbSubsystem.getRegistry().createObject(attrSet);
 
         } catch (LDAPException e) {
-
-            if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
-                throw new DBNotAvailableException(CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"), e);
-            }
-
-            if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
-                throw new DBRecordNotFoundException(CMS.getUserMessage("CMS_DBS_RECORD_NOT_FOUND"), e);
-            }
-
-            throw new DBException("Unable to read LDAP record: " + e.getMessage(), e);
+            throw LDAPExceptionConverter.toDBException(e);
         }
     }
 
