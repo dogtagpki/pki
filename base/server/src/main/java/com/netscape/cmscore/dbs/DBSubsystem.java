@@ -26,7 +26,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotDefined;
 import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.dbs.DBNotAvailableException;
-import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.DatabaseConfig;
@@ -231,7 +230,7 @@ public class DBSubsystem {
             throw new DBNotAvailableException(
                 CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"), e);
 
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             logger.error("DBSubsystem: initialization failed: " + e.getMessage(), e);
             throw new DBException(CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_ERROR", e.toString()), e);
 
@@ -455,7 +454,7 @@ public class DBSubsystem {
             if (mLdapConnFactory != null) {
                 mLdapConnFactory.shutdown();
             }
-        } catch (ELdapException e) {
+        } catch (DBException e) {
 
             /*LogDoc
              *
@@ -518,7 +517,7 @@ public class DBSubsystem {
                 engineConfig.commit(false);
             }
 
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             if (e instanceof ELdapServerDownException) {
                 throw new DBNotAvailableException(
                         CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
