@@ -32,17 +32,17 @@ public class LDAPExceptionConverter {
     public static PKIException toPKIException(LDAPException e) {
         switch (e.getLDAPResultCode()) {
         case LDAPException.ATTRIBUTE_OR_VALUE_EXISTS:
-            return new ConflictingOperationException("Attribute or value exists.", e);
+            return new ConflictingOperationException("Attribute or value exists: " + e.getMessage(), e);
         case LDAPException.NO_SUCH_OBJECT:
-            return new ResourceNotFoundException("No such object.", e);
+            return new ResourceNotFoundException("No such object: " + e.getMessage(), e);
         case LDAPException.NO_SUCH_ATTRIBUTE:
-            return new ResourceNotFoundException("No such attribute.", e);
+            return new ResourceNotFoundException("No such attribute: " + e.getMessage(), e);
         case LDAPException.INVALID_DN_SYNTAX:
-            return new BadRequestException("Invalid DN syntax.", e);
+            return new BadRequestException("Invalid DN syntax: " + e.getMessage(), e);
         case LDAPException.INVALID_ATTRIBUTE_SYNTAX:
-            return new BadRequestException("Invalid attribute syntax.", e);
+            return new BadRequestException("Invalid attribute syntax: " + e.getMessage(), e);
         case LDAPException.ENTRY_ALREADY_EXISTS:
-            return new ConflictingOperationException("Entry already exists.", e);
+            return new ConflictingOperationException("Entry already exists: " + e.getMessage(), e);
         default:
             return new PKIException("LDAP error ("+e.getLDAPResultCode()+"): "+e.getMessage(), e);
         }
