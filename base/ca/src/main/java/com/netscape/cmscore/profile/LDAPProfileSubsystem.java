@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.util.AsyncLoader;
 import com.netscape.cms.profile.common.Profile;
@@ -266,7 +266,7 @@ public class LDAPProfileSubsystem
         LDAPConnection conn;
         try {
             conn = dbFactory.getConn();
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             throw new EProfileException("Error acquiring the ldap connection", e);
         }
         try {
@@ -530,7 +530,7 @@ public class LDAPProfileSubsystem
                         loader.increment();
                     }
                 }
-            } catch (ELdapException e) {
+            } catch (DBException e) {
                 logger.warn("Profile change monitor: failed to get LDAPConnection. Retrying in 1 second.");
                 try {
                     Thread.sleep(1000);
