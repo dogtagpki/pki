@@ -55,13 +55,14 @@ class AddMissingCertProfiles(pki.server.upgrade.PKIServerUpgradeScriptlet):
             # Create the right file name
             file_name = '{}.cfg'.format(profile)
 
+            logger.info('Creating %s', file_name)
             path = os.path.join(subsystem.base_dir, 'profiles', 'ca', file_name)
+            self.backup(path)
 
-            if not os.path.exists(path):
-                logger.info('Creating %s', file_name)
-                self.backup(path)
-                # copy file from rpm installed to installed instance
-                instance.copyfile('/usr/share/pki/ca/profiles/ca/{}'.format(file_name), path)
+            instance.copyfile(
+                '/usr/share/pki/ca/profiles/ca/{}'.format(file_name),
+                path,
+                exist_ok=True)
 
             logger.info('Adding %s into profile.list', file_name)
             if profile not in profile_list:

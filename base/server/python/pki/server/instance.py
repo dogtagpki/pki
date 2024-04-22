@@ -362,7 +362,8 @@ class PKIInstance(pki.server.PKIServer):
                 'pki_group': self.group,
                 'pki_instance_name': self.name,
                 'pki_instance_path': self.base_dir
-            })
+            },
+            exist_ok=True)
 
     def load(self):
 

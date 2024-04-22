@@ -287,7 +287,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             instance.copyfile(
                 pki_source_proxy_conf,
                 pki_target_proxy_conf,
-                params=deployer.mdict)
+                params=deployer.mdict,
+                exist_ok=True)
 
         elif deployer.subsystem_type == "TPS":
 
@@ -301,7 +302,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             instance.copyfile(
                 deployer.mdict['pki_source_phone_home_xml'],
                 pki_target_phone_home_xml,
-                params=deployer.mdict)
+                params=deployer.mdict,
+                exist_ok=True)
 
         instance.load()
 

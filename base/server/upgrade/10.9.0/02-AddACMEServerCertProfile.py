@@ -25,12 +25,14 @@ class AddACMEServerCertProfile(pki.server.upgrade.PKIServerUpgradeScriptlet):
         if subsystem.name != 'ca':
             return
 
+        logger.info('Creating acmeServerCert.cfg')
         path = os.path.join(subsystem.base_dir, 'profiles', 'ca', 'acmeServerCert.cfg')
+        self.backup(path)
 
-        if not os.path.exists(path):
-            logger.info('Creating acmeServerCert.cfg')
-            self.backup(path)
-            instance.copyfile('/usr/share/pki/ca/profiles/ca/acmeServerCert.cfg', path)
+        instance.copyfile(
+            '/usr/share/pki/ca/profiles/ca/acmeServerCert.cfg',
+            path,
+            exist_ok=True)
 
         logger.info('Adding acmeServerCert into profile.list')
         profile_list = subsystem.config.get('profile.list').split(',')

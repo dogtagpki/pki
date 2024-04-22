@@ -765,7 +765,10 @@ class PKIDeployer:
         # validation there. This is only usually necessary when
         # installing a non-CA subsystem on a fresh system.
 
-        self.instance.copyfile(cert_chain_path, destination)
+        self.instance.copyfile(
+            cert_chain_path,
+            destination,
+            exist_ok=True)
 
     def import_ds_ca_cert(self):
 
@@ -831,6 +834,7 @@ class PKIDeployer:
                 source_cs_cfg,
                 tmp_cs_cfg,
                 params=self.mdict,
+                exist_ok=True,
                 force=True)
 
             # Merge temporary CS.cfg into /var/lib/pki/<instance>/conf/<subsystem>/CS.cfg

@@ -695,7 +695,11 @@ grant codeBase "file:%s" {
             mode=DEFAULT_DIR_MODE,
             force=force)
 
-    def copyfile(self, source, dest, params=None, force=False):
+    def copyfile(self, source, dest, params=None, exist_ok=False, force=False):
+
+        if os.path.exists(dest) and exist_ok:
+            logger.info('Reusing %s', dest)
+            return
 
         logger.info('Creating %s', dest)
 

@@ -88,7 +88,11 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
         self.instance.copydirs(source, dest, force=force)
 
     def copyfile(self, source, dest, force=False):
-        self.instance.copyfile(source, dest, force=force)
+        self.instance.copyfile(
+            source,
+            dest,
+            exist_ok=True,
+            force=force)
 
     def init_scriptlet(self, scriptlet):
         scriptlet.instance = self.instance

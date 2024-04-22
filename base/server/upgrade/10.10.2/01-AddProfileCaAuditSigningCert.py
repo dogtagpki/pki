@@ -41,13 +41,14 @@ class AddProfileCaAuditSigningCert(pki.server.upgrade.PKIServerUpgradeScriptlet)
 
         pki.util.store_properties(opath, oconfig)
 
-        # now handle new profile
+        logger.info('Creating caAuditSigningCert.cfg')
         path = os.path.join(subsystem.base_dir, 'profiles', 'ca', 'caAuditSigningCert.cfg')
+        self.backup(path)
 
-        if not os.path.exists(path):
-            logger.info('Creating caAuditSigningCert.cfg')
-            self.backup(path)
-            instance.copyfile('/usr/share/pki/ca/profiles/ca/caAuditSigningCert.cfg', path)
+        instance.copyfile(
+            '/usr/share/pki/ca/profiles/ca/caAuditSigningCert.cfg',
+            path,
+            exist_ok=True)
 
         logger.info('Adding caAuditSigningCert into profile.list')
         profile_list = subsystem.config.get('profile.list').split(',')
