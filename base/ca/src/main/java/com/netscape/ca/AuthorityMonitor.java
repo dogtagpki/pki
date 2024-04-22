@@ -30,14 +30,12 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.ECAException;
-import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.util.AsyncLoader;
-import com.netscape.cmsutil.ldap.LDAPPostReadControl;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPControl;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSearchConstraints;
@@ -190,7 +188,7 @@ public class AuthorityMonitor implements Runnable {
                     }
                 }
 
-            } catch (ELdapException e) {
+            } catch (DBException e) {
 
                 logger.warn("AuthorityMonitor: Failed to get LDAPConnection: " + e.getMessage(), e);
                 logger.warn("AuthorityMonitor: Retrying in 1 second.");
