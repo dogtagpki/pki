@@ -18,19 +18,17 @@
 package com.netscape.certsrv.dbs;
 
 /**
- * Indicates internal db is down.
- *
- * @version $Revision$, $Date$
+ * This exception indicates that the internal database is down.
  */
-public class EDBNotAvailException extends DBException {
+public class DBNotAvailableException extends DBException {
 
     private static final long serialVersionUID = 8516095366048215233L;
 
-    public EDBNotAvailException(String errorString) {
+    public DBNotAvailableException(String errorString) {
         super(errorString);
     }
 
-    public EDBNotAvailException(String errorString, Throwable cause) {
+    public DBNotAvailableException(String errorString, Throwable cause) {
         super(errorString, cause);
     }
 }

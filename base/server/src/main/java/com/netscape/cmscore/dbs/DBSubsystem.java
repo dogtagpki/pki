@@ -25,7 +25,7 @@ import org.mozilla.jss.netscape.security.x509.CertificateValidity;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotDefined;
 import com.netscape.certsrv.dbs.DBException;
-import com.netscape.certsrv.dbs.EDBNotAvailException;
+import com.netscape.certsrv.dbs.DBNotAvailableException;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.cmscore.apps.CMS;
@@ -228,7 +228,7 @@ public class DBSubsystem {
 
         } catch (ELdapServerDownException e) {
             logger.error("DBSubsystem: initialization failed: " + e.getMessage(), e);
-            throw new EDBNotAvailException(
+            throw new DBNotAvailableException(
                 CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"), e);
 
         } catch (ELdapException e) {
@@ -520,7 +520,7 @@ public class DBSubsystem {
 
         } catch (ELdapException e) {
             if (e instanceof ELdapServerDownException) {
-                throw new EDBNotAvailException(
+                throw new DBNotAvailableException(
                         CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
             }
 

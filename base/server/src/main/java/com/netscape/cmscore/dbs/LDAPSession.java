@@ -23,7 +23,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.DBPagedSearch;
 import com.netscape.certsrv.dbs.DBVirtualList;
 import com.netscape.certsrv.dbs.DBException;
-import com.netscape.certsrv.dbs.EDBNotAvailException;
+import com.netscape.certsrv.dbs.DBNotAvailableException;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.Modification;
@@ -132,7 +132,7 @@ public class LDAPSession extends DBSSession {
 
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
-                throw new EDBNotAvailException(CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"), e);
+                throw new DBNotAvailableException(CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"), e);
             }
             throw new DBException("Unable to add LDAP entry: " + e.getMessage(), e);
         }
@@ -193,7 +193,7 @@ public class LDAPSession extends DBSSession {
         } catch (LDAPException e) {
 
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
-                throw new EDBNotAvailException(CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"), e);
+                throw new DBNotAvailableException(CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"), e);
             }
 
             if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
@@ -216,7 +216,7 @@ public class LDAPSession extends DBSSession {
             mConn.delete(name);
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE)
-                throw new EDBNotAvailException(
+                throw new DBNotAvailableException(
                         CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
             throw new DBException("Unable to delete LDAP record: " + e.getMessage(), e);
         }
@@ -271,7 +271,7 @@ public class LDAPSession extends DBSSession {
         } catch (LDAPException e) {
 
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
-                throw new EDBNotAvailException(CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
+                throw new DBNotAvailableException(CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
             }
 
             if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
@@ -328,7 +328,7 @@ public class LDAPSession extends DBSSession {
                     res);
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE)
-                throw new EDBNotAvailException(
+                throw new DBNotAvailableException(
                         CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
             // XXX error handling, should not raise exception if
             // entry not found
@@ -363,7 +363,7 @@ public class LDAPSession extends DBSSession {
                     res);
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE)
-                throw new EDBNotAvailException(
+                throw new DBNotAvailableException(
                         CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
             // XXX error handling, should not raise exception if
             // entry not found
@@ -393,7 +393,7 @@ public class LDAPSession extends DBSSession {
                     res);
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE)
-                throw new EDBNotAvailException(
+                throw new DBNotAvailableException(
                         CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
             // XXX error handling, should not raise exception if
             // entry not found
@@ -429,7 +429,7 @@ public class LDAPSession extends DBSSession {
                     res);
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE)
-                throw new EDBNotAvailException(
+                throw new DBNotAvailableException(
                         CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
             // XXX error handling, should not raise exception if
             // entry not found
@@ -471,7 +471,7 @@ public class LDAPSession extends DBSSession {
                     res);
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE)
-                throw new EDBNotAvailException(
+                throw new DBNotAvailableException(
                         CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
             // XXX error handling, should not raise exception if
             // entry not found
@@ -526,7 +526,7 @@ public class LDAPSession extends DBSSession {
 
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE)
-                throw new EDBNotAvailException(
+                throw new DBNotAvailableException(
                         CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
             // XXX error handling, should not raise exception if
             // entry not found
@@ -587,7 +587,7 @@ public class LDAPSession extends DBSSession {
             return res;
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE)
-                throw new EDBNotAvailException(
+                throw new DBNotAvailableException(
                         CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
             // XXX error handling, should not raise exception if
             // entry not found
@@ -605,7 +605,7 @@ public class LDAPSession extends DBSSession {
 
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE)
-                throw new EDBNotAvailException(
+                throw new DBNotAvailableException(
                         CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
             // XXX error handling, should not raise exception if
             // entry not found

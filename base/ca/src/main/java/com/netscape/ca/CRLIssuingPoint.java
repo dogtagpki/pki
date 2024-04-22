@@ -53,7 +53,7 @@ import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.ca.EErrorPublishCRL;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
-import com.netscape.certsrv.dbs.EDBNotAvailException;
+import com.netscape.certsrv.dbs.DBNotAvailableException;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.logging.ILogger;
@@ -929,7 +929,7 @@ public class CRLIssuingPoint implements Runnable {
             logger.info("CRLIssuingPoint: reading CRL issuing point: " + mId);
             crlRecord = mCRLRepository.readCRLIssuingPointRecord(mId);
 
-        } catch (EDBNotAvailException e) {
+        } catch (DBNotAvailableException e) {
             logger.error(CMS.getLogMessage("CMSCORE_CA_ISSUING_INST_CRL", e.toString()), e);
             mInitialized = CRLIssuingPointStatus.InitializationFailed;
             return;
