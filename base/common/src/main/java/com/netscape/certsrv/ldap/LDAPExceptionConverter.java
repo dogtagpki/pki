@@ -23,6 +23,7 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.dbs.DBNotAvailableException;
+import com.netscape.certsrv.dbs.DBRecordAlreadyExistsException;
 import com.netscape.certsrv.dbs.DBRecordNotFoundException;
 
 import netscape.ldap.LDAPException;
@@ -34,10 +35,14 @@ public class LDAPExceptionConverter {
 
     public static DBException toDBException(LDAPException e) {
         switch (e.getLDAPResultCode()) {
+        case LDAPException.ATTRIBUTE_OR_VALUE_EXISTS:
+            return new DBRecordAlreadyExistsException("Record already exists: " + e.getMessage(), e);
         case LDAPException.NO_SUCH_OBJECT:
             return new DBRecordNotFoundException("Record not found: " + e.getMessage(), e);
         case LDAPException.UNAVAILABLE:
             return new DBNotAvailableException("Database not available: " + e.getMessage(), e);
+        case LDAPException.ENTRY_ALREADY_EXISTS:
+            return new DBRecordAlreadyExistsException("Record already exists: " + e.getMessage(), e);
         default:
             return new DBException("Database error: " + e.getMessage(), e);
         }
