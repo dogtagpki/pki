@@ -46,7 +46,7 @@ import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.UnauthorizedException;
-import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
+import com.netscape.certsrv.dbs.DBRecordNotFoundException;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.AsymKeyGenerationRequest;
 import com.netscape.certsrv.key.KeyArchivalRequest;
@@ -282,7 +282,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         KeyRecord rec = null;
         try {
             rec = repo.readKeyRecord(keyId.toBigInteger());
-        } catch (EDBRecordNotFoundException e) {
+        } catch (DBRecordNotFoundException e) {
             throw new KeyNotFoundException(keyId, "key not found to recover", e);
         }
 
@@ -401,7 +401,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         KeyRecord rec = null;
         try {
             rec = repo.readKeyRecord(keyId.toBigInteger());
-        } catch (EDBRecordNotFoundException e) {
+        } catch (DBRecordNotFoundException e) {
             throw new KeyNotFoundException(keyId, "key not found to recover", e);
         }
 

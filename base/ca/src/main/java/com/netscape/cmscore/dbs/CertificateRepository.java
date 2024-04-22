@@ -37,7 +37,7 @@ import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.DBPagedSearch;
 import com.netscape.certsrv.dbs.DBVirtualList;
-import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
+import com.netscape.certsrv.dbs.DBRecordNotFoundException;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.certdb.CertId;
@@ -285,7 +285,7 @@ public class CertificateRepository extends Repository {
                 if (readCertificateRecord(serialNumber) != null) {
                     logger.debug("CertificateRepository: checkSerialNumbers  collision detected for serialNumber="+serialNumber);
                 }
-            } catch (EDBRecordNotFoundException nfe) {
+            } catch (DBRecordNotFoundException nfe) {
                 logger.debug("CertificateRepository: checkSerialNumbers  serial number "+serialNumber+" is available");
                 nextSerialNumber = serialNumber;
             } catch (Exception e) {
@@ -832,7 +832,7 @@ public class CertificateRepository extends Repository {
 
             rec = (CertRecord) s.read(name, attrs);
             if (rec == null) exists = false;
-        } catch (EDBRecordNotFoundException e) {
+        } catch (DBRecordNotFoundException e) {
             exists = false;
         } catch (Exception e) {
             throw new EBaseException(e.getMessage());

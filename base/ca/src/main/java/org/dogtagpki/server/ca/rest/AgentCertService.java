@@ -56,7 +56,7 @@ import com.netscape.certsrv.cert.CertNotFoundException;
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertRetrievalRequest;
 import com.netscape.certsrv.cert.CertRevokeRequest;
-import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
+import com.netscape.certsrv.dbs.DBRecordNotFoundException;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
@@ -117,7 +117,7 @@ public class AgentCertService extends PKIService implements AgentCertResource {
         try {
             certData = getCert(data, generateNonce);
 
-        } catch (EDBRecordNotFoundException e) {
+        } catch (DBRecordNotFoundException e) {
             throw new CertNotFoundException(id);
 
         } catch (Exception e) {

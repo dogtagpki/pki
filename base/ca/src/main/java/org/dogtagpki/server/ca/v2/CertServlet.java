@@ -49,7 +49,7 @@ import com.netscape.certsrv.cert.CertDataInfo;
 import com.netscape.certsrv.cert.CertDataInfos;
 import com.netscape.certsrv.cert.CertNotFoundException;
 import com.netscape.certsrv.cert.CertSearchRequest;
-import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
+import com.netscape.certsrv.dbs.DBRecordNotFoundException;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.util.JSONSerializer;
 import com.netscape.cms.servlet.cert.FilterBuilder;
@@ -85,7 +85,7 @@ public class CertServlet extends CAServlet {
             try {
                 cert = getCertData(id);
                 out.println(cert.toJSON());
-            } catch (EDBRecordNotFoundException e) {
+            } catch (DBRecordNotFoundException e) {
                 throw new CertNotFoundException(id);
 
             } catch (Exception e) {

@@ -18,19 +18,17 @@
 package com.netscape.certsrv.dbs;
 
 /**
- * Indicates internal db is down.
- *
- * @version $Revision$, $Date$
+ * This exception indicates that a record does not exist in the internal database.
  */
-public class EDBRecordNotFoundException extends DBException {
+public class DBRecordNotFoundException extends DBException {
 
     private static final long serialVersionUID = -3797213848651705426L;
 
-    public EDBRecordNotFoundException(String errorString) {
+    public DBRecordNotFoundException(String errorString) {
         super(errorString);
     }
 
-    public EDBRecordNotFoundException(String errorString, Throwable cause) {
+    public DBRecordNotFoundException(String errorString, Throwable cause) {
         super(errorString, cause);
     }
 }

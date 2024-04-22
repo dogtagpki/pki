@@ -39,7 +39,7 @@ import org.mozilla.jss.netscape.security.x509.RevocationReason;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
+import com.netscape.certsrv.dbs.DBRecordNotFoundException;
 import com.netscape.certsrv.tps.token.TokenStatus;
 
 /*
@@ -215,7 +215,7 @@ public class TokenDB {
         TokenRecord existingTokenRecord;
         try {
             existingTokenRecord = tps.tokenDatabase.getRecord(id);
-        } catch (EDBRecordNotFoundException e) {
+        } catch (DBRecordNotFoundException e) {
             String logMsg = method + e.getMessage();
             logger.error(logMsg, e);
             throw new TPSException(logMsg);

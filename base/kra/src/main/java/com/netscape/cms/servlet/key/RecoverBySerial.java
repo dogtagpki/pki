@@ -42,7 +42,7 @@ import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
+import com.netscape.certsrv.dbs.DBRecordNotFoundException;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.security.Credential;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -206,7 +206,7 @@ public class RecoverBySerial extends CMSServlet {
             KeyRecord rec = null;
             try {
                 rec = repo.readKeyRecord(keyId.toBigInteger());
-            } catch (EDBRecordNotFoundException e) {
+            } catch (DBRecordNotFoundException e) {
                 header.addStringValue(OUT_ERROR, "serialNumber not found");
                 return;
             }

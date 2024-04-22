@@ -54,7 +54,7 @@ import com.netscape.certsrv.ca.EErrorPublishCRL;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.dbs.DBNotAvailableException;
-import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
+import com.netscape.certsrv.dbs.DBRecordNotFoundException;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.DeltaCRLGenerationEvent;
@@ -934,7 +934,7 @@ public class CRLIssuingPoint implements Runnable {
             mInitialized = CRLIssuingPointStatus.InitializationFailed;
             return;
 
-        } catch (EDBRecordNotFoundException e) {
+        } catch (DBRecordNotFoundException e) {
             logger.warn("CRLIssuingPoint: CRL issuing point not found: " + mId);
         }
 

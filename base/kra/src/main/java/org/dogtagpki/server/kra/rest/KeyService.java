@@ -45,7 +45,7 @@ import com.netscape.certsrv.base.HTTPGoneException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.UnauthorizedException;
-import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
+import com.netscape.certsrv.dbs.DBRecordNotFoundException;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.keydb.KeyId;
@@ -845,7 +845,7 @@ public class KeyService extends SubsystemService implements KeyResource {
             return createOKResponse(info);
         } catch (EAuthzAccessDenied e) {
             throw new UnauthorizedException("Unauthorized access for key record", e);
-        } catch (EDBRecordNotFoundException e) {
+        } catch (DBRecordNotFoundException e) {
             throw new KeyNotFoundException(keyId, "key not found", e);
         } catch (Exception e) {
             throw new PKIException(e.getMessage(), e);
@@ -887,7 +887,7 @@ public class KeyService extends SubsystemService implements KeyResource {
 
             return createNoContentResponse();
 
-        } catch (EDBRecordNotFoundException e) {
+        } catch (DBRecordNotFoundException e) {
 
             logger.error("Unable to modify key status: " + e.getMessage(), e);
 

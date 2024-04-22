@@ -57,7 +57,7 @@ import com.netscape.certsrv.cert.CertNotFoundException;
 import com.netscape.certsrv.cert.CertResource;
 import com.netscape.certsrv.cert.CertRetrievalRequest;
 import com.netscape.certsrv.cert.CertSearchRequest;
-import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
+import com.netscape.certsrv.dbs.DBRecordNotFoundException;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.cert.FilterBuilder;
@@ -115,7 +115,7 @@ public class CertService extends PKIService implements CertResource {
         try {
             certData = getCert(data, generateNonce);
 
-        } catch (EDBRecordNotFoundException e) {
+        } catch (DBRecordNotFoundException e) {
             throw new CertNotFoundException(id);
 
         } catch (Exception e) {

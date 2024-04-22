@@ -24,7 +24,7 @@ import com.netscape.certsrv.dbs.DBPagedSearch;
 import com.netscape.certsrv.dbs.DBVirtualList;
 import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.dbs.DBNotAvailableException;
-import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
+import com.netscape.certsrv.dbs.DBRecordNotFoundException;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
@@ -197,7 +197,7 @@ public class LDAPSession extends DBSSession {
             }
 
             if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
-                throw new EDBRecordNotFoundException(CMS.getUserMessage("CMS_DBS_RECORD_NOT_FOUND"), e);
+                throw new DBRecordNotFoundException(CMS.getUserMessage("CMS_DBS_RECORD_NOT_FOUND"), e);
             }
 
             throw new DBException("Unable to read LDAP record: " + e.getMessage(), e);
@@ -275,7 +275,7 @@ public class LDAPSession extends DBSSession {
             }
 
             if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
-                throw new EDBRecordNotFoundException(CMS.getUserMessage("CMS_DBS_RECORD_NOT_FOUND"));
+                throw new DBRecordNotFoundException(CMS.getUserMessage("CMS_DBS_RECORD_NOT_FOUND"));
             }
 
             throw new DBException("Unable to modify LDAP record: " + e.getMessage(), e);

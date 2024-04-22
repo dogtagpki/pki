@@ -99,7 +99,7 @@ import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.common.Constants;
-import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
+import com.netscape.certsrv.dbs.DBRecordNotFoundException;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.event.TokenAppletUpgradeEvent;
 import com.netscape.certsrv.logging.event.TokenAuthEvent;
@@ -1593,7 +1593,7 @@ public class TPSProcessor {
             // now the in memory tokenRecord is replaced by the actual token data
             logger.debug("TPSProcessor.isTokenRecordPresent: found token...");
 
-        } catch (EDBRecordNotFoundException e) {
+        } catch (DBRecordNotFoundException e) {
             logger.debug("TPSProcessor.isTokenRecordPresent: Token " + appletInfo.getCUIDhexStringPlain() + " not found, creating token in memory");
 
         } catch (Exception e) {

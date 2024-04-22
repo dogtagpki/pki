@@ -79,7 +79,7 @@ import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CADisabledException;
 import com.netscape.certsrv.ca.CAMissingKeyException;
 import com.netscape.certsrv.ca.ECAException;
-import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
+import com.netscape.certsrv.dbs.DBRecordNotFoundException;
 import com.netscape.certsrv.ocsp.IOCSPService;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.CertRecord;
@@ -1026,7 +1026,7 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
                 certStatus = new UnknownInfo();
             }
 
-        } catch (EDBRecordNotFoundException e) {
+        } catch (DBRecordNotFoundException e) {
             logger.info("CertificateAuthority: Cert record {} not found", serialNumber);
             certStatus = new UnknownInfo(); // not issued by this CA
 
