@@ -1314,6 +1314,12 @@ grant codeBase "file:%s" {
             pki.util.load_properties(self.password_conf, self.passwords)
 
     def store_passwords(self):
+
+        if os.path.exists(self.password_conf):
+            logger.info('Updating %s', self.password_conf)
+        else:
+            logger.info('Creating %s', self.password_conf)
+
         self.store_properties(self.password_conf, self.passwords)
 
     def remove_passwords(self, force=False):

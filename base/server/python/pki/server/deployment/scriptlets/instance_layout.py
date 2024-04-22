@@ -187,7 +187,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('Generating random replication manager password')
             instance.passwords['replicationdb'] = pki.generate_password()
 
-        logger.info('Creating %s', instance.password_conf)
         instance.store_passwords()
 
         deployer.create_server_nssdb()
