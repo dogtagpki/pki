@@ -1041,27 +1041,33 @@ grant codeBase "file:%s" {
             'localhost',
             webapp_id + '.xml')
 
-        # read deployment descriptor
-        document = etree.parse(descriptor, parser)
+        if os.path.exists(context_xml):
+            logger.info('Reusing %s web application', webapp_id)
 
-        if doc_base:
-            # customize docBase
-            context = document.getroot()
-            context.set('docBase', doc_base)
+        else:
+            logger.info('Deploying %s web application', webapp_id)
 
-        logger.info('Creating %s', context_xml)
-        with open(context_xml, 'wb') as f:
-            # xml as UTF-8 encoded bytes
-            document.write(f, pretty_print=True, encoding='utf-8')
+            # read deployment descriptor
+            document = etree.parse(descriptor, parser)
 
-        # set deployment descriptor ownership and permission
-        os.chown(context_xml, self.uid, self.gid)
-        os.chmod(context_xml, DEFAULT_FILE_MODE)
+            if doc_base:
+                # customize docBase
+                context = document.getroot()
+                context.set('docBase', doc_base)
+
+            logger.info('Creating %s', context_xml)
+            with open(context_xml, 'wb') as f:
+                # xml as UTF-8 encoded bytes
+                document.write(f, pretty_print=True, encoding='utf-8')
+
+            # set deployment descriptor ownership and permission
+            os.chown(context_xml, self.uid, self.gid)
+            os.chmod(context_xml, DEFAULT_FILE_MODE)
 
         if not wait:
             return
 
-        logger.info('Waiting for web application to start')
+        logger.info('Waiting for %s web application to start', webapp_id)
 
         if webapp_id == 'ROOT':
             path = '/'
@@ -1095,11 +1101,15 @@ grant codeBase "file:%s" {
             counter = (stop_time - start_time).total_seconds()
 
             if max_wait is not None and counter >= max_wait:
-                raise Exception('Web application did not start after %ds' % max_wait)
+                raise Exception(
+                    '%s web application did not start after %ds' % (webapp_id, max_wait))
 
-            logger.info('Waiting for web application to start (%ds)', round(counter))
+            logger.info(
+                'Waiting for %s web application to start (%ds)',
+                webapp_id,
+                round(counter))
 
-        logger.info('Web application started')
+        logger.info('%s web application started', webapp_id)
 
     def undeploy_webapp(
             self,

@@ -296,7 +296,6 @@ class ACMEDeployCLI(pki.cli.CLI):
         doc_base = os.path.join(pki.server.PKIServer.SHARE_DIR,
                                 'acme/webapps/acme')
 
-        logger.info('Deploying %s webapp', name)
         instance.deploy_webapp(
             name,
             descriptor,

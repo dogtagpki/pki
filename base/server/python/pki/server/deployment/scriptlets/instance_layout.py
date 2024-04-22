@@ -216,29 +216,29 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             os.path.join(instance.conf_dir, 'tomcat.conf'),
             overwrite_flag=True)
 
-        logger.info('Deploying ROOT web application')
         # Copy /usr/share/pki/server/conf/ROOT.xml
         # to /var/lib/pki/<instance>/conf/Catalina/localhost/ROOT.xml
+
         instance.deploy_webapp(
-            "ROOT",
+            'ROOT',
             os.path.join(
                 shared_conf_path,
-                "Catalina",
-                "localhost",
-                "ROOT.xml"))
+                'Catalina',
+                'localhost',
+                'ROOT.xml'))
 
-        logger.info('Deploying /pki web application')
         # Deploy pki web application which includes themes,
         # admin templates, and JS libraries
         # Copy /usr/share/pki/server/conf/pki.xml
         # to /var/lib/pki/<instance>/conf/Catalina/localhost/pki.xml
+
         instance.deploy_webapp(
-            "pki",
+            'pki',
             os.path.join(
                 shared_conf_path,
-                "Catalina",
-                "localhost",
-                "pki.xml"))
+                'Catalina',
+                'localhost',
+                'pki.xml'))
 
         if config.str2bool(deployer.mdict['pki_registry_enable']):
             instance.create_registry()

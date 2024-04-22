@@ -355,7 +355,6 @@ class SubsystemDeployCLI(pki.cli.CLI):
         doc_base = os.path.join(pki.server.PKIServer.SHARE_DIR,
                                 '%s/webapps/%s' % (name, name))
 
-        logger.info('Deploying %s webapp', name)
         instance.deploy_webapp(
             name,
             descriptor,
@@ -546,7 +545,6 @@ class SubsystemRedeployCLI(pki.cli.CLI):
             max_wait=max_wait,
             timeout=timeout)
 
-        logger.info('Deploying %s webapp', name)
         instance.deploy_webapp(
             name,
             descriptor,
