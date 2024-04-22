@@ -27,7 +27,7 @@ import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.EDBException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.request.RequestId;
@@ -266,7 +266,7 @@ public class RequestRecord extends DBRecord {
     }
 
     static void register(DBSubsystem dbSubsystem)
-            throws EDBException {
+            throws DBException {
         DBRegistry reg = dbSubsystem.getRegistry();
 
         reg.registerObjectClass(RequestRecord.class.getName(), mOC);
@@ -353,7 +353,7 @@ public class RequestRecord extends DBRecord {
             } else if (value instanceof Hashtable) {
                 r.setExtData(key, (Hashtable<String, String>) value);
             } else {
-                throw new EDBException("Illegal data value in RequestRecord: " +
+                throw new DBException("Illegal data value in RequestRecord: " +
                         r.toString());
             }
         }

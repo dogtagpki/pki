@@ -29,7 +29,7 @@ import org.mozilla.jss.netscape.security.x509.RevocationReason;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.DBAttrMapper;
-import com.netscape.certsrv.dbs.EDBException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.cmscore.apps.CMS;
 
@@ -111,8 +111,7 @@ public class RevocationInfoMapper extends DBAttrMapper {
 
         } catch (Exception e) {
             logger.error("RevocationInfoMapper: " + e.getMessage(), e);
-            throw new EDBException(
-                    CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name));
+            throw new DBException(CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name), e);
         }
     }
 
@@ -172,8 +171,7 @@ public class RevocationInfoMapper extends DBAttrMapper {
             parent.set(name, info);
         } catch (Exception e) {
             logger.error("RevocationInfoMapper: " + e.getMessage(), e);
-            throw new EDBException(
-                    CMS.getUserMessage("CMS_DBS_DESERIALIZE_FAILED", name));
+            throw new DBException(CMS.getUserMessage("CMS_DBS_DESERIALIZE_FAILED", name), e);
         }
     }
 

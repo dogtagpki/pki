@@ -23,7 +23,7 @@ import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.DBAttrMapper;
-import com.netscape.certsrv.dbs.EDBException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.cmscore.apps.CMS;
 
@@ -77,7 +77,7 @@ public class KeyRecordMapper extends DBAttrMapper {
              * @message KeyRecordMapper: <exception thrown>
              */
             logger.error(CMS.getLogMessage("CMSCORE_DBS_KEYRECORD_MAPPER_ERROR", e.toString()), e);
-            throw new EDBException(CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name), e);
+            throw new DBException(CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name), e);
         }
     }
 
@@ -102,7 +102,7 @@ public class KeyRecordMapper extends DBAttrMapper {
              * @message KeyRecordMapper: <exception thrown>
              */
             logger.error(CMS.getLogMessage("CMSCORE_DBS_KEYRECORD_MAPPER_ERROR", e.toString()), e);
-            throw new EDBException(CMS.getUserMessage("CMS_DBS_DESERIALIZE_FAILED", name), e);
+            throw new DBException(CMS.getUserMessage("CMS_DBS_DESERIALIZE_FAILED", name), e);
         }
     }
 

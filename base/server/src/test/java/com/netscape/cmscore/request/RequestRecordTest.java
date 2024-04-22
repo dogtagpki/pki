@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.DBAttrMapper;
-import com.netscape.certsrv.dbs.EDBException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
@@ -101,7 +101,7 @@ public class RequestRecordTest {
     }
 
     @Test
-    public void testRegister() throws EDBException {
+    public void testRegister() throws DBException {
         DBSubsystemStub db = new DBSubsystemStub();
 
         RequestRecord.register(db);
@@ -150,13 +150,13 @@ public class RequestRecordTest {
         private DBDynAttrMapper dynamicMapper;
 
         @Override
-        public void registerObjectClass(String className, String ldapNames[]) throws EDBException {
+        public void registerObjectClass(String className, String ldapNames[]) throws DBException {
             registerObjectClassCalled = true;
             registerObjectClassLdapNames = ldapNames;
         }
 
         @Override
-        public void registerAttribute(String ufName, DBAttrMapper mapper) throws EDBException {
+        public void registerAttribute(String ufName, DBAttrMapper mapper) throws DBException {
             if (RequestRecord.ATTR_EXT_DATA.equals(ufName)) {
                 registerCalledWithExtAttr = true;
                 extAttrMapper = mapper;

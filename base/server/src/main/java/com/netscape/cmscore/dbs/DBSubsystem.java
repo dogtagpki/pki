@@ -24,7 +24,7 @@ import org.mozilla.jss.netscape.security.x509.CertificateValidity;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotDefined;
-import com.netscape.certsrv.dbs.EDBException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.dbs.EDBNotAvailException;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
@@ -233,7 +233,7 @@ public class DBSubsystem {
 
         } catch (ELdapException e) {
             logger.error("DBSubsystem: initialization failed: " + e.getMessage(), e);
-            throw new EDBException(CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_ERROR", e.toString()), e);
+            throw new DBException(CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_ERROR", e.toString()), e);
 
         } catch (EBaseException e) {
             logger.error("DBSubsystem: initialization failed: " + e.getMessage(), e);
@@ -479,7 +479,7 @@ public class DBSubsystem {
     /**
      * Creates a database session.
      */
-    public DBSSession createSession() throws EDBException {
+    public DBSSession createSession() throws DBException {
 
         LDAPConnection conn = null;
 
@@ -529,13 +529,11 @@ public class DBSubsystem {
              * @phase create db session
              */
             logger.error("DBSubsystem: "+ CMS.getLogMessage("CMSCORE_DBS_CONN_ERROR", e.toString()), e);
-            throw new EDBException(
-                    CMS.getUserMessage("CMS_DBS_CONNECT_LDAP_FAILED", e.toString()));
+            throw new DBException(CMS.getUserMessage("CMS_DBS_CONNECT_LDAP_FAILED", e.toString()), e);
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() != 20) {
                 logger.error("DBSubsystem: "+ CMS.getLogMessage("CMSCORE_DBS_SCHEMA_ERROR", e.toString()), e);
-                throw new EDBException(
-                        CMS.getUserMessage("CMS_DBS_ADD_ENTRY_FAILED", e.toString()));
+                throw new DBException(CMS.getUserMessage("CMS_DBS_ADD_ENTRY_FAILED", e.toString()), e);
             }
         } catch (EBaseException e) {
             logger.warn("DBSubsystem: "+ CMS.getLogMessage("CMSCORE_DBS_CONF_ERROR", e.toString()), e);

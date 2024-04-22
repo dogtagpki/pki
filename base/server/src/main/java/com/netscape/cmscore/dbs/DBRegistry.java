@@ -2,7 +2,7 @@ package com.netscape.cmscore.dbs;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.DBAttrMapper;
-import com.netscape.certsrv.dbs.EDBException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.dbs.FilterConverter;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.cmscore.base.ConfigStore;
@@ -29,12 +29,12 @@ public class DBRegistry {
      *
      * @param className java class to create for the object classes
      * @param ldapNames a list of LDAP object classes
-     * @exception EDBException failed to register
+     * @exception DBException failed to register
      */
     public void registerObjectClass(
             String className,
             String[] ldapNames
-            ) throws EDBException {
+            ) throws DBException {
     }
 
     /**
@@ -52,9 +52,9 @@ public class DBRegistry {
      *
      * @param ufName LDAP attribute name
      * @param mapper mapper to invoke for the attribute
-     * @exception EDBException failed to register
+     * @exception DBException failed to register
      */
-    public void registerAttribute(String ufName, DBAttrMapper mapper) throws EDBException {
+    public void registerAttribute(String ufName, DBAttrMapper mapper) throws DBException {
     }
 
     /**

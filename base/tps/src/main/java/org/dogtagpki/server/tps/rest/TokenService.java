@@ -43,7 +43,7 @@ import org.dogtagpki.server.tps.dbs.TokenRecord;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.dbs.DBVirtualList;
-import com.netscape.certsrv.dbs.EDBException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.ldap.LDAPExceptionConverter;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
@@ -326,7 +326,7 @@ public class TokenService extends SubsystemService implements TokenResource {
             }
             return createOKResponse(response);
 
-        } catch (EDBException e) {
+        } catch (DBException e) {
             Throwable t = e.getCause();
             if (t instanceof LDAPException) {
                 throw LDAPExceptionConverter.toPKIException((LDAPException) t);
@@ -483,7 +483,7 @@ public class TokenService extends SubsystemService implements TokenResource {
                 return createOKResponse(createTokenData(record));
             throw new PKIException(method + "Token record restricted");
 
-        } catch (EDBException e) {
+        } catch (DBException e) {
             Throwable t = e.getCause();
             if (t instanceof LDAPException) {
                 throw LDAPExceptionConverter.toPKIException((LDAPException) t);
@@ -572,7 +572,7 @@ public class TokenService extends SubsystemService implements TokenResource {
             subsystem.tdb.tdbActivity(ActivityDatabase.OP_ADD, tokenRecord,
                     ipAddress, msg, "failure", remoteUser);
 
-            if (e instanceof EDBException) {
+            if (e instanceof DBException) {
                 Throwable t = e.getCause();
                 if (t instanceof LDAPException) {
                     PKIException ex = LDAPExceptionConverter.toPKIException((LDAPException) t);
@@ -670,7 +670,7 @@ public class TokenService extends SubsystemService implements TokenResource {
                     ipAddress, msg, "failure",
                     remoteUser);
 
-            if (e instanceof EDBException) {
+            if (e instanceof DBException) {
                 Throwable t = e.getCause();
                 if (t instanceof LDAPException) {
                     PKIException ex = LDAPExceptionConverter.toPKIException((LDAPException) t);
@@ -786,7 +786,7 @@ public class TokenService extends SubsystemService implements TokenResource {
                     ipAddress, msg, "failure",
                     remoteUser);
 
-            if (e instanceof EDBException) {
+            if (e instanceof DBException) {
                 Throwable t = e.getCause();
                 if (t instanceof LDAPException) {
                     PKIException ex = LDAPExceptionConverter.toPKIException((LDAPException) t);
@@ -921,7 +921,7 @@ public class TokenService extends SubsystemService implements TokenResource {
                     ipAddress, msg, "failure",
                     remoteUser);
 
-            if (e instanceof EDBException) {
+            if (e instanceof DBException) {
                 Throwable t = e.getCause();
                 if (t instanceof LDAPException) {
                     PKIException ex = LDAPExceptionConverter.toPKIException((LDAPException) t);
@@ -1010,7 +1010,7 @@ public class TokenService extends SubsystemService implements TokenResource {
                     ipAddress, msg, "failure",
                     remoteUser);
 
-            if (e instanceof EDBException) {
+            if (e instanceof DBException) {
                 Throwable t = e.getCause();
                 if (t instanceof LDAPException) {
                     PKIException ex = LDAPExceptionConverter.toPKIException((LDAPException) t);

@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.DBAttrMapper;
-import com.netscape.certsrv.dbs.EDBException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.dbs.FilterConverter;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.cmscore.apps.CMS;
@@ -131,7 +131,7 @@ public class LDAPRegistry extends DBRegistry {
      */
     @Override
     public void registerObjectClass(String className, String ldapNames[])
-            throws EDBException {
+            throws DBException {
         try {
             Class<?> c = Class.forName(className);
 
@@ -148,7 +148,7 @@ public class LDAPRegistry extends DBRegistry {
              * @message LDAPRegistry: <exception thrown>
              */
             logger.error("LDAPRegistry: " + CMS.getUserMessage("CMS_DBS_INVALID_CLASS_NAME", className), e);
-            throw new EDBException(CMS.getUserMessage("CMS_DBS_INVALID_CLASS_NAME", className), e);
+            throw new DBException(CMS.getUserMessage("CMS_DBS_INVALID_CLASS_NAME", className), e);
         }
     }
 
@@ -165,7 +165,7 @@ public class LDAPRegistry extends DBRegistry {
      */
     @Override
     public void registerAttribute(String ufName, DBAttrMapper mapper)
-            throws EDBException {
+            throws DBException {
         // should not allows 'objectclass' as attribute; it has
         // special meaning
         mAttrufNames.put(ufName.toLowerCase(), mapper);
@@ -296,7 +296,7 @@ public class LDAPRegistry extends DBRegistry {
         int idx = f.indexOf('=');
 
         if (idx == -1) {
-            throw new EDBException(
+            throw new DBException(
                     CMS.getUserMessage("CMS_DBS_INVALID_FILTER_ITEM", "="));
         }
 
@@ -336,7 +336,7 @@ public class LDAPRegistry extends DBRegistry {
                 String ldapNames[] = mOCclassNames.get(value);
 
                 if (ldapNames == null)
-                    throw new EDBException(
+                    throw new DBException(
                             CMS.getUserMessage("CMS_DBS_INVALID_FILTER_ITEM", f));
                 StringBuffer filter = new StringBuffer();
 
@@ -408,7 +408,7 @@ public class LDAPRegistry extends DBRegistry {
 
                 DBAttrMapper mapper = mAttrufNames.get(attr.toLowerCase());
                 if (mapper == null) {
-                    throw new EDBException(CMS.getUserMessage("CMS_DBS_INVALID_ATTRS"));
+                    throw new DBException(CMS.getUserMessage("CMS_DBS_INVALID_ATTRS"));
                 }
                 Enumeration<String> e = mapper.getSupportedLDAPAttributeNames();
 
@@ -442,7 +442,7 @@ public class LDAPRegistry extends DBRegistry {
                      * @message DBRegistry: <attr> is not registered
                      */
                     logger.error("LDAPRegistry: " + CMS.getLogMessage("CMSCORE_DBS_ATTR_NOT_REGISTER", attr));
-                    throw new EDBException(CMS.getLogMessage("CMSCORE_DBS_ATTR_NOT_REGISTER", attr));
+                    throw new DBException(CMS.getLogMessage("CMSCORE_DBS_ATTR_NOT_REGISTER", attr));
                 }
             }
         }
@@ -493,11 +493,11 @@ public class LDAPRegistry extends DBRegistry {
      */
     @Override
     public IDBObj createObject(LDAPAttributeSet attrs)
-            throws EDBException {
+            throws DBException {
         // map object class attribute to object
         LDAPAttribute attr = attrs.getAttribute("objectclass");
         if (attr == null) {
-            throw new EDBException(CMS.getLogMessage("CMS_DBS_MISSING_OBJECT_CLASS"));
+            throw new DBException(CMS.getLogMessage("CMS_DBS_MISSING_OBJECT_CLASS"));
         }
 
         attrs.remove("objectclass");
@@ -509,7 +509,7 @@ public class LDAPRegistry extends DBRegistry {
         NameAndObject no = mOCldapNames.get(sorted);
 
         if (no == null) {
-            throw new EDBException(
+            throw new DBException(
                     CMS.getUserMessage("CMS_DBS_INVALID_CLASS_NAME", sorted));
         }
         Class<?> c = (Class<?>) no.getObject();
@@ -523,7 +523,7 @@ public class LDAPRegistry extends DBRegistry {
                 DBAttrMapper mapper = mAttrufNames.get(oname.toLowerCase());
 
                 if (mapper == null) {
-                    throw new EDBException(
+                    throw new DBException(
                             CMS.getUserMessage("CMS_DBS_NO_MAPPER_FOUND", oname));
                 }
                 mapper.mapLDAPAttributeSetToObject(attrs,
@@ -539,7 +539,7 @@ public class LDAPRegistry extends DBRegistry {
              * @message DBRegistry: <attr> is not registered
              */
             logger.error("LDAPRegistry: " + CMS.getUserMessage("CMS_DBS_INVALID_ATTRS") + ": " + e.getMessage(), e);
-            throw new EDBException(CMS.getUserMessage("CMS_DBS_INVALID_ATTRS") + ": " + e.getMessage(), e);
+            throw new DBException(CMS.getUserMessage("CMS_DBS_INVALID_ATTRS") + ": " + e.getMessage(), e);
         }
     }
 

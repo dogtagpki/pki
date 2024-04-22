@@ -22,7 +22,7 @@ import java.util.Enumeration;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.DBPagedSearch;
 import com.netscape.certsrv.dbs.DBVirtualList;
-import com.netscape.certsrv.dbs.EDBException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.dbs.EDBNotAvailException;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.IDBObj;
@@ -71,14 +71,14 @@ public class LDAPSession extends DBSSession {
      * @param dbSubsystem the database subsytem
      * @param c the ldap connection
      */
-    public LDAPSession(DBSubsystem dbSubsystem, LDAPConnection c) throws EDBException {
+    public LDAPSession(DBSubsystem dbSubsystem, LDAPConnection c) throws DBException {
         this.dbSubsystem = dbSubsystem;
         mConn = c;
         try {
             // no limit
             mConn.setOption(LDAPv3.SIZELIMIT, Integer.valueOf(0));
         } catch (LDAPException e) {
-            throw new EDBException("Unable to create LDAP session: " + e.getMessage(), e);
+            throw new DBException("Unable to create LDAP session: " + e.getMessage(), e);
         }
     }
 
@@ -90,7 +90,7 @@ public class LDAPSession extends DBSSession {
      * Closes this session.
      */
     @Override
-    public void close() throws EDBException {
+    public void close() throws DBException {
         // return ldap connection.
         dbSubsystem.returnConn(mConn);
     }
@@ -134,7 +134,7 @@ public class LDAPSession extends DBSSession {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
                 throw new EDBNotAvailException(CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"), e);
             }
-            throw new EDBException("Unable to add LDAP entry: " + e.getMessage(), e);
+            throw new DBException("Unable to add LDAP entry: " + e.getMessage(), e);
         }
     }
 
@@ -200,7 +200,7 @@ public class LDAPSession extends DBSSession {
                 throw new EDBRecordNotFoundException(CMS.getUserMessage("CMS_DBS_RECORD_NOT_FOUND"), e);
             }
 
-            throw new EDBException("Unable to read LDAP record: " + e.getMessage(), e);
+            throw new DBException("Unable to read LDAP record: " + e.getMessage(), e);
         }
     }
 
@@ -218,7 +218,7 @@ public class LDAPSession extends DBSSession {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE)
                 throw new EDBNotAvailException(
                         CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
-            throw new EDBException("Unable to delete LDAP record: " + e.getMessage(), e);
+            throw new DBException("Unable to delete LDAP record: " + e.getMessage(), e);
         }
     }
 
@@ -278,7 +278,7 @@ public class LDAPSession extends DBSSession {
                 throw new EDBRecordNotFoundException(CMS.getUserMessage("CMS_DBS_RECORD_NOT_FOUND"));
             }
 
-            throw new EDBException("Unable to modify LDAP record: " + e.getMessage(), e);
+            throw new DBException("Unable to modify LDAP record: " + e.getMessage(), e);
         }
     }
 
@@ -332,7 +332,7 @@ public class LDAPSession extends DBSSession {
                         CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
             // XXX error handling, should not raise exception if
             // entry not found
-            throw new EDBException("Unable to search LDAP record: " + e.getMessage(), e);
+            throw new DBException("Unable to search LDAP record: " + e.getMessage(), e);
         }
     }
 
@@ -367,7 +367,7 @@ public class LDAPSession extends DBSSession {
                         CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
             // XXX error handling, should not raise exception if
             // entry not found
-            throw new EDBException("Unable to search LDAP record: " + e.getMessage(), e);
+            throw new DBException("Unable to search LDAP record: " + e.getMessage(), e);
         }
     }
 
@@ -397,7 +397,7 @@ public class LDAPSession extends DBSSession {
                         CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
             // XXX error handling, should not raise exception if
             // entry not found
-            throw new EDBException("Unable to search LDAP record: " + e.getMessage(), e);
+            throw new DBException("Unable to search LDAP record: " + e.getMessage(), e);
         }
     }
 
@@ -433,7 +433,7 @@ public class LDAPSession extends DBSSession {
                         CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
             // XXX error handling, should not raise exception if
             // entry not found
-            throw new EDBException("Unable to search LDAP record: " + e.getMessage(), e);
+            throw new DBException("Unable to search LDAP record: " + e.getMessage(), e);
         }
 
     }
@@ -475,7 +475,7 @@ public class LDAPSession extends DBSSession {
                         CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
             // XXX error handling, should not raise exception if
             // entry not found
-            throw new EDBException("Unable to search LDAP record: " + e.getMessage(), e);
+            throw new DBException("Unable to search LDAP record: " + e.getMessage(), e);
         }
     }
 
@@ -530,7 +530,7 @@ public class LDAPSession extends DBSSession {
                         CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
             // XXX error handling, should not raise exception if
             // entry not found
-            throw new EDBException("Unable to search LDAP record: " + e.getMessage(), e);
+            throw new DBException("Unable to search LDAP record: " + e.getMessage(), e);
         }
     }
 
@@ -591,7 +591,7 @@ public class LDAPSession extends DBSSession {
                         CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
             // XXX error handling, should not raise exception if
             // entry not found
-            throw new EDBException("Unable to search LDAP record: " + e.getMessage(), e);
+            throw new DBException("Unable to search LDAP record: " + e.getMessage(), e);
         }
     }
 
@@ -609,7 +609,7 @@ public class LDAPSession extends DBSSession {
                         CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
             // XXX error handling, should not raise exception if
             // entry not found
-            throw new EDBException("Unable to abandon LDAP search result: " + e.getMessage(), e);
+            throw new DBException("Unable to abandon LDAP search result: " + e.getMessage(), e);
         }
     }
 

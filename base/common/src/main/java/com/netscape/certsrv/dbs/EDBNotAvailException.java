@@ -22,7 +22,7 @@ package com.netscape.certsrv.dbs;
  *
  * @version $Revision$, $Date$
  */
-public class EDBNotAvailException extends EDBException {
+public class EDBNotAvailException extends DBException {
 
     private static final long serialVersionUID = 8516095366048215233L;
 

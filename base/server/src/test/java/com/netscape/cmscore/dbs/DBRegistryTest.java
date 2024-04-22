@@ -13,7 +13,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.cmscore.request.DBDynAttrMapper;
 import com.netscape.cmscore.request.RequestRecord;
@@ -30,7 +29,7 @@ public class DBRegistryTest {
     RequestRecordStub requestRecordStub = new RequestRecordStub();
 
     @BeforeEach
-    public void cmsTestSetUp() {
+    public void cmsTestSetUp() throws Exception {
         db = new DBSubsystemStub();
         registry = new LDAPRegistry();
         db.registry = registry;
@@ -39,16 +38,13 @@ public class DBRegistryTest {
         // Normally RequestRepository calls RequestRecord.register() as part
         // of a long chain of initialization calls.
         extAttrMapper = new DBDynAttrMapperStub();
-        try {
-            registry.registerObjectClass(requestRecordStub.getClass().getName(),
-                    new String[] { "ocvalue" });
-            registry.registerAttribute(RequestRecord.ATTR_EXT_DATA, extAttrMapper);
-            registry.registerAttribute(RequestRecord.ATTR_SOURCE_ID,
-                    new StringMapper("sourceIdOut"));
-            registry.registerDynamicMapper(extAttrMapper);
-        } catch (EDBException e) {
-            e.printStackTrace();
-        }
+
+        registry.registerObjectClass(requestRecordStub.getClass().getName(),
+                new String[] { "ocvalue" });
+        registry.registerAttribute(RequestRecord.ATTR_EXT_DATA, extAttrMapper);
+        registry.registerAttribute(RequestRecord.ATTR_SOURCE_ID,
+                new StringMapper("sourceIdOut"));
+        registry.registerDynamicMapper(extAttrMapper);
     }
 
     @Test

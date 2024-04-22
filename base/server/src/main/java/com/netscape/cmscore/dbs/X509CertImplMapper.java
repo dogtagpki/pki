@@ -36,7 +36,7 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
 import com.netscape.certsrv.base.AttributeNameHelper;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.DBAttrMapper;
-import com.netscape.certsrv.dbs.EDBException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.cmscore.apps.CMS;
 
@@ -205,8 +205,7 @@ public class X509CertImplMapper extends DBAttrMapper {
                     cert.getSigAlgOID()));
 
         } catch (CertificateEncodingException e) {
-            throw new EDBException(
-                    CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name));
+            throw new DBException(CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name), e);
         }
     }
 

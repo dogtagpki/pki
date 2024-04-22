@@ -20,7 +20,7 @@ package com.netscape.cmscore.dbs;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.DBPagedSearch;
 import com.netscape.certsrv.dbs.DBVirtualList;
-import com.netscape.certsrv.dbs.EDBException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.ModificationSet;
 
@@ -38,10 +38,10 @@ public class DBSSession implements AutoCloseable {
     /**
      * Closes this session.
      *
-     * @exception EDBException failed to close session
+     * @exception DBException failed to close session
      */
     @Override
-    public void close() throws EDBException {
+    public void close() throws DBException {
     }
 
     /**
@@ -53,7 +53,7 @@ public class DBSSession implements AutoCloseable {
      *
      * @param name name of the object
      * @param obj object to be added
-     * @exception EDBException failed to add object
+     * @exception DBException failed to add object
      */
     public void add(String name, IDBObj obj) throws EBaseException {
     }

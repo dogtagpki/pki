@@ -21,16 +21,11 @@ import com.netscape.certsrv.base.EBaseException;
 
 /**
  * A class represents a database exception.
- * <P>
- *
- * @version $Revision$, $Date$
  */
-public class EDBException extends EBaseException {
+public class DBException extends EBaseException {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -895521374187351529L;
+
     /**
      * Resource class name.
      */
@@ -38,33 +33,30 @@ public class EDBException extends EBaseException {
 
     /**
      * Constructs a database exception.
-     * <P>
      *
      * @param msgFormat message format
      */
-    public EDBException(String msgFormat) {
+    public DBException(String msgFormat) {
         super(msgFormat);
     }
 
     /**
      * Constructs a database exception.
-     * <P>
      *
      * @param msgFormat message format
      * @param cause the cause
      */
-    public EDBException(String msgFormat, Throwable cause) {
+    public DBException(String msgFormat, Throwable cause) {
         super(msgFormat, cause);
     }
 
     /**
      * Constructs a database exception.
-     * <P>
      *
      * @param msgFormat message format
      * @param params list of parameters
      */
-    public EDBException(String msgFormat, Object params[]) {
+    public DBException(String msgFormat, Object params[]) {
         super(msgFormat, params);
     }
 

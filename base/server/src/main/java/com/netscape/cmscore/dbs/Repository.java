@@ -22,7 +22,7 @@ import java.security.SecureRandom;
 import java.util.Hashtable;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.EDBException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.DatabaseConfig;
@@ -297,7 +297,7 @@ public abstract class Repository {
         initCache();
 
         if (num.compareTo(mSerialNo) <= 0) {
-            throw new EDBException(CMS.getUserMessage("CMS_DBS_SETBACK_SERIAL",
+            throw new DBException(CMS.getUserMessage("CMS_DBS_SETBACK_SERIAL",
                     mSerialNo.toString(16)));
         }
         // write the config parameter. It's needed in case the serialNum gap
@@ -375,7 +375,7 @@ public abstract class Repository {
      * calling checkRange(), in case checkRange switched the range and the
      * new range is not adjacent to the current range.
      *
-     * @exception EDBException thrown when range switch is needed
+     * @exception DBException thrown when range switch is needed
      *                           but next range is not allocated
      */
     protected void checkRange() throws EBaseException
@@ -397,14 +397,14 @@ public abstract class Repository {
                 logger.debug("Reached the end of the range.  Attempting to move to next range");
                 if (!hasNextRange()) {
                     if (rangeLength == null || mCounter.compareTo(rangeLength) >= 0) {
-                        throw new EDBException(CMS.getUserMessage("CMS_DBS_LIMIT_REACHED",
+                        throw new DBException(CMS.getUserMessage("CMS_DBS_LIMIT_REACHED",
                                                                   mLastSerialNo.toString()));
                     }
                     return;
                 }
                 switchToNextRange();
             } else {
-                throw new EDBException(CMS.getUserMessage("CMS_DBS_LIMIT_REACHED",
+                throw new DBException(CMS.getUserMessage("CMS_DBS_LIMIT_REACHED",
                         mLastSerialNo.toString()));
             }
         }
