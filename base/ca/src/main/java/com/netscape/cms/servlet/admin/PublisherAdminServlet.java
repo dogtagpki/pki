@@ -44,7 +44,7 @@ import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
-import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.publish.EMapperNotFound;
 import com.netscape.certsrv.publish.EMapperPluginNotFound;
 import com.netscape.certsrv.publish.EPublisherNotFound;
@@ -1038,7 +1038,7 @@ public class PublisherAdminServlet extends AdminServlet {
         // is the manager id unique?
         if (mProcessor.getMapperPlugins().containsKey(id)) {
             sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_SRVLT_ILL_PLUGIN_ID", id))
+                    new DBException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_SRVLT_ILL_PLUGIN_ID", id))
                             .toString(),
                     null, resp);
             return;
@@ -1194,7 +1194,7 @@ public class PublisherAdminServlet extends AdminServlet {
         } catch (Exception e) {
             instancesConfig.removeSubStore(id);
             sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
+                    new DBException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
                             .toString(),
                     null, resp);
             return;
@@ -1563,7 +1563,7 @@ public class PublisherAdminServlet extends AdminServlet {
         } catch (Exception e) {
             restore(instancesConfig, id, saveParams);
             sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
+                    new DBException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
                             .toString(),
                     null, resp);
             return;
@@ -1625,7 +1625,7 @@ public class PublisherAdminServlet extends AdminServlet {
         if (mProcessor.getRulePlugins().containsKey(id)) {
             sendResponse(
                     ERROR,
-                    new ELdapException(CMS.getUserMessage("CMS_LDAP_SRVLT_ILL_PLUGIN_ID", id)).toString(getLocale(req)),
+                    new DBException(CMS.getUserMessage("CMS_LDAP_SRVLT_ILL_PLUGIN_ID", id)).toString(getLocale(req)),
                     null, resp);
             return;
         }
@@ -1770,7 +1770,7 @@ public class PublisherAdminServlet extends AdminServlet {
         } catch (Exception e) {
             instancesConfig.removeSubStore(id);
             sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
+                    new DBException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
                             .toString(),
                     null, resp);
             return;
@@ -2140,7 +2140,7 @@ public class PublisherAdminServlet extends AdminServlet {
         } catch (Exception e) {
             restore(instancesConfig, id, saveParams);
             sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
+                    new DBException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
                             .toString(),
                     null, resp);
             return;
@@ -2203,7 +2203,7 @@ public class PublisherAdminServlet extends AdminServlet {
         // is the manager id unique?
         if (mProcessor.getPublisherPlugins().containsKey(id)) {
             sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_SRVLT_ILL_PLUGIN_ID", id))
+                    new DBException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_SRVLT_ILL_PLUGIN_ID", id))
                             .toString(),
                     null, resp);
             return;
@@ -2362,7 +2362,7 @@ public class PublisherAdminServlet extends AdminServlet {
         } catch (Exception e) {
             instancesConfig.removePublisherInstanceConfig(id);
             sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
+                    new DBException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
                             .toString(),
                     null, resp);
             return;
@@ -2788,7 +2788,7 @@ public class PublisherAdminServlet extends AdminServlet {
         } catch (Exception e) {
             restore(instancesConfig, id, saveParams);
             sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
+                    new DBException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
                             .toString(),
                     null, resp);
             return;
