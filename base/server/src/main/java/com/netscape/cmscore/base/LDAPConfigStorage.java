@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmsutil.ldap.LDAPPostReadControl;
 import com.netscape.cmsutil.ldap.LDAPUtil;
@@ -134,7 +134,7 @@ public class LDAPConfigStorage extends ConfigStorage {
             responseControls = conn.getResponseControls();
 
         } catch (LDAPException e) {
-            throw new ELdapException("Unable to store " + dn + ": " + e, e);
+            throw new DBException("Unable to store " + dn + ": " + e, e);
 
         } finally {
             if (conn != null) connFactory.returnConn(conn);
