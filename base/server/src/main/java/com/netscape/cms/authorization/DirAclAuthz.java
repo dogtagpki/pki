@@ -27,7 +27,7 @@ import com.netscape.certsrv.acls.ACLEntry;
 import com.netscape.certsrv.acls.EACLsException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
@@ -191,7 +191,7 @@ public class DirAclAuthz extends AAclAuthz
         } catch (LDAPException e) {
             throw new EACLsException(CMS.getUserMessage("CMS_ACL_CONNECT_LDAP_FAIL", e.getMessage()), e);
 
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             throw new EACLsException(CMS.getUserMessage("CMS_ACL_CONNECT_LDAP_FAIL", e.getMessage()), e);
 
         } finally {
@@ -326,7 +326,7 @@ public class DirAclAuthz extends AAclAuthz
         }
     }
 
-    protected LDAPConnection getConn() throws ELdapException {
+    protected LDAPConnection getConn() throws DBException {
         return mLdapConnFactory.getConn();
     }
 
@@ -351,7 +351,7 @@ public class DirAclAuthz extends AAclAuthz
 
         try {
             if (mLdapConnFactory != null) mLdapConnFactory.reset();
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             logger.warn("DirAclAuthz: " + CMS.getLogMessage("AUTHZ_EVALUATOR_LDAP_ERROR", e.toString()), e);
         }
     }
