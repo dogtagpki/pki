@@ -20,7 +20,7 @@ package com.netscape.cmscore.ldap;
 import org.dogtagpki.server.ca.CAEngine;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.ldap.LdapConnFactory;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
@@ -61,7 +61,7 @@ public class LdapConnModule {
      * Initialize ldap publishing module with config store.
      *
      * @param config Config store containing the info needed to set up Publishing.
-     * @exception ELdapException Due to Ldap error.
+     * @exception DBException Due to Ldap error.
      * @exception EBaseException Due to config value errors and all other errors.
      */
     public void init(LDAPPublishingConfig config) throws EBaseException {
@@ -131,11 +131,11 @@ public class LdapConnModule {
         return mLdapConnFactory;
     }
 
-    public LDAPConnection getConn() throws ELdapException {
+    public LDAPConnection getConn() throws DBException {
         return mLdapConnFactory.getConn();
     }
 
-    public void returnConn(LDAPConnection conn) throws ELdapException {
+    public void returnConn(LDAPConnection conn) throws DBException {
         mLdapConnFactory.returnConn(conn);
     }
 }
