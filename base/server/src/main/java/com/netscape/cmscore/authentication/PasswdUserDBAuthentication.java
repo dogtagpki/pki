@@ -29,7 +29,7 @@ import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cmscore.apps.CMS;
@@ -240,7 +240,7 @@ public class PasswdUserDBAuthentication extends AuthManager {
         try {
             // disconnect all outstanding connections in the factory
             if (mAnonConnFactory != null) mAnonConnFactory.reset();
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             logger.error("Unable to disconnect LDAP connections: " + e.getMessage(), e);
         }
     }
