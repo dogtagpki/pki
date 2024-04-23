@@ -17,7 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.legacy.policy;
 
-import org.dogtagpki.legacy.server.policy.APolicyRule;
+import org.dogtagpki.legacy.server.policy.PolicyRule;
 
 /**
  * Class for an enrollment policy rule. This provides general
@@ -26,5 +26,5 @@ import org.dogtagpki.legacy.server.policy.APolicyRule;
  *
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  */
-public abstract class EnrollmentPolicy extends APolicyRule {
+public abstract class EnrollmentPolicy extends PolicyRule {
 }

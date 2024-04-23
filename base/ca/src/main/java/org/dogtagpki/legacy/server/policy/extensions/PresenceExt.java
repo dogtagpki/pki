@@ -20,7 +20,7 @@ package org.dogtagpki.legacy.server.policy.extensions;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.PolicyProcessor;
-import org.dogtagpki.legacy.server.policy.APolicyRule;
+import org.dogtagpki.legacy.server.policy.PolicyRule;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -39,7 +39,7 @@ import com.netscape.cmscore.request.Request;
  *
  * @version $Revision$, $Date$
  */
-public class PresenceExt extends APolicyRule implements IExtendedPluginInfo {
+public class PresenceExt extends PolicyRule implements IExtendedPluginInfo {
     private static Vector<String> mDefParams = new Vector<>();
     @SuppressWarnings("unused")
     private ConfigStore mConfig;

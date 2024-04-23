@@ -17,12 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.legacy.policy;
 
-import org.dogtagpki.legacy.server.policy.APolicyRule;
+import org.dogtagpki.legacy.server.policy.PolicyRule;
 
 /**
  * Class for a renewal policy rule.
  *
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  */
-public abstract class RenewalPolicy extends APolicyRule {
+public abstract class RenewalPolicy extends PolicyRule {
 }

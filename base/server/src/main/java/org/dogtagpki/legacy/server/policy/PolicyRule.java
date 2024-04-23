@@ -26,8 +26,8 @@ import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.EPolicyException;
 import org.dogtagpki.legacy.policy.IExpression;
-import org.dogtagpki.legacy.policy.PolicyProcessor;
 import org.dogtagpki.legacy.policy.IPolicyRule;
+import org.dogtagpki.legacy.policy.PolicyProcessor;
 import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
 import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
@@ -43,30 +43,23 @@ import com.netscape.cmscore.request.Request;
 /**
  * The abstract policy rule that concrete implementations will
  * extend.
- * <P>
  *
- * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
- * </PRE>
- * <P>
- *
- * @version $Revision$, $Date$
  */
-public abstract class APolicyRule implements IPolicyRule {
+public abstract class PolicyRule implements IPolicyRule {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(APolicyRule.class);
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PolicyRule.class);
 
     protected String NAME = null;
     protected String DESC = null;
     protected IExpression mFilterExp = null;
     protected String mInstanceName = null;
 
-    public APolicyRule() {
+    public PolicyRule() {
     }
 
     /**
      * Initializes the policy rule.
-     * <P>
      *
      * @param config The config store reference
      */
@@ -75,7 +68,6 @@ public abstract class APolicyRule implements IPolicyRule {
 
     /**
      * Gets the description for this policy rule.
-     * <P>
      *
      * @return The Description for this rule.
      */
@@ -86,7 +78,6 @@ public abstract class APolicyRule implements IPolicyRule {
 
     /**
      * Sets a predicate expression for rule matching.
-     * <P>
      *
      * @param exp The predicate expression for the rule.
      */
@@ -97,7 +88,6 @@ public abstract class APolicyRule implements IPolicyRule {
 
     /**
      * Returns the predicate expression for the rule.
-     * <P>
      *
      * @return The predicate expression for the rule.
      */
@@ -108,7 +98,6 @@ public abstract class APolicyRule implements IPolicyRule {
 
     /**
      * Returns the name of the policy rule.
-     * <P>
      *
      * @return The name of the policy class.
      */
@@ -119,7 +108,6 @@ public abstract class APolicyRule implements IPolicyRule {
 
     /**
      * Sets the instance name for a policy rule.
-     * <P>
      *
      * @param instanceName The name of the rule instance.
      */
@@ -130,7 +118,6 @@ public abstract class APolicyRule implements IPolicyRule {
 
     /**
      * Returns the name of the policy rule instance.
-     * <P>
      *
      * @return The name of the policy rule instance if set, else
      *         the name of the rule class.
@@ -142,7 +129,6 @@ public abstract class APolicyRule implements IPolicyRule {
 
     /**
      * Applies the policy on the given Request.
-     * <P>
      *
      * @param req The request on which to apply policy.
      * @return The policy result object.
@@ -203,7 +189,6 @@ public abstract class APolicyRule implements IPolicyRule {
      * by checking the contents of the AgentApprovals attribute. This
      * call should be used by policy modules instead of returning
      * PolicyResult.DEFERRED directly.
-     * <p>
      */
     protected PolicyResult deferred(Request req) {
         // Try to find an agent approval
@@ -257,7 +242,6 @@ public abstract class APolicyRule implements IPolicyRule {
     /**
      * Form a byte array of octet string key identifier from the sha-1 hash of
      * the Subject Public Key INFO. (including algorithm ID, etc.)
-     * <p>
      *
      * @param certInfo cert info of the certificate.
      * @return A Key identifier with the sha-1 hash of subject public key.
@@ -300,7 +284,6 @@ public abstract class APolicyRule implements IPolicyRule {
     /**
      * Form a byte array of octet string key identifier from the sha-1 hash of
      * the Subject Public Key BIT STRING.
-     * <p>
      *
      * @param certInfo cert info of the certificate.
      * @return A Key identifier with the sha-1 hash of subject public key.

@@ -22,7 +22,7 @@ import java.util.Vector;
 import org.dogtagpki.legacy.policy.EPolicyException;
 import org.dogtagpki.legacy.policy.EnrollmentPolicy;
 import org.dogtagpki.legacy.policy.PolicyProcessor;
-import org.dogtagpki.legacy.server.policy.APolicyRule;
+import org.dogtagpki.legacy.server.policy.PolicyRule;
 
 import com.netscape.certsrv.request.AgentApprovals;
 import com.netscape.certsrv.request.PolicyResult;
@@ -75,17 +75,17 @@ public class AgentPolicy extends EnrollmentPolicy {
 
             try {
                 @SuppressWarnings("unchecked")
-                Class<APolicyRule> c = (Class<APolicyRule>) Class.forName(className);
+                Class<PolicyRule> c = (Class<PolicyRule>) Class.forName(className);
 
                 Object o = c.getDeclaredConstructor().newInstance();
 
-                if (!(o instanceof APolicyRule)) {
+                if (!(o instanceof PolicyRule)) {
                     throw new EPolicyException(
                             CMS.getUserMessage("CMS_POLICY_INVALID_POLICY_CLASS",
                                     getInstanceName(), className));
                 }
 
-                APolicyRule pr = (APolicyRule) o;
+                PolicyRule pr = (PolicyRule) o;
 
                 pr.init(owner, substore);
                 mPolicy = pr;
@@ -159,5 +159,5 @@ public class AgentPolicy extends EnrollmentPolicy {
         return null;
     }
 
-    APolicyRule mPolicy = null;
+    PolicyRule mPolicy = null;
 }
