@@ -41,7 +41,7 @@ import org.mozilla.jss.netscape.security.x509.OIDMap;
 import org.mozilla.jss.netscape.security.x509.SubjectAlternativeNameExtension;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 
-import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.publish.ECompSyntaxErr;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
@@ -138,7 +138,7 @@ class AVAPattern {
     /////////////
 
     public AVAPattern(String component)
-            throws ELdapException {
+            throws DBException {
         if (component == null || component.length() == 0) {
             throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX", component));
         }
@@ -147,12 +147,12 @@ class AVAPattern {
     }
 
     public AVAPattern(PushbackReader in)
-            throws ELdapException {
+            throws DBException {
         parse(in);
     }
 
     private void parse(PushbackReader in)
-            throws ELdapException {
+            throws DBException {
         int c;
 
         try {
@@ -171,7 +171,7 @@ class AVAPattern {
             try {
                 c = in.read();
             } catch (IOException e) {
-                throw new ELdapException(
+                throw new DBException(
                         CMS.getUserMessage("CMS_LDAP_INTERNAL_ERROR", e.toString()));
             }
 
@@ -189,7 +189,7 @@ class AVAPattern {
                                 "expecting $req in ava pattern"));
                     }
                 } catch (IOException e) {
-                    throw new ELdapException(
+                    throw new DBException(
                             CMS.getUserMessage("CMS_LDAP_INTERNAL_ERROR", e.toString()));
                 }
 
@@ -204,7 +204,7 @@ class AVAPattern {
                                 "expecting $subj in ava pattern"));
                     }
                 } catch (IOException e) {
-                    throw new ELdapException(
+                    throw new DBException(
                             CMS.getUserMessage("CMS_LDAP_INTERNAL_ERROR", e.toString()));
                 }
 
@@ -218,7 +218,7 @@ class AVAPattern {
                                 "expecting $ext in ava pattern"));
                     }
                 } catch (IOException e) {
-                    throw new ELdapException(
+                    throw new DBException(
                             CMS.getUserMessage("CMS_LDAP_INTERNAL_ERROR", e.toString()));
                 }
 
@@ -244,7 +244,7 @@ class AVAPattern {
                     in.unread(c); // pushback last , or +
                 }
             } catch (IOException e) {
-                throw new ELdapException(
+                throw new DBException(
                         CMS.getUserMessage("CMS_LDAP_INTERNAL_ERROR", e.toString()));
             }
 
@@ -268,7 +268,7 @@ class AVAPattern {
                         in.unread(c); // pushback last , or +
                     }
                 } catch (IOException e) {
-                    throw new ELdapException(
+                    throw new DBException(
                             CMS.getUserMessage("CMS_LDAP_INTERNAL_ERROR", e.toString()));
                 }
 
@@ -308,7 +308,7 @@ class AVAPattern {
                                 in.unread(c); // pushback last , or +
                             }
                         } catch (IOException ex) {
-                            throw new ELdapException(
+                            throw new DBException(
                                     CMS.getUserMessage("CMS_LDAP_INTERNAL_ERROR", ex.toString()));
                         }
 
@@ -348,7 +348,7 @@ class AVAPattern {
                     in.unread(c); // pushback last , or +
                 }
             } catch (IOException e) {
-                throw new ELdapException(
+                throw new DBException(
                         CMS.getUserMessage("CMS_LDAP_INTERNAL_ERROR", e.toString()));
             }
 
@@ -359,7 +359,7 @@ class AVAPattern {
     public String formAVA(Request req,
             X500Name subject,
             CertificateExtensions extensions)
-            throws ELdapException {
+            throws DBException {
         if (TYPE_CONSTANT.equals(mType)) {
             return mValue;
         }
@@ -476,7 +476,7 @@ class AVAPattern {
             // mPrefix and mValue are looked up case-insensitive
             String reqAttr = req.getExtDataInString(mPrefix, mValue);
             if (reqAttr == null) {
-                throw new ELdapException(
+                throw new DBException(
                         CMS.getUserMessage("CMS_LDAP_NO_REQUEST", mValue, ""));
             }
 

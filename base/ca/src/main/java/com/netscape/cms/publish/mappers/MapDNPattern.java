@@ -26,7 +26,7 @@ import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
 
@@ -104,7 +104,7 @@ public class MapDNPattern {
      * @exception EBaseException If parsing error occurs.
      */
     public MapDNPattern(String pattern)
-            throws ELdapException {
+            throws DBException {
         if (pattern == null || pattern.equals("")) {
             logger.debug("MapDNPattern: null pattern");
         } else {
@@ -116,12 +116,12 @@ public class MapDNPattern {
     }
 
     public MapDNPattern(PushbackReader in)
-            throws ELdapException {
+            throws DBException {
         parse(in);
     }
 
     private void parse(PushbackReader in)
-            throws ELdapException {
+            throws DBException {
         Vector<MapRDNPattern> rdnPatterns = new Vector<>();
         MapRDNPattern rdnPattern = null;
         int lastChar = -1;
@@ -132,7 +132,7 @@ public class MapDNPattern {
             try {
                 lastChar = in.read();
             } catch (IOException e) {
-                throw new ELdapException(
+                throw new DBException(
                         CMS.getUserMessage("CMS_LDAP_INTERNAL_ERROR", e.toString()));
             }
         } while (lastChar == ',');
@@ -173,7 +173,7 @@ public class MapDNPattern {
      * @return Ldap v3 DN string to use for base ldap search.
      */
     public String formDN(Request req, X500Name subject, CertificateExtensions ext)
-            throws ELdapException {
+            throws DBException {
         StringBuffer formedDN = new StringBuffer();
 
         for (int i = 0; i < mRDNPatterns.length; i++) {
@@ -186,7 +186,7 @@ public class MapDNPattern {
                     formedDN.append(",");
                 formedDN.append(rdn);
             } else {
-                throw new ELdapException("pattern not matched");
+                throw new DBException("pattern not matched");
             }
         }
         return formedDN.toString();

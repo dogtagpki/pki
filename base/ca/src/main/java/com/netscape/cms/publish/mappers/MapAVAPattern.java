@@ -35,7 +35,7 @@ import org.mozilla.jss.netscape.security.x509.OIDMap;
 import org.mozilla.jss.netscape.security.x509.SubjectAlternativeNameExtension;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 
-import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.publish.ECompSyntaxErr;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
@@ -156,19 +156,19 @@ class MapAVAPattern {
     protected String mTestDN = null;
 
     public MapAVAPattern(String component)
-            throws ELdapException {
+            throws DBException {
         if (component == null || component.length() == 0)
             throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX", component));
         parse(new PushbackReader(new StringReader(component)));
     }
 
     public MapAVAPattern(PushbackReader in)
-            throws ELdapException {
+            throws DBException {
         parse(in);
     }
 
     private void parse(PushbackReader in)
-            throws ELdapException {
+            throws DBException {
         int c;
 
         // mark ava beginning.
@@ -214,7 +214,7 @@ class MapAVAPattern {
                 if (c != -1) // either ',' or '+'
                     in.unread(c);
             } catch (IOException e) {
-                throw new ELdapException(
+                throw new DBException(
                         CMS.getUserMessage("CMS_LDAP_INTERNAL_ERROR", e.toString()));
             }
 
@@ -248,7 +248,7 @@ class MapAVAPattern {
             if (c == ',' || c == '+')
                 in.unread(c);
         } catch (IOException e) {
-            throw new ELdapException(
+            throw new DBException(
                     CMS.getUserMessage("CMS_LDAP_INTERNAL_ERROR", e.toString()));
         }
         if (c != '=')
@@ -265,7 +265,7 @@ class MapAVAPattern {
                 ;
             }
         } catch (IOException e) {
-            throw new ELdapException(
+            throw new DBException(
                     CMS.getUserMessage("CMS_LDAP_INTERNAL_ERROR", e.toString()));
         }
         if (c == -1)
@@ -278,7 +278,7 @@ class MapAVAPattern {
                 c = in.read();
                 //System.out.println("check $dn or $attr read "+(char)c);
             } catch (IOException e) {
-                throw new ELdapException(
+                throw new DBException(
                         CMS.getUserMessage("CMS_LDAP_INTERNAL_ERROR", e.toString()));
             }
             if (c == -1)
@@ -292,7 +292,7 @@ class MapAVAPattern {
                         throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
                                     "expecting $req in ava pattern"));
                 } catch (IOException e) {
-                    throw new ELdapException(
+                    throw new DBException(
                             CMS.getUserMessage("CMS_LDAP_INTERNAL_ERROR", e.toString()));
                 }
                 mType = TYPE_REQ;
@@ -306,7 +306,7 @@ class MapAVAPattern {
                         throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
                                     "expecting $subj in ava pattern"));
                 } catch (IOException e) {
-                    throw new ELdapException(
+                    throw new DBException(
                             CMS.getUserMessage("CMS_LDAP_INTERNAL_ERROR", e.toString()));
                 }
                 mType = TYPE_SUBJ;
@@ -319,7 +319,7 @@ class MapAVAPattern {
                         throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
                                     "expecting $ext in ava pattern"));
                 } catch (IOException e) {
-                    throw new ELdapException(
+                    throw new DBException(
                             CMS.getUserMessage("CMS_LDAP_INTERNAL_ERROR", e.toString()));
                 }
                 mType = TYPE_EXT;
@@ -363,7 +363,7 @@ class MapAVAPattern {
                 if (c == '+' || c == ',') // either ',' or '+'
                     in.unread(c); // pushback last , or +
             } catch (IOException e) {
-                throw new ELdapException(
+                throw new DBException(
                         CMS.getUserMessage("CMS_LDAP_INTERNAL_ERROR", e.toString()));
             }
 
@@ -386,7 +386,7 @@ class MapAVAPattern {
                     if (c == ',' || c == '+') // either ','  or '+'
                         in.unread(c); // pushback last , or +
                 } catch (IOException e) {
-                    throw new ELdapException(
+                    throw new DBException(
                             CMS.getUserMessage("CMS_LDAP_INTERNAL_ERROR", e.toString()));
                 }
                 String attrNumber = attrNumberBuf.toString().trim();
@@ -418,7 +418,7 @@ class MapAVAPattern {
                             if (c != -1) // either ',' or '+'
                                 in.unread(c); // pushback last , or +
                         } catch (IOException ex) {
-                            throw new ELdapException(
+                            throw new DBException(
                                     CMS.getUserMessage("CMS_LDAP_INTERNAL_ERROR", ex.toString()));
                         }
                         String attrNumber1 = attrNumberBuf1.toString().trim();
@@ -455,7 +455,7 @@ class MapAVAPattern {
                     in.unread(c); // pushback last , or +
                 }
             } catch (IOException e) {
-                throw new ELdapException(
+                throw new DBException(
                         CMS.getUserMessage("CMS_LDAP_INTERNAL_ERROR", e.toString()));
             }
             try {
@@ -470,7 +470,7 @@ class MapAVAPattern {
     }
 
     public String formAVA(Request req, X500Name subject, CertificateExtensions extensions)
-            throws ELdapException {
+            throws DBException {
         if (TYPE_CONSTANT.equals(mType))
             return mValue;
 
@@ -588,7 +588,7 @@ class MapAVAPattern {
             // mPrefix and mValue are looked up case-insensitive
             String reqAttr = req.getExtDataInString(mPrefix, mValue);
             if (reqAttr == null) {
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_REQUEST",
+                throw new DBException(CMS.getUserMessage("CMS_LDAP_NO_REQUEST",
                         mValue, mAttr));
             }
             return mAttr + "=" + reqAttr;

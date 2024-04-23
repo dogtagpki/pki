@@ -25,7 +25,7 @@ import java.util.Vector;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 
-import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
 
@@ -100,10 +100,10 @@ class MapRDNPattern {
      * Construct a DN pattern by parsing a pattern string.
      *
      * @param pattenr the DN pattern
-     * @exception ELdapException If parsing error occurs.
+     * @exception DBException If parsing error occurs.
      */
     public MapRDNPattern(String pattern)
-            throws ELdapException {
+            throws DBException {
         if (pattern == null || pattern.equals("")) {
             logger.debug("MapDNPattern: null pattern");
         } else {
@@ -118,12 +118,12 @@ class MapRDNPattern {
      * Construct a DN pattern from a input stream of pattern
      */
     public MapRDNPattern(PushbackReader in)
-            throws ELdapException {
+            throws DBException {
         parse(in);
     }
 
     private void parse(PushbackReader in)
-            throws ELdapException {
+            throws DBException {
         //System.out.println("_________ begin rdn _________");
         Vector<MapAVAPattern> avaPatterns = new Vector<>();
         MapAVAPattern avaPattern = null;
@@ -140,7 +140,7 @@ class MapRDNPattern {
             try {
                 lastChar = in.read();
             } catch (IOException e) {
-                throw new ELdapException(
+                throw new DBException(
                         CMS.getUserMessage("CMS_LDAP_INTERNAL_ERROR", e.toString()));
             }
         } while (lastChar == '+');
@@ -149,7 +149,7 @@ class MapRDNPattern {
             try {
                 in.unread(lastChar); // pushback last ,
             } catch (IOException e) {
-                throw new ELdapException(
+                throw new DBException(
                         CMS.getUserMessage("CMS_LDAP_INTERNAL_ERROR", e.toString()));
             }
         }
@@ -190,7 +190,7 @@ class MapRDNPattern {
      * @return Ldap v3 DN string to use for base ldap search.
      */
     public String formRDN(Request req, X500Name subject, CertificateExtensions ext)
-            throws ELdapException {
+            throws DBException {
         StringBuffer formedRDN = new StringBuffer();
 
         for (int i = 0; i < mAVAPatterns.length; i++) {
