@@ -65,7 +65,7 @@ import com.netscape.certsrv.logging.event.SecurityDataArchivalProcessedEvent;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalRequestEvent;
 import com.netscape.certsrv.logging.event.SecurityDataRecoveryEvent;
 import com.netscape.certsrv.logging.event.SecurityDataRecoveryProcessedEvent;
-import com.netscape.certsrv.request.IPolicy;
+import com.netscape.certsrv.request.Policy;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestListener;
@@ -1516,7 +1516,7 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
         mConfig.putString(PROP_NEW_NICKNAME, name);
     }
 
-    public IPolicy getPolicy() {
+    public Policy getPolicy() {
         return mPolicy;
     }
 

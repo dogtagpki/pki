@@ -23,7 +23,7 @@ import org.dogtagpki.server.ca.CAEngine;
 
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.request.IPolicy;
+import com.netscape.certsrv.request.Policy;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cmscore.profile.ProfileSubsystem;
@@ -39,7 +39,7 @@ import com.netscape.cmscore.request.Request;
  *
  * @version $Revision$, $Date$
  */
-public class CAPolicy implements IPolicy {
+public class CAPolicy extends Policy {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CAPolicy.class);
 

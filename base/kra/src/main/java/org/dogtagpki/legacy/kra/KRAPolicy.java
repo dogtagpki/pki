@@ -21,7 +21,7 @@ import org.dogtagpki.legacy.core.policy.GenericPolicyProcessor;
 import org.dogtagpki.legacy.policy.PolicyProcessor;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.request.IPolicy;
+import com.netscape.certsrv.request.Policy;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.request.Request;
 import com.netscape.kra.KeyRecoveryAuthority;
@@ -31,7 +31,7 @@ import com.netscape.kra.KeyRecoveryAuthority;
  *
  * @version $Revision$, $Date$
  */
-public class KRAPolicy implements IPolicy {
+public class KRAPolicy extends Policy {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRAPolicy.class);
 

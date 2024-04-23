@@ -20,7 +20,7 @@ package com.netscape.certsrv.request;
 import com.netscape.cmscore.request.Request;
 
 /**
- * Interface to a policy. The policy evaluates the request for
+ * Class for a policy. The policy evaluates the request for
  * correctness and completeness. It may change or add to values
  * stored in the request. The policy object also decides
  * whether a request should be queue to await approval by
@@ -30,19 +30,16 @@ import com.netscape.cmscore.request.Request;
  * of agents allowed to perform further processing. If none
  * is set, a default value ("defaultAgentGroup") will be
  * set instead.
- *
- * @version $Revision$, $Date$
  */
-public interface IPolicy {
+public abstract class Policy {
 
     /**
      * Applies the policy check to the request. The policy should
      * determine whether the request can be processed immediately,
      * or should be held pending manual approval.
-     * <p>
+     *
      * The policy can update fields in the request, to add additional values or to restrict the values to pre-determined
      * ranges.
-     * <p>
      *
      * @param request
      *            the request to check
@@ -51,5 +48,5 @@ public interface IPolicy {
      *         processor will determine the next request processing step based
      *         on this value
      */
-    PolicyResult apply(Request request);
+    public abstract PolicyResult apply(Request request);
 }

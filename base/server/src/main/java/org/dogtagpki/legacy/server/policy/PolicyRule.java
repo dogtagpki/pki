@@ -34,7 +34,7 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.request.AgentApprovals;
-import com.netscape.certsrv.request.IPolicy;
+import com.netscape.certsrv.request.Policy;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
@@ -46,7 +46,7 @@ import com.netscape.cmscore.request.Request;
  *
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  */
-public abstract class PolicyRule implements IPolicy {
+public abstract class PolicyRule extends Policy {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PolicyRule.class);
 

@@ -26,7 +26,7 @@ import java.util.Vector;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.request.AgentApprovals;
-import com.netscape.certsrv.request.IPolicy;
+import com.netscape.certsrv.request.Policy;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.certsrv.request.RequestStatus;
@@ -67,7 +67,7 @@ public class RequestQueue {
 
     // RequestIDTable mTable = new RequestIDTable();
 
-    IPolicy mPolicy;
+    Policy mPolicy;
     IService mService;
     RequestNotifier mNotify;
     RequestNotifier mPendingNotify;
@@ -95,7 +95,7 @@ public class RequestQueue {
     public RequestQueue(
             DBSubsystem dbSubsystem,
             RequestRepository requestRepository,
-            IPolicy policy,
+            Policy policy,
             IService service,
             RequestNotifier notifier,
             RequestNotifier pendingNotifier)
