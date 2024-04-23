@@ -45,7 +45,7 @@ import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -288,7 +288,7 @@ public class UpdateDir extends CMSServlet {
                             mPublisherProcessor.publishCRL(crl, crlIssuingPointId);
                         }
                         header.addStringValue("crlPublished", "Success");
-                    } catch (ELdapException e) {
+                    } catch (DBException e) {
                         header.addStringValue("crlPublished", "Failure");
                         header.addStringValue("crlError", e.toString(locale));
                         logger.warn(CMS.getLogMessage("LDAP_ERROR_PUBLISH_CRL", e.toString()), e);
@@ -330,7 +330,7 @@ public class UpdateDir extends CMSServlet {
                         } else {
                             mPublisherProcessor.publishCRL(deltaCrl, crlIssuingPointId);
                         }
-                    } catch (ELdapException e) {
+                    } catch (DBException e) {
                         logger.warn(CMS.getLogMessage("CMSGW_ERR_PUBLISH_DELTA_CRL", e.toString()), e);
                     }
                 }
@@ -402,7 +402,7 @@ public class UpdateDir extends CMSServlet {
             try {
                 mPublisherProcessor.publishCACert(caCert);
                 header.addStringValue("caCertPublished", "Success");
-            } catch (ELdapException e) {
+            } catch (DBException e) {
                 logger.warn(CMS.getLogMessage("LDAP_ERROR_PUBLISH_CACERT_1", caCert.getSerialNumber().toString(16), e.toString()));
                 header.addStringValue("caCertPublished", "Failure");
                 header.addStringValue("caCertError", e.toString(locale));
