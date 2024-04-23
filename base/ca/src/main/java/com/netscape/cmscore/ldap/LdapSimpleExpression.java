@@ -21,7 +21,7 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.util.AssertionException;
@@ -50,7 +50,7 @@ public class LdapSimpleExpression extends LdapExpression {
     public static LdapSimpleExpression NULL_EXPRESSION = new LdapSimpleExpression("null", OP_EQUAL, "null");
 
     public static LdapExpression parse(String input)
-            throws ELdapException {
+            throws DBException {
         // Get the index of operator
         // Debug.trace("LdapSimpleExpression::input: " + input);
         String var = null;
@@ -71,7 +71,7 @@ public class LdapSimpleExpression extends LdapExpression {
         if (comps == null)
             comps = parseForLT(input);
         if (comps == null)
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_BAD_LDAP_EXPRESSION", input));
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_BAD_LDAP_EXPRESSION", input));
 
         String pfx = null;
         String rawVar = comps.getAttr();
@@ -118,7 +118,7 @@ public class LdapSimpleExpression extends LdapExpression {
     }
 
     @Override
-    public boolean evaluate(SessionContext sc) throws ELdapException {
+    public boolean evaluate(SessionContext sc) throws DBException {
 
         Object givenVal;
 
@@ -160,7 +160,7 @@ public class LdapSimpleExpression extends LdapExpression {
 
     @Override
     public boolean evaluate(Request req)
-            throws ELdapException {
+            throws DBException {
         boolean result = false;
         // mPfx and mVar are looked up case-indendently
         if (mPfx != null) {
@@ -172,7 +172,7 @@ public class LdapSimpleExpression extends LdapExpression {
     }
 
     private boolean matchVector(Vector<Object> value)
-            throws ELdapException {
+            throws DBException {
         boolean result = false;
         Enumeration<Object> e = value.elements();
 
@@ -185,7 +185,7 @@ public class LdapSimpleExpression extends LdapExpression {
     }
 
     private boolean matchStringArray(String[] value)
-            throws ELdapException {
+            throws DBException {
         boolean result = false;
 
         for (int i = 0; i < value.length; i++) {
@@ -198,7 +198,7 @@ public class LdapSimpleExpression extends LdapExpression {
 
     @SuppressWarnings("unchecked")
     private boolean matchValue(Object value)
-            throws ELdapException {
+            throws DBException {
         boolean result;
 
         // There is nothing to compare with!
@@ -216,12 +216,12 @@ public class LdapSimpleExpression extends LdapExpression {
         else if (value instanceof String[])
             result = matchStringArray((String[]) value);
         else
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_INVALID_ATTR_VALUE",
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_INVALID_ATTR_VALUE",
                     value.getClass().getName()));
         return result;
     }
 
-    private boolean matchStringValue(String givenVal) throws ELdapException {
+    private boolean matchStringValue(String givenVal) throws DBException {
 
         boolean result;
 
@@ -265,7 +265,7 @@ public class LdapSimpleExpression extends LdapExpression {
     }
 
     private boolean matchIntegerValue(Integer intVal)
-            throws ELdapException {
+            throws DBException {
         boolean result;
         int storedVal;
         int givenVal = intVal.intValue();
@@ -273,7 +273,7 @@ public class LdapSimpleExpression extends LdapExpression {
         try {
             storedVal = Integer.valueOf(mVal).intValue();
         } catch (Exception e) {
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_INVALID_ATTR_VALUE", mVal));
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_INVALID_ATTR_VALUE", mVal));
 
         }
         switch (mOp) {
@@ -308,12 +308,12 @@ public class LdapSimpleExpression extends LdapExpression {
     }
 
     private boolean matchBooleanValue(Boolean givenVal)
-            throws ELdapException {
+            throws DBException {
         boolean result;
         Boolean storedVal;
 
         if (!(mVal.equalsIgnoreCase("true") || mVal.equalsIgnoreCase("false")))
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_INVALID_ATTR_VALUE",
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_INVALID_ATTR_VALUE",
                     mVal));
         storedVal = Boolean.valueOf(mVal);
         switch (mOp) {

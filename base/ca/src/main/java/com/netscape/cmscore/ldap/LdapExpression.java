@@ -18,7 +18,7 @@
 package com.netscape.cmscore.ldap;
 
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -45,7 +45,7 @@ public abstract class LdapExpression {
      * @return The return value.
      * @exception ELdapExeption Failed to evaluate expression.
      */
-    abstract boolean evaluate(SessionContext sc) throws ELdapException;
+    abstract boolean evaluate(SessionContext sc) throws DBException;
 
     /**
      * Evaluate the Expression.
@@ -54,7 +54,7 @@ public abstract class LdapExpression {
      * @return The return value.
      * @exception ELdapExeption Failed to evaluate expression.
      */
-    abstract boolean evaluate(Request req) throws ELdapException;
+    abstract boolean evaluate(Request req) throws DBException;
 
     /**
      * Convert to a string.

@@ -19,7 +19,7 @@ package com.netscape.cmscore.ldap;
 
 import java.util.Vector;
 
-import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -57,7 +57,7 @@ public class LdapPredicateParser {
      * @return expVector The vector of expressions.
      */
     public static LdapExpression parse(String predicateExpression)
-            throws ELdapException {
+            throws DBException {
         if (predicateExpression == null ||
                 predicateExpression.length() == 0)
             return null;
@@ -72,7 +72,7 @@ public class LdapPredicateParser {
 
         if (getOP(token) != EXPRESSION) {
             logger.error("Malformed expression: " + predicateExpression);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_BAD_LDAP_EXPRESSION", predicateExpression));
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_BAD_LDAP_EXPRESSION", predicateExpression));
         }
         LdapExpression current = parseExpression(token);
         boolean malformed = false;
@@ -112,7 +112,7 @@ public class LdapPredicateParser {
         }
         if (malformed) {
             logger.error("Malformed expression: " + predicateExpression);
-            throw new ELdapException(
+            throw new DBException(
                     CMS.getUserMessage("CMS_LDAP_BAD_LDAP_EXPRESSION",
                             predicateExpression));
         }
@@ -143,7 +143,7 @@ public class LdapPredicateParser {
     }
 
     private static LdapExpression parseExpression(String input)
-            throws ELdapException {
+            throws DBException {
         // If the expression has multiple parts separated by commas
         // we need to construct an AND expression. Else we will return a
         // simple expression.
@@ -274,7 +274,7 @@ class PredicateTokenizer {
         return (currentIndex != -1);
     }
 
-    public String nextToken() throws ELdapException {
+    public String nextToken() throws DBException {
         if (nextToken != null) {
             String toReturn = nextToken;
 
@@ -323,7 +323,7 @@ class PredicateTokenizer {
         } else {
             // Cannot happen; Assert here.
             logger.error("Malformed expression: Null Token");
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_BAD_LDAP_EXPRESSION"));
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_BAD_LDAP_EXPRESSION"));
         }
 
         String trimmed = toReturn.trim();

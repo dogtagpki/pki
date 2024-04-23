@@ -18,7 +18,7 @@
 package com.netscape.cmscore.ldap;
 
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -40,7 +40,7 @@ public class LdapOrExpression extends LdapExpression {
 
     @Override
     public boolean evaluate(SessionContext sc)
-            throws ELdapException {
+            throws DBException {
         if (mExp1 == null && mExp2 == null)
             return true;
         else if (mExp1 != null && mExp2 != null)
@@ -54,7 +54,7 @@ public class LdapOrExpression extends LdapExpression {
 
     @Override
     public boolean evaluate(Request req)
-            throws ELdapException {
+            throws DBException {
         if (mExp1 == null && mExp2 == null)
             return true;
         else if (mExp1 != null && mExp2 != null)
