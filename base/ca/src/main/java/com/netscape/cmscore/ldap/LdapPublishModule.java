@@ -36,7 +36,6 @@ import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
-import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.LdapConnFactory;
 import com.netscape.certsrv.publish.Mapper;
 import com.netscape.certsrv.publish.Publisher;
@@ -274,7 +273,7 @@ public class LdapPublishModule extends RequestListener {
     }
 
     public void publish(String certType, X509Certificate cert)
-            throws ELdapException {
+            throws DBException {
         // get mapper and publisher for cert type.
         LdapMappers mappers = getMappers(certType);
 
@@ -289,7 +288,7 @@ public class LdapPublishModule extends RequestListener {
     }
 
     public void unpublish(String certType, X509Certificate cert)
-            throws ELdapException {
+            throws DBException {
         // get mapper and publisher for cert type.
         LdapMappers mappers = getMappers(certType);
 
@@ -333,17 +332,17 @@ public class LdapPublishModule extends RequestListener {
         }
     }
 
-    public LDAPConnection getConn() throws ELdapException {
+    public LDAPConnection getConn() throws DBException {
         return mLdapConnFactory.getConn();
     }
 
-    public void returnConn(LDAPConnection conn) throws ELdapException {
+    public void returnConn(LDAPConnection conn) {
         mLdapConnFactory.returnConn(conn);
     }
 
     public void publish(Mapper mapper, Publisher publisher,
             X509Certificate cert)
-            throws ELdapException {
+            throws DBException {
         LDAPConnection conn = null;
 
         try {
@@ -361,7 +360,7 @@ public class LdapPublishModule extends RequestListener {
                     logger.error(CMS.getLogMessage("CMSCORE_LDAP_PUBLISH_NOT_MATCH",
                                     cert.getSerialNumber().toString(16),
                                     cert.getSubjectDN().toString()));
-                    throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH",
+                    throw new DBException(CMS.getUserMessage("CMS_LDAP_NO_MATCH",
                             cert.getSubjectDN().toString()));
                 }
             }
@@ -375,7 +374,7 @@ public class LdapPublishModule extends RequestListener {
 
     public void unpublish(Mapper mapper, Publisher publisher,
             X509Certificate cert)
-            throws ELdapException {
+            throws DBException {
         LDAPConnection conn = null;
 
         try {
@@ -392,7 +391,7 @@ public class LdapPublishModule extends RequestListener {
                     logger.error(CMS.getLogMessage("CMSCORE_LDAP_PUBLISH_NOT_MATCH",
                                     cert.getSerialNumber().toString(16),
                                     cert.getSubjectDN().toString()));
-                    throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH",
+                    throw new DBException(CMS.getUserMessage("CMS_LDAP_NO_MATCH",
                             cert.getSubjectDN().toString()));
                 }
             }
@@ -409,7 +408,7 @@ public class LdapPublishModule extends RequestListener {
      * and publishing it there. entry must be a certificate authority.
      */
     public void publish(X509CRLImpl crl)
-            throws ELdapException {
+            throws DBException {
 
         LdapMappers mappers = getMappers(PROP_TYPE_CRL);
 
@@ -432,19 +431,19 @@ public class LdapPublishModule extends RequestListener {
                 dn = result;
                 if (dn == null) {
                     logger.error(CMS.getLogMessage("CMSCORE_LDAP_CRL_NOT_MATCH"));
-                    throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH",
+                    throw new DBException(CMS.getUserMessage("CMS_LDAP_NO_MATCH",
                             crl.getIssuerDN().toString()));
                 }
             }
             mappers.publisher.publish(conn, dn, crl);
 
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             logger.error("Error publishing CRL to " + dn + ": " + e.getMessage(), e);
             throw e;
 
         } catch (IOException e) {
             logger.error("Error publishing CRL to " + dn + ": " + e.getMessage(), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_GET_ISSUER_FROM_CRL_FAILED", ""));
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_GET_ISSUER_FROM_CRL_FAILED", ""));
 
         } finally {
             if (conn != null) {
@@ -458,7 +457,7 @@ public class LdapPublishModule extends RequestListener {
      * and publishing it there. entry must be a certificate authority.
      */
     public void publish(String dn, X509CRL crl)
-            throws ELdapException {
+            throws DBException {
         LdapMappers mappers = getMappers(PROP_TYPE_CRL);
 
         if (mappers == null || mappers.publisher == null) {
@@ -472,7 +471,7 @@ public class LdapPublishModule extends RequestListener {
             conn = mLdapConnFactory.getConn();
             mappers.publisher.publish(conn, dn, crl);
 
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             logger.error("Error publishing CRL to " + dn + ": " + e.getMessage(), e);
             throw e;
 
