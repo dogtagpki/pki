@@ -21,7 +21,7 @@ import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.publish.Mapper;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
@@ -70,17 +70,17 @@ public class NoMap extends Mapper implements IExtendedPluginInfo {
      *
      * @param conn the LDAP connection.
      * @param obj the object to map.
-     * @exception ELdapException if any LDAP exceptions occured.
+     * @exception DBException if any LDAP exceptions occured.
      */
     @Override
     public String map(LDAPConnection conn, Object obj)
-            throws ELdapException {
+            throws DBException {
         return null;
     }
 
     @Override
     public String map(LDAPConnection conn, Request req, Object obj)
-            throws ELdapException {
+            throws DBException {
         return null;
     }
 

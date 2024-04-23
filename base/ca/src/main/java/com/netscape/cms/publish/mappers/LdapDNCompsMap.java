@@ -31,7 +31,7 @@ import org.mozilla.jss.netscape.security.x509.X500NameAttrMap;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.publish.Mapper;
 import com.netscape.cmscore.apps.CMS;
@@ -211,12 +211,12 @@ public abstract class LdapDNCompsMap extends Mapper implements IExtendedPluginIn
      * @param conn the LDAP connection.
      * @param x500name the dn to map.
      * @param obj the object
-     * @exception ELdapException if any LDAP exceptions occured.
+     * @exception DBException if any LDAP exceptions occured.
      * @return the DN of the entry.
      */
     public String map(LDAPConnection conn, X500Name x500name,
             byte[] obj)
-            throws ELdapException {
+            throws DBException {
         try {
             if (conn == null)
                 return null;
@@ -231,13 +231,13 @@ public abstract class LdapDNCompsMap extends Mapper implements IExtendedPluginIn
                 // #362332
                 // if (filter == null) {
                 //	logger.error("LdapDNCompsMap: No dn and filter formed");
-                //	throw new ELdapException(
+                //	throw new DBException(
                 //		LdapResources.NO_DN_AND_FILTER_COMPS,
                 //		x500name.toString());
                 // }
                 if (mBaseDN == null) {
                     logger.error(CMS.getLogMessage("PUBLISH_NO_BASE"));
-                    throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_DN_COMPS_AND_BASEDN", x500name.toString()));
+                    throw new DBException(CMS.getUserMessage("CMS_LDAP_NO_DN_COMPS_AND_BASEDN", x500name.toString()));
                 }
                 dn = mBaseDN;
             }
@@ -262,12 +262,12 @@ public abstract class LdapDNCompsMap extends Mapper implements IExtendedPluginIn
 
             if (results.hasMoreElements()) {
                 logger.error(CMS.getLogMessage("PUBLISH_MORE_THAN_ONE_ENTRY", "", x500name.toString()));
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_MORE_THAN_ONE_ENTRY",
+                throw new DBException(CMS.getUserMessage("CMS_LDAP_MORE_THAN_ONE_ENTRY",
                             x500name.toString()));
             }
             if (entry == null) {
                 logger.error(CMS.getLogMessage("PUBLISH_ENTRY_NOT_FOUND", "", x500name.toString()));
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND",
+                throw new DBException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND",
                             "null entry"));
             }
             return entry.getDN();
@@ -279,7 +279,7 @@ public abstract class LdapDNCompsMap extends Mapper implements IExtendedPluginIn
                 throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), "" + conn.getPort()), e);
             }
             logger.error(CMS.getLogMessage("PUBLISH_DN_MAP_EXCEPTION", "LDAPException", e.toString()), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND", e.toString()), e);
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND", e.toString()), e);
         }
     }
 
@@ -289,7 +289,7 @@ public abstract class LdapDNCompsMap extends Mapper implements IExtendedPluginIn
      * @param subjName subject name
      */
     public String[] formDNandFilter(X500Name subjName)
-            throws ELdapException {
+            throws DBException {
         Vector<RDN> dnRdns = new Vector<>();
         SearchFilter filter = new SearchFilter();
         X500NameAttrMap attrMap = X500NameAttrMap.getDefault();
@@ -349,7 +349,7 @@ public abstract class LdapDNCompsMap extends Mapper implements IExtendedPluginIn
             }
         } catch (IOException e) {
             logger.error(CMS.getLogMessage("PUBLISH_FROM_SUBJ_TO_DN", e.toString()), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FORM_DN_COMPS_FAILED", e.toString()), e);
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_FORM_DN_COMPS_FAILED", e.toString()), e);
         }
 
         return new String[] { dnStr, filterStr };
@@ -397,10 +397,10 @@ public abstract class LdapDNCompsMap extends Mapper implements IExtendedPluginIn
      * For example, "uid,cn,o,ou". Attribute names are case insensitive.
      *
      * @param val the string specifying the comps
-     * @exception ELdapException if any error occurs.
+     * @exception DBException if any error occurs.
      */
     public static ObjectIdentifier[] getCompsFromString(String val)
-            throws ELdapException {
+            throws DBException {
         StringTokenizer tokens;
         ObjectIdentifier[] comps;
         String attr;
@@ -425,7 +425,7 @@ public abstract class LdapDNCompsMap extends Mapper implements IExtendedPluginIn
             if (oid != null) {
                 comps[i++] = oid;
             } else {
-                throw new ELdapException(
+                throw new DBException(
                         CMS.getUserMessage("CMS_LDAP_UNKNOWN_ATTR_IN_DN_FILTER_COMPS", attr));
             }
         }

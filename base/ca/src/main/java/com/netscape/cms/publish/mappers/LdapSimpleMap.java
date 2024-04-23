@@ -29,7 +29,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.publish.Mapper;
 import com.netscape.cmscore.apps.CMS;
@@ -138,7 +138,7 @@ public class LdapSimpleMap extends Mapper implements IExtendedPluginInfo {
             mDnPattern = DEFAULT_DNPATTERN;
         try {
             mPattern = new MapDNPattern(mDnPattern);
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             logger.error(CMS.getLogMessage("PUBLISH_DN_PATTERN_INIT",
                     dnPattern, e.toString()), e);
             throw new EBaseException("falied to init with pattern " +
@@ -154,11 +154,11 @@ public class LdapSimpleMap extends Mapper implements IExtendedPluginInfo {
      *
      * @param conn the LDAP connection.
      * @param obj the object to map.
-     * @exception ELdapException if any LDAP exceptions occured.
+     * @exception DBException if any LDAP exceptions occured.
      */
     @Override
     public String map(LDAPConnection conn, Object obj)
-            throws ELdapException {
+            throws DBException {
         return map(conn, null, obj);
     }
 
@@ -169,10 +169,10 @@ public class LdapSimpleMap extends Mapper implements IExtendedPluginInfo {
      * @param conn the LDAP connection.
      * @param req the request to map.
      * @param obj the object to map.
-     * @exception ELdapException if any LDAP exceptions occured.
+     * @exception DBException if any LDAP exceptions occured.
      */
     @Override
-    public String map(LDAPConnection conn, Request req, Object obj) throws ELdapException {
+    public String map(LDAPConnection conn, Request req, Object obj) throws DBException {
 
         if (conn == null) {
             return null;
@@ -190,7 +190,7 @@ public class LdapSimpleMap extends Mapper implements IExtendedPluginInfo {
                     s1 = req.getRequestId().toString();
                 }
 
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_DN_MATCH", s1));
+                throw new DBException(CMS.getUserMessage("CMS_LDAP_NO_DN_MATCH", s1));
             }
 
             int scope = LDAPv3.SCOPE_BASE;
@@ -207,21 +207,21 @@ public class LdapSimpleMap extends Mapper implements IExtendedPluginInfo {
             if (results.hasMoreElements()) {
                 logger.error(CMS.getLogMessage("PUBLISH_MORE_THAN_ONE_ENTRY", dn, ((req == null) ? "" :
                         req.getRequestId().toString())));
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_MORE_THAN_ONE_ENTRY",
+                throw new DBException(CMS.getUserMessage("CMS_LDAP_MORE_THAN_ONE_ENTRY",
                             ((req == null) ? "" : req.getRequestId().toString())));
             }
             if (entry == null) {
                 logger.error(CMS.getLogMessage("PUBLISH_ENTRY_NOT_FOUND", dn, ((req == null) ? "" : req.getRequestId().toString())));
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND", "null entry"));
+                throw new DBException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND", "null entry"));
             }
             return entry.getDN();
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             throw e;
         } catch (LDAPException e) {
 
             if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
                 logger.error("Entry not found: " + dn);
-                throw new ELdapException("Entry not found: " + dn, e);
+                throw new DBException("Entry not found: " + dn, e);
 
             } else if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
                 // need to intercept this because message from LDAP is
@@ -231,11 +231,11 @@ public class LdapSimpleMap extends Mapper implements IExtendedPluginInfo {
                         + conn.getPort()), e);
             } else {
                 logger.error(CMS.getLogMessage("PUBLISH_DN_MAP_EXCEPTION", "", e.toString()), e);
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND", e.toString()), e);
+                throw new DBException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND", e.toString()), e);
             }
         } catch (EBaseException e) {
             logger.error(CMS.getLogMessage("PUBLISH_EXCEPTION_CAUGHT", e.toString()), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND", e.toString()), e);
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND", e.toString()), e);
         }
     }
 
@@ -246,7 +246,7 @@ public class LdapSimpleMap extends Mapper implements IExtendedPluginInfo {
      * @param obj The certificate or crl
      */
     private String formDN(Request req, Object obj) throws
-            EBaseException, ELdapException {
+            EBaseException, DBException {
         X500Name subjectDN = null;
         CertificateExtensions certExt = null;
 
@@ -287,7 +287,7 @@ public class LdapSimpleMap extends Mapper implements IExtendedPluginInfo {
             String dn = mPattern.formDN(req, subjectDN, certExt);
 
             return dn;
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             logger.warn(CMS.getLogMessage("PUBLISH_CANT_FORM_DN",
                     ((req == null) ? "" : req.getRequestId().toString()), e.toString()), e);
             throw e;

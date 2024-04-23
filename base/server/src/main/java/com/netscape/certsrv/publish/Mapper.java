@@ -20,7 +20,7 @@ package com.netscape.certsrv.publish;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
@@ -35,10 +35,10 @@ public abstract class Mapper {
      * Initialize from config store.
      *
      * @param config the configuration store to initialize from.
-     * @exception ELdapException initialization failed due to Ldap error.
+     * @exception DBException initialization failed due to Ldap error.
      * @exception EBaseException initialization failed.
      */
-    public abstract void init(ConfigStore config) throws EBaseException, ELdapException;
+    public abstract void init(ConfigStore config) throws EBaseException, DBException;
 
     /**
      * Return config store.
@@ -72,9 +72,9 @@ public abstract class Mapper {
      * @param conn the LDAP connection
      * @param obj the object to map
      * @return dn indicates whether a mapping was successful
-     * @exception ELdapException Map operation failed.
+     * @exception DBException Map operation failed.
      */
-    public abstract String map(LDAPConnection conn, Object obj) throws ELdapException;
+    public abstract String map(LDAPConnection conn, Object obj) throws DBException;
 
     /**
      * maps a certificate to a LDAP entry.
@@ -84,7 +84,7 @@ public abstract class Mapper {
      * @param r the request to map
      * @param obj the object to map
      * @return dn indicates whether a mapping was successful
-     * @exception ELdapException Map operation failed.
+     * @exception DBException Map operation failed.
      */
-    public abstract String map(LDAPConnection conn, Request r, Object obj) throws ELdapException;
+    public abstract String map(LDAPConnection conn, Request r, Object obj) throws DBException;
 }

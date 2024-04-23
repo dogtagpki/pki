@@ -26,7 +26,7 @@ import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 
-import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
 
@@ -125,7 +125,7 @@ public class LdapCertCompsMap extends LdapDNCompsMap {
     @Override
     public String
             map(LDAPConnection conn, Object obj)
-                    throws ELdapException {
+                    throws DBException {
         if (conn == null)
             return null;
         try {
@@ -142,7 +142,7 @@ public class LdapCertCompsMap extends LdapDNCompsMap {
             return result;
         } catch (CertificateEncodingException e) {
             logger.error(CMS.getLogMessage("PUBLISH_CANT_DECODE_CERT", e.toString()), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CERT_FAILED", e.toString()), e);
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CERT_FAILED", e.toString()), e);
         } catch (ClassCastException e) {
             try {
                 X509CRLImpl crl = (X509CRLImpl) obj;
@@ -157,7 +157,7 @@ public class LdapCertCompsMap extends LdapDNCompsMap {
                 return result;
             } catch (CRLException ex) {
                 logger.error(CMS.getLogMessage("PUBLISH_CANT_DECODE_CRL", ex.toString()), ex);
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CRL_FAILED", ex.toString()), ex);
+                throw new DBException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CRL_FAILED", ex.toString()), ex);
             } catch (ClassCastException ex) {
                 logger.warn(CMS.getLogMessage("PUBLISH_NOT_SUPPORTED_OBJECT"), ex);
                 return null;
@@ -167,7 +167,7 @@ public class LdapCertCompsMap extends LdapDNCompsMap {
 
     @Override
     public String map(LDAPConnection conn, Request req, Object obj)
-            throws ELdapException {
+            throws DBException {
         return map(conn, obj);
     }
 }

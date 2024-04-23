@@ -24,7 +24,7 @@ import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 
-import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
 
@@ -120,7 +120,7 @@ public class LdapCrlIssuerCompsMap extends LdapDNCompsMap {
     @Override
     public String
             map(LDAPConnection conn, Object obj)
-                    throws ELdapException {
+                    throws DBException {
         if (conn == null)
             return null;
         X509CRLImpl crl = (X509CRLImpl) obj;
@@ -137,13 +137,13 @@ public class LdapCrlIssuerCompsMap extends LdapDNCompsMap {
             return result;
         } catch (CRLException e) {
             logger.error(CMS.getLogMessage("PUBLISH_CANT_DECODE_CRL", e.toString()), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CRL_FAILED", e.toString()), e);
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CRL_FAILED", e.toString()), e);
         }
     }
 
     @Override
     public String map(LDAPConnection conn, Request req, Object obj)
-            throws ELdapException {
+            throws DBException {
         return map(conn, obj);
     }
 }

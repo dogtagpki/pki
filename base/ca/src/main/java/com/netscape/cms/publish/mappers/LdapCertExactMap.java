@@ -25,7 +25,7 @@ import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.publish.Mapper;
 import com.netscape.cmscore.apps.CMS;
@@ -113,7 +113,7 @@ public class LdapCertExactMap extends Mapper implements IExtendedPluginInfo {
     @Override
     public String
             map(LDAPConnection conn, Object obj)
-                    throws ELdapException {
+                    throws DBException {
         if (conn == null)
             return null;
 
@@ -162,18 +162,18 @@ public class LdapCertExactMap extends Mapper implements IExtendedPluginInfo {
                 throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), "" + conn.getPort()), e);
             }
             logger.error(CMS.getLogMessage("PUBLISH_DN_MAP_EXCEPTION", e.toString()), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND", e.toString()), e);
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND", e.toString()), e);
         }
 
         /*
          catch (IOException e) {
          logger.error(CMS.getLogMessage("PUBLISH_CANT_GET_SUBJECT", e.toString()), e);
-         throw new ELdapException(
+         throw new DBException(
          LdapResources.GET_CERT_SUBJECT_DN_FAILED, e);
          }
          catch (CertificateEncodingException e) {
          logger.error(CMS.getLogMessage("PUBLISH_CANT_DECODE_CERT", e.toString()), e);
-         throw new ELdapException(
+         throw new DBException(
          LdapResources.GET_DER_ENCODED_CERT_FAILED, e);
          }
          */
@@ -181,7 +181,7 @@ public class LdapCertExactMap extends Mapper implements IExtendedPluginInfo {
 
     @Override
     public String map(LDAPConnection conn, Request req, Object obj)
-            throws ELdapException {
+            throws DBException {
         return map(conn, obj);
     }
 }
