@@ -22,20 +22,23 @@ import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.IExpression;
 import org.dogtagpki.legacy.policy.IPolicyRule;
-import org.dogtagpki.legacy.policy.IPolicySet;
 
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
 
 /**
- * Implements a policy set per IPolicySet interface. This class
- * uses a vector of ordered policies to enforce priority.
+ * Represents a set of policy rules. Policy rules are ordered from
+ * lowest priority to highest priority. The priority assignment for rules
+ * is not enforced by this interface. Various implementation may
+ * use different mechanisms such as a linear ordering of rules
+ * in a configuration file or explicit assignment of priority levels ..etc.
+ * The policy system initialization needs to deal with reading the rules, sorting
+ * them in increasing order of priority and presenting an ordered vector of rules.
  *
  * @author kanda
- * @version $Revision$, $Date$
  */
-public class PolicySet implements IPolicySet {
+public class PolicySet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PolicySet.class);
 
@@ -49,34 +52,28 @@ public class PolicySet implements IPolicySet {
 
     /**
      * Returns the name of the rule set.
-     * <P>
      *
      * @return The name of the rule set.
      */
-    @Override
     public String getName() {
         return mName;
     }
 
     /**
      * Returns the no of rules in a set.
-     * <P>
      *
      * @return the no of rules.
      */
-    @Override
     public int count() {
         return mRules.size();
     }
 
     /**
      * Add a policy rule.
-     * <P>
      *
      * @param ruleName The name of the rule to be added.
      * @param rule The rule to be added.
      */
-    @Override
     public void addRule(String ruleName, IPolicyRule rule) {
         if (mRuleNames.indexOf(ruleName) >= 0)
             return; // XXX - Duplicate - Need to throw an exception.
@@ -90,7 +87,7 @@ public class PolicySet implements IPolicySet {
     }
 
     /**
-     * Remplaces a policy rule identified by the given name.
+     * Replaces a policy rule identified by the given name.
      *
      * @param ruleName The name of the rule to be replaced.
      * @param rule The rule to be replaced.
@@ -112,7 +109,6 @@ public class PolicySet implements IPolicySet {
      *
      * @param ruleName The name of the rule to be removed.
      */
-    @Override
     public void removeRule(String ruleName) {
         int index = mRuleNames.indexOf(ruleName);
 
@@ -125,12 +121,10 @@ public class PolicySet implements IPolicySet {
 
     /**
      * Returns the rule identified by a given name.
-     * <P>
      *
      * @param ruleName The name of the rule to be return.
      * @return The rule identified by the given name or null if none exists.
      */
-    @Override
     public IPolicyRule getRule(String ruleName) {
         int index = mRuleNames.indexOf(ruleName);
 
@@ -141,11 +135,9 @@ public class PolicySet implements IPolicySet {
 
     /**
      * Returns an enumeration of rules.
-     * <P>
      *
      * @return An enumeration of rules.
      */
-    @Override
     public Enumeration<IPolicyRule> getRules() {
         return mRules.elements();
     }
@@ -157,7 +149,6 @@ public class PolicySet implements IPolicySet {
      * @param req The request to apply policies on.
      * @return the PolicyResult.
      */
-    @Override
     public PolicyResult apply(Request req) {
         // If there are no rules, we are done.
 

@@ -26,7 +26,6 @@ import org.dogtagpki.legacy.policy.EPolicyException;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IExpression;
 import org.dogtagpki.legacy.policy.IPolicyRule;
-import org.dogtagpki.legacy.policy.IPolicySet;
 import org.dogtagpki.legacy.policy.IRenewalPolicy;
 import org.dogtagpki.legacy.policy.IRevocationPolicy;
 import org.dogtagpki.legacy.policy.PolicyProcessor;
@@ -369,7 +368,7 @@ public class GenericPolicyProcessor extends PolicyProcessor {
      * @return The policy result object.
      */
     public PolicyResult apply(Request request) {
-        IPolicySet rules = null;
+        PolicySet rules = null;
         String op = request.getRequestType();
 
         logger.debug("GenericPolicyProcessor: apply begins");
