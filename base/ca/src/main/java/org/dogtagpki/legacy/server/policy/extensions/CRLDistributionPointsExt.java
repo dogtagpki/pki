@@ -23,9 +23,8 @@ import java.util.Hashtable;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
+import org.dogtagpki.legacy.policy.EnrollmentPolicy;
 import org.dogtagpki.legacy.policy.PolicyProcessor;
-import org.dogtagpki.legacy.server.policy.APolicyRule;
 import org.mozilla.jss.netscape.security.util.BitArray;
 import org.mozilla.jss.netscape.security.x509.CRLDistributionPoint;
 import org.mozilla.jss.netscape.security.x509.CRLDistributionPointsExtension;
@@ -124,8 +123,7 @@ class DistPointParams {
  * CRL Distribution Points policy.
  * Adds the CRL Distribution Points extension to the certificate.
  */
-public class CRLDistributionPointsExt extends APolicyRule
-        implements IEnrollmentPolicy, IExtendedPluginInfo {
+public class CRLDistributionPointsExt extends EnrollmentPolicy implements IExtendedPluginInfo {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CRLDistributionPointsExt.class);
 

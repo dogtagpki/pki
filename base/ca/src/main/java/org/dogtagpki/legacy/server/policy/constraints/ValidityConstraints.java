@@ -21,9 +21,8 @@ import java.util.Date;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.EPolicyException;
-import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
+import org.dogtagpki.legacy.policy.EnrollmentPolicy;
 import org.dogtagpki.legacy.policy.PolicyProcessor;
-import org.dogtagpki.legacy.server.policy.APolicyRule;
 import org.mozilla.jss.netscape.security.x509.CertificateValidity;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
@@ -50,8 +49,7 @@ import com.netscape.cmscore.request.Request;
  *
  * @version $Revision$, $Date$
  */
-public class ValidityConstraints extends APolicyRule
-        implements IEnrollmentPolicy, IExtendedPluginInfo {
+public class ValidityConstraints extends EnrollmentPolicy implements IExtendedPluginInfo {
     protected long mMinValidity;
     protected long mMaxValidity;
     protected long mLeadTime;

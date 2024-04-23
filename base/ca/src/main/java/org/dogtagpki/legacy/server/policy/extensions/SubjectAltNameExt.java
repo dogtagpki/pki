@@ -23,11 +23,10 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.core.policy.SubjAltNameGN;
-import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
+import org.dogtagpki.legacy.policy.EnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IGeneralNameUtil;
-import org.dogtagpki.legacy.policy.PolicyProcessor;
 import org.dogtagpki.legacy.policy.ISubjAltNameConfig;
-import org.dogtagpki.legacy.server.policy.APolicyRule;
+import org.dogtagpki.legacy.policy.PolicyProcessor;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateVersion;
 import org.mozilla.jss.netscape.security.x509.GeneralName;
@@ -65,8 +64,7 @@ import com.netscape.cmscore.request.Request;
  *
  * @version $Revision$, $Date$
  */
-public class SubjectAltNameExt extends APolicyRule
-        implements IEnrollmentPolicy, IExtendedPluginInfo {
+public class SubjectAltNameExt extends EnrollmentPolicy implements IExtendedPluginInfo {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SubjectAltNameExt.class);
 

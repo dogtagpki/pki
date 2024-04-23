@@ -21,9 +21,8 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.EPolicyException;
-import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
+import org.dogtagpki.legacy.policy.EnrollmentPolicy;
 import org.dogtagpki.legacy.policy.PolicyProcessor;
-import org.dogtagpki.legacy.server.policy.APolicyRule;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.CertificateAlgorithmId;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
@@ -49,8 +48,7 @@ import com.netscape.cmscore.request.Request;
  *
  * @version $Revision$, $Date$
  */
-public class SigningAlgorithmConstraints extends APolicyRule
-        implements IEnrollmentPolicy, IExtendedPluginInfo {
+public class SigningAlgorithmConstraints extends EnrollmentPolicy implements IExtendedPluginInfo {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SigningAlgorithmConstraints.class);
 

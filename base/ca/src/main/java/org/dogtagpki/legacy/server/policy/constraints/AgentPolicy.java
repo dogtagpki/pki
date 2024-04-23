@@ -20,7 +20,7 @@ package org.dogtagpki.legacy.server.policy.constraints;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.EPolicyException;
-import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
+import org.dogtagpki.legacy.policy.EnrollmentPolicy;
 import org.dogtagpki.legacy.policy.PolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
 
@@ -45,8 +45,7 @@ import com.netscape.cmscore.request.Request;
  *
  * @version $Revision$, $Date$
  */
-public class AgentPolicy extends APolicyRule
-        implements IEnrollmentPolicy {
+public class AgentPolicy extends EnrollmentPolicy {
     public AgentPolicy() {
         NAME = "AgentPolicy";
         DESC = "Agent Approval Policy";

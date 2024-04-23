@@ -27,9 +27,8 @@ import java.security.cert.CertificateException;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.EPolicyException;
-import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
+import org.dogtagpki.legacy.policy.EnrollmentPolicy;
 import org.dogtagpki.legacy.policy.PolicyProcessor;
-import org.dogtagpki.legacy.server.policy.APolicyRule;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateVersion;
 import org.mozilla.jss.netscape.security.x509.NSCCommentExtension;
@@ -54,8 +53,7 @@ import com.netscape.cmscore.request.Request;
  *
  * @version $Revision$, $Date$
  */
-public class NSCCommentExt extends APolicyRule
-        implements IEnrollmentPolicy, IExtendedPluginInfo {
+public class NSCCommentExt extends EnrollmentPolicy implements IExtendedPluginInfo {
 
     protected static final String PROP_USER_NOTICE_DISPLAY_TEXT = "displayText";
     protected static final String PROP_COMMENT_FILE = "commentFile";

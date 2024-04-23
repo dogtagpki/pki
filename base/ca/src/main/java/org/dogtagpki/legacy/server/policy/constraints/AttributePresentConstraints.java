@@ -21,9 +21,8 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
+import org.dogtagpki.legacy.policy.EnrollmentPolicy;
 import org.dogtagpki.legacy.policy.PolicyProcessor;
-import org.dogtagpki.legacy.server.policy.APolicyRule;
 import org.dogtagpki.server.ca.CAEngine;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -53,8 +52,7 @@ import netscape.ldap.LDAPv3;
  *
  * @version $Revision$, $Date$
  */
-public class AttributePresentConstraints extends APolicyRule
-        implements IEnrollmentPolicy, IExtendedPluginInfo {
+public class AttributePresentConstraints extends EnrollmentPolicy implements IExtendedPluginInfo {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AttributePresentConstraints.class);
 

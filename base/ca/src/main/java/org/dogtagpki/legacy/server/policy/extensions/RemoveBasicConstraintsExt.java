@@ -21,9 +21,8 @@ import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.Vector;
 
-import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
+import org.dogtagpki.legacy.policy.EnrollmentPolicy;
 import org.dogtagpki.legacy.policy.PolicyProcessor;
-import org.dogtagpki.legacy.server.policy.APolicyRule;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
@@ -47,8 +46,7 @@ import com.netscape.cmscore.request.Request;
  *
  * @version $Revision$, $Date$
  */
-public class RemoveBasicConstraintsExt extends APolicyRule
-        implements IEnrollmentPolicy, IExtendedPluginInfo {
+public class RemoveBasicConstraintsExt extends EnrollmentPolicy implements IExtendedPluginInfo {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RemoveBasicConstraintsExt.class);
 

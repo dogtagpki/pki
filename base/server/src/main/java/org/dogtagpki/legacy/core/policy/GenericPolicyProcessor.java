@@ -23,7 +23,7 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.EPolicyException;
-import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
+import org.dogtagpki.legacy.policy.EnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IExpression;
 import org.dogtagpki.legacy.policy.IPolicyRule;
 import org.dogtagpki.legacy.policy.IRenewalPolicy;
@@ -231,7 +231,7 @@ public class GenericPolicyProcessor extends PolicyProcessor {
             try {
                 Object o = Class.forName(clPath).getDeclaredConstructor().newInstance();
 
-                if (!(o instanceof IEnrollmentPolicy) &&
+                if (!(o instanceof EnrollmentPolicy) &&
                         !(o instanceof IRenewalPolicy) &&
                         !(o instanceof IRevocationPolicy))
                     throw new EPolicyException(
@@ -577,7 +577,7 @@ public class GenericPolicyProcessor extends PolicyProcessor {
         }
 
         // Does the class implement one of the four interfaces?
-        if (!(impl instanceof IEnrollmentPolicy) &&
+        if (!(impl instanceof EnrollmentPolicy) &&
                 !(impl instanceof IRenewalPolicy) &&
                 !(impl instanceof IRevocationPolicy))
             throw new EPolicyException(
@@ -715,7 +715,7 @@ public class GenericPolicyProcessor extends PolicyProcessor {
 
         IPolicyRule rule = instance.getRule();
 
-        if (rule instanceof IEnrollmentPolicy)
+        if (rule instanceof EnrollmentPolicy)
             mEnrollmentRules.removeRule(id);
         if (rule instanceof IRenewalPolicy)
             mRenewalRules.removeRule(id);
@@ -955,7 +955,7 @@ public class GenericPolicyProcessor extends PolicyProcessor {
         // If rule is disabled, we need to remove it from the
         // policy set.
         if (!active) {
-            if (rule instanceof IEnrollmentPolicy)
+            if (rule instanceof EnrollmentPolicy)
                 mEnrollmentRules.removeRule(id);
             if (rule instanceof IRenewalPolicy)
                 mRenewalRules.removeRule(id);
@@ -963,7 +963,7 @@ public class GenericPolicyProcessor extends PolicyProcessor {
                 mRevocationRules.removeRule(id);
         } else // replace the rule
         {
-            if (rule instanceof IEnrollmentPolicy)
+            if (rule instanceof EnrollmentPolicy)
                 mEnrollmentRules.replaceRule(id, newRule);
             if (rule instanceof IRenewalPolicy)
                 mRenewalRules.replaceRule(id, newRule);
@@ -1010,7 +1010,7 @@ public class GenericPolicyProcessor extends PolicyProcessor {
                 ConfigStore ruleConfig = mConfig.getSubStore(PROP_DEF_POLICIES + "." + defRuleName, ConfigStore.class);
 
                 defRule.init(this, ruleConfig);
-                if (defRule instanceof IEnrollmentPolicy)
+                if (defRule instanceof EnrollmentPolicy)
                     enrollmentRules.addRule(defRuleName, defRule);
                 else if (defRule instanceof IRenewalPolicy)
                     renewalRules.addRule(defRuleName, defRule);
@@ -1039,7 +1039,7 @@ public class GenericPolicyProcessor extends PolicyProcessor {
             // rule is enabled.
             IPolicyRule rule = pInstance.getRule();
 
-            if (rule instanceof IEnrollmentPolicy)
+            if (rule instanceof EnrollmentPolicy)
                 enrollmentRules.addRule(instanceName, rule);
             else if (rule instanceof IRenewalPolicy)
                 renewalRules.addRule(instanceName, rule);
@@ -1325,7 +1325,7 @@ public class GenericPolicyProcessor extends PolicyProcessor {
     }
 
     private void addRule(String ruleName, IPolicyRule rule) {
-        if (rule instanceof IEnrollmentPolicy)
+        if (rule instanceof EnrollmentPolicy)
             mEnrollmentRules.addRule(ruleName, rule);
         if (rule instanceof IRenewalPolicy)
             mRenewalRules.addRule(ruleName, rule);

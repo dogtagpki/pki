@@ -22,9 +22,8 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Vector;
 
-import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
+import org.dogtagpki.legacy.policy.EnrollmentPolicy;
 import org.dogtagpki.legacy.policy.PolicyProcessor;
-import org.dogtagpki.legacy.server.policy.APolicyRule;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateVersion;
@@ -51,8 +50,7 @@ import com.netscape.cmscore.request.Request;
  *
  * @version $Revision$, $Date$
  */
-public class KeyUsageExt extends APolicyRule
-        implements IEnrollmentPolicy, IExtendedPluginInfo {
+public class KeyUsageExt extends EnrollmentPolicy implements IExtendedPluginInfo {
 
     private final static String HTTP_INPUT = "HTTP_INPUT";
     protected static final boolean[] DEF_BITS =

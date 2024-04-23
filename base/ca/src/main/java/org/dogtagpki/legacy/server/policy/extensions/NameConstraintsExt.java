@@ -23,10 +23,9 @@ import java.util.Vector;
 
 import org.dogtagpki.legacy.core.policy.GeneralNameAsConstraintsConfig;
 import org.dogtagpki.legacy.core.policy.GeneralNameConfig;
-import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
+import org.dogtagpki.legacy.policy.EnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IGeneralNameAsConstraintsConfig;
 import org.dogtagpki.legacy.policy.PolicyProcessor;
-import org.dogtagpki.legacy.server.policy.APolicyRule;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateVersion;
 import org.mozilla.jss.netscape.security.x509.GeneralSubtree;
@@ -54,8 +53,7 @@ import com.netscape.cmscore.request.Request;
  *
  * @version $Revision$, $Date$
  */
-public class NameConstraintsExt extends APolicyRule
-        implements IEnrollmentPolicy, IExtendedPluginInfo {
+public class NameConstraintsExt extends EnrollmentPolicy implements IExtendedPluginInfo {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NameConstraintsExt.class);
 

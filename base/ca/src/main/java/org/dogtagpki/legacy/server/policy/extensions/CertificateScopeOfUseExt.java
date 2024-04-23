@@ -22,10 +22,9 @@ import java.security.cert.CertificateException;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.core.policy.GeneralNameUtil;
-import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
+import org.dogtagpki.legacy.policy.EnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IGeneralNameUtil;
 import org.dogtagpki.legacy.policy.PolicyProcessor;
-import org.dogtagpki.legacy.server.policy.APolicyRule;
 import org.mozilla.jss.netscape.security.extensions.CertificateScopeEntry;
 import org.mozilla.jss.netscape.security.extensions.CertificateScopeOfUseExtension;
 import org.mozilla.jss.netscape.security.util.BigInt;
@@ -53,8 +52,7 @@ import com.netscape.cmscore.request.Request;
  *
  * @version $Revision$, $Date$
  */
-public class CertificateScopeOfUseExt extends APolicyRule implements
-        IEnrollmentPolicy, IExtendedPluginInfo {
+public class CertificateScopeOfUseExt extends EnrollmentPolicy implements IExtendedPluginInfo {
     protected static final String PROP_CRITICAL =
             "critical";
     protected static final String PROP_ENTRY =

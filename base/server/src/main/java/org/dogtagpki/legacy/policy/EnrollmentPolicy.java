@@ -17,18 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.legacy.policy;
 
+import org.dogtagpki.legacy.server.policy.APolicyRule;
+
 /**
- * Interface for an enrollment policy rule. This provides general
+ * Class for an enrollment policy rule. This provides general
  * typing for rules so that a policy processor can group rules
  * based on a particular type.
- * <P>
  *
- * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
- * </PRE>
- * <P>
- *
- * @version $Revision$, $Date$
  */
-public interface IEnrollmentPolicy extends IPolicyRule {
+public abstract class EnrollmentPolicy extends APolicyRule {
 }

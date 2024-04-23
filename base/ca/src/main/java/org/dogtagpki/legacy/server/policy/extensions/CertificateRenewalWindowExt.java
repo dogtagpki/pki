@@ -22,9 +22,8 @@ import java.security.cert.CertificateException;
 import java.util.Date;
 import java.util.Vector;
 
-import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
+import org.dogtagpki.legacy.policy.EnrollmentPolicy;
 import org.dogtagpki.legacy.policy.PolicyProcessor;
-import org.dogtagpki.legacy.server.policy.APolicyRule;
 import org.mozilla.jss.netscape.security.extensions.CertificateRenewalWindowExtension;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateVersion;
@@ -48,8 +47,7 @@ import com.netscape.cmscore.request.Request;
  *
  * @version $Revision$, $Date$
  */
-public class CertificateRenewalWindowExt extends APolicyRule
-        implements IEnrollmentPolicy, IExtendedPluginInfo {
+public class CertificateRenewalWindowExt extends EnrollmentPolicy implements IExtendedPluginInfo {
 
     protected static final String PROP_END_TIME = "relativeEndTime";
     protected static final String PROP_BEGIN_TIME = "relativeBeginTime";

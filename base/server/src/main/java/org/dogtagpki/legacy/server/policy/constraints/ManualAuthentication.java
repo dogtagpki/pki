@@ -20,9 +20,8 @@ package org.dogtagpki.legacy.server.policy.constraints;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.EPolicyException;
-import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
+import org.dogtagpki.legacy.policy.EnrollmentPolicy;
 import org.dogtagpki.legacy.policy.PolicyProcessor;
-import org.dogtagpki.legacy.server.policy.APolicyRule;
 import org.dogtagpki.server.authentication.AuthToken;
 
 import com.netscape.certsrv.request.PolicyResult;
@@ -43,8 +42,7 @@ import com.netscape.cmscore.request.Request;
  *
  * @version $Revision$, $Date$
  */
-public class ManualAuthentication extends APolicyRule
-        implements IEnrollmentPolicy {
+public class ManualAuthentication extends EnrollmentPolicy {
     public ManualAuthentication() {
         NAME = "ManualAuthentication";
         DESC = "Manual Authentication Policy";
