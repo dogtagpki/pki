@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.usrgrp;
 
-import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.usrgrp.User;
 
@@ -45,10 +44,9 @@ public abstract class CertUserLocator {
      * @return an user interface
      * @exception EUsrGrpException thrown when failed to build user
      * @exception LDAPException thrown when LDAP internal database is not available
-     * @exception ELdapException thrown when the LDAP search failed
      */
     public abstract User locateUser(Certificates certs) throws
-            EUsrGrpException, LDAPException, ELdapException;
+            EUsrGrpException, LDAPException;
 
     /**
      * Retrieves description.

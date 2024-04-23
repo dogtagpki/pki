@@ -19,7 +19,6 @@ package com.netscape.cmscore.usrgrp;
 
 import java.security.cert.X509Certificate;
 
-import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.usrgrp.CertUserLocator;
 import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
@@ -60,7 +59,7 @@ public class CertDNCertUserLocator extends CertUserLocator {
      */
     @Override
     public User locateUser(Certificates certs) throws
-            EUsrGrpException, LDAPException, ELdapException {
+            EUsrGrpException, LDAPException {
 
         UGSubsystem mUG = engine.getUGSubsystem();
 
