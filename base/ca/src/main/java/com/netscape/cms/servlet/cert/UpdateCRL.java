@@ -49,7 +49,7 @@ import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.EErrorPublishCRL;
-import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.event.ScheduleCRLGenerationEvent;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -593,14 +593,18 @@ public class UpdateCRL extends CMSServlet {
                 );
             }
 
-        } catch (EBaseException e) {
+        } catch (DBException e) {
             logger.error(CMS.getLogMessage("CMSGW_ERR_UPDATE_CRL", e.toString()), e);
-            if ((lpm != null) && lpm.isCRLPublishingEnabled() && (e instanceof ELdapException)) {
+            if ((lpm != null) && lpm.isCRLPublishingEnabled()) {
                 header.addStringValue("crlPublished", "Failure");
                 header.addStringValue("error", e.toString(locale));
             } else {
                 throw e;
             }
+
+        } catch (EBaseException e) {
+            logger.error(CMS.getLogMessage("CMSGW_ERR_UPDATE_CRL", e.toString()), e);
+            throw e;
         }
     }
 
