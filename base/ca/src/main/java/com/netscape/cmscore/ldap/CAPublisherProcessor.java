@@ -30,10 +30,10 @@ import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.certdb.CertId;
-import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.publish.Mapper;
 import com.netscape.certsrv.publish.Publisher;
 import com.netscape.cms.publish.mappers.LdapCertSubjMap;
@@ -176,10 +176,10 @@ public class CAPublisherProcessor extends PublisherProcessor {
      * Publish ca cert, UpdateDir.java, jobs, request listeners
      *
      * @param cert X509 certificate to be published.
-     * @exception ELdapException publish failed due to Ldap error.
-     * @throws ELdapException
+     * @exception DBException publish failed due to Ldap error.
+     * @throws DBException
      */
-    public void publishCACert(X509Certificate cert) throws ELdapException {
+    public void publishCACert(X509Certificate cert) throws DBException {
 
         boolean error = false;
         StringBuffer errorRule = new StringBuffer();
@@ -199,7 +199,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
                 return;
             }
             logger.warn(CMS.getLogMessage("CMSCORE_LDAP_NO_RULE_FOUND", PROP_LOCAL_CA));
-            //throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_RULE_MATCHED", PROP_LOCAL_CA));
+            //throw new DBException(CMS.getUserMessage("CMS_LDAP_NO_RULE_MATCHED", PROP_LOCAL_CA));
             return;
         }
 
@@ -208,7 +208,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
 
             if (rule == null) {
                 logger.error("CAPublisherProcessor: Missing publishing rule");
-                throw new ELdapException("Missing publishing rule");
+                throw new DBException("Missing publishing rule");
             }
 
             logger.info("CAPublisherProcessor: publish certificate type=" + PROP_LOCAL_CA +
@@ -238,16 +238,16 @@ public class CAPublisherProcessor extends PublisherProcessor {
         if (!error) {
             setPublishedFlag(cert.getSerialNumber(), true);
         } else {
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_FAILED", errorRule.toString()));
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_PUBLISH_FAILED", errorRule.toString()));
         }
     }
 
     /**
      * This function is never called. CMS does not unpublish
      * CA certificate.
-     * @throws ELdapException
+     * @throws DBException
      */
-    public void unpublishCACert(X509Certificate cert) throws ELdapException {
+    public void unpublishCACert(X509Certificate cert) throws DBException {
 
         boolean error = false;
         StringBuffer errorRule = new StringBuffer();
@@ -265,7 +265,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
                 return;
             }
             logger.error("CAPublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_NO_UNPUBLISHING_RULE_FOUND", PROP_LOCAL_CA));
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_RULE_MATCHED", PROP_LOCAL_CA));
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_NO_RULE_MATCHED", PROP_LOCAL_CA));
         }
 
         while (rules.hasMoreElements()) {
@@ -274,7 +274,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
             if (rule == null) {
                 logger.error("CAPublisherProcessor::unpublishCACert() - "
                          + "rule is null!");
-                throw new ELdapException("rule is null");
+                throw new DBException("rule is null");
             }
 
             try {
@@ -305,7 +305,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
         if (!error) {
             setPublishedFlag(cert.getSerialNumber(), false);
         } else {
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_UNPUBLISH_FAILED", errorRule.toString()));
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_UNPUBLISH_FAILED", errorRule.toString()));
         }
     }
 
@@ -313,10 +313,10 @@ public class CAPublisherProcessor extends PublisherProcessor {
      * Publish crossCertificatePair
      *
      * @param pair Byte array representing cert pair.
-     * @throws ELdapException
-     * @exception EldapException publish failed due to Ldap error.
+     * @throws DBException
+     * @exception DBException publish failed due to Ldap error.
      */
-    public void publishXCertPair(byte[] pair) throws ELdapException {
+    public void publishXCertPair(byte[] pair) throws DBException {
 
         String errorRule = "";
 
@@ -335,7 +335,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
                 return;
             }
             logger.error("CAPublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_NO_RULE_FOUND", PROP_XCERT));
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_RULE_MATCHED", PROP_XCERT));
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_NO_RULE_MATCHED", PROP_XCERT));
         }
 
         while (rules.hasMoreElements()) {
@@ -343,7 +343,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
 
             if (rule == null) {
                 logger.error("CAPublisherProcessor: Missing publishing rule");
-                throw new ELdapException("Missing publishing rule");
+                throw new DBException("Missing publishing rule");
             }
 
             logger.info("CAPublisherProcessor: publish certificate type=" + PROP_XCERT +
@@ -378,10 +378,10 @@ public class CAPublisherProcessor extends PublisherProcessor {
      *
      * @param cert X509 certificate to be published.
      * @param req request which provides the criteria
-     * @exception ELdapException publish failed due to Ldap error.
-     * @throws ELdapException
+     * @exception DBException publish failed due to Ldap error.
+     * @throws DBException
      */
-    public void publishCert(X509Certificate cert, Request req) throws ELdapException {
+    public void publishCert(X509Certificate cert, Request req) throws DBException {
 
         CertId certID = new CertId(cert.getSerialNumber());
         logger.info("CAPublisherProcessor: Publishing cert " + certID.toHexString());
@@ -438,7 +438,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
             setPublishedFlag(cert.getSerialNumber(), true);
         } else {
             logger.error("PublishProcessor::publishCert : " + CMS.getUserMessage("CMS_LDAP_PUBLISH_FAILED", errorRule.toString()));
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_FAILED", errorRule.toString()));
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_PUBLISH_FAILED", errorRule.toString()));
         }
     }
 
@@ -448,10 +448,10 @@ public class CAPublisherProcessor extends PublisherProcessor {
      *
      * @param cert X509 certificate to be unpublished.
      * @param req request which provides the criteria
-     * @exception ELdapException unpublish failed due to Ldap error.
-     * @throws ELdapException
+     * @exception DBException unpublish failed due to Ldap error.
+     * @throws DBException
      */
-    public void unpublishCert(X509Certificate cert, Request req) throws ELdapException {
+    public void unpublishCert(X509Certificate cert, Request req) throws DBException {
 
         CertId certID = new CertId(cert.getSerialNumber());
         logger.info("CAPublisherProcessor: Unpublishing cert " + certID.toHexString());
@@ -469,7 +469,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
 
         if (rules == null || !rules.hasMoreElements()) {
             logger.error("CAPublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_NO_UNPUBLISHING_RULE_FOUND_FOR_REQUEST", "certs", req.getRequestId().toHexString()));
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_RULE_MATCHED", req.getRequestId().toString()));
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_NO_RULE_MATCHED", req.getRequestId().toString()));
         }
 
         while (rules.hasMoreElements()) {
@@ -477,7 +477,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
 
             if (rule == null) {
                 logger.error("CAPublisherProcessor: Missing publishing rule");
-                throw new ELdapException("Missing publishing rule");
+                throw new DBException("Missing publishing rule");
             }
 
             try {
@@ -506,7 +506,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
         if (!error) {
             setPublishedFlag(cert.getSerialNumber(), false);
         } else {
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_UNPUBLISH_FAILED", errorRule.toString()));
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_UNPUBLISH_FAILED", errorRule.toString()));
         }
     }
 
@@ -517,10 +517,10 @@ public class CAPublisherProcessor extends PublisherProcessor {
      *
      * @param crl Certificate Revocation List
      * @param crlIssuingPointId name of the issuing point.
-     * @exception ELdapException publish failed due to Ldap error.
-     * @throws ELdapException
+     * @exception DBException publish failed due to Ldap error.
+     * @throws DBException
      */
-    public void publishCRL(X509CRLImpl crl, String crlIssuingPointId) throws ELdapException {
+    public void publishCRL(X509CRLImpl crl, String crlIssuingPointId) throws DBException {
 
         if (!isCRLPublishingEnabled()) {
             return;
@@ -536,7 +536,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
 
         if (rules == null || !rules.hasMoreElements()) {
             logger.error("CAPublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_NO_RULE_FOR_CRL"));
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_RULE_MATCHED", PROP_LOCAL_CRL));
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_NO_RULE_MATCHED", PROP_LOCAL_CRL));
         }
 
         LDAPConnection conn = null;
@@ -572,7 +572,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
                         if (!createOwnDNEntry) {
                             if (dn == null) {
                                 logger.error("CAPublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_MAPPER_NOT_MAP", rule.getMapper()));
-                                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH", crl.getIssuerDN().toString()));
+                                throw new DBException(CMS.getUserMessage("CMS_LDAP_NO_MATCH", crl.getIssuerDN().toString()));
                             }
                         }
                     }
@@ -603,7 +603,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
                 }
             }
 
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             logger.error("Error publishing CRL to " + dn + ": " + e.getMessage(), e);
             throw e;
 
@@ -614,7 +614,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
         }
 
         if (error) {
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_FAILED", errorRule));
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_PUBLISH_FAILED", errorRule));
         }
     }
 
@@ -624,10 +624,10 @@ public class CAPublisherProcessor extends PublisherProcessor {
      *
      * @param dn Distinguished name to publish.
      * @param crl Certificate Revocation List
-     * @exception ELdapException publish failed due to Ldap error.
-     * @throws ELdapException
+     * @exception DBException publish failed due to Ldap error.
+     * @throws DBException
      */
-    public void publishCRL(String dn, X509CRL crl) throws ELdapException {
+    public void publishCRL(String dn, X509CRL crl) throws DBException {
 
         boolean error = false;
         String errorRule = "";
@@ -641,7 +641,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
 
         if (rules == null || !rules.hasMoreElements()) {
             logger.error("CAPublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_NO_RULE_FOR_CRL"));
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_RULE_MATCHED",
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_NO_RULE_MATCHED",
                     PROP_LOCAL_CRL));
         }
 
@@ -673,7 +673,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
                 }
             }
 
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             logger.error("Error publishing CRL to " + dn + ": " + e.getMessage(), e);
             throw e;
 
@@ -684,11 +684,11 @@ public class CAPublisherProcessor extends PublisherProcessor {
         }
 
         if (error) {
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_FAILED", errorRule));
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_PUBLISH_FAILED", errorRule));
         }
     }
 
-    private void publishNow(Mapper mapper, Publisher publisher, Request r, Object obj) throws ELdapException {
+    private void publishNow(Mapper mapper, Publisher publisher, Request r, Object obj) throws DBException {
 
         if (!isCertPublishingEnabled()) {
             return;
@@ -705,7 +705,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
                 if (mLdapConnModule != null) {
                     try {
                         conn = mLdapConnModule.getConn();
-                    } catch (ELdapException e) {
+                    } catch (DBException e) {
                         throw e;
                     }
                 }
@@ -751,11 +751,11 @@ public class CAPublisherProcessor extends PublisherProcessor {
 
             logger.info("CAPublisherProcessor: Published cert 0x" + cert.getSerialNumber().toString(16));
 
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             throw e;
 
         } catch (Throwable e) {
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH", e.toString()));
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_NO_MATCH", e.toString()));
 
         } finally {
             if (conn != null) {
@@ -806,11 +806,11 @@ public class CAPublisherProcessor extends PublisherProcessor {
 
             logger.info("CAPublisherProcessor: published crossCertPair");
 
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             throw e;
 
         } catch (Throwable e) {
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH", e.toString()));
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_NO_MATCH", e.toString()));
 
         } finally {
             if (conn != null) {
@@ -819,7 +819,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
         }
     }
 
-    private void unpublishNow(Mapper mapper, Publisher publisher, Request r, Object obj) throws ELdapException {
+    private void unpublishNow(Mapper mapper, Publisher publisher, Request r, Object obj) throws DBException {
 
         if (!isCertPublishingEnabled()) {
             return;
@@ -844,7 +844,7 @@ public class CAPublisherProcessor extends PublisherProcessor {
 
             logger.info("CAPublisherProcessor: Unpublished cert 0x" + cert.getSerialNumber().toString(16));
 
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             throw e;
 
         } finally {
