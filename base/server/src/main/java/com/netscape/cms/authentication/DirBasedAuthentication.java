@@ -45,7 +45,7 @@ import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.ldap.LdapConnFactory;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
@@ -539,7 +539,7 @@ public abstract class DirBasedAuthentication extends AuthManager implements IExt
             if (mConnFactory != null) {
                 mConnFactory.reset();
             }
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             // ignore
             logger.warn("DirBasedAuthentication: " + CMS.getLogMessage("CMS_AUTH_SHUTDOWN_ERROR", e.toString()), e);
         }
@@ -631,7 +631,7 @@ public abstract class DirBasedAuthentication extends AuthManager implements IExt
             switch (e.getLDAPResultCode()) {
             case LDAPException.SERVER_DOWN:
                 logger.error("DirBasedAuthentication: " + CMS.getLogMessage("CMS_AUTH_NO_AUTH_ATTR_ERROR"));
-                throw new ELdapException(
+                throw new DBException(
                         CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), "" + conn.getPort()));
 
             case LDAPException.NO_SUCH_OBJECT:
@@ -641,7 +641,7 @@ public abstract class DirBasedAuthentication extends AuthManager implements IExt
                 // fall to below.
             default:
                 logger.error("DirBasedAuthentication: " + CMS.getLogMessage("LDAP_ERROR", e.toString()));
-                throw new ELdapException(
+                throw new DBException(
                         CMS.getUserMessage("CMS_LDAP_OTHER_LDAP_EXCEPTION",
                                 e.errorCodeToString()));
             }

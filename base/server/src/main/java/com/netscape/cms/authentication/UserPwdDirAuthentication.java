@@ -36,7 +36,7 @@ import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
@@ -354,12 +354,12 @@ public class UserPwdDirAuthentication extends DirBasedAuthentication {
 
             case LDAPException.SERVER_DOWN:
                 logger.error("UserPwdDirAuthentication: " + CMS.getLogMessage("LDAP_SERVER_DOWN"));
-                throw new ELdapException(
+                throw new DBException(
                         CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), "" + conn.getPort()));
 
             default:
                 logger.error("UserPwdDirAuthentication: " + CMS.getLogMessage("OPERATION_ERROR", e.getMessage()));
-                throw new ELdapException(
+                throw new DBException(
                         CMS.getUserMessage("CMS_LDAP_OTHER_LDAP_EXCEPTION",
                                 e.errorCodeToString()));
             }

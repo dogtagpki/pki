@@ -33,7 +33,7 @@ import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
@@ -243,12 +243,12 @@ public class PortalEnroll extends DirBasedAuthentication {
 
             case LDAPException.SERVER_DOWN:
                 logger.error("PortalEnroll: " + CMS.getLogMessage("LDAP_SERVER_DOWN"));
-                throw new ELdapException(
+                throw new DBException(
                         CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), "" + conn.getPort()));
 
             default:
                 logger.error("PortalEnroll: " + CMS.getLogMessage("LDAP_ERROR", e.getMessage()));
-                throw new ELdapException(
+                throw new DBException(
                         CMS.getUserMessage("CMS_LDAP_OTHER_LDAP_EXCEPTION",
                                 e.errorCodeToString()));
             }
