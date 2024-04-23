@@ -33,6 +33,7 @@ import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.Subsystem;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.ldap.ELdapException;
@@ -558,7 +559,7 @@ class HandleEnrollment extends RequestListener {
                 logger.debug("Published cert serial no 0x" + certs[i].getSerialNumber().toString(16));
                 mModule.setPublishedFlag(certs[i].getSerialNumber(), true);
 
-            } catch (ELdapException e) {
+            } catch (DBException e) {
                 logger.warn(CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_PUBLISH",
                                 certs[i].getSerialNumber().toString(16), e.toString()), e);
                 results[i] = Request.RES_ERROR;
@@ -619,7 +620,7 @@ class HandleRenewal extends RequestListener {
                 results[i] = Request.RES_SUCCESS;
                 logger.info("Published cert serial no 0x" + cert.getSerialNumber().toString(16));
 
-            } catch (ELdapException e) {
+            } catch (DBException e) {
                 error = true;
                 logger.warn(CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_PUBLISH",
                                 cert.getSerialNumber().toString(16), e.getMessage()), e);
@@ -686,7 +687,7 @@ class HandleRevocation extends RequestListener {
                 results[i] = Request.RES_SUCCESS;
                 logger.debug("Unpublished cert serial no 0x" + cert.getSerialNumber().toString(16));
 
-            } catch (ELdapException e) {
+            } catch (DBException e) {
                 error = true;
                 logger.warn(CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_UNPUBLISH",
                                 cert.getSerialNumber().toString(16), e.getMessage()), e);
@@ -749,7 +750,7 @@ class HandleUnrevocation extends RequestListener {
                 results[i] = Request.RES_SUCCESS;
                 logger.debug("Unpublished cert serial no 0x" + certs[i].getSerialNumber().toString(16));
 
-            } catch (ELdapException e) {
+            } catch (DBException e) {
                 error = true;
                 logger.warn(CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_UNPUBLISH",
                                 certs[i].getSerialNumber().toString(16), e.getMessage()), e);

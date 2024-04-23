@@ -23,7 +23,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.Subsystem;
-import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.request.RequestListener;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
@@ -82,7 +82,7 @@ public class LdapRenewalListener extends RequestListener {
 
                 logger.info("LdapRenewalListener: Published cert 0x" + cert.getSerialNumber().toString(16));
 
-            } catch (ELdapException e) {
+            } catch (DBException e) {
                 logger.warn(CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_PUBLISH", cert.getSerialNumber().toString(16), e.toString()), e);
                 results[i] = Request.RES_ERROR;
                 status = Request.RES_ERROR;

@@ -26,7 +26,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.Subsystem;
-import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestListener;
 import com.netscape.cmscore.apps.CMS;
@@ -123,7 +123,7 @@ public class LdapUnrevocationListener extends RequestListener {
                 results[i] = Request.RES_SUCCESS;
                 logger.debug("LdapUnrevocationListener: Published cert 0x" + xcert.getSerialNumber().toString(16));
 
-            } catch (ELdapException e) {
+            } catch (DBException e) {
                 status = Request.RES_ERROR;
                 logger.warn(CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_PUBLISH", xcert.getSerialNumber().toString(16), e.toString()), e);
 
