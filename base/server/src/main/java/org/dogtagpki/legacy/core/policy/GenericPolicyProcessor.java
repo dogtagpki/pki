@@ -27,7 +27,7 @@ import org.dogtagpki.legacy.policy.EnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IExpression;
 import org.dogtagpki.legacy.policy.IPolicyRule;
 import org.dogtagpki.legacy.policy.RenewalPolicy;
-import org.dogtagpki.legacy.policy.IRevocationPolicy;
+import org.dogtagpki.legacy.policy.RevocationPolicy;
 import org.dogtagpki.legacy.policy.PolicyProcessor;
 
 import com.netscape.certsrv.authority.IAuthority;
@@ -233,7 +233,7 @@ public class GenericPolicyProcessor extends PolicyProcessor {
 
                 if (!(o instanceof EnrollmentPolicy) &&
                         !(o instanceof RenewalPolicy) &&
-                        !(o instanceof IRevocationPolicy))
+                        !(o instanceof RevocationPolicy))
                     throw new EPolicyException(
                             CMS.getUserMessage("CMS_POLICY_INVALID_POLICY_IMPL", clPath));
             } catch (EBaseException e) {
@@ -579,7 +579,7 @@ public class GenericPolicyProcessor extends PolicyProcessor {
         // Does the class implement one of the four interfaces?
         if (!(impl instanceof EnrollmentPolicy) &&
                 !(impl instanceof RenewalPolicy) &&
-                !(impl instanceof IRevocationPolicy))
+                !(impl instanceof RevocationPolicy))
             throw new EPolicyException(
                     CMS.getUserMessage("CMS_POLICY_INVALID_POLICY_IMPL", classPath));
 
@@ -719,7 +719,7 @@ public class GenericPolicyProcessor extends PolicyProcessor {
             mEnrollmentRules.removeRule(id);
         if (rule instanceof RenewalPolicy)
             mRenewalRules.removeRule(id);
-        if (rule instanceof IRevocationPolicy)
+        if (rule instanceof RevocationPolicy)
             mRevocationRules.removeRule(id);
 
         // Delete the instance
@@ -959,7 +959,7 @@ public class GenericPolicyProcessor extends PolicyProcessor {
                 mEnrollmentRules.removeRule(id);
             if (rule instanceof RenewalPolicy)
                 mRenewalRules.removeRule(id);
-            if (rule instanceof IRevocationPolicy)
+            if (rule instanceof RevocationPolicy)
                 mRevocationRules.removeRule(id);
         } else // replace the rule
         {
@@ -967,7 +967,7 @@ public class GenericPolicyProcessor extends PolicyProcessor {
                 mEnrollmentRules.replaceRule(id, newRule);
             if (rule instanceof RenewalPolicy)
                 mRenewalRules.replaceRule(id, newRule);
-            if (rule instanceof IRevocationPolicy)
+            if (rule instanceof RevocationPolicy)
                 mRevocationRules.replaceRule(id, newRule);
         }
     }
@@ -1014,7 +1014,7 @@ public class GenericPolicyProcessor extends PolicyProcessor {
                     enrollmentRules.addRule(defRuleName, defRule);
                 else if (defRule instanceof RenewalPolicy)
                     renewalRules.addRule(defRuleName, defRule);
-                else if (defRule instanceof IRevocationPolicy)
+                else if (defRule instanceof RevocationPolicy)
                     revocationRules.addRule(defRuleName, defRule);
                 // else ignore the darned rule.
             }
@@ -1043,7 +1043,7 @@ public class GenericPolicyProcessor extends PolicyProcessor {
                 enrollmentRules.addRule(instanceName, rule);
             else if (rule instanceof RenewalPolicy)
                 renewalRules.addRule(instanceName, rule);
-            else if (rule instanceof IRevocationPolicy)
+            else if (rule instanceof RevocationPolicy)
                 revocationRules.addRule(instanceName, rule);
             // else ignore the darned rule.
         }
@@ -1329,7 +1329,7 @@ public class GenericPolicyProcessor extends PolicyProcessor {
             mEnrollmentRules.addRule(ruleName, rule);
         if (rule instanceof RenewalPolicy)
             mRenewalRules.addRule(ruleName, rule);
-        if (rule instanceof IRevocationPolicy)
+        if (rule instanceof RevocationPolicy)
             mRevocationRules.addRule(ruleName, rule);
     }
 

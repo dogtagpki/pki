@@ -22,8 +22,7 @@ import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.EPolicyException;
 import org.dogtagpki.legacy.policy.PolicyProcessor;
-import org.dogtagpki.legacy.policy.IRevocationPolicy;
-import org.dogtagpki.legacy.server.policy.APolicyRule;
+import org.dogtagpki.legacy.policy.RevocationPolicy;
 import org.mozilla.jss.netscape.security.x509.CertificateValidity;
 import org.mozilla.jss.netscape.security.x509.RevocationReason;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
@@ -47,8 +46,7 @@ import com.netscape.cmscore.request.Request;
  *
  * @version $Revision$, $Date$
  */
-public class RevocationConstraints extends APolicyRule
-        implements IRevocationPolicy, IExtendedPluginInfo {
+public class RevocationConstraints extends RevocationPolicy implements IExtendedPluginInfo {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RevocationConstraints.class);
 

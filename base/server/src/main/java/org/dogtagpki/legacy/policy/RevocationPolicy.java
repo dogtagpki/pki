@@ -17,16 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.legacy.policy;
 
+import org.dogtagpki.legacy.server.policy.APolicyRule;
+
 /**
- * Interface for a revocation policy rule.
- * <P>
+ * Class for a revocation policy rule.
  *
- * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
- * </PRE>
- * <P>
- *
- * @version $Revision$, $Date$
  */
-public interface IRevocationPolicy extends IPolicyRule {
+public abstract class RevocationPolicy extends APolicyRule {
 }
