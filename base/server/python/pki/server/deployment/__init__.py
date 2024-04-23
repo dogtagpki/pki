@@ -530,24 +530,11 @@ class PKIDeployer:
 
     def create_server_nssdb(self):
 
-        # Since 'certutil' does NOT strip the 'token=' portion of
-        # the 'token=password' entries, create a temporary server 'pfile'
-        # which ONLY contains the 'password' for the purposes of
-        # allowing 'certutil' to generate the security databases
-
-        pki_shared_pfile = os.path.join(self.instance.conf_dir, 'pfile')
-
-        logger.info('Creating password file: %s', pki_shared_pfile)
-        self.password.create_password_conf(
-            pki_shared_pfile,
-            self.mdict['pki_server_database_password'], pin_sans_token=True)
         self.file.modify(self.instance.password_conf)
 
         self.instance.makedirs(self.instance.nssdb_dir, exist_ok=True)
 
-        nssdb = pki.nssdb.NSSDatabase(
-            directory=self.instance.nssdb_dir,
-            password_file=pki_shared_pfile)
+        nssdb = self.instance.open_nssdb()
 
         try:
             if not nssdb.exists():
@@ -581,9 +568,6 @@ class PKIDeployer:
         os.chmod(
             self.instance.nssdb_dir,
             pki.server.DEFAULT_DIR_MODE)
-
-        # Always delete the temporary 'pfile'
-        self.file.delete(pki_shared_pfile)
 
     def remove_server_nssdb(self):
 
