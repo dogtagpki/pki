@@ -26,7 +26,7 @@ import org.dogtagpki.server.ca.CAEngineConfig;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.publish.Publisher;
 import com.netscape.cmscore.apps.CMS;
@@ -168,7 +168,7 @@ public class LdapCaCertPublisher
      */
     @Override
     public void publish(LDAPConnection conn, String dn, Object certObj)
-            throws ELdapException {
+            throws DBException {
         if (conn == null) {
             logger.warn("LdapCaCertPublisher: no LDAP connection");
             return;
@@ -326,7 +326,7 @@ public class LdapCaCertPublisher
                 conn.modify(dn, modSet);
         } catch (CertificateEncodingException e) {
             logger.error(CMS.getLogMessage("PUBLISH_CANT_DECODE_CERT", dn), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CERT_FAILED", e.toString()), e);
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CERT_FAILED", e.toString()), e);
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
                 // need to intercept this because message from LDAP is
@@ -336,7 +336,7 @@ public class LdapCaCertPublisher
                         + conn.getPort()), e);
             }
             logger.error(CMS.getLogMessage("PUBLISH_PUBLISHER_EXCEPTION", "", e.toString()), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_CACERT_ERROR", e.toString()), e);
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_PUBLISH_CACERT_ERROR", e.toString()), e);
         } finally {
             if (altConn != null) {
                 try {
@@ -357,7 +357,7 @@ public class LdapCaCertPublisher
      */
     @Override
     public void unpublish(LDAPConnection conn, String dn, Object certObj)
-            throws ELdapException {
+            throws DBException {
         if (!(certObj instanceof X509Certificate))
             throw new IllegalArgumentException("Illegal arg to publish");
 
@@ -385,7 +385,7 @@ public class LdapCaCertPublisher
 
             if (!hasCert) {
                 logger.warn("unpublish: " + dn + " has not cert already");
-                //throw new ELdapException(
+                //throw new DBException(
                 //		  LdapResources.ALREADY_UNPUBLISHED_1, dn);
                 return;
             }
@@ -411,7 +411,7 @@ public class LdapCaCertPublisher
             conn.modify(dn, modSet);
         } catch (CertificateEncodingException e) {
             logger.error("LdapCaCertPublisher: unpublish: Cannot decode cert for " + dn + ": " + e.getMessage(), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CERT_FAILED", e.toString()));
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CERT_FAILED", e.toString()));
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
                 // need to intercept this because message from LDAP is
@@ -421,7 +421,7 @@ public class LdapCaCertPublisher
                         + conn.getPort()), e);
             }
             logger.error(CMS.getLogMessage("PUBLISH_UNPUBLISH_ERROR", e.toString()), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_UNPUBLISH_CACERT_ERROR", e.toString()), e);
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_UNPUBLISH_CACERT_ERROR", e.toString()), e);
         }
         return;
     }

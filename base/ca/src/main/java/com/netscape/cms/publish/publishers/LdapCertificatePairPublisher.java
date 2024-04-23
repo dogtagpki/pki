@@ -21,7 +21,7 @@ import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.publish.Publisher;
 import com.netscape.cmscore.apps.CMS;
@@ -165,7 +165,7 @@ public class LdapCertificatePairPublisher
      */
     @Override
     public synchronized void publish(LDAPConnection conn, String dn, Object pair)
-            throws ELdapException {
+            throws DBException {
         publish(conn, dn, (byte[]) pair);
     }
 
@@ -179,7 +179,7 @@ public class LdapCertificatePairPublisher
      */
     public synchronized void publish(LDAPConnection conn, String dn,
             byte[] pair)
-            throws ELdapException {
+            throws DBException {
 
         if (conn == null) {
             logger.info("LdapCertificatePairPublisher: no LDAP connection");
@@ -294,7 +294,7 @@ public class LdapCertificatePairPublisher
                 throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), "" + conn.getPort()), e);
             }
             logger.error(CMS.getLogMessage("PUBLISH_PUBLISHER_EXCEPTION", "", e.toString()), e);
-            throw new ELdapException("Unable to publishing cross cert pair:" + e.toString(), e);
+            throw new DBException("Unable to publishing cross cert pair:" + e.toString(), e);
         }
         return;
     }
@@ -304,7 +304,7 @@ public class LdapCertificatePairPublisher
      */
     @Override
     public void unpublish(LDAPConnection conn, String dn, Object certObj)
-            throws ELdapException {
+            throws DBException {
         logger.debug("LdapCertificatePairPublisher: unpublish() is unsupported in this revision");
     }
 }

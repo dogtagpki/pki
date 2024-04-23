@@ -40,8 +40,8 @@ import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.dbs.certdb.CertId;
-import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.publish.Publisher;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
@@ -232,7 +232,7 @@ public class OCSPPublisher
      */
     @Override
     public synchronized void publish(LDAPConnection conn, String dn, Object object)
-            throws ELdapException {
+            throws DBException {
         try {
             if (!(object instanceof X509CRL)) {
                 return;
@@ -301,7 +301,7 @@ public class OCSPPublisher
 
             if (socket == null) {
                 logger.error("OCSPPublisher: Unable to connect to " + url);
-                throw new ELdapException("Unable to connect to " + url);
+                throw new DBException("Unable to connect to " + url);
             }
 
             // use HttpRequest and POST
@@ -381,7 +381,7 @@ public class OCSPPublisher
      */
     @Override
     public void unpublish(LDAPConnection conn, String dn, Object object)
-            throws ELdapException {
+            throws DBException {
         // NOT USED
     }
 }

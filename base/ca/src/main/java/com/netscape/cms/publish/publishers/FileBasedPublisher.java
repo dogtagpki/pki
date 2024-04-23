@@ -44,7 +44,7 @@ import org.mozilla.jss.util.Base64OutputStream;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.publish.Publisher;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
@@ -319,7 +319,7 @@ public class FileBasedPublisher
      */
     @Override
     public void publish(LDAPConnection conn, String dn, Object object)
-            throws ELdapException {
+            throws DBException {
         logger.debug("FileBasedPublisher: publish");
 
         try {
@@ -567,7 +567,7 @@ public class FileBasedPublisher
      */
     @Override
     public void unpublish(LDAPConnection conn, String dn, Object object)
-            throws ELdapException {
+            throws DBException {
         logger.debug("FileBasedPublisher: unpublish");
         String name = mDir + File.separator;
         String fileName;

@@ -28,7 +28,7 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.publish.Publisher;
 import com.netscape.cmscore.apps.CMS;
@@ -145,13 +145,13 @@ public class LdapCertSubjPublisher extends Publisher {
      * @param conn the LDAP connection
      * @param dn dn of the entry to publish the certificate
      * @param certObj the certificate object.
-     * @exception ELdapException if cert or subject name already exists,
+     * @exception DBException if cert or subject name already exists,
      *                if cert encoding fails, if getting cert subject name fails.
-     *                Use ELdapException.getException() to find underlying exception.
+     *                Use DBException.getException() to find underlying exception.
      */
     @Override
     public void publish(LDAPConnection conn, String dn, Object certObj)
-            throws ELdapException {
+            throws DBException {
         if (conn == null) {
             logger.warn("LdapCertSubjPublisher: no LDAP connection");
             return;
@@ -209,7 +209,7 @@ public class LdapCertSubjPublisher extends Publisher {
             conn.modify(dn, modSet);
         } catch (CertificateEncodingException e) {
             logger.error(CMS.getLogMessage("PUBLISH_PUBLISH_ERROR", e.toString()), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CERT_FAILED", e.toString()), e);
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CERT_FAILED", e.toString()), e);
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
                 // need to intercept this because message from LDAP is
@@ -219,10 +219,10 @@ public class LdapCertSubjPublisher extends Publisher {
                         + conn.getPort()), e);
             }
             logger.error(CMS.getLogMessage("PUBLISH_PUBLISHER_EXCEPTION", "", e.toString()), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_USERCERT_ERROR", e.toString()), e);
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_PUBLISH_USERCERT_ERROR", e.toString()), e);
         } catch (IOException e) {
             logger.error(CMS.getLogMessage("PUBLISH_PUBLISH_ERROR", e.toString()), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_USERCERT_ERROR", e.toString()), e);
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_PUBLISH_USERCERT_ERROR", e.toString()), e);
         }
     }
 
@@ -234,7 +234,7 @@ public class LdapCertSubjPublisher extends Publisher {
      */
     @Override
     public void unpublish(LDAPConnection conn, String dn, Object certObj)
-            throws ELdapException {
+            throws DBException {
         if (!(certObj instanceof X509Certificate))
             throw new IllegalArgumentException("Illegal arg to publish");
 
@@ -315,10 +315,10 @@ public class LdapCertSubjPublisher extends Publisher {
             conn.modify(dn, modSet);
         } catch (CertificateEncodingException e) {
             logger.error(CMS.getLogMessage("PUBLISH_UNPUBLISH_ERROR", e.toString()), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CERT_FAILED", e.toString()), e);
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CERT_FAILED", e.toString()), e);
         } catch (IOException e) {
             logger.error(CMS.getLogMessage("PUBLISH_UNPUBLISH_ERROR", e.toString()), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_GET_LDAP_DN_STRING_FAILED", e.toString()), e);
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_GET_LDAP_DN_STRING_FAILED", e.toString()), e);
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
                 // need to intercept this because message from LDAP is
@@ -328,7 +328,7 @@ public class LdapCertSubjPublisher extends Publisher {
                         + conn.getPort()), e);
             }
             logger.error(CMS.getLogMessage("PUBLISH_UNPUBLISH_ERROR", e.toString()), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_UNPUBLISH_USERCERT_ERROR", e.toString()), e);
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_UNPUBLISH_USERCERT_ERROR", e.toString()), e);
         }
         return;
     }

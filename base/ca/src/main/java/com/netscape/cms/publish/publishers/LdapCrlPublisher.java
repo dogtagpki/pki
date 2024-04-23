@@ -26,7 +26,7 @@ import org.dogtagpki.server.ca.CAEngineConfig;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.publish.Publisher;
 import com.netscape.cmscore.apps.CMS;
@@ -159,7 +159,7 @@ public class LdapCrlPublisher
      * CRL's are published as a DER encoded blob.
      */
     @Override
-    public void publish(LDAPConnection conn, String dn, Object crlObj) throws ELdapException {
+    public void publish(LDAPConnection conn, String dn, Object crlObj) throws DBException {
 
         if (conn == null) {
             logger.warn("LdapCrlPublisher: No LDAP connection");
@@ -206,11 +206,11 @@ public class LdapCrlPublisher
 
         } catch (LDAPException e) {
             logger.error("LdapCrlPublisher: Unable to create LDAP connection: " + e.getMessage(), e);
-            throw new ELdapException(e.getMessage(), e);
+            throw new DBException(e.getMessage(), e);
 
         } catch (EBaseException e) {
             logger.error("LdapCrlPublisher: Unable to create LDAP connection: " + e.getMessage(), e);
-            throw new ELdapException(e.getMessage(), e);
+            throw new DBException(e.getMessage(), e);
         }
 
         int orig_timelimit = 0;
@@ -342,7 +342,7 @@ public class LdapCrlPublisher
 
         } catch (CRLException e) {
             logger.error(CMS.getLogMessage("PUBLISH_PUBLISH_ERROR", e.toString()), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_CRL_ERROR", e.toString()), e);
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_PUBLISH_CRL_ERROR", e.toString()), e);
 
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
@@ -353,7 +353,7 @@ public class LdapCrlPublisher
                         + conn.getPort()), e);
             }
             logger.error(CMS.getLogMessage("PUBLISH_PUBLISH_ERROR", e.toString()), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_CRL_ERROR", e.toString()), e);
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_PUBLISH_CRL_ERROR", e.toString()), e);
         } finally {
             // Reset original timelimit
             if (constraints != null) {
@@ -378,7 +378,7 @@ public class LdapCrlPublisher
      */
     @Override
     public void unpublish(LDAPConnection conn, String dn, Object crlObj)
-            throws ELdapException {
+            throws DBException {
         try {
             byte[] crlEnc = ((X509CRL) crlObj).getEncoded();
 
@@ -423,7 +423,7 @@ public class LdapCrlPublisher
             }
         } catch (CRLException e) {
             logger.error(CMS.getLogMessage("PUBLISH_UNPUBLISH_ERROR", e.toString()), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_CRL_ERROR", e.toString()), e);
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_PUBLISH_CRL_ERROR", e.toString()), e);
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
                 // need to intercept this because message from LDAP is
@@ -433,7 +433,7 @@ public class LdapCrlPublisher
                         + conn.getPort()), e);
             }
             logger.error(CMS.getLogMessage("PUBLISH_UNPUBLISH_ERROR", e.toString()), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_UNPUBLISH_CRL_ERROR", e.toString()), e);
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_UNPUBLISH_CRL_ERROR", e.toString()), e);
         }
         return;
     }

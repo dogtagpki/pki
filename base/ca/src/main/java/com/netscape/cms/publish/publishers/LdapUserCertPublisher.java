@@ -27,8 +27,8 @@ import org.dogtagpki.server.ca.CAEngineConfig;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.dbs.certdb.CertId;
-import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.publish.Publisher;
@@ -138,7 +138,7 @@ public class LdapUserCertPublisher
      * @param certObj the certificate object.
      */
     @Override
-    public void publish(LDAPConnection conn, String dn, Object certObj) throws ELdapException {
+    public void publish(LDAPConnection conn, String dn, Object certObj) throws DBException {
 
         if (conn == null) {
             return;
@@ -234,7 +234,7 @@ public class LdapUserCertPublisher
 
         } catch (CertificateEncodingException e) {
             logger.error("LdapUserCertPublisher: error in publish: " + e.getMessage(), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CERT_FAILED", e.toString()));
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CERT_FAILED", e.toString()));
 
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
@@ -244,7 +244,7 @@ public class LdapUserCertPublisher
                 throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), "" + conn.getPort()), e);
             }
             logger.error(CMS.getLogMessage("PUBLISH_PUBLISH_ERROR", e.toString()), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_USERCERT_ERROR", e.toString()), e);
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_PUBLISH_USERCERT_ERROR", e.toString()), e);
 
         } finally {
             if (altConn != null) {
@@ -264,7 +264,7 @@ public class LdapUserCertPublisher
      */
     @Override
     public void unpublish(LDAPConnection conn, String dn, Object certObj)
-            throws ELdapException {
+            throws DBException {
 
         boolean disableUnpublish = false;
         try {
@@ -302,7 +302,7 @@ public class LdapUserCertPublisher
 
         } catch (CertificateEncodingException e) {
             logger.error(CMS.getLogMessage("PUBLISH_UNPUBLISH_ERROR", e.toString()), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CERT_FAILED", e.toString()), e);
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CERT_FAILED", e.toString()), e);
 
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
@@ -312,7 +312,7 @@ public class LdapUserCertPublisher
                 throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), "" + conn.getPort()), e);
             }
             logger.error(CMS.getLogMessage("PUBLISH_UNPUBLISH_ERROR"), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_UNPUBLISH_USERCERT_ERROR", e.toString()), e);
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_UNPUBLISH_USERCERT_ERROR", e.toString()), e);
         }
         return;
     }

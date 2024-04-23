@@ -20,7 +20,7 @@ package com.netscape.certsrv.publish;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.cmscore.base.ConfigStore;
 
 import netscape.ldap.LDAPConnection;
@@ -38,10 +38,10 @@ public abstract class Publisher {
      * Initialize from config store.
      *
      * @param config the configuration store to initialize from.
-     * @exception ELdapException initialization failed due to Ldap error.
+     * @exception DBException initialization failed due to Ldap error.
      * @exception EBaseException initialization failed.
      */
-    public abstract void init(ConfigStore config) throws EBaseException, ELdapException;
+    public abstract void init(ConfigStore config) throws EBaseException, DBException;
 
     /**
      * Return config store.
@@ -78,10 +78,10 @@ public abstract class Publisher {
      * @param object object to publish
      *            (java.security.cert.X509Certificate or,
      *            java.security.cert.X509CRL)
-     * @exception ELdapException publish failed.
+     * @exception DBException publish failed.
      */
     public abstract void publish(LDAPConnection conn, String dn, Object object)
-            throws ELdapException;
+            throws DBException;
 
     /**
      * Unpublish an object.
@@ -92,8 +92,8 @@ public abstract class Publisher {
      *            (null for non-LDAP publishing)
      * @param object object to unpublish
      *            (java.security.cert.X509Certificate)
-     * @exception ELdapException unpublish failed.
+     * @exception DBException unpublish failed.
      */
     public abstract void unpublish(LDAPConnection conn, String dn, Object object)
-            throws ELdapException;
+            throws DBException;
 }
