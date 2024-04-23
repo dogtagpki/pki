@@ -26,7 +26,6 @@ import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.EPolicyException;
 import org.dogtagpki.legacy.policy.IExpression;
-import org.dogtagpki.legacy.policy.IPolicyRule;
 import org.dogtagpki.legacy.policy.PolicyProcessor;
 import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
 import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
@@ -35,6 +34,7 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.request.AgentApprovals;
+import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
@@ -46,9 +46,13 @@ import com.netscape.cmscore.request.Request;
  *
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  */
-public abstract class PolicyRule implements IPolicyRule {
+public abstract class PolicyRule implements IPolicy {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PolicyRule.class);
+
+    public static final String PROP_ENABLE = "enable";
+    public static final String PROP_PREDICATE = "predicate";
+    public static final String PROP_IMPLNAME = "implName";
 
     protected String NAME = null;
     protected String DESC = null;
@@ -63,7 +67,6 @@ public abstract class PolicyRule implements IPolicyRule {
      *
      * @param config The config store reference
      */
-    @Override
     public abstract void init(PolicyProcessor owner, ConfigStore config) throws EBaseException;
 
     /**
@@ -71,7 +74,6 @@ public abstract class PolicyRule implements IPolicyRule {
      *
      * @return The Description for this rule.
      */
-    @Override
     public String getDescription() {
         return DESC;
     }
@@ -81,7 +83,6 @@ public abstract class PolicyRule implements IPolicyRule {
      *
      * @param exp The predicate expression for the rule.
      */
-    @Override
     public void setPredicate(IExpression exp) {
         mFilterExp = exp;
     }
@@ -91,7 +92,6 @@ public abstract class PolicyRule implements IPolicyRule {
      *
      * @return The predicate expression for the rule.
      */
-    @Override
     public IExpression getPredicate() {
         return mFilterExp;
     }
@@ -101,7 +101,6 @@ public abstract class PolicyRule implements IPolicyRule {
      *
      * @return The name of the policy class.
      */
-    @Override
     public String getName() {
         return NAME;
     }
@@ -111,7 +110,6 @@ public abstract class PolicyRule implements IPolicyRule {
      *
      * @param instanceName The name of the rule instance.
      */
-    @Override
     public void setInstanceName(String instanceName) {
         mInstanceName = instanceName;
     }
@@ -122,7 +120,6 @@ public abstract class PolicyRule implements IPolicyRule {
      * @return The name of the policy rule instance if set, else
      *         the name of the rule class.
      */
-    @Override
     public String getInstanceName() {
         return mInstanceName != null ? mInstanceName : NAME;
     }
@@ -133,7 +130,6 @@ public abstract class PolicyRule implements IPolicyRule {
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
-    @Override
     public abstract PolicyResult apply(Request req);
 
     /**
@@ -141,7 +137,6 @@ public abstract class PolicyRule implements IPolicyRule {
      *
      * @return nvPairs A Vector of name/value pairs.
      */
-    @Override
     public abstract Vector<String> getInstanceParams();
 
     /**
@@ -149,10 +144,8 @@ public abstract class PolicyRule implements IPolicyRule {
      *
      * @return nvPairs A Vector of name/value pairs.
      */
-    @Override
     public abstract Vector<String> getDefaultParams();
 
-    @Override
     public void setError(Request req, String format, Object[] params) {
         setPolicyException(req, format, params);
     }
@@ -173,7 +166,6 @@ public abstract class PolicyRule implements IPolicyRule {
         setPolicyException(req, format, np);
     }
 
-    @Override
     public void setPolicyException(Request req, EBaseException ex) {
         Vector<String> ev = req.getExtDataInStringVector(Request.ERRORS);
         if (ev == null) {

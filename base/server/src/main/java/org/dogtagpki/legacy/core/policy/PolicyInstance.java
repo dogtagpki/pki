@@ -17,16 +17,16 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.legacy.core.policy;
 
-import org.dogtagpki.legacy.policy.IPolicyRule;
+import org.dogtagpki.legacy.server.policy.PolicyRule;
 
 class PolicyInstance {
     String mInstanceId;
     String mImplId;
-    IPolicyRule mRule;
+    PolicyRule mRule;
     boolean mIsEnabled;
 
     public PolicyInstance(String instanceId, String implId,
-            IPolicyRule rule, boolean isEnabled) {
+            PolicyRule rule, boolean isEnabled) {
         mInstanceId = instanceId;
         mImplId = implId;
         mRule = rule;
@@ -47,7 +47,7 @@ class PolicyInstance {
         return mInstanceId + ";" + mImplId + ";visible;" + enabled;
     }
 
-    public IPolicyRule getRule() {
+    public PolicyRule getRule() {
         return mRule;
     }
 
@@ -63,7 +63,7 @@ class PolicyInstance {
         mIsEnabled = stat;
     }
 
-    public void setRule(IPolicyRule newRule) {
+    public void setRule(PolicyRule newRule) {
         mRule = newRule;
     }
 }

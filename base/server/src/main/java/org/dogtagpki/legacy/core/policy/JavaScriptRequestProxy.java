@@ -17,7 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.legacy.core.policy;
 
-import org.dogtagpki.legacy.policy.IPolicyRule;
+import org.dogtagpki.legacy.server.policy.PolicyRule;
 
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.request.Request;
@@ -37,7 +37,7 @@ public class JavaScriptRequestProxy {
         return req.getExtDataInString(param);
     }
 
-    public PolicyResult applyPolicy(IPolicyRule r) {
+    public PolicyResult applyPolicy(PolicyRule r) {
         return r.apply(req);
     }
 

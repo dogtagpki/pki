@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.legacy.policy.PolicyProcessor;
-import org.dogtagpki.legacy.policy.IPolicyRule;
+import org.dogtagpki.legacy.server.policy.PolicyRule;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -128,7 +128,7 @@ public class PolicyAdminServlet extends AdminServlet {
     private NameValuePairs getExtendedPluginInfo(String implName) {
         IExtendedPluginInfo ext_info = null;
         Object impl = null;
-        IPolicyRule policy = mProcessor.getPolicyImpl(implName);
+        PolicyRule policy = mProcessor.getPolicyImpl(implName);
 
         impl = policy;
 
@@ -154,7 +154,7 @@ public class PolicyAdminServlet extends AdminServlet {
 
         Object impl = null;
 
-        IPolicyRule policy = mProcessor.getPolicyInstance(instName);
+        PolicyRule policy = mProcessor.getPolicyInstance(instName);
 
         impl = policy;
         if (impl == null) {
@@ -186,9 +186,9 @@ public class PolicyAdminServlet extends AdminServlet {
 
         /* make sure policy rules have 'enable' and 'predicate' */
 
-        if (ext_info instanceof IPolicyRule) {
-            if (nvps.get(IPolicyRule.PROP_ENABLE) == null) {
-                nvps.put(IPolicyRule.PROP_ENABLE, "boolean;Enable this policy rule");
+        if (ext_info instanceof PolicyRule) {
+            if (nvps.get(PolicyRule.PROP_ENABLE) == null) {
+                nvps.put(PolicyRule.PROP_ENABLE, "boolean;Enable this policy rule");
             }
             if (nvps.get(PROP_PREDICATE) == null) {
                 nvps.put(PROP_PREDICATE, "string;Rules describing when this policy should run.");
@@ -319,7 +319,7 @@ public class PolicyAdminServlet extends AdminServlet {
             HttpServletResponse resp)
             throws ServletException, IOException {
         Enumeration<String> policyImplNames = mProcessor.getPolicyImplsInfo();
-        Enumeration<IPolicyRule> policyImpls = mProcessor.getPolicyImpls();
+        Enumeration<PolicyRule> policyImpls = mProcessor.getPolicyImpls();
 
         if (policyImplNames == null ||
                 policyImpls == null) {
@@ -333,7 +333,7 @@ public class PolicyAdminServlet extends AdminServlet {
         while (policyImplNames.hasMoreElements() &&
                 policyImpls.hasMoreElements()) {
             String id = policyImplNames.nextElement();
-            IPolicyRule impl = policyImpls.nextElement();
+            PolicyRule impl = policyImpls.nextElement();
             String className =
                     impl.getClass().getName();
             String desc = impl.getDescription();
@@ -793,7 +793,7 @@ public class PolicyAdminServlet extends AdminServlet {
             }
 
             // Get the default config params for the implementation.
-            String implName = req.getParameter(IPolicyRule.PROP_IMPLNAME);
+            String implName = req.getParameter(PolicyRule.PROP_IMPLNAME);
 
             if (implName == null) {
                 // store a message in the signed audit log file
@@ -813,16 +813,16 @@ public class PolicyAdminServlet extends AdminServlet {
             // always, and any additional parameters as required by the
             // implementation.
             Hashtable<String, String> ht = new Hashtable<>();
-            String val = req.getParameter(IPolicyRule.PROP_ENABLE).trim();
+            String val = req.getParameter(PolicyRule.PROP_ENABLE).trim();
 
             if (val == null)
                 val = "true";
-            ht.put(IPolicyRule.PROP_ENABLE, val);
+            ht.put(PolicyRule.PROP_ENABLE, val);
 
-            val = req.getParameter(IPolicyRule.PROP_PREDICATE);
+            val = req.getParameter(PolicyRule.PROP_PREDICATE);
             if (val != null)
-                ht.put(IPolicyRule.PROP_PREDICATE, val);
-            ht.put(IPolicyRule.PROP_IMPLNAME, implName);
+                ht.put(PolicyRule.PROP_PREDICATE, val);
+            ht.put(PolicyRule.PROP_IMPLNAME, implName);
 
             Vector<String> v = mProcessor.getPolicyImplConfig(implName);
 
@@ -1049,7 +1049,7 @@ public class PolicyAdminServlet extends AdminServlet {
             }
 
             // Get the default config params for the implementation.
-            String implName = req.getParameter(IPolicyRule.PROP_IMPLNAME).trim();
+            String implName = req.getParameter(PolicyRule.PROP_IMPLNAME).trim();
 
             if (implName == null) {
                 // store a message in the signed audit log file
@@ -1069,16 +1069,16 @@ public class PolicyAdminServlet extends AdminServlet {
             // always, and any additional parameters as required by the
             // implementation.
             Hashtable<String, String> ht = new Hashtable<>();
-            String val = req.getParameter(IPolicyRule.PROP_ENABLE).trim();
+            String val = req.getParameter(PolicyRule.PROP_ENABLE).trim();
 
             if (val == null)
                 val = "true";
-            ht.put(IPolicyRule.PROP_ENABLE, val);
+            ht.put(PolicyRule.PROP_ENABLE, val);
 
-            val = req.getParameter(IPolicyRule.PROP_PREDICATE);
+            val = req.getParameter(PolicyRule.PROP_PREDICATE);
             if (val != null)
-                ht.put(IPolicyRule.PROP_PREDICATE, val);
-            ht.put(IPolicyRule.PROP_IMPLNAME, implName);
+                ht.put(PolicyRule.PROP_PREDICATE, val);
+            ht.put(PolicyRule.PROP_IMPLNAME, implName);
             Vector<String> v = mProcessor.getPolicyImplConfig(implName);
 
             if (v == null) {

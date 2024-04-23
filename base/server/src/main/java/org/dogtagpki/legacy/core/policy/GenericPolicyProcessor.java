@@ -25,10 +25,10 @@ import java.util.Vector;
 import org.dogtagpki.legacy.policy.EPolicyException;
 import org.dogtagpki.legacy.policy.EnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IExpression;
-import org.dogtagpki.legacy.policy.IPolicyRule;
+import org.dogtagpki.legacy.policy.PolicyProcessor;
 import org.dogtagpki.legacy.policy.RenewalPolicy;
 import org.dogtagpki.legacy.policy.RevocationPolicy;
-import org.dogtagpki.legacy.policy.PolicyProcessor;
+import org.dogtagpki.legacy.server.policy.PolicyRule;
 
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -280,7 +280,7 @@ public class GenericPolicyProcessor extends PolicyProcessor {
             if (c == null || c.size() == 0)
                 throw new EPolicyException(CMS.getUserMessage("CMS_POLICY_NO_POLICY_CONFIG",
                             instanceName));
-            IPolicyRule rule = null;
+            PolicyRule rule = null;
             String implName;
             boolean enabled;
             IExpression filterExp;
@@ -313,7 +313,7 @@ public class GenericPolicyProcessor extends PolicyProcessor {
             String classpath = regPolicy.getClassPath();
 
             try {
-                rule = (IPolicyRule) Class.forName(classpath).getDeclaredConstructor().newInstance();
+                rule = (PolicyRule) Class.forName(classpath).getDeclaredConstructor().newInstance();
                 rule.setInstanceName(instanceName);
                 rule.init(this, c);
             } catch (Throwable e) {
@@ -445,17 +445,17 @@ public class GenericPolicyProcessor extends PolicyProcessor {
     }
 
     @Override
-    public Enumeration<IPolicyRule> getPolicyImpls() {
-        Vector<IPolicyRule> impls = new Vector<>();
+    public Enumeration<PolicyRule> getPolicyImpls() {
+        Vector<PolicyRule> impls = new Vector<>();
         Enumeration<RegisteredPolicy> enum1 = mImplTable.elements();
-        Enumeration<IPolicyRule> ret = null;
+        Enumeration<PolicyRule> ret = null;
 
         try {
             while (enum1.hasMoreElements()) {
                 RegisteredPolicy regPolicy = enum1.nextElement();
 
                 // Make an Instance of it
-                IPolicyRule ruleImpl = (IPolicyRule) Class.forName(regPolicy.getClassPath()).getDeclaredConstructor().newInstance();
+                PolicyRule ruleImpl = (PolicyRule) Class.forName(regPolicy.getClassPath()).getDeclaredConstructor().newInstance();
 
                 impls.addElement(ruleImpl);
             }
@@ -485,15 +485,15 @@ public class GenericPolicyProcessor extends PolicyProcessor {
     }
 
     @Override
-    public IPolicyRule getPolicyImpl(String id) {
+    public PolicyRule getPolicyImpl(String id) {
         RegisteredPolicy regImpl = mImplTable.get(id);
 
         if (regImpl == null)
             return null;
-        IPolicyRule impl = null;
+        PolicyRule impl = null;
 
         try {
-            impl = (IPolicyRule) Class.forName(regImpl.getClassPath()).getDeclaredConstructor().newInstance();
+            impl = (PolicyRule) Class.forName(regImpl.getClassPath()).getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             logger.warn("Unable to get policy implementation: " + e.getMessage(), e);
         }
@@ -502,7 +502,7 @@ public class GenericPolicyProcessor extends PolicyProcessor {
 
     @Override
     public Vector<String> getPolicyImplConfig(String id) {
-        IPolicyRule rp = getPolicyImpl(id);
+        PolicyRule rp = getPolicyImpl(id);
 
         if (rp == null)
             return null;
@@ -510,8 +510,8 @@ public class GenericPolicyProcessor extends PolicyProcessor {
 
         if (v == null)
             v = new Vector<>();
-        v.insertElementAt(IPolicyRule.PROP_ENABLE + "=" + "true", 0);
-        v.insertElementAt(IPolicyRule.PROP_PREDICATE + "=" + " ", 1);
+        v.insertElementAt(PolicyRule.PROP_ENABLE + "=" + "true", 0);
+        v.insertElementAt(PolicyRule.PROP_PREDICATE + "=" + " ", 1);
         return v;
     }
 
@@ -606,10 +606,10 @@ public class GenericPolicyProcessor extends PolicyProcessor {
     }
 
     @Override
-    public Enumeration<IPolicyRule> getPolicyInstances() {
-        Vector<IPolicyRule> rules = new Vector<>();
+    public Enumeration<PolicyRule> getPolicyInstances() {
+        Vector<PolicyRule> rules = new Vector<>();
         Enumeration<String> enum1 = mPolicyOrder.elements();
-        Enumeration<IPolicyRule> ret = null;
+        Enumeration<PolicyRule> ret = null;
 
         try {
             while (enum1.hasMoreElements()) {
@@ -645,7 +645,7 @@ public class GenericPolicyProcessor extends PolicyProcessor {
     }
 
     @Override
-    public IPolicyRule getPolicyInstance(String id) {
+    public PolicyRule getPolicyInstance(String id) {
         PolicyInstance policyInstance = mInstanceTable.get(id);
 
         return (policyInstance == null) ? null : policyInstance.getRule();
@@ -713,7 +713,7 @@ public class GenericPolicyProcessor extends PolicyProcessor {
             throw new EPolicyException(message, e);
         }
 
-        IPolicyRule rule = instance.getRule();
+        PolicyRule rule = instance.getRule();
 
         if (rule instanceof EnrollmentPolicy)
             mEnrollmentRules.removeRule(id);
@@ -734,10 +734,10 @@ public class GenericPolicyProcessor extends PolicyProcessor {
             throw new EPolicyException(
                     CMS.getUserMessage("CMS_POLICY_DUPLICATE_INST_ID", id));
         // There should be an implmentation for this rule.
-        String implName = ht.get(IPolicyRule.PROP_IMPLNAME);
+        String implName = ht.get(PolicyRule.PROP_IMPLNAME);
 
         // See if there is an implementation with this name.
-        IPolicyRule rule = getPolicyImpl(implName);
+        PolicyRule rule = getPolicyImpl(implName);
 
         if (rule == null)
             throw new EPolicyException(
@@ -763,7 +763,7 @@ public class GenericPolicyProcessor extends PolicyProcessor {
         rule.init(this, newStore);
 
         // Add the rule to the table.
-        String enabledStr = ht.get(IPolicyRule.PROP_ENABLE);
+        String enabledStr = ht.get(PolicyRule.PROP_ENABLE);
         boolean active = false;
 
         if (enabledStr == null || enabledStr.trim().length() == 0 ||
@@ -771,7 +771,7 @@ public class GenericPolicyProcessor extends PolicyProcessor {
             active = true;
 
         // Set the predicate if any present on the rule.
-        String predicate = ht.get(IPolicyRule.PROP_PREDICATE).trim();
+        String predicate = ht.get(PolicyRule.PROP_PREDICATE).trim();
         IExpression exp = null;
 
         if (predicate.trim().length() > 0)
@@ -813,17 +813,17 @@ public class GenericPolicyProcessor extends PolicyProcessor {
         if (policyInstance == null)
             throw new EPolicyException(
                     CMS.getUserMessage("CMS_POLICY_INVALID_POLICY_INSTANCE", id));
-        IPolicyRule rule = policyInstance.getRule();
+        PolicyRule rule = policyInstance.getRule();
 
         // The impl id shouldn't change
-        String implId = ht.get(IPolicyRule.PROP_IMPLNAME);
+        String implId = ht.get(PolicyRule.PROP_IMPLNAME);
 
         if (!implId.equals(policyInstance.getImplId()))
             throw new EPolicyException(
                     CMS.getUserMessage("CMS_POLICY_IMPLCHANGE_ERROR", id));
 
         // Make a new rule instance
-        IPolicyRule newRule = getPolicyImpl(implId);
+        PolicyRule newRule = getPolicyImpl(implId);
 
         if (newRule == null) // Can't happen, but just in case..
             throw new EPolicyException(
@@ -836,7 +836,7 @@ public class GenericPolicyProcessor extends PolicyProcessor {
         ConfigStore newStore = new ConfigStore(id);
 
         // See if the rule is disabled.
-        String enabledStr = ht.get(IPolicyRule.PROP_ENABLE);
+        String enabledStr = ht.get(PolicyRule.PROP_ENABLE);
         boolean active = false;
 
         if (enabledStr == null || enabledStr.trim().length() == 0 ||
@@ -844,7 +844,7 @@ public class GenericPolicyProcessor extends PolicyProcessor {
             active = true;
 
         // Set the predicate expression.
-        String predicate = ht.get(IPolicyRule.PROP_PREDICATE).trim();
+        String predicate = ht.get(PolicyRule.PROP_PREDICATE).trim();
         IExpression exp = null;
 
         if (predicate.trim().length() > 0)
@@ -885,7 +885,7 @@ public class GenericPolicyProcessor extends PolicyProcessor {
         }
 
         // Predicate for the persistent rule can't be changed.
-        ht.put(IPolicyRule.PROP_ENABLE, String.valueOf(active));
+        ht.put(PolicyRule.PROP_ENABLE, String.valueOf(active));
 
         // put old config store parameters first.
         for (Enumeration<String> oldkeys = oldStore.keys(); oldkeys.hasMoreElements();) {
@@ -1006,7 +1006,7 @@ public class GenericPolicyProcessor extends PolicyProcessor {
             for (int i = 0; i < mSystemDefaults.length; i++) {
                 String defRuleName = mSystemDefaults[i].substring(
                         mSystemDefaults[i].lastIndexOf('.') + 1);
-                IPolicyRule defRule = (IPolicyRule) Class.forName(mSystemDefaults[i]).getDeclaredConstructor().newInstance();
+                PolicyRule defRule = (PolicyRule) Class.forName(mSystemDefaults[i]).getDeclaredConstructor().newInstance();
                 ConfigStore ruleConfig = mConfig.getSubStore(PROP_DEF_POLICIES + "." + defRuleName, ConfigStore.class);
 
                 defRule.init(this, ruleConfig);
@@ -1037,7 +1037,7 @@ public class GenericPolicyProcessor extends PolicyProcessor {
 
             // Add the rule to the policy set according to category if a
             // rule is enabled.
-            IPolicyRule rule = pInstance.getRule();
+            PolicyRule rule = pInstance.getRule();
 
             if (rule instanceof EnrollmentPolicy)
                 enrollmentRules.addRule(instanceName, rule);
@@ -1172,11 +1172,11 @@ public class GenericPolicyProcessor extends PolicyProcessor {
                 Class<?> clazz = Class.forName(mSystemDefaults[i]);
                 Object o = clazz.getDeclaredConstructor().newInstance();
 
-                if (!(o instanceof IPolicyRule)) {
+                if (!(o instanceof PolicyRule)) {
                     throw new EPolicyException(className + " does not implement IPolicyRule");
                 }
 
-                IPolicyRule rule = (IPolicyRule) o;
+                PolicyRule rule = (PolicyRule) o;
 
                 String ruleName = className.substring(className.lastIndexOf('.') + 1);
                 ConfigStore ruleConfig = mConfig.getSubStore(PROP_DEF_POLICIES + "." + ruleName, ConfigStore.class);
@@ -1324,7 +1324,7 @@ public class GenericPolicyProcessor extends PolicyProcessor {
         }
     }
 
-    private void addRule(String ruleName, IPolicyRule rule) {
+    private void addRule(String ruleName, PolicyRule rule) {
         if (rule instanceof EnrollmentPolicy)
             mEnrollmentRules.addRule(ruleName, rule);
         if (rule instanceof RenewalPolicy)

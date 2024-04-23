@@ -29,6 +29,7 @@ import java.util.Vector;
 import org.dogtagpki.legacy.policy.EPolicyException;
 import org.dogtagpki.legacy.policy.EnrollmentPolicy;
 import org.dogtagpki.legacy.policy.PolicyProcessor;
+import org.dogtagpki.legacy.server.policy.PolicyRule;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateVersion;
 import org.mozilla.jss.netscape.security.x509.NSCCommentExtension;
@@ -108,7 +109,7 @@ public class NSCCommentExt extends EnrollmentPolicy implements IExtendedPluginIn
 
             tempCommentFile = config.getString(PROP_COMMENT_FILE, "");
 
-            boolean enable = config.getBoolean(PROP_ENABLE, false);
+            boolean enable = config.getBoolean(PolicyRule.PROP_ENABLE, false);
 
             if ((enable == true)) {
 

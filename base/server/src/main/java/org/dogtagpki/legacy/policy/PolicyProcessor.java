@@ -21,6 +21,8 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.dogtagpki.legacy.server.policy.PolicyRule;
+
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 
@@ -78,7 +80,7 @@ public abstract class PolicyProcessor {
      * @return An Enumeration of uninitialized IPolicyRule
      *         objects.
      */
-    public abstract Enumeration<IPolicyRule> getPolicyImpls();
+    public abstract Enumeration<PolicyRule> getPolicyImpls();
 
     /**
      * Returns an implementation identified by a given id.
@@ -86,7 +88,7 @@ public abstract class PolicyProcessor {
      * @param id The implementation id.
      * @return The uninitialized instance of the policy rule.
      */
-    public abstract IPolicyRule getPolicyImpl(String id);
+    public abstract PolicyRule getPolicyImpl(String id);
 
     /**
      * Returns configuration for an implmentation.
@@ -132,7 +134,7 @@ public abstract class PolicyProcessor {
      *
      * @return An Enumeration of policy instances.
      */
-    public abstract Enumeration<IPolicyRule> getPolicyInstances();
+    public abstract Enumeration<PolicyRule> getPolicyInstances();
 
     /**
      * Returns instance configuration for a given instance id.
@@ -149,7 +151,7 @@ public abstract class PolicyProcessor {
      * @param id The rule id.
      * @return the policy instance identified by the id.
      */
-    public abstract IPolicyRule getPolicyInstance(String id);
+    public abstract PolicyRule getPolicyInstance(String id);
 
     /**
      * Deletes a policy instance identified by an instance id.

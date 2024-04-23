@@ -21,7 +21,7 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.IExpression;
-import org.dogtagpki.legacy.policy.IPolicyRule;
+import org.dogtagpki.legacy.server.policy.PolicyRule;
 
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
@@ -44,7 +44,7 @@ public class PolicySet {
 
     private String mName;
     private Vector<String> mRuleNames = new Vector<>();
-    private Vector<IPolicyRule> mRules = new Vector<>();
+    private Vector<PolicyRule> mRules = new Vector<>();
 
     public PolicySet(String name) {
         mName = name;
@@ -74,7 +74,7 @@ public class PolicySet {
      * @param ruleName The name of the rule to be added.
      * @param rule The rule to be added.
      */
-    public void addRule(String ruleName, IPolicyRule rule) {
+    public void addRule(String ruleName, PolicyRule rule) {
         if (mRuleNames.indexOf(ruleName) >= 0)
             return; // XXX - Duplicate - Need to throw an exception.
 
@@ -92,7 +92,7 @@ public class PolicySet {
      * @param ruleName The name of the rule to be replaced.
      * @param rule The rule to be replaced.
      */
-    public void replaceRule(String ruleName, IPolicyRule rule) {
+    public void replaceRule(String ruleName, PolicyRule rule) {
         int index = mRuleNames.indexOf(ruleName);
 
         if (index < 0) {
@@ -125,7 +125,7 @@ public class PolicySet {
      * @param ruleName The name of the rule to be return.
      * @return The rule identified by the given name or null if none exists.
      */
-    public IPolicyRule getRule(String ruleName) {
+    public PolicyRule getRule(String ruleName) {
         int index = mRuleNames.indexOf(ruleName);
 
         if (index < 0)
@@ -138,7 +138,7 @@ public class PolicySet {
      *
      * @return An enumeration of rules.
      */
-    public Enumeration<IPolicyRule> getRules() {
+    public Enumeration<PolicyRule> getRules() {
         return mRules.elements();
     }
 
@@ -166,7 +166,7 @@ public class PolicySet {
 
         for (int index = 0; index < size; index++) {
             String name = mRuleNames.elementAt(index);
-            IPolicyRule rule = mRules.elementAt(index);
+            PolicyRule rule = mRules.elementAt(index);
             IExpression exp = rule.getPredicate();
 
             try {
@@ -223,7 +223,8 @@ public class PolicySet {
                 rejected = true;
                 rule.setError(
                         req,
-                        CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR", rule.getName(), ex.toString()), null);
+                        CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR", rule.getName(), ex.toString()),
+                        (Object[]) null);
             }
         }
 
@@ -264,7 +265,7 @@ public class PolicySet {
             return "unknown";
     }
 
-    boolean typeMatched(IPolicyRule rule, Request req) {
+    boolean typeMatched(PolicyRule rule, Request req) {
 
         if (req.getExtDataInCertInfoArray(Request.CERT_INFO) != null) {
             return true;
