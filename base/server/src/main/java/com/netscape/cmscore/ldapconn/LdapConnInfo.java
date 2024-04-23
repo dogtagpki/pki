@@ -19,7 +19,6 @@ package com.netscape.cmscore.ldapconn;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.ldap.ELdapException;
 
 import netscape.ldap.LDAPv3;
 
@@ -49,7 +48,7 @@ public class LdapConnInfo {
     /**
      * default constructor. must be followed by init(ConfigStore)
      */
-    public LdapConnInfo(LDAPConnectionConfig config) throws EBaseException, ELdapException {
+    public LdapConnInfo(LDAPConnectionConfig config) throws EBaseException {
         init(config);
     }
 
@@ -58,7 +57,7 @@ public class LdapConnInfo {
      * required parms: host, port
      * optional parms: secure connection, authentication method and info.
      */
-    public void init(LDAPConnectionConfig config) throws EBaseException, ELdapException {
+    public void init(LDAPConnectionConfig config) throws EBaseException {
         mSecure = config.isSecure();
         mHost = config.getHostname();
         mPort = config.getPort();
