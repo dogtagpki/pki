@@ -26,7 +26,7 @@ import org.dogtagpki.legacy.policy.EPolicyException;
 import org.dogtagpki.legacy.policy.EnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IExpression;
 import org.dogtagpki.legacy.policy.IPolicyRule;
-import org.dogtagpki.legacy.policy.IRenewalPolicy;
+import org.dogtagpki.legacy.policy.RenewalPolicy;
 import org.dogtagpki.legacy.policy.IRevocationPolicy;
 import org.dogtagpki.legacy.policy.PolicyProcessor;
 
@@ -232,7 +232,7 @@ public class GenericPolicyProcessor extends PolicyProcessor {
                 Object o = Class.forName(clPath).getDeclaredConstructor().newInstance();
 
                 if (!(o instanceof EnrollmentPolicy) &&
-                        !(o instanceof IRenewalPolicy) &&
+                        !(o instanceof RenewalPolicy) &&
                         !(o instanceof IRevocationPolicy))
                     throw new EPolicyException(
                             CMS.getUserMessage("CMS_POLICY_INVALID_POLICY_IMPL", clPath));
@@ -578,7 +578,7 @@ public class GenericPolicyProcessor extends PolicyProcessor {
 
         // Does the class implement one of the four interfaces?
         if (!(impl instanceof EnrollmentPolicy) &&
-                !(impl instanceof IRenewalPolicy) &&
+                !(impl instanceof RenewalPolicy) &&
                 !(impl instanceof IRevocationPolicy))
             throw new EPolicyException(
                     CMS.getUserMessage("CMS_POLICY_INVALID_POLICY_IMPL", classPath));
@@ -717,7 +717,7 @@ public class GenericPolicyProcessor extends PolicyProcessor {
 
         if (rule instanceof EnrollmentPolicy)
             mEnrollmentRules.removeRule(id);
-        if (rule instanceof IRenewalPolicy)
+        if (rule instanceof RenewalPolicy)
             mRenewalRules.removeRule(id);
         if (rule instanceof IRevocationPolicy)
             mRevocationRules.removeRule(id);
@@ -957,7 +957,7 @@ public class GenericPolicyProcessor extends PolicyProcessor {
         if (!active) {
             if (rule instanceof EnrollmentPolicy)
                 mEnrollmentRules.removeRule(id);
-            if (rule instanceof IRenewalPolicy)
+            if (rule instanceof RenewalPolicy)
                 mRenewalRules.removeRule(id);
             if (rule instanceof IRevocationPolicy)
                 mRevocationRules.removeRule(id);
@@ -965,7 +965,7 @@ public class GenericPolicyProcessor extends PolicyProcessor {
         {
             if (rule instanceof EnrollmentPolicy)
                 mEnrollmentRules.replaceRule(id, newRule);
-            if (rule instanceof IRenewalPolicy)
+            if (rule instanceof RenewalPolicy)
                 mRenewalRules.replaceRule(id, newRule);
             if (rule instanceof IRevocationPolicy)
                 mRevocationRules.replaceRule(id, newRule);
@@ -1012,7 +1012,7 @@ public class GenericPolicyProcessor extends PolicyProcessor {
                 defRule.init(this, ruleConfig);
                 if (defRule instanceof EnrollmentPolicy)
                     enrollmentRules.addRule(defRuleName, defRule);
-                else if (defRule instanceof IRenewalPolicy)
+                else if (defRule instanceof RenewalPolicy)
                     renewalRules.addRule(defRuleName, defRule);
                 else if (defRule instanceof IRevocationPolicy)
                     revocationRules.addRule(defRuleName, defRule);
@@ -1041,7 +1041,7 @@ public class GenericPolicyProcessor extends PolicyProcessor {
 
             if (rule instanceof EnrollmentPolicy)
                 enrollmentRules.addRule(instanceName, rule);
-            else if (rule instanceof IRenewalPolicy)
+            else if (rule instanceof RenewalPolicy)
                 renewalRules.addRule(instanceName, rule);
             else if (rule instanceof IRevocationPolicy)
                 revocationRules.addRule(instanceName, rule);
@@ -1327,7 +1327,7 @@ public class GenericPolicyProcessor extends PolicyProcessor {
     private void addRule(String ruleName, IPolicyRule rule) {
         if (rule instanceof EnrollmentPolicy)
             mEnrollmentRules.addRule(ruleName, rule);
-        if (rule instanceof IRenewalPolicy)
+        if (rule instanceof RenewalPolicy)
             mRenewalRules.addRule(ruleName, rule);
         if (rule instanceof IRevocationPolicy)
             mRevocationRules.addRule(ruleName, rule);

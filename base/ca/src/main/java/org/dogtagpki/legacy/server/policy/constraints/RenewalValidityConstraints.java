@@ -22,8 +22,7 @@ import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.EPolicyException;
 import org.dogtagpki.legacy.policy.PolicyProcessor;
-import org.dogtagpki.legacy.policy.IRenewalPolicy;
-import org.dogtagpki.legacy.server.policy.APolicyRule;
+import org.dogtagpki.legacy.policy.RenewalPolicy;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.CertificateValidity;
@@ -57,8 +56,7 @@ import com.netscape.cmscore.request.Request;
  *
  * @version $Revision$, $Date$
  */
-public class RenewalValidityConstraints extends APolicyRule
-        implements IRenewalPolicy, IExtendedPluginInfo {
+public class RenewalValidityConstraints extends RenewalPolicy implements IExtendedPluginInfo {
     private long mMinValidity;
     private long mMaxValidity;
     private long mRenewalInterval;
