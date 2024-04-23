@@ -23,7 +23,7 @@ import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.publish.Mapper;
 import com.netscape.certsrv.publish.MapperPlugin;
 import com.netscape.certsrv.publish.MapperProxy;
@@ -119,7 +119,7 @@ public abstract class PublisherProcessor {
 
             if (plugin == null) {
                 logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_PLUGIN_NOT_FIND", implName));
-                throw new ELdapException(implName);
+                throw new DBException(implName);
             }
 
             String className = plugin.getClassPath();
@@ -137,15 +137,15 @@ public abstract class PublisherProcessor {
 
             } catch (ClassNotFoundException e) {
                 logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_PUBLISHER_INIT_FAILED", e.toString()), e);
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+                throw new DBException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
 
             } catch (IllegalAccessException e) {
                 logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_PUBLISHER_INIT_FAILED", e.toString()), e);
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+                throw new DBException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
 
             } catch (InstantiationException e) {
                 logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_PUBLISHER_INIT_FAILED", e.toString()), e);
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+                throw new DBException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
 
             } catch (Throwable e) {
                 logger.warn("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_SKIP_PUBLISHER", insName, e.toString()), e);
@@ -157,11 +157,11 @@ public abstract class PublisherProcessor {
             }
 
             if (publisherInst == null) {
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+                throw new DBException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
             }
 
             if (insName == null) {
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", insName));
+                throw new DBException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", insName));
             }
 
             mPublisherInsts.put(insName, new PublisherProxy(isEnable, publisherInst));
@@ -191,7 +191,7 @@ public abstract class PublisherProcessor {
 
             if (plugin == null) {
                 logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_MAPPER_NOT_FIND", implName));
-                throw new ELdapException(implName);
+                throw new DBException(implName);
             }
 
             String className = plugin.getClassPath();
@@ -209,15 +209,15 @@ public abstract class PublisherProcessor {
 
             } catch (ClassNotFoundException e) {
                 logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_PUBLISHER_INIT_FAILED", e.toString()), e);
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+                throw new DBException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
 
             } catch (IllegalAccessException e) {
                 logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_PUBLISHER_INIT_FAILED", e.toString()), e);
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+                throw new DBException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
 
             } catch (InstantiationException e) {
                 logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_PUBLISHER_INIT_FAILED", e.toString()), e);
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+                throw new DBException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
 
             } catch (Throwable e) {
                 logger.warn("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_SKIP_MAPPER", insName, e.toString()), e);
@@ -229,7 +229,7 @@ public abstract class PublisherProcessor {
             }
 
             if (mapperInst == null) {
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+                throw new DBException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
             }
 
             mMapperInsts.put(insName, new MapperProxy(isEnable, mapperInst));
@@ -260,7 +260,7 @@ public abstract class PublisherProcessor {
 
             if (plugin == null) {
                 logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_RULE_NOT_FIND", implName));
-                throw new ELdapException(implName);
+                throw new DBException(implName);
             }
 
             String className = plugin.getClassPath();
@@ -280,19 +280,19 @@ public abstract class PublisherProcessor {
 
             } catch (ClassNotFoundException e) {
                 logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_PUBLISHER_INIT_FAILED", e.toString()), e);
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+                throw new DBException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
 
             } catch (IllegalAccessException e) {
                 logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_PUBLISHER_INIT_FAILED", e.toString()), e);
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+                throw new DBException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
 
             } catch (InstantiationException e) {
                 logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_PUBLISHER_INIT_FAILED", e.toString()), e);
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+                throw new DBException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
 
             } catch (Throwable e) {
                 if (mConfig == null) {
-                    throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+                    throw new DBException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
                 }
                 mConfig.putString(LdapRule.PROP_ENABLE, "false");
                 logger.warn("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_SKIP_RULE", insName, e.toString()), e);
@@ -337,13 +337,13 @@ public abstract class PublisherProcessor {
                 logger.debug("LdapPublishing connection inited");
             } else {
                 logger.error("PublisherProcessor: No Ldap Module configuration found");
-                throw new ELdapException(
+                throw new DBException(
                         CMS.getUserMessage("CMS_LDAP_NO_LDAP_PUBLISH_CONFIG_FOUND"));
             }
 
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             logger.error("PublisherProcessor: Ldap Publishing Module failed: " + e.getMessage(), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_INIT_LDAP_PUBLISH_MODULE_FAILED", e.toString()));
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_INIT_LDAP_PUBLISH_MODULE_FAILED", e.toString()));
         }
     }
 
@@ -364,7 +364,7 @@ public abstract class PublisherProcessor {
             if (mLdapConnModule != null) {
                 mLdapConnModule.getLdapConnFactory().reset();
             }
-        } catch (ELdapException e) {
+        } catch (DBException e) {
             // ignore
             logger.warn("Unable to shutdown publishing: " + e.getMessage(), e);
         }
@@ -535,13 +535,13 @@ public abstract class PublisherProcessor {
      * @param implName name of MapperPlugin.
      */
     public Vector<String> getMapperDefaultParams(String implName) throws
-            ELdapException {
+            DBException {
         // is this a registered implname?
         MapperPlugin plugin = mMapperPlugins.get(implName);
 
         if (plugin == null) {
             logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_MAPPER_NOT_FIND", implName));
-            throw new ELdapException(implName);
+            throw new DBException(implName);
         }
 
         // XXX can find an instance of this plugin in existing
@@ -559,7 +559,7 @@ public abstract class PublisherProcessor {
 
         } catch (Exception e) {
             logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_MAPPER", e.toString()), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className), e);
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className), e);
         }
     }
 
@@ -567,10 +567,10 @@ public abstract class PublisherProcessor {
      * Returns mapper current instance parameters.
      *
      * @param insName name of MapperProxy.
-     * @exception ELdapException failed due to Ldap error.
+     * @exception DBException failed due to Ldap error.
      */
     public Vector<String> getMapperInstanceParams(String insName) throws
-            ELdapException {
+            DBException {
         Mapper mapperInst = null;
         MapperProxy proxy = mMapperInsts.get(insName);
 
@@ -590,16 +590,16 @@ public abstract class PublisherProcessor {
      * Returns publisher initial default parameters.
      *
      * @param implName name of PublisherPlugin.
-     * @exception ELdapException failed due to Ldap error.
+     * @exception DBException failed due to Ldap error.
      */
     public Vector<String> getPublisherDefaultParams(String implName) throws
-            ELdapException {
+            DBException {
         // is this a registered implname?
         PublisherPlugin plugin = mPublisherPlugins.get(implName);
 
         if (plugin == null) {
             logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_PLUGIN_NOT_FIND", implName));
-            throw new ELdapException(implName);
+            throw new DBException(implName);
         }
 
         // XXX can find an instance of this plugin in existing
@@ -617,7 +617,7 @@ public abstract class PublisherProcessor {
 
         } catch (Exception e) {
             logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_PUBLISHER", e.toString()), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className), e);
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className), e);
         }
     }
 
@@ -716,7 +716,7 @@ public abstract class PublisherProcessor {
      * @return Vector of current instance parameters.
      */
     public Vector<String> getPublisherInstanceParams(String insName) throws
-            ELdapException {
+            DBException {
         Publisher publisherInst = getPublisherInstance(insName);
 
         if (publisherInst == null) {
@@ -732,16 +732,16 @@ public abstract class PublisherProcessor {
      *
      * @param implName name of RulePlugin.
      * @return Vector of initial default parameters.
-     * @exception ELdapException failed due to Ldap error.
+     * @exception DBException failed due to Ldap error.
      */
     public Vector<String> getRuleDefaultParams(String implName) throws
-            ELdapException {
+            DBException {
         // is this a registered implname?
         RulePlugin plugin = mRulePlugins.get(implName);
 
         if (plugin == null) {
             logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_RULE_NOT_FIND", implName));
-            throw new ELdapException(implName);
+            throw new DBException(implName);
         }
 
         // XXX can find an instance of this plugin in existing
@@ -760,7 +760,7 @@ public abstract class PublisherProcessor {
 
         } catch (Exception e) {
             logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_RULE", e.toString()), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className), e);
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className), e);
         }
     }
 
@@ -769,16 +769,16 @@ public abstract class PublisherProcessor {
      *
      * @param implName name of RulePlugin.
      * @return Vector of current instance parameters.
-     * @exception ELdapException failed due to Ldap error.
+     * @exception DBException failed due to Ldap error.
      */
     public Vector<String> getRuleInstanceParams(String implName) throws
-            ELdapException {
+            DBException {
         // is this a registered implname?
         RulePlugin plugin = mRulePlugins.get(implName);
 
         if (plugin == null) {
             logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_RULE_NOT_FIND", implName));
-            throw new ELdapException(implName);
+            throw new DBException(implName);
         }
 
         // XXX can find an instance of this plugin in existing
@@ -796,7 +796,7 @@ public abstract class PublisherProcessor {
 
         } catch (Exception e) {
             logger.error("PublisherProcessor: " + CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_RULE", e.toString()), e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className), e);
+            throw new DBException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className), e);
         }
     }
 
