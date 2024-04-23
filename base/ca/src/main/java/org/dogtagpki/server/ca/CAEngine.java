@@ -105,8 +105,8 @@ import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.connector.ConnectorConfig;
 import com.netscape.certsrv.connector.ConnectorsConfig;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.dbs.certdb.CertId;
-import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CRLSigningInfoEvent;
 import com.netscape.certsrv.logging.event.CertSigningInfoEvent;
@@ -1718,7 +1718,7 @@ public class CAEngine extends CMSEngine {
             responseControls = conn.getResponseControls();
 
         } catch (LDAPException e) {
-            throw new ELdapException("Unable to add authority: " + e.getMessage(), e);
+            throw new DBException("Unable to add authority: " + e.getMessage(), e);
 
         } finally {
             connectionFactory.returnConn(conn);
@@ -1736,7 +1736,7 @@ public class CAEngine extends CMSEngine {
             responseControls = conn.getResponseControls();
 
         } catch (LDAPException e) {
-            throw new ELdapException("Unable to modify authority: " + e.getMessage(), e);
+            throw new DBException("Unable to modify authority: " + e.getMessage(), e);
 
         } finally {
             connectionFactory.returnConn(conn);
@@ -1754,7 +1754,7 @@ public class CAEngine extends CMSEngine {
             conn.delete(dn);
 
         } catch (LDAPException e) {
-            throw new ELdapException("Unable to delete authority: " + e.getMessage(), e);
+            throw new DBException("Unable to delete authority: " + e.getMessage(), e);
 
         } finally {
             connectionFactory.returnConn(conn);
