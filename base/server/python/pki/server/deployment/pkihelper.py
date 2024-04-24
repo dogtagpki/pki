@@ -1585,62 +1585,6 @@ class Certutil:
         return
 
 
-class PK12util:
-    """PKI Deployment pk12util class"""
-
-    def __init__(self, deployer):
-        self.mdict = deployer.mdict
-
-    def create_file(self, out_file, nickname, out_pwfile,
-                    db_pwfile, path=None, critical_failure=True):
-
-        logger.info('Exporting %s cert and key into %s', nickname, out_file)
-
-        try:
-            command = ["pk12util"]
-            if path:
-                command.extend(["-d", path])
-            if out_file:
-                command.extend(["-o", out_file])
-            else:
-                logger.error(log.PKIHELPER_PK12UTIL_MISSING_OUTFILE)
-                raise Exception(log.PKIHELPER_PK12UTIL_MISSING_OUTFILE)
-            if nickname:
-                command.extend(["-n", nickname])
-            else:
-                logger.error(log.PKIHELPER_PK12UTIL_MISSING_NICKNAME)
-                raise Exception(log.PKIHELPER_PK12UTIL_MISSING_NICKNAME)
-            if out_pwfile:
-                command.extend(["-w", out_pwfile])
-            else:
-                logger.error(log.PKIHELPER_PK12UTIL_MISSING_PWFILE)
-                raise Exception(log.PKIHELPER_PK12UTIL_MISSING_PWFILE)
-            if db_pwfile:
-                command.extend(["-k", db_pwfile])
-            else:
-                logger.error(log.PKIHELPER_PK12UTIL_MISSING_DBPWFILE)
-                raise Exception(log.PKIHELPER_PK12UTIL_MISSING_DBPWFILE)
-
-            # encrypt private keys with PKCS#5 PBES2
-            command.extend(["-c", "AES-128-CBC"])
-            # don't encrypt public certs
-            command.extend(["-C", "NONE"])
-
-            logger.debug('Command: %s', ' '.join(command))
-            with open(os.devnull, "w", encoding='utf-8') as fnull:
-                subprocess.check_call(command, stdout=fnull, stderr=fnull)
-
-        except subprocess.CalledProcessError as exc:
-            logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
-            if critical_failure:
-                raise
-        except OSError as exc:
-            logger.error(log.PKI_OSERROR_1, exc)
-            if critical_failure:
-                raise
-        return
-
-
 class KRAConnector:
     """PKI Deployment KRA Connector Class"""
 
