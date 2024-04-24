@@ -2232,30 +2232,20 @@ class PKIDeployer:
         finally:
             client_nssdb.close()
 
-    def store_admin_cert(self, pem_cert):
+    def store_admin_cert(self, cert_data):
 
         cert_file = self.mdict['pki_client_admin_cert']
+
+        if os.path.exists(cert_file):
+            logger.info('Admin cert already exists in %s', cert_file)
+            return None
+
         logger.info('Storing admin cert into %s', cert_file)
 
-        with open(cert_file, "w", encoding='utf-8') as f:
-            f.write(pem_cert)
+        with open(cert_file, 'w', encoding='utf-8') as f:
+            f.write(cert_data)
 
         os.chmod(cert_file, pki.server.DEFAULT_FILE_MODE)
-
-        client_nssdb_dir = self.mdict['pki_client_database_dir']
-        logger.info('Importing admin cert into %s', client_nssdb_dir)
-
-        client_nssdb = pki.nssdb.NSSDatabase(
-            directory=client_nssdb_dir,
-            password_file=self.mdict['pki_client_password_conf'])
-
-        try:
-            client_nssdb.add_cert(
-                re.sub("&#39;", "'", self.mdict['pki_admin_nickname']),
-                cert_file)
-
-        finally:
-            client_nssdb.close()
 
     def export_admin_pkcs12(self):
 
@@ -3741,6 +3731,7 @@ class PKIDeployer:
             logger.debug('Admin cert:\n%s', pem_cert)
 
             if external and subsystem.type != 'CA' or standalone:
+                self.import_admin_cert(pem_cert)
                 self.store_admin_cert(pem_cert)
                 self.export_admin_pkcs12()
 
@@ -3756,6 +3747,7 @@ class PKIDeployer:
             logger.debug('Admin cert:\n%s', pem_cert)
 
             if external and subsystem.type != 'CA' or standalone:
+                self.import_admin_cert(pem_cert)
                 self.store_admin_cert(pem_cert)
                 self.export_admin_pkcs12()
 
@@ -3778,6 +3770,7 @@ class PKIDeployer:
             logger.debug('Admin cert:\n%s', pem_cert)
 
             if external and subsystem.type != 'CA' or standalone:
+                self.import_admin_cert(pem_cert)
                 self.store_admin_cert(pem_cert)
                 self.export_admin_pkcs12()
 
@@ -3788,6 +3781,7 @@ class PKIDeployer:
             pem_cert = self.create_admin_cert(subsystem, base64_csr)
             logger.debug('Admin cert:\n%s', pem_cert)
 
+            self.import_admin_cert(pem_cert)
             self.store_admin_cert(pem_cert)
             self.export_admin_pkcs12()
 
@@ -3825,6 +3819,7 @@ class PKIDeployer:
 
         logger.debug('Admin cert:\n%s', pem_cert)
 
+        self.import_admin_cert(pem_cert)
         self.store_admin_cert(pem_cert)
         self.export_admin_pkcs12()
 
