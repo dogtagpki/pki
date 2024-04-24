@@ -2268,16 +2268,19 @@ class NSSDatabase(object):
     def import_cert_chain(
             self,
             nickname,
-            cert_chain_file,
+            cert_chain_data=None,
+            cert_chain_file=None,
             token=None,
             trust_attributes=None):
 
         logger.debug('NSSDatabase.import_cert_chain(%s) begins', nickname)
 
-        with open(cert_chain_file, 'r', encoding='utf-8') as f:
-            data = f.read()
+        if not cert_chain_data:
+            with open(cert_chain_file, 'r', encoding='utf-8') as f:
+                cert_chain_data = f.read()
 
-        pem_parts = split_pem_data(data)
+        logger.debug('NSSDatabase: Cert chain:\n%s', cert_chain_data)
+        pem_parts = split_pem_data(cert_chain_data)
 
         tmpdir = self.create_tmpdir()
 
@@ -2296,20 +2299,19 @@ class NSSDatabase(object):
 
             # single cert, PKCS #7, or Base64 data
             input_type = get_pem_type(pem_parts[0])
-            input_file = cert_chain_file
 
             if input_type == 'CERTIFICATE':  # import single PEM cert
                 logger.debug('Importing a single cert')
                 self.add_cert(
                     nickname=nickname,
-                    cert_file=input_file,
+                    cert_data=cert_chain_data,
                     token=token,
                     trust_attributes=trust_attributes)
 
             elif input_type == 'PKCS7':  # import PKCS #7 cert chain
                 logger.debug('Importing a PKCS #7 cert chain')
                 self.import_pkcs7(
-                    pkcs7_file=input_file,
+                    pkcs7_data=cert_chain_data,
                     nickname=nickname,
                     token=token,
                     trust_attributes=trust_attributes)
@@ -2320,16 +2322,11 @@ class NSSDatabase(object):
                 # to no longer remove PKCS #7 header/footer
 
                 # join base-64 data into a single line
-                base64_data = data.replace('\r', '').replace('\n', '')
-
+                base64_data = cert_chain_data.replace('\r', '').replace('\n', '')
                 pkcs7_data = convert_pkcs7(base64_data, 'base64', 'pem')
 
-                tmp_cert_chain_file = os.path.join(tmpdir, 'cert_chain.p7b')
-                with open(tmp_cert_chain_file, 'w', encoding='utf-8') as f:
-                    f.write(pkcs7_data)
-
                 self.import_pkcs7(
-                    pkcs7_file=tmp_cert_chain_file,
+                    pkcs7_file=pkcs7_data,
                     nickname=nickname,
                     token=token,
                     trust_attributes=trust_attributes)
