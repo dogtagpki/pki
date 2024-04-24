@@ -2250,7 +2250,10 @@ class PKIDeployer:
     def export_admin_pkcs12(self):
 
         pkcs12_file = self.mdict['pki_client_admin_cert_p12']
-        logger.info('Exporting admin cert into %s', pkcs12_file)
+
+        if os.path.exists(pkcs12_file):
+            logger.info('Admin cert already exists in %s', pkcs12_file)
+            return
 
         pkcs12_path = os.path.abspath(pkcs12_file)
         pkcs12_dir = os.path.dirname(pkcs12_path)
@@ -2258,13 +2261,31 @@ class PKIDeployer:
         # Create directory for PKCS #12 file
         self.directory.create(pkcs12_dir)
 
-        # Export admin cert into PKCS #12 file
-        self.pk12util.create_file(
-            pkcs12_file,
-            re.sub("&#39;", "'", self.mdict['pki_admin_nickname']),
-            self.mdict['pki_client_pkcs12_password_conf'],
-            self.mdict['pki_client_password_conf'],
-            self.mdict['pki_client_database_dir'])
+        nickname = self.mdict['pki_admin_nickname']
+
+        client_nssdb = pki.nssdb.NSSDatabase(
+            directory=self.mdict['pki_client_database_dir'],
+            password_file=self.mdict['pki_client_password_conf'])
+
+        try:
+            cert = client_nssdb.get_cert(nickname)
+
+            if not cert:
+                logger.info('Admin cert does not exist in %s', client_nssdb.directory)
+                return
+
+            logger.info('Exporting admin cert into %s', pkcs12_file)
+
+            pkcs12_password_file = self.mdict['pki_client_pkcs12_password_conf']
+
+            client_nssdb.export_pkcs12(
+                pkcs12_file,
+                pkcs12_password_file=pkcs12_password_file,
+                nicknames=[nickname],
+                include_chain=False)
+
+        finally:
+            client_nssdb.close()
 
         os.chmod(
             pkcs12_file,
