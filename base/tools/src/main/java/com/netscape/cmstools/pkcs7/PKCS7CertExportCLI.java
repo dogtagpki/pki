@@ -26,6 +26,7 @@ import java.security.cert.X509Certificate;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.apache.commons.io.IOUtils;
 import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.mozilla.jss.netscape.security.util.Cert;
@@ -85,17 +86,20 @@ public class PKCS7CertExportCLI extends CommandCLI {
             }
         }
 
+        String input;
         if (filename == null) {
-            throw new Exception("Missing PKCS #7 file.");
+            logger.info("Loading PKCS #7 data from standard input");
+            input = IOUtils.toString(System.in, "UTF-8").trim();
+
+        } else {
+            logger.info("Loading PKCS #7 data from " + filename);
+            input = new String(Files.readAllBytes(Paths.get(filename))).trim();
         }
 
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        logger.info("Loading PKCS #7 data from " + filename);
-        String str = new String(Files.readAllBytes(Paths.get(filename))).trim();
-        PKCS7 pkcs7 = new PKCS7(str);
-
+        PKCS7 pkcs7 = new PKCS7(input);
         X509Certificate[] certs = pkcs7.getCertificates();
         if (certs == null || certs.length == 0) {
             System.out.println("PKCS #7 data contains no certificates");

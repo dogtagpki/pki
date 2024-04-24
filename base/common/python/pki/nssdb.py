@@ -2392,11 +2392,13 @@ class NSSDatabase(object):
             cmd = [
                 'pki',
                 '-d', self.directory,
-                'pkcs7-cert-export',
-                '--pkcs7', pkcs7_file,
-                '--output-prefix', prefix,
-                '--output-suffix', suffix
-            ]
+                'pkcs7-cert-export']
+
+            if pkcs7_file:
+                cmd.extend(['--pkcs7', pkcs7_file])
+
+            cmd.extend(['--output-prefix', prefix])
+            cmd.extend(['--output-suffix', suffix])
 
             if logger.isEnabledFor(logging.DEBUG):
                 cmd.append('--debug')
@@ -2404,7 +2406,12 @@ class NSSDatabase(object):
             elif logger.isEnabledFor(logging.INFO):
                 cmd.append('--verbose')
 
-            self.run(cmd, check=True)
+            if pkcs7_data:
+                data = pkcs7_data.encode('utf-8')
+            else:
+                data = None
+
+            self.run(cmd, input=data, check=True)
 
             # Count the number of certs in the chain.
             n = 0
