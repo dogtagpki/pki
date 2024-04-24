@@ -2196,32 +2196,37 @@ class PKIDeployer:
             token=token,
             trust_attributes=trust_attributes)
 
-    def import_admin_cert(self):
+    def load_admin_cert(self):
 
         param = 'pki_admin_cert_path'
         cert_file = self.mdict.get(param)
 
         if not cert_file:
-            # no admin cert to import
-            return
-
-        logger.info('Importing admin cert from %s', cert_file)
+            # no admin cert to load
+            return None
 
         if not os.path.exists(cert_file):
             raise Exception('Invalid path in %s: %s' % (param, cert_file))
+
+        logger.info('Loading admin cert from %s', cert_file)
+
+        with open(cert_file, 'r', encoding='utf-8') as f:
+            return f.read()
+
+    def import_admin_cert(self, cert_data):
 
         nickname = self.mdict['pki_admin_nickname']
 
         client_nssdb = pki.nssdb.NSSDatabase(
             directory=self.mdict['pki_client_database_dir'],
-            password=self.mdict['pki_client_database_password'])
+            password_file=self.mdict['pki_client_password_conf'])
 
         try:
-            logger.info('Importing admin certificate from %s', cert_file)
+            logger.info('Importing admin cert into %s', client_nssdb.directory)
 
             client_nssdb.import_cert_chain(
                 nickname=nickname,
-                cert_chain_file=cert_file,
+                cert_chain_data=cert_data,
                 trust_attributes=',,')
 
         finally:
@@ -2344,13 +2349,19 @@ class PKIDeployer:
 
             self.import_system_cert(nssdb, subsystem, 'storage')
             self.import_system_cert(nssdb, subsystem, 'transport')
-            self.import_admin_cert()
+
+            admin_cert = self.load_admin_cert()
+            if admin_cert:
+                self.import_admin_cert(admin_cert)
 
         if subsystem.name == 'ocsp':
             self.import_ca_signing_cert(nssdb)
 
             self.import_system_cert(nssdb, subsystem, 'signing')
-            self.import_admin_cert()
+
+            admin_cert = self.load_admin_cert()
+            if admin_cert:
+                self.import_admin_cert(admin_cert)
 
         self.import_system_cert(nssdb, subsystem, 'sslserver')
         self.import_system_cert(nssdb, subsystem, 'subsystem')
