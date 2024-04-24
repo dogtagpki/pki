@@ -2013,16 +2013,17 @@ class NSSDatabase(object):
             result = self.run(cmd, capture_output=True)
 
             cert_data = result.stdout
-            std_err = result.stderr
+            stderr = result.stderr.decode('utf-8')
 
-            if std_err:
+            if stderr:
                 # certutil returned an error
                 # raise exception unless its not cert not found
-                if std_err.startswith(b'certutil: Could not find cert: '):
+                logger.debug('NSSDatabase: stderr:\n%s', stderr)
+                if re.search('^certutil: Could not find cert: ', stderr, re.MULTILINE):
                     logger.debug('Cert not found: %s', nickname)
                     return None
 
-                raise Exception('Could not find cert: %s: %s' % (fullname, std_err.strip()))
+                raise Exception('Could not find cert: %s: %s' % (fullname, stderr.strip()))
 
             if not cert_data:
                 logger.debug('certutil did not return cert data')
