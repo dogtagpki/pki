@@ -1005,17 +1005,17 @@ class PKIDeployer:
 
         pki.util.makedirs(self.mdict['pki_client_database_dir'], exist_ok=True)
 
-        nssdb = pki.nssdb.NSSDatabase(
+        client_nssdb = pki.nssdb.NSSDatabase(
             directory=self.mdict['pki_client_database_dir'],
             password_file=self.mdict['pki_client_password_conf'],
             user=self.mdict['pki_user'],
             group=self.mdict['pki_group'])
 
         try:
-            if not nssdb.exists():
-                nssdb.create()
+            if not client_nssdb.exists():
+                client_nssdb.create()
         finally:
-            nssdb.close()
+            client_nssdb.close()
 
     def verify_subsystem_exists(self):
 
@@ -2061,7 +2061,7 @@ class PKIDeployer:
 
         client_nssdb = pki.nssdb.NSSDatabase(
             directory=self.mdict['pki_client_database_dir'],
-            password=self.mdict['pki_client_database_password'])
+            password_file=self.mdict['pki_client_password_conf'])
 
         try:
             self.generate_csr(
@@ -3724,7 +3724,7 @@ class PKIDeployer:
 
         client_nssdb = pki.nssdb.NSSDatabase(
             directory=self.mdict['pki_client_database_dir'],
-            password=self.mdict['pki_client_database_password'])
+            password_file=self.mdict['pki_client_password_conf'])
 
         try:
             logger.info('Checking %s cert in %s', nickname, client_nssdb.directory)
