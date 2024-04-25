@@ -3784,15 +3784,10 @@ class PKIDeployer:
 
             return pem_cert
 
-        if config.str2bool(self.mdict['pki_import_admin_cert']) \
-                or external and subsystem.type != 'CA' \
-                or standalone:
+        cert_file = self.mdict.get('pki_admin_cert_file')
+        logger.info('Checking admin cert in %s', cert_file)
 
-            cert_file = self.mdict.get('pki_admin_cert_file')
-            logger.info('Checking admin cert in %s', cert_file)
-
-            if not os.path.exists(cert_file):
-                raise Exception('Missing admin certificate: %s' % cert_file)
+        if cert_file and os.path.exists(cert_file):
 
             logger.info('Loading admin cert from %s', cert_file)
             with open(cert_file, 'r', encoding='utf-8') as f:
