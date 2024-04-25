@@ -3713,7 +3713,7 @@ class PKIDeployer:
 
         return cert_pem
 
-    def setup_admin_cert(self, subsystem, base64_csr=None):
+    def setup_admin_cert(self, subsystem):
 
         logger.debug('PKIDeployer.setup_admin_cert()')
 
@@ -3795,9 +3795,12 @@ class PKIDeployer:
 
             return pem_cert
 
+        logger.info('Creating admin cert request')
+        admin_csr = self.create_admin_csr(subsystem)
+
         if subsystem.type == 'CA':
             logger.info('Creating admin cert')
-            pem_cert = self.create_admin_cert(subsystem, base64_csr)
+            pem_cert = self.create_admin_cert(subsystem, admin_csr)
             logger.debug('Admin cert:\n%s', pem_cert)
 
             self.import_admin_cert(pem_cert)
@@ -3832,7 +3835,7 @@ class PKIDeployer:
         pem_cert = self.request_cert(
             ca_url,
             request_type,
-            base64_csr,
+            admin_csr,
             profile,
             subject)
 
