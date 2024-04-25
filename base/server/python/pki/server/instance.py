@@ -73,7 +73,7 @@ class PKIInstance(pki.server.PKIServer):
 
         # The standard conf dir at /var/lib/pki/<instance>/logs
         # will be a link to the actual folder at /var/log/pki/<instance>.
-        self.actual_logs_dir = os.path.join(pki.server.PKIServer.LOG_DIR, self.name)
+        self._logs_dir = os.path.join(pki.server.PKIServer.LOG_DIR, self.name)
 
         self.default_root_doc_base = os.path.join(
             pki.SHARE_DIR,

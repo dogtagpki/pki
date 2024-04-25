@@ -128,7 +128,7 @@ class PKIServer(object):
 
         # The standard logs dir at /var/lib/pki/<instance>/logs
         # will be an actual folder (i.e. not a link).
-        self.actual_logs_dir = None
+        self._logs_dir = None
 
         self.config = {}
         self.passwords = {}
@@ -185,6 +185,10 @@ class PKIServer(object):
     @property
     def logs_dir(self):
         return os.path.join(self.base_dir, 'logs')
+
+    @property
+    def actual_logs_dir(self):
+        return self._logs_dir if self._logs_dir else self.logs_dir
 
     @property
     def temp_dir(self):
@@ -826,13 +830,13 @@ grant codeBase "file:%s" {
 
     def create_logs_dir(self, exist_ok=False):
 
-        if self.actual_logs_dir:
+        if self._logs_dir:
 
             # Create /var/log/pki/<instance>
-            self.makedirs(self.actual_logs_dir, exist_ok=exist_ok)
+            self.makedirs(self._logs_dir, exist_ok=exist_ok)
 
             # Link /var/lib/pki/<instance>/logs to /var/log/pki/<instance>
-            self.symlink(self.actual_logs_dir, self.logs_dir, exist_ok=exist_ok)
+            self.symlink(self._logs_dir, self.logs_dir, exist_ok=exist_ok)
 
             return
 
@@ -1256,15 +1260,15 @@ grant codeBase "file:%s" {
         if os.path.islink(self.logs_dir):
 
             # Get the actual folder in case it has changed
-            actual_logs_dir = os.readlink(self.logs_dir)
+            _logs_dir = os.readlink(self.logs_dir)
 
             # Remove /var/lib/pki/<instance>/logs
             logger.info('Removing %s', self.logs_dir)
             pki.util.unlink(self.logs_dir, force=force)
 
             # Remove /var/log/pki/<instance>
-            logger.info('Removing %s', actual_logs_dir)
-            pki.util.rmtree(actual_logs_dir, force=force)
+            logger.info('Removing %s', _logs_dir)
+            pki.util.rmtree(_logs_dir, force=force)
 
             return
 
