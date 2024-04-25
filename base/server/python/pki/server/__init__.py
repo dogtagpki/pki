@@ -124,7 +124,7 @@ class PKIServer(object):
 
         # The standard conf dir at /var/lib/pki/<instance>/conf
         # will be an actual folder (i.e. not a link).
-        self.actual_conf_dir = None
+        self._conf_dir = None
 
         # The standard logs dir at /var/lib/pki/<instance>/logs
         # will be an actual folder (i.e. not a link).
@@ -161,6 +161,10 @@ class PKIServer(object):
     @property
     def conf_dir(self):
         return os.path.join(self.base_dir, 'conf')
+
+    @property
+    def actual_conf_dir(self):
+        return self._conf_dir if self._conf_dir else self.conf_dir
 
     @property
     def certs_dir(self):
@@ -807,13 +811,13 @@ grant codeBase "file:%s" {
 
     def create_conf_dir(self, exist_ok=False):
 
-        if self.actual_conf_dir:
+        if self._conf_dir:
 
             # Create /etc/pki/<instance>
-            self.makedirs(self.actual_conf_dir, exist_ok=exist_ok)
+            self.makedirs(self._conf_dir, exist_ok=exist_ok)
 
             # Link /var/lib/pki/<instance>/conf to /etc/pki/<instance>
-            self.symlink(self.actual_conf_dir, self.conf_dir, exist_ok=exist_ok)
+            self.symlink(self._conf_dir, self.conf_dir, exist_ok=exist_ok)
 
             return
 
@@ -1273,15 +1277,15 @@ grant codeBase "file:%s" {
         if os.path.islink(self.conf_dir):
 
             # Get the actual folder in case it has changed
-            actual_conf_dir = os.readlink(self.conf_dir)
+            _conf_dir = os.readlink(self.conf_dir)
 
             # Remove /var/lib/pki/<instance>/conf
             logger.info('Removing %s', self.conf_dir)
             pki.util.unlink(self.conf_dir, force=force)
 
             # Remove /etc/pki/<instance>
-            logger.info('Removing %s', actual_conf_dir)
-            pki.util.rmtree(actual_conf_dir, force=force)
+            logger.info('Removing %s', _conf_dir)
+            pki.util.rmtree(_conf_dir, force=force)
 
             return
 

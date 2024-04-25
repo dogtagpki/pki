@@ -69,7 +69,7 @@ class PKIInstance(pki.server.PKIServer):
 
         # The standard conf dir at /var/lib/pki/<instance>/conf
         # will be a link to the actual folder at /etc/pki/<instance>.
-        self.actual_conf_dir = os.path.join(pki.server.PKIServer.CONFIG_DIR, self.name)
+        self._conf_dir = os.path.join(pki.server.PKIServer.CONFIG_DIR, self.name)
 
         # The standard conf dir at /var/lib/pki/<instance>/logs
         # will be a link to the actual folder at /var/log/pki/<instance>.
