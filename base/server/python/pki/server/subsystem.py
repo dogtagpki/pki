@@ -1895,9 +1895,6 @@ class PKISubsystem(object):
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
 
-        elif logger.isEnabledFor(logging.INFO):
-            cmd.append('--verbose')
-
         cmd.append('--output-format')
         cmd.append('json')
 
@@ -1920,8 +1917,11 @@ class PKISubsystem(object):
                  user_type=None,
                  state=None,
                  tps_profiles=None,
-                 as_current_user=False,
-                 attributes=None):
+                 attributes=None,
+                 ignore_duplicate=False,
+                 as_current_user=False):
+
+        logger.info('Adding user %s', user_id)
 
         tmpdir = tempfile.mkdtemp()
 
@@ -1968,6 +1968,9 @@ class PKISubsystem(object):
                     attr_str += key + ':' + attributes[key] + ','
                 attr_str = attr_str.strip(',')
                 cmd.append(attr_str)
+
+            if ignore_duplicate:
+                cmd.append('--ignore-duplicate')
 
             if logger.isEnabledFor(logging.DEBUG):
                 cmd.append('--debug')
@@ -2216,14 +2219,17 @@ class PKISubsystem(object):
         # https://stackoverflow.com/questions/53209127/subprocess-unexpected-keyword-argument-capture-output/53209196
         if capture_output:
             stdout = subprocess.PIPE
+            stderr = subprocess.PIPE
         else:
             stdout = None
+            stderr = None
 
         try:
             return subprocess.run(
                 cmd,
                 input=input,
                 stdout=stdout,
+                stderr=stderr,
                 check=True)
 
         except KeyboardInterrupt:

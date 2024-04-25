@@ -17,6 +17,7 @@ import org.dogtagpki.cli.CLI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
@@ -77,6 +78,8 @@ public class SubsystemUserAddCLI extends SubsystemCLI {
         option = new Option(null, "attributes", true, "Attributes");
         option.setArgName("attributes");
         options.addOption(option);
+
+        options.addOption(null, "ignore-duplicate", false, "Ignore duplicate.");
     }
 
     @Override
@@ -104,6 +107,7 @@ public class SubsystemUserAddCLI extends SubsystemCLI {
         String state = cmd.getOptionValue("state");
         String tpsProfiles = cmd.getOptionValue("tps-profiles");
         String attributes = cmd.getOptionValue("attributes");
+        boolean ignoreDuplicate = cmd.hasOption("ignore-duplicate");
 
         if (passwordFile != null) {
             password = new String(Files.readAllBytes(Paths.get(passwordFile)), "UTF-8").trim();
@@ -152,6 +156,11 @@ public class SubsystemUserAddCLI extends SubsystemCLI {
                 user.setAttributes(ldapAttrList);
             }
             ugSubsystem.addUser(user);
+
+        } catch (ConflictingOperationException e) {
+            if (!ignoreDuplicate) {
+                throw e;
+            }
 
         } finally {
             ugSubsystem.shutdown();

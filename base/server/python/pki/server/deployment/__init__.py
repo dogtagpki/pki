@@ -3867,6 +3867,7 @@ class PKIDeployer:
 
         # Run the command as current user such that
         # it can read the temporary password file.
+
         subsystem.add_user(
             uid,
             full_name=full_name,
@@ -3875,6 +3876,7 @@ class PKIDeployer:
             user_type='adminType',
             state='1',
             tps_profiles=tps_profiles,
+            ignore_duplicate=True,
             as_current_user=True)
 
         groups = ['Administrators']
@@ -3933,17 +3935,13 @@ class PKIDeployer:
         secure_port = server_config.get_secure_port()
 
         uid = 'CA-%s-%s' % (self.mdict['pki_hostname'], secure_port)
-        logger.info('Adding %s', uid)
 
-        try:
-            subsystem.add_user(
-                uid,
-                full_name=uid,
-                user_type='agentType',
-                state='1')
-        except Exception:    # pylint: disable=W0703
-            logger.warning('Unable to add %s', uid)
-            # TODO: ignore error only if user already exists
+        subsystem.add_user(
+            uid,
+            full_name=uid,
+            user_type='agentType',
+            state='1',
+            ignore_duplicate=True)
 
         cert_data = pki.nssdb.convert_cert(
             cert['data'],
@@ -3994,7 +3992,6 @@ class PKIDeployer:
 
     def setup_database_user(self, subsystem):
 
-        logger.info('Adding pkidbuser')
         subsystem.add_user(
             'pkidbuser',
             full_name='pkidbuser',
@@ -4002,7 +3999,9 @@ class PKIDeployer:
             state='1',
             attributes={
                 'nsPagedSizeLimit': '20000'
-            })
+            },
+            ignore_duplicate=True)
+
         subsystem_cert = subsystem.get_subsystem_cert('subsystem')
         subject = subsystem_cert['subject']
 
@@ -4623,12 +4622,12 @@ class PKIDeployer:
 
             ca_uid = 'CA-%s-%s' % (ca_host, ca_port)
 
-            logger.info('Adding %s user into KRA', ca_uid)
             subsystem.add_user(
                 ca_uid,
                 full_name=ca_uid,
                 user_type='agentType',
-                state='1')
+                state='1',
+                ignore_duplicate=True)
 
             logger.info('Getting CA subsystem certificate from %s', ca_url)
             subsystem_cert_data = self.get_ca_subsystem_cert(ca_url)
@@ -4672,12 +4671,12 @@ class PKIDeployer:
 
             ca_uid = 'CA-%s-%s' % (ca_host, ca_port)
 
-            logger.info('Adding %s user into OCSP', ca_uid)
             subsystem.add_user(
                 ca_uid,
                 full_name=ca_uid,
                 user_type='agentType',
-                state='1')
+                state='1',
+                ignore_duplicate=True)
 
             logger.info('Getting CA subsystem certificate from %s', ca_url)
             subsystem_cert_data = self.get_ca_subsystem_cert(ca_url)

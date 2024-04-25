@@ -50,6 +50,7 @@ class UserAddCLI(pki.cli.CLI):
               --type <type>                  Type: userType, agentType, adminType, subsystemType
               --state <state>                State
               --tps-profiles <profiles>      Comma-separated TPS profiles
+              --ignore-duplicate             Ignore duplicate.
           -v, --verbose                      Run in verbose mode.
               --debug                        Run in debug mode.
               --help                         Show help message.
@@ -72,7 +73,7 @@ class UserAddCLI(pki.cli.CLI):
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=', 'full-name=', 'email=',
                 'password=', 'password-file=',
-                'phone=', 'type=', 'state=', 'tps-profiles=',
+                'phone=', 'type=', 'state=', 'tps-profiles=', 'ignore-duplicate'
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -90,6 +91,7 @@ class UserAddCLI(pki.cli.CLI):
         user_type = None
         state = None
         tps_profiles = None
+        ignore_duplicate = False
 
         for o, a in opts:
             if o in ('-i', '--instance'):
@@ -118,6 +120,9 @@ class UserAddCLI(pki.cli.CLI):
 
             elif o == '--tps-profiles':
                 tps_profiles = [x.strip() for x in a.split(',')]
+
+            elif o == '--ignore-duplicate':
+                ignore_duplicate = True
 
             elif o in ('-v', '--verbose'):
                 logging.getLogger().setLevel(logging.INFO)
@@ -168,8 +173,9 @@ class UserAddCLI(pki.cli.CLI):
             password_file=password_file,
             phone=phone,
             user_type=user_type,
+            state=state,
             tps_profiles=tps_profiles,
-            state=state)
+            ignore_duplicate=ignore_duplicate)
 
 
 class UserFindCLI(pki.cli.CLI):
