@@ -270,6 +270,7 @@ class OCSPCRLIssuingPointAddCLI(pki.cli.CLI):
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
         print('      --cert-chain <path>            Path to PKCS #7 certificate chain')
         print('      --cert-format <format>         Certificate format: PEM (default), DER')
+        print('      --ignore-duplicate             Ignore duplicate.')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -279,7 +280,7 @@ class OCSPCRLIssuingPointAddCLI(pki.cli.CLI):
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
-                'cert-chain=', 'cert-format=',
+                'cert-chain=', 'cert-format=', 'ignore-duplicate',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -290,6 +291,7 @@ class OCSPCRLIssuingPointAddCLI(pki.cli.CLI):
         instance_name = 'pki-tomcat'
         cert_chain_file = None
         cert_format = None
+        ignore_duplicate = False
 
         for o, a in opts:
             if o in ('-i', '--instance'):
@@ -300,6 +302,9 @@ class OCSPCRLIssuingPointAddCLI(pki.cli.CLI):
 
             elif o == '--cert-format':
                 cert_format = a
+
+            elif o == '--ignore-duplicate':
+                ignore_duplicate = True
 
             elif o in ('-v', '--verbose'):
                 logging.getLogger().setLevel(logging.INFO)
@@ -331,4 +336,5 @@ class OCSPCRLIssuingPointAddCLI(pki.cli.CLI):
 
         subsystem.add_crl_issuing_point(
             cert_chain_file=cert_chain_file,
-            cert_format=cert_format)
+            cert_format=cert_format,
+            ignore_duplicate=ignore_duplicate)

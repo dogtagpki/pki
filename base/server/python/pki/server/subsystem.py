@@ -2706,6 +2706,7 @@ class OCSPSubsystem(PKISubsystem):
             cert_chain=None,
             cert_chain_file=None,
             cert_format=None,
+            ignore_duplicate=False,
             as_current_user=False):
 
         cmd = [self.name + '-crl-issuingpoint-add']
@@ -2715,6 +2716,9 @@ class OCSPSubsystem(PKISubsystem):
 
         if cert_format:
             cmd.extend(['--cert-format', cert_format])
+
+        if ignore_duplicate:
+            cmd.append('--ignore-duplicate')
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')

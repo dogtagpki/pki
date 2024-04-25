@@ -24,6 +24,7 @@ import org.mozilla.jss.netscape.security.util.Cert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.netscape.certsrv.dbs.DBRecordAlreadyExistsException;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.DatabaseConfig;
@@ -63,6 +64,8 @@ public class OCSPCRLIssuingPointAddCLI extends CommandCLI {
         option = new Option(null, "cert-format", true, "Certificate format: PEM (default), DER");
         option.setArgName("format");
         options.addOption(option);
+
+        options.addOption(null, "ignore-duplicate", false, "Ignore duplicate.");
     }
 
     @Override
@@ -84,6 +87,9 @@ public class OCSPCRLIssuingPointAddCLI extends CommandCLI {
         cs.load();
 
         String filename = cmd.getOptionValue("cert-chain");
+        String format = cmd.getOptionValue("cert-format", "PEM");
+        boolean ignoreDuplicate = cmd.hasOption("ignore-duplicate");
+
         byte[] bytes;
         if (filename == null) {
             logger.info("Loading certificate chain from standard input");
@@ -94,7 +100,6 @@ public class OCSPCRLIssuingPointAddCLI extends CommandCLI {
             bytes = Files.readAllBytes(Paths.get(filename));
         }
 
-        String format = cmd.getOptionValue("cert-format", "PEM");
         if ("PEM".equalsIgnoreCase(format)) {
             bytes = Cert.parseCertificate(new String(bytes));
 
@@ -140,24 +145,34 @@ public class OCSPCRLIssuingPointAddCLI extends CommandCLI {
         dbSubsystem.setSocketFactory(socketFactory);
         dbSubsystem.init(dbConfig, ldapConfig, passwordStore);
 
-        OCSPConfig ocspConfig = cs.getOCSPConfig();
-        String storeID = ocspConfig.getString(OCSPAuthority.PROP_DEF_STORE_ID);
+        try {
+            OCSPConfig ocspConfig = cs.getOCSPConfig();
+            String storeID = ocspConfig.getString(OCSPAuthority.PROP_DEF_STORE_ID);
 
-        String className = ocspConfig.getString(OCSPAuthority.PROP_STORE + "." + storeID + ".class");
-        ConfigStore storeConfig = ocspConfig.getSubStore(OCSPAuthority.PROP_STORE + "." + storeID, ConfigStore.class);
+            String className = ocspConfig.getString(OCSPAuthority.PROP_STORE + "." + storeID + ".class");
+            ConfigStore storeConfig = ocspConfig.getSubStore(OCSPAuthority.PROP_STORE + "." + storeID, ConfigStore.class);
 
-        IDefStore store = (IDefStore) Class.forName(className).getDeclaredConstructor().newInstance();
-        store.init(storeConfig, dbSubsystem);
+            IDefStore store = (IDefStore) Class.forName(className).getDeclaredConstructor().newInstance();
+            store.init(storeConfig, dbSubsystem);
 
-        // (1) need to normalize (sort) the chain
-        // (2) store certificate (and certificate chain) into
-        // database
-        CRLIssuingPointRecord record = store.createCRLIssuingPointRecord(
-                cert.getSubjectDN().getName(),
-                BigInteger.ZERO,
-                -1L, null, null);
+            // (1) need to normalize (sort) the chain
+            // (2) store certificate (and certificate chain) into
+            // database
+            CRLIssuingPointRecord record = store.createCRLIssuingPointRecord(
+                    cert.getSubjectDN().getName(),
+                    BigInteger.ZERO,
+                    -1L, null, null);
 
-        record.set(CRLIssuingPointRecord.ATTR_CA_CERT, cert.getEncoded());
-        store.addCRLIssuingPoint(cert.getSubjectDN().getName(), record);
+            record.set(CRLIssuingPointRecord.ATTR_CA_CERT, cert.getEncoded());
+            store.addCRLIssuingPoint(cert.getSubjectDN().getName(), record);
+
+        } catch (DBRecordAlreadyExistsException e) {
+            if (!ignoreDuplicate) {
+                throw e;
+            }
+
+        } finally {
+            dbSubsystem.shutdown();
+        }
     }
 }

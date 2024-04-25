@@ -4677,7 +4677,10 @@ class PKIDeployer:
             logger.info('Adding CRL issuing point')
             base64_chain = subsystem.config['preop.ca.pkcs7']
             cert_chain = base64.b64decode(base64_chain)
-            subsystem.add_crl_issuing_point(cert_chain=cert_chain, cert_format='DER')
+            subsystem.add_crl_issuing_point(
+                cert_chain=cert_chain,
+                cert_format='DER',
+                ignore_duplicate=True)
 
             url = urllib.parse.urlparse(ca_url)
             ca_host = url.hostname
