@@ -3727,11 +3727,23 @@ class PKIDeployer:
             password=self.mdict['pki_client_database_password'])
 
         try:
-            logger.info('Checking admin cert: %s', nickname)
+            logger.info('Checking %s cert in %s', nickname, client_nssdb.directory)
             cert_info = client_nssdb.get_cert_info(nickname)
 
+            pkcs12_file = self.mdict['pki_client_admin_cert_p12']
+            if not cert_info and pkcs12_file and os.path.exists(pkcs12_file):
+
+                logger.info('Importing admin cert from %s', pkcs12_file)
+                pkcs12_password = self.mdict['pki_client_pkcs12_password']
+
+                client_nssdb.import_pkcs12(
+                    pkcs12_file=pkcs12_file,
+                    pkcs12_password=pkcs12_password)
+
+                cert_info = client_nssdb.get_cert_info(nickname)
+
             if cert_info:
-                logger.info('admin cert already exists in NSS database')
+                logger.info('Found %s cert:', nickname)
                 logger.info('- serial: %s', hex(cert_info['serial_number']))
                 logger.info('- subject: %s', cert_info['subject'])
                 logger.info('- issuer: %s', cert_info['issuer'])
