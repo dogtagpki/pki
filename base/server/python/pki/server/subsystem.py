@@ -2066,6 +2066,7 @@ class PKISubsystem(object):
                       cert_data=None,
                       cert_path=None,
                       cert_format='PEM',
+                      ignore_duplicate=False,
                       as_current_user=False):
 
         cmd = [self.name + '-user-cert-add']
@@ -2077,6 +2078,9 @@ class PKISubsystem(object):
         if cert_format:
             cmd.append('--format')
             cmd.append(cert_format)
+
+        if ignore_duplicate:
+            cmd.append('--ignore-duplicate')
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')

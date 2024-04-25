@@ -17,6 +17,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
@@ -45,6 +46,8 @@ public class SubsystemUserCertAddCLI extends SubsystemCLI {
         option = new Option(null, "format", true, "Certificate format: PEM (default), DER");
         option.setArgName("format");
         options.addOption(option);
+
+        options.addOption(null, "ignore-duplicate", false, "Ignore duplicate.");
     }
 
     @Override
@@ -60,6 +63,7 @@ public class SubsystemUserCertAddCLI extends SubsystemCLI {
 
         String filename = cmd.getOptionValue("cert");
         String format = cmd.getOptionValue("format");
+        boolean ignoreDuplicate = cmd.hasOption("ignore-duplicate");
 
         initializeTomcatJSS();
 
@@ -103,6 +107,11 @@ public class SubsystemUserCertAddCLI extends SubsystemCLI {
         try {
             ugSubsystem.init(ldapConfig, socketConfig, passwordStore);
             ugSubsystem.addUserCert(userID, cert);
+
+        } catch (ConflictingOperationException e) {
+            if (!ignoreDuplicate) {
+                throw e;
+            }
 
         } finally {
             ugSubsystem.shutdown();

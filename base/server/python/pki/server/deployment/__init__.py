@@ -3927,7 +3927,11 @@ class PKIDeployer:
             subsystem.add_group_member(group, uid)
 
         logger.info('Adding certificate for %s', uid)
-        subsystem.add_user_cert(uid, cert_data=cert_data.encode(), cert_format='PEM')
+        subsystem.add_user_cert(
+            uid,
+            cert_data=cert_data.encode(),
+            cert_format='PEM',
+            ignore_duplicate=True)
 
     def setup_subsystem_user(self, subsystem, cert):
 
@@ -3954,7 +3958,9 @@ class PKIDeployer:
             subsystem.add_user_cert(
                 uid,
                 cert_data=cert_data.encode(),
-                cert_format='PEM')
+                cert_format='PEM',
+                ignore_duplicate=True)
+
         except Exception:    # pylint: disable=W0703
             logger.warning('Unable to add certificate for %s', uid)
             # TODO: ignore error only if user cert already exists
@@ -4014,7 +4020,11 @@ class PKIDeployer:
             nssdb.close()
 
         logger.info('Adding subsystem cert into pkidbuser')
-        subsystem.add_user_cert('pkidbuser', cert_data=cert_data, cert_format='PEM')
+        subsystem.add_user_cert(
+            'pkidbuser',
+            cert_data=cert_data,
+            cert_format='PEM',
+            ignore_duplicate=True)
 
         logger.info('Linking pkidbuser to subsystem cert: %s', subject)
         subsystem.modify_user('pkidbuser', add_see_also=subject)
@@ -4633,7 +4643,11 @@ class PKIDeployer:
             subsystem_cert_data = self.get_ca_subsystem_cert(ca_url)
 
             logger.info('Adding CA subsystem certificate into %s', ca_uid)
-            subsystem.add_user_cert(ca_uid, cert_data=subsystem_cert_data, cert_format='PEM')
+            subsystem.add_user_cert(
+                ca_uid,
+                cert_data=subsystem_cert_data,
+                cert_format='PEM',
+                ignore_duplicate=True)
 
             logger.info('Adding %s into Trusted Managers', ca_uid)
             subsystem.add_group_member('Trusted Managers', ca_uid)
@@ -4682,7 +4696,11 @@ class PKIDeployer:
             subsystem_cert_data = self.get_ca_subsystem_cert(ca_url)
 
             logger.info('Adding CA subsystem certificate into %s', ca_uid)
-            subsystem.add_user_cert(ca_uid, cert_data=subsystem_cert_data, cert_format='PEM')
+            subsystem.add_user_cert(
+                ca_uid,
+                cert_data=subsystem_cert_data,
+                cert_format='PEM',
+                ignore_duplicate=True)
 
             logger.info('Adding %s into Trusted Managers', ca_uid)
             subsystem.add_group_member('Trusted Managers', ca_uid)

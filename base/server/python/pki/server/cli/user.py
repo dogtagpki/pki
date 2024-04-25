@@ -656,6 +656,7 @@ class UserCertAddCLI(pki.cli.CLI):
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
         print('      --cert <path>                  Certificate to add.')
         print('      --format <format>              Certificate format: PEM (default), DER.')
+        print('      --ignore-duplicate             Ignore duplicate.')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -664,7 +665,7 @@ class UserCertAddCLI(pki.cli.CLI):
     def execute(self, argv):
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'cert=', 'format=',
+                'instance=', 'cert=', 'format=', 'ignore-duplicate'
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -676,6 +677,7 @@ class UserCertAddCLI(pki.cli.CLI):
         subsystem_name = self.parent.parent.parent.name
         cert_path = None
         cert_format = 'PEM'
+        ignore_duplicate = False
 
         for o, a in opts:
             if o in ('-i', '--instance'):
@@ -686,6 +688,9 @@ class UserCertAddCLI(pki.cli.CLI):
 
             elif o == '--format':
                 cert_format = a
+
+            elif o == '--ignore-duplicate':
+                ignore_duplicate = True
 
             elif o in ('-v', '--verbose'):
                 logging.getLogger().setLevel(logging.INFO)
@@ -723,7 +728,11 @@ class UserCertAddCLI(pki.cli.CLI):
                          subsystem_name.upper(), instance_name)
             sys.exit(1)
 
-        subsystem.add_user_cert(user_id, cert_path=cert_path, cert_format=cert_format)
+        subsystem.add_user_cert(
+            user_id,
+            cert_path=cert_path,
+            cert_format=cert_format,
+            ignore_duplicate=ignore_duplicate)
 
 
 class UserCertRemoveCLI(pki.cli.CLI):
