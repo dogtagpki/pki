@@ -285,6 +285,9 @@ class PKIDeployer:
         logger.info('Removing UserDatabase')
         server_config.remove_global_naming_resource('UserDatabase')
 
+        logger.info('Removing LockOutRealm')
+        server_config.remove_realm('org.apache.catalina.realm.LockOutRealm')
+
         # find default HTTP connector
         connector = server_config.get_connector(port='8080')
         service = connector.getparent()
@@ -371,32 +374,33 @@ class PKIDeployer:
         sslcert.set('certificateKeystoreProvider', 'Mozilla-JSS')
         sslcert.set('certificateKeyAlias', 'sslserver')
 
-        if config.str2bool(self.mdict['pki_enable_proxy']):
+        server_config.save()
 
-            logger.info('Adding AJP connector for IPv4')
+    def enable_proxy(self):
 
-            connector = etree.Element('Connector')
-            connector.set('port', self.mdict['pki_ajp_port'])
-            connector.set('protocol', 'AJP/1.3')
-            connector.set('redirectPort', self.mdict['pki_https_port'])
-            connector.set('address', self.mdict['pki_ajp_host_ipv4'])
-            connector.set('secret', self.mdict['pki_ajp_secret'])
+        server_config = self.instance.get_server_config()
 
-            server_config.add_connector(connector)
+        logger.info('Adding AJP connector for IPv4')
 
-            logger.info('Adding AJP connector for IPv6')
+        connector = etree.Element('Connector')
+        connector.set('port', self.mdict['pki_ajp_port'])
+        connector.set('protocol', 'AJP/1.3')
+        connector.set('redirectPort', self.mdict['pki_https_port'])
+        connector.set('address', self.mdict['pki_ajp_host_ipv4'])
+        connector.set('secret', self.mdict['pki_ajp_secret'])
 
-            connector = etree.Element('Connector')
-            connector.set('port', self.mdict['pki_ajp_port'])
-            connector.set('protocol', 'AJP/1.3')
-            connector.set('redirectPort', self.mdict['pki_https_port'])
-            connector.set('address', self.mdict['pki_ajp_host_ipv6'])
-            connector.set('secret', self.mdict['pki_ajp_secret'])
+        server_config.add_connector(connector)
 
-            server_config.add_connector(connector)
+        logger.info('Adding AJP connector for IPv6')
 
-        logger.info('Removing LockOutRealm')
-        server_config.remove_realm('org.apache.catalina.realm.LockOutRealm')
+        connector = etree.Element('Connector')
+        connector.set('port', self.mdict['pki_ajp_port'])
+        connector.set('protocol', 'AJP/1.3')
+        connector.set('redirectPort', self.mdict['pki_https_port'])
+        connector.set('address', self.mdict['pki_ajp_host_ipv6'])
+        connector.set('secret', self.mdict['pki_ajp_secret'])
+
+        server_config.add_connector(connector)
 
         server_config.save()
 
