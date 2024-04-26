@@ -594,27 +594,12 @@ class PKIDeployer:
         if not pki_server_pkcs12_password:
             raise Exception('Missing pki_server_pkcs12_password property')
 
-        pki_shared_pfile = os.path.join(self.instance.conf_dir, 'pfile')
-        logger.info('Creating password file: %s', pki_shared_pfile)
-
-        self.password.create_password_conf(
-            pki_shared_pfile,
-            self.mdict['pki_server_database_password'],
-            pin_sans_token=True)
-
-        self.file.modify(pki_shared_pfile)
+        nssdb = self.instance.open_nssdb()
 
         try:
-            nssdb = pki.nssdb.NSSDatabase(
-                directory=self.instance.nssdb_dir,
-                password_file=pki_shared_pfile)
-
-            try:
-                nssdb.import_pkcs12(
-                    pkcs12_file=pki_server_pkcs12_path,
-                    pkcs12_password=pki_server_pkcs12_password)
-            finally:
-                nssdb.close()
+            nssdb.import_pkcs12(
+                pkcs12_file=pki_server_pkcs12_path,
+                pkcs12_password=pki_server_pkcs12_password)
 
             # update external CA file (if needed)
             external_certs_path = self.mdict['pki_server_external_certs_path']
@@ -624,7 +609,7 @@ class PKIDeployer:
             self.update_external_certs_conf(external_certs_path)
 
         finally:
-            self.file.delete(pki_shared_pfile)
+            nssdb.close()
 
     def import_clone_pkcs12(self):
         '''
@@ -646,44 +631,28 @@ class PKIDeployer:
         if not pki_clone_pkcs12_password:
             raise Exception('Missing pki_clone_pkcs12_password property')
 
-        pki_shared_pfile = os.path.join(self.instance.conf_dir, 'pfile')
-        logger.info('Creating password file: %s', pki_shared_pfile)
-
-        self.password.create_password_conf(
-            pki_shared_pfile,
-            self.mdict['pki_server_database_password'],
-            pin_sans_token=True)
-
-        self.file.modify(pki_shared_pfile)
+        nssdb = self.instance.open_nssdb()
 
         try:
-            nssdb = pki.nssdb.NSSDatabase(
-                directory=self.instance.nssdb_dir,
-                password_file=pki_shared_pfile)
+            # The PKCS12 class requires an NSS database to run. For simplicity
+            # it uses the NSS database that has just been created.
+            pkcs12 = pki.pkcs12.PKCS12(
+                path=pki_clone_pkcs12_path,
+                password=pki_clone_pkcs12_password,
+                nssdb=nssdb)
 
             try:
-                # The PKCS12 class requires an NSS database to run. For simplicity
-                # it uses the NSS database that has just been created.
-                pkcs12 = pki.pkcs12.PKCS12(
-                    path=pki_clone_pkcs12_path,
-                    password=pki_clone_pkcs12_password,
-                    nssdb=nssdb)
-
-                try:
-                    pkcs12.show_certs()
-                finally:
-                    pkcs12.close()
-
-                # Import certificates
-                nssdb.import_pkcs12(
-                    pkcs12_file=pki_clone_pkcs12_path,
-                    pkcs12_password=pki_clone_pkcs12_password)
-
-                print('Certificates in %s:' % self.instance.nssdb_dir)
-                nssdb.show_certs()
-
+                pkcs12.show_certs()
             finally:
-                nssdb.close()
+                pkcs12.close()
+
+            # Import certificates
+            nssdb.import_pkcs12(
+                pkcs12_file=pki_clone_pkcs12_path,
+                pkcs12_password=pki_clone_pkcs12_password)
+
+            print('Certificates in %s:' % self.instance.nssdb_dir)
+            nssdb.show_certs()
 
             # Export CA certificate to PEM file; same command as in
             # PKIServer.setup_cert_authentication().
@@ -717,7 +686,7 @@ class PKIDeployer:
                 self.mdict['pki_gid'])
 
         finally:
-            self.file.delete(pki_shared_pfile)
+            nssdb.close()
 
     def install_cert_chain(self):
 
@@ -756,24 +725,12 @@ class PKIDeployer:
         if self.ds_url.scheme != 'ldaps':
             return
 
-        pki_shared_pfile = os.path.join(self.instance.conf_dir, 'pfile')
-        logger.info('Creating password file: %s', pki_shared_pfile)
-
-        self.password.create_password_conf(
-            pki_shared_pfile,
-            self.mdict['pki_server_database_password'],
-            pin_sans_token=True)
-
-        self.file.modify(pki_shared_pfile)
-
         nickname = self.mdict['pki_ds_secure_connection_ca_nickname']
         token = self.mdict['pki_self_signed_token']
         cert_file = self.mdict['pki_ds_secure_connection_ca_pem_file']
         trust_attributes = self.mdict['pki_ds_secure_connection_ca_trustargs']
 
-        nssdb = pki.nssdb.NSSDatabase(
-            directory=self.instance.nssdb_dir,
-            password_file=pki_shared_pfile)
+        nssdb = self.instance.open_nssdb()
 
         try:
             logger.info('Checking DS CA cert: %s', nickname)
@@ -795,7 +752,6 @@ class PKIDeployer:
 
         finally:
             nssdb.close()
-            self.file.delete(pki_shared_pfile)
 
     def create_cs_cfg(self, subsystem):
 
