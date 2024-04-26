@@ -768,6 +768,8 @@ class PKIDeployer:
 
         nickname = self.mdict['pki_ds_secure_connection_ca_nickname']
         token = self.mdict['pki_self_signed_token']
+        cert_file = self.mdict['pki_ds_secure_connection_ca_pem_file']
+        trust_attributes = self.mdict['pki_ds_secure_connection_ca_trustargs']
 
         nssdb = pki.nssdb.NSSDatabase(
             directory=self.instance.nssdb_dir,
@@ -783,15 +785,13 @@ class PKIDeployer:
             if cert:
                 return
 
-            # Import the directory server CA certificate
+            logger.info('Importing DS CA cert')
 
-            self.certutil.import_cert(
+            nssdb.import_cert_chain(
                 nickname,
-                self.mdict['pki_ds_secure_connection_ca_trustargs'],
-                self.mdict['pki_ds_secure_connection_ca_pem_file'],
-                password_file=pki_shared_pfile,
-                path=self.instance.nssdb_dir,
-                token=token)
+                token=token,
+                cert_chain_file=cert_file,
+                trust_attributes=trust_attributes)
 
         finally:
             nssdb.close()

@@ -1436,56 +1436,6 @@ class Certutil:
                 raise
         return
 
-    def import_cert(self, nickname, trust, input_file, password_file,
-                    path=None, token=None, critical_failure=True):
-
-        logger.info('Importing %s cert from %s', nickname, input_file)
-
-        try:
-            command = ["certutil", "-A"]
-            if path:
-                command.extend(["-d", path])
-
-            if token:
-                command.extend(["-h", token])
-
-            if nickname:
-                command.extend(["-n", nickname])
-            else:
-                logger.error(log.PKIHELPER_CERTUTIL_MISSING_NICKNAME)
-                raise Exception(log.PKIHELPER_CERTUTIL_MISSING_NICKNAME)
-
-            if trust:
-                command.extend(["-t", trust])
-            else:
-                logger.error(log.PKIHELPER_CERTUTIL_MISSING_TRUSTARGS)
-                raise Exception(log.PKIHELPER_CERTUTIL_MISSING_TRUSTARGS)
-
-            if input_file:
-                command.extend(["-i", input_file])
-            else:
-                logger.error(log.PKIHELPER_CERTUTIL_MISSING_INPUT_FILE)
-                raise Exception(log.PKIHELPER_CERTUTIL_MISSING_INPUT_FILE)
-
-            if password_file:
-                command.extend(["-f", password_file])
-            else:
-                logger.error(log.PKIHELPER_CERTUTIL_MISSING_PASSWORD_FILE)
-                raise Exception(log.PKIHELPER_CERTUTIL_MISSING_PASSWORD_FILE)
-
-            logger.debug('Command: %s', ' '.join(command))
-            subprocess.check_call(command)
-
-        except subprocess.CalledProcessError as exc:
-            logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
-            if critical_failure:
-                raise
-        except OSError as exc:
-            logger.error(log.PKI_OSERROR_1, exc)
-            if critical_failure:
-                raise
-        return
-
 
 class KRAConnector:
     """PKI Deployment KRA Connector Class"""
