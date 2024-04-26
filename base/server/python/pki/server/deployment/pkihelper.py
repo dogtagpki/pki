@@ -1436,57 +1436,6 @@ class Certutil:
                 raise
         return
 
-    def verify_certificate_exists(self, path, token, nickname,
-                                  password_file=None, silent=True,
-                                  critical_failure=True):
-        try:
-            # Compose this "certutil" command
-            command = ["certutil", "-L"]
-            #   Provide a path to the NSS security databases
-            if path:
-                command.extend(["-d", path])
-            else:
-                logger.error(log.PKIHELPER_CERTUTIL_MISSING_PATH)
-                raise Exception(log.PKIHELPER_CERTUTIL_MISSING_PATH)
-            #   Specify the 'token'
-            if token:
-                command.extend(["-h", token])
-            #   Specify the nickname of this self-signed certificate
-            if nickname:
-                command.extend(["-n", nickname])
-            else:
-                logger.error(log.PKIHELPER_CERTUTIL_MISSING_NICKNAME)
-                raise Exception(log.PKIHELPER_CERTUTIL_MISSING_NICKNAME)
-            #   OPTIONALLY specify a password file
-            if password_file is not None:
-                command.extend(["-f", password_file])
-            if not os.path.exists(path):
-                logger.error(log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, path)
-                raise Exception(
-                    log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1 % path)
-            if password_file is not None:
-                if not os.path.exists(password_file) or\
-                   not os.path.isfile(password_file):
-                    logger.error(log.PKI_FILE_MISSING_OR_NOT_A_FILE_1, password_file)
-                    raise Exception(
-                        log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 % password_file)
-            # Display this "certutil" command
-            logger.debug('Command: %s', ' '.join(command))
-            # Execute this "certutil" command
-            if silent:
-                # By default, execute this command silently
-                with open(os.devnull, "w", encoding='utf-8') as fnull:
-                    subprocess.check_call(command, stdout=fnull, stderr=fnull)
-            else:
-                subprocess.check_call(command)
-        except subprocess.CalledProcessError:
-            return False
-        except OSError as exc:
-            logger.error(log.PKI_OSERROR_1, exc)
-            if critical_failure:
-                raise
-        return True
-
     def import_cert(self, nickname, trust, input_file, password_file,
                     path=None, token=None, critical_failure=True):
 

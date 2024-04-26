@@ -766,33 +766,35 @@ class PKIDeployer:
 
         self.file.modify(pki_shared_pfile)
 
+        nickname = self.mdict['pki_ds_secure_connection_ca_nickname']
+        token = self.mdict['pki_self_signed_token']
+
+        nssdb = pki.nssdb.NSSDatabase(
+            directory=self.instance.nssdb_dir,
+            password_file=pki_shared_pfile)
+
         try:
-            # Check to see if a directory server CA certificate
-            # using the same nickname already exists
-            #
+            logger.info('Checking DS CA cert: %s', nickname)
             # NOTE:  ALWAYS use the software DB regardless of whether
             #        the instance will utilize 'softokn' or an HSM
 
-            exists = self.certutil.verify_certificate_exists(
-                path=self.instance.nssdb_dir,
-                token=self.mdict['pki_self_signed_token'],
-                nickname=self.mdict['pki_ds_secure_connection_ca_nickname'],
-                password_file=pki_shared_pfile)
+            cert = nssdb.get_cert(nickname, token=token)
 
-            if exists:
+            if cert:
                 return
 
             # Import the directory server CA certificate
 
             self.certutil.import_cert(
-                self.mdict['pki_ds_secure_connection_ca_nickname'],
+                nickname,
                 self.mdict['pki_ds_secure_connection_ca_trustargs'],
                 self.mdict['pki_ds_secure_connection_ca_pem_file'],
                 password_file=pki_shared_pfile,
                 path=self.instance.nssdb_dir,
-                token=self.mdict['pki_self_signed_token'])
+                token=token)
 
         finally:
+            nssdb.close()
             self.file.delete(pki_shared_pfile)
 
     def create_cs_cfg(self, subsystem):
