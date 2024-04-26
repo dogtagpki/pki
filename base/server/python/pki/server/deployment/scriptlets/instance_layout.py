@@ -79,6 +79,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         deployer.configure_server_xml()
         instance.enable_rewrite(exist_ok=True)
 
+        if config.str2bool(deployer.mdict['pki_enable_access_log']):
+            deployer.enable_access_log()
+        else:
+            deployer.disable_access_log()
+
         shared_conf_path = os.path.join(
             pki.server.PKIServer.SHARE_DIR,
             'server',

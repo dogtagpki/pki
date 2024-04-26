@@ -854,7 +854,8 @@ grant codeBase "file:%s" {
             logger.info('Removing UserDatabase')
             server_config.remove_global_naming_resource(resource_name)
 
-        valve = server_config.get_valve('org.apache.catalina.valves.AccessLogValve')
+        valve_class = 'org.apache.catalina.valves.AccessLogValve'
+        valve = server_config.get_valve(valve_class)
 
         if valve is not None:
             logger.info('Updating AccessLogValve')

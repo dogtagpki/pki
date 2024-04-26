@@ -398,27 +398,36 @@ class PKIDeployer:
         logger.info('Removing LockOutRealm')
         server_config.remove_realm('org.apache.catalina.realm.LockOutRealm')
 
-        if config.str2bool(self.mdict['pki_enable_access_log']):
+        server_config.save()
 
-            valve = server_config.get_valve('org.apache.catalina.valves.AccessLogValve')
+    def enable_access_log(self):
 
-            if valve is None:
-                logger.info('Adding AccessLogValve')
-                valve = etree.Element('Valve')
-                valve.set('className', 'org.apache.catalina.valves.AccessLogValve')
-                server_config.add_valve(valve)
-            else:
-                logger.info('Updating AccessLogValve')
+        server_config = self.instance.get_server_config()
 
-            valve.set('directory', 'logs')
-            valve.set('prefix', 'localhost_access_log')
-            valve.set('suffix', '.txt')
-            valve.set('pattern', 'common')
+        valve_class = 'org.apache.catalina.valves.AccessLogValve'
+        valve = server_config.get_valve(valve_class)
 
+        if valve is None:
+            logger.info('Adding AccessLogValve')
+            valve = etree.Element('Valve')
+            valve.set('className', valve_class)
+            server_config.add_valve(valve)
         else:
+            logger.info('Updating AccessLogValve')
 
-            logger.info('Disabling access log')
-            server_config.remove_valve('org.apache.catalina.valves.AccessLogValve')
+        valve.set('directory', 'logs')
+        valve.set('prefix', 'localhost_access_log')
+        valve.set('suffix', '.txt')
+        valve.set('pattern', 'common')
+
+        server_config.save()
+
+    def disable_access_log(self):
+
+        server_config = self.instance.get_server_config()
+
+        logger.info('Removing AccessLogValve')
+        server_config.remove_valve('org.apache.catalina.valves.AccessLogValve')
 
         server_config.save()
 
