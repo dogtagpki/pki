@@ -92,6 +92,11 @@ jobs:
 
           diff expected output
 
+      - name: Check pki-tomcat server.xml
+        if: always()
+        run: |
+          docker exec pki cat /etc/pki/pki-tomcat/server.xml
+
       - name: Check pki-tomcat server logs dir after installation
         run: |
           # check file types, owners, and permissions
@@ -275,6 +280,11 @@ jobs:
           EOF
 
           diff expected output
+
+      - name: Check tomcat@pki server.xml
+        if: always()
+        run: |
+          docker exec pki cat /var/lib/tomcats/pki/conf/server.xml
 
       - name: Check tomcat@pki server logs dir after installation
         run: |

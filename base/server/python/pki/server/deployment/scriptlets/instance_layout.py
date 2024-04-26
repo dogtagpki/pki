@@ -76,6 +76,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # Create /var/lib/pki/<instance>/conf/certs
         instance.makedirs(instance.certs_dir, exist_ok=True)
 
+        instance.create_server_xml(exist_ok=True)
         deployer.configure_server_xml()
         deployer.configure_http_connectors()
         instance.enable_rewrite(exist_ok=True)

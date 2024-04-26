@@ -259,11 +259,6 @@ class PKIDeployer:
 
     def configure_server_xml(self):
 
-        self.instance.copy(
-            pki.server.Tomcat.SERVER_XML,
-            self.instance.server_xml,
-            exist_ok=True)
-
         server_config = self.instance.get_server_config()
 
         logger.info('Configuring Tomcat admin port')
@@ -281,12 +276,6 @@ class PKIDeployer:
             server_config.create_listener('com.netscape.cms.tomcat.PKIListener')
         else:
             logger.info('Reusing PKIListener')
-
-        logger.info('Removing UserDatabase')
-        server_config.remove_global_naming_resource('UserDatabase')
-
-        logger.info('Removing LockOutRealm')
-        server_config.remove_realm('org.apache.catalina.realm.LockOutRealm')
 
         server_config.save()
 

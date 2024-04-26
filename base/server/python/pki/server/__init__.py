@@ -740,7 +740,7 @@ grant codeBase "file:%s" {
         self.makedirs(self.work_dir, exist_ok=True)
         self.makedirs(self.certs_dir, exist_ok=True)
 
-        self.create_server_xml()
+        self.create_server_xml(exist_ok=True)
         self.enable_rewrite(exist_ok=True)
 
         catalina_policy = os.path.join(Tomcat.CONF_DIR, 'catalina.policy')
@@ -840,12 +840,14 @@ grant codeBase "file:%s" {
             exist_ok=True,
             force=force)
 
-    def create_server_xml(self):
+    def create_server_xml(self, exist_ok=False):
+
+        # Copy /etc/tomcat/server.xml to <instance>/conf/server.xml
 
         self.copy(
             pki.server.Tomcat.SERVER_XML,
             self.server_xml,
-            exist_ok=True)
+            exist_ok=exist_ok)
 
         server_config = self.get_server_config()
 
