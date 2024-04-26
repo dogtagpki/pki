@@ -288,6 +288,12 @@ class PKIDeployer:
         logger.info('Removing LockOutRealm')
         server_config.remove_realm('org.apache.catalina.realm.LockOutRealm')
 
+        server_config.save()
+
+    def configure_http_connectors(self):
+
+        server_config = self.instance.get_server_config()
+
         # find default HTTP connector
         connector = server_config.get_connector(port='8080')
         service = connector.getparent()

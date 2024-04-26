@@ -732,9 +732,8 @@ grant codeBase "file:%s" {
         self.symlink(bin_dir, self.bin_dir, exist_ok=True)
 
         self.create_conf_dir(exist_ok=True)
-        self.create_libs(force=force)
-
         self.create_logs_dir(exist_ok=True)
+        self.create_libs(force=force)
 
         self.makedirs(self.temp_dir, exist_ok=True)
         self.makedirs(self.webapps_dir, exist_ok=True)
@@ -821,6 +820,16 @@ grant codeBase "file:%s" {
 
         # Create /var/lib/pki/<instance>/logs
         self.makedirs(self.logs_dir, exist_ok=exist_ok)
+
+    def create_libs(self, force=False):  # pylint: disable=W0613
+
+        lib_dir = os.path.join(PKIServer.SHARE_DIR, 'server', 'lib')
+        self.symlink(lib_dir, self.lib_dir, exist_ok=True)
+
+        self.makedirs(self.common_dir, exist_ok=True)
+
+        common_lib_dir = os.path.join(PKIServer.SHARE_DIR, 'server', 'common', 'lib')
+        self.symlink(common_lib_dir, self.common_lib_dir, exist_ok=True)
 
     def create_logging_properties(self, force=False):
 
@@ -914,16 +923,6 @@ grant codeBase "file:%s" {
                 self.symlink(target, link, exist_ok=exist_ok)
 
         server_config.save()
-
-    def create_libs(self, force=False):  # pylint: disable=W0613
-
-        lib_dir = os.path.join(PKIServer.SHARE_DIR, 'server', 'lib')
-        self.symlink(lib_dir, self.lib_dir, exist_ok=True)
-
-        self.makedirs(self.common_dir, exist_ok=True)
-
-        common_lib_dir = os.path.join(PKIServer.SHARE_DIR, 'server', 'common', 'lib')
-        self.symlink(common_lib_dir, self.common_lib_dir, exist_ok=True)
 
     def create_nssdb(self, force=False):
 

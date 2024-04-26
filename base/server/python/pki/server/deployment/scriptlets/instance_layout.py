@@ -59,13 +59,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # Create /etc/pki/<instance> and /var/lib/pki/<instance>/conf
         instance.create_conf_dir(exist_ok=True)
 
+        # Create /var/log/pki/<instance> and /var/lib/pki/<instance>/logs
+        instance.create_logs_dir(exist_ok=True)
+
         # Link /var/lib/pki/<instance>/lib to /usr/share/pki/server/lib
         # Link /var/lib/pki/<instance>/common/lib to /usr/share/pki/server/common/lib
         instance.with_maven_deps = deployer.with_maven_deps
         instance.create_libs(force=True)
-
-        # Create /var/log/pki/<instance> and /var/lib/pki/<instance>/logs
-        instance.create_logs_dir(exist_ok=True)
 
         # Create /var/lib/pki/<instance>/temp
         instance.makedirs(instance.temp_dir, exist_ok=True)
@@ -77,6 +77,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         instance.makedirs(instance.certs_dir, exist_ok=True)
 
         deployer.configure_server_xml()
+        deployer.configure_http_connectors()
         instance.enable_rewrite(exist_ok=True)
 
         if config.str2bool(deployer.mdict['pki_enable_proxy']):
