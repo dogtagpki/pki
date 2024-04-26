@@ -158,6 +158,7 @@ public class SecurityDomainProcessor extends Processor {
 
     public DomainInfo getDomainInfo() throws EBaseException {
 
+        logger.info("SecurityDomainProcessor: Getting domain info");
         EngineConfig cs = engine.getConfig();
 
         LdapBoundConnFactory connFactory = null;
@@ -168,38 +169,43 @@ public class SecurityDomainProcessor extends Processor {
             String[] attrs = null;
 
             LDAPConfig ldapConfig = cs.getInternalDBConfig();
-            String basedn = ldapConfig.getBaseDN();
-            String dn = "ou=Security Domain," + basedn;
-            String filter = "objectclass=pkiSecurityGroup";
-
             connFactory = engine.createLdapBoundConnFactory("SecurityDomainProcessor", ldapConfig);
 
             conn = connFactory.getConn();
 
-            // get the security domain name
+            String dn = "ou=Security Domain," + ldapConfig.getBaseDN();
             String name = conn.read(dn).getAttribute("name").getStringValues().nextElement();
-            logger.debug("SecurityDomainProcessor: name: " + name);
+            logger.info("SecurityDomainProcessor: - name: " + name);
 
             DomainInfo domain = new DomainInfo();
             domain.setName(name);
 
             // this should return CAList, KRAList etc.
-            LDAPSearchResults res = conn.search(dn, LDAPConnection.SCOPE_ONE, filter,
-                    attrs, true, cons);
+            LDAPSearchResults res = conn.search(
+                    dn,
+                    LDAPConnection.SCOPE_ONE,
+                    "objectclass=pkiSecurityGroup",
+                    attrs,
+                    true,
+                    cons);
 
             while (res.hasMoreElements()) {
                 dn = res.next().getDN();
                 String listName = dn.substring(3, dn.indexOf(","));
                 String subType = listName.substring(0, listName.indexOf("List"));
-                logger.debug("SecurityDomainProcessor: subtype: " + subType);
+                logger.info("SecurityDomainProcessor: - " + subType + " subsystems:");
 
-                filter = "objectclass=pkiSubsystem";
-                LDAPSearchResults res2 = conn.search(dn, LDAPConnection.SCOPE_ONE, filter,
-                        attrs, false, cons);
+                LDAPSearchResults res2 = conn.search(
+                        dn,
+                        LDAPConnection.SCOPE_ONE,
+                        "objectclass=pkiSubsystem",
+                        attrs,
+                        false,
+                        cons);
 
                 while (res2.hasMoreElements()) {
                     LDAPEntry entry = res2.next();
-                    logger.debug("SecurityDomainProcessor:  - " + entry.getDN());
+                    logger.info("SecurityDomainProcessor:   - " + entry.getDN());
 
                     SecurityDomainHost host = new SecurityDomainHost();
 
@@ -210,7 +216,7 @@ public class SecurityDomainProcessor extends Processor {
                         LDAPAttribute nextAttr = attrsInSet.nextElement();
                         String attrName = nextAttr.getName();
                         String attrValue = nextAttr.getStringValues().nextElement();
-                        logger.debug("SecurityDomainProcessor:    - " + attrName+": " + attrValue);
+                        logger.info("SecurityDomainProcessor:     - " + attrName + ": " + attrValue);
 
                         if ("Host".equalsIgnoreCase(attrName)) {
                             host.setHostname(attrValue);
@@ -243,7 +249,7 @@ public class SecurityDomainProcessor extends Processor {
 
                     String port = host.getSecurePort();
                     if (port == null) port = host.getSecureEEClientAuthPort();
-                    host.setId(subType+" "+host.getHostname()+" "+port);
+                    host.setId(subType + " " + host.getHostname() + " " + port);
 
                     domain.addHost(subType, host);
                 }
@@ -252,12 +258,11 @@ public class SecurityDomainProcessor extends Processor {
             return domain;
 
         } catch (Exception e) {
-            logger.error("SecurityDomainProcessor: Failed to read domain info from ldap " + e.getMessage(), e);
+            logger.error("SecurityDomainProcessor: Unable to get domain info: " + e.getMessage(), e);
             throw new EBaseException(e.getMessage(), e);
 
         } finally {
             if (conn != null && connFactory != null) {
-                logger.debug("Releasing ldap connection");
                 connFactory.returnConn(conn);
             }
         }
