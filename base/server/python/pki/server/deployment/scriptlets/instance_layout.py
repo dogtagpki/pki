@@ -76,13 +76,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # Create /var/lib/pki/<instance>/conf/certs
         instance.makedirs(instance.certs_dir, exist_ok=True)
 
-        # Create /var/lib/pki/<instance>/conf/Catalina
-        catalina_dir = os.path.join(instance.conf_dir, 'Catalina')
-        instance.makedirs(catalina_dir, exist_ok=True)
-
-        # Create /var/lib/pki/<instance>/conf/Catalina/localhost
-        localhost_dir = os.path.join(catalina_dir, 'localhost')
-        instance.makedirs(localhost_dir, exist_ok=True)
+        deployer.configure_server_xml()
+        instance.enable_rewrite(exist_ok=True)
 
         shared_conf_path = os.path.join(
             pki.server.PKIServer.SHARE_DIR,
@@ -117,15 +112,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         instance.symlink(
             web_xml,
             instance.web_xml,
-            exist_ok=True)
-
-        # Rewrite rules are subsystem-specific, but the config is server-wide.
-        # So we deploy them as part of the server config, regardless of which
-        # subsystem(s) will eventually be deployed.
-
-        instance.symlink(
-            os.path.join(shared_conf_path, 'Catalina', 'localhost', 'rewrite.config'),
-            os.path.join(localhost_dir, 'rewrite.config'),
             exist_ok=True)
 
         # Configuring internal token password
@@ -190,8 +176,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         instance.store_passwords()
 
         deployer.create_server_nssdb()
-
-        deployer.configure_server_xml()
 
         # Copy /usr/share/pki/server/conf/tomcat.conf
         # to /etc/sysconfig/<instance>

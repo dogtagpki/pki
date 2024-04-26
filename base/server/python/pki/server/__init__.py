@@ -739,8 +739,10 @@ grant codeBase "file:%s" {
         self.makedirs(self.temp_dir, exist_ok=True)
         self.makedirs(self.webapps_dir, exist_ok=True)
         self.makedirs(self.work_dir, exist_ok=True)
-
         self.makedirs(self.certs_dir, exist_ok=True)
+
+        self.create_server_xml()
+        self.enable_rewrite(exist_ok=True)
 
         catalina_policy = os.path.join(Tomcat.CONF_DIR, 'catalina.policy')
         self.copy(
@@ -757,7 +759,6 @@ grant codeBase "file:%s" {
         self.symlink(context_xml, self.context_xml, exist_ok=True)
 
         self.create_logging_properties(force=force)
-        self.create_server_xml()
 
         # copy /etc/tomcat/tomcat.conf
         self.copy(
@@ -780,28 +781,6 @@ grant codeBase "file:%s" {
 
         web_xml = os.path.join(Tomcat.CONF_DIR, 'web.xml')
         self.symlink(web_xml, self.web_xml, exist_ok=True)
-
-        document = etree.parse(self.server_xml, parser)
-        server = document.getroot()
-
-        for engine in server.findall('Service/Engine'):
-            engine_name = engine.get('name')
-
-            engine_dir = os.path.join(self.conf_dir, engine_name)
-            self.makedirs(engine_dir, exist_ok=True)
-
-            for host in engine.findall('Host'):
-                host_name = host.get('name')
-
-                host_dir = os.path.join(engine_dir, host_name)
-                self.makedirs(host_dir, exist_ok=True)
-
-                # symlink the rewrite.config in the host dir
-                target = os.path.join(
-                    PKIServer.SHARE_DIR, 'server', 'conf',
-                    'Catalina', 'localhost', 'rewrite.config')
-                link = os.path.join(host_dir, 'rewrite.config')
-                self.symlink(target, link, exist_ok=True)
 
         service_conf = os.path.join(SYSCONFIG_DIR, 'tomcat')
         self.copy(
@@ -881,6 +860,19 @@ grant codeBase "file:%s" {
             logger.info('Updating AccessLogValve')
             valve.set('pattern', 'common')
 
+        server_config.save()
+
+        pki.util.chown(self.server_xml, self.uid, self.gid)
+
+    def enable_rewrite(self, exist_ok=False):
+        '''
+        Rewrite rules are subsystem-specific, but the config is server-wide.
+        So we deploy them as part of the server config, regardless of which
+        subsystem(s) will eventually be deployed.
+        '''
+
+        server_config = self.get_server_config()
+
         valve_class = 'org.apache.catalina.valves.rewrite.RewriteValve'
         valve = server_config.get_valve(valve_class)
 
@@ -888,9 +880,39 @@ grant codeBase "file:%s" {
             logger.info('Adding RewriteValve')
             server_config.create_valve(valve_class)
 
-        server_config.save()
+        target = os.path.join(
+            PKIServer.SHARE_DIR,
+            'server',
+            'conf',
+            'Catalina',
+            'localhost',
+            'rewrite.config')
 
-        pki.util.chown(self.server_xml, self.uid, self.gid)
+        for service in server_config.get_services():
+
+            # https://tomcat.apache.org/tomcat-9.0-doc/config/engine.html
+            engine = service.find('Engine')
+            engine_name = engine.get('name')
+
+            # Create <instance>/conf/<engine> folder
+            engine_dir = os.path.join(self.conf_dir, engine_name)
+            self.makedirs(engine_dir, exist_ok=exist_ok)
+
+            # https://tomcat.apache.org/tomcat-9.0-doc/config/host.html
+            for host in engine.findall('Host'):
+                host_name = host.get('name')
+
+                # Create <instance>/conf/<engine>/<host> folder
+                host_dir = os.path.join(engine_dir, host_name)
+                self.makedirs(host_dir, exist_ok=exist_ok)
+
+                # Link <instance>/conf/<engine>/<host>/rewrite.config
+                # to /usr/share/pki/server/conf/Catalina/localhost/rewrite.config
+
+                link = os.path.join(host_dir, 'rewrite.config')
+                self.symlink(target, link, exist_ok=exist_ok)
+
+        server_config.save()
 
     def create_libs(self, force=False):  # pylint: disable=W0613
 
@@ -1928,9 +1950,16 @@ class ServerConfig(object):
         parent = resource.getparent()
         parent.remove(resource)
 
-    def get_service(self):
+    def get_services(self):
+        '''
+        https://tomcat.apache.org/tomcat-9.0-doc/config/service.html
+        '''
         server = self.document.getroot()
-        return server.find('Service[@name="Catalina"]')
+        return server.findall('Service')
+
+    def get_service(self, name='Catalina'):
+        server = self.document.getroot()
+        return server.find('Service[@name="%s"]' % name)
 
     def get_connectors(self):
 

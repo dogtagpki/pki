@@ -420,15 +420,6 @@ class PKIDeployer:
             logger.info('Disabling access log')
             server_config.remove_valve('org.apache.catalina.valves.AccessLogValve')
 
-        rewrite_valve_class = 'org.apache.catalina.valves.rewrite.RewriteValve'
-        rewrite_valve = server_config.get_valve(rewrite_valve_class)
-
-        if rewrite_valve is None:
-            logger.info('Adding RewriteValve')
-            server_config.create_valve(rewrite_valve_class)
-        else:
-            logger.info('Reusing RewriteValve')
-
         server_config.save()
 
     def update_rsa_pss_algorithm(self, cert_id, alg_type):
