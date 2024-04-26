@@ -1100,53 +1100,6 @@ class File:
                 raise
         return
 
-    def copy_with_slot_substitution(
-            self, old_name, new_name, uid=None, gid=None,
-            perms=pki.server.DEFAULT_FILE_MODE,
-            acls=None, overwrite_flag=False,
-            critical_failure=True):
-
-        logger.info('Creating %s', new_name)
-
-        try:
-            if not os.path.exists(old_name) or not os.path.isfile(old_name):
-                logger.error(log.PKI_FILE_MISSING_OR_NOT_A_FILE_1, old_name)
-                raise Exception(
-                    log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 %
-                    old_name)
-
-            if uid is None:
-                uid = self.identity.get_uid()
-            if gid is None:
-                gid = self.identity.get_gid()
-
-            pki.util.copyfile(
-                old_name,
-                new_name,
-                params=self.mdict,
-                uid=uid,
-                gid=gid,
-                mode=perms,
-                force=overwrite_flag)
-
-            # Store record in installation manifest
-            self.deployer.record(
-                new_name,
-                manifest.RECORD_TYPE_FILE,
-                uid,
-                gid,
-                perms,
-                acls)
-
-        except (shutil.Error, OSError) as exc:
-            if isinstance(exc, shutil.Error):
-                msg = log.PKI_SHUTIL_ERROR_1
-            else:
-                msg = log.PKI_OSERROR_1
-            logger.error(msg, exc)
-            if critical_failure:
-                raise
-
 
 class Symlink:
     """PKI Deployment Symbolic Link Class"""

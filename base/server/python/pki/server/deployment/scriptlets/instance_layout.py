@@ -190,23 +190,20 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # Copy /usr/share/pki/server/conf/tomcat.conf
         # to /etc/sysconfig/<instance>
 
-        source_tomcat_conf = os.path.join(
-            pki.server.PKIServer.SHARE_DIR,
-            'server',
-            'conf',
-            'tomcat.conf')
-
-        deployer.file.copy_with_slot_substitution(
-            source_tomcat_conf,
+        instance.copyfile(
+            os.path.join(shared_conf_path, 'tomcat.conf'),
             instance.service_conf,
-            overwrite_flag=True)
+            params=deployer.mdict,
+            exist_ok=True)
 
         # Copy /usr/share/pki/server/conf/tomcat.conf to
         # /var/lib/pki/<instance>/conf/tomcat.conf.
-        deployer.file.copy_with_slot_substitution(
+
+        instance.copyfile(
             os.path.join(shared_conf_path, 'tomcat.conf'),
-            os.path.join(instance.conf_dir, 'tomcat.conf'),
-            overwrite_flag=True)
+            instance.tomcat_conf,
+            params=deployer.mdict,
+            exist_ok=True)
 
         # Copy /usr/share/pki/server/conf/ROOT.xml
         # to /var/lib/pki/<instance>/conf/Catalina/localhost/ROOT.xml
