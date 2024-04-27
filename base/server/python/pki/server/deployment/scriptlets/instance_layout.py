@@ -126,30 +126,28 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # Configuring internal token password
 
-        internal_token = deployer.mdict['pki_self_signed_token']
-        if pki.nssdb.internal_token(internal_token):
-            internal_token = pki.nssdb.INTERNAL_TOKEN_NAME
+        token = deployer.mdict['pki_self_signed_token']
+        if pki.nssdb.internal_token(token):
+            token = pki.nssdb.INTERNAL_TOKEN_NAME
 
         # If instance already exists and has password, reuse the password
-        if internal_token in instance.passwords:
+        if token in instance.passwords:
             logger.info('Reusing server NSS database password')
-            deployer.mdict['pki_server_database_password'] = instance.passwords.get(internal_token)
 
         # Otherwise, use user-provided password if specified
         elif deployer.mdict['pki_server_database_password']:
             logger.info('Using specified server NSS database password')
+            instance.passwords[token] = deployer.mdict['pki_server_database_password']
 
         # Otherwise, use user-provided pin if specified
         elif deployer.mdict['pki_pin']:
             logger.info('Using specified PIN as server NSS database password')
-            deployer.mdict['pki_server_database_password'] = deployer.mdict['pki_pin']
+            instance.passwords[token] = deployer.mdict['pki_pin']
 
         # Otherwise, generate a random password
         else:
             logger.info('Generating random server NSS database password')
-            deployer.mdict['pki_server_database_password'] = pki.generate_password()
-
-        instance.passwords[internal_token] = deployer.mdict['pki_server_database_password']
+            instance.passwords[token] = pki.generate_password()
 
         # Configuring HSM password
 
