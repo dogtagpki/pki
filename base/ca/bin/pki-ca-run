@@ -6,6 +6,9 @@
 # - support existing subsystem user
 
 echo "################################################################################"
+mkdir -p /data/conf
+mkdir -p /data/logs
+echo "################################################################################"
 
 if [ -f /certs/server.p12 ]
 then
@@ -309,8 +312,11 @@ echo "INFO: Creating PKI CA"
 # with existing database user, with RSNv3, without security manager,
 # and without systemd service.
 pkispawn \
+    --conf /data/conf \
+    --logs /data/logs \
     -f /usr/share/pki/server/examples/installation/ca.cfg \
     -s CA \
+    -D pki_group=root \
     -D pki_ds_url=ldap://ds.example.com:3389 \
     -D pki_ds_setup=False \
     -D pki_skip_ds_verify=True \

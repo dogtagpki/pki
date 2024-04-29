@@ -300,6 +300,8 @@ class CreateCLI(pki.cli.CLI):
         print()
         print('      --user <name>             User.')
         print('      --group <name>            Group.')
+        print('      --conf <path>             Config folder')
+        print('      --logs <path>             Logs folder')
         print('      --with-maven-deps         Install Maven dependencies.')
         print('      --force                   Force creation.')
         print('  -v, --verbose                 Run in verbose mode.')
@@ -311,7 +313,7 @@ class CreateCLI(pki.cli.CLI):
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'v', [
-                'user=', 'group=',
+                'user=', 'group=', 'conf=', 'logs=',
                 'with-maven-deps', 'force',
                 'verbose', 'debug', 'help'])
 
@@ -323,6 +325,8 @@ class CreateCLI(pki.cli.CLI):
         instance_name = 'pki-tomcat'
         user = None
         group = None
+        conf_dir = None
+        logs_dir = None
         with_maven_deps = False
         force = False
 
@@ -332,6 +336,12 @@ class CreateCLI(pki.cli.CLI):
 
             elif o == '--group':
                 group = a
+
+            elif o == '--conf':
+                conf_dir = a
+
+            elif o == '--logs':
+                logs_dir = a
 
             elif o == '--with-maven-deps':
                 with_maven_deps = True
@@ -370,6 +380,12 @@ class CreateCLI(pki.cli.CLI):
 
         if group:
             instance.group = group
+
+        if conf_dir:
+            instance.actual_conf_dir = conf_dir
+
+        if logs_dir:
+            instance.actual_logs_dir = logs_dir
 
         instance.with_maven_deps = with_maven_deps
 

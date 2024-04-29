@@ -166,6 +166,10 @@ class PKIServer(object):
     def actual_conf_dir(self):
         return self._conf_dir if self._conf_dir else self.conf_dir
 
+    @actual_conf_dir.setter
+    def actual_conf_dir(self, value):
+        self._conf_dir = value
+
     @property
     def certs_dir(self):
         return os.path.join(self.conf_dir, 'certs')
@@ -189,6 +193,10 @@ class PKIServer(object):
     @property
     def actual_logs_dir(self):
         return self._logs_dir if self._logs_dir else self.logs_dir
+
+    @actual_logs_dir.setter
+    def actual_logs_dir(self, value):
+        self._logs_dir = value
 
     @property
     def temp_dir(self):
