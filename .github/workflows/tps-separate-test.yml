@@ -238,28 +238,13 @@ jobs:
       - name: Gather artifacts from CA containers
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/ca cads
+          tests/bin/ds-artifacts-save.sh cads
           tests/bin/pki-artifacts-save.sh ca
-        continue-on-error: true
-
-      - name: Gather artifacts from KRA containers
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/kra krads
+          tests/bin/ds-artifacts-save.sh krads
           tests/bin/pki-artifacts-save.sh kra
-        continue-on-error: true
-
-      - name: Gather artifacts from TKS containers
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/tks tksds
+          tests/bin/ds-artifacts-save.sh tksds
           tests/bin/pki-artifacts-save.sh tks
-        continue-on-error: true
-
-      - name: Gather artifacts from TPS containers
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/tps tpsds
+          tests/bin/ds-artifacts-save.sh tpsds
           tests/bin/pki-artifacts-save.sh tps
         continue-on-error: true
 
@@ -275,34 +260,89 @@ jobs:
       - name: Remove CA
         run: docker exec ca pkidestroy -i pki-tomcat -s CA -v
 
-      - name: Upload artifacts from CA containers
+      - name: Check CA DS server systemd journal
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: tps-separate-ca
-          path: |
-            /tmp/artifacts/ca
+        run: |
+          docker exec cads journalctl -x --no-pager -u dirsrv@localhost.service
 
-      - name: Upload artifacts from KRA containers
+      - name: Check CA DS container logs
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: tps-separate-kra
-          path: |
-            /tmp/artifacts/kra
+        run: |
+          docker logs cads
 
-      - name: Upload artifacts from TKS containers
+      - name: Check CA systemd journal
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: tps-separate-tks
-          path: |
-            /tmp/artifacts/tks
+        run: |
+          docker exec ca journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
 
-      - name: Upload artifacts from TPS containers
+      - name: Check CA debug log
+        if: always()
+        run: |
+          docker exec ca find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check KRA DS server systemd journal
+        if: always()
+        run: |
+          docker exec krads journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check KRA DS container logs
+        if: always()
+        run: |
+          docker logs krads
+
+      - name: Check KRA systemd journal
+        if: always()
+        run: |
+          docker exec kra journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check KRA debug log
+        if: always()
+        run: |
+          docker exec kra find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
+
+      - name: Check TKS DS server systemd journal
+        if: always()
+        run: |
+          docker exec tksds journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check TKS DS container logs
+        if: always()
+        run: |
+          docker logs tksds
+
+      - name: Check TKS systemd journal
+        if: always()
+        run: |
+          docker exec tks journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check TKS debug log
+        if: always()
+        run: |
+          docker exec tks find /var/lib/pki/pki-tomcat/logs/tks -name "debug.*" -exec cat {} \;
+
+      - name: Check TPS DS server systemd journal
+        if: always()
+        run: |
+          docker exec tpsds journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check TPS DS container logs
+        if: always()
+        run: |
+          docker logs tpsds
+
+      - name: Check TPS systemd journal
+        if: always()
+        run: |
+          docker exec tps journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check TPS debug log
+        if: always()
+        run: |
+          docker exec tps find /var/lib/pki/pki-tomcat/logs/tps -name "debug.*" -exec cat {} \;
+
+      - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: tps-separate-tps
-          path: |
-            /tmp/artifacts/tps
+          name: tps-separate
+          path: /tmp/artifacts

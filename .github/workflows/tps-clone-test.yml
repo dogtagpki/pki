@@ -191,14 +191,9 @@ jobs:
       - name: Gather artifacts from primary containers
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/primary primaryds
+          tests/bin/ds-artifacts-save.sh primaryds
           tests/bin/pki-artifacts-save.sh primary
-        continue-on-error: true
-
-      - name: Gather artifacts from secondary containers
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/secondary secondaryds
+          tests/bin/ds-artifacts-save.sh secondaryds
           tests/bin/pki-artifacts-save.sh secondary
         continue-on-error: true
 
@@ -226,18 +221,79 @@ jobs:
       - name: Remove CA from primary PKI container
         run: docker exec primary pkidestroy -i pki-tomcat -s CA -v
 
-      - name: Upload artifacts from primary containers
+      - name: Check primary DS server systemd journal
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: tps-clone-primary
-          path: |
-            /tmp/artifacts/primary
+        run: |
+          docker exec primaryds journalctl -x --no-pager -u dirsrv@localhost.service
 
-      - name: Upload artifacts from secondary containers
+      - name: Check primary DS container logs
+        if: always()
+        run: |
+          docker logs primaryds
+
+      - name: Check primary PKI server systemd journal
+        if: always()
+        run: |
+          docker exec primary journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check primary CA debug log
+        if: always()
+        run: |
+          docker exec primary find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check primary KRA debug log
+        if: always()
+        run: |
+          docker exec primary find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
+
+      - name: Check primary TKS debug log
+        if: always()
+        run: |
+          docker exec secondary find /var/lib/pki/pki-tomcat/logs/tks -name "debug.*" -exec cat {} \;
+
+      - name: Check primary TPS debug log
+        if: always()
+        run: |
+          docker exec secondary find /var/lib/pki/pki-tomcat/logs/tps -name "debug.*" -exec cat {} \;
+
+      - name: Check secondary DS server systemd journal
+        if: always()
+        run: |
+          docker exec secondaryds journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check secondary DS container logs
+        if: always()
+        run: |
+          docker logs secondaryds
+
+      - name: Check secondary PKI server systemd journal
+        if: always()
+        run: |
+          docker exec secondary journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check secondary CA debug log
+        if: always()
+        run: |
+          docker exec secondary find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check secondary KRA debug log
+        if: always()
+        run: |
+          docker exec secondary find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
+
+      - name: Check secondary TKS debug log
+        if: always()
+        run: |
+          docker exec secondary find /var/lib/pki/pki-tomcat/logs/tks -name "debug.*" -exec cat {} \;
+
+      - name: Check secondary TPS debug log
+        if: always()
+        run: |
+          docker exec secondary find /var/lib/pki/pki-tomcat/logs/tps -name "debug.*" -exec cat {} \;
+
+      - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: tps-clone-secondary
-          path: |
-            /tmp/artifacts/secondary
+          name: tps-clone
+          path: /tmp/artifacts
