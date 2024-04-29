@@ -176,17 +176,12 @@ jobs:
               --pkcs12-password Secret.123
           docker exec tks pki -n tksadmin tks-user-show tksadmin
 
-      - name: Gather artifacts from CA containers
+      - name: Gather artifacts
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/ca cads
+          tests/bin/ds-artifacts-save.sh cads
           tests/bin/pki-artifacts-save.sh ca
-        continue-on-error: true
-
-      - name: Gather artifacts from TKS containers
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/tks tksds
+          tests/bin/ds-artifacts-save.sh tksds
           tests/bin/pki-artifacts-save.sh tks
         continue-on-error: true
 
@@ -196,18 +191,49 @@ jobs:
       - name: Remove CA
         run: docker exec ca pkidestroy -i pki-tomcat -s CA -v
 
-      - name: Upload artifacts from CA containers
+      - name: Check CA DS server systemd journal
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: tks-external-certs-ca
-          path: |
-            /tmp/artifacts/ca
+        run: |
+          docker exec cads journalctl -x --no-pager -u dirsrv@localhost.service
 
-      - name: Upload artifacts from TKS containers
+      - name: Check CA DS container logs
+        if: always()
+        run: |
+          docker logs cads
+
+      - name: Check CA systemd journal
+        if: always()
+        run: |
+          docker exec ca journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check CA debug log
+        if: always()
+        run: |
+          docker exec ca find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check TKS DS server systemd journal
+        if: always()
+        run: |
+          docker exec tksds journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check TKS DS container logs
+        if: always()
+        run: |
+          docker logs tksds
+
+      - name: Check TKS systemd journal
+        if: always()
+        run: |
+          docker exec tks journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check TKS debug log
+        if: always()
+        run: |
+          docker exec tks find /var/lib/pki/pki-tomcat/logs/tks -name "debug.*" -exec cat {} \;
+
+      - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: tks-external-certs-tks
-          path: |
-            /tmp/artifacts/tks
+          name: tks-external-certs
+          path: /tmp/artifacts
