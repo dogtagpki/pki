@@ -265,12 +265,39 @@ jobs:
       - name: Remove CA
         run: docker exec ca pkidestroy -i pki-tomcat -s CA -v
 
+      - name: Check DS server systemd journal
+        if: always()
+        run: |
+          docker exec ds journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check DS container logs
+        if: always()
+        run: |
+          docker logs ds
+
+      - name: Check CA systemd journal
+        if: always()
+        run: |
+          docker exec ca journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check CA debug log
+        if: always()
+        run: |
+          docker exec ca find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check OCSP systemd journal
+        if: always()
+        run: |
+          docker exec ocsp journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check OCSP debug log
+        if: always()
+        run: |
+          docker exec ocsp find /var/lib/pki/pki-tomcat/logs/ocsp -name "debug.*" -exec cat {} \;
+
       - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ocsp-standalone
-          path: |
-            /tmp/artifacts/ds
-            /tmp/artifacts/ca
-            /tmp/artifacts/ocsp
+          path: /tmp/artifacts

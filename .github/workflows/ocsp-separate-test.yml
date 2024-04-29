@@ -143,17 +143,12 @@ jobs:
               --pkcs12-password Secret.123
           docker exec ocsp pki -n caadmin --ignore-banner ocsp-user-show ocspadmin
 
-      - name: Gather artifacts from CA containers
+      - name: Gather artifacts
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/ca cads
+          tests/bin/ds-artifacts-save.sh cads
           tests/bin/pki-artifacts-save.sh ca
-        continue-on-error: true
-
-      - name: Gather artifacts from OCSP containers
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/ocsp ocspds
+          tests/bin/ds-artifacts-save.sh ocspds
           tests/bin/pki-artifacts-save.sh ocsp
         continue-on-error: true
 
@@ -163,18 +158,49 @@ jobs:
       - name: Remove CA from CA container
         run: docker exec ca pkidestroy -i pki-tomcat -s CA -v
 
-      - name: Upload artifacts from CA containers
+      - name: Check CA DS server systemd journal
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ocsp-separate-ca
-          path: |
-            /tmp/artifacts/ca
+        run: |
+          docker exec cads journalctl -x --no-pager -u dirsrv@localhost.service
 
-      - name: Upload artifacts from OCSP containers
+      - name: Check CA DS container logs
+        if: always()
+        run: |
+          docker logs cads
+
+      - name: Check CA systemd journal
+        if: always()
+        run: |
+          docker exec ca journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check CA debug log
+        if: always()
+        run: |
+          docker exec ca find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check OCSP DS server systemd journal
+        if: always()
+        run: |
+          docker exec ocspds journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check OCSP DS container logs
+        if: always()
+        run: |
+          docker logs ocspds
+
+      - name: Check OCSP systemd journal
+        if: always()
+        run: |
+          docker exec ocsp journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check OCSP debug log
+        if: always()
+        run: |
+          docker exec ocsp find /var/lib/pki/pki-tomcat/logs/ocsp -name "debug.*" -exec cat {} \;
+
+      - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ocsp-separate-ocsp
-          path: |
-            /tmp/artifacts/ocsp
+          name: ocsp-separate
+          path: /tmp/artifacts

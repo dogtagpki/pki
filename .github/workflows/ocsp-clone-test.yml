@@ -192,24 +192,14 @@ jobs:
               --pkcs12-password Secret.123
           docker exec tertiary pki -n caadmin ocsp-user-show ocspadmin
 
-      - name: Gather artifacts from primary containers
+      - name: Gather artifacts
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/primary primaryds
+          tests/bin/ds-artifacts-save.sh primaryds
           tests/bin/pki-artifacts-save.sh primary
-        continue-on-error: true
-
-      - name: Gather artifacts from secondary containers
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/secondary secondaryds
+          tests/bin/ds-artifacts-save.sh secondaryds
           tests/bin/pki-artifacts-save.sh secondary
-        continue-on-error: true
-
-      - name: Gather artifacts from tertiary containers
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/tertiary tertiaryds
+          tests/bin/ds-artifacts-save.sh tertiaryds
           tests/bin/pki-artifacts-save.sh tertiary
         continue-on-error: true
 
@@ -231,26 +221,84 @@ jobs:
       - name: Remove CA from primary PKI container
         run: docker exec primary pkidestroy -i pki-tomcat -s CA -v
 
-      - name: Upload artifacts from primary containers
+      - name: Check primary DS server systemd journal
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ocsp-clone-primary
-          path: |
-            /tmp/artifacts/primary
+        run: |
+          docker exec primaryds journalctl -x --no-pager -u dirsrv@localhost.service
 
-      - name: Upload artifacts from secondary containers
+      - name: Check primary DS container logs
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ocsp-clone-secondary
-          path: |
-            /tmp/artifacts/secondary
+        run: |
+          docker logs primaryds
 
-      - name: Upload artifacts from tertiary containers
+      - name: Check primary PKI server systemd journal
+        if: always()
+        run: |
+          docker exec primary journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check primary CA debug log
+        if: always()
+        run: |
+          docker exec primary find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check primary OCSP debug log
+        if: always()
+        run: |
+          docker exec secondary find /var/lib/pki/pki-tomcat/logs/ocsp -name "debug.*" -exec cat {} \;
+
+      - name: Check secondary DS server systemd journal
+        if: always()
+        run: |
+          docker exec secondaryds journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check secondary DS container logs
+        if: always()
+        run: |
+          docker logs secondaryds
+
+      - name: Check secondary PKI server systemd journal
+        if: always()
+        run: |
+          docker exec secondary journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check secondary CA debug log
+        if: always()
+        run: |
+          docker exec secondary find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check secondary OCSP debug log
+        if: always()
+        run: |
+          docker exec secondary find /var/lib/pki/pki-tomcat/logs/ocsp -name "debug.*" -exec cat {} \;
+
+      - name: Check tertiary DS server systemd journal
+        if: always()
+        run: |
+          docker exec tertiaryds journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check tertiary DS container logs
+        if: always()
+        run: |
+          docker logs tertiaryds
+
+      - name: Check tertiary PKI server systemd journal
+        if: always()
+        run: |
+          docker exec tertiary journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check tertiary CA debug log
+        if: always()
+        run: |
+          docker exec tertiary find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check tertiary OCSP debug log
+        if: always()
+        run: |
+          docker exec tertiary find /var/lib/pki/pki-tomcat/logs/ocsp -name "debug.*" -exec cat {} \;
+
+      - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ocsp-clone-tertiary
-          path: |
-            /tmp/artifacts/tertiary
+          name: ocsp-clone
+          path: /tmp/artifacts
