@@ -186,7 +186,7 @@ jobs:
               --password Secret.123 \
               admin
 
-      - name: Set up CA container
+      - name: Prepare certs folder
         run: |
           mkdir certs
           docker cp client:server.p12 certs
@@ -199,12 +199,20 @@ jobs:
           docker cp client:admin.csr certs
           ls -la certs
 
+      - name: Prepare data folder
+        run: |
+          mkdir data
+          ls -la data
+
+      - name: Set up CA container
+        run: |
           docker run \
               --name ca \
               --hostname=ca.example.com \
               --network=example \
               --network-alias=ca.example.com \
               -v $PWD/certs:/certs \
+              -v $PWD/data:/data \
               --detach \
               pki-ca
 
@@ -218,6 +226,73 @@ jobs:
               -k \
               -o /dev/null \
               https://ca.example.com:8443
+
+      - name: Check data dir
+        run: |
+          ls -l data \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          # TODO: review owners/permissions
+          cat > expected << EOF
+          drwxr-xr-x root root conf
+          drwxr-xr-x root root logs
+          EOF
+
+          diff expected output
+
+      - name: Check data/conf dir
+        run: |
+          ls -l data/conf \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          # TODO: review owners/permissions
+          cat > expected << EOF
+          drwxrwx--- 17 root Catalina
+          drwxrwx--- 17 root alias
+          drwxrwx--- 17 root ca
+          -rw-r--r-- root root catalina.policy
+          lrwxrwxrwx 17 root catalina.properties -> /usr/share/pki/server/conf/catalina.properties
+          drwxrwx--- 17 root certs
+          lrwxrwxrwx 17 root context.xml -> /etc/tomcat/context.xml
+          lrwxrwxrwx 17 root logging.properties -> /usr/share/pki/server/conf/logging.properties
+          -rw-rw---- 17 root password.conf
+          -rw-rw---- 17 root server.xml
+          -rw-rw---- 17 root serverCertNick.conf
+          -rw-rw---- 17 root tomcat.conf
+          lrwxrwxrwx 17 root web.xml -> /etc/tomcat/web.xml
+          EOF
+
+          diff expected output
+
+      - name: Check data/logs dir
+        run: |
+          ls -l data/logs \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          DATE=$(date +'%Y-%m-%d')
+
+          # TODO: review owners/permissions
+          cat > expected << EOF
+          drwxr-x--- 17 root backup
+          drwxrwx--- 17 root ca
+          -rw-r--r-- root root catalina.$DATE.log
+          -rw-r--r-- root root host-manager.$DATE.log
+          -rw-r--r-- root root localhost.$DATE.log
+          -rw-r--r-- root root localhost_access_log.$DATE.txt
+          -rw-r--r-- root root manager.$DATE.log
+          drwxr-xr-x root root pki
+          EOF
+
+          diff expected output
 
       - name: Check basic operations from CA container
         run: |

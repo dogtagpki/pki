@@ -98,6 +98,18 @@ def main(argv):
         deployer=deployer)
 
     parser.optional.add_argument(
+        '--conf',
+        dest='conf_dir',
+        action='store',
+        help='Config folder')
+
+    parser.optional.add_argument(
+        '--logs',
+        dest='logs_dir',
+        action='store',
+        help='Logs folder')
+
+    parser.optional.add_argument(
         '-f',
         dest='user_deployment_cfg', action='store',
         nargs=1, metavar='<file>',
@@ -546,6 +558,12 @@ def main(argv):
     deployer.instance = pki.server.PKIServerFactory.create(instance_name)
     deployer.instance.user = deployer.mdict['pki_user']
     deployer.instance.group = deployer.mdict['pki_group']
+
+    if args.conf_dir:
+        deployer.instance.actual_conf_dir = args.conf_dir
+
+    if args.logs_dir:
+        deployer.instance.actual_logs_dir = args.logs_dir
 
     deployer.instance.load()
 
