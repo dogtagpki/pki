@@ -251,9 +251,6 @@ class PKIInstance(pki.server.PKIServer):
 
         super().create(force=force)
 
-        logs_link = os.path.join(self.base_dir, 'logs')
-        self.symlink(self.logs_dir, logs_link, exist_ok=True)
-
         self.create_registry()
 
         self.symlink(PKIInstance.UNIT_FILE, self.unit_file, exist_ok=True)
