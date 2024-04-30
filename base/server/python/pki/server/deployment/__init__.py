@@ -45,6 +45,7 @@ from cryptography.hazmat.backends import default_backend
 import pki.nssdb
 import pki.account
 import pki.client
+import pki.pkcs12
 import pki.server
 import pki.server.deployment.scriptlets.configuration
 import pki.server.deployment.scriptlets.fapolicy_setup
@@ -143,6 +144,7 @@ class PKIDeployer:
         self.request_timeout = None
 
         self.force = False
+        self.remove_conf = False
         self.remove_logs = False
 
     def set_property(self, key, value, section=None):
@@ -567,9 +569,6 @@ class PKIDeployer:
             pki.server.DEFAULT_DIR_MODE)
 
     def remove_server_nssdb(self):
-
-        logger.info('Removing %s', self.instance.nssdb_link)
-        pki.util.unlink(self.instance.nssdb_link, self.force)
 
         logger.info('Removing %s', self.instance.nssdb_dir)
         pki.util.rmtree(self.instance.nssdb_dir, self.force)
@@ -2673,7 +2672,8 @@ class PKIDeployer:
             subsystem.set_config('securitydomain.select', 'new')
             subsystem.set_config('securitydomain.name', sd_name)
 
-            subsystem.create_security_domain(name=sd_name)
+            if config.str2bool(self.mdict['pki_ds_setup']):
+                subsystem.create_security_domain(name=sd_name)
 
             domain_manager = True
 

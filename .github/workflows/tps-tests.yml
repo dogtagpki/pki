@@ -23,6 +23,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/tps-external-certs-test.yml
 
+  tps-existing-config-test:
+    name: TPS with existing config
+    needs: build
+    uses: ./.github/workflows/tps-existing-config-test.yml
+
   tps-clone-test:
     name: TPS clone
     needs: build

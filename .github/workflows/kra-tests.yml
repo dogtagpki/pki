@@ -53,6 +53,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/kra-existing-ds-test.yml
 
+  kra-existing-config-test:
+    name: KRA with existing config
+    needs: build
+    uses: ./.github/workflows/kra-existing-config-test.yml
+
   kra-cmc-test:
     name: KRA with CMC
     needs: build

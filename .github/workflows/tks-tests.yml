@@ -23,6 +23,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/tks-external-certs-test.yml
 
+  tks-existing-config-test:
+    name: TKS with existing config
+    needs: build
+    uses: ./.github/workflows/tks-existing-config-test.yml
+
   tks-clone-test:
     name: TKS clone
     needs: build

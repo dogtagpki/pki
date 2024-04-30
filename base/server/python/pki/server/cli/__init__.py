@@ -400,7 +400,8 @@ class RemoveCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server remove [OPTIONS] [<instance ID>]')
         print()
-        print('      --remove-logs             Remove logs.')
+        print('      --remove-conf             Remove config folder.')
+        print('      --remove-logs             Remove logs folder.')
         print('      --force                   Force removal.')
         print('  -v, --verbose                 Run in verbose mode.')
         print('      --debug                   Run in debug mode.')
@@ -411,7 +412,7 @@ class RemoveCLI(pki.cli.CLI):
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'v', [
-                'remove-logs', 'force',
+                'remove-conf', 'remove-logs', 'force',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -420,11 +421,15 @@ class RemoveCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
+        remove_conf = False
         remove_logs = False
         force = False
 
         for o, _ in opts:
-            if o == '--remove-logs':
+            if o == '--remove-conf':
+                remove_conf = True
+
+            elif o == '--remove-logs':
                 remove_logs = True
 
             elif o == '--force':
@@ -456,7 +461,10 @@ class RemoveCLI(pki.cli.CLI):
 
         logger.info('Removing instance: %s', instance_name)
 
-        instance.remove(remove_logs=remove_logs, force=force)
+        instance.remove(
+            remove_conf=remove_conf,
+            remove_logs=remove_logs,
+            force=force)
 
 
 class StatusCLI(pki.cli.CLI):

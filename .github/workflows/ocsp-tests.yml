@@ -23,6 +23,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/ocsp-external-certs-test.yml
 
+  ocsp-existing-config-test:
+    name: OCSP with existing config
+    needs: build
+    uses: ./.github/workflows/ocsp-existing-config-test.yml
+
   ocsp-cmc-test:
     name: OCSP with CMC
     needs: build
