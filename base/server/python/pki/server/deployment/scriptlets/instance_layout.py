@@ -95,15 +95,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             'conf')
 
         instance.create_catalina_properties(exist_ok=True)
-
-        # Link /var/lib/pki/<instance>/conf/context.xml
-        # to /usr/share/tomcat/conf/context.xml.
-        context_xml = os.path.join(pki.server.Tomcat.CONF_DIR, 'context.xml')
-        instance.symlink(
-            context_xml,
-            instance.context_xml,
-            exist_ok=True)
-
+        instance.create_context_xml(exist_ok=True)
         instance.create_logging_properties(exist_ok=True)
 
         # Link /var/lib/pki/<instance>/conf/web.xml

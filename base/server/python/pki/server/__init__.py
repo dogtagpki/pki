@@ -759,10 +759,7 @@ grant codeBase "file:%s" {
             force=force)
 
         self.create_catalina_properties(exist_ok=True)
-
-        context_xml = os.path.join(Tomcat.CONF_DIR, 'context.xml')
-        self.symlink(context_xml, self.context_xml, exist_ok=True)
-
+        self.create_context_xml(exist_ok=True)
         self.create_logging_properties(exist_ok=True)
 
         # copy /etc/tomcat/tomcat.conf
@@ -845,6 +842,14 @@ grant codeBase "file:%s" {
         catalina_properties = os.path.join(
             PKIServer.SHARE_DIR, 'server', 'conf', 'catalina.properties')
         self.symlink(catalina_properties, self.catalina_properties, exist_ok=exist_ok)
+
+    def create_context_xml(self, exist_ok=False):
+
+        # Link /var/lib/pki/<instance>/conf/context.xml
+        # to /etc/tomcat/context.xml.
+
+        context_xml = os.path.join(Tomcat.CONF_DIR, 'context.xml')
+        self.symlink(context_xml, self.context_xml, exist_ok=exist_ok)
 
     def create_logging_properties(self, exist_ok=False):
 
