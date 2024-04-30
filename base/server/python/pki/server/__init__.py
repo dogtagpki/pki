@@ -758,9 +758,7 @@ grant codeBase "file:%s" {
             exist_ok=True,
             force=force)
 
-        catalina_properties = os.path.join(
-            PKIServer.SHARE_DIR, 'server', 'conf', 'catalina.properties')
-        self.symlink(catalina_properties, self.catalina_properties, exist_ok=True)
+        self.create_catalina_properties(exist_ok=True)
 
         context_xml = os.path.join(Tomcat.CONF_DIR, 'context.xml')
         self.symlink(context_xml, self.context_xml, exist_ok=True)
@@ -838,6 +836,15 @@ grant codeBase "file:%s" {
 
         common_lib_dir = os.path.join(PKIServer.SHARE_DIR, 'server', 'common', 'lib')
         self.symlink(common_lib_dir, self.common_lib_dir, exist_ok=True)
+
+    def create_catalina_properties(self, exist_ok=False):
+
+        # Link /var/lib/pki/<instance>/conf/catalina.properties
+        # to /usr/share/pki/server/conf/catalina.properties.
+
+        catalina_properties = os.path.join(
+            PKIServer.SHARE_DIR, 'server', 'conf', 'catalina.properties')
+        self.symlink(catalina_properties, self.catalina_properties, exist_ok=exist_ok)
 
     def create_logging_properties(self, exist_ok=False):
 

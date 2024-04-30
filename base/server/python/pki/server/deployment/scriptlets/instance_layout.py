@@ -94,12 +94,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             'server',
             'conf')
 
-        # Link /var/lib/pki/<instance>/conf/catalina.properties
-        # to /usr/share/pki/server/conf/catalina.properties.
-        instance.symlink(
-            os.path.join(shared_conf_path, 'catalina.properties'),
-            os.path.join(instance.conf_dir, 'catalina.properties'),
-            exist_ok=True)
+        instance.create_catalina_properties(exist_ok=True)
 
         # Link /var/lib/pki/<instance>/conf/context.xml
         # to /usr/share/tomcat/conf/context.xml.
