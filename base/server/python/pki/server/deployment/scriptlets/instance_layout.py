@@ -109,12 +109,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             instance.context_xml,
             exist_ok=True)
 
-        # Link /var/lib/pki/<instance>/conf/logging.properties
-        # to /usr/share/pki/server/conf/logging.properties.
-        instance.symlink(
-            os.path.join(shared_conf_path, 'logging.properties'),
-            os.path.join(instance.conf_dir, 'logging.properties'),
-            exist_ok=True)
+        instance.create_logging_properties(exist_ok=True)
 
         # Link /var/lib/pki/<instance>/conf/web.xml
         # to /usr/share/tomcat/conf/web.xml.

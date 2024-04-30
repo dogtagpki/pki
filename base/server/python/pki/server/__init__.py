@@ -765,7 +765,7 @@ grant codeBase "file:%s" {
         context_xml = os.path.join(Tomcat.CONF_DIR, 'context.xml')
         self.symlink(context_xml, self.context_xml, exist_ok=True)
 
-        self.create_logging_properties(force=force)
+        self.create_logging_properties(exist_ok=True)
 
         # copy /etc/tomcat/tomcat.conf
         self.copy(
@@ -839,14 +839,16 @@ grant codeBase "file:%s" {
         common_lib_dir = os.path.join(PKIServer.SHARE_DIR, 'server', 'common', 'lib')
         self.symlink(common_lib_dir, self.common_lib_dir, exist_ok=True)
 
-    def create_logging_properties(self, force=False):
+    def create_logging_properties(self, exist_ok=False):
+
+        # Copy /etc/tomcat/logging.properties
+        # to /var/lib/pki/<instance>/conf/logging.properties.
 
         logging_properties = os.path.join(Tomcat.CONF_DIR, 'logging.properties')
         self.copy(
             logging_properties,
             self.logging_properties,
-            exist_ok=True,
-            force=force)
+            exist_ok=exist_ok)
 
     def create_server_xml(self, exist_ok=False):
 
