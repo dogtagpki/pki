@@ -97,14 +97,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         instance.create_catalina_properties(exist_ok=True)
         instance.create_context_xml(exist_ok=True)
         instance.create_logging_properties(exist_ok=True)
-
-        # Link /var/lib/pki/<instance>/conf/web.xml
-        # to /usr/share/tomcat/conf/web.xml.
-        web_xml = os.path.join(pki.server.Tomcat.CONF_DIR, 'web.xml')
-        instance.symlink(
-            web_xml,
-            instance.web_xml,
-            exist_ok=True)
+        instance.create_web_xml(exist_ok=True)
 
         # Configuring internal token password
 

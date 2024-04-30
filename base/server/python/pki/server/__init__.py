@@ -761,6 +761,7 @@ grant codeBase "file:%s" {
         self.create_catalina_properties(exist_ok=True)
         self.create_context_xml(exist_ok=True)
         self.create_logging_properties(exist_ok=True)
+        self.create_web_xml(exist_ok=True)
 
         # copy /etc/tomcat/tomcat.conf
         self.copy(
@@ -780,9 +781,6 @@ grant codeBase "file:%s" {
         tomcat_conf.set('PKI_VERSION', pki.specification_version())
 
         tomcat_conf.write()
-
-        web_xml = os.path.join(Tomcat.CONF_DIR, 'web.xml')
-        self.symlink(web_xml, self.web_xml, exist_ok=True)
 
         service_conf = os.path.join(SYSCONFIG_DIR, 'tomcat')
         self.copy(
@@ -947,6 +945,16 @@ grant codeBase "file:%s" {
                 self.symlink(target, link, exist_ok=exist_ok)
 
         server_config.save()
+
+    def create_web_xml(self, exist_ok=False):
+
+        # Link /var/lib/pki/<instance>/conf/web.xml
+        # to /etc/tomcat/web.xml.
+
+        self.symlink(
+            os.path.join(Tomcat.CONF_DIR, 'web.xml'),
+            self.web_xml,
+            exist_ok=exist_ok)
 
     def create_nssdb(self, force=False):
 
