@@ -91,10 +91,17 @@ def main(argv):
     )
 
     parser.optional.add_argument(
+        '--remove-conf',
+        dest='remove_conf',
+        action='store_true',
+        help='Remove config folder'
+    )
+
+    parser.optional.add_argument(
         '--remove-logs',
         dest='remove_logs',
         action='store_true',
-        help='remove subsystem logs'
+        help='Remove logs folder'
     )
 
     parser.optional.add_argument(
@@ -165,6 +172,9 @@ def main(argv):
 
     # --force
     deployer.force = args.force
+
+    # --remove-conf
+    deployer.remove_conf = args.remove_conf
 
     # --remove-logs
     deployer.remove_logs = args.remove_logs

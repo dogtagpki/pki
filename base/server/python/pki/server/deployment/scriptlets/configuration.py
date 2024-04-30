@@ -191,7 +191,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('Setting up admin user')
             deployer.setup_admin_user(subsystem, admin_cert)
 
-        if not config.str2bool(deployer.mdict['pki_share_db']) and not clone:
+        if not config.str2bool(deployer.mdict['pki_share_db']) \
+                and not clone \
+                and config.str2bool(deployer.mdict['pki_ds_setup']):
             logger.info('Setting up database user')
             deployer.setup_database_user(subsystem)
 

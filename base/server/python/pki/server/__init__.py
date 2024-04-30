@@ -1268,7 +1268,7 @@ grant codeBase "file:%s" {
 
         logger.info('%s web application stopped', webapp_id)
 
-    def remove(self, remove_logs=False, force=False):
+    def remove(self, remove_conf=False, remove_logs=False, force=False):
 
         logger.info('Removing %s', self.service_conf)
         pki.util.remove(self.service_conf, force=force)
@@ -1287,7 +1287,8 @@ grant codeBase "file:%s" {
 
         self.remove_libs(force=force)
 
-        self.remove_conf_dir(force=force)
+        if remove_conf:
+            self.remove_conf_dir(force=force)
 
         logger.info('Removing %s', self.bin_dir)
         pki.util.unlink(self.bin_dir, force=force)

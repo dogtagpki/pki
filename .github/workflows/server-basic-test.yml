@@ -186,6 +186,7 @@ jobs:
 
           # TODO: review permissions
           cat > expected << EOF
+          lrwxrwxrwx pkiuser pkiuser conf -> /etc/pki/pki-tomcat
           lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-tomcat
           EOF
 
@@ -195,13 +196,25 @@ jobs:
         run: |
           # check file types, owners, and permissions
           docker exec pki ls -l /etc/pki/pki-tomcat \
-              > >(tee stdout) 2> >(tee stderr >&2) || true
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
 
+          # TODO: review permissions
           cat > expected << EOF
-          ls: cannot access '/etc/pki/pki-tomcat': No such file or directory
+          drwxr-x--- pkiuser pkiuser Catalina
+          -rw-rw---- pkiuser pkiuser catalina.policy
+          lrwxrwxrwx pkiuser pkiuser catalina.properties -> /usr/share/pki/server/conf/catalina.properties
+          drwxr-x--- pkiuser pkiuser certs
+          lrwxrwxrwx pkiuser pkiuser context.xml -> /etc/tomcat/context.xml
+          lrwxrwxrwx pkiuser pkiuser logging.properties -> /usr/share/pki/server/conf/logging.properties
+          -rw-rw---- pkiuser pkiuser server.xml
+          -rw-rw---- pkiuser pkiuser tomcat.conf
+          lrwxrwxrwx pkiuser pkiuser web.xml -> /etc/tomcat/web.xml
           EOF
 
-          diff expected stderr
+          diff expected output
 
       - name: Check pki-tomcat server logs dir after removal
         run: |
@@ -338,6 +351,7 @@ jobs:
 
           # TODO: review permissions
           cat > expected << EOF
+          drwxr-x--- tomcat tomcat conf
           drwxr-x--- tomcat tomcat logs
           EOF
 
@@ -347,13 +361,25 @@ jobs:
         run: |
           # check file types, owners, and permissions
           docker exec pki ls -l /var/lib/tomcats/pki/conf \
-              > >(tee stdout) 2> >(tee stderr >&2) || true
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
 
+          # TODO: review permissions
           cat > expected << EOF
-          ls: cannot access '/var/lib/tomcats/pki/conf': No such file or directory
+          drwxr-x--- tomcat tomcat Catalina
+          -rw-rw---- tomcat tomcat catalina.policy
+          lrwxrwxrwx tomcat tomcat catalina.properties -> /usr/share/pki/server/conf/catalina.properties
+          drwxr-x--- tomcat tomcat certs
+          lrwxrwxrwx tomcat tomcat context.xml -> /etc/tomcat/context.xml
+          -rw-rw---- tomcat tomcat logging.properties
+          -rw-rw---- tomcat tomcat server.xml
+          -rw-rw---- tomcat tomcat tomcat.conf
+          lrwxrwxrwx tomcat tomcat web.xml -> /etc/tomcat/web.xml
           EOF
 
-          diff expected stderr
+          diff expected output
 
       - name: Check tomcat@pki server logs dir after removal
         run: |

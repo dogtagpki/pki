@@ -48,6 +48,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/ca-existing-ds-test.yml
 
+  ca-existing-config-test:
+    name: CA with existing config
+    needs: build
+    uses: ./.github/workflows/ca-existing-config-test.yml
+
   ca-cmc-shared-token-test:
     name: CA with CMC shared token
     needs: build

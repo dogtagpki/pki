@@ -18,14 +18,7 @@
 # All rights reserved.
 #
 
-from __future__ import absolute_import
-from __future__ import print_function
 import logging
-
-import pki.nssdb
-import pki.pkcs12
-import pki.server
-import pki.util
 
 # PKI Deployment Imports
 from .. import pkiconfig as config
@@ -48,16 +41,3 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         deployer.install_cert_chain()
         deployer.import_ds_ca_cert()
         deployer.init_client_nssdb()
-
-    def destroy(self, deployer):
-
-        instance = self.instance
-
-        # if this is not the last subsystem, skip
-        if instance.get_subsystems():
-            return
-
-        if deployer.directory.exists(deployer.mdict['pki_client_dir']):
-            logger.info('Removing %s', deployer.mdict['pki_client_dir'])
-            pki.util.rmtree(deployer.mdict['pki_client_dir'],
-                            deployer.force)

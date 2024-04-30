@@ -321,5 +321,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if deployer.remove_logs:
             subsystem.remove_logs(force=deployer.force)
 
-        subsystem.remove_conf(force=deployer.force)
+        if deployer.remove_conf:
+            subsystem.remove_conf(force=deployer.force)
+
         subsystem.remove(force=deployer.force)
