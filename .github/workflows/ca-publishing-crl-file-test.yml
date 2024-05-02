@@ -433,7 +433,7 @@ jobs:
               > >(tee stdout) 2> >(tee stderr >&2) || true
 
           # user cert should be invalid
-          echo "UID = testuser" > expected
+          echo "UID=testuser" > expected
           echo "error 23 at 0 depth lookup: certificate revoked" >> expected
           echo "error testuser.crt: verification failed" >> expected
           diff expected stderr
@@ -475,7 +475,7 @@ jobs:
               > >(tee stdout) 2> >(tee stderr >&2) || true
 
           # server cert should be invalid
-          echo "CN = test.example.com" > expected
+          echo "CN=test.example.com" > expected
           echo "error 23 at 0 depth lookup: certificate revoked" >> expected
           echo "error test.example.com.crt: verification failed" >> expected
           diff expected stderr
