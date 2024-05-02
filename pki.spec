@@ -1050,6 +1050,10 @@ C_FLAGS="$C_FLAGS -fno-lto"
 C_FLAGS="$C_FLAGS -D_FORTIFY_SOURCE=3"
 CXX_FLAGS="$CXX_FLAGS -D_FORTIFY_SOURCE=3"
 
+# https://sourceware.org/annobin/annobin.html/Test-stack-clash.html
+C_FLAGS="$C_FLAGS -fstack-clash-protection"
+CXX_FLAGS="$CXX_FLAGS -fstack-clash-protection"
+
 %endif
 
 pkgs=base\
