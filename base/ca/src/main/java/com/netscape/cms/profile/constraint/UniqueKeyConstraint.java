@@ -19,7 +19,7 @@ package com.netscape.cms.profile.constraint;
 
 import java.math.BigInteger;
 import java.util.Date;
-import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.Locale;
 
 import org.dogtagpki.server.ca.CAEngine;
@@ -30,17 +30,15 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 
-import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.cms.profile.common.PolicyConstraintConfig;
 import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cms.profile.def.PolicyDefault;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.CertRecord;
-import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.dbs.RecordPagedList;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -59,7 +57,7 @@ import com.netscape.cmscore.request.Request;
  */
 public class UniqueKeyConstraint extends EnrollConstraint {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UniqueKeyConstraint.class);
+    public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UniqueKeyConstraint.class);
 
     /*
     public static final String CONFIG_REVOKE_DUPKEY_CERT =
@@ -79,11 +77,6 @@ public class UniqueKeyConstraint extends EnrollConstraint {
     }
 
     @Override
-    public void init(PolicyConstraintConfig config) throws EProfileException {
-        super.init(config);
-    }
-
-    @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         /*
         if (name.equals(CONFIG_REVOKE_DUPKEY_CERT)) {
@@ -98,6 +91,7 @@ public class UniqueKeyConstraint extends EnrollConstraint {
         return null;
     }
 
+    @Override
     public String getDefaultConfig(String name) {
         return null;
     }
@@ -127,11 +121,11 @@ public class UniqueKeyConstraint extends EnrollConstraint {
     @Override
     public void validate(Request request, X509CertInfo info)
             throws ERejectException {
-        String method = "UniqueKeyConstraint: validate: ";
+        String method = "UniqueKeyConstraint: validate:";
         String msg = "";
         boolean rejected = false;
-        int size = 0;
-        CertRecordList list;
+        RecordPagedList<CertRecord> list;
+        Iterator<CertRecord> certRecIterator;
 
         /*
         mRevokeDupKeyCert =
@@ -139,7 +133,7 @@ public class UniqueKeyConstraint extends EnrollConstraint {
         */
         mAllowSameKeyRenewal = getConfigBoolean(CONFIG_ALLOW_SAME_KEY_RENEWAL);
         msg = msg + ": allowSameKeyRenewal=" + mAllowSameKeyRenewal + ";";
-        logger.debug(method + msg);
+        logger.debug("{} {}", method, msg);
 
         CAEngine engine = CAEngine.getInstance();
         CertificateRepository cr = engine.getCertificateRepository();
@@ -151,12 +145,12 @@ public class UniqueKeyConstraint extends EnrollConstraint {
                     infokey.get(CertificateX509Key.KEY);
 
             // check for key uniqueness
-            byte pub[] = key.getEncoded();
-            String pub_s = escapeBinaryData(pub);
-            String filter = "(" + CertRecord.ATTR_X509CERT_PUBLIC_KEY_DATA + "=" + pub_s + ")";
-            list = cr.findCertRecordsInList(filter, null, 10);
-            size = list.getSize();
-
+            byte[] pub = key.getEncoded();
+            String pubS = escapeBinaryData(pub);
+            String filter = "(" + CertRecord.ATTR_X509CERT_PUBLIC_KEY_DATA + "=" + pubS + ")";
+            String[] attrs = { CertRecord.ATTR_ID };
+            list = cr.findPagedCertRecords(filter, attrs, null);
+            certRecIterator = list.iterator();
         } catch (Exception e) {
             throw new ERejectException(
                     CMS.getUserMessage(
@@ -169,8 +163,8 @@ public class UniqueKeyConstraint extends EnrollConstraint {
          * is valid or not, if mAllowSameKeyRenewal is false,
          * we don't want a key that was once generated before
          */
-        if (size > 0) {
-            logger.debug(method + "found existing cert with same key");
+        if (certRecIterator.hasNext()) {
+            logger.debug("{} found existing cert with same key", method);
 
             /*
                 The following code revokes the existing certs that have
@@ -204,9 +198,9 @@ public class UniqueKeyConstraint extends EnrollConstraint {
             	} // revoke dupkey cert turned on
             */
 
-            if (mAllowSameKeyRenewal == true) {
-                X500Name sjname_in_db = null;
-                X500Name sjname_in_req = null;
+            if (mAllowSameKeyRenewal) {
+                X500Name sjnameInDb = null;
+                X500Name sjnameInReq = null;
 
                 try {
                     // get subject of request
@@ -215,38 +209,37 @@ public class UniqueKeyConstraint extends EnrollConstraint {
 
                     if (subName != null) {
 
-                        sjname_in_req =
+                        sjnameInReq =
                                 (X500Name) subName.get(CertificateSubjectName.DN_NAME);
-                        logger.debug(method +" cert request subject DN =" + sjname_in_req.toString());
-                        Enumeration<CertRecord> e = list.getCertRecords(0, size - 1);
+                        logger.debug("{} cert request subject DN ={}", method, sjnameInReq);
                         Date latestOrigNotAfter = null;
                         Date origNotAfter = null;
                         boolean first = true;
-                        while (e != null && e.hasMoreElements()) {
-                            logger.debug(method +  msg);
-                            CertRecord rec = e.nextElement();
+                        while (certRecIterator.hasNext()) {
+                            logger.debug("{} {}", method, msg);
+                            CertRecord rec = certRecIterator.next();
                             BigInteger serial = rec.getSerialNumber();
                             msg = msg + "existing cert with same key found: " + serial.toString() + ";";
 
                             if (rec.getStatus().equals(CertRecord.STATUS_REVOKED)
                                     || rec.getStatus().equals(CertRecord.STATUS_REVOKED_EXPIRED)) {
                                 msg = msg + "revoked cert cannot be renewed;";
-                                logger.debug(method + msg);
+                                logger.debug("{} {}", method, msg);
                                 rejected = true;
                                 // this has to break
                                 break;
                             }
                             if (!rec.getStatus().equals(CertRecord.STATUS_VALID)
                                     && !rec.getStatus().equals(CertRecord.STATUS_EXPIRED)) {
-                                logger.debug(method + "invalid cert cannot be renewed; continue;" + serial.toString());
+                                logger.debug("{} invalid cert cannot be renewed; continue; {}", method, serial);
                                 // can still find another one to renew
                                 continue;
                             }
                             // only VALID or EXPIRED certs could have reached here
                             X509CertImpl origCert = rec.getCertificate();
-                            sjname_in_db = origCert.getSubjectName();
+                            sjnameInDb = origCert.getSubjectName();
 
-                            if (sjname_in_db.equals(sjname_in_req) == false) {
+                            if (!sjnameInDb.equals(sjnameInReq)) {
                                 msg = msg + "subject name not match in same key renewal;";
                                 rejected = true;
                                 break;
@@ -256,12 +249,12 @@ public class UniqueKeyConstraint extends EnrollConstraint {
                             // find the latest expiration date to keep for
                             // Renewal Grace Period Constraint later
                             origNotAfter = origCert.getNotAfter();
-                            logger.debug(method + "origNotAfter =" + origNotAfter.toString());
+                            logger.debug("{} origNotAfter = {}", method, origNotAfter);
                             if (first) {
                                 latestOrigNotAfter = origNotAfter;
                                 first = false;
                             } else if (latestOrigNotAfter.before(origNotAfter)) {
-                                logger.debug(method + "newer cert found");
+                                logger.debug("{} newer cert found", method);
                                 latestOrigNotAfter = origNotAfter;
                             }
 
@@ -271,14 +264,13 @@ public class UniqueKeyConstraint extends EnrollConstraint {
                         } // while
 
                         if (latestOrigNotAfter != null) {
-                            String existingOrigExpDate_s = request.getExtDataInString("origNotAfter");
-                            if (existingOrigExpDate_s != null) {
+                            String existingOrigExpDateS = request.getExtDataInString("origNotAfter");
+                            if (existingOrigExpDateS != null) {
                                 // make sure not to interfere with renewal by serial
-                                logger.debug(method +
-                                        " original cert expiration date already exists. Not overriding.");
+                                logger.debug("{} original cert expiration date already exists. Not overriding.", method);
                             } else {
                                 // set origNotAfter for RenewGracePeriodConstraint
-                                logger.debug(method + "setting latest original cert expiration in request");
+                                logger.debug("{} setting latest original cert expiration in request", method);
                                 request.setExtData("origNotAfter", BigInteger.valueOf(latestOrigNotAfter.getTime()));
                             }
                         }
@@ -298,10 +290,10 @@ public class UniqueKeyConstraint extends EnrollConstraint {
         } // (size > 0)
 
         if (rejected) {
-            logger.debug(method + " rejected: " + msg);
+            logger.debug("{} rejected: {}", method, msg);
             throw new ERejectException(msg);
         }
-        logger.debug(method + " approved");
+        logger.debug("{} approved", method);
     }
 
     /**
@@ -334,7 +326,7 @@ public class UniqueKeyConstraint extends EnrollConstraint {
 
     @Override
     public String getText(Locale locale) {
-        String params[] = {
+        String[] params = {
         /*
                         getConfig(CONFIG_REVOKE_DUPKEY_CERT),
         */
@@ -344,8 +336,8 @@ public class UniqueKeyConstraint extends EnrollConstraint {
                 "CMS_PROFILE_CONSTRAINT_ALLOW_SAME_KEY_RENEWAL_TEXT", params);
     }
 
-    public static String escapeBinaryData(byte data[]) {
-        StringBuffer sb = new StringBuffer();
+    public static String escapeBinaryData(byte[] data) {
+        StringBuilder sb = new StringBuilder();
 
         for (int i = 0; i < data.length; i++) {
             int v = 0xff & data[i];
