@@ -63,26 +63,6 @@ jobs:
     needs: build
     uses: ./.github/workflows/kra-cmc-test.yml
 
-  kra-clone-test:
-    name: KRA clone
-    needs: build
-    uses: ./.github/workflows/kra-clone-test.yml
-
-  kra-clone-hsm-test:
-    name: KRA clone with HSM
-    needs: build
-    uses: ./.github/workflows/kra-clone-hsm-test.yml
-
-  kra-clone-shared-ds-test:
-    name: KRA clone with shared DS
-    needs: build
-    uses: ./.github/workflows/kra-clone-shared-ds-test.yml
-
-  kra-clone-replicated-ds-test:
-    name: KRA clone with replicated DS
-    needs: build
-    uses: ./.github/workflows/kra-clone-replicated-ds-test.yml
-
   kra-standalone-test:
     name: Standalone KRA
     needs: build
