@@ -21,6 +21,7 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -36,8 +37,8 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.DBPagedSearch;
-import com.netscape.certsrv.dbs.DBVirtualList;
 import com.netscape.certsrv.dbs.DBRecordNotFoundException;
+import com.netscape.certsrv.dbs.DBVirtualList;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.certdb.CertId;
@@ -58,17 +59,16 @@ import netscape.ldap.LDAPSearchResults;
  */
 public class CertificateRepository extends Repository {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertificateRepository.class);
+    public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertificateRepository.class);
 
-    public final static int ALL_CERTS = 0;
-    public final static int ALL_VALID_CERTS = 1;
-    public final static int ALL_UNREVOKED_CERTS = 2;
+    public static final int ALL_CERTS = 0;
+    public static final int ALL_VALID_CERTS = 1;
+    public static final int ALL_UNREVOKED_CERTS = 2;
 
-    public final static String PROP_INCREMENT = "certdbInc";
-    public final static String PROP_TRANS_MAXRECORDS = "transitMaxRecords";
-    public final static String PROP_TRANS_PAGESIZE = "transitRecordPageSize";
+    public static final String PROP_INCREMENT = "certdbInc";
+    public static final String PROP_TRANS_MAXRECORDS = "transitMaxRecords";
+    public static final String PROP_TRANS_PAGESIZE = "transitRecordPageSize";
 
-    public final String CERT_X509ATTRIBUTE = "x509signedcert";
     private static final String PROP_ENABLE_RANDOM_SERIAL_NUMBERS = "enableRandomSerialNumbers";
     private static final String PROP_RANDOM_SERIAL_NUMBER_COUNTER = "randomSerialNumberCounter";
     private static final String PROP_FORCE_MODE_CHANGE = "forceModeChange";
@@ -585,17 +585,15 @@ public class CertificateRepository extends Repository {
         }
         logger.debug("CertificateRepository: getLastSerialNumberInRange  mEnableRandomSerialNumbers="+mEnableRandomSerialNumbers);
 
-        String ldapfilter = "("+CertRecord.ATTR_CERT_STATUS+"=*"+")";
+        String ldapfilter = "(&("+CertRecord.ATTR_CERT_STATUS+"=*"+")("+CertRecord.ATTR_ID+">="+serial_low_bound+"))";
 
-        String[] attrs = null;
+        String[] attrs = {CertRecord.ATTR_ID, "objectclass"};
 
-        CertRecordList recList = findCertRecordsInList(ldapfilter, attrs, serial_upper_bound.toString(10), "serialno", 5 * -1);
+        RecordPagedList<CertRecord> certRecords = findPagedCertRecords(ldapfilter, attrs, "serialno");
+        Iterator<CertRecord> iRecs = certRecords.iterator();
 
-        int size = recList.getSize();
 
-        logger.debug("CertificateRepository:getLastSerialNumberInRange: recList size " + size);
-
-        if (size <= 0) {
+        if (!iRecs.hasNext()) {
             logger.debug("CertificateRepository:getLastSerialNumberInRange: index may be empty");
 
             BigInteger ret = new BigInteger(serial_low_bound.toString(10));
@@ -604,49 +602,35 @@ public class CertificateRepository extends Repository {
             logger.debug("CertificateRepository:getLastCertRecordSerialNo: returning " + ret);
             return ret;
         }
-        int ltSize = recList.getSizeBeforeJumpTo();
 
-        logger.debug("CertificateRepository:getLastSerialNumberInRange: ltSize " + ltSize);
+        CertRecord curRec = iRecs.next();
 
-        CertRecord curRec = null;
+        while (iRecs.hasNext()) {
+            CertRecord followRec = iRecs.next();
 
-        int i;
-        Object obj = null;
+            BigInteger curSerial = curRec.getSerialNumber();
+            BigInteger followSerial = followRec.getSerialNumber();
 
-        for (i = 0; i < 5; i++) {
-            obj = recList.getCertRecord(i);
-
-            if (obj != null) {
-                curRec = (CertRecord) obj;
-
-                BigInteger serial = curRec.getSerialNumber();
-
-                logger.debug("CertificateRepository:getLastCertRecordSerialNo:  serialno  " + serial);
-
-                if (((serial.compareTo(serial_low_bound) == 0) || (serial.compareTo(serial_low_bound) == 1)) &&
-                        ((serial.compareTo(serial_upper_bound) == 0) || (serial.compareTo(serial_upper_bound) == -1))) {
-                    logger.debug("getLastSerialNumberInRange returning: " + serial);
-                    if (modeChange && mEnableRandomSerialNumbers) {
-                        mCounter = serial.subtract(serial_low_bound).add(BigInteger.ONE);
-                        logger.debug("getLastSerialNumberInRange mCounter: " + mCounter);
-                    }
-                    return serial;
+            if (followSerial.compareTo(serial_upper_bound) > 0 &&
+                    curSerial.compareTo(serial_upper_bound) < 0) {
+                logger.debug("getLastSerialNumberInRange returning: " + curSerial);
+                if (modeChange && mEnableRandomSerialNumbers) {
+                    mCounter = curSerial.subtract(serial_low_bound).add(BigInteger.ONE);
+                    logger.debug("getLastSerialNumberInRange mCounter: " + mCounter);
                 }
-            } else {
-                logger.warn("getLastSerialNumberInRange:found null from getCertRecord");
+                return curSerial;
             }
+            curRec = followRec;
         }
 
-        BigInteger ret = new BigInteger(serial_low_bound.toString(10));
+        BigInteger serial = curRec.getSerialNumber();
 
-        ret = ret.subtract(BigInteger.ONE);
-
-        logger.debug("CertificateRepository:getLastCertRecordSerialNo: returning " + ret);
+        logger.debug("CertificateRepository:getLastCertRecordSerialNo: returning " + serial);
         if (modeChange && mEnableRandomSerialNumbers) {
-            mCounter = BigInteger.ZERO;
+            mCounter = serial.subtract(serial_low_bound).add(BigInteger.ONE);
             logger.debug("getLastSerialNumberInRange mCounter: " + mCounter);
         }
-        return ret;
+        return serial;
 
     }
 
@@ -658,11 +642,8 @@ public class CertificateRepository extends Repository {
      */
     public void removeCertRecords(BigInteger beginS, BigInteger endS) throws EBaseException {
         String filter = "(" + CertRecord.ATTR_CERT_STATUS + "=*" + ")";
-        CertRecordList list = findCertRecordsInList(filter, null, "serialno", 10);
-        int size = list.getSize();
-        Enumeration<CertRecord> e = list.getCertRecords(0, size - 1);
-        while (e.hasMoreElements()) {
-            CertRecord rec = e.nextElement();
+        RecordPagedList<CertRecord> certRecords = findPagedCertRecords(filter, null, "serialno");
+        for (CertRecord rec: certRecords) {
             BigInteger cur = rec.getSerialNumber();
             BigInteger max = cur.max(beginS);
             BigInteger min = cur;
@@ -682,8 +663,6 @@ public class CertificateRepository extends Repository {
             RequestId requestID,
             String profileIDMapping,
             X509CertImpl cert) throws Exception {
-
-        CertId certID = new CertId(cert.getSerialNumber());
 
         MetaInfo meta = new MetaInfo();
         meta.set(CertRecord.META_REQUEST_ID, requestID.toString());
@@ -828,7 +807,7 @@ public class CertificateRepository extends Repository {
 
         try (DBSSession s = dbSubsystem.createSession()) {
             String name = "cn=" + serialNo + "," + mBaseDN;
-            String attrs[] = { "DN" };
+            String[] attrs = { "DN" };
 
             rec = (CertRecord) s.read(name, attrs);
             if (rec == null) exists = false;
@@ -1233,13 +1212,12 @@ public class CertificateRepository extends Repository {
      */
     public Enumeration<CertRecord> findCertRecords(String filter)
             throws EBaseException {
-        Enumeration<CertRecord> e = null;
-
-        CertRecordList list = findCertRecordsInList(filter, null, "serialno", 10);
-        int size = list.getSize();
-
-        e = list.getCertRecords(0, size - 1);
-        return e;
+        RecordPagedList<CertRecord> certRecords = findPagedCertRecords(filter, null, "serialno");
+        ArrayList<CertRecord> records = new ArrayList<>();
+        for(CertRecord rec: certRecords) {
+            records.add(rec);
+        }
+        return Collections.enumeration(records);
     }
 
     /**
@@ -1295,9 +1273,11 @@ public class CertificateRepository extends Repository {
      * @param pageSize page size
      * @return a list of certificates
      * @exception EBaseException failed to search
+     * @deprecated As of release v11.6.0, replaced by {@link #findPagedCertRecords(String, String[], String)}
      */
+    @Deprecated(since = "v11.6.0", forRemoval = true)
     public CertRecordList findCertRecordsInList(String filter,
-            String attrs[], int pageSize) throws EBaseException {
+            String[] attrs, int pageSize) throws EBaseException {
         return findCertRecordsInList(filter, attrs, CertRecord.ATTR_ID,
                 pageSize);
     }
@@ -1312,9 +1292,11 @@ public class CertificateRepository extends Repository {
      * @param pageSize page size
      * @return a list of certificates
      * @exception EBaseException failed to search
+     * @deprecated As of release v11.6.0, replaced by {@link #findPagedCertRecords(String, String[], String)}
      */
+    @Deprecated(since = "v11.6.0", forRemoval = true)
     public CertRecordList findCertRecordsInList(String filter,
-            String attrs[], String sortKey, int pageSize)
+            String[] attrs, String sortKey, int pageSize)
             throws EBaseException {
 
         logger.debug("CertificateRepository.findCertRecordsInList()");
@@ -1342,9 +1324,11 @@ public class CertificateRepository extends Repository {
      * @param pageSize page size
      * @return a list of certificates
      * @exception EBaseException failed to search
+     * @deprecated As of release v11.6.0, replaced by {@link #findPagedCertRecords(String, String[], String)}
      */
+    @Deprecated(since = "v11.6.0", forRemoval = true)
     public CertRecordList findCertRecordsInList(String filter,
-            String attrs[], String jumpTo, String sortKey, int pageSize)
+            String[] attrs, String jumpTo, String sortKey, int pageSize)
             throws EBaseException {
         return findCertRecordsInList(filter, attrs, jumpTo, false, sortKey, pageSize);
 
@@ -1362,9 +1346,11 @@ public class CertificateRepository extends Repository {
      * @param pageSize page size
      * @return a list of certificates
      * @exception EBaseException failed to search
+     * @deprecated As of release v11.6.0, replaced by {@link #findPagedCertRecords(String, String[], String)}
      */
+    @Deprecated(since = "v11.6.0", forRemoval = true)
     public CertRecordList findCertRecordsInList(String filter,
-            String attrs[], String jumpTo, boolean hardJumpTo,
+            String[] attrs, String jumpTo, boolean hardJumpTo,
                          String sortKey, int pageSize)
             throws EBaseException {
         CertRecordList list = null;
@@ -1410,9 +1396,11 @@ public class CertificateRepository extends Repository {
      * @param pageSize page size
      * @return a list of certificates
      * @exception EBaseException failed to search
+     * @deprecated As of release v11.6.0, replaced by {@link #findPagedCertRecords(String, String[], String)}
      */
+    @Deprecated(since = "v11.6.0", forRemoval = true)
     public CertRecordList findCertRecordsInListRawJumpto(String filter,
-            String attrs[], String jumpTo, String sortKey, int pageSize)
+            String[] attrs, String jumpTo, String sortKey, int pageSize)
             throws EBaseException {
         CertRecordList list = null;
 
@@ -1513,13 +1501,10 @@ public class CertificateRepository extends Repository {
                 "))(!(" + CertRecord.ATTR_AUTO_RENEW + "=" +
                 CertRecord.AUTO_RENEWAL_NOTIFIED + ")))";
 
-        CertRecordList list = findCertRecordsInList(filter, null, "serialno", 10);
-        int size = list.getSize();
-        Enumeration<CertRecord> e = list.getCertRecords(0, size - 1);
+        RecordPagedList<CertRecord> certRecords = findPagedCertRecords(filter, null, "serialno");
 
         tab = new Hashtable<>();
-        while (e.hasMoreElements()) {
-            CertRecord rec = e.nextElement();
+        for(CertRecord rec: certRecords) {
             X509CertImpl cert = rec.getCertificate();
             String subjectDN = cert.getSubjectName().toString();
             String renewalFlag = rec.getAutoRenew();
@@ -1553,7 +1538,7 @@ public class CertificateRepository extends Repository {
     public X509CertImpl[] getX509Certificates(String subjectDN,
             int validityType) throws EBaseException {
 
-        X509CertImpl certs[] = null;
+        X509CertImpl[] certs = null;
 
         // XXX - not checking validityType...
         String filter = "(&(" + CertRecord.ATTR_X509CERT +
@@ -1573,49 +1558,37 @@ public class CertificateRepository extends Repository {
         }
         filter += "))";
 
-        CertRecordList list = findCertRecordsInList(filter, null, "serialno", 10);
-        int size = list.getSize();
-        Enumeration<CertRecord> e = list.getCertRecords(0, size - 1);
+        RecordPagedList<CertRecord> certRecords = findPagedCertRecords(filter, null, "serialno");
 
-        Vector<X509CertImpl> v = new Vector<>();
+        ArrayList<X509CertImpl> a = new ArrayList<>();
 
-        while (e.hasMoreElements()) {
-            CertRecord rec = e.nextElement();
-
-            v.addElement(rec.getCertificate());
+        for(CertRecord rec: certRecords) {
+            a.add(rec.getCertificate());
         }
-        if (v.size() == 0)
+        if (a.isEmpty())
             return null;
-        certs = new X509CertImpl[v.size()];
-        v.copyInto(certs);
+        certs = a.toArray(new X509CertImpl[a.size()]);
         return certs;
     }
 
     public X509CertImpl[] getX509Certificates(String filter)
             throws EBaseException {
 
-        X509CertImpl certs[] = null;
+        X509CertImpl[] certs = null;
 
-        Enumeration<CertRecord> e = null;
+        if (filter == null || filter.isBlank())
+            return null;
 
-        if (filter != null && filter.length() > 0) {
-            CertRecordList list = findCertRecordsInList(filter, null, "serialno", 10);
-            int size = list.getSize();
+        RecordPagedList<CertRecord> certRecords = findPagedCertRecords(filter, null, "serialno");
 
-            e = list.getCertRecords(0, size - 1);
+        ArrayList<X509CertImpl> a = new ArrayList<>();
+
+        for(CertRecord rec: certRecords) {
+            a.add(rec.getCertificate());
         }
-
-        Vector<X509CertImpl> v = new Vector<>();
-
-        while (e != null && e.hasMoreElements()) {
-            CertRecord rec = e.nextElement();
-
-            v.addElement(rec.getCertificate());
-        }
-        if (v.size() > 0) {
-            certs = new X509CertImpl[v.size()];
-            v.copyInto(certs);
-        }
+        if (a.isEmpty())
+            return null;
+        certs = a.toArray(new X509CertImpl[a.size()]);
         return certs;
     }
 
@@ -1629,48 +1602,50 @@ public class CertificateRepository extends Repository {
      */
     public Enumeration<CertRecord> getValidCertificates(String from, String to)
             throws EBaseException {
-        Vector<CertRecord> v = new Vector<>();
+        ArrayList<CertRecord> a = new ArrayList<>();
 
         // 'from' determines 'jumpto' value
         // 'to' determines where to stop looking
 
-        String ldapfilter = "(certstatus=VALID)";
+        StringBuilder ldapfilter = new StringBuilder();
 
-        String fromVal = "0";
-        try {
-            if (from != null) {
-                new BigInteger(from);
-                fromVal = from;
+        if (from != null && !from.isBlank()) {
+            ldapfilter.append("(&(")
+                .append(CertRecord.ATTR_ID)
+                .append(">=")
+                .append(from)
+                .append(")");
+        }
+        if (to != null && !to.isBlank()) {
+            if(ldapfilter.isEmpty()) {
+                ldapfilter.append("(&");
             }
-        } catch (Exception e1) {
-            // from is not integer
+            ldapfilter.append("(")
+                .append(CertRecord.ATTR_ID)
+                .append("<")
+                .append(to)
+                .append(")");
+        }
+        ldapfilter.append("(")
+            .append(CertRecord.ATTR_CERT_STATUS)
+            .append("=")
+            .append(CertRecord.STATUS_VALID)
+            .append(")");
+
+        if(ldapfilter.charAt(1) == '&') {
+            ldapfilter.append(")");
         }
 
-        CertRecordList list = findCertRecordsInList(ldapfilter, null, fromVal, "serialno", 40);
+        RecordPagedList<CertRecord> certRecords = findPagedCertRecords(ldapfilter.toString(), null, "serialno");
 
-        BigInteger toInt = null;
-        if (to != null && !to.trim().equals("")) {
-            toInt = new BigInteger(to);
+
+        for (CertRecord rec: certRecords) {
+            logger.debug("processing record: {}", rec.getSerialNumber());
+            a.add(rec);
         }
 
-        for (int i = 0;; i++) {
-            CertRecord rec = list.getCertRecord(i);
-            logger.debug("processing record: " + i);
-            if (rec == null) {
-                break; // no element returned
-            }
-            logger.debug("processing record: " + i + " " + rec.getSerialNumber());
-            // Check if we are past the 'to' marker
-            if (toInt != null) {
-                if (rec.getSerialNumber().compareTo(toInt) > 0) {
-                    break;
-                }
-            }
-            v.addElement(rec);
-        }
-
-        logger.debug("returning " + v.size() + " elements");
-        return v.elements();
+        logger.debug("returning {} elements", a.size());
+        return Collections.enumeration(a);
     }
 
     /**
@@ -1678,8 +1653,6 @@ public class CertificateRepository extends Repository {
      */
     public Enumeration<CertRecord> getAllValidCertificates()
             throws EBaseException {
-        Enumeration<CertRecord> e = null;
-
         Date now = new Date();
         String ldapfilter = "(&(!(" + CertRecord.ATTR_REVO_INFO + "=*))(" +
                 CertRecord.ATTR_X509CERT + "." +
@@ -1688,13 +1661,12 @@ public class CertificateRepository extends Repository {
                 CertRecord.ATTR_X509CERT + "." +
                 CertificateValidity.NOT_AFTER + ">=" +
                 DateMapper.dateToDB(now) + "))";
-        CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
-        int size = list.getSize();
-
-        e = list.getCertRecords(0, size - 1);
-
-        // XXX - transaction is not done at this moment
-        return e;
+        RecordPagedList<CertRecord> certRecords = findPagedCertRecords(ldapfilter, null, "serialno");
+        ArrayList<CertRecord> records = new ArrayList<>();
+        for(CertRecord rec: certRecords) {
+            records.add(rec);
+        }
+        return Collections.enumeration(records);
     }
 
     /**
@@ -1707,8 +1679,6 @@ public class CertificateRepository extends Repository {
      */
     public Enumeration<CertRecord> getValidNotPublishedCertificates(String from, String to)
             throws EBaseException {
-        Enumeration<CertRecord> e = null;
-
         Date now = new Date();
         String ldapfilter = "(&(";
 
@@ -1727,12 +1697,12 @@ public class CertificateRepository extends Repository {
                 CertRecord.META_LDAPPUBLISH +
                 ":true)))";
 
-        CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
-        int size = list.getSize();
-
-        e = list.getCertRecords(0, size - 1);
-
-        return e;
+        RecordPagedList<CertRecord> certRecords = findPagedCertRecords(ldapfilter, null, "serialno");
+        ArrayList<CertRecord> records = new ArrayList<>();
+        for(CertRecord rec: certRecords) {
+            records.add(rec);
+        }
+        return Collections.enumeration(records);
     }
 
     /**
@@ -1741,8 +1711,6 @@ public class CertificateRepository extends Repository {
      */
     public Enumeration<CertRecord> getAllValidNotPublishedCertificates()
             throws EBaseException {
-        Enumeration<CertRecord> e = null;
-
         Date now = new Date();
         String ldapfilter = "(&(!(" + CertRecord.ATTR_REVO_INFO + "=*))(" +
                 CertRecord.ATTR_X509CERT + "." +
@@ -1754,12 +1722,12 @@ public class CertificateRepository extends Repository {
                 "certMetainfo=" +
                 CertRecord.META_LDAPPUBLISH +
                 ":true)))";
-        CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
-        int size = list.getSize();
-
-        e = list.getCertRecords(0, size - 1);
-
-        return e;
+        RecordPagedList<CertRecord> certRecords = findPagedCertRecords(ldapfilter, null, "serialno");
+        ArrayList<CertRecord> records = new ArrayList<>();
+        for(CertRecord rec: certRecords) {
+            records.add(rec);
+        }
+        return Collections.enumeration(records);
     }
 
     /**
@@ -1773,8 +1741,6 @@ public class CertificateRepository extends Repository {
     public Enumeration<CertRecord> getExpiredCertificates(String from, String to)
             throws EBaseException {
 
-        Enumeration<CertRecord> e = null;
-
         Date now = new Date();
         String ldapfilter = "(&(";
 
@@ -1785,12 +1751,12 @@ public class CertificateRepository extends Repository {
         ldapfilter += "!(" + CertRecord.ATTR_X509CERT + "." +
                 CertificateValidity.NOT_AFTER + ">=" +
                 DateMapper.dateToDB(now) + ")))";
-
-        CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
-        int size = list.getSize();
-
-        e = list.getCertRecords(0, size - 1);
-        return e;
+        RecordPagedList<CertRecord> certRecords = findPagedCertRecords(ldapfilter, null, "serialno");
+        ArrayList<CertRecord> records = new ArrayList<>();
+        for(CertRecord rec: certRecords) {
+            records.add(rec);
+        }
+        return Collections.enumeration(records);
     }
 
     /**
@@ -1798,20 +1764,17 @@ public class CertificateRepository extends Repository {
      */
     public Enumeration<CertRecord> getAllExpiredCertificates()
             throws EBaseException {
-
-        Enumeration<CertRecord> e = null;
-
         Date now = new Date();
         String ldapfilter = "(!(" + CertRecord.ATTR_X509CERT + "." +
                 CertificateValidity.NOT_AFTER + ">=" +
                 DateMapper.dateToDB(now) + "))";
 
-        CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
-        int size = list.getSize();
-
-        e = list.getCertRecords(0, size - 1);
-
-        return e;
+        RecordPagedList<CertRecord> certRecords = findPagedCertRecords(ldapfilter, null, "serialno");
+        ArrayList<CertRecord> records = new ArrayList<>();
+        for(CertRecord rec: certRecords) {
+            records.add(rec);
+        }
+        return Collections.enumeration(records);
     }
 
     /**
@@ -1824,9 +1787,6 @@ public class CertificateRepository extends Repository {
      */
     public Enumeration<CertRecord> getExpiredPublishedCertificates(String from, String to)
             throws EBaseException {
-
-        Enumeration<CertRecord> e = null;
-
         Date now = new Date();
         String ldapfilter = "(&(";
 
@@ -1842,12 +1802,12 @@ public class CertificateRepository extends Repository {
                 CertRecord.META_LDAPPUBLISH +
                 ":true))";
 
-        CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
-        int size = list.getSize();
-
-        e = list.getCertRecords(0, size - 1);
-
-        return e;
+        RecordPagedList<CertRecord> certRecords = findPagedCertRecords(ldapfilter, null, "serialno");
+        ArrayList<CertRecord> records = new ArrayList<>();
+        for(CertRecord rec: certRecords) {
+            records.add(rec);
+        }
+        return Collections.enumeration(records);
     }
 
     /**
@@ -1855,8 +1815,6 @@ public class CertificateRepository extends Repository {
      */
     public Enumeration<CertRecord> getAllExpiredPublishedCertificates()
             throws EBaseException {
-
-        Enumeration<CertRecord> e = null;
 
         Date now = new Date();
         String ldapfilter = "(&";
@@ -1868,12 +1826,12 @@ public class CertificateRepository extends Repository {
                 CertRecord.META_LDAPPUBLISH +
                 ":true))";
 
-        CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
-        int size = list.getSize();
-
-        e = list.getCertRecords(0, size - 1);
-
-        return e;
+        RecordPagedList<CertRecord> certRecords = findPagedCertRecords(ldapfilter, null, "serialno");
+        ArrayList<CertRecord> records = new ArrayList<>();
+        for(CertRecord rec: certRecords) {
+            records.add(rec);
+        }
+        return Collections.enumeration(records);
     }
 
     /**
@@ -1984,8 +1942,6 @@ public class CertificateRepository extends Repository {
     public Enumeration<CertRecord> getRevokedCertificates(String from, String to)
             throws EBaseException {
 
-        Enumeration<CertRecord> e = null;
-
         String ldapfilter = "(&(" + CertRecord.ATTR_REVO_INFO + "=*)";
 
         if (from != null && from.length() > 0)
@@ -1994,11 +1950,12 @@ public class CertificateRepository extends Repository {
             ldapfilter += "(" + CertRecord.ATTR_ID + "<=" + to + ")";
         ldapfilter += ")";
 
-        CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
-        int size = list.getSize();
-
-        e = list.getCertRecords(0, size - 1);
-        return e;
+        RecordPagedList<CertRecord> certRecords = findPagedCertRecords(ldapfilter, null, "serialno");
+        ArrayList<CertRecord> records = new ArrayList<>();
+        for(CertRecord rec: certRecords) {
+            records.add(rec);
+        }
+        return Collections.enumeration(records);
     }
 
     /**
@@ -2010,17 +1967,15 @@ public class CertificateRepository extends Repository {
      */
     public Enumeration<CertRecord> getAllRevokedCertificates()
             throws EBaseException {
-        Enumeration<CertRecord> e = null;
-        // index is setup for this filter
         String ldapfilter = "(|(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED + ")("
                 + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED_EXPIRED + "))";
 
-        CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
-        int size = list.getSize();
-
-        e = list.getCertRecords(0, size - 1);
-
-        return e;
+        RecordPagedList<CertRecord> certRecords = findPagedCertRecords(ldapfilter, null, "serialno");
+        ArrayList<CertRecord> records = new ArrayList<>();
+        for(CertRecord rec: certRecords) {
+            records.add(rec);
+        }
+        return Collections.enumeration(records);
     }
 
     /**
@@ -2033,8 +1988,6 @@ public class CertificateRepository extends Repository {
      */
     public Enumeration<CertRecord> getRevokedPublishedCertificates(String from, String to)
             throws EBaseException {
-        Enumeration<CertRecord> e = null;
-
         String ldapfilter = "(&(" + CertRecord.ATTR_REVO_INFO + "=*)";
 
         if (from != null && from.length() > 0)
@@ -2045,11 +1998,12 @@ public class CertificateRepository extends Repository {
                 CertRecord.META_LDAPPUBLISH +
                 ":true))";
 
-        CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
-        int size = list.getSize();
-
-        e = list.getCertRecords(0, size - 1);
-        return e;
+        RecordPagedList<CertRecord> certRecords = findPagedCertRecords(ldapfilter, null, "serialno");
+        ArrayList<CertRecord> records = new ArrayList<>();
+        for(CertRecord rec: certRecords) {
+            records.add(rec);
+        }
+        return Collections.enumeration(records);
     }
 
     /**
@@ -2059,8 +2013,6 @@ public class CertificateRepository extends Repository {
     public Enumeration<CertRecord> getAllRevokedPublishedCertificates()
             throws EBaseException {
 
-        Enumeration<CertRecord> e = null;
-        // index is setup for this filter
         String ldapfilter = "(&(|(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED + ")("
                 + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED_EXPIRED + "))";
 
@@ -2068,11 +2020,12 @@ public class CertificateRepository extends Repository {
                 CertRecord.META_LDAPPUBLISH +
                 ":true))";
 
-        CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
-        int size = list.getSize();
-
-        e = list.getCertRecords(0, size - 1);
-        return e;
+        RecordPagedList<CertRecord> certRecords = findPagedCertRecords(ldapfilter, null, "serialno");
+        ArrayList<CertRecord> records = new ArrayList<>();
+        for(CertRecord rec: certRecords) {
+            records.add(rec);
+        }
+        return Collections.enumeration(records);
     }
 
     /**
@@ -2084,22 +2037,20 @@ public class CertificateRepository extends Repository {
      */
     public Enumeration<CertRecord> getRevokedCertificates(Date asOfDate)
             throws EBaseException {
-
-        Enumeration<CertRecord> e = null;
-
         String ldapfilter = "(&(" +
                 CertRecord.ATTR_REVO_INFO + "=*)(" + CertRecord.ATTR_X509CERT +
                 "." + CertificateValidity.NOT_AFTER + " >= " +
                 DateMapper.dateToDB(asOfDate) + "))";
-        CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
-        int size = list.getSize();
-
-        e = list.getCertRecords(0, size - 1);
-        return e;
+        RecordPagedList<CertRecord> certRecords = findPagedCertRecords(ldapfilter, null, "serialno");
+        ArrayList<CertRecord> records = new ArrayList<>();
+        for(CertRecord rec: certRecords) {
+            records.add(rec);
+        }
+        return Collections.enumeration(records);
     }
 
     /**
-     * Retrieves all revoked but not expired certificates.
+     * Retrieves all revoked  certificates.
      *
      * @return a list of revoked certificates
      * @exception EBaseException failed to search
@@ -2107,14 +2058,14 @@ public class CertificateRepository extends Repository {
     public Enumeration<CertRecord> getAllRevokedNonExpiredCertificates()
             throws EBaseException {
 
-        Enumeration<CertRecord> e = null;
-        String ldapfilter = "(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED + ")"; // index is setup for this filter
+        String ldapfilter = "(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED + ")";
 
-        CertRecordList list = findCertRecordsInList(ldapfilter, null, "serialno", 10);
-        int size = list.getSize();
-
-        e = list.getCertRecords(0, size - 1);
-        return e;
+        RecordPagedList<CertRecord> certRecords = findPagedCertRecords(ldapfilter, null, "serialno");
+        ArrayList<CertRecord> records = new ArrayList<>();
+        for(CertRecord rec: certRecords) {
+            records.add(rec);
+        }
+        return Collections.enumeration(records);
     }
 
     LDAPSearchResults searchForModifiedCertificateRecords(DBSSession session) throws EBaseException {
