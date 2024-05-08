@@ -5,9 +5,22 @@
 # - do not create security domain
 # - support existing subsystem user
 
+# Allow the owner of the container (who might not be in the root group)
+# to manage the config and log files.
+umask 000
+
 echo "################################################################################"
+
+echo "INFO: Creating /data/conf"
 mkdir -p /data/conf
+chown -Rf pkiuser:root /data/conf
+
+echo "################################################################################"
+
+echo "INFO: Creating /data/logs"
 mkdir -p /data/logs
+chown -Rf pkiuser:root /data/logs
+
 echo "################################################################################"
 
 if [ -f /certs/server.p12 ]
@@ -318,6 +331,7 @@ pkispawn \
     -s CA \
     -D pki_group=root \
     -D pki_ds_url=ldap://ds.example.com:3389 \
+    -D pki_ds_database=userroot \
     -D pki_ds_setup=False \
     -D pki_skip_ds_verify=True \
     -D pki_share_db=True \
@@ -348,4 +362,15 @@ pki-server ca-config-set ca.authorityMonitor.enable false
 echo "################################################################################"
 echo "INFO: Starting PKI CA"
 
-pki-server run --as-current-user
+if [ "$UID" = "0" ]; then
+    # In Docker/Podman the server runs as pkiuser (UID=17) that
+    # belongs to the root group (GID=0).
+    pki-server run
+
+else
+    # In OpenShift the server runs as an OpenShift-assigned user
+    # (with a random UID) that belongs to the root group (GID=0).
+    #
+    # https://www.redhat.com/en/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
+    pki-server run --as-current-user
+fi
