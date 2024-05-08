@@ -148,7 +148,7 @@ public class UniqueKeyConstraint extends EnrollConstraint {
             byte[] pub = key.getEncoded();
             String pubS = escapeBinaryData(pub);
             String filter = "(" + CertRecord.ATTR_X509CERT_PUBLIC_KEY_DATA + "=" + pubS + ")";
-            String[] attrs = { CertRecord.ATTR_ID };
+            String[] attrs = { CertRecord.ATTR_ID,  "objectclass"};
             list = cr.findPagedCertRecords(filter, attrs, null);
             certRecIterator = list.iterator();
         } catch (Exception e) {
