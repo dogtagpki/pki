@@ -3687,8 +3687,15 @@ class PKIDeployer:
             logger.info('Checking %s cert in %s', nickname, client_nssdb.directory)
             cert_info = client_nssdb.get_cert_info(nickname)
 
+            # If the admin cert doesn't exist in the client NSS database and the admin
+            # PKCS #12 file is specified and not empty, import the PKCS #12 file.
+            # This check is necessary since IPA specifies an empty admin PKCS #12 file:
+            # https://github.com/freeipa/freeipa/blob/master/ipaserver/install/krainstance.py
+
             pkcs12_file = self.mdict['pki_client_admin_cert_p12']
-            if not cert_info and pkcs12_file and os.path.exists(pkcs12_file):
+            if not cert_info and pkcs12_file \
+                    and os.path.exists(pkcs12_file) \
+                    and os.path.getsize(pkcs12_file) > 0:
 
                 logger.info('Importing admin cert from %s', pkcs12_file)
                 pkcs12_password = self.mdict['pki_client_pkcs12_password']
