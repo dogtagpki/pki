@@ -541,7 +541,7 @@ public class CertificateRepository extends Repository {
             return null;
 
         }
-
+        getInRangeCount(null, serial_low_bound, serial_upper_bound);
         EngineConfig cs = engine.getConfig();
 
         mEnableRandomSerialNumbers = mDBConfig.getBoolean(PROP_ENABLE_RANDOM_SERIAL_NUMBERS, false);
@@ -585,52 +585,35 @@ public class CertificateRepository extends Repository {
         }
         logger.debug("CertificateRepository: getLastSerialNumberInRange  mEnableRandomSerialNumbers="+mEnableRandomSerialNumbers);
 
-        String ldapfilter = "(&("+CertRecord.ATTR_CERT_STATUS+"=*"+")("+CertRecord.ATTR_ID+">="+serial_low_bound+"))";
+        String ldapfilter = "(&("+CertRecord.ATTR_CERT_STATUS+"=*"+")("+CertRecord.ATTR_ID+"<="+serial_upper_bound+"))";
 
         String[] attrs = {CertRecord.ATTR_ID, "objectclass"};
 
-        RecordPagedList<CertRecord> certRecords = findPagedCertRecords(ldapfilter, attrs, "serialno");
+        RecordPagedList<CertRecord> certRecords = findPagedCertRecords(ldapfilter, attrs, "-serialno");
         Iterator<CertRecord> iRecs = certRecords.iterator();
 
 
-        if (!iRecs.hasNext()) {
-            logger.debug("CertificateRepository:getLastSerialNumberInRange: index may be empty");
-
-            BigInteger ret = new BigInteger(serial_low_bound.toString(10));
-
-            ret = ret.subtract(BigInteger.ONE);
-            logger.debug("CertificateRepository:getLastCertRecordSerialNo: returning " + ret);
-            return ret;
-        }
-
-        CertRecord curRec = iRecs.next();
-
-        while (iRecs.hasNext()) {
-            CertRecord followRec = iRecs.next();
-
-            BigInteger curSerial = curRec.getSerialNumber();
-            BigInteger followSerial = followRec.getSerialNumber();
-
-            if (followSerial.compareTo(serial_upper_bound) > 0 &&
-                    curSerial.compareTo(serial_upper_bound) < 0) {
-                logger.debug("getLastSerialNumberInRange returning: " + curSerial);
+        if (iRecs.hasNext()) {
+            CertRecord firstRec = iRecs.next();
+            BigInteger serial = firstRec.getSerialNumber();
+            if (serial.compareTo(serial_low_bound) >= 0 &&
+                    serial.compareTo(serial_upper_bound) <= 0) {
+                logger.debug("getLastSerialNumberInRange returning: " + serial);
                 if (modeChange && mEnableRandomSerialNumbers) {
-                    mCounter = curSerial.subtract(serial_low_bound).add(BigInteger.ONE);
+                    mCounter = serial.subtract(serial_low_bound).add(BigInteger.ONE);
                     logger.debug("getLastSerialNumberInRange mCounter: " + mCounter);
                 }
-                return curSerial;
+                return serial;
             }
-            curRec = followRec;
         }
-
-        BigInteger serial = curRec.getSerialNumber();
-
-        logger.debug("CertificateRepository:getLastCertRecordSerialNo: returning " + serial);
+        BigInteger ret = new BigInteger(serial_low_bound.toString(10));
+        ret = ret.subtract(BigInteger.ONE);
+        logger.debug("CertificateRepository:getLastCertRecordSerialNo: returning " + ret);
         if (modeChange && mEnableRandomSerialNumbers) {
-            mCounter = serial.subtract(serial_low_bound).add(BigInteger.ONE);
+            mCounter = BigInteger.ZERO;
             logger.debug("getLastSerialNumberInRange mCounter: " + mCounter);
         }
-        return serial;
+        return ret;
 
     }
 
@@ -1273,9 +1256,9 @@ public class CertificateRepository extends Repository {
      * @param pageSize page size
      * @return a list of certificates
      * @exception EBaseException failed to search
-     * @deprecated As of release v11.6.0, replaced by {@link #findPagedCertRecords(String, String[], String)}
+     * @deprecated As of release 11.6.0, replaced by {@link #findPagedCertRecords(String, String[], String)}
      */
-    @Deprecated(since = "v11.6.0", forRemoval = true)
+    @Deprecated(since = "11.6.0", forRemoval = true)
     public CertRecordList findCertRecordsInList(String filter,
             String[] attrs, int pageSize) throws EBaseException {
         return findCertRecordsInList(filter, attrs, CertRecord.ATTR_ID,
@@ -1292,9 +1275,9 @@ public class CertificateRepository extends Repository {
      * @param pageSize page size
      * @return a list of certificates
      * @exception EBaseException failed to search
-     * @deprecated As of release v11.6.0, replaced by {@link #findPagedCertRecords(String, String[], String)}
+     * @deprecated As of release 11.6.0, replaced by {@link #findPagedCertRecords(String, String[], String)}
      */
-    @Deprecated(since = "v11.6.0", forRemoval = true)
+    @Deprecated(since = "11.6.0", forRemoval = true)
     public CertRecordList findCertRecordsInList(String filter,
             String[] attrs, String sortKey, int pageSize)
             throws EBaseException {
@@ -1324,9 +1307,9 @@ public class CertificateRepository extends Repository {
      * @param pageSize page size
      * @return a list of certificates
      * @exception EBaseException failed to search
-     * @deprecated As of release v11.6.0, replaced by {@link #findPagedCertRecords(String, String[], String)}
+     * @deprecated As of release 11.6.0, replaced by {@link #findPagedCertRecords(String, String[], String)}
      */
-    @Deprecated(since = "v11.6.0", forRemoval = true)
+    @Deprecated(since = "11.6.0", forRemoval = true)
     public CertRecordList findCertRecordsInList(String filter,
             String[] attrs, String jumpTo, String sortKey, int pageSize)
             throws EBaseException {
@@ -1346,9 +1329,9 @@ public class CertificateRepository extends Repository {
      * @param pageSize page size
      * @return a list of certificates
      * @exception EBaseException failed to search
-     * @deprecated As of release v11.6.0, replaced by {@link #findPagedCertRecords(String, String[], String)}
+     * @deprecated As of release 11.6.0, replaced by {@link #findPagedCertRecords(String, String[], String)}
      */
-    @Deprecated(since = "v11.6.0", forRemoval = true)
+    @Deprecated(since = "11.6.0", forRemoval = true)
     public CertRecordList findCertRecordsInList(String filter,
             String[] attrs, String jumpTo, boolean hardJumpTo,
                          String sortKey, int pageSize)
@@ -1396,9 +1379,9 @@ public class CertificateRepository extends Repository {
      * @param pageSize page size
      * @return a list of certificates
      * @exception EBaseException failed to search
-     * @deprecated As of release v11.6.0, replaced by {@link #findPagedCertRecords(String, String[], String)}
+     * @deprecated As of release 11.6.0, replaced by {@link #findPagedCertRecords(String, String[], String)}
      */
-    @Deprecated(since = "v11.6.0", forRemoval = true)
+    @Deprecated(since = "11.6.0", forRemoval = true)
     public CertRecordList findCertRecordsInListRawJumpto(String filter,
             String[] attrs, String jumpTo, String sortKey, int pageSize)
             throws EBaseException {
@@ -1620,11 +1603,11 @@ public class CertificateRepository extends Repository {
             if(ldapfilter.isEmpty()) {
                 ldapfilter.append("(&");
             }
-            ldapfilter.append("(")
+            ldapfilter.append("(!(")
                 .append(CertRecord.ATTR_ID)
-                .append("<")
+                .append(">=")
                 .append(to)
-                .append(")");
+                .append("))");
         }
         ldapfilter.append("(")
             .append(CertRecord.ATTR_CERT_STATUS)
