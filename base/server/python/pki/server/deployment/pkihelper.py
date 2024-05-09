@@ -3245,23 +3245,24 @@ class TPSConnector:
                    "--host", tpshost,
                    "--port", str(tpsport)]
 
-        output = subprocess.check_output(command,
+        try:
+            output = subprocess.check_output(command,
                                          stderr=subprocess.STDOUT,
                                          shell=False)
-        output = output.decode('utf-8')
-        error = re.findall("ClientResponseFailure:(.*?)", output)
-        if error:
+            output = output.decode('utf-8')
+
+        except subprocess.CalledProcessError:
             config.pki_log.warning(
                 log.PKIHELPER_TPSCONNECTOR_UPDATE_FAILURE_2,
                 str(tpshost),
                 str(tpsport),
                 extra=config.PKI_INDENTATION_LEVEL_2)
+            command[12] = "****"
             config.pki_log.error(
-                log.PKI_SUBPROCESS_ERROR_1, output,
+                log.PKI_SUBPROCESS_ERROR_1, command,
                 extra=config.PKI_INDENTATION_LEVEL_2)
-        if critical_failure:
-            raise Exception(log.PKI_SUBPROCESS_ERROR_1 % output)
-
+            if critical_failure:
+                raise Exception(log.PKI_SUBPROCESS_ERROR_1 % output)
 
 class SecurityDomain:
     """PKI Deployment Security Domain Class"""
