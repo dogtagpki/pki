@@ -12,6 +12,7 @@ import javax.net.ssl.KeyManagerFactory;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
@@ -56,7 +57,7 @@ public class NSSCertExportCLI extends CommandCLI {
         String path = null;
 
         if (cmdArgs.length < 1) {
-            throw new Exception("Missing required positional argument: nickname");
+            throw new CLIException("Missing required positional argument: nickname");
         }
         nickname = cmdArgs[0];
 
@@ -74,11 +75,11 @@ public class NSSCertExportCLI extends CommandCLI {
         boolean chain = cmd.hasOption("with-chain");
 
         if (!format.equals("PEM") && !format.equals("DER") && !format.equals("RAW")) {
-            throw new Exception("Unknown type of output format: " + format);
+            throw new CLIException("Unknown type of output format: " + format);
         }
 
         if (chain && format.equals("DER")) {
-            throw new Exception("Unable to write chain of DER-encoded certificates; use PEM instead.");
+            throw new CLIException("Unable to write chain of DER-encoded certificates; use PEM instead.");
         }
 
         MainCLI mainCLI = (MainCLI) getRoot();
@@ -91,10 +92,15 @@ public class NSSCertExportCLI extends CommandCLI {
 
         if (chain) {
             certs = km.getCertificateChain(nickname);
+            if (certs == null) {
+                throw new CLIException("Certificate chain not found: " + nickname);
+            }
         } else {
-            certs = new X509Certificate[] {
-                (PK11Cert) km.getCertificate(nickname)
-            };
+            PK11Cert cert = (PK11Cert) km.getCertificate(nickname);
+            if (cert == null) {
+                throw new CLIException("Certificate not found: " + nickname);
+            }
+            certs = new X509Certificate[] { cert };
         }
 
         byte[] output = null;
@@ -127,7 +133,7 @@ public class NSSCertExportCLI extends CommandCLI {
             }
 
         } else {
-            throw new Exception("Unsupported format: " + format);
+            throw new CLIException("Unsupported format: " + format);
         }
 
         if (path == null) {
