@@ -191,12 +191,6 @@ class PKISubsystem(object):
         if 'instanceId' not in self.config:
             self.set_config('instanceId', self.instance.name)
 
-        if 'passwordClass' not in self.config:
-            self.set_config('passwordClass', 'com.netscape.cmsutil.password.PlainPasswordFile')
-
-        if 'passwordFile' not in self.config:
-            self.set_config('passwordFile', self.instance.password_conf)
-
         logger.info('Storing subsystem config: %s', self.cs_conf)
         self.instance.store_properties(self.cs_conf, self.config)
 

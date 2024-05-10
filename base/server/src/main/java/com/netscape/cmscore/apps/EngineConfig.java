@@ -5,6 +5,8 @@
 //
 package com.netscape.cmscore.apps;
 
+import java.io.File;
+
 import org.dogtagpki.server.authentication.AuthenticationConfig;
 import org.dogtagpki.server.authorization.AuthorizationConfig;
 
@@ -20,6 +22,7 @@ import com.netscape.cmscore.logging.LoggingConfig;
 import com.netscape.cmscore.security.JssSubsystemConfig;
 import com.netscape.cmscore.usrgrp.UGSubsystemConfig;
 import com.netscape.cmsutil.password.PasswordStoreConfig;
+import com.netscape.cmsutil.password.PlainPasswordFile;
 
 public class EngineConfig extends ConfigStore {
 
@@ -54,8 +57,15 @@ public class EngineConfig extends ConfigStore {
         putString("instanceId", instanceID);
     }
 
+    public String getPasswordClass() throws EBaseException {
+        return getString("passwordClass", PlainPasswordFile.class.getName());
+    }
+
     public String getPasswordFile() throws EBaseException {
-        return getString("passwordFile", null);
+        String instanceDir = CMS.getInstanceDir();
+        String confDir = instanceDir + File.separator + "conf";
+        String defaultPasswordFile = confDir + File.separator + "password.conf";
+        return getString("passwordFile", defaultPasswordFile);
     }
 
     public void setPasswordFile(String passwordFile) throws EBaseException {
@@ -126,7 +136,7 @@ public class EngineConfig extends ConfigStore {
 
         PasswordStoreConfig config = new PasswordStoreConfig();
         config.setID(getString("instanceId"));
-        config.setClassName(getString("passwordClass"));
+        config.setClassName(getPasswordClass());
         config.setFileName(getPasswordFile());
 
         return config;
