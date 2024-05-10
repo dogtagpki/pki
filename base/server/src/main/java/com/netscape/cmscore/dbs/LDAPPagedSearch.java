@@ -79,22 +79,19 @@ public class LDAPPagedSearch<E extends IDBObj>  extends DBPagedSearch<E> {
     public List<E> getPage(int size)
             throws EBaseException {
         try {
-            logger.info("LDAPSession.continuousPagedSearch(): Searching {}  for {}", base, filter);
-
             LDAPSearchConstraints cons = new LDAPSearchConstraints();
-            LDAPPagedResultsControl pagecon;
+            LDAPPagedResultsControl pageCtrl = null;
+            LDAPSortControl sortCtrl = null;
             String[] ldapattrs = null;
             if (attrs != null) {
                 ldapattrs = registry.getLDAPAttributes(attrs);
             }
-
             if(sortKey != null) {
                 LDAPSortKey sortOrder = new LDAPSortKey( sortKey );
-                LDAPSortControl sortCtrl = new LDAPSortControl(sortOrder,true);
-                cons.setServerControls( sortCtrl );
+                sortCtrl = new LDAPSortControl(sortOrder,true);
             }
             String ldapfilter = registry.getFilter(filter);
-
+            logger.info("LDAPSession.continuousPagedSearch(): Searching {}  for {}", base, ldapfilter);
             byte[] cookie = null;
             ArrayList<E> entries = new ArrayList<>();
             if (res != null) {
@@ -109,11 +106,16 @@ public class LDAPPagedSearch<E extends IDBObj>  extends DBPagedSearch<E> {
                 }
             }
             if (res == null) {
-                pagecon = new LDAPPagedResultsControl(false, Math.min(size, LDAPSession.MAX_PAGED_SEARCH_SIZE));
+                pageCtrl = new LDAPPagedResultsControl(false, Math.min(size, LDAPSession.MAX_PAGED_SEARCH_SIZE));
             } else {
-                pagecon = new LDAPPagedResultsControl(false, Math.min(size, LDAPSession.MAX_PAGED_SEARCH_SIZE), cookie);
+                pageCtrl = new LDAPPagedResultsControl(false, Math.min(size, LDAPSession.MAX_PAGED_SEARCH_SIZE), cookie);
             }
-            cons.setServerControls(pagecon);
+            if (sortCtrl != null) {
+                LDAPControl[] controls = {sortCtrl, pageCtrl};
+                cons.setServerControls(controls);
+            } else {
+                cons.setServerControls(pageCtrl);
+            }
             res = conn.search(base,
                     LDAPv3.SCOPE_ONE, ldapfilter, ldapattrs, false, cons);
             DBSearchResults sr = new DBSearchResults(registry, res);
