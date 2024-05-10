@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.netscape.certsrv.group.GroupMemberCollection;
 import com.netscape.certsrv.group.GroupMemberData;
 import com.netscape.certsrv.group.GroupNotFoundException;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
@@ -68,7 +69,7 @@ public class SubsystemGroupMemberFindCLI extends SubsystemCLI {
         PKISocketConfig socketConfig = cs.getSocketConfig();
 
         PasswordStoreConfig psc = cs.getPasswordStoreConfig();
-        PasswordStore passwordStore = PasswordStore.create(psc);
+        PasswordStore passwordStore = CMS.createPasswordStore(psc);
 
         UGSubsystem ugSubsystem = new UGSubsystem();
 

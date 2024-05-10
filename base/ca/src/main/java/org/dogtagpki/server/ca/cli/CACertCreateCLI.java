@@ -190,7 +190,7 @@ public class CACertCreateCLI extends CommandCLI {
         PKISocketConfig socketConfig = cs.getSocketConfig();
 
         PasswordStoreConfig psc = cs.getPasswordStoreConfig();
-        PasswordStore passwordStore = PasswordStore.create(psc);
+        PasswordStore passwordStore = CMS.createPasswordStore(psc);
 
         SecureRandomConfig secureRandomConfig = cs.getJssSubsystemConfig().getSecureRandomConfig();
         SecureRandom secureRandom = SecureRandomFactory.create(secureRandomConfig);

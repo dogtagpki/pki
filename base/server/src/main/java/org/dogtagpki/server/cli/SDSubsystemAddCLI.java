@@ -112,7 +112,7 @@ public class SDSubsystemAddCLI extends CommandCLI {
         LDAPConfig ldapConfig = cs.getInternalDBConfig();
 
         PasswordStoreConfig psc = cs.getPasswordStoreConfig();
-        PasswordStore passwordStore = PasswordStore.create(psc);
+        PasswordStore passwordStore = CMS.createPasswordStore(psc);
 
         LDAPConnectionConfig connConfig = ldapConfig.getConnectionConfig();
         LDAPAuthenticationConfig authConfig = ldapConfig.getAuthenticationConfig();

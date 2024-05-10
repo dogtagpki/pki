@@ -169,7 +169,7 @@ public class CACertRequestImportCLI extends CommandCLI {
         PKISocketConfig socketConfig = cs.getSocketConfig();
 
         PasswordStoreConfig psc = cs.getPasswordStoreConfig();
-        PasswordStore passwordStore = PasswordStore.create(psc);
+        PasswordStore passwordStore = CMS.createPasswordStore(psc);
 
         String requestType = cmd.getOptionValue("type", "pkcs10");
 

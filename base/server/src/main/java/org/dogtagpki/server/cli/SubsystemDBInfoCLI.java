@@ -26,6 +26,7 @@ import org.dogtagpki.cli.CLI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
@@ -76,7 +77,7 @@ public class SubsystemDBInfoCLI extends SubsystemCLI {
         LDAPConfig ldapConfig = cs.getInternalDBConfig();
 
         PasswordStoreConfig psc = cs.getPasswordStoreConfig();
-        PasswordStore passwordStore = PasswordStore.create(psc);
+        PasswordStore passwordStore = CMS.createPasswordStore(psc);
 
         LDAPConnectionConfig connConfig = ldapConfig.getConnectionConfig();
 

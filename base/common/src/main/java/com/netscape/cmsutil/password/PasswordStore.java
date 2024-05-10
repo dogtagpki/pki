@@ -23,46 +23,11 @@ import java.util.Enumeration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.cmsutil.util.NuxwdogUtil;
-
 public abstract class PasswordStore {
 
     public static Logger logger = LoggerFactory.getLogger(PasswordStore.class);
 
     protected String id;
-
-    /**
-     * Construct a password store.
-     *
-     * If the process was started by Nuxwdog return a NuxwdogPasswordStore.
-     * Otherwise the class name is read from the "passwordClass" key in the
-     * map, an instance is constructed, its init() method is called with the
-     * value of the "passwordFile" key in the map, and the instance is
-     * returned.
-     */
-    public static PasswordStore create(PasswordStoreConfig psc) throws Exception {
-
-        String className;
-        String fileName;
-
-        if (NuxwdogUtil.startedByNuxwdog()) {
-            className = NuxwdogPasswordStore.class.getName();
-            fileName = null;
-
-        } else {
-            className = psc.getClassName();
-            fileName = psc.getFileName();
-        }
-
-        Class<? extends PasswordStore> clazz = Class.forName(className)
-                .asSubclass(PasswordStore.class);
-
-        PasswordStore ps = clazz.getDeclaredConstructor().newInstance();
-        ps.setId(psc.getID());
-        ps.init(fileName);
-
-        return ps;
-    }
 
     public String getId() {
         return id;

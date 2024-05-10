@@ -27,6 +27,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.SessionContext;
+import com.netscape.cmsutil.password.NuxwdogPasswordStore;
+import com.netscape.cmsutil.password.PasswordStore;
+import com.netscape.cmsutil.password.PasswordStoreConfig;
+import com.netscape.cmsutil.util.NuxwdogUtil;
 
 /**
  * This represents the CMS server. Plugins can access other
@@ -200,5 +204,38 @@ public final class CMS {
                 name.equalsIgnoreCase("drm_trans_desKey") ||
                 name.equalsIgnoreCase("cert_request") ||
 		name.equalsIgnoreCase("drm_trans_aesKey"));
+    }
+
+    /**
+     * Construct a password store.
+     *
+     * If the process was started by Nuxwdog return a NuxwdogPasswordStore.
+     * Otherwise the class name is read from the "passwordClass" key in the
+     * map, an instance is constructed, its init() method is called with the
+     * value of the "passwordFile" key in the map, and the instance is
+     * returned.
+     */
+    public static PasswordStore createPasswordStore(PasswordStoreConfig psc) throws Exception {
+
+        String className;
+        String fileName;
+
+        if (NuxwdogUtil.startedByNuxwdog()) {
+            className = NuxwdogPasswordStore.class.getName();
+            fileName = null;
+
+        } else {
+            className = psc.getClassName();
+            fileName = psc.getFileName();
+        }
+
+        Class<? extends PasswordStore> clazz = Class.forName(className)
+                .asSubclass(PasswordStore.class);
+
+        PasswordStore ps = clazz.getDeclaredConstructor().newInstance();
+        ps.setId(psc.getID());
+        ps.init(fileName);
+
+        return ps;
     }
 }

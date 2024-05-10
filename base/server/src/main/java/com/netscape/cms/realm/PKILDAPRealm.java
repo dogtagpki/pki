@@ -17,6 +17,7 @@ import org.apache.catalina.LifecycleException;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.FileConfigStorage;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
@@ -138,7 +139,7 @@ public class PKILDAPRealm extends RealmCommon {
                 cs = new EngineConfig(new FileConfigStorage(configFile));
                 cs.load();
 
-                ps = PasswordStore.create(cs.getPasswordStoreConfig());
+                ps = CMS.createPasswordStore(cs.getPasswordStoreConfig());
             } catch (Exception e) {
                 throw new LifecycleException("Cannot load config file " + configFile, e);
             }

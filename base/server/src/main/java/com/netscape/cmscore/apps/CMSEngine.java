@@ -408,7 +408,7 @@ public class CMSEngine {
         if (mPasswordStore == null) {
             try {
                 PasswordStoreConfig psc = mConfig.getPasswordStoreConfig();
-                mPasswordStore = PasswordStore.create(psc);
+                mPasswordStore = CMS.createPasswordStore(psc);
             } catch (Exception e) {
                 throw new EBaseException(
                     "Failed to initialise password store: " + e.getMessage(), e);

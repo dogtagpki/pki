@@ -26,6 +26,7 @@ import org.dogtagpki.acme.ACMENonce;
 import org.dogtagpki.acme.ACMEOrder;
 import org.dogtagpki.acme.JWK;
 
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.FileConfigStorage;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
@@ -218,7 +219,7 @@ public class LDAPDatabase extends ACMEDatabase {
             cs = new EngineConfig(new FileConfigStorage(configFile));
             cs.load();
 
-            ps = PasswordStore.create(cs.getPasswordStoreConfig());
+            ps = CMS.createPasswordStore(cs.getPasswordStoreConfig());
             ldapConfig = cs.getInternalDBConfig();
         }
 

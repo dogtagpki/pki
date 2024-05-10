@@ -13,6 +13,7 @@ import org.dogtagpki.cli.CLI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.Repository.IDGenerator;
@@ -65,7 +66,7 @@ public class SubsystemRangeUpdateCLI extends SubsystemCLI {
         String baseDN = ldapConfig.getBaseDN();
 
         PasswordStoreConfig psc = cs.getPasswordStoreConfig();
-        PasswordStore passwordStore = PasswordStore.create(psc);
+        PasswordStore passwordStore = CMS.createPasswordStore(psc);
 
         LDAPConnectionConfig connConfig = ldapConfig.getConnectionConfig();
 

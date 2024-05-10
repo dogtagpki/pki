@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.cms.servlet.csadmin.LDAPConfigurator;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
@@ -56,7 +57,7 @@ public class SubsystemDBCreateCLI extends SubsystemCLI {
         logger.info("Creating database " + database);
 
         PasswordStoreConfig psc = cs.getPasswordStoreConfig();
-        PasswordStore passwordStore = PasswordStore.create(psc);
+        PasswordStore passwordStore = CMS.createPasswordStore(psc);
 
         LDAPConnectionConfig connConfig = ldapConfig.getConnectionConfig();
 
