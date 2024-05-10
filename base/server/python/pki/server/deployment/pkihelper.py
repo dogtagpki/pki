@@ -1657,8 +1657,8 @@ class TPSConnector:
                 str(tpshost),
                 str(tpsport))
             logger.error(log.PKI_SUBPROCESS_ERROR_1, output)
-        if critical_failure:
-            raise Exception(log.PKI_SUBPROCESS_ERROR_1 % output)
+            if critical_failure:
+                raise Exception(log.PKI_SUBPROCESS_ERROR_1 % output)
 
 
 class Systemd(object):
