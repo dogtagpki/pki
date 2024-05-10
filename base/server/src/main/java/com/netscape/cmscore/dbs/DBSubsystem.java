@@ -164,12 +164,6 @@ public class DBSubsystem {
      */
     public void configureExcludedLdapAttrs() throws EBaseException {
 
-        String id = engineConfig.getType().toLowerCase();
-        if (!id.equals("ca") && !id.equals("kra")) {
-            // excludedLdapAttrs is null
-            return;
-        }
-
         logger.info("DBSubsystem: Configuring excluded LDAP attributes");
 
         boolean enabled = engineConfig.getBoolean("excludedLdapAttrs.enabled", false);
