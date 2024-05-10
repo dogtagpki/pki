@@ -380,6 +380,11 @@ class PKISubsystem(object):
         cert['nickname'] = self.config.get('%s.%s.nickname' % (self.name, tag))
         cert['token'] = self.config.get('%s.%s.tokenname' % (self.name, tag))
         cert['certusage'] = self.config.get('%s.cert.%s.certusage' % (self.name, tag))
+        csr_file = self.csr_file(tag)
+        if os.path.isfile(csr_file):
+            with open(csr_file, "r", encoding='utf-8') as f:
+                request = f.read()
+            cert['request'] = pki.nssdb.convert_csr(request, 'pem', 'base64')
 
         return cert
 
