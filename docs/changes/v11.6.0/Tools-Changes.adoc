@@ -33,3 +33,8 @@ The `revoker` tool has been deprecated. Use the following commands instead:
 * `pki ca-cert-revoke`
 * `pki ca-cert-hold`
 * `pki ca-cert-release-hold`
+
+== Remove pki-server-upgrade ==
+
+The `pki-server-upgrade` was deprecated in PKI 10.7.1 so now it has been removed.
+Use `pki-server upgrade` instead.

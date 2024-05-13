@@ -321,7 +321,6 @@ install(
 install(
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/sbin/pki-server
-        ${CMAKE_CURRENT_SOURCE_DIR}/sbin/pki-server-upgrade
         ${CMAKE_CURRENT_SOURCE_DIR}/sbin/pkidestroy
         ${CMAKE_CURRENT_SOURCE_DIR}/sbin/pkispawn
     DESTINATION
