@@ -992,6 +992,22 @@ class PKIDeployer:
                 self.subsystem_type,
                 self.mdict['pki_instance_name']))
 
+    def get_key_type(self, subsystem, cert_id):
+
+        tag = cert_id
+        if cert_id == 'signing':  # for CA and OCSP
+            tag = subsystem.name + '_signing'
+
+        key_type = self.mdict['pki_%s_key_type' % tag].upper()
+
+        if key_type == 'ECC':
+            key_type = 'EC'
+
+        if key_type not in ['RSA', 'EC']:
+            raise Exception('Unsupported key type: %s' % key_type)
+
+        return key_type
+
     def init_subsystem(self, subsystem):
 
         external = self.configuration_file.external
@@ -1008,23 +1024,9 @@ class PKIDeployer:
 
         certs = subsystem.find_system_certs()
         for cert in certs:
-
-            # get CS.cfg tag and pkispawn tag
-            config_tag = cert['id']
-            deploy_tag = config_tag
-
-            if config_tag == 'signing':  # for CA and OCSP
-                deploy_tag = subsystem.name + '_signing'
-
-            key_type = self.mdict['pki_%s_key_type' % deploy_tag].upper()
-
-            if key_type == 'ECC':
-                key_type = 'EC'
-
-            if key_type not in ['RSA', 'EC']:
-                raise Exception('Unsupported key type: %s' % key_type)
-
-            subsystem.set_config('preop.cert.%s.keytype' % config_tag, key_type)
+            cert_id = cert['id']
+            key_type = self.get_key_type(subsystem, cert_id)
+            subsystem.set_config('preop.cert.%s.keytype' % cert_id, key_type)
 
         # configure SSL server cert
         if subsystem.type == 'CA' and clone or subsystem.type != 'CA':
