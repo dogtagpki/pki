@@ -1022,17 +1022,11 @@ class PKIDeployer:
             subsystem.set_config('proxy.securePort', self.mdict['pki_proxy_https_port'])
             subsystem.set_config('proxy.unsecurePort', self.mdict['pki_proxy_http_port'])
 
-        certs = subsystem.find_system_certs()
-        for cert in certs:
-            cert_id = cert['id']
-            key_type = self.get_key_type(subsystem, cert_id)
-            subsystem.set_config('preop.cert.%s.keytype' % cert_id, key_type)
-
         # configure SSL server cert
         if subsystem.type == 'CA' and clone or subsystem.type != 'CA':
 
             subsystem.set_config('preop.cert.sslserver.type', 'remote')
-            key_type = subsystem.config['preop.cert.sslserver.keytype']
+            key_type = self.get_key_type(subsystem, 'sslserver')
 
             if key_type == 'RSA':
                 profile = 'caInternalAuthServerCert'
@@ -1051,7 +1045,7 @@ class PKIDeployer:
         else:  # self.mdict['pki_security_domain_type'] == 'existing':
 
             subsystem.set_config('preop.cert.subsystem.type', 'remote')
-            key_type = subsystem.config['preop.cert.subsystem.keytype']
+            key_type = self.get_key_type(subsystem, 'subsystem')
 
             if key_type == 'RSA':
                 profile = 'caInternalAuthSubsystemCert'
@@ -2805,8 +2799,7 @@ class PKIDeployer:
             request.systemCert.signingAlgorithm = \
                 subsystem.config.get('preop.cert.signing.signingalgorithm', 'SHA256withRSA')
 
-        # key type: rsa or ecc
-        key_type = subsystem.config['preop.cert.%s.keytype' % tag]
+        key_type = self.get_key_type(subsystem, tag)
         request.systemCert.keyType = key_type
 
         if key_type == 'RSA':
@@ -3570,7 +3563,7 @@ class PKIDeployer:
         that matches the CA signing key type.
         '''
 
-        key_type = subsystem.config['preop.cert.signing.keytype']
+        key_type = self.get_key_type(subsystem, 'signing')
         logger.info('Key type: %s', key_type)
 
         algorithm = None
