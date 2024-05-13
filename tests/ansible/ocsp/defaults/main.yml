@@ -6,7 +6,7 @@ github_workspace: ../../
 
 #CA-DS
 cads_container: cads
-cads_image: pki-runner 
+cads_image: quay.io/389ds/dirsrv
 cads_hostname: cads.example.com
 cads_password: Secret.123
 
@@ -17,7 +17,7 @@ ca_hostname: ca.example.com
 
 #OCSP-DS
 ocspds_container: ocspds
-ocspds_image: pki-runner 
+ocspds_image: quay.io/389ds/dirsrv
 ocspds_hostname: ocspds.example.com
 ocspds_password: Secret.123
 

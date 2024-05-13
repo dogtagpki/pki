@@ -10,15 +10,12 @@
     image: "{{ cads_image }}"
     hostname: "{{ cads_hostname }}"
     volumes:
+      - /data
       - "{{ github_workspace }}:{{ shared_workspace }}"
-    tmpfs:
-      - /tmp
-      - /run
     state: started
     detach: true
-    privileged: true
     env:
-      SHARED="{{ shared_workspace }}"
+      DS_DM_PASSWORD={{ cads_password }}
     networks:
       - name: example
         aliases:
@@ -26,23 +23,25 @@
     ports:
       - 3389
       - 3636
-    entrypoint: /usr/sbin/init
-  register: cads
+    healthcheck:
+      test: ["CMD", "dsctl", "slapd-localhost", "healthcheck"]
+      start_period: 10s
+      timeout: 10s
+      interval: 15s
+      retries: 5
+
+- name: Wait for ca ds
+  community.docker.docker_container_info:
+    name: "{{ cads_container }}"
+  register: cads_info
+  retries: 5
+  delay: 15
+  until: cads_info.container.State.Health.Status == 'healthy'
   
 - name: Initialise CA ds
   community.docker.docker_container_exec:
     container: "{{ cads_container }}"
-    command: "{{ item }}"
-  when: cads.changed
-  loop:
-    - dnf install -y 389-ds-base
-    - dscreate create-template ds.inf
-    - sed -i -e "s/;instance_name = .*/instance_name = localhost/g" ds.inf
-    - sed -i -e "s/;port = .*/port = 3389/g" -e "s/;secure_port = .*/secure_port = 3636/g" ds.inf
-    - sed -i -e "s/;root_password = .*/root_password = {{ cads_password }} /g" ds.inf
-    - sed -i -e "s/;suffix = .*/suffix = dc=example,dc=com/g" ds.inf
-    - sed -i -e "s/;self_sign_cert = .*/self_sign_cert = True/g" ds.inf
-    - dscreate from-file ds.inf
+    command: dsconf slapd-localhost backend create --suffix dc=example,dc=com  --be-name userRoot
 
 - name: Check CA ds connection
   community.docker.docker_container_exec:
@@ -66,7 +65,6 @@
       dn: dc=pki,dc=example,dc=com
       objectClass: domain
       dc: pki
-  when: cads.changed
     
 - name: Set up CA container
   community.docker.docker_container:
@@ -116,15 +114,12 @@
     image: "{{ ocspds_image }}"
     hostname: "{{ ocspds_hostname }}"
     volumes:
+      - /data
       - "{{ github_workspace }}:{{ shared_workspace }}"
-    tmpfs:
-      - /tmp
-      - /run
     state: started
     detach: true
-    privileged: true
     env:
-      SHARED="{{ shared_workspace }}"
+      DS_DM_PASSWORD={{ ocspds_password }}
     networks:
       - name: example
         aliases:
@@ -132,23 +127,26 @@
     ports:
       - 3389
       - 3636
-    entrypoint: /usr/sbin/init
-  register: ocspds
+    healthcheck:
+      test: ["CMD", "dsctl", "slapd-localhost", "healthcheck"]
+      start_period: 10s
+      timeout: 10s
+      interval: 15s
+      retries: 5
+
+- name: Wait for ocsp ds
+  community.docker.docker_container_info:
+    name: "{{ ocspds_container }}"
+  register: ocspds_info
+  retries: 5
+  delay: 15
+  until: ocspds_info.container.State.Health.Status == 'healthy'
+
   
 - name: Initialise OCSP ds
   community.docker.docker_container_exec:
     container: "{{ ocspds_container }}"
-    command: "{{ item }}"
-  when: ocspds.changed
-  loop:
-    - dnf install -y 389-ds-base
-    - dscreate create-template ds.inf
-    - sed -i -e "s/;instance_name = .*/instance_name = localhost/g" ds.inf
-    - sed -i -e "s/;port = .*/port = 3389/g" -e "s/;secure_port = .*/secure_port = 3636/g" ds.inf
-    - sed -i -e "s/;root_password = .*/root_password = {{ ocspds_password }} /g" ds.inf
-    - sed -i -e "s/;suffix = .*/suffix = dc=example,dc=com/g" ds.inf
-    - sed -i -e "s/;self_sign_cert = .*/self_sign_cert = True/g" ds.inf
-    - dscreate from-file ds.inf
+    command: dsconf slapd-localhost backend create --suffix dc=example,dc=com  --be-name userRoot
                                                     
 - name: Check OCSP ds connection
   community.docker.docker_container_exec:
@@ -173,7 +171,6 @@
       dn: dc=pki,dc=example,dc=com
       objectClass: domain
       dc: pki
-  when: ocspds.changed
 
 - name: Set up OCSP container
   community.docker.docker_container:
@@ -490,11 +487,16 @@
     container: "{{ ocspds_container }}"
     command: "{{ item }}"
   loop:
-    - dsctl slapd-localhost stop
     - certutil -d /etc/dirsrv/slapd-localhost/ -D  -n Server-Cert
     - pk12util -i {{ shared_workspace }}/ocspds.p12 -d /etc/dirsrv/slapd-localhost/ -W {{ ocspds_password }} -k /etc/dirsrv/slapd-localhost/pwdfile.txt
     - certutil -d /etc/dirsrv/slapd-localhost/ --rename -n ocspds --new-n Server-Cert 
-    - dsctl slapd-localhost start
+
+- name: Restart OCSP DS
+  community.docker.docker_container:
+    name: "{{ ocspds_container }}"
+    state: started
+    restart: yes
+  
 
 - name: Configure secure ldap connection and enable client revocation check
   community.docker.docker_container_exec:
