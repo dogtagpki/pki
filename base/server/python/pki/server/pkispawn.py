@@ -576,7 +576,8 @@ def main(argv):
     if not interactive and \
             not config.str2bool(parser.mdict['pki_skip_configuration']):
         check_ds()
-        check_security_domain()
+        if config.str2bool(parser.mdict['pki_security_domain_setup']):
+            check_security_domain()
 
     if args.precheck:
         print('pre-checks completed successfully.')
