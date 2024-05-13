@@ -43,7 +43,7 @@ public class SubsystemDBIndexAddCLI extends SubsystemCLI {
         cs.load();
 
         LDAPConfig ldapConfig = cs.getInternalDBConfig();
-        String instanceId = cs.getInstanceID();
+        String instanceId = CMS.getInstanceID();
 
         PasswordStoreConfig psc = cs.getPasswordStoreConfig();
         PasswordStore passwordStore = CMS.createPasswordStore(psc);

@@ -421,7 +421,7 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
 
         try {
             String subsystem = cs.getType().toLowerCase();
-            String instID = cs.getInstanceID();
+            String instID = CMS.getInstanceID();
 
             // build the default signedAudit file name
             signedAuditDefaultFileName = subsystem + "_" + instID + "_" + "audit";

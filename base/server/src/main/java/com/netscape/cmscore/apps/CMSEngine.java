@@ -395,7 +395,7 @@ public class CMSEngine {
         config = createConfig(storage);
         config.load();
 
-        instanceId = config.getInstanceID();
+        instanceId = CMS.getInstanceID();
 
         mConfig = config;
     }
@@ -528,7 +528,7 @@ public class CMSEngine {
                 connConfig = ldapConfig.getConnectionConfig();
 
                 binddn = "cn=Replication Manager masterAgreement1-" + config.getHostname() + "-" +
-                        config.getInstanceID() + ",cn=config";
+                        CMS.getInstanceID() + ",cn=config";
 
             } else if (tags.equals("CA LDAP Publishing")) {
 

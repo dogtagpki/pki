@@ -3,6 +3,8 @@ package com.netscape.cms.tomcat;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -63,7 +65,9 @@ public class NuxwdogPasswordStore implements org.dogtagpki.jss.tomcat.PasswordSt
             }
         }
 
-        instanceId = props.getProperty("instanceId");
+        String instanceDir = System.getProperty("catalina.base");
+        Path instancePath = Paths.get(instanceDir);
+        instanceId = instancePath.getFileName().toString();
     }
 
     private void addTag(String tag) {

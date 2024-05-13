@@ -19,6 +19,8 @@ package com.netscape.cmscore.apps;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -74,6 +76,11 @@ public final class CMS {
 
     public static String getInstanceDir() {
         return System.getProperty("catalina.base");  // defined by Tomcat
+    }
+
+    public static String getInstanceID() {
+        Path instancePath = Paths.get(getInstanceDir());
+        return instancePath.getFileName().toString();
     }
 
     /**
