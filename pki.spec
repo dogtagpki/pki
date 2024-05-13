@@ -1331,7 +1331,6 @@ fi
 %{_sbindir}/pkispawn
 %{_sbindir}/pkidestroy
 %{_sbindir}/pki-server
-%{_sbindir}/pki-server-upgrade
 %{_sbindir}/pki-healthcheck
 %{python3_sitelib}/pki/server/
 %{python3_sitelib}/pkihealthcheck-*.egg-info/
