@@ -23,6 +23,10 @@ class CleanUpSubsystemConfig(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
         self.backup(subsystem.cs_conf)
 
+        if subsystem.config.get('instanceId'):
+            logger.info('Removing instanceId')
+            subsystem.config.pop('instanceId', None)
+
         param = '%s.admin.cert' % subsystem.name
         if subsystem.config.get(param):
             logger.info('Removing %s', param)

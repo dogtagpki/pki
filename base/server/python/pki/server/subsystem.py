@@ -188,9 +188,6 @@ class PKISubsystem(object):
         if 'cs.type' not in self.config:
             self.set_config('cs.type', self.type)
 
-        if 'instanceId' not in self.config:
-            self.set_config('instanceId', self.instance.name)
-
         logger.info('Storing subsystem config: %s', self.cs_conf)
         self.instance.store_properties(self.cs_conf, self.config)
 

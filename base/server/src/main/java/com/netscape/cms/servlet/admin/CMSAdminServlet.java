@@ -622,7 +622,7 @@ public class CMSAdminServlet extends AdminServlet {
         }
 
         try {
-            String instanceId = cs.getInstanceID();
+            String instanceId = CMS.getInstanceID();
             params.put(Constants.PR_STAT_INSTANCEID, instanceId);
         } catch (Exception e) {
         }

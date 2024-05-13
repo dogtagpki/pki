@@ -5,6 +5,7 @@
 The following parameters in `CS.cfg` are no longer used
 so they have been removed:
 
+* `instanceId`
 * `<subsystem>.admin.cert`
 * `<subsystem>.standalone`
 
