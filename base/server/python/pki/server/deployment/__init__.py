@@ -2305,21 +2305,56 @@ class PKIDeployer:
             cert_chain_file=cert_chain_path,
             trust_attributes='CT,C,C')
 
-    def retrieve_cert_chain(self, url):
+    def retrieve_cert_chain(self, nssdb, subsystem):
+
+        external = self.configuration_file.external
+        standalone = self.configuration_file.standalone
+        subordinate = self.configuration_file.subordinate
+        clone = self.configuration_file.clone
+
+        system_certs_imported = \
+            self.mdict['pki_server_pkcs12_path'] != '' or \
+            self.mdict['pki_clone_pkcs12_path'] != ''
+
+        if subsystem.type == 'CA' and external or \
+                subsystem.type in ['KRA', 'OCSP'] and standalone:
+
+            # For external sub-CA and standalone KRA/OCSP, no need to retrieve
+            # the cert chain since it's already imported from a local file by
+            # import_cert_chain().
+
+            return
+
+        elif (subsystem.type == 'CA' and subordinate or subsystem.type != 'CA') and \
+                not clone and not system_certs_imported:
+
+            # For primary (not clone) sub-CA and KRA, OCSP, TKS, and TPS,
+            # retrieve the cert chain from the issuing CA unless it's already
+            # imported from PKCS #12 file by import_server_pkcs12().
+
+            url = self.mdict['pki_issuing_ca']
+
+        elif subsystem.type == 'CA' and clone and not system_certs_imported:
+
+            # For root CA and sub-CA clone, retrieve the cert chain from the
+            # primary server unless it's already imported from a PKCS #12 file
+            # by import_clone_pkcs12().
+
+            url = self.mdict['pki_clone_uri']
+
+        else:
+            return
 
         logger.info('Retrieving cert chain from %s', url)
         cert_chain = self.get_ca_signing_cert(url)
 
-        logger.info('Importing cert chain from %s', url)
-        nssdb = self.instance.open_nssdb()
-        try:
-            nssdb.import_pkcs7(
-                pkcs7_data=cert_chain,
-                trust_attributes='CT,C,C')
-        finally:
-            nssdb.close()
+        base64_chain = pki.nssdb.convert_pkcs7(cert_chain, 'pem', 'base64')
+        subsystem.set_config('preop.ca.pkcs7', base64_chain)
 
-        return cert_chain
+        logger.info('Importing cert chain from %s', url)
+        nssdb.import_pkcs7(
+            pkcs7_data=cert_chain,
+            trust_attributes='CT,C,C')
 
     def import_system_certs(self, nssdb, subsystem):
 
