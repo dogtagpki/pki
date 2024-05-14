@@ -1008,6 +1008,33 @@ class PKIDeployer:
 
         return key_type
 
+    def get_cert_type(self, subsystem, cert_id):
+
+        if cert_id == 'signing':
+
+            if subsystem.type == 'CA' and self.configuration_file.subordinate:
+                return 'remote'
+
+        elif cert_id == 'sslserver':
+
+            if subsystem.type == 'CA' and self.configuration_file.clone \
+                    or subsystem.type != 'CA':
+                return 'remote'
+
+        elif cert_id == 'subsystem':
+
+            if self.mdict['pki_security_domain_type'] == 'new':
+                return 'local'
+
+            else:  # self.mdict['pki_security_domain_type'] == 'existing'
+                return 'remote'
+
+        elif cert_id == 'admin':
+            return 'local'
+
+        # get default type from CS.cfg
+        return subsystem.config.get('preop.cert.%s.type' % cert_id, 'local')
+
     def get_cert_profile(self, subsystem, cert_id):
 
         if cert_id == 'signing':
@@ -1057,20 +1084,6 @@ class PKIDeployer:
             subsystem.set_config('proxy.securePort', self.mdict['pki_proxy_https_port'])
             subsystem.set_config('proxy.unsecurePort', self.mdict['pki_proxy_http_port'])
 
-        # configure SSL server cert
-        if subsystem.type == 'CA' and clone or subsystem.type != 'CA':
-
-            subsystem.set_config('preop.cert.sslserver.type', 'remote')
-
-        # configure subsystem cert
-        if self.mdict['pki_security_domain_type'] == 'new':
-
-            subsystem.set_config('preop.cert.subsystem.type', 'local')
-
-        else:  # self.mdict['pki_security_domain_type'] == 'existing':
-
-            subsystem.set_config('preop.cert.subsystem.type', 'remote')
-
         if external or standalone:
 
             # This is needed by IPA to detect step 1 completion.
@@ -1084,10 +1097,6 @@ class PKIDeployer:
 
         # configure CA
         if subsystem.type == 'CA':
-
-            if subordinate:
-                subsystem.set_config('preop.cert.signing.type', 'remote')
-
             if config.str2bool(self.mdict['pki_profiles_in_ldap']):
                 index = subsystem.get_subsystem_index('profile')
                 subsystem.set_config(
@@ -2804,7 +2813,7 @@ class PKIDeployer:
         request.systemCert = self.create_system_cert_info(subsystem, tag)
 
         # cert type: selfsign, local, or remote
-        request.systemCert.type = subsystem.config['preop.cert.%s.type' % tag]
+        request.systemCert.type = self.get_cert_type(subsystem, tag)
 
         if request.systemCert.type == 'selfsign':
             request.systemCert.signingAlgorithm = \
@@ -3635,7 +3644,7 @@ class PKIDeployer:
 
         request.systemCert = pki.system.SystemCertData()
 
-        request.systemCert.type = subsystem.config.get('preop.cert.admin.type', 'local')
+        request.systemCert.type = self.get_cert_type(subsystem, 'admin')
 
         if request.systemCert.type == 'selfsign':
             request.systemCert.signingAlgorithm = \
