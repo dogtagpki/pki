@@ -1008,6 +1008,41 @@ class PKIDeployer:
 
         return key_type
 
+    def get_cert_profile(self, subsystem, cert_id):
+
+        if cert_id == 'signing':
+
+            if subsystem.type == 'CA' and self.configuration_file.subordinate:
+                return 'caInstallCACert'
+
+        elif cert_id == 'sslserver':
+
+            if subsystem.type == 'CA' and self.configuration_file.clone \
+                    or subsystem.type != 'CA':
+                key_type = self.get_key_type(subsystem, cert_id)
+                if key_type == 'RSA':
+                    return 'caInternalAuthServerCert'
+                elif key_type == 'EC':
+                    return 'caECInternalAuthServerCert'
+
+        elif cert_id == 'subsystem':
+
+            if self.mdict['pki_security_domain_type'] == 'new':
+                return 'subsystemCert.profile'
+
+            else:  # self.mdict['pki_security_domain_type'] == 'existing'
+                key_type = self.get_key_type(subsystem, cert_id)
+                if key_type == 'RSA':
+                    return 'caInternalAuthSubsystemCert'
+                elif key_type == 'EC':
+                    return 'caECInternalAuthSubsystemCert'
+
+        elif cert_id == 'admin':
+            return 'adminCert.profile'
+
+        # get default profile from CS.cfg
+        return subsystem.config['preop.cert.%s.profile' % cert_id]
+
     def init_subsystem(self, subsystem):
 
         external = self.configuration_file.external
@@ -1026,34 +1061,15 @@ class PKIDeployer:
         if subsystem.type == 'CA' and clone or subsystem.type != 'CA':
 
             subsystem.set_config('preop.cert.sslserver.type', 'remote')
-            key_type = self.get_key_type(subsystem, 'sslserver')
-
-            if key_type == 'RSA':
-                profile = 'caInternalAuthServerCert'
-
-            elif key_type == 'EC':
-                profile = 'caECInternalAuthServerCert'
-
-            subsystem.set_config('preop.cert.sslserver.profile', profile)
 
         # configure subsystem cert
         if self.mdict['pki_security_domain_type'] == 'new':
 
             subsystem.set_config('preop.cert.subsystem.type', 'local')
-            subsystem.set_config('preop.cert.subsystem.profile', 'subsystemCert.profile')
 
         else:  # self.mdict['pki_security_domain_type'] == 'existing':
 
             subsystem.set_config('preop.cert.subsystem.type', 'remote')
-            key_type = self.get_key_type(subsystem, 'subsystem')
-
-            if key_type == 'RSA':
-                profile = 'caInternalAuthSubsystemCert'
-
-            elif key_type == 'EC':
-                profile = 'caECInternalAuthSubsystemCert'
-
-            subsystem.set_config('preop.cert.subsystem.profile', profile)
 
         if external or standalone:
 
@@ -1071,7 +1087,6 @@ class PKIDeployer:
 
             if subordinate:
                 subsystem.set_config('preop.cert.signing.type', 'remote')
-                subsystem.set_config('preop.cert.signing.profile', 'caInstallCACert')
 
             if config.str2bool(self.mdict['pki_profiles_in_ldap']):
                 index = subsystem.get_subsystem_index('profile')
@@ -2848,7 +2863,7 @@ class PKIDeployer:
         request.systemCert.requestType = 'pkcs10'
 
         request.systemCert.cert = cert.get('data')
-        request.systemCert.profile = subsystem.config['preop.cert.%s.profile' % tag]
+        request.systemCert.profile = self.get_cert_profile(subsystem, tag)
         request.systemCert.req_ext_oid = subsystem.config.get('preop.cert.%s.ext.oid' % tag)
         request.systemCert.req_ext_data = subsystem.config.get('preop.cert.%s.ext.data' % tag)
         request.systemCert.req_ext_critical = subsystem.config.get(
@@ -3631,7 +3646,7 @@ class PKIDeployer:
                 subsystem.config.get('preop.cert.signing.signingalgorithm', 'SHA256withRSA')
 
         request.systemCert.keyType = self.mdict['pki_admin_key_type']
-        request.systemCert.profile = subsystem.config['preop.cert.admin.profile']
+        request.systemCert.profile = self.get_cert_profile(subsystem, 'admin')
         request.systemCert.subjectDN = self.mdict['pki_admin_subject_dn']
 
         request.systemCert.requestType = self.mdict['pki_admin_cert_request_type']
