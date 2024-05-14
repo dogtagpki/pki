@@ -74,7 +74,7 @@ public class GetStatus extends CMSServlet {
         EngineConfig config = engine.getConfig();
 
         int state = config.getState();
-        String type = config.getType();
+        String type = engine.getName();
         String status = engine.isReady() ? "running" : "starting";
         String version = GetStatus.class.getPackage().getImplementationVersion();
 

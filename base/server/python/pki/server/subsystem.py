@@ -185,9 +185,6 @@ class PKISubsystem(object):
         if os.path.exists(self.cs_conf):
             pki.util.load_properties(self.cs_conf, self.config)
 
-        if 'cs.type' not in self.config:
-            self.set_config('cs.type', self.type)
-
         logger.info('Storing subsystem config: %s', self.cs_conf)
         self.instance.store_properties(self.cs_conf, self.config)
 
@@ -253,8 +250,6 @@ class PKISubsystem(object):
         if os.path.exists(self.cs_conf):
             logger.info('Loading subsystem config: %s', self.cs_conf)
             pki.util.load_properties(self.cs_conf, self.config)
-
-            self.type = self.config['cs.type']
 
         self.registry.clear()
 

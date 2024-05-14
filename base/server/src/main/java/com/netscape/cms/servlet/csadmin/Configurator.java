@@ -84,7 +84,7 @@ public class Configurator {
 
     public String getInstallToken(String sdhost, int sdport, String user, String passwd) throws Exception {
 
-        String csType = cs.getType();
+        String csType = engine.getName();
 
         ClientConfig config = new ClientConfig();
         config.setServerURL("https://" + sdhost + ":" + sdport);
@@ -134,7 +134,7 @@ public class Configurator {
 
         String subca_url = "https://" + cs.getHostname() + ":"
                 + engine.getAdminPort() + "/ca/admin/console/config/wizard" +
-                "?p=5&subsystem=" + cs.getType();
+                "?p=5&subsystem=" + engine.getName();
 
         MultivaluedMap<String, String> content = new MultivaluedHashMap<>();
         content.putSingle("uid", user);

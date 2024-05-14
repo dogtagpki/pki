@@ -211,7 +211,7 @@ public class UserService extends SubsystemService implements UserResource {
             if (!StringUtils.isEmpty(type)) userData.setType(type);
 
             // TODO: refactor into TPSUserService
-            String csType = cs.getType();
+            String csType = engine.getName();
             if (csType.equals("TPS")) {
 
                 List<String> profiles = user.getTpsProfiles();
@@ -348,7 +348,7 @@ public class UserService extends SubsystemService implements UserResource {
             }
 
             // TODO: refactor into TPSUserService
-            String csType = cs.getType();
+            String csType = engine.getName();
             if (csType.equals("TPS")) {
 
                 String tpsProfiles = userData.getAttribute(ATTR_TPS_PROFILES);
@@ -460,7 +460,7 @@ public class UserService extends SubsystemService implements UserResource {
             }
 
             // TODO: refactor into TPSUserService
-            String csType = cs.getType();
+            String csType = engine.getName();
             if (csType.equals("TPS")) {
 
                 String tpsProfiles = userData.getAttribute(ATTR_TPS_PROFILES);

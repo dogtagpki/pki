@@ -27,6 +27,10 @@ class CleanUpSubsystemConfig(pki.server.upgrade.PKIServerUpgradeScriptlet):
             logger.info('Removing instanceId')
             subsystem.config.pop('instanceId', None)
 
+        if subsystem.config.get('cs.type'):
+            logger.info('Removing cs.type')
+            subsystem.config.pop('cs.type', None)
+
         param = '%s.admin.cert' % subsystem.name
         if subsystem.config.get(param):
             logger.info('Removing %s', param)
