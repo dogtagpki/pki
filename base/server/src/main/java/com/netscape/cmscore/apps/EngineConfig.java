@@ -64,14 +64,6 @@ public class EngineConfig extends ConfigStore {
         putString("passwordFile", passwordFile);
     }
 
-    public String getType() throws EBaseException {
-        return getString("cs.type");
-    }
-
-    public void setType(String type) throws EBaseException {
-        putString("cs.type", type);
-    }
-
     public int getState() throws EBaseException {
         return getInteger("cs.state");
     }

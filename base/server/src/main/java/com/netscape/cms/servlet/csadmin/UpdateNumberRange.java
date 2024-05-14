@@ -110,7 +110,6 @@ public abstract class UpdateNumberRange extends CMSServlet {
 
             EngineConfig cs = engine.getConfig();
             DatabaseConfig dbConfig = cs.getDatabaseConfig();
-            String cstype = cs.getType();
 
             auditParams += "+type;;" + type;
 

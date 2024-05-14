@@ -432,8 +432,7 @@ public class CMSEngine {
             listenersConfig = config.getSubStore("startupNotifiers", ConfigStore.class);
 
             if (listenersConfig.size() > 0) {
-                String subsystem = config.getType().toLowerCase();
-                String configPath = instanceDir + "/conf/" + subsystem + "/CS.cfg";
+                String configPath = instanceDir + "/conf/" + id + "/CS.cfg";
                 logger.warn("The 'startupNotifiers' property in " + configPath + " has been deprecated. Use 'listeners' instead.");
             }
         }
@@ -683,8 +682,7 @@ public class CMSEngine {
 
     public void initPluginRegistry() throws Exception {
         ConfigStore pluginRegistryConfig = config.getSubStore(PluginRegistry.ID, ConfigStore.class);
-        String subsystem = config.getType().toLowerCase();
-        String defaultRegistryFile = instanceDir + "/conf/" + subsystem + "/registry.cfg";
+        String defaultRegistryFile = instanceDir + "/conf/" + id + "/registry.cfg";
         pluginRegistry.init(pluginRegistryConfig, defaultRegistryFile);
         pluginRegistry.startup();
     }
@@ -1072,8 +1070,6 @@ public class CMSEngine {
     }
 
     public void configureServerCertNickname() throws EBaseException {
-
-        String id = mConfig.getType().toLowerCase();
 
         if (id.equals("ca") || id.equals("ocsp") ||
                 id.equals("kra") || id.equals("tks")) {
@@ -1898,24 +1894,9 @@ public class CMSEngine {
         String auditMessage = null;
 
         try {
-            String subsysType = config.getType();
-            if (subsysType == null || subsysType.equals("")) {
-                logger.error("CMSEngine: Missing cs.type in CS.cfg");
-                auditMessage = CMS.getLogMessage(
-                            AuditEvent.CIMC_CERT_VERIFICATION,
-                            ILogger.SYSTEM_UID,
-                            ILogger.FAILURE,
-                            "");
-
-                auditor.log(auditMessage);
-                throw new Exception("Missing cs.type in CS.cfg");
-            }
-
-            subsysType = subsysType.toLowerCase();
-
-            String certlist = config.getString(subsysType + ".cert.list", "");
+            String certlist = config.getString(id + ".cert.list", "");
             if (certlist.equals("")) {
-                logger.error("CMSEngine: Missing " + subsysType + ".cert.list in CS.cfg");
+                logger.error("CMSEngine: Missing " + id + ".cert.list in CS.cfg");
                 auditMessage = CMS.getLogMessage(
                             AuditEvent.CIMC_CERT_VERIFICATION,
                             ILogger.SYSTEM_UID,
@@ -1923,7 +1904,7 @@ public class CMSEngine {
                             "");
 
                 auditor.log(auditMessage);
-                throw new Exception("Missing " + subsysType + ".cert.list in CS.cfg");
+                throw new Exception("Missing " + id + ".cert.list in CS.cfg");
             }
 
             StringTokenizer tokenizer = new StringTokenizer(certlist, ",");
@@ -1972,21 +1953,13 @@ public class CMSEngine {
         String auditMessage = null;
 
         try {
-            String subsysType = config.getType();
-            if (subsysType == null || subsysType.equals("")) {
-                logger.error("CMSEngine: Missing cs.type in CS.cfg");
-                throw new Exception("Missing cs.type in CS.cfg");
-            }
-
-            subsysType = subsysType.toLowerCase();
-
-            String nickname = config.getString(subsysType + ".cert." + tag + ".nickname", "");
+            String nickname = config.getString(id + ".cert." + tag + ".nickname", "");
             if (nickname.equals("")) {
                 logger.error("CMSEngine: verifySystemCertByTag() nickname for cert tag " + tag + " undefined in CS.cfg");
                 throw new Exception("Missing nickname for " + tag + " certificate");
             }
 
-            String certusage = config.getString(subsysType + ".cert." + tag + ".certusage", "");
+            String certusage = config.getString(id + ".cert." + tag + ".certusage", "");
             if (certusage.equals("")) {
                 logger.warn("CMSEngine: verifySystemCertByTag() certusage for cert tag "
                         + tag + " undefined in CS.cfg, getting current certificate usage");

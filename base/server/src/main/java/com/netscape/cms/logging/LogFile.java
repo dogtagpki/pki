@@ -420,7 +420,7 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
         mLevel = config.getLevel();
 
         try {
-            String subsystem = cs.getType().toLowerCase();
+            String subsystem = engine.getID();
             String instID = CMS.getInstanceID();
 
             // build the default signedAudit file name
