@@ -43,7 +43,7 @@ public class RecordPagedList<T extends IDBObj> implements Iterable<T> {
         try {
             pageEntries = pages.getPage().iterator();
         } catch (EBaseException e) {
-            throw new RuntimeException("CertRecordPagedList: Error to get a new page", e);
+            throw new RuntimeException("RecordPagedList: Error to get a new page", e);
         }
     }
 
@@ -65,7 +65,7 @@ public class RecordPagedList<T extends IDBObj> implements Iterable<T> {
                     List<T> newPage = pages.getPage();
                     pageEntries = newPage.iterator();
                 } catch (EBaseException e) {
-                    throw new RuntimeException("CertRecordPagedList: Error to get a new page", e);
+                    throw new RuntimeException("RecordPagedList: Error to get a new page", e);
                 }
             }
             return pageEntries.hasNext();
