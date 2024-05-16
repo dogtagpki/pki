@@ -814,8 +814,6 @@ class PKIDeployer:
             subsystem.set_config('%s.cert.%s.nickname' % (subsystem.name, config_tag), fullname)
 
             keyalgorithm = self.mdict['pki_%s_key_algorithm' % deploy_tag]
-            subsystem.set_config('preop.cert.%s.keyalgorithm' % config_tag, keyalgorithm)
-
             signingalgorithm = self.mdict.get(
                 'pki_%s_signing_algorithm' % deploy_tag, keyalgorithm)
             subsystem.set_config('preop.cert.%s.signingalgorithm' % config_tag, signingalgorithm)
@@ -2834,6 +2832,10 @@ class PKIDeployer:
 
     def create_cert_setup_request(self, subsystem, tag, cert):
 
+        deploy_tag = tag
+        if tag == 'signing':  # for CA and OCSP
+            deploy_tag = subsystem.name + '_signing'
+
         request = pki.system.CertificateSetupRequest()
         request.tag = tag
         request.pin = self.mdict['pki_one_time_pin']
@@ -2844,8 +2846,7 @@ class PKIDeployer:
         request.systemCert.type = self.get_cert_type(subsystem, tag)
 
         if request.systemCert.type == 'selfsign':
-            request.systemCert.signingAlgorithm = \
-                subsystem.config.get('preop.cert.signing.keyalgorithm', 'SHA256withRSA')
+            request.systemCert.signingAlgorithm = self.mdict['pki_ca_signing_key_algorithm']
 
         elif request.systemCert.type == 'local':
             request.systemCert.signingAlgorithm = \
@@ -2887,7 +2888,7 @@ class PKIDeployer:
             else:
                 request.systemCert.sslECDH = False
 
-        request.systemCert.keyAlgorithm = subsystem.config['preop.cert.%s.keyalgorithm' % tag]
+        request.systemCert.keyAlgorithm = self.mdict['pki_%s_key_algorithm' % deploy_tag]
 
         csr_path = subsystem.csr_file(tag)
 
@@ -3674,11 +3675,7 @@ class PKIDeployer:
 
         request.systemCert.type = self.get_cert_type(subsystem, 'admin')
 
-        if request.systemCert.type == 'selfsign':
-            request.systemCert.signingAlgorithm = \
-                subsystem.config.get('preop.cert.signing.keyalgorithm', 'SHA256withRSA')
-
-        elif request.systemCert.type == 'local':
+        if request.systemCert.type == 'local':
             request.systemCert.signingAlgorithm = \
                 subsystem.config.get('preop.cert.signing.signingalgorithm', 'SHA256withRSA')
 
