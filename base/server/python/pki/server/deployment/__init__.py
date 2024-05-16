@@ -816,7 +816,6 @@ class PKIDeployer:
             keyalgorithm = self.mdict['pki_%s_key_algorithm' % deploy_tag]
             signingalgorithm = self.mdict.get(
                 'pki_%s_signing_algorithm' % deploy_tag, keyalgorithm)
-            subsystem.set_config('preop.cert.%s.signingalgorithm' % config_tag, signingalgorithm)
 
             if subsystem.name == 'ca':
                 if config_tag == 'signing':
@@ -2849,8 +2848,9 @@ class PKIDeployer:
             request.systemCert.signingAlgorithm = self.mdict['pki_ca_signing_key_algorithm']
 
         elif request.systemCert.type == 'local':
-            request.systemCert.signingAlgorithm = \
-                subsystem.config.get('preop.cert.signing.signingalgorithm', 'SHA256withRSA')
+            keyalgorithm = self.mdict['pki_ca_signing_key_algorithm']
+            signingalgorithm = self.mdict.get('pki_ca_signing_signing_algorithm', keyalgorithm)
+            request.systemCert.signingAlgorithm = signingalgorithm
 
         key_type = self.get_key_type(subsystem, tag)
         request.systemCert.keyType = key_type
@@ -3676,8 +3676,9 @@ class PKIDeployer:
         request.systemCert.type = self.get_cert_type(subsystem, 'admin')
 
         if request.systemCert.type == 'local':
-            request.systemCert.signingAlgorithm = \
-                subsystem.config.get('preop.cert.signing.signingalgorithm', 'SHA256withRSA')
+            keyalgorithm = self.mdict['pki_ca_signing_key_algorithm']
+            signingalgorithm = self.mdict.get('pki_ca_signing_signing_algorithm', keyalgorithm)
+            request.systemCert.signingAlgorithm = signingalgorithm
 
         request.systemCert.keyType = self.mdict['pki_admin_key_type']
         request.systemCert.profile = self.get_cert_profile(subsystem, 'admin')
