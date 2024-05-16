@@ -809,7 +809,6 @@ class PKIDeployer:
             else:
                 fullname = tokenname + ':' + nickname
 
-            subsystem.set_config('preop.cert.%s.nickname' % config_tag, nickname)
             subsystem.set_config('%s.%s.nickname' % (subsystem.name, config_tag), nickname)
             subsystem.set_config('%s.%s.tokenname' % (subsystem.name, config_tag), tokenname)
             subsystem.set_config('%s.cert.%s.nickname' % (subsystem.name, config_tag), fullname)
