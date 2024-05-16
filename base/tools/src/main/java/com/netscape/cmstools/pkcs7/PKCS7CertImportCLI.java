@@ -13,6 +13,7 @@ import java.security.cert.X509Certificate;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.apache.commons.io.IOUtils;
 import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
@@ -88,31 +89,35 @@ public class PKCS7CertImportCLI extends CommandCLI {
         }
 
         String inputFilename = cmd.getOptionValue("input-file");
-        if (inputFilename != null) {
+        byte[] bytes;
+        if (inputFilename == null) {
+            logger.info("Loading certificate from standard input");
+            bytes = IOUtils.toByteArray(System.in);
 
-            logger.info("Importing certificates from " + inputFilename);
-            byte[] bytes = Files.readAllBytes(Paths.get(inputFilename));
+        } else {
+            logger.info("Loading certificate from " + inputFilename);
+            bytes = Files.readAllBytes(Paths.get(inputFilename));
+        }
 
-            String inputFormat = cmd.getOptionValue("input-format", "PEM");
-            if ("PEM".equalsIgnoreCase(inputFormat)) {
+        String inputFormat = cmd.getOptionValue("input-format", "PEM");
+        if ("PEM".equalsIgnoreCase(inputFormat)) {
 
-                CertificateChain inputChain = CertificateChain.fromPEMString(new String(bytes));
-                for (X509Certificate cert : inputChain.getCertificates()) {
-                    logger.info(" - " + cert.getSubjectDN());
-                }
-
-                certChain.addCertificateChain(inputChain);
-
-            } else if ("DER".equalsIgnoreCase(inputFormat)) {
-
-                X509CertImpl cert = new X509CertImpl(bytes);
+            CertificateChain inputChain = CertificateChain.fromPEMString(new String(bytes));
+            for (X509Certificate cert : inputChain.getCertificates()) {
                 logger.info(" - " + cert.getSubjectDN());
-
-                certChain.addCertificate(cert);
-
-            } else {
-                throw new Exception("Unsupported format: " + inputFormat);
             }
+
+            certChain.addCertificateChain(inputChain);
+
+        } else if ("DER".equalsIgnoreCase(inputFormat)) {
+
+            X509CertImpl cert = new X509CertImpl(bytes);
+            logger.info(" - " + cert.getSubjectDN());
+
+            certChain.addCertificate(cert);
+
+        } else {
+            throw new Exception("Unsupported format: " + inputFormat);
         }
 
         logger.info("Storing certificates into " + path);
