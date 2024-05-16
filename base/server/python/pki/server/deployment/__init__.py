@@ -814,10 +814,6 @@ class PKIDeployer:
             subsystem.set_config('%s.%s.tokenname' % (subsystem.name, config_tag), tokenname)
             subsystem.set_config('%s.cert.%s.nickname' % (subsystem.name, config_tag), fullname)
 
-            # store subject DN
-            subject_dn = self.mdict['pki_%s_subject_dn' % deploy_tag]
-            subsystem.set_config('preop.cert.%s.dn' % config_tag, subject_dn)
-
             keyalgorithm = self.mdict['pki_%s_key_algorithm' % deploy_tag]
             subsystem.set_config('preop.cert.%s.keyalgorithm' % config_tag, keyalgorithm)
 
@@ -844,9 +840,6 @@ class PKIDeployer:
                     subsystem.set_config('kra.transportUnit.signingAlgorithm', signingalgorithm)
 
             # TODO: move more system cert params here
-
-        admin_dn = self.mdict['pki_admin_subject_dn']
-        subsystem.set_config('preop.cert.admin.dn', admin_dn)
 
         # If specified in the deployment parameter, add generic CA signing cert
         # extension parameters into the CS.cfg. Generic extension for other
