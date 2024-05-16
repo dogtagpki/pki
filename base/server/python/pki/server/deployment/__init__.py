@@ -1002,30 +1002,31 @@ class PKIDeployer:
 
     def get_cert_type(self, subsystem, cert_id):
 
-        if cert_id == 'signing':
+        if subsystem.type == 'CA':
 
-            if subsystem.type == 'CA' and self.configuration_file.subordinate:
-                return 'remote'
+            if cert_id == 'signing':
+                if self.configuration_file.subordinate:
+                    # sub CA signing cert is signed remotely by root CA
+                    return 'remote'
 
-        elif cert_id == 'sslserver':
+                # root CA signing cert is self-signed
+                return 'selfsign'
 
-            if subsystem.type == 'CA' and self.configuration_file.clone \
-                    or subsystem.type != 'CA':
-                return 'remote'
+            if cert_id == 'sslserver':
+                if self.configuration_file.clone:
+                    # CA clone SSL server cert is signed remotely by main CA
+                    return 'remote'
 
-        elif cert_id == 'subsystem':
+            if cert_id == 'subsystem':
+                if self.mdict['pki_security_domain_type'] == 'existing':
+                    # sub CA subsystem cert is signed remotely by root CA
+                    return 'remote'
 
-            if self.mdict['pki_security_domain_type'] == 'new':
-                return 'local'
-
-            else:  # self.mdict['pki_security_domain_type'] == 'existing'
-                return 'remote'
-
-        elif cert_id == 'admin':
+            # other CA certs are signed locally by CA itself
             return 'local'
 
-        # get default type from CS.cfg
-        return subsystem.config.get('preop.cert.%s.type' % cert_id, 'local')
+        # other subsystem's certs are signed remotely by CA
+        return 'remote'
 
     def get_cert_profile(self, subsystem, cert_id):
 
