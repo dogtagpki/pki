@@ -2348,6 +2348,63 @@ class NSSDatabase(object):
             shutil.rmtree(tmpdir)
             logger.debug('NSSDatabase.import_cert_chain(%s) ends', nickname)
 
+    def get_pkcs7_certs(
+            self,
+            pkcs7_data=None,
+            pkcs7_file=None):
+
+        tmpdir = self.create_tmpdir()
+
+        try:
+            # sort and split the certs from root to leaf
+            prefix = os.path.join(tmpdir, 'cert')
+            suffix = '.crt'
+
+            cmd = [
+                'pki',
+                '-d', self.directory,
+                'pkcs7-cert-export'
+            ]
+
+            if pkcs7_file:
+                cmd.extend(['--pkcs7', pkcs7_file])
+
+            cmd.extend(['--output-prefix', prefix])
+            cmd.extend(['--output-suffix', suffix])
+
+            if logger.isEnabledFor(logging.DEBUG):
+                cmd.append('--debug')
+
+            elif logger.isEnabledFor(logging.INFO):
+                cmd.append('--verbose')
+
+            if pkcs7_data:
+                data = pkcs7_data.encode('utf-8')
+            else:
+                data = None
+
+            self.run(cmd, input=data, check=True)
+
+            certs = []
+            n = 0
+
+            while True:
+                cert_file = prefix + str(n) + suffix
+
+                if not os.path.exists(cert_file):
+                    break
+
+                with open(cert_file, 'r', encoding='utf-8') as f:
+                    cert_data = f.read()
+
+                certs.append(cert_data)
+                n = n + 1
+
+            return certs
+
+        finally:
+            shutil.rmtree(tmpdir)
+
     def import_pkcs7(
             self,
             pkcs7_data=None,
@@ -2390,67 +2447,25 @@ class NSSDatabase(object):
 
             return
 
-        # Import certificate chain with nickname
+        # get certs from PKCS #7
+        certs = self.get_pkcs7_certs(
+            pkcs7_data=pkcs7_data,
+            pkcs7_file=pkcs7_file)
 
-        tmpdir = self.create_tmpdir()
+        if len(certs) == 0:
+            # nothing to import
+            return
 
-        try:
-            # Sort and split the certs from root to leaf.
-            prefix = os.path.join(tmpdir, 'cert')
-            suffix = '.crt'
+        # import parent certs without nickname
+        for cert_data in certs[:-1]:
+            self.add_ca_cert(cert_data=cert_data)
 
-            cmd = [
-                'pki',
-                '-d', self.directory,
-                'pkcs7-cert-export']
-
-            if pkcs7_file:
-                cmd.extend(['--pkcs7', pkcs7_file])
-
-            cmd.extend(['--output-prefix', prefix])
-            cmd.extend(['--output-suffix', suffix])
-
-            if logger.isEnabledFor(logging.DEBUG):
-                cmd.append('--debug')
-
-            elif logger.isEnabledFor(logging.INFO):
-                cmd.append('--verbose')
-
-            if pkcs7_data:
-                data = pkcs7_data.encode('utf-8')
-            else:
-                data = None
-
-            self.run(cmd, input=data, check=True)
-
-            # Count the number of certs in the chain.
-            n = 0
-            while True:
-                cert_file = prefix + str(n) + suffix
-                if not os.path.exists(cert_file):
-                    break
-                n = n + 1
-
-            logger.debug('Number of certs in PKCS #7: %s', n)
-            # Return if there aren't any certificates to add.
-            if n < 1:
-                return
-
-            # Import CA certs with default nicknames and trust attributes.
-            for i in range(0, n - 1):
-                cert_file = prefix + str(i) + suffix
-                self.add_ca_cert(cert_file=cert_file)
-
-            # Import user cert with specified nickname and trust attributes.
-            cert_file = prefix + str(n - 1) + suffix
-            self.add_cert(
-                nickname=nickname,
-                cert_file=cert_file,
-                token=token,
-                trust_attributes=trust_attributes)
-
-        finally:
-            shutil.rmtree(tmpdir)
+        # import leaf cert with nickname
+        self.add_cert(
+            nickname=nickname,
+            cert_data=certs[-1],
+            token=token,
+            trust_attributes=trust_attributes)
 
     def export_pkcs7(
             self,
