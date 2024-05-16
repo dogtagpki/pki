@@ -2326,7 +2326,7 @@ class NSSDatabase(object):
                 pkcs7_data = convert_pkcs7(base64_data, 'base64', 'pem')
 
                 self.import_pkcs7(
-                    pkcs7_file=pkcs7_data,
+                    pkcs7_data=pkcs7_data,
                     nickname=nickname,
                     token=token,
                     trust_attributes=trust_attributes)
