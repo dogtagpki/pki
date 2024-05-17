@@ -19,15 +19,15 @@ spec:
           image: 'quay.io/dogtagpki/pki-acme:latest'
           imagePullPolicy: Always
           volumeMounts:
-            - mountPath: /var/lib/tomcats/pki/conf/certs
+            - mountPath: /certs
               name: pki-acme-certs
-            - mountPath: /var/lib/tomcats/pki/conf/acme/metadata
+            - mountPath: /metadata
               name: pki-acme-metadata
-            - mountPath: /var/lib/tomcats/pki/conf/acme/database
+            - mountPath: /database
               name: pki-acme-database
-            - mountPath: /var/lib/tomcats/pki/conf/acme/issuer
+            - mountPath: /issuer
               name: pki-acme-issuer
-            - mountPath: /var/lib/tomcats/pki/conf/acme/realm
+            - mountPath: /realm
               name: pki-acme-realm
       volumes:
         - name: pki-acme-certs

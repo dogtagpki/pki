@@ -73,9 +73,9 @@ $ podman run \
     --hostname acme.example.com \
     --network example \
     --network-alias acme.example.com \
+    -v $PWD/certs:/certs \
     --rm \
     --privileged \
-    -v ./certs:/var/lib/tomcats/pki/conf/certs \
     -it \
     quay.io/dogtagpki/pki-acme
 ```
@@ -116,10 +116,10 @@ $ podman run \
     --hostname acme.example.com \
     --network example \
     --network-alias acme.example.com \
+    -v $PWD/certs:/certs \
+    -v $PWD/database:/database \
     --rm \
     --privileged \
-    -v ./certs:/var/lib/tomcats/pki/conf/certs \
-    -v ./database:/var/lib/tomcats/pki/conf/acme/database \
     -it \
     quay.io/dogtagpki/pki-acme
 ```
@@ -149,11 +149,11 @@ $ podman run \
     --hostname acme.example.com \
     --network example \
     --network-alias acme.example.com \
+    -v $PWD/certs:/certs \
+    -v $PWD/database:/database \
+    -v $PWD/realm:/realm \
     --rm \
     --privileged \
-    -v ./certs:/var/lib/tomcats/pki/conf/certs \
-    -v ./database:/var/lib/tomcats/pki/conf/acme/database \
-    -v ./realm:/var/lib/tomcats/pki/conf/acme/realm \
     -it \
     quay.io/dogtagpki/pki-acme
 ```

@@ -102,10 +102,10 @@ RUN chgrp -Rf root /var/lib/tomcats/pki
 RUN chmod -Rf g+rw /var/lib/tomcats/pki
 
 VOLUME [ \
-    "/var/lib/tomcats/pki/conf/certs", \
-    "/var/lib/tomcats/pki/conf/acme/metadata", \
-    "/var/lib/tomcats/pki/conf/acme/database", \
-    "/var/lib/tomcats/pki/conf/acme/issuer", \
-    "/var/lib/tomcats/pki/conf/acme/realm" ]
+    "/certs", \
+    "/metadata", \
+    "/database", \
+    "/issuer", \
+    "/realm" ]
 
 CMD [ "/usr/share/pki/acme/bin/pki-acme-run" ]
