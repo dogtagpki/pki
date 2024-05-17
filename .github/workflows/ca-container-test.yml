@@ -208,11 +208,13 @@ jobs:
         run: |
           docker run \
               --name ca \
-              --hostname=ca.example.com \
-              --network=example \
-              --network-alias=ca.example.com \
+              --hostname ca.example.com \
+              --network example \
+              --network-alias ca.example.com \
               -v $PWD/certs:/certs \
               -v $PWD/data:/data \
+              -e PKI_DS_URL=ldap://ds.example.com:3389 \
+              -e PKI_DS_PASSWORD=Secret.123 \
               --detach \
               pki-ca
 

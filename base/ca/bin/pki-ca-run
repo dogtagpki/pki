@@ -332,7 +332,8 @@ pkispawn \
     -f /usr/share/pki/server/examples/installation/ca.cfg \
     -s CA \
     -D pki_group=root \
-    -D pki_ds_url=ldap://ds.example.com:3389 \
+    -D pki_ds_url=$PKI_DS_URL \
+    -D pki_ds_password=$PKI_DS_PASSWORD \
     -D pki_ds_database=userroot \
     -D pki_ds_setup=False \
     -D pki_skip_ds_verify=True \
