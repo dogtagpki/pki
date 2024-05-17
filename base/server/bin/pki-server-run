@@ -10,8 +10,7 @@
 echo "################################################################################"
 
 # import ca_signing.cert and ca_signing.key if available
-if [ -f /var/lib/tomcats/pki/conf/certs/ca_signing.crt ] && \
-   [ -f /var/lib/tomcats/pki/conf/certs/ca_signing.key ]
+if [ -f /certs/ca_signing.crt ] && [ -f /certs/ca_signing.key ]
 then
     echo "INFO: Importing CA Signing Certificate and Key"
 
@@ -20,8 +19,8 @@ then
 
     # import PEM cert and key into PKCS #12 file
     openssl pkcs12 -export \
-        -in /var/lib/tomcats/pki/conf/certs/ca_signing.crt \
-        -inkey /var/lib/tomcats/pki/conf/certs/ca_signing.key \
+        -in /certs/ca_signing.crt \
+        -inkey /certs/ca_signing.key \
         -out /tmp/certs.p12 \
         -name ca_signing \
         -passout file:/tmp/password
@@ -39,14 +38,14 @@ then
 fi
 
 # import certs.p12 if available
-if [ -f /var/lib/tomcats/pki/conf/certs/certs.p12 ]
+if [ -f /certs/certs.p12 ]
 then
     echo "INFO: Importing Certificates and Keys from PKCS #12 File"
 
     # import PKCS #12 file into NSS database
     pki -d /var/lib/tomcats/pki/conf/alias pkcs12-import \
-        --pkcs12 /var/lib/tomcats/pki/conf/certs/certs.p12 \
-        --password-file /var/lib/tomcats/pki/conf/certs/password
+        --pkcs12 /certs/certs.p12 \
+        --password-file /certs/password
 fi
 
 # check whether CA signing certificate is available

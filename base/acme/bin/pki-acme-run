@@ -10,8 +10,7 @@
 echo "################################################################################"
 
 # import metadata configuration if available
-if [ -d /var/lib/tomcats/pki/conf/acme/metadata ] && \
-   [ "$(ls /var/lib/tomcats/pki/conf/acme/metadata)" ]
+if [ -d /metadata ] && [ "$(ls /metadata)" ]
 then
     echo "INFO: Importing metadata configuration"
 
@@ -19,7 +18,7 @@ then
     > /var/lib/tomcats/pki/conf/acme/metadata.conf
 
     # import metadata configuration parameters
-    for filename in /var/lib/tomcats/pki/conf/acme/metadata/*
+    for filename in /metadata/*
     do
         [ -e "$filename" ] || break
         name=$(basename $filename)
@@ -33,8 +32,7 @@ fi
 echo "################################################################################"
 
 # import database configuration if available
-if [ -d /var/lib/tomcats/pki/conf/acme/database ] && \
-   [ "$(ls /var/lib/tomcats/pki/conf/acme/database)" ]
+if [ -d /database ] && [ "$(ls /database)" ]
 then
     echo "INFO: Importing database configuration"
 
@@ -42,7 +40,7 @@ then
     > /var/lib/tomcats/pki/conf/acme/database.conf
 
     # import database configuration parameters
-    for filename in /var/lib/tomcats/pki/conf/acme/database/*
+    for filename in /database/*
     do
         [ -e "$filename" ] || break
         name=$(basename $filename)
@@ -56,8 +54,7 @@ fi
 echo "################################################################################"
 
 # import issuer configuration if available
-if [ -d /var/lib/tomcats/pki/conf/acme/issuer ] && \
-   [ "$(ls /var/lib/tomcats/pki/conf/acme/issuer)" ]
+if [ -d /issuer ] && [ "$(ls /issuer)" ]
 then
     echo "INFO: Importing issuer configuration"
 
@@ -65,7 +62,7 @@ then
     > /var/lib/tomcats/pki/conf/acme/issuer.conf
 
     # import issuer configuration parameters
-    for filename in /var/lib/tomcats/pki/conf/acme/issuer/*
+    for filename in /issuer/*
     do
         [ -e "$filename" ] || break
         name=$(basename $filename)
@@ -79,8 +76,7 @@ fi
 echo "################################################################################"
 
 # import realm configuration if available
-if [ -d /var/lib/tomcats/pki/conf/acme/realm ] && \
-   [ "$(ls /var/lib/tomcats/pki/conf/acme/realm)" ]
+if [ -d /realm ] && [ "$(ls /realm)" ]
 then
     echo "INFO: Importing realm configuration"
 
@@ -88,7 +84,7 @@ then
     > /var/lib/tomcats/pki/conf/acme/realm.conf
 
     # import realm configuration parameters
-    for filename in /var/lib/tomcats/pki/conf/acme/realm/*
+    for filename in /realm/*
     do
         [ -e "$filename" ] || break
         name=$(basename $filename)
