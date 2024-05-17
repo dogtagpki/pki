@@ -442,37 +442,6 @@ jobs:
         run: |
           docker exec ca pki-server ca-user-role-add admin "Administrators"
           docker exec ca pki-server ca-user-role-add admin "Certificate Manager Agents"
-          docker exec ca pki-server ca-user-role-add admin "Security Domain Administrators"
-          docker exec ca pki-server ca-user-role-add admin "Enterprise CA Administrators"
-          docker exec ca pki-server ca-user-role-add admin "Enterprise KRA Administrators"
-          docker exec ca pki-server ca-user-role-add admin "Enterprise RA Administrators"
-          docker exec ca pki-server ca-user-role-add admin "Enterprise TKS Administrators"
-          docker exec ca pki-server ca-user-role-add admin "Enterprise OCSP Administrators"
-          docker exec ca pki-server ca-user-role-add admin "Enterprise TPS Administrators"
-
-      # https://github.com/dogtagpki/pki/wiki/Setting-up-CA-Database-User
-      - name: Add database user
-        run: |
-          docker exec ca pki-server ca-user-add \
-              --full-name pkidbuser \
-              --type agentType \
-              pkidbuser
-
-      - name: Assign subsystem cert to database user
-        run: |
-          docker exec ca pki-server ca-user-cert-add \
-              --cert /certs/subsystem.crt \
-              pkidbuser
-
-      - name: Add database user into CA groups
-        run: |
-          docker exec ca pki-server ca-user-role-add pkidbuser "Subsystem Group"
-          docker exec ca pki-server ca-user-role-add pkidbuser "Certificate Manager Agents"
-
-      - name: Grant database user access to CA database
-        run: |
-          docker exec ca pki-server ca-db-access-grant \
-              uid=pkidbuser,ou=people,dc=ca,dc=pki,dc=example,dc=com
 
       - name: Check public operations from CA container
         run: |
@@ -559,10 +528,6 @@ jobs:
           docker exec ca ls -la /etc/pki
           mkdir -p /tmp/artifacts/ca/etc/pki
           docker cp ca:/etc/pki/pki.conf /tmp/artifacts/ca/etc/pki
-
-          docker exec ca ls -la /var/lib/pki/pki-tomcat/conf/
-          mkdir -p /tmp/artifacts/ca/var/lib/pki/pki-tomcat/conf
-          docker cp ca:/var/lib/pki/pki-tomcat/conf/. /tmp/artifacts/ca/var/lib/pki/pki-tomcat/conf
 
           docker exec ca ls -la /var/log/pki
           mkdir -p /tmp/artifacts/ca/var/log

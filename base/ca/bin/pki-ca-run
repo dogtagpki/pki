@@ -2,7 +2,6 @@
 
 # TODO:
 # - parameterize hard-coded values
-# - do not create security domain
 # - support existing subsystem user
 
 # Allow the owner of the container (who might not be in the root group)
