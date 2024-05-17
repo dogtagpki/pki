@@ -3111,20 +3111,34 @@ public class CryptoUtil {
             throw new IOException("Shared secret " + sharedSecretNickname + " already exists");
         }
 
-        //Unwrap session key
-       
-        KeyWrapper keyWrap = token.getKeyWrapper(KeyWrapAlgorithm.RSA);
-        logger.debug(method + " subsytemCertNickname: " + subsystemCertNickname);
-        System.out.println(method + " subsytemCertNickname: " + subsystemCertNickname);
-
         X509Certificate cert = cm.findCertByNickname(subsystemCertNickname);
-        logger.debug(method + " subsystemCert: " + cert);
+
+        if(cert != null) {
+            logger.debug(method + " subsystemCert: " + cert);
+        } else {
+            logger.debug(method + " can't find subsytem cert.");
+            throw new Exception("Can't find subsystem cert.");
+        }
         PrivateKey subsystemPrivateKey = cm.findPrivKeyByCert(cert);
+
+        if(subsystemPrivateKey == null) {
+            throw new InvalidKeyException("Can't find subsytem cert private key");
+        }
+
+        CryptoToken subCertToken = subsystemPrivateKey.getOwningToken();
+          
+
+        if(subCertToken == null) {
+            throw new TokenException("Invalid owning token for subsystem cert.");
+        }
+
+        //Unwrap session key
+        KeyWrapper keyWrap = subCertToken.getKeyWrapper(KeyWrapAlgorithm.RSA);
+        logger.debug(method + " subsytemCertNickname: " + subsystemCertNickname);
+
         keyWrap.initUnwrap(subsystemPrivateKey,null);
 
         SymmetricKey unwrappedSessionKey = null;
-        //Since we don't know if aes was used to wrap the key, try with and without.
-
 
         try {
             unwrappedSessionKey =  keyWrap.unwrapSymmetric(wrappedSessionKey, SymmetricKey.AES,
@@ -3141,10 +3155,19 @@ public class CryptoUtil {
 
         IVParameterSpec ivsp = new IVParameterSpec(iv);
 
-        byte[] unwrappedSharedSecret = decryptUsingSymmetricKey(token, ivsp, wrappedSharedSecret,
-            unwrappedSessionKey, encAlg);
-        SymmetricKey importedSharedSecret =  unwrapAESSKeyFromBytes(token, unwrappedSharedSecret, true);
-        importedSharedSecret.setNickName(sharedSecretNickname);
+        byte[] unwrappedSharedSecret = {};
+        try {
+            unwrappedSharedSecret = decryptUsingSymmetricKey(subCertToken, ivsp, wrappedSharedSecret,
+                unwrappedSessionKey, encAlg);
+            SymmetricKey importedSharedSecret =  unwrapAESSKeyFromBytes(token, unwrappedSharedSecret, true);
+            importedSharedSecret.setNickName(sharedSecretNickname);
+        } catch (Exception e) {
+            System.out.println(method + " exception found " + e);
+            throw e;
+        } finally {
+            CryptoUtil.obscureBytes(unwrappedSharedSecret,"random");
+        }
+
     }
 
     public static SymmetricKey unwrapAESSKeyFromBytes(CryptoToken token, byte[] inputKeyArray,
