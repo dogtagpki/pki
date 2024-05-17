@@ -25,7 +25,7 @@ echo "##########################################################################
 
 if [ -f /certs/server.p12 ]
 then
-    echo "INFO: Importing system certs and keys"
+    echo "INFO: Importing server certs and keys"
 
     pki \
         -d /var/lib/pki/pki-tomcat/conf/alias \
@@ -34,18 +34,9 @@ then
         --password Secret.123
 fi
 
-if [ -f /certs/admin.p12 ]
-then
-    echo "INFO: Importing admin cert and key"
-
-    pki pkcs12-import \
-        --pkcs12 /certs/admin.p12 \
-        --password Secret.123
-fi
-
 echo "################################################################################"
 
-# check if CA signing cert exists
+# check whether CA signing cert exists
 rc=0
 pki \
     -d /var/lib/pki/pki-tomcat/conf/alias \
@@ -87,9 +78,20 @@ pki \
     nss-cert-show \
     ca_signing
 
+if [ ! -f /certs/ca_signing.crt ]
+then
+    echo "INFO: Exporting CA signing cert"
+
+    pki \
+        -d /var/lib/pki/pki-tomcat/conf/alias \
+        nss-cert-export \
+        --output-file /certs/ca_signing.crt \
+        ca_signing
+fi
+
 echo "################################################################################"
 
-# check if OCSP signing cert exists
+# check whether OCSP signing cert exists
 rc=0
 pki \
     -d /var/lib/pki/pki-tomcat/conf/alias \
@@ -131,7 +133,7 @@ pki \
 
 echo "################################################################################"
 
-# check if audit signing cert exists
+# check whether audit signing cert exists
 rc=0
 pki \
     -d /var/lib/pki/pki-tomcat/conf/alias \
@@ -174,7 +176,7 @@ pki \
 
 echo "################################################################################"
 
-# check if subsystem cert exists
+# check whether subsystem cert exists
 rc=0
 pki \
     -d /var/lib/pki/pki-tomcat/conf/alias \
@@ -215,7 +217,7 @@ pki \
 
 echo "################################################################################"
 
-# check if SSL server cert exists
+# check whether SSL server cert exists
 rc=0
 pki \
     -d /var/lib/pki/pki-tomcat/conf/alias \
@@ -225,7 +227,7 @@ pki \
 
 if [ $rc -ne 0 ]
 then
-    echo "INFO: Creating SSL server cert:"
+    echo "INFO: Creating SSL server cert"
 
     pki \
         -d /var/lib/pki/pki-tomcat/conf/alias \
@@ -257,7 +259,31 @@ pki \
 
 echo "################################################################################"
 
-# check if admin cert exists
+if [ -f /certs/admin.p12 ]
+then
+    echo "INFO: Importing admin cert and key"
+
+    pki pkcs12-import \
+        --pkcs12 /certs/admin.p12 \
+        --password Secret.123
+fi
+
+# check whether CA signing cert exists
+rc=0
+pki nss-cert-export ca_signing > /dev/null || rc=$?
+
+if [ $rc -ne 0 ]
+then
+    echo "INFO: Importing CA signing cert"
+    pki nss-cert-import \
+        --cert /certs/ca_signing.crt \
+        --trust CT,C,C \
+        ca_signing
+fi
+
+echo "################################################################################"
+
+# check whether admin cert exists
 rc=0
 pki nss-cert-export \
     --output-file /certs/admin.crt \
@@ -288,8 +314,6 @@ fi
 echo "INFO: Admin cert:"
 pki nss-cert-show admin
 
-echo "################################################################################"
-
 if [ ! -f /certs/admin.p12 ]
 then
     echo "INFO: Exporting admin cert and key"
@@ -298,17 +322,6 @@ then
         --pkcs12 /certs/admin.p12 \
         --password Secret.123 \
         admin
-fi
-
-if [ ! -f /certs/ca_signing.crt ]
-then
-    echo "INFO: Exporting CA signing cert"
-
-    pki \
-        -d /var/lib/pki/pki-tomcat/conf/alias \
-        nss-cert-export \
-        --output-file /certs/ca_signing.crt \
-        ca_signing
 fi
 
 if [ ! -f /certs/admin.crt ]

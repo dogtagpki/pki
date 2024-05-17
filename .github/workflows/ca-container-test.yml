@@ -168,9 +168,8 @@ jobs:
 
       - name: Export system certs and keys
         run: |
-          docker exec client pki \
-              pkcs12-export \
-              --pkcs12 server.p12 \
+          docker exec client pki pkcs12-export \
+              --pkcs12 $SHARED/certs/server.p12 \
               --password Secret.123 \
               ca_signing \
               ocsp_signing \
@@ -178,13 +177,20 @@ jobs:
               subsystem \
               sslserver
 
+          docker exec client pki pkcs12-cert-find \
+              --pkcs12 $SHARED/certs/server.p12 \
+              --password Secret.123 \
+
       - name: Export admin cert and key
         run: |
-          docker exec client pki \
-              pkcs12-export \
-              --pkcs12 admin.p12 \
+          docker exec client pki pkcs12-export \
+              --pkcs12 $SHARED/certs/admin.p12 \
               --password Secret.123 \
               admin
+
+          docker exec client pki pkcs12-cert-find \
+              --pkcs12 $SHARED/certs/admin.p12 \
+              --password Secret.123 \
 
       - name: Prepare certs folder
         run: |
