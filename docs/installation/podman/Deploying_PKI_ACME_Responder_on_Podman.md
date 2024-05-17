@@ -20,37 +20,39 @@ It is possible to replace it with a permanent realm.
 
 ## Deploying PKI ACME Responder
 
-Create a pod to encapsulate PKI ACME containers with the following command:
+Create a network with the following command:
 
 ```
-$ podman pod create --name pki -p 8080:8080 -p 8443:8443
+$ podman network create example
 ```
 
 Deploy the PKI ACME responder with the following command:
 
 ```
 $ podman run \
-    --name pki-acme \
-    --pod pki \
+    --name acme \
+    --hostname acme.example.com \
+    --network example \
+    --network-alias acme.example.com \
     --rm \
     -it \
     quay.io/dogtagpki/pki-acme
 ```
 
-The responder should be accessible at http://localhost.localdomain:8080/acme/directory.
+The responder should be accessible at http://acme.example.com:8080/acme/directory.
 
 ## Deploying Permanent CA Signing Certificate
 
-To deploy a permanent CA signing certificate, prepare a folder (e.g. certs) to store the certificate and key.
+To deploy a permanent CA signing certificate, prepare a folder (e.g. `certs`) to store the certificate and key.
 
 If the CA signing certificate and key are available in PEM format,
-store the certificate in a file called **ca_signing.crt**,
-and store the key in a file called **ca_signing.key**.
+store the certificate in a file called `ca_signing.crt`,
+and store the key in a file called `ca_signing.key`.
 
 If the CA signing certificate is stored in an NSS database,
-export the certificate and the key and import them into a PKCS #12 file called **certs.p12**
-with a **ca_signing** friendly name,
-and store the PKCS #12 password in a file called **password**.
+export the certificate and the key and import them into a PKCS #12 file called `certs.p12`
+with a `ca_signing` friendly name,
+and store the PKCS #12 password in a file called `password`.
 
 For example:
 
@@ -67,8 +69,10 @@ Restart the responder with the following command:
 
 ```
 $ podman run \
-    --name pki-acme \
-    --pod pki \
+    --name acme \
+    --hostname acme.example.com \
+    --network example \
+    --network-alias acme.example.com \
     --rm \
     --privileged \
     -v ./certs:/var/lib/tomcats/pki/conf/certs \
@@ -78,36 +82,40 @@ $ podman run \
 
 ## Deploying Permanent Database
 
-To deploy a permanent database, run the database container in the same pod.
+To deploy a permanent database, run the database container.
 For example, deploy a PostgreSQL database with the following command:
 
 ```
 $ podman run \
     --name postgresql \
-    --rm \
-    --pod pki \
+    --hostname postgresql.example.com \
+    --network example \
+    --network-alias postgresql.example.com \
     -e POSTGRES_USER=acme \
     -e POSTGRES_PASSWORD=Secret.123 \
     -e POSTGRES_DB=acme \
+    --rm \
     -it \
     postgres
 ```
 
 Next, configure the PKI ACME responder to use the permanent database.
-Prepare a folder (e.g. database) and store the configuration parameters in separate files.
+Prepare a folder (e.g. `database`) and store the configuration parameters in separate files.
 For example:
 
-- **class**: org.dogtagpki.acme.database.PostgreSQLDatabase
-- **url**: jdbc:postgresql://localhost.localdomain:5432/acme
-- **user**: acme
-- **password**: Secret.123
+- `class`: `org.dogtagpki.acme.database.PostgreSQLDatabase`
+- `url`: `jdbc:postgresql://postgresql.example.com:5432/acme`
+- `user`: `acme`
+- `password`: `Secret.123`
 
 Restart the responder with the following command:
 
 ```
 $ podman run \
-    --name pki-acme \
-    --pod pki \
+    --name acme \
+    --hostname acme.example.com \
+    --network example \
+    --network-alias acme.example.com \
     --rm \
     --privileged \
     -v ./certs:/var/lib/tomcats/pki/conf/certs \
@@ -119,26 +127,28 @@ $ podman run \
 Verify the database connection with the following command:
 
 ```
-$ podman exec -ti pki-acme \
-    psql postgres://acme:Secret.123@localhost.localdomain/acme
+$ podman exec -ti acme \
+    psql postgres://acme:Secret.123@postgresql.example.com/acme
 ```
 
 ## Deploying Permanent Realm
 
-Prepare a folder (e.g. realm) and store the configuration parameters in separate files.
+Prepare a folder (e.g. `realm`) and store the configuration parameters in separate files.
 For example:
 
-- **class**: org.dogtagpki.acme.realm.PostgreSQLRealm
-- **url**: jdbc:postgresql://localhost.localdomain:5432/acme
-- **user**: acme
-- **password**: Secret.123
+- `class`: `org.dogtagpki.acme.realm.PostgreSQLRealm`
+- `url`: `jdbc:postgresql://postgresql.example.com:5432/acme`
+- `user`: `acme`
+- `password`: `Secret.123`
 
 Restart the responder with the following command:
 
 ```
 $ podman run \
-    --name pki-acme \
-    --pod pki \
+    --name acme \
+    --hostname acme.example.com \
+    --network example \
+    --network-alias acme.example.com \
     --rm \
     --privileged \
     -v ./certs:/var/lib/tomcats/pki/conf/certs \

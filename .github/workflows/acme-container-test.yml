@@ -31,12 +31,12 @@ jobs:
       - name: Set up ACME container
         run: |
           docker run \
-              --name server \
+              --name acme \
+              --hostname acme.example.com \
+              --network example \
+              --network-alias acme.example.com \
               --detach \
               pki-acme
-
-      - name: Connect ACME container to network
-        run: docker network connect example server --alias pki.example.com
 
       - name: Set up client container
         run: |
@@ -59,24 +59,24 @@ jobs:
               -s \
               -k \
               -o /dev/null \
-              http://pki.example.com:8080/acme/directory
+              http://acme.example.com:8080/acme/directory
 
       - name: Verify certbot in client container
         run: |
           docker exec client certbot register \
-              --server http://pki.example.com:8080/acme/directory \
+              --server http://acme.example.com:8080/acme/directory \
               --email user1@example.com \
               --agree-tos \
               --non-interactive
           docker exec client certbot certonly \
-              --server http://pki.example.com:8080/acme/directory \
+              --server http://acme.example.com:8080/acme/directory \
               -d client.example.com \
               --key-type rsa \
               --standalone \
               --non-interactive
           docker exec client openssl x509 -text -noout -in /etc/letsencrypt/live/client.example.com/fullchain.pem
           docker exec client certbot renew \
-              --server http://pki.example.com:8080/acme/directory \
+              --server http://acme.example.com:8080/acme/directory \
               --cert-name client.example.com \
               --force-renewal \
               --no-random-sleep-on-renew \
@@ -87,48 +87,47 @@ jobs:
           # revocation test is disabled.
           #
           # docker exec client certbot revoke \
-          #     --server http://pki.example.com:8080/acme/directory \
+          #     --server http://acme.example.com:8080/acme/directory \
           #     --cert-name client.example.com \
           #     --non-interactive
           #
           docker exec client certbot update_account \
-              --server http://pki.example.com:8080/acme/directory \
+              --server http://acme.example.com:8080/acme/directory \
               --email user2@example.com \
               --non-interactive
           docker exec client certbot unregister \
-              --server http://pki.example.com:8080/acme/directory \
+              --server http://acme.example.com:8080/acme/directory \
               --non-interactive
 
-      - name: Gather artifacts from server container
+      - name: Check ACME container logs
         if: always()
         run: |
-          mkdir -p /tmp/artifacts/server
-          docker logs server > /tmp/artifacts/server/container.out 2> /tmp/artifacts/server/container.err
-          mkdir -p /tmp/artifacts/server/var/lib
-          docker cp server:/var/lib/tomcats /tmp/artifacts/server/var/lib
-        continue-on-error: true
+          docker logs acme 2>&1
 
-      - name: Gather artifacts from client container
+      - name: Check client container logs
         if: always()
         run: |
-          mkdir -p /tmp/artifacts/client
-          docker logs client > /tmp/artifacts/client/container.out 2> /tmp/artifacts/client/container.err
+          docker logs client 2>&1
+
+      - name: Gather artifacts
+        if: always()
+        run: |
+          docker exec acme ls -la /var/lib/tomcats/pki
+          mkdir -p /tmp/artifacts/acme/var/lib/tomcats
+          docker cp acme:/var/lib/tomcats/pki /tmp/artifacts/acme/var/lib/tomcats
+
+          docker exec client ls -la /etc/letsencrypt/live
           mkdir -p /tmp/artifacts/client/etc/letsencrypt
           docker cp client:/etc/letsencrypt/live /tmp/artifacts/client/etc/letsencrypt
+
+          docker exec client ls -la /var/log/letsencrypt
           mkdir -p /tmp/artifacts/client/var/log/letsencrypt
           docker cp client:/var/log/letsencrypt/letsencrypt.log /tmp/artifacts/client/var/log/letsencrypt
         continue-on-error: true
 
-      - name: Upload artifacts from server container
+      - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: acme-container-server
-          path: /tmp/artifacts/server
-
-      - name: Upload artifacts from client container
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: acme-container-client
-          path: /tmp/artifacts/client
+          name: acme-container
+          path: /tmp/artifacts
