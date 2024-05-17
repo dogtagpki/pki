@@ -4676,19 +4676,38 @@ class PKIDeployer:
         clone = self.configuration_file.clone
         standalone = self.configuration_file.standalone
 
-        if standalone:
-            ca_url = None
-        else:
-            ca_url = self.mdict['pki_issuing_ca']
+        if clone or standalone:
+            return
 
-        if ca_url and not clone:
+        ca_url = self.mdict['pki_issuing_ca']
+        if not ca_url:
+            return
+
+        tmpdir = tempfile.mkdtemp()
+        nssdb = self.instance.open_nssdb()
+        try:
+            nickname = self.mdict['pki_ocsp_signing_nickname']
+            logger.info('Loading OCSP signing PKCS #7: %s', nickname)
+
+            # get OCSP signing PKCS #7
+            ocsp_signing_pkcs7 = nssdb.export_pkcs7(nickname)
+            logger.debug('OCSP signing PKCS #7:\n%s', ocsp_signing_pkcs7)
+
+            # get cert chain from OCSP signing PKCS #7
+            cert_chain = nssdb.get_pkcs7_certs(pkcs7_data=ocsp_signing_pkcs7)
+
+            # remove leaf cert to create CA signing cert chain
+            del cert_chain[-1]
+
+            logger.info('Creating CA signing PKCS #7')
+            ca_signing_pkcs7 = nssdb.create_pkcs7(
+                cert_chain=cert_chain,
+                cert_format='PEM')
 
             logger.info('Adding CRL issuing point')
-            base64_chain = subsystem.config['preop.ca.pkcs7']
-            cert_chain = base64.b64decode(base64_chain)
             subsystem.add_crl_issuing_point(
-                cert_chain=cert_chain,
-                cert_format='DER',
+                cert_chain=ca_signing_pkcs7.encode('utf-8'),
+                cert_format='PEM',
                 ignore_duplicate=True)
 
             url = urllib.parse.urlparse(ca_url)
@@ -4723,6 +4742,10 @@ class PKIDeployer:
             # Next we need to treat the publishing of clones as a group,
             # and fail over amongst them.
             self.add_ocsp_publisher(subsystem, ca_url)
+
+        finally:
+            nssdb.close()
+            shutil.rmtree(tmpdir)
 
     def finalize_tks(self, subsystem):
 
