@@ -2348,6 +2348,57 @@ class NSSDatabase(object):
             shutil.rmtree(tmpdir)
             logger.debug('NSSDatabase.import_cert_chain(%s) ends', nickname)
 
+    def create_pkcs7(
+            self,
+            cert_chain=None,
+            cert_files=None,
+            cert_format=None,
+            append=False):
+
+        tmpdir = tempfile.mkdtemp()
+        try:
+            output_file = os.path.join(tmpdir, 'output.p7b')
+
+            if not cert_chain and cert_files:
+                cert_chain = []
+
+                for cert_file in cert_files:
+                    with open(cert_file, 'r', encoding='utf-8') as f:
+                        cert_data = f.read()
+                    cert_chain.append(cert_data)
+
+            append = False
+            for cert_data in cert_chain:
+
+                cmd = [
+                    'pki',
+                    '-d', self.directory,
+                    'pkcs7-cert-import',
+                    '--pkcs7', output_file
+                ]
+
+                if cert_format:
+                    cmd.extend(['--input-format', cert_format])
+
+                if append:
+                    cmd.extend(['--append'])
+
+                if logger.isEnabledFor(logging.DEBUG):
+                    cmd.append('--debug')
+
+                elif logger.isEnabledFor(logging.INFO):
+                    cmd.append('--verbose')
+
+                append = True
+
+                self.run(cmd, input=cert_data.encode('utf-8'), check=True)
+
+            with open(output_file, 'r', encoding='utf-8') as f:
+                return f.read()
+
+        finally:
+            shutil.rmtree(tmpdir)
+
     def get_pkcs7_certs(
             self,
             pkcs7_data=None,
