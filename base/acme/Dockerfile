@@ -54,16 +54,16 @@ RUN dnf install -y rpm-build bind-utils iputils abrt-java-connector postgresql p
 RUN ln -s /usr/share/java/postgresql-jdbc/postgresql.jar /usr/share/pki/server/common/lib/postgresql.jar
 
 # Create PKI server
-RUN pki-server create tomcat@pki --user tomcat --group root
+RUN pki-server create --group root
 
 # Create NSS database
-RUN pki-server nss-create -i tomcat@pki --no-password
+RUN pki-server nss-create --no-password
 
 # Enable JSS
-RUN pki-server jss-enable -i tomcat@pki
+RUN pki-server jss-enable
 
 # Configure SSL connector
-RUN pki-server http-connector-add -i tomcat@pki \
+RUN pki-server http-connector-add \
   --port 8443 \
   --scheme https \
   --secure true \
@@ -73,33 +73,33 @@ RUN pki-server http-connector-add -i tomcat@pki \
   Secure
 
 # Configure SSL server certificate
-RUN pki-server http-connector-cert-add -i tomcat@pki \
+RUN pki-server http-connector-cert-add \
   --keyAlias sslserver \
   --keystoreType pkcs11 \
   --keystoreProvider Mozilla-JSS
 
 # Create PKI ACME application
-RUN pki-server acme-create -i tomcat@pki
+RUN pki-server acme-create
 
 # Use in-memory database by default
-RUN cp /usr/share/pki/acme/database/in-memory/database.conf /var/lib/tomcats/pki/conf/acme
+RUN cp /usr/share/pki/acme/database/in-memory/database.conf /var/lib/pki/pki-tomcat/conf/acme
 
 # Use NSS issuer by default
-RUN cp /usr/share/pki/acme/issuer/nss/issuer.conf /var/lib/tomcats/pki/conf/acme
+RUN cp /usr/share/pki/acme/issuer/nss/issuer.conf /var/lib/pki/pki-tomcat/conf/acme
 
 # Use in-memory realm by default
-RUN cp /usr/share/pki/acme/realm/in-memory/realm.conf /var/lib/tomcats/pki/conf/acme
+RUN cp /usr/share/pki/acme/realm/in-memory/realm.conf /var/lib/pki/pki-tomcat/conf/acme
 
 # Remove PKI ACME web application logging.properties so the logs will appear on the console
 RUN rm -f /usr/share/pki/acme/webapps/acme/WEB-INF/classes/logging.properties
 
 # Deploy PKI ACME application
-RUN pki-server acme-deploy -i tomcat@pki
+RUN pki-server acme-deploy
 
 # Grant the root group the full access to PKI ACME files
 # https://www.openshift.com/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
-RUN chgrp -Rf root /var/lib/tomcats/pki
-RUN chmod -Rf g+rw /var/lib/tomcats/pki
+RUN chgrp -Rf root /var/lib/pki/pki-tomcat
+RUN chmod -Rf g+rw /var/lib/pki/pki-tomcat
 
 VOLUME [ \
     "/certs", \
