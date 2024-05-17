@@ -844,7 +844,12 @@ class NSSDatabase(object):
 
         self.run(cmd, input=cert_data, text=True, check=True, runas=True)
 
-    def add_ca_cert(self, cert_file, trust_attributes='CT,C,C'):
+    def add_ca_cert(
+            self,
+            cert_data=None,
+            cert_file=None,
+            cert_format=None,
+            trust_attributes='CT,C,C'):
 
         # Import CA certificate into internal token with automatically
         # assigned nickname.
@@ -863,13 +868,19 @@ class NSSDatabase(object):
             '-d', self.directory
         ]
 
-        if self.internal_password_file:
+        if self.password_conf:
+            cmd.extend(['-f', self.password_conf])
+
+        elif self.internal_password_file:
             cmd.extend(['-C', self.internal_password_file])
 
-        cmd.extend([
-            'client-cert-import',
-            '--ca-cert', cert_file
-        ])
+        cmd.append('nss-cert-import')
+
+        if cert_file:
+            cmd.extend(['--cert', cert_file])
+
+        if cert_format:
+            cmd.extend(['--format', cert_format])
 
         if trust_attributes:
             cmd.extend(['--trust', trust_attributes])
@@ -880,7 +891,12 @@ class NSSDatabase(object):
         elif logger.isEnabledFor(logging.INFO):
             cmd.append('--verbose')
 
-        self.run(cmd, check=True)
+        if cert_data:
+            data = cert_data.encode('utf-8')
+        else:
+            data = None
+
+        self.run(cmd, input=data, check=True)
 
     def modify_cert(self, nickname, trust_attributes):
         cmd = [
@@ -2289,11 +2305,8 @@ class NSSDatabase(object):
 
                 logger.debug('Importing CA cert bundle')
 
-                cert_file = os.path.join(tmpdir, 'cert.pem')
                 for pem_part in pem_parts:
-                    with open(cert_file, 'w', encoding='utf-8') as f:
-                        f.write(pem_part)
-                    self.add_ca_cert(cert_file)
+                    self.add_ca_cert(cert_data=pem_part)
 
                 return
 
@@ -2426,7 +2439,7 @@ class NSSDatabase(object):
             # Import CA certs with default nicknames and trust attributes.
             for i in range(0, n - 1):
                 cert_file = prefix + str(i) + suffix
-                self.add_ca_cert(cert_file)
+                self.add_ca_cert(cert_file=cert_file)
 
             # Import user cert with specified nickname and trust attributes.
             cert_file = prefix + str(n - 1) + suffix
