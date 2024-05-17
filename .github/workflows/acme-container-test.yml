@@ -112,9 +112,13 @@ jobs:
       - name: Gather artifacts
         if: always()
         run: |
-          docker exec acme ls -la /var/lib/tomcats/pki
-          mkdir -p /tmp/artifacts/acme/var/lib/tomcats
-          docker cp acme:/var/lib/tomcats/pki /tmp/artifacts/acme/var/lib/tomcats
+          docker exec acme ls -la /etc/pki/pki-tomcat
+          mkdir -p /tmp/artifacts/acme/etc/pki
+          docker cp acme:/etc/pki/pki-tomcat /tmp/artifacts/acme/etc/pki
+
+          docker exec acme ls -la /var/log/pki/pki-tomcat
+          mkdir -p /tmp/artifacts/acme/var/log/pki
+          docker cp acme:/var/log/pki/pki-tomcat /tmp/artifacts/acme/var/log/pki
 
           docker exec client ls -la /etc/letsencrypt/live
           mkdir -p /tmp/artifacts/client/etc/letsencrypt
