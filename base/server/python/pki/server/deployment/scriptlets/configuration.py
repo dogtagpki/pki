@@ -60,7 +60,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         nssdb = instance.open_nssdb()
         try:
             deployer.import_system_certs(nssdb, subsystem)
-            deployer.retrieve_cert_chain(nssdb, subsystem)
 
         finally:
             nssdb.close()
