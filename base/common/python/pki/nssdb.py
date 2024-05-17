@@ -2466,57 +2466,42 @@ class NSSDatabase(object):
 
         logger.debug('NSSDatabase.import_pkcs7()')
 
-        if not nickname:
+        cmd = ['pki', '-d', self.directory]
 
-            # Import certificate chain without nickname
+        if self.password_conf:
+            cmd.extend(['-f', self.password_conf])
 
-            cmd = ['pki', '-d', self.directory]
+        elif self.internal_password_file:
+            cmd.extend(['-C', self.internal_password_file])
 
-            if self.internal_password_file:
-                cmd.extend(['-C', self.internal_password_file])
+        token = self.get_effective_token(token)
 
-            cmd.extend(['pkcs7-import'])
+        if token:
+            cmd.extend(['--token', token])
 
-            if pkcs7_file:
-                cmd.extend(['--pkcs7', pkcs7_file])
+        cmd.extend(['pkcs7-import'])
 
-            if trust_attributes:
-                cmd.extend(['--trust', trust_attributes])
+        if pkcs7_file:
+            cmd.extend(['--pkcs7', pkcs7_file])
 
-            if logger.isEnabledFor(logging.DEBUG):
-                cmd.append('--debug')
+        if trust_attributes:
+            cmd.extend(['--trust', trust_attributes])
 
-            elif logger.isEnabledFor(logging.INFO):
-                cmd.append('--verbose')
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
 
-            if pkcs7_data:
-                data = pkcs7_data.encode('utf-8')
-            else:
-                data = None
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
 
-            self.run(cmd, input=data, check=True)
+        if nickname:
+            cmd.append(nickname)
 
-            return
+        if pkcs7_data:
+            data = pkcs7_data.encode('utf-8')
+        else:
+            data = None
 
-        # get certs from PKCS #7
-        certs = self.get_pkcs7_certs(
-            pkcs7_data=pkcs7_data,
-            pkcs7_file=pkcs7_file)
-
-        if len(certs) == 0:
-            # nothing to import
-            return
-
-        # import parent certs without nickname
-        for cert_data in certs[:-1]:
-            self.add_ca_cert(cert_data=cert_data)
-
-        # import leaf cert with nickname
-        self.add_cert(
-            nickname=nickname,
-            cert_data=certs[-1],
-            token=token,
-            trust_attributes=trust_attributes)
+        self.run(cmd, input=data, check=True)
 
     def export_pkcs7(
             self,
