@@ -116,8 +116,25 @@ LABEL name="pki-server" \
 
 EXPOSE 8080 8443
 
+# In OpenShift the server runs as an OpenShift-assigned user
+# (with a random UID) that belongs to the root group (GID=0),
+# so the server instance needs to be owned by the root group.
+#
+# https://www.redhat.com/en/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
+
 # Create PKI server
-RUN pki-server create --group root
+RUN pki-server create \
+    --group root \
+    --conf /data/conf \
+    --logs /data/logs
+
+# In Docker/Podman the server runs as pkiuser (UID=17). To
+# ensure it generates files with the proper ownership the
+# pkiuser's primary group needs to be changed to the root
+# group (GID=0).
+
+# Change pkiuser's primary group to root group
+RUN usermod pkiuser -g root
 
 # Create NSS database
 RUN pki-server nss-create --no-password
@@ -145,6 +162,8 @@ RUN pki-server http-connector-cert-add \
 # https://www.openshift.com/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
 RUN chgrp -Rf root /var/lib/pki/pki-tomcat
 RUN chmod -Rf g+rw /var/lib/pki/pki-tomcat
+
+VOLUME [ "/certs", "/data" ]
 
 CMD [ "/usr/share/pki/server/bin/pki-server-run" ]
 
@@ -231,6 +250,9 @@ RUN rm -f /usr/share/pki/acme/webapps/acme/WEB-INF/classes/logging.properties
 # Deploy PKI ACME application
 RUN pki-server acme-deploy
 
+# Store default config files
+RUN mv /data/conf /var/lib/pki/pki-tomcat/conf.default
+
 # Grant the root group the full access to PKI ACME files
 # https://www.openshift.com/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
 RUN chgrp -Rf root /var/lib/pki/pki-tomcat
@@ -241,7 +263,8 @@ VOLUME [ \
     "/metadata", \
     "/database", \
     "/issuer", \
-    "/realm" ]
+    "/realm", \
+    "/data" ]
 
 CMD [ "/usr/share/pki/acme/bin/pki-acme-run" ]
 

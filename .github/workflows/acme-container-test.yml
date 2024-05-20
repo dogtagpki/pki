@@ -28,6 +28,15 @@ jobs:
       - name: Create network
         run: docker network create example
 
+      - name: Create shared folders
+        run: |
+          mkdir certs
+          mkdir metadata
+          mkdir database
+          mkdir issuer
+          mkdir realm
+          mkdir data
+
       - name: Set up ACME container
         run: |
           docker run \
@@ -35,6 +44,12 @@ jobs:
               --hostname acme.example.com \
               --network example \
               --network-alias acme.example.com \
+              -v $PWD/certs:/certs \
+              -v $PWD/metadata:/metadata \
+              -v $PWD/database:/database \
+              -v $PWD/issuer:/issuer \
+              -v $PWD/realm:/realm \
+              -v $PWD/data:/data \
               --detach \
               pki-acme
 
@@ -60,6 +75,96 @@ jobs:
               -k \
               -o /dev/null \
               http://acme.example.com:8080/acme/directory
+
+      - name: Check data dir
+        if: always()
+        run: |
+          ls -l data \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          # everything should be owned by pkiuser:root (UID=17, GID=0)
+          # TODO: review owners/permissions
+          cat > expected << EOF
+          drwxrwxrwx 17 root conf
+          drwxrwxrwx 17 root logs
+          EOF
+
+          diff expected output
+
+      - name: Check data/conf dir
+        if: always()
+        run: |
+          ls -l data/conf \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          # everything should be owned by pkiuser:root (UID=17, GID=0)
+          # TODO: review owners/permissions
+          cat > expected << EOF
+          drwxrwxrwx 17 root Catalina
+          drwxrwxrwx 17 root acme
+          drwxrwxrwx 17 root alias
+          -rw-rw-rw- 17 root catalina.policy
+          lrwxrwxrwx 17 root catalina.properties -> /usr/share/pki/server/conf/catalina.properties
+          drwxrwxrwx 17 root certs
+          lrwxrwxrwx 17 root context.xml -> /etc/tomcat/context.xml
+          -rw-rw-rw- 17 root jss.conf
+          lrwxrwxrwx 17 root logging.properties -> /usr/share/pki/server/conf/logging.properties
+          -rw-rw-rw- 17 root password.conf
+          -rw-rw-rw- 17 root server.xml
+          -rw-rw-rw- 17 root tomcat.conf
+          lrwxrwxrwx 17 root web.xml -> /etc/tomcat/web.xml
+          EOF
+
+          diff expected output
+
+      - name: Check data/conf/acme dir
+        if: always()
+        run: |
+          ls -l data/conf/acme \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          # everything should be owned by pkiuser:root (UID=17, GID=0)
+          # TODO: review owners/permissions
+          cat > expected << EOF
+          -rw-rw-rw- 17 root database.conf
+          -rw-rw-rw- 17 root issuer.conf
+          -rw-rw-rw- 17 root realm.conf
+          EOF
+
+          diff expected output
+
+      - name: Check data/logs dir
+        if: always()
+        run: |
+          ls -l data/logs \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          DATE=$(date +'%Y-%m-%d')
+
+          # everything should be owned by pkiuser:root (UID=17, GID=0)
+          # TODO: review owners/permissions
+          cat > expected << EOF
+          drwxrwx--- 17 root backup
+          -rw-rw-rw- root root catalina.$DATE.log
+          -rw-rw-rw- root root host-manager.$DATE.log
+          -rw-rw-rw- root root localhost.$DATE.log
+          -rw-rw-rw- root root localhost_access_log.$DATE.txt
+          -rw-rw-rw- root root manager.$DATE.log
+          EOF
+
+          diff expected output
 
       - name: Verify certbot in client container
         run: |
