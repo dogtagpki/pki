@@ -7,6 +7,27 @@
 
 . /usr/share/pki/scripts/config
 
+# Allow the owner of the container (who might not be in the root group)
+# to manage the config and log files.
+umask 000
+
+echo "################################################################################"
+
+if [ ! -d /data/conf ]
+then
+    echo "INFO: Creating /data/conf"
+    cp -r /var/lib/pki/pki-tomcat/conf.default /data/conf
+    chown -Rf pkiuser:root /data/conf
+    find /data/conf -type f -exec chmod +rw -- {} +
+    find /data/conf -type d -exec chmod +rwx -- {} +
+fi
+
+echo "################################################################################"
+
+echo "INFO: Creating /data/logs"
+mkdir -p /data/logs
+chown -Rf pkiuser:root /data/logs
+
 echo "################################################################################"
 
 # import metadata configuration if available
