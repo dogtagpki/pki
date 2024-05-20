@@ -171,6 +171,7 @@ public class EnrollmentService implements IService {
         request.setExtData("delayLDAPCommit", "true");
 
         String transportCert = request.getExtDataInString(Request.REQUEST_TRANSPORT_CERT);
+        logger.info("EnrollmentServlet: request transport cert: " + transportCert);
         if (transportCert != null && transportCert.length() > 0) {
             //logger.debug("EnrollmentService: serviceRequest: transportCert=" + transportCert);
             logger.debug("EnrollmentService: serviceRequest: transportCert is in request");

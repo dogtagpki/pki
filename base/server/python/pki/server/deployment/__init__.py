@@ -2322,7 +2322,7 @@ class PKIDeployer:
 
         nickname = self.mdict['pki_cert_chain_nickname']
         logger.info('Importing cert chain as %s', nickname)
-        logger.info('- cert chain:\n%s', cert_chain)
+        logger.debug('- cert chain:\n%s', cert_chain)
 
         nssdb.import_cert_chain(
             nickname=nickname,

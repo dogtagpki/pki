@@ -75,113 +75,129 @@ class Identity:
 
     def __add_gid(self, pki_group):
 
-        logger.info('Setting up %s group', pki_group)
-
         try:
             # Does the specified 'pki_group' exist?
             pki_gid = getgrnam(pki_group)[2]
 
-            logger.info('Reusing existing %s group with GID %s', pki_group, pki_gid)
+            logger.info('Reusing %s group (GID: %s)', pki_group, pki_gid)
+            return
 
         except KeyError as e:
             # No, group 'pki_group' does not exist!
             logger.debug(log.PKIHELPER_GROUP_ADD_KEYERROR_1, e)
-            try:
-                # Is the default well-known GID already defined?
-                group = getgrgid(config.PKI_DEPLOYMENT_DEFAULT_GID)[0]
-                # Yes, the default well-known GID exists!
-                logger.info(
-                    log.PKIHELPER_GROUP_ADD_DEFAULT_2,
-                    group, config.PKI_DEPLOYMENT_DEFAULT_GID)
-                # Attempt to create 'pki_group' using a random GID.
+
+        logger.info('Creating %s group', pki_group)
+
+        try:
+            # Is the default well-known GID already defined?
+            group = getgrgid(config.PKI_DEPLOYMENT_DEFAULT_GID)[0]
+
+            # Yes, the default well-known GID exists!
+            logger.info(
+                log.PKIHELPER_GROUP_ADD_DEFAULT_2,
+                group, config.PKI_DEPLOYMENT_DEFAULT_GID)
+
+            # Attempt to create 'pki_group' using a random GID.
+            command = ["/usr/sbin/groupadd", pki_group]
+
+        except KeyError as exc:
+            # No, the default well-known GID does not exist!
+            logger.debug(log.PKIHELPER_GROUP_ADD_GID_KEYERROR_1, exc)
+
+            # Is the specified 'pki_group' the default well-known group?
+            if pki_group == config.PKI_DEPLOYMENT_DEFAULT_GROUP:
+                # Yes, attempt to create the default well-known group
+                # using the default well-known GID.
+                command = ["/usr/sbin/groupadd",
+                           "-g", str(config.PKI_DEPLOYMENT_DEFAULT_GID),
+                           "-r", pki_group]
+
+            else:
+                # No, attempt to create 'pki_group' using a random GID.
                 command = ["/usr/sbin/groupadd", pki_group]
-            except KeyError as exc:
-                # No, the default well-known GID does not exist!
-                logger.debug(log.PKIHELPER_GROUP_ADD_GID_KEYERROR_1, exc)
-                # Is the specified 'pki_group' the default well-known group?
-                if pki_group == config.PKI_DEPLOYMENT_DEFAULT_GROUP:
-                    # Yes, attempt to create the default well-known group
-                    # using the default well-known GID.
-                    command = ["/usr/sbin/groupadd",
-                               "-g", str(config.PKI_DEPLOYMENT_DEFAULT_GID),
-                               "-r", pki_group]
-                else:
-                    # No, attempt to create 'pki_group' using a random GID.
-                    command = ["/usr/sbin/groupadd", pki_group]
-            try:
-                logger.debug('Command: %s', ' '.join(command))
-                with open(os.devnull, "w", encoding='utf-8') as fnull:
-                    subprocess.check_call(command, stdout=fnull, stderr=fnull,
-                                          close_fds=True)
-            except subprocess.CalledProcessError as exc:
-                logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
-                raise
-            except OSError as exc:
-                logger.error(log.PKI_OSERROR_1, exc)
-                raise
-        return
+
+        try:
+            logger.debug('Command: %s', ' '.join(command))
+            with open(os.devnull, "w", encoding='utf-8') as fnull:
+                subprocess.check_call(command, stdout=fnull, stderr=fnull, close_fds=True)
+
+        except subprocess.CalledProcessError as exc:
+            logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
+            raise
+
+        except OSError as exc:
+            logger.error(log.PKI_OSERROR_1, exc)
+            raise
 
     def __add_uid(self, pki_user, pki_group):
-
-        logger.info('Setting up %s user', pki_user)
 
         try:
             # Does the specified 'pki_user' exist?
             pki_uid = getpwnam(pki_user)[2]
 
-            logger.info('Reusing existing %s user with UID %s', pki_user, pki_uid)
+            logger.info('Reusing %s user (UID: %s)', pki_user, pki_uid)
+            return
 
         except KeyError as e:
             # No, user 'pki_user' does not exist!
             logger.debug(log.PKIHELPER_USER_ADD_KEYERROR_1, e)
-            try:
-                # Is the default well-known UID already defined?
-                user = getpwuid(config.PKI_DEPLOYMENT_DEFAULT_UID)[0]
-                # Yes, the default well-known UID exists!
-                logger.info(
-                    log.PKIHELPER_USER_ADD_DEFAULT_2,
-                    user, config.PKI_DEPLOYMENT_DEFAULT_UID)
-                # Attempt to create 'pki_user' using a random UID.
+
+        logger.info('Creating %s user', pki_user)
+
+        try:
+            # Is the default well-known UID already defined?
+            user = getpwuid(config.PKI_DEPLOYMENT_DEFAULT_UID)[0]
+
+            # Yes, the default well-known UID exists!
+            logger.info(
+                log.PKIHELPER_USER_ADD_DEFAULT_2,
+                user, config.PKI_DEPLOYMENT_DEFAULT_UID)
+
+            # Attempt to create 'pki_user' using a random UID.
+            command = ["/usr/sbin/useradd",
+                       "-g", pki_group,
+                       "-d", config.PKI_DEPLOYMENT_SOURCE_ROOT,
+                       "-s", config.PKI_DEPLOYMENT_DEFAULT_SHELL,
+                       "-c", config.PKI_DEPLOYMENT_DEFAULT_COMMENT,
+                       pki_user]
+
+        except KeyError as exc:
+            # No, the default well-known UID does not exist!
+            logger.debug(log.PKIHELPER_USER_ADD_UID_KEYERROR_1, exc)
+
+            # Is the specified 'pki_user' the default well-known user?
+            if pki_user == config.PKI_DEPLOYMENT_DEFAULT_USER:
+                # Yes, attempt to create the default well-known user
+                # using the default well-known UID.
+                command = ["/usr/sbin/useradd",
+                           "-g", pki_group,
+                           "-d", config.PKI_DEPLOYMENT_SOURCE_ROOT,
+                           "-s", config.PKI_DEPLOYMENT_DEFAULT_SHELL,
+                           "-c", config.PKI_DEPLOYMENT_DEFAULT_COMMENT,
+                           "-u", str(config.PKI_DEPLOYMENT_DEFAULT_UID),
+                           "-r", pki_user]
+
+            else:
+                # No, attempt to create 'pki_user' using a random UID.
                 command = ["/usr/sbin/useradd",
                            "-g", pki_group,
                            "-d", config.PKI_DEPLOYMENT_SOURCE_ROOT,
                            "-s", config.PKI_DEPLOYMENT_DEFAULT_SHELL,
                            "-c", config.PKI_DEPLOYMENT_DEFAULT_COMMENT,
                            pki_user]
-            except KeyError as exc:
-                # No, the default well-known UID does not exist!
-                logger.debug(log.PKIHELPER_USER_ADD_UID_KEYERROR_1, exc)
-                # Is the specified 'pki_user' the default well-known user?
-                if pki_user == config.PKI_DEPLOYMENT_DEFAULT_USER:
-                    # Yes, attempt to create the default well-known user
-                    # using the default well-known UID.
-                    command = ["/usr/sbin/useradd",
-                               "-g", pki_group,
-                               "-d", config.PKI_DEPLOYMENT_SOURCE_ROOT,
-                               "-s", config.PKI_DEPLOYMENT_DEFAULT_SHELL,
-                               "-c", config.PKI_DEPLOYMENT_DEFAULT_COMMENT,
-                               "-u", str(config.PKI_DEPLOYMENT_DEFAULT_UID),
-                               "-r", pki_user]
-                else:
-                    # No, attempt to create 'pki_user' using a random UID.
-                    command = ["/usr/sbin/useradd",
-                               "-g", pki_group,
-                               "-d", config.PKI_DEPLOYMENT_SOURCE_ROOT,
-                               "-s", config.PKI_DEPLOYMENT_DEFAULT_SHELL,
-                               "-c", config.PKI_DEPLOYMENT_DEFAULT_COMMENT,
-                               pki_user]
-            try:
-                logger.debug('Command: %s', ' '.join(command))
-                with open(os.devnull, "w", encoding='utf-8') as fnull:
-                    subprocess.check_call(command, stdout=fnull, stderr=fnull,
-                                          close_fds=True)
-            except subprocess.CalledProcessError as exc:
-                logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
-                raise
-            except OSError as exc:
-                logger.error(log.PKI_OSERROR_1, exc)
-                raise
-        return
+
+        try:
+            logger.debug('Command: %s', ' '.join(command))
+            with open(os.devnull, "w", encoding='utf-8') as fnull:
+                subprocess.check_call(command, stdout=fnull, stderr=fnull, close_fds=True)
+
+        except subprocess.CalledProcessError as exc:
+            logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
+            raise
+
+        except OSError as exc:
+            logger.error(log.PKI_OSERROR_1, exc)
+            raise
 
     def add_uid_and_gid(self, pki_user, pki_group):
         self.__add_gid(pki_group)

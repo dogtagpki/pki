@@ -196,13 +196,13 @@ public class PKIService {
             if (MediaType.APPLICATION_XML_TYPE.isCompatible(responseFormat)) {
                 Method method = clazz.getMethod("toXML");
                 response = method.invoke(response);
-                logger.info("PKIService: XML response:\n" + response);
+                logger.debug("PKIService: XML response:\n" + response);
 
             } else if (MediaType.APPLICATION_JSON_TYPE.isCompatible(responseFormat)) {
                 // TODO: enable support for JSON
                 // Method method = clazz.getMethod("toJSON");
                 // response = method.invoke(response);
-                // logger.info("PKIService: JSON response:\n" + response);
+                // logger.debug("PKIService: JSON response:\n" + response);
             }
 
         } catch (NoSuchMethodException e) {
@@ -228,12 +228,12 @@ public class PKIService {
 
         try {
             if (MediaType.APPLICATION_XML_TYPE.isCompatible(requestFormat)) {
-                logger.info("PKIService: XML request:\n" + request);
+                logger.debug("PKIService: XML request:\n" + request);
                 Method method = clazz.getMethod("fromXML", String.class);
                 return (T) method.invoke(null, request);
 
             } else if (MediaType.APPLICATION_JSON_TYPE.isCompatible(requestFormat)) {
-                logger.info("PKIService: JSON request:\n" + request);
+                logger.debug("PKIService: JSON request:\n" + request);
                 return JSONSerializer.fromJSON((String) request, clazz);
             }
 

@@ -392,7 +392,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
             incReqCount(theRec.getId());
         }
 
-        logger.info("DefStore: Issuer: " + theCert);
+        logger.debug("DefStore: Issuer cert: " + theCert);
 
         if (theCert == null) {
             logger.warn("Missing issuer certificate");
@@ -400,7 +400,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
             return new SingleResponse(cid, new UnknownInfo(), new GeneralizedTime(new Date()), null);
         }
 
-        logger.info("DefStore: Issuer: " + theCert.getSubjectX500Principal());
+        logger.info("DefStore: Issuer DN: " + theCert.getSubjectX500Principal());
 
         // check the serial number
         logger.info("Checked Status of certificate 0x" + serialNo.toString(16));

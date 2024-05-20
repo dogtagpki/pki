@@ -266,7 +266,7 @@ public class OCSPPublisher
             String pemCRL = CertUtil.CRL_HEADER + "\n" +
                     Utils.base64encode(crl.getEncoded(), true) +
                     CertUtil.CRL_FOOTER;
-            logger.info("OCSPPublisher: CRL:\n" + pemCRL);
+            logger.debug("OCSPPublisher: CRL:\n" + pemCRL);
 
             StringBuilder query = new StringBuilder();
             query.append("crl=");

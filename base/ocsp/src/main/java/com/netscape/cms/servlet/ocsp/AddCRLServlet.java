@@ -199,7 +199,7 @@ public class AddCRLServlet extends CMSServlet {
             }
 
             String b64 = cmsReq.getHttpReq().getParameter("crl");
-            logger.info("AddCRLServlet: CRL:\n" + b64);
+            logger.debug("AddCRLServlet: CRL:\n" + b64);
 
             if (b64 == null) {
                 // store a message in the signed audit log file
@@ -352,7 +352,7 @@ public class AddCRLServlet extends CMSServlet {
                 pt = defStore.readCRLIssuingPoint(
                             crl.getIssuerDN().getName());
             } catch (Exception e) {
-                logger.error(CMS.getLogMessage("CMSGW_NO_CRL_ISSUING_POINT_FOUND", crl.getIssuerDN().getName()), e);
+                logger.error("Unable to retrieve CRL issuing point: " + e.getMessage(), e);
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
@@ -362,9 +362,9 @@ public class AddCRLServlet extends CMSServlet {
 
                 auditor.log(auditMessage);
 
-                throw new ECMSGWException(
-                        CMS.getUserMessage("CMS_GW_DECODING_CRL_ERROR"));
+                throw new ECMSGWException("Unable to retrieve CRL issuing point: " + e.getMessage(), e);
             }
+
             logger.info("AddCRLServlet: Issuing Point: " + pt.getThisUpdate());
 
             // verify CRL

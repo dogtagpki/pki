@@ -123,7 +123,7 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
             throw new BadRequestException("Missing key archival request");
         }
 
-        logger.info("Request:\n" + data.toJSON());
+        logger.debug("Request:\n" + data.toJSON());
 
         if (data.getClientKeyId() == null || data.getDataType() == null) {
             throw new BadRequestException("Invalid key archival request.");
@@ -172,7 +172,7 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
                     response.getRequestInfo().getRequestID(),
                     data.getClientKeyId()));
 
-            logger.info("Response:\n" + response.toJSON());
+            logger.debug("Response:\n" + response.toJSON());
 
             return createCreatedResponse(response, new URI(response.getRequestInfo().getRequestURL()));
 

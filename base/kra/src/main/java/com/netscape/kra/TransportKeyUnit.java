@@ -229,21 +229,25 @@ public class TransportKeyUnit extends EncryptionUnit {
             if (mCert != null) {
                 try {
                     certB64 = Utils.base64encode(mCert.getEncoded(), true).replaceAll("\n", "").replaceAll("\r", "");
+                    logger.info("TransportKeyUnitServlet: transport cert: " + certB64);
                     if (transportCert.equals(certB64)) {
                         cert = mCert;
                         logger.debug("TransportKeyUnit:  Transport certificate verified");
                     }
                 } catch (Exception e) {
+                    logger.warn("Unable to check transport cert: " + e.getMessage(), e);
                 }
             }
             if (cert == null && mNewCert != null) {
                 try {
                     certB64 = Utils.base64encode(mNewCert.getEncoded(), true).replaceAll("\n", "").replaceAll("\r", "");
+                    logger.info("TransportKeyUnit: new transport cert: " + certB64);
                     if (transportCert.equals(certB64)) {
                         cert = mNewCert;
                         logger.debug("TransportKeyUnit:  New transport certificate verified");
                     }
                 } catch (Exception e) {
+                    logger.warn("Unable to check new transport cert: " + e.getMessage(), e);
                 }
             }
         } else {

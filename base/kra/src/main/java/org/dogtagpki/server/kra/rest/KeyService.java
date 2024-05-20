@@ -144,7 +144,7 @@ public class KeyService extends SubsystemService implements KeyResource {
             throw new BadRequestException("Missing key recovery request");
         }
 
-        logger.info("KeyService: Request:\n" + data.toJSON());
+        logger.debug("KeyService: Request:\n" + data.toJSON());
 
         auditInfo = "KeyService.retrieveKey";
 
@@ -244,7 +244,7 @@ public class KeyService extends SubsystemService implements KeyResource {
                 KeyData keyData = new KeyData();
                 keyData.setRequestID(requestId);
 
-                logger.info("KeyService: Response:\n" + keyData.toJSON());
+                logger.debug("KeyService: Response:\n" + keyData.toJSON());
 
                 return createOKResponse(keyData);
             }
@@ -293,7 +293,7 @@ public class KeyService extends SubsystemService implements KeyResource {
         approvers = request.getExtDataInString(Request.ATTR_APPROVE_AGENTS);
         auditRecoveryRequestProcessed(ILogger.SUCCESS, null);
 
-        logger.info("KeyService: Response:\n" + keyData.toJSON());
+        logger.debug("KeyService: Response:\n" + keyData.toJSON());
 
         auditRetrieveKey(ILogger.SUCCESS);
         return createOKResponse(keyData);
@@ -531,7 +531,7 @@ public class KeyService extends SubsystemService implements KeyResource {
                 if (rec == null) continue;
 
                 KeyInfo info = createKeyDataInfo(rec, false);
-                logger.info("KeyService: - key " + info.getKeyId());
+                logger.info("KeyService: - key: " + info.getKeyId());
                 results.add(info);
 
                 auditKeyInfoSuccess(info.getKeyId(), null);
