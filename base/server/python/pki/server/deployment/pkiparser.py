@@ -55,148 +55,208 @@ class PKIConfigParser:
 
     # Deprecated param can be defined with the following tuple:
     #
-    #   (sections, param, new_section, new_param)
+    #   (sections, param, new_section, new_param, info)
     #
     # The 'sections' is a list of sections to check for the deprecated param. None
     # means the following sections will be checked: DEFAULT, Tomcat, and <subsystem>.
     # The 'param' is the deprecated param name.
     # The 'new_section' is the proper section of the new param. None means unchanged.
     # The 'new_param' is the new param name.
+    # The 'info' is an additional info for the deprecation.
 
     DEPRECATED_DEFAULT_PARAMS = [
         (None, 'pki_admin_keysize',
-         None, 'pki_admin_key_size'),
+         None, 'pki_admin_key_size',
+         None),
         (None, 'pki_external_ca_cert_path',
-         None, 'pki_ca_signing_cert_path'),
+         None, 'pki_ca_signing_cert_path',
+         None),
         (None, 'pki_external_ca_cert_chain_path',
-         None, 'pki_cert_chain_path'),
+         None, 'pki_cert_chain_path',
+         None),
         (None, 'pki_external_ca_cert_chain_nickname',
-         None, 'pki_cert_chain_nickname'),
+         None, 'pki_cert_chain_nickname',
+         None),
         (None, 'pki_ssl_server_key_algorithm',
-         None, 'pki_sslserver_key_algorithm'),
+         None, 'pki_sslserver_key_algorithm',
+         None),
         (None, 'pki_ssl_server_key_size',
-         None, 'pki_sslserver_key_size'),
+         None, 'pki_sslserver_key_size',
+         None),
         (None, 'pki_ssl_server_key_type',
-         None, 'pki_sslserver_key_type'),
+         None, 'pki_sslserver_key_type',
+         None),
         (None, 'pki_ssl_server_nickname',
-         None, 'pki_sslserver_nickname'),
+         None, 'pki_sslserver_nickname',
+         None),
         (None, 'pki_ssl_server_subject_dn',
-         None, 'pki_sslserver_subject_dn'),
+         None, 'pki_sslserver_subject_dn',
+         None),
         (None, 'pki_ssl_server_token',
-         None, 'pki_sslserver_token'),
+         None, 'pki_sslserver_token',
+         None),
         (None, 'pki_database_path',
-         None, None),
+         None, None,
+         'This parameter can be safely removed.'),
         (None, 'pki_server_database_path',
-         None, None),
+         None, None,
+         'This parameter can be safely removed.'),
         (None, 'pki_pin',
-         None, 'pki_server_database_password'),
+         None, 'pki_server_database_password',
+         None),
         (None, 'pki_ajp_host',
-         None, 'pki_ajp_host_ipv4'),
+         None, 'pki_ajp_host_ipv4',
+         None),
         (None, 'pki_restart_configured_instance',
-         None, None),
+         None, None,
+         'This parameter can be safely removed.'),
         (None, 'pki_existing',
-         None, None),
+         None, None,
+         'This parameter can be safely removed.'),
     ]
 
     DEPRECATED_CA_PARAMS = [
         (['CA'], 'pki_external_csr_path',
-         None, 'pki_ca_signing_csr_path'),
+         None, 'pki_ca_signing_csr_path',
+         None),
         (['CA'], 'pki_ds_hostname',
-         None, 'pki_ds_url'),
+         None, 'pki_ds_url',
+         None),
         (['CA'], 'pki_ds_ldap_port',
-         None, 'pki_ds_url'),
+         None, 'pki_ds_url',
+         None),
         (['CA'], 'pki_ds_ldaps_port',
-         None, 'pki_ds_url'),
+         None, 'pki_ds_url',
+         None),
         (['CA'], 'pki_ds_secure_connection',
-         None, 'pki_ds_url'),
+         None, 'pki_ds_url',
+         None),
     ]
 
     DEPRECATED_KRA_PARAMS = [
         (['KRA'], 'pki_external_admin_csr_path',
-         None, 'pki_admin_csr_path'),
+         None, 'pki_admin_csr_path',
+         None),
         (['KRA'], 'pki_external_audit_signing_csr_path',
-         None, 'pki_audit_signing_csr_path'),
+         None, 'pki_audit_signing_csr_path',
+         None),
         (['KRA'], 'pki_external_sslserver_csr_path',
-         None, 'pki_sslserver_csr_path'),
+         None, 'pki_sslserver_csr_path',
+         None),
         (['KRA'], 'pki_external_storage_csr_path',
-         None, 'pki_storage_csr_path'),
+         None, 'pki_storage_csr_path',
+         None),
         (['KRA'], 'pki_external_subsystem_csr_path',
-         None, 'pki_subsystem_csr_path'),
+         None, 'pki_subsystem_csr_path',
+         None),
         (['KRA'], 'pki_external_transport_csr_path',
-         None, 'pki_transport_csr_path'),
+         None, 'pki_transport_csr_path',
+         None),
         (['KRA'], 'pki_external_admin_cert_path',
-         None, 'pki_admin_cert_path'),
+         None, 'pki_admin_cert_path',
+         None),
         (['KRA'], 'pki_external_audit_signing_cert_path',
-         None, 'pki_audit_signing_cert_path'),
+         None, 'pki_audit_signing_cert_path',
+         None),
         (['KRA'], 'pki_external_sslserver_cert_path',
-         None, 'pki_sslserver_cert_path'),
+         None, 'pki_sslserver_cert_path',
+         None),
         (['KRA'], 'pki_external_storage_cert_path',
-         None, 'pki_storage_cert_path'),
+         None, 'pki_storage_cert_path',
+         None),
         (['KRA'], 'pki_external_subsystem_cert_path',
-         None, 'pki_subsystem_cert_path'),
+         None, 'pki_subsystem_cert_path',
+         None),
         (['KRA'], 'pki_external_transport_cert_path',
-         None, 'pki_transport_cert_path'),
+         None, 'pki_transport_cert_path',
+         None),
         (['KRA'], 'pki_ds_hostname',
-         None, 'pki_ds_url'),
+         None, 'pki_ds_url',
+         None),
         (['KRA'], 'pki_ds_ldap_port',
-         None, 'pki_ds_url'),
+         None, 'pki_ds_url',
+         None),
         (['KRA'], 'pki_ds_ldaps_port',
-         None, 'pki_ds_url'),
+         None, 'pki_ds_url',
+         None),
         (['KRA'], 'pki_ds_secure_connection',
-         None, 'pki_ds_url'),
+         None, 'pki_ds_url',
+         None),
     ]
 
     DEPRECATED_OCSP_PARAMS = [
         (['OCSP'], 'pki_external_admin_csr_path',
-         None, 'pki_admin_csr_path'),
+         None, 'pki_admin_csr_path',
+         None),
         (['OCSP'], 'pki_external_audit_signing_csr_path',
-         None, 'pki_audit_signing_csr_path'),
+         None, 'pki_audit_signing_csr_path',
+         None),
         (['OCSP'], 'pki_external_signing_csr_path',
-         None, 'pki_ocsp_signing_csr_path'),
+         None, 'pki_ocsp_signing_csr_path',
+         None),
         (['OCSP'], 'pki_external_sslserver_csr_path',
-         None, 'pki_sslserver_csr_path'),
+         None, 'pki_sslserver_csr_path',
+         None),
         (['OCSP'], 'pki_external_subsystem_csr_path',
-         None, 'pki_subsystem_csr_path'),
+         None, 'pki_subsystem_csr_path',
+         None),
         (['OCSP'], 'pki_external_admin_cert_path',
-         None, 'pki_admin_cert_path'),
+         None, 'pki_admin_cert_path',
+         None),
         (['OCSP'], 'pki_external_audit_signing_cert_path',
-         None, 'pki_audit_signing_cert_path'),
+         None, 'pki_audit_signing_cert_path',
+         None),
         (['OCSP'], 'pki_external_signing_cert_path',
-         None, 'pki_ocsp_signing_cert_path'),
+         None, 'pki_ocsp_signing_cert_path',
+         None),
         (['OCSP'], 'pki_external_sslserver_cert_path',
-         None, 'pki_sslserver_cert_path'),
+         None, 'pki_sslserver_cert_path',
+         None),
         (['OCSP'], 'pki_external_subsystem_cert_path',
-         None, 'pki_subsystem_cert_path'),
+         None, 'pki_subsystem_cert_path',
+         None),
         (['OCSP'], 'pki_ds_hostname',
-         None, 'pki_ds_url'),
+         None, 'pki_ds_url',
+         None),
         (['OCSP'], 'pki_ds_ldap_port',
-         None, 'pki_ds_url'),
+         None, 'pki_ds_url',
+         None),
         (['OCSP'], 'pki_ds_ldaps_port',
-         None, 'pki_ds_url'),
+         None, 'pki_ds_url',
+         None),
         (['OCSP'], 'pki_ds_secure_connection',
-         None, 'pki_ds_url'),
+         None, 'pki_ds_url',
+         None),
     ]
 
     DEPRECATED_TKS_PARAMS = [
         (['TKS'], 'pki_ds_hostname',
-         None, 'pki_ds_url'),
+         None, 'pki_ds_url',
+         None),
         (['TKS'], 'pki_ds_ldap_port',
-         None, 'pki_ds_url'),
+         None, 'pki_ds_url',
+         None),
         (['TKS'], 'pki_ds_ldaps_port',
-         None, 'pki_ds_url'),
+         None, 'pki_ds_url',
+         None),
         (['TKS'], 'pki_ds_secure_connection',
-         None, 'pki_ds_url'),
+         None, 'pki_ds_url',
+         None),
     ]
 
     DEPRECATED_TPS_PARAMS = [
         (['TPS'], 'pki_ds_hostname',
-         None, 'pki_ds_url'),
+         None, 'pki_ds_url',
+         None),
         (['TPS'], 'pki_ds_ldap_port',
-         None, 'pki_ds_url'),
+         None, 'pki_ds_url',
+         None),
         (['TPS'], 'pki_ds_ldaps_port',
-         None, 'pki_ds_url'),
+         None, 'pki_ds_url',
+         None),
         (['TPS'], 'pki_ds_secure_connection',
-         None, 'pki_ds_url'),
+         None, 'pki_ds_url',
+         None),
     ]
 
     DEPRECATED_PARAMS = DEPRECATED_DEFAULT_PARAMS + \
@@ -517,7 +577,8 @@ class PKIConfigParser:
 
         # Check all deprecated params.
 
-        for (sections, param, new_section, new_param) in PKIConfigParser.DEPRECATED_PARAMS:
+        for (sections, param, new_section, new_param, info) \
+                in PKIConfigParser.DEPRECATED_PARAMS:
 
             # If list of sections is not defined, check DEFAULT, Tomcat, and <subsystem> sections.
             # Check DEFAULT first because params in DEFAULT will appear in all other sections.
@@ -540,20 +601,21 @@ class PKIConfigParser:
 
             # no new section and no replacement param -> display removal warning
             if not new_section and not new_param:
-                logger.warning(
-                    'The \'%s\' in [%s] is no longer used. Remove the parameter.',
-                    param, section)
-                return
+                message = 'The \'%s\' in [%s] is no longer used.' % (param, section)
 
-            # display deprecation warning
-            message = 'The \'%s\' in [%s] has been deprecated.' % (param, section)
-
-            # If new param is defined in a different section, include it in message.
-
-            if new_section and new_section != section:
-                message = '%s Use \'%s\' in [%s] instead.' % (message, new_param, new_section)
             else:
-                message = '%s Use \'%s\' instead.' % (message, new_param)
+                # display deprecation warning
+                message = 'The \'%s\' in [%s] has been deprecated.' % (param, section)
+
+                # If new param is defined in a different section, include it in message.
+
+                if new_section and new_section != section:
+                    message = '%s Use \'%s\' in [%s] instead.' % (message, new_param, new_section)
+                else:
+                    message = '%s Use \'%s\' instead.' % (message, new_param)
+
+            if info:
+                message = '%s %s' % (message, info)
 
             logger.warning(message)
 
