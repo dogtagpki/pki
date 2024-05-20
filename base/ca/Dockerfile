@@ -50,12 +50,43 @@ RUN dnf install -y rpm-build \
     && rm -rf /var/cache/dnf \
     && rm -rf build
 
+# In OpenShift the server runs as an OpenShift-assigned user
+# (with a random UID) that belongs to the root group (GID=0),
+# so the server instance needs to be owned by the root group.
+#
+# https://www.redhat.com/en/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
+
 # Create PKI server
-RUN pki-server create --group root
+RUN pki-server create \
+    --group root \
+    --conf /data/conf \
+    --logs /data/logs
+
+# In Docker/Podman the server runs as pkiuser (UID=17). To
+# ensure it generates files with the proper ownership the
+# pkiuser's primary group needs to be changed to the root
+# group (GID=0).
+
+# Change pkiuser's primary group to root group
+RUN usermod pkiuser -g root
 
 # Create NSS database
 RUN pki-server nss-create --no-password
 
-VOLUME [ "/certs" ]
+# Create CA subsystem
+RUN pki-server ca-create
+
+# Deploy CA subsystem
+RUN pki-server ca-deploy
+
+# Store default config files
+RUN mv /data/conf /var/lib/pki/pki-tomcat/conf.default
+
+# Grant the root group the full access to PKI server files
+# https://www.openshift.com/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
+RUN chgrp -Rf root /var/lib/pki/pki-tomcat
+RUN chmod -Rf g+rw /var/lib/pki/pki-tomcat
+
+VOLUME [ "/certs", "/data" ]
 
 CMD [ "/usr/share/pki/ca/bin/pki-ca-run" ]

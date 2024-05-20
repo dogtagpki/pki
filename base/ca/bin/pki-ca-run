@@ -10,9 +10,14 @@ umask 000
 
 echo "################################################################################"
 
-echo "INFO: Creating /data/conf"
-mkdir -p /data/conf
-chown -Rf pkiuser:root /data/conf
+if [ ! -d /data/conf ]
+then
+    echo "INFO: Creating /data/conf"
+    cp -r /var/lib/pki/pki-tomcat/conf.default /data/conf
+    chown -Rf pkiuser:root /data/conf
+    find /data/conf -type f -exec chmod +rw -- {} +
+    find /data/conf -type d -exec chmod +rwx -- {} +
+fi
 
 echo "################################################################################"
 
