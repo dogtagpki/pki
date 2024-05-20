@@ -560,7 +560,20 @@ def main(argv):
     deployer.instance.group = deployer.mdict['pki_group']
 
     if args.conf_dir:
-        deployer.instance.actual_conf_dir = args.conf_dir
+        # Use --conf <dir> if specified.
+        conf_dir = args.conf_dir
+
+    else:
+        # Otherwise, use pki_instance_configuration_path param (default: None).
+        # This param is used by IPA to support containers. See:
+        # https://github.com/freeipa/freeipa/blob/master/install/share/ipaca_default.ini
+        conf_dir = deployer.mdict.get('pki_instance_configuration_path')
+
+    if conf_dir:
+        # If conf_dir is specified, the config files will be stored in the
+        # specified folder, and the <instance>/conf will link to that folder.
+        # Otherwise, config files will be stored in <instance>/conf directly.
+        deployer.instance.actual_conf_dir = conf_dir
 
     if args.logs_dir:
         deployer.instance.actual_logs_dir = args.logs_dir
