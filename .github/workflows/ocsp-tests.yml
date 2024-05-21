@@ -90,3 +90,8 @@ jobs:
         ansible-playbook  -e 'pki_subsystem="ocsp"' tests/ansible/pki-playbook.yml 
       env:
         ANSIBLE_CONFIG: ${{ github.workspace }}/tests/ansible/ansible.cfg
+
+  ocsp-container-test:
+    name: OCSP container
+    needs: build
+    uses: ./.github/workflows/ocsp-container-test.yml

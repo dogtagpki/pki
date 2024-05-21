@@ -127,6 +127,18 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           outputs: type=docker
 
+      - name: Build pki-ocsp image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          build-args: |
+            BASE_IMAGE=${{ env.BASE_IMAGE }}
+            COPR_REPO=${{ env.COPR_REPO }}
+          tags: pki-ocsp
+          target: pki-ocsp
+          cache-from: type=local,src=/tmp/.buildx-cache
+          outputs: type=docker
+
       - name: Save PKI images
         run: |
           docker images
@@ -135,7 +147,8 @@ jobs:
               pki-runner \
               pki-server \
               pki-ca \
-              pki-kra
+              pki-kra \
+              pki-ocsp
 
       - name: Store PKI images
         uses: actions/cache@v4
