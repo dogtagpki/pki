@@ -230,6 +230,37 @@ RUN chmod -Rf g+rw /var/lib/pki/pki-tomcat
 CMD [ "/usr/share/pki/kra/bin/pki-kra-run" ]
 
 ################################################################################
+FROM pki-server AS pki-ocsp
+
+ARG SUMMARY="Dogtag PKI OCSP Responder"
+
+LABEL name="pki-ocsp" \
+      summary="$SUMMARY" \
+      license="$LICENSE" \
+      version="$VERSION" \
+      architecture="$ARCH" \
+      maintainer="$MAINTAINER" \
+      vendor="$VENDOR" \
+      usage="podman run -p 8080:8080 -p 8443:8443 pki-ocsp" \
+      com.redhat.component="$COMPONENT"
+
+# Create OCSP subsystem
+RUN pki-server ocsp-create
+
+# Deploy OCSP subsystem
+RUN pki-server ocsp-deploy
+
+# Store default config files
+RUN mv /data/conf /var/lib/pki/pki-tomcat/conf.default
+
+# Grant the root group the full access to PKI server files
+# https://www.openshift.com/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
+RUN chgrp -Rf root /var/lib/pki/pki-tomcat
+RUN chmod -Rf g+rw /var/lib/pki/pki-tomcat
+
+CMD [ "/usr/share/pki/ocsp/bin/pki-ocsp-run" ]
+
+################################################################################
 FROM pki-server AS pki-acme
 
 ARG SUMMARY="Dogtag PKI ACME Responder"
