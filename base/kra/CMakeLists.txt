@@ -82,6 +82,17 @@ endif(WITH_JAVA)
 # install directories
 install(
     DIRECTORY
+        bin/
+    DESTINATION
+        ${DATA_INSTALL_DIR}/kra/bin
+    FILE_PERMISSIONS
+        OWNER_EXECUTE OWNER_READ
+        GROUP_EXECUTE GROUP_READ
+        WORLD_EXECUTE WORLD_READ
+)
+
+install(
+    DIRECTORY
         database/
     DESTINATION
         ${DATA_INSTALL_DIR}/kra/database

@@ -103,3 +103,8 @@ jobs:
         run: |
           docker tag pki-ca ${{ vars.REGISTRY }}/$NAMESPACE/pki-ca:latest
           docker push ${{ vars.REGISTRY }}/$NAMESPACE/pki-ca:latest
+
+      - name: Publish pki-kra image
+        run: |
+          docker tag pki-kra ${{ vars.REGISTRY }}/$NAMESPACE/pki-kra:latest
+          docker push ${{ vars.REGISTRY }}/$NAMESPACE/pki-kra:latest
