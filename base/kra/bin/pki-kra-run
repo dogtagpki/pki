@@ -1,0 +1,179 @@
+#!/bin/sh -e
+
+# TODO:
+# - parameterize hard-coded values
+# - support existing subsystem user
+
+# Allow the owner of the container (who might not be in the root group)
+# to manage the config and log files.
+umask 000
+
+echo "################################################################################"
+
+if [ -d /data/conf ]
+then
+    echo "INFO: Reusing /data/conf"
+else
+    echo "INFO: Creating /data/conf"
+    cp -r /var/lib/pki/pki-tomcat/conf.default /data/conf
+    chown -Rf pkiuser:root /data/conf
+    find /data/conf -type f -exec chmod +rw -- {} +
+    find /data/conf -type d -exec chmod +rwx -- {} +
+fi
+
+echo "################################################################################"
+
+if [ -d /data/logs ]
+then
+    echo "INFO: Reusing /data/logs"
+else
+    echo "INFO: Creating /data/logs"
+    mkdir /data/logs
+    chown -Rf pkiuser:root /data/logs
+fi
+
+echo "################################################################################"
+
+if [ -f /certs/server.p12 ]
+then
+    echo "INFO: Importing system certs and keys"
+
+    pki \
+        -d /var/lib/pki/pki-tomcat/conf/alias \
+        pkcs12-import \
+        --pkcs12 /certs/server.p12 \
+        --password Secret.123
+fi
+
+echo "################################################################################"
+
+echo "INFO: KRA storage cert:"
+pki \
+    -d /var/lib/pki/pki-tomcat/conf/alias \
+    nss-cert-show \
+    kra_storage
+
+echo "################################################################################"
+
+echo "INFO: KRA transport cert:"
+pki \
+    -d /var/lib/pki/pki-tomcat/conf/alias \
+    nss-cert-show \
+    kra_transport
+
+echo "################################################################################"
+
+echo "INFO: Audit signing cert:"
+pki \
+    -d /var/lib/pki/pki-tomcat/conf/alias \
+    nss-cert-show \
+    audit_signing
+
+echo "################################################################################"
+
+echo "INFO: Subsystem cert:"
+pki \
+    -d /var/lib/pki/pki-tomcat/conf/alias \
+    nss-cert-show \
+    subsystem
+
+if [ ! -f /certs/subsystem.crt ]
+then
+    echo "INFO: Exporting subsystem cert"
+
+    pki \
+        -d /var/lib/pki/pki-tomcat/conf/alias \
+        nss-cert-export \
+        --output-file /certs/subsystem.crt \
+        subsystem
+fi
+
+echo "################################################################################"
+
+echo "INFO: SSL server cert:"
+pki \
+    -d /var/lib/pki/pki-tomcat/conf/alias \
+    nss-cert-show \
+    sslserver
+
+echo "################################################################################"
+
+if [ -f /certs/admin.p12 ]
+then
+    echo "INFO: Importing admin cert and key"
+
+    pki pkcs12-import \
+        --pkcs12 /certs/admin.p12 \
+        --password Secret.123
+fi
+
+echo "INFO: Admin cert:"
+pki nss-cert-show admin
+
+if [ ! -f /certs/admin.crt ]
+then
+    echo "INFO: Exporting admin cert"
+
+    pki nss-cert-export \
+        --output-file /certs/admin.crt \
+        admin
+fi
+
+echo "################################################################################"
+echo "INFO: Creating PKI KRA"
+
+# Create KRA with existing certs and keys, with existing database,
+# with existing database user, with RSNv3, without security manager,
+# and without systemd service.
+pkispawn \
+    --conf /data/conf \
+    --logs /data/logs \
+    -f /usr/share/pki/server/examples/installation/kra.cfg \
+    -s KRA \
+    -D pki_group=root \
+    -D pki_cert_chain_path=/certs/ca_signing.crt \
+    -D pki_ds_url=$PKI_DS_URL \
+    -D pki_ds_password=$PKI_DS_PASSWORD \
+    -D pki_ds_database=userroot \
+    -D pki_ds_setup=False \
+    -D pki_skip_ds_verify=True \
+    -D pki_share_db=True \
+    -D pki_issuing_ca= \
+    -D pki_import_system_certs=False \
+    -D pki_storage_nickname=kra_storage \
+    -D pki_storage_csr_path=/certs/kra_storage.csr \
+    -D pki_transport_nickname=kra_transport \
+    -D pki_transport_csr_path=/certs/kra_transport.csr \
+    -D pki_audit_signing_nickname=audit_signing \
+    -D pki_audit_signing_csr_path=/certs/audit_signing.csr \
+    -D pki_subsystem_nickname=subsystem \
+    -D pki_subsystem_csr_path=/certs/subsystem.csr \
+    -D pki_sslserver_nickname=sslserver \
+    -D pki_sslserver_csr_path=/certs/sslserver.csr \
+    -D pki_admin_setup=False \
+    -D pki_security_domain_setup=False \
+    -D pki_security_manager=False \
+    -D pki_systemd_service_create=False \
+    -D pki_registry_enable=False \
+    -v
+
+echo "################################################################################"
+echo "INFO: Configuring PKI KRA"
+
+pki-server kra-config-set internaldb.minConns 0
+
+echo "################################################################################"
+echo "INFO: Starting PKI KRA"
+
+if [ "$UID" = "0" ]; then
+    # In Docker/Podman the server runs as pkiuser (UID=17) that
+    # belongs to the root group (GID=0).
+    pki-server run
+
+else
+    # In OpenShift the server runs as an OpenShift-assigned user
+    # (with a random UID) that belongs to the root group (GID=0).
+    #
+    # https://www.redhat.com/en/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
+    pki-server run --as-current-user
+fi

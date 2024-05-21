@@ -115,10 +115,27 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           outputs: type=docker
 
+      - name: Build pki-kra image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          build-args: |
+            BASE_IMAGE=${{ env.BASE_IMAGE }}
+            COPR_REPO=${{ env.COPR_REPO }}
+          tags: pki-kra
+          target: pki-kra
+          cache-from: type=local,src=/tmp/.buildx-cache
+          outputs: type=docker
+
       - name: Save PKI images
         run: |
           docker images
-          docker save -o pki-images.tar pki-dist pki-runner pki-server pki-ca
+          docker save -o pki-images.tar \
+              pki-dist \
+              pki-runner \
+              pki-server \
+              pki-ca \
+              pki-kra
 
       - name: Store PKI images
         uses: actions/cache@v4

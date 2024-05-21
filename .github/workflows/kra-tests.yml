@@ -82,3 +82,8 @@ jobs:
     name: KRA migration
     needs: build
     uses: ./.github/workflows/kra-migration-test.yml
+
+  kra-container-test:
+    name: KRA container
+    needs: build
+    uses: ./.github/workflows/kra-container-test.yml

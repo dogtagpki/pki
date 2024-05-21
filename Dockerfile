@@ -199,6 +199,37 @@ RUN chmod -Rf g+rw /var/lib/pki/pki-tomcat
 CMD [ "/usr/share/pki/ca/bin/pki-ca-run" ]
 
 ################################################################################
+FROM pki-server AS pki-kra
+
+ARG SUMMARY="Dogtag PKI Key Recovery Authority"
+
+LABEL name="pki-kra" \
+      summary="$SUMMARY" \
+      license="$LICENSE" \
+      version="$VERSION" \
+      architecture="$ARCH" \
+      maintainer="$MAINTAINER" \
+      vendor="$VENDOR" \
+      usage="podman run -p 8080:8080 -p 8443:8443 pki-kra" \
+      com.redhat.component="$COMPONENT"
+
+# Create KRA subsystem
+RUN pki-server kra-create
+
+# Deploy KRA subsystem
+RUN pki-server kra-deploy
+
+# Store default config files
+RUN mv /data/conf /var/lib/pki/pki-tomcat/conf.default
+
+# Grant the root group the full access to PKI server files
+# https://www.openshift.com/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
+RUN chgrp -Rf root /var/lib/pki/pki-tomcat
+RUN chmod -Rf g+rw /var/lib/pki/pki-tomcat
+
+CMD [ "/usr/share/pki/kra/bin/pki-kra-run" ]
+
+################################################################################
 FROM pki-server AS pki-acme
 
 ARG SUMMARY="Dogtag PKI ACME Responder"
