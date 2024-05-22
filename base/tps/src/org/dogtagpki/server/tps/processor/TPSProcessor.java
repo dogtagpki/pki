@@ -3501,13 +3501,20 @@ public class TPSProcessor {
                     TPSStatus.STATUS_ERROR_CANNOT_ESTABLISH_COMMUNICATION);
             }
         }
-        
+
         if (defaultAID != null && defaultAID.checkResult())
         {
             TPSBuffer aidData = parseAIDResponse(defaultAID.getData());
 
             String defAIDStr = aidData.toHexStringPlain();
-            
+
+            //RedHat : appease tpsclient tester that only returns 90 00 success, using original default AID.
+            if(aidData == null  || aidData.size() == 0)   {
+                CMS.debug(method + "tpsclient tester probably returned only 90 00, assume old default AID.");
+                defAIDStr = getCardManagerAIDList().get(0);
+                aidData = new TPSBuffer(defAIDStr);
+            }
+ 
             // Get list of valid AID values from the configuration file
             List<String>  aidBuf = getCardManagerAIDList();
            
