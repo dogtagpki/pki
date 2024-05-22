@@ -1702,7 +1702,7 @@ public class CryptoUtil {
     }
 
     /*
-     * get extention from  PKCS10 request
+     * get extension from  PKCS10 request
      */
     public static org.mozilla.jss.netscape.security.x509.Extension getExtensionFromPKCS10(PKCS10 pkcs10, String extnName)
             throws IOException, CertificateException {

@@ -46,7 +46,7 @@ public class UIMapperRegistry {
      *
      * @param className fully qualified class name implementing CertAttrSet
      * @param oid the string representation of the object identifier
-     * @param extentionName the name of the attribute.
+     * @param attrName the name of the attribute.
      * @param mapperClassName fully qualified class name implementing UI
      */
     /* XXX WE DON'T NEED THIS
@@ -66,7 +66,7 @@ public class UIMapperRegistry {
      * internal register new cert attr
      *
      * @param className fully qualified class name implementing CertAttrSet
-     * @param extentionName the name of the attribute.
+     * @param attrName the name of the attribute.
      * @param mapperClassName fully qualified class name implementing UI
      */
     public static void registerCertAttrUI(String attrName, String mapperClassName) {
