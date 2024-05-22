@@ -61,24 +61,21 @@ then
     pki -d /var/lib/pki/pki-tomcat/conf/alias nss-cert-request \
         --subject "CN=CA Signing Certificate" \
         --ext /usr/share/pki/server/certs/ca_signing.conf \
-        --csr /tmp/ca_signing.csr
+        --csr /certs/ca_signing.csr
 
     # issue self-signed CA signing cert
     pki -d /var/lib/pki/pki-tomcat/conf/alias nss-cert-issue \
-        --csr /tmp/ca_signing.csr \
+        --csr /certs/ca_signing.csr \
         --ext /usr/share/pki/server/certs/ca_signing.conf \
         --validity-length 1 \
         --validity-unit year \
-        --cert /tmp/ca_signing.crt
+        --cert /certs/ca_signing.crt
 
     # import and trust CA signing cert into NSS database
     pki -d /var/lib/pki/pki-tomcat/conf/alias nss-cert-import \
-        --cert /tmp/ca_signing.crt \
+        --cert /certs/ca_signing.crt \
         --trust CT,C,C \
         ca_signing
-
-    rm /tmp/ca_signing.crt
-    rm /tmp/ca_signing.csr
 fi
 
 echo "INFO: CA Signing Certificate:"
@@ -99,22 +96,19 @@ then
     pki -d /var/lib/pki/pki-tomcat/conf/alias nss-cert-request \
         --subject "CN=$HOSTNAME" \
         --ext /usr/share/pki/server/certs/sslserver.conf \
-        --csr /tmp/sslserver.csr
+        --csr /certs/sslserver.csr
 
     # issue SSL server cert
     pki -d /var/lib/pki/pki-tomcat/conf/alias nss-cert-issue \
         --issuer ca_signing \
-        --csr /tmp/sslserver.csr \
+        --csr /certs/sslserver.csr \
         --ext /usr/share/pki/server/certs/sslserver.conf \
-        --cert /tmp/sslserver.crt
+        --cert /certs/sslserver.crt
 
     # import SSL server cert into NSS database
     pki -d /var/lib/pki/pki-tomcat/conf/alias nss-cert-import \
-        --cert /tmp/sslserver.crt \
+        --cert /certs/sslserver.crt \
         sslserver
-
-    rm /tmp/sslserver.crt
-    rm /tmp/sslserver.csr
 fi
 
 echo "INFO: SSL Server Certificate:"
