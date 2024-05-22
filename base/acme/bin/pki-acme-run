@@ -13,8 +13,10 @@ umask 000
 
 echo "################################################################################"
 
-if [ ! -d /data/conf ]
+if [ -d /data/conf ]
 then
+    echo "INFO: Reusing /data/conf"
+else
     echo "INFO: Creating /data/conf"
     cp -r /var/lib/pki/pki-tomcat/conf.default /data/conf
     chown -Rf pkiuser:root /data/conf
@@ -24,9 +26,14 @@ fi
 
 echo "################################################################################"
 
-echo "INFO: Creating /data/logs"
-mkdir -p /data/logs
-chown -Rf pkiuser:root /data/logs
+if [ -d /data/logs ]
+then
+    echo "INFO: Reusing /data/logs"
+else
+    echo "INFO: Creating /data/logs"
+    mkdir /data/logs
+    chown -Rf pkiuser:root /data/logs
+fi
 
 echo "################################################################################"
 
