@@ -34,6 +34,8 @@ public class ClientAccessSessionTerminatedEvent extends SignedAuditEvent {
             String serverHost,
             String serverPort,
             String subjectID,
+            String certID,
+            String issuerID,
             String info) {
 
         ClientAccessSessionTerminatedEvent event = new ClientAccessSessionTerminatedEvent(
@@ -43,6 +45,12 @@ public class ClientAccessSessionTerminatedEvent extends SignedAuditEvent {
         event.setAttribute("ServerHost", serverHost);
         event.setAttribute("ServerPort", serverPort);
         event.setAttribute("SubjectID", subjectID);
+        if (certID != null) {
+            event.setAttribute("CertSerialNum", certID);
+        }
+        if (issuerID != null) {
+            event.setAttribute("IssuerDN", issuerID);
+        }
         event.setAttribute("Outcome", ILogger.SUCCESS);
         event.setAttribute("Info", info);
 
