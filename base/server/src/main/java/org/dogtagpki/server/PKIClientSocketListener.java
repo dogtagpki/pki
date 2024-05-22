@@ -17,11 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server;
 
+import java.math.BigInteger;
 import java.net.InetAddress;
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.ssl.SSLAlertDescription;
 import org.mozilla.jss.ssl.SSLAlertEvent;
 import org.mozilla.jss.ssl.SSLHandshakeCompletedEvent;
@@ -80,12 +83,19 @@ public class PKIClientSocketListener implements SSLSocketListener {
             String serverPort = Integer.toString(socket.getPort());
 
             SSLSecurityStatus status = socket.getStatus();
-/*
+
             X509Certificate peerCertificate = status.getPeerCertificate();
-            Principal subjectDN = peerCertificate == null ? null : peerCertificate.getSubjectDN();
-            String subjectID = subjectDN == null ? "" : subjectDN.toString();
-*/
             String subjectID = "SYSTEM";
+            String certID = null;
+            String issuerID = null;
+            if (peerCertificate != null) {
+                Principal subjectDN = peerCertificate.getSubjectDN();
+                subjectID = subjectDN == null ? "SYSTEM" :subjectDN.toString();
+                BigInteger serial = peerCertificate.getSerialNumber();
+                certID = serial == null ? null : serial.toString();
+                Principal issuerDN = peerCertificate.getIssuerDN();
+                issuerID = issuerDN == null ? null : issuerDN.toString();
+            }
 
             int description = event.getDescription();
             String reason = "clientAlertReceived: " + SSLAlertDescription.valueOf(description).toString();
@@ -95,6 +105,8 @@ public class PKIClientSocketListener implements SSLSocketListener {
                     serverIP,
                     serverPort,
                     subjectID,
+                    certID,
+                    issuerID,
                     reason));
 
             //logger.debug(method + "CS_CLIENT_ACCESS_SESSION_TERMINATED");
@@ -105,6 +117,8 @@ public class PKIClientSocketListener implements SSLSocketListener {
             logger.debug("- server: " + serverIP);
             logger.debug("- server port: " + serverPort);
             logger.debug("- subject: " + subjectID);
+            logger.debug("- serial: " + certID);
+            logger.debug("- issuer: " + issuerID);
 
         } catch (Exception e) {
             logger.warn("PKIClientSocketListener: " + e.getMessage(), e);
@@ -130,7 +144,9 @@ public class PKIClientSocketListener implements SSLSocketListener {
             String clientIP;
             String serverIP;
             String serverPort;
-            String subjectID;
+            String subjectID = "SYSTEM";
+            String certID = null;
+            String issuerID = null;
 
             if (description == SSLAlertDescription.CLOSE_NOTIFY.getID()) {
 
@@ -140,12 +156,16 @@ public class PKIClientSocketListener implements SSLSocketListener {
                 serverIP = (String)info.get("serverIP");
                 serverPort = (String)info.get("serverPort");
                 subjectID = (String)info.get("subjectID");
+                certID = (String) info.get("certID");
+                issuerID = (String) info.get("issuerID");
 
                 auditEvent = ClientAccessSessionTerminatedEvent.createEvent(
                         clientIP,
                         serverIP,
                         serverPort,
                         subjectID,
+                        certID,
+                        issuerID,
                         reason);
 
             } else {
@@ -159,18 +179,24 @@ public class PKIClientSocketListener implements SSLSocketListener {
                 serverPort = Integer.toString(socket.getPort());
 
                 SSLSecurityStatus status = socket.getStatus();
-/*
+
                 X509Certificate peerCertificate = status.getPeerCertificate();
-                Principal subjectDN = peerCertificate == null ? null : peerCertificate.getSubjectDN();
-                subjectID = subjectDN == null ? "" : subjectDN.toString();
-*/
-                subjectID = "SYSTEM";
+                if (peerCertificate != null) {
+                    Principal subjectDN = peerCertificate.getSubjectDN();
+                    subjectID = subjectDN == null ? "SYSTEM" :subjectDN.toString();
+                    BigInteger serial = peerCertificate.getSerialNumber();
+                    certID = serial == null ? null : serial.toString();
+                    Principal issuerDN = peerCertificate.getIssuerDN();
+                    issuerID = issuerDN == null ? null : issuerDN.toString();
+                }
 
                 auditEvent = ClientAccessSessionEstablishEvent.createFailureEvent(
                         clientIP,
                         serverIP,
                         serverPort,
                         subjectID,
+                        certID,
+                        issuerID,
                         reason);
 
             }
@@ -182,6 +208,8 @@ public class PKIClientSocketListener implements SSLSocketListener {
             logger.debug("- client: " + clientIP);
             logger.debug("- server: " + serverIP);
             logger.debug("- subject: " + subjectID);
+            logger.debug("- serial: " + certID);
+            logger.debug("- issuer: " + issuerID);            
             logger.debug("- server port: " + serverPort);
 
         } catch (Exception e) {
@@ -206,18 +234,27 @@ public class PKIClientSocketListener implements SSLSocketListener {
             String serverPort = Integer.toString(socket.getPort());
 
             SSLSecurityStatus status = socket.getStatus();
-/*
+
             X509Certificate peerCertificate = status.getPeerCertificate();
-            Principal subjectDN = peerCertificate == null ? null : peerCertificate.getSubjectDN();
-            String subjectID = subjectDN == null ? "" : subjectDN.toString();
-*/
             String subjectID = "SYSTEM";
+            String certID = null;
+            String issuerID = null;
+            if (peerCertificate != null) {
+                Principal subjectDN = peerCertificate.getSubjectDN();
+                subjectID = subjectDN == null ? "SYSTEM" :subjectDN.toString();
+                BigInteger serial = peerCertificate.getSerialNumber();
+                certID = serial == null ? null : serial.toString();
+                Principal issuerDN = peerCertificate.getIssuerDN();
+                issuerID = issuerDN == null ? null : issuerDN.toString();
+            }
 
             logger.debug("PKIClientSocketListener: Handshake completed:");
             logger.debug("- client: " + clientIP);
             logger.debug("- server: " + serverIP);
             logger.debug("- server port: " + serverPort);
             logger.debug("- subject: " + subjectID);
+            logger.debug("- serial: " + certID);
+            logger.debug("- issuer: " + issuerID);
 
             // store socket info in socketInfos map
             Map<String,Object> info = new HashMap<>();
@@ -225,13 +262,17 @@ public class PKIClientSocketListener implements SSLSocketListener {
             info.put("serverIP", serverIP);
             info.put("serverPort", serverPort);
             info.put("subjectID", subjectID);
+            info.put("certID", certID);
+            info.put("issuerID", issuerID);
             socketInfos.put(socket, info);
 
             auditor.log(ClientAccessSessionEstablishEvent.createSuccessEvent(
                     clientIP,
                     serverIP,
                     serverPort,
-                    subjectID));
+                    subjectID,
+                    certID,
+                    issuerID));
 
         } catch (Exception e) {
             logger.warn("PKIClientSocketListener: " + e.getMessage(), e);

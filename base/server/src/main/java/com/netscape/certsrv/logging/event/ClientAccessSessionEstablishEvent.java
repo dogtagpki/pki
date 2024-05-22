@@ -38,6 +38,17 @@ public class ClientAccessSessionEstablishEvent extends SignedAuditEvent {
             String serverPort,
             String subjectID) {
 
+        return ClientAccessSessionEstablishEvent.createSuccessEvent(clientHost, serverHost, serverPort, subjectID, null, null);
+    }
+
+    public static ClientAccessSessionEstablishEvent createSuccessEvent(
+            String clientHost,
+            String serverHost,
+            String serverPort,
+            String subjectID,
+            String certID,
+            String issuerID) {
+
         ClientAccessSessionEstablishEvent event = new ClientAccessSessionEstablishEvent(
                 CLIENT_ACCESS_SESSION_ESTABLISH_SUCCESS);
 
@@ -45,6 +56,12 @@ public class ClientAccessSessionEstablishEvent extends SignedAuditEvent {
         event.setAttribute("ServerHost", serverHost);
         event.setAttribute("ServerPort", serverPort);
         event.setAttribute("SubjectID", subjectID);
+        if (certID != null) {
+            event.setAttribute("CertSerialNum", certID);
+        }
+        if (issuerID != null) {
+            event.setAttribute("IssuerDN", issuerID);
+        }
         event.setAttribute("Outcome", ILogger.SUCCESS);
 
         return event;
@@ -57,6 +74,19 @@ public class ClientAccessSessionEstablishEvent extends SignedAuditEvent {
             String subjectID,
             String info) {
 
+        return ClientAccessSessionEstablishEvent.createFailureEvent(clientHost, serverHost, serverPort, subjectID, null, null,
+                info);
+    }
+
+    public static ClientAccessSessionEstablishEvent createFailureEvent(
+            String clientHost,
+            String serverHost,
+            String serverPort,
+            String subjectID,
+            String certID,
+            String issuerID,
+            String info) {
+
         ClientAccessSessionEstablishEvent event = new ClientAccessSessionEstablishEvent(
                 CLIENT_ACCESS_SESSION_ESTABLISH_FAILURE);
 
@@ -64,6 +94,12 @@ public class ClientAccessSessionEstablishEvent extends SignedAuditEvent {
         event.setAttribute("ServerHost", serverHost);
         event.setAttribute("ServerPort", serverPort);
         event.setAttribute("SubjectID", subjectID);
+        if (certID != null) {
+            event.setAttribute("CertSerialNum", certID);
+        }
+        if (issuerID != null) {
+            event.setAttribute("IssuerDN", issuerID);
+        }
         event.setAttribute("Outcome", ILogger.FAILURE);
         event.setAttribute("Info", info);
 
