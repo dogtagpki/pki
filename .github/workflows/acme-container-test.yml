@@ -28,6 +28,18 @@ jobs:
       - name: Create network
         run: docker network create example
 
+      - name: Set up client container
+        run: |
+          tests/bin/runner-init.sh client
+        env:
+          HOSTNAME: client.example.com
+
+      - name: Connect client container to network
+        run: docker network connect example client --alias client.example.com
+
+      - name: Install dependencies in client container
+        run: docker exec client dnf install -y certbot
+
       - name: Create shared folders
         run: |
           mkdir certs
@@ -53,20 +65,7 @@ jobs:
               --detach \
               pki-acme
 
-      - name: Set up client container
-        run: |
-          tests/bin/runner-init.sh client
-        env:
-          HOSTNAME: client.example.com
-
-      - name: Connect client container to network
-        run: docker network connect example client --alias client.example.com
-
-      - name: Install dependencies in client container
-        run: docker exec client dnf install -y certbot
-
-      - name: Wait for ACME container to start
-        run: |
+          # wait for ACME to start
           docker exec client curl \
               --retry 60 \
               --retry-delay 0 \
@@ -166,6 +165,20 @@ jobs:
 
           diff expected output
 
+      - name: Install CA signing cert
+        run: |
+          docker exec client pki \
+              nss-cert-import \
+              --cert $SHARED/certs/ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
+      - name: Check ACME status
+        run: |
+          docker exec client pki \
+              -U https://acme.example.com:8443 \
+              acme-info
+
       - name: Verify certbot in client container
         run: |
           docker exec client certbot register \
@@ -203,6 +216,27 @@ jobs:
           docker exec client certbot unregister \
               --server http://acme.example.com:8080/acme/directory \
               --non-interactive
+
+      - name: Restart ACME
+        run: |
+          docker restart acme
+          sleep 5
+
+          # wait for ACME to restart
+          docker exec client curl \
+              --retry 60 \
+              --retry-delay 0 \
+              --retry-connrefused \
+              -s \
+              -k \
+              -o /dev/null \
+              http://acme.example.com:8080/acme/directory
+
+      - name: Check ACME status again
+        run: |
+          docker exec client pki \
+              -U https://acme.example.com:8443 \
+              acme-info
 
       - name: Check ACME container logs
         if: always()
