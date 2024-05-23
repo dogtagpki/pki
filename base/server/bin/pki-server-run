@@ -7,6 +7,34 @@
 
 . /usr/share/pki/scripts/config
 
+# Allow the owner of the container (who might not be in the root group)
+# to manage the config and log files.
+umask 000
+
+echo "################################################################################"
+
+if [ -d /data/conf ]
+then
+    echo "info: Reusing /data/conf"
+else
+    echo "INFO: Creating /data/conf"
+    cp -r /var/lib/pki/pki-tomcat/conf.default /data/conf
+    chown -Rf pkiuser:root /data/conf
+    find /data/conf -type f -exec chmod +rw -- {} +
+    find /data/conf -type d -exec chmod +rwx -- {} +
+fi
+
+echo "################################################################################"
+
+if [ -d /data/logs ]
+then
+    echo "INFO: Reusing /data/logs"
+else
+    echo "INFO: Creating /data/logs"
+    mkdir /data/logs
+    chown -Rf pkiuser:root /data/logs
+fi
+
 echo "################################################################################"
 
 # import ca_signing.cert and ca_signing.key if available
@@ -25,13 +53,21 @@ then
         -name ca_signing \
         -passout file:/tmp/password
 
+    # trust CA signing cert in PKCS #12 file
+    pki \
+        -d /var/lib/pki/pki-tomcat/conf/alias \
+        pkcs12-cert-mod \
+        --pkcs12 /tmp/certs.p12 \
+        --password-file /tmp/password \
+        --trust-flags CT,C,C \
+        ca_signing
+
     # import PKCS #12 file into NSS database
-    pki -d /var/lib/pki/pki-tomcat/conf/alias pkcs12-import \
+    pki \
+        -d /var/lib/pki/pki-tomcat/conf/alias \
+        pkcs12-import \
         --pkcs12 /tmp/certs.p12 \
         --password-file /tmp/password
-
-    # trust imported CA signing cert
-    certutil -M -d /var/lib/pki/pki-tomcat/conf/alias -n ca_signing -t CT,C,C
 
     rm /tmp/certs.p12
     rm /tmp/password
@@ -43,28 +79,38 @@ then
     echo "INFO: Importing Certificates and Keys from PKCS #12 File"
 
     # import PKCS #12 file into NSS database
-    pki -d /var/lib/pki/pki-tomcat/conf/alias pkcs12-import \
+    pki \
+        -d /var/lib/pki/pki-tomcat/conf/alias \
+        pkcs12-import \
         --pkcs12 /certs/certs.p12 \
         --password-file /certs/password
 fi
 
 # check whether CA signing certificate is available
 rc=0
-certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -n ca_signing -a > /dev/null 2>&1 || rc=$?
+pki \
+    -d /var/lib/pki/pki-tomcat/conf/alias \
+    nss-cert-export \
+    --output-file /certs/ca_signing.crt \
+    ca_signing || rc=$?
 
 # generate a CA signing certificate if not available
 if [ $rc -ne 0 ]
 then
-    echo "INFO: Issuing Self-signed CA Signing Certificate"
+    echo "INFO: Creating CA signing cert"
 
     # generate CA signing CSR
-    pki -d /var/lib/pki/pki-tomcat/conf/alias nss-cert-request \
+    pki \
+        -d /var/lib/pki/pki-tomcat/conf/alias \
+        nss-cert-request \
         --subject "CN=CA Signing Certificate" \
         --ext /usr/share/pki/server/certs/ca_signing.conf \
         --csr /certs/ca_signing.csr
 
     # issue self-signed CA signing cert
-    pki -d /var/lib/pki/pki-tomcat/conf/alias nss-cert-issue \
+    pki \
+        -d /var/lib/pki/pki-tomcat/conf/alias \
+        nss-cert-issue \
         --csr /certs/ca_signing.csr \
         --ext /usr/share/pki/server/certs/ca_signing.conf \
         --validity-length 1 \
@@ -72,49 +118,93 @@ then
         --cert /certs/ca_signing.crt
 
     # import and trust CA signing cert into NSS database
-    pki -d /var/lib/pki/pki-tomcat/conf/alias nss-cert-import \
+    pki \
+        -d /var/lib/pki/pki-tomcat/conf/alias \
+        nss-cert-import \
         --cert /certs/ca_signing.crt \
         --trust CT,C,C \
         ca_signing
 fi
 
-echo "INFO: CA Signing Certificate:"
-certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -n ca_signing
+echo "INFO: CA signing cert:"
+pki \
+    -d /var/lib/pki/pki-tomcat/conf/alias \
+    nss-cert-show \
+    ca_signing
 
 echo "################################################################################"
 
 # check whether SSL server certificate is available
 rc=0
-certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -n sslserver -a > /dev/null 2>&1 || rc=$?
+pki \
+    -d /var/lib/pki/pki-tomcat/conf/alias \
+    nss-cert-export \
+    --output-file /certs/sslserver.crt \
+    sslserver || rc=$?
 
 # generate a SSL server certificate if not available
 if [ $rc -ne 0 ]
 then
-    echo "INFO: Issuing SSL Server Certificate"
+    echo "INFO: Creating SSL server cert"
 
     # generate SSL server CSR
-    pki -d /var/lib/pki/pki-tomcat/conf/alias nss-cert-request \
+    pki \
+        -d /var/lib/pki/pki-tomcat/conf/alias \
+        nss-cert-request \
         --subject "CN=$HOSTNAME" \
         --ext /usr/share/pki/server/certs/sslserver.conf \
         --csr /certs/sslserver.csr
 
     # issue SSL server cert
-    pki -d /var/lib/pki/pki-tomcat/conf/alias nss-cert-issue \
+    pki \
+        -d /var/lib/pki/pki-tomcat/conf/alias \
+        nss-cert-issue \
         --issuer ca_signing \
         --csr /certs/sslserver.csr \
         --ext /usr/share/pki/server/certs/sslserver.conf \
         --cert /certs/sslserver.crt
 
     # import SSL server cert into NSS database
-    pki -d /var/lib/pki/pki-tomcat/conf/alias nss-cert-import \
+    pki \
+        -d /var/lib/pki/pki-tomcat/conf/alias \
+        nss-cert-import \
         --cert /certs/sslserver.crt \
         sslserver
 fi
 
-echo "INFO: SSL Server Certificate:"
-certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -n sslserver
+echo "INFO: SSL server cert:"
+pki \
+    -d /var/lib/pki/pki-tomcat/conf/alias \
+    nss-cert-show \
+    sslserver
+
+echo "################################################################################"
+
+# check whether CA signing cert exists in default NSS database
+rc=0
+pki nss-cert-export ca_signing > /dev/null || rc=$?
+
+if [ $rc -ne 0 ]
+then
+    echo "INFO: Importing CA signing cert"
+    pki nss-cert-import \
+        --cert /certs/ca_signing.crt \
+        --trust CT,C,C \
+        ca_signing
+fi
 
 echo "################################################################################"
 echo "INFO: Starting PKI server"
 
-pki-server run --as-current-user
+if [ "$UID" = "0" ]; then
+    # In Docker/Podman the server runs as pkiuser (UID=17) that
+    # belongs to the root group (GID=0).
+    pki-server run
+
+else
+    # In OpenShift the server runs as an OpenShift-assigned user
+    # (with a random UID) that belongs to the root group (GID=0).
+    #
+    # https://www.redhat.com/en/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
+    pki-server run --as-current-user
+fi
