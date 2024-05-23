@@ -36,9 +36,9 @@ jobs:
 
       - name: Set up client container
         run: |
-          tests/bin/runner-init.sh client
-        env:
-          HOSTNAME: client.example.com
+          tests/bin/runner-init.sh \
+              --hostname=client.example.com \
+              client
 
       - name: Connect client container to network
         run: docker network connect example client --alias client.example.com

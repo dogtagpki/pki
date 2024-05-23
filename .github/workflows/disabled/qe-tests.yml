@@ -39,9 +39,9 @@ jobs:
 
       - name: Run master container
         run: |
-          tests/bin/runner-init.sh pki1
-        env:
-          HOSTNAME: pki1.example.com
+          tests/bin/runner-init.sh \
+              --hostname=pki1.example.com \
+              pki1
 
       - name: Install dependencies in master container
         run: docker exec pki1 dnf install -y 389-ds-base python3-pip

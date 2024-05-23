@@ -30,7 +30,9 @@ jobs:
 
       - name: Set up PKI container
         run: |
-          tests/bin/runner-init.sh pki
+          tests/bin/runner-init.sh \
+              --hostname=pki.example.com \
+              pki
        
       - name: Copy build in current folder
         run: docker cp pki:/usr/share/java/pki ./build

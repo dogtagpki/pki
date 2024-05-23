@@ -26,10 +26,10 @@ jobs:
 
       - name: Run IPA container
         run: |
-          tests/bin/runner-init.sh ipa
-        env:
-          IMAGE: ipa-runner
-          HOSTNAME: ipa.example.com
+          tests/bin/runner-init.sh \
+              --image=ipa-runner \
+              --hostname=ca.example.com \
+              ipa
 
       - name: Install IPA server
         run: |

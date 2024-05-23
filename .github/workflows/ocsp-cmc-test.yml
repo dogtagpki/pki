@@ -41,9 +41,9 @@ jobs:
 
       - name: Set up CA container
         run: |
-          tests/bin/runner-init.sh ca
-        env:
-          HOSTNAME: ca.example.com
+          tests/bin/runner-init.sh \
+              --hostname=ca.example.com \
+              ca
 
       - name: Connect CA container to network
         run: docker network connect example ca --alias ca.example.com
@@ -79,9 +79,9 @@ jobs:
 
       - name: Set up OCSP container
         run: |
-          tests/bin/runner-init.sh ocsp
-        env:
-          HOSTNAME: ocsp.example.com
+          tests/bin/runner-init.sh \
+              --hostname=ocsp.example.com \
+              ocsp
 
       - name: Connect OCSP container to network
         run: docker network connect example ocsp --alias ocsp.example.com

@@ -29,10 +29,10 @@ jobs:
 
       - name: Run IPA container
         run: |
-          tests/bin/runner-init.sh ipa
-        env:
-          IMAGE: ipa-runner
-          HOSTNAME: ipa.example.com
+          tests/bin/runner-init.sh \
+              --image=ipa-runner \
+              --hostname=ipa.example.com \
+              ipa
 
       - name: Connect IPA container to network
         run: docker network connect example ipa --alias ipa.example.com --alias ipa-ca.example.com

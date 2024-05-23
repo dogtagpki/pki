@@ -29,7 +29,20 @@ create_server() {
 
     echo "Creating DS server"
 
-    $SCRIPT_DIR/runner-init.sh $NAME
+    OPTIONS=()
+    OPTIONS+=(--hostname=$HOSTNAME)
+
+    if [ "$NETWORK" != "" ]
+    then
+        OPTIONS+=(--network=$NETWORK)
+    fi
+
+    if [ "$ALIAS" != "" ]
+    then
+        OPTIONS+=(--network-alias=$ALIAS)
+    fi
+
+    $SCRIPT_DIR/runner-init.sh "${OPTIONS[@]}" $NAME
 
     docker exec $NAME dnf install -y 389-ds-base
 

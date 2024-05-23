@@ -29,10 +29,10 @@ jobs:
 
       - name: Run primary container
         run: |
-          tests/bin/runner-init.sh primary
-        env:
-          IMAGE: ipa-runner
-          HOSTNAME: primary.example.com
+          tests/bin/runner-init.sh \
+              --image=ipa-runner \
+              --hostname=primary.example.com \
+              primary
 
       - name: Connect primary container to network
         run: docker network connect example primary --alias primary.example.com
@@ -117,10 +117,10 @@ jobs:
 
       - name: Run secondary container
         run: |
-          tests/bin/runner-init.sh secondary
-        env:
-          IMAGE: ipa-runner
-          HOSTNAME: secondary.example.com
+          tests/bin/runner-init.sh \
+              --image=ipa-runner \
+              --hostname=secondary.example.com \
+              secondary
 
       - name: Connect secondary container to network
         run: docker network connect example secondary --alias secondary.example.com

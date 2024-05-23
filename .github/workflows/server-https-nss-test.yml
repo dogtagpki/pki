@@ -30,9 +30,9 @@ jobs:
 
       - name: Set up server container
         run: |
-          tests/bin/runner-init.sh pki
-        env:
-          HOSTNAME: pki.example.com
+          tests/bin/runner-init.sh \
+              --hostname=pki.example.com \
+              pki
 
       - name: Connect server container to network
         run: docker network connect example pki --alias pki.example.com
@@ -84,9 +84,9 @@ jobs:
 
       - name: Set up client container
         run: |
-          tests/bin/runner-init.sh client
-        env:
-          HOSTNAME: client.example.com
+          tests/bin/runner-init.sh \
+              --hostname=client.example.com \
+              client
 
       - name: Connect client container to network
         run: docker network connect example client --alias client.example.com

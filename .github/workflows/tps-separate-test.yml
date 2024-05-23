@@ -40,9 +40,9 @@ jobs:
 
       - name: Set up CA container
         run: |
-          tests/bin/runner-init.sh ca
-        env:
-          HOSTNAME: ca.example.com
+          tests/bin/runner-init.sh \
+              --hostname=ca.example.com \
+              ca
 
       - name: Connect CA container to network
         run: docker network connect example ca --alias ca.example.com
@@ -82,9 +82,9 @@ jobs:
 
       - name: Set up KRA container
         run: |
-          tests/bin/runner-init.sh kra
-        env:
-          HOSTNAME: kra.example.com
+          tests/bin/runner-init.sh \
+              --hostname=kra.example.com \
+              kra
 
       - name: Connect KRA container to network
         run: docker network connect example kra --alias kra.example.com
@@ -130,9 +130,9 @@ jobs:
 
       - name: Set up TKS container
         run: |
-          tests/bin/runner-init.sh tks
-        env:
-          HOSTNAME: tks.example.com
+          tests/bin/runner-init.sh \
+              --hostname=tks.example.com \
+              tks
 
       - name: Connect TKS container to network
         run: docker network connect example tks --alias tks.example.com
@@ -176,9 +176,9 @@ jobs:
 
       - name: Set up TPS container
         run: |
-          tests/bin/runner-init.sh tps
-        env:
-          HOSTNAME: tps.example.com
+          tests/bin/runner-init.sh \
+              --hostname=tps.example.com \
+              tps
 
       - name: Connect TPS container to network
         run: docker network connect example tps --alias tps.example.com

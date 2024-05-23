@@ -41,9 +41,9 @@ jobs:
 
       - name: Set up primary PKI container
         run: |
-          tests/bin/runner-init.sh primary
-        env:
-          HOSTNAME: primary.example.com
+          tests/bin/runner-init.sh \
+              --hostname=primary.example.com \
+              primary
 
       - name: Connect primary PKI container to network
         run: docker network connect example primary --alias primary.example.com
@@ -144,9 +144,9 @@ jobs:
 
       - name: Set up secondary PKI container
         run: |
-          tests/bin/runner-init.sh secondary
-        env:
-          HOSTNAME: secondary.example.com
+          tests/bin/runner-init.sh \
+              --hostname=secondary.example.com \
+              secondary
 
       - name: Connect secondary PKI container to network
         run: docker network connect example secondary --alias secondary.example.com
@@ -318,9 +318,9 @@ jobs:
 
       - name: Set up tertiary PKI container
         run: |
-          tests/bin/runner-init.sh tertiary
-        env:
-          HOSTNAME: tertiary.example.com
+          tests/bin/runner-init.sh \
+              --hostname=tertiary.example.com \
+              tertiary
 
       - name: Connect tertiary PKI container to network
         run: docker network connect example tertiary --alias tertiary.example.com

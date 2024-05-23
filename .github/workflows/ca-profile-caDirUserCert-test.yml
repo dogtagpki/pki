@@ -74,9 +74,9 @@ jobs:
 
       - name: Set up PKI container
         run: |
-          tests/bin/runner-init.sh pki
-        env:
-          HOSTNAME: pki.example.com
+          tests/bin/runner-init.sh \
+              --hostname=pki.example.com \
+              pki
 
       - name: Connect PKI container to network
         run: docker network connect example pki --alias pki.example.com

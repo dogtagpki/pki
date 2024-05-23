@@ -31,9 +31,9 @@ jobs:
 
       - name: Set up root CA container
         run: |
-          tests/bin/runner-init.sh root-ca
-        env:
-          HOSTNAME: root-ca.example.com
+          tests/bin/runner-init.sh \
+              --hostname=root-ca.example.com \
+              root-ca
 
       - name: Connect root CA container to network
         run: docker network connect example root-ca --alias root-ca.example.com
@@ -66,9 +66,9 @@ jobs:
 
       - name: Set up primary sub-CA container
         run: |
-          tests/bin/runner-init.sh primary-subca
-        env:
-          HOSTNAME: primary-subca.example.com
+          tests/bin/runner-init.sh \
+              --hostname=primary-subca.example.com \
+              primary-subca
 
       - name: Connect primary sub-CA container to network
         run: docker network connect example primary-subca --alias primary-subca.example.com
@@ -296,9 +296,9 @@ jobs:
 
       - name: Set up secondary sub-CA container
         run: |
-          tests/bin/runner-init.sh secondary-subca
-        env:
-          HOSTNAME: secondary-subca.example.com
+          tests/bin/runner-init.sh \
+              --hostname=secondary-subca.example.com \
+              secondary-subca
 
       - name: Connect secondary sub-CA container to network
         run: docker network connect example secondary-subca --alias secondary-subca.example.com

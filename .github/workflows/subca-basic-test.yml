@@ -41,9 +41,9 @@ jobs:
 
       - name: Set up root PKI container
         run: |
-          tests/bin/runner-init.sh root
-        env:
-          HOSTNAME: root.example.com
+          tests/bin/runner-init.sh \
+              --hostname=root.example.com \
+              root
 
       - name: Connect root PKI container to network
         run: docker network connect example root --alias root.example.com
@@ -74,9 +74,9 @@ jobs:
 
       - name: Set up subordinate PKI container
         run: |
-          tests/bin/runner-init.sh subordinate
-        env:
-          HOSTNAME: sub.example.com
+          tests/bin/runner-init.sh \
+              --hostname=sub.example.com \
+              subordinate
 
       - name: Connect subordinate PKI container to network
         run: docker network connect example subordinate --alias sub.example.com
