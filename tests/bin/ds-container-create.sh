@@ -13,14 +13,19 @@ VERBOSE=
 DEBUG=
 
 usage() {
-    echo "Usage: $SCRIPT_NAME [OPTIONS]"
+    echo "Usage: $SCRIPT_NAME [OPTIONS] <name>"
     echo
     echo "Options:"
-    echo "    --suffix=<DN>          Suffix (default: dc=example,dc=com)"
-    echo "    --base-dn=<DN>         Base DN (default: dc=pki,dc=example,dc=com)"
-    echo " -v,--verbose              Run in verbose mode."
-    echo "    --debug                Run in debug mode."
-    echo "    --help                 Show help message."
+    echo "    --image=<image>          Container image (default: quay.io/389ds/dirsrv)"
+    echo "    --hostname=<hostname>    Container hostname"
+    echo "    --network=<network>      Container network"
+    echo "    --network-alias=<alias>  Container network alias"
+    echo "    --password=<password>    Directory Manager password"
+    echo "    --suffix=<DN>            Suffix (default: dc=example,dc=com)"
+    echo "    --base-dn=<DN>           Base DN (default: dc=pki,dc=example,dc=com)"
+    echo " -v,--verbose                Run in verbose mode."
+    echo "    --debug                  Run in debug mode."
+    echo "    --help                   Show help message."
 }
 
 while getopts v-: arg ; do
@@ -32,6 +37,21 @@ while getopts v-: arg ; do
         LONG_OPTARG="${OPTARG#*=}"
 
         case $OPTARG in
+        image=?*)
+            IMAGE="$LONG_OPTARG"
+            ;;
+        hostname=?*)
+            HOSTNAME="$LONG_OPTARG"
+            ;;
+        network=?*)
+            NETWORK="$LONG_OPTARG"
+            ;;
+        network-alias=?*)
+            ALIAS="$LONG_OPTARG"
+            ;;
+        password=?*)
+            PASSWORD="$LONG_OPTARG"
+            ;;
         suffix=?*)
             SUFFIX="$LONG_OPTARG"
             ;;
@@ -52,6 +72,7 @@ while getopts v-: arg ; do
         '')
             break # "--" terminates argument processing
             ;;
+        image* | hostname* | network* | network-alias* | password* | \
         suffix* | base-dn*)
             echo "ERROR: Missing argument for --$OPTARG option" >&2
             exit 1
@@ -111,15 +132,26 @@ create_container() {
 
     echo "Creating DS container"
 
-    docker create \
-        --name=$NAME \
-        --hostname=$HOSTNAME \
-        -v $NAME-data:/data \
-        -v $GITHUB_WORKSPACE:$SHARED \
-        -e DS_DM_PASSWORD=$PASSWORD \
-        -p 3389 \
-        -p 3636 \
-        $IMAGE > /dev/null
+    OPTIONS=()
+    OPTIONS+=(--name $NAME)
+    OPTIONS+=(--hostname $HOSTNAME)
+    OPTIONS+=(-v $NAME-data:/data)
+    OPTIONS+=(-v $GITHUB_WORKSPACE:$SHARED)
+    OPTIONS+=(-e DS_DM_PASSWORD=$PASSWORD)
+    OPTIONS+=(-p 3389)
+    OPTIONS+=(-p 3636)
+
+    if [ "$NETWORK" != "" ]
+    then
+        OPTIONS+=(--network $NETWORK)
+    fi
+
+    if [ "$ALIAS" != "" ]
+    then
+        OPTIONS+=(--network-alias $ALIAS)
+    fi
+
+    docker create "${OPTIONS[@]}" $IMAGE > /dev/null
 
     OPTIONS=()
     OPTIONS+=(--image=$IMAGE)
@@ -169,7 +201,7 @@ NAME=$1
 
 if [ "$NAME" = "" ]
 then
-    echo "Usage: ds-container-create.sh <name>"
+    echo "ERROR: Missing container name"
     exit 1
 fi
 
