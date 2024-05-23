@@ -6,6 +6,7 @@ env:
   DB_IMAGE: ${{ vars.DB_IMAGE || 'quay.io/389ds/dirsrv' }}
 
 jobs:
+  # https://github.com/dogtagpki/pki/wiki/Deploying-PKI-Server-Container
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -27,12 +28,10 @@ jobs:
       - name: Create network
         run: docker network create example
 
-      - name: Set up server container
+      - name: Create shared folders
         run: |
-          docker run --name pki --detach pki-server
-
-      - name: Connect server container to network
-        run: docker network connect example pki --alias pki.example.com
+          mkdir certs
+          mkdir data
 
       - name: Set up client container
         run: |
@@ -43,8 +42,19 @@ jobs:
       - name: Connect client container to network
         run: docker network connect example client --alias client.example.com
 
-      - name: Wait for server container to start
+      - name: Set up server container
         run: |
+          docker run \
+              --name server \
+              --hostname pki.example.com \
+              --network example \
+              --network-alias pki.example.com \
+              -v $PWD/certs:/certs \
+              -v $PWD/data:/data \
+              --detach \
+              pki-server
+
+          # wait for server to start
           docker exec client curl \
               --retry 60 \
               --retry-delay 0 \
@@ -54,18 +64,140 @@ jobs:
               -o /dev/null \
               https://pki.example.com:8443
 
-      - name: Gather artifacts from server container
+      - name: Check data dir
         if: always()
         run: |
-          mkdir -p /tmp/artifacts/server
-          docker logs pki > /tmp/artifacts/server/container.out 2> /tmp/artifacts/server/container.err
-          mkdir -p /tmp/artifacts/server/var/lib
-          docker cp pki:/var/lib/tomcats /tmp/artifacts/server/var/lib
+          ls -l data \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          # everything should be owned by pkiuser:root (UID=17, GID=0)
+          # TODO: review owners/permissions
+          cat > expected << EOF
+          drwxrwxrwx 17 root conf
+          drwxrwxrwx 17 root logs
+          EOF
+
+          diff expected output
+
+      - name: Check data/conf dir
+        if: always()
+        run: |
+          ls -l data/conf \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          # everything should be owned by pkiuser:root (UID=17, GID=0)
+          # TODO: review owners/permissions
+          cat > expected << EOF
+          drwxrwxrwx 17 root Catalina
+          drwxrwxrwx 17 root alias
+          -rw-rw-rw- 17 root catalina.policy
+          lrwxrwxrwx 17 root catalina.properties -> /usr/share/pki/server/conf/catalina.properties
+          drwxrwxrwx 17 root certs
+          lrwxrwxrwx 17 root context.xml -> /etc/tomcat/context.xml
+          -rw-rw-rw- 17 root jss.conf
+          lrwxrwxrwx 17 root logging.properties -> /usr/share/pki/server/conf/logging.properties
+          -rw-rw-rw- 17 root password.conf
+          -rw-rw-rw- 17 root server.xml
+          -rw-rw-rw- 17 root tomcat.conf
+          lrwxrwxrwx 17 root web.xml -> /etc/tomcat/web.xml
+          EOF
+
+          diff expected output
+
+      - name: Check data/logs dir
+        if: always()
+        run: |
+          ls -l data/logs \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          DATE=$(date +'%Y-%m-%d')
+
+          # everything should be owned by pkiuser:root (UID=17, GID=0)
+          # TODO: review owners/permissions
+          cat > expected << EOF
+          drwxrwx--- 17 root backup
+          -rw-rw-rw- 17 root catalina.$DATE.log
+          -rw-rw-rw- 17 root host-manager.$DATE.log
+          -rw-rw-rw- 17 root localhost.$DATE.log
+          -rw-rw-rw- 17 root localhost_access_log.$DATE.txt
+          -rw-rw-rw- 17 root manager.$DATE.log
+          drwxrwxrwx 17 root pki
+          EOF
+
+          diff expected output
+
+      - name: Check server info locally
+        run: |
+          docker exec server pki info
+
+      - name: Install CA signing cert
+        run: |
+          docker exec client pki nss-cert-import \
+              --cert $SHARED/certs/ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
+      - name: Check server info remotely
+        run: |
+          docker exec client pki \
+              -U https://pki.example.com:8443 \
+              info
+
+      - name: Restart server
+        run: |
+          docker restart server
+          sleep 5
+
+          # wait for server to restart
+          docker exec client curl \
+              --retry 60 \
+              --retry-delay 0 \
+              --retry-connrefused \
+              -s \
+              -k \
+              -o /dev/null \
+              https://pki.example.com:8443
+
+      - name: Check server info remotely again
+        run: |
+          docker exec client pki \
+              -U https://pki.example.com:8443 \
+              info
+
+      - name: Check server container logs
+        if: always()
+        run: |
+          docker logs server 2>&1
+
+      - name: Gather artifacts
+        if: always()
+        run: |
+          docker exec server ls -la /etc/pki
+          mkdir -p /tmp/artifacts/server/etc
+          docker cp server:/etc/pki /tmp/artifacts/server/etc
+
+          docker exec server ls -la /var/log/pki
+          mkdir -p /tmp/artifacts/server/var/log
+          docker cp server:/var/log/pki /tmp/artifacts/server/var/log
+
+          docker logs server > /tmp/artifacts/server/container.out 2> /tmp/artifacts/server/container.err
+
+          mkdir -p /tmp/artifacts/client
+          docker logs client > /tmp/artifacts/client/container.out 2> /tmp/artifacts/client/container.err
         continue-on-error: true
 
-      - name: Upload artifacts from server container
+      - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: server-container-test
-          path: /tmp/artifacts/server
+          name: server-container
+          path: /tmp/artifacts

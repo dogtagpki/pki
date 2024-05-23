@@ -156,11 +156,12 @@ jobs:
           # TODO: review owners/permissions
           cat > expected << EOF
           drwxrwx--- 17 root backup
-          -rw-rw-rw- root root catalina.$DATE.log
-          -rw-rw-rw- root root host-manager.$DATE.log
-          -rw-rw-rw- root root localhost.$DATE.log
-          -rw-rw-rw- root root localhost_access_log.$DATE.txt
-          -rw-rw-rw- root root manager.$DATE.log
+          -rw-rw-rw- 17 root catalina.$DATE.log
+          -rw-rw-rw- 17 root host-manager.$DATE.log
+          -rw-rw-rw- 17 root localhost.$DATE.log
+          -rw-rw-rw- 17 root localhost_access_log.$DATE.txt
+          -rw-rw-rw- 17 root manager.$DATE.log
+          drwxrwxrwx 17 root pki
           EOF
 
           diff expected output
