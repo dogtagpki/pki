@@ -22,11 +22,13 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.Vector;
 
 import org.mozilla.jss.netscape.security.x509.X500Name;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.DBPagedSearch;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.cmscore.apps.DatabaseConfig;
@@ -231,11 +233,8 @@ public class KeyRepository extends Repository {
      */
     public void removeAllObjects() throws EBaseException {
         String filter = "(" + KeyRecord.ATTR_OWNER_NAME + "=*" + ")";
-        KeyRecordList list = findKeyRecordsInList(filter, null, "serialno", 10);
-        int size = list.getSize();
-        Enumeration<KeyRecord> e = list.getKeyRecords(0, size - 1);
-        while (e.hasMoreElements()) {
-            KeyRecord rec = e.nextElement();
+        RecordPagedList<KeyRecord> keyRecords = findPagedKeyRecords(filter, null, null);
+        for (KeyRecord rec: keyRecords) {
             deleteKeyRecord(rec.getSerialNumber());
         }
     }
@@ -461,6 +460,34 @@ public class KeyRepository extends Repository {
     }
 
     /**
+     * Finds a list of key records that satisfies
+     * the filter.
+     *
+     * @param filter search filter
+     * @param attrs selected attribute
+     * @param sortKey key to use for sorting the returned elements
+     * @return a list of keys
+     * @exception EBaseException failed to search
+     */
+    public RecordPagedList<KeyRecord> findPagedKeyRecords(String filter,
+            String[] attrs, String sortKey)
+            throws EBaseException {
+
+        logger.debug("CertificateRepository.findPagedKeyRecords()");
+
+        try (DBSSession session = dbSubsystem.createSession()) {
+            DBPagedSearch<KeyRecord> page = session.<KeyRecord>createPagedSearch(
+                    KeyRecord.class,
+                    mBaseDN,
+                    filter,
+                    attrs,
+                    sortKey);
+
+            return new RecordPagedList<>(page);
+        }
+    }
+
+    /**
      * Searches for a list of key records.
      * Here is a list of supported filter attributes:
      *
@@ -483,7 +510,9 @@ public class KeyRepository extends Repository {
      * @param pageSize virtual list page size
      * @return list of key records
      * @exception EBaseException failed to search key records
+     * @deprecated As of release 11.6.0, replaced by {@link #findPagedKeyRecords(String, String[], String)}
      */
+    @Deprecated(since = "11.6.0", forRemoval = true)
     public KeyRecordList findKeyRecordsInList(String filter,
             String attrs[], int pageSize) throws EBaseException {
         return findKeyRecordsInList(filter, attrs, KeyRecord.ATTR_ID, pageSize);
@@ -498,7 +527,9 @@ public class KeyRepository extends Repository {
      * @param pageSize virtual list page size
      * @return list of key records
      * @exception EBaseException failed to search key records
+     * @deprecated As of release 11.6.0, replaced by {@link #findPagedKeyRecords(String, String[], String)}
      */
+    @Deprecated(since = "11.6.0", forRemoval = true)
     public KeyRecordList findKeyRecordsInList(String filter,
             String attrs[], String sortKey, int pageSize)
             throws EBaseException {
@@ -515,7 +546,19 @@ public class KeyRepository extends Repository {
         }
         return list;
     }
-
+    /**
+     * Searches for a list of key records.
+     *
+     * @param filter search filter
+     * @param attrs list of attributes to be returned
+     * @param jumpTo jump to index
+     * @param sortKey name of attribute that the list should be sorted by
+     * @param pageSize virtual list page size
+     * @return list of key records
+     * @exception EBaseException failed to search key records
+     *  @deprecated As of release 11.6.0, replaced by {@link #findPagedKeyRecords(String, String[], String)}
+     */
+    @Deprecated(since = "11.6.0", forRemoval = true)
     public KeyRecordList findKeyRecordsInList(String filter,
             String attrs[], String jumpTo, String sortKey, int pageSize)
             throws EBaseException {
@@ -547,69 +590,35 @@ public class KeyRepository extends Repository {
     public BigInteger getLastSerialNumberInRange(BigInteger serial_low_bound, BigInteger serial_upper_bound) throws
             EBaseException {
 
-        logger.debug("KeyRepository:  in getLastSerialNumberInRange: low "
-                + serial_low_bound + " high " + serial_upper_bound);
+        logger.debug("KeyRepository:  in getLastSerialNumberInRange: low {} high {}",
+                serial_low_bound, serial_upper_bound);
 
         if (serial_low_bound == null
                 || serial_upper_bound == null || serial_low_bound.compareTo(serial_upper_bound) >= 0) {
             return null;
         }
 
-        String ldapfilter = "(" + "serialno" + "=*" + ")";
+        String ldapfilter = "(&(" + "serialno" + "=*" + ")(" + KeyRecord.ATTR_ID + "<="+serial_upper_bound+"))";
         String[] attrs = null;
 
-        KeyRecordList recList =
-                findKeyRecordsInList(ldapfilter, attrs, serial_upper_bound.toString(10), "serialno",
-                5 * -1);
+        RecordPagedList<KeyRecord> keyRecords = findPagedKeyRecords(ldapfilter, attrs, "-serialno");
+        Iterator<KeyRecord> iRecs = keyRecords.iterator();
 
-        int size = -1;
-        if (recList != null) {
-            size = recList.getSize();
-        }
-
-        logger.debug("KeyRepository: getLastSerialNumberInRange: recList size " + size);
-
-        if (size <= 0) {
-            logger.debug("KeyRepository: getLastSerialNumberInRange: index may be empty");
-
-            BigInteger ret = new BigInteger(serial_low_bound.toString(10));
-
-            ret = ret.add(new BigInteger("-1"));
-
-            logger.debug("KeyRepository: getLastSerialNumberInRange returning: " + ret);
-            return ret;
-        }
-        int ltSize = recList.getSizeBeforeJumpTo();
-
-        logger.debug("KeyRepository:getLastSerialNumberInRange: ltSize " + ltSize);
-
-        int i;
-        KeyRecord curRec = null;
-
-        for (i = 0; i < 5; i++) {
-            curRec = recList.getKeyRecord(i);
-
-            if (curRec != null) {
-
-                BigInteger serial = curRec.getSerialNumber();
-
-                logger.debug("KeyRepository:  getLastCertRecordSerialNo:  serialno  " + serial);
-
-                if (((serial.compareTo(serial_low_bound) == 0) || (serial.compareTo(serial_low_bound) == 1)) &&
-                        ((serial.compareTo(serial_upper_bound) == 0) || (serial.compareTo(serial_upper_bound) == -1))) {
-                    logger.debug("KeyRepository: getLastSerialNumberInRange returning: " + serial);
-                    return serial;
-                }
-            } else {
-                logger.debug("KeyRepository:  getLastSerialNumberInRange:found null from getCertRecord");
-            }
+        if (iRecs.hasNext()) {
+           KeyRecord firstRec = iRecs.next();
+           BigInteger serial = firstRec.getSerialNumber();
+           if ((serial.compareTo(serial_low_bound) >= 0) &&
+                   (serial.compareTo(serial_upper_bound) <= 0)) {
+               logger.debug("KeyRepository: getLastSerialNumberInRange returning: {}", serial);
+               return serial;
+           }
         }
 
         BigInteger ret = new BigInteger(serial_low_bound.toString(10));
 
         ret = ret.add(new BigInteger("-1"));
 
-        logger.debug("KeyRepository: getLastSerialNumberInRange returning: " + ret);
+        logger.debug("KeyRepository: getLastSerialNumberInRange returning: {}", ret);
         return ret;
 
     }
