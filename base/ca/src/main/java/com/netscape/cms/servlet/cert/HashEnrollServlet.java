@@ -27,6 +27,7 @@ import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Vector;
 
@@ -83,8 +84,8 @@ import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.dbs.CertRecord;
-import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.dbs.RecordPagedList;
 import com.netscape.cmscore.request.CertRequestRepository;
 import com.netscape.cmscore.request.Request;
 
@@ -471,12 +472,11 @@ public class HashEnrollServlet extends CAServlet {
                         "(&(x509cert.subject="
                                 + certBasedOldSubjectDN + ")(!(x509cert.serialNumber=" + certBasedOldSerialNum
                                 + "))(certStatus=VALID))";
-                CertRecordList list = cr.findCertRecordsInList(filter, null, 10);
-                int size = list.getSize();
-                Enumeration<CertRecord> en = list.getCertRecords(0, size - 1);
+                RecordPagedList<CertRecord> records = cr.findPagedCertRecords(filter, null, null);
+                Iterator<CertRecord> iRec = records.iterator();
                 boolean gotEncCert = false;
 
-                if (!en.hasMoreElements()) {
+                if (!iRec.hasNext()) {
                     // pairing encryption cert not found
                 } else {
                     X509CertInfo encCertInfo = new CertInfo();
@@ -484,8 +484,8 @@ public class HashEnrollServlet extends CAServlet {
                             encCertInfo };
                     int i = 1;
 
-                    while (en.hasMoreElements()) {
-                        CertRecord record = en.nextElement();
+                    while (iRec.hasNext() && !gotEncCert) {
+                        CertRecord record = iRec.next();
                         X509CertImpl cert = record.getCertificate();
 
                         // if not encryption cert only, try next one
@@ -523,7 +523,6 @@ public class HashEnrollServlet extends CAServlet {
                         cInfoArray[i++] = encCertInfo;
                         certInfoArray = cInfoArray;
                         gotEncCert = true;
-                        break;
                     }
                 }
 
