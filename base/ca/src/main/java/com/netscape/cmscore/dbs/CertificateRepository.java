@@ -1217,7 +1217,7 @@ public class CertificateRepository extends Repository {
             String[] attrs, String sortKey)
             throws EBaseException {
 
-        logger.debug("CertificateRepository.findCertRecordsInList()");
+        logger.debug("CertificateRepository.findPagedCertRecords()");
 
         try (DBSSession session = dbSubsystem.createSession()) {
             DBPagedSearch<CertRecord> page = session.<CertRecord>createPagedSearch(
