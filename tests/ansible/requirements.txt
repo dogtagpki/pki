@@ -3,4 +3,5 @@ ansible-lint
 jsondiff
 passlib
 PyYAML
-requests
+# New version have problem with docker API (see. https://github.com/docker/docker-py/issues/3256)
+requests<2.32
