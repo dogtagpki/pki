@@ -96,11 +96,11 @@ import com.netscape.cmscore.request.Request;
  */
 public class HashEnrollServlet extends CAServlet {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HashEnrollServlet.class);
+    public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HashEnrollServlet.class);
 
     private static final long serialVersionUID = 5532936020515258333L;
 
-    public final static String ADMIN_ENROLL_SERVLET_ID = "adminEnroll";
+    public static final String ADMIN_ENROLL_SERVLET_ID = "adminEnroll";
 
     // enrollment templates.
     public static final String ENROLL_SUCCESS_TEMPLATE = "/ra/HashEnrollSuccess.template";
@@ -127,7 +127,6 @@ public class HashEnrollServlet extends CAServlet {
     private ICMSTemplateFiller mEnrollSuccessFiller = new ImportCertsTemplateFiller();
 
     CertificateAuthority mCa;
-    CertificateRepository mRepository;
 
     public HashEnrollServlet() {
         super();
@@ -162,7 +161,7 @@ public class HashEnrollServlet extends CAServlet {
             CAEngine engine = CAEngine.getInstance();
             mCa = engine.getCA();
 
-            init_testbed_hack(mConfig);
+            initTestbedHack(mConfig);
         } catch (Exception e) {
             logger.warn(CMS.getLogMessage("CMSGW_IMP_INIT_SERV_ERR", e.toString(), mId));
         }
@@ -227,8 +226,6 @@ public class HashEnrollServlet extends CAServlet {
         certType = httpParams.getValueAsString(OLD_CERT_TYPE, null);
         if (certType == null) {
             certType = httpParams.getValueAsString(CERT_TYPE, "client");
-        } else {
-            ;
         }
 
         processX509(cmsReq);
@@ -305,15 +302,15 @@ public class HashEnrollServlet extends CAServlet {
 
         String certauthEnrollType = null;
 
-        if (certAuthEnroll == true) {
+        if (certAuthEnroll) {
             certauthEnrollType =
                     httpParams.getValueAsString("certauthEnrollType", null);
             if (certauthEnrollType != null) {
-                if (certauthEnrollType.equals("dual")) {
+                if (certauthEnrollType.equals(CERT_AUTH_DUAL)) {
                     logger.debug("HashEnrollServlet: certauthEnrollType is dual");
-                } else if (certauthEnrollType.equals("encryption")) {
+                } else if (certauthEnrollType.equals(CERT_AUTH_ENCRYPTION)) {
                     logger.debug("HashEnrollServlet: certauthEnrollType is encryption");
-                } else if (certauthEnrollType.equals("single")) {
+                } else if (certauthEnrollType.equals(CERT_AUTH_SINGLE)) {
                     logger.debug("HashEnrollServlet: certauthEnrollType is single");
                 } else {
                     logger.error(CMS.getLogMessage("CMSGW_INVALID_CERTAUTH_ENROLL_TYPE_1", certauthEnrollType));
@@ -361,7 +358,7 @@ public class HashEnrollServlet extends CAServlet {
         // also if authenticated, take certInfo from authToken.
         X509CertInfo certInfo = null;
 
-        if (certAuthEnroll == true) {
+        if (certAuthEnroll) {
             sslClientCert = getSSLClientCertificate(httpReq);
             if (sslClientCert == null) {
                 logger.error(CMS.getLogMessage("CMSGW_MISSING_SSL_CLIENT_CERT"));
@@ -407,7 +404,7 @@ public class HashEnrollServlet extends CAServlet {
         // don't store agent token in request.
         // agent currently used for bulk issuance.
         // if (!authMgr.equals(IAuthSubsystem.CERTUSERDB_AUTHMGR_ID)) {
-        logger.info("Enrollment request was authenticated by " +
+        logger.info("Enrollment request was authenticated by {}",
                         authToken.getInString(AuthToken.TOKEN_AUTHMGR_INST_NAME));
         fillCertInfoFromAuthToken(certInfo, authToken);
         // save authtoken attrs to request directly (for policy use)
@@ -430,7 +427,7 @@ public class HashEnrollServlet extends CAServlet {
         String crmf =
                 httpParams.getValueAsString(CRMF_REQUEST, null);
 
-        if (certAuthEnroll == true) {
+        if (certAuthEnroll) {
 
             fillCertInfoFromAuthToken(certInfo, authToken);
 
@@ -458,11 +455,7 @@ public class HashEnrollServlet extends CAServlet {
                 key = (X509Key) sslClientCert.getPublicKey();
                 try {
                     certInfo.set(X509CertInfo.KEY, new CertificateX509Key(key));
-                } catch (CertificateException e) {
-                    logger.error(CMS.getLogMessage("CMSGW_FAILED_SET_KEY_FROM_CERT_AUTH_ENROLL_1", e.toString()), e);
-                    throw new ECMSGWException(
-                            CMS.getUserMessage("CMS_GW_SET_KEY_FROM_CERT_AUTH_ENROLL_FAILED", e.toString()), e);
-                } catch (IOException e) {
+                } catch (CertificateException | IOException e) {
                     logger.error(CMS.getLogMessage("CMSGW_FAILED_SET_KEY_FROM_CERT_AUTH_ENROLL_1", e.toString()), e);
                     throw new ECMSGWException(
                             CMS.getUserMessage("CMS_GW_SET_KEY_FROM_CERT_AUTH_ENROLL_FAILED", e.toString()), e);
@@ -485,8 +478,8 @@ public class HashEnrollServlet extends CAServlet {
                     int i = 1;
 
                     while (iRec.hasNext() && !gotEncCert) {
-                        CertRecord record = iRec.next();
-                        X509CertImpl cert = record.getCertificate();
+                        CertRecord rec = iRec.next();
+                        X509CertImpl cert = rec.getCertificate();
 
                         // if not encryption cert only, try next one
                         if (!CertUtils.isEncryptionCert(cert) ||
@@ -509,11 +502,7 @@ public class HashEnrollServlet extends CAServlet {
 
                         try {
                             encCertInfo.set(X509CertInfo.KEY, new CertificateX509Key(key));
-                        } catch (CertificateException e) {
-                            logger.error(CMS.getLogMessage("CMSGW_FAILED_SET_KEY_FROM_CERT_AUTH_ENROLL_1", e.toString()), e);
-                            throw new ECMSGWException(
-                                    CMS.getUserMessage("CMS_GW_SET_KEY_FROM_CERT_AUTH_ENROLL_FAILED", e.toString()), e);
-                        } catch (IOException e) {
+                        } catch (CertificateException | IOException e) {
                             logger.error(CMS.getLogMessage("CMSGW_FAILED_SET_KEY_FROM_CERT_AUTH_ENROLL_1", e.toString()), e);
                             throw new ECMSGWException(
                                     CMS.getUserMessage("CMS_GW_SET_KEY_FROM_CERT_AUTH_ENROLL_FAILED", e.toString()), e);
@@ -526,7 +515,7 @@ public class HashEnrollServlet extends CAServlet {
                     }
                 }
 
-                if (gotEncCert == false) {
+                if (!gotEncCert) {
                     // encryption cert not found, bail
                     logger.error(CMS.getLogMessage("CMSGW_ENCRYPTION_CERT_NOT_FOUND"));
                     throw new ECMSGWException(
@@ -547,11 +536,11 @@ public class HashEnrollServlet extends CAServlet {
                 /*
                  * crmf
                  */
-                if (crmf != null && crmf != "") {
+                if (crmf != null && !crmf.isBlank()) {
                     certInfoArray = fillCRMF(crmf, authToken, httpParams, req);
                     req.setExtData(CLIENT_ISSUER,
                             sslClientCert.getIssuerDN().toString());
-                    logger.debug("HashEnrollServlet: sslClientCert issuerDN = " + sslClientCert.getIssuerDN());
+                    logger.debug("HashEnrollServlet: sslClientCert issuerDN = {}", sslClientCert.getIssuerDN());
                 } else {
                     logger.error(CMS.getLogMessage("CMSGW_MISSING_KEYGEN_INFO"));
                     throw new ECMSGWException(CMS.getUserMessage(getLocale(httpReq),
@@ -560,7 +549,7 @@ public class HashEnrollServlet extends CAServlet {
             } else if (certauthEnrollType.equals(CERT_AUTH_SINGLE)) {
                 // have to be buried here to handle the issuer
 
-                if (crmf != null && crmf != "") {
+                if (crmf != null && !crmf.isBlank()) {
                     certInfoArray = fillCRMF(crmf, authToken, httpParams, req);
                 } else {
                     logger.error(CMS.getLogMessage("CMSGW_MISSING_KEYGEN_INFO"));
@@ -571,7 +560,7 @@ public class HashEnrollServlet extends CAServlet {
                 req.setExtData(CLIENT_ISSUER,
                         sslClientCert.getIssuerDN().toString());
             }
-        } else if (crmf != null && crmf != "") {
+        } else if (crmf != null && !crmf.isBlank()) {
             certInfoArray = fillCRMF(crmf, authToken, httpParams, req);
         } else {
             logger.error(CMS.getLogMessage("CMSGW_MISSING_KEYGEN_INFO"));
@@ -628,7 +617,7 @@ public class HashEnrollServlet extends CAServlet {
 
                     if (messages != null) {
                         Enumeration<String> msgs = messages.elements();
-                        StringBuffer wholeMsg = new StringBuffer();
+                        StringBuilder wholeMsg = new StringBuilder();
 
                         while (msgs.hasMoreElements()) {
                             wholeMsg.append("\n");
@@ -706,10 +695,7 @@ public class HashEnrollServlet extends CAServlet {
                                     ""
                             );
 
-                        } catch (IOException e) {
-                            logger.warn(CMS.getLogMessage("CMSGW_CANT_GET_CERT_SUBJ_AUDITING", e.toString()), e);
-
-                        } catch (CertificateException e) {
+                        } catch (CertificateException | IOException e) {
                             logger.warn(CMS.getLogMessage("CMSGW_CANT_GET_CERT_SUBJ_AUDITING", e.toString()), e);
                         }
                     }
@@ -754,8 +740,6 @@ public class HashEnrollServlet extends CAServlet {
             throw new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_RETURNING_RESULT_ERROR"), e);
         }
-
-        return;
     }
 
     /**
@@ -780,15 +764,10 @@ public class HashEnrollServlet extends CAServlet {
                 CertificateSubjectName certSubject = new CertificateSubjectName(new X500Name(subjectname));
 
                 certInfo.set(X509CertInfo.SUBJECT, certSubject);
-                logger.info("cert subject set to " + certSubject + " from authtoken");
+                logger.info("cert subject set to {} from authtoken", certSubject);
             }
 
-        } catch (CertificateException e) {
-            logger.error(CMS.getLogMessage("CMSGW_ERROR_SET_SUBJECT_NAME_1", e.toString()), e);
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_SET_SUBJECT_NAME_ERROR"), e);
-
-        } catch (IOException e) {
+        } catch (CertificateException | IOException e) {
             logger.error(CMS.getLogMessage("CMSGW_ERROR_SET_SUBJECT_NAME_1", e.toString()), e);
             throw new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_SET_SUBJECT_NAME_ERROR"), e);
@@ -805,15 +784,10 @@ public class HashEnrollServlet extends CAServlet {
             if (notBefore != null && notAfter != null) {
                 validity = new CertificateValidity(notBefore, notAfter);
                 certInfo.set(X509CertInfo.VALIDITY, validity);
-                logger.info("cert validity set to " + validity + " from authtoken");
+                logger.info("cert validity set to {} from authtoken", validity);
             }
 
-        } catch (CertificateException e) {
-            logger.error(CMS.getLogMessage("CMSGW_ERROR_SET_VALIDITY_1", e.toString()), e);
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_SET_VALIDITY_ERROR"), e);
-
-        } catch (IOException e) {
+        } catch (CertificateException | IOException e) {
             logger.error(CMS.getLogMessage("CMSGW_ERROR_SET_VALIDITY_1", e.toString()), e);
             throw new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_SET_VALIDITY_ERROR"), e);
@@ -829,12 +803,7 @@ public class HashEnrollServlet extends CAServlet {
                 logger.info("cert extensions set from authtoken");
             }
 
-        } catch (CertificateException e) {
-            logger.error(CMS.getLogMessage("CMSGW_ERROR_SET_EXTENSIONS_1", e.toString()), e);
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_SET_EXTENSIONS_ERROR"), e);
-
-        } catch (IOException e) {
+        } catch (CertificateException | IOException e) {
             logger.error(CMS.getLogMessage("CMSGW_ERROR_SET_EXTENSIONS_1", e.toString()), e);
             throw new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_SET_EXTENSIONS_ERROR"), e);
@@ -926,9 +895,7 @@ public class HashEnrollServlet extends CAServlet {
                 try {
                     extensions = (CertificateExtensions)
                             certInfo.get(X509CertInfo.EXTENSIONS);
-                } catch (CertificateException e) {
-                    extensions = null;
-                } catch (IOException e) {
+                } catch (CertificateException | IOException e) {
                     extensions = null;
                 }
                 if (certTemplate.hasExtensions()) {
@@ -990,26 +957,11 @@ public class HashEnrollServlet extends CAServlet {
                 certInfoArray[i] = certInfo;
             }
 
-            do_testbed_hack(nummsgs, certInfoArray, httpParams);
+            doTestbedHack(certInfoArray, httpParams);
 
             return certInfoArray;
 
-        } catch (CertificateException e) {
-            logger.error(CMS.getLogMessage("CMSGW_ERROR_CRMF_TO_CERTINFO_1", e.toString()), e);
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_CRMF_TO_CERTINFO_ERROR"), e);
-
-        } catch (IOException e) {
-            logger.error(CMS.getLogMessage("CMSGW_ERROR_CRMF_TO_CERTINFO_1", e.toString()), e);
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_CRMF_TO_CERTINFO_ERROR"), e);
-
-        } catch (InvalidBERException e) {
-            logger.error(CMS.getLogMessage("CMSGW_ERROR_CRMF_TO_CERTINFO_1", e.toString()), e);
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_CRMF_TO_CERTINFO_ERROR"), e);
-
-        } catch (InvalidKeyException e) {
+        } catch (CertificateException | IOException | InvalidBERException | InvalidKeyException e) {
             logger.error(CMS.getLogMessage("CMSGW_ERROR_CRMF_TO_CERTINFO_1", e.toString()), e);
             throw new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_CRMF_TO_CERTINFO_ERROR"), e);
@@ -1049,7 +1001,7 @@ public class HashEnrollServlet extends CAServlet {
             out.println("Certificate: ");
             out.println("<P>");
             out.println("<PRE>");
-            X509CertImpl certs[] =
+            X509CertImpl[] certs =
                     cmsReq.getRequest().getExtDataInCertArray(Request.ISSUED_CERTS);
 
             out.println(CertUtil.toPEM(certs[0]));
@@ -1127,13 +1079,11 @@ public class HashEnrollServlet extends CAServlet {
 
     private boolean mIsTestBed = false;
 
-    private void init_testbed_hack(ConfigStore config) throws EBaseException {
+    private void initTestbedHack(ConfigStore config) throws EBaseException {
         mIsTestBed = config.getBoolean("isTestBed", true);
     }
 
-    private void do_testbed_hack(
-            int nummsgs, X509CertInfo[] certinfo, ArgBlock httpParams)
-            throws EBaseException {
+    private void doTestbedHack(X509CertInfo[] certinfo, ArgBlock httpParams) {
         if (!mIsTestBed)
             return;
 
@@ -1184,12 +1134,8 @@ public class HashEnrollServlet extends CAServlet {
                     exts.delete(KeyUsageExtension.NAME);
                     exts.set(KeyUsageExtension.NAME, newext);
                 }
-            } catch (IOException e) {
+            } catch (IOException | CertificateException e) {
                 // should never happen
-                continue;
-            } catch (CertificateException e) {
-                // should never happen
-                continue;
             }
         }
 
