@@ -97,7 +97,7 @@ jobs:
           docker cp primary:ds_server.p12 primaryds_server.p12
           tests/bin/ds-container-certs-import.sh primaryds primaryds_server.p12
           tests/bin/ds-container-stop.sh primaryds
-          tests/bin/ds-container-start.sh primaryds
+          tests/bin/ds-container-start.sh --image=pki-runner primaryds
 
       - name: Install CA in primary PKI container
         run: |
@@ -203,7 +203,7 @@ jobs:
           docker cp secondary:ds_server.p12 secondaryds_server.p12
           tests/bin/ds-container-certs-import.sh secondaryds secondaryds_server.p12
           tests/bin/ds-container-stop.sh secondaryds
-          tests/bin/ds-container-start.sh secondaryds
+          tests/bin/ds-container-start.sh --image=pki-runner secondaryds
 
       - name: Install CA in secondary PKI container
         run: |
