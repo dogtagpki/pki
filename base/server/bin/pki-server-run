@@ -19,9 +19,6 @@ then
 else
     echo "INFO: Creating /data/conf"
     cp -r /var/lib/pki/pki-tomcat/conf.default /data/conf
-    chown -Rf pkiuser:root /data/conf
-    find /data/conf -type f -exec chmod +rw -- {} +
-    find /data/conf -type d -exec chmod +rwx -- {} +
 fi
 
 echo "################################################################################"
@@ -192,6 +189,13 @@ then
         --trust CT,C,C \
         ca_signing
 fi
+
+echo "################################################################################"
+echo "INFO: Updating owners and permissions"
+
+chown -Rf pkiuser:root /data/conf
+find /data/conf -type f -exec chmod +rw -- {} +
+find /data/conf -type d -exec chmod +rwx -- {} +
 
 echo "################################################################################"
 echo "INFO: Starting PKI server"

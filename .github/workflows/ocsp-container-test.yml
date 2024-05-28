@@ -354,7 +354,7 @@ jobs:
           # TODO: review owners/permissions
           cat > expected << EOF
           drwxrwxrwx 17 root Catalina
-          drwxrwx--- 17 root alias
+          drwxrwxrwx 17 root alias
           -rw-rw-rw- 17 root catalina.policy
           lrwxrwxrwx 17 root catalina.properties -> /usr/share/pki/server/conf/catalina.properties
           drwxrwxrwx 17 root certs
@@ -362,9 +362,9 @@ jobs:
           -rw-rw-rw- 17 root jss.conf
           lrwxrwxrwx 17 root logging.properties -> /usr/share/pki/server/conf/logging.properties
           drwxrwxrwx 17 root ocsp
-          -rw-rw---- 17 root password.conf
+          -rw-rw-rw- 17 root password.conf
           -rw-rw-rw- 17 root server.xml
-          -rw-rw---- 17 root serverCertNick.conf
+          -rw-rw-rw- 17 root serverCertNick.conf
           -rw-rw-rw- 17 root tomcat.conf
           lrwxrwxrwx 17 root web.xml -> /etc/tomcat/web.xml
           EOF
@@ -386,7 +386,7 @@ jobs:
           cat > expected << EOF
           -rw-rw-rw- 17 root CS.cfg
           drwxrwxrwx 17 root archives
-          -rw-rw-r-- 17 root registry.cfg
+          -rw-rw-rw- 17 root registry.cfg
           EOF
 
           diff expected output
