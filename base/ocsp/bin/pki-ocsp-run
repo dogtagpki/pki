@@ -16,9 +16,6 @@ then
 else
     echo "INFO: Creating /data/conf"
     cp -r /var/lib/pki/pki-tomcat/conf.default /data/conf
-    chown -Rf pkiuser:root /data/conf
-    find /data/conf -type f -exec chmod +rw -- {} +
-    find /data/conf -type d -exec chmod +rwx -- {} +
 fi
 
 echo "################################################################################"
@@ -158,6 +155,13 @@ echo "##########################################################################
 echo "INFO: Configuring OCSP Responder"
 
 pki-server ocsp-config-set internaldb.minConns 0
+
+echo "################################################################################"
+echo "INFO: Updating owners and permissions"
+
+chown -Rf pkiuser:root /data/conf
+find /data/conf -type f -exec chmod +rw -- {} +
+find /data/conf -type d -exec chmod +rwx -- {} +
 
 echo "################################################################################"
 echo "INFO: Starting OCSP Responder"

@@ -252,7 +252,7 @@ jobs:
           # TODO: review owners/permissions
           cat > expected << EOF
           drwxrwxrwx 17 root Catalina
-          drwxrwx--- 17 root alias
+          drwxrwxrwx 17 root alias
           drwxrwxrwx 17 root ca
           -rw-rw-rw- 17 root catalina.policy
           lrwxrwxrwx 17 root catalina.properties -> /usr/share/pki/server/conf/catalina.properties
@@ -260,9 +260,9 @@ jobs:
           lrwxrwxrwx 17 root context.xml -> /etc/tomcat/context.xml
           -rw-rw-rw- 17 root jss.conf
           lrwxrwxrwx 17 root logging.properties -> /usr/share/pki/server/conf/logging.properties
-          -rw-rw---- 17 root password.conf
+          -rw-rw-rw- 17 root password.conf
           -rw-rw-rw- 17 root server.xml
-          -rw-rw---- 17 root serverCertNick.conf
+          -rw-rw-rw- 17 root serverCertNick.conf
           -rw-rw-rw- 17 root tomcat.conf
           lrwxrwxrwx 17 root web.xml -> /etc/tomcat/web.xml
           EOF
@@ -283,18 +283,18 @@ jobs:
           # TODO: review owners/permissions
           cat > expected << EOF
           -rw-rw-rw- 17 root CS.cfg
-          -rw-rw---- 17 root adminCert.profile
+          -rw-rw-rw- 17 root adminCert.profile
           drwxrwxrwx 17 root archives
-          -rw-rw---- 17 root caAuditSigningCert.profile
-          -rw-rw---- 17 root caCert.profile
-          -rw-rw---- 17 root caOCSPCert.profile
-          drwxrwx--- 17 root emails
-          -rw-rw---- 17 root flatfile.txt
-          drwxrwx--- 17 root profiles
-          -rw-rw---- 17 root proxy.conf
+          -rw-rw-rw- 17 root caAuditSigningCert.profile
+          -rw-rw-rw- 17 root caCert.profile
+          -rw-rw-rw- 17 root caOCSPCert.profile
+          drwxrwxrwx 17 root emails
+          -rw-rw-rw- 17 root flatfile.txt
+          drwxrwxrwx 17 root profiles
+          -rw-rw-rw- 17 root proxy.conf
           -rw-rw-rw- 17 root registry.cfg
-          -rw-rw---- 17 root serverCert.profile
-          -rw-rw---- 17 root subsystemCert.profile
+          -rw-rw-rw- 17 root serverCert.profile
+          -rw-rw-rw- 17 root subsystemCert.profile
           EOF
 
           diff expected output
