@@ -13,6 +13,14 @@ jobs:
     env:
       SHARED: /tmp/workdir/pki
     steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+
+          # replace docker with podman
+          sudo apt-get -y purge --auto-remove docker-ce-cli
+          sudo apt-get -y install podman-docker
+
       - name: Clone repository
         uses: actions/checkout@v4
 
@@ -37,12 +45,10 @@ jobs:
 
       - name: Set up client container
         run: |
-          tests/bin/runner-init.sh client
-        env:
-          HOSTNAME: client.example.com
-
-      - name: Connect client container to network
-        run: docker network connect example client --alias client.example.com
+          tests/bin/runner-init.sh \
+              --hostname=client.example.com \
+              --network=example \
+              client
 
       - name: Set up CA container
         run: |
@@ -70,14 +76,13 @@ jobs:
 
       - name: Set up CA DS container
         run: |
-          tests/bin/ds-container-create.sh cads
-        env:
-          IMAGE: ${{ env.DB_IMAGE }}
-          HOSTNAME: cads.example.com
-          PASSWORD: Secret.123
-
-      - name: Connect CA DS container to network
-        run: docker network connect example cads --alias cads.example.com
+          tests/bin/ds-container-create.sh \
+              --image=${{ env.DB_IMAGE }} \
+              --hostname=cads.example.com \
+              --network=example \
+              --network-alias=cads.example.com \
+              --password=Secret.123 \
+              cads
 
       # https://github.com/dogtagpki/pki/wiki/Setting-up-CA-Database
       - name: Initialize CA database
@@ -343,14 +348,14 @@ jobs:
           ls -l kra/data \
               | sed \
                   -e '/^total/d' \
-                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+                  -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
               | tee output
 
-          # everything should be owned by pkiuser:root (UID=17, GID=0)
+          # everything should be owned by docker group
           # TODO: review owners/permissions
           cat > expected << EOF
-          drwxrwxrwx 17 root conf
-          drwxrwxrwx 17 root logs
+          drwxrwxrwx docker conf
+          drwxrwxrwx docker logs
           EOF
 
           diff expected output
@@ -361,26 +366,26 @@ jobs:
           ls -l kra/data/conf \
               | sed \
                   -e '/^total/d' \
-                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+                  -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
               | tee output
 
-          # everything should be owned by pkiuser:root (UID=17, GID=0)
+          # everything should be owned by docker group
           # TODO: review owners/permissions
           cat > expected << EOF
-          drwxrwxrwx 17 root Catalina
-          drwxrwxrwx 17 root alias
-          -rw-rw-rw- 17 root catalina.policy
-          lrwxrwxrwx 17 root catalina.properties -> /usr/share/pki/server/conf/catalina.properties
-          drwxrwxrwx 17 root certs
-          lrwxrwxrwx 17 root context.xml -> /etc/tomcat/context.xml
-          -rw-rw-rw- 17 root jss.conf
-          drwxrwxrwx 17 root kra
-          lrwxrwxrwx 17 root logging.properties -> /usr/share/pki/server/conf/logging.properties
-          -rw-rw-rw- 17 root password.conf
-          -rw-rw-rw- 17 root server.xml
-          -rw-rw-rw- 17 root serverCertNick.conf
-          -rw-rw-rw- 17 root tomcat.conf
-          lrwxrwxrwx 17 root web.xml -> /etc/tomcat/web.xml
+          drwxrwxrwx docker Catalina
+          drwxrwxrwx docker alias
+          -rw-rw-rw- docker catalina.policy
+          lrwxrwxrwx docker catalina.properties -> /usr/share/pki/server/conf/catalina.properties
+          drwxrwxrwx docker certs
+          lrwxrwxrwx docker context.xml -> /etc/tomcat/context.xml
+          -rw-rw-rw- docker jss.conf
+          drwxrwxrwx docker kra
+          lrwxrwxrwx docker logging.properties -> /usr/share/pki/server/conf/logging.properties
+          -rw-rw-rw- docker password.conf
+          -rw-rw-rw- docker server.xml
+          -rw-rw-rw- docker serverCertNick.conf
+          -rw-rw-rw- docker tomcat.conf
+          lrwxrwxrwx docker web.xml -> /etc/tomcat/web.xml
           EOF
 
           diff expected output
@@ -391,16 +396,16 @@ jobs:
           ls -l kra/data/conf/kra \
               | sed \
                   -e '/^total/d' \
-                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
-                  -e '/^\S* *\S* *\S* *CS.cfg.bak /d' \
+                  -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
+                  -e '/^\S* *\S* *CS.cfg.bak /d' \
               | tee output
 
-          # everything should be owned by pkiuser:root (UID=17, GID=0)
+          # everything should be owned by docker group
           # TODO: review owners/permissions
           cat > expected << EOF
-          -rw-rw-rw- 17 root CS.cfg
-          drwxrwxrwx 17 root archives
-          -rw-rw-rw- 17 root registry.cfg
+          -rw-rw-rw- docker CS.cfg
+          drwxrwxrwx docker archives
+          -rw-rw-rw- docker registry.cfg
           EOF
 
           diff expected output
@@ -411,21 +416,22 @@ jobs:
           ls -l kra/data/logs \
               | sed \
                   -e '/^total/d' \
-                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+                  -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
               | tee output
 
           DATE=$(date +'%Y-%m-%d')
 
+          # everything should be owned by docker group
           # TODO: review owners/permissions
           cat > expected << EOF
-          drwxrwx--- 17 root backup
-          -rw-rw-r-- 17 root catalina.$DATE.log
-          -rw-rw-r-- 17 root host-manager.$DATE.log
-          drwxrwx--- 17 root kra
-          -rw-rw-r-- 17 root localhost.$DATE.log
-          -rw-rw-rw- 17 root localhost_access_log.$DATE.txt
-          -rw-rw-r-- 17 root manager.$DATE.log
-          drwxrwxrwx 17 root pki
+          drwxrwx--- docker backup
+          -rw-rw-r-- docker catalina.$DATE.log
+          -rw-rw-r-- docker host-manager.$DATE.log
+          drwxrwx--- docker kra
+          -rw-rw-r-- docker localhost.$DATE.log
+          -rw-rw-rw- docker localhost_access_log.$DATE.txt
+          -rw-rw-r-- docker manager.$DATE.log
+          drwxrwxrwx docker pki
           EOF
 
           diff expected output
@@ -444,14 +450,13 @@ jobs:
 
       - name: Set up KRA DS container
         run: |
-          tests/bin/ds-container-create.sh krads
-        env:
-          IMAGE: ${{ env.DB_IMAGE }}
-          HOSTNAME: krads.example.com
-          PASSWORD: Secret.123
-
-      - name: Connect KRA DS container to network
-        run: docker network connect example krads --alias krads.example.com
+          tests/bin/ds-container-create.sh \
+              --image=${{ env.DB_IMAGE }} \
+              --hostname=krads.example.com \
+              --network=example \
+              --network-alias=krads.example.com \
+              --password=Secret.123 \
+              krads
 
       # https://github.com/dogtagpki/pki/wiki/Setting-up-KRA-Database
       - name: Set up KRA database
@@ -731,25 +736,17 @@ jobs:
         run: |
           tests/bin/ds-artifacts-save.sh cads
 
-          docker exec ca ls -la /etc/pki
-          mkdir -p /tmp/artifacts/ca/etc/pki
-          docker cp ca:/etc/pki/pki.conf /tmp/artifacts/ca/etc/pki
-
-          docker exec ca ls -la /var/log/pki
-          mkdir -p /tmp/artifacts/ca/var/log
-          docker cp ca:/var/log/pki /tmp/artifacts/ca/var/log
+          mkdir -p /tmp/artifacts/ca
+          cp -r ca/certs /tmp/artifacts/ca
+          cp -r ca/data /tmp/artifacts/ca
 
           docker logs ca > /tmp/artifacts/ca/container.out 2> /tmp/artifacts/ca/container.err
 
           tests/bin/ds-artifacts-save.sh krads
 
-          docker exec kra ls -la /etc/pki
-          mkdir -p /tmp/artifacts/kra/etc/pki
-          docker cp kra:/etc/pki/pki.conf /tmp/artifacts/kra/etc/pki
-
-          docker exec kra ls -la /var/log/pki
-          mkdir -p /tmp/artifacts/kra/var/log
-          docker cp kra:/var/log/pki /tmp/artifacts/kra/var/log
+          mkdir -p /tmp/artifacts/kra
+          cp -r kra/certs /tmp/artifacts/kra
+          cp -r kra/data /tmp/artifacts/kra
 
           docker logs kra > /tmp/artifacts/kra/container.out 2> /tmp/artifacts/kra/container.err
 

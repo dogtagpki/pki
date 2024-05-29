@@ -13,6 +13,15 @@ jobs:
     env:
       SHARED: /tmp/workdir/pki
     steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+
+          # Currently certbot fails to run inside podman.
+          # TODO: Replace docker with podman when the issue is resolved.
+          # sudo apt-get -y purge --auto-remove docker-ce-cli
+          # sudo apt-get -y install podman-docker
+
       - name: Clone repository
         uses: actions/checkout@v4
 
@@ -30,12 +39,10 @@ jobs:
 
       - name: Set up client container
         run: |
-          tests/bin/runner-init.sh client
-        env:
-          HOSTNAME: client.example.com
-
-      - name: Connect client container to network
-        run: docker network connect example client --alias client.example.com
+          tests/bin/runner-init.sh \
+              --hostname=client.example.com \
+              --network=example \
+              client
 
       - name: Install dependencies in client container
         run: docker exec client dnf install -y certbot
@@ -81,14 +88,14 @@ jobs:
           ls -l data \
               | sed \
                   -e '/^total/d' \
-                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+                  -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
               | tee output
 
-          # everything should be owned by pkiuser:root (UID=17, GID=0)
+          # everything should be owned by root group (GID=0)
           # TODO: review owners/permissions
           cat > expected << EOF
-          drwxrwxrwx 17 root conf
-          drwxrwxrwx 17 root logs
+          drwxrwxrwx root conf
+          drwxrwxrwx root logs
           EOF
 
           diff expected output
@@ -99,25 +106,25 @@ jobs:
           ls -l data/conf \
               | sed \
                   -e '/^total/d' \
-                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+                  -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
               | tee output
 
-          # everything should be owned by pkiuser:root (UID=17, GID=0)
+          # everything should be owned by root group (GID=0)
           # TODO: review owners/permissions
           cat > expected << EOF
-          drwxrwxrwx 17 root Catalina
-          drwxrwxrwx 17 root acme
-          drwxrwxrwx 17 root alias
-          -rw-rw-rw- 17 root catalina.policy
-          lrwxrwxrwx 17 root catalina.properties -> /usr/share/pki/server/conf/catalina.properties
-          drwxrwxrwx 17 root certs
-          lrwxrwxrwx 17 root context.xml -> /etc/tomcat/context.xml
-          -rw-rw-rw- 17 root jss.conf
-          lrwxrwxrwx 17 root logging.properties -> /usr/share/pki/server/conf/logging.properties
-          -rw-rw-rw- 17 root password.conf
-          -rw-rw-rw- 17 root server.xml
-          -rw-rw-rw- 17 root tomcat.conf
-          lrwxrwxrwx 17 root web.xml -> /etc/tomcat/web.xml
+          drwxrwxrwx root Catalina
+          drwxrwxrwx root acme
+          drwxrwxrwx root alias
+          -rw-rw-rw- root catalina.policy
+          lrwxrwxrwx root catalina.properties -> /usr/share/pki/server/conf/catalina.properties
+          drwxrwxrwx root certs
+          lrwxrwxrwx root context.xml -> /etc/tomcat/context.xml
+          -rw-rw-rw- root jss.conf
+          lrwxrwxrwx root logging.properties -> /usr/share/pki/server/conf/logging.properties
+          -rw-rw-rw- root password.conf
+          -rw-rw-rw- root server.xml
+          -rw-rw-rw- root tomcat.conf
+          lrwxrwxrwx root web.xml -> /etc/tomcat/web.xml
           EOF
 
           diff expected output
@@ -128,15 +135,15 @@ jobs:
           ls -l data/conf/acme \
               | sed \
                   -e '/^total/d' \
-                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+                  -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
               | tee output
 
-          # everything should be owned by pkiuser:root (UID=17, GID=0)
+          # everything should be owned by root group (GID=0)
           # TODO: review owners/permissions
           cat > expected << EOF
-          -rw-rw-rw- 17 root database.conf
-          -rw-rw-rw- 17 root issuer.conf
-          -rw-rw-rw- 17 root realm.conf
+          -rw-rw-rw- root database.conf
+          -rw-rw-rw- root issuer.conf
+          -rw-rw-rw- root realm.conf
           EOF
 
           diff expected output
@@ -147,21 +154,21 @@ jobs:
           ls -l data/logs \
               | sed \
                   -e '/^total/d' \
-                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+                  -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
               | tee output
 
           DATE=$(date +'%Y-%m-%d')
 
-          # everything should be owned by pkiuser:root (UID=17, GID=0)
+          # everything should be owned by root group (GID=0)
           # TODO: review owners/permissions
           cat > expected << EOF
-          drwxrwx--- 17 root backup
-          -rw-rw-rw- 17 root catalina.$DATE.log
-          -rw-rw-rw- 17 root host-manager.$DATE.log
-          -rw-rw-rw- 17 root localhost.$DATE.log
-          -rw-rw-rw- 17 root localhost_access_log.$DATE.txt
-          -rw-rw-rw- 17 root manager.$DATE.log
-          drwxrwxrwx 17 root pki
+          drwxrwx--- root backup
+          -rw-rw-rw- root catalina.$DATE.log
+          -rw-rw-rw- root host-manager.$DATE.log
+          -rw-rw-rw- root localhost.$DATE.log
+          -rw-rw-rw- root localhost_access_log.$DATE.txt
+          -rw-rw-rw- root manager.$DATE.log
+          drwxrwxrwx root pki
           EOF
 
           diff expected output
@@ -244,6 +251,11 @@ jobs:
         run: |
           docker logs acme 2>&1
 
+      - name: Check certbot logs
+        if: always()
+        run: |
+          docker exec client cat /var/log/letsencrypt/letsencrypt.log
+
       - name: Check client container logs
         if: always()
         run: |
@@ -252,13 +264,15 @@ jobs:
       - name: Gather artifacts
         if: always()
         run: |
-          docker exec acme ls -la /etc/pki/pki-tomcat
-          mkdir -p /tmp/artifacts/acme/etc/pki
-          docker cp acme:/etc/pki/pki-tomcat /tmp/artifacts/acme/etc/pki
+          mkdir -p /tmp/artifacts/acme
+          cp -r certs /tmp/artifacts/acme
+          cp -r metadata /tmp/artifacts/acme
+          cp -r database /tmp/artifacts/acme
+          cp -r issuer /tmp/artifacts/acme
+          cp -r realm /tmp/artifacts/acme
+          cp -r data /tmp/artifacts/acme
 
-          docker exec acme ls -la /var/log/pki/pki-tomcat
-          mkdir -p /tmp/artifacts/acme/var/log/pki
-          docker cp acme:/var/log/pki/pki-tomcat /tmp/artifacts/acme/var/log/pki
+          docker logs acme > /tmp/artifacts/acme/container.out 2> /tmp/artifacts/acme/container.err
 
           docker exec client ls -la /etc/letsencrypt/live
           mkdir -p /tmp/artifacts/client/etc/letsencrypt

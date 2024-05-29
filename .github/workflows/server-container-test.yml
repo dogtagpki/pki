@@ -13,6 +13,14 @@ jobs:
     env:
       SHARED: /tmp/workdir/pki
     steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+
+          # replace docker with podman
+          sudo apt-get -y purge --auto-remove docker-ce-cli
+          sudo apt-get -y install podman-docker
+
       - name: Clone repository
         uses: actions/checkout@v4
 
@@ -35,12 +43,10 @@ jobs:
 
       - name: Set up client container
         run: |
-          tests/bin/runner-init.sh client
-        env:
-          HOSTNAME: client.example.com
-
-      - name: Connect client container to network
-        run: docker network connect example client --alias client.example.com
+          tests/bin/runner-init.sh \
+              --hostname=client.example.com \
+              --network=example \
+              client
 
       - name: Set up server container
         run: |
@@ -70,14 +76,14 @@ jobs:
           ls -l data \
               | sed \
                   -e '/^total/d' \
-                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+                  -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
               | tee output
 
-          # everything should be owned by pkiuser:root (UID=17, GID=0)
+          # everything should be owned by docker group
           # TODO: review owners/permissions
           cat > expected << EOF
-          drwxrwxrwx 17 root conf
-          drwxrwxrwx 17 root logs
+          drwxrwxrwx docker conf
+          drwxrwxrwx docker logs
           EOF
 
           diff expected output
@@ -88,24 +94,24 @@ jobs:
           ls -l data/conf \
               | sed \
                   -e '/^total/d' \
-                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+                  -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
               | tee output
 
-          # everything should be owned by pkiuser:root (UID=17, GID=0)
+          # everything should be owned by docker group
           # TODO: review owners/permissions
           cat > expected << EOF
-          drwxrwxrwx 17 root Catalina
-          drwxrwxrwx 17 root alias
-          -rw-rw-rw- 17 root catalina.policy
-          lrwxrwxrwx 17 root catalina.properties -> /usr/share/pki/server/conf/catalina.properties
-          drwxrwxrwx 17 root certs
-          lrwxrwxrwx 17 root context.xml -> /etc/tomcat/context.xml
-          -rw-rw-rw- 17 root jss.conf
-          lrwxrwxrwx 17 root logging.properties -> /usr/share/pki/server/conf/logging.properties
-          -rw-rw-rw- 17 root password.conf
-          -rw-rw-rw- 17 root server.xml
-          -rw-rw-rw- 17 root tomcat.conf
-          lrwxrwxrwx 17 root web.xml -> /etc/tomcat/web.xml
+          drwxrwxrwx docker Catalina
+          drwxrwxrwx docker alias
+          -rw-rw-rw- docker catalina.policy
+          lrwxrwxrwx docker catalina.properties -> /usr/share/pki/server/conf/catalina.properties
+          drwxrwxrwx docker certs
+          lrwxrwxrwx docker context.xml -> /etc/tomcat/context.xml
+          -rw-rw-rw- docker jss.conf
+          lrwxrwxrwx docker logging.properties -> /usr/share/pki/server/conf/logging.properties
+          -rw-rw-rw- docker password.conf
+          -rw-rw-rw- docker server.xml
+          -rw-rw-rw- docker tomcat.conf
+          lrwxrwxrwx docker web.xml -> /etc/tomcat/web.xml
           EOF
 
           diff expected output
@@ -116,21 +122,21 @@ jobs:
           ls -l data/logs \
               | sed \
                   -e '/^total/d' \
-                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+                  -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
               | tee output
 
           DATE=$(date +'%Y-%m-%d')
 
-          # everything should be owned by pkiuser:root (UID=17, GID=0)
+          # everything should be owned by docker group
           # TODO: review owners/permissions
           cat > expected << EOF
-          drwxrwx--- 17 root backup
-          -rw-rw-rw- 17 root catalina.$DATE.log
-          -rw-rw-rw- 17 root host-manager.$DATE.log
-          -rw-rw-rw- 17 root localhost.$DATE.log
-          -rw-rw-rw- 17 root localhost_access_log.$DATE.txt
-          -rw-rw-rw- 17 root manager.$DATE.log
-          drwxrwxrwx 17 root pki
+          drwxrwx--- docker backup
+          -rw-rw-rw- docker catalina.$DATE.log
+          -rw-rw-rw- docker host-manager.$DATE.log
+          -rw-rw-rw- docker localhost.$DATE.log
+          -rw-rw-rw- docker localhost_access_log.$DATE.txt
+          -rw-rw-rw- docker manager.$DATE.log
+          drwxrwxrwx docker pki
           EOF
 
           diff expected output
@@ -181,13 +187,9 @@ jobs:
       - name: Gather artifacts
         if: always()
         run: |
-          docker exec server ls -la /etc/pki
-          mkdir -p /tmp/artifacts/server/etc
-          docker cp server:/etc/pki /tmp/artifacts/server/etc
-
-          docker exec server ls -la /var/log/pki
-          mkdir -p /tmp/artifacts/server/var/log
-          docker cp server:/var/log/pki /tmp/artifacts/server/var/log
+          mkdir -p /tmp/artifacts/server
+          cp -r certs /tmp/artifacts/server
+          cp -r data /tmp/artifacts/server
 
           docker logs server > /tmp/artifacts/server/container.out 2> /tmp/artifacts/server/container.err
 

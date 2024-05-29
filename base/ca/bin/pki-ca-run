@@ -394,12 +394,12 @@ echo "##########################################################################
 echo "INFO: Starting PKI CA"
 
 if [ "$UID" = "0" ]; then
-    # In Docker/Podman the server runs as pkiuser (UID=17) that
-    # belongs to the root group (GID=0).
+    # In Docker the server runs as root user but it will switch
+    # into pkiuser (UID=17) that belongs to the root group (GID=0).
     pki-server run
 
 else
-    # In OpenShift the server runs as an OpenShift-assigned user
+    # In OpenShift/Podman the server runs as a non-root user
     # (with a random UID) that belongs to the root group (GID=0).
     #
     # https://www.redhat.com/en/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
