@@ -1,0 +1,14 @@
+name: CA Container Tests
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: Waiting for build
+    uses: ./.github/workflows/wait-for-build.yml
+    secrets: inherit
+
+  ca-container-test:
+    name: CA container
+    needs: build
+    uses: ./.github/workflows/ca-container-test.yml
