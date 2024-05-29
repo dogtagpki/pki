@@ -20,10 +20,11 @@ package com.netscape.cmscore.dbs;
 import java.math.BigInteger;
 import java.security.PublicKey;
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Iterator;
-import java.util.Vector;
 
 import org.mozilla.jss.netscape.security.x509.X500Name;
 
@@ -41,7 +42,7 @@ import com.netscape.cmscore.apps.DatabaseConfig;
  */
 public class KeyRepository extends Repository {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyRepository.class);
+    public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyRepository.class);
 
     public static final String PROP_KEY_ID_GENERATOR = "key.id.generator";
     public static final String DEFAULT_KEY_ID_GENERATOR = "legacy";
@@ -74,16 +75,16 @@ public class KeyRepository extends Repository {
         DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
 
         mBaseDN = dbConfig.getSerialDN() + "," + dbSubsystem.getBaseDN();
-        logger.info("KeyRepository: - base DN: " + mBaseDN);
+        logger.info("KeyRepository: - base DN: {}", mBaseDN);
 
         String value = dbConfig.getString(PROP_KEY_ID_GENERATOR, DEFAULT_KEY_ID_GENERATOR);
-        logger.info("KeyRepository: - key ID generator: " + value);
+        logger.info("KeyRepository: - key ID generator: {}", value);
         setIDGenerator(value);
 
         if (idGenerator == IDGenerator.RANDOM) {
 
             idLength = dbConfig.getInteger(PROP_KEY_ID_LENGTH, DEFAULT_KEY_ID_LENGTH);
-            logger.info("KeyRepository: - key ID length: " + idLength);
+            logger.info("KeyRepository: - key ID length: {}", idLength);
 
         } else {
             initLegacyGenerator();
@@ -91,7 +92,7 @@ public class KeyRepository extends Repository {
 
         // register key record schema
         DBRegistry reg = dbSubsystem.getRegistry();
-        String keyRecordOC[] = new String[2];
+        String[] keyRecordOC = new String[2];
 
         keyRecordOC[0] = KeyDBSchema.LDAP_OC_TOP;
         keyRecordOC[1] = KeyDBSchema.LDAP_OC_KEYRECORD;
@@ -172,21 +173,21 @@ public class KeyRepository extends Repository {
         DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
 
         rangeDN = dbConfig.getSerialRangeDN() + "," + dbSubsystem.getBaseDN();
-        logger.info("KeyRepository: - range DN: " + rangeDN);
+        logger.info("KeyRepository: - range DN: {}", rangeDN);
 
         minSerialName = DatabaseConfig.MIN_SERIAL_NUMBER;
         String minSerial = dbConfig.getBeginSerialNumber();
         if (minSerial != null) {
             mMinSerialNo = new BigInteger(minSerial, mRadix);
         }
-        logger.info("KeyRepository: - min serial: " + mMinSerialNo);
+        logger.info("KeyRepository: - min serial: {}", mMinSerialNo);
 
         maxSerialName = DatabaseConfig.MAX_SERIAL_NUMBER;
         String maxSerial = dbConfig.getEndSerialNumber();
         if (maxSerial != null) {
             mMaxSerialNo = new BigInteger(maxSerial, mRadix);
         }
-        logger.info("KeyRepository: - max serial: " + mMaxSerialNo);
+        logger.info("KeyRepository: - max serial: {}", mMaxSerialNo);
 
         nextMinSerialName = DatabaseConfig.NEXT_MIN_SERIAL_NUMBER;
         String nextMinSerial = dbConfig.getNextBeginSerialNumber();
@@ -195,7 +196,7 @@ public class KeyRepository extends Repository {
         } else {
             mNextMinSerialNo = new BigInteger(nextMinSerial, mRadix);
         }
-        logger.info("KeyRepository: - next min serial: " + mNextMinSerialNo);
+        logger.info("KeyRepository: - next min serial: {}", mNextMinSerialNo);
 
         nextMaxSerialName = DatabaseConfig.NEXT_MAX_SERIAL_NUMBER;
         String nextMaxSerial = dbConfig.getNextEndSerialNumber();
@@ -204,7 +205,7 @@ public class KeyRepository extends Repository {
         } else {
             mNextMaxSerialNo = new BigInteger(nextMaxSerial, mRadix);
         }
-        logger.info("KeyRepository: - next max serial: " + mNextMaxSerialNo);
+        logger.info("KeyRepository: - next max serial: {}", mNextMaxSerialNo);
 
         String lowWaterMark = dbConfig.getSerialLowWaterMark();
         if (lowWaterMark != null) {
@@ -245,14 +246,14 @@ public class KeyRepository extends Repository {
      * @param record key record
      * @exception EBaseException failed to archive key
      */
-    public void addKeyRecord(KeyRecord record) throws EBaseException {
+    public void addKeyRecord(KeyRecord kRecord) throws EBaseException {
 
         try (DBSSession s = dbSubsystem.createSession()) {
             String name = "cn" + "=" +
-                    record.getSerialNumber().toString() + "," + getDN();
+                    kRecord.getSerialNumber().toString() + "," + getDN();
 
             if (s != null)
-                s.add(name, record);
+                s.add(name, kRecord);
         }
     }
 
@@ -319,7 +320,7 @@ public class KeyRepository extends Repository {
     public KeyRecord readKeyRecord(PublicKey publicKey)
             throws EBaseException {
         // XXX - setup binary search attributes
-        byte data[] = publicKey.getEncoded();
+        byte[] data = publicKey.getEncoded();
 
         if (data == null)
             throw new EBaseException("null data");
@@ -352,7 +353,7 @@ public class KeyRepository extends Repository {
 
         try (DBSSession s = dbSubsystem.createSession()) {
             String filter = "(publicKey=x509cert#\"" + cert + "\")";
-            logger.debug("filter= " + filter);
+            logger.debug("KeyRepository: - filter= {}", filter);
 
             if (s != null) {
                 DBSearchResults res = s.search(getDN(), filter);
@@ -405,8 +406,8 @@ public class KeyRepository extends Repository {
     /**
      * Read RFC-2254
      */
-    public static String escapeBinaryData(byte data[]) {
-        StringBuffer result = new StringBuffer();
+    public static String escapeBinaryData(byte[] data) {
+        StringBuilder result = new StringBuilder();
 
         for (int i = 0; i < data.length; i++) {
             result.append("\\" + Integer.toHexString(data[i]));
@@ -425,15 +426,15 @@ public class KeyRepository extends Repository {
     public Enumeration<KeyRecord> searchKeys(String filter, int maxSize)
             throws EBaseException {
 
-        Vector<KeyRecord> v = new Vector<>();
+        ArrayList<KeyRecord> a = new ArrayList<>();
 
         try (DBSSession s = dbSubsystem.createSession()) {
             DBSearchResults sr = s.search(getDN(), filter, maxSize);
             while (sr.hasMoreElements()) {
-                v.add((KeyRecord) sr.nextElement());
+                a.add((KeyRecord) sr.nextElement());
             }
         }
-        return v.elements();
+        return Collections.enumeration(a);
     }
 
     /**
@@ -448,15 +449,15 @@ public class KeyRepository extends Repository {
     public Enumeration<KeyRecord> searchKeys(String filter, int maxSize, int timeLimit)
             throws EBaseException {
 
-        Vector<KeyRecord> v = new Vector<>();
+        ArrayList<KeyRecord> a = new ArrayList<>();
 
         try (DBSSession s = dbSubsystem.createSession()) {
             DBSearchResults sr = s.search(getDN(), filter, maxSize, timeLimit);
             while (sr.hasMoreElements()) {
-                v.add((KeyRecord) sr.nextElement());
+                a.add((KeyRecord) sr.nextElement());
             }
         }
-        return v.elements();
+        return Collections.enumeration(a);
     }
 
     /**
@@ -514,7 +515,7 @@ public class KeyRepository extends Repository {
      */
     @Deprecated(since = "11.6.0", forRemoval = true)
     public KeyRecordList findKeyRecordsInList(String filter,
-            String attrs[], int pageSize) throws EBaseException {
+            String[] attrs, int pageSize) throws EBaseException {
         return findKeyRecordsInList(filter, attrs, KeyRecord.ATTR_ID, pageSize);
     }
 
@@ -531,7 +532,7 @@ public class KeyRepository extends Repository {
      */
     @Deprecated(since = "11.6.0", forRemoval = true)
     public KeyRecordList findKeyRecordsInList(String filter,
-            String attrs[], String sortKey, int pageSize)
+            String[] attrs, String sortKey, int pageSize)
             throws EBaseException {
 
         KeyRecordList list = null;
@@ -560,7 +561,7 @@ public class KeyRepository extends Repository {
      */
     @Deprecated(since = "11.6.0", forRemoval = true)
     public KeyRecordList findKeyRecordsInList(String filter,
-            String attrs[], String jumpTo, String sortKey, int pageSize)
+            String[] attrs, String jumpTo, String sortKey, int pageSize)
             throws EBaseException {
 
         KeyRecordList list = null;
@@ -598,7 +599,7 @@ public class KeyRepository extends Repository {
             return null;
         }
 
-        String ldapfilter = "(&(" + "serialno" + "=*" + ")(" + KeyRecord.ATTR_ID + "<="+serial_upper_bound+"))";
+        String ldapfilter = "(" + KeyRecord.ATTR_ID + "<="+serial_upper_bound+")";
         String[] attrs = null;
 
         RecordPagedList<KeyRecord> keyRecords = findPagedKeyRecords(ldapfilter, attrs, "-serialno");
@@ -616,7 +617,7 @@ public class KeyRepository extends Repository {
 
         BigInteger ret = new BigInteger(serial_low_bound.toString(10));
 
-        ret = ret.add(new BigInteger("-1"));
+        ret = ret.add(BigInteger.valueOf(-1));
 
         logger.debug("KeyRepository: getLastSerialNumberInRange returning: {}", ret);
         return ret;
